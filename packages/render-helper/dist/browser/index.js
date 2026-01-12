@@ -1,0 +1,1485 @@
+import xmldom from 'xmldom';
+import xss from 'xss';
+import multihash from 'multihashes';
+import querystring from 'querystring';
+import { LRUCache } from 'lru-cache';
+import he from 'he';
+
+var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
+  get: (a2, b) => (typeof require !== "undefined" ? require : a2)[b]
+}) : x)(function(x) {
+  if (typeof require !== "undefined") return require.apply(this, arguments);
+  throw Error('Dynamic require of "' + x + '" is not supported');
+});
+
+// src/consts/white-list.const.ts
+var WHITE_LIST = [
+  "ecency.com",
+  "hive.blog",
+  "peakd.com",
+  "travelfeed.io",
+  "dapplr.in",
+  "leofinance.io",
+  "inleo.io",
+  "proofofbrain.io",
+  "stemgeeks.net",
+  "hiveblockexplorer.com",
+  "proofofbrain.blog",
+  "weedcash.network",
+  "dapplr.in",
+  "liketu.com",
+  "bilpcoin.com",
+  "inji.com"
+];
+
+// src/consts/section-list.const.ts
+var SECTION_LIST = [
+  "wallet",
+  "feed",
+  "followers",
+  "following",
+  "points",
+  "communities",
+  "posts",
+  "blog",
+  "comments",
+  "replies",
+  "settings",
+  "engine",
+  "permissions",
+  "referrals",
+  "payout",
+  "activities",
+  "spk",
+  "trail"
+];
+
+// src/consts/regexes.const.ts
+var IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp))(.*)/gim;
+var IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim;
+var POST_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/i;
+var CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i;
+var MENTION_REGEX = /^https?:\/\/(.*)\/(@[\w.\d-]+)$/i;
+var TOPIC_REGEX = /^https?:\/\/(.*)\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i;
+var INTERNAL_MENTION_REGEX = /^\/@[\w.\d-]+$/i;
+var INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i;
+var INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i;
+var INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i;
+var CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i;
+var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/g;
+var YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www.youtube.com\/(embed|shorts)\/.*/i;
+var VIMEO_REGEX = /(https?:\/\/)?(www\.)?(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
+var VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)/;
+var BITCHUTE_REGEX = /^(?:https?:\/\/)?(?:www\.)?bitchute.com\/(?:video|embed)\/([a-z0-9]+)/i;
+var D_TUBE_REGEX = /(https?:\/\/d.tube.#!\/v\/)(\w+)\/(\w+)/g;
+var D_TUBE_REGEX2 = /(https?:\/\/d.tube\/v\/)(\w+)\/(\w+)/g;
+var D_TUBE_EMBED_REGEX = /^https:\/\/emb.d.tube\/.*/i;
+var TWITCH_REGEX = /https?:\/\/(?:www.)?twitch.tv\/(?:(videos)\/)?([a-zA-Z0-9][\w]{3,24})/i;
+var DAPPLR_REGEX = /^(https?:)?\/\/[a-z]*\.dapplr.in\/file\/dapplr-videos\/.*/i;
+var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
+var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/.*/i;
+var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/.*/i;
+var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
+var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/.*/i;
+var SPEAK_REGEX = /(?:https?:\/\/(?:3speak.([a-z]+)\/watch\?v=)|(?:3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
+var SPEAK_EMBED_REGEX = /^(https?:)?\/\/3speak.([a-z]+)\/embed\?.*/i;
+var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
+var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
+var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
+var BRIGHTEON_REGEX = /^https?:\/\/(www\.)?brighteon\.com\/(?:embed\/)?(.*[0-9].*)/i;
+var VIMM_EMBED_REGEX = /^https:\/\/www.vimm.tv\/.*/i;
+var SPOTIFY_EMBED_REGEX = /^https:\/\/open\.spotify\.com\/(embed|embed-podcast)\/(playlist|show|episode|track|album)\/(.*)/i;
+var SOUNDCLOUD_EMBED_REGEX = /^https:\/\/w.soundcloud.com\/player\/.*/i;
+var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player.twitch.tv\/.*/i;
+var BRAND_NEW_TUBE_REGEX = /^https:\/\/brandnewtube\.com\/embed\/[a-z0-9]+$/i;
+var LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/(.*)/i;
+var LOOM_EMBED_REGEX = /^(https?:)?\/\/www.loom.com\/embed\/(.*)/i;
+var AUREAL_EMBED_REGEX = /^(https?:\/\/)?(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)/i;
+var ENTITY_REGEX = /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig;
+var SECTION_REGEX = /\B(\#[\da-zA-Z-_]+\b)(?!;)/i;
+var ID_WHITELIST = /^[A-Za-z][-A-Za-z0-9_]*$/;
+
+// src/consts/allowed-attributes.const.ts
+var ALLOWED_ATTRIBUTES = {
+  "a": [
+    "href",
+    "target",
+    "rel",
+    "data-permlink",
+    "data-tag",
+    "data-author",
+    "data-href",
+    "data-community",
+    "data-filter",
+    "data-embed-src",
+    "data-youtube",
+    "data-start-time",
+    "data-video-href",
+    "data-proposal",
+    "data-is-inline",
+    "class",
+    "title",
+    "data-id",
+    "id"
+  ],
+  "img": [
+    "src",
+    "alt",
+    "class",
+    "loading",
+    "fetchpriority",
+    "decoding",
+    "itemprop"
+  ],
+  "span": ["class", "id", "data-align"],
+  "iframe": ["src", "class", "frameborder", "allowfullscreen", "webkitallowfullscreen", "mozallowfullscreen", "sandbox"],
+  "video": ["src", "controls", "poster"],
+  "div": ["class", "id", "data-align"],
+  "strong": [],
+  "b": [],
+  "i": [],
+  "strike": [],
+  "em": [],
+  "code": [],
+  "pre": [],
+  "blockquote": ["class"],
+  "sup": [],
+  "sub": [],
+  "h1": ["dir", "id", "data-align"],
+  "h2": ["dir", "id", "data-align"],
+  "h3": ["dir", "id", "data-align"],
+  "h4": ["dir", "id", "data-align"],
+  "h5": ["dir", "id", "data-align"],
+  "h6": ["dir", "id", "data-align"],
+  "p": ["dir", "id", "data-align"],
+  "center": [],
+  "ul": [],
+  "ol": [],
+  "li": [],
+  "table": [],
+  "thead": [],
+  "tbody": [],
+  "tr": [],
+  "td": [],
+  "th": [],
+  "hr": [],
+  "br": [],
+  "del": [],
+  "ins": []
+};
+
+// src/methods/noop.method.ts
+function noop() {
+}
+
+// src/consts/dom-parser.const.ts
+var DOMParser = new xmldom.DOMParser({
+  errorHandler: { warning: noop, error: noop }
+});
+
+// src/helper.ts
+function createDoc(html) {
+  if (html.trim() === "") {
+    return null;
+  }
+  const doc = DOMParser.parseFromString(html, "text/html");
+  return doc;
+}
+function makeEntryCacheKey(entry) {
+  return `${entry.author}-${entry.permlink}-${entry.last_update}-${entry.updated}`;
+}
+function extractYtStartTime(url) {
+  try {
+    const urlObj = new URL(url);
+    const params = new URLSearchParams(urlObj.search);
+    if (params.has("t")) {
+      const t = params.get("t");
+      return "" + parseInt(t || "0");
+    } else if (params.has("start")) {
+      return params.get("start") || "";
+    }
+    return "";
+  } catch (error) {
+    return "";
+  }
+}
+function sanitizePermlink(permlink) {
+  if (!permlink || typeof permlink !== "string") {
+    return "";
+  }
+  const [withoutQuery] = permlink.split("?");
+  const [cleaned] = withoutQuery.split("#");
+  return cleaned;
+}
+function isValidPermlink(permlink) {
+  const sanitized = sanitizePermlink(permlink);
+  if (!sanitized) {
+    return false;
+  }
+  const isImage = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(sanitized);
+  const isCleanFormat = /^[a-z0-9-]+$/.test(sanitized);
+  return isCleanFormat && !isImage;
+}
+var LABEL_REGEX = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+function isValidUsername(username) {
+  if (!username || typeof username !== "string") return false;
+  if (username.length > 16) return false;
+  const labels = username.split(".");
+  return labels.every((label) => {
+    return label.length >= 3 && label.length <= 16 && /^[a-z]/.test(label) && // must start with a letter
+    LABEL_REGEX.test(label) && // a-z0-9, hyphens, no start/end hyphen
+    !label.includes("..");
+  });
+}
+function getSerializedInnerHTML(node) {
+  const XMLSerializer = new xmldom.XMLSerializer();
+  if (node.childNodes[0]) {
+    return XMLSerializer.serializeToString(node.childNodes[0]);
+  }
+  return "";
+}
+
+// src/methods/remove-child-nodes.method.ts
+function removeChildNodes(node) {
+  Array.from(Array(node.childNodes.length).keys()).forEach((x) => {
+    node.removeChild(node.childNodes[x]);
+  });
+}
+var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+function sanitizeHtml(html) {
+  return xss(html, {
+    whiteList: ALLOWED_ATTRIBUTES,
+    stripIgnoreTag: true,
+    stripIgnoreTagBody: ["style"],
+    css: false,
+    // block style attrs entirely for safety
+    onTagAttr: (tag, name, value) => {
+      const decoded = decodeEntities(value.trim().toLowerCase());
+      if (name.startsWith("on")) return "";
+      if (tag === "img" && name === "src" && (!/^https?:\/\//.test(decoded) || decoded.startsWith("javascript:"))) return "";
+      if (tag === "video" && ["src", "poster"].includes(name) && (!/^https?:\/\//.test(decoded) || decoded.startsWith("javascript:"))) return "";
+      if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
+      if (tag === "span" && name === "class" && value === "wr") return "";
+      if (name === "id") {
+        if (!ID_WHITELIST.test(decoded)) return "";
+      }
+      return void 0;
+    }
+  });
+}
+var proxyBase = "https://images.ecency.com";
+var fileExtension = true;
+function setProxyBase(p2) {
+  proxyBase = p2;
+  fileExtension = proxyBase == "https://images.ecency.com";
+}
+function extractPHash(url) {
+  if (url.startsWith(`${proxyBase}/p/`)) {
+    const [hash] = url.split("/p/")[1].split("?");
+    return hash.replace(/.webp/, "").replace(/.png/, "");
+  }
+  return null;
+}
+function isValidUrl(url) {
+  try {
+    return Boolean(new URL(url));
+  } catch (e) {
+    return false;
+  }
+}
+function getLatestUrl(str) {
+  const [last] = [...str.replace(/https?:\/\//g, "\n$&").trim().split("\n")].reverse();
+  return last;
+}
+function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
+  if (!url || typeof url !== "string" || !isValidUrl(url)) {
+    return "";
+  }
+  if (url.indexOf("https://images.hive.blog/") === 0 && url.indexOf("https://images.hive.blog/D") !== 0) {
+    return url.replace("https://images.hive.blog", proxyBase);
+  }
+  if (url.indexOf("https://steemitimages.com/") === 0 && url.indexOf("https://steemitimages.com/D") !== 0) {
+    return url.replace("https://steemitimages.com", proxyBase);
+  }
+  const realUrl = getLatestUrl(url);
+  const pHash = extractPHash(realUrl);
+  const options = {
+    format,
+    mode: "fit"
+  };
+  if (width > 0) {
+    options.width = width;
+  }
+  if (height > 0) {
+    options.height = height;
+  }
+  const qs = querystring.stringify(options);
+  if (pHash) {
+    if (fileExtension) {
+      return `${proxyBase}/p/${pHash}${format === "webp" ? ".webp" : ".png"}?${qs}`;
+    } else {
+      return `${proxyBase}/p/${pHash}?${qs}`;
+    }
+  }
+  const b58url = multihash.toB58String(Buffer.from(realUrl.toString()));
+  return `${proxyBase}/p/${b58url}${fileExtension ? format === "webp" ? ".webp" : ".png" : ""}?${qs}`;
+}
+
+// src/methods/img.method.ts
+function img(el, webp, state) {
+  let src = el.getAttribute("src") || "";
+  const decodedSrc = decodeURIComponent(
+    src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+  ).trim();
+  const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
+  if (isInvalid) {
+    src = "";
+  }
+  const isRelative = !/^https?:\/\//i.test(src) && !src.startsWith("/");
+  if (isRelative) {
+    src = "";
+  }
+  ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
+  el.setAttribute("itemprop", "image");
+  const isLCP = state && !state.firstImageFound;
+  if (isLCP) {
+    el.setAttribute("loading", "eager");
+    el.setAttribute("fetchpriority", "high");
+    state.firstImageFound = true;
+  } else {
+    el.setAttribute("loading", "lazy");
+    el.setAttribute("decoding", "async");
+  }
+  const cls = el.getAttribute("class") || "";
+  const shouldReplace = !cls.includes("no-replace");
+  const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
+  if (shouldReplace && !hasAlreadyProxied) {
+    const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
+    el.setAttribute("src", proxified);
+  }
+}
+function createImageHTML(src, isLCP, webp) {
+  const loading = isLCP ? "eager" : "lazy";
+  const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
+  const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
+  return `<img
+    class="markdown-img-link"
+    src="${proxified}"
+    loading="${loading}"
+    ${fetch}
+    itemprop="image"
+  />`;
+}
+
+// src/methods/a.method.ts
+var normalizeValue = (value) => value ? value.trim() : "";
+var matchesHref = (href, value) => {
+  const normalizedHref = normalizeValue(href);
+  if (!normalizedHref) {
+    return false;
+  }
+  return normalizeValue(value) === normalizedHref;
+};
+var getInlineMeta = (el, href) => {
+  const textMatches = matchesHref(href, el.textContent);
+  const titleMatches = matchesHref(href, el.getAttribute("title"));
+  return {
+    textMatches,
+    nonInline: textMatches || titleMatches
+  };
+};
+function a(el, forApp, webp) {
+  if (!el || !el.parentNode) {
+    return;
+  }
+  let href = el.getAttribute("href");
+  if (!href) {
+    return;
+  }
+  const className = el.getAttribute("class");
+  if (["markdown-author-link", "markdown-tag-link"].indexOf(className) !== -1) {
+    return;
+  }
+  if (href.startsWith("javascript")) {
+    el.removeAttribute("href");
+    return;
+  }
+  if (href.match(IMG_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&")) {
+    const isLCP = false;
+    const imgHTML = createImageHTML(href, isLCP, webp);
+    const replaceNode = DOMParser.parseFromString(imgHTML);
+    el.parentNode.replaceChild(replaceNode, el);
+    return;
+  }
+  if (href.match(IPFS_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&") && href.indexOf("#") === -1) {
+    if (forApp) {
+      el.setAttribute("data-href", href);
+      el.removeAttribute("href");
+    }
+    el.setAttribute("class", "markdown-img-link");
+    removeChildNodes(el);
+    const img2 = el.ownerDocument.createElement("img");
+    img2.setAttribute("src", href);
+    el.appendChild(img2);
+    return;
+  }
+  const postMatch = href.match(POST_REGEX);
+  if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./, ""))) {
+    el.setAttribute("class", "markdown-post-link");
+    const tag = postMatch[2];
+    const author = postMatch[3].replace("@", "");
+    const permlink = sanitizePermlink(postMatch[4]);
+    if (!isValidPermlink(permlink)) return;
+    const inlineMeta = getInlineMeta(el, href);
+    if (inlineMeta.textMatches) {
+      el.textContent = `@${author}/${permlink}`;
+    }
+    const isInline = !inlineMeta.nonInline;
+    if (forApp) {
+      el.removeAttribute("href");
+      el.setAttribute("data-href", href);
+      el.setAttribute("data-is-inline", "" + isInline);
+      el.setAttribute("data-tag", tag);
+      el.setAttribute("data-author", author);
+      el.setAttribute("data-permlink", permlink);
+    } else {
+      const h = `/${tag}/@${author}/${permlink}`;
+      el.setAttribute("href", h);
+      el.setAttribute("data-is-inline", "" + isInline);
+    }
+    return;
+  }
+  const mentionMatch = href.match(MENTION_REGEX);
+  if (mentionMatch && WHITE_LIST.includes(mentionMatch[1].replace(/www./, "")) && mentionMatch.length === 3) {
+    const _author = mentionMatch[2].replace("@", "");
+    if (!isValidUsername(_author)) return;
+    const author = _author.toLowerCase();
+    el.setAttribute("class", "markdown-author-link");
+    if (author.indexOf("/") === -1) {
+      if (el.textContent === href) {
+        el.textContent = `@${author}`;
+      }
+      if (forApp) {
+        el.removeAttribute("href");
+        el.setAttribute("data-author", author);
+      } else {
+        const h = `/@${author}`;
+        el.setAttribute("href", h);
+      }
+    }
+    return;
+  }
+  const tpostMatch = href.match(INTERNAL_POST_TAG_REGEX);
+  if (tpostMatch && tpostMatch.length === 4 && WHITE_LIST.some((v) => tpostMatch[1].includes(v)) || tpostMatch && tpostMatch.length === 4 && tpostMatch[1].indexOf("/") == 0) {
+    if (SECTION_LIST.some((v) => tpostMatch[3].includes(v))) {
+      el.setAttribute("class", "markdown-profile-link");
+      const author = tpostMatch[2].replace("@", "").toLowerCase();
+      const section = tpostMatch[3];
+      if (!isValidPermlink(section)) return;
+      if (el.textContent === href) {
+        el.textContent = `@${author}/${section}`;
+      }
+      if (forApp) {
+        const ha = `https://ecency.com/@${author}/${section}`;
+        el.setAttribute("href", ha);
+      } else {
+        const h = `/@${author}/${section}`;
+        el.setAttribute("href", h);
+      }
+      return;
+    } else {
+      if (tpostMatch[1] && tpostMatch[1].includes(".") && !WHITE_LIST.some((v) => tpostMatch[1].includes(v))) {
+        return;
+      }
+      let tag = "post";
+      if (tpostMatch[1] && !tpostMatch[1].includes(".")) {
+        [, tag] = tpostMatch;
+        tag = tag.replace("/", "");
+      }
+      el.setAttribute("class", "markdown-post-link");
+      const author = tpostMatch[2].replace("@", "");
+      const permlink = sanitizePermlink(tpostMatch[3]);
+      if (!isValidPermlink(permlink)) return;
+      const inlineMeta = getInlineMeta(el, href);
+      if (inlineMeta.textMatches) {
+        el.textContent = `@${author}/${permlink}`;
+      }
+      const isInline = !inlineMeta.nonInline;
+      if (forApp) {
+        el.removeAttribute("href");
+        el.setAttribute("data-href", href);
+        el.setAttribute("data-is-inline", "" + isInline);
+        el.setAttribute("data-tag", tag);
+        el.setAttribute("data-author", author);
+        el.setAttribute("data-permlink", permlink);
+      } else {
+        const h = `/${tag}/@${author}/${permlink}`;
+        el.setAttribute("href", h);
+        el.setAttribute("data-is-inline", "" + isInline);
+      }
+      return;
+    }
+  }
+  const imentionMatch = href.match(INTERNAL_MENTION_REGEX);
+  if (imentionMatch) {
+    const _author = imentionMatch[0].replace("/@", "");
+    if (!isValidUsername(_author)) return;
+    const author = _author.toLowerCase();
+    el.setAttribute("class", "markdown-author-link");
+    if (author.indexOf("/") === -1) {
+      if (el.textContent === href) {
+        el.textContent = `@${author}`;
+      }
+      if (forApp) {
+        el.removeAttribute("href");
+        el.setAttribute("data-author", author);
+      } else {
+        const h = `/@${author}`;
+        el.setAttribute("href", h);
+      }
+    }
+    return;
+  }
+  const cpostMatch = href.match(INTERNAL_POST_REGEX);
+  if (cpostMatch && cpostMatch.length === 3 && cpostMatch[1].indexOf("@") === 0) {
+    if (SECTION_LIST.some((v) => cpostMatch[2].includes(v))) {
+      el.setAttribute("class", "markdown-profile-link");
+      const author = cpostMatch[1].replace("@", "").toLowerCase();
+      const section = cpostMatch[2];
+      if (el.textContent === href) {
+        el.textContent = `@${author}/${section}`;
+      }
+      if (forApp) {
+        const ha = `https://ecency.com/@${author}/${section}`;
+        el.setAttribute("href", ha);
+      } else {
+        const h = `/@${author}/${section}`;
+        el.setAttribute("href", h);
+      }
+      return;
+    } else {
+      el.setAttribute("class", "markdown-post-link");
+      const tag = "post";
+      const author = cpostMatch[1].replace("@", "");
+      const permlink = sanitizePermlink(cpostMatch[2]);
+      if (!isValidPermlink(permlink)) return;
+      const inlineMeta = getInlineMeta(el, href);
+      if (inlineMeta.textMatches) {
+        el.textContent = `@${author}/${permlink}`;
+      }
+      const isInline = !inlineMeta.nonInline;
+      if (forApp) {
+        el.removeAttribute("href");
+        el.setAttribute("data-href", href);
+        el.setAttribute("data-is-inline", "" + isInline);
+        el.setAttribute("data-tag", tag);
+        el.setAttribute("data-author", author);
+        el.setAttribute("data-permlink", permlink);
+      } else {
+        const h = `/${tag}/@${author}/${permlink}`;
+        el.setAttribute("href", h);
+        el.setAttribute("data-is-inline", "" + isInline);
+      }
+      return;
+    }
+  }
+  const topicMatch = href.match(TOPIC_REGEX);
+  if (topicMatch && WHITE_LIST.includes(topicMatch[1].replace(/www./, "")) && topicMatch.length === 4) {
+    el.setAttribute("class", "markdown-tag-link");
+    const filter = topicMatch[2];
+    const tag = topicMatch[3];
+    if (el.textContent === href) {
+      el.textContent = `/${filter}/${tag}`;
+    }
+    if (forApp) {
+      el.removeAttribute("href");
+      el.setAttribute("data-filter", filter);
+      el.setAttribute("data-tag", tag);
+    } else {
+      const h = `/${filter}/${tag}`;
+      el.setAttribute("href", h);
+    }
+    return;
+  }
+  const itopicMatch = href.match(INTERNAL_TOPIC_REGEX);
+  if (itopicMatch && itopicMatch.length === 3) {
+    el.setAttribute("class", "markdown-tag-link");
+    const filter = itopicMatch[1];
+    const tag = itopicMatch[2];
+    if (el.textContent === href) {
+      el.textContent = `/${filter}/${tag}`;
+    }
+    if (forApp) {
+      el.removeAttribute("href");
+      el.setAttribute("data-filter", filter);
+      el.setAttribute("data-tag", tag);
+    } else {
+      const h = `/${filter}/${tag}`;
+      el.setAttribute("href", h);
+    }
+    return;
+  }
+  const comMatch = href.match(CUSTOM_COMMUNITY_REGEX);
+  if (comMatch && WHITE_LIST.includes(comMatch[1])) {
+    el.setAttribute("class", "markdown-community-link");
+    const community = comMatch[2];
+    let filter = comMatch[3].substring(1);
+    if (!filter) filter = "created";
+    if (filter === "about" || filter === "discord") {
+      filter = "created";
+    }
+    if (el.textContent === href) {
+      el.textContent = `${filter}/${community}`;
+    }
+    if (forApp) {
+      el.removeAttribute("href");
+      el.setAttribute("data-community", community);
+      el.setAttribute("data-filter", filter);
+    } else {
+      const h = `/${filter}/${community}`;
+      el.setAttribute("href", h);
+    }
+    return;
+  }
+  const cccMatch = href.match(CCC_REGEX);
+  if (cccMatch && WHITE_LIST.includes(cccMatch[1])) {
+    el.setAttribute("class", "markdown-post-link");
+    const tag = "ccc";
+    const author = cccMatch[2].replace("@", "");
+    const permlink = sanitizePermlink(cccMatch[3]);
+    if (!isValidPermlink(permlink)) return;
+    const inlineMeta = getInlineMeta(el, href);
+    if (inlineMeta.textMatches) {
+      el.textContent = `@${author}/${permlink}`;
+    }
+    const isInline = !inlineMeta.nonInline;
+    if (forApp) {
+      el.removeAttribute("href");
+      el.setAttribute("data-href", href);
+      el.setAttribute("data-is-inline", "" + isInline);
+      el.setAttribute("data-tag", tag);
+      el.setAttribute("data-author", author);
+      el.setAttribute("data-permlink", permlink);
+    } else {
+      const h = `/${tag}/@${author}/${permlink}`;
+      el.setAttribute("href", h);
+      el.setAttribute("data-is-inline", "" + isInline);
+    }
+    return;
+  }
+  const BCmatch = href.match(BITCHUTE_REGEX);
+  if (BCmatch && el.textContent.trim() === href) {
+    const e = BITCHUTE_REGEX.exec(href);
+    const vid = e[1];
+    el.setAttribute("class", "markdown-video-link");
+    el.removeAttribute("href");
+    const embedSrc = `https://www.bitchute.com/embed/${vid}/`;
+    el.textContent = "";
+    el.setAttribute("data-embed-src", embedSrc);
+    const play = el.ownerDocument.createElement("span");
+    play.setAttribute("class", "markdown-video-play");
+    el.appendChild(play);
+    return;
+  }
+  const RBmatch = href.match(RUMBLE_REGEX);
+  if (RBmatch && el.textContent.trim() === href) {
+    const e = RUMBLE_REGEX.exec(href);
+    if (e[1]) {
+      const vid = e[1];
+      const embedSrc = `https://www.rumble.com/embed/${vid}/?pub=4`;
+      el.setAttribute("class", "markdown-video-link");
+      el.removeAttribute("href");
+      el.textContent = "";
+      el.setAttribute("data-embed-src", embedSrc);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(play);
+      return;
+    }
+  }
+  const BNmatch = href.match(BRIGHTEON_REGEX);
+  if (BNmatch && el.textContent.trim() === href) {
+    const e = BRIGHTEON_REGEX.exec(href);
+    if (e[2]) {
+      const vid = e[2];
+      const embedSrc = `https://www.brighteon.com/embed/${vid}`;
+      el.setAttribute("class", "markdown-video-link");
+      el.removeAttribute("href");
+      el.textContent = "";
+      el.setAttribute("data-embed-src", embedSrc);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(play);
+      return;
+    }
+  }
+  let match = href.match(YOUTUBE_REGEX);
+  if (match && el.textContent.trim() === href) {
+    const e = YOUTUBE_REGEX.exec(href);
+    if (e[1]) {
+      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
+      el.removeAttribute("href");
+      const vid = e[1];
+      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+      const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
+      el.textContent = "";
+      el.setAttribute("data-embed-src", embedSrc);
+      el.setAttribute("data-youtube", vid);
+      const startTime = extractYtStartTime(href);
+      if (startTime) {
+        el.setAttribute("data-start-time", startTime);
+      }
+      const thumbImg = el.ownerDocument.createElement("img");
+      thumbImg.setAttribute("class", "no-replace video-thumbnail");
+      thumbImg.setAttribute("itemprop", "thumbnailUrl");
+      thumbImg.setAttribute("src", thumbnail);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(thumbImg);
+      el.appendChild(play);
+      return;
+    }
+  }
+  match = href.match(VIMEO_REGEX);
+  if (match && href === el.textContent) {
+    const e = VIMEO_REGEX.exec(href);
+    if (e[3]) {
+      el.setAttribute("class", "markdown-video-link markdown-video-link-vimeo");
+      el.removeAttribute("href");
+      const embedSrc = `https://player.vimeo.com/video/${e[3]}`;
+      el.textContent = "";
+      const ifr = el.ownerDocument.createElement("iframe");
+      ifr.setAttribute("frameborder", "0");
+      ifr.setAttribute("allowfullscreen", "true");
+      ifr.setAttribute("src", embedSrc);
+      el.appendChild(ifr);
+      return;
+    }
+  }
+  match = href.match(TWITCH_REGEX);
+  if (match && href === el.textContent) {
+    const e = TWITCH_REGEX.exec(href);
+    if (e[2]) {
+      el.setAttribute("class", "markdown-video-link markdown-video-link-twitch");
+      el.removeAttribute("href");
+      let embedSrc = "";
+      if (e[1] === void 0) {
+        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`;
+      } else {
+        embedSrc = `https://player.twitch.tv/?video=${e[1]}`;
+      }
+      el.textContent = "";
+      const ifr = el.ownerDocument.createElement("iframe");
+      ifr.setAttribute("frameborder", "0");
+      ifr.setAttribute("allowfullscreen", "true");
+      ifr.setAttribute("src", embedSrc);
+      el.appendChild(ifr);
+      return;
+    }
+  }
+  match = href.match(SPOTIFY_REGEX);
+  if (match && el.textContent.trim() === href) {
+    const e = SPOTIFY_REGEX.exec(href);
+    if (e[1]) {
+      el.setAttribute("class", "markdown-audio-link markdown-audio-link-spotify");
+      el.removeAttribute("href");
+      const embedSrc = `https://open.spotify.com/embed/playlist/${e[1]}`;
+      el.textContent = "";
+      const ifr = el.ownerDocument.createElement("iframe");
+      ifr.setAttribute("frameborder", "0");
+      ifr.setAttribute("allowfullscreen", "true");
+      ifr.setAttribute("src", embedSrc);
+      ifr.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+      el.appendChild(ifr);
+      return;
+    }
+  }
+  match = href.match(LOOM_REGEX);
+  if (match && el.textContent.trim() === href) {
+    const e = LOOM_REGEX.exec(href);
+    if (e[2]) {
+      el.setAttribute("class", "markdown-video-link markdown-video-link-loom");
+      el.removeAttribute("href");
+      const embedSrc = `https://www.loom.com/embed/${e[2]}`;
+      el.textContent = "";
+      const ifr = el.ownerDocument.createElement("iframe");
+      ifr.setAttribute("frameborder", "0");
+      ifr.setAttribute("allowfullscreen", "true");
+      ifr.setAttribute("src", embedSrc);
+      ifr.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+      el.appendChild(ifr);
+      return;
+    }
+  }
+  match = href.match(D_TUBE_REGEX);
+  if (match) {
+    const imgEls = el.getElementsByTagName("img");
+    if (imgEls.length === 1 || el.textContent.trim() === href) {
+      const e = D_TUBE_REGEX.exec(href);
+      if (e[2] && e[3]) {
+        el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
+        el.removeAttribute("href");
+        const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`;
+        el.setAttribute("data-embed-src", videoHref);
+        if (imgEls.length === 1) {
+          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute("src").replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+          const thumbImg = el.ownerDocument.createElement("img");
+          thumbImg.setAttribute("class", "no-replace video-thumbnail");
+          thumbImg.setAttribute("itemprop", "thumbnailUrl");
+          thumbImg.setAttribute("src", thumbnail);
+          el.appendChild(thumbImg);
+          el.removeChild(imgEls[0]);
+        } else {
+          el.textContent = "";
+        }
+        const play = el.ownerDocument.createElement("span");
+        play.setAttribute("class", "markdown-video-play");
+        el.appendChild(play);
+        return;
+      }
+    }
+  }
+  match = href.match(D_TUBE_REGEX2);
+  if (match) {
+    const e = D_TUBE_REGEX2.exec(href);
+    if (e[2] && e[3]) {
+      el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
+      el.removeAttribute("href");
+      el.textContent = "";
+      const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`;
+      el.setAttribute("data-embed-src", videoHref);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(play);
+      return;
+    }
+  }
+  match = href.match(SPEAK_REGEX);
+  if (match) {
+    const imgEls = el.getElementsByTagName("img");
+    if (imgEls.length === 1 || el.textContent.trim() === href) {
+      const e = SPEAK_REGEX.exec(href);
+      if ((e[1] || e[2]) && e[3]) {
+        const videoHref = `https://3speak.tv/embed?v=${e[3]}`;
+        el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
+        el.removeAttribute("href");
+        el.setAttribute("data-embed-src", videoHref);
+        if (el.textContent.trim() === href) {
+          el.textContent = "";
+        }
+        if (imgEls.length === 1) {
+          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute("src").replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+          const thumbImg = el.ownerDocument.createElement("img");
+          thumbImg.setAttribute("class", "no-replace video-thumbnail");
+          thumbImg.setAttribute("itemprop", "thumbnailUrl");
+          thumbImg.setAttribute("src", thumbnail);
+          el.appendChild(thumbImg);
+          el.removeChild(imgEls[0]);
+        }
+        const play = el.ownerDocument.createElement("span");
+        play.setAttribute("class", "markdown-video-play");
+        el.appendChild(play);
+        return;
+      }
+    }
+  }
+  const matchT = href.match(TWITTER_REGEX);
+  if (matchT && el.textContent.trim() === href) {
+    const e = TWITTER_REGEX.exec(href);
+    if (e) {
+      const url = e[0].replace(/(<([^>]+)>)/gi, "");
+      const author = e[1].replace(/(<([^>]+)>)/gi, "");
+      const twitterCode = `<blockquote class="twitter-tweet"><p>${url}</p>- <a href="${url}">${author}</a></blockquote>`;
+      const replaceNode = DOMParser.parseFromString(twitterCode);
+      el.parentNode.replaceChild(replaceNode, el);
+      return;
+    }
+  }
+  if (href.indexOf("https://hivesigner.com/sign/account-witness-vote?witness=") === 0 && forApp) {
+    el.setAttribute("class", "markdown-witnesses-link");
+    el.setAttribute("data-href", href);
+    el.removeAttribute("href");
+    return;
+  }
+  if (href.indexOf("hivesigner.com/sign/update-proposal-votes?proposal_ids") > 0 && forApp) {
+    const m = decodeURI(href).match(/proposal_ids=\[(\d+)]/);
+    if (m) {
+      el.setAttribute("class", "markdown-proposal-link");
+      el.setAttribute("data-href", href);
+      el.setAttribute("data-proposal", m[1]);
+      el.removeAttribute("href");
+      return;
+    }
+  }
+  el.setAttribute("class", "markdown-external-link");
+  if (!/^((#)|(mailto:)|(\/(?!\/))|(((steem|hive|esteem|ecency|https?):)?\/\/))/.test(href)) {
+    href = `https://${href}`;
+  }
+  if (forApp) {
+    el.setAttribute("data-href", href);
+    const match2 = href.match(YOUTUBE_REGEX);
+    if (match2) {
+      const e = YOUTUBE_REGEX.exec(href);
+      if (e[1]) {
+        const vid = e[1];
+        el.setAttribute("data-youtube", vid);
+        const startTime = extractYtStartTime(href);
+        if (startTime) {
+          el.setAttribute("data-start-time", startTime);
+        }
+      }
+    }
+    el.removeAttribute("href");
+  } else {
+    const matchS = href.match(SECTION_REGEX);
+    if (matchS) {
+      el.setAttribute("class", "markdown-internal-link");
+    } else {
+      el.setAttribute("target", "_blank");
+      el.setAttribute("rel", "noopener");
+    }
+  }
+}
+
+// src/methods/iframe.method.ts
+function iframe(el) {
+  if (!el || !el.parentNode) {
+    return;
+  }
+  const src = el.getAttribute("src");
+  if (!src) {
+    el.parentNode.removeChild(el);
+    return;
+  }
+  if (src.match(YOUTUBE_EMBED_REGEX)) {
+    const s = src.replace(/\?.+$/, "");
+    el.setAttribute("src", s);
+    return;
+  }
+  if (src.match(BITCHUTE_REGEX)) {
+    return;
+  }
+  const m = src.match(VIMEO_EMBED_REGEX);
+  if (m && m.length === 2) {
+    const s = `https://player.vimeo.com/video/${m[1]}`;
+    el.setAttribute("src", s);
+    return;
+  }
+  if (src.match(TWITCH_EMBED_REGEX)) {
+    const parentDomain = "ecency.com";
+    const s = `${src}&parent=${parentDomain}&autoplay=false`;
+    el.setAttribute("src", s);
+    return;
+  }
+  if (src.match(SPEAK_EMBED_REGEX)) {
+    const normalizedSrc = src.replace(/3speak\.[a-z]+/i, "3speak.tv");
+    const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
+    const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}${normalizedSrc.includes("?") ? "&" : "?"}autoplay=true`;
+    el.setAttribute("src", s);
+    return;
+  }
+  if (src.match(SPOTIFY_EMBED_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(SOUNDCLOUD_EMBED_REGEX)) {
+    const match = src.match(/url=(.+?)&/);
+    if (match && match.length === 2) {
+      const s = `https://w.soundcloud.com/player/?url=${match[1]}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
+      el.setAttribute("src", s);
+      return;
+    }
+  }
+  if (src.match(D_TUBE_EMBED_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin");
+    el.setAttribute("frameborder", "0");
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(VIMM_EMBED_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+    el.setAttribute("frameborder", "0");
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(DAPPLR_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin");
+    el.setAttribute("frameborder", "0");
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(TRUVVL_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+    el.setAttribute("frameborder", "0");
+    el.setAttribute("class", "portrait-embed");
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(LBRY_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(ODYSEE_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(SKATEHIVE_IPFS_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("allowfullscreen", "true");
+    return;
+  }
+  if (src.match(ARCH_REGEX)) {
+    el.setAttribute("src", src);
+    return;
+  }
+  if (src.match(RUMBLE_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(BRIGHTEON_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(BRAND_NEW_TUBE_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(LOOM_EMBED_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  if (src.match(AUREAL_EMBED_REGEX)) {
+    el.setAttribute("src", src);
+    el.setAttribute("frameborder", "0");
+    return;
+  }
+  const replaceNode = el.ownerDocument.createElement("div");
+  replaceNode.setAttribute("class", "unsupported-iframe");
+  replaceNode.textContent = `(Unsupported ${src})`;
+  if (el.parentNode) {
+    el.parentNode.insertBefore(replaceNode, el);
+    el.parentNode.removeChild(el);
+  }
+}
+
+// src/methods/p.method.ts
+function p(el) {
+  const dir = el.getAttribute("dir");
+  if (!dir) {
+    el.setAttribute("dir", "auto");
+  }
+}
+
+// src/methods/linkify.method.ts
+function linkify(content, forApp, webp) {
+  content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
+    if (/#[\d]+$/.test(tag)) return tag;
+    const preceding = /^\s|>/.test(tag) ? tag[0] : "";
+    tag = tag.replace(">", "");
+    const tag2 = tag.trim().substring(1);
+    const tagLower = tag2.toLowerCase();
+    const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`;
+    return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`;
+  });
+  content = content.replace(
+    /(^|[^a-zA-Z0-9_!#$%&*@＠/]|(^|[^a-zA-Z0-9_+~.-/]))[@＠]([a-z][-.a-z\d^/]+[a-z\d])/gi,
+    (match, preceeding1, preceeding2, user) => {
+      const userLower = user.toLowerCase();
+      const preceedings = (preceeding1 || "") + (preceeding2 || "");
+      if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
+        const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`;
+        return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`;
+      } else {
+        return match;
+      }
+    }
+  );
+  content = content.replace(
+    /((^|\s)(\/|)@[\w.\d-]+)\/(\S+)/gi,
+    (match, u, p1, p2, p3) => {
+      const uu = u.trim().toLowerCase().replace("/@", "").replace("@", "");
+      const permlink = sanitizePermlink(p3);
+      if (!isValidPermlink(permlink)) return match;
+      if (SECTION_LIST.some((v) => p3.includes(v))) {
+        const attrs = forApp ? `https://ecency.com/@${uu}/${permlink}` : `href="/@${uu}/${permlink}"`;
+        return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`;
+      } else {
+        const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/post/@${uu}/${permlink}"`;
+        return ` <a class="markdown-post-link" ${attrs}>@${uu}/${permlink}</a>`;
+      }
+    }
+  );
+  let firstImageUsed = false;
+  content = content.replace(IMG_REGEX, (imglink) => {
+    const isLCP = !firstImageUsed;
+    firstImageUsed = true;
+    return createImageHTML(imglink, isLCP, webp);
+  });
+  return content;
+}
+
+// src/methods/text.method.ts
+function text(node, forApp, webp) {
+  if (!node || !node.parentNode) {
+    return;
+  }
+  if (["a", "code"].includes(node.parentNode.nodeName)) {
+    return;
+  }
+  const nodeValue = node.nodeValue || "";
+  const linkified = linkify(nodeValue, forApp, webp);
+  if (linkified !== nodeValue) {
+    const replaceNode = DOMParser.parseFromString(
+      `<span class="wr">${linkified}</span>`
+    );
+    node.parentNode.insertBefore(replaceNode, node);
+    node.parentNode.removeChild(node);
+    return;
+  }
+  if (nodeValue.match(IMG_REGEX)) {
+    const isLCP = false;
+    const imageHTML = createImageHTML(nodeValue, isLCP, webp);
+    const replaceNode = DOMParser.parseFromString(imageHTML);
+    node.parentNode.replaceChild(replaceNode, node);
+  }
+  if (nodeValue.match(YOUTUBE_REGEX)) {
+    const e = YOUTUBE_REGEX.exec(nodeValue);
+    if (e[1]) {
+      const vid = e[1];
+      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+      const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
+      let attrs = `class="markdown-video-link markdown-video-link-youtube" data-embed-src="${embedSrc}" data-youtube="${vid}"`;
+      const startTime = extractYtStartTime(nodeValue);
+      if (startTime) {
+        attrs = attrs.concat(` data-start-time="${startTime}"`);
+      }
+      const thumbImg = node.ownerDocument.createElement("img");
+      thumbImg.setAttribute("class", "no-replace video-thumbnail");
+      thumbImg.setAttribute("src", thumbnail);
+      const play = node.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      const replaceNode = DOMParser.parseFromString(`<p><a ${attrs}>${thumbImg}${play}</a></p>`);
+      node.parentNode.replaceChild(replaceNode, node);
+    }
+  }
+  if (nodeValue && typeof nodeValue === "string") {
+    const postMatch = nodeValue.trim().match(POST_REGEX);
+    if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./, ""))) {
+      const tag = postMatch[2];
+      const author = postMatch[3].replace("@", "");
+      const permlink = sanitizePermlink(postMatch[4]);
+      if (!isValidUsername(author)) return;
+      if (!isValidPermlink(permlink)) return;
+      const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`;
+      const replaceNode = DOMParser.parseFromString(
+        `<a ${attrs}>/@${author}/${permlink}</a>`
+      );
+      node.parentNode.replaceChild(replaceNode, node);
+    }
+  }
+}
+
+// src/methods/traverse.method.ts
+function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }) {
+  if (!node || !node.childNodes) {
+    return;
+  }
+  Array.from(Array(node.childNodes.length).keys()).map((i) => node.childNodes[i]).forEach((child) => {
+    if (child.nodeName.toLowerCase() === "a") {
+      a(child, forApp, webp);
+    }
+    if (child.nodeName.toLowerCase() === "iframe") {
+      iframe(child);
+    }
+    if (child.nodeName === "#text") {
+      text(child, forApp, webp);
+    }
+    if (child.nodeName.toLowerCase() === "img") {
+      img(child, webp, state);
+    }
+    if (child.nodeName.toLowerCase() === "p") {
+      p(child);
+    }
+    traverse(child, forApp, depth + 1, webp, state);
+  });
+}
+
+// src/methods/clean-reply.method.ts
+function cleanReply(s) {
+  return (s ? s.split("\n").filter((item) => item.toLowerCase().includes("posted using [partiko") === false).filter((item) => item.toLowerCase().includes("posted using [dapplr") === false).filter((item) => item.toLowerCase().includes("posted using [leofinance") === false).filter((item) => item.toLowerCase().includes("posted via [neoxian") === false).filter((item) => item.toLowerCase().includes("posted using [neoxian") === false).filter((item) => item.toLowerCase().includes("posted with [stemgeeks") === false).filter((item) => item.toLowerCase().includes("posted using [bilpcoin") === false).filter((item) => item.toLowerCase().includes("posted using [inleo") === false).filter((item) => item.toLowerCase().includes("posted using [sportstalksocial]") === false).filter((item) => item.toLowerCase().includes("<center><sub>[posted using aeneas.blog") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [proofofbrain.io") === false).filter((item) => item.toLowerCase().includes("<center>posted on [hypnochain") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [weedcash.network") === false).filter((item) => item.toLowerCase().includes("<center>posted on [naturalmedicine.io") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [musicforlife.io") === false).filter((item) => item.toLowerCase().includes("if the truvvl embed is unsupported by your current frontend, click this link to view this story") === false).filter((item) => item.toLowerCase().includes("<center><em>posted from truvvl") === false).filter((item) => item.toLowerCase().includes('view this post <a href="https://travelfeed.io/') === false).filter((item) => item.toLowerCase().includes("read this post on travelfeed.io for the best experience") === false).filter((item) => item.toLowerCase().includes('posted via <a href="https://www.dporn.co/"') === false).filter((item) => item.toLowerCase().includes("\u25B6\uFE0F [watch on 3speak](https://3speak") === false).filter((item) => item.toLowerCase().includes("<sup><sub>posted via [inji.com]") === false).filter((item) => item.toLowerCase().includes("view this post on [liketu]") === false).filter((item) => item.toLowerCase().includes("[via Inbox]") === false).join("\n") : "").replace('Posted via <a href="https://d.buzz" data-link="promote-link">D.Buzz</a>', "").replace('<div class="pull-right"><a href="/@hive.engage">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace('<div><a href="https://engage.hivechain.app">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace(`<div class="text-center"><img src="https://cdn.steemitimages.com/DQmNp6YwAm2qwquALZw8PdcovDorwaBSFuxQ38TrYziGT6b/A-20.png"><a href="https://bit.ly/actifit-app"><img src="https://cdn.steemitimages.com/DQmQqfpSmcQtfrHAtzfBtVccXwUL9vKNgZJ2j93m8WNjizw/l5.png"></a><a href="https://bit.ly/actifit-ios"><img src="https://cdn.steemitimages.com/DQmbWy8KzKT1UvCvznUTaFPw6wBUcyLtBT5XL9wdbB7Hfmn/l6.png"></a></div>`, "");
+}
+var lolight = __require("lolight");
+var { Remarkable } = __require("remarkable");
+var { linkify: linkify2 } = __require("remarkable/linkify");
+function markdownToHTML(input, forApp, webp) {
+  input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
+  input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
+  input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
+  input = input.replace(new RegExp("https://inleo.io/threads/view/", "g"), "/@");
+  input = input.replace(new RegExp("https://inleo.io/posts/", "g"), "/@");
+  input = input.replace(new RegExp("https://inleo.io/threads/", "g"), "/@");
+  const md = new Remarkable({
+    html: true,
+    breaks: true,
+    typographer: false,
+    highlight: function(str) {
+      try {
+        const tokens = lolight.tok(str);
+        return tokens.map(
+          (token) => `<span class="ll-${token[0]}">${token[1]}</span>`
+        ).join("");
+      } catch (err) {
+        console.error(err);
+      }
+      return str;
+    }
+  }).use(linkify2);
+  md.core.ruler.enable([
+    "abbr"
+  ]);
+  md.block.ruler.enable([
+    "footnote",
+    "deflist"
+  ]);
+  md.inline.ruler.enable([
+    "footnote_inline",
+    "ins",
+    "mark",
+    "sub",
+    "sup"
+  ]);
+  const XMLSerializer = new xmldom.XMLSerializer();
+  if (!input) {
+    return "";
+  }
+  let output = "";
+  const entities = input.match(ENTITY_REGEX);
+  const encEntities = [];
+  try {
+    if (entities && forApp) {
+      entities.forEach((entity) => {
+        const CryptoJS = __require("react-native-crypto-js");
+        const encData = CryptoJS.AES.encrypt(entity, "key").toString();
+        const encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
+        encEntities.push(encyptedEntity);
+        input = input.replace(entity, encyptedEntity);
+      });
+    }
+  } catch (err) {
+    console.log("failed to encrypt entities, ignore if not using mobile");
+  }
+  try {
+    output = md.render(input);
+    const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, "text/html");
+    traverse(doc, forApp, 0, webp);
+    output = XMLSerializer.serializeToString(doc);
+  } catch (error) {
+    output = "";
+  }
+  if (forApp && output) {
+    encEntities.forEach((encEntity) => {
+      const CryptoJS = __require("react-native-crypto-js");
+      const decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
+      const entity = CryptoJS.AES.decrypt(decData, "key").toString(CryptoJS.enc.Utf8);
+      output = output.replace(encEntity, entity);
+    });
+  }
+  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
+  return sanitizeHtml(output);
+}
+var cache = new LRUCache({ max: 60 });
+function setCacheSize(size) {
+  cache = new LRUCache({ max: size });
+}
+function cacheGet(key) {
+  return cache.get(key);
+}
+function cacheSet(key, value) {
+  cache.set(key, value);
+}
+
+// src/markdown-2-html.ts
+function markdown2Html(obj, forApp = true, webp = false) {
+  if (typeof obj === "string") {
+    obj = cleanReply(obj);
+    return markdownToHTML(obj, forApp, webp);
+  }
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}`;
+  const item = cacheGet(key);
+  if (item) {
+    return item;
+  }
+  obj.body = cleanReply(obj.body);
+  const res = markdownToHTML(obj.body, forApp, webp);
+  cacheSet(key, res);
+  return res;
+}
+
+// src/catch-post-image.ts
+var gifLinkRegex = /\.(gif)$/i;
+function isGifLink(link) {
+  return gifLinkRegex.test(link);
+}
+function getImage(entry, width = 0, height = 0, format = "match") {
+  let meta;
+  if (typeof entry.json_metadata === "object") {
+    meta = entry.json_metadata;
+  } else {
+    try {
+      meta = JSON.parse(entry.json_metadata);
+    } catch (e) {
+      meta = null;
+    }
+  }
+  if (meta && typeof meta.image === "string" && meta.image.length > 0) {
+    if (isGifLink(meta.image)) {
+      return proxifyImageSrc(meta.image, 0, 0, format);
+    }
+    return proxifyImageSrc(meta.image, width, height, format);
+  }
+  if (meta && meta.image && !!meta.image.length && meta.image[0]) {
+    if (isGifLink(meta.image[0])) {
+      return proxifyImageSrc(meta.image[0], 0, 0, format);
+    }
+    return proxifyImageSrc(meta.image[0], width, height, format);
+  }
+  const html = markdown2Html(entry);
+  const doc = createDoc(html);
+  if (!doc) {
+    return null;
+  }
+  const imgEls = doc.getElementsByTagName("img");
+  if (imgEls.length >= 1) {
+    const src = imgEls[0].getAttribute("src");
+    if (!src) {
+      return null;
+    }
+    if (isGifLink(src)) {
+      return proxifyImageSrc(src, 0, 0, format);
+    }
+    return proxifyImageSrc(src, width, height, format);
+  }
+  return null;
+}
+function catchPostImage(obj, width = 0, height = 0, format = "match") {
+  if (typeof obj === "string") {
+    return getImage(obj, width, height, format);
+  }
+  const key = `${makeEntryCacheKey(obj)}-${width}x${height}-${format}`;
+  const item = cacheGet(key);
+  if (item) {
+    return item;
+  }
+  const res = getImage(obj, width, height, format);
+  cacheSet(key, res);
+  return res;
+}
+var { Remarkable: Remarkable2 } = __require("remarkable");
+var { linkify: linkify3 } = __require("remarkable/linkify");
+var joint = (arr, limit = 200) => {
+  let result = "";
+  if (arr) {
+    for (let i = 0; i < arr.length; i++) {
+      if (result) {
+        result += " ";
+      }
+      if (result.length > limit) {
+        break;
+      } else {
+        if ((result + arr[i]).length < limit + 10) {
+          result += arr[i];
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return result.trim();
+};
+function postBodySummary(entryBody, length, platform = "web") {
+  if (!entryBody) {
+    return "";
+  }
+  entryBody = cleanReply(entryBody);
+  const mdd = new Remarkable2({
+    html: true,
+    breaks: true,
+    typographer: false
+  }).use(linkify3);
+  mdd.core.ruler.enable([
+    "abbr"
+  ]);
+  mdd.block.ruler.enable([
+    "footnote",
+    "deflist"
+  ]);
+  mdd.inline.ruler.enable([
+    "footnote_inline",
+    "ins",
+    "mark",
+    "sub",
+    "sup"
+  ]);
+  const entities = entryBody.match(ENTITY_REGEX);
+  const encEntities = [];
+  if (entities && platform !== "web") {
+    entities.forEach((entity) => {
+      var CryptoJS = __require("react-native-crypto-js");
+      const encData = CryptoJS.AES.encrypt(entity, "key").toString();
+      let encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
+      encEntities.push(encyptedEntity);
+      entryBody = entryBody.replace(entity, encyptedEntity);
+    });
+  }
+  let text2 = "";
+  try {
+    text2 = mdd.render(entryBody);
+  } catch (err) {
+    console.log(err);
+  }
+  if (platform !== "web") {
+    encEntities.forEach((encEntity) => {
+      var CryptoJS = __require("react-native-crypto-js");
+      let decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
+      let entity = CryptoJS.AES.decrypt(decData, "key").toString(CryptoJS.enc.Utf8);
+      text2 = text2.replace(encEntity, entity);
+    });
+  }
+  text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ +(?= )/g, "");
+  if (length) {
+    text2 = joint(text2.split(" "), length);
+  }
+  if (text2) {
+    text2 = he.decode(text2);
+  }
+  return text2;
+}
+function getPostBodySummary(obj, length, platform) {
+  if (typeof obj === "string") {
+    return postBodySummary(obj, length, platform);
+  }
+  const key = `${makeEntryCacheKey(obj)}-sum-${length}`;
+  const item = cacheGet(key);
+  if (item) {
+    return item;
+  }
+  const res = postBodySummary(obj.body, length, platform);
+  cacheSet(key, res);
+  return res;
+}
+
+export { SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.map
