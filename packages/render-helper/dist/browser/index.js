@@ -66,7 +66,7 @@ var INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|payout)\/(.*
 var INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i;
 var INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i;
 var CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i;
-var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/g;
+var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
 var YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www.youtube.com\/(embed|shorts)\/.*/i;
 var VIMEO_REGEX = /(https?:\/\/)?(www\.)?(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
 var VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)/;
@@ -241,9 +241,9 @@ function getSerializedInnerHTML(node) {
 
 // src/methods/remove-child-nodes.method.ts
 function removeChildNodes(node) {
-  Array.from(Array(node.childNodes.length).keys()).forEach((x) => {
-    node.removeChild(node.childNodes[x]);
-  });
+  while (node.firstChild) {
+    node.removeChild(node.firstChild);
+  }
 }
 var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 function sanitizeHtml(html) {
@@ -254,12 +254,13 @@ function sanitizeHtml(html) {
     css: false,
     // block style attrs entirely for safety
     onTagAttr: (tag, name, value) => {
-      const decoded = decodeEntities(value.trim().toLowerCase());
+      const decoded = decodeEntities(value.trim());
+      const decodedLower = decoded.toLowerCase();
       if (name.startsWith("on")) return "";
-      if (tag === "img" && name === "src" && (!/^https?:\/\//.test(decoded) || decoded.startsWith("javascript:"))) return "";
-      if (tag === "video" && ["src", "poster"].includes(name) && (!/^https?:\/\//.test(decoded) || decoded.startsWith("javascript:"))) return "";
+      if (tag === "img" && name === "src" && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
+      if (tag === "video" && ["src", "poster"].includes(name) && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
       if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
-      if (tag === "span" && name === "class" && value === "wr") return "";
+      if (tag === "span" && name === "class" && decoded === "wr") return "";
       if (name === "id") {
         if (!ID_WHITELIST.test(decoded)) return "";
       }
@@ -1113,7 +1114,7 @@ function linkify(content, forApp, webp) {
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;
       if (SECTION_LIST.some((v) => p3.includes(v))) {
-        const attrs = forApp ? `https://ecency.com/@${uu}/${permlink}` : `href="/@${uu}/${permlink}"`;
+        const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`;
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`;
       } else {
         const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/post/@${uu}/${permlink}"`;
@@ -1153,6 +1154,7 @@ function text(node, forApp, webp) {
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
     const replaceNode = DOMParser.parseFromString(imageHTML);
     node.parentNode.replaceChild(replaceNode, node);
+    return;
   }
   if (nodeValue.match(YOUTUBE_REGEX)) {
     const e = YOUTUBE_REGEX.exec(nodeValue);
@@ -1172,6 +1174,7 @@ function text(node, forApp, webp) {
       play.setAttribute("class", "markdown-video-play");
       const replaceNode = DOMParser.parseFromString(`<p><a ${attrs}>${thumbImg}${play}</a></p>`);
       node.parentNode.replaceChild(replaceNode, node);
+      return;
     }
   }
   if (nodeValue && typeof nodeValue === "string") {
@@ -1313,16 +1316,16 @@ function cacheSet(key, value) {
 // src/markdown-2-html.ts
 function markdown2Html(obj, forApp = true, webp = false) {
   if (typeof obj === "string") {
-    obj = cleanReply(obj);
-    return markdownToHTML(obj, forApp, webp);
+    const cleanedStr = cleanReply(obj);
+    return markdownToHTML(cleanedStr, forApp, webp);
   }
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}`;
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
-  obj.body = cleanReply(obj.body);
-  const res = markdownToHTML(obj.body, forApp, webp);
+  const cleanBody = cleanReply(obj.body);
+  const res = markdownToHTML(cleanBody, forApp, webp);
   cacheSet(key, res);
   return res;
 }
@@ -1375,7 +1378,11 @@ function getImage(entry, width = 0, height = 0, format = "match") {
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
-    return getImage(obj, width, height, format);
+    const entryWrapper = {
+      body: obj,
+      json_metadata: "{}"
+    };
+    return getImage(entryWrapper, width, height, format);
   }
   const key = `${makeEntryCacheKey(obj)}-${width}x${height}-${format}`;
   const item = cacheGet(key);

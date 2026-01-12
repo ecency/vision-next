@@ -11,7 +11,7 @@ export const INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|pay
 export const INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i
 export const INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i
 export const CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i
-export const YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/g
+export const YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
 export const YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www.youtube.com\/(embed|shorts)\/.*/i
 export const VIMEO_REGEX = /(https?:\/\/)?(www\.)?(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i
 export const VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)/

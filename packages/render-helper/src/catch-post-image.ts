@@ -64,7 +64,12 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
 
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {
   if (typeof obj === 'string') {
-    return getImage(obj as any, width, height, format)
+    // Create minimal Entry-like wrapper for string input
+    const entryWrapper: Entry = {
+      body: obj,
+      json_metadata: '{}',
+    } as Entry
+    return getImage(entryWrapper, width, height, format)
   }
   const key = `${makeEntryCacheKey(obj)}-${width}x${height}-${format}`
 

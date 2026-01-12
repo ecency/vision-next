@@ -30,6 +30,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
     const replaceNode = DOMParser.parseFromString(imageHTML);
     node.parentNode.replaceChild(replaceNode, node);
+    return; // Early return after replacing node
   }
   // If a youtube video
   if (nodeValue.match(YOUTUBE_REGEX)) {
@@ -55,6 +56,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
 
       const replaceNode = DOMParser.parseFromString(`<p><a ${attrs}>${thumbImg}${play}</a></p>`)
       node.parentNode.replaceChild(replaceNode, node)
+      return; // Early return after replacing node
     }
   }
   if (nodeValue && typeof nodeValue === 'string') {

@@ -5,20 +5,20 @@ import { Entry } from './types'
 
 export function markdown2Html(obj: Entry | string, forApp = true, webp = false): string {
   if (typeof obj === 'string') {
-    obj = cleanReply(obj)
-    return markdownToHTML(obj as string, forApp, webp)
+    const cleanedStr = cleanReply(obj)
+    return markdownToHTML(cleanedStr, forApp, webp)
   }
 
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? '-webp' : ''}`
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? '-webp' : ''}-${forApp ? 'app' : 'site'}`
 
   const item = cacheGet<string>(key)
   if (item) {
     return item
   }
 
-  obj.body = cleanReply(obj.body)
+  const cleanBody = cleanReply(obj.body)
 
-  const res = markdownToHTML(obj.body, forApp, webp)
+  const res = markdownToHTML(cleanBody, forApp, webp)
   cacheSet(key, res)
 
   return res

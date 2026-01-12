@@ -13,16 +13,17 @@ export function sanitizeHtml(html: string): string {
     stripIgnoreTagBody: ['style'],
     css: false, // block style attrs entirely for safety
     onTagAttr: (tag, name, value) => {
-      const decoded = decodeEntities(value.trim().toLowerCase());
+      const decoded = decodeEntities(value.trim());
+      const decodedLower = decoded.toLowerCase();
 
       if (name.startsWith('on')) return ''; // 🛡 event handlers
-      if (tag === 'img' && name === 'src' && (!/^https?:\/\//.test(decoded) || decoded.startsWith('javascript:'))) return '';
+      if (tag === 'img' && name === 'src' && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith('javascript:'))) return '';
       if (
         tag === 'video' && ['src', 'poster'].includes(name) &&
-        (!/^https?:\/\//.test(decoded) || decoded.startsWith('javascript:'))
+        (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith('javascript:'))
       ) return '';
       if (tag === 'img' && ['dynsrc', 'lowsrc'].includes(name)) return '';
-      if (tag === 'span' && name === 'class' && value === 'wr') return '';
+      if (tag === 'span' && name === 'class' && decoded === 'wr') return '';
       if (name === 'id') {
         if (!ID_WHITELIST.test(decoded)) return '';
       }

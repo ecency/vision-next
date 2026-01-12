@@ -39,7 +39,7 @@ export function linkify(content: string, forApp: boolean, webp: boolean): string
       if (!isValidPermlink(permlink)) return match;
 
       if (SECTION_LIST.some(v => p3.includes(v))) {
-        const attrs = forApp ? `https://ecency.com/@${uu}/${permlink}` : `href="/@${uu}/${permlink}"`
+        const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`
       } else {
         const attrs = forApp ? `data-author="${uu}" data-tag="post" data-permlink="${permlink}"` : `href="/post/@${uu}/${permlink}"`

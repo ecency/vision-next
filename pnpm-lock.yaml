@@ -549,17 +549,14 @@ importers:
         specifier: ^11.0.2
         version: 11.2.2
       multihashes:
-        specifier: 0.4.13
-        version: 0.4.13
+        specifier: ^4.0.3
+        version: 4.0.3
       path:
         specifier: ^0.12.7
         version: 0.12.7
       querystring:
         specifier: ^0.2.0
         version: 0.2.1
-      react-native-crypto-js:
-        specifier: ^1.0.0
-        version: 1.0.0
       remarkable:
         specifier: ^2.0.1
         version: 2.0.1
@@ -567,8 +564,8 @@ importers:
         specifier: ^0.11.0
         version: 0.11.4
       xmldom:
-        specifier: ^0.5.0
-        version: 0.5.0
+        specifier: ^0.6.0
+        version: 0.6.0
       xss:
         specifier: ^1.0.9
         version: 1.0.15
@@ -2317,6 +2314,9 @@ packages:
 
   '@mixmark-io/domino@2.2.0':
     resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
+
+  '@multiformats/base-x@4.0.1':
+    resolution: {integrity: sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -6789,8 +6789,20 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
+  multibase@4.0.6:
+    resolution: {integrity: sha512-x23pDe5+svdLz/k5JPGCVdfn7Q5mZVMBETiC+ORfO+sor9Sgs0smJzAjfTbM5tckeCqnaUuMYoz+k3RXMmJClQ==}
+    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
+    deprecated: This module has been superseded by the multiformats module
+
+  multiformats@9.9.0:
+    resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
+
   multihashes@0.4.13:
     resolution: {integrity: sha512-HwJGEKPCpLlNlgGQA56CYh/Wsqa+c4JAq8+mheIgw7OK5T4QvNJqgp6TH8gZ4q4l1aiWeNat/H/MrFXmTuoFfQ==}
+
+  multihashes@4.0.3:
+    resolution: {integrity: sha512-0AhMH7Iu95XjDLxIeuCOOE4t9+vQZsACyKZ9Fxw2pcsRmlX4iCn1mby0hS0bb+nQOVpdQYWPpnyusw4da5RPhA==}
+    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
 
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
@@ -8607,6 +8619,9 @@ packages:
     engines: {node: '>=0.8.0'}
     hasBin: true
 
+  uint8arrays@3.1.1:
+    resolution: {integrity: sha512-+QJa8QRnbdXVpHYjLoTpJIdCTiw9Ir62nocClWuXIq2JIh4Uta0cQsTSpFL678p2CN8B+XSApwcU+pQEqVpKWg==}
+
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
@@ -9121,6 +9136,10 @@ packages:
 
   xmldom@0.5.0:
     resolution: {integrity: sha512-Foaj5FXVzgn7xFzsKeNIde9g6aFBxTPi37iwsno8QvApmtg7KYrr+OPyRHcJF7dud2a5nGRBXK3n0dL62Gf7PA==}
+    engines: {node: '>=10.0.0'}
+
+  xmldom@0.6.0:
+    resolution: {integrity: sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==}
     engines: {node: '>=10.0.0'}
 
   xmlhttprequest-ssl@2.1.2:
@@ -11004,6 +11023,8 @@ snapshots:
   '@microsoft/tsdoc@0.15.1': {}
 
   '@mixmark-io/domino@2.2.0': {}
+
+  '@multiformats/base-x@4.0.1': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
@@ -16471,9 +16492,21 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
+  multibase@4.0.6:
+    dependencies:
+      '@multiformats/base-x': 4.0.1
+
+  multiformats@9.9.0: {}
+
   multihashes@0.4.13:
     dependencies:
       bs58: 4.0.1
+      varint: 5.0.2
+
+  multihashes@4.0.3:
+    dependencies:
+      multibase: 4.0.6
+      uint8arrays: 3.1.1
       varint: 5.0.2
 
   mz@2.7.0:
@@ -18586,6 +18619,10 @@ snapshots:
   uglify-js@3.19.3:
     optional: true
 
+  uint8arrays@3.1.1:
+    dependencies:
+      multiformats: 9.9.0
+
   unbox-primitive@1.1.0:
     dependencies:
       call-bound: 1.0.4
@@ -19227,6 +19264,8 @@ snapshots:
   xmlchars@2.2.0: {}
 
   xmldom@0.5.0: {}
+
+  xmldom@0.6.0: {}
 
   xmlhttprequest-ssl@2.1.2: {}
 
