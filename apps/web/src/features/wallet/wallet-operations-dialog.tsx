@@ -112,6 +112,7 @@ export function WalletOperationsDialog({
           AssetOperation.Unstake,
           AssetOperation.WithdrawFromSavings,
           AssetOperation.ClaimInterest,
+          AssetOperation.Convert,
         ].includes(operation) ||
           (AssetOperation.Delegate === operation && asset !== "LP")) && (
           <WalletOperationsTransfer

@@ -1577,6 +1577,33 @@ async function claimInterestHive(payload, auth) {
   return hs__default.default.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
 }
+async function convertHbd(payload, auth) {
+  const requestid = Math.floor(Date.now() / 1e3);
+  const operationPayload = {
+    owner: payload.from,
+    requestid,
+    amount: payload.amount
+  };
+  const operation = ["convert", operationPayload];
+  if (payload.type === "key" && "key" in payload) {
+    const { key, type, ...params } = payload;
+    return sdk.CONFIG.hiveClient.broadcast.sendOperations(
+      [["convert", { ...params, owner: params.from, requestid }]],
+      key
+    );
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else {
+    return hs__default.default.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
+  }
+}
 
 // src/modules/assets/types/asset-operation.ts
 var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
@@ -4121,7 +4148,8 @@ var operationToFunctionMap = {
     ["transfer" /* Transfer */]: transferHive,
     ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
     ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
-    ["claim-interest" /* ClaimInterest */]: claimInterestHive
+    ["claim-interest" /* ClaimInterest */]: claimInterestHive,
+    ["convert" /* Convert */]: convertHbd
   },
   HP: {
     ["power-down" /* PowerDown */]: powerDownHive,
@@ -4251,6 +4279,7 @@ exports.buildTronTx = buildTronTx;
 exports.cancelHiveEngineOrder = cancelHiveEngineOrder;
 exports.claimHiveEngineRewards = claimHiveEngineRewards;
 exports.claimInterestHive = claimInterestHive;
+exports.convertHbd = convertHbd;
 exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
 exports.decryptMemoWithKeys = decryptMemoWithKeys;
 exports.delay = delay;

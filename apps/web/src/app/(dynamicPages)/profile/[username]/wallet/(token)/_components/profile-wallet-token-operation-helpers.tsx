@@ -11,6 +11,7 @@ import {
   UilMoneybag,
   UilPlus,
   UilUnlock,
+  UilUserMinus,
   UilUserPlus,
 } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -24,7 +25,9 @@ export const profileWalletOperationIcons: Partial<Record<AssetOperation, ReactNo
   [AssetOperation.WithdrawRoutes]: <UilCodeBranch />,
   [AssetOperation.WithdrawFromSavings]: <UilArrowDownRight />,
   [AssetOperation.Delegate]: <UilUserPlus />,
+  [AssetOperation.Undelegate]: <UilUserMinus />,
   [AssetOperation.Swap]: <UilArrowsHAlt />,
+  [AssetOperation.Convert]: <UilArrowsHAlt />,
   [AssetOperation.Gift]: <UilGift />,
   [AssetOperation.Promote]: <UilChartBar />,
   [AssetOperation.Claim]: <UilPlus />,

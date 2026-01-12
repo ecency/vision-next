@@ -20,6 +20,7 @@ import {
   powerUpLarynx,
   transferLarynx,
   claimInterestHive,
+  convertHbd,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
@@ -41,6 +42,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.TransferToSavings]: transferToSavingsHive,
     [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
     [AssetOperation.ClaimInterest]: claimInterestHive,
+    [AssetOperation.Convert]: convertHbd,
   },
   HP: {
     [AssetOperation.PowerDown]: powerDownHive,
