@@ -172,22 +172,30 @@ export namespace ConfigManager {
    * @returns Compiled RegExp or null if invalid/unsafe
    */
   function safeCompileRegex(pattern: string, maxLength = 200): RegExp | null {
+    const isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
+
     try {
       // Layer 1: Basic validation
       if (!pattern) {
-        console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
+        }
         return null;
       }
 
       if (pattern.length > maxLength) {
-        console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
 
       // Layer 2: Static ReDoS analysis
       const staticAnalysis = analyzeRedosRisk(pattern);
       if (!staticAnalysis.safe) {
-        console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
 
@@ -196,20 +204,26 @@ export namespace ConfigManager {
       try {
         regex = new RegExp(pattern);
       } catch (compileErr) {
-        console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        }
         return null;
       }
 
       // Layer 4: Runtime performance testing
       const runtimeTest = testRegexPerformance(regex);
       if (!runtimeTest.safe) {
-        console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
 
       return regex;
     } catch (err) {
-      console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
+      if (isDevelopment) {
+        console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
+      }
       return null;
     }
   }
@@ -241,7 +255,10 @@ export namespace ConfigManager {
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
 
     // Only log once to avoid noise during builds/hot reloads
-    if (!CONFIG._dmcaInitialized) {
+    // Only show in development mode to avoid cluttering production console
+    const isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
+
+    if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
       console.log(`  - Accounts: ${accounts.length}`);
       console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
@@ -250,8 +267,8 @@ export namespace ConfigManager {
       if (rejectedTagCount > 0) {
         console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
       }
-
-      CONFIG._dmcaInitialized = true;
     }
+
+    CONFIG._dmcaInitialized = true;
   }
 }

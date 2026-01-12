@@ -158,35 +158,35 @@ var ConfigManager;
     return { safe: true };
   }
   function safeCompileRegex(pattern, maxLength = 200) {
+    const isDevelopment = typeof process !== "undefined" && false;
     try {
       if (!pattern) {
-        console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
+        if (isDevelopment) ;
         return null;
       }
       if (pattern.length > maxLength) {
-        console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) ;
         return null;
       }
       const staticAnalysis = analyzeRedosRisk(pattern);
       if (!staticAnalysis.safe) {
-        console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) ;
         return null;
       }
       let regex;
       try {
         regex = new RegExp(pattern);
       } catch (compileErr) {
-        console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        if (isDevelopment) ;
         return null;
       }
       const runtimeTest = testRegexPerformance(regex);
       if (!runtimeTest.safe) {
-        console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        if (isDevelopment) ;
         return null;
       }
       return regex;
     } catch (err) {
-      console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
       return null;
     }
   }
@@ -197,7 +197,8 @@ var ConfigManager;
     CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
-    if (!CONFIG._dmcaInitialized) {
+    const isDevelopment = typeof process !== "undefined" && false;
+    if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
       console.log(`  - Accounts: ${accounts.length}`);
       console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
@@ -205,8 +206,8 @@ var ConfigManager;
       if (rejectedTagCount > 0) {
         console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
       }
-      CONFIG._dmcaInitialized = true;
     }
+    CONFIG._dmcaInitialized = true;
   }
   ConfigManager2.setDmcaLists = setDmcaLists;
 })(ConfigManager || (ConfigManager = {}));
