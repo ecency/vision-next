@@ -35,7 +35,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
   // If a youtube video
   if (nodeValue.match(YOUTUBE_REGEX)) {
     const e = YOUTUBE_REGEX.exec(nodeValue)
-    if (e[1]) {
+    if (e && e[1]) {
       const vid = e[1]
       const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
@@ -47,15 +47,32 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
         attrs = attrs.concat(` data-start-time="${startTime}"`);
       }
 
+      // Create container paragraph
+      const container = node.ownerDocument.createElement('p')
+
+      // Create anchor element
+      const anchor = node.ownerDocument.createElement('a')
+      anchor.setAttribute('class', 'markdown-video-link markdown-video-link-youtube')
+      anchor.setAttribute('data-embed-src', embedSrc)
+      anchor.setAttribute('data-youtube', vid)
+      if (startTime) {
+        anchor.setAttribute('data-start-time', startTime)
+      }
+
+      // Create and append thumbnail image
       const thumbImg = node.ownerDocument.createElement('img')
       thumbImg.setAttribute('class', 'no-replace video-thumbnail')
       thumbImg.setAttribute('src', thumbnail)
+      anchor.appendChild(thumbImg)
 
+      // Create and append play button
       const play = node.ownerDocument.createElement('span')
       play.setAttribute('class', 'markdown-video-play')
+      anchor.appendChild(play)
 
-      const replaceNode = DOMParser.parseFromString(`<p><a ${attrs}>${thumbImg}${play}</a></p>`)
-      node.parentNode.replaceChild(replaceNode, node)
+      // Assemble and replace
+      container.appendChild(anchor)
+      node.parentNode.replaceChild(container, node)
       return; // Early return after replacing node
     }
   }

@@ -23,7 +23,7 @@ export function sanitizeHtml(html: string): string {
         (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith('javascript:'))
       ) return '';
       if (tag === 'img' && ['dynsrc', 'lowsrc'].includes(name)) return '';
-      if (tag === 'span' && name === 'class' && decoded === 'wr') return '';
+      if (tag === 'span' && name === 'class' && decoded.toLowerCase().trim() === 'wr') return '';
       if (name === 'id') {
         if (!ID_WHITELIST.test(decoded)) return '';
       }
