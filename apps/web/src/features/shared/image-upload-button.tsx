@@ -2,16 +2,25 @@
 
 import React, { useCallback, useRef } from "react";
 import { Spinner } from "@ui/spinner";
-import { Button } from "@ui/button";
+import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
 import { useImageUpload } from "@/api/mutations";
 
 interface UploadButtonProps {
   onBegin: () => void;
   onEnd: (url: string) => void;
+  size?: ButtonProps["size"];
+  className?: string;
+  appearance?: ButtonProps["appearance"];
 }
 
-export function ImageUploadButton({ onBegin, onEnd }: UploadButtonProps) {
+export function ImageUploadButton({
+  onBegin,
+  onEnd,
+  size = "sm",
+  className,
+  appearance
+}: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { mutateAsync: uploadImage, isPending } = useImageUpload();
@@ -37,10 +46,12 @@ export function ImageUploadButton({ onBegin, onEnd }: UploadButtonProps) {
   return (
     <>
       <Button
-        size="sm"
+        size={size}
         disabled={isPending}
         onClick={() => inputRef.current?.click()}
         icon={isPending ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
+        className={className}
+        appearance={appearance}
       />
       <input
         type="file"

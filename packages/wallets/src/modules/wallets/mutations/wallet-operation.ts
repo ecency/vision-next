@@ -1,5 +1,6 @@
 import {
   AssetOperation,
+  claimHiveEngineRewards,
   delegateEngineToken,
   delegateHive,
   getHiveEngineTokensBalancesQueryOptions,
@@ -20,8 +21,10 @@ import {
   powerUpLarynx,
   transferLarynx,
   claimInterestHive,
+  convertHbd,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
 
@@ -40,6 +43,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.TransferToSavings]: transferToSavingsHive,
     [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
     [AssetOperation.ClaimInterest]: claimInterestHive,
+    [AssetOperation.Convert]: convertHbd,
   },
   HP: {
     [AssetOperation.PowerDown]: powerDownHive,
@@ -47,6 +51,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.WithdrawRoutes]: withdrawVestingRouteHive,
   },
   POINTS: {
+    [AssetOperation.Transfer]: transferPoint,
     [AssetOperation.Gift]: transferPoint,
   },
   SPK: {
@@ -65,12 +70,25 @@ const engineOperationToFunctionMap: Partial<Record<AssetOperation, any>> = {
   [AssetOperation.Unstake]: unstakeEngineToken,
   [AssetOperation.Delegate]: delegateEngineToken,
   [AssetOperation.Undelegate]: undelegateEngineToken,
+  [AssetOperation.Claim]: (payload: any, auth?: any) => {
+    // Claim expects account and tokens array
+    return claimHiveEngineRewards(
+      {
+        account: payload.from,
+        tokens: [payload.asset],
+        type: payload.type,
+        ...(payload.type === "key" && payload.key ? { key: payload.key } : {}),
+      },
+      auth
+    );
+  },
 };
 
 export function useWalletOperation(
   username: string,
   asset: string,
-  operation: AssetOperation
+  operation: AssetOperation,
+  auth?: AuthContext
 ) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
@@ -82,7 +100,7 @@ export function useWalletOperation(
     mutationFn: async (payload: Record<string, unknown>) => {
       const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
-        return operationFn(payload);
+        return operationFn(payload, auth);
       }
 
       // Handle Hive engine ops
@@ -93,10 +111,11 @@ export function useWalletOperation(
         balancesListQuery.queryKey
       );
 
-      if (balances?.some((b) => b.symbol === asset)) {
+      const engineBalances = (balances ?? []) as HiveEngineTokenBalance[];
+      if (engineBalances.some((balance) => balance.symbol === asset)) {
         const operationFn = engineOperationToFunctionMap[operation];
         if (operationFn) {
-          return operationFn({ ...payload, asset });
+          return operationFn({ ...payload, asset }, auth);
         }
       }
 
@@ -105,17 +124,42 @@ export function useWalletOperation(
     onSuccess: () => {
       recordActivity();
 
-      const query = getAccountWalletAssetInfoQueryOptions(username, asset, {
-        refetch: true,
+      const assetsToRefresh = new Set<string>([asset]);
+
+      if (asset === "HIVE") {
+        assetsToRefresh.add("HP");
+        assetsToRefresh.add("HIVE");
+      }
+      if (asset === "HBD") {
+        assetsToRefresh.add("HBD");
+      }
+
+      if (asset === "LARYNX" && operation === AssetOperation.PowerUp) {
+        assetsToRefresh.add("LP");
+        assetsToRefresh.add("LARYNX");
+      }
+
+      assetsToRefresh.forEach((symbol) => {
+        const query = getAccountWalletAssetInfoQueryOptions(username, symbol, {
+          refetch: true,
+        });
+
+        // Give some time to blockchain
+        setTimeout(
+          () =>
+            getQueryClient().invalidateQueries({
+              queryKey: query.queryKey,
+            }),
+          5000
+        );
       });
 
-      // Give a some time to blockchain
       setTimeout(
         () =>
           getQueryClient().invalidateQueries({
-            queryKey: query.queryKey,
+            queryKey: ["ecency-wallets", "portfolio", "v2", username],
           }),
-        5000
+        4000
       );
     },
   });

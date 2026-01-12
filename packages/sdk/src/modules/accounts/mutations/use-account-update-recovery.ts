@@ -1,5 +1,4 @@
-import { CONFIG, getAccessToken, getBoundFetch } from "@/modules/core";
-import { Keychain } from "@/modules/keychain";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 import { PrivateKey } from "@hiveio/dhive";
 import {
   useMutation,
@@ -8,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import hs from "hivesigner";
 import { getAccountFullQueryOptions } from "../queries";
+import type { AuthContext } from "@/modules/core/types";
 
 type SignType = "key" | "keychain" | "hivesigner" | "ecency";
 
@@ -25,7 +25,9 @@ type UpdateRecoveryOptions = Pick<
 
 export function useAccountUpdateRecovery(
   username: string | undefined,
-  options: UpdateRecoveryOptions
+  code: string | undefined,
+  options: UpdateRecoveryOptions,
+  auth?: AuthContext
 ) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
@@ -45,12 +47,15 @@ export function useAccountUpdateRecovery(
       };
 
       if (type === "ecency") {
+        if (!code) {
+          throw new Error("[SDK][Accounts] – missing access token");
+        }
         const fetchApi = getBoundFetch();
 
         return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
           method: "POST",
           body: JSON.stringify({
-            code: getAccessToken(data.name),
+            code,
             email,
             publicKeys: [
               ...data.owner.key_auths,
@@ -66,11 +71,10 @@ export function useAccountUpdateRecovery(
           key
         );
       } else if (type === "keychain") {
-        return Keychain.broadcast(
-          data.name,
-          [["change_recovery_account", operationBody]],
-          "Active"
-        ) as Promise<any>;
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] – missing keychain broadcaster");
+        }
+        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
         const params = {
           callback: `https://ecency.com/@${data.name}/permissions`,

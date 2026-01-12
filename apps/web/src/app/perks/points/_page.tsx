@@ -1,6 +1,7 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { error, LoginRequired, PurchaseQrDialog, PurchaseTypes, success } from "@/features/shared";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
@@ -9,9 +10,10 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/operations";
+import { getAccessToken } from "@/utils";
 
 export function PointsPage() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: activeUserPoints } = useQuery(getPointsQueryOptions(activeUser?.username));
 
   const [showPurchaseQr, setShowPurchaseQr] = useState(false);
@@ -24,6 +26,7 @@ export function PointsPage() {
 
   const { mutateAsync: claim, isPending } = useClaimPoints(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );

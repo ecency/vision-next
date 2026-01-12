@@ -1,6 +1,7 @@
-import { getAccountsQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountsQueryOptions } from "@ecency/sdk";
 import { ProfileLink, UserAvatar } from "@/features/shared";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   Badge,
   Button,
@@ -37,9 +38,9 @@ export function CommunityCreateAccountStep({
   setDefaultBeneficiary
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
-  const { data: accounts } = getAccountsQuery([username]).useClientQuery();
+  const { data: accounts } = useQuery(getAccountsQueryOptions([username]));
   const usernameStatus = useMemo(() => {
     if (!new RegExp(COMMUNITY_NAME_PATTERN).test(username)) {
       return "not-valid";

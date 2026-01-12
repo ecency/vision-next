@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import i18next from "i18next";
 import {
+  Children,
   PropsWithChildren,
   ReactNode,
   useMemo,
@@ -63,6 +64,9 @@ export function ProfileWalletTokenHistoryHiveItem({
     [hasRawDetails, rawDetails]
   );
 
+  const hasDetailsContent = Children.count(children) > 0;
+  const hasNumberContent = Children.count(numbers ?? null) > 0;
+
   const toggleExpansion = () => {
     if (!hasRawDetails) {
       return;
@@ -116,23 +120,43 @@ export function ProfileWalletTokenHistoryHiveItem({
       aria-expanded={hasRawDetails ? isExpanded : undefined}
     >
       <div
-        className={`leading-[1] p-4 grid items-start gap-4 grid-cols-[32px_2fr_2fr_1fr]${
+        className={`leading-[1] p-4 flex flex-col gap-4 md:grid md:grid-cols-[32px_minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] md:items-start md:gap-4${
           hasRawDetails
             ? " transition-colors group-hover:bg-gray-50 dark:group-hover:bg-gray-900/20"
             : ""
         }`}
       >
-        <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex items-center justify-center p-2 rounded-lg">
-          {icon}
-        </div>
-        <div className="transaction-title">
-          <div>{operationLabel}</div>
-          <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">
-            {format(new Date(timestamp), "dd.MM.yyyy hh:mm")}
+        <div className="flex items-start gap-3 md:col-span-2 md:col-start-1 md:row-start-1 md:gap-4">
+          <div className="text-blue-dark-sky bg-blue-duck-egg dark:bg-blue-dark-grey flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+            {icon}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="transaction-title">
+              <div>{operationLabel}</div>
+              <div className="text-sm mt-1 text-gray-600 dark:text-gray-400">
+                {format(new Date(timestamp), "dd.MM.yyyy hh:mm")}
+              </div>
+            </div>
+            {hasDetailsContent ? (
+              <div className="mt-3 text-sm text-gray-600 dark:text-gray-300 md:hidden">
+                {children}
+              </div>
+            ) : null}
+            {hasNumberContent ? (
+              <div className="mt-3 text-blue-dark-sky font-medium md:hidden">{numbers}</div>
+            ) : null}
           </div>
         </div>
-        <div className="text-sm">{children}</div>
-        <div className="text-blue-dark-sky text-right">{numbers}</div>
+        {hasDetailsContent ? (
+          <div className="hidden min-w-0 text-sm text-gray-600 dark:text-gray-400 md:block md:col-start-3 md:self-start">
+            {children}
+          </div>
+        ) : null}
+        {hasNumberContent ? (
+          <div className="hidden text-right font-medium text-blue-dark-sky md:block md:col-start-4 md:self-start">
+            {numbers}
+          </div>
+        ) : null}
       </div>
 
       {hasRawDetails && isExpanded && formattedRawDetails && (

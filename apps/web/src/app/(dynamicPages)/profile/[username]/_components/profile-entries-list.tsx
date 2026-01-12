@@ -1,13 +1,17 @@
 import { Entry, FullAccount } from "@/entities";
 import { EntryListContent } from "@/features/shared";
 import React from "react";
-import { getPostQuery, getPostsFeedQueryData } from "@/api/queries";
+import { getPostsFeedQueryData } from "@/api/queries";
+import { getQueryData } from "@/core/react-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { ProfileEntriesInfiniteList } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-infinite-list";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
   section: string;
   account: FullAccount;
+  initialFeed?: InfiniteData<Entry[], unknown>;
 }
 
 function shouldShowPinnedEntry(account: FullAccount, section: string) {
@@ -18,18 +22,29 @@ function shouldShowPinnedEntry(account: FullAccount, section: string) {
   );
 }
 
-export async function ProfileEntriesList({ section, account }: Props) {
+export async function ProfileEntriesList({ section, account, initialFeed }: Props) {
   const pinnedEntry = shouldShowPinnedEntry(account, section)
-    ? getPostQuery(account.name, account.profile?.pinned).getData()
+    ? getQueryData(EcencyEntriesCacheManagement.getEntryQueryByPath(account.name, account.profile?.pinned))
     : undefined;
 
-  const data = getPostsFeedQueryData(section, `@${account.name}`)?.pages ?? [];
-  const entryList =
-    (data[0] as Entry[])?.filter((item: Entry) => item.permlink !== account.profile?.pinned) ?? [];
+  const prefetchedFeed =
+    initialFeed ??
+    (getPostsFeedQueryData(section, `@${account.name}`) as InfiniteData<Entry[], unknown> | undefined);
+
+  const feedPages = prefetchedFeed?.pages ?? [];
+  const initialPageEntries =
+    (feedPages[0] as Entry[] | undefined)?.filter(
+      (item: Entry) => item.permlink !== account.profile?.pinned
+    ) ?? [];
+  const entryList = [...initialPageEntries];
 
   if (pinnedEntry) {
     entryList.unshift(pinnedEntry);
   }
+
+  const initialPageEntriesCount = initialPageEntries.length;
+  const initialEntriesCount = entryList.length;
+  const initialDataLoaded = Boolean(initialFeed) || feedPages.length > 0;
 
   return (
     <>
@@ -37,12 +52,19 @@ export async function ProfileEntriesList({ section, account }: Props) {
         <EntryListContent
           account={account}
           username={`@${account.name}`}
-          loading={false}
+          loading={!initialDataLoaded && initialEntriesCount === 0}
           entries={entryList}
           sectionParam={section}
           isPromoted={false}
+          showEmptyPlaceholder={false}
         />
-        <ProfileEntriesInfiniteList section={section} account={account} />
+        <ProfileEntriesInfiniteList
+          section={section}
+          account={account}
+          initialEntriesCount={initialEntriesCount}
+          initialPageEntriesCount={initialPageEntriesCount}
+          initialDataLoaded={initialDataLoaded}
+        />
       </ProfileEntriesLayout>
     </>
   );

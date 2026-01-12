@@ -1,7 +1,9 @@
-import { CONFIG, Keychain } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 interface PayloadBase {
   from: string;
@@ -20,7 +22,8 @@ export async function transferFromSavingsHive<
 >(
   payload: T extends "key"
     ? PayloadWithKey<T> & { key: PrivateKey }
-    : PayloadWithKey<T>
+    : PayloadWithKey<T>,
+  auth?: AuthContext
 ) {
   const requestId = payload.request_id ?? (Date.now() >>> 0);
   const operationPayload = {
@@ -31,25 +34,25 @@ export async function transferFromSavingsHive<
     request_id: requestId,
   };
 
+  const operation: Operation = ["transfer_from_savings", operationPayload];
+
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
-      [["transfer_from_savings", operationPayload]],
+      [operation],
       key
     );
   }
 
-  if (payload.type === "keychain") {
-    return Keychain.broadcast(
-      payload.from,
-      [["transfer_from_savings", operationPayload]],
-      "Active"
-    ) as Promise<unknown>;
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
-  return hs.sendOperation(
-    ["transfer_from_savings", operationPayload],
-    { callback: `https://ecency.com/@${payload.from}/wallet` },
-    () => {}
-  );
+  return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
 }

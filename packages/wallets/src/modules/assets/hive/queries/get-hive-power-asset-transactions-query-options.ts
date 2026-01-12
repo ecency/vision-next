@@ -18,6 +18,11 @@ export function getHivePowerAssetTransactionsQueryOptions(
 ) {
   const { filterKey } = resolveHiveOperationFilters(filters);
 
+  const userSelectedOperations = new Set<string>(
+    Array.isArray(filters) ? filters : [filters]
+  );
+  const hasAllFilter = userSelectedOperations.has("" as any) || userSelectedOperations.size === 0;
+
   return infiniteQueryOptions<HiveTransaction[]>({
     ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
     queryKey: [
@@ -68,7 +73,9 @@ export function getHivePowerAssetTransactionsQueryOptions(
             case "set_withdraw_vesting_route":
               return true;
             default:
-              return false;
+              // If user explicitly selected this operation or selected "All", show it
+              // Otherwise, filter it out (maintains backward compatibility when using default filters)
+              return hasAllFilter || userSelectedOperations.has(item.type);
           }
         })
       ),

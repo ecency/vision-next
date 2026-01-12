@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Parse asset(token) (1) should parse 1`] = `
+{
+  "amount": 18.494,
+  "symbol": "HBD",
+}
+`;
+
+exports[`Parse asset(token) (2) should parse 1`] = `
+{
+  "amount": 0.012,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`Parse asset(token) (3) should fallback on malformed string 1`] = `
+{
+  "amount": 0,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`Parse asset(token) (4) should handle empty value 1`] = `
+{
+  "amount": 0,
+  "symbol": "HIVE",
+}
+`;

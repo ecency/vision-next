@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import {
@@ -7,7 +9,6 @@ import {
   getTranslation,
   Language,
 } from "@/api/translation";
-import { useGlobalStore } from "@/core/global-store";
 import { Button } from "@/features/ui";
 import { flip, shift } from "@floating-ui/dom";
 import { useFloating } from "@floating-ui/react-dom";
@@ -55,7 +56,7 @@ class VirtualSelectionReference {
 }
 
 export const SelectionPopover = ({ children, postUrl }: any) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { setSelection, commentsInputRef } = useContext(EntryPageContext);
 
   const [_, copyToClipboard] = useCopyToClipboard();

@@ -1,9 +1,11 @@
-import type { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
+import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
@@ -27,8 +29,7 @@ import {
 import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
 
 function format(value: number) {
-  const formatter = new Intl.NumberFormat();
-  return formatter.format(value);
+  return formatAssetBalance(value);
 }
 
 export function ProfileWalletTokenSummary() {
@@ -66,7 +67,7 @@ export function ProfileWalletTokenSummary() {
     );
 
   const { data, isFetching } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback)
+    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency: currency || "usd" })
   );
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
@@ -90,20 +91,18 @@ export function ProfileWalletTokenSummary() {
       : `${normalizedCurrency ?? "USD"} Balance`;
 
   const fiatBalance = liquidBalance * (data?.price ?? 0);
-
+  const formattedApr = formatApr(data?.apr);
   const cards: { label: string; value: ReactNode }[] = [
     {
       label: hasSavingsBalance
         ? "Current Balance"
-        : hasStakedBalance
-        ? "Liquid Balance"
-        : "Balance",
+        : "Available",
       value: format(liquidBalance),
     },
     ...(hasStakedBalance
       ? [
           {
-            label: "Staked Balance",
+            label: "Staked",
             value: format(stakedBalance),
           },
         ]
@@ -120,11 +119,11 @@ export function ProfileWalletTokenSummary() {
       label: fiatBalanceLabel,
       value: <FormattedCurrency value={fiatBalance} />,
     },
-    ...(data?.apr
+    ...(formattedApr
       ? [
           {
             label: "APR",
-            value: `${+data.apr}%`,
+            value: `${formattedApr}%`,
           },
         ]
       : []),
@@ -152,10 +151,11 @@ export function ProfileWalletTokenSummary() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
-          <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
+    <>
+      <div className="flex flex-col gap-4">
+        <div className="bg-white/80 dark:bg-dark-200/90 glass-box rounded-xl p-3 flex flex-col justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
+            <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
             <div className="mt-1">{logo}</div>
             <div>
               <div className="text-xl font-bold">{data?.title}</div>
@@ -171,7 +171,7 @@ export function ProfileWalletTokenSummary() {
         </div>
         <div className="flex flex-col gap-2 sm:items-end sm:text-right">
           <div className="text-blue-dark-sky">
-            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+            <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
           {tokenWithFallback === "POINTS" && hasPendingPoints && (
@@ -213,5 +213,6 @@ export function ProfileWalletTokenSummary() {
         <ProfileWalletHbdInterest username={cleanUsername} />
       )}
     </div>
+    </>
   );
 }

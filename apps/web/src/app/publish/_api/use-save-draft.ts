@@ -1,17 +1,19 @@
-import { addDraft, updateDraft } from "@/api/private-api";
-import { useGlobalStore } from "@/core/global-store";
+import { addDraft, updateDraft } from "@ecency/sdk";
 import { QueryIdentifiers } from "@/core/react-query";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { error, success } from "@/features/shared";
+import { error, success, info } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
+import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -19,10 +21,11 @@ type SaveDraftOptions = {
 };
 
 export function useSaveDraftApi(draftId?: string) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const router = useRouter();
   const queryClient = useQueryClient();
+  const uploadTracker = useOptionalUploadTracker();
 
   const {
     title,
@@ -78,14 +81,27 @@ export function useSaveDraftApi(draftId?: string) {
       };
 
       if (draftId) {
-        const resp = await updateDraft(username, draftId, title!, content!, tagJ!, draftMeta);
+        const resp = await updateDraft(
+          getAccessToken(username),
+          draftId,
+          title!,
+          content!,
+          tagJ!,
+          draftMeta
+        );
         if (showToast) {
           success(i18next.t("submit.draft-updated"));
         }
 
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], resp.drafts);
       } else {
-        const resp = await addDraft(username, title!, content!, tagJ!, draftMeta);
+        const resp = await addDraft(
+          getAccessToken(username),
+          title!,
+          content!,
+          tagJ!,
+          draftMeta
+        );
         if (showToast) {
           success(i18next.t("submit.draft-saved"));
         }
@@ -96,6 +112,31 @@ export function useSaveDraftApi(draftId?: string) {
         queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
         if (redirect) {
+          // Wait for any pending uploads before redirecting
+          if (uploadTracker?.hasPendingUploads) {
+            info(i18next.t("publish.waiting-for-uploads", { defaultValue: "Waiting for images to upload..." }));
+            const uploadResult = await uploadTracker.waitForUploads();
+
+            // Show warning if some uploads failed
+            if (!uploadResult.allSucceeded && uploadResult.failed > 0) {
+              error(
+                i18next.t("publish.some-uploads-failed", {
+                  defaultValue: `${uploadResult.failed} image(s) failed to upload`,
+                  count: uploadResult.failed
+                })
+              );
+            }
+
+            // Show warning if some uploads timed out
+            if (uploadResult.timedOut > 0) {
+              error(
+                i18next.t("publish.uploads-timed-out", {
+                  defaultValue: `${uploadResult.timedOut} image upload(s) timed out`,
+                  count: uploadResult.timedOut
+                })
+              );
+            }
+          }
           router.push(`/publish/drafts/${draft._id}`);
         }
 

@@ -6,13 +6,14 @@ import i18next from "i18next";
 import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
 import { EntryTipBtn, FormattedCurrency } from "@/features/shared";
 import { getVoteValue, setVoteValue } from "@/features/shared/entry-vote-btn/utils";
-import { useGlobalStore } from "@/core/global-store";
 import { InputVote } from "@ui/input";
 import { parseAsset } from "@/utils";
-import { votingPower } from "@/api/hive";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions, votingPower } from "@ecency/sdk";
 import { Account, Entry } from "@/entities";
 import { Spinner } from "@ui/spinner";
+import { useActiveAccount } from "@/core/hooks";
+import { useQuery } from "@tanstack/react-query";
 
 type Mode = "up" | "down";
 
@@ -43,28 +44,28 @@ export function EntryVoteDialog({
   account,
   isVotingLoading
 }: VoteDialogProps) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { username, account: activeAccount, isLoading: isAccountLoading } = useActiveAccount();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const getUpVotedValue = useCallback(
     () =>
       getVoteValue(
         "up",
-        activeUser?.username! + "-" + entry.post_id,
-        getVoteValue("upPrevious", activeUser?.username!, 100, isPostSlider),
+        username! + "-" + entry.post_id,
+        getVoteValue("upPrevious", username!, 100, isPostSlider),
         isPostSlider
       ),
-    [activeUser?.username, entry.post_id, isPostSlider]
+    [username, entry.post_id, isPostSlider]
   );
   const getDownVotedValue = useCallback(
     () =>
       getVoteValue(
         "down",
-        activeUser?.username! + "-" + entry.post_id,
-        getVoteValue("downPrevious", activeUser?.username!, -1, isPostSlider),
+        username! + "-" + entry.post_id,
+        getVoteValue("downPrevious", username!, -1, isPostSlider),
         isPostSlider
       ),
-    [activeUser?.username, entry.post_id, isPostSlider]
+    [username, entry.post_id, isPostSlider]
   );
 
   const [mode, setMode] = useState<Mode>(downVoted ? "down" : "up");
@@ -121,15 +122,11 @@ export function EntryVoteDialog({
   );
 
   const estimate = (percent: number): number => {
-    if (!activeUser) {
-      return 0;
-    }
-
     const { fundRecentClaims, fundRewardBalance, base, quote } =
       dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
-    const { data: account } = activeUser;
 
-    if (!account.__loaded) {
+    // Return 0 while account is loading or not available
+    if (isAccountLoading || !activeAccount) {
       return 0;
     }
 
@@ -137,13 +134,13 @@ export function EntryVoteDialog({
     const postRshares = entry.net_rshares;
 
     const totalVests =
-      parseAsset(account.vesting_shares).amount +
-      parseAsset(account.received_vesting_shares).amount -
-      parseAsset(account.delegated_vesting_shares).amount;
+      parseAsset(activeAccount.vesting_shares).amount +
+      parseAsset(activeAccount.received_vesting_shares).amount -
+      parseAsset(activeAccount.delegated_vesting_shares).amount;
 
     const userVestingShares = totalVests * 1e6;
 
-    const userVotingPower = votingPower(account) * Math.abs(percent);
+    const userVotingPower = votingPower(activeAccount) * Math.abs(percent);
     const voteEffectiveShares = userVestingShares * (userVotingPower / 10000) * 0.02;
 
     // reward curve algorithm (no idea whats going on here)
@@ -179,8 +176,8 @@ export function EntryVoteDialog({
     if (!upVoted || (upVoted && initialVoteValues.up !== upSliderVal)) {
       const estimated = Number(estimate(upSliderVal).toFixed(3));
       onClick(upSliderVal, estimated);
-      setVoteValue("up", `${activeUser?.username!}-${entry.post_id}`, upSliderVal);
-      setVoteValue("upPrevious", `${activeUser?.username!}-${entry.post_id}`, upSliderVal);
+      setVoteValue("up", `${username!}-${entry.post_id}`, upSliderVal);
+      setVoteValue("upPrevious", `${username!}-${entry.post_id}`, upSliderVal);
       setWrongValueUp(false);
       setWrongValueDown(false);
       ls.set(isPostSlider ? "post_upSlider_value" : "comment_upSlider_value", upSliderVal);
@@ -189,7 +186,7 @@ export function EntryVoteDialog({
       setWrongValueDown(false);
     }
   }, [
-    activeUser?.username,
+    username,
     entry.post_id,
     estimate,
     initialVoteValues.up,
@@ -208,15 +205,15 @@ export function EntryVoteDialog({
       onClick(downSliderValue, estimated);
       setWrongValueDown(false);
       setWrongValueUp(false);
-      setVoteValue("down", `${activeUser?.username!}-${entry.post_id}`, downSliderValue);
-      setVoteValue("downPrevious", `${activeUser?.username!}-${entry.post_id}`, downSliderValue);
+      setVoteValue("down", `${username!}-${entry.post_id}`, downSliderValue);
+      setVoteValue("downPrevious", `${username!}-${entry.post_id}`, downSliderValue);
       ls.set(isPostSlider ? "post_downSlider_value" : "comment_downSlider_value", downSliderVal);
     } else if (downVoted && initialVoteValues.down === downSliderValue) {
       setWrongValueDown(true);
       setWrongValueUp(false);
     }
   }, [
-    activeUser?.username,
+    username,
     downSliderVal,
     entry.post_id,
     estimate,

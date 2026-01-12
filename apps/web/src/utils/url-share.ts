@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { makeEntryPath } from "./make-path";
 
 export const makeEcencyUrl = (cat: string, author: string, permlink: string): string => {
@@ -51,4 +51,34 @@ export const makeShareUrlFacebook = (cat: string, author: string, permlink: stri
 export const makeShareUrlLinkedin = (cat: string, author: string, permlink: string): string => {
   const u = makeEcencyUrl(cat, author, permlink);
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}`;
+};
+
+export const makeShareUrlDiscord = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `https://discord.com/channels/@me?title=${encodeURIComponent(title)}&url=${encodeURIComponent(u)}`;
+};
+
+export const makeShareUrlChats = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `${defaults.base}/chats?text=${encodeURIComponent(`${title} - ${u}`)}`;
+};
+
+export const makeShareUrlWaves = (
+  cat: string,
+  author: string,
+  permlink: string,
+  title: string
+): string => {
+  const u = makeEcencyUrl(cat, author, permlink);
+  return `${defaults.base}/waves?text=${encodeURIComponent(`${title} - ${u}`)}`;
 };

@@ -1,19 +1,21 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
-import { useHiveEngineUnclaimedRewardsQuery } from "@/api/queries/engine";
-import { claimRewards } from "@/api/hive-engine";
-import { QueryIdentifiers } from "@/core/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { formattedNumber } from "@/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
+import { claimHiveEngineRewards, getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
+import { getUser } from "@/utils/user-token";
+import { getSdkAuthContext } from "@/utils/sdk-auth";
+import { shouldUseHiveAuth } from "@/utils/client";
+import { PrivateKey } from "@hiveio/dhive";
 
 type PendingAmountInfo = {
   formatted: string;
@@ -25,6 +27,7 @@ export type HiveEngineClaimRewardsButtonProps = {
   username?: string;
   showIcon?: boolean;
   fullWidth?: boolean;
+  pendingRewards?: number; // Direct value from portfolio v2
 };
 
 type HiveEngineClaimRewardsState = {
@@ -39,9 +42,10 @@ type HiveEngineClaimRewardsState = {
 export function useHiveEngineClaimRewardsState(
   username?: string,
   tokenSymbol?: string,
-  enabled = true
+  enabled = true,
+  pendingRewardsProp?: number // Optional direct value from portfolio v2
 ): HiveEngineClaimRewardsState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const sanitizedTokenSymbol = tokenSymbol?.toUpperCase();
   const sanitizedUsername =
@@ -50,46 +54,48 @@ export function useHiveEngineClaimRewardsState(
   const shouldQuery =
     enabled &&
     Boolean(sanitizedUsername) &&
-    activeUser?.username === sanitizedUsername;
+    Boolean(sanitizedTokenSymbol) &&
+    activeUser?.username === sanitizedUsername &&
+    pendingRewardsProp === undefined; // Only query if not provided as prop
 
-  const { data: unclaimedRewards } = useHiveEngineUnclaimedRewardsQuery(
-    shouldQuery && sanitizedUsername ? sanitizedUsername : undefined
-  );
-
-  const pendingReward = useMemo(
-    () =>
-      enabled && sanitizedTokenSymbol
-        ? unclaimedRewards?.find(
-            (reward) => reward.symbol?.toUpperCase() === sanitizedTokenSymbol
-          )
-        : undefined,
-    [enabled, sanitizedTokenSymbol, unclaimedRewards]
-  );
+  // Get wallet asset info from portfolio v2 (only if not provided as prop)
+  const { data: walletAssetInfo } = useQuery({
+    ...getAccountWalletAssetInfoQueryOptions(
+      sanitizedUsername ?? "",
+      sanitizedTokenSymbol ?? ""
+    ),
+    enabled: shouldQuery
+  });
 
   const pendingAmountInfo = useMemo<PendingAmountInfo | undefined>(() => {
-    if (!enabled || !pendingReward) {
+    if (!enabled) {
       return undefined;
     }
 
-    const rawPending = Number(pendingReward.pending_token);
-    const decimals = Math.max(0, Number(pendingReward.precision ?? 0));
-    const divisor = Math.pow(10, decimals);
+    // Use prop value if provided, otherwise get from query
+    const rawPending = pendingRewardsProp ?? walletAssetInfo?.pendingRewards;
 
     if (
+      rawPending === undefined ||
       !Number.isFinite(rawPending) ||
-      rawPending <= 0 ||
-      !Number.isFinite(divisor) ||
-      divisor === 0
+      rawPending <= 0
     ) {
       return undefined;
     }
 
-    const amount = rawPending / divisor;
+    // Only show rewards if amount is meaningful (> 0.000001)
+    // This prevents showing "0.000000+" for dust amounts
+    const threshold = 0.000001;
+    if (rawPending < threshold) {
+      return undefined;
+    }
 
+    // Use up to 8 decimal places for precision
+    const decimals = 8;
     return {
-      formatted: formattedNumber(amount, { fractionDigits: decimals })
+      formatted: formattedNumber(rawPending, { fractionDigits: decimals })
     };
-  }, [enabled, pendingReward]);
+  }, [enabled, pendingRewardsProp, walletAssetInfo]);
 
   const hasPendingRewards = Boolean(pendingAmountInfo);
   const isOwnProfile = Boolean(
@@ -113,10 +119,16 @@ export function HiveEngineClaimRewardsButton({
   username: usernameProp,
   showIcon = false,
   fullWidth = false,
+  pendingRewards: pendingRewardsProp,
 }: HiveEngineClaimRewardsButtonProps) {
+  const { activeUser } = useActiveAccount();
   const params = useParams();
   const { token, username } = params ?? {};
   const queryClient = useQueryClient();
+  const auth = useMemo(
+    () => (activeUser ? getSdkAuthContext(getUser(activeUser.username)) : undefined),
+    [activeUser]
+  );
 
   const tokenFromParams =
     typeof token === "string" ? token.toUpperCase() : undefined;
@@ -134,7 +146,8 @@ export function HiveEngineClaimRewardsButton({
   } = useHiveEngineClaimRewardsState(
     usernameProp ?? usernameFromParams,
     tokenSymbolProp ?? tokenFromParams,
-    Boolean(tokenSymbolProp ?? tokenFromParams)
+    Boolean(tokenSymbolProp ?? tokenFromParams),
+    pendingRewardsProp
   );
 
   const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
@@ -143,7 +156,30 @@ export function HiveEngineClaimRewardsButton({
         return formattedAmount;
       }
 
-      await claimRewards(cleanUsername, [tokenSymbol]);
+      const user = getUser(cleanUsername);
+      const loginType = user?.loginType;
+
+      // When loginType is undefined, default to hivesigner (no extension required)
+      const signType =
+        shouldUseHiveAuth(cleanUsername)
+          ? "hiveauth"
+          : loginType === "keychain"
+            ? "keychain"
+            : "hivesigner";
+
+      if (loginType === "privateKey" && user?.postingKey) {
+        await claimHiveEngineRewards({
+          account: cleanUsername,
+          tokens: [tokenSymbol],
+          type: "key",
+          key: PrivateKey.fromString(user.postingKey)
+        });
+      } else {
+        await claimHiveEngineRewards(
+          { account: cleanUsername, tokens: [tokenSymbol], type: signType },
+          auth
+        );
+      }
       return formattedAmount;
     },
     onSuccess: async (formattedAmount) => {
@@ -160,36 +196,21 @@ export function HiveEngineClaimRewardsButton({
 
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: [
-            QueryIdentifiers.HIVE_ENGINE_UNCLAIMED_REWARDS,
-            cleanUsername
-          ]
+          queryKey: ["assets", "hive-engine", "unclaimed", cleanUsername]
         }),
         queryClient.invalidateQueries({
           queryKey: ["assets", "hive-engine", "balances", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "assets",
-            "hive-engine",
-            tokenSymbol,
-            "transactions",
-            cleanUsername
-          ]
+          queryKey: ["assets", "hive-engine", tokenSymbol, "transactions", cleanUsername]
         }),
         queryClient.invalidateQueries({
-          queryKey: [
-            "ecency-wallets",
-            "asset-info",
-            cleanUsername,
-            tokenSymbol
-          ]
+          queryKey: ["ecency-wallets", "asset-info", cleanUsername, tokenSymbol]
         })
       ]);
     },
     onError: (err) => error(...formatError(err))
   });
-
   if (!hasPendingRewards || !pendingAmountInfo || !tokenSymbol) {
     return null;
   }
@@ -219,4 +240,3 @@ export function HiveEngineClaimRewardsButton({
     </Button>
   );
 }
-

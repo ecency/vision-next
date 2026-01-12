@@ -1,22 +1,25 @@
-import { IdentifiableEntry, ThreadItemEntry } from "./identifiable-entry";
-import * as bridgeApi from "@/api/bridge";
+import { ThreadItemEntry } from "./identifiable-entry";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import { FetchQueryOptions } from "@tanstack/query-core";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getQueryClient } from "@/core/react-query";
 
 export async function fetchThreadsFromCommunity(
   host: string,
   community: string,
   lastContainer?: ThreadItemEntry
 ): Promise<ThreadItemEntry[]> {
-  let threadItems = (await bridgeApi.getPostsRanked(
-    "created",
-    lastContainer?.author,
-    lastContainer?.permlink,
-    50,
-    community
-  )) as IdentifiableEntry[];
+  const threadItems = await getQueryClient().fetchQuery(
+    getPostsRankedQueryOptions(
+      "created",
+      lastContainer?.author,
+      lastContainer?.permlink,
+      50,
+      community
+    )
+  );
 
-  threadItems = threadItems.map((item) => {
+  const threadItemsWithHost = threadItems.map((item) => {
     const titleEnd = item.title.slice(item.title.length - 4, item.title.length);
     const bodyStart = item.body.slice(0, 4);
     if (titleEnd === " ..." && bodyStart === "... ") {
@@ -33,12 +36,13 @@ export async function fetchThreadsFromCommunity(
     };
   });
 
-  threadItems = threadItems.map((item) => ({
+  const lastContainerItem = threadItemsWithHost[threadItemsWithHost.length - 1];
+  const threadItemsWithContainer = threadItemsWithHost.map((item) => ({
     ...item,
-    container: threadItems[threadItems.length - 1]
+    container: lastContainerItem
   }));
 
-  return threadItems;
+  return threadItemsWithContainer as ThreadItemEntry[];
 }
 
 export function communityThreadsQuery(

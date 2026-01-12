@@ -3,19 +3,17 @@ import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getAccountFullQuery,
-  getDynamicPropsQuery,
-  getVestingDelegationsQuery
-} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions, getVestingDelegationsQueryOptions } from "@ecency/sdk";
 import { useDebounce } from "react-use";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
 export function useDebounceTransferAccountData() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser, account } = useActiveAccount();
 
   const { to, mode, setAmount, setTo } = useTransferSharedState();
 
@@ -23,17 +21,22 @@ export function useDebounceTransferAccountData() {
   const [vestingDelegationUsername, setVestingDelegationUsername] = useState<string>();
   const [toWarning, setToWarning] = useState<string>();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const {
     data: toData,
     error: toError,
     isLoading: toLoading
-  } = getAccountFullQuery(toDebounce).useClientQuery();
+  } = useQuery(getAccountFullQueryOptions(toDebounce));
   const {
-    data: vestingDelegations,
+    data: vestingDelegationsData,
     error: vestingDelegationsError,
     isLoading: vestingLoading
-  } = getVestingDelegationsQuery(vestingDelegationUsername, to, 1000).useClientQuery();
+  } = useInfiniteQuery(getVestingDelegationsQueryOptions(vestingDelegationUsername, to, 1000));
+
+  const vestingDelegations = useMemo(
+    () => vestingDelegationsData?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    [vestingDelegationsData?.pages]
+  );
 
   const [delegatedAmount, amount, delegateAccount] = useMemo(() => {
     const delegateAccount =
@@ -59,6 +62,25 @@ export function useDebounceTransferAccountData() {
       delegateAccount
     ];
   }, [activeUser?.username, dynamicProps, to, vestingDelegations]);
+
+  const externalWallets = useMemo(() => {
+    if (!toData?.profile?.tokens || !Array.isArray(toData.profile.tokens)) {
+      return [];
+    }
+
+    return toData.profile.tokens
+      .filter((token) => {
+        const hasAddress =
+          token.meta?.address &&
+          typeof token.meta.address === "string" &&
+          token.meta.address.trim().length > 0;
+        return hasAddress && token.type === "CHAIN";
+      })
+      .map((token) => ({
+        symbol: token.symbol.toUpperCase(),
+        address: (token.meta.address as string).trim()
+      }));
+  }, [toData]);
 
   useDebounce(
     () => {
@@ -110,13 +132,14 @@ export function useDebounceTransferAccountData() {
           "claim-interest"
         ].includes(mode)
       ) {
-        return activeUser?.data;
+        return account;
       }
 
       return toData;
-    }, [activeUser?.data, mode, toData]),
+    }, [account, mode, toData]),
     toError,
     delegateAccount,
-    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading])
+    isLoading: useMemo(() => toLoading || vestingLoading, [toLoading, vestingLoading]),
+    externalWallets
   };
 }

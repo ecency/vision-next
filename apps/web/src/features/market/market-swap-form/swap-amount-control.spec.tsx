@@ -1,4 +1,4 @@
-import { MarketAsset } from "./market-pair";
+import { HiveMarketAsset } from "./market-pair";
 import renderer from "react-test-renderer";
 import React from "react";
 import { Props, SwapAmountControl } from "./swap-amount-control";
@@ -9,8 +9,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false
@@ -25,8 +25,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false
@@ -40,8 +40,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "Test",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false
@@ -55,8 +55,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: true
@@ -70,8 +70,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false,
@@ -87,8 +87,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false,
@@ -105,8 +105,8 @@ describe("SwapAmountControl", function () {
       value: "",
       setValue: jest.fn(),
       labelKey: "",
-      asset: MarketAsset.HIVE,
-      availableAssets: [MarketAsset.HIVE, MarketAsset.HBD],
+      asset: HiveMarketAsset.HIVE,
+      availableAssets: [HiveMarketAsset.HIVE, HiveMarketAsset.HBD],
       setAsset: jest.fn(),
       usdRate: 1,
       disabled: false

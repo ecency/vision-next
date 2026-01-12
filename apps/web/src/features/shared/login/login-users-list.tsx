@@ -1,3 +1,4 @@
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import i18next from "i18next";
@@ -17,7 +18,7 @@ interface Props {
 
 export function LoginUsersList({ showOnMobile }: Props) {
   const users = useGlobalStore((state) => state.users);
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const activeUserItem = useMemo(
     () => users.find((user) => user.username === activeUser?.username),

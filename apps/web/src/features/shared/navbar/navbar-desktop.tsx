@@ -7,14 +7,16 @@ import { NavbarNotificationsButton } from "@/features/shared/navbar/navbar-notif
 import { NavbarPerksButton } from "@/features/shared/navbar/navbar-perks-button";
 import { Search } from "@/features/shared/navbar/search";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
-import { UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
+import { UilComment, UilEditAlt, UilQuestionCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
+import { useMattermostUnread } from "@/features/chat/mattermost-api";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step?: number;
@@ -34,10 +36,11 @@ export function NavbarDesktop({
   setMainBarExpanded,
   experimental = false
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
+  const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const [showSidebar, setShowSidebar] = useState(false);
 
@@ -75,22 +78,39 @@ export function NavbarDesktop({
             <Search />
           </div>
         )}
-        <div className="flex items-center ml-3">
+        <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
+          <Tooltip content={i18next.t("chat.title")}>
+            <div key={`desktop-chat-${activeUser?.username || "anon"}`} className="relative">
+              <Button
+                href="/chats"
+                appearance="gray-link"
+                className="relative"
+                icon={<UilComment width={20} height={20} />}
+              />
+              {unread?.totalUnread ? (
+                <span className="navbar-chat-badge notranslate">
+                  {unread.totalUnread}
+                </span>
+              ) : null}
+            </div>
+          </Tooltip>
           <Tooltip content={i18next.t("navbar.post")}>
             <Button
               href="/publish"
               appearance="gray-link"
-              className="ml-3"
               icon={<UilEditAlt width={20} height={20} />}
             />
           </Tooltip>
-          {hydrated && activeUser && <NavbarNotificationsButton />}
+          {hydrated && activeUser && (
+            <NavbarNotificationsButton key={`desktop-notifications-${activeUser.username}`} />
+          )}
         </div>
         <div className="btn-menu">
           <AnonUserButtons />
           {hydrated && activeUser && (
             <div
+              key={`desktop-avatar-${activeUser.username}`}
               className="cursor-pointer ml-4"
               onClick={() => {
                 setShowSidebar(true);
@@ -104,7 +124,9 @@ export function NavbarDesktop({
           )}
         </div>
       </div>
-      {hydrated && activeUser && <NavbarSide show={showSidebar} setShow={setShowSidebar} />}
+      {hydrated && activeUser && (
+        <NavbarSide key={`desktop-${activeUser.username}`} show={showSidebar} setShow={setShowSidebar} />
+      )}
       <NavbarMainSidebar
         show={mainBarExpanded}
         setShow={setMainBarExpanded}

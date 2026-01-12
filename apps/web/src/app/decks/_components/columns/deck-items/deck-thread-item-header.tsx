@@ -3,9 +3,9 @@ import { ThreadItemEntry } from "../deck-threads-manager";
 import { Spinner } from "@ui/spinner";
 import { UserAvatar } from "@/features/shared";
 import Link from "next/link";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { dateToRelative, makeEntryPath } from "@/utils";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry: ThreadItemEntry;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const DeckThreadItemHeader = ({ entry, hasParent, pure, status }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <div className="thread-item-header">

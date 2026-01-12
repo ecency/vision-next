@@ -11,13 +11,14 @@ import usePrevious from "react-use/lib/usePrevious";
 import { DeckContentTypeColumnSettings } from "./deck-column-settings/deck-content-type-column-settings";
 import { InfiniteScrollLoader } from "./helpers";
 import { newDataComingPaginatedCondition } from "../utils";
-import { useGlobalStore } from "@/core/global-store";
 import { ApiNotification, Entry } from "@/entities";
-import { getNotifications } from "@/api/private-api";
+import { getContentQueryOptions, getNotifications } from "@ecency/sdk";
 import { NotificationFilter } from "@/enums";
 import i18next from "i18next";
 import { NotificationListItem } from "@/features/shared";
-import { getContent } from "@/api/hive";
+import { useQueryClient } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   id: string;
@@ -26,7 +27,8 @@ interface Props {
 }
 
 export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const previousActiveUser = usePrevious(activeUser);
 
@@ -49,7 +51,7 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
 
       try {
         const response = await getNotifications(
-          activeUser!.username,
+          getAccessToken(activeUser!.username),
           isAll ? null : (settings.contentType as NotificationFilter),
           since?.id,
           settings.username
@@ -151,11 +153,15 @@ export const DeckNotificationsColumn = ({ id, settings, draggable }: Props) => {
               case "vote":
               case "favorites":
               case "reblog":
-                const entry = await getContent(item.author, item.permlink);
-                if (entry) {
-                  setCurrentViewingEntry(entry);
+                {
+                  const entry = await queryClient.fetchQuery(
+                    getContentQueryOptions(item.author, item.permlink)
+                  );
+                  if (entry) {
+                    setCurrentViewingEntry(entry);
+                  }
+                  break;
                 }
-                break;
               case "delegations":
               case "follow":
               case "ignore":

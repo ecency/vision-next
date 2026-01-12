@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useMemo } from "react";
 import "./_index.scss";
 import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
@@ -7,14 +9,13 @@ import { chevronUpSvg } from "@ui/svg";
 import { useVoteWitness } from "@/api/mutations";
 import { Button } from "@ui/button";
 import { useWitnessVotesQuery } from "@/app/witnesses/_queries";
-import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   witness: string;
 }
 
 export function WitnessVoteBtn({ witness }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { data: witnessVotes } = useWitnessVotesQuery();
 
   const { mutateAsync: vote, isPending } = useVoteWitness(witness);

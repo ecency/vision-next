@@ -7,13 +7,16 @@ import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_c
 import { Entry } from "@/entities";
 import { CommunityContentInfiniteList } from "@/app/(dynamicPages)/community/[community]/_components/community-content-infinite-list";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateCommunityMetadata } from "@/app/(dynamicPages)/community/[community]/_helpers";
 
 interface Props {
   params: Promise<{ community: string }>;
 }
+
+// Enable ISR with 60 second revalidation for better performance
+export const revalidate = 60;
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;
@@ -22,7 +25,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 
 export default async function CommunityPostsPage({ params }: Props) {
   const { community } = await params;
-  const communityData = await getCommunityCache(community).prefetch();
+  const communityData = await prefetchQuery(getCommunityCache(community));
   if (!communityData) {
     return notFound();
   }

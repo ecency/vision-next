@@ -295,3 +295,36 @@ exports[`(6) Browser 1`] = `
   </div>
 </div>
 `;
+
+exports[`(7) Handles query errors gracefully 1`] = `
+<a
+  className="community-selector"
+  href="#"
+  id="community-picker"
+  onClick={[Function]}
+>
+  <span
+    className="user-avatar small"
+    onClick={[Function]}
+    style={
+      Object {
+        "backgroundImage": "url(https://images.ecency.com/u/foo/avatar/small)",
+      }
+    }
+  />
+  <span
+    className="label"
+  >
+    My Blog
+  </span>
+   
+  <svg
+    viewBox="0 0 24 24"
+  >
+    <path
+      d="M7,10L12,15L17,10H7Z"
+      fill="currentColor"
+    />
+  </svg>
+</a>
+`;

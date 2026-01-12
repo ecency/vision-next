@@ -17,8 +17,7 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
-import { useGlobalStore } from "@/core/global-store";
-import { getAccountFull } from "@/api/hive";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { BuySellHiveTransactionType } from "@/enums";
 
 interface Props {
@@ -41,15 +40,12 @@ export function BuySellHiveDialog({
   },
   onTransactionSuccess
 }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState(1);
   const [inProgress, setInProgress] = useState(false);
 
-  const updateAll = (a: any) => {
-    // update active
-    updateActiveUser(a);
+  const updateAll = () => {
     setInProgress(false);
     setStep(3);
     onTransactionSuccess();
@@ -58,8 +54,7 @@ export function BuySellHiveDialog({
   const promiseCheck = (p: any) => {
     p &&
       p
-        .then(() => getAccountFull(activeUser!.username))
-        .then((a: any) => updateAll(a))
+        .then(() => updateAll())
         .catch((err: any) => {
           error(...formatError(err));
           setInProgress(false);

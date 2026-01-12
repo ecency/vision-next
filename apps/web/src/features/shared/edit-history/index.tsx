@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
 import "./index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
@@ -9,7 +9,8 @@ import { FormControl } from "@ui/input";
 import { Entry } from "@/entities";
 import i18next from "i18next";
 import { historySvg, tagSvg } from "@ui/svg";
-import { useGetCommentHistoryQuery } from "@/api/queries";
+import { getCommentHistoryQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { LinearProgress } from "@/features/shared";
 import { dateToFormatted } from "@/utils";
 import { classNameObject } from "@ui/util";
@@ -26,7 +27,9 @@ export function EditHistory({ onHide, entry }: Props) {
   const [showDiff, setShowDiff] = useState(true);
   const [selected, setSelected] = useState(1);
 
-  const { isLoading } = useGetCommentHistoryQuery(entry);
+  const { isLoading } = useQuery(
+    getCommentHistoryQueryOptions(entry.author, entry.permlink, false)
+  );
   const history = useHistoryList(entry);
 
   const selectedItem = useMemo(() => history.find((x) => x.v === selected), [history, selected]);

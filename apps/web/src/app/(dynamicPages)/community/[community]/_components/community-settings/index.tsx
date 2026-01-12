@@ -1,7 +1,8 @@
 import { useUpdateCommunity } from "@/api/mutations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Community } from "@/entities";
-import { normalizeBeneficiaryWeight } from "@/utils";
+import { getSdkAuthContext, normalizeBeneficiaryWeight } from "@/utils";
+import { getUser } from "@/utils/user-token";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +38,7 @@ const form = yup.object({
 });
 
 export function CommunitySettingsDialog({ onHide, community }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const router = useRouter();
   const methods = useForm({
@@ -55,7 +56,10 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
 
   const { data: communityOwnerAccount } = useQuery(getAccountFullQueryOptions(community.name));
 
-  const { mutateAsync: updateAccount } = useAccountUpdate(activeUser?.username ?? "");
+  const { mutateAsync: updateAccount } = useAccountUpdate(
+    activeUser?.username ?? "",
+    getSdkAuthContext(getUser(activeUser?.username ?? ""))
+  );
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 
   useEffect(() => {

@@ -5,7 +5,8 @@ import {
   parseAsset,
   vestsToHp,
 } from "@ecency/wallets";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";
@@ -59,7 +60,7 @@ export function WalletOperationsTransfer({
     getAccountWalletAssetInfoQueryOptions(username, asset)
   );
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const hivePerMVests = useMemo(
     () => (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests,
     [dynamicProps]
@@ -84,13 +85,21 @@ export function WalletOperationsTransfer({
   }, [data?.to, operation, shouldDefaultToSelf, toProp, username]);
 
   const isEngineToken = accountWallet?.layer === "ENGINE";
-  const liquidBalance = useMemo(
-    () =>
-      Number(
-        accountWallet?.parts?.find((part) => part.name === "liquid")?.balance ?? 0
-      ),
-    [accountWallet?.parts]
-  );
+  const liquidBalance = useMemo(() => {
+    const balance = accountWallet?.parts?.find((part) =>
+      ["current", "liquid"].includes(part.name)
+    )?.balance;
+
+    if (balance !== undefined && balance !== null) {
+      const parsed = Number(balance);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    const fallback = Number(accountWallet?.accountBalance ?? 0);
+    return Number.isFinite(fallback) ? fallback : 0;
+  }, [accountWallet?.accountBalance, accountWallet?.parts]);
   const stakedBalance = useMemo(
     () =>
       Number(
@@ -202,6 +211,16 @@ export function WalletOperationsTransfer({
 
       if (
         [
+          AssetOperation.Transfer,
+          AssetOperation.TransferToSavings,
+          AssetOperation.PowerUp,
+        ].includes(operation)
+      ) {
+        return { displayBalance: liquidBalance, maxAmount: liquidBalance };
+      }
+
+      if (
+        [
           AssetOperation.WithdrawFromSavings,
           AssetOperation.ClaimInterest,
         ].includes(operation)
@@ -214,7 +233,11 @@ export function WalletOperationsTransfer({
       return { displayBalance: total, maxAmount: total };
     }
 
-    if ([AssetOperation.Transfer, AssetOperation.Stake].includes(operation)) {
+    if (
+      [AssetOperation.Transfer, AssetOperation.PowerUp, AssetOperation.Stake].includes(
+        operation
+      )
+    ) {
       return { displayBalance: liquidBalance, maxAmount: liquidBalance };
     }
 

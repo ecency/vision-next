@@ -1,4 +1,4 @@
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export const apiBase = (endpoint: string): string => `${defaults.base}${endpoint}`;
 

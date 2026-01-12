@@ -8,7 +8,8 @@ import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
 import { useCommunityRewardsRegister, useCommunityRewardsRegisterKc } from "@/api/mutations";
 import { communityRewardsRegisterHot } from "@/api/operations";
-import { useGetRewardedCommunities } from "@/api/queries";
+import { getRewardedCommunitiesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   community: Community;
@@ -19,7 +20,7 @@ export function CommunityRewardsRegistrationDialog({ onHide, community }: Props)
   const [form, setForm] = useState(false);
   const [done, setDone] = useState(false);
 
-  const { data: rewardedCommunities, isLoading: isRewardingFetching } = useGetRewardedCommunities();
+  const { data: rewardedCommunities, isLoading: isRewardingFetching } = useQuery(getRewardedCommunitiesQueryOptions());
 
   const { mutateAsync: signKs, isPending: isSignKcPending } = useCommunityRewardsRegisterKc(
     community,

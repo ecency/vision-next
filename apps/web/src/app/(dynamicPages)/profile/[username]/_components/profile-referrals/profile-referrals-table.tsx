@@ -3,7 +3,8 @@ import dayjs from "@/utils/dayjs";
 import React, { useCallback, useMemo, useState } from "react";
 import i18next from "i18next";
 import { ProfileLink, Transfer, TransferAsset, TransferMode, UserAvatar } from "@/features/shared";
-import { getReferralsQuery } from "@/api/queries";
+import { getReferralsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Account } from "@/entities";
 
 interface Props {
@@ -18,7 +19,7 @@ export function ProfileReferralsTable({ account, pageSize, page }: Props) {
   const [transferAsset, setTransferAsset] = useState<TransferAsset>();
   const [referred, setReferred] = useState<string>();
 
-  const { data } = getReferralsQuery(account.name).useClientQuery();
+  const { data } = useInfiniteQuery(getReferralsInfiniteQueryOptions(account.name));
   const referrals = useMemo(
     () => data?.pages?.reduce((acc, item) => [...acc, ...item], []) ?? [],
     [data?.pages]

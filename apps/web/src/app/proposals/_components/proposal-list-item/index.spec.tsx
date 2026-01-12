@@ -19,11 +19,17 @@ import { withStore } from "../../tests/with-store";
 
 jest.mock("../../util/now", () => () => new Date("November 22, 2020 03:24:00"));
 
-jest.mock("../../api/hive", () => ({
-  getProposalVotes: (proposalId: number, voter: string = "", limit: number = 300) =>
-    new Promise((resolve) => {
-      resolve([]);
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: () => ({
+    data: dynamicPropsIntance1
+  }),
+  useInfiniteQuery: () => ({
+    data: { pages: [[]] },
+    isFetching: false,
+    fetchNextPage: jest.fn(),
+    isError: false
+  })
 }));
 
 const defProps = {

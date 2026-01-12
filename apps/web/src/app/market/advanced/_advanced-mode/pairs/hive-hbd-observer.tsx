@@ -3,15 +3,11 @@ import { DayChange } from "@/app/market/advanced/_advanced-mode/types/day-change
 import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import useInterval from "react-use/lib/useInterval";
 import { getCGMarket } from "@/api/coingecko-api";
-import { MarketAsset } from "@/features/market/market-swap-form/market-pair";
-import { useGlobalStore } from "@/core/global-store";
-import {
-  getHiveHbdStatsQuery,
-  getOpenOrdersQuery,
-  getOrderBookQuery,
-  getTransactionsQuery
-} from "@/api/queries";
+import { MarketAsset } from "@/api/market-pair";
+import { getHiveHbdStatsQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import useMount from "react-use/lib/useMount";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   onDayChange: (dayChange: DayChange) => void;
@@ -34,35 +30,44 @@ export const HiveHbdObserver = ({
   setAllOrders,
   updateRate
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const { data: transactions, refetch: reFetchTransactions } = getTransactionsQuery(
-    activeUser?.username,
+  const { username: activeUsername } = useActiveAccount();
+  const { data: transactions, refetch: reFetchTransactions } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(
+    activeUsername ?? undefined,
     50,
     "market-orders"
-  ).useClientQuery();
-  const { data: allStats, refetch: reFetchAllStats } = getHiveHbdStatsQuery().useClientQuery();
-  const { data: orderBook, refetch: reFetchOrderBook } = getOrderBookQuery(100).useClientQuery();
-  const { data: openOrders, refetch: reFetchOpenOrders } = getOpenOrdersQuery(
-    activeUser?.username ?? ""
-  ).useClientQuery();
+  ));
+  const { data: allStats, refetch: reFetchAllStats } = useQuery(getHiveHbdStatsQueryOptions());
+  const { data: orderBook, refetch: reFetchOrderBook } = useQuery(getOrderBookQueryOptions(100));
+  const { data: openOrders, refetch: reFetchOpenOrders } = useQuery(getOpenOrdersQueryOptions(
+    activeUsername ?? ""
+  ));
 
   const fetchAllStats = useCallback(async () => {
     reFetchAllStats();
     reFetchOrderBook();
-    reFetchOpenOrders();
-    reFetchTransactions();
+    if (activeUsername) {
+      reFetchOpenOrders();
+      reFetchTransactions();
+    }
 
     const usdResponse = await getCGMarket(MarketAsset.HIVE, MarketAsset.HBD);
     if (usdResponse[0]) {
       onUsdChange(usdResponse[0]);
     }
-  }, [onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]);
+  }, [activeUsername, onUsdChange, reFetchAllStats, reFetchOpenOrders, reFetchOrderBook, reFetchTransactions]);
 
   useEffect(() => {
     setAllOrders(
       transactions?.pages?.[0]?.filter((item) => item.type === "limit_order_create") ?? []
     );
   }, [setAllOrders, transactions]);
+
+  useEffect(() => {
+    if (!activeUsername) {
+      setOpenOrders([]);
+      setAllOrders([]);
+    }
+  }, [activeUsername, setAllOrders, setOpenOrders]);
 
   useInterval(() => fetchAllStats(), updateRate);
 

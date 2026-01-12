@@ -1,17 +1,29 @@
+"use client";
+
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
-import { TOKEN_LOGOS_MAP } from "@/features/wallet";
+import { getTokenLogo, WalletOperationsDialog } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
+import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
+  AssetOperation,
   getAccountWalletAssetInfoQueryOptions,
-  getAllTokensListQueryOptions
+  getAllTokensListQueryOptions,
+  getTokenOperationsQueryOptions,
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
+import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
+import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
+import { UilEllipsisH } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
 import {
   ProfileWalletClaimPointsButton,
@@ -33,6 +45,10 @@ import {
   HiveEngineClaimRewardsButton,
   useHiveEngineClaimRewardsState,
 } from "../(token)/[token]/_components/hive-engine-claim-rewards-button";
+import {
+  getProfileWalletOperationLabel,
+  profileWalletOperationIcons,
+} from "../(token)/_components/profile-wallet-token-operation-helpers";
 
 interface Props {
   username: string;
@@ -40,19 +56,29 @@ interface Props {
 }
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
+  const { activeUser } = useActiveAccount();
+  const currency = useGlobalStore((state) => state.currency);
   const sanitizedUsername = useMemo(
     () => sanitizeWalletUsername(username),
     [username]
   );
 
+  const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
+
   const { data } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset)
+    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset, { refetch: false, currency: currency || "usd" })
   );
   const { data: allTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
   );
-
-  const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
+  const { data: tokenOperations } = useQuery(
+    getTokenOperationsQueryOptions(
+      assetSymbol,
+      sanitizedUsername,
+      activeUser?.username === sanitizedUsername,
+      currency || "usd"
+    )
+  );
   const layer2Token = useMemo(
     () => allTokens?.layer2?.find((token) => token.symbol === assetSymbol),
     [allTokens?.layer2, assetSymbol]
@@ -80,14 +106,89 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         </div>
       );
     }
-    if (data) {
-      return TOKEN_LOGOS_MAP[data.name];
-    }
+    const tokenName = data?.name ?? assetSymbol;
+    return getTokenLogo(tokenName);
+  }, [assetSymbol, data?.name, layer2Token]);
 
-    return undefined;
-  }, [assetSymbol, data, layer2Token]);
+  const formattedAccountBalance = formatAssetBalance(Number(data?.accountBalance ?? 0));
 
-  const formattedAccountBalance = Number(data?.accountBalance ?? 0).toFixed(3);
+  const filteredOperations = useMemo(
+    () =>
+      (tokenOperations ?? []).filter(
+        (operation) =>
+          !(assetSymbol === "POINTS" && operation === AssetOperation.Claim)
+      ),
+    [assetSymbol, tokenOperations]
+  );
+
+  const dropdownOperationItems = useMemo(
+    () =>
+      filteredOperations.map((operation, index) => {
+        const key = `${assetSymbol}-${operation}-${index}`;
+        const operationLabel = getProfileWalletOperationLabel(operation);
+        const icon = profileWalletOperationIcons[operation];
+
+        if (
+          [AssetOperation.Buy, AssetOperation.Promote, AssetOperation.Claim].includes(
+            operation
+          )
+        ) {
+          const href = [AssetOperation.Buy, AssetOperation.Claim].includes(operation)
+            ? "/perks/points"
+            : "/perks/promote-post";
+
+          return (
+            <DropdownItemWithIcon
+              key={key}
+              icon={icon}
+              label={operationLabel}
+              href={href}
+            />
+          );
+        }
+
+        return (
+          <WalletOperationsDialog
+            key={key}
+            className="w-full"
+            asset={assetSymbol}
+            operation={operation}
+            to={
+              sanitizedUsername && sanitizedUsername !== activeUser?.username
+                ? sanitizedUsername
+                : undefined
+            }
+          >
+            <DropdownItemWithIcon icon={icon} label={operationLabel} />
+          </WalletOperationsDialog>
+        );
+      }),
+    [activeUser?.username, assetSymbol, filteredOperations, sanitizedUsername]
+  );
+
+  const hasDropdownOperations = dropdownOperationItems.length > 0;
+
+  const actionDropdown = hasDropdownOperations ? (
+    <Dropdown
+      className="relative"
+      onClick={(event) => event.stopPropagation()}
+      data-wallet-token-actions
+    >
+      <DropdownToggle>
+        <button
+          type="button"
+          className="p-1 rounded-lg text-gray-500 hover:text-blue-dark-sky hover:bg-blue-dark-sky-040 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-dark-sky"
+          title={i18next.t("g.actions")}
+          aria-label={i18next.t("g.actions")}
+        >
+          <UilEllipsisH className="h-4 w-4" />
+        </button>
+      </DropdownToggle>
+      <DropdownMenu align="right" size="small">
+        {dropdownOperationItems}
+      </DropdownMenu>
+    </Dropdown>
+  ) : null;
 
   const { hasPendingPoints } = useProfileWalletPointsClaimState(
     sanitizedUsername,
@@ -109,14 +210,25 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     useHiveEngineClaimRewardsState(
       sanitizedUsername,
       assetSymbol,
-      Boolean(layer2Token)
+      Boolean(layer2Token),
+      data?.pendingRewards
     );
+
+  const handleLinkClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
+    const targetElement = event.target as HTMLElement | null;
+
+    if (targetElement?.closest("[data-wallet-token-actions]")) {
+      event.preventDefault();
+    }
+  }, []);
 
   if (!data) {
     return <ProfileWalletTokensListItemLoading />;
   }
 
   const targetHref = `/@${sanitizedUsername}/wallet/${asset.toLowerCase()}`;
+
+  const formattedApr = formatApr(data?.apr);
 
   let claimButton: ReactNode = null;
 
@@ -160,6 +272,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         username={sanitizedUsername}
         showIcon
         fullWidth
+        pendingRewards={data?.pendingRewards}
       />
     );
   }
@@ -177,6 +290,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         <Link
           href={targetHref}
           className="block cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-dark-sky"
+          onClickCapture={handleLinkClick}
         >
           <div className="grid grid-cols-4 p-3 md:p-4">
             <div className="flex items-start gap-2 md:gap-3 col-span-2 sm:col-span-1">
@@ -193,12 +307,20 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
                 </div>
               </div>
             </div>
-            <div className="hidden sm:block">{data?.apr && <Badge>{+data.apr}% APR</Badge>}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+            <div className="hidden sm:block">
+              {formattedApr && <Badge>{formattedApr}% APR</Badge>}
             </div>
-            <div className="text-gray-900 dark:text-white">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
+            </div>
+            <div
+              className={clsx(
+                "text-gray-900 dark:text-white flex items-center gap-2",
+                hasDropdownOperations ? "justify-between" : "justify-start"
+              )}
+            >
               <div className="text-base font-semibold">{formattedAccountBalance}</div>
+              {hasDropdownOperations && actionDropdown}
             </div>
           </div>
         </Link>

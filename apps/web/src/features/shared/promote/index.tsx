@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { PrivateKey } from "@hiveio/dhive";
 import "./_index.scss";
@@ -10,12 +12,14 @@ import i18next from "i18next";
 import { LinearProgress, SuggestionList } from "@/features/shared";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { checkAllSvg } from "@ui/svg";
-import { useGlobalStore } from "@/core/global-store";
 import { promoteHot } from "@/api/operations";
 import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
-import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
-import { useMount } from "react-use";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions } from "@ecency/sdk";
+import { getAccessToken } from "@/utils";
+import { useMount, useDebounce } from "react-use";
 import { Entry } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry?: Entry;
@@ -23,17 +27,36 @@ interface Props {
 }
 
 export function Promote({ onHide, entry }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState(1);
   const [path, setPath] = useState("");
   const [pathQuery, setPathQuery] = useState("");
+  const [debouncedPathQuery, setDebouncedPathQuery] = useState("");
   const [duration, setDuration] = useState(1);
   const [balanceError, setBalanceError] = useState("");
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
-  const { data: paths } = useSearchPathQuery(pathQuery);
+  useDebounce(
+    () => {
+      setDebouncedPathQuery(pathQuery);
+    },
+    500,
+    [pathQuery]
+  );
+
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+
+  const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
+  const { data: prices, isLoading: isPricesLoading } = useQuery({
+    ...getPromotePriceQueryOptions(accessToken),
+    select: (data) => data.sort((a, b) => a.duration - b.duration)
+  });
+  const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
   const { mutateAsync: promoteByKeychain, isPending: isKeychainPending } = usePromoteByKeychain();
   const { mutateAsync: promoteByApi, isPending: isApiPending } = usePromoteByApi();
@@ -128,7 +151,7 @@ export function Promote({ onHide, entry }: Props) {
               {inProgress && <LinearProgress />}
               <div className="transaction-form-body flex flex-col">
                 <div className="self-center mb-4">
-                  <a href="/faq#how-promotion-work">{i18next.t("promote.learn-more")}</a>
+                  <a href="https://docs.ecency.com/ecency/boost-and-promote/#what-is-promote">{i18next.t("promote.learn-more")}</a>
                 </div>
                 <div className="grid grid-cols-12 mb-4">
                   <div className="col-span-12 sm:col-span-2 flex items-center">
@@ -140,7 +163,7 @@ export function Promote({ onHide, entry }: Props) {
                       className={`balance-input ${balanceError ? "is-invalid" : ""}`}
                       plaintext={true}
                       readOnly={true}
-                      value={`${activeUserPoints?.points} POINTS`}
+                      value={isPointsPending ? "..." : `${activeUserPoints?.points ?? "0"} POINTS`}
                     />
                     {balanceError && <small className="pl-3 text-red">{balanceError}</small>}
                   </div>

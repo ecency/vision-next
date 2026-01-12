@@ -37,7 +37,7 @@ export function WalletSeedPhrase({ username, onValidated, showTitle = true, size
   const { data: seed, refetch } = useSeedPhrase(username);
 
   const [_, copy] = useCopyToClipboard();
-  const downloadSeed = useDownloadSeed(username);
+  const downloadSeed = useDownloadSeed(seed, username);
 
   return (
     <div className="flex flex-col gap-4 w-full">

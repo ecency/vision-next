@@ -189,8 +189,8 @@ var getBoundFetch2 = () => {
   }
   return globalThis.fetch;
 };
-function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
-}) {
+function useBroadcastMutation(mutationKey = [], username, accessToken, operations, onSuccess = () => {
+}, auth) {
   return useMutation({
     onSuccess,
     mutationKey: [...mutationKey, username],
@@ -200,7 +200,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           "[Core][Broadcast] Attempted to call broadcast API with anon user"
         );
       }
-      const postingKey = getPostingKey(username);
+      const postingKey = auth?.postingKey;
       if (postingKey) {
         const privateKey = PrivateKey.fromString(postingKey);
         return CONFIG.hiveClient.broadcast.sendOperations(
@@ -208,7 +208,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           privateKey
         );
       }
-      const loginType = getLoginType(username);
+      const loginType = auth?.loginType;
       if (loginType && loginType == "keychain") {
         return keychain_exports.broadcast(
           username,
@@ -216,13 +216,12 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           "Posting"
         ).then((r) => r.result);
       }
-      let token = getAccessToken(username);
-      if (token) {
+      if (accessToken) {
         const f = getBoundFetch2();
         const res = await f("https://hivesigner.com/api/broadcast", {
           method: "POST",
           headers: {
-            Authorization: token,
+            Authorization: accessToken,
             "Content-Type": "application/json",
             Accept: "application/json"
           },
@@ -244,7 +243,7 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
     }
   });
 }
-async function broadcastJson(username, id, payload) {
+async function broadcastJson(username, id, payload, accessToken, auth) {
   if (!username) {
     throw new Error(
       "[Core][Broadcast] Attempted to call broadcast API with anon user"
@@ -256,7 +255,7 @@ async function broadcastJson(username, id, payload) {
     required_posting_auths: [username],
     json: JSON.stringify(payload)
   };
-  const postingKey = getPostingKey(username);
+  const postingKey = auth?.postingKey;
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
     return CONFIG.hiveClient.broadcast.json(
@@ -264,14 +263,13 @@ async function broadcastJson(username, id, payload) {
       privateKey
     );
   }
-  const loginType = getLoginType(username);
+  const loginType = auth?.loginType;
   if (loginType && loginType == "keychain") {
     return keychain_exports.broadcast(username, [["custom_json", jjson]], "Posting").then((r) => r.result);
   }
-  let token = getAccessToken(username);
-  if (token) {
+  if (accessToken) {
     const response = await new hs.Client({
-      accessToken: token
+      accessToken
     }).customJson([], [username], id, JSON.stringify(payload));
     return response.result;
   }
@@ -587,11 +585,14 @@ function getActiveAccountFavouritesQueryOptions(activeUsername) {
     }
   });
 }
-function getAccountRecoveriesQueryOptions(username) {
+function getAccountRecoveriesQueryOptions(username, code) {
   return queryOptions({
-    enabled: !!username,
+    enabled: !!username && !!code,
     queryKey: ["accounts", "recoveries", username],
     queryFn: async () => {
+      if (!username || !code) {
+        throw new Error("[SDK][Accounts] Missing username or access token");
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         CONFIG.privateApiHost + "/private-api/recoveries",
@@ -600,7 +601,7 @@ function getAccountRecoveriesQueryOptions(username) {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ code: getAccessToken(username) })
+          body: JSON.stringify({ code })
         }
       );
       return response.json();
@@ -642,12 +643,13 @@ function getBuiltProfile({
   metadata.tokens = sanitizeTokens(metadata.tokens);
   return metadata;
 }
-function useAccountUpdate(username) {
+function useAccountUpdate(username, accessToken, auth) {
   const queryClient = useQueryClient();
   const { data } = useQuery(getAccountFullQueryOptions(username));
   return useBroadcastMutation(
     ["accounts", "update"],
     username,
+    accessToken,
     (payload) => {
       if (!data) {
         throw new Error("[SDK][Accounts] \u2013 cannot update not existing account");
@@ -676,7 +678,8 @@ function useAccountUpdate(username) {
         obj.profile = getBuiltProfile({ ...variables, data: data2 });
         return obj;
       }
-    )
+    ),
+    auth
   );
 }
 function useAccountRelationsUpdate(reference, target, onSuccess, onError) {
@@ -1328,11 +1331,10 @@ var queries_exports = {};
 __export(queries_exports, {
   getDecodeMemoQueryOptions: () => getDecodeMemoQueryOptions
 });
-function getDecodeMemoQueryOptions(username, memo) {
+function getDecodeMemoQueryOptions(username, memo, accessToken) {
   return queryOptions({
     queryKey: ["integrations", "hivesigner", "decode-memo", username],
     queryFn: async () => {
-      const accessToken = getAccessToken(username);
       if (accessToken) {
         const hsClient = new hs.Client({
           accessToken
@@ -1349,12 +1351,12 @@ var HiveSignerIntegration = {
 };
 
 // src/modules/integrations/3speak/queries/get-account-token-query-options.ts
-function getAccountTokenQueryOptions(username) {
+function getAccountTokenQueryOptions(username, accessToken) {
   return queryOptions({
     queryKey: ["integrations", "3speak", "authenticate", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      if (!username) {
+      if (!username || !accessToken) {
         throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
       }
       const fetchApi = getBoundFetch();
@@ -1368,7 +1370,8 @@ function getAccountTokenQueryOptions(username) {
       );
       const memoQueryOptions = HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
         username,
-        (await response.json()).memo
+        (await response.json()).memo,
+        accessToken
       );
       await getQueryClient().prefetchQuery(memoQueryOptions);
       const { memoDecoded } = getQueryClient().getQueryData(
@@ -1378,17 +1381,25 @@ function getAccountTokenQueryOptions(username) {
     }
   });
 }
-function getAccountVideosQueryOptions(username) {
+function getAccountVideosQueryOptions(username, accessToken) {
   return queryOptions({
     queryKey: ["integrations", "3speak", "videos", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      await getQueryClient().prefetchQuery(
-        getAccountTokenQueryOptions(username)
+      if (!username || !accessToken) {
+        throw new Error("[SDK][Integrations][3Speak] \u2013\xA0anon user");
+      }
+      const tokenQueryOptions = getAccountTokenQueryOptions(
+        username,
+        accessToken
       );
+      await getQueryClient().prefetchQuery(tokenQueryOptions);
       const token = getQueryClient().getQueryData(
-        getAccountTokenQueryOptions(username).queryKey
+        tokenQueryOptions.queryKey
       );
+      if (!token) {
+        throw new Error("[SDK][Integrations][3Speak] \u2013 missing account token");
+      }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
         `https://studio.3speak.tv/mobile/api/my-videos`,

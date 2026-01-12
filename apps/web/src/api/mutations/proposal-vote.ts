@@ -1,15 +1,15 @@
-import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { client as hiveClient } from "@/api/hive";
-import { useGlobalStore } from "@/core/global-store";
+import { CONFIG, getUserProposalVotesQueryOptions } from "@ecency/sdk";
 import * as keychain from "@/utils/keychain";
 import { error } from "@/features/shared";
-import { QueryIdentifiers } from "@/core/react-query";
-import { ProposalVote } from "@/entities";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useProposalVoteByKey(proposalId: number) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -25,40 +25,66 @@ export function useProposalVoteByKey(proposalId: number) {
         }
       ];
 
-      return [approve ?? false, await hiveClient.broadcast.sendOperations([op], key)] as const;
-    },
-    onSuccess: ([approve]) => {
-      queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
-        [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
-        (data) => {
-          if (!data) {
-            return data;
-          }
+      // Broadcast transaction
+      await CONFIG.hiveClient.broadcast.sendOperations([op], key);
 
-          return {
-            pages: [
-              [
-                ...(approve
-                  ? [
-                      {
-                        id: 1,
-                        voter: activeUser?.username ?? ""
-                      }
-                    ]
-                  : [])
-              ]
-            ],
-            pageParams: [""]
-          };
+      // Poll for blockchain confirmation to keep loading state active
+      const pollForConfirmation = async (attempts = 0): Promise<void> => {
+        if (attempts >= 5) {
+          // After 5 attempts (~15 seconds), give up and invalidate all queries
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", proposalId]
+          });
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+          });
+          return;
         }
-      );
+
+        // Wait 3 seconds between polls (Hive block time)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Invalidate cache first to force fresh fetch
+        await queryClient.invalidateQueries({
+          queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+        });
+
+        // Fetch fresh user's proposal votes to check if vote is confirmed
+        const userVotes = await queryClient.fetchQuery(
+          getUserProposalVotesQueryOptions(activeUser?.username ?? "")
+        );
+
+        const hasVote = userVotes.some(vote => vote.proposal.proposal_id === proposalId);
+
+        // Check if vote state matches what we expect
+        if ((approve && hasVote) || (!approve && !hasVote)) {
+          // Vote confirmed! Invalidate all relevant queries to ensure UI updates
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", proposalId]
+          });
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+          });
+          return;
+        } else {
+          // Not confirmed yet, poll again
+          await pollForConfirmation(attempts + 1);
+        }
+      };
+
+      await pollForConfirmation();
+
+      return approve ?? false;
+    },
+    onSuccess: () => {
+      // Data already invalidated during polling when confirmed
     },
     onError: (e) => error(...formatError(e))
   });
 }
 
 export function useProposalVoteByKeychain(proposalId: number) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -78,36 +104,59 @@ export function useProposalVoteByKeychain(proposalId: number) {
         }
       ];
 
-      return [
-        approve ?? false,
-        await keychain.broadcast(activeUser.username, [op], "Active")
-      ] as const;
-    },
-    onSuccess: ([approve]) => {
-      queryClient.setQueryData<InfiniteData<ProposalVote[]>>(
-        [QueryIdentifiers.PROPOSAL_VOTES, proposalId, activeUser?.username, 1],
-        (data) => {
-          if (!data) {
-            return data;
-          }
+      // Broadcast transaction
+      await keychain.broadcast(activeUser.username, [op], "Active");
 
-          return {
-            pages: [
-              [
-                ...(approve
-                  ? [
-                      {
-                        id: 1,
-                        voter: activeUser?.username ?? ""
-                      }
-                    ]
-                  : [])
-              ]
-            ],
-            pageParams: [""]
-          };
+      // Poll for blockchain confirmation to keep loading state active
+      const pollForConfirmation = async (attempts = 0): Promise<void> => {
+        if (attempts >= 5) {
+          // After 5 attempts (~15 seconds), give up and invalidate all queries
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", proposalId]
+          });
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+          });
+          return;
         }
-      );
+
+        // Wait 3 seconds between polls (Hive block time)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Invalidate cache first to force fresh fetch
+        await queryClient.invalidateQueries({
+          queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+        });
+
+        // Fetch fresh user's proposal votes to check if vote is confirmed
+        const userVotes = await queryClient.fetchQuery(
+          getUserProposalVotesQueryOptions(activeUser?.username ?? "")
+        );
+
+        const hasVote = userVotes.some(vote => vote.proposal.proposal_id === proposalId);
+
+        // Check if vote state matches what we expect
+        if ((approve && hasVote) || (!approve && !hasVote)) {
+          // Vote confirmed! Invalidate all relevant queries to ensure UI updates
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", proposalId]
+          });
+          await queryClient.invalidateQueries({
+            queryKey: ["proposals", "votes", "by-user", activeUser?.username]
+          });
+          return;
+        } else {
+          // Not confirmed yet, poll again
+          await pollForConfirmation(attempts + 1);
+        }
+      };
+
+      await pollForConfirmation();
+
+      return approve ?? false;
+    },
+    onSuccess: () => {
+      // Data already invalidated during polling when confirmed
     },
     onError: (e) => error(...formatError(e))
   });

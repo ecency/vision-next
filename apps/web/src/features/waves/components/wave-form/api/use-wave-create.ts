@@ -1,7 +1,7 @@
 "use client";
 
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as bridgeApi from "@/api/bridge";
+import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { ProfileFilter } from "@/enums";
 import i18next from "i18next";
 import { error } from "@/features/shared";
@@ -35,7 +35,9 @@ export function useWaveCreate() {
         };
       }
 
-      const hostEntries = await bridgeApi.getAccountPosts(ProfileFilter.posts, host);
+      const hostEntries = await queryClient.fetchQuery(
+        getAccountPostsQueryOptions(host, ProfileFilter.posts)
+      );
 
       if (!hostEntries) {
         throw new Error(i18next.t("decks.threads-form.no-threads-host"));

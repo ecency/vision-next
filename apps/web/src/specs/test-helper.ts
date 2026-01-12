@@ -108,7 +108,6 @@ export const fullAccountInstance: FullAccount = {
   voting_manabar: { current_mana: "6195193441", last_update_time: 1607690265 },
   downvote_manabar: { current_mana: "36303329010", last_update_time: 1609750587 },
   voting_power: 9476,
-  __loaded: true,
   profile: {
     name: "Talha B.",
     about: "Founder @runkod, Software Developer @ecency, Lifelong Learner",
@@ -145,7 +144,7 @@ export const globalInstance: Partial<GlobalStore> = {
   currencySymbol: "$",
   lang: "en-US",
   searchIndexCount: 10000000,
-  canUseWebp: false,
+  canUseWebp: true,
   hasKeyChain: false,
   isMobile: false,
   globalNotifications: true,

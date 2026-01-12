@@ -6,23 +6,25 @@ import { Tooltip } from "@ui/tooltip";
 import Link from "next/link";
 import { creditCardSvg } from "@ui/svg";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { useActiveAccount } from "@/core/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 
 export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account } = useActiveAccount();
 
   const [hasUnclaimedRewards, setHasUnclaimedRewards] = useState(false);
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   useEffect(() => {
-    if (activeUser?.data?.__loaded) {
+    if (account) {
       setHasUnclaimedRewards(
-        new HiveWallet(activeUser.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hasUnclaimedRewards
+        new HiveWallet(account, dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hasUnclaimedRewards
       );
     }
-  }, [activeUser, dynamicProps]);
+  }, [account, dynamicProps]);
   return (
     <>
       <Tooltip
@@ -32,7 +34,7 @@ export const WalletBadge = ({ icon }: { icon: ReactNode }) => {
             : i18next.t("user-nav.wallet")
         }
       >
-        <Link href={`/@${activeUser?.username}/wallet`} className="user-wallet">
+        <Link href={`/@${username}/wallet`} className="user-wallet">
           {hasUnclaimedRewards && <span className="reward-badge" />}
           {icon ?? creditCardSvg}
         </Link>

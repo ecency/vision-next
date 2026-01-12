@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { comment, formatError } from "@/api/operations";
 import dayjs from "@/utils/dayjs";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
-import { useGlobalStore } from "@/core/global-store";
 import { Entry } from "@/entities";
 import { correctIsoDate, makeEntryPath } from "@/utils";
 import { error, success } from "@/features/shared";
@@ -13,9 +12,10 @@ import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating"
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePostEdit(entry: Entry | undefined) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const router = useRouter();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();

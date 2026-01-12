@@ -8,7 +8,8 @@ import { dateToRelative } from "@/utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { WitnessVoteBtn } from "@/app/witnesses/_components/witness-vote-btn";
 import { WitnessCard } from "@/app/witnesses/_components/witness-card";
-import { getWitnessesQuery, useGetAccountsQuery } from "@/api/queries";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { getWitnessesInfiniteQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
 import { convertToOriginalWitnesses, makeUnique, transform } from "@/app/witnesses/_utils";
 import { FormControl } from "@ui/input";
 import { usePrevious } from "react-use";
@@ -32,9 +33,9 @@ export function WitnessesList() {
   const [page, setPage] = useState(1);
   const previousPage = usePrevious(page);
 
-  const { data, isPending, fetchNextPage } = getWitnessesQuery(limit).useClientQuery();
+  const { data, isPending, fetchNextPage } = useInfiniteQuery(getWitnessesInfiniteQueryOptions(limit));
   const { data: proxyVotes } = useProxyVotesQuery();
-  const { data: proxy } = useWitnessProxyQuery();
+  const { data: proxyInfo } = useWitnessProxyQuery();
 
   const currentPageData = useMemo(() => data?.pages[page - 1] ?? [], [data, page]);
   const transformedWitnesses = useMemo(
@@ -46,7 +47,7 @@ export function WitnessesList() {
     [transformedWitnesses]
   );
 
-  const { data: witnessesUserAccounts } = useGetAccountsQuery(witnessesUserNames);
+  const { data: witnessesUserAccounts } = useQuery(getAccountsQueryOptions(witnessesUserNames));
 
   const originalWitnesses = useMemo(
     () => makeUnique(convertToOriginalWitnesses(transformedWitnesses, witnessesUserAccounts)),
@@ -73,15 +74,25 @@ export function WitnessesList() {
     }
   }, [fetchNextPage, page, previousPage]);
 
+  const usernameParam = searchParams?.get("username");
+  const accountParam = searchParams?.get("account");
+  const highlightedProxy = proxyInfo?.highlightedProxy ?? "";
+  const activeUserProxy = proxyInfo?.activeUserProxy ?? "";
+  const highlightedUsername = usernameParam ?? accountParam ?? highlightedProxy ?? "";
+  const shouldShowHighlightBanner = Boolean(highlightedUsername);
+  const isActiveUserProxy = Boolean(!usernameParam && !accountParam && activeUserProxy);
+
   return isPending ? (
     <LinearProgress />
   ) : (
     <>
-      {(proxy || searchParams?.get("username") || searchParams?.get("account")) && (
+      {shouldShowHighlightBanner && highlightedUsername && (
         <WitnessesActiveProxy
-          isProxy={!proxy}
-          username={searchParams?.get("username") ?? searchParams?.get("account") ?? proxy}
-          onDone={() => queryClient.setQueryData<string>([QueryIdentifiers.WITNESSES, "proxy"], "")}
+          isProxy={isActiveUserProxy}
+          username={highlightedUsername}
+          onDone={() =>
+            queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] })
+          }
         />
       )}
       <div className="mb-3 w-full">

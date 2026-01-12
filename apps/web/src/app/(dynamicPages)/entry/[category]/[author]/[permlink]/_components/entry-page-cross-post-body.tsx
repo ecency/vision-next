@@ -7,7 +7,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
 import React from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   entry: Entry;

@@ -4,6 +4,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle, MenuItem } from "
 import i18next from "i18next";
 import { menuDownSvg } from "@ui/svg";
 import { Button } from "@ui/button";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onChangeGlobal: (v: string) => void;
@@ -20,13 +21,13 @@ export const EntryIndexMenuDropdown = ({
   filter,
   tag
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   let dropDownItems: MenuItem[] = [
     {
       label: <span>{i18next.t("entry-filter.filter-global")}</span>,
-      selected: tag === "" || tag === "global",
+      selected: tag !== "my", // Any tag that's not "my" is considered global (including tag="", "global", "photography", etc.)
       onClick: () => onTagValueClick("global")
     },
     {
@@ -35,72 +36,6 @@ export const EntryIndexMenuDropdown = ({
       onClick: () => onTagValueClick("my")
     }
   ];
-
-  // if (filter === 'created') {
-  //   dropDownItems = [
-  //     ...dropDownItems,
-  //     for adding new menu items - example shown below
-  //     {
-  //       label: <span>Now</span>,
-  //       active: tag === "right_now",
-  //       onClick: () => console.log('right_now clicked'),
-  //     },
-  //   ]
-  // }
-
-  if (filter === "rising") {
-    dropDownItems = [
-      {
-        label: <span>{i18next.t("entry-filter.filter-today")}</span>,
-        selected: tag === "today",
-        onClick: () => onTagValueClick("today")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-week")}</span>,
-        selected: tag === "week",
-        onClick: () => onTagValueClick("week")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-month")}</span>,
-        selected: tag === "month",
-        onClick: () => onTagValueClick("month")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-year")}</span>,
-        selected: tag === "year",
-        onClick: () => onTagValueClick("year")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-alltime")}</span>,
-        selected: tag === "all",
-        onClick: () => onTagValueClick("all")
-      }
-    ];
-  }
-  if (filter === "controversial") {
-    dropDownItems = [
-      {
-        label: <span>{i18next.t("entry-filter.filter-week")}</span>,
-        selected: tag === "week",
-        onClick: () => onTagValueClick("week")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-month")}</span>,
-        selected: tag === "month",
-        onClick: () => onTagValueClick("month")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-year")}</span>,
-        selected: tag === "year",
-        onClick: () => onTagValueClick("year")
-      },
-      {
-        label: <span>{i18next.t("entry-filter.filter-alltime")}</span>,
-        selected: tag === "all",
-        onClick: () => onTagValueClick("all")
-      }
-    ];
-  }
 
   if (filter === "feed") {
     dropDownItems = [
@@ -132,25 +67,13 @@ export const EntryIndexMenuDropdown = ({
     <Dropdown>
       <DropdownToggle>
         <Button icon={menuDownSvg} appearance="gray-link" size="sm">
-          {tag === "" || tag === "global"
-            ? i18next.t("entry-filter.filter-global")
-            : tag === "my"
-              ? i18next.t("entry-filter.filter-community")
-              : tag === "today"
-                ? i18next.t("entry-filter.filter-today")
-                : tag === "week"
-                  ? i18next.t("entry-filter.filter-week")
-                  : tag === "month"
-                    ? i18next.t("entry-filter.filter-month")
-                    : tag === "year"
-                      ? i18next.t("entry-filter.filter-year")
-                      : tag === "all"
-                        ? i18next.t("entry-filter.filter-alltime")
-                        : tag === `%40${activeUser?.username}` || tag.startsWith("%40")
-                          ? noReblog
-                            ? i18next.t("entry-filter.filter-no-reblog")
-                            : i18next.t("entry-filter.filter-with-reblog")
-                          : tag}
+          {tag === "my"
+            ? i18next.t("entry-filter.filter-community")
+            : tag === `%40${activeUser?.username}` || tag.startsWith("%40")
+              ? noReblog
+                ? i18next.t("entry-filter.filter-no-reblog")
+                : i18next.t("entry-filter.filter-with-reblog")
+              : i18next.t("entry-filter.filter-global")}
         </Button>
         <DropdownMenu align="left">
           {dropDownItems.map((item, i) => (

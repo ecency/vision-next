@@ -47,6 +47,7 @@
     "hot": "feed",
     "trending": "feed",
     "created": "feed",
+    "promoted": "promosso",
     "muted": "silenziati",
     "trail": "sentiero",
     "controversial": "controverso",
@@ -179,7 +180,42 @@
     "placeholder-count": "Cerca {{n}} post",
     "header-tag": "Etichette",
     "header-account": "Utenti",
-    "header-community": "Comunità"
+    "header-community": "Comunità",
+    "header-actions": "Azioni rapide",
+    "action-transfer-hive": "Trasferisci HIVE",
+    "action-transfer-hbd": "Trasferimento HBD",
+    "action-transfer-points": "Trasferisci PUNTI",
+    "action-transfer-description": "Send {{token}} instantly",
+    "action-delegate-hp": "Potere Dell'Alveare Delegato",
+    "action-delegate-hp-description": "Delega HP a un altro account",
+    "action-power-up": "Accensione su",
+    "action-power-up-description": "Converti HIVE in Potenza Hive",
+    "action-power-down": "Spegnimento",
+    "action-power-down-description": "Converti l'alimentazione dell'alveare di nuovo in HIVE",
+    "action-claim-hive": "Richiedi premi HIVE in attesa",
+    "action-claim-points": "Richiedi premi PUNTI in attesa",
+    "action-signup-email": "Iscriviti con email",
+    "action-signup-crypto": "Iscriviti con criptovalute",
+    "action-browse-communities": "Esplora comunità",
+    "action-visit-ecency-community": "Visita Comunità Di Ecency",
+    "action-market-swap": "Scambia token",
+    "action-market-swap-description": "Scambia rapidamente HIVE e HBD",
+    "action-market-trade": "Apri terminale di trading",
+    "action-market-trade-description": "Grafici avanzati e libri degli ordini",
+    "action-market-exchange": "Token di scambio",
+    "action-market-exchange-description": "Sfoglia i prezzi di mercato e la cronologia",
+    "action-my-profile": "Il mio profilo",
+    "action-my-bookmarks": "I miei segnalibri",
+    "action-my-drafts": "Le mie bozze",
+    "action-my-gallery": "La mia galleria",
+    "action-my-decks": "I miei mazzi",
+    "action-my-communities": "Le mie comunità",
+    "action-my-blog": "Il mio blog",
+    "action-my-wallet": "Il mio portafoglio",
+    "action-witnesses": "Testimoni",
+    "action-witnesses-description": "Esplora i migliori testimoni e blocca i produttori",
+    "action-proposals": "Proposte",
+    "action-proposals-description": "Riesame del fondo per l'alveare decentrato"
   },
   "tag": {
     "unmoderated": "Argomenti non moderati",
@@ -260,7 +296,7 @@
     "description": "Freespeech, True ownership, Libertà finanziaria!",
     "description-2": "Hive alimenta molte app ed è gestito completamente decentrato dai membri della comunità in tutto il mondo. Con un account, hai accesso diretto all'ecosistema.",
     "bottom-description": "Un account, un portafoglio per gestire tutto su Blockchain.",
-    "learn-more": "Leggi di più sui benefici nelle nostre <a href=\"/faq#how-to-join\">FAQ</a>",
+    "learn-more": "Scopri di più sui vantaggi nelle nostre FAQ <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "Scegli un nome utente",
     "email": "Inserisci il tuo indirizzo email",
     "ref": "Utente raccomandante (opzionale)",
@@ -288,6 +324,7 @@
     "username-contains-double-hyphens": "Non dovrebbe contenere doppi Hyphens",
     "username-exists": "Questo nome utente è già registrato. Per favore, prova un altro",
     "username-starts-number": "Non dovrebbe iniziare con i Numeri",
+    "username-required": "Nome utente obbligatorio",
     "username-in-use": "Questo nome utente esiste già. Impostarne un altro",
     "referral-invalid": "Questa segnalazione non è valida. Si prega di provarne un'altra",
     "referral-min-length-error": "La lunghezza della segnalazione deve essere di almeno 3 caratteri",
@@ -371,8 +408,21 @@
     "ascending": "Ascendente",
     "descending": "Discendente"
   },
-  "selected-tags": {
-    "title": "In primo piano"
+  "tags-page": {
+    "title": "Tag di tendenza",
+    "description": "Scopri gli argomenti più attivi con il loro volume di commenti, post top e pagamenti.",
+    "error": "Impossibile caricare i tag di tendenza in questo momento.",
+    "columns": {
+      "tag": "Tag",
+      "comments": "Commenti",
+      "top-posts": "Post in alto",
+      "total-payouts": "Totale pagamenti"
+    },
+    "load-more": {
+      "cta": "Carica altro",
+      "loading": "Caricamento...",
+      "done": "Nessun altro tag"
+    }
   },
   "entry-list-item": {
     "cross-posted": "cross-posted",
@@ -412,7 +462,10 @@
     "delete-success": "Reblog rimosso"
   },
   "entry-tip": {
-    "title": "Invia omaggio"
+    "title": "Invia omaggio",
+    "send-tip": "Invia un suggerimento",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} suggerimenti"
   },
   "entry-share": {
     "title": "Condividi"
@@ -677,6 +730,7 @@
     "pending-orders": "Ordini in attesa",
     "type": "Digita",
     "mode-limit": "Limita",
+    "mode-engine": "Motore",
     "mode-swap": "Cambia",
     "mode-advanced": "Avanzate",
     "action": "Azioni",
@@ -710,6 +764,8 @@
     "success-title": "Transazione completata",
     "more-than-balance": "Hai inserito più del saldo disponibile",
     "invalid-amount": "Importo non valido. Inserisci meno valore",
+    "engine-orderbook-thin": "Questo mercato ha una liquidità limitata. Prova una quantità minore o controlla più tardi.",
+    "engine-orderbook-empty": "Nessun ordine attivo è disponibile per questo mercato in questo momento.",
     "too-much-slippage": "Vi consigliamo vivamente di ridurre l'importo per un prezzo migliore!",
     "auth-required-title": "Preferiti",
     "auth-required-desc": "Devi essere autorizzato a scambiare fondi propri",
@@ -717,6 +773,10 @@
     "signing": "Firma..",
     "success-swap": "Scambio con successo!",
     "calculating-in": "Calcolo in",
+    "asset-selector": {
+      "title": "Seleziona un token",
+      "search-placeholder": "Cerca token"
+    },
     "advanced": {
       "history": "Cronologia",
       "stake": "Libro ordini",
@@ -737,11 +797,49 @@
         "amount": "Importo",
         "volume": "Volume",
         "time": "Ora"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "Token del motore"
+    },
+    "limit": {
+      "layer-core": "Core · Livello 1",
+      "layer-engine": "Motore · Livello 2",
+      "token-selector": {
+        "label": "Coppia di trading",
+        "title": "Scegli una coppia di trading",
+        "search-placeholder": "Cerca token",
+        "core-description": "Opera il principale mercato HBD/HIV.",
+        "engine-description": "Layer-2 token trade contro SWAP.HIVE.",
+        "no-results": "Nessun token corrisponde alla tua ricerca."
       }
+    },
+    "engine": {
+      "title": "Mercato dell'alveare motore",
+      "description": "Trade Hive Engine token con ordini limite direttamente dal tuo account Hive.",
+      "token": "Token",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Ultimo prezzo",
+      "price-change": "24h cambiamento",
+      "volume-label": "Volume 24h ({{symbol}})",
+      "bids": "Compra ordini",
+      "asks": "Ordini di vendita",
+      "price": "Prezzo",
+      "amount": "Importo ({{symbol}})",
+      "total": "Totale",
+      "recent-trades": "Operazioni recenti",
+      "time": "Tempo",
+      "type": "Tipo",
+      "no-open-orders": "Non hai ancora ordini aperti per questo mercato.",
+      "use-best": "Usa il miglior prezzo",
+      "use-max": "Usa max",
+      "invalid-order": "Inserisci un importo valido e un prezzo maggiore di zero.",
+      "login-required": "Per favore accedi per scambiare token Hive Engine.",
+      "order-placed": "Ordine effettuato",
+      "order-cancelled": "Ordine annullato",
+      "login-to-trade": "Accedi per gestire le tue operazioni di Hive Engine.",
+      "deposit": "Deposito HIVE",
+      "deposit-instructions": "Invia HIVE a @honey-swap con memo {{memo}} per ricevere SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Commuta lo stile della lista"
   },
   "entry-votes": {
     "title": "1 Voto",
@@ -806,7 +904,9 @@
   "comment": {
     "body-placeholder": "Scrivi la tua risposta qui",
     "preview": "Anteprima",
-    "success": "La tua risposta è stata creata con successo!"
+    "success": "La tua risposta è stata creata con successo!",
+    "retry-hint": "Il tuo testo è conservato qui sotto - riprova",
+    "rc-error-hint": "Crediti di risorse insufficienti: il tuo testo è conservato qui sotto"
   },
   "discussion": {
     "join": "Entrare nella conversazione ora",
@@ -965,6 +1065,7 @@
     "section-replies": "Risposte",
     "section-communities": "Community",
     "section-wallet": "Portafoglio",
+    "section-insights": "Approfondimenti",
     "section-settings": "Impostazioni",
     "section-referrals": "Referências",
     "section-permission": "Permessi",
@@ -996,6 +1097,22 @@
     "no-posts-found": "Non abbiamo trovato nulla!",
     "subscribe": "Abbonati"
   },
+  "profile-insights": {
+    "description": "Vedi quale dei tuoi post risuonano di più con i lettori.",
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "last-7": "Ultimi 7 giorni",
+    "last-30": "Ultimi 30 giorni",
+    "all-time": "Tutto il tempo",
+    "page": "Pagina",
+    "views": "Viste",
+    "uniques": "Viste uniche",
+    "minutes": "Minuti",
+    "no-data": "Nessuna vista pagina disponibile per questo intervallo.",
+    "range": "Date range",
+    "disabled": "Le informazioni sono disabilitate al momento.",
+    "error": "Impossibile caricare intuizioni."
+  },
   "rc-info": {
     "available": "Disponibile",
     "used": "Utilizzato",
@@ -1014,7 +1131,7 @@
     "confirm": "Conferma",
     "cancel": "Cancella",
     "check-faq": "Scopri di più su RC nel nostro",
-    "learn-more": "/faq#what-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "Domande frequenti",
     "insufficient-rc-error": "Crediti di risorse insufficienti",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1185,24 +1302,6 @@
       "larynx-locked-description": "I token bloccati forniscono liquidità alla rete, aiuto nel determinare il consenso, e guadagnare premi per i corridori di nodi"
     }
   },
-  "wallet-engine": {
-    "title": "Token Di Hive Engine",
-    "description": "Hive Engine è una piattaforma di smart contract side-chain per la blockchain Hive.",
-    "no-results": "Nessun token trovato.",
-    "token": "Token",
-    "balance": "Bilancio",
-    "staked": "Staked"
-  },
-  "sort-engine-tokens": {
-    "sort": "Ordina",
-    "sort-in-ascending": "Ascendente",
-    "sort-in-descending": "Discendente",
-    "sort-by-value": "Valore",
-    "sort-by-balance": "Bilancio",
-    "sort-by-stake": "Paletto",
-    "sort-by-delegations-in": "Delegazioni in",
-    "sort-by-delegations-out": "Delegazioni fuori"
-  },
   "wallet-engine-estimated": {
     "title": "Valore Dei Token Stimati",
     "description": "Il valore approssimativo del Dollaro USA per tutti i token del motore nel tuo portafoglio."
@@ -1263,12 +1362,6 @@
     "filter-998": "Trasferimento in uscita",
     "filter-999": "Trasferimento in entrata"
   },
-  "purchase": {
-    "select-asset": "Seleziona risorsa",
-    "slider-hint": "Trascina il cursore per regolare l'importo.",
-    "submit": "Acquista",
-    "purchase-message": "Oppure invia qualsiasi importo a @esteem.app con `points` come promemoria per acquistare punti."
-  },
   "purchase-qr": {
     "scan-code": "Scansiona con Ecency app mobile per continuare",
     "select-user": "Seleziona un utente",
@@ -1286,14 +1379,6 @@
     "sub-title": "Promuovi il tuo post",
     "duration": "Durata",
     "learn-more": "Scopri di più sulla promozione"
-  },
-  "boost": {
-    "title": "Potenzia",
-    "sub-title": "Migliora il tuo post",
-    "amount": "Importo",
-    "slider-hint": "Trascina il cursore per regolare l'importo.",
-    "hint": "Il valore effettivo del voto che ricevi può variare",
-    "learn-more": "Scopri di più sul potenziamento"
   },
   "redeem-common": {
     "balance": "Saldo",
@@ -1337,6 +1422,7 @@
     "to-placeholder": "nome Utente",
     "to-not-found": "L'utente a cui stai tentando di trasferire fondi non esiste!",
     "to-bad-actor": "Usa cautela nell'invio a questo account. Per favore controlla la tua ortografia per un possibile phishing.",
+    "external-wallets-label": "Portafoglio (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Importo",
     "amount-placeholder": "importo",
     "wrong-amount": "Valore dell'importo errato",
@@ -1466,7 +1552,13 @@
     "sign": "Accesso",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Firma con HiveAuth",
+    "invalid-key": "Formato chiave non valido. Si prega di verificare la presenza di caratteri non validi.",
+    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta."
+  },
+  "hive-auth": {
+    "pending-request": "Richiesta HiveAuth in sospeso. Partita con ID {{id}} nel tuo portafoglio."
   },
   "delegated-vesting": {
     "title": "Delega Hive Power",
@@ -1651,11 +1743,6 @@
     "refresh": "Aggiorna per ottenere lo stato aggiornato",
     "video-info": "I video sono memorizzati e alimentati dalla rete SPK, potrebbero avere alcune commissioni di memorizzazione e codifica."
   },
-  "nsfw-content": {
-    "title": "Contenuto NSFW",
-    "warning": "Si prega di controllare se il contenuto è NSFW",
-    "continue": "Continua"
-  },
   "tag-selector": {
     "placeholder-empty": "Tag. Il primo tag è la categoria principale. Ordinabile.",
     "placeholder-focus": "Inserisci etichetta",
@@ -1709,7 +1796,12 @@
     "replied": "{{source}} ti ha risposto",
     "reblogged": "{{source}} ha rebloggato il tuo post",
     "transfer": "{{source}} ti ha inviato {{amount}}",
-    "delegations": "{{source}} ti ha delegato {{amount}}"
+    "delegations": "{{source}} ti ha delegato {{amount}}",
+    "checkins": "Hai controllato in {{count}} giorno{{suffix}} questa settimana. Continua!",
+    "payouts": "Il pagamento dei contenuti è pronto.",
+    "payouts-amount": "Hai ricevuto il pagamento {{amount}}.",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "Tutte le notifiche",
@@ -1721,6 +1813,7 @@
     "type-reblogs": "Reblogga",
     "type-transfers": "Trasferimenti",
     "type-delegations": "Delegazioni",
+    "type-payouts": "Pagamenti",
     "type-nfavorites": "Preferiti",
     "type-nbookmarks": "Preferiti",
     "group-title-recent": "Recenti",
@@ -1735,6 +1828,9 @@
     "reblog-str": "post condiviso",
     "transfer-str": "inviata",
     "delegations-str": "delegata",
+    "checkins-title": "Grande serie su @{{username}}",
+    "payouts-title": "Hai ricevuto una vincita su @{{username}}",
+    "monthly-posts-title": "Finendo il mese forte, @{{username}}",
     "spin-str": "Tempo di guadagnare più punti, divertiti sull'app mobile Ecency",
     "inactive-str": "Rimani attivo! Scrivi un post, continua a guadagnare",
     "referral-str": "si è unito con la consultazione, benvenuti",
@@ -1762,9 +1858,6 @@
     "header-reward": "Ricompensa",
     "header-votes": "Voti",
     "header-votes-tip": "Numero di voti in questo periodo"
-  },
-  "popular-users": {
-    "title": "Utenti popolari"
   },
   "discover": {
     "title": "Scopri",
@@ -1872,6 +1965,7 @@
     "filter-active": "Attivo",
     "filter-inactive": "Rimanente",
     "filter-team": "Progetti Ecency",
+    "filter-create": "Nuovo",
     "return-description": "Questa è la soglia minima per un ritorno dalla proposta. Ogni proposta con meno voti non riceverà fondi.",
     "threshold-description": "Si tratta di una proposta di soglia.",
     "votes-dialog-title": "Vota sulla proposta #{{n}}",
@@ -1884,7 +1978,53 @@
     "sort-reputation": "Reputazione",
     "sort-hp": "Hive Power",
     "no-results": "Nessun risultato trovato",
-    "searching": "Ricerca in corso"
+    "searching": "Ricerca in corso",
+    "create": {
+      "step-setup-title": "Imposta dettagli della proposta",
+      "step-setup-sub-title": "Descrivi la proposta che desideri inviare al DHF.",
+      "description": "<p>Prima di presentare una proposta, assicurati di aver pubblicato un post Hive che spiega l'ambito del lavoro e di collegarlo qui sotto. Creare una proposta costa <strong>10 HBD</strong> più <strong>1 HBD</strong> per ogni giorno oltre i 60.</p>",
+      "subject-label": "Titolo",
+      "subject-placeholder": "Breve titolo pubblico",
+      "subject-help": "Questo appare nella lista delle proposte. Mantenerlo conciso (max 80 caratteri).",
+      "subject-error": "Inserisci un titolo tra 3 e 80 caratteri.",
+      "permlink-label": "Proposte permlink",
+      "permlink-placeholder": "proposta-aggiornamento-post",
+      "permlink-help": "Usa il link di permuta del post Hive che descrive la tua proposta (senza la parte @username/ ). È possibile scegliere uno dei tuoi post recenti dalla lista quando si focalizza questo campo.",
+      "permlink-suggestions-title": "Post recenti",
+      "permlink-suggestions-loading": "Caricamento messaggi recenti...",
+      "permlink-suggestions-empty": "Nessun post recente trovato per il tuo account.",
+      "permlink-suggestions-error": "Impossibile caricare i post recenti. Riprova.",
+      "permlink-error": "Permlink può contenere solo lettere minuscole, numeri e trattino.",
+      "receiver-label": "Ricevitore",
+      "receiver-placeholder": "nome account",
+      "receiver-help": "Conto che riceverà i pagamenti quando la proposta viene finanziata.",
+      "receiver-error": "Inserisci un nome di account Hive valido.",
+      "start-label": "Data di inizio",
+      "start-placeholder": "Seleziona data di inizio",
+      "start-error": "Seleziona una data di inizio almeno un'ora in futuro.",
+      "end-label": "Data di fine",
+      "end-placeholder": "Seleziona data di fine",
+      "end-error": "La data di fine deve essere dopo la data di inizio.",
+      "daily-pay-label": "Pagamenti giornalieri (HBD)",
+      "daily-pay-help": "Quantità di HBD che state richiedendo al giorno.",
+      "daily-pay-error": "Inserisci un importo di pagamento giornaliero positivo.",
+      "summary-title": "Summary",
+      "summary-duration": "Durata: {{days}} giorni",
+      "summary-daily-pay": "Pagamento giornaliero: {{amount}} HBD",
+      "summary-total-pay": "Pagamento totale <unk> {{amount}} HBD",
+      "summary-creation-fee": "Tassa di creazione: {{fee}} HBD",
+      "step-sign-sub-title": "Firma la transazione utilizzando l'autorità attiva.",
+      "sign-hint": "Puoi firmare con la tua chiave attiva, HiveAuth, Hive Keychain o HiveSigner.",
+      "success-title": "Proposta presentata",
+      "success-sub-title": "Transazione trasmessa",
+      "success-description": "Potrebbe essere necessario qualche minuto perché la nuova proposta figuri nell'elenco.",
+      "success-toast": "Proposta di trasmissione transazione.",
+      "external-sign": "Continua ad accedere alla nuova finestra per completare la creazione della proposta.",
+      "new-proposal": "Crea un'altra proposta",
+      "login-button": "Accedi",
+      "open-form": "Crea una proposta",
+      "hide-form": "Nascondi modulo di proposta"
+    }
   },
   "gallery": {
     "title": "Galleria",
@@ -1929,19 +2069,6 @@
     "validation-label": "Spunta questo riquadro per procedere.",
     "updated": "Chiave d'accesso aggiornata con successo!",
     "hint": "In questo momento, è possibile generare chiavi solo impostando una nuova frase di seme. L'aggiornamento a qualsiasi altro tipo di password non è supportato. Ci aiuta a mantenere Ecency e Hive account in uno standard di Web 3.0."
-  },
-  "view-keys": {
-    "title": "Mostra le chiavi private",
-    "header": "Gestisci chiavi",
-    "account": "Profilo",
-    "cur-pass": "Password attuale",
-    "owner": "Proprietario",
-    "active": "Attiva",
-    "posting": "Pubblicazione",
-    "memo": "Memo",
-    "view-keys": "Clicca per vedere le chiavi",
-    "copied": "Chiave privata copiata negli appunti",
-    "error": "La password sembra errata, si prega di effettuare un doppio controllo!"
   },
   "manage-authorities": {
     "title": "Gestire Le Autorità",
@@ -1993,118 +2120,48 @@
     "update-success-message": "La tua email di recupero è stata aggiornata con successo"
   },
   "chat": {
-    "page-title": "Conversazioni",
-    "read-only": "Sola lettura",
-    "why-read-only": "Questo utente ha cambiato la sua chiave di chat. Per favore, trova un nuovo account per nome utente nella ricerca qui sopra.",
-    "user-not-joined": "Non si è ancora unito",
-    "title": "Conversazioni",
-    "messages": "Messaggi",
-    "key": "Chiave chat Ecency",
-    "new-message": "Nuovo messaggio",
-    "direct-messages": "Messaggi diretti",
-    "collapse": "Comprimi",
-    "expand": "Espandi",
-    "scroll-to-bottom": "Scorri verso il basso",
-    "joined": "Iscritto",
-    "followers": "Seguaci",
-    "start-chat-placeholder": "Inizia un nuovo messaggio",
-    "search": "Cerca persone o comunità",
-    "join-chat": "Unisciti alla chat",
-    "join-channel": "Entra nel canale",
-    "back": "Indietro",
-    "no-chat": "Conversazione non trovata",
-    "start-chat": "Iniziare a chattare",
-    "not-joined": "Questo utente non è ancora entrato nella chat",
-    "subscribers": "Iscritti",
-    "invite": "Invita",
-    "send-invite": "Invia un invito",
-    "leave:": "Disiscriviti",
-    "refresh": "Ricarica",
-    "message-warning": "Non puoi inviare messaggi in questo gruppo.",
-    "edit-community-roles": "Modifica Ruoli Della Community",
-    "add": "Aggiungi",
-    "no-admin": "Nessun amministratore o moderatore per questa chat della comunità.",
-    "blocked-users": "Utenti bloccati",
-    "action": "Azioni",
-    "unblock": "Sblocca",
-    "ecency-key": "Chiave di Ecency",
-    "no-locked-user": "Utenti bloccati non trovati",
-    "no-hidden-messages": "Messaggi nascosti non trovati",
-    "enter-private-key": "Inserisci la chiave privata della chat",
-    "enter-private-key-detail": "Inserisci la chiave privata di chat per importare tutte le chat",
-    "close": "Chiudi",
-    "confirm": "Conferma",
-    "error-updating-community": "Errore durante l'aggiornamento della community",
-    "leave-channel": "Lascia il canale",
-    "leaving": "Sto lasciando la regione",
-    "edit-roles": "Modifica Ruoli",
-    "manage-chat-key": "Informazioni credenziali",
-    "block": "Blocco",
-    "communities": "Comunità",
-    "dms": "Messaggi diretti",
-    "import-chat": "Importa Chat",
-    "create-new-account": "Crea un nuovo account",
+    "page-title": "Avviare messaggi diretti o entrare in canali per chattare con la comunità Ecency .",
+    "loading-chats": "Caricamento chat…",
+    "start-dm-button": "Avvia DM",
+    "starting-dm": "Avvio…",
+    "search-user": "Cerca persone",
+    "searching": "Ricerca...",
+    "no-user": "Nessun utente trovato.",
+    "search-channels": "Cerca canali o messaggi diretti",
     "loading": "Caricamento...",
-    "blocked-user-message": "Sei stato bloccato da questa comunità",
-    "start-community-channel": "Start community channel",
+    "mark-as-read": "Segna come letto",
+    "marking-as-read": "Marcatura…",
+    "channel-type-dm": "DM",
+    "channel-type": "Canale",
+    "favorite-channel": "Canale preferito",
+    "channel-muted": "Silenziato",
+    "mute-channel": "Silenzia canale",
+    "unmute-channel": "Riattiva canale",
+    "leave-channel": "Lascia il canale",
+    "no-channels": "Nessun canale ancora assegnato.",
+    "no-channels-search": "Nessun canale corrisponde alla tua ricerca.",
+    "joinable-channels": "Canali unibili",
+    "searching-channels": "Ricerca…",
+    "channel-type-public": "Canale pubblico",
+    "channel-type-private": "Canale privato",
+    "join-channel-action": "Entra",
+    "joining-channel": "Joining…",
+    "no-additional-channels": "Nessun canale aggiuntivo trovato.",
+    "title": "Conversazioni",
+    "no-admin": "Nessun amministratore o moderatore per questa chat della comunità.",
     "view-community-channel": "Chat della Comunità",
-    "submit": "Inserisci",
-    "chat-priv-key": "Per favore, salva la chiave di chat facendo clic sul pulsante di download o scansionando il codice QR per ripristinare le conversazioni.",
     "public-key": "Chiave pubblica",
     "private-key": "Chiave privata",
-    "copy-priv-key": "Copia chiave privata",
-    "extended-view": "Vista Estesa",
-    "you-haven-t-joined": "Non sei ancora entrato nella chat. Per favore unisciti per iniziare!",
-    "invalid-private-key": "Chiave privata non valida",
-    "enter-username": "Inserisci nome utente temporaneo",
     "hide-message": "Nascondi messaggio",
-    "block-author": "Blocca autore",
-    "unblock-author": "Sblocca autore",
-    "create-an-account": "Crea account di chat",
-    "create-description": "Benvenuto a bordo! Il tuo account è quasi pronto. Immergiti nelle conversazioni e goditi la connessione con gli altri in privato.",
-    "create-pin-description": "Per favore, imposta il PIN per accedere alle tue chat da qualsiasi dispositivo",
-    "logout": "Esci",
-    "specify-invitation-message": "Questo messaggio di invito verrà inviato come commento all'ultimo post utente",
-    "successfully-invited": "Invitato con successo!",
-    "invite-couldnt-be-sent": "L'invito non può essere inviato a causa dell'utente non ha ancora alcun post",
-    "no-posts-for-invite": "Sfortunatamente, l'utente non sembra attivo e non ha fatto alcun post.",
-    "warn-key-saving": "Backup della chiave di chat per mantenere l'account sicuro e hanno anche un servizio ininterrotto!",
-    "view-and-save": "Mostra le chiavi e salva",
-    "blocked-users-management": "Gestione degli utenti bloccati",
-    "unlock-the-section": "Inserisci il PIN per vedere le tue credenziali",
-    "no-contacts-or-channels": "Nessuna conversazione",
-    "upload-image": "Carica Immagine",
-    "hidden-messages": "Messaggi nascosti",
-    "hidden-messages-management": "Gestione messaggi nascosti",
-    "saved-messages": "Messaggi salvati",
-    "fetch-error": "Mentre eri assente, è stato rilevato un cambiamento di rete. Ricarica la pagina ora per recuperare nuovi dati",
-    "pin": "Pin",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Seleziona contatto o canale",
-    "message-forwarding": "Inoltro messaggi",
-    "forward": "Inoltra messaggio",
-    "forwarded-from": "Messaggio inoltrato",
-    "welcome": {
-      "title": "Benvenuto nelle chat",
-      "description": "Crea o importa un account usando Chat",
-      "already-joined-title": "Sembra che tu abbia già aderito alle chat",
-      "already-joined-hint": "Verifica il tuo account e ottieni l'accesso inserendo il PIN",
-      "pin-failed": "PIN non valido. Verifica fallita.",
-      "oops": "Oops!",
-      "user-not-joined-yet": "Non puoi inviare un messaggio. Questo utente o canale non si è ancora unito alle conversazioni.",
-      "hello": "Ciao",
-      "start-description": "Cerca una persona o una comunità e avvia la messaggistica",
-      "join-description": "Non fa parte del canale",
-      "rejoin-description": "Hai lasciato questa chat della comunità. Riunisciti alla chat ora!"
-    },
-    "import": {
-      "title": "Importazione account",
-      "description": "Inserisci una coppia di chiavi pubblica e privata per importare il tuo account esistente",
-      "button": "Importa",
-      "iv": "Valore vettoriale iniziale"
-    },
-    "reply": "Rispondi",
-    "reply-to": "Replying to {{account}}"
+    "enter-private-key-detail": "Inserisci la chiave privata di chat per importare tutte le chat",
+    "message-search-results": "Risultati ricerca messaggi",
+    "no-messages-found": "Nessun messaggio trovato.",
+    "no-message": "Nessun contenuto del messaggio.",
+    "translate": "Trasla",
+    "translate-target-language": "Lingua di destinazione",
+    "pinned-messages": "Messaggi bloccati",
+    "pin-message": "Messaggio di pin",
+    "unpin-message": "Sblocca messaggio"
   },
   "add-image": {
     "title": "Aggiungi immagine",
@@ -2140,6 +2197,46 @@
       "contact-blog": "Fondatore del Blog",
       "contact-news": "Novità su Hive",
       "contact-email": "Contattaci via email"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "La tua comunità, ovunque con <span>Ecency Mobile</span>",
+      "hero-subtitle": "Resta vicino alle comunità di Hive, rispondi alle conversazioni e gestisci le ricompense ovunque ti trovi.",
+      "hero-footnote": "Disponibile per dispositivi iOS, iPadOS e Android.",
+      "cta-ios": "Scarica su App Store",
+      "cta-android": "Scaricalo su Google Play",
+      "benefits-title": "Perché amerai Ecency mobile",
+      "benefits": {
+        "communities-title": "Comunità nella tua tasca",
+        "communities-description": "Seguire i feed, esplorare i tag di tendenza e rimanere vicino alle persone e agli argomenti che ti interessano.",
+        "create-title": "Pubblica da qualsiasi luogo",
+        "create-description": "Bozza di post, condividi gli aggiornamenti e rispondi ai commenti con lo stesso potente editor che usi sul desktop.",
+        "wallet-title": "Portafoglio a colpo d'occhio",
+        "wallet-description": "Controllare i saldi, ottenere premi e gestire Hive Power o HBD con solo un paio di rubinetti.",
+        "notifications-title": "Non perdere mai una menzione",
+        "notifications-description": "Le notifiche push evidenziano nuovi follower, menzioni e ricompense in modo da poter festeggiare in tempo."
+      },
+      "features-title": "Progettato per creatori e comunità",
+      "features": {
+        "interface-title": "Realizzato per dispositivi mobili",
+        "interface-description": "Godetevi la navigazione nativa, controlli e layout gesti amichevoli che si sentono a casa su telefoni e tablet.",
+        "themes-title": "Temi giorno e notte",
+        "themes-description": "Passare da temi chiari a temi scuri per stare a proprio agio durante la lettura e la scrittura a qualsiasi ora.",
+        "opensource-title": "Aperto e guidato dalla comunità",
+        "opensource-description": "Contribuire su GitHub, aiutare con le traduzioni o condividere il feedback direttamente dall'app."
+      },
+      "screenshots-title": "Vedere Ecency mobile in azione",
+      "screenshots-description": "Pulisci le viste per leggere, pubblicare e gestire il tuo profilo tra telefoni e tablet.",
+      "screenshots-tablet-alt": "Interfaccia mobile Ecency visualizzata su un tablet",
+      "screenshots-phone-alt": "Ecency mobile feed view su un telefono",
+      "screenshots-desktop-alt": "Schermata mobile Ecency accanto all'interfaccia desktop",
+      "screenshots-dark-alt": "App mobile Ecency in tema scuro",
+      "resources-title": "Risorse utili",
+      "resources": {
+        "faq": "Visita le FAQ per risposte rapide",
+        "blog": "Leggi le ultime note di rilascio mobile",
+        "github": "Esplora il codice mobile open-source"
+      }
     },
     "faq": {
       "about-ecency": "Informazioni Su Ecency",
@@ -2421,22 +2518,6 @@
     "title": "Collaboratori",
     "description": "Queste fantastiche persone hanno contribuito in un modo o nell'altro a Ecency e ci piacerebbe ringraziarle. Se vuoi unirti al nostro team contribuendo con Traduzioni, Idee, Sviluppo, Design, Divulgazione di conoscenze social, sei libero di partecipare. Per maggiori informazioni leggi le nostre <a href=\"/faq#how-to-contribute\">FAQ</a>."
   },
-  "context-menu": {
-    "cut": "Taglia",
-    "copy": "Copia",
-    "paste": "Incolla",
-    "open-image-browser": "Apri l'immagine nel browser",
-    "copy-image-url": "Copia l'Url dell'immagine"
-  },
-  "updater": {
-    "new-version-available": "Una nuova versione è disponibile",
-    "download": "Scarica",
-    "update": "Aggiorna",
-    "dismiss": "Abbandona",
-    "downloading": "Scarica la nuova versione...",
-    "download-completed": "Download completato",
-    "restart": "Ricomincia"
-  },
   "chain-error": {
     "min-root-comment": "Puoi pubblicare soltanto una volta ogni cinque minuti.",
     "identical-vote": "Il tuo voto attuale sul contenuto corrente è identico a questo voto.",
@@ -2639,7 +2720,8 @@
     "faq": "Domande frequenti",
     "chats": "Conversazioni",
     "news": "Notizie",
-    "chats-page-placeholder": "Le chat sono state aperte in vista estesa"
+    "chats-page-placeholder": "Le chat sono state aperte in vista estesa",
+    "open-chats": "Apri chat"
   },
   "not-found": {
     "title": "Non trovato",
@@ -2656,12 +2738,6 @@
     "email-placeholder": "La tua e-mail (opzionale)",
     "message-placeholder": "Descrivi il tuo report",
     "issue-reported": "Problema segnalato con successo"
-  },
-  "entry-preview": {
-    "searching-title": "Ricerca post",
-    "searching-description": "Stiamo cercando di scoprire questo post...",
-    "title": "Anteprima",
-    "description": "Questo post sta creando ora. Puoi interagire con esso quando questo messaggio scomparirà."
   },
   "banners": {
     "no-ls-title": "Impossibile utilizzare i dati locali",
@@ -2922,6 +2998,7 @@
     "pick-tokens": "Scegli i token da mostrare",
     "search-token": "Token di ricerca",
     "setup-tokens": "Gestisci i token",
+    "trade-tokens": "Trade token",
     "asset-name": "Nome asset",
     "price": "Prezzo",
     "balance": "Saldo",
@@ -2952,7 +3029,7 @@
     },
     "operations": {
       "transfer": "Trasferisci",
-      "transfer-saving": "Deposito Di Risparmio",
+      "transfer-saving": "Al Risparmio",
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Scambia",
@@ -2983,6 +3060,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Rivendicazione...",
     "claim-rewards-success": "{{amount}} {{token}} rivendicato con successo",
+    "hp-delegation-promo": {
+      "tag": "+10% APR boost",
+      "title": "Lasciate che Ecency curare con il vostro potere Hive",
+      "description": "Delega il tuo potere Hive a @ecency per attivare la cura attiva gestita dal nostro team di curatori. La cura attiva può aggiungere circa +10% APR e il 100% delle ricompense di curazione ti vengono restituiti.",
+      "button": "Delega a @ecency",
+      "dismiss": "Forse più tardi"
+    },
     "external": {
       "receive-button": "Ricevi",
       "transfer-soon": "Trasferimento (prossimo)",

@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import { Entry, SearchResult } from "@/entities"; // ⬅️ import SearchResult
 import i18next from "i18next";
-import { getSimilarEntriesQuery } from "@/api/queries/get-similar-entries-query";
+import { getSimilarEntriesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { SimilarEntryItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/similar-entries/similar-entry-item";
 
 setProxyBase(defaults.imageServer);
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export function SimilarEntries({ entry }: Props) {
-    const { data: entriesRaw } = getSimilarEntriesQuery(entry).useClientQuery();
+    const { data: entriesRaw } = useQuery(getSimilarEntriesQueryOptions(entry));
 
     // ✅ normalize to SearchResult[]
     const entries: SearchResult[] = Array.isArray(entriesRaw)

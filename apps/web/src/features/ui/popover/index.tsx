@@ -98,10 +98,10 @@ export function Popover(
         createPortal(
           <AnimatePresence>
             {show && (
-              <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1060]">
+              <div ref={refs.setFloating} style={floatingStyles} className="absolute z-[1110]">
                 <motion.div
                   className={
-                    props.customClassName ?? "bg-white border border-[--border-color] rounded-lg"
+                    props.customClassName ?? "bg-white border border-[--border-color] rounded-lg dark:bg-dark-200"
                   }
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

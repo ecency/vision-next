@@ -7,7 +7,7 @@ import { NavbarNotificationsButton } from "../navbar-notifications-button";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { closeSvg } from "@ui/svg";
 import { walletIconSvg } from "@ui/icons";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function NavbarSide({ show, setShow, placement = "right" }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <ModalSidebar show={show} setShow={setShow} placement={placement}>

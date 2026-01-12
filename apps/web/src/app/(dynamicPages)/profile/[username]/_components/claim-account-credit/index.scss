@@ -20,6 +20,19 @@
     }
   }
 
+  &-sub-title {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: $gray-600;
+
+    @include themify(night) {
+      color: $gray-400;
+    }
+  }
+
   .key-or-hot {
     padding: 0;
     margin: 1rem 0 0;

@@ -29,7 +29,9 @@ export function formattedNumber(value: number | string, options: Options | undef
 
   if (prefix) out += prefix + " ";
   // turn too small values to zero. Bug: https://github.com/adamwdraper/Numeral-js/issues/563
-  const av = Math.abs(parseFloat(value.toString())) < 0.0001 ? 0 : value;
+  // Use dynamic threshold based on requested precision
+  const threshold = fractionDigits && fractionDigits > 4 ? Math.pow(10, -(fractionDigits + 1)) : 0.0001;
+  const av = Math.abs(parseFloat(value.toString())) < threshold ? 0 : value;
   out += numeral(av).format(format);
   if (suffix) out += " " + suffix;
 

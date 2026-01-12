@@ -6,7 +6,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
 import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
-import { getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
@@ -27,7 +27,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
 
   // 👇 Make the hook result explicitly an infinite query over Page
   const result = usePostsFeedQuery(props.filter, props.tag, props.observer) as UseInfiniteQueryResult<Page, Error>;
-  const isLoading = result.isLoading;
+  const isFetching = result.isFetching;
   const data = result.data as InfiniteData<Page, unknown> | undefined;
 
   const [pending, setPending] = useState<Entry[]>([]);
@@ -64,13 +64,15 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
     ];
 
     const interval = setInterval(async () => {
-      const resp = await getPostsRanked(
+      const resp = await queryClient.fetchQuery(
+        getPostsRankedQueryOptions(
           props.filter,
           "",
           "",
           MAX_PENDING,
           props.tag,
           props.observer
+        )
       );
       setNow(Date.now());
       if (!resp || resp.length === 0) return;
@@ -148,7 +150,7 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
         )}
 
         <div className={`entry-list-body ${listStyle === ListStyle.grid ? "grid-view" : ""}`}>
-          {isLoading && <LinearProgress />}
+          {isFetching && <LinearProgress />}
 
           {extra.length > 0 && (
               <EntryListContent

@@ -14,7 +14,7 @@ interface Props {
 
 export function ProfileEntriesLayout(props: PropsWithChildren<Props>) {
   const listStyle = useGlobalStore((s) => s.listStyle);
-  const { isLoading } = usePostsFeedQuery(
+  const { isFetching } = usePostsFeedQuery(
     props.section,
     isCommunity(props.username) ? props.username : `@${props.username}`
   );
@@ -22,7 +22,7 @@ export function ProfileEntriesLayout(props: PropsWithChildren<Props>) {
   return (
     <div className="entry-list">
       <div className={`entry-list-body ${listStyle === ListStyle.grid ? "grid-view" : ""}`}>
-        {isLoading && <LinearProgress />}
+        {isFetching && <LinearProgress />}
         {props.children}
       </div>
     </div>

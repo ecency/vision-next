@@ -14,7 +14,7 @@ import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export function GetPointsFrame() {
   const ref = useRef<HTMLDivElement>(null);

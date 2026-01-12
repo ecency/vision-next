@@ -1,9 +1,11 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import { getRelationshipBetweenAccountsQueryOptions, useAccountRelationsUpdate } from "@ecency/sdk";
+import { getSdkAuthContext } from "@/utils";
+import { getUser } from "@/utils/user-token";
 import { useQuery } from "@tanstack/react-query";
 import { UilBell, UilBellSlash } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -22,7 +24,7 @@ interface ButtonProps {
 }
 
 function MuteButton({ disabled, following }: ButtonProps) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, following)
@@ -30,6 +32,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
   const { mutateAsync: updateRelation, isPending } = useAccountRelationsUpdate(
     activeUser?.username,
     following,
+    getSdkAuthContext(getUser(activeUser?.username ?? "")),
     (data) =>
       success(
         data?.ignores === true
@@ -65,7 +68,7 @@ function MuteButton({ disabled, following }: ButtonProps) {
 }
 
 function FollowButton({ disabled, following }: ButtonProps) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, following)
@@ -74,6 +77,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
   const { mutateAsync: updateRelation, isPending } = useAccountRelationsUpdate(
     activeUser?.username,
     following,
+    getSdkAuthContext(getUser(activeUser?.username ?? "")),
     (data) => {},
     (err) => error(...formatError(err))
   );
@@ -95,7 +99,7 @@ function FollowButton({ disabled, following }: ButtonProps) {
 }
 
 export function FollowControls({ targetUsername, showMute = true }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { isPending } = useQuery(
     getRelationshipBetweenAccountsQueryOptions(activeUser?.username, targetUsername)

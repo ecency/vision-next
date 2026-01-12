@@ -6,7 +6,7 @@ import { Favorite } from "@/entities";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions, useAccountFavouriteDelete } from "@ecency/sdk";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function FavouriteItem({ item, onHide, i }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: account } = useQuery(getAccountFullQueryOptions(item.account));
   const { mutateAsync: removeFromFavourites, isPending: isDeletePending } =

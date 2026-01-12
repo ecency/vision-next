@@ -1,13 +1,15 @@
-import { CONFIG } from "@ecency/sdk";
+import { getSpkWallet } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { SpkApiWallet } from "../../types";
 
-export function getSpkWalletQueryOptions(username: string) {
+export function getSpkWalletQueryOptions(username?: string) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
-      const response = await fetch(CONFIG.spkNode + `/@${username}`);
-      return response.json() as Promise<SpkApiWallet>;
+      if (!username) {
+        throw new Error("[SDK][Wallets][SPK] – username wasn't provided");
+      }
+      return getSpkWallet<SpkApiWallet>(username);
     },
     enabled: !!username,
     staleTime: 60000,

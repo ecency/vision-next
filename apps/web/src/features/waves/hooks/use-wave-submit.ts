@@ -9,6 +9,9 @@ import { useGlobalStore } from "@/core/global-store";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Body {
   text: string;
@@ -23,7 +26,7 @@ export function useWaveSubmit(
   replySource?: Entry,
   onSuccess?: (item: WaveEntry) => void
 ) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const { mutateAsync: create } = useWaveCreate();
@@ -35,10 +38,25 @@ export function useWaveSubmit(
   );
 
   return useMutation({
-    mutationKey: ["wave-form-submit", activeUser, replySource, editingEntry],
+    mutationKey: ["wave-form-submit", username, replySource, editingEntry],
     mutationFn: async ({ text, image, imageName, video, host }: Body) => {
-      if (!activeUser) {
+      // Check if user is logged in
+      if (!username) {
         toggleUIProp("login");
+        return;
+      }
+
+      // If account is still loading, wait for it
+      if (isLoading) {
+        // Refetch to ensure we have fresh data
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
+        if (!accountData) {
+          error(i18next.t("g.server-error"));
+          return;
+        }
+      } else if (!account) {
+        // Account should exist but doesn't - show error
+        error(i18next.t("g.server-error"));
         return;
       }
 

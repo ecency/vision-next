@@ -1,17 +1,22 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
-import { getAccountFullQuery, getSearchApiQuery, prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchGetPostsFeedQuery } from "@/api/queries";
+import { prefetchQuery, getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
-import { SearchResult } from "@/entities";
+import { Entry, SearchResult } from "@/entities";
+import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
   params: Promise<{ username: string }>;
   searchParams: Promise<Record<string, string | undefined>>;
 }
+
+// Enable ISR with 60 second revalidation for better profile page performance
+export const revalidate = 60;
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const { username } = await props.params;
@@ -23,25 +28,32 @@ export default async function Page({ params, searchParams }: Props) {
   const username = usernameParam.replace("%40", "");
   const { query: searchParam } = await searchParams;
 
-  const account = await getAccountFullQuery(username).prefetch();
+  const account = await prefetchQuery(getAccountFullQueryOptions(username));
 
-  await EcencyEntriesCacheManagement.getEntryQueryByPath(
+  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     username,
     account?.profile.pinned
-  ).prefetch();
+  ));
 
   let searchData: SearchResult[] | undefined = undefined;
+  let initialFeed: InfiniteData<Entry[], unknown> | undefined;
+
   if (searchParam && searchParam !== "") {
-    const searchPages = await getSearchApiQuery(
-      `${searchParam} author:${username} type:post`,
-      "newest",
-      false
-    ).prefetch();
-    searchData = searchPages!!.pages[0].results.sort(
-      (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+    const searchPages = await getQueryClient().fetchInfiniteQuery(
+      getSearchApiInfiniteQueryOptions(
+        `${searchParam} author:${username} type:post`,
+        "newest",
+        false
+      )
     );
+    if (searchPages?.pages?.[0]?.results) {
+      searchData = searchPages.pages[0].results.sort(
+        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+      );
+    }
   } else {
-    await prefetchGetPostsFeedQuery("posts", `@${username}`);
+    const prefetched = await prefetchGetPostsFeedQuery("posts", `@${username}`);
+    initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;
   }
 
   if (!account) {
@@ -53,7 +65,7 @@ export default async function Page({ params, searchParams }: Props) {
       {searchData && searchData.length > 0 ? (
         <ProfileSearchContent items={searchData} />
       ) : (
-        <ProfileEntriesList section="posts" account={account} />
+        <ProfileEntriesList section="posts" account={account} initialFeed={initialFeed} />
       )}
     </HydrationBoundary>
   );

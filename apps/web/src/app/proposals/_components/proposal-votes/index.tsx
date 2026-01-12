@@ -11,8 +11,10 @@ import i18next from "i18next";
 import { Entry, Proposal } from "@/entities";
 import { LinearProgress, ProfileLink, ProfilePopover, UserAvatar } from "@/features/shared";
 import { accountReputation, parseAsset } from "@/utils";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getProposalVotesQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions, getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
 import { Spinner } from "@ui/spinner";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Pagination } from "@/features/ui";
 
 type SortOption = "reputation" | "hp";
@@ -27,12 +29,15 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
   const [sort, setSort] = useState<SortOption>("hp");
   const [page, setPage] = useState(1);
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const {
     data: votesPages,
     isFetching,
-    fetchNextPage
-  } = getProposalVotesQuery(proposal.proposal_id, "", 1000).useClientQuery();
+    fetchNextPage,
+    error,
+    isError
+  } = useInfiniteQuery(getProposalVotesInfiniteQueryOptions(proposal.proposal_id, "", 1000));
+
   const votes = useMemo(
     () => votesPages?.pages?.reduce((acc, page) => [...acc, ...page], []),
     [votesPages?.pages]
@@ -109,6 +114,26 @@ export function ProposalVotes({ proposal, onHide }: ProposalVotesProps) {
       </div>
       <ModalBody>
         {isFetching && <LinearProgress />}
+
+        {isError && (
+          <div className="p-4 mb-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
+              {i18next.t("g.server-error")}
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm">
+              Failed to load proposal votes. This might be due to browser privacy settings blocking API requests.
+              {error instanceof Error && (
+                <>
+                  <br />
+                  <span className="text-xs opacity-75">Error: {error.message}</span>
+                </>
+              )}
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm mt-2">
+              Try: Opening browser console (F12), checking for blocked requests, or trying a different browser.
+            </p>
+          </div>
+        )}
 
         <div className="voters-list mb-4">
           <List grid={true} inline={true} defer={true}>

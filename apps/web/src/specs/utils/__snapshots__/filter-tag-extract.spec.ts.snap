@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Extarct filter tag 1 - home 1`] = `
+{
+  "filter": "hot",
+  "tag": "",
+}
+`;
+
+exports[`Extarct filter tag 10 - filter 1`] = `
+{
+  "filter": "trending",
+  "tag": "",
+}
+`;
+
+exports[`Extarct filter tag 11 - filter 1`] = `
+{
+  "filter": "hot",
+  "tag": "",
+}
+`;
+
+exports[`Extarct filter tag 20 - filter + tag 1`] = `
+{
+  "filter": "trending",
+  "tag": "esteem",
+}
+`;
+
+exports[`Extarct filter tag 21 - filter + tag 1`] = `
+{
+  "filter": "hot",
+  "tag": "photography",
+}
+`;
+
+exports[`Extarct filter tag 30 - user 1`] = `
+{
+  "filter": "blog",
+  "tag": "@talhasch",
+}
+`;
+
+exports[`Extarct filter tag 33 - user blog 1`] = `
+{
+  "filter": "blog",
+  "tag": "@talhasch",
+}
+`;
+
+exports[`Extarct filter tag 35 - user posts 1`] = `
+{
+  "filter": "posts",
+  "tag": "@talhasch",
+}
+`;
+
+exports[`Extarct filter tag 40 - user feed 1`] = `
+{
+  "filter": "feed",
+  "tag": "@talhasch",
+}
+`;
+
+exports[`Extarct filter tag 60 - user [...sections] 1`] = `
+{
+  "filter": "comments",
+  "tag": "@talhasch",
+}
+`;
+
+exports[`Extarct filter tag 64 - user wallet [...sections] 1`] = `null`;
+
+exports[`Extarct filter tag 90 - wrong paths 1`] = `null`;
+
+exports[`Extarct filter tag 91 - wrong paths 1`] = `null`;
+
+exports[`Extarct filter tag 92 - wrong paths 1`] = `null`;

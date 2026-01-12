@@ -3,7 +3,7 @@ import { CommunitiesListSortSelector } from "@/app/communities/_components/commu
 import { CommunityCard } from "@/app/discover/@communities/_components/community-card";
 import CommunityCardAnimated from "@/app/discover/@communities/_components/community-card-animated-client";
 import { getCommunityCache } from "@/core/caches";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Communities, getCommunitiesQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 
@@ -19,7 +19,7 @@ export async function CommunitiesList({ sort, query }: Props) {
 
   const ecencyCommunity =
     list?.find((x) => x.name === "hive-125125") ??
-    (await getCommunityCache("hive-125125").prefetch());
+    (await prefetchQuery(getCommunityCache("hive-125125")));
 
   if (ecencyCommunity) {
     list = [ecencyCommunity, ...(list?.filter((x) => x.name !== "hive-125125") ?? [])];

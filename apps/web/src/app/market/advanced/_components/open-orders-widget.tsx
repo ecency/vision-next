@@ -8,9 +8,11 @@ import { LimitOrderCreate, OpenOrdersData, Transaction } from "@/entities";
 import { PREFIX } from "@/utils/local-storage";
 import i18next from "i18next";
 import { OpenOrders } from "@/app/market/_components/open-orders";
-import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
-import { getOpenOrdersQuery } from "@/api/queries";
+import { getOpenOrdersQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
   widgetTypeChanged: (type: Widget) => void;
@@ -28,15 +30,15 @@ export const OpenOrdersWidget = ({
   allOrders
 }: Props) => {
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername } = useActiveAccount();
 
   const [storedType, setStoredType] = useLocalStorage<TabType>(PREFIX + "_amm_oo_t", "open");
   const [type, setType] = useState<TabType>(storedType ?? "open");
   const [completedOrders, setCompletedOrders] = useState<LimitOrderCreate[]>([]);
 
-  const { isLoading: openOrdersDataLoading } = getOpenOrdersQuery(
-    activeUser?.username ?? ""
-  ).useClientQuery();
+  const { isLoading: openOrdersDataLoading } = useQuery(getOpenOrdersQueryOptions(
+    activeUsername ?? ""
+  ));
 
   useEffect(() => {
     setCompletedOrders(
@@ -58,7 +60,7 @@ export const OpenOrdersWidget = ({
         onTransactionSuccess={() => setRefresh(true)}
         data={openOrdersData || []}
         loading={openOrdersDataLoading}
-        username={(activeUser && activeUser.username) || ""}
+        username={activeUsername || ""}
         compat={true}
         rounded={false}
       />
@@ -117,7 +119,7 @@ export const OpenOrdersWidget = ({
       }
       widgetTypeChanged={widgetTypeChanged}
     >
-      {activeUser ? (
+      {activeUsername ? (
         <div className="market-advanced-mode-oo-content">
           {type === "open" ? getOpenOrders() : null}
           {type === "completed" ? getCompletedOrders() : null}

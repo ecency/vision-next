@@ -8,8 +8,10 @@ import {
   YoutubeVideoExtension,
   UserMentionExtensionConfig,
   clipboardPlugin,
+  DelStrike,
   markdownToHtml,
-  parseAllExtensionsToDoc
+  parseAllExtensionsToDoc,
+  LoomVideoExtension
 } from "@/features/tiptap-editor";
 import Image from "@tiptap/extension-image";
 import Mention from "@tiptap/extension-mention";
@@ -25,7 +27,7 @@ import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import {
   TEXT_COLOR_CLASS_PREFIX,
@@ -74,8 +76,7 @@ const PublishTextStyle = TextStyle.extend({
 
           const parentParseHTML =
             typeof (parentColor as { parseHTML?: unknown }).parseHTML === "function"
-              ? ((parentColor as { parseHTML: (element: HTMLElement) => unknown })
-                  .parseHTML)
+              ? (parentColor as { parseHTML: (element: HTMLElement) => unknown }).parseHTML
               : null;
 
           if (parentParseHTML) {
@@ -93,8 +94,12 @@ const PublishTextStyle = TextStyle.extend({
           return null;
         },
         renderHTML: (attributes) => {
-          const { color, class: className, style, ...otherAttributes } =
-            (attributes ?? {}) as Record<string, string | undefined>;
+          const {
+            color,
+            class: className,
+            style,
+            ...otherAttributes
+          } = (attributes ?? {}) as Record<string, string | undefined>;
 
           const normalizedColor = normalizeTextColor(color);
 
@@ -140,15 +145,23 @@ const PublishTextStyle = TextStyle.extend({
 });
 
 export function usePublishEditor(onHtmlPaste: () => void) {
+  const clipboardStrategyRef = useRef<ReturnType<typeof clipboardPlugin> | null>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     editorProps: {
-      handlePaste: ((_: any, event: ClipboardEvent, __: any) =>
-        clipboardPlugin(event, editor, onHtmlPaste).handle(event)) as any
+      handlePaste: ((_: any, event: ClipboardEvent, __: any) => {
+        // Store the strategy instance so we can clean it up later
+        clipboardStrategyRef.current = clipboardPlugin(event, editor, onHtmlPaste);
+        return clipboardStrategyRef.current.handle(event);
+      }) as any
     },
     extensions: [
-      StarterKit.configure() as AnyExtension,
+      StarterKit.configure({
+        strike: false
+      }) as AnyExtension,
+      DelStrike,
       Placeholder.configure({
         placeholder: i18next.t("submit.body-placeholder")
       }),
@@ -191,7 +204,8 @@ export function usePublishEditor(onHtmlPaste: () => void) {
       }),
       ThreeSpeakVideoExtension,
       YoutubeVideoExtension,
-      HivePostExtension
+      HivePostExtension,
+      LoomVideoExtension
     ],
     onUpdate({ editor }) {
       publishState.setContent(markdownToHtml(editor.getHTML()));
@@ -207,12 +221,14 @@ export function usePublishEditor(onHtmlPaste: () => void) {
     (content: string | undefined) => {
       try {
         const parsed = content ? marked.parse(content) : undefined;
-        const sanitized =
-          typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
+        const sanitized = typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
         const doc = sanitized
           ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
           : undefined;
-        editor?.chain().setContent(doc ?? "").run();
+        editor
+          ?.chain()
+          .setContent(doc ?? "")
+          .run();
       } catch (e) {
         error("Failed to load local draft. We are working on it");
         console.error(e);
@@ -235,6 +251,15 @@ export function usePublishEditor(onHtmlPaste: () => void) {
       setEditorContent(publishState.content);
     }
   }, [editor]);
+
+  // Cleanup clipboard plugin blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (clipboardStrategyRef.current && "destroy" in clipboardStrategyRef.current) {
+        (clipboardStrategyRef.current as any).destroy();
+      }
+    };
+  }, []);
 
   return { editor, setEditorContent };
 }

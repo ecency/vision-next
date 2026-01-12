@@ -6,7 +6,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { Button } from "@ui/button";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export default function GlobalError({
   error,

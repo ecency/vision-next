@@ -4,8 +4,8 @@ import { offset } from "@floating-ui/dom";
 import { flip, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import clsx from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
-import React, { ReactNode, useState } from "react";
+import { motion } from "framer-motion";
+import React, { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface Props {
@@ -43,10 +43,11 @@ export function StyledTooltip({
     middleware: [flip(), offset({ mainAxis: 4 })]
   });
 
-  const portalContainer =
-    typeof document !== "undefined"
-      ? document.getElementById("popper-container") || document.body
-      : null;
+  const [portalContainer, setPortalContainer] = useState<Element | null>(null);
+
+  useEffect(() => {
+    setPortalContainer(document.getElementById("popper-container"));
+  }, []);
 
   return (
     <div
@@ -69,28 +70,23 @@ export function StyledTooltip({
       {children}
       {portalContainer &&
         createPortal(
-          <AnimatePresence>
-            {show && content && (
-              <motion.div
-                ref={refs.setFloating}
-                className="z-[1070] absolute"
-                style={{ ...floatingStyles, visibility: show ? "visible" : "hidden" }}
-              >
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.75 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.75 }}
-                  className={clsx(
-                    "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
-                    size === "sm" && "p-1 text-xs font-semibold",
-                    size === "md" && "p-2 text-xs"
-                  )}
-                >
-                  {content}
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>,
+          <div
+            ref={refs.setFloating}
+            className="z-[1070] absolute"
+            style={{ ...floatingStyles, visibility: show && content ? "visible" : "hidden" }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.75 }}
+              animate={{ opacity: show && content ? 1 : 0, scale: show && content ? 1 : 0.75 }}
+              className={clsx(
+                "bg-blue-powder dark:bg-dark-default max-w-[320px] text-blue-dark-sky rounded-lg ",
+                size === "sm" && "p-1 text-xs font-semibold",
+                size === "md" && "p-2 text-xs"
+              )}
+            >
+              {content}
+            </motion.div>
+          </div>,
           portalContainer
         )}
     </div>

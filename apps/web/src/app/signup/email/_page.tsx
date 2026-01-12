@@ -1,8 +1,9 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import ReCAPTCHA from "react-google-recaptcha";
 import qrcode from "qrcode";
-import axios from "axios";
 import "./_sign-up.scss";
 import { Spinner } from "@ui/spinner";
 import { FormControl } from "@ui/input";
@@ -15,15 +16,15 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import i18next from "i18next";
-import { getAccounts } from "@/api/hive";
-import { signUp } from "@/api/private-api";
+import { getAccountsQueryOptions, signUp } from "@ecency/sdk";
 import { error, Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
 import {b64uEnc, getUsernameError, handleInvalid, handleOnInput} from "@/utils";
 import { appleSvg, checkSvg, googleSvg, hiveSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { useGlobalStore } from "@/core/global-store";
 import Link from "next/link";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
+import { useQueryClient } from "@tanstack/react-query";
 
 enum Stage {
   FORM = "form",
@@ -32,8 +33,9 @@ enum Stage {
 }
 
 export function SignUp() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+  const queryClient = useQueryClient();
 
   const [lsReferral, setLsReferral] = useLocalStorage<string>(PREFIX + "_referral");
 
@@ -67,6 +69,7 @@ export function SignUp() {
     if (referral && typeof referral === "string") {
       setReferral(referral);
       setLockReferral(true);
+      setLsReferral(referral);
     } else if (lsReferral && typeof lsReferral === "string") {
       router.push(`/signup/email?referral=${lsReferral}`);
       setReferral(lsReferral);
@@ -103,7 +106,7 @@ export function SignUp() {
   useDebounce(
     () => {
       if (username?.length >= 3 && username.length <= 16) {
-        getAccounts([username]).then((r) => {
+        queryClient.fetchQuery(getAccountsQueryOptions([username])).then((r) => {
           if (r.length > 0) {
             setUsernameError(i18next.t("sign-up.username-exists"));
             setIsDisabled(true);
@@ -152,15 +155,18 @@ export function SignUp() {
         return;
       }
       if (response?.data?.code) {
-        setRegistrationError(response.data.code);
+        setRegistrationError(String(response.data.code));
       } else {
         setDone(true);
         setLsReferral(undefined);
         setStage(Stage.FORM);
       }
     } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.data?.message) {
-        setRegistrationError(e.response.data.message);
+      if (e instanceof Error && "data" in e) {
+        const errorData = (e as { data?: { message?: string } }).data;
+        if (errorData?.message) {
+          setRegistrationError(errorData.message);
+        }
       }
     } finally {
       setInProgress(false);
@@ -265,13 +271,17 @@ export function SignUp() {
                       return;
                     }
 
-                    const existingAccount = await getAccounts([username]);
+                    const existingAccount = await queryClient.fetchQuery(
+                      getAccountsQueryOptions([username])
+                    );
                     if (existingAccount.length > 0) {
                       setUsernameError(i18next.t("sign-up.username-exists"));
                       return;
                     }
 
-                    const referralIsValid = await getAccounts([referral]);
+                    const referralIsValid = await queryClient.fetchQuery(
+                      getAccountsQueryOptions([referral])
+                    );
                     if (referralIsValid.length === 0 && referral !== "") {
                       setReferralError(i18next.t("sign-up.referral-invalid"));
                       return;

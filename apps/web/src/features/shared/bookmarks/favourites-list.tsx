@@ -1,20 +1,24 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
 import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
 import { getActiveAccountFavouritesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onHide: () => void;
 }
 
 export function FavouritesList({ onHide }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const accessToken = username ? getAccessToken(username) : undefined;
 
   const { data, isLoading } = useQuery({
-    ...getActiveAccountFavouritesQueryOptions(activeUser?.username),
+    ...getActiveAccountFavouritesQueryOptions(username, accessToken),
+    enabled: !!username && !!accessToken,
     refetchOnMount: true,
     select: (data) => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? []
   });

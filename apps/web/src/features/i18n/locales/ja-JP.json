@@ -47,6 +47,7 @@
     "hot": "フィード",
     "trending": "フィード",
     "created": "フィード",
+    "promoted": "昇格しました",
     "muted": "ミュート",
     "trail": "軌跡|軌跡|軌跡|軌跡|道",
     "controversial": "論争の的になる",
@@ -179,7 +180,42 @@
     "placeholder-count": "{{n}} 投稿を検索",
     "header-tag": "タグ",
     "header-account": "ユーザー",
-    "header-community": "コミュニティ"
+    "header-community": "コミュニティ",
+    "header-actions": "クイックアクション",
+    "action-transfer-hive": "HIVEを移動する",
+    "action-transfer-hbd": "HBD転送",
+    "action-transfer-points": "転送ポイント",
+    "action-transfer-description": "{{token}} を即座に送信",
+    "action-delegate-hp": "ハイブパワーを委任する",
+    "action-delegate-hp-description": "別のアカウントにHPを委任する",
+    "action-power-up": "パワーアップ",
+    "action-power-up-description": "HIVEをハイブパワーに変換",
+    "action-power-down": "パワーダウン",
+    "action-power-down-description": "ハイブパワーをHIVEに変換する",
+    "action-claim-hive": "保留中のHIVE報酬を請求する",
+    "action-claim-points": "保留中のポイント報酬を請求する",
+    "action-signup-email": "メールアドレスでサインアップ",
+    "action-signup-crypto": "暗号通貨でサインアップ",
+    "action-browse-communities": "コミュニティを探索",
+    "action-visit-ecency-community": "Ecency Communityを訪問",
+    "action-market-swap": "トークンの入れ替え",
+    "action-market-swap-description": "HIVEとHBDをすばやく交換します",
+    "action-market-trade": "取引端末を開く",
+    "action-market-trade-description": "高度なチャートと注文ブック",
+    "action-market-exchange": "トークンの交換",
+    "action-market-exchange-description": "マーケット価格と履歴を閲覧する",
+    "action-my-profile": "マイプロフィール",
+    "action-my-bookmarks": "自分のブックマーク",
+    "action-my-drafts": "自分の下書きです",
+    "action-my-gallery": "私のギャラリー",
+    "action-my-decks": "自分のデッキ",
+    "action-my-communities": "自分のコミュニティ",
+    "action-my-blog": "私のブログ",
+    "action-my-wallet": "マイウォレット",
+    "action-witnesses": "Witnes",
+    "action-witnesses-description": "有力な証人やブロック生成者を探索する",
+    "action-proposals": "提案",
+    "action-proposals-description": "分散型ハイブファンドをレビューする"
   },
   "tag": {
     "unmoderated": "未承認のトピック",
@@ -260,7 +296,7 @@
     "description": "フリーピーチ、真の所有権、金融の自由！",
     "description-2": "Hiveは多くのアプリをサポートし、世界中のコミュニティメンバーによって完全に分散して実行されています。 アカウントでは、エコシステムに直接アクセスできます。",
     "bottom-description": "1つのアカウント、1つのウォレットでブロックチェーン上のすべてを管理できます。",
-    "learn-more": "<a href=\"/faq#how-to-join\"></a> のメリットについての詳細はこちらformat@@2",
+    "learn-more": "<a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a> のメリットについての詳細はこちら",
     "username": "ユーザー名を選択",
     "email": "メールアドレスを入力してください",
     "ref": "参照されたユーザー (オプション)",
@@ -288,6 +324,7 @@
     "username-contains-double-hyphens": "二重ハイフンを含むべきではありません",
     "username-exists": "このユーザー名はすでに登録されています。別のものをお試しください",
     "username-starts-number": "数字で始まるべきではありません",
+    "username-required": "ユーザー名が必要です",
     "username-in-use": "このユーザー名は既に存在します。別のユーザー名を設定してください。",
     "referral-invalid": "この紹介は無効です。別の紹介をお試しください",
     "referral-min-length-error": "紹介の長さは少なくとも3文字でなければなりません",
@@ -371,8 +408,21 @@
     "ascending": "昇順",
     "descending": "降順"
   },
-  "selected-tags": {
-    "title": "注目の商品"
+  "tags-page": {
+    "title": "トレンドタグ",
+    "description": "コメントの量、トップ投稿、支払いで、最も活発なトピックを見つけましょう。",
+    "error": "現在トレンドタグを読み込めません。",
+    "columns": {
+      "tag": "タグ",
+      "comments": "コメント",
+      "top-posts": "トップ投稿",
+      "total-payouts": "合計支払い"
+    },
+    "load-more": {
+      "cta": "さらに読み込む",
+      "loading": "読み込み中...",
+      "done": "これ以上のタグはありません"
+    }
   },
   "entry-list-item": {
     "cross-posted": "クロス投稿",
@@ -412,7 +462,10 @@
     "delete-success": "リブログを削除しました"
   },
   "entry-tip": {
-    "title": "Tip"
+    "title": "Tip",
+    "send-tip": "ヒントを送信",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} のヒント"
   },
   "entry-share": {
     "title": "共有"
@@ -677,6 +730,7 @@
     "pending-orders": "保留中の注文",
     "type": "タイプ",
     "mode-limit": "制限",
+    "mode-engine": "エンジン",
     "mode-swap": "入れ替え",
     "mode-advanced": "高度な設定",
     "action": "アクション",
@@ -710,6 +764,8 @@
     "success-title": "取引が完了しました",
     "more-than-balance": "利用可能な残高を超えて入力しました",
     "invalid-amount": "金額から無効です。少ない値を入力してください",
+    "engine-orderbook-thin": "この市場は流動性が限られています。少ない額を試すか、後で確認してください。",
+    "engine-orderbook-empty": "現在、この取引所で有効な注文はありません。",
     "too-much-slippage": "より良い価格のために量を減らすことをお勧めします!",
     "auth-required-title": "認証が必要です",
     "auth-required-desc": "自分の資金を交換する権限が必要です",
@@ -717,6 +773,10 @@
     "signing": "サインインしています...",
     "success-swap": "交換に成功しました！",
     "calculating-in": "計算中",
+    "asset-selector": {
+      "title": "トークンを選択",
+      "search-placeholder": "トークンを検索"
+    },
     "advanced": {
       "history": "沿革",
       "stake": "オーダーブック",
@@ -737,11 +797,49 @@
         "amount": "金額",
         "volume": "音量",
         "time": "時刻"
+      },
+      "variant-hive": "HIVE/HBD",
+      "variant-engine": "エンジントークン"
+    },
+    "limit": {
+      "layer-core": "コア・レイヤー 1",
+      "layer-engine": "エンジン・レイヤー2",
+      "token-selector": {
+        "label": "取引ペア",
+        "title": "取引ペアを選択",
+        "search-placeholder": "トークンを検索",
+        "core-description": "コアHBD/HIVE市場を取引する。",
+        "engine-description": "Layer-2トークンはSWAP.HIVEと取引されます。",
+        "no-results": "検索に一致するトークンがありません。"
       }
+    },
+    "engine": {
+      "title": "Hiveエンジン市場",
+      "description": "Hiveアカウントから直接指値注文でHiveエンジントークンをトレード。",
+      "token": "トークン",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "最終価格",
+      "price-change": "24時間の変更",
+      "volume-label": "24時間音量 ({{symbol}})",
+      "bids": "注文を購入",
+      "asks": "注文を販売",
+      "price": "価格",
+      "amount": "量 ({{symbol}})",
+      "total": "合計",
+      "recent-trades": "最近の取引",
+      "time": "時刻",
+      "type": "タイプ",
+      "no-open-orders": "このマーケットのオープン注文はまだありません。",
+      "use-best": "最高価格を使用する",
+      "use-max": "最大値を使用",
+      "invalid-order": "有効な金額とゼロより大きい価格を入力してください。",
+      "login-required": "Hiveエンジントークンを交換するにはサインインしてください。",
+      "order-placed": "注文済み",
+      "order-cancelled": "注文がキャンセルされました",
+      "login-to-trade": "サインインしてHiveエンジンの取引を管理します。",
+      "deposit": "デポジットHIVE（HIVE）",
+      "deposit-instructions": "SWAP.HIVEを受け取るには、メモ {{memo}} でHIVEを@honey-swapに送信してください。"
     }
-  },
-  "list-style": {
-    "title": "リストのスタイルを切り替える"
   },
   "entry-votes": {
     "title": "1票",
@@ -806,7 +904,9 @@
   "comment": {
     "body-placeholder": "ここに返信を書いてください",
     "preview": "プレビュー",
-    "success": "返信が正常に作成されました！"
+    "success": "返信が正常に作成されました！",
+    "retry-hint": "テキストは以下に保存されています - もう一度やり直してください",
+    "rc-error-hint": "資源クレジットが不足しています。テキストは以下に保存されます。"
   },
   "discussion": {
     "join": "今すぐ会話に参加する",
@@ -965,6 +1065,7 @@
     "section-replies": "返信",
     "section-communities": "コミュニティ",
     "section-wallet": "ウォレット",
+    "section-insights": "洞察",
     "section-settings": "設定",
     "section-referrals": "紹介",
     "section-permission": "アクセス許可",
@@ -996,6 +1097,22 @@
     "no-posts-found": "何も見つかりません！",
     "subscribe": "購読する"
   },
+  "profile-insights": {
+    "description": "あなたのポストのどの部分が読者と最も共鳴しているかを確認してください。",
+    "today": "今日",
+    "yesterday": "昨日",
+    "last-7": "過去 7 日間",
+    "last-30": "過去 30 日間",
+    "all-time": "すべて",
+    "page": "ページ",
+    "views": "ビュー",
+    "uniques": "ユニークビュー",
+    "minutes": "分",
+    "no-data": "この範囲で利用可能なページビューはまだありません。",
+    "range": "Date range",
+    "disabled": "インサイトは現在無効になっています。",
+    "error": "インサイトを読み込めません。"
+  },
   "rc-info": {
     "available": "利用可能です",
     "used": "使用中",
@@ -1014,7 +1131,7 @@
     "confirm": "確認する",
     "cancel": "キャンセル",
     "check-faq": "RCの詳細はこちらをご覧ください",
-    "learn-more": "/faq#what-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "FAQ",
     "insufficient-rc-error": "資源クレジットが不足しています",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1185,24 +1302,6 @@
       "larynx-locked-description": "ロックされたトークンはネットワークに流動性を提供し、コンセンサスを決定するのに役立ち、ノードランナーの報酬を獲得します"
     }
   },
-  "wallet-engine": {
-    "title": "Hiveエンジントークン",
-    "description": "Hiveエンジンは、Hiveブロックチェーンのスマートコントラクトサイドチェーンプラットフォームです。",
-    "no-results": "トークンが見つかりません。",
-    "token": "トークン",
-    "balance": "残高",
-    "staked": "ステーク中"
-  },
-  "sort-engine-tokens": {
-    "sort": "並べ替え",
-    "sort-in-ascending": "昇順",
-    "sort-in-descending": "降順",
-    "sort-by-value": "値",
-    "sort-by-balance": "残高",
-    "sort-by-stake": "ステーク（ステーク）",
-    "sort-by-delegations-in": "委任先",
-    "sort-by-delegations-out": "委任する"
-  },
   "wallet-engine-estimated": {
     "title": "推定トークン値",
     "description": "あなたの財布のすべてのエンジントークンの米ドルの価値。"
@@ -1263,12 +1362,6 @@
     "filter-998": "送信",
     "filter-999": "入金手続き中"
   },
-  "purchase": {
-    "select-asset": "資産を選択",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "submit": "購入",
-    "purchase-message": "または、ポイントを購入するためのメモとして @steem.app にいくらでも送ってください。"
-  },
   "purchase-qr": {
     "scan-code": "Ecencyモバイルアプリでスキャンして続行します",
     "select-user": "ユーザーを選択してください",
@@ -1286,14 +1379,6 @@
     "sub-title": "ポストを宣伝する",
     "duration": "期間",
     "learn-more": "プロモーションについての詳細"
-  },
-  "boost": {
-    "title": "ブースト",
-    "sub-title": "あなたの投稿をブーストします",
-    "amount": "金額",
-    "slider-hint": "スライダーをドラッグして金額を調整します。",
-    "hint": "投票の実際の価値は異なる場合があります",
-    "learn-more": "ブーストについてもっと詳しく"
   },
   "redeem-common": {
     "balance": "残高",
@@ -1337,6 +1422,7 @@
     "to-placeholder": "ユーザー名",
     "to-not-found": "送金先のユーザーが存在しません！",
     "to-bad-actor": "このアカウントに送金する際は注意してください。フィッシングの可能性があるためスペルを再確認してください。",
+    "external-wallets-label": "ウォレット (BTC、ETH、SOL、BNB、TRX、TON、APT)",
     "amount": "金額",
     "amount-placeholder": "数量",
     "wrong-amount": "間違った金額",
@@ -1466,7 +1552,13 @@
     "sign": "サイン",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "HiveAuthでサインイン",
+    "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
+    "key-error": "キーの処理に失敗しました。正しいことを確認してください。"
+  },
+  "hive-auth": {
+    "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
   },
   "delegated-vesting": {
     "title": "ハイブパワー",
@@ -1651,11 +1743,6 @@
     "refresh": "更新して状態を取得する",
     "video-info": "ビデオはSPKネットワークによって保存され、いくつかのストレージとエンコード料金がかかる可能性があります。"
   },
-  "nsfw-content": {
-    "title": "NSFW コンテンツ",
-    "warning": "あなたのコンテンツがNSFWであるかどうかを確認してください",
-    "continue": "続ける"
-  },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
     "placeholder-focus": "タグを入力",
@@ -1709,7 +1796,12 @@
     "replied": "{{source}} があなたに返信しました",
     "reblogged": "{{source}} があなたの投稿をリブログしました",
     "transfer": "{{source}} が {{amount}}を送信しました",
-    "delegations": "{{source}} があなたに {{amount}}を委任しました"
+    "delegations": "{{source}} があなたに {{amount}}を委任しました",
+    "checkins": "あなたは今週 {{count}} 日{{suffix}} にチェックインしました。続けてください！",
+    "payouts": "コンテンツの支払いの準備ができました。",
+    "payouts-amount": "{{amount}} の支払いを受け取りました。",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
   },
   "notifications": {
     "type-all": "すべての通知",
@@ -1721,6 +1813,7 @@
     "type-reblogs": "リブログ",
     "type-transfers": "送金",
     "type-delegations": "委任事項",
+    "type-payouts": "支払い",
     "type-nfavorites": "お気に入り",
     "type-nbookmarks": "ブックマーク",
     "group-title-recent": "最近のもの",
@@ -1735,6 +1828,9 @@
     "reblog-str": "リブログされた投稿",
     "transfer-str": "送信済み",
     "delegations-str": "委任済み",
+    "checkins-title": "連続@{{username}}",
+    "payouts-title": "@{{username}}で支払いを受け取りました",
+    "monthly-posts-title": "強力な月を終了しました。@{{username}}",
     "spin-str": "より多くのポイントを獲得しましょう。Ecency Mobile アプリでスピンをプレイしましょう",
     "inactive-str": "アクティブにしましょう！投稿を書き、獲得を続けましょう",
     "referral-str": "紹介を受けて歓迎します",
@@ -1762,9 +1858,6 @@
     "header-reward": "Recompensa",
     "header-votes": "投票",
     "header-votes-tip": "この期間の投票数"
-  },
-  "popular-users": {
-    "title": "人気のユーザー"
   },
   "discover": {
     "title": "Discover",
@@ -1872,6 +1965,7 @@
     "filter-active": "アクティブ",
     "filter-inactive": "近日公開",
     "filter-team": "Ecency Projects",
+    "filter-create": "新規作成",
     "return-description": "これはベースリターン提案です。より少ない票を持つすべての提案は資金を受け取りません。",
     "threshold-description": "これはしきい値の提案です",
     "votes-dialog-title": "提案への投票 #{{n}}",
@@ -1884,7 +1978,53 @@
     "sort-reputation": "評価",
     "sort-hp": "ハイブパワー",
     "no-results": "結果が見つかりませんでした",
-    "searching": "検索中"
+    "searching": "検索中",
+    "create": {
+      "step-setup-title": "提案の詳細を設定",
+      "step-setup-sub-title": "DHFに提出する提案を記述してください。",
+      "description": "<p>提案を提出する前に、作業の範囲を説明し、以下にリンクするHive投稿を公開していることを確認してください。 <p> <strong></strong> + <strong></strong> の提案を作成すると、60以上の</p>",
+      "subject-label": "タイトル",
+      "subject-placeholder": "短い公開タイトル",
+      "subject-help": "これは提案リストに表示されます。簡潔にしておきます(80文字まで)。",
+      "subject-error": "3文字以上80文字以内のタイトルを入力してください。",
+      "permlink-label": "提案パーマリンク",
+      "permlink-placeholder": "proposal-update-post",
+      "permlink-help": "提案を説明するハイブポストのpermlinkを使用してください (@username/ パートなし)。 この項目に焦点を当てると、最近の投稿のいずれかをリストから選択できます。",
+      "permlink-suggestions-title": "最近の投稿",
+      "permlink-suggestions-loading": "最近の投稿を読み込み中...",
+      "permlink-suggestions-empty": "あなたのアカウントの最近の投稿は見つかりませんでした。",
+      "permlink-suggestions-error": "最近の投稿を読み込むことができません。もう一度お試しください。",
+      "permlink-error": "パーマリンクには小文字、数字、ハイフンのみを含めることができます。",
+      "receiver-label": "受信者",
+      "receiver-placeholder": "口座名",
+      "receiver-help": "提案が資金提供されたときに支払いを受け取るアカウント。",
+      "receiver-error": "有効なHiveアカウント名を入力してください。",
+      "start-label": "開始日",
+      "start-placeholder": "開始日を選択",
+      "start-error": "開始日を少なくとも1時間以上選択してください。",
+      "end-label": "終了日",
+      "end-placeholder": "終了日を選択",
+      "end-error": "終了日は開始日より後でなければなりません。",
+      "daily-pay-label": "毎日の支払い（HBD）",
+      "daily-pay-help": "1日あたりの要求HBD数。",
+      "daily-pay-error": "毎日の正の支払額を入力してください。",
+      "summary-title": "Summary",
+      "summary-duration": "期間: {{days}} 日",
+      "summary-daily-pay": "毎日の支払い： {{amount}} HBD",
+      "summary-total-pay": "合計支払い額 {{amount}} HBD",
+      "summary-creation-fee": "作成手数料 <unk> {{fee}} HBD",
+      "step-sign-sub-title": "アクティブな権限を使用して取引に署名します。",
+      "sign-hint": "アクティブなキー、HiveAuth、HiveKeychain、HiveSignerでサインすることができます。",
+      "success-title": "提案が送信されました",
+      "success-sub-title": "トランザクションの放送",
+      "success-description": "新しい提案がリストに表示されるまで数分かかる場合があります。",
+      "success-toast": "提案取引ブロードキャスト。",
+      "external-sign": "提案の作成を完了するために、新しいウィンドウにサインインし続けます。",
+      "new-proposal": "別の提案を作成",
+      "login-button": "サインイン",
+      "open-form": "提案を作成",
+      "hide-form": "提案フォームを非表示"
+    }
   },
   "gallery": {
     "title": "ギャラリー",
@@ -1929,19 +2069,6 @@
     "validation-label": "続行するにはこのボックスにチェックを入れてください。",
     "updated": "パスワードが変更されました！",
     "hint": "現時点では、新しいシードフレーズを設定するだけでキーを生成できます。他の種類のパスワードへの更新はサポートされていません。 Web 3.0の標準でEcencyとHiveのアカウントを維持するのに役立ちます。"
-  },
-  "view-keys": {
-    "title": "秘密鍵を表示",
-    "header": "キーの管理",
-    "account": "アカウント",
-    "cur-pass": "現在のパスワード",
-    "owner": "所有者",
-    "active": "アクティブ",
-    "posting": "投稿",
-    "memo": "メモ",
-    "view-keys": "クリックしてキーを表示",
-    "copied": "秘密鍵をクリップボードにコピーしました",
-    "error": "パスワードが正しくありません。もう一度確認してください！"
   },
   "manage-authorities": {
     "title": "認証局の管理",
@@ -1993,118 +2120,48 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
-    "page-title": "会話",
-    "read-only": "読み取り専用",
-    "why-read-only": "このユーザーはチャットキーを変更しました。上記の検索でユーザー名で新しいアカウントを見つけてください。",
-    "user-not-joined": "まだ参加していません",
-    "title": "チャット",
-    "messages": "メッセージ",
-    "key": "Ecency chat key",
-    "new-message": "新しいメッセージ",
-    "direct-messages": "ダイレクトメッセージ",
-    "collapse": "折りたたむ",
-    "expand": "展開",
-    "scroll-to-bottom": "一番下までスクロール",
-    "joined": "参加しました",
-    "followers": "フォロワー",
-    "start-chat-placeholder": "新しいメッセージを開始する",
-    "search": "人やコミュニティを検索",
-    "join-chat": "チャットに参加",
-    "join-channel": "チャンネルに参加",
-    "back": "戻る",
-    "no-chat": "会話が見つかりません",
-    "start-chat": "チャットを開始",
-    "not-joined": "このユーザーはまだチャットに参加していません",
-    "subscribers": "Subscribers",
-    "invite": "招待",
-    "send-invite": "招待を送信",
-    "leave:": "退出する",
-    "refresh": "更新",
-    "message-warning": "このグループではメッセージを送信できません。",
-    "edit-community-roles": "コミュニティの役割を編集",
-    "add": "追加",
-    "no-admin": "このコミュニティチャットの管理者またはモデレータはいません。",
-    "blocked-users": "ブロックされたユーザー",
-    "action": "アクション",
-    "unblock": "ブロックを解除",
-    "ecency-key": "Ecency key",
-    "no-locked-user": "ブロックされたユーザーが見つかりません",
-    "no-hidden-messages": "非表示のメッセージが見つかりません",
-    "enter-private-key": "チャット秘密鍵を入力",
-    "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
-    "close": "閉じる",
-    "confirm": "確認する",
-    "error-updating-community": "コミュニティの更新中にエラーが発生しました",
-    "leave-channel": "僅用於中文",
-    "leaving": "退出中",
-    "edit-roles": "役割を編集",
-    "manage-chat-key": "資格情報",
-    "block": "ブロック",
-    "communities": "コミュニティ",
-    "dms": "ダイレクトメッセージ",
-    "import-chat": "チャットをインポート",
-    "create-new-account": "新規アカウントを作成",
+    "page-title": "Ecencyコミュニティとチャットするために、ダイレクトメッセージを開始するか、チャンネルに参加してください。",
+    "loading-chats": "Loading chats…",
+    "start-dm-button": "DMを開始",
+    "starting-dm": "Starting…",
+    "search-user": "人を検索",
+    "searching": "検索中...",
+    "no-user": "ユーザーが見つかりませんでした。",
+    "search-channels": "チャンネルまたはダイレクトメッセージを検索",
     "loading": "読み込み中...",
-    "blocked-user-message": "あなたはこのコミュニティからブロックされています",
-    "start-community-channel": "Start community channel",
+    "mark-as-read": "既読にする",
+    "marking-as-read": "Marking…",
+    "channel-type-dm": "DM",
+    "channel-type": "チャンネル",
+    "favorite-channel": "お気に入りチャンネル",
+    "channel-muted": "ミュート中",
+    "mute-channel": "チャンネルをミュート",
+    "unmute-channel": "チャンネルのミュートを解除",
+    "leave-channel": "僅用於中文",
+    "no-channels": "割り当てられたチャンネルはまだありません。",
+    "no-channels-search": "検索に一致するチャンネルがありません。",
+    "joinable-channels": "参加可能なチャンネル",
+    "searching-channels": "Searching…",
+    "channel-type-public": "公開チャンネル",
+    "channel-type-private": "プライベートチャンネル",
+    "join-channel-action": "参加する",
+    "joining-channel": "Joining…",
+    "no-additional-channels": "追加のチャンネルが見つかりませんでした。",
+    "title": "チャット",
+    "no-admin": "このコミュニティチャットの管理者またはモデレータはいません。",
     "view-community-channel": "コミュニティチャット",
-    "submit": "送信",
-    "chat-priv-key": "ダウンロードボタンをクリックしてチャットキーを保存するか、QRコードをスキャンして会話を復元してください。",
     "public-key": "公開キー",
     "private-key": "Private key",
-    "copy-priv-key": "秘密鍵をコピー",
-    "extended-view": "拡張ビュー",
-    "you-haven-t-joined": "まだチャットに参加していません。参加して始めましょう！",
-    "invalid-private-key": "無効な秘密鍵です",
-    "enter-username": "一時的なユーザー名を入力",
     "hide-message": "メッセージを隠す",
-    "block-author": "作者をブロック",
-    "unblock-author": "著者のブロックを解除",
-    "create-an-account": "チャットアカウントを作成",
-    "create-description": "ようこそ！あなたのアカウントの準備が完了しました。会話に飛び込み、プライベートに他の人とつながりを楽しんでください。",
-    "create-pin-description": "任意のデバイスからチャットにアクセスするためのPINを設定してください",
-    "logout": "ログアウト",
-    "specify-invitation-message": "この招待メッセージは最新のユーザーの投稿にコメントとして送信されます",
-    "successfully-invited": "招待に成功しました",
-    "invite-couldnt-be-sent": "ユーザーがまだ投稿を持っていないため、招待を送信できませんでした",
-    "no-posts-for-invite": "残念ながら、ユーザーはアクティブではありません。投稿はありません。",
-    "warn-key-saving": "アカウントを安全に保つためにチャットキーをバックアップし、中断のないサービスを持っています！",
-    "view-and-save": "キーを表示して保存",
-    "blocked-users-management": "ブロックされたユーザー管理",
-    "unlock-the-section": "認証情報を見るためにPINを入力してください",
-    "no-contacts-or-channels": "会話はまだありません",
-    "upload-image": "画像をアップロード",
-    "hidden-messages": "非表示メッセージ",
-    "hidden-messages-management": "非表示のメッセージ管理",
-    "saved-messages": "保存されたメッセージ",
-    "fetch-error": "留守中にネットワークの変更が検出されました。新しいデータを取得するには、今すぐページを再読み込みしてください",
-    "pin": "ピン留めする",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "連絡先またはチャンネルを選択",
-    "message-forwarding": "メッセージ転送",
-    "forward": "メッセージを転送",
-    "forwarded-from": "転送済みメッセージ",
-    "welcome": {
-      "title": "チャットへようこそ",
-      "description": "チャットを使用してアカウントを作成またはインポートする",
-      "already-joined-title": "僅用於中文",
-      "already-joined-hint": "PINを入力してアカウントを認証し、アクセスを取得してください",
-      "pin-failed": "PINが無効です。確認に失敗しました。",
-      "oops": "おっと！",
-      "user-not-joined-yet": "メッセージを送信できません。このユーザーまたはチャンネルはまだチャットに参加していません。",
-      "hello": "こんにちは",
-      "start-description": "個人またはコミュニティを検索し、メッセージを開始する",
-      "join-description": "あなたはチャンネルの一部ではありません",
-      "rejoin-description": "このコミュニティチャットから抜けました。今すぐチャットに参加しましょう！"
-    },
-    "import": {
-      "title": "アカウントをインポート中",
-      "description": "既存のアカウントをインポートするには、公開鍵と秘密鍵のペアを入力してください",
-      "button": "インポート",
-      "iv": "初期ベクトル値"
-    },
-    "reply": "返信",
-    "reply-to": "{{account}} に返信"
+    "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
+    "message-search-results": "メッセージ検索結果",
+    "no-messages-found": "メッセージが見つかりません。",
+    "no-message": "メッセージの内容がありません。",
+    "translate": "翻訳する",
+    "translate-target-language": "翻訳先の言語",
+    "pinned-messages": "ピン留め済みのメッセージ",
+    "pin-message": "メッセージをピン留めする",
+    "unpin-message": "メッセージのピン留めを解除"
   },
   "add-image": {
     "title": "画像を追加",
@@ -2140,6 +2197,46 @@
       "contact-blog": "ファウンダーのブログ",
       "contact-news": "ハイブのニュース",
       "contact-email": "Eメールを送信"
+    },
+    "mobile": {
+      "page-title": "Ecency Mobile",
+      "hero-title": "あなたのコミュニティ、 <span>Ecency Mobile</span>",
+      "hero-subtitle": "Hiveのコミュニティに近づき、会話に反応し、どこにいても報酬を管理しましょう。",
+      "hero-footnote": "iOS、iPadOS、Androidデバイスで利用できます。",
+      "cta-ios": "App Storeでダウンロード",
+      "cta-android": "Google Playで入手",
+      "benefits-title": "Ecency mobile が好きな理由",
+      "benefits": {
+        "communities-title": "ポケットにあるコミュニティ",
+        "communities-description": "フィードをフォローしたり、トレンドタグを探したり、気になる人やトピックに近づいたりしましょう。",
+        "create-title": "どこからでも公開",
+        "create-description": "ドラフト投稿、アップデートを共有し、デスクトップで使用するのと同じ強力なエディタでコメントに返信します。",
+        "wallet-title": "ウォレットを一目で確認する",
+        "wallet-description": "残高を確認し、報酬を請求し、わずか数タップでハイブパワーまたはHBDを管理します。",
+        "notifications-title": "メンションをお見逃しなく",
+        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、報酬を強調表示するので、時間通りに祝うことができます。"
+      },
+      "features-title": "クリエイターやコミュニティ向けにデザインされた",
+      "features": {
+        "interface-title": "モバイル用",
+        "interface-description": "ネイティブのナビゲーション、ジェスチャーに優しいコントロール、そして携帯電話やタブレット上の自宅で感じるレイアウトをお楽しみください。",
+        "themes-title": "昼と夜のテーマ",
+        "themes-description": "明るいテーマと暗いテーマを切り替えて、いつでも読み書きしながら快適に過ごせます。",
+        "opensource-title": "オープンでコミュニティ主導型の",
+        "opensource-description": "GitHubで貢献したり、翻訳を手伝ったり、アプリから直接フィードバックを共有したりできます。"
+      },
+      "screenshots-title": "Ecency mobile in actionを見る",
+      "screenshots-description": "スマートフォンやタブレット間でプロフィールを閲覧、公開、管理するためのビューをクリーンにします。",
+      "screenshots-tablet-alt": "タブレット上に表示されるモバイルインターフェイス",
+      "screenshots-phone-alt": "電話でのモバイルフィードの表示",
+      "screenshots-desktop-alt": "デスクトップインターフェイスの隣にあるモバイル画面",
+      "screenshots-dark-alt": "ダークテーマのEcency mobile app",
+      "resources-title": "役に立つリソース",
+      "resources": {
+        "faq": "FAQをご覧ください。",
+        "blog": "最新のモバイルリリースノートを読む",
+        "github": "オープンソースのモバイルコードベースを探索する"
+      }
     },
     "faq": {
       "about-ecency": "Ecency について",
@@ -2421,22 +2518,6 @@
     "title": "貢献者",
     "description": "これらの偉大な人々は、何らかの形でEcencyに貢献し、私たちはそれらすべてに感謝したいと思います。 翻訳、アイデア、開発、デザイン、社会認識に貢献して、私たちのチームに参加したい場合は、自由に参加してください。 詳細については、 <a href=\"/faq#how-to-contribute\">FAQ</a> をご覧ください。"
   },
-  "context-menu": {
-    "cut": "カット",
-    "copy": "コピー",
-    "paste": "貼り付け",
-    "open-image-browser": "ブラウザで画像を開く",
-    "copy-image-url": "画像のURLをコピー"
-  },
-  "updater": {
-    "new-version-available": "新しいバージョンが利用可能です。",
-    "download": "ダウンロード",
-    "update": "アップデート",
-    "dismiss": "中止",
-    "downloading": "新しいバージョンをダウンロードしています...",
-    "download-completed": "ダウンロードが完了",
-    "restart": "再起動"
-  },
   "chain-error": {
     "min-root-comment": "5分に1回しか投稿できません。",
     "identical-vote": "このコンテンツへの現在の投票は、この投票と同じです。",
@@ -2639,7 +2720,8 @@
     "faq": "FAQ",
     "chats": "チャット",
     "news": "ニュース",
-    "chats-page-placeholder": "チャットを拡張ビューで開きました"
+    "chats-page-placeholder": "チャットを拡張ビューで開きました",
+    "open-chats": "チャットを開く"
   },
   "not-found": {
     "title": "見つかりません",
@@ -2656,12 +2738,6 @@
     "email-placeholder": "メールアドレス（任意）",
     "message-placeholder": "レポートを説明してください",
     "issue-reported": "問題が正常に報告されました"
-  },
-  "entry-preview": {
-    "searching-title": "投稿を検索中",
-    "searching-description": "この投稿を確認しようとしています...",
-    "title": "プレビュー",
-    "description": "この投稿は現在作成中です。このメッセージが消えたときに操作できます。"
   },
   "banners": {
     "no-ls-title": "ローカルデータを使用できません",
@@ -2922,6 +2998,7 @@
     "pick-tokens": "表示するトークンを選択",
     "search-token": "検索トークン",
     "setup-tokens": "トークンの管理",
+    "trade-tokens": "取引トークン",
     "asset-name": "資産名",
     "price": "価格",
     "balance": "残高",
@@ -2952,7 +3029,7 @@
     },
     "operations": {
       "transfer": "送金",
-      "transfer-saving": "貯蓄額",
+      "transfer-saving": "貯蓄へ",
       "power-up": "パワーアップ",
       "power-down": "パワーダウン",
       "swap": "入れ替え",
@@ -2983,6 +3060,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "請求しています...",
     "claim-rewards-success": "{{amount}} {{token}} の請求に成功しました",
+    "hp-delegation-promo": {
+      "tag": "APRブースト+10%",
+      "title": "ハイブパワーでEcancyキュレーションをする",
+      "description": "キュレーターチームによって管理されているアクティブキュレーションをアクティブにするには、ハイブパワーを @ecency に委任してください。 アクティブキュレーションでは、約+10%のAPRが加算され、キュレーション報酬の100%が返却されます。",
+      "button": "@ecency に委任する",
+      "dismiss": "たぶん後で"
+    },
     "external": {
       "receive-button": "受信する",
       "transfer-soon": "転送 (近日)",

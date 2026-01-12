@@ -7,3 +7,4 @@ export * from "./use-get-account-wallet-list-query";
 export * from "./get-account-wallet-asset-info-query-options";
 export * from "./get-tokens-operations-query-options";
 export * from "./use-wallets-cache-query";
+export * from "./get-vision-portfolio-query-options";

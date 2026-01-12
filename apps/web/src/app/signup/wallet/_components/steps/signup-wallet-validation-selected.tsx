@@ -1,13 +1,15 @@
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import {
-  EcencyTokenMetadata,
   EcencyWalletCurrency,
+  getTokenPriceQueryOptions,
   useGetExternalWalletBalanceQuery,
   useWalletsCacheQuery
 } from "@ecency/wallets";
 import { UilCheckCircle, UilClipboardAlt } from "@tooni/iconscout-unicons-react";
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import Decimal from "decimal.js";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
@@ -15,6 +17,32 @@ import qrcode from "qrcode";
 import { useEffect, useMemo, useRef } from "react";
 import { useCopyToClipboard, useInterval } from "react-use";
 import { CURRENCIES_META_DATA } from "../../consts";
+
+const DECIMALS_BY_CURRENCY: Partial<Record<EcencyWalletCurrency, number>> = {
+  [EcencyWalletCurrency.BTC]: 8,
+  [EcencyWalletCurrency.ETH]: 18,
+  [EcencyWalletCurrency.BNB]: 18,
+  [EcencyWalletCurrency.SOL]: 9,
+  [EcencyWalletCurrency.TON]: 9,
+  [EcencyWalletCurrency.TRON]: 6,
+  [EcencyWalletCurrency.APT]: 8
+};
+
+const DECIMALS_BY_UNIT: Record<string, number> = {
+  satoshi: 8,
+  sat: 8,
+  wei: 18,
+  lamport: 9,
+  lamports: 9,
+  sun: 6,
+  nanoton: 9,
+  nanotons: 9,
+  nano: 9,
+  octa: 8,
+  octas: 8
+};
+
+const MINIMUM_VALIDATION_USD = new Decimal(1);
 
 interface Props {
   username: string;
@@ -25,16 +53,42 @@ interface Props {
 
 export function SignupWalletValiadtionSelected({ selected, username, onCancel, onValid }: Props) {
   const qrCodeRef = useRef<HTMLImageElement>(null);
+  const [selectedCurrency, selectedAddress] = selected;
 
   const { data: wallets } = useWalletsCacheQuery(username);
   const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
   const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
-    useGetExternalWalletBalanceQuery(selected[0], selected[1]);
+    useGetExternalWalletBalanceQuery(selectedCurrency, selectedAddress);
 
-  const hasValidated = useMemo(
-    () => (externalWalletBalance?.balanceBigInt ?? 0n) > 0n,
-    [externalWalletBalance?.balanceBigInt]
-  );
+  const { data: priceUsd } = useQuery({
+    ...getTokenPriceQueryOptions(selectedCurrency),
+    // Cache for a while so we don't refetch alongside the 10s balance poll.
+    staleTime: 30000
+  });
+
+  const decimals = useMemo(() => {
+    if (DECIMALS_BY_CURRENCY[selectedCurrency] !== undefined) {
+      return DECIMALS_BY_CURRENCY[selectedCurrency];
+    }
+
+    if (externalWalletBalance?.unit) {
+      return DECIMALS_BY_UNIT[externalWalletBalance.unit.toLowerCase()];
+    }
+
+    return 0;
+  }, [externalWalletBalance?.unit, selectedCurrency]);
+
+  const tokenAmount = useMemo(() => {
+    const balance = externalWalletBalance?.balanceBigInt ?? 0n;
+    const divisor = new Decimal(10).pow(decimals ?? 0);
+
+    return new Decimal(balance.toString()).div(divisor);
+  }, [decimals, externalWalletBalance?.balanceBigInt]);
+
+  const hasPrice = typeof priceUsd === "number" && Number.isFinite(priceUsd);
+  const usdValue = hasPrice ? tokenAmount.mul(priceUsd) : new Decimal(0);
+
+  const hasValidated = hasPrice && usdValue.greaterThanOrEqualTo(MINIMUM_VALIDATION_USD);
   // const hasValidated = true;
 
   const [_, copy] = useCopyToClipboard();
@@ -42,12 +96,12 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
   useInterval(() => refetchExternalWalletBalance(), 10000);
 
   useEffect(() => {
-    if (selected) {
+    if (selectedAddress) {
       qrcode
-        .toDataURL(selected[1], { width: 300 })
+        .toDataURL(selectedAddress, { width: 300 })
         .then((src) => qrCodeRef.current && (qrCodeRef.current.src = src));
     }
-  }, [selected]);
+  }, [selectedAddress]);
 
   useEffect(() => {
     if (hasValidated) {
@@ -59,7 +113,7 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
     <motion.div
       initial={{ opacity: 0, y: 24, position: "absolute" }}
       animate={{ opacity: 1, y: 0, position: "relative" }}
-      transition={{ delay: selected ? 0 : walletsList.length * 0.3 }}
+      transition={{ delay: selectedAddress ? 0 : walletsList.length * 0.3 }}
       className="relative my-4 sm:my-6 lg:my-8 xl:my-12"
     >
       <div
@@ -77,22 +131,33 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
           alt=""
         />
         <div className="w-full flex flex-col items-start h-full gap-4">
-          <div className="text-2xl font-bold">{CURRENCIES_META_DATA[selected[0]].name}</div>
+          <div className="text-2xl font-bold">{CURRENCIES_META_DATA[selectedCurrency].name}</div>
           <div
             className="flex items-center gap-1 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
-              copy(selected[1]);
+              copy(selectedAddress);
               success(i18next.t("signup-wallets.validate-funds.address-copied"));
             }}
           >
-            <div className="opacity-75 text-sm truncate">{selected[1]}</div>
+            <div className="opacity-75 text-sm truncate">{selectedAddress}</div>
             <Button noPadding={true} icon={<UilClipboardAlt />} appearance="gray-link" size="xxs" />
           </div>
           <div className="-mb-2">{i18next.t("signup-wallets.validate-funds.topup")}</div>
           <div className="-mb-2 text-sm opacity-50">
             {i18next.t("signup-wallets.validate-funds.topup-description")}
           </div>
+          <div className="-mb-2 text-sm opacity-75">At least $1 required to validate.</div>
+          {hasPrice ? (
+            <div className="-mb-2 text-sm opacity-75">
+              Estimated value: ${usdValue.toFixed(2)}
+            </div>
+          ) : (
+            <div className="-mb-2 text-sm text-orange-500">
+              Price data is required to validate that your balance meets the $1 minimum. We&apos;ll keep
+              checking your balance—please retry in a moment.
+            </div>
+          )}
           <Button className="min-w-[200px] mt-4" appearance="gray" onClick={onCancel}>
             {i18next.t("g.cancel")}
           </Button>

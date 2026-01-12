@@ -1,4 +1,3 @@
-import { useGlobalStore } from "@/core/global-store";
 import { ImageUploadButton, success } from "@/features/shared";
 import { getAccountFullQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -10,6 +9,8 @@ import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 const schema = yup.object({
   name: yup
@@ -36,7 +37,7 @@ const schema = yup.object({
 });
 
 export function ProfileEdit() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [uploading, setUploading] = useState(false);
 
@@ -62,7 +63,10 @@ export function ProfileEdit() {
     }
   });
 
-  const { mutateAsync: updateAccount, isPending } = useAccountUpdate(activeUser?.username ?? "");
+  const { mutateAsync: updateAccount, isPending } = useAccountUpdate(
+    activeUser?.username ?? "",
+    getSdkAuthContext(getUser(activeUser?.username ?? ""))
+  );
 
   useEffect(() => {
     if (profile) {

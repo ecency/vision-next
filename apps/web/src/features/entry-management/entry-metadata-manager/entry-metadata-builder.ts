@@ -2,7 +2,8 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
-import { extractMetaData, makeApp, makeEntryPath } from "@/utils";
+import { ensureValidPermlink, extractMetaData, makeApp } from "@/utils/posting";
+import { makeEntryPath } from "@/utils/make-path";
 import { Entry, MetaData } from "@/entities";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 
@@ -117,35 +118,41 @@ export class EntryMetadataBuilder {
     videoMetadata?: ThreeSpeakVideo
   ): this {
     if (videoMetadata) {
+      const permlink = ensureValidPermlink(
+        videoMetadata.permlink,
+        title || videoMetadata.title
+      );
+      const sanitizedVideoMetadata = { ...videoMetadata, permlink };
+
       return this.withField("video", {
         info: {
           platform: "3speak",
           title: title || videoMetadata.title,
-          author: videoMetadata.owner,
-          permlink: videoMetadata.permlink,
-          duration: videoMetadata.duration,
-          filesize: videoMetadata.size,
-          file: videoMetadata.filename,
-          lang: videoMetadata.language,
-          firstUpload: videoMetadata.firstUpload,
+          author: sanitizedVideoMetadata.owner,
+          permlink: sanitizedVideoMetadata.permlink,
+          duration: sanitizedVideoMetadata.duration,
+          filesize: sanitizedVideoMetadata.size,
+          file: sanitizedVideoMetadata.filename,
+          lang: sanitizedVideoMetadata.language,
+          firstUpload: sanitizedVideoMetadata.firstUpload,
           ipfs: null,
           ipfsThumbnail: null,
-          video_v2: videoMetadata.video_v2,
+          video_v2: sanitizedVideoMetadata.video_v2,
           sourceMap: [
             {
               type: "video",
-              url: videoMetadata.video_v2,
+              url: sanitizedVideoMetadata.video_v2,
               format: "m3u8"
             },
             {
               type: "thumbnail",
-              url: videoMetadata.thumbUrl
+              url: sanitizedVideoMetadata.thumbUrl
             }
           ]
         },
         content: {
-          description: description || videoMetadata.description,
-          tags: videoMetadata.tags_v2
+          description: description || sanitizedVideoMetadata.description,
+          tags: sanitizedVideoMetadata.tags_v2
         }
       }).withField("type", "video");
     }
@@ -165,7 +172,7 @@ export class EntryMetadataBuilder {
             token: poll.interpretation === "tokens" ? "HIVE:HP" : null,
             hide_votes: poll.hideVotes,
             vote_change: poll.voteChange,
-            max_choices_voted: poll.maxChoicesVoted,
+            max_choices_voted: poll.maxChoicesVoted || 1,
             filters: {
               account_age: poll.filters.accountAge
             },

@@ -1,28 +1,46 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { SwapAmountControl } from "./swap-amount-control";
-import { MarketInfo } from "./market-info";
-import { MarketAsset, MarketPairs } from "./market-pair";
-import { getBalance } from "./api/get-balance";
-import { MarketSwapFormStep } from "./form-step";
-import { SignMethods } from "./sign-methods";
-import { MarketSwapFormHeader } from "./market-swap-form-header";
-import { MarketSwapFormSuccess } from "./market-swap-form-success";
-import "./index.scss";
-import { useCurrencyRateQuery } from "./api/currency-rate-query";
-import { useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
-import { Alert } from "@ui/alert";
-import { QueryIdentifiers } from "@/core/react-query";
-import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
-import { checkSvg, swapSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
+
 import {
-  getHiveMarketRate,
-  HiveMarketRateListener
-} from "@/features/market/market-swap-form/api/hive";
+  getAllHiveEngineTokensQueryOptions,
+  getHiveEngineTokensBalancesQueryOptions,
+  getHiveEngineTokensMetadataQueryOptions
+} from "@ecency/wallets";
+import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks";
+import { QueryIdentifiers } from "@/core/react-query";
+import { HiveEngineTokenInfo, Token, TokenBalance } from "@/entities";
+import { checkSvg, swapSvg } from "@ui/svg";
+
+import { getBalance } from "./api/get-balance";
+import { useCurrencyRateQuery } from "./api/currency-rate-query";
+import { EngineMarketRateListener, getEngineMarketRate, getEngineSymbolFromPair } from "./api/engine";
+import { getHiveMarketRate, HiveMarketRateListener } from "./api/hive";
+import { MarketInfo } from "./market-info";
+import {
+  CORE_MARKET_ASSETS,
+  HiveMarketAsset,
+  MarketAsset,
+  MarketPairs,
+  SWAP_HIVE,
+  isEnginePair,
+  isEngineToken,
+  isHiveMarketAsset,
+  isSwapHiveAsset
+} from "./market-pair";
+import { MarketSwapFormHeader } from "./market-swap-form-header";
+import { MarketSwapFormSuccess } from "./market-swap-form-success";
+import { MarketSwapFormStep } from "./form-step";
+import { SignMethods } from "./sign-methods";
+import { SwapAmountControl } from "./swap-amount-control";
+import "./index.scss";
 
 export * from "./swap-mode";
 
@@ -30,8 +48,22 @@ export interface Props {
   padding?: string;
 }
 
+const DEFAULT_ENGINE_PRECISION = 8;
+
+const formatEngineBalance = (balance?: string, symbol?: string) => {
+  if (!symbol) {
+    return "";
+  }
+
+  if (!balance) {
+    return `0 ${symbol}`;
+  }
+
+  return `${balance} ${symbol}`;
+};
+
 export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username: activeUsername, account: activeAccount } = useActiveAccount();
   const currency = useGlobalStore((s) => s.currency);
 
   const [step, setStep] = useState(MarketSwapFormStep.FORM);
@@ -40,83 +72,286 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   const [to, setTo] = useState("");
   const [isInvalidFrom, setIsInvalidFrom] = useState(false);
 
-  const [fromAsset, setFromAsset] = useState(MarketAsset.HIVE);
-  const [toAsset, setToAsset] = useState(MarketAsset.HBD);
+  const [fromAsset, setFromAsset] = useState<MarketAsset>(HiveMarketAsset.HIVE);
+  const [toAsset, setToAsset] = useState<MarketAsset>(HiveMarketAsset.HBD);
 
   const [balance, setBalance] = useState("");
 
   const [marketRate, setMarketRate] = useState(0);
 
-  /**
-   * These rates use for showing from asset = to asset in account currency(see account settings)
-   */
   const [accountFromMarketRate, setAccountFromMarketRate] = useState(0);
   const [accountToMarketRate, setAccountToMarketRate] = useState(0);
 
   const [disabled, setDisabled] = useState(false);
   const [isAmountMoreThanBalance, setIsAmountMoreThanBalance] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [availableAssets, setAvailableAssets] = useState<MarketAsset[]>([]);
 
   const [tooMuchSlippage, setTooMuchSlippage] = useState(false);
+  const [engineOrderBookState, setEngineOrderBookState] = useState<"ok" | "empty" | "insufficient">("ok");
+
+  const queryClient = useQueryClient();
+
+  const { data: engineTokens = [] } = useQuery({
+    ...getAllHiveEngineTokensQueryOptions(),
+    staleTime: 60000
+  });
+
+  const engineBalancesQuery = useQuery({
+    ...getHiveEngineTokensBalancesQueryOptions(activeUsername ?? ""),
+    enabled: !!activeUsername,
+    refetchInterval: 60000
+  });
+
+  const engineBalances = useMemo(
+    () => (engineBalancesQuery.data ?? []) as TokenBalance[],
+    [engineBalancesQuery.data]
+  );
+
+  const engineBalancesMap = useMemo(() => {
+    const map = new Map<string, string>();
+
+    engineBalances.forEach((item) => {
+      map.set(item.symbol, item.balance);
+    });
+
+    return map;
+  }, [engineBalances]);
+
+  const engineTokenSymbols = useMemo(() => {
+    const symbols = new Set<string>();
+
+    engineTokens.forEach((token) => {
+      const symbol = token.symbol;
+      if (symbol && symbol !== SWAP_HIVE && !isHiveMarketAsset(symbol)) {
+        symbols.add(symbol);
+      }
+    });
+
+    engineBalances.forEach((item) => {
+      const symbol = item.symbol;
+      if (symbol && symbol !== SWAP_HIVE && !isHiveMarketAsset(symbol)) {
+        symbols.add(symbol);
+      }
+    });
+
+    return Array.from(symbols).sort((a, b) => a.localeCompare(b));
+  }, [engineTokens, engineBalances]);
+
+  const engineTokenSymbolsWithBalance = useMemo(() => {
+    const symbols = new Set<string>();
+
+    engineBalances.forEach((item) => {
+      const symbol = item.symbol;
+      const balance = parseFloat(item.balance ?? "0");
+
+      if (symbol && balance > 0 && symbol !== SWAP_HIVE && !isHiveMarketAsset(symbol)) {
+        symbols.add(symbol);
+      }
+    });
+
+    return Array.from(symbols).sort((a, b) => a.localeCompare(b));
+  }, [engineBalances]);
+
+  const availableFromAssets = useMemo<MarketAsset[]>(() => {
+    const base = [...CORE_MARKET_ASSETS, SWAP_HIVE];
+    const assets = new Set<MarketAsset>([...base, ...(engineTokenSymbolsWithBalance as MarketAsset[])]);
+
+    if (isEngineToken(fromAsset) && !assets.has(fromAsset)) {
+      assets.add(fromAsset);
+    }
+
+    return Array.from(assets);
+  }, [engineTokenSymbolsWithBalance, fromAsset]);
+
+  const availableToAssets = useMemo<MarketAsset[]>(() => {
+    if (isHiveMarketAsset(fromAsset)) {
+      const base = MarketPairs[fromAsset as HiveMarketAsset];
+      return base.filter((asset) => asset !== fromAsset);
+    }
+
+    if (isSwapHiveAsset(fromAsset)) {
+      return engineTokenSymbols;
+    }
+
+    if (isEngineToken(fromAsset)) {
+      return [SWAP_HIVE];
+    }
+
+    return [];
+  }, [fromAsset, engineTokenSymbols]);
+
+  const engineSymbol = useMemo(() => getEngineSymbolFromPair(fromAsset, toAsset), [fromAsset, toAsset]);
+
+  const engineCoverageAmount = useMemo(() => {
+    if (!activeUsername) {
+      return undefined;
+    }
+
+    if (!isEnginePair(fromAsset, toAsset)) {
+      return undefined;
+    }
+
+    if (isEngineToken(fromAsset)) {
+      return engineBalancesMap.get(fromAsset) ?? undefined;
+    }
+
+    if (isSwapHiveAsset(fromAsset)) {
+      return engineBalancesMap.get(SWAP_HIVE) ?? undefined;
+    }
+
+    return undefined;
+  }, [activeUsername, engineBalancesMap, fromAsset, toAsset]);
+
+  const engineTokenDefinitionQuery = useQuery({
+    ...getHiveEngineTokensMetadataQueryOptions(engineSymbol ? [engineSymbol] : []),
+    enabled: !!engineSymbol
+  });
+
+  const engineTokenPrecision =
+    (engineTokenDefinitionQuery.data as Token[] | undefined)?.[0]?.precision ??
+    DEFAULT_ENGINE_PRECISION;
+
+  const engineTokenPrecisionMap = useMemo(() => {
+    const precisionMap = new Map<string, number>();
+
+    engineTokens.forEach((token) => {
+      if (token.symbol && typeof token.precision === "number") {
+        precisionMap.set(token.symbol, token.precision);
+      }
+    });
+
+    return precisionMap;
+  }, [engineTokens]);
+
+  const getAssetPrecision = useCallback(
+    (asset: MarketAsset) => {
+      if (isHiveMarketAsset(asset)) {
+        return 3;
+      }
+
+      if (isSwapHiveAsset(asset)) {
+        return DEFAULT_ENGINE_PRECISION;
+      }
+
+      return engineTokenPrecisionMap.get(asset) ?? DEFAULT_ENGINE_PRECISION;
+    },
+    [engineTokenPrecisionMap]
+  );
 
   const { data } = useCurrencyRateQuery(fromAsset, toAsset);
-  const query = useQueryClient();
 
   useMount(() => {
     fetchMarket();
   });
 
   useEffect(() => {
-    query.invalidateQueries({
+    queryClient.invalidateQueries({
       queryKey: [QueryIdentifiers.SWAP_FORM_CURRENCY_RATE, currency, fromAsset, toAsset]
     });
-  }, [fromAsset, toAsset, currency, query]);
+  }, [fromAsset, toAsset, currency, queryClient]);
 
   useEffect(() => {
     if (data) {
       setAccountFromMarketRate(data[0]);
       setAccountToMarketRate(data[1]);
+    } else {
+      setAccountFromMarketRate(0);
+      setAccountToMarketRate(0);
     }
   }, [data]);
 
   useEffect(() => {
-    if (activeUser) setBalance(getBalance(fromAsset, activeUser));
-  }, [activeUser, fromAsset]);
+    if (!activeAccount) {
+      setBalance("");
+      return;
+    }
+
+    if (isHiveMarketAsset(fromAsset)) {
+      setBalance(getBalance(fromAsset as HiveMarketAsset, activeAccount));
+      return;
+    }
+
+    const symbol = isSwapHiveAsset(fromAsset) ? SWAP_HIVE : fromAsset;
+    setBalance(formatEngineBalance(engineBalancesMap.get(symbol), symbol));
+  }, [activeAccount, fromAsset, engineBalancesMap]);
+
+  useEffect(() => {
+    if (isHiveMarketAsset(fromAsset)) {
+      setToAsset(fromAsset === HiveMarketAsset.HIVE ? HiveMarketAsset.HBD : HiveMarketAsset.HIVE);
+    } else if (isSwapHiveAsset(fromAsset)) {
+      if (!isEngineToken(toAsset) || !engineTokenSymbols.includes(toAsset)) {
+        if (engineTokenSymbols.length > 0) {
+          setToAsset(engineTokenSymbols[0]);
+        }
+      }
+    } else if (isEngineToken(fromAsset)) {
+      setToAsset(SWAP_HIVE);
+    }
+  }, [fromAsset, engineTokenSymbols, toAsset]);
+
+  useEffect(() => {
+    if (!isEnginePair(fromAsset, toAsset)) {
+      setEngineOrderBookState("ok");
+    }
+  }, [fromAsset, toAsset]);
+
+  const fetchMarket = useCallback(async () => {
+    setDisabled(true);
+    try {
+      if (isHiveMarketAsset(fromAsset) && isHiveMarketAsset(toAsset)) {
+        setMarketRate(await getHiveMarketRate(fromAsset as HiveMarketAsset));
+      } else if (isEnginePair(fromAsset, toAsset)) {
+        const rate = await getEngineMarketRate(fromAsset, toAsset);
+        setMarketRate(rate);
+      } else {
+        setMarketRate(0);
+      }
+    } finally {
+      setDisabled(false);
+    }
+  }, [fromAsset, toAsset]);
+
+  useEffect(() => {
+    fetchMarket();
+  }, [fromAsset, toAsset, fetchMarket]);
+
+  useEffect(() => {
+    fetchMarket();
+  }, [currency, fetchMarket]);
 
   const swap = () => {
     setToAsset(fromAsset);
     setFromAsset(toAsset);
     setTo(from);
     setFrom(to);
-    setMarketRate(1 / marketRate);
+    setMarketRate(marketRate !== 0 ? 1 / marketRate : 0);
   };
 
-  const fetchMarket = useCallback(async () => {
-    setDisabled(true);
-    setMarketRate(await getHiveMarketRate(fromAsset));
-    setDisabled(false);
-  }, [fromAsset]);
-
   const submit = () => {
-    if (step === MarketSwapFormStep.FORM) setStep(MarketSwapFormStep.SIGN);
+    if (step === MarketSwapFormStep.FORM) {
+      setStep(MarketSwapFormStep.SIGN);
+    }
   };
 
   const stepBack = () => {
-    if (step === MarketSwapFormStep.SIGN) setStep(MarketSwapFormStep.FORM);
+    if (step === MarketSwapFormStep.SIGN) {
+      setStep(MarketSwapFormStep.FORM);
+    }
   };
 
   const numberAmount = (v: string) => +v.replace(/,/gm, "");
 
   const validateBalance = useCallback(() => {
-    if (balance) {
-      let [availableBalance] = balance.split(" ");
-      const amount = numberAmount(from);
-      const availableBalanceAmount = +availableBalance;
+    if (!balance) {
+      return;
+    }
 
-      if (!isNaN(availableBalanceAmount)) {
-        setIsAmountMoreThanBalance(amount > availableBalanceAmount);
-      }
+    const [availableBalance] = balance.split(" ");
+    const amount = numberAmount(from);
+    const availableBalanceAmount = +availableBalance;
+
+    if (!isNaN(availableBalanceAmount)) {
+      setIsAmountMoreThanBalance(amount > availableBalanceAmount);
     }
   }, [balance, from]);
 
@@ -131,25 +366,11 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
     validateBalance();
   }, [from, balance, validateBalance]);
 
-  useEffect(() => {
-    const nextAvailableAssets = MarketPairs[toAsset];
-    if (!nextAvailableAssets.includes(toAsset)) {
-      setToAsset(nextAvailableAssets[0]);
-      fetchMarket();
-    }
+  const isHiveSwap = isHiveMarketAsset(fromAsset) && isHiveMarketAsset(toAsset);
+  const isEngineSwap = isEnginePair(fromAsset, toAsset);
 
-    setAvailableAssets(nextAvailableAssets);
-    setToAsset(nextAvailableAssets.filter((asset) => asset !== fromAsset)[0]);
-    getHiveMarketRate(fromAsset).then((rate) => setMarketRate(rate));
-    if (activeUser) setBalance(getBalance(fromAsset, activeUser));
-
-    setAccountFromMarketRate(accountToMarketRate);
-    setAccountToMarketRate(accountFromMarketRate);
-  }, [fromAsset]);
-
-  useEffect(() => {
-    fetchMarket();
-  }, [currency, fetchMarket]);
+  const fromPrecision = useMemo(() => getAssetPrecision(fromAsset), [fromAsset, getAssetPrecision]);
+  const toPrecision = useMemo(() => getAssetPrecision(toAsset), [getAssetPrecision, toAsset]);
 
   return (
     <div
@@ -158,32 +379,47 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
         [padding]: true
       })}
     >
-      <HiveMarketRateListener
-        amount={from}
-        asset={fromAsset}
-        setToAmount={(v) => setTo(v)}
-        loading={disabled}
-        setLoading={(v) => setDisabled(v)}
-        setInvalidAmount={(v) => setIsInvalidFrom(v)}
-        setTooMuchSlippage={(v) => setTooMuchSlippage(v)}
-      />
+      {isHiveSwap ? (
+        <HiveMarketRateListener
+          amount={from}
+          asset={fromAsset as HiveMarketAsset}
+          setToAmount={(v) => setTo(v)}
+          loading={disabled}
+          setLoading={(v) => setDisabled(v)}
+          setInvalidAmount={(v) => setIsInvalidFrom(v)}
+          setTooMuchSlippage={(v) => setTooMuchSlippage(v)}
+        />
+      ) : null}
+      {isEngineSwap ? (
+        <EngineMarketRateListener
+          amount={from}
+          fromAsset={fromAsset}
+          toAsset={toAsset}
+          setToAmount={(v) => setTo(v)}
+          loading={disabled}
+          setLoading={(v) => setDisabled(v)}
+          setInvalidAmount={(v) => setIsInvalidFrom(v)}
+          setTooMuchSlippage={(v) => setTooMuchSlippage(v)}
+          setOrderBookState={(state) => setEngineOrderBookState(state)}
+          tokenPrecision={engineTokenPrecision}
+          coverageAmount={engineCoverageAmount}
+        />
+      ) : null}
       <MarketSwapFormHeader
         className={step === MarketSwapFormStep.SUCCESS ? "blurred" : ""}
         step={step}
         loading={loading || disabled}
         onBack={stepBack}
       />
-      <Form
-        className={step === MarketSwapFormStep.SUCCESS ? "blurred" : ""}
-        onSubmit={(e) => submit()}
-      >
+      <Form className={step === MarketSwapFormStep.SUCCESS ? "blurred" : ""} onSubmit={() => submit()}>
         <SwapAmountControl
           className={step === MarketSwapFormStep.SIGN ? "mb-3" : ""}
           asset={fromAsset}
           balance={balance}
-          availableAssets={MarketPairs[fromAsset]}
+          availableAssets={availableFromAssets}
           labelKey="market.from"
           value={from}
+          precision={fromPrecision}
           setValue={(v) => setFrom(v)}
           setAsset={(v) => setFromAsset(v)}
           usdRate={accountFromMarketRate}
@@ -219,10 +455,7 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
                 <></>
               )}
               {step === MarketSwapFormStep.SUCCESS ? (
-                <Button
-                  className="swap-button border dark:border-dark-200 text-green"
-                  icon={checkSvg}
-                />
+                <Button className="swap-button border dark:border-dark-200 text-green" icon={checkSvg} />
               ) : (
                 <></>
               )}
@@ -233,14 +466,16 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
         )}
         <SwapAmountControl
           asset={toAsset}
-          availableAssets={availableAssets}
+          availableAssets={availableToAssets}
           labelKey="market.to"
           value={to}
+          precision={toPrecision}
           setValue={(v) => setTo(v)}
           setAsset={(v) => setToAsset(v)}
           usdRate={accountToMarketRate}
-          disabled={true}
-          hideChevron={true}
+          disabled={false}
+          inputDisabled={true}
+          selectDisabled={availableToAssets.length <= 1}
         />
         <MarketInfo
           className="mt-4"
@@ -252,7 +487,16 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
         <div>
           {isInvalidFrom ? (
             <Alert appearance="warning" className="mt-4">
-              {i18next.t("market.invalid-amount")}
+              {engineOrderBookState === "insufficient"
+                ? i18next.t("market.engine-orderbook-thin")
+                : i18next.t("market.invalid-amount")}
+            </Alert>
+          ) : (
+            <></>
+          )}
+          {engineOrderBookState === "empty" ? (
+            <Alert appearance="warning" className="mt-4">
+              {i18next.t("market.engine-orderbook-empty")}
             </Alert>
           ) : (
             <></>
@@ -285,11 +529,13 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
             <SignMethods
               disabled={disabled || loading || numberAmount(from) === 0}
               asset={fromAsset}
+              toAsset={toAsset}
               loading={loading}
               setLoading={setLoading}
               fromAmount={from}
               toAmount={to}
               marketRate={marketRate}
+              engineTokenPrecision={engineTokenPrecision}
               onSuccess={() => setStep(MarketSwapFormStep.SUCCESS)}
             />
           ) : (

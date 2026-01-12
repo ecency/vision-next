@@ -41,31 +41,32 @@ export function TradingViewWidget({ symbol }: Props) {
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
-    script.innerHTML = `
-        {
-          "allow_symbol_change": false,
-          "calendar": false,
-          "details": false,
-          "hide_side_toolbar": true,
-          "hide_top_toolbar": true,
-          "hide_legend": false,
-          "hide_volume": false,
-          "hotlist": false,
-          "interval": "4H",
-          "locale": "${locale}",
-          "save_image": true,
-          "style": "1",
-          "symbol": "${tradingViewSymbol}",
-          "theme": "${theme === "day" ? "light" : "dark"}",
-          "timezone": "Etc/UTC",
-          "backgroundColor": "#ffffff",
-          "gridColor": "rgba(46, 46, 46, 0.06)",
-          "watchlist": [],
-          "withdateranges": false,
-          "compareSymbols": [],
-          "studies": [],
-          "autosize": true
-        }`;
+    const widgetConfig = {
+      allow_symbol_change: false,
+      calendar: false,
+      details: false,
+      hide_side_toolbar: true,
+      hide_top_toolbar: true,
+      hide_legend: false,
+      hide_volume: false,
+      hotlist: false,
+      interval: "4H",
+      locale,
+      save_image: true,
+      style: "1",
+      symbol: tradingViewSymbol,
+      theme: theme === "day" ? "light" : "dark",
+      timezone: "Etc/UTC",
+      backgroundColor: "#ffffff",
+      gridColor: "rgba(46, 46, 46, 0.06)",
+      watchlist: [],
+      withdateranges: false,
+      compareSymbols: [],
+      studies: [],
+      autosize: true
+    };
+
+    script.textContent = JSON.stringify(widgetConfig);
     if (container.current?.children.length) {
       container.current.innerHTML = "";
     }

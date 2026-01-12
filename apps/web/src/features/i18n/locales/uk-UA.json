@@ -47,6 +47,7 @@
     "hot": "Гаряча стрічка",
     "trending": "стрічка",
     "created": "стрічка",
+    "promoted": "підвищено",
     "muted": "заблокований",
     "trail": "слід",
     "controversial": "суперечливий",
@@ -179,7 +180,42 @@
     "placeholder-count": "Пошук {{n}} дописів",
     "header-tag": "Мітки",
     "header-account": "Користувачі",
-    "header-community": "Спільноти"
+    "header-community": "Спільноти",
+    "header-actions": "Швидкі дії",
+    "action-transfer-hive": "Передача HIVE",
+    "action-transfer-hbd": "HBD передачі",
+    "action-transfer-points": "Передача точок",
+    "action-transfer-description": "Миттєво надіслати {{token}}",
+    "action-delegate-hp": "Делегатна сила вулика",
+    "action-delegate-hp-description": "Делегувати ОЗ до іншого облікового запису",
+    "action-power-up": "Збільшення Силу Голосу",
+    "action-power-up-description": "Перетворити HIVE в силу вулика",
+    "action-power-down": "Послабити",
+    "action-power-down-description": "Перетворити блок назад у HIVE",
+    "action-claim-hive": "Вимога в очікуванні винагород в HIVE",
+    "action-claim-points": "Вимога в очікуванні винагород в ОЧІВ",
+    "action-signup-email": "Зареєструватися за допомогою електронної пошти",
+    "action-signup-crypto": "Зареєструватися крипто",
+    "action-browse-communities": "Огляд спільнот",
+    "action-visit-ecency-community": "Відвідайте Ecency Community",
+    "action-market-swap": "Поміняти токени обміну",
+    "action-market-swap-description": "Швидко поміняти HIVE і HBD",
+    "action-market-trade": "Відкрити торговий термінал",
+    "action-market-trade-description": "Передові діаграми та книги замовлень",
+    "action-market-exchange": "Маркери обміну",
+    "action-market-exchange-description": "Переглянути ціни та історію ринку",
+    "action-my-profile": "Мій профіль",
+    "action-my-bookmarks": "Мої закладки",
+    "action-my-drafts": "Мої чернетки",
+    "action-my-gallery": "Моя галерея",
+    "action-my-decks": "Мої колоди",
+    "action-my-communities": "Мої спільноти",
+    "action-my-blog": "Мій блог",
+    "action-my-wallet": "Мій гаманець",
+    "action-witnesses": "Свідки",
+    "action-witnesses-description": "Досліджуйте найкращих свідків та виробників блоків",
+    "action-proposals": "Пропозиції",
+    "action-proposals-description": "Перегляд децентралізованого фонду вулика"
   },
   "tag": {
     "unmoderated": "Не модеровані теми",
@@ -260,7 +296,7 @@
     "description": "Вільна власність, справжня власність, фінансова свобода!",
     "description-2": "Вулик дає багато додатків і повністю децентралізується членами громади по всьому світу. Маючи обліковий запис, ви маєте прямий доступ до екосистеми.",
     "bottom-description": "Один акаунт, один гаманець для управління всім в Blockchain.",
-    "learn-more": "Дізнайтеся більше про переваги в нашому <a href=\"/faq#how-to-join\">FAQ</a>",
+    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
     "username": "Оберіть ім'я користувача",
     "email": "Введіть свою електронну пошту",
     "ref": "Реферальний користувач (необов'язково)",
@@ -288,6 +324,7 @@
     "username-contains-double-hyphens": "Не повинні містити подвійних дефісів",
     "username-exists": "Це ім'я користувача вже зареєстровано. Будь ласка, спробуйте інше",
     "username-starts-number": "Не має починатися з цифр",
+    "username-required": "Ім'я користувача є обов'язковим",
     "username-in-use": "Таке ім'я користувача вже існує. Встановіть інше",
     "referral-invalid": "Це реферальне посилання недійсне. Будь ласка, спробуйте інше",
     "referral-min-length-error": "Довжина реферального посилання повинна бути не менше 3 символів",
@@ -371,8 +408,21 @@
     "ascending": "У порядку зростання",
     "descending": "У порядку спадання"
   },
-  "selected-tags": {
-    "title": "Рекомендоване"
+  "tags-page": {
+    "title": "Популярні теги",
+    "description": "Відкрийте для себе найбільш активні теми з їх гучністю, коментарями, головними повідомленнями та виплатами.",
+    "error": "Не вдається завантажити тенденційні мітки зараз.",
+    "columns": {
+      "tag": "Тег",
+      "comments": "Коментарі",
+      "top-posts": "Топ постів",
+      "total-payouts": "Всього виплат"
+    },
+    "load-more": {
+      "cta": "Завантажити ще",
+      "loading": "Завантажується...",
+      "done": "Більше немає міток"
+    }
   },
   "entry-list-item": {
     "cross-posted": "Перепост",
@@ -412,7 +462,10 @@
     "delete-success": "Репост видалено"
   },
   "entry-tip": {
-    "title": "Порада"
+    "title": "Порада",
+    "send-tip": "Надіслати пораду",
+    "count": "{{count}} tip",
+    "count_plural": "{{count}} tips"
   },
   "entry-share": {
     "title": "Поділитися"
@@ -677,6 +730,7 @@
     "pending-orders": "Очікуючі замовлення",
     "type": "Тип",
     "mode-limit": "Ліміт",
+    "mode-engine": "Двигун",
     "mode-swap": "Обмін",
     "mode-advanced": "Розширений",
     "action": "Дія",
@@ -710,6 +764,8 @@
     "success-title": "Транзакція завершена",
     "more-than-balance": "Ви ввели більше, ніж доступний баланс",
     "invalid-amount": "Недійсна сума. Будь ласка, введіть менше значення",
+    "engine-orderbook-thin": "Цей ринок має обмежену ліквідність. Спробуйте меншу суму або перевірте пізніше.",
+    "engine-orderbook-empty": "Для цього ринку зараз немає доступних замовлень.",
     "too-much-slippage": "Ми настійно рекомендуємо зменшити суму для отримання кращої ціни!",
     "auth-required-title": "Потрібна авторизація",
     "auth-required-desc": "Ви повинні бути авторизовані, щоб обмінювати свої кошти",
@@ -717,6 +773,10 @@
     "signing": "Підписання...",
     "success-swap": "Успішно обмінено!",
     "calculating-in": "Обчислення в",
+    "asset-selector": {
+      "title": "Вибрати токен",
+      "search-placeholder": "Маркери пошуку"
+    },
     "advanced": {
       "history": "Історія",
       "stake": "Книга замовлень",
@@ -737,11 +797,49 @@
         "amount": "Кількість",
         "volume": "Обсяг",
         "time": "Час"
+      },
+      "variant-hive": "Привіт/HBD",
+      "variant-engine": "Маркери двигуна"
+    },
+    "limit": {
+      "layer-core": "Основа - шар 1",
+      "layer-engine": "Двигун 2",
+      "token-selector": {
+        "label": "Торговельна пара",
+        "title": "Виберіть торгову пару",
+        "search-placeholder": "Маркери пошуку",
+        "core-description": "Торгуйте основним ринком HBD/HIVE.",
+        "engine-description": "Токен Layer-2 торгує проти SWAP.HIVE.",
+        "no-results": "Немає токенів, які відповідають вашому пошуку."
       }
+    },
+    "engine": {
+      "title": "Інструмент переведення двигунів вуликів",
+      "description": "Торгуйте токенами Hive Engine з обмеженням замовлень безпосередньо з вашого акаунту Hive.",
+      "token": "Маркер",
+      "volume": "Vol: {{value}} SWAP.HIVE",
+      "last-price": "Остання ціна",
+      "price-change": "24 год зміни",
+      "volume-label": "24 год ({{symbol}})",
+      "bids": "Купити замовлення",
+      "asks": "Продати замовлення",
+      "price": "Ціна",
+      "amount": "Сума ({{symbol}})",
+      "total": "Загальна сума замовлення",
+      "recent-trades": "Останні угоди",
+      "time": "Час",
+      "type": "Тип",
+      "no-open-orders": "Ви ще не маєте відкритих ордерів для цього ринку.",
+      "use-best": "Використовувати найкращу ціну",
+      "use-max": "Використання макс. макс",
+      "invalid-order": "Введіть допустиму суму і ціну більше нуля.",
+      "login-required": "Увійдіть для торгових токенів вуличного двигуна.",
+      "order-placed": "Замовлення розміщено",
+      "order-cancelled": "Замовлення скасовано",
+      "login-to-trade": "Увійдіть для керування вашими типовими обмінами.",
+      "deposit": "Поповнити рахунок",
+      "deposit-instructions": "Надішліть HIVE в @honey-swap з memo {{memo}} , щоб отримати SWAP.HIVE."
     }
-  },
-  "list-style": {
-    "title": "Перемкнути стиль списку"
   },
   "entry-votes": {
     "title": "1 Голос",
@@ -806,7 +904,9 @@
   "comment": {
     "body-placeholder": "Напишіть свою відповідь тут",
     "preview": "Попередній перегляд",
-    "success": "Вашу відповідь успішно створена!"
+    "success": "Вашу відповідь успішно створена!",
+    "retry-hint": "Ваш текст збережено нижче - будь ласка, спробуйте ще раз",
+    "rc-error-hint": "Недостатньо кредитів - ваш текст зберігається нижче"
   },
   "discussion": {
     "join": "Приєднуйтесь до розмови зараз",
@@ -965,6 +1065,7 @@
     "section-replies": "Відповіді",
     "section-communities": "Спільноти",
     "section-wallet": "Гаманець",
+    "section-insights": "Статистика",
     "section-settings": "Налаштування",
     "section-referrals": "Реферали",
     "section-permission": "Дозволи",
@@ -996,6 +1097,22 @@
     "no-posts-found": "Нічого не знайдено!",
     "subscribe": "Підписатися"
   },
+  "profile-insights": {
+    "description": "Погляньте які з ваших публікацій віднесені більшість у читанні.",
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "last-7": "Останні 7 днів",
+    "last-30": "Останні 30 днів",
+    "all-time": "За весь час",
+    "page": "Сторінка",
+    "views": "Перегляди",
+    "uniques": "Унікальні види",
+    "minutes": "Хвилин",
+    "no-data": "Ще немає переглядів сторінок для цього діапазону.",
+    "range": "Date range",
+    "disabled": "Статистика на даний момент відключена.",
+    "error": "Не вдалося завантажити статистику."
+  },
   "rc-info": {
     "available": "Доступно",
     "used": "Використано",
@@ -1014,7 +1131,7 @@
     "confirm": "Підтвердити",
     "cancel": "Скасувати",
     "check-faq": "Дізнайтеся більше про RC в нашому",
-    "learn-more": "/faq#what-are-rc",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "Часто задавані питання",
     "insufficient-rc-error": "Недостатньо ресурсних кредитів",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1185,24 +1302,6 @@
       "larynx-locked-description": "Заблоковані токени забезпечують ліквідність мережі, допомагають визначати консенсус і заробляють винагороди для операторів вузлів"
     }
   },
-  "wallet-engine": {
-    "title": "Токени Hive Engine",
-    "description": "Hive Engine - це платформа побічного ланцюжка з розумними контрактами для блокчейну Hive.",
-    "no-results": "Токени не знайдені.",
-    "token": "Токен",
-    "balance": "Баланс",
-    "staked": "Закріплено"
-  },
-  "sort-engine-tokens": {
-    "sort": "Сортувати",
-    "sort-in-ascending": "У порядку зростання",
-    "sort-in-descending": "У порядку спадання",
-    "sort-by-value": "За вартістю",
-    "sort-by-balance": "За балансом",
-    "sort-by-stake": "За закріпленням",
-    "sort-by-delegations-in": "За делегованими внутрішніми",
-    "sort-by-delegations-out": "За делегованими зовнішніми"
-  },
   "wallet-engine-estimated": {
     "title": "Орієнтована вартість токенів",
     "description": "Приблизна вартість всіх токенів Hive Engine у вашому гаманці в доларах США."
@@ -1263,12 +1362,6 @@
     "filter-998": "Вихідний переказ",
     "filter-999": "Вхідний переказ"
   },
-  "purchase": {
-    "select-asset": "Оберіть актив",
-    "slider-hint": "Перетягніть повзунок, щоб налаштувати суму.",
-    "submit": "Придбати",
-    "purchase-message": "Або надішліть будь-яку суму на @esteem.app з позначкою `points`, щоб придбати бали."
-  },
   "purchase-qr": {
     "scan-code": "Скануйте за допомогою мобільного додатку Ecency, щоб продовжити",
     "select-user": "Будь ласка, виберіть користувача",
@@ -1286,14 +1379,6 @@
     "sub-title": "Просувати ваш допис",
     "duration": "Тривалість",
     "learn-more": "Дізнатися більше про продвиження"
-  },
-  "boost": {
-    "title": "Підсилити",
-    "sub-title": "Підсилити ваш допис",
-    "amount": "Сума",
-    "slider-hint": "Перетягніть повзунок, щоб відрегулювати суму.",
-    "hint": "Фактичне значення голосу, який ви отримуєте, може варіюватися",
-    "learn-more": "Дізнатися більше про підсилення"
   },
   "redeem-common": {
     "balance": "Баланс",
@@ -1337,6 +1422,7 @@
     "to-placeholder": "ім'я користувача",
     "to-not-found": "Користувача, якому ви намагаєтеся переказати кошти, не існує!",
     "to-bad-actor": "Будьте обережні, відправляючи на цей рахунок. Будь ласка, перевірте правильність написання, щоб уникнути можливого фішингу.",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Сума",
     "amount-placeholder": "сума",
     "wrong-amount": "Невірне значення суми",
@@ -1466,7 +1552,13 @@
     "sign": "Підписати",
     "key-placeholder": "Enter active/owner/master key",
     "with-hivesigner": "Sign with hivesigner",
-    "with-keychain": "Sign with keychain"
+    "with-keychain": "Sign with keychain",
+    "with-hiveauth": "Увійти за допомогою HiveAuth",
+    "invalid-key": "Невірний формат ключа. Будь ласка, перевірте неправильні символи.",
+    "key-error": "Не вдалося обробити ключ. Будь ласка, перевірте його правильність."
+  },
+  "hive-auth": {
+    "pending-request": "Очікується запит HiveAuth. Матч з ID {{id}} у вашому гаманці."
   },
   "delegated-vesting": {
     "title": "Делегована Hive Power",
@@ -1651,11 +1743,6 @@
     "refresh": "Оновити для отримання оновленого статусу",
     "video-info": "Відео зберігаються та працюють на основі мережі SPK, можуть бути додаткові витрати на зберігання та кодування."
   },
-  "nsfw-content": {
-    "title": "NSFW-контент",
-    "warning": "Позначте це, якщо ваш контент містить NSFW",
-    "continue": "Продовжити"
-  },
   "tag-selector": {
     "placeholder-empty": "Теги. Першим тегом є основна категорія, а наступні є для сортування.",
     "placeholder-focus": "Введіть тег",
@@ -1709,7 +1796,12 @@
     "replied": "{{source}} відповів(-ла) вам",
     "reblogged": "{{source}} поширив(-ла) ваш допис",
     "transfer": "{{source}} надіслав(-ла) вам {{amount}}",
-    "delegations": "{{source}} делеговано вам {{amount}}"
+    "delegations": "{{source}} делеговано вам {{amount}}",
+    "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
+    "payouts": "Ваша виплата контента готова.",
+    "payouts-amount": "Ви отримали {{amount}} виплату .",
+    "payouts-title": "{{body}} \"{{title}}\"",
+    "monthly-posts": "Ви створили {{count}} пост{{suffix}} цього місяця. Так тримати!"
   },
   "notifications": {
     "type-all": "Усі сповіщення",
@@ -1721,6 +1813,7 @@
     "type-reblogs": "Розповсюдження",
     "type-transfers": "Перекази",
     "type-delegations": "Делегації",
+    "type-payouts": "Виплати",
     "type-nfavorites": "Вподобання",
     "type-nbookmarks": "Закладки",
     "group-title-recent": "Останні",
@@ -1735,6 +1828,9 @@
     "reblog-str": "реблогнув пост",
     "transfer-str": "відправив",
     "delegations-str": "делегував",
+    "checkins-title": "Чудова серія на @{{username}}",
+    "payouts-title": "Ви отримали виплату на @{{username}}",
+    "monthly-posts-title": "Завершення місяця міцний, @{{username}}",
     "spin-str": "Час заробити більше балів, грайте на Ecency Mobile",
     "inactive-str": "Будьте активними! Напишіть допис, продовжуйте заробляти",
     "referral-str": "приєднався з рефералом, вітаємо їх",
@@ -1762,9 +1858,6 @@
     "header-reward": "Винагорода",
     "header-votes": "Голоси",
     "header-votes-tip": "Кількість голосів за цей період"
-  },
-  "popular-users": {
-    "title": "Популярні користувачі"
   },
   "discover": {
     "title": "Огляд",
@@ -1872,6 +1965,7 @@
     "filter-active": "Активний",
     "filter-inactive": "Незабаром",
     "filter-team": "Проєкти Ecency",
+    "filter-create": "Новий",
     "return-description": "Основне що пропозиції повертається. Кожна пропозиція з недостатньою кількістю голосів не отримує коштів.",
     "threshold-description": "Порогова пропозиція.",
     "votes-dialog-title": "Голосів за пропозицію #{{n}}",
@@ -1884,7 +1978,53 @@
     "sort-reputation": "Репутація",
     "sort-hp": "Сила Hive",
     "no-results": "Результатів не знайдено",
-    "searching": "Пошук"
+    "searching": "Пошук",
+    "create": {
+      "step-setup-title": "Установити деталі пропозиції",
+      "step-setup-sub-title": "Опишіть пропозицію, яку Ви хочете донести до DHF.",
+      "description": "<p>Before submitting a proposal make sure you have published a Hive post that explains the scope of the work and link to it below. Creating a proposal costs <strong>10 HBD</strong> plus <strong>1 HBD</strong> for each day over 60.</p>",
+      "subject-label": "Найменування",
+      "subject-placeholder": "Коротка публічна назва",
+      "subject-help": "Це відображається у списку пропозицій. Тримайте його лаконічним (максимум 80 символів).",
+      "subject-error": "Введіть заголовок від 3 до 80 символів.",
+      "permlink-label": "Підтвердження пропозиції",
+      "permlink-placeholder": "опублікувати замовлення",
+      "permlink-help": "Використовуйте посилання на запис вулиці, який описує вашу пропозицію (без @username/ частини). Ви можете вибрати одне з ваших останніх дописів зі списку при зосередженні цього поля.",
+      "permlink-suggestions-title": "Недавні повідомлення",
+      "permlink-suggestions-loading": "Завантаження останніх повідомлень...",
+      "permlink-suggestions-empty": "Не знайдено недавніх повідомлень для вашого облікового запису.",
+      "permlink-suggestions-error": "Не вдалося завантажити останні повідомлення. Спробуйте ще раз.",
+      "permlink-error": "Пермлінк може містити лише малі літери, цифри і дефіс.",
+      "receiver-label": "Отримувач",
+      "receiver-placeholder": "ім'я облікового запису",
+      "receiver-help": "Рахунок, який буде отримувати платежі, коли ця пропозиція буде оплачена.",
+      "receiver-error": "Введіть дійсне ім'я акаунта Hive.",
+      "start-label": "Дата закінчення",
+      "start-placeholder": "Виберіть дату початку",
+      "start-error": "Виберіть дату початку принаймні однієї години у майбутньому.",
+      "end-label": "Дата закінчення",
+      "end-placeholder": "Виберіть кінцеву дату",
+      "end-error": "Кінцева дата повинна бути після початкової дати.",
+      "daily-pay-label": "Щоденна оплата (HBD)",
+      "daily-pay-help": "Кількість HBD (HBD), яку ви запитуєте в день.",
+      "daily-pay-error": "Введіть позитивну щоденну суму оплати.",
+      "summary-title": "Summary",
+      "summary-duration": "Тривалість: {{days}} днів",
+      "summary-daily-pay": "Daily pay: {{amount}} HBD",
+      "summary-total-pay": "Загальна сума підписки {{amount}} HBD",
+      "summary-creation-fee": "Плата за будівництво {{fee}} HBD",
+      "step-sign-sub-title": "Підпишіть транзакцію за допомогою ваших активних повноважень.",
+      "sign-hint": "Ви можете підписатися за допомогою активного ключа, HiveAuth, Hive Keychain або HiveSigner.",
+      "success-title": "Пропозицію відправлено",
+      "success-sub-title": "Трансляція транзакції",
+      "success-description": "У списку може знадобитися кілька хвилин, щоб нова пропозиція з'явилася в списку.",
+      "success-toast": "Трансляція пропозиційної транзакції.",
+      "external-sign": "Продовжити вхід у нове вікно, щоб завершити створення пропозиції.",
+      "new-proposal": "Створити ще одну пропозицію",
+      "login-button": "Увійти",
+      "open-form": "Створити пропозицію",
+      "hide-form": "Сховати форму пропозиції"
+    }
   },
   "gallery": {
     "title": "Галерея",
@@ -1929,19 +2069,6 @@
     "validation-label": "Будь ласка, позначте цей пункт, щоб продовжити.",
     "updated": "Пароль успішно оновлено!",
     "hint": "У цей час ви можете генерувати ключі, встановивши новий seed фраза. Оновлення будь-якого іншого типу пароля не підтримується. Це допомагає нам зберігати Ecency та Hive за стандартами Web 3.0."
-  },
-  "view-keys": {
-    "title": "Переглянути приватні ключі",
-    "header": "Керування ключами",
-    "account": "Обліковий запис",
-    "cur-pass": "Поточний пароль",
-    "owner": "Власник",
-    "active": "Активний",
-    "posting": "Публікація",
-    "memo": "Примітка",
-    "view-keys": "Натисніть, щоб переглянути ключі",
-    "copied": "Приватний ключ скопійовано в буфер обміну",
-    "error": "Здається, пароль невірний, будь ласка, перевірте його ще раз!"
   },
   "manage-authorities": {
     "title": "Керування повноваженнями",
@@ -1993,118 +2120,48 @@
     "update-success-message": "Ваша електронна пошта для відновлення була успішно оновлена"
   },
   "chat": {
-    "page-title": "Бесіди",
-    "read-only": "Тільки для перегляду",
-    "why-read-only": "Цей користувач змінив свій ключ чату. Будь ласка, знайдіть новий обліковий запис за допомогою імені користувача в пошуку вище.",
-    "user-not-joined": "Ще не приєднався до",
-    "title": "Чати",
-    "messages": "Повідомлення",
-    "key": "Ключ чату облич",
-    "new-message": "Нове повідомлення",
-    "direct-messages": "Прямі повідомлення",
-    "collapse": "Згорнути",
-    "expand": "Розгорнути",
-    "scroll-to-bottom": "Прокрутити вниз",
-    "joined": "Приєднався",
-    "followers": "Підписники",
-    "start-chat-placeholder": "Нове повідомлення почнеться",
-    "search": "Пошук людей або спільнот",
-    "join-chat": "Приєднатися до чату",
-    "join-channel": "Приєднатися до каналу",
-    "back": "Відмінити",
-    "no-chat": "Розмови не знайдено",
-    "start-chat": "Почати чат",
-    "not-joined": "Цей користувач ще не приєднався до чату",
-    "subscribers": "Підписники",
-    "invite": "Запросити",
-    "send-invite": "Надіслати запрошення",
-    "leave:": "Залишити",
-    "refresh": "Оновити",
-    "message-warning": "Ви не можете надсилати повідомлення в цій групі.",
-    "edit-community-roles": "Редагувати ролі спільноти",
-    "add": "Додати",
-    "no-admin": "Немає адміністратора чи модератора для цього групового чату.",
-    "blocked-users": "Заблоковані користувачі",
-    "action": "Дія",
-    "unblock": "Розблокувати",
-    "ecency-key": "Ключ спокою",
-    "no-locked-user": "Заблокованих користувачів не знайдено",
-    "no-hidden-messages": "Приховані повідомлення не знайдено",
-    "enter-private-key": "Введіть приватний Чат",
-    "enter-private-key-detail": "Введіть приватний ключ чату для імпорту всіх чатів",
-    "close": "Закрити",
-    "confirm": "Підтвердити",
-    "error-updating-community": "Помилка при оновленні спільноти",
-    "leave-channel": "Покинути канал",
-    "leaving": "Закінчення",
-    "edit-roles": "Редагувати ролі",
-    "manage-chat-key": "Інформація про облікові дані",
-    "block": "Блок",
-    "communities": "Спільнотства",
-    "dms": "Прямі повідомлення",
-    "import-chat": "Імпорт чату",
-    "create-new-account": "Створити новий обліковий запис",
+    "page-title": "Запускайте особисті повідомлення або приєднайтеся до каналів для спілкування з спільнотою Ecency (Ecenc).",
+    "loading-chats": "Завантаження чатів…",
+    "start-dm-button": "Почати ОП",
+    "starting-dm": "Запуск…",
+    "search-user": "Пошук людей",
+    "searching": "Пошук...",
+    "no-user": "Користувачів не знайдено.",
+    "search-channels": "Пошук каналів або повідомлень",
     "loading": "Завантажується...",
-    "blocked-user-message": "Ви були заблоковані в даному спільнотстві",
-    "start-community-channel": "Start community channel",
+    "mark-as-read": "Відмітити як прочитане",
+    "marking-as-read": "Маркування…",
+    "channel-type-dm": "ПП",
+    "channel-type": "Канал",
+    "favorite-channel": "Улюблений канал",
+    "channel-muted": "Заглушено",
+    "mute-channel": "Вимкнути звук каналу",
+    "unmute-channel": "Увімкнути канал",
+    "leave-channel": "Покинути канал",
+    "no-channels": "Немає призначених каналів.",
+    "no-channels-search": "Пошук не дав результатів.",
+    "joinable-channels": "Доступні канали",
+    "searching-channels": "Пошук…",
+    "channel-type-public": "Публічний канал",
+    "channel-type-private": "Приватний канал",
+    "join-channel-action": "Приєднатися до",
+    "joining-channel": "Joining…",
+    "no-additional-channels": "Не знайдено додаткових каналів.",
+    "title": "Чати",
+    "no-admin": "Немає адміністратора чи модератора для цього групового чату.",
     "view-community-channel": "Чат спільноти",
-    "submit": "Ввести",
-    "chat-priv-key": "Будь ласка, збережіть ключ чату, натиснувши на кнопку завантажити або відсканувавши QR-код, щоб відновити ваші розмови.",
     "public-key": "Публічний ключ",
     "private-key": "Приватний ключ",
-    "copy-priv-key": "Копіювати приватний ключ",
-    "extended-view": "Розширений вигляд",
-    "you-haven-t-joined": "Ви ще не приєдналися до Чату. Будь ласка, приєднайся, щоб почати!",
-    "invalid-private-key": "Невірний закритий ключ",
-    "enter-username": "Введіть тимчасове ім'я користувача",
     "hide-message": "Приховати повідомлення",
-    "block-author": "Заблокувати автора",
-    "unblock-author": "Розблокувати автора",
-    "create-an-account": "Створити чат",
-    "create-description": "Ласкаво просимо на борт! Ваш обліковий запис майже готовий. Підійдіть до розмови і насолоджуйтеся підключенням з іншими окремо.",
-    "create-pin-description": "Будь ласка, встановіть PIN-код для отримання доступу до своїх чатів з будь-якого пристрою",
-    "logout": "Вихід із системи",
-    "specify-invitation-message": "Це запрошення буде надіслано у якості коментаря до останнього повідомлення користувача",
-    "successfully-invited": "Успішно запрошено!",
-    "invite-couldnt-be-sent": "Запросити не відправлено через відсутність повідомлень",
-    "no-posts-for-invite": "На жаль, користувач не здається активним і не робив жодних записів.",
-    "warn-key-saving": "Зробіть резервні копії вашого ключа чату, щоб зберегти захист облікового запису і також є безперебійний сервіс!",
-    "view-and-save": "Показати ключі і зберегти",
-    "blocked-users-management": "Керування заблокованими користувачами",
-    "unlock-the-section": "Будь ласка, введіть PIN-код, щоб побачити інформацію про ваші облікові дані",
-    "no-contacts-or-channels": "Поки що розмови відсутні",
-    "upload-image": "Вивантажити зображення",
-    "hidden-messages": "Приховані повідомлення",
-    "hidden-messages-management": "Керування прихованими повідомленнями",
-    "saved-messages": "Збережені повідомлення",
-    "fetch-error": "Під час очікування мережі виявлено зміни. Щоб отримати нові дані потрібно перезавантажити сторінку",
-    "pin": "Закріплення повідомлень",
-    "unpin": "Unpin",
-    "select-contact-or-channel": "Виберіть контакт або канал",
-    "message-forwarding": "Пересилання повідомлень",
-    "forward": "Переслати повідомлення",
-    "forwarded-from": "Переслане повідомлення",
-    "welcome": {
-      "title": "Ласкаво просимо до чатів",
-      "description": "Створити або імпортувати обліковий запис з використанням чатів",
-      "already-joined-title": "Схоже, ви вже приєдналися до чатів",
-      "already-joined-hint": "Перевірте свій обліковий запис та отримайте доступ, ввівши PIN-код",
-      "pin-failed": "Недійсний PIN-код. Не вдалося підтвердити.",
-      "oops": "Йой!",
-      "user-not-joined-yet": "Неможливо надіслати повідомлення. Цей користувач або канал ще не приєдналися до чатів.",
-      "hello": "Привіт",
-      "start-description": "Шукайте людину або спільноти і почніть спілкуватися",
-      "join-description": "Ви не є частиною каналу",
-      "rejoin-description": "Ви залишили цей чат спільноти. Під'єднайтеся зараз!"
-    },
-    "import": {
-      "title": "Імпорт облікового запису",
-      "description": "Будь ласка, введіть пару публічний і приватний ключ, щоб імпортувати існуючий обліковий запис",
-      "button": "Імпорт",
-      "iv": "Початкове векторне значення"
-    },
-    "reply": "Відповідь",
-    "reply-to": "Відповідь на {{account}}"
+    "enter-private-key-detail": "Введіть приватний ключ чату для імпорту всіх чатів",
+    "message-search-results": "Результати пошуку повідомлення",
+    "no-messages-found": "Не знайдено жодного повідомлення.",
+    "no-message": "Немає вмісту повідомлення.",
+    "translate": "Переклад",
+    "translate-target-language": "Цільова мова",
+    "pinned-messages": "Закріплені повідомлення",
+    "pin-message": "Закріпити повідомлення",
+    "unpin-message": "Відкріпити повідомлення"
   },
   "add-image": {
     "title": "Додати зображення",
@@ -2140,6 +2197,46 @@
       "contact-blog": "Блог засновника",
       "contact-news": "Новини Hive",
       "contact-email": "Напишіть нам"
+    },
+    "mobile": {
+      "page-title": "Стабільний мобільний",
+      "hero-title": "Ваша спільнота, будь-де за допомогою <span>Ecency Mobile</span>",
+      "hero-subtitle": "Будьте близько до вуличних громад, реагувати на розмови та керувати нагородами, де б ви не знаходились.",
+      "hero-footnote": "Доступно для пристроїв iOS, iPadOS та Android.",
+      "cta-ios": "Завантажити з App Store",
+      "cta-android": "Завантажте у Google Play",
+      "benefits-title": "Чому ви полюбите особливі місця",
+      "benefits": {
+        "communities-title": "Громади в кишені",
+        "communities-description": "Стежте за стрічками, досліджуйте теги, слідкуйте за тегами, які вам цікавлять.",
+        "create-title": "Опублікувати з будь-де",
+        "create-description": "Адреси креслення, обміну оновленнями та відповідь на коментарі з тим же потужним редактором, який ви використовуєте на робочому столі.",
+        "wallet-title": "Гаманець на перший погляд",
+        "wallet-description": "Перевірте баланси, зробіть винагороди та керуйте силою Hive або HBD лише кількома дотиками.",
+        "notifications-title": "Ніколи не пропускайте згадку",
+        "notifications-description": "Push-повідомлення виділяють нових підписників, згадки та нагороди, щоб ви могли відсвяткувати вчасно."
+      },
+      "features-title": "Розроблений для авторів та громад",
+      "features": {
+        "interface-title": "Зроблено для мобільного пристрою",
+        "interface-description": "Насолоджуйтесь місцевою навігацією, жестами контролем і макетами, що знаходяться прямо вдома на телефонах і планшетах.",
+        "themes-title": "Денні і нічні теми",
+        "themes-description": "Переключення між темними та темними темами для того, щоб завжди бути комфортним під час читання і письма.",
+        "opensource-title": "Відкритий та відкритий до спільноти",
+        "opensource-description": "Зробіть внесок на GitHub, допоможіть з перекладами або поділіться відгуками безпосередньо з програми."
+      },
+      "screenshots-title": "Дивись стаціонарний мобільний телефон у дії",
+      "screenshots-description": "Очищує перегляди для читання, публікації та управління своїм профілем на телефонах та планшетах.",
+      "screenshots-tablet-alt": "На планшеті відображається мобільний інтерфейс",
+      "screenshots-phone-alt": "Напрямувати мобільний перегляд на телефоні",
+      "screenshots-desktop-alt": "Ecency мобільний екран поруч з інтерфейсом робочого столу",
+      "screenshots-dark-alt": "Мобільний додаток Ecency в темній темі",
+      "resources-title": "Корисні ресурси",
+      "resources": {
+        "faq": "Відвідайте ЧаПи для швидких відповідей",
+        "blog": "Читайте останні примітки до мобільної версії",
+        "github": "Познайомтесь з мобільною базою з відкритим вихідним кодом"
+      }
     },
     "faq": {
       "about-ecency": "Про Ecency",
@@ -2421,22 +2518,6 @@
     "title": "Учасники перекладу",
     "description": "Ці великі люди так чи інакше сприяли Ecency, ми хотіли б подякувати їм усім. Якщо ви хочете приєднатися до нашої команди, зробивши свій внесок у Переклад чи можливо маєте ідеї для розвитку, приклад Дизайн чи Соціальна обізнаність, сміливо приєднуйтесь. Щоб дізнатись більше, читайте наші <a href=\"/faq#how-to-contribute\">ЧаПи</a>."
   },
-  "context-menu": {
-    "cut": "Вирізати",
-    "copy": "Копіювати",
-    "paste": "Вставити",
-    "open-image-browser": "Відкрити світлину у браузері",
-    "copy-image-url": "Скопіювати url світлини"
-  },
-  "updater": {
-    "new-version-available": "Доступна нова версія",
-    "download": "Завантажити",
-    "update": "Оновити",
-    "dismiss": "Відхилити",
-    "downloading": "Завантаження нової версії...",
-    "download-completed": "Завантаження завершено",
-    "restart": "Перезавантажити"
-  },
   "chain-error": {
     "min-root-comment": "Ви можете опублікувати лише один раз кожні п'ять хвилин.",
     "identical-vote": "Ваш поточний голос за цей вміст ідентичний з цим голосом.",
@@ -2639,7 +2720,8 @@
     "faq": "ЧАП",
     "chats": "Чати",
     "news": "Новини",
-    "chats-page-placeholder": "Чати відкрито у розширеному вигляді"
+    "chats-page-placeholder": "Чати відкрито у розширеному вигляді",
+    "open-chats": "Відкриті чати"
   },
   "not-found": {
     "title": "Не знайдено",
@@ -2656,12 +2738,6 @@
     "email-placeholder": "Ваша електронна адреса (необов'язково)",
     "message-placeholder": "Будь ласка, опишіть свій звіт",
     "issue-reported": "Проблема повідомлена успішно"
-  },
-  "entry-preview": {
-    "searching-title": "Пошук повідомлення",
-    "searching-description": "Ми намагаємося знайти цей пост...",
-    "title": "Прев'ю",
-    "description": "Цей пост створюється зараз. Ви можете взаємодіяти з нею, коли це повідомлення зникне."
   },
   "banners": {
     "no-ls-title": "Неможливо використовувати локальні дані",
@@ -2922,6 +2998,7 @@
     "pick-tokens": "Вибрати токени для відображення",
     "search-token": "Пошук маркер",
     "setup-tokens": "Керувати токенами",
+    "trade-tokens": "Торгові токени",
     "asset-name": "Назва активу",
     "price": "Ціна",
     "balance": "Баланс",
@@ -2952,7 +3029,7 @@
     },
     "operations": {
       "transfer": "Переказ",
-      "transfer-saving": "Депозит в ощадках",
+      "transfer-saving": "В збереження",
       "power-up": "Збільшення Силу Голосу",
       "power-down": "Зменшення Сили Голосу",
       "swap": "Поміняти",
@@ -2983,6 +3060,13 @@
     "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
     "claim-rewards-loading": "Захоплення...",
     "claim-rewards-success": "Успішно захоплено {{amount}} {{token}}",
+    "hp-delegation-promo": {
+      "tag": "+10% Пришвидшення APR",
+      "title": "Нехай кровотоки обертаються з силою вулика",
+      "description": "Делегуйте силу вашого Hive на @ecency щоб активувати активну куратуру, що керується нашою командою куратора. Активна куратура може додати приблизно +10% APR і 100% винагород за куратуру повернуті вам.",
+      "button": "Делегувати @ecency",
+      "dismiss": "Мабуть пізніше"
+    },
     "external": {
       "receive-button": "Отримання",
       "transfer-soon": "Передача (скоро)",

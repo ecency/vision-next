@@ -7,7 +7,7 @@ import { Table, Td, Th, Tr } from "@ui/table";
 import { Community, roleMap } from "@/entities";
 import i18next from "i18next";
 import { ProfileLink, UserAvatar } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommunityRoleEditDialog } from "@/app/(dynamicPages)/community/[community]/_components/community-role-edit";
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function CommunityRoles({ community }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [dialog, setDialog] = useState(false);
   const [dialogUser, setDialogUser] = useState<string>("");

@@ -1,17 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { MarketAsset } from "../market-pair";
+import { MarketAsset, isHiveMarketAsset } from "../market-pair";
 import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
-
-const getCurrencyTokenRate = (currency: string, token: string): Promise<number> =>
-  appAxios
-    .get(apiBase(`/private-api/market-data/${currency === "hbd" ? "usd" : currency}/${token}`))
-    .then((resp: any) => resp.data);
+import { getCurrencyTokenRate } from "@ecency/sdk";
 
 export function useCurrencyRateQuery(fromAsset: MarketAsset, toAsset: MarketAsset) {
   const currency = useGlobalStore((s) => s.currency);
+  const enabled = isHiveMarketAsset(fromAsset) && isHiveMarketAsset(toAsset);
   /**
    * Show value till 2 digits in fraction
    * @param value – source
@@ -29,6 +24,7 @@ export function useCurrencyRateQuery(fromAsset: MarketAsset, toAsset: MarketAsse
       const toAccountRate = await getCurrencyTokenRate(currency, toAsset);
       return [formatTillPresentDigits(fromAccountRate), formatTillPresentDigits(toAccountRate)];
     },
-    refetchInterval: 30000 // in ms
+    enabled,
+    refetchInterval: enabled ? 30000 : false
   });
 }

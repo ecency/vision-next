@@ -15,12 +15,24 @@ import {
 import { Account } from "../../store/accounts/_types";
 import { withStore } from "../../tests/with-store";
 
-jest.mock("../../api/hive", () => ({
-  votingPower: () => 5,
-  getActiveVotes: () =>
-    new Promise((resolve) => {
-      resolve([{ voter: "user1", percent: 10 }]);
-    })
+jest.mock("@ecency/sdk", () => ({
+  ...jest.requireActual("@ecency/sdk"),
+  votingPower: () => 5
+}));
+
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: (options: any) => {
+    const key = options?.queryKey ?? [];
+    if (Array.isArray(key) && key.includes("dynamic-props")) {
+      return { data: dynamicPropsIntance1 };
+    }
+    return { data: entryInstance1 };
+  },
+  useQueryClient: () => ({
+    fetchQuery: () =>
+      Promise.resolve([{ voter: "user1", percent: 10 }])
+  })
 }));
 
 const account: Account = {

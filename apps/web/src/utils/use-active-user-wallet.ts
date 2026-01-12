@@ -1,14 +1,15 @@
 import { useMemo } from "react";
-import { useGlobalStore } from "@/core/global-store";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { HiveWallet } from "./hive-wallet";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useActiveUserWallet() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { account } = useActiveAccount();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   return useMemo(
-    () => (activeUser && dynamicProps ? new HiveWallet(activeUser.data, dynamicProps) : undefined),
-    [activeUser, dynamicProps]
+    () => (account && dynamicProps ? new HiveWallet(account, dynamicProps) : undefined),
+    [account, dynamicProps]
   );
 }

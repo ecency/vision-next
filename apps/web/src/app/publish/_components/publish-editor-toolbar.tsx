@@ -121,7 +121,7 @@ function PublishEditorToolbarColorPalette({ editor }: { editor: any | null }) {
 }
 
 export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Props) {
-  const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
   const publishState = usePublishState();
   const { canAlign } = useEditorState({
     editor,
@@ -137,6 +137,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showFragments, setShowFragments] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showVideoGallery, setShowVideoGallery] = useState(false);
@@ -335,14 +336,24 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
-        <div className="relative" ref={emojiPickerAnchorRef}>
+        <div className="relative">
           <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
-            <Button appearance="gray-link" size="sm" icon={<UilSmile />} />
+            <Button
+              ref={emojiButtonRef}
+              appearance="gray-link"
+              size="sm"
+              icon={<UilSmile />}
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
           </StyledTooltip>
-          <EmojiPicker
-            anchor={emojiPickerAnchorRef.current}
-            onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
-          />
+          {showEmojiPicker && (
+            <EmojiPicker
+              show={showEmojiPicker}
+              changeState={(state) => setShowEmojiPicker(state)}
+              onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
+              buttonRef={emojiButtonRef}
+            />
+          )}
         </div>
 
         <StyledTooltip

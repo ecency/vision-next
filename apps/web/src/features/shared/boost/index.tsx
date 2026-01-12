@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
@@ -9,33 +11,43 @@ import { PrivateKey } from "@hiveio/dhive";
 import { error } from "../feedback";
 import { SearchByUsername } from "../search-by-username";
 import dayjs from "@/utils/dayjs";
-import {
-  getBoostPlusPricesQuery,
-  getPointsQuery,
-  useGetBoostPlusAccountPricesQuery
-} from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { getBoostPlusPricesQueryOptions, getPointsQueryOptions, getBoostPlusAccountPricesQueryOptions } from "@ecency/sdk";
+import { getAccessToken } from "@/utils";
 import i18next from "i18next";
 import { boostPlus, boostPlusHot, boostPlusKc, formatError } from "@/api/operations";
 import { KeyOrHot, LinearProgress } from "@/features/shared";
 import { checkAllSvg } from "@ui/svg";
+import { useQuery } from "@tanstack/react-query";
+import { withFeatureFlag } from "@/core/react-query";
 
 interface Props {
   onHide: () => void;
 }
 
 export function BoostDialog({ onHide }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
-  const { data: prices } = getBoostPlusPricesQuery(activeUser).useClientQuery();
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+
+  const { data: prices } = useQuery({
+    ...getBoostPlusPricesQueryOptions(accessToken),
+    select: (data) => data.sort((a, b) => a.duration - b.duration)
+  });
 
   const [step, setStep] = useState(1);
   const [duration, setDuration] = useState(0);
   const [account, setAccount] = useState("");
   const [inProgress, setInProgress] = useState(false);
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: alreadyBoostAccount } = useGetBoostPlusAccountPricesQuery(account);
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
+  const { data: alreadyBoostAccount } = useQuery(
+    getBoostPlusAccountPricesQueryOptions(accessToken, account)
+  );
 
   const price = useMemo(
     () => prices?.find((x) => x.duration === duration)?.price ?? 0,

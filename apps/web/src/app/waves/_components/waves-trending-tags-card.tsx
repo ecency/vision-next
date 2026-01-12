@@ -1,6 +1,7 @@
 "use client";
 
-import { getWavesTrendingTagsQuery } from "@/api/queries";
+import { getWavesTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import i18next from "i18next";
 import { Button } from "@ui/button";
@@ -15,7 +16,7 @@ export function WavesTrendingTagsCard() {
   const { host } = useWavesHost();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
 
-  const { data, isLoading, isError } = getWavesTrendingTagsQuery(host, TRENDING_TAGS_HOURS).useClientQuery();
+  const { data, isLoading, isError } = useQuery(getWavesTrendingTagsQueryOptions(host, TRENDING_TAGS_HOURS));
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
   const tags = useMemo(() => data?.slice(0, TRENDING_TAGS_LIMIT) ?? [], [data]);

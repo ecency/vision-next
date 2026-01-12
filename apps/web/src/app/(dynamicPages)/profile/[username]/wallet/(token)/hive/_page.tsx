@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useMount } from "react-use";
 import {
-  DEFAULT_HIVE_OPERATION_FILTERS,
+  HIVE_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
 } from "../_components";
@@ -19,13 +19,13 @@ import { Button } from "@/features/ui";
 import { Spinner } from "@/features/ui/spinner";
 import { TradingViewWidget } from "@/features/trading-view";
 import i18next from "i18next";
-import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
+import { UilExchange } from "@tooni/iconscout-unicons-react";
 
 export function HivePage() {
   const { username } = useParams();
 
   const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
-    DEFAULT_HIVE_OPERATION_FILTERS
+    HIVE_TOKEN_OPERATION_FILTERS
   );
 
   const { data, refetch, isFetching, status } = useInfiniteQuery(
@@ -67,7 +67,7 @@ export function HivePage() {
             target="_blank"
             appearance="gray"
             size="sm"
-            icon={<UilArrowUpRight />}
+            icon={<UilExchange />}
           >
             {i18next.t("market-data.trade")}
           </Button>

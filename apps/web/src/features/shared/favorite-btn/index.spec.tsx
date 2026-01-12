@@ -8,17 +8,22 @@ import { UiInstance, activeUserInstance, allOver } from "../../helper/test-helpe
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/private-api", () => ({
-  checkFavorite: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve(false);
-      }
+jest.mock("@ecency/sdk", () => ({
+  getActiveAccountFavouritesQueryOptions: (_activeUsername?: string) => ({
+    queryKey: ["favourites"],
+    queryFn: () =>
+      new Promise((resolve) => {
+        if (TEST_MODE === 0) {
+          resolve([]);
+        }
 
-      if (TEST_MODE === 1) {
-        resolve(true);
-      }
-    })
+        if (TEST_MODE === 1) {
+          resolve([{ account: "bar" }]);
+        }
+      })
+  }),
+  useAccountFavouriteAdd: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useAccountFavouriteDelete: () => ({ mutateAsync: jest.fn(), isPending: false })
 }));
 
 const defProps = {

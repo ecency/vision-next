@@ -1,5 +1,7 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { Entry, WaveEntry } from "@/entities";
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -18,7 +20,6 @@ import { useMutedUsers, useWavesGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
-import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import {
   WAVES_FEED_SCROLL_STORAGE_KEY,
@@ -51,7 +52,7 @@ export function WavesListItem({
   currentHost,
   feedType
 }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [grid] = useWavesGrid();
 
@@ -82,7 +83,7 @@ export function WavesListItem({
   const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(item));
   const { data: mutedUsers = [] } = useMutedUsers();
   const { data: promoted } = useQuery(getPromotedPostsQuery<Entry>("waves"));
   const hasPromoted = useMemo(

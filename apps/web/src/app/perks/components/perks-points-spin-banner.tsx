@@ -1,10 +1,11 @@
 "use client";
 
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { PointsSpin, SPIN_VALUES } from "@/features/points";
 import { success } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, StyledTooltip } from "@/features/ui";
-import { delay } from "@/utils";
+import { delay, getAccessToken } from "@/utils";
 import { getGameStatusCheckQueryOptions, useGameClaim } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilMoneyStack, UilSpin } from "@tooni/iconscout-unicons-react";
@@ -15,16 +16,27 @@ import { PerksBasicCard } from "./perks-basic-card";
 import { PerksPointsSpinCountdown } from "./perks-points-spin-countdown";
 
 export function PerksPointsSpinBanner() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const [showSpinner, setShowSpinner] = useState(false);
 
-  const { data, refetch } = useQuery(getGameStatusCheckQueryOptions(activeUser?.username, "spin"));
+  const { data, refetch } = useQuery(
+    getGameStatusCheckQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      "spin"
+    )
+  );
   const {
     mutateAsync: claim,
     isPending,
     data: claimData
-  } = useGameClaim(activeUser?.username, "spin", data?.key ?? "");
+  } = useGameClaim(
+    activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
+    "spin",
+    data?.key ?? ""
+  );
 
   const claimGame = useCallback(async () => {
     await claim();

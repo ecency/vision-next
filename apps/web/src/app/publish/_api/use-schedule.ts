@@ -1,11 +1,11 @@
-import { addSchedule } from "@/api/private-api";
+import { addSchedule } from "@ecency/sdk";
 import { formatError } from "@/api/operations";
-import { getPostHeaderQuery } from "@/api/queries";
-import { useGlobalStore } from "@/core/global-store";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { error } from "@/features/shared";
-import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
+import { createPermlink, getAccessToken, isCommunity, makeCommentOptions } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -13,9 +13,10 @@ import i18next from "i18next";
 import { usePublishState } from "../_hooks";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
+import { useActiveAccount } from "@/core/hooks";
 
 export function useScheduleApi() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const {
     title,
     content,
@@ -31,16 +32,13 @@ export function useScheduleApi() {
   } = usePublishState();
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username ?? undefined,
     "post-scheduled"
   );
 
   return useMutation({
     mutationKey: ["schedule-2.0"],
     mutationFn: async (schedule: Date) => {
-      // const unpublished3SpeakVideo = Object.values(videos).find(
-      //   (v) => v.status === "publish_manual"
-      // );
       let cleanBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildClearBody(content!);
@@ -49,25 +47,56 @@ export function useScheduleApi() {
         .builder()
         .withLocation(cleanBody, location);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         throw new Error("[Schedule] No active user");
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
+        if (!accountData) {
+          throw new Error("[Schedule] Failed to load account data");
+        }
+        authorData = accountData;
+      } else if (!account) {
+        throw new Error("[Schedule] Account data not available");
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title!);
 
-      // permlink duplication check
-      let existingEntry: Entry | null = null;
-      try {
-        existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
-      } catch (e) {}
+      // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await getQueryClient().fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
-      if (existingEntry?.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title!, true);
+          if (existingEntry?.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title!, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Schedule] Failed to generate unique permlink after multiple attempts");
       }
 
       const jsonMetaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -106,7 +135,7 @@ export function useScheduleApi() {
 
       try {
         await addSchedule(
-          author,
+          getAccessToken(author),
           permlink,
           title!,
           //   buildBody(body),

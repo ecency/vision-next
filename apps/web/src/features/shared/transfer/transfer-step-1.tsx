@@ -3,8 +3,9 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { TransferAsset } from "@/features/shared";
 import { Form } from "@ui/form";
-import { FormControl, InputGroup } from "@ui/input";
-import React, { useCallback, useEffect, useMemo } from "react";
+import { FormControl, InputGroup, InputGroupCopyClipboard } from "@ui/input";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { UilAngleDown, UilAngleUp } from "@tooni/iconscout-unicons-react";
 import {
   dateToFullRelative,
   formatNumber,
@@ -13,8 +14,12 @@ import {
   parseAsset,
   vestsToHp
 } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { withFeatureFlag } from "@/core/react-query";
+import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
+import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
 import { EXCHANGE_ACCOUNTS } from "@/consts";
@@ -30,7 +35,8 @@ interface Props {
 }
 
 export function TransferStep1({ titleLngKey }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser, account, refetch: refetchAccount, isPending: isAccountPending } =
+    useActiveAccount();
 
   const {
     asset,
@@ -51,16 +57,64 @@ export function TransferStep1({ titleLngKey }: Props) {
     setAsset
   } = useTransferSharedState();
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { toWarning, toData, delegatedAmount, toError, delegateAccount } =
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const { data: spkWallet } = useQuery(getSpkWalletQueryOptions(activeUser?.username));
+  const { data: allTokens } = useQuery(getAllHiveEngineTokensQueryOptions());
+  const { data: engineBalances } = useQuery(
+    getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps, allTokens)
+  );
+  const { toWarning, toData, delegatedAmount, toError, delegateAccount, externalWallets } =
     useDebounceTransferAccountData();
 
+  const [isExternalWalletsExpanded, setIsExternalWalletsExpanded] = useState(false);
+
+  const hiveAccount = useMemo(() => account, [account]);
+
   const w = useMemo(
-    () => new HiveWallet(activeUser!.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS),
-    [activeUser, dynamicProps]
+    () => (hiveAccount ? new HiveWallet(hiveAccount, dynamicProps ?? DEFAULT_DYNAMIC_PROPS) : null),
+    [hiveAccount, dynamicProps]
   );
   const subTitleLngKey = useMemo(() => `${mode}-sub-title`, [mode]);
+
+  const engineAssets = useMemo(
+    () => (engineBalances ?? []).map((token) => token.symbol as TransferAsset),
+    [engineBalances]
+  );
+
+  const sortedEngineAssets = useMemo(
+    () => [...engineAssets].sort((a, b) => a.localeCompare(b)),
+    [engineAssets]
+  );
+
+  const engineTokenIcons = useMemo(
+    () =>
+      Object.fromEntries(
+        (engineBalances ?? []).map((token) => [token.symbol as TransferAsset, token.icon])
+      ),
+    [engineBalances]
+  );
+
+  const spkAssets = useMemo(() => {
+    const assets: TransferAsset[] = [];
+    if (parseFloat(spkWallet?.tokenBalance ?? "0") > 0) {
+      assets.push("SPK");
+    }
+    if (parseFloat(spkWallet?.larynxTokenBalance ?? "0") > 0) {
+      assets.push("LARYNX");
+    }
+    return assets;
+  }, [spkWallet?.larynxTokenBalance, spkWallet?.tokenBalance]);
+
+  const orderedSpkAssets = useMemo(
+    () => ["SPK", "LARYNX"].filter((asset) => spkAssets.includes(asset as TransferAsset)),
+    [spkAssets]
+  );
 
   const showTo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving", "power-up", "delegate"].includes(mode),
@@ -80,13 +134,17 @@ export function TransferStep1({ titleLngKey }: Props) {
   const assets = useMemo(() => {
     let assets: TransferAsset[] = [];
     switch (mode) {
-      case "transfer":
-        if (EcencyConfigManager.CONFIG.visionFeatures.points.enabled) {
-          assets = ["HIVE", "HBD", "POINT"];
-        } else {
-          assets = ["HIVE", "HBD"];
-        }
+      case "transfer": {
+        const baseAssets: TransferAsset[] = ["HBD", "HIVE"];
+
+        assets = [
+          ...(EcencyConfigManager.CONFIG.visionFeatures.points.enabled ? ["POINT"] : []),
+          ...baseAssets,
+          ...orderedSpkAssets,
+          ...sortedEngineAssets
+        ];
         break;
+      }
       case "transfer-saving":
       case "withdraw-saving":
         assets = ["HIVE", "HBD"];
@@ -106,18 +164,30 @@ export function TransferStep1({ titleLngKey }: Props) {
         break;
     }
 
-    return assets;
-  }, [mode]);
+    return Array.from(new Set(assets));
+  }, [mode, orderedSpkAssets, sortedEngineAssets]);
   const showMemo = useMemo(
     () => ["transfer", "transfer-saving", "withdraw-saving"].includes(mode),
     [mode]
   );
 
   const getBalance = useCallback((): number => {
+    if (!hiveAccount || !w) {
+      return 0;
+    }
     if (asset === "POINT") {
       return parseAsset(activeUserPoints?.points ?? "0.0").amount;
     }
-    const w = new HiveWallet(activeUser!.data, dynamicProps ?? DEFAULT_DYNAMIC_PROPS);
+    if (asset === "SPK") {
+      return parseFloat(spkWallet?.tokenBalance ?? "0");
+    }
+    if (asset === "LARYNX") {
+      return parseFloat(spkWallet?.larynxTokenBalance ?? "0");
+    }
+    const engineToken = engineBalances?.find((t) => t.symbol === asset);
+    if (engineToken) {
+      return engineToken.balance;
+    }
 
     if (mode === "withdraw-saving" || mode === "claim-interest") {
       return asset === "HIVE" ? w.savingBalance : w.savingBalanceHbd;
@@ -138,7 +208,32 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     return 0;
-  }, [activeUser, activeUserPoints?.points, asset, dynamicProps, mode]);
+  }, [
+    activeUserPoints?.points,
+    asset,
+    dynamicProps,
+    engineBalances,
+    hiveAccount,
+    mode,
+    spkWallet?.larynxTokenBalance,
+    spkWallet?.tokenBalance,
+    w
+  ]);
+
+  const assetPrecision = useMemo(() => {
+    const engineToken = engineBalances?.find((t) => t.symbol === asset);
+    if (engineToken?.precision !== undefined) {
+      return engineToken.precision;
+    }
+
+    return 3;
+  }, [asset, engineBalances]);
+
+  useEffect(() => {
+    if ((asset === "HIVE" || asset === "HBD" || asset === "HP") && !isAccountPending) {
+      refetchAccount();
+    }
+  }, [asset, isAccountPending, refetchAccount]);
 
   useEffect(() => {
     if (amount === "") {
@@ -154,13 +249,13 @@ export function TransferStep1({ titleLngKey }: Props) {
     const dotParts = amount.split(".");
     if (dotParts.length > 1) {
       const precision = dotParts[1];
-      if (precision.length > 3) {
+      if (precision.length > assetPrecision) {
         setAmountError(i18next.t("transfer.amount-precision-error"));
         return;
       }
     }
 
-    let balance = Number(formatNumber(getBalance(), 3));
+    let balance = Number(formatNumber(getBalance(), assetPrecision));
 
     if (parseFloat(amount) > balance + delegatedAmount) {
       setAmountError(i18next.t("trx-common.insufficient-funds"));
@@ -168,17 +263,17 @@ export function TransferStep1({ titleLngKey }: Props) {
     }
 
     setAmountError("");
-  }, [amount, delegatedAmount, getBalance, setAmountError]);
+  }, [amount, assetPrecision, delegatedAmount, getBalance, setAmountError]);
 
   const balance = useMemo(() => {
-    let balance: string | number = formatNumber(getBalance(), 3);
+    let balance: string | number = formatNumber(getBalance(), assetPrecision);
     if (delegatedAmount) {
       balance = Number(balance) + delegatedAmount;
-      balance = Number(balance).toFixed(3);
+      balance = Number(balance).toFixed(assetPrecision);
     }
 
     return balance;
-  }, [delegatedAmount, getBalance]);
+  }, [assetPrecision, delegatedAmount, getBalance]);
 
   useEffect(() => {
     if (EXCHANGE_ACCOUNTS.includes(to)) {
@@ -196,11 +291,10 @@ export function TransferStep1({ titleLngKey }: Props) {
   }, [setAmount, setStep]);
 
   const next = useCallback(() => {
-    // make sure 3 decimals in amount
-    const fixedAmount = formatNumber(amount, 3);
+    const fixedAmount = formatNumber(amount, assetPrecision);
     setAmount(fixedAmount);
     setStep(2);
-  }, [amount, setAmount, setStep]);
+  }, [amount, assetPrecision, setAmount, setStep]);
 
   const memoChanged = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -214,7 +308,7 @@ export function TransferStep1({ titleLngKey }: Props) {
 
   return (
     <>
-      {step === 1 && mode === "power-down" && w.isPoweringDown && (
+      {step === 1 && mode === "power-down" && w && w.isPoweringDown && (
         <div className="transfer-dialog-content">
           <div className="transaction-form">
             <TransferFormHeader title={titleLngKey} step={step} subtitle={subTitleLngKey} />
@@ -240,7 +334,7 @@ export function TransferStep1({ titleLngKey }: Props) {
           </div>
         </div>
       )}
-      {step === 1 && (mode !== "power-down" || !w.isPoweringDown) && (
+      {step === 1 && (mode !== "power-down" || !w?.isPoweringDown) && (
         <div className="transaction-form">
           <TransferFormHeader title={titleLngKey} step={step} subtitle={subTitleLngKey} />
           <Form className="transaction-form-body">
@@ -256,6 +350,42 @@ export function TransferStep1({ titleLngKey }: Props) {
             </div>
 
             {showTo && <TransferStep1To toError={toError} toWarning={toWarning} />}
+
+            {showTo && externalWallets.length > 0 && (
+              <div className="grid items-center grid-cols-12 mb-4">
+                <div className="col-span-12 sm:col-span-10 sm:col-start-3">
+                  <div className="border-t border-[--border-color] pt-3">
+                    <div
+                      className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity mb-2"
+                      onClick={() => setIsExternalWalletsExpanded(!isExternalWalletsExpanded)}
+                    >
+                      <div className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                        {i18next.t("transfer.external-wallets-label")}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400">
+                        {isExternalWalletsExpanded ? (
+                          <UilAngleUp className="w-4 h-4" />
+                        ) : (
+                          <UilAngleDown className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
+                    {isExternalWalletsExpanded && (
+                      <div className="flex flex-col gap-2">
+                        {externalWallets.map(({ symbol, address }) => (
+                          <div key={`${symbol}-${address}`} className="flex flex-col gap-1">
+                            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                              {symbol}
+                            </div>
+                            <InputGroupCopyClipboard value={address} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid items-center grid-cols-12">
               <div className="col-span-12 sm:col-span-2">
@@ -279,6 +409,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                   <TransferAssetSwitch
                     options={assets}
                     selected={asset}
+                    tokenIcons={engineTokenIcons}
                     onChange={(e) => setAsset(e)}
                   />
                 )}
@@ -308,7 +439,7 @@ export function TransferStep1({ titleLngKey }: Props) {
                 </div>
                 {to!.length > 0 &&
                   Number(amount) > 0 &&
-                  toData?.__loaded &&
+                  toData &&
                   mode === "delegate" && (
                     <div className="text-gray-600 mt-1 override-warning">
                       {i18next.t("transfer.override-warning-1")}

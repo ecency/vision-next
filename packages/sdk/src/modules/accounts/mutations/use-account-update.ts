@@ -1,60 +1,23 @@
 import { useBroadcastMutation } from "@/modules/core";
+import type { AuthContext } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
 import { AccountProfile, FullAccount } from "../types";
-import * as R from "remeda";
+import {
+  buildProfileMetadata,
+  extractAccountProfile,
+} from "../utils/profile-metadata";
 
 interface Payload {
   profile: Partial<AccountProfile>;
   tokens: AccountProfile["tokens"];
 }
 
-function sanitizeTokens(
-  tokens?: AccountProfile["tokens"]
-): AccountProfile["tokens"] | undefined {
-  return tokens?.map(({ meta, ...rest }) => {
-    if (!meta || typeof meta !== "object") {
-      return { ...rest, meta };
-    }
-
-    const { privateKey, username, ...safeMeta } = meta;
-    return { ...rest, meta: safeMeta };
-  });
-}
-
-function getExistingProfile(data: FullAccount): AccountProfile {
-  try {
-    const parsed = JSON.parse(data?.posting_json_metadata || "{}");
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      parsed.profile &&
-      typeof parsed.profile === "object"
-    ) {
-      return parsed.profile as AccountProfile;
-    }
-  } catch (e) {}
-
-  return {} as AccountProfile;
-}
-
-function getBuiltProfile({
-  profile,
-  tokens,
-  data,
-}: Partial<Payload> & { data: FullAccount }) {
-  const metadata = R.mergeDeep(getExistingProfile(data), profile ?? {});
-
-  if (tokens && tokens.length > 0) {
-    metadata.tokens = tokens;
-  }
-
-  metadata.tokens = sanitizeTokens(metadata.tokens);
-
-  return metadata;
-}
-
-export function useAccountUpdate(username: string) {
+export function useAccountUpdate(
+  username: string,
+  auth?: AuthContext
+) {
   const queryClient = useQueryClient();
 
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -67,6 +30,12 @@ export function useAccountUpdate(username: string) {
         throw new Error("[SDK][Accounts] – cannot update not existing account");
       }
 
+      const profile = buildProfileMetadata({
+        existingProfile: extractAccountProfile(data),
+        profile: payload.profile,
+        tokens: payload.tokens,
+      });
+
       return [
         [
           "account_update2",
@@ -75,13 +44,13 @@ export function useAccountUpdate(username: string) {
             json_metadata: "",
             extensions: [],
             posting_json_metadata: JSON.stringify({
-              profile: getBuiltProfile({ ...payload, data }),
+              profile,
             }),
           },
         ],
       ];
     },
-    (_, variables) =>
+    (_data: unknown, variables: Partial<Payload>) =>
       queryClient.setQueryData<FullAccount>(
         getAccountFullQueryOptions(username).queryKey,
         (data) => {
@@ -90,9 +59,15 @@ export function useAccountUpdate(username: string) {
           }
 
           const obj = R.clone(data);
-          obj.profile = getBuiltProfile({ ...variables, data });
+          obj.profile = buildProfileMetadata({
+            existingProfile: extractAccountProfile(data),
+            profile: variables.profile,
+            tokens: variables.tokens,
+          });
+
           return obj;
         }
-      )
+      ),
+    auth
   );
 }

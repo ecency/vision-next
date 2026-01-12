@@ -6,8 +6,8 @@ import { useAccountClaiming } from "@/api/mutations";
 import { KeyOrHot } from "@/features/shared";
 import { claimAccountByHiveSigner } from "@/api/operations";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { arrowLeftSvg } from "@ui/svg";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   account: FullAccount;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const {
     mutateAsync: claimAccount,
@@ -27,6 +27,7 @@ export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
 
   const [key, setKey] = useState("");
   const [isKeySetting, setIsKeySetting] = useState(false);
+  const claimedAccountCredits = account?.pending_claimed_accounts ?? 0;
 
   return (
     <div className="claim-credit">
@@ -46,6 +47,10 @@ export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
         )}
         {i18next.t("rc-info.claim-accounts")}
         <span className="text-primary">{claimAccountAmount}</span>
+      </div>
+      <div className="claim-credit-sub-title">
+        <span>{i18next.t("rc-info.you-have-claimed-rc")}</span>
+        <span className="text-primary">{claimedAccountCredits}</span>
       </div>
       {!isSuccess &&
       !isKeySetting &&

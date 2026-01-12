@@ -5,6 +5,7 @@ import "./_deck-add-column.scss";
 import { DeckAddColumnTypeSettings } from "./deck-add-column-type-settings";
 import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
 import { DeckGridContext } from "../../deck-manager";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   communityIconSvg,
   faqIconSvg,
@@ -19,7 +20,6 @@ import {
   whatsNewIconSvg
 } from "../../icons";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { arrowLeftSvg } from "@ui/svg";
 
@@ -39,7 +39,7 @@ interface AvailableColumn {
 const CurrentThreadsDescriptionIndex = Math.floor(Math.random() * 3) + 1;
 
 export const DeckAddColumn = ({ id, draggable, deckKey }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const { add, deleteColumn } = useContext(DeckGridContext);
 
   const availableColumns: AvailableColumn[] = [

@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, Stepper } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { WalletSeedPhrase, WalletTokenAddressItem } from "@/features/wallet";
@@ -28,7 +28,9 @@ import {
 } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useCallback, useState } from "react";
+import { getAccessToken, getSdkAuthContext } from "@/utils";
+import { getUser } from "@/utils/user-token";
+import { useCallback, useMemo, useState } from "react";
 
 interface Props {
   onBack: () => void;
@@ -72,12 +74,16 @@ const TOKENS = [
 ];
 
 export function SetupExternalCreate({ onBack }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
   const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
+  const authContext = useMemo(
+    () => getSdkAuthContext(getUser(activeUser?.username ?? "")),
+    [activeUser?.username]
+  );
 
   const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
     onError: (err) => {
@@ -85,19 +91,29 @@ export function SetupExternalCreate({ onBack }: Props) {
       setStep("sign");
     }
   });
-  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(activeUser?.username!, {
-    onError: (err) => {
-      error(...formatError(err));
-      setStep("sign");
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(
+    activeUser?.username!,
+    authContext,
+    {
+      onError: (err) => {
+        error(...formatError(err));
+        setStep("sign");
+      }
     }
-  });
+  );
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
-    activeUser?.username!
+    activeUser?.username!,
+    getAccessToken(activeUser?.username ?? "")
   );
 
   const handleLinkByKey = useCallback(
     async (currentKey: PrivateKey) => {
       if (!keys) {
+        return;
+      }
+      if (!authContext) {
+        error("[Wallets] Missing auth context for signing.");
+        setStep("sign");
         return;
       }
       setStep("create");
@@ -133,7 +149,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       });
       setStep("success");
     },
-    [activeUser?.username, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
+    [activeUser?.username, authContext, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
 
   return (

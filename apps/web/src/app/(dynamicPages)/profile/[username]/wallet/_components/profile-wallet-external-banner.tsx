@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils/user-token";
 import { Button } from "@/features/ui";
 import {
@@ -50,7 +50,7 @@ export function ProfileWalletExternalBanner() {
     }
   }, [dismissedAt, removeDismissedAt]);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === cleanUsername;
   const accessToken = isOwnProfile ? getAccessToken(cleanUsername) : undefined;
 
@@ -73,7 +73,8 @@ export function ProfileWalletExternalBanner() {
   }
 
   if (
-    data?.profile?.tokens?.some(({ symbol }) =>
+    Array.isArray(data?.profile?.tokens) &&
+    data.profile.tokens.some(({ symbol }) =>
       Object.values(EcencyWalletCurrency).includes(symbol as any)
     )
   ) {

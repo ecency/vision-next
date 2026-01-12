@@ -5,9 +5,12 @@ import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useGlobalStore } from "@/core/global-store";
-import { getImagesQuery } from "@/api/queries";
-import defaults from "@/defaults.json";
+import { getImagesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import defaults from "@/defaults";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 setProxyBase(defaults.imageServer);
 
@@ -19,10 +22,16 @@ interface Props {
 }
 
 export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
-  const { data: items } = getImagesQuery(activeUser?.username).useClientQuery();
+  const { data: items } = useQuery({
+    ...getImagesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? "")),
+    select: (items: any[]) =>
+      items.sort((a, b) => {
+        return new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1;
+      })
+  });
 
   return (
     <Modal show={true} centered={true} onHide={onHide} className="add-image-mobile-modal">

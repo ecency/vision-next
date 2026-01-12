@@ -13,8 +13,10 @@ import { Account } from "@/entities";
 import { TransferStep2 } from "@/features/shared/transfer/transfer-step-2";
 import { TransferStep3 } from "@/features/shared/transfer/transfer-step-3";
 import { TransferStep4 } from "@/features/shared/transfer/transfer-step-4";
-import { useGlobalStore } from "@/core/global-store";
-import { getPointsQuery } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 export type TransferMode =
   | "transfer"
@@ -28,7 +30,7 @@ export type TransferMode =
   | "stake"
   | "unstake"
   | "claim-interest";
-export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT";
+export type TransferAsset = "HIVE" | "HBD" | "HP" | "POINT" | "SPK" | "LARYNX" | string;
 
 interface Props {
   mode: TransferMode;
@@ -42,10 +44,15 @@ interface Props {
 }
 
 function TransferC({ onHide, handleClickAway, account }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser, refetch: refetchAccount } = useActiveAccount();
   const { step, asset, mode } = useTransferSharedState();
 
-  const { refetch } = getPointsQuery(activeUser?.username).useClientQuery();
+  const { refetch } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
 
   const titleLngKey = useMemo(
     () =>
@@ -57,7 +64,8 @@ function TransferC({ onHide, handleClickAway, account }: Props) {
 
   useEffect(() => {
     refetch();
-  }, [refetch]);
+    refetchAccount();
+  }, [refetch, refetchAccount]);
 
   return (
     <Modal show={true} centered={true} onHide={onHide} className="transfer-dialog" size="lg">

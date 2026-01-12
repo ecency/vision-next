@@ -1,19 +1,22 @@
-import * as bridgeApi from "@/api/bridge";
+import { getAccountPostsQueryOptions, getDiscussionQueryOptions } from "@ecency/sdk";
 import { IdentifiableEntry, ThreadItemEntry } from "./identifiable-entry";
 import { FetchQueryOptions } from "@tanstack/query-core";
 import { ProfileFilter } from "@/enums";
 import { QueryIdentifiers } from "@/core/react-query";
+import { getQueryClient } from "@/core/react-query";
 
 export async function fetchThreads(
   host: string,
   lastContainer?: ThreadItemEntry
 ): Promise<IdentifiableEntry[]> {
-  let nextThreadContainers = (await bridgeApi.getAccountPosts(
-    ProfileFilter.posts,
-    host,
-    lastContainer?.author,
-    lastContainer?.permlink,
-    1
+  let nextThreadContainers = (await getQueryClient().fetchQuery(
+    getAccountPostsQueryOptions(
+      host,
+      ProfileFilter.posts,
+      lastContainer?.author,
+      lastContainer?.permlink,
+      1
+    )
   )) as IdentifiableEntry[];
   nextThreadContainers = nextThreadContainers?.map((c) => {
     c.id = c.post_id;
@@ -25,7 +28,9 @@ export async function fetchThreads(
     return [];
   }
 
-  const threadItems = await bridgeApi.getDiscussion(host, nextThreadContainers[0].permlink);
+  const threadItems = await getQueryClient().fetchQuery(
+    getDiscussionQueryOptions(host, nextThreadContainers[0].permlink)
+  );
 
   // If no discussion need to fetch next container
   if (Object.values(threadItems || {}).length === 1) {

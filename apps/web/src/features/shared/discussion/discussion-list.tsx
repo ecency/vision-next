@@ -4,9 +4,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useMount, useUnmount } from "react-use";
 import { DiscussionItem } from "./discussion-item";
 import { Community, Entry, ROLES } from "@/entities";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
-import {getBotsQuery, useClientActiveUser} from "@/api/queries";
+import { getMutedUsersQueryOptions, getBotsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { htmlPositionManager } from "@/utils/html-position-manager";
 
 interface Props {
@@ -28,11 +29,11 @@ export function DiscussionList({
 }: Props) {
     const [isHiddenPermitted, setIsHiddenPermitted] = useState(false);
 
-    const activeUser = useClientActiveUser();
+    const { activeUser } = useActiveAccount();
 
     const location = useLocation();
-    const { data: mutedUsers = [] } = getMutedUsersQuery(activeUser).useClientQuery();
-    const { data: botsList = [] } = getBotsQuery().useClientQuery();
+    const { data: mutedUsers = [] } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
+    const { data: botsList = [] } = useQuery(getBotsQueryOptions());
 
     const canMute = useMemo(() => {
         return !!activeUser && !!community &&
@@ -51,27 +52,22 @@ export function DiscussionList({
         [discussionList, parent]
     );
 
-    const mutedContent = useMemo(
+    const hiddenContent = useMemo(
         () =>
             filtered.filter(
                 (item) =>
-                    activeUser &&
-                    mutedUsers.includes(item.author) &&
-                    item.depth === 1 &&
-                    item.parent_author === parent.author
+                    item.parent_author === parent.author &&
+                    ((!!activeUser && mutedUsers.includes(item.author)) || item.author_reputation < 0)
             ),
         [activeUser, filtered, mutedUsers, parent.author]
     );
 
     const data = useMemo(() => {
-        if (!activeUser) {
-            return filtered;
-        }
-        const unMutedContent = filtered.filter(
-            (md) => !mutedContent.some((fd) => fd.post_id === md.post_id)
+        const visibleContent = filtered.filter(
+            (md) => !hiddenContent.some((fd) => fd.post_id === md.post_id)
         );
-        return isHiddenPermitted ? [...unMutedContent, ...mutedContent] : unMutedContent;
-    }, [activeUser, filtered, isHiddenPermitted, mutedContent]);
+        return isHiddenPermitted ? [...visibleContent, ...hiddenContent] : visibleContent;
+    }, [filtered, hiddenContent, isHiddenPermitted]);
 
     const botsFreeData = useMemo(
         () =>
@@ -121,7 +117,7 @@ export function DiscussionList({
                     canMute={canMute}
                 />
             ))}
-            {!isHiddenPermitted && mutedContent.length > 0 && activeUser?.username && (
+            {!isHiddenPermitted && hiddenContent.length > 0 && (
                 <div className="hidden-warning flex justify-between flex-1 items-center mt-3">
                     <div className="flex-1">
                         {i18next.t("discussion.reveal-muted-long-description")}

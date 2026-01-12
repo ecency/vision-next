@@ -13,6 +13,7 @@ import i18next from "i18next";
 import { dateToRelative } from "@/utils";
 import useMount from "react-use/lib/useMount";
 import { WaveActions } from "@/features/waves";
+import { useQuery } from "@tanstack/react-query";
 
 export interface ThreadItemProps {
   initialEntry: WaveEntry;
@@ -47,7 +48,7 @@ export const ThreadItem = ({
   const { height, ref } = useResizeDetector();
   const { inViewport } = useInViewport(ref);
   const { data: entry } =
-    EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry).useClientQuery();
+    useQuery(EcencyEntriesCacheManagement.getEntryQuery<WaveEntry>(initialEntry));
 
   const [renderInitiated, setRenderInitiated] = useState(false);
   const [hasParent, setHasParent] = useState(false);

@@ -1,8 +1,10 @@
 import { CONFIG } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import type { AuthContext } from "@ecency/sdk";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { parseAsset } from "../../utils";
+import { broadcastHiveEngineOperation } from "./broadcast-hive-engine-operation";
 
 export interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -15,10 +17,29 @@ export interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
 export async function unstakeEngineToken<T extends HiveBasedAssetSignType>(
   payload: T extends "key"
     ? UnstakeEnginePayload<T> & { key: PrivateKey }
-    : UnstakeEnginePayload<T>
+    : UnstakeEnginePayload<T>,
+  auth?: AuthContext
 ) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
+
+  const operation: Operation = [
+    "custom_json",
+    {
+      id: "ssc-mainnet-hive",
+      required_auths: [payload.from],
+      required_posting_auths: [],
+      json: JSON.stringify({
+        contractName: "tokens",
+        contractAction: "unstake",
+        contractPayload: {
+          symbol: payload.asset,
+          to: payload.to,
+          quantity: quantity,
+        },
+      }),
+    },
+  ];
 
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
@@ -39,50 +60,11 @@ export async function unstakeEngineToken<T extends HiveBasedAssetSignType>(
     };
 
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise((resolve, reject) =>
-      (window as any).hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        JSON.stringify({
-          contractName: "tokens",
-          contractAction: "unstake",
-          contractPayload: {
-            symbol: payload.asset,
-            to: payload.to,
-            quantity: quantity,
-          },
-        }),
-        "Token Unstaking",
-        (resp: { success: boolean }) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-
-          resolve(resp);
-        }
-      )
-    );
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
-      [
-        "custom_json",
-        {
-          id: "ssc-mainnet-hive",
-          required_auths: [payload.from],
-          required_posting_auths: [],
-          json: JSON.stringify({
-            contractName: "tokens",
-            contractAction: "unstake",
-            contractPayload: {
-              symbol: payload.asset,
-              to: payload.to,
-              quantity: quantity,
-            },
-          }),
-        },
-      ],
+      operation,
       { callback: `https://ecency.com/@${payload.from}/wallet` },
       () => {}
     );

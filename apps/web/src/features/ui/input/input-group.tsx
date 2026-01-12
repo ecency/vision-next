@@ -15,6 +15,14 @@ interface Props {
 
 // TODO: Make styles for childrens: buttons
 
+const isButtonLike = (element: ReactNode) => {
+  const reactElement = element as ReactElement;
+  const type = reactElement?.type as { displayName?: string; name?: string } | undefined;
+  const typeName = type?.displayName || type?.name;
+
+  return reactElement?.type === Button || (!!typeName && /button/i.test(typeName));
+};
+
 export function InputGroup({
   children,
   prepend,
@@ -43,7 +51,7 @@ export function InputGroup({
             "[&>.ecency-spinner]:w-3.5 [&>.ecency-spinner]:h-3.5":
               (prepend as ReactElement)?.type === Spinner,
             "[&>svg]:w-4 [&>svg]:h-4 px-2": true,
-            "border-2": (prepend as ReactElement)?.type !== Button
+            "border-2": !isButtonLike(prepend)
           })}
           onClick={() => onPrependClick?.()}
         >
@@ -62,7 +70,7 @@ export function InputGroup({
               typeof append === "string" || (prepend as ReactElement)?.type === Spinner,
             "[&>.ecency-spinner]:w-3.5 [&>.ecency-spinner]:h-3.5":
               (prepend as ReactElement)?.type === Spinner,
-            "border-2": (append as ReactElement)?.type !== Button
+            "border-2": !isButtonLike(append)
           })}
           onClick={() => onAppendClick?.()}
         >

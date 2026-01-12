@@ -16,6 +16,7 @@ import {
   PostContentRenderer
 } from "@/features/shared";
 import { makeEntryPath } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -26,7 +27,7 @@ interface Props {
 export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Props) => {
   const [isMounted, setIsMounted] = useState(false);
 
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   useMount(() => setIsMounted(true));
 

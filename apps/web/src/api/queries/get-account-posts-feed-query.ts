@@ -1,13 +1,37 @@
-import { getAccountPostsQuery } from "@/api/queries/get-account-posts-query";
-import { getControversialRisingQuery } from "@/api/queries/get-controversial-rising-query";
-import { getPostsRankedQuery } from "@/api/queries/get-posts-ranked-query";
-import { getPromotedEntriesInfiniteQuery } from "@/api/queries/get-promoted-entries-query";
-import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
+import { getAccountPostsInfiniteQueryOptions, getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
+import { prefetchInfiniteQuery, getInfiniteQueryData, QueryIdentifiers } from "@/core/react-query";
+import { InfiniteData, UseInfiniteQueryResult, useInfiniteQuery, infiniteQueryOptions } from "@tanstack/react-query";
 import { Entry, SearchResponse } from "@/entities";
+import { appAxios } from "@/api/axios";
+import { apiBase } from "@/api/helper";
 
 // Unify all branches on a single page type
 type Page = Entry[] | SearchResponse;
 type FeedInfinite = InfiniteData<Page, unknown>;
+
+// Helper function to create promoted entries infinite query
+// This wraps the SDK query in an infinite query shape for feed compatibility
+type PromotedPage = Entry[];
+type PromotedCursor = "empty" | "fetched";
+
+function getPromotedEntriesInfiniteQuery() {
+  return infiniteQueryOptions({
+    queryKey: [QueryIdentifiers.PROMOTED_ENTRIES, "infinite"],
+    initialPageParam: "empty" as PromotedCursor,
+    queryFn: async ({ pageParam }: { pageParam: PromotedCursor }) => {
+      if (pageParam === "fetched") return [];
+      const response = await appAxios.get<Entry[]>(
+        apiBase(`/private-api/promoted-entries`)
+      );
+      return response.data;
+    },
+    getNextPageParam: (
+      _lastPage: PromotedPage,
+      _allPages: PromotedPage[],
+      _lastPageParam: PromotedCursor
+    ): PromotedCursor => "fetched"
+  });
+}
 
 export async function prefetchGetPostsFeedQuery(
     what: string,
@@ -15,45 +39,42 @@ export async function prefetchGetPostsFeedQuery(
     limit = 20,
     observer?: string
 ): Promise<FeedInfinite | undefined> {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
-    return getPromotedEntriesInfiniteQuery().prefetch() as Promise<FeedInfinite | undefined>;
+    return prefetchInfiniteQuery(getPromotedEntriesInfiniteQuery()) as Promise<FeedInfinite | undefined>;
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(
+    return prefetchInfiniteQuery(
+      getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
         observer ?? "",
         true
-    ).prefetch() as Promise<FeedInfinite | undefined>;
-  }
-
-  if (isControversialPosts) {
-    return getControversialRisingQuery(what, tag).prefetch() as Promise<FeedInfinite | undefined>;
+      )
+    ) as Promise<FeedInfinite | undefined>;
   }
 
   if (what === "feed") {
-    return getPostsRankedQuery(
+    return prefetchInfiniteQuery(
+      getPostsRankedInfiniteQueryOptions(
         what,
         tag,
         limit,
         observer ?? "",
         true,
         { resolvePosts: false }
-    ).prefetch() as Promise<FeedInfinite | undefined>;
+      )
+    ) as Promise<FeedInfinite | undefined>;
   }
 
-  return getPostsRankedQuery(what, tag, limit, observer ?? "").prefetch() as Promise<
-      FeedInfinite | undefined
-  >;
+  return prefetchInfiniteQuery(
+    getPostsRankedInfiniteQueryOptions(what, tag, limit, observer ?? "")
+  ) as Promise<FeedInfinite | undefined>;
 }
 
 export function getPostsFeedQueryData(
@@ -62,45 +83,42 @@ export function getPostsFeedQueryData(
     limit = 20,
     observer?: string
 ): FeedInfinite | undefined {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
-    return getPromotedEntriesInfiniteQuery().getData() as FeedInfinite | undefined;
+    return getInfiniteQueryData(getPromotedEntriesInfiniteQuery()) as FeedInfinite | undefined;
   }
 
   if (isAccountPosts) {
-    return getAccountPostsQuery(
+    return getInfiniteQueryData(
+      getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
         what,
         limit,
         observer ?? "",
         true
-    ).getData() as FeedInfinite | undefined;
-  }
-
-  if (isControversialPosts) {
-    return getControversialRisingQuery(what, tag).getData() as FeedInfinite | undefined;
+      )
+    ) as FeedInfinite | undefined;
   }
 
   if (what === "feed") {
-    return getPostsRankedQuery(
+    return getInfiniteQueryData(
+      getPostsRankedInfiniteQueryOptions(
         what,
         tag,
         limit,
         observer ?? "",
         true,
         { resolvePosts: false }
-    ).getData() as FeedInfinite | undefined;
+      )
+    ) as FeedInfinite | undefined;
   }
 
-  return getPostsRankedQuery(what, tag, limit, observer ?? "").getData() as
-      | FeedInfinite
-      | undefined;
+  return getInfiniteQueryData(
+    getPostsRankedInfiniteQueryOptions(what, tag, limit, observer ?? "")
+  ) as FeedInfinite | undefined;
 }
 
 export function usePostsFeedQuery(
@@ -109,35 +127,30 @@ export function usePostsFeedQuery(
     observer?: string,
     limit = 20
 ): UseInfiniteQueryResult<Page, Error> {
-  const isControversial = ["rising", "controversial"].includes(what);
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-
-  const isAccountPosts = isUser && !isControversial;
-  const isControversialPosts = !isUser && isControversial;
+  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
-  const query =
+  const queryOptions =
       isPromotedSection
           ? getPromotedEntriesInfiniteQuery()
           : isAccountPosts
-              ? getAccountPostsQuery(
+              ? getAccountPostsInfiniteQueryOptions(
                   tag.replace("@", "").replace("%40", ""),
                   what,
                   limit,
                   observer ?? "",
                   true
               )
-              : isControversialPosts
-                  ? getControversialRisingQuery(what, tag)
-                  : getPostsRankedQuery(
-                        what,
-                        tag,
-                        limit,
-                        observer ?? "",
-                        true,
-                        what === "feed" ? { resolvePosts: false } : undefined
-                    );
+              : getPostsRankedInfiniteQueryOptions(
+                    what,
+                    tag,
+                    limit,
+                    observer ?? "",
+                    true,
+                    what === "feed" ? { resolvePosts: false } : undefined
+                );
 
   // unify result type for callers
-  return query.useClientQuery() as unknown as UseInfiniteQueryResult<Page, Error>;
+  return useInfiniteQuery(queryOptions) as unknown as UseInfiniteQueryResult<Page, Error>;
 }

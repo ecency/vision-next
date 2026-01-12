@@ -1,7 +1,8 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { useSubscribeToCommunity } from "@/api/mutations";
-import { useGlobalStore } from "@/core/global-store";
 import { Community } from "@/entities";
 import { LoginRequired } from "@/features/shared";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
@@ -16,7 +17,7 @@ interface Props {
   buttonProps?: ButtonProps;
 }
 export function SubscriptionBtn({ buttonProps, community }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const [hover, setHover] = useState(false);
 
   const { data: subscriptions } = useQuery(

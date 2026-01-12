@@ -1,13 +1,13 @@
-import { useGlobalStore } from "@/core/global-store";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function PublishEntryLoadingPost() {
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return (
     <motion.div

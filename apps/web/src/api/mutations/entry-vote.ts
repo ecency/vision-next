@@ -1,14 +1,15 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { formatError, vote } from "@/api/operations";
 import { error } from "@/features/shared";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useEntryVote(entry?: Entry) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const { activeUser } = useActiveAccount();
 
   const { invalidate } = EcencyEntriesCacheManagement.useInvalidation(entry);
   const { update: updateVotes } = EcencyEntriesCacheManagement.useUpdateVotes(entry);
@@ -38,7 +39,10 @@ export function useEntryVote(entry?: Entry) {
       ] as const;
     },
     onSuccess: ([estimated, votes]) => {
-      updateActiveUser(); // refresh voting power
+      // Invalidate account query to refresh voting power
+      qc.invalidateQueries({
+        queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, activeUser?.username]
+      });
 
       if (!entry) {
         throw new Error("No entry provided");

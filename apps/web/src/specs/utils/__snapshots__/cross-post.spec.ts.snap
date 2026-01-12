@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Cross post (1) Invalid 1`] = `null`;
+
+exports[`Cross post (1) Invalid 2`] = `null`;
+
+exports[`Cross post (2) Valid 1`] = `"This part is message to community."`;
+
+exports[`Cross post (3) Make cross post body 1`] = `"This is a cross post of [@good-karma/awesome-hive](/hive/@good-karma/awesome-hive) by @foo.<br><br>lorem ipsum dolor sit amet"`;

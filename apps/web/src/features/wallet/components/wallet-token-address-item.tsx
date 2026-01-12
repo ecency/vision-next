@@ -59,7 +59,7 @@ export function WalletTokenAddressItem({
       )}
       <div className="flex justify-between">
         <Image
-          src={CURRENCIES_META_DATA[currency].icon}
+          src={CURRENCIES_META_DATA[currency].icon.src}
           width={32}
           height={32}
           alt=""

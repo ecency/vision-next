@@ -1,11 +1,12 @@
-import { useGlobalStore } from "@/core/global-store";
-import { getAccessToken } from "@/utils";
-import { appAxios } from "@/api/axios";
-import { apiBase } from "@/api/helper";
+"use client";
+
+import { usrActivity } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function useRecordUserActivity() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   return EcencyConfigManager.useConditionalMutation(
     ({ visionFeatures }) => visionFeatures.userActivityTracking.enabled,
@@ -24,15 +25,7 @@ export function useRecordUserActivity() {
           return;
         }
 
-        const params: Record<string, string | number | undefined> = {
-          code: getAccessToken(activeUser.username),
-          ty
-        };
-
-        if (bl) params.bl = bl;
-        if (tx) params.tx = tx;
-
-        return appAxios.post(apiBase(`/private-api/usr-activity`), params);
+        await usrActivity(getAccessToken(activeUser.username), ty, bl, tx);
       }
     }
   );

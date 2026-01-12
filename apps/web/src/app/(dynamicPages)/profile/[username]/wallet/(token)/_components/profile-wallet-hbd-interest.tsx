@@ -1,6 +1,8 @@
 "use client";
 
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { WalletOperationsDialog } from "@/features/wallet";
 import { Button } from "@/features/ui";
 import { AssetOperation } from "@ecency/wallets";
@@ -25,7 +27,7 @@ const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
 const UNIX_EPOCH = "1970-01-01T00:00:00";
 
 export function ProfileWalletHbdInterest({ username, className }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
   const { data: account } = useQuery({
@@ -33,7 +35,7 @@ export function ProfileWalletHbdInterest({ username, className }: Props) {
     enabled: Boolean(username),
   });
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const { hbdInterestRate } = useMemo(
     () => dynamicProps ?? DEFAULT_DYNAMIC_PROPS,

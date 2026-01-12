@@ -1,4 +1,3 @@
-import { useSearchByUsernameQuery } from "@/api/queries";
 import { UserAvatar } from "@/features/shared";
 import { Button, FormControl, InputGroup } from "@/features/ui";
 import { Spinner } from "@/features/ui/spinner";
@@ -9,6 +8,8 @@ import i18next from "i18next";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import * as yup from "yup";
+import { lookupAccountsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 const form = yup.object({
   username: yup
@@ -43,7 +44,9 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
     return () => clearTimeout(handler);
   }, [normalizedUsername]);
 
-  const { data: suggestions = [], isFetching } = useSearchByUsernameQuery(debouncedUsername);
+  const { data: suggestions = [], isFetching } = useQuery(
+    lookupAccountsQueryOptions(debouncedUsername, debouncedUsername.length > 0 ? 5 : 0)
+  );
   const showSuggestions = isFocused && normalizedUsername.length > 0;
   const submit = methods.handleSubmit(({ username }) => onUsernameSubmit?.(username));
 

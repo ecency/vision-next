@@ -8,7 +8,8 @@ import {
     LinearProgress
 } from "@/features/shared";
 import { ProfileCover } from "@/app/(dynamicPages)/profile/[username]/_components/profile-cover";
-import { getAccountVoteHistoryQuery } from "@/api/queries";
+import { getAccountVoteHistoryInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { utils } from "@hiveio/dhive";
 import { Account, Entry } from "@/entities";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
@@ -30,9 +31,13 @@ type VoteHistoryPage = {
 
 export function CurationTrail({ account, section }: Props) {
     // cast the hook result to an infinite query over VoteHistoryPage
-    const result =
-        getAccountVoteHistoryQuery(account.name, utils.makeBitMaskFilter([utils.operationOrders.vote]))
-            .useClientQuery() as UseInfiniteQueryResult<VoteHistoryPage, Error>;
+    const result = useInfiniteQuery(
+        getAccountVoteHistoryInfiniteQueryOptions(account.name, {
+            limit,
+            filters: utils.makeBitMaskFilter([utils.operationOrders.vote]),
+            dayLimit: days
+        })
+    ) as UseInfiniteQueryResult<VoteHistoryPage, Error>;
 
     const { isLoading, fetchNextPage } = result;
     const data = result.data as InfiniteData<VoteHistoryPage, unknown> | undefined;

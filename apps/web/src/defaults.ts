@@ -1,8 +1,30 @@
 import baseDefaults from "./defaults.json";
+import { shouldUseDefaultBase } from "./utils/host-utils";
+
+const resolveEnvBase = () => {
+  const envBase = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE;
+  return envBase && envBase.trim().length > 0 ? envBase : undefined;
+};
+
+const resolveRuntimeBase = (): string => {
+  const envBase = resolveEnvBase();
+  if (envBase) {
+    return envBase;
+  }
+
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return shouldUseDefaultBase(window.location.hostname)
+      ? baseDefaults.base
+      : window.location.origin;
+  }
+
+  return baseDefaults.base;
+};
 
 const defaults = {
   ...baseDefaults,
-  base: process.env.NEXT_PUBLIC_APP_BASE || baseDefaults.base,
+  base: resolveRuntimeBase(),
+  chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
   imageServer: process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer,
   nwsServer: process.env.NEXT_PUBLIC_NWS_SERVER || baseDefaults.nwsServer,
   name: process.env.NEXT_PUBLIC_APP_NAME || baseDefaults.name,
@@ -13,3 +35,5 @@ const defaults = {
 };
 
 export default defaults;
+
+export { resolveRuntimeBase };

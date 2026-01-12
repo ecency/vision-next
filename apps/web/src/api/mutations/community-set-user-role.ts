@@ -1,7 +1,9 @@
-import { useMutation, useQueryClient, UseQueryResult } from "@tanstack/react-query";
+"use client";
+
+import { useMutation, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { Community, CommunityTeam } from "@/entities";
 import { formatError, setUserRole } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
@@ -10,12 +12,12 @@ import { getCommunityCache } from "@/core/caches";
 type TeamRow = [string, string, string]; // one member entry
 
 export function useCommunitySetUserRole(communityName: string, onSuccess?: () => void) {
-    const activeUser = useGlobalStore((state) => state.activeUser);
+    const { activeUser } = useActiveAccount();
     const queryClient = useQueryClient();
 
     // Tell TS that this query returns a Community
     const { data: community } =
-        (getCommunityCache(communityName).useClientQuery() as UseQueryResult<Community, Error>);
+        (useQuery(getCommunityCache(communityName)) as UseQueryResult<Community, Error>);
 
     return useMutation({
         mutationKey: ["community-set-user-role", communityName],

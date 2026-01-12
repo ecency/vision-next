@@ -18,7 +18,8 @@ import usePrevious from "react-use/lib/usePrevious";
 import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import i18next from "i18next";
-import { getContent } from "@/api/hive";
+import { getContentQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 
@@ -39,6 +40,7 @@ const ERROR_ATTEMPTS_INTERVALS: Record<number, number> = {
 const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
   const { register, detach, reloadingInitiated } = useContext(DeckThreadsContext);
   const { fetch } = useContext(DeckThreadsColumnManagerContext);
+  const queryClient = useQueryClient();
 
   const [data, setData] = useState<IdentifiableEntry[]>([]);
   const [hostGroupedData, setHostGroupedData] = useState<Record<string, IdentifiableEntry[]>>(
@@ -210,9 +212,8 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
             onEdit={(entry) => setCurrentEditingEntry(entry)}
             onSeeFullThread={async () => {
               try {
-                const entry = (await getContent(
-                  item.parent_author!,
-                  item.parent_permlink!
+                const entry = (await queryClient.fetchQuery(
+                  getContentQueryOptions(item.parent_author!, item.parent_permlink!)
                 )) as IdentifiableEntry;
                 if (entry) {
                   entry.id = entry.post_id;

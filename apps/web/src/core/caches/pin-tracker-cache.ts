@@ -1,22 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "../react-query";
-import { dataLimit, getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
+import { useDataLimit } from "@/utils/data-limit";
 import { formatError, pinPost } from "@/api/operations";
 import { Community, Entry } from "@/entities";
 import { isCommunity } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 
 export function useCommunityPinCache(entry: Entry) {
+  const dataLimit = useDataLimit();
   const { data: rankedPosts } = useQuery({
-    queryKey: [QueryIdentifiers.COMMUNITY_RANKED_POSTS, entry.category],
-    queryFn: () =>
+    ...getPostsRankedQueryOptions(
+      "created",
+      "",
+      "",
+      dataLimit,
+      entry.category,
+      "",
       isCommunity(entry.category)
-        ? getPostsRanked("created", "", "", dataLimit, entry.category)
-        : null,
-    initialData: null
+    )
   });
 
   return useQuery({
@@ -31,7 +36,7 @@ export function useCommunityPinCache(entry: Entry) {
 }
 
 export function useCommunityPin(entry: Entry, community: Community | null | undefined) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({

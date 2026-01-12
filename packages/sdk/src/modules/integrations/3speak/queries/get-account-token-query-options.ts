@@ -2,12 +2,15 @@ import { queryOptions } from "@tanstack/react-query";
 import { HiveSignerIntegration } from "../../hivesigner";
 import { getBoundFetch, getQueryClient } from "@/modules/core";
 
-export function getAccountTokenQueryOptions(username: string | undefined) {
+export function getAccountTokenQueryOptions(
+  username: string | undefined,
+  accessToken: string | undefined
+) {
   return queryOptions({
     queryKey: ["integrations", "3speak", "authenticate", username],
-    enabled: !!username,
+    enabled: !!username && !!accessToken,
     queryFn: async () => {
-      if (!username) {
+      if (!username || !accessToken) {
         throw new Error("[SDK][Integrations][3Speak] – anon user");
       }
 
@@ -24,7 +27,8 @@ export function getAccountTokenQueryOptions(username: string | undefined) {
       const memoQueryOptions =
         HiveSignerIntegration.queries.getDecodeMemoQueryOptions(
           username,
-          (await response.json()).memo
+          (await response.json()).memo,
+          accessToken
         );
       await getQueryClient().prefetchQuery(memoQueryOptions);
       const { memoDecoded } = getQueryClient().getQueryData(

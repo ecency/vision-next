@@ -21,14 +21,12 @@ it("(1) Default render", () => {
             location: "New York",
             cover_image: "https://www.imgur.com/cover-image.jpg",
             profile_image: "https://www.imgur.com/profile-image.jpg"
-          },
-          __loaded: true
+          }
         }
       }
     },
 
     addAccount: () => {},
-    updateActiveUser: () => {},
     onHide: () => {}
   };
 

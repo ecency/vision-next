@@ -52,18 +52,20 @@
   }
 
   .voted-by-voter {
-    @include themify(day) {
-      @apply bg-blue-faded;
+    @apply bg-blue-faded dark:bg-tundora;
+
+    td {
+      @apply bg-blue-faded dark:bg-tundora;
     }
 
-    @include themify(night) {
-      @apply bg-tundora;
+    .witnesses-card {
+      @apply bg-blue-faded dark:bg-tundora;
     }
   }
 
   .witnesses-table {
     margin-bottom: 20px;
-    
+
     table {
       min-width: 840px;
 

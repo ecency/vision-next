@@ -1,7 +1,17 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "1.4.22",
+  "version": "1.5.15",
+  "description": "Ecency wallets",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ecency/vision-next.git",
+    "directory": "packages/wallets"
+  },
+  "homepage": "https://github.com/ecency/vision-next/tree/develop/packages/wallets",
+  "bugs": {
+    "url": "https://github.com/ecency/vision-next/issues"
+  },
   "type": "module",
   "license": "MIT",
   "files": [
@@ -56,10 +66,12 @@
     "bip39": "^3.1.0",
     "dayjs": "^1.11.10",
     "lru-cache": "^11.0.2",
+    "numeral": "^2.0.6",
     "remeda": "^2.30.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
+    "@types/numeral": "^2.0.5",
     "eslint": "^9.21.0",
     "prettier": "^3.5.2",
     "tsup": "^8",
@@ -69,10 +81,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ecency/vision-next.git",
-    "directory": "packages/wallets"
   }
 }

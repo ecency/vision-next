@@ -1,4 +1,4 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button, StyledTooltip } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function ManageKey({ keyName }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),
@@ -40,7 +40,7 @@ export function ManageKey({ keyName }: Props) {
 
   return (
     <>
-      <div className="bg-gray-100 dark:bg-gray-100/5 border border-[--border-color] rounded-lg flex flex-col">
+      <div className="bg-gray-100 dark:bg-dark-200 border border-[--border-color] rounded-lg flex flex-col text-gray-900 dark:text-white">
         <div className="text-xs opacity-50 uppercase p-2">
           {i18next.t(`manage-authorities.${keyName}`)}
         </div>
@@ -77,7 +77,7 @@ export function ManageKey({ keyName }: Props) {
                       appearance="gray-link"
                       size="sm"
                       icon={<UilCopy />}
-                      onClick={() => copy(keys[keyName])}
+                      onClick={() => copy(keys[key[0]])}
                     />
                   )}
                   {!keys[key[0]] && (

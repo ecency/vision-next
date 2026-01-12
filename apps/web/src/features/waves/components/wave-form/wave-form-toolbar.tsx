@@ -11,19 +11,25 @@ interface Props {
   onAddVideo: (value: string) => void;
   submit?: ReactNode;
   isEdit?: boolean;
+  disabled?: boolean;
 }
 
-export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit }: Props) => {
+export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disabled }: Props) => {
   const { activePoll, setActivePoll, clearActivePoll } = useContext(PollsContext);
   const [show, setShow] = useState(false);
 
   return (
     <div className="flex items-center justify-between py-4">
       <div className="flex items-center">
-        <WaveFormToolbarImagePicker onAddImage={onAddImage} />
-        <WaveFormEmojiPicker onPick={onEmojiPick} />
+        <WaveFormToolbarImagePicker onAddImage={onAddImage} disabled={disabled} />
+        <WaveFormEmojiPicker onPick={onEmojiPick} disabled={disabled} />
         {!isEdit && (
-          <Button appearance="gray-link" icon={<UilChart />} onClick={() => setShow(true)} />
+          <Button
+            appearance="gray-link"
+            icon={<UilChart />}
+            onClick={() => setShow(true)}
+            disabled={disabled}
+          />
         )}
         <PollsCreation
           existingPoll={activePoll}

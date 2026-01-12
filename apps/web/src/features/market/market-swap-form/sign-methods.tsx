@@ -1,24 +1,24 @@
 import {
-  MarketSwappingMethods,
+  getMarketSwappingMethods,
   swapByHs,
   swapByKc,
   swapByKey,
   SwappingMethod
 } from "./api/swapping";
 import React, { useState } from "react";
-import { MarketAsset } from "./market-pair";
+import { HiveMarketAsset, MarketAsset, isEnginePair, isHiveMarketAsset } from "./market-pair";
 import { SignByKey } from "./sign-by-key";
 import { PrivateKey } from "@hiveio/dhive";
 import { HiveMarket } from "./api/hive";
+import { EngineMarket } from "./api/engine";
 import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
-import { getAccountFull } from "@/api/hive";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import i18next from "i18next";
 import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export interface Props {
   disabled: boolean;
@@ -26,7 +26,9 @@ export interface Props {
   toAmount: string;
   marketRate: number;
   asset: MarketAsset;
+  toAsset: MarketAsset;
   loading: boolean;
+  engineTokenPrecision?: number;
   setLoading: (value: boolean) => void;
   onSuccess: () => void;
 }
@@ -36,12 +38,13 @@ export const SignMethods = ({
   fromAmount,
   toAmount,
   asset,
+  toAsset,
   loading,
   setLoading,
+  engineTokenPrecision,
   onSuccess
 }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
-  const updateActiveUser = useGlobalStore((s) => s.updateActiveUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
   const activeUsername = activeUser?.username;
 
@@ -49,12 +52,33 @@ export const SignMethods = ({
   const [isSignByKeyLoading, setIsSignByKeyLoading] = useState(false);
   const [isSignByHsLoading, setIsSignByHsLoading] = useState(false);
 
-  const onSwapByHs = () => {
+  const onSwapByHs = async () => {
+    if (isEnginePair(asset, toAsset)) {
+      setIsSignByHsLoading(true);
+      try {
+        await swapAction((updatedToAmount) =>
+          swapByHs({
+            activeUser,
+            fromAsset: asset,
+            toAsset,
+            fromAmount,
+            toAmount: updatedToAmount,
+            engineTokenPrecision
+          })
+        );
+      } finally {
+        setIsSignByHsLoading(false);
+      }
+      return;
+    }
+
     swapByHs({
       activeUser,
       fromAsset: asset,
+      toAsset,
       fromAmount,
-      toAmount
+      toAmount,
+      engineTokenPrecision
     });
   };
 
@@ -65,8 +89,10 @@ export const SignMethods = ({
         swapByKey(key, {
           activeUser,
           fromAsset: asset,
+          toAsset,
           fromAmount,
-          toAmount
+          toAmount,
+          engineTokenPrecision
         })
       );
     } finally {
@@ -81,8 +107,10 @@ export const SignMethods = ({
         swapByKc({
           activeUser,
           fromAsset: asset,
+          toAsset,
           fromAmount,
-          toAmount
+          toAmount,
+          engineTokenPrecision
         })
       );
     } finally {
@@ -93,10 +121,15 @@ export const SignMethods = ({
   const swapAction = async (action: (toAmount: string) => Promise<any>) => {
     setLoading(true);
     try {
-      const amount = await HiveMarket.getNewAmount(toAmount, fromAmount, asset);
+      let amount = toAmount;
+
+      if (isEnginePair(asset, toAsset)) {
+        amount = await EngineMarket.getNewAmount(toAmount, fromAmount, asset, toAsset, engineTokenPrecision);
+      } else if (isHiveMarketAsset(asset)) {
+        amount = await HiveMarket.getNewAmount(toAmount, fromAmount, asset as HiveMarketAsset);
+      }
+
       await action(amount);
-      const account = await getAccountFull(activeUser!.username);
-      await updateActiveUser(account);
       invalidateWalletQueries(queryClient, activeUsername);
       onSuccess();
     } catch (e) {
@@ -116,7 +149,7 @@ export const SignMethods = ({
         />
       ) : (
         <>
-          {MarketSwappingMethods[asset].includes(SwappingMethod.KEY) ? (
+          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.KEY) ? (
             <Button
               disabled={disabled}
               outline={true}
@@ -128,7 +161,7 @@ export const SignMethods = ({
           ) : (
             <></>
           )}
-          {MarketSwappingMethods[asset].includes(SwappingMethod.HS) ? (
+          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.HS) ? (
             <Button disabled={disabled} className="w-full mt-4 hs-button" onClick={onSwapByHs}>
               <i className="sign-logo mr-3">{hsLogoSvg}</i>
               {i18next.t("market.swap-by", { method: "Hivesigner" })}
@@ -136,7 +169,7 @@ export const SignMethods = ({
           ) : (
             <></>
           )}
-          {MarketSwappingMethods[asset].includes(SwappingMethod.KC) ? (
+          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.KC) ? (
             <Button disabled={disabled} className="w-full mt-4 kc-button" onClick={onSwapByKc}>
               <i className="sign-logo mr-3">{kcLogoSvg}</i>
               {isSignByHsLoading

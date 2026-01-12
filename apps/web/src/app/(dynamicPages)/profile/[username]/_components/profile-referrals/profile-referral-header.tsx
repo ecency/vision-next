@@ -5,7 +5,8 @@ import { shareVariantSvg } from "@ui/svg";
 import { Tsx } from "@/features/i18n/helper";
 import { success } from "@/features/shared";
 import { Account } from "@/entities";
-import { getReferralsStatsQuery } from "@/api/queries";
+import { getReferralsStatsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@ui/badge";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export function ProfileReferralHeader({ account }: Props) {
-  const { data: stats } = getReferralsStatsQuery(account.name).useClientQuery();
+  const { data: stats } = useQuery(getReferralsStatsQueryOptions(account.name));
 
   const { earnedPoints, unearnedPoints } = useMemo(() => {
     const earnedPoints = (stats?.rewarded ?? 0) * 100;

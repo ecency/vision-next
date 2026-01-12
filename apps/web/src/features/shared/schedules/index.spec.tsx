@@ -16,81 +16,81 @@ import { withStore } from "../../tests/with-store";
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/private-api", () => ({
-  getSchedules: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve([]);
-      }
+jest.mock("@ecency/sdk", () => ({
+  getSchedulesQueryOptions: () => ({
+    queryKey: ["schedules"],
+    queryFn: () =>
+      new Promise((resolve) => {
+        if (TEST_MODE === 0) {
+          resolve([]);
+        }
 
-      if (TEST_MODE === 1) {
-        resolve([
-          {
-            _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108774",
-            username: "foo",
-            permlink: "eget-suscipit-quam-suspendisse",
-            title: "Eget suscipit quam suspendisse",
-            body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
-            tags: "hive-125125 ecency",
-            tags_arr: ["hive-125125", "ecency"],
-            schedule: "2020-12-28T19:00:00+00:00",
-            original_schedule: "2020-12-28T19:00:00+00:00",
-            reblog: true,
-            status: 1,
-            message: null
-          },
-          {
-            _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108775",
-            username: "foo",
-            permlink: "eget-suscipit-quam-suspendisse",
-            title: "Eget suscipit quam suspendisse",
-            body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
-            tags: "hive-125125 ecency",
-            tags_arr: ["hive-125125", "ecency", "test"],
-            schedule: "2020-11-28T19:00:00+00:00",
-            original_schedule: "2020-11-28T19:00:00+00:00",
-            reblog: false,
-            status: 3,
-            message: "tx0000000"
-          },
-          {
-            _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108776",
-            username: "foo",
-            permlink: "eget-suscipit-quam-suspendisse",
-            title: "Eget suscipit quam suspendisse",
-            body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
-            tags: "hive-125125 ecency",
-            tags_arr: ["hive-125125", "ecency", "test"],
-            schedule: "2020-11-28T19:00:00+00:00",
-            original_schedule: "2020-11-28T19:00:00+00:00",
-            reblog: false,
-            status: 2,
-            message: "Rescheduled (Not enough RC)"
-          },
-          {
-            _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108777",
-            username: "foo",
-            permlink: "eget-suscipit-quam-suspendisse",
-            title: "Eget suscipit quam suspendisse",
-            body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
-            tags: "hive-125125 ecency",
-            tags_arr: ["hive-125125", "ecency", "test"],
-            schedule: "2020-11-28T19:00:00+00:00",
-            original_schedule: "2020-11-28T19:00:00+00:00",
-            reblog: false,
-            status: 4,
-            message: "missing required posting authority"
-          }
-        ]);
-      }
-    })
-}));
-
-jest.mock("../../api/bridge", () => ({
-  getCommunity: () =>
-    new Promise((resolve) => {
-      resolve(communityInstance1);
-    })
+        if (TEST_MODE === 1) {
+          resolve([
+            {
+              _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108774",
+              username: "foo",
+              permlink: "eget-suscipit-quam-suspendisse",
+              title: "Eget suscipit quam suspendisse",
+              body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
+              tags: "hive-125125 ecency",
+              tags_arr: ["hive-125125", "ecency"],
+              schedule: "2020-12-28T19:00:00+00:00",
+              original_schedule: "2020-12-28T19:00:00+00:00",
+              reblog: true,
+              status: 1,
+              message: null
+            },
+            {
+              _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108775",
+              username: "foo",
+              permlink: "eget-suscipit-quam-suspendisse",
+              title: "Eget suscipit quam suspendisse",
+              body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
+              tags: "hive-125125 ecency",
+              tags_arr: ["hive-125125", "ecency", "test"],
+              schedule: "2020-11-28T19:00:00+00:00",
+              original_schedule: "2020-11-28T19:00:00+00:00",
+              reblog: false,
+              status: 3,
+              message: "tx0000000"
+            },
+            {
+              _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108776",
+              username: "foo",
+              permlink: "eget-suscipit-quam-suspendisse",
+              title: "Eget suscipit quam suspendisse",
+              body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
+              tags: "hive-125125 ecency",
+              tags_arr: ["hive-125125", "ecency", "test"],
+              schedule: "2020-11-28T19:00:00+00:00",
+              original_schedule: "2020-11-28T19:00:00+00:00",
+              reblog: false,
+              status: 2,
+              message: "Rescheduled (Not enough RC)"
+            },
+            {
+              _id: "0f4cdce5-7fbe-467d-bdb4-0e600b108777",
+              username: "foo",
+              permlink: "eget-suscipit-quam-suspendisse",
+              title: "Eget suscipit quam suspendisse",
+              body: "Aliquam erat volutpat. Phasellus eget suscipit quam. Suspendisse et sapien ac tellus rhoncus pulvinar vitae id leo.",
+              tags: "hive-125125 ecency",
+              tags_arr: ["hive-125125", "ecency", "test"],
+              schedule: "2020-11-28T19:00:00+00:00",
+              original_schedule: "2020-11-28T19:00:00+00:00",
+              reblog: false,
+              status: 4,
+              message: "missing required posting authority"
+            }
+          ]);
+        }
+      })
+  }),
+  getCommunityQueryOptions: () => ({
+    queryKey: ["community", "single"],
+    queryFn: () => Promise.resolve(communityInstance1)
+  })
 }));
 
 jest.mock("@/utils/dayjs", () => ({

@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
-import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@ecency/sdk";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
@@ -12,7 +12,7 @@ import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
 import { UilInfo, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountRcQueryOptions } from "@ecency/sdk";
+import { getAccountRcQueryOptions, getDynamicPropsQueryOptions, getAccountFullQueryOptions } from "@ecency/sdk";
 import { Button } from "@/features/ui";
 
 interface ContentProps {
@@ -21,7 +21,7 @@ interface ContentProps {
 }
 
 function ProfileInfoContent({ account, rcAccount }: ContentProps) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   // Voting power
   const vPower = votingPower(account);
@@ -104,12 +104,50 @@ interface Props {
   account: Account;
 }
 
-function isFullAccount(account: Account): account is FullAccount {
-  return Boolean((account as FullAccount)?.__loaded);
+function isFullAccount(account?: Account | null): account is FullAccount {
+  if (!account) {
+    return false;
+  }
+
+  return (
+    account.post_count !== undefined &&
+    account.last_vote_time !== undefined &&
+    account.vesting_shares !== undefined &&
+    account.savings_balance !== undefined
+  );
 }
 
 export function ProfileInfo({ account }: Props) {
-  const hasFullAccount = isFullAccount(account);
+  const accountQuery = useQuery(getAccountFullQueryOptions(account?.name));
+
+  const hydratedAccount = accountQuery.data ?? undefined;
+
+  const refetchAttempted = useRef(false);
+
+  useEffect(() => {
+    refetchAttempted.current = false;
+  }, [account?.name]);
+
+  const resolvedAccount = useMemo(() => {
+    return isFullAccount(account) ? account : isFullAccount(hydratedAccount) ? hydratedAccount : undefined;
+  }, [account, hydratedAccount]);
+
+  const hasFullAccount = Boolean(resolvedAccount);
+  const isAccountLoading = !hasFullAccount && (accountQuery.isLoading || accountQuery.isFetching);
+
+  useEffect(() => {
+    if (
+      !hasFullAccount &&
+      !refetchAttempted.current &&
+      !accountQuery.isLoading &&
+      !accountQuery.isFetching &&
+      account?.name
+    ) {
+      refetchAttempted.current = true;
+      accountQuery.refetch();
+    }
+  }, [account?.name, accountQuery, hasFullAccount]);
+
   const { data } = useQuery({
     ...getAccountRcQueryOptions(account.name),
     enabled: hasFullAccount,
@@ -119,15 +157,24 @@ export function ProfileInfo({ account }: Props) {
   return (
     <StyledTooltip
       content={
-        hasFullAccount ? (
-          <ProfileInfoContent account={account} rcAccount={rcAccount} />
+        hasFullAccount && resolvedAccount ? (
+          <ProfileInfoContent account={resolvedAccount} rcAccount={rcAccount} />
         ) : (
           <></>
         )
       }
     >
       <Button
-        isLoading={!hasFullAccount}
+        isLoading={isAccountLoading}
+        data-loading-reason={
+          hasFullAccount
+            ? undefined
+            : accountQuery.isLoading
+              ? "fetching-account"
+              : accountQuery.isFetching
+                ? "refetching-account"
+                : "missing-full-account"
+        }
         icon={<UilInfoCircle width={20} height={20} />}
         size="xs"
         appearance="gray"

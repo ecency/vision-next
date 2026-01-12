@@ -1,6 +1,6 @@
 import { HiveMarket } from "./hive-market-rate-listener";
-import { MarketAsset } from "../../market-pair";
-import { OrdersDataItem } from "../../../../api/hive";
+import { HiveMarketAsset } from "../../market-pair";
+import { OrdersDataItem } from "@ecency/sdk";
 
 describe("HiveMarketRateListener", function () {
   it("should return empty order data", function () {
@@ -10,7 +10,7 @@ describe("HiveMarketRateListener", function () {
       buyOrderBook,
       sellOrderBook,
       "100",
-      MarketAsset.HBD
+      HiveMarketAsset.HBD
     );
     expect(emptyOrderBook).toBeTruthy();
   });
@@ -64,7 +64,7 @@ describe("HiveMarketRateListener", function () {
       buyOrderBook,
       sellOrderBook,
       "100",
-      MarketAsset.HIVE
+      HiveMarketAsset.HIVE
     );
     expect(Number(toAmount).toFixed(0)).toBe((110).toFixed(0));
     expect(tooMuchSlippage).toBeFalsy();
@@ -119,7 +119,7 @@ describe("HiveMarketRateListener", function () {
       buyOrderBook,
       sellOrderBook,
       "100",
-      MarketAsset.HIVE
+      HiveMarketAsset.HIVE
     );
     expect(tooMuchSlippage).toBeFalsy();
   });
@@ -173,7 +173,7 @@ describe("HiveMarketRateListener", function () {
       sellOrderBook,
       buyOrderBook,
       "1000",
-      MarketAsset.HIVE
+      HiveMarketAsset.HIVE
     );
     expect(invalidAmount).toBeTruthy();
   });
@@ -227,7 +227,7 @@ describe("HiveMarketRateListener", function () {
       buyOrderBook,
       sellOrderBook,
       "100",
-      MarketAsset.HBD
+      HiveMarketAsset.HBD
     );
     expect(toAmount).toBe("90.9090909090909");
     expect(tooMuchSlippage).toBeFalsy();
@@ -282,7 +282,7 @@ describe("HiveMarketRateListener", function () {
       buyOrderBook,
       sellOrderBook,
       "100",
-      MarketAsset.HIVE
+      HiveMarketAsset.HIVE
     );
     expect(tooMuchSlippage).toBeFalsy();
   });
@@ -336,7 +336,7 @@ describe("HiveMarketRateListener", function () {
       sellOrderBook,
       buyOrderBook,
       "1000",
-      MarketAsset.HIVE
+      HiveMarketAsset.HIVE
     );
     expect(invalidAmount).toBeTruthy();
   });

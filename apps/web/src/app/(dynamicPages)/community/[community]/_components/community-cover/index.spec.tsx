@@ -14,15 +14,8 @@ import {
   fullAccountInstance
 } from "../../helper/test-helper";
 
-jest.mock("../../constants/defaults.json", () => ({
+jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
-}));
-
-jest.mock("../../api/hive", () => ({
-  getFollowing: () =>
-    new Promise((resolve) => {
-      resolve([]);
-    })
 }));
 
 const defProps = {

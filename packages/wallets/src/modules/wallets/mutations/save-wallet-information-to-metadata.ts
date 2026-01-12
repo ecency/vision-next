@@ -2,6 +2,7 @@ import {
   AccountProfile,
   getAccountFullQueryOptions,
   useAccountUpdate,
+  type AuthContext,
 } from "@ecency/sdk";
 import {
   useMutation,
@@ -64,12 +65,13 @@ type SaveWalletInformationOptions = Pick<
 
 export function useSaveWalletInformationToMetadata(
   username: string,
+  auth?: AuthContext,
   options?: SaveWalletInformationOptions
 ) {
   const queryClient = useQueryClient();
 
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateProfile } = useAccountUpdate(username);
+  const { mutateAsync: updateProfile } = useAccountUpdate(username, auth);
 
   return useMutation({
     mutationKey: [

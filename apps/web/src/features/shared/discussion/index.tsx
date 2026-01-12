@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { getDiscussionsQuery, getBotsQuery, useClientActiveUser } from "@/api/queries";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { getBotsQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { DiscussionList } from "./discussion-list";
-import usePrevious from "react-use/lib/usePrevious";
 import { DiscussionBots } from "./discussion-bots";
 import { Community, Entry } from "@/entities";
 import { commentSvg } from "@ui/svg";
@@ -14,7 +15,7 @@ import { LinearProgress, LoginRequired } from "@/features/shared";
 import { SortOrder } from "@/enums";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { UilComment } from "@tooni/iconscout-unicons-react";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 
@@ -29,19 +30,29 @@ interface Props {
 }
 
 export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [order, setOrder] = useState(SortOrder.created);
-  const previousIsRawContent = usePrevious(isRawContent);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const processedCommentsRef = useRef<Set<string>>(new Set());
+  const parentIdRef = useRef(`${parent.author}/${parent.permlink}`);
 
-  const { data: allComments = [], isLoading } = getDiscussionsQuery(
+  // Clear processed comments when parent changes
+  const currentParentId = `${parent.author}/${parent.permlink}`;
+  if (parentIdRef.current !== currentParentId) {
+    processedCommentsRef.current.clear();
+    parentIdRef.current = currentParentId;
+  }
+
+  const { data: allComments = [], isLoading } = useQuery(
+    getDiscussionsQueryOptions(
       parent,
-      order,
+      order as unknown as SDKSortOrder,
       true,
       activeUser?.username
-  ).useClientQuery();
+    )
+  );
 
-  const { data: botsList } = getBotsQuery().useClientQuery();
+  const { data: botsList } = useQuery(getBotsQueryOptions());
 
   const topLevelComments = useMemo(
       () =>
@@ -67,12 +78,27 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
   );
 
   useEffect(() => {
-    updateEntryQueryData(allComments);
-  }, [allComments]);
+    // Only update cache for new comments we haven't processed yet
+    const newComments = allComments.filter((comment) => {
+      const id = `${comment.author}/${comment.permlink}`;
+      return !processedCommentsRef.current.has(id);
+    });
+
+    if (newComments.length > 0) {
+      updateEntryQueryData(newComments);
+      // Track processed comments
+      newComments.forEach((comment) => {
+        processedCommentsRef.current.add(`${comment.author}/${comment.permlink}`);
+      });
+    }
+  }, [allComments, updateEntryQueryData]);
 
   useEffect(() => {
     onTopLevelCommentsChange?.(topLevelComments.length > 0);
-  }, [topLevelComments]);
+    // Intentionally omitting onTopLevelCommentsChange from deps to avoid infinite loops
+    // when parent doesn't memoize the callback. We only want to trigger when count changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topLevelComments.length]);
 
   if (isLoading) {
     return (

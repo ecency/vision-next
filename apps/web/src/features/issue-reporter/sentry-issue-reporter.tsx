@@ -1,8 +1,9 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { useCallback, useState } from "react";
 import * as Sentry from "@sentry/nextjs";
-import { useGlobalStore } from "@/core/global-store";
 import { usePathname } from "next/navigation";
 import { Form } from "@ui/form";
 import { FormControl } from "@ui/input";
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export function SentryIssueReporter({ error, onHide }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const pathname = usePathname();
 

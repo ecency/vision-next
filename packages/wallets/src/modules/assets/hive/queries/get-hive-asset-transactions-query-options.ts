@@ -66,12 +66,27 @@ export function resolveHiveOperationFilters(
     });
   }
 
-  const filterArgs = utils.makeBitMaskFilter(Array.from(operationIds));
+  const filterArgs = makeBitMaskFilter(Array.from(operationIds));
 
   return {
     filterKey,
     filterArgs,
   };
+}
+
+function makeBitMaskFilter(allowedOperations: number[]) {
+  let low = 0n;
+  let high = 0n;
+
+  allowedOperations.forEach((operation) => {
+    if (operation < 64) {
+      low |= 1n << BigInt(operation);
+    } else {
+      high |= 1n << BigInt(operation - 64);
+    }
+  });
+
+  return [low !== 0n ? low.toString() : null, high !== 0n ? high.toString() : null];
 }
 
 export function getHiveAssetTransactionsQueryOptions(
@@ -121,6 +136,9 @@ export function getHiveAssetTransactionsQueryOptions(
             case "recurrent_transfer":
               return parseAsset(item.amount).symbol === "HIVE";
 
+            case "transfer_from_savings" as HiveOperationName:
+              return parseAsset((item as any).amount).symbol === "HIVE";
+
             case "fill_recurrent_transfer":
               const asset = parseAsset(item.amount);
               return ["HIVE"].includes(asset.symbol);
@@ -131,18 +149,16 @@ export function getHiveAssetTransactionsQueryOptions(
               );
               return rewardHive.amount > 0;
 
+            case "curation_reward":
             case "cancel_transfer_from_savings":
             case "fill_order":
             case "limit_order_create":
             case "limit_order_cancel":
-            case "interest":
             case "fill_convert_request":
             case "fill_collateralized_convert_request":
-            case "proposal_pay":
-            case "update_proposal_votes":
-            case "comment_payout_update":
-            case "collateralized_convert":
-            case "account_witness_proxy":
+              return true;
+
+            case "limit_order_create2" as HiveOperationName:
               return true;
             default:
               return false;

@@ -1,6 +1,7 @@
 import { ThreeSpeakVideo } from "@ecency/sdk";
 import {
   HIVE_POST_PURE_REGEX,
+  LOOM_REGEX,
   TAG_MENTION_PURE_REGEX,
   USER_MENTION_PURE_REGEX,
   YOUTUBE_REGEX
@@ -61,12 +62,43 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       }
     });
 
+  // Handle Loom videos
+  (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
+    .filter((el) => {
+      const href = el.getAttribute("href") ?? "";
+      LOOM_REGEX.lastIndex = 0;
+      return LOOM_REGEX.test(href);
+    })
+    .forEach((el) => {
+      const image = el.querySelector("img");
+      const href = el.getAttribute("href") ?? "";
+      const id = href.match(LOOM_REGEX)?.[2] ?? "";
+      const newEl = document.createElement("div");
+      newEl.dataset.loomVideo = "";
+      newEl.setAttribute("src", href);
+      newEl.setAttribute(
+        "thumbnail",
+        image?.getAttribute("src") ?? (id ? `https://img.loom.com/vi/${id}/0.jpg` : "")
+      );
+
+      const parent = el.parentElement;
+      if (parent?.tagName === "CENTER") {
+        newEl.style.textAlign = "center";
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else if (parent && parent.style.textAlign) {
+        newEl.style.textAlign = parent.style.textAlign;
+        parent.parentElement?.replaceChild(newEl, parent);
+      } else {
+        el.parentElement?.replaceChild(newEl, el);
+      }
+    });
+
   // Handle hive posts
   (Array.from(tree.querySelectorAll("a[href]").values()) as HTMLElement[])
     .filter((el) => {
-        const href = el.getAttribute("href") ?? "";
-        HIVE_POST_PURE_REGEX.lastIndex = 0;
-        return HIVE_POST_PURE_REGEX.test(href) && el.innerText.trim() === href;
+      const href = el.getAttribute("href") ?? "";
+      HIVE_POST_PURE_REGEX.lastIndex = 0;
+      return HIVE_POST_PURE_REGEX.test(href) && el.innerText.trim() === href;
     })
     .forEach((el) => {
       const newEl = document.createElement("div");
@@ -99,16 +131,16 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
     });
 
   // Handle image alignment wrappers
-  (Array.from(
-    tree.querySelectorAll("div.pull-left, div.pull-right")
-  ) as HTMLElement[]).forEach((el) => {
-    const img = el.querySelector("img");
-    if (img) {
-      const cls = el.classList.contains("pull-left") ? "pull-left" : "pull-right";
-      img.setAttribute("class", cls);
-      el.parentElement?.replaceChild(img, el);
+  (Array.from(tree.querySelectorAll("div.pull-left, div.pull-right")) as HTMLElement[]).forEach(
+    (el) => {
+      const img = el.querySelector("img");
+      if (img) {
+        const cls = el.classList.contains("pull-left") ? "pull-left" : "pull-right";
+        img.setAttribute("class", cls);
+        el.parentElement?.replaceChild(img, el);
+      }
     }
-  });
+  );
 
   (Array.from(tree.querySelectorAll("center")) as HTMLElement[]).forEach((el) => {
     const img = el.querySelector("img");

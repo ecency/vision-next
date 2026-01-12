@@ -48,6 +48,7 @@ export const ICONS: Record<string, any> = {
     follows: followsIconSvg,
     replies: repliesIconSvg,
     reblogs: reblogsIconSvg,
+    payouts: payoutsIconSvg,
     transfers: transfersIconSvg,
     delegations: delegationsIconSvg
   },

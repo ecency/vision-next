@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button, FormControl } from "@/features/ui";
 import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
@@ -31,7 +31,7 @@ const OPTIONS = [
 }));
 
 export function PointsTokenPage() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { username } = useParams();
 
   const [type, setType] = useState<"all" | PointTransactionType>("all");

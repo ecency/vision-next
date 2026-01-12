@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { getSpkMarkets } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { SpkMarkets, TransformedSpkMarkets } from "../../types";
 
@@ -8,8 +8,7 @@ export function getSpkMarketsQueryOptions() {
     staleTime: 60000,
     refetchInterval: 90000,
     queryFn: async () => {
-      const response = await fetch(`${CONFIG.spkNode}/markets`);
-      const data = (await response.json()) as SpkMarkets;
+      const data = await getSpkMarkets<SpkMarkets>();
 
       return {
         list: Object.entries(data.markets.node).map(([name, node]) => ({

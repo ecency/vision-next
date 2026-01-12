@@ -33,6 +33,10 @@ export function VideoUploadRecorder({
   const [currentCamera, setCurrentCamera] = useState<MediaDeviceInfo>();
 
   const ref = useRef<HTMLVideoElement | null>(null);
+  const recordedVideoUrlRef = useRef<string>();
+  const selectedFileUrlRef = useRef<string>();
+  const dataAvailableHandlerRef = useRef<((event: BlobEvent) => void) | null>(null);
+  const previousMediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const {
     mutateAsync: uploadVideo,
@@ -45,6 +49,17 @@ export function VideoUploadRecorder({
 
   useUnmount(() => {
     stream?.getTracks().forEach((track) => track.stop());
+    // Clean up blob URLs
+    if (recordedVideoUrlRef.current) {
+      URL.revokeObjectURL(recordedVideoUrlRef.current);
+    }
+    if (selectedFileUrlRef.current) {
+      URL.revokeObjectURL(selectedFileUrlRef.current);
+    }
+    // Remove event listener
+    if (mediaRecorder && dataAvailableHandlerRef.current) {
+      mediaRecorder.removeEventListener("dataavailable", dataAvailableHandlerRef.current);
+    }
   });
 
   useEffect(() => {
@@ -58,6 +73,12 @@ export function VideoUploadRecorder({
       setNoPermission(false);
 
       try {
+        // Clean up old blob URL before creating new one
+        if (recordedVideoUrlRef.current) {
+          URL.revokeObjectURL(recordedVideoUrlRef.current);
+          recordedVideoUrlRef.current = undefined;
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
           video: currentCamera ? { deviceId: currentCamera.deviceId } : true,
           audio: true
@@ -66,16 +87,28 @@ export function VideoUploadRecorder({
           mimeType
         });
 
-        setMediaRecorder(mediaRecorder);
-        setStream(stream);
+        // Remove old event listener from previous MediaRecorder if it exists
+        if (previousMediaRecorderRef.current && dataAvailableHandlerRef.current) {
+          previousMediaRecorderRef.current.removeEventListener("dataavailable", dataAvailableHandlerRef.current);
+        }
 
-        mediaRecorder.addEventListener("dataavailable", (event) => {
+        // Create new event handler
+        const dataAvailableHandler = (event: BlobEvent) => {
           if (event.data.size > 0) {
-            setRecordedVideoSrc(URL.createObjectURL(event.data));
+            const blobUrl = URL.createObjectURL(event.data);
+            recordedVideoUrlRef.current = blobUrl;
+            setRecordedVideoSrc(blobUrl);
             setRecordedBlob(event.data);
             stream.getTracks().forEach((track) => track.stop());
           }
-        });
+        };
+
+        dataAvailableHandlerRef.current = dataAvailableHandler;
+        mediaRecorder.addEventListener("dataavailable", dataAvailableHandler);
+
+        previousMediaRecorderRef.current = mediaRecorder;
+        setMediaRecorder(mediaRecorder);
+        setStream(stream);
       } catch (e) {
         setNoPermission(true);
         throw e;
@@ -165,7 +198,13 @@ export function VideoUploadRecorder({
                         setVideoUrl(result.fileUrl);
                         setFilevName(result.fileName);
                         setFilevSize(result.fileSize);
-                        setSelectedFile(URL.createObjectURL(file));
+                        // Clean up old selected file URL before creating new one
+                        if (selectedFileUrlRef.current) {
+                          URL.revokeObjectURL(selectedFileUrlRef.current);
+                        }
+                        const fileUrl = URL.createObjectURL(file);
+                        selectedFileUrlRef.current = fileUrl;
+                        setSelectedFile(fileUrl);
                       }
                     } catch (e) {
                       error(...formatError(e));

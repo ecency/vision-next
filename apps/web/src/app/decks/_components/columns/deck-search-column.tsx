@@ -9,7 +9,7 @@ import { DeckSearchColumnSettings } from "./deck-column-settings/deck-search-col
 import dayjs, { Dayjs } from "@/utils/dayjs";
 import { DateOpt } from "../consts";
 import usePrevious from "react-use/lib/usePrevious";
-import { search } from "@/api/search-api";
+import { search } from "@ecency/sdk";
 import i18next from "i18next";
 import { Entry, SearchResult } from "@/entities";
 import useMount from "react-use/lib/useMount";

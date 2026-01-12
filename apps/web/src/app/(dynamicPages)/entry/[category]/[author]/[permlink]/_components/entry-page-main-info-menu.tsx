@@ -1,9 +1,10 @@
 "use client";
 
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+
 import { Entry } from "@/entities";
 import i18next from "i18next";
 import { EntryDeleteBtn, EntryMenu } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
 import { useContext, useMemo } from "react";
 import { deleteForeverSvg, pencilOutlineSvg } from "@ui/svg";
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export function EntryPageMainInfoMenu({ entry }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const router = useRouter();
   const { setLoading } = useContext(EntryPageContext);

@@ -2,10 +2,11 @@
 
 import htmlParse from "html-react-parser";
 import "./_index.scss";
+import "@/styles/static-pages.scss"; // Page-specific styles for LCP optimization
 import { FormEvent, useRef, useState } from "react";
 import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";
-import { subscribeEmail } from "@/api/private-api";
+import { subscribeEmail } from "@ecency/sdk";
 import { error, LinearProgress, success } from "@/features/shared";
 import i18next from "i18next";
 import Link from "next/link";
@@ -13,7 +14,7 @@ import { scrollDown } from "@ui/svg";
 import { handleInvalid, handleOnInput } from "@/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 export function LandingPage() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export function LandingPage() {
     setLoading(true);
     try {
       const response = await subscribeEmail(email);
-      if (200 == response?.status) {
+      if (response?.status === 200) {
         success(i18next.t("landing-page.success-message-subscribe"));
       }
     } catch (err) {
@@ -124,6 +125,8 @@ export function LandingPage() {
               width={373}
               height={442}
               priority
+              fetchPriority="high"
+              sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
               className="mx-auto sm:m-0"
             />
             <div className="text-group visible">
@@ -149,11 +152,14 @@ export function LandingPage() {
               <p className="mt-2 w-88">{i18next.t("landing-page.true-ownership-desc")}</p>
             </div>
             <div className="image-wrapper">
-              <img
+              <Image
                 className="landing-floating-image"
                 src={WhaleCatchsFish}
                 alt="whale"
+                width={577}
+                height={446}
                 loading="lazy"
+                sizes="(max-width: 768px) 342px, (max-width: 1024px) 499px, 577px"
               />
             </div>
           </div>
@@ -164,11 +170,14 @@ export function LandingPage() {
         <div className="part-top sm:pt-5 lg:pt-0">
           <div className="inner">
             <div className="img-wrapper">
-              <img
+              <Image
                 className="decentralization-img"
                 src={Decentralization}
                 alt="decentralization"
+                width={481}
+                height={382}
                 loading="lazy"
+                sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vw, 33vw"
               />
             </div>
             <div className="text-group visible mw-full">
@@ -194,7 +203,15 @@ export function LandingPage() {
               </Link>
             </div>
             <div className="img-wrapper">
-              <img className="mechanic" src={MechanicFish} alt="mechanic" loading="lazy" />
+              <Image
+                className="mechanic"
+                src={MechanicFish}
+                alt="mechanic"
+                width={571}
+                height={460}
+                loading="lazy"
+                sizes="(max-width: 768px) 90vw, (max-width: 1024px) 327px, 571px"
+              />
             </div>
           </div>
         </div>

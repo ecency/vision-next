@@ -8,17 +8,19 @@ export interface AccountProfile {
   profile_image?: string;
   website?: string;
   pinned?: string;
+  reputation?: number;
+  version?: number;
+  beneficiary?: {
+    account: string;
+    weight: number;
+  };
+  tokens?: { symbol: string; type: string; meta: Record<string, any> }[];
 }
 
 export interface AccountFollowStats {
   follower_count: number;
   following_count: number;
   account: string;
-}
-
-export interface BaseAccount {
-  name: string;
-  __loaded?: false;
 }
 
 export interface FullAccount {
@@ -68,10 +70,10 @@ export interface FullAccount {
   };
   profile?: AccountProfile;
   follow_stats?: AccountFollowStats;
-  __loaded?: true;
   proxyVotes?: [];
 }
 
-export type Account = FullAccount | BaseAccount;
+// Account is now just FullAccount - no more BaseAccount or __loaded discrimination
+export type Account = FullAccount;
 
 export type Accounts = Account[];

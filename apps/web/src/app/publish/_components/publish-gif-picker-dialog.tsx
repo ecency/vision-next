@@ -1,13 +1,13 @@
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import i18next from "i18next";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { SearchBox } from "@/features/shared";
 import Image from "next/image";
 import { GifPickerBottom } from "@ui/gif-picker/gif-picker-bottom";
 import { GiphyResponse } from "@/entities";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   show: boolean;
@@ -18,14 +18,12 @@ interface Props {
 export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
   const [filter, setFilter] = useState("");
 
-  const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
+  const { data, refetch, fetchNextPage, hasNextPage } = useInfiniteQuery(getGifsQuery(filter));
   const dataFlow = useInfiniteDataFlow(data);
 
-  useMount(() => {
-    if (dataFlow.length === 0) {
-      refetch();
-    }
-  });
+  useEffect(() => {
+    refetch();
+  }, [filter, refetch]);
 
   const itemClicked = useCallback(
     async (gif: GiphyResponse["data"][0]) => {
@@ -46,6 +44,7 @@ export function PublishGifPickerDialog({ show, setShow, onPick }: Props) {
           autoCapitalize="off"
           spellCheck="false"
           placeholder={i18next.t("gif-picker.filter-placeholder")}
+          value={filter}
           onChange={(e: { target: { value: React.SetStateAction<string> } }) =>
             setFilter(e.target.value)
           }

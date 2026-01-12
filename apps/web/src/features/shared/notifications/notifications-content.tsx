@@ -1,7 +1,7 @@
 import { NotificationsActions } from "@/features/shared/notifications/notifications-actions";
 import { NotificationsStatusButtons } from "@/features/shared/notifications/notifications-status-buttons";
 import { NotificationList } from "@/features/shared/notifications/notification-list";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { NotificationFilter, NotificationViewType } from "@/enums";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import i18next from "i18next";
@@ -20,6 +20,9 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
     PREFIX + "_ntf_s",
     NotificationViewType.ALL
   );
+
+  const availableFilters = useMemo(() => Object.values(NotificationFilter), []);
+  const activeFilter = availableFilters.includes(filter as NotificationFilter) ? filter : null;
 
   const [selectedNotifications, { add, remove, has, reset }] = useSet<string>(new Set());
   const [select, setSelect] = useState(false);
@@ -40,21 +43,21 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
         <div className="list-actions">
           <Dropdown>
             <DropdownToggle className="list-filter" withChevron={true}>
-              {i18next.t(`notifications.type-${filter ?? "all"}`)}
+              {i18next.t(`notifications.type-${activeFilter ?? "all"}`)}
             </DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={() => setFilter(null)} selected={filter === null}>
+              <DropdownItem onClick={() => setFilter(null)} selected={activeFilter === null}>
                 {i18next.t("notifications.type-all-short")}
               </DropdownItem>
-              {Object.values(NotificationFilter).map((f) => (
-                <DropdownItem key={f} onClick={() => setFilter(f)} selected={filter === f}>
+              {availableFilters.map((f) => (
+                <DropdownItem key={f} onClick={() => setFilter(f)} selected={activeFilter === f}>
                   {i18next.t(`notifications.type-${f}`)}
                 </DropdownItem>
               ))}
             </DropdownMenu>
           </Dropdown>
         </div>
-        <NotificationsActions filter={filter ?? null} />
+        <NotificationsActions filter={activeFilter ?? undefined} />
       </div>
 
       <NotificationsStatusButtons
@@ -79,7 +82,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
       <NotificationList
         openLinksInNewTab={openLinksInNewTab}
         select={select}
-        filter={filter ?? null}
+        filter={activeFilter ?? undefined}
         currentStatus={status!}
         selectNotification={selectNotification}
       />

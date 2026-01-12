@@ -4,12 +4,22 @@ import {
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
 import { BeneficiaryRoute, Entry } from "@/entities";
+import { filterOutThreeSpeakBeneficiaries, mergeThreeSpeakBeneficiaries } from "@/features/3speak";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
 import { postBodySummary } from "@ecency/render-helper";
 import { ThreeSpeakVideo } from "@ecency/sdk";
 import i18next from "i18next";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import isEqual from "react-fast-compare";
 import { usePublishPollState } from "./use-publish-poll-state";
 
@@ -21,7 +31,7 @@ interface PublishStateContextValue {
   reward: string;
   setReward: (value: string) => void;
   beneficiaries: BeneficiaryRoute[];
-  setBeneficiaries: (value: BeneficiaryRoute[]) => void;
+  setBeneficiaries: Dispatch<SetStateAction<BeneficiaryRoute[]>>;
   metaDescription: string;
   setMetaDescription: (value: string) => void;
   schedule: Date | undefined;
@@ -136,6 +146,18 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
       setStoredTags(sanitized);
     }
   }, [sanitizeTags, setStoredTags, tags]);
+
+  useEffect(() => {
+    setBeneficiaries((previous = []) => {
+      const base = filterOutThreeSpeakBeneficiaries(previous);
+      const next =
+        publishingVideo && publishingVideo.status === "publish_manual"
+          ? mergeThreeSpeakBeneficiaries(publishingVideo.beneficiaries, base)
+          : base;
+
+      return isEqual(next, previous) ? previous : next;
+    });
+  }, [publishingVideo]);
 
   const metadata = useMemo(() => {
     const initialImage = selectedThumbnail

@@ -15,29 +15,38 @@ mockDate.set(1591398131174);
 
 let TEST_MODE = 0;
 
-jest.mock("../../api/search-api", () => ({
-  search: () =>
-    new Promise((resolve) => {
-      if (TEST_MODE === 0) {
-        resolve(searchResponseInstance);
-      }
-
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  return {
+    ...actual,
+    useInfiniteQuery: () => {
       if (TEST_MODE === 1) {
-        resolve({
-          ...searchResponseInstance,
-          hits: 4
-        });
+        return {
+          data: { pages: [{ ...searchResponseInstance, hits: 4 }], pageParams: [] },
+          isLoading: false,
+          fetchNextPage: jest.fn(),
+          hasNextPage: false
+        };
       }
 
       if (TEST_MODE === 2) {
-        resolve({
-          ...searchResponseInstance,
-          hits: 0,
-          results: []
-        });
+        return {
+          data: { pages: [{ ...searchResponseInstance, hits: 0, results: [] }], pageParams: [] },
+          isLoading: false,
+          fetchNextPage: jest.fn(),
+          hasNextPage: false
+        };
       }
-    })
-}));
+
+      return {
+        data: { pages: [searchResponseInstance], pageParams: [] },
+        isLoading: false,
+        fetchNextPage: jest.fn(),
+        hasNextPage: false
+      };
+    }
+  };
+});
 
 const defProps = {
   history: createBrowserHistory(),

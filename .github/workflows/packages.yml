@@ -5,6 +5,10 @@ on:
     branches:
       - develop
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -71,9 +75,25 @@ jobs:
         if: steps.packages_changed.outputs.changed == 'true'
         with:
           node-version: 20
-          registry-url: 'https://registry.npmjs.org'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
+
+      - name: Use clean npm config for OIDC
+        if: steps.packages_changed.outputs.changed == 'true'
+        run: |
+          # ensure no token auth is accidentally used
+          unset NODE_AUTH_TOKEN
+          unset NPM_TOKEN
+
+          # create a minimal npmrc with NO auth token lines
+          CLEAN_NPMRC="$RUNNER_TEMP/oidc.npmrc"
+          echo "registry=https://registry.npmjs.org/" > "$CLEAN_NPMRC"
+          echo "always-auth=false" >> "$CLEAN_NPMRC"
+
+          echo "NPM_CONFIG_USERCONFIG=$CLEAN_NPMRC" >> $GITHUB_ENV
+
+          echo "Using npmrc:"
+          cat "$CLEAN_NPMRC"
 
       - name: Install dependencies
         if: steps.packages_changed.outputs.changed == 'true'
@@ -97,23 +117,26 @@ jobs:
         if: steps.detect_renderer.outputs.changed == 'true'
         run: pnpm --filter @ecency/renderer build
 
+      - name: Debug npm versions
+        run: |
+          node -v
+          npm -v
+          npx -y npm@latest -v
+
       - name: Publish @ecency/sdk
         if: steps.detect_sdk.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:sdk
 
       - name: Publish @ecency/wallets
         if: steps.detect_wallets.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:wallets
 
       - name: Publish @ecency/renderer
         if: steps.detect_renderer.outputs.changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:renderer

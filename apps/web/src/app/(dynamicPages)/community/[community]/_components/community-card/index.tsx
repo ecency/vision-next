@@ -4,10 +4,10 @@ import React, { useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { Account, Community, FullAccount, roleMap, ROLES } from "@/entities";
 import i18next from "i18next";
-import { JoinCommunityChatBtn } from "@/app/chats/_components/join-community-chat-btn";
 import { UserAvatar } from "@/features/shared";
 import { DialogInfo } from "../../_types";
 import { CommunityCardEditPic } from "./community-card-edit-pic";
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export function CommunityCard({ community, account }: Props) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const users = useGlobalStore((state) => state.users);
 
   const [info, setInfo] = useState<DialogInfo>();
@@ -61,7 +61,7 @@ export function CommunityCard({ community, account }: Props) {
           className="border border-[--border-color]"
           username={community.name}
           size="xLarge"
-          src={account.__loaded && useNewImage ? account.profile?.profile_image : undefined}
+          src={useNewImage ? account.profile?.profile_image : undefined}
         />
       </div>
       <div className="community-info">
@@ -110,7 +110,11 @@ export function CommunityCard({ community, account }: Props) {
           </p>
         </EcencyConfigManager.Conditional>
       )}
-      <JoinCommunityChatBtn community={community} />
+      <Link href={`/chats/${community.name}/channel`} className="mt-4 inline-flex">
+        <Button appearance="secondary" size="sm">
+          {i18next.t("chat.view-community-channel")}
+        </Button>
+      </Link>
       {info && (
         <Modal
           show={true}

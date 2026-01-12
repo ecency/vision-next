@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 import useClickAway from "react-use/lib/useClickAway";
 import { EntryLink } from "../entry-link";
 import { UserAvatar } from "../user-avatar";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
 
 interface Props {
   entries: Entry[];

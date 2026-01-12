@@ -1,20 +1,20 @@
 "use client";
 
 import {
-  getWavesByHostQuery,
-  getWavesByTagQuery,
-  getWavesFollowingQuery
-} from "@/api/queries";
+  getWavesByHostQueryOptions,
+  getWavesByTagQueryOptions,
+  getWavesFollowingQueryOptions
+} from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
 import { WavesListLoader } from "@/app/waves/_components/waves-list-loader";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteDataFlow } from "@/utils";
 import { useWavesAutoRefresh } from "@/app/waves/_hooks";
 import { WavesRefreshPopup } from "@/app/waves/_components";
 import { WavesFastReplyDialog } from "@/app/waves/_components/waves-fast-reply-dialog";
 import { WaveEntry } from "@/entities";
-import { InfiniteData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import {
   WAVES_FEED_SCROLL_STORAGE_KEY,
@@ -24,6 +24,9 @@ import {
 import { useWavesGrid } from "@/app/waves/_hooks";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useWavesTagFilter } from "@/app/waves/_context";
+import { Button } from "@ui/button";
+import i18next from "i18next";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   host: string;
@@ -34,19 +37,42 @@ interface Props {
 export function WavesListView({ host, feedType, username }: Props) {
   const { selectedTag } = useWavesTagFilter();
   const tag = feedType === "for-you" ? selectedTag : null;
-  const query = useMemo(() => {
+  const queryOptions = useMemo(() => {
     if (tag) {
-      return getWavesByTagQuery(host, tag);
+      return getWavesByTagQueryOptions(host, tag);
     }
 
     if (feedType === "following") {
-      return getWavesFollowingQuery(host, username);
+      return getWavesFollowingQueryOptions(host, username);
     }
 
-    return getWavesByHostQuery(host);
+    return getWavesByHostQueryOptions(host);
   }, [feedType, host, tag, username]);
 
-  const { data, fetchNextPage, isError, hasNextPage, refetch } = query.useClientQuery();
+  const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
+  const previousErrorMessage = useRef<string>();
+
+  useEffect(() => {
+    if (!isError || !error) {
+      previousErrorMessage.current = undefined;
+      return;
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+    if (previousErrorMessage.current !== message) {
+      previousErrorMessage.current = message;
+      // eslint-disable-next-line no-console
+      console.error("[Waves] Failed to load feed", {
+        host,
+        feedType,
+        tag,
+        message
+      });
+      Sentry.captureException(error, {
+        data: { host, feedType, tag }
+      });
+    }
+  }, [error, feedType, host, isError, tag]);
   const { data: promoted } = useQuery({
     ...getPromotedPostsQuery<WaveEntry>("waves"),
     enabled: !tag
@@ -150,6 +176,33 @@ export function WavesListView({ host, feedType, username }: Props) {
   }, [combinedDataFlow.length, pendingScroll]);
 
   const shouldShowDetectBottom = feedType === "for-you" && !tag && hasNextPage;
+
+  if (isError && combinedDataFlow.length === 0) {
+    return (
+      <div className="rounded-2xl bg-white dark:bg-dark-200 p-4 text-sm text-gray-700 dark:text-gray-300">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="font-semibold">
+              {i18next.t("waves.feed.unavailable", {
+                defaultValue: "We couldn’t load waves right now."
+              })}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              {i18next.t("waves.feed.check-connection", {
+                defaultValue:
+                  "Check your connection or firewall settings for Hive RPC hosts and try again."
+              })}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button appearance="link" onClick={() => refetch()} size="sm">
+              {i18next.t("g.retry", { defaultValue: "Retry" })}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col pb-8">

@@ -14,8 +14,8 @@ export function ManageKeys() {
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   return (
-    <div className="grid grid-cols-1 gap-2 lg:gap-4 rounded-xl p-4 bg-white bg-opacity-75 pb-4">
-      <div className="flex justify-between gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-4 rounded-xl p-4 bg-white/80 dark:bg-dark-200/90 text-gray-900 dark:text-white pb-4">
+      <div className="md:col-span-2 flex justify-between gap-4">
         <div>
           <div className="flex gap-1 mb-4">
             <div

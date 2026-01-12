@@ -1,13 +1,13 @@
 import { CONFIG } from "@/modules/core/config";
 import { PrivateKey } from "@hiveio/dhive";
 import hs from "hivesigner";
-import {getAccessToken, getLoginType, getPostingKey} from "../storage";
-import {Keychain} from "@/modules/keychain";
+import type { AuthContext } from "@/modules/core/types";
 
 export async function broadcastJson<T>(
   username: string | undefined,
   id: string,
-  payload: T
+  payload: T,
+  auth?: AuthContext
 ) {
   if (!username) {
     throw new Error(
@@ -21,7 +21,11 @@ export async function broadcastJson<T>(
     json: JSON.stringify(payload),
   };
 
-  const postingKey = getPostingKey(username);
+  if (auth?.broadcast) {
+    return auth.broadcast([["custom_json", jjson]], "posting");
+  }
+
+  const postingKey = auth?.postingKey;
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
 
@@ -31,16 +35,11 @@ export async function broadcastJson<T>(
     );
   }
 
-  const loginType = getLoginType(username);
-  if (loginType && loginType == 'keychain') {
-    return Keychain.broadcast(username, [["custom_json", jjson]], "Posting").then((r: any) => r.result)
-  }
-
   // With hivesigner access token
-  let token = getAccessToken(username);
-  if (token) {
+  const accessToken = auth?.accessToken;
+  if (accessToken) {
     const response = await new hs.Client({
-      accessToken: token,
+      accessToken,
     }).customJson([], [username], id, JSON.stringify(payload));
     return response.result;
   }

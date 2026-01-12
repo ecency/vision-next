@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as bridgeApi from "../../../api/bridge";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
 import { comment, formatError, reblog } from "@/api/operations";
 import { useThreeSpeakManager } from "../_hooks";
@@ -8,7 +7,6 @@ import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
-import { useGlobalStore } from "@/core/global-store";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
 import appPackage from "../../../../package.json";
@@ -19,21 +17,24 @@ import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { username, account, isLoading } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
   const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
-    activeUser?.username,
+    username,
     "legacy-post-created"
   );
 
@@ -63,25 +64,56 @@ export function usePublishApi(onClear: () => void) {
       );
       const cbody = EntryBodyManagement.EntryBodyManager.shared.builder().buildClearBody(body);
 
-      // make sure active user fully loaded
-      if (!activeUser || !activeUser.data.__loaded) {
+      // Ensure user is logged in and account data is available
+      if (!username) {
         return [];
       }
 
-      const author = activeUser.username;
-      const authorData = activeUser.data as FullAccount;
+      // Wait for account data if still loading
+      let authorData: FullAccount;
+      if (isLoading) {
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
+        if (!accountData) {
+          return [];
+        }
+        authorData = accountData;
+      } else if (!account) {
+        return [];
+      } else {
+        authorData = account;
+      }
+
+      const author = username;
 
       let permlink = createPermlink(title);
 
-      // permlink duplication check
-      let c;
-      try {
-        c = await bridgeApi.getPostHeader(author, permlink);
-      } catch (e) {}
+      // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await queryClient.fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
-      if (c && c.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title, true);
+          if (existingEntry && existingEntry.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Publish] Failed to generate unique permlink after multiple attempts");
       }
 
       const [parentPermlink] = tags;
@@ -105,7 +137,7 @@ export function usePublishApi(onClear: () => void) {
         permlink = unpublished3SpeakVideo.permlink;
         // update speak video with title, body and tags
         await updateSpeakVideoInfo(
-          activeUser.username,
+          username,
           buildBody(body),
           unpublished3SpeakVideo._id,
           title,
@@ -167,13 +199,13 @@ export function usePublishApi(onClear: () => void) {
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
-        router.push(`/@${activeUser.username}/posts`);
+        router.push(`/@${username}/posts`);
 
         //Mark speak video as published
-        if (!!unpublished3SpeakVideo && activeUser.username === unpublished3SpeakVideo.owner) {
+        if (!!unpublished3SpeakVideo && username === unpublished3SpeakVideo.owner) {
           success(i18next.t("video-upload.publishing"));
           setTimeout(() => {
-            markAsPublished(activeUser!.username, unpublished3SpeakVideo._id);
+            markAsPublished(username!, unpublished3SpeakVideo._id);
           }, 10000);
         }
         if (isCommunity(tags[0]) && reblogSwitch) {

@@ -1,9 +1,8 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommunityListItem } from "@/app/_components";
 import { useCommunitiesCache } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { Account } from "@/entities";
 import { LinearProgress } from "@/features/shared";
 import {
@@ -26,7 +25,7 @@ import { useMemo, useState } from "react";
 
 export function ProfileCommunities() {
   const params = useParams();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [sort, setSort] = useState<"asc" | "desc">("asc");
   const label = useMemo(

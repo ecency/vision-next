@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { ConfigManager, getBoundFetch } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 // TODO: replace any with Entry
@@ -8,9 +8,8 @@ export function getPromotedPostsQuery<T extends any>(
   return queryOptions({
     queryKey: ["posts", "promoted", type],
     queryFn: async () => {
-      const url = new URL(
-        CONFIG.privateApiHost + "/private-api/promoted-entries"
-      );
+      const baseUrl = ConfigManager.getValidatedBaseUrl();
+      const url = new URL("/private-api/promoted-entries", baseUrl);
       if (type === "waves") {
         url.searchParams.append("short_content", "1");
       }

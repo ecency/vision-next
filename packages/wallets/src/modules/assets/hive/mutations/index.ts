@@ -7,3 +7,4 @@ export * from "./power-down";
 export * from "./withdraw-route";
 export * from "./claim-rewards";
 export * from "./claim-interest";
+export * from "./convert";

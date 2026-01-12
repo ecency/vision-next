@@ -1,22 +1,30 @@
-import React, { useState } from "react";
-import { dotsMenuIconSvg, walletIconSvg } from "../icons";
-import { Button } from "@ui/button";
-import { useGlobalStore } from "@/core/global-store";
-import { useNotificationUnreadCountQuery } from "@/api/queries";
-import { bellSvg, rocketSvg } from "@ui/svg";
-import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
-import { WalletBadge } from "@/features/shared";
 import { EcencyConfigManager } from "@/config";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
+import { WalletBadge } from "@/features/shared";
+import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
+import { getNotificationsUnreadCountQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@ui/button";
+import { bellSvg, rocketSvg } from "@ui/svg";
+import { useState } from "react";
+import { dotsMenuIconSvg, walletIconSvg } from "../icons";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   setShowPurchaseDialog: (v: boolean) => void;
 }
 
 export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
-  const { data: unread } = useNotificationUnreadCountQuery();
+  const { data: unread } = useQuery(
+    getNotificationsUnreadCountQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
 
   const [showMainSide, setShowMainSide] = useState(false);
 

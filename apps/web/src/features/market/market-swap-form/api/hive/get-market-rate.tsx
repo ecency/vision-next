@@ -1,12 +1,12 @@
-import { MarketAsset } from "../../market-pair";
-import { getMarketStatistics } from "@/api/hive";
+import { HiveMarketAsset } from "../../market-pair";
+import { getMarketStatisticsQueryOptions, getQueryClient } from "@ecency/sdk";
 
-export const getHiveMarketRate = async (asset: MarketAsset): Promise<number> => {
-  if (asset === MarketAsset.HIVE) {
-    const market = await getMarketStatistics();
+export const getHiveMarketRate = async (asset: HiveMarketAsset): Promise<number> => {
+  if (asset === HiveMarketAsset.HIVE) {
+    const market = await getQueryClient().fetchQuery(getMarketStatisticsQueryOptions());
     return +market.lowest_ask;
-  } else if (asset === MarketAsset.HBD) {
-    const market = await getMarketStatistics();
+  } else if (asset === HiveMarketAsset.HBD) {
+    const market = await getQueryClient().fetchQuery(getMarketStatisticsQueryOptions());
     return 1 / +market.lowest_ask;
   }
   return 0;

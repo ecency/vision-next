@@ -5,18 +5,20 @@ import { arrowRightSvg } from "@ui/svg";
 import { Button } from "@ui/button";
 import React, { useMemo } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
-import { useGlobalStore } from "@/core/global-store";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   titleLngKey: string;
 }
 
 export function TransferStep2({ titleLngKey }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { step, amount, asset, memo, to, setStep, inProgress, mode } = useTransferSharedState();
 
   const showTo = useMemo(

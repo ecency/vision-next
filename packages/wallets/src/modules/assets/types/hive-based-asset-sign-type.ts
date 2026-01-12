@@ -1,1 +1,1 @@
-export type HiveBasedAssetSignType = "key" | "keychain" | "hivesigner";
+export type HiveBasedAssetSignType = "key" | "keychain" | "hivesigner" | "hiveauth";

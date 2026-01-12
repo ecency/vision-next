@@ -1,15 +1,19 @@
-import { useGlobalStore } from "@/core/global-store";
-import { useCountdown } from "@/utils";
+import { getAccessToken, useCountdown } from "@/utils";
 import { getGameStatusCheckQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useEffect, useMemo } from "react";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function PerksPointsSpinCountdown() {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
 
   const { data, isFetching } = useQuery({
-    ...getGameStatusCheckQueryOptions(activeUser?.username, "spin"),
+    ...getGameStatusCheckQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      "spin"
+    ),
     refetchOnMount: true
   });
 

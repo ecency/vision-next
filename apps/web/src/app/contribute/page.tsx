@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import "@/styles/static-pages.scss";
 
 export const metadata: Metadata = {
   title: "Contribute"

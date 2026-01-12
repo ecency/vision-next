@@ -1,8 +1,10 @@
-import { PrivateKey } from "@hiveio/dhive";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
-type PointsSignType = "key" | "keychain" | "hivesigner";
+type PointsSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
 
 interface PointsTransferPayloadBase {
   from: string;
@@ -23,8 +25,8 @@ export async function transferPoint<T extends PointsSignType>({
   memo,
   type,
   ...payload
-}: PointsTransferPayload<T>) {
-  const op = [
+}: PointsTransferPayload<T>, auth?: AuthContext) {
+  const op: Operation = [
     "custom_json",
     {
       id: "ecency_point_transfer",
@@ -37,7 +39,7 @@ export async function transferPoint<T extends PointsSignType>({
       required_auths: [from],
       required_posting_auths: [],
     },
-  ] as const;
+  ];
 
   if (type === "key" && "key" in payload) {
     const { key } = payload as PointsTransferPayload<"key">;
@@ -45,15 +47,16 @@ export async function transferPoint<T extends PointsSignType>({
     return CONFIG.hiveClient.broadcast.sendOperations([op], key);
   }
 
-  if (type === "keychain") {
-    // Broadcast via Hive Keychain as custom_json with Active authority
-    return Keychain.broadcast(from, [op], "Active") as Promise<unknown>;
+  if (type === "keychain" || type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
+    if (type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(from, [op], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
   // Default to hivesigner
-  return hs.sendOperation(
-    op,
-    { callback: `https://ecency.com/@${from}/wallet` },
-    () => {}
-  );
+  return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {});
 }

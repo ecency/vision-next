@@ -1,12 +1,12 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
-import { getContributorsQuery } from "@/api/queries";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { getContributorsQueryOptions } from "@/api/queries";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import React from "react";
 import { UsersTableListLayout } from "@/app/discover/_components";
 
 export default async function ContributorPage() {
-  const data = await getContributorsQuery().prefetch();
+  const data = await prefetchQuery(getContributorsQueryOptions());
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       <UsersTableListLayout>

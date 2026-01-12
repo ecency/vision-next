@@ -1,13 +1,15 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { broadcastPostingOperations, formatError } from "@/api/operations";
-import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import { error } from "@/features/shared";
 import { Operation } from "@hiveio/dhive";
-import { QueryIdentifiers } from "@/core/react-query";
+import { SortOrder } from "@/enums";
 
 export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: Entry) {
-  const activeUser = useGlobalStore((state) => state.activeUser);
+  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -28,15 +30,25 @@ export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: E
     },
     onError: (err) => error(...formatError(err)),
     onSuccess: () => {
-      if (parent) {
+      if (parent && activeUser) {
         const previousReplies =
           queryClient.getQueryData<Entry[]>([
-            QueryIdentifiers.FETCH_DISCUSSIONS,
-            parent?.author,
-            parent?.permlink
+            "posts",
+            "discussions",
+            parent.author,
+            parent.permlink,
+            SortOrder.created,
+            activeUser.username
           ]) ?? [];
         queryClient.setQueryData(
-          [QueryIdentifiers.FETCH_DISCUSSIONS, parent?.author, parent?.permlink],
+          [
+            "posts",
+            "discussions",
+            parent.author,
+            parent.permlink,
+            SortOrder.created,
+            activeUser.username
+          ],
           [
             ...previousReplies.filter(
               (r) => r.author !== entry.author || r.permlink !== entry.permlink

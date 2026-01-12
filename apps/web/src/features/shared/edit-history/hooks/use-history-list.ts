@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { useGetCommentHistoryQuery } from "@/api/queries";
+import { getCommentHistoryQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { Entry } from "@/entities";
 import { diff_match_patch } from "diff-match-patch";
 
@@ -23,7 +24,9 @@ function makeDiff(str1: string, str2: string) {
 }
 
 export function useHistoryList(entry: Entry) {
-  const { data: historyData } = useGetCommentHistoryQuery(entry);
+  const { data: historyData } = useQuery(
+    getCommentHistoryQueryOptions(entry.author, entry.permlink, false)
+  );
 
   return useMemo(() => {
     if (!historyData || !historyData.list) {

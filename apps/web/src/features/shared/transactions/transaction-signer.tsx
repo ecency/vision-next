@@ -1,5 +1,6 @@
 import { useGlobalStore } from "@/core/global-store";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   useSignOperationByHivesigner,
   useSignOperationByKey,
@@ -17,6 +18,7 @@ import { KeyOrHot } from "../key-or-hot";
 import { PrivateKey } from "@hiveio/dhive";
 import { usePathname } from "next/navigation";
 import { error } from "../feedback";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 interface Props {
   show: boolean;
@@ -25,7 +27,7 @@ interface Props {
 }
 
 export default function TransactionSigner({ show, onHide, operation }: Props) {
-  const activeUser = useGlobalStore((s) => s.activeUser);
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
   const pathname = usePathname();
@@ -34,7 +36,10 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
     activeUser?.username as string
   );
   const { mutateAsync: signOperationByKeychain, isPending: isSigningKeychain } =
-    useSignOperationByKeychain(activeUser?.username);
+    useSignOperationByKeychain(
+      activeUser?.username,
+      getSdkAuthContext(getUser(activeUser?.username ?? ""))
+    );
   const { mutateAsync: signOperationByHivesigner } = useSignOperationByHivesigner(
     `https://ecency.com/${pathname}`
   );

@@ -1,7 +1,9 @@
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
+import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
 interface Payload<T extends HiveBasedAssetSignType> {
   from_account: string;
@@ -13,7 +15,18 @@ interface Payload<T extends HiveBasedAssetSignType> {
 
 export async function withdrawVestingRouteHive<
   T extends HiveBasedAssetSignType,
->(payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>) {
+>(
+  payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>,
+  auth?: AuthContext
+) {
+  const baseParams = {
+    from_account: payload.from_account,
+    to_account: payload.to_account,
+    percent: payload.percent,
+    auto_vest: payload.auto_vest,
+  };
+  const operation: Operation = ["set_withdraw_vesting_route", baseParams];
+
   if (payload.type === "key" && "key" in payload) {
     const { key, type, ...params } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(
@@ -22,19 +35,16 @@ export async function withdrawVestingRouteHive<
     );
   }
 
-  if (payload.type === "keychain") {
-    const { type, ...params } = payload as Payload<"keychain">;
-    return Keychain.broadcast(
-      params.from_account,
-      [["set_withdraw_vesting_route", params]],
-      "Active"
-    ) as Promise<unknown>;
+  if (payload.type === "keychain" || payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    if (payload.type === "hiveauth") {
+      return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
   const { type, ...params } = payload as Payload<"hivesigner">;
-  return hs.sendOperation(
-    ["set_withdraw_vesting_route", params],
-    { callback: `https://ecency.com/@${params.from_account}/wallet` },
-    () => {}
-  );
+  return hs.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {});
 }

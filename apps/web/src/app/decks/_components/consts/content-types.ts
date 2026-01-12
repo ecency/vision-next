@@ -81,6 +81,10 @@ export const NOTIFICATION_CONTENT_TYPES = [
     type: "reblogs"
   },
   {
+    title: i18next.t("decks.columns.payouts"),
+    type: "payouts"
+  },
+  {
     title: i18next.t("decks.columns.transfers"),
     type: "transfers"
   },

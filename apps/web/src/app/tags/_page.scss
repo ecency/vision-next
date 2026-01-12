@@ -1,0 +1,115 @@
+@import "src/styles/vars_mixins";
+
+.tags-page {
+  flex-direction: column;
+  max-width: 1100px;
+  margin: 0 auto 80px auto;
+
+  .page-header {
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+
+    @include themify(day) {
+      @apply bg-white;
+    }
+
+    @include themify(night) {
+      @apply bg-dark-200;
+    }
+
+    .header-title {
+      @apply text-blue-dark-sky;
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+    }
+
+    .header-description {
+      margin: 0;
+      opacity: 0.7;
+    }
+  }
+
+  .tags-table {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid;
+    margin-bottom: 16px;
+
+    @include themify(day) {
+      @apply border-gray-200 bg-white;
+    }
+
+    @include themify(night) {
+      @apply border-dark-200 bg-dark-200;
+    }
+
+    table {
+      min-width: 720px;
+    }
+
+    thead th {
+      @apply text-blue-dark-sky;
+      font-weight: 600;
+      background: transparent;
+    }
+
+    tbody tr:nth-child(even) td {
+      @include themify(day) {
+        @apply bg-gray-100;
+      }
+
+      @include themify(night) {
+        @apply bg-dark-200;
+      }
+    }
+
+    .tag-rank {
+      @apply text-gray-600;
+      font-weight: 600;
+    }
+
+    .tag-link {
+      @apply text-blue-dark-sky font-semibold;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .tag-metric {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .col-rank {
+      width: 60px;
+    }
+
+    .col-comments,
+    .col-top-posts,
+    .col-payouts {
+      width: 180px;
+    }
+  }
+
+  .tags-table-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .tags-empty-state {
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+
+    @include themify(day) {
+      @apply bg-white text-gray-600;
+    }
+
+    @include themify(night) {
+      @apply bg-dark-200 text-blue-powder;
+    }
+  }
+}

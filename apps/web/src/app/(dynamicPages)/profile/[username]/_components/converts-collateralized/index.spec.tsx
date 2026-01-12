@@ -11,23 +11,18 @@ import {
   collateralizedConversionRequestInstance
 } from "../../helper/test-helper";
 
-jest.mock("../../constants/defaults.json", () => ({
+jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
 }));
 
 let MOCK_MODE = 1;
 
-jest.mock("../../api/hive", () => ({
-  getCollateralizedConversionRequests: () =>
-    new Promise((resolve) => {
-      if (MOCK_MODE === 1) {
-        resolve(collateralizedConversionRequestInstance);
-      }
-
-      if (MOCK_MODE === 2) {
-        resolve([]);
-      }
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: () => ({
+    data: MOCK_MODE === 1 ? collateralizedConversionRequestInstance : [],
+    isLoading: false
+  })
 }));
 
 const defaultProps = {

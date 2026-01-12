@@ -6,6 +6,7 @@ import {
   UilEditAlt,
   UilHome,
   UilListUl,
+  UilTag,
   UilUsersAlt,
   UilUserSquare,
   UilWater
@@ -22,7 +23,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
 import { EcencyConfigManager } from "@/config";
-import defaults from "@/defaults.json";
+import defaults from "@/defaults";
+import { useHydrated } from "@/api/queries";
+import { useMattermostUnread } from "@/features/chat/mattermost-api";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   show: boolean;
@@ -32,6 +36,9 @@ interface Props {
 
 export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
   const router = useRouter();
+  const { activeUser } = useActiveAccount();
+  const hydrated = useHydrated();
+  const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
 
   const onLogoClick = () => {
     if (
@@ -109,6 +116,12 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           onClick={() => setShow(false)}
           icon={<UilUserSquare size={16} />}
         />
+        <NavbarSideMainMenuItem
+          label={i18next.t("trending-tags.title")}
+          to="/tags"
+          onClick={() => setShow(false)}
+          icon={<UilTag size={16} />}
+        />
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.chats.enabled}
         >
@@ -117,6 +130,8 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             to="/chats"
             onClick={() => setShow(false)}
             icon={<UilCommentDots size={16} />}
+            badgeContent={unread?.totalUnread || undefined}
+            dot={Boolean(unread?.totalMentions || unread?.totalDMs)}
           />
         </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional
