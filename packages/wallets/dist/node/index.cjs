@@ -3620,6 +3620,16 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
         (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
       );
       if (!assetInfo) return void 0;
+      const parts = [];
+      if (assetInfo.liquid !== void 0 && assetInfo.liquid !== null) {
+        parts.push({ name: "liquid", balance: assetInfo.liquid });
+      }
+      if (assetInfo.staked !== void 0 && assetInfo.staked !== null && assetInfo.staked > 0) {
+        parts.push({ name: "staked", balance: assetInfo.staked });
+      }
+      if (assetInfo.savings !== void 0 && assetInfo.savings !== null && assetInfo.savings > 0) {
+        parts.push({ name: "savings", balance: assetInfo.savings });
+      }
       return {
         name: assetInfo.symbol,
         title: assetInfo.name,
@@ -3627,7 +3637,8 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
         accountBalance: assetInfo.balance,
         apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
-        pendingRewards: assetInfo.pendingRewards
+        pendingRewards: assetInfo.pendingRewards,
+        parts
       };
     } catch (e) {
       return void 0;
@@ -4174,7 +4185,18 @@ var engineOperationToFunctionMap = {
   ["stake" /* Stake */]: stakeEngineToken,
   ["unstake" /* Unstake */]: unstakeEngineToken,
   ["delegate" /* Delegate */]: delegateEngineToken,
-  ["undelegate" /* Undelegate */]: undelegateEngineToken
+  ["undelegate" /* Undelegate */]: undelegateEngineToken,
+  ["claim" /* Claim */]: (payload, auth) => {
+    return claimHiveEngineRewards(
+      {
+        account: payload.from,
+        tokens: [payload.asset],
+        type: payload.type,
+        ...payload.type === "key" && payload.key ? { key: payload.key } : {}
+      },
+      auth
+    );
+  }
 };
 function useWalletOperation(username, asset, operation, auth) {
   const { mutateAsync: recordActivity } = sdk.EcencyAnalytics.useRecordActivity(

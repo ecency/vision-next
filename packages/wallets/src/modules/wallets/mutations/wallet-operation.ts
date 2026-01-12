@@ -1,5 +1,6 @@
 import {
   AssetOperation,
+  claimHiveEngineRewards,
   delegateEngineToken,
   delegateHive,
   getHiveEngineTokensBalancesQueryOptions,
@@ -69,6 +70,18 @@ const engineOperationToFunctionMap: Partial<Record<AssetOperation, any>> = {
   [AssetOperation.Unstake]: unstakeEngineToken,
   [AssetOperation.Delegate]: delegateEngineToken,
   [AssetOperation.Undelegate]: undelegateEngineToken,
+  [AssetOperation.Claim]: (payload: any, auth?: any) => {
+    // Claim expects account and tokens array
+    return claimHiveEngineRewards(
+      {
+        account: payload.from,
+        tokens: [payload.asset],
+        type: payload.type,
+        ...(payload.type === "key" && payload.key ? { key: payload.key } : {}),
+      },
+      auth
+    );
+  },
 };
 
 export function useWalletOperation(
