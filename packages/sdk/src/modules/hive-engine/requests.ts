@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { ConfigManager, getBoundFetch } from "@/modules/core";
 
 type EngineOrderBookEntry = {
   txId: string;
@@ -25,7 +25,8 @@ const ENGINE_RPC_HEADERS = { "Content-type": "application/json" };
 
 async function engineRpc<T>(payload: Record<string, unknown>): Promise<T> {
   const fetchApi = getBoundFetch();
-  const response = await fetchApi(`${CONFIG.privateApiHost}/private-api/engine-api`, {
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const response = await fetchApi(`${baseUrl}/private-api/engine-api`, {
     method: "POST",
     body: JSON.stringify(payload),
     headers: ENGINE_RPC_HEADERS,
@@ -280,9 +281,8 @@ export async function getHiveEngineTokenTransactions<T = Record<string, unknown>
   offset: number
 ): Promise<T[]> {
   const fetchApi = getBoundFetch();
-  const url = new URL(
-    `${CONFIG.privateApiHost}/private-api/engine-account-history`
-  );
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const url = new URL("/private-api/engine-account-history", baseUrl);
   url.searchParams.set("account", username);
   url.searchParams.set("symbol", symbol);
   url.searchParams.set("limit", limit.toString());
@@ -307,7 +307,8 @@ export async function getHiveEngineTokenMetrics<T = Record<string, unknown>>(
   interval = "daily"
 ): Promise<T[]> {
   const fetchApi = getBoundFetch();
-  const url = new URL(`${CONFIG.privateApiHost}/private-api/engine-chart-api`);
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const url = new URL("/private-api/engine-chart-api", baseUrl);
   url.searchParams.set("symbol", symbol);
   url.searchParams.set("interval", interval);
 
@@ -328,8 +329,9 @@ export async function getHiveEngineUnclaimedRewards<T = Record<string, unknown>>
   username: string
 ): Promise<Record<string, T>> {
   const fetchApi = getBoundFetch();
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
   const response = await fetchApi(
-    `${CONFIG.privateApiHost}/private-api/engine-reward-api/${username}?hive=1`
+    `${baseUrl}/private-api/engine-reward-api/${username}?hive=1`
   );
 
   if (!response.ok) {

@@ -53,6 +53,31 @@ export namespace ConfigManager {
   }
 
   /**
+   * Get a validated base URL for API requests
+   * Returns a valid base URL that can be used with new URL(path, baseUrl)
+   *
+   * Priority:
+   * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
+   * 2. window.location.origin if in browser (production with relative URLs)
+   * 3. 'https://ecency.com' as fallback for SSR (production default)
+   *
+   * @returns A valid base URL string
+   * @throws Never throws - always returns a valid URL
+   */
+  export function getValidatedBaseUrl(): string {
+    if (CONFIG.privateApiHost) {
+      return CONFIG.privateApiHost;
+    }
+
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      return window.location.origin;
+    }
+
+    // Fallback for SSR when privateApiHost is empty (production case)
+    return 'https://ecency.com';
+  }
+
+  /**
    * Set the image host
    * @param host - The image host URL (e.g., "https://images.ecency.com")
    */

@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { ConfigManager } from "@/modules/core";
 import { Entry, WaveEntry } from "../types";
 import { normalizeWaveEntryFromApi } from "../utils/waves-helpers";
 
@@ -23,7 +23,7 @@ export function getWavesFollowingQueryOptions(host: string, username?: string) {
       }
 
       try {
-        const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+        const baseUrl = ConfigManager.getValidatedBaseUrl();
         const url = new URL("/private-api/waves/following", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("username", normalizedUsername);

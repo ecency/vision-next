@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { ConfigManager } from "@/modules/core";
 import { ReferralItem } from "../types/referral";
 
 type PageParam = { maxId?: number };
@@ -10,7 +10,7 @@ export function getReferralsInfiniteQueryOptions(username: string) {
     initialPageParam: { maxId: undefined } as PageParam,
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
       const { maxId } = pageParam ?? {};
-      const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+      const baseUrl = ConfigManager.getValidatedBaseUrl();
       const url = new URL(`/private-api/referrals/${username}`, baseUrl);
 
       if (maxId !== undefined) {

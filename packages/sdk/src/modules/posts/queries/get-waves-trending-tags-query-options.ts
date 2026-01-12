@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { ConfigManager } from "@/modules/core";
 import { WaveTrendingTag } from "../types";
 
 interface WavesTrendingTagResponse {
@@ -12,7 +12,7 @@ export function getWavesTrendingTagsQueryOptions(host: string, hours = 24) {
     queryKey: ["posts", "waves", "trending-tags", host, hours],
     queryFn: async ({ signal }): Promise<WaveTrendingTag[]> => {
       try {
-        const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+        const baseUrl = ConfigManager.getValidatedBaseUrl();
         const url = new URL("/private-api/waves/trending/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("hours", hours.toString());
