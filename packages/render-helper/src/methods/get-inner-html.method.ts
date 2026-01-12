@@ -1,10 +1,10 @@
-import xmldom from 'xmldom'
+import { XMLSerializer } from '@xmldom/xmldom'
 
 export function getSerializedInnerHTML(node: Node): string {
-  const XMLSerializer = new xmldom.XMLSerializer()
+  const serializer = new XMLSerializer()
 
   if (node.childNodes[0]) {
-    return XMLSerializer.serializeToString(node.childNodes[0])
+    return serializer.serializeToString(node.childNodes[0])
   }
 
   return ''

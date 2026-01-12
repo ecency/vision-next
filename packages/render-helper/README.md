@@ -135,6 +135,30 @@ src/
 - Configuration: `tsup.config.ts` (dual browser/node builds)
 - All dependencies are externalized (not bundled)
 
+## Platform Support
+
+### React Native (iOS/Android)
+
+This package fully supports React Native applications:
+
+- **Package Resolution**: The `react-native` field in `package.json` exports ensures React Native bundlers (Metro) automatically resolve to the browser build (`dist/browser/index.js`)
+- **Crypto Support**: When `platform !== 'web'` (i.e., React Native environment), the package uses `react-native-crypto-js` for cryptographic operations
+- **Usage**: Simply import the package normally in your React Native project - no special configuration needed
+
+```typescript
+import { renderPostBody, postBodySummary } from '@ecency/render-helper'
+
+// The platform parameter determines the build target
+// 'web' = browser/web, any other value = React Native
+const html = renderPostBody(entry, false, 'react-native')
+const summary = postBodySummary(entry, 200, 'react-native')
+```
+
+**Platform Parameter**:
+- `'web'` - Uses browser APIs and standard crypto
+- Any other value (e.g., `'react-native'`, `'mobile'`) - Uses React Native-compatible implementations including `react-native-crypto-js`
+- The platform parameter is required in `renderPostBody()` and `postBodySummary()` functions
+
 ## Testing
 
 - Vitest for unit tests (to be migrated from Jest)

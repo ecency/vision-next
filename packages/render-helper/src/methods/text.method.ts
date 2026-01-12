@@ -16,9 +16,11 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
   const nodeValue = node.nodeValue || ''
   const linkified = linkify(nodeValue, forApp, webp)
   if (linkified !== nodeValue) {
-    const replaceNode = DOMParser.parseFromString(
-      `<span class="wr">${linkified}</span>`
+    const doc = DOMParser.parseFromString(
+      `<span class="wr">${linkified}</span>`,
+      'text/html'
     )
+    const replaceNode = doc.documentElement || doc.firstChild
 
     node.parentNode.insertBefore(replaceNode, node)
     node.parentNode.removeChild(node)
@@ -28,7 +30,8 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false; // Traverse handles LCP; no need to double-count
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
-    const replaceNode = DOMParser.parseFromString(imageHTML);
+    const doc = DOMParser.parseFromString(imageHTML, 'text/html');
+    const replaceNode = doc.documentElement || doc.firstChild
     node.parentNode.replaceChild(replaceNode, node);
     return; // Early return after replacing node
   }
@@ -87,9 +90,11 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
       if (!isValidPermlink(permlink)) return
 
       const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`
-      const replaceNode = DOMParser.parseFromString(
-        `<a ${attrs}>/@${author}/${permlink}</a>`
+      const doc = DOMParser.parseFromString(
+        `<a ${attrs}>/@${author}/${permlink}</a>`,
+        'text/html'
       )
+      const replaceNode = doc.documentElement || doc.firstChild
       node.parentNode.replaceChild(replaceNode, node)
     }
   }

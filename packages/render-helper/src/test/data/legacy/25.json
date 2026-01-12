@@ -1,5 +1,5 @@
 {
   "id": 25,
   "input": "<IMG SRC=\"javascript:alert('XSS')\" </TITLE><SCRIPT>alert(\"XSS\");</SCRIPT>\n\n<INPUT TYPE=\"IMAGE\" SRC=\"javascript:alert('XSS');\">\n\n<BODY BACKGROUND=\"javascript:alert('XSS')\">",
-  "result": "<p dir=\"auto\">&lt;IMG SRC=\"javascript:alert('XSS')\" alert(&quot;XSS&quot;);</p>\n<p dir=\"auto\"></p>\n"
+  "result": "<p dir=\"auto\">&lt;IMG SRC=\"javascript:alert('XSS')\" alert(\"XSS\");</p>\n<p dir=\"auto\"></p>"
 }

@@ -33,6 +33,13 @@ const joint = (arr: string[], limit = 200) => {
   return result.trim();
 };
 
+/**
+ * Generate a text summary from post body content
+ * @param entryBody - The post body content to summarize
+ * @param length - Maximum length of the summary (default: 200)
+ * @param platform - Target platform: 'web' for browser/Node.js, 'ios'/'android' for React Native (default: 'web')
+ *                   Determines which crypto implementation to use ('web' = standard, other = react-native-crypto-js)
+ */
 function postBodySummary(entryBody: string, length?: number, platform:'ios'|'android'|'web' = 'web'): string {
   if (!entryBody) {
     return ''
@@ -111,6 +118,14 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
   return text
 }
 
+/**
+ * Generate a text summary from an Entry object or raw string
+ * @param obj - Entry object or raw post body string
+ * @param length - Maximum length of the summary (default: 200)
+ * @param platform - Target platform: 'web' for browser/Node.js, 'ios'/'android' for React Native (default: 'web')
+ *                   Determines which crypto implementation to use ('web' = standard, other = react-native-crypto-js)
+ * @returns Text summary of the post body
+ */
 export function getPostBodySummary(obj: Entry | string, length?: number, platform?:'ios'|'android'|'web'): any {
   if (typeof obj === 'string') {
     return postBodySummary(obj as string, length, platform)

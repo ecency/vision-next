@@ -23,6 +23,7 @@
   "exports": {
     ".": {
       "types": "./dist/browser/index.d.ts",
+      "react-native": "./dist/browser/index.js",
       "browser": "./dist/browser/index.js",
       "import": "./dist/node/index.mjs",
       "require": "./dist/node/index.cjs",
@@ -53,7 +54,10 @@
     "vitest": "^2.0.0"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.9.6",
+    "dom-serializer": "^2.0.0",
     "he": "^1.2.0",
+    "htmlparser2": "^10.0.0",
     "lolight": "^1.4.0",
     "lru-cache": "^11.0.2",
     "multihashes": "0.4.13",
@@ -62,7 +66,6 @@
     "react-native-crypto-js": "^1.0.0",
     "remarkable": "^2.0.1",
     "url": "^0.11.0",
-    "xmldom": "^0.6.0",
     "xss": "^1.0.9"
   },
   "publishConfig": {

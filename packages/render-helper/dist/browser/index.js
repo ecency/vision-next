@@ -1,4 +1,4 @@
-import xmldom from 'xmldom';
+import { DOMParser as DOMParser$1, XMLSerializer } from '@xmldom/xmldom';
 import xss from 'xss';
 import multihash from 'multihashes';
 import querystring from 'querystring';
@@ -167,14 +167,12 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-
-// src/methods/noop.method.ts
-function noop() {
-}
-
-// src/consts/dom-parser.const.ts
-var DOMParser = new xmldom.DOMParser({
-  errorHandler: { warning: noop, error: noop }
+var lenientErrorHandler = (level, msg) => {
+};
+var DOMParser = new DOMParser$1({
+  // Use onError instead of deprecated errorHandler
+  // By providing a non-throwing error handler, parsing continues despite malformed HTML
+  onError: lenientErrorHandler
 });
 
 // src/helper.ts
@@ -232,9 +230,9 @@ function isValidUsername(username) {
   });
 }
 function getSerializedInnerHTML(node) {
-  const XMLSerializer = new xmldom.XMLSerializer();
+  const serializer = new XMLSerializer();
   if (node.childNodes[0]) {
-    return XMLSerializer.serializeToString(node.childNodes[0]);
+    return serializer.serializeToString(node.childNodes[0]);
   }
   return "";
 }
@@ -245,7 +243,7 @@ function removeChildNodes(node) {
     node.removeChild(node.firstChild);
   }
 }
-var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+var decodeEntities = (input) => input.replace(/&#(\d+);?/g, (_, dec) => String.fromCodePoint(Number(dec))).replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)));
 function sanitizeHtml(html) {
   return xss(html, {
     whiteList: ALLOWED_ATTRIBUTES,
@@ -408,7 +406,8 @@ function a(el, forApp, webp) {
   if (href.match(IMG_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&")) {
     const isLCP = false;
     const imgHTML = createImageHTML(href, isLCP, webp);
-    const replaceNode = DOMParser.parseFromString(imgHTML);
+    const doc = DOMParser.parseFromString(imgHTML, "text/html");
+    const replaceNode = doc.documentElement || doc.firstChild;
     el.parentNode.replaceChild(replaceNode, el);
     return;
   }
@@ -891,7 +890,8 @@ function a(el, forApp, webp) {
       const url = e[0].replace(/(<([^>]+)>)/gi, "");
       const author = e[1].replace(/(<([^>]+)>)/gi, "");
       const twitterCode = `<blockquote class="twitter-tweet"><p>${url}</p>- <a href="${url}">${author}</a></blockquote>`;
-      const replaceNode = DOMParser.parseFromString(twitterCode);
+      const doc = DOMParser.parseFromString(twitterCode, "text/html");
+      const replaceNode = doc.documentElement || doc.firstChild;
       el.parentNode.replaceChild(replaceNode, el);
       return;
     }
@@ -1142,9 +1142,11 @@ function text(node, forApp, webp) {
   const nodeValue = node.nodeValue || "";
   const linkified = linkify(nodeValue, forApp, webp);
   if (linkified !== nodeValue) {
-    const replaceNode = DOMParser.parseFromString(
-      `<span class="wr">${linkified}</span>`
+    const doc = DOMParser.parseFromString(
+      `<span class="wr">${linkified}</span>`,
+      "text/html"
     );
+    const replaceNode = doc.documentElement || doc.firstChild;
     node.parentNode.insertBefore(replaceNode, node);
     node.parentNode.removeChild(node);
     return;
@@ -1152,7 +1154,8 @@ function text(node, forApp, webp) {
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false;
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
-    const replaceNode = DOMParser.parseFromString(imageHTML);
+    const doc = DOMParser.parseFromString(imageHTML, "text/html");
+    const replaceNode = doc.documentElement || doc.firstChild;
     node.parentNode.replaceChild(replaceNode, node);
     return;
   }
@@ -1196,9 +1199,11 @@ function text(node, forApp, webp) {
       if (!isValidUsername(author)) return;
       if (!isValidPermlink(permlink)) return;
       const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`;
-      const replaceNode = DOMParser.parseFromString(
-        `<a ${attrs}>/@${author}/${permlink}</a>`
+      const doc = DOMParser.parseFromString(
+        `<a ${attrs}>/@${author}/${permlink}</a>`,
+        "text/html"
       );
+      const replaceNode = doc.documentElement || doc.firstChild;
       node.parentNode.replaceChild(replaceNode, node);
     }
   }
@@ -1273,7 +1278,7 @@ function markdownToHTML(input, forApp, webp) {
     "sub",
     "sup"
   ]);
-  const XMLSerializer = new xmldom.XMLSerializer();
+  const serializer = new XMLSerializer();
   if (!input) {
     return "";
   }
@@ -1297,9 +1302,27 @@ function markdownToHTML(input, forApp, webp) {
     output = md.render(input);
     const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, "text/html");
     traverse(doc, forApp, 0, webp);
-    output = XMLSerializer.serializeToString(doc);
+    output = serializer.serializeToString(doc);
   } catch (error) {
-    output = "";
+    try {
+      output = md.render(input);
+      const preSanitized = sanitizeHtml(output);
+      const htmlparser2 = __require("htmlparser2");
+      const domSerializer = __require("dom-serializer").default;
+      const dom = htmlparser2.parseDocument(preSanitized, {
+        // lenient options - don't throw on malformed HTML
+        lowerCaseTags: false,
+        lowerCaseAttributeNames: false
+      });
+      const repairedHtml = domSerializer(dom.children);
+      const doc = DOMParser.parseFromString(`<body id="root">${repairedHtml}</body>`, "text/html");
+      traverse(doc, forApp, 0, webp);
+      output = serializer.serializeToString(doc);
+    } catch (fallbackError) {
+      const he2 = __require("he");
+      const escapedContent = he2.encode(output || md.render(input));
+      output = `<p dir="auto">${escapedContent}</p>`;
+    }
   }
   if (forApp && output) {
     encEntities.forEach((encEntity) => {

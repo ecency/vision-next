@@ -1,4 +1,5 @@
 import { DOMParser } from './consts'
+import type { Document } from '@xmldom/xmldom'
 
 export function createDoc(html: string): Document | null {
   if (html.trim() === '') {

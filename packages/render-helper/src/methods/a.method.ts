@@ -88,7 +88,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   ) {
     const isLCP = false; // LCP handled elsewhere
     const imgHTML = createImageHTML(href, isLCP, webp);
-    const replaceNode = DOMParser.parseFromString(imgHTML);
+    const doc = DOMParser.parseFromString(imgHTML, 'text/html');
+    const replaceNode = doc.documentElement || doc.firstChild
 
     el.parentNode.replaceChild(replaceNode, el)
 
@@ -727,7 +728,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       const author = e[1].replace(/(<([^>]+)>)/gi, '')
 
       const twitterCode = `<blockquote class="twitter-tweet"><p>${url}</p>- <a href="${url}">${author}</a></blockquote>`
-      const replaceNode = DOMParser.parseFromString(twitterCode)
+      const doc = DOMParser.parseFromString(twitterCode, 'text/html')
+      const replaceNode = doc.documentElement || doc.firstChild
       el.parentNode.replaceChild(replaceNode, el)
       return
     }
