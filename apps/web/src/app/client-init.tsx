@@ -54,26 +54,6 @@ export function ClientInit() {
       // Update currency from localStorage if it differs from SSR default
       setCurrency(storedCurrency);
     }
-
-    // Clear old wallet queries cache (migration from queries without currency parameter)
-    // This ensures production cache doesn't have stale data with old query keys
-    const WALLET_CACHE_VERSION = "v2-with-currency";
-    const currentCacheVersion = ls.get("wallet_cache_version");
-    if (currentCacheVersion !== WALLET_CACHE_VERSION) {
-      queryClient.removeQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          if (!Array.isArray(key) || key.length < 2) return false;
-          // Remove old portfolio, asset-info, list, and token-operations queries
-          return (
-            (key[0] === "ecency-wallets" &&
-              (key[1] === "portfolio" || key[1] === "asset-info" || key[1] === "list")) ||
-            (key[0] === "wallets" && key[1] === "token-operations")
-          );
-        },
-      });
-      ls.set("wallet_cache_version", WALLET_CACHE_VERSION);
-    }
   });
 
   return <></>;

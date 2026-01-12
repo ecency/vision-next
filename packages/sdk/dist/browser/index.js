@@ -90,6 +90,16 @@ var ConfigManager;
     CONFIG.privateApiHost = host;
   }
   ConfigManager2.setPrivateApiHost = setPrivateApiHost;
+  function getValidatedBaseUrl() {
+    if (CONFIG.privateApiHost) {
+      return CONFIG.privateApiHost;
+    }
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return window.location.origin;
+    }
+    return "https://ecency.com";
+  }
+  ConfigManager2.getValidatedBaseUrl = getValidatedBaseUrl;
   function setImageHost(host) {
     CONFIG.imageHost = host;
   }
@@ -1024,7 +1034,8 @@ function getReferralsInfiniteQueryOptions(username) {
     initialPageParam: { maxId: void 0 },
     queryFn: async ({ pageParam }) => {
       const { maxId } = pageParam ?? {};
-      const url = new URL(CONFIG.privateApiHost + `/private-api/referrals/${username}`);
+      const baseUrl = ConfigManager.getValidatedBaseUrl();
+      const url = new URL(`/private-api/referrals/${username}`, baseUrl);
       if (maxId !== void 0) {
         url.searchParams.set("max_id", maxId.toString());
       }
@@ -1187,9 +1198,8 @@ function getPromotedPostsQuery(type = "feed") {
   return queryOptions({
     queryKey: ["posts", "promoted", type],
     queryFn: async () => {
-      const url = new URL(
-        CONFIG.privateApiHost + "/private-api/promoted-entries"
-      );
+      const baseUrl = ConfigManager.getValidatedBaseUrl();
+      const url = new URL("/private-api/promoted-entries", baseUrl);
       if (type === "waves") {
         url.searchParams.append("short_content", "1");
       }
@@ -2114,7 +2124,8 @@ function getWavesByTagQueryOptions(host, tag, limit = DEFAULT_TAG_FEED_LIMIT) {
     initialPageParam: void 0,
     queryFn: async ({ signal }) => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/tags");
+        const baseUrl = ConfigManager.getValidatedBaseUrl();
+        const url = new URL("/private-api/waves/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("tag", tag);
         const response = await fetch(url.toString(), {
@@ -2151,7 +2162,8 @@ function getWavesFollowingQueryOptions(host, username) {
         return [];
       }
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/following");
+        const baseUrl = ConfigManager.getValidatedBaseUrl();
+        const url = new URL("/private-api/waves/following", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("username", normalizedUsername);
         const response = await fetch(url.toString(), {
@@ -2188,7 +2200,8 @@ function getWavesTrendingTagsQueryOptions(host, hours = 24) {
     queryKey: ["posts", "waves", "trending-tags", host, hours],
     queryFn: async ({ signal }) => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/trending/tags");
+        const baseUrl = ConfigManager.getValidatedBaseUrl();
+        const url = new URL("/private-api/waves/trending/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("hours", hours.toString());
         const response = await fetch(url.toString(), {
@@ -4828,7 +4841,8 @@ async function hsTokenRenew(code) {
 var ENGINE_RPC_HEADERS = { "Content-type": "application/json" };
 async function engineRpc(payload) {
   const fetchApi = getBoundFetch();
-  const response = await fetchApi(`${CONFIG.privateApiHost}/private-api/engine-api`, {
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const response = await fetchApi(`${baseUrl}/private-api/engine-api`, {
     method: "POST",
     body: JSON.stringify(payload),
     headers: ENGINE_RPC_HEADERS
@@ -5033,9 +5047,8 @@ async function getHiveEngineTokensMetadata(tokens) {
 }
 async function getHiveEngineTokenTransactions(username, symbol, limit, offset) {
   const fetchApi = getBoundFetch();
-  const url = new URL(
-    `${CONFIG.privateApiHost}/private-api/engine-account-history`
-  );
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const url = new URL("/private-api/engine-account-history", baseUrl);
   url.searchParams.set("account", username);
   url.searchParams.set("symbol", symbol);
   url.searchParams.set("limit", limit.toString());
@@ -5053,7 +5066,8 @@ async function getHiveEngineTokenTransactions(username, symbol, limit, offset) {
 }
 async function getHiveEngineTokenMetrics(symbol, interval = "daily") {
   const fetchApi = getBoundFetch();
-  const url = new URL(`${CONFIG.privateApiHost}/private-api/engine-chart-api`);
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const url = new URL("/private-api/engine-chart-api", baseUrl);
   url.searchParams.set("symbol", symbol);
   url.searchParams.set("interval", interval);
   const response = await fetchApi(url.toString(), {
@@ -5068,8 +5082,9 @@ async function getHiveEngineTokenMetrics(symbol, interval = "daily") {
 }
 async function getHiveEngineUnclaimedRewards(username) {
   const fetchApi = getBoundFetch();
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
   const response = await fetchApi(
-    `${CONFIG.privateApiHost}/private-api/engine-reward-api/${username}?hive=1`
+    `${baseUrl}/private-api/engine-reward-api/${username}?hive=1`
   );
   if (!response.ok) {
     throw new Error(

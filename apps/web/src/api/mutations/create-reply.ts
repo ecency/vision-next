@@ -67,7 +67,8 @@ export function useCreateReply(
         // Blockchain confirmed - replace optimistic entry with real one
         queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -89,7 +90,8 @@ export function useCreateReply(
         // Blockchain failed - remove optimistic entry
         queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -143,7 +145,8 @@ export function useCreateReply(
       // Add optimistic entry to cache immediately
       queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -168,7 +171,8 @@ export function useCreateReply(
       if (optimistic) {
         queryClient.setQueryData<Entry[]>(
             [
-              QueryIdentifiers.FETCH_DISCUSSIONS,
+              "posts",
+              "discussions",
               root.author,
               root.permlink,
               SortOrder.created,

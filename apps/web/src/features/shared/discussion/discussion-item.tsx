@@ -173,11 +173,12 @@ export const DiscussionItem = memo(function DiscussionItem({
   const queryClient = useQueryClient();
 
   const allReplies = queryClient.getQueryData<Entry[]>([
-    QueryIdentifiers.FETCH_DISCUSSIONS,
+    "posts",
+    "discussions",
     root.author,
     root.permlink,
     SortOrder.created,
-    activeUser?.username
+    activeUser?.username ?? root.author
   ]);
 
   const filtered = useMemo(
