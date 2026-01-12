@@ -10,7 +10,8 @@ export function getReferralsInfiniteQueryOptions(username: string) {
     initialPageParam: { maxId: undefined } as PageParam,
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
       const { maxId } = pageParam ?? {};
-      const url = new URL(CONFIG.privateApiHost + `/private-api/referrals/${username}`);
+      const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+      const url = new URL(`/private-api/referrals/${username}`, baseUrl);
 
       if (maxId !== undefined) {
         url.searchParams.set("max_id", maxId.toString());

@@ -1049,7 +1049,8 @@ function getReferralsInfiniteQueryOptions(username) {
     initialPageParam: { maxId: void 0 },
     queryFn: async ({ pageParam }) => {
       const { maxId } = pageParam ?? {};
-      const url = new URL(CONFIG.privateApiHost + `/private-api/referrals/${username}`);
+      const baseUrl = CONFIG.privateApiHost || (typeof window !== "undefined" ? window.location.origin : "");
+      const url = new URL(`/private-api/referrals/${username}`, baseUrl);
       if (maxId !== void 0) {
         url.searchParams.set("max_id", maxId.toString());
       }
@@ -2139,7 +2140,8 @@ function getWavesByTagQueryOptions(host, tag, limit = DEFAULT_TAG_FEED_LIMIT) {
     initialPageParam: void 0,
     queryFn: async ({ signal }) => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/tags");
+        const baseUrl = CONFIG.privateApiHost || (typeof window !== "undefined" ? window.location.origin : "");
+        const url = new URL("/private-api/waves/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("tag", tag);
         const response = await fetch(url.toString(), {
@@ -2176,7 +2178,8 @@ function getWavesFollowingQueryOptions(host, username) {
         return [];
       }
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/following");
+        const baseUrl = CONFIG.privateApiHost || (typeof window !== "undefined" ? window.location.origin : "");
+        const url = new URL("/private-api/waves/following", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("username", normalizedUsername);
         const response = await fetch(url.toString(), {
@@ -2213,7 +2216,8 @@ function getWavesTrendingTagsQueryOptions(host, hours = 24) {
     queryKey: ["posts", "waves", "trending-tags", host, hours],
     queryFn: async ({ signal }) => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/trending/tags");
+        const baseUrl = CONFIG.privateApiHost || (typeof window !== "undefined" ? window.location.origin : "");
+        const url = new URL("/private-api/waves/trending/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("hours", hours.toString());
         const response = await fetch(url.toString(), {

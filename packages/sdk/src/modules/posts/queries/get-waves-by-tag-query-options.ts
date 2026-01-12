@@ -18,7 +18,8 @@ export function getWavesByTagQueryOptions(host: string, tag: string, limit = DEF
 
     queryFn: async ({ signal }) => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/tags");
+        const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+        const url = new URL("/private-api/waves/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("tag", tag);
 

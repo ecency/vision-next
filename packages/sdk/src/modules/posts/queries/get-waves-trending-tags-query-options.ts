@@ -12,7 +12,8 @@ export function getWavesTrendingTagsQueryOptions(host: string, hours = 24) {
     queryKey: ["posts", "waves", "trending-tags", host, hours],
     queryFn: async ({ signal }): Promise<WaveTrendingTag[]> => {
       try {
-        const url = new URL(CONFIG.privateApiHost + "/private-api/waves/trending/tags");
+        const baseUrl = CONFIG.privateApiHost || (typeof window !== 'undefined' ? window.location.origin : '');
+        const url = new URL("/private-api/waves/trending/tags", baseUrl);
         url.searchParams.set("container", host);
         url.searchParams.set("hours", hours.toString());
 
