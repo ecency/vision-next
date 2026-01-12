@@ -14,7 +14,17 @@ export function getSdkAuthContext(user?: User): AuthContext | undefined {
     loginType: user.loginType,
   };
 
-  if (user.loginType === "keychain") {
+  // Check HiveAuth first (takes precedence)
+  if (user.loginType === "hiveauth" || shouldUseHiveAuth(user.username)) {
+    auth.broadcast = (operations, authority = "posting") => {
+      if (authority === "active" || authority === "posting") {
+        return broadcastWithHiveAuth(user.username, operations, authority);
+      }
+      throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
+    };
+  }
+  // Set up keychain broadcast only when explicitly using keychain
+  else if (user.loginType === "keychain") {
     auth.broadcast = (operations, authority = "posting") => {
       const keychainAuthority =
         authority === "active"
@@ -29,15 +39,8 @@ export function getSdkAuthContext(user?: User): AuthContext | undefined {
         .then((result: any) => result.result);
     };
   }
-
-  if (user.loginType === "hiveauth" || shouldUseHiveAuth(user.username)) {
-    auth.broadcast = (operations, authority = "posting") => {
-      if (authority === "active" || authority === "posting") {
-        return broadcastWithHiveAuth(user.username, operations, authority);
-      }
-      throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
-    };
-  }
+  // hivesigner, privateKey, and undefined loginType don't need auth.broadcast setup
+  // (hivesigner uses hs.sendOperation directly, privateKey uses key directly)
 
   return auth;
 }

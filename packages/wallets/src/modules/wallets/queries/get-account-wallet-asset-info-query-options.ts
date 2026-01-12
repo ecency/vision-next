@@ -77,6 +77,21 @@ export function getAccountWalletAssetInfoQueryOptions(
       // Convert VisionPortfolioWalletItem (PortfolioItem from API) to GeneralAssetInfo
       if (!assetInfo) return undefined;
 
+      // Build parts array from portfolio v2 fields
+      const parts: Array<{ name: string; balance: number }> = [];
+
+      if (assetInfo.liquid !== undefined && assetInfo.liquid !== null) {
+        parts.push({ name: "liquid", balance: assetInfo.liquid });
+      }
+
+      if (assetInfo.staked !== undefined && assetInfo.staked !== null && assetInfo.staked > 0) {
+        parts.push({ name: "staked", balance: assetInfo.staked });
+      }
+
+      if (assetInfo.savings !== undefined && assetInfo.savings !== null && assetInfo.savings > 0) {
+        parts.push({ name: "savings", balance: assetInfo.savings });
+      }
+
       return {
         name: assetInfo.symbol,
         title: assetInfo.name,
@@ -85,6 +100,7 @@ export function getAccountWalletAssetInfoQueryOptions(
         apr: assetInfo.apr?.toString(),
         layer: assetInfo.layer,
         pendingRewards: assetInfo.pendingRewards,
+        parts,
       } as GeneralAssetInfo;
     } catch (e) {
       return undefined;

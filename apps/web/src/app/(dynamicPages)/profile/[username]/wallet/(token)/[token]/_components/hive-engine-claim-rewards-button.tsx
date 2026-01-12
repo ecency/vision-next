@@ -158,12 +158,14 @@ export function HiveEngineClaimRewardsButton({
 
       const user = getUser(cleanUsername);
       const loginType = user?.loginType;
+
+      // When loginType is undefined, default to hivesigner (no extension required)
       const signType =
-        loginType === "hivesigner"
-          ? "hivesigner"
-          : shouldUseHiveAuth(cleanUsername)
-            ? "hiveauth"
-            : "keychain";
+        shouldUseHiveAuth(cleanUsername)
+          ? "hiveauth"
+          : loginType === "keychain"
+            ? "keychain"
+            : "hivesigner";
 
       if (loginType === "privateKey" && user?.postingKey) {
         await claimHiveEngineRewards({
