@@ -401,7 +401,7 @@ var getInlineMeta = (el, href) => {
     isInline: !(textMatches || titleMatches)
   };
 };
-function a(el, forApp, webp) {
+function a(el, forApp, webp, parentDomain = "ecency.com") {
   if (!el || !el.parentNode) {
     return;
   }
@@ -423,7 +423,8 @@ function a(el, forApp, webp) {
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
-      el.parentNode.replaceChild(replaceNode, el);
+      const importedNode = el.ownerDocument.importNode(replaceNode, true);
+      el.parentNode.replaceChild(importedNode, el);
     }
     return;
   }
@@ -958,7 +959,7 @@ function a(el, forApp, webp) {
 }
 
 // src/methods/iframe.method.ts
-function iframe(el) {
+function iframe(el, parentDomain = "ecency.com") {
   if (!el || !el.parentNode) {
     return;
   }
@@ -982,7 +983,6 @@ function iframe(el) {
     return;
   }
   if (src.match(TWITCH_EMBED_REGEX)) {
-    const parentDomain = "ecency.com";
     const s = `${src}&parent=${parentDomain}&autoplay=false`;
     el.setAttribute("src", s);
     return;
@@ -1228,16 +1228,16 @@ function text(node, forApp, webp) {
 }
 
 // src/methods/traverse.method.ts
-function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }) {
+function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain = "ecency.com") {
   if (!node || !node.childNodes) {
     return;
   }
   Array.from(Array(node.childNodes.length).keys()).map((i) => node.childNodes[i]).forEach((child) => {
     if (child.nodeName.toLowerCase() === "a") {
-      a(child, forApp, webp);
+      a(child, forApp, webp, parentDomain);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
-      iframe(child);
+      iframe(child, parentDomain);
     }
     if (child.nodeName === "#text") {
       text(child, forApp, webp);
@@ -1248,7 +1248,7 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
     if (child.nodeName.toLowerCase() === "p") {
       p(child);
     }
-    traverse(child, forApp, depth + 1, webp, state);
+    traverse(child, forApp, depth + 1, webp, state, parentDomain);
   });
 }
 
@@ -1267,7 +1267,7 @@ function getLolightInstance() {
   }
   return lolight;
 }
-function markdownToHTML(input, forApp, webp) {
+function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
@@ -1326,7 +1326,7 @@ function markdownToHTML(input, forApp, webp) {
   try {
     output = md.render(input);
     const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, "text/html");
-    traverse(doc, forApp, 0, webp);
+    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
@@ -1341,7 +1341,7 @@ function markdownToHTML(input, forApp, webp) {
       });
       const repairedHtml = domSerializer(dom.children);
       const doc = DOMParser.parseFromString(`<body id="root">${repairedHtml}</body>`, "text/html");
-      traverse(doc, forApp, 0, webp);
+      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
       const he2 = __require("he");
@@ -1370,18 +1370,18 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-function markdown2Html(obj, forApp = true, webp = false) {
+function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.com") {
   if (typeof obj === "string") {
     const cleanedStr = cleanReply(obj);
-    return markdownToHTML(cleanedStr, forApp, webp);
+    return markdownToHTML(cleanedStr, forApp, webp, parentDomain);
   }
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}`;
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}-${parentDomain}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
   const cleanBody = cleanReply(obj.body);
-  const res = markdownToHTML(cleanBody, forApp, webp);
+  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain);
   cacheSet(key, res);
   return res;
 }

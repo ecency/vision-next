@@ -19,7 +19,7 @@ function getLolightInstance() {
   return lolight
 }
 
-export function markdownToHTML(input: string, forApp: boolean, webp: boolean): string {
+export function markdownToHTML(input: string, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): string {
   // Internalize leofinance.io links
   input = input.replace(new RegExp("https://leofinance.io/threads/view/","g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/","g"), "/@");
@@ -93,7 +93,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
     output = md.render(input)
     const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, 'text/html')
 
-    traverse(doc, forApp, 0, webp)
+    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
 
     output = serializer.serializeToString(doc)
   } catch (error) {
@@ -125,7 +125,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
       // Now parse the well-formed HTML with @xmldom/xmldom
       const doc = DOMParser.parseFromString(`<body id="root">${repairedHtml}</body>`, 'text/html')
 
-      traverse(doc, forApp, 0, webp)
+      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
 
       output = serializer.serializeToString(doc)
     } catch (fallbackError) {

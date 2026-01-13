@@ -55,7 +55,7 @@ const getInlineMeta = (el: HTMLElement, href: string) => {
 }
 
 
-export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void {
+export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -92,7 +92,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     const replaceNode = doc.body?.firstChild || doc.firstChild
 
     if (replaceNode) {
-      el.parentNode.replaceChild(replaceNode, el)
+      const importedNode = el.ownerDocument.importNode(replaceNode, true)
+      el.parentNode.replaceChild(importedNode, el)
     }
 
     return

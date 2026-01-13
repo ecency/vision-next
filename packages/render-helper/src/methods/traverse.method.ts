@@ -4,7 +4,7 @@ import { img } from './img.method'
 import { p } from './p.method'
 import { text } from './text.method'
 
-export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, state = { firstImageFound: false }): void {
+export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain: string = 'ecency.com'): void {
   if (!node || !node.childNodes) {
     return
   }
@@ -13,10 +13,10 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     .map(i => node.childNodes[i])
     .forEach(child => {
       if (child.nodeName.toLowerCase() === 'a') {
-        a(<HTMLElement>child, forApp, webp)
+        a(<HTMLElement>child, forApp, webp, parentDomain)
       }
       if (child.nodeName.toLowerCase() === 'iframe') {
-        iframe(<HTMLElement>child)
+        iframe(<HTMLElement>child, parentDomain)
       }
       if (child.nodeName === '#text') {
         text(<HTMLElement>child, forApp, webp)
@@ -28,6 +28,6 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
         p(<HTMLElement>child)
       }
 
-      traverse(child, forApp, depth + 1, webp, state)
+      traverse(child, forApp, depth + 1, webp, state, parentDomain)
     })
 }

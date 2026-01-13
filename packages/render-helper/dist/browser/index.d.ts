@@ -6,7 +6,7 @@ interface Entry {
     json_metadata?: any;
 }
 
-declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean): string;
+declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean, parentDomain?: string): string;
 
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
