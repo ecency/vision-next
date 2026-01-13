@@ -50,7 +50,7 @@ const getInlineMeta = (el: HTMLElement, href: string) => {
 
   return {
     textMatches,
-    nonInline: textMatches || titleMatches
+    isInline: !(textMatches || titleMatches)
   }
 }
 
@@ -89,9 +89,11 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     const isLCP = false; // LCP handled elsewhere
     const imgHTML = createImageHTML(href, isLCP, webp);
     const doc = DOMParser.parseFromString(imgHTML, 'text/html');
-    const replaceNode = doc.documentElement || doc.firstChild
+    const replaceNode = doc.body?.firstChild || doc.firstChild
 
-    el.parentNode.replaceChild(replaceNode, el)
+    if (replaceNode) {
+      el.parentNode.replaceChild(replaceNode, el)
+    }
 
     return
   }
@@ -120,7 +122,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
   // If a hive post
   const postMatch = href.match(POST_REGEX)
-  if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./,''))) {
+  if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/^www\./,''))) {
     el.setAttribute('class', 'markdown-post-link')
 
     const tag = postMatch[2]
@@ -133,7 +135,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`
     }
-    const isInline = !inlineMeta.nonInline
+    const isInline = inlineMeta.isInline
     if (forApp) {
       el.removeAttribute('href')
 
@@ -153,7 +155,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
   // If a hive user with url
   const mentionMatch = href.match(MENTION_REGEX)
-  if (mentionMatch && WHITE_LIST.includes(mentionMatch[1].replace(/www./,'')) && mentionMatch.length === 3) {
+  if (mentionMatch && WHITE_LIST.includes(mentionMatch[1].replace(/^www\./,'')) && mentionMatch.length === 3) {
     const _author = mentionMatch[2].replace('@', '')
     if (!isValidUsername(_author)) return
     const author = _author.toLowerCase()
@@ -201,8 +203,14 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       return
     } else {
       // check if domain is not whitelist and does contain dot (not tag e.g. `/ecency`)
-      if (tpostMatch[1] && tpostMatch[1].includes('.') && !WHITE_LIST.some(v => tpostMatch[1].includes(v))) {
-        return
+      if (tpostMatch[1] && tpostMatch[1].includes('.')) {
+        // Extract domain from URL (strip protocol and www.)
+        const domain = tpostMatch[1]
+          .replace(/^https?:\/\//, '') // Remove protocol
+          .replace(/^www\./, '')        // Remove www. prefix
+        if (!WHITE_LIST.includes(domain)) {
+          return
+        }
       }
       let tag = 'post'
       // check if tag does exist and doesn't include dot likely word/tag
@@ -221,7 +229,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`
       }
-      const isInline = !inlineMeta.nonInline
+      const isInline = inlineMeta.isInline
       if (forApp) {
         el.removeAttribute('href')
 
@@ -301,7 +309,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`
       }
-      const isInline = !inlineMeta.nonInline
+      const isInline = inlineMeta.isInline
       if (forApp) {
         el.removeAttribute('href')
 
@@ -322,7 +330,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
   // If topic with filters url
   const topicMatch = href.match(TOPIC_REGEX)
-  if (topicMatch && WHITE_LIST.includes(topicMatch[1].replace(/www./,'')) && topicMatch.length === 4) {
+  if (topicMatch && WHITE_LIST.includes(topicMatch[1].replace(/^www\./,'')) && topicMatch.length === 4) {
     el.setAttribute('class', 'markdown-tag-link')
     const filter = topicMatch[2]
     const tag = topicMatch[3]
@@ -407,7 +415,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`
     }
-    const isInline = !inlineMeta.nonInline
+    const isInline = inlineMeta.isInline
     if (forApp) {
       el.removeAttribute('href')
 
@@ -770,14 +778,18 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     return
   }
 
-  if (href.indexOf('hivesigner.com/sign/update-proposal-votes?proposal_ids') > 0 && forApp) {
-    const m = decodeURI(href).match(/proposal_ids=\[(\d+)]/)
-    if (m) {
-      el.setAttribute('class', 'markdown-proposal-link')
-      el.setAttribute('data-href', href)
-      el.setAttribute('data-proposal', m[1])
-      el.removeAttribute('href')
-      return
+  if (href.indexOf('hivesigner.com/sign/update-proposal-votes?proposal_ids') >= 0 && forApp) {
+    try {
+      const m = decodeURI(href).match(/proposal_ids=\[(\d+)]/)
+      if (m) {
+        el.setAttribute('class', 'markdown-proposal-link')
+        el.setAttribute('data-href', href)
+        el.setAttribute('data-proposal', m[1])
+        el.removeAttribute('href')
+        return
+      }
+    } catch (e) {
+      // Invalid URI encoding, skip processing
     }
   }
 

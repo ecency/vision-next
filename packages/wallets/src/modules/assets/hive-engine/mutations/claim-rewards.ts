@@ -30,14 +30,18 @@ export async function claimHiveEngineRewards<T extends HiveBasedAssetSignType>(
     return CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
   }
 
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "posting");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  }
+
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "posting");
+    }
+    return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
   }
 
   return hs.sendOperation(

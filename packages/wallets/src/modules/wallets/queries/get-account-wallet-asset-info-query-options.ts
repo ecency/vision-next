@@ -92,6 +92,34 @@ export function getAccountWalletAssetInfoQueryOptions(
         parts.push({ name: "savings", balance: assetInfo.savings });
       }
 
+      // Extract delegation and power down data from extraData for HP
+      if (assetInfo.extraData && Array.isArray(assetInfo.extraData)) {
+        for (const extraItem of assetInfo.extraData) {
+          if (!extraItem || typeof extraItem !== "object") continue;
+
+          const dataKey = extraItem.dataKey;
+          const value = extraItem.value;
+
+          // Parse values from strings like "+ 7.645 HP", "- 1.293 HP", or "- 3,176.224 HP"
+          if (typeof value === "string") {
+            // Remove commas from formatted numbers like "3,176.224"
+            const cleanValue = value.replace(/,/g, "");
+            const match = cleanValue.match(/[+-]?\s*(\d+(?:\.\d+)?)/);
+            if (match) {
+              const numValue = Math.abs(Number.parseFloat(match[1]));
+
+              if (dataKey === "delegated_hive_power") {
+                parts.push({ name: "outgoing_delegations", balance: numValue });
+              } else if (dataKey === "received_hive_power") {
+                parts.push({ name: "incoming_delegations", balance: numValue });
+              } else if (dataKey === "powering_down_hive_power") {
+                parts.push({ name: "pending_power_down", balance: numValue });
+              }
+            }
+          }
+        }
+      }
+
       return {
         name: assetInfo.symbol,
         title: assetInfo.name,

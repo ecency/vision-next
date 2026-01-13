@@ -1264,14 +1264,16 @@ async function transferHive(payload, auth) {
       },
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
       operation,
@@ -1295,14 +1297,16 @@ async function transferToSavingsHive(payload, auth) {
       [["transfer_to_savings", params]],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
@@ -1325,14 +1329,17 @@ async function transferFromSavingsHive(payload, auth) {
       key
     );
   }
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   }
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
@@ -1351,14 +1358,16 @@ async function powerUpHive(payload, auth) {
       [["transfer_to_vesting", params]],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
@@ -1377,14 +1386,16 @@ async function delegateHive(payload, auth) {
       [operation],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
@@ -1402,14 +1413,16 @@ async function powerDownHive(payload, auth) {
       [operation],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
@@ -1430,14 +1443,17 @@ async function withdrawVestingRouteHive(payload, auth) {
       key
     );
   }
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
   }
   const { type, ...params } = payload;
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {
@@ -1540,14 +1556,17 @@ async function claimInterestHive(payload, auth) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast(operations, "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, operations, "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
   }
   return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
@@ -1566,14 +1585,16 @@ async function convertHbd(payload, auth) {
       [["convert", { ...params, owner: params.from, requestid }]],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
@@ -1626,14 +1647,16 @@ async function transferSpk(payload, auth) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1673,14 +1696,16 @@ var lockLarynx = async (payload, auth) => {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1716,14 +1741,16 @@ async function powerUpLarynx(payload, auth) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -1763,14 +1790,16 @@ async function transferLarynx(payload, auth) {
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(
@@ -2272,16 +2301,17 @@ function getHiveEngineUnclaimedRewardsQueryOptions(username) {
 
 // src/modules/assets/hive-engine/mutations/broadcast-hive-engine-operation.ts
 async function broadcastHiveEngineOperation(payload, operation, auth) {
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
     }
-    if (payload.type === "keychain") {
-      throw new Error("[SDK][Wallets] \u2013 keychain requires auth.broadcast");
-    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   }
   throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
 }
@@ -2612,14 +2642,17 @@ async function claimHiveEngineRewards(payload, auth) {
   if (payload.type === "key" && "key" in payload) {
     return CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
   }
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "posting");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "posting");
+    }
+    return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
   }
   return hs.sendOperation(
     operation,
@@ -2803,14 +2836,17 @@ async function transferPoint({
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.sendOperations([op], key);
   }
-  if (type === "keychain" || type === "hiveauth") {
+  if (type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([op], "active");
     }
-    if (type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(from, [op], "active");
-    }
     throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  }
+  if (type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
+    return broadcastWithWalletHiveAuth(from, [op], "active");
   }
   return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {
   });
@@ -3604,6 +3640,27 @@ function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { ref
       }
       if (assetInfo.savings !== void 0 && assetInfo.savings !== null && assetInfo.savings > 0) {
         parts.push({ name: "savings", balance: assetInfo.savings });
+      }
+      if (assetInfo.extraData && Array.isArray(assetInfo.extraData)) {
+        for (const extraItem of assetInfo.extraData) {
+          if (!extraItem || typeof extraItem !== "object") continue;
+          const dataKey = extraItem.dataKey;
+          const value = extraItem.value;
+          if (typeof value === "string") {
+            const cleanValue = value.replace(/,/g, "");
+            const match = cleanValue.match(/[+-]?\s*(\d+(?:\.\d+)?)/);
+            if (match) {
+              const numValue = Math.abs(Number.parseFloat(match[1]));
+              if (dataKey === "delegated_hive_power") {
+                parts.push({ name: "outgoing_delegations", balance: numValue });
+              } else if (dataKey === "received_hive_power") {
+                parts.push({ name: "incoming_delegations", balance: numValue });
+              } else if (dataKey === "powering_down_hive_power") {
+                parts.push({ name: "pending_power_down", balance: numValue });
+              }
+            }
+          }
+        }
       }
       return {
         name: assetInfo.symbol,

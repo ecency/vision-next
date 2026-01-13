@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function List(props: HTMLProps<HTMLDivElement> & Props) {
-  const nativeProps = useFilteredProps(props, ["defer", "inline"]);
+  const nativeProps = useFilteredProps(props, ["defer", "inline", "grid"]);
 
   return (
     <div

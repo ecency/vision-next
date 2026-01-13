@@ -27,14 +27,16 @@ export async function powerDownHive<T extends HiveBasedAssetSignType>(
       [operation],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
   }

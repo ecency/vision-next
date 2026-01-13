@@ -4,6 +4,8 @@ var xmldom = require('@xmldom/xmldom');
 var xss = require('xss');
 var multihash = require('multihashes');
 var querystring = require('querystring');
+var remarkable = require('remarkable');
+var linkify$1 = require('remarkable/linkify');
 var lruCache = require('lru-cache');
 var he = require('he');
 
@@ -396,7 +398,7 @@ var getInlineMeta = (el, href) => {
   const titleMatches = matchesHref(href, el.getAttribute("title"));
   return {
     textMatches,
-    nonInline: textMatches || titleMatches
+    isInline: !(textMatches || titleMatches)
   };
 };
 function a(el, forApp, webp) {
@@ -419,8 +421,10 @@ function a(el, forApp, webp) {
     const isLCP = false;
     const imgHTML = createImageHTML(href, isLCP, webp);
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
-    const replaceNode = doc.documentElement || doc.firstChild;
-    el.parentNode.replaceChild(replaceNode, el);
+    const replaceNode = doc.body?.firstChild || doc.firstChild;
+    if (replaceNode) {
+      el.parentNode.replaceChild(replaceNode, el);
+    }
     return;
   }
   if (href.match(IPFS_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&") && href.indexOf("#") === -1) {
@@ -436,7 +440,7 @@ function a(el, forApp, webp) {
     return;
   }
   const postMatch = href.match(POST_REGEX);
-  if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./, ""))) {
+  if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/^www\./, ""))) {
     el.setAttribute("class", "markdown-post-link");
     const tag = postMatch[2];
     const author = postMatch[3].replace("@", "");
@@ -446,7 +450,7 @@ function a(el, forApp, webp) {
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }
-    const isInline = !inlineMeta.nonInline;
+    const isInline = inlineMeta.isInline;
     if (forApp) {
       el.removeAttribute("href");
       el.setAttribute("data-href", href);
@@ -462,7 +466,7 @@ function a(el, forApp, webp) {
     return;
   }
   const mentionMatch = href.match(MENTION_REGEX);
-  if (mentionMatch && WHITE_LIST.includes(mentionMatch[1].replace(/www./, "")) && mentionMatch.length === 3) {
+  if (mentionMatch && WHITE_LIST.includes(mentionMatch[1].replace(/^www\./, "")) && mentionMatch.length === 3) {
     const _author = mentionMatch[2].replace("@", "");
     if (!isValidUsername(_author)) return;
     const author = _author.toLowerCase();
@@ -500,8 +504,11 @@ function a(el, forApp, webp) {
       }
       return;
     } else {
-      if (tpostMatch[1] && tpostMatch[1].includes(".") && !WHITE_LIST.some((v) => tpostMatch[1].includes(v))) {
-        return;
+      if (tpostMatch[1] && tpostMatch[1].includes(".")) {
+        const domain = tpostMatch[1].replace(/^https?:\/\//, "").replace(/^www\./, "");
+        if (!WHITE_LIST.includes(domain)) {
+          return;
+        }
       }
       let tag = "post";
       if (tpostMatch[1] && !tpostMatch[1].includes(".")) {
@@ -516,7 +523,7 @@ function a(el, forApp, webp) {
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
-      const isInline = !inlineMeta.nonInline;
+      const isInline = inlineMeta.isInline;
       if (forApp) {
         el.removeAttribute("href");
         el.setAttribute("data-href", href);
@@ -579,7 +586,7 @@ function a(el, forApp, webp) {
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
-      const isInline = !inlineMeta.nonInline;
+      const isInline = inlineMeta.isInline;
       if (forApp) {
         el.removeAttribute("href");
         el.setAttribute("data-href", href);
@@ -596,7 +603,7 @@ function a(el, forApp, webp) {
     }
   }
   const topicMatch = href.match(TOPIC_REGEX);
-  if (topicMatch && WHITE_LIST.includes(topicMatch[1].replace(/www./, "")) && topicMatch.length === 4) {
+  if (topicMatch && WHITE_LIST.includes(topicMatch[1].replace(/^www\./, "")) && topicMatch.length === 4) {
     el.setAttribute("class", "markdown-tag-link");
     const filter = topicMatch[2];
     const tag = topicMatch[3];
@@ -664,7 +671,7 @@ function a(el, forApp, webp) {
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }
-    const isInline = !inlineMeta.nonInline;
+    const isInline = inlineMeta.isInline;
     if (forApp) {
       el.removeAttribute("href");
       el.setAttribute("data-href", href);
@@ -933,14 +940,17 @@ function a(el, forApp, webp) {
     el.removeAttribute("href");
     return;
   }
-  if (href.indexOf("hivesigner.com/sign/update-proposal-votes?proposal_ids") > 0 && forApp) {
-    const m = decodeURI(href).match(/proposal_ids=\[(\d+)]/);
-    if (m) {
-      el.setAttribute("class", "markdown-proposal-link");
-      el.setAttribute("data-href", href);
-      el.setAttribute("data-proposal", m[1]);
-      el.removeAttribute("href");
-      return;
+  if (href.indexOf("hivesigner.com/sign/update-proposal-votes?proposal_ids") >= 0 && forApp) {
+    try {
+      const m = decodeURI(href).match(/proposal_ids=\[(\d+)]/);
+      if (m) {
+        el.setAttribute("class", "markdown-proposal-link");
+        el.setAttribute("data-href", href);
+        el.setAttribute("data-proposal", m[1]);
+        el.removeAttribute("href");
+        return;
+      }
+    } catch (e) {
     }
   }
   el.setAttribute("class", "markdown-external-link");
@@ -1272,8 +1282,6 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
 function cleanReply(s) {
   return (s ? s.split("\n").filter((item) => item.toLowerCase().includes("posted using [partiko") === false).filter((item) => item.toLowerCase().includes("posted using [dapplr") === false).filter((item) => item.toLowerCase().includes("posted using [leofinance") === false).filter((item) => item.toLowerCase().includes("posted via [neoxian") === false).filter((item) => item.toLowerCase().includes("posted using [neoxian") === false).filter((item) => item.toLowerCase().includes("posted with [stemgeeks") === false).filter((item) => item.toLowerCase().includes("posted using [bilpcoin") === false).filter((item) => item.toLowerCase().includes("posted using [inleo") === false).filter((item) => item.toLowerCase().includes("posted using [sportstalksocial]") === false).filter((item) => item.toLowerCase().includes("<center><sub>[posted using aeneas.blog") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [proofofbrain.io") === false).filter((item) => item.toLowerCase().includes("<center>posted on [hypnochain") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [weedcash.network") === false).filter((item) => item.toLowerCase().includes("<center>posted on [naturalmedicine.io") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [musicforlife.io") === false).filter((item) => item.toLowerCase().includes("if the truvvl embed is unsupported by your current frontend, click this link to view this story") === false).filter((item) => item.toLowerCase().includes("<center><em>posted from truvvl") === false).filter((item) => item.toLowerCase().includes('view this post <a href="https://travelfeed.io/') === false).filter((item) => item.toLowerCase().includes("read this post on travelfeed.io for the best experience") === false).filter((item) => item.toLowerCase().includes('posted via <a href="https://www.dporn.co/"') === false).filter((item) => item.toLowerCase().includes("\u25B6\uFE0F [watch on 3speak](https://3speak") === false).filter((item) => item.toLowerCase().includes("<sup><sub>posted via [inji.com]") === false).filter((item) => item.toLowerCase().includes("view this post on [liketu]") === false).filter((item) => item.toLowerCase().includes("[via Inbox]") === false).join("\n") : "").replace('Posted via <a href="https://d.buzz" data-link="promote-link">D.Buzz</a>', "").replace('<div class="pull-right"><a href="/@hive.engage">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace('<div><a href="https://engage.hivechain.app">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace(`<div class="text-center"><img src="https://cdn.steemitimages.com/DQmNp6YwAm2qwquALZw8PdcovDorwaBSFuxQ38TrYziGT6b/A-20.png"><a href="https://bit.ly/actifit-app"><img src="https://cdn.steemitimages.com/DQmQqfpSmcQtfrHAtzfBtVccXwUL9vKNgZJ2j93m8WNjizw/l5.png"></a><a href="https://bit.ly/actifit-ios"><img src="https://cdn.steemitimages.com/DQmbWy8KzKT1UvCvznUTaFPw6wBUcyLtBT5XL9wdbB7Hfmn/l6.png"></a></div>`, "");
 }
-var { Remarkable } = __require("remarkable");
-var { linkify: linkify2 } = __require("remarkable/linkify");
 var lolight = null;
 function getLolightInstance() {
   if (!lolight) {
@@ -1292,7 +1300,7 @@ function markdownToHTML(input, forApp, webp) {
   input = input.replace(new RegExp("https://inleo.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://inleo.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://inleo.io/threads/", "g"), "/@");
-  const md = new Remarkable({
+  const md = new remarkable.Remarkable({
     html: true,
     breaks: true,
     typographer: false,
@@ -1311,7 +1319,7 @@ function markdownToHTML(input, forApp, webp) {
       }
       return str;
     }
-  }).use(linkify2);
+  }).use(linkify$1.linkify);
   md.core.ruler.enable([
     "abbr"
   ]);
@@ -1336,7 +1344,7 @@ function markdownToHTML(input, forApp, webp) {
   if (entities && forApp) {
     const uniqueEntities = [...new Set(entities)];
     uniqueEntities.forEach((entity, index) => {
-      const placeholder = `__ENTITY_${index}__`;
+      const placeholder = `\u200B${index}\u200B`;
       entityPlaceholders.push(entity);
       input = input.split(entity).join(placeholder);
     });
@@ -1369,7 +1377,7 @@ function markdownToHTML(input, forApp, webp) {
   }
   if (forApp && output && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
-      const placeholder = `__ENTITY_${index}__`;
+      const placeholder = `\u200B${index}\u200B`;
       output = output.split(placeholder).join(entity);
     });
   }
@@ -1467,8 +1475,6 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
   cacheSet(key, res);
   return res;
 }
-var { Remarkable: Remarkable2 } = __require("remarkable");
-var { linkify: linkify3 } = __require("remarkable/linkify");
 var joint = (arr, limit = 200) => {
   let result = "";
   if (arr) {
@@ -1489,16 +1495,16 @@ var joint = (arr, limit = 200) => {
   }
   return result.trim();
 };
-function postBodySummary(entryBody, length, platform = "web") {
+function postBodySummary(entryBody, length = 200, platform = "web") {
   if (!entryBody) {
     return "";
   }
   entryBody = cleanReply(entryBody);
-  const mdd = new Remarkable2({
+  const mdd = new remarkable.Remarkable({
     html: true,
     breaks: true,
     typographer: false
-  }).use(linkify3);
+  }).use(linkify$1.linkify);
   mdd.core.ruler.enable([
     "abbr"
   ]);
@@ -1518,7 +1524,7 @@ function postBodySummary(entryBody, length, platform = "web") {
   if (entities && platform !== "web") {
     const uniqueEntities = [...new Set(entities)];
     uniqueEntities.forEach((entity, index) => {
-      const placeholder = `__ENTITY_${index}__`;
+      const placeholder = `\u200B${index}\u200B`;
       entityPlaceholders.push(entity);
       entryBody = entryBody.split(entity).join(placeholder);
     });
@@ -1536,12 +1542,12 @@ function postBodySummary(entryBody, length, platform = "web") {
   }
   if (platform !== "web" && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
-      const placeholder = `__ENTITY_${index}__`;
+      const placeholder = `\u200B${index}\u200B`;
       text2 = text2.split(placeholder).join(entity);
     });
   }
   text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ +(?= )/g, "");
-  if (length) {
+  if (length > 0) {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
@@ -1550,15 +1556,17 @@ function postBodySummary(entryBody, length, platform = "web") {
   return text2;
 }
 function getPostBodySummary(obj, length, platform) {
+  const normalizedLength = length ?? 200;
+  const normalizedPlatform = platform || "web";
   if (typeof obj === "string") {
-    return postBodySummary(obj, length, platform);
+    return postBodySummary(obj, normalizedLength, normalizedPlatform);
   }
-  const key = `${makeEntryCacheKey(obj)}-sum-${length}-${platform || "web"}`;
+  const key = `${makeEntryCacheKey(obj)}-sum-${normalizedLength}-${normalizedPlatform}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
-  const res = postBodySummary(obj.body, length, platform);
+  const res = postBodySummary(obj.body, normalizedLength, normalizedPlatform);
   cacheSet(key, res);
   return res;
 }

@@ -44,14 +44,18 @@ export async function transferFromSavingsHive<
     );
   }
 
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  }
+
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   }
 
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});

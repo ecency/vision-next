@@ -41,14 +41,16 @@ export async function powerUpLarynx<T extends HiveBasedAssetSignType>(
   if (payload.type === "key" && "key" in payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
     return hs.sign(

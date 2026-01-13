@@ -49,14 +49,16 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
       },
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     // For hivesigner, include the same payload fields; amount already contains token denomination
     return hs.sendOperation(

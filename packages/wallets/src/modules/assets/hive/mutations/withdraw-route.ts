@@ -35,14 +35,18 @@ export async function withdrawVestingRouteHive<
     );
   }
 
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  }
+
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
   }
 
   const { type, ...params } = payload as Payload<"hivesigner">;

@@ -2,9 +2,8 @@ import { traverse } from './traverse.method'
 import { sanitizeHtml } from './sanitize-html.method'
 import { DOMParser, ENTITY_REGEX } from '../consts'
 import { XMLSerializer } from '@xmldom/xmldom'
-
-const { Remarkable } = require('remarkable')
-const { linkify } = require('remarkable/linkify')
+import { Remarkable } from 'remarkable'
+import { linkify } from 'remarkable/linkify'
 
 // Lazy-load lolight to avoid dynamic require issues in browser builds
 let lolight: any = null
@@ -81,8 +80,8 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
     // Deduplicate entities to avoid duplicate placeholders
     const uniqueEntities = [...new Set(entities)];
     uniqueEntities.forEach((entity, index) => {
-      // Use deterministic unique placeholder
-      const placeholder = `__ENTITY_${index}__`;
+      // Use markdown-inert Unicode placeholder (zero-width spaces)
+      const placeholder = `\u200B${index}\u200B`;
       entityPlaceholders.push(entity);
       // Replace all occurrences of this entity
       input = input.split(entity).join(placeholder);
@@ -141,7 +140,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
   // Restore original entities from placeholders
   if (forApp && output && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
-      const placeholder = `__ENTITY_${index}__`;
+      const placeholder = `\u200B${index}\u200B`;
       // Replace all occurrences of the placeholder
       output = output.split(placeholder).join(entity);
     })
