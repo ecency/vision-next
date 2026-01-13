@@ -7,11 +7,12 @@ RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 ENV CI=true
 
 # ---- manifests ----
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/sdk/package.json packages/sdk/package.json
 COPY packages/wallets/package.json packages/wallets/package.json
 COPY packages/renderer/package.json packages/renderer/package.json
+COPY packages/render-helper/package.json packages/render-helper/package.json
 
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 
