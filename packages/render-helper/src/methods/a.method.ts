@@ -180,9 +180,23 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
   // If a tagged post and profile section links
   const tpostMatch = href.match(INTERNAL_POST_TAG_REGEX)
-  if (
-    (tpostMatch && tpostMatch.length === 4 && WHITE_LIST.some(v => tpostMatch[1].includes(v))) || (tpostMatch && tpostMatch.length === 4 && tpostMatch[1].indexOf('/') == 0)
-  ) {
+
+  // Extract and validate domain from tpostMatch[1]
+  let isValidDomain = false;
+  if (tpostMatch && tpostMatch.length === 4) {
+    if (tpostMatch[1].indexOf('/') === 0) {
+      // Internal path like /ecency/@user/post
+      isValidDomain = true;
+    } else if (tpostMatch[1].includes('.')) {
+      // Extract domain from URL (strip protocol and www.)
+      const domain = tpostMatch[1]
+        .replace(/^https?:\/\//, '') // Remove protocol
+        .replace(/^www\./, '')        // Remove www. prefix
+      isValidDomain = WHITE_LIST.includes(domain);
+    }
+  }
+
+  if (isValidDomain) {
     // check if permlink is section or section with params ?q=xyz
     if (SECTION_LIST.some(v => tpostMatch[3].includes(v))) {
       el.setAttribute('class', 'markdown-profile-link')
@@ -202,16 +216,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       }
       return
     } else {
-      // check if domain is not whitelist and does contain dot (not tag e.g. `/ecency`)
-      if (tpostMatch[1] && tpostMatch[1].includes('.')) {
-        // Extract domain from URL (strip protocol and www.)
-        const domain = tpostMatch[1]
-          .replace(/^https?:\/\//, '') // Remove protocol
-          .replace(/^www\./, '')        // Remove www. prefix
-        if (!WHITE_LIST.includes(domain)) {
-          return
-        }
-      }
+      // Domain already validated in outer if condition
       let tag = 'post'
       // check if tag does exist and doesn't include dot likely word/tag
       if (tpostMatch[1] && !tpostMatch[1].includes('.')) {
@@ -451,21 +456,18 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   }
 
   const RBmatch = href.match(RUMBLE_REGEX)
-  if (RBmatch && el.textContent.trim() === href) {
-    const e = RUMBLE_REGEX.exec(href)
-    if (e[1]) {
-      const vid = e[1]
-      const embedSrc = `https://www.rumble.com/embed/${vid}/?pub=4`
-      el.setAttribute('class', 'markdown-video-link')
-      el.removeAttribute('href')
+  if (RBmatch && RBmatch[1] && el.textContent.trim() === href) {
+    const vid = RBmatch[1]
+    const embedSrc = `https://www.rumble.com/embed/${vid}/?pub=4`
+    el.setAttribute('class', 'markdown-video-link')
+    el.removeAttribute('href')
 
-      el.textContent = ''
-      el.setAttribute('data-embed-src', embedSrc)
-      const play = el.ownerDocument.createElement('span')
-      play.setAttribute('class', 'markdown-video-play')
-      el.appendChild(play)
-      return
-    }
+    el.textContent = ''
+    el.setAttribute('data-embed-src', embedSrc)
+    const play = el.ownerDocument.createElement('span')
+    play.setAttribute('class', 'markdown-video-play')
+    el.appendChild(play)
+    return
   }
 
   const BNmatch = href.match(BRIGHTEON_REGEX)
@@ -568,16 +570,14 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   }
 
   // If a spotify audio
-  match = href.match(SPOTIFY_REGEX)
-  if (match && el.textContent.trim() === href) {
-    SPOTIFY_REGEX.lastIndex = 0 // Reset for exec() after match()
-    const e = SPOTIFY_REGEX.exec(href)
-    if (e[1]) {
-
+  if (el.textContent.trim() === href) {
+    SPOTIFY_REGEX.lastIndex = 0 // Reset regex state
+    match = SPOTIFY_REGEX.exec(href)
+    if (match && match[1]) {
       el.setAttribute('class', 'markdown-audio-link markdown-audio-link-spotify')
       el.removeAttribute('href')
 
-      const embedSrc = `https://open.spotify.com/embed/playlist/${e[1]}`
+      const embedSrc = `https://open.spotify.com/embed/playlist/${match[1]}`
 
       el.textContent = ''
 
@@ -592,103 +592,89 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     }
   }
 
-  // If a spotify audio
+  // If a Loom video
   match = href.match(LOOM_REGEX)
-  if (match && el.textContent.trim() === href) {
-    const e = LOOM_REGEX.exec(href)
-    if (e[2]) {
+  if (match && match[2] && el.textContent.trim() === href) {
+    el.setAttribute('class', 'markdown-video-link markdown-video-link-loom')
+    el.removeAttribute('href')
 
-      el.setAttribute('class', 'markdown-video-link markdown-video-link-loom')
-      el.removeAttribute('href')
+    const embedSrc = `https://www.loom.com/embed/${match[2]}`
 
-      const embedSrc = `https://www.loom.com/embed/${e[2]}`
+    el.textContent = ''
 
-      el.textContent = ''
+    const ifr = el.ownerDocument.createElement('iframe')
+    ifr.setAttribute('frameborder', '0')
+    ifr.setAttribute('allowfullscreen', 'true')
+    ifr.setAttribute('src', embedSrc)
+    ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups')
+    el.appendChild(ifr)
 
-      const ifr = el.ownerDocument.createElement('iframe')
-      ifr.setAttribute('frameborder', '0')
-      ifr.setAttribute('allowfullscreen', 'true')
-      ifr.setAttribute('src', embedSrc)
-      ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups')
-      el.appendChild(ifr)
-
-      return
-    }
+    return
   }
 
   // If a d.tube video
-  match = href.match(D_TUBE_REGEX)
-  if (match) {
+  // Only d.tube links contains an image
+  const imgEls = el.getElementsByTagName('img')
 
-     // Only d.tube links contains an image
-     const imgEls = el.getElementsByTagName('img')
-
-     if (imgEls.length === 1 || el.textContent.trim() === href) {
-      D_TUBE_REGEX.lastIndex = 0 // Reset for exec() after match()
-      const e = D_TUBE_REGEX.exec(href)
-      // e[2] = username, e[3] object id
-      if (e[2] && e[3]) {
-        el.setAttribute('class', 'markdown-video-link markdown-video-link-dtube')
-        el.removeAttribute('href')
-
-
-        const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`
-
-        // el.setAttribute('data-video-href', videoHref)
-        el.setAttribute('data-embed-src', videoHref)
-
-        //process thumb img element
-        if (imgEls.length === 1) {
-          const src = imgEls[0].getAttribute('src')
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
-            const thumbImg = el.ownerDocument.createElement('img')
-
-            thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-            thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-
-            thumbImg.setAttribute('src', thumbnail)
-            el.appendChild(thumbImg)
-
-            // Remove image.
-            el.removeChild(imgEls[0])
-          }
-        } else {
-            el.textContent = '';
-        }
-
-        const play = el.ownerDocument.createElement('span')
-        play.setAttribute('class', 'markdown-video-play')
-
-
-        el.appendChild(play)
-
-        return
-      }
-    }
-  }
-  match = href.match(D_TUBE_REGEX2)
-  if (match) {
-    D_TUBE_REGEX2.lastIndex = 0 // Reset for exec() after match()
-    const e = D_TUBE_REGEX2.exec(href)
-    // e[2] = username, e[3] object id
-    if (e[2] && e[3]) {
+  if (imgEls.length === 1 || el.textContent.trim() === href) {
+    D_TUBE_REGEX.lastIndex = 0 // Reset regex state
+    match = D_TUBE_REGEX.exec(href)
+    // match[2] = username, match[3] object id
+    if (match && match[2] && match[3]) {
       el.setAttribute('class', 'markdown-video-link markdown-video-link-dtube')
       el.removeAttribute('href')
-      el.textContent = '';
 
-      const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`
+      const videoHref = `https://emb.d.tube/#!/${match[2]}/${match[3]}`
 
-      // el.setAttribute('data-video-href', videoHref);
+      // el.setAttribute('data-video-href', videoHref)
       el.setAttribute('data-embed-src', videoHref)
+
+      //process thumb img element
+      if (imgEls.length === 1) {
+        const src = imgEls[0].getAttribute('src')
+        if (src) {
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+          const thumbImg = el.ownerDocument.createElement('img')
+
+          thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+          thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+
+          thumbImg.setAttribute('src', thumbnail)
+          el.appendChild(thumbImg)
+
+          // Remove image.
+          el.removeChild(imgEls[0])
+        }
+      } else {
+          el.textContent = '';
+      }
+
       const play = el.ownerDocument.createElement('span')
       play.setAttribute('class', 'markdown-video-play')
 
       el.appendChild(play)
 
-
       return
     }
+  }
+  D_TUBE_REGEX2.lastIndex = 0 // Reset regex state
+  match = D_TUBE_REGEX2.exec(href)
+  if (match && match[2] && match[3]) {
+    // match[2] = username, match[3] object id
+    el.setAttribute('class', 'markdown-video-link markdown-video-link-dtube')
+    el.removeAttribute('href')
+    el.textContent = '';
+
+    const videoHref = `https://emb.d.tube/#!/${match[2]}/${match[3]}`
+
+    // el.setAttribute('data-video-href', videoHref);
+    el.setAttribute('data-embed-src', videoHref)
+    const play = el.ownerDocument.createElement('span')
+    play.setAttribute('class', 'markdown-video-play')
+
+    el.appendChild(play)
+
+    return
   }
 
   // Detect 3Speak

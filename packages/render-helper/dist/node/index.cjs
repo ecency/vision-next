@@ -486,7 +486,16 @@ function a(el, forApp, webp) {
     return;
   }
   const tpostMatch = href.match(INTERNAL_POST_TAG_REGEX);
-  if (tpostMatch && tpostMatch.length === 4 && WHITE_LIST.some((v) => tpostMatch[1].includes(v)) || tpostMatch && tpostMatch.length === 4 && tpostMatch[1].indexOf("/") == 0) {
+  let isValidDomain = false;
+  if (tpostMatch && tpostMatch.length === 4) {
+    if (tpostMatch[1].indexOf("/") === 0) {
+      isValidDomain = true;
+    } else if (tpostMatch[1].includes(".")) {
+      const domain = tpostMatch[1].replace(/^https?:\/\//, "").replace(/^www\./, "");
+      isValidDomain = WHITE_LIST.includes(domain);
+    }
+  }
+  if (isValidDomain) {
     if (SECTION_LIST.some((v) => tpostMatch[3].includes(v))) {
       el.setAttribute("class", "markdown-profile-link");
       const author = tpostMatch[2].replace("@", "").toLowerCase();
@@ -504,12 +513,6 @@ function a(el, forApp, webp) {
       }
       return;
     } else {
-      if (tpostMatch[1] && tpostMatch[1].includes(".")) {
-        const domain = tpostMatch[1].replace(/^https?:\/\//, "").replace(/^www\./, "");
-        if (!WHITE_LIST.includes(domain)) {
-          return;
-        }
-      }
       let tag = "post";
       if (tpostMatch[1] && !tpostMatch[1].includes(".")) {
         [, tag] = tpostMatch;
@@ -700,20 +703,17 @@ function a(el, forApp, webp) {
     return;
   }
   const RBmatch = href.match(RUMBLE_REGEX);
-  if (RBmatch && el.textContent.trim() === href) {
-    const e = RUMBLE_REGEX.exec(href);
-    if (e[1]) {
-      const vid = e[1];
-      const embedSrc = `https://www.rumble.com/embed/${vid}/?pub=4`;
-      el.setAttribute("class", "markdown-video-link");
-      el.removeAttribute("href");
-      el.textContent = "";
-      el.setAttribute("data-embed-src", embedSrc);
-      const play = el.ownerDocument.createElement("span");
-      play.setAttribute("class", "markdown-video-play");
-      el.appendChild(play);
-      return;
-    }
+  if (RBmatch && RBmatch[1] && el.textContent.trim() === href) {
+    const vid = RBmatch[1];
+    const embedSrc = `https://www.rumble.com/embed/${vid}/?pub=4`;
+    el.setAttribute("class", "markdown-video-link");
+    el.removeAttribute("href");
+    el.textContent = "";
+    el.setAttribute("data-embed-src", embedSrc);
+    const play = el.ownerDocument.createElement("span");
+    play.setAttribute("class", "markdown-video-play");
+    el.appendChild(play);
+    return;
   }
   const BNmatch = href.match(BRIGHTEON_REGEX);
   if (BNmatch && BNmatch[2] && el.textContent.trim() === href) {
@@ -785,14 +785,13 @@ function a(el, forApp, webp) {
     el.appendChild(ifr);
     return;
   }
-  match = href.match(SPOTIFY_REGEX);
-  if (match && el.textContent.trim() === href) {
+  if (el.textContent.trim() === href) {
     SPOTIFY_REGEX.lastIndex = 0;
-    const e = SPOTIFY_REGEX.exec(href);
-    if (e[1]) {
+    match = SPOTIFY_REGEX.exec(href);
+    if (match && match[1]) {
       el.setAttribute("class", "markdown-audio-link markdown-audio-link-spotify");
       el.removeAttribute("href");
-      const embedSrc = `https://open.spotify.com/embed/playlist/${e[1]}`;
+      const embedSrc = `https://open.spotify.com/embed/playlist/${match[1]}`;
       el.textContent = "";
       const ifr = el.ownerDocument.createElement("iframe");
       ifr.setAttribute("frameborder", "0");
@@ -804,74 +803,65 @@ function a(el, forApp, webp) {
     }
   }
   match = href.match(LOOM_REGEX);
-  if (match && el.textContent.trim() === href) {
-    const e = LOOM_REGEX.exec(href);
-    if (e[2]) {
-      el.setAttribute("class", "markdown-video-link markdown-video-link-loom");
-      el.removeAttribute("href");
-      const embedSrc = `https://www.loom.com/embed/${e[2]}`;
-      el.textContent = "";
-      const ifr = el.ownerDocument.createElement("iframe");
-      ifr.setAttribute("frameborder", "0");
-      ifr.setAttribute("allowfullscreen", "true");
-      ifr.setAttribute("src", embedSrc);
-      ifr.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
-      el.appendChild(ifr);
-      return;
-    }
+  if (match && match[2] && el.textContent.trim() === href) {
+    el.setAttribute("class", "markdown-video-link markdown-video-link-loom");
+    el.removeAttribute("href");
+    const embedSrc = `https://www.loom.com/embed/${match[2]}`;
+    el.textContent = "";
+    const ifr = el.ownerDocument.createElement("iframe");
+    ifr.setAttribute("frameborder", "0");
+    ifr.setAttribute("allowfullscreen", "true");
+    ifr.setAttribute("src", embedSrc);
+    ifr.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+    el.appendChild(ifr);
+    return;
   }
-  match = href.match(D_TUBE_REGEX);
-  if (match) {
-    const imgEls = el.getElementsByTagName("img");
-    if (imgEls.length === 1 || el.textContent.trim() === href) {
-      D_TUBE_REGEX.lastIndex = 0;
-      const e = D_TUBE_REGEX.exec(href);
-      if (e[2] && e[3]) {
-        el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
-        el.removeAttribute("href");
-        const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`;
-        el.setAttribute("data-embed-src", videoHref);
-        if (imgEls.length === 1) {
-          const src = imgEls[0].getAttribute("src");
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
-            const thumbImg = el.ownerDocument.createElement("img");
-            thumbImg.setAttribute("class", "no-replace video-thumbnail");
-            thumbImg.setAttribute("itemprop", "thumbnailUrl");
-            thumbImg.setAttribute("src", thumbnail);
-            el.appendChild(thumbImg);
-            el.removeChild(imgEls[0]);
-          }
-        } else {
-          el.textContent = "";
-        }
-        const play = el.ownerDocument.createElement("span");
-        play.setAttribute("class", "markdown-video-play");
-        el.appendChild(play);
-        return;
-      }
-    }
-  }
-  match = href.match(D_TUBE_REGEX2);
-  if (match) {
-    D_TUBE_REGEX2.lastIndex = 0;
-    const e = D_TUBE_REGEX2.exec(href);
-    if (e[2] && e[3]) {
+  const imgEls = el.getElementsByTagName("img");
+  if (imgEls.length === 1 || el.textContent.trim() === href) {
+    D_TUBE_REGEX.lastIndex = 0;
+    match = D_TUBE_REGEX.exec(href);
+    if (match && match[2] && match[3]) {
       el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
       el.removeAttribute("href");
-      el.textContent = "";
-      const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`;
+      const videoHref = `https://emb.d.tube/#!/${match[2]}/${match[3]}`;
       el.setAttribute("data-embed-src", videoHref);
+      if (imgEls.length === 1) {
+        const src = imgEls[0].getAttribute("src");
+        if (src) {
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+          const thumbImg = el.ownerDocument.createElement("img");
+          thumbImg.setAttribute("class", "no-replace video-thumbnail");
+          thumbImg.setAttribute("itemprop", "thumbnailUrl");
+          thumbImg.setAttribute("src", thumbnail);
+          el.appendChild(thumbImg);
+          el.removeChild(imgEls[0]);
+        }
+      } else {
+        el.textContent = "";
+      }
       const play = el.ownerDocument.createElement("span");
       play.setAttribute("class", "markdown-video-play");
       el.appendChild(play);
       return;
     }
   }
+  D_TUBE_REGEX2.lastIndex = 0;
+  match = D_TUBE_REGEX2.exec(href);
+  if (match && match[2] && match[3]) {
+    el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
+    el.removeAttribute("href");
+    el.textContent = "";
+    const videoHref = `https://emb.d.tube/#!/${match[2]}/${match[3]}`;
+    el.setAttribute("data-embed-src", videoHref);
+    const play = el.ownerDocument.createElement("span");
+    play.setAttribute("class", "markdown-video-play");
+    el.appendChild(play);
+    return;
+  }
   match = href.match(SPEAK_REGEX);
   if (match) {
-    const imgEls = el.getElementsByTagName("img");
-    if (imgEls.length === 1 || el.textContent.trim() === href) {
+    const imgEls2 = el.getElementsByTagName("img");
+    if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
         const videoHref = `https://3speak.tv/embed?v=${match[3]}`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
@@ -880,8 +870,8 @@ function a(el, forApp, webp) {
         if (el.textContent.trim() === href) {
           el.textContent = "";
         }
-        if (imgEls.length === 1) {
-          const src = imgEls[0].getAttribute("src");
+        if (imgEls2.length === 1) {
+          const src = imgEls2[0].getAttribute("src");
           if (src) {
             const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
             const thumbImg = el.ownerDocument.createElement("img");
@@ -889,7 +879,7 @@ function a(el, forApp, webp) {
             thumbImg.setAttribute("itemprop", "thumbnailUrl");
             thumbImg.setAttribute("src", thumbnail);
             el.appendChild(thumbImg);
-            el.removeChild(imgEls[0]);
+            el.removeChild(imgEls2[0]);
           }
         }
         const play = el.ownerDocument.createElement("span");
