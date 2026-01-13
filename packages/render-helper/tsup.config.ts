@@ -25,7 +25,9 @@ export default defineConfig([
     // Browser build
     {
         ...shared,
-        dts: true,
+        dts: {
+            resolve: true,
+        },
         format: ["esm"],
         platform: "browser",
         target: "es2020",
