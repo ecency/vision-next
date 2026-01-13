@@ -199,7 +199,9 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
   if (isValidDomain) {
     // check if permlink is section or section with params ?q=xyz
-    if (SECTION_LIST.some(v => tpostMatch[3].includes(v))) {
+    // Split on '?' first to get path segment
+    const pathSegment = tpostMatch[3].split('?')[0]
+    if (SECTION_LIST.some(v => pathSegment === v || pathSegment.startsWith(v + '/'))) {
       el.setAttribute('class', 'markdown-profile-link')
       const author = tpostMatch[2].replace('@', '').toLowerCase()
       const section = tpostMatch[3]
@@ -284,7 +286,9 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
   if (
     (cpostMatch && cpostMatch.length === 3 && cpostMatch[1].indexOf('@') === 0)
   ) {
-    if (SECTION_LIST.some(v => cpostMatch[2].includes(v))) {
+    // Split on '?' first to get path segment
+    const pathSegment2 = cpostMatch[2].split('?')[0]
+    if (SECTION_LIST.some(v => pathSegment2 === v || pathSegment2.startsWith(v + '/'))) {
       el.setAttribute('class', 'markdown-profile-link')
       const author = cpostMatch[1].replace('@', '').toLowerCase()
       const section = cpostMatch[2]
@@ -380,7 +384,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
   // If a custom hive community link
   const comMatch = href.match(CUSTOM_COMMUNITY_REGEX)
-  if (comMatch && WHITE_LIST.includes(comMatch[1])) {
+  if (comMatch && WHITE_LIST.includes(comMatch[1].replace(/^www\./,''))) {
     el.setAttribute('class', 'markdown-community-link')
 
     const community = comMatch[2]
@@ -407,7 +411,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
   // If a collections post
   const cccMatch = href.match(CCC_REGEX)
-  if (cccMatch && WHITE_LIST.includes(cccMatch[1])) {
+  if (cccMatch && WHITE_LIST.includes(cccMatch[1].replace(/^www\./,''))) {
     el.setAttribute('class', 'markdown-post-link')
 
     const tag = 'ccc'
@@ -547,16 +551,17 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     el.removeAttribute('href')
 
     let embedSrc = ''
+    const parent = parentDomain ? `&parent=${parentDomain}` : ''
 
     if (match[1] === undefined) {
       // No "videos" in URL, match[2] is the channel name
-      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}${parent}`
     } else if (match[1] === 'videos') {
       // URL contains "videos/", match[2] is the video ID
-      embedSrc = `https://player.twitch.tv/?video=${match[2]}`
+      embedSrc = `https://player.twitch.tv/?video=${match[2]}${parent}`
     } else {
       // Fallback (shouldn't happen with current regex)
-      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}${parent}`
     }
 
     el.textContent = ''

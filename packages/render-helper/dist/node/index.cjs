@@ -497,7 +497,8 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     }
   }
   if (isValidDomain) {
-    if (SECTION_LIST.some((v) => tpostMatch[3].includes(v))) {
+    const pathSegment = tpostMatch[3].split("?")[0];
+    if (SECTION_LIST.some((v) => pathSegment === v || pathSegment.startsWith(v + "/"))) {
       el.setAttribute("class", "markdown-profile-link");
       const author = tpostMatch[2].replace("@", "").toLowerCase();
       const section = tpostMatch[3];
@@ -565,7 +566,8 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
   }
   const cpostMatch = href.match(INTERNAL_POST_REGEX);
   if (cpostMatch && cpostMatch.length === 3 && cpostMatch[1].indexOf("@") === 0) {
-    if (SECTION_LIST.some((v) => cpostMatch[2].includes(v))) {
+    const pathSegment2 = cpostMatch[2].split("?")[0];
+    if (SECTION_LIST.some((v) => pathSegment2 === v || pathSegment2.startsWith(v + "/"))) {
       el.setAttribute("class", "markdown-profile-link");
       const author = cpostMatch[1].replace("@", "").toLowerCase();
       const section = cpostMatch[2];
@@ -643,7 +645,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     return;
   }
   const comMatch = href.match(CUSTOM_COMMUNITY_REGEX);
-  if (comMatch && WHITE_LIST.includes(comMatch[1])) {
+  if (comMatch && WHITE_LIST.includes(comMatch[1].replace(/^www\./, ""))) {
     el.setAttribute("class", "markdown-community-link");
     const community = comMatch[2];
     let filter = comMatch[3].substring(1);
@@ -665,7 +667,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     return;
   }
   const cccMatch = href.match(CCC_REGEX);
-  if (cccMatch && WHITE_LIST.includes(cccMatch[1])) {
+  if (cccMatch && WHITE_LIST.includes(cccMatch[1].replace(/^www\./, ""))) {
     el.setAttribute("class", "markdown-post-link");
     const tag = "ccc";
     const author = cccMatch[2].replace("@", "");
@@ -771,12 +773,13 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     el.setAttribute("class", "markdown-video-link markdown-video-link-twitch");
     el.removeAttribute("href");
     let embedSrc = "";
+    const parent = parentDomain ? `&parent=${parentDomain}` : "";
     if (match[1] === void 0) {
-      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`;
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}${parent}`;
     } else if (match[1] === "videos") {
-      embedSrc = `https://player.twitch.tv/?video=${match[2]}`;
+      embedSrc = `https://player.twitch.tv/?video=${match[2]}${parent}`;
     } else {
-      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`;
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}${parent}`;
     }
     el.textContent = "";
     const ifr = el.ownerDocument.createElement("iframe");
@@ -983,8 +986,15 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(TWITCH_EMBED_REGEX)) {
-    const separator = src.includes("?") ? "&" : "?";
-    const s = `${src}${separator}parent=${parentDomain}&autoplay=false`;
+    let s = src;
+    if (!s.includes("parent=")) {
+      const separator = s.includes("?") ? "&" : "?";
+      s = `${s}${separator}parent=${parentDomain}`;
+    }
+    if (!s.includes("autoplay=")) {
+      const separator = s.includes("?") ? "&" : "?";
+      s = `${s}${separator}autoplay=false`;
+    }
     el.setAttribute("src", s);
     return;
   }
@@ -1002,12 +1012,12 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SOUNDCLOUD_EMBED_REGEX)) {
-    const match = src.match(/url=(.+?)&/);
-    if (match && match.length === 2) {
+    const match = src.match(/url=(.+?)(?:&|$)/);
+    if (match && match[1]) {
       const s = `https://w.soundcloud.com/player/?url=${match[1]}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
       el.setAttribute("src", s);
-      return;
     }
+    return;
   }
   if (src.match(D_TUBE_EMBED_REGEX)) {
     el.setAttribute("src", src);

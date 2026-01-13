@@ -32,8 +32,17 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // Twitch
   if (src.match(TWITCH_EMBED_REGEX)) {
-    const separator = src.includes('?') ? '&' : '?';
-    const s = `${src}${separator}parent=${parentDomain}&autoplay=false`;
+    let s = src;
+    // Only add parent if not present
+    if (!s.includes('parent=')) {
+      const separator = s.includes('?') ? '&' : '?';
+      s = `${s}${separator}parent=${parentDomain}`;
+    }
+    // Only add autoplay if not present
+    if (!s.includes('autoplay=')) {
+      const separator = s.includes('?') ? '&' : '?';
+      s = `${s}${separator}autoplay=false`;
+    }
     el.setAttribute('src', s);
     return;
   }
@@ -59,12 +68,12 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // Soundcloud
   if (src.match(SOUNDCLOUD_EMBED_REGEX)) {
-    const match = src.match(/url=(.+?)&/);
-    if (match && match.length === 2) {
+    const match = src.match(/url=(.+?)(?:&|$)/); // Handle & or end of string
+    if (match && match[1]) {
       const s = `https://w.soundcloud.com/player/?url=${match[1]}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true`;
       el.setAttribute('src', s);
-      return;
     }
+    return; // Always return, even if match fails
   }
 
   // Dtube
@@ -138,7 +147,7 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
     return;
   }
 
-  // Brigtheon
+  // Brighteon
   if (src.match(BRIGHTEON_REGEX)) {
     el.setAttribute('src', src);
     el.setAttribute('frameborder', '0');

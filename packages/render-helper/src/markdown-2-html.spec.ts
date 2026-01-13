@@ -207,7 +207,7 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('16- Should replace placeholder for unsopported iframe sources', () => {
+    it('16- Should replace placeholder for unsupported iframe sources', () => {
       const input = {
         author: 'foo46',
         permlink: 'bar46',
