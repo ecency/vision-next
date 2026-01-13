@@ -152,12 +152,11 @@ export function HiveEngineClaimRewardsButton({
 
   const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
     mutationFn: async ({ formattedAmount }: PendingAmountInfo) => {
-      if (!tokenSymbol || !cleanUsername) {
+      if (!tokenSymbol || !cleanUsername || !activeUser) {
         return formattedAmount;
       }
 
-      const user = getUser(cleanUsername);
-      const loginType = user?.loginType;
+      const loginType = activeUser.loginType;
 
       // When loginType is undefined, default to hivesigner (no extension required)
       const signType =
@@ -167,12 +166,12 @@ export function HiveEngineClaimRewardsButton({
             ? "keychain"
             : "hivesigner";
 
-      if (loginType === "privateKey" && user?.postingKey) {
+      if (loginType === "privateKey" && activeUser.postingKey) {
         await claimHiveEngineRewards({
           account: cleanUsername,
           tokens: [tokenSymbol],
           type: "key",
-          key: PrivateKey.fromString(user.postingKey)
+          key: PrivateKey.fromString(activeUser.postingKey)
         });
       } else {
         await claimHiveEngineRewards(

@@ -7,10 +7,12 @@ import { UilLock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseHiveAuth, broadcastWithHiveAuth } from "@/utils/client";
 import { getSdkAuthContext, getUser } from "@/utils";
+import * as keychain from "@/utils/keychain";
+import type { AuthContext } from "@ecency/sdk";
 
 interface Props {
   asset: string;
@@ -36,6 +38,56 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
+  const user = activeUser?.username ? getUser(activeUser.username) : undefined;
+
+  // Create auth context with broadcast methods for keychain/hiveauth
+  // This allows using these methods even when not logged in with them
+  const authContext = useMemo<AuthContext | undefined>(() => {
+    if (!activeUser?.username) return undefined;
+
+    const baseAuth = getSdkAuthContext(user);
+    if (!baseAuth) return undefined;
+
+    // If already has broadcast (logged in with keychain/hiveauth), use it
+    if (baseAuth.broadcast) return baseAuth;
+
+    // Otherwise, add broadcast methods for keychain and hiveauth
+    return {
+      ...baseAuth,
+      broadcast: (operations, authority = "posting") => {
+        // Try HiveAuth first if available
+        if (useHiveAuth) {
+          if (authority === "active" || authority === "posting") {
+            return broadcastWithHiveAuth(activeUser.username, operations, authority);
+          }
+          throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
+        }
+
+        // Fall back to keychain if available
+        if (hasKeyChain) {
+          // Validate authority explicitly and map to keychain format
+          let keychainAuthority: "Active" | "Posting" | "Owner" | "Memo";
+          if (authority === "active") {
+            keychainAuthority = "Active";
+          } else if (authority === "posting") {
+            keychainAuthority = "Posting";
+          } else if (authority === "owner") {
+            keychainAuthority = "Owner";
+          } else if (authority === "memo") {
+            keychainAuthority = "Memo";
+          } else {
+            throw new Error(`[SDK][Auth] – invalid authority "${authority}" for keychain`);
+          }
+          return keychain
+            .broadcast(activeUser.username, operations, keychainAuthority)
+            .then((result: any) => result.result);
+        }
+
+        throw new Error("[SDK][Wallets] – missing broadcaster");
+      }
+    };
+  }, [user, activeUser, useHiveAuth, hasKeyChain]);
+
   const {
     mutateAsync: sign,
     error,
@@ -44,7 +96,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
     data.from as string,
     asset,
     operation,
-    getSdkAuthContext(getUser(activeUser?.username ?? ""))
+    authContext
   );
 
   useEffect(() => {

@@ -29,14 +29,16 @@ export async function convertHbd<T extends HiveBasedAssetSignType>(
       [["convert", { ...params, owner: params.from, requestid }]],
       key
     );
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+  } else if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
   }

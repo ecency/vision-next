@@ -49,14 +49,18 @@ export async function claimInterestHive<
     return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
 
-  if (payload.type === "keychain" || payload.type === "hiveauth") {
+  if (payload.type === "keychain") {
     if (auth?.broadcast) {
       return auth.broadcast(operations, "active");
     }
-    if (payload.type === "hiveauth") {
-      return broadcastWithWalletHiveAuth(payload.from, operations, "active");
-    }
     throw new Error("[SDK][Wallets] – missing broadcaster");
+  }
+
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
   }
 
   return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {});
