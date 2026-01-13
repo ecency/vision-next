@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`formattedNumber > complete snapshots > should match snapshot for USD value 1`] = `"$ 9,876.54"`;
+
+exports[`formattedNumber > complete snapshots > should match snapshot for high-precision value 1`] = `"0.12345679"`;
+
+exports[`formattedNumber > complete snapshots > should match snapshot for typical token balance 1`] = `"1,234.567 LEO"`;
+
+exports[`formattedNumber > default formatting > should format number with default 3 fraction digits 1`] = `"123.456"`;
+
+exports[`formattedNumber > default formatting > should format number with thousands separator 1`] = `"1,234,567.890"`;
+
+exports[`formattedNumber > prefix and suffix > should add both prefix and suffix 1`] = `"$ 123.456 USD"`;
+
+exports[`formattedNumber > prefix and suffix > should add prefix 1`] = `"$ 123.456"`;
+
+exports[`formattedNumber > prefix and suffix > should add suffix 1`] = `"123.456 HIVE"`;

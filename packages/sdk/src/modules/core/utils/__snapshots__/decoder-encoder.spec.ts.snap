@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`encoder-decoder > encodeObj > should encode array 1`] = `"eyJpdGVtcyI6WzEsMiwzLDQsNV19"`;
+
+exports[`encoder-decoder > encodeObj > should encode empty object 1`] = `"e30="`;
+
+exports[`encoder-decoder > encodeObj > should encode nested object 1`] = `"eyJ1c2VyIjp7Im5hbWUiOiJqb2huIiwicHJvZmlsZSI6eyJhZ2UiOjMwfX0sInNldHRpbmdzIjp7InRoZW1lIjoiZGFyayJ9fQ=="`;
+
+exports[`encoder-decoder > encodeObj > should encode object with boolean values 1`] = `"eyJpc0FjdGl2ZSI6dHJ1ZSwiaXNEZWxldGVkIjpmYWxzZX0="`;
+
+exports[`encoder-decoder > encodeObj > should encode object with null values 1`] = `"eyJ2YWx1ZSI6bnVsbCwib3RoZXIiOiJ0ZXN0In0="`;
+
+exports[`encoder-decoder > encodeObj > should encode object with special characters 1`] = `"eyJ0ZXh0IjoiSGVsbG8gXCJXb3JsZFwiICYgPHRhZz4ifQ=="`;
+
+exports[`encoder-decoder > encodeObj > should encode simple object 1`] = `"eyJuYW1lIjoidGVzdCIsInZhbHVlIjoxMjN9"`;

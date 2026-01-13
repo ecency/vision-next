@@ -1,0 +1,127 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildAptTx > should return Aptos transaction params unchanged 1`] = `
+{
+  "data": {
+    "amount": "1000000",
+    "from": "0x1",
+    "to": "0x2",
+  },
+  "type": 1,
+}
+`;
+
+exports[`buildEthTx > should return ETH transaction params unchanged 1`] = `
+{
+  "data": "",
+  "gasLimit": "21000",
+  "gasPrice": "20000000000",
+  "nonce": 1,
+  "to": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+  "value": "1000000000000000000",
+}
+`;
+
+exports[`buildExternalTx > Aptos transactions > should build APT transaction 1`] = `
+{
+  "data": {
+    "amount": "1000000",
+    "from": "0x1",
+    "to": "0x2",
+  },
+  "type": 1,
+}
+`;
+
+exports[`buildExternalTx > Ethereum-based transactions > should build ETH transaction 1`] = `
+{
+  "data": "",
+  "gasLimit": "21000",
+  "gasPrice": "20000000000",
+  "nonce": 1,
+  "to": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+  "value": "1000000000000000000",
+}
+`;
+
+exports[`buildExternalTx > Solana transactions > should build SOL transaction 1`] = `
+{
+  "data": {
+    "amount": "1000000000",
+    "from": "So11111111111111111111111111111111111111112",
+    "to": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  },
+  "type": 0,
+}
+`;
+
+exports[`buildExternalTx > TON transactions > should build TON transaction 1`] = `
+{
+  "amount": "1000000000",
+  "seqno": 1,
+  "to": "EQC1234567890",
+}
+`;
+
+exports[`buildExternalTx > Tron transactions > should build TRON transaction 1`] = `
+{
+  "amount": "1000000",
+  "from": "TRXAddress1",
+  "to": "TRXAddress2",
+  "type": 1,
+}
+`;
+
+exports[`buildExternalTx > complete snapshots > should match snapshot for comprehensive transaction set 1`] = `
+{
+  "eth": {
+    "gasLimit": "21000",
+    "gasPrice": "20",
+    "nonce": 1,
+    "to": "0x123",
+    "value": "1000",
+  },
+  "sol": {
+    "data": {
+      "amount": "1000",
+      "from": "addr1",
+      "to": "addr2",
+    },
+    "type": 0,
+  },
+  "tron": {
+    "amount": "5000",
+    "from": "TAddr1",
+    "to": "TAddr2",
+    "type": 1,
+  },
+}
+`;
+
+exports[`buildSolTx > should return Solana transaction params unchanged 1`] = `
+{
+  "data": {
+    "amount": "1000000000",
+    "from": "So11111111111111111111111111111111111111112",
+    "to": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  },
+  "type": 0,
+}
+`;
+
+exports[`buildTonTx > should return TON transaction params unchanged 1`] = `
+{
+  "amount": "1000000000",
+  "seqno": 1,
+  "to": "EQC1234567890",
+}
+`;
+
+exports[`buildTronTx > should return Tron transaction params unchanged 1`] = `
+{
+  "amount": "1000000",
+  "from": "TRXAddress1",
+  "to": "TRXAddress2",
+  "type": 1,
+}
+`;

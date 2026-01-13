@@ -1,0 +1,299 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import {
+  normalizeWaveEntryFromApi,
+  toEntryArray,
+  mapThreadItemsToWaveEntries
+} from './waves-helpers'
+import { Entry, WaveEntry } from '../types'
+
+describe('waves-helpers', () => {
+  describe('toEntryArray', () => {
+    it('should convert array to Entry array', () => {
+      const entries = [
+        { author: 'user1', permlink: 'post1' },
+        { author: 'user2', permlink: 'post2' }
+      ]
+      const result = toEntryArray(entries)
+      expect(result).toEqual(entries)
+      expect(Array.isArray(result)).toBe(true)
+    })
+
+    it('should return empty array for non-array input', () => {
+      expect(toEntryArray(null)).toEqual([])
+      expect(toEntryArray(undefined)).toEqual([])
+      expect(toEntryArray('string')).toEqual([])
+      expect(toEntryArray(123)).toEqual([])
+      expect(toEntryArray({ author: 'user' })).toEqual([])
+    })
+
+    it('should return empty array for empty array', () => {
+      expect(toEntryArray([])).toEqual([])
+    })
+  })
+
+  describe('normalizeWaveEntryFromApi', () => {
+    const mockHost = 'host-user'
+
+    it('should normalize entry with post_id', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        title: 'Test Post',
+        body: 'Content'
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result).not.toBeNull()
+      expect(result?.id).toBe(12345)
+      expect(result?.host).toBe(mockHost)
+      expect(result?.author).toBe('testuser')
+      expect(result?.container).toBeDefined()
+      expect(result?.container.host).toBe(mockHost)
+    })
+
+    it('should return null for null entry', () => {
+      const result = normalizeWaveEntryFromApi(null, mockHost)
+      expect(result).toBeNull()
+    })
+
+    it('should return null for undefined entry', () => {
+      const result = normalizeWaveEntryFromApi(undefined, mockHost)
+      expect(result).toBeNull()
+    })
+
+    it('should use container when provided', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        container: {
+          author: 'container-author',
+          permlink: 'container-post',
+          post_id: 67890
+        }
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.container.author).toBe('container-author')
+      expect(result?.container.id).toBe(67890)
+      expect(result?.container.host).toBe(mockHost)
+    })
+
+    it('should use entry as container when container not provided', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.container.author).toBe('testuser')
+      expect(result?.container.id).toBe(12345)
+    })
+
+    it('should include parent when provided', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        parent: {
+          author: 'parent-author',
+          permlink: 'parent-post',
+          post_id: 11111
+        }
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.parent).toBeDefined()
+      expect(result?.parent?.author).toBe('parent-author')
+      expect(result?.parent?.id).toBe(11111)
+    })
+
+    it('should handle entry without parent', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.parent).toBeUndefined()
+    })
+
+    it('should preserve all entry properties', () => {
+      const entry = {
+        author: 'testuser',
+        permlink: 'test-post',
+        post_id: 12345,
+        title: 'Test Title',
+        body: 'Test Body',
+        created: '2024-01-01T00:00:00',
+        stats: { total_votes: 10 }
+      } as any
+
+      const result = normalizeWaveEntryFromApi(entry, mockHost)
+
+      expect(result?.title).toBe('Test Title')
+      expect(result?.body).toBe('Test Body')
+      expect(result?.created).toBe('2024-01-01T00:00:00')
+      expect(result?.stats).toEqual({ total_votes: 10 })
+    })
+  })
+
+  describe('mapThreadItemsToWaveEntries', () => {
+    const mockHost = 'host-user'
+    const mockContainer = {
+      author: 'container-author',
+      permlink: 'container-post',
+      post_id: 100,
+      host: mockHost
+    } as WaveEntry
+
+    it('should return empty array for empty input', () => {
+      const result = mapThreadItemsToWaveEntries([], mockContainer, mockHost)
+      expect(result).toEqual([])
+    })
+
+    it('should map items to wave entries', () => {
+      const items = [
+        {
+          author: 'user1',
+          permlink: 'post1',
+          post_id: 1,
+          created: '2024-01-01T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        }
+      ] as Entry[]
+
+      const result = mapThreadItemsToWaveEntries(items, mockContainer, mockHost)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe(1)
+      expect(result[0].host).toBe(mockHost)
+      expect(result[0].container).toBe(mockContainer)
+    })
+
+    it('should filter out items with same post_id as container', () => {
+      const items = [
+        {
+          author: 'user1',
+          permlink: 'post1',
+          post_id: 100, // Same as container
+          created: '2024-01-01T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        },
+        {
+          author: 'user2',
+          permlink: 'post2',
+          post_id: 2,
+          created: '2024-01-02T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        }
+      ] as Entry[]
+
+      const result = mapThreadItemsToWaveEntries(items, mockContainer, mockHost)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].post_id).toBe(2)
+    })
+
+    it('should sort items by created date descending', () => {
+      const items = [
+        {
+          author: 'user1',
+          permlink: 'post1',
+          post_id: 1,
+          created: '2024-01-01T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        },
+        {
+          author: 'user2',
+          permlink: 'post2',
+          post_id: 2,
+          created: '2024-01-03T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        },
+        {
+          author: 'user3',
+          permlink: 'post3',
+          post_id: 3,
+          created: '2024-01-02T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        }
+      ] as Entry[]
+
+      const result = mapThreadItemsToWaveEntries(items, mockContainer, mockHost)
+
+      expect(result).toHaveLength(3)
+      expect(result[0].post_id).toBe(2) // Most recent
+      expect(result[1].post_id).toBe(3)
+      expect(result[2].post_id).toBe(1) // Oldest
+    })
+
+    it('should link parent items correctly', () => {
+      const items = [
+        {
+          author: 'parent-user',
+          permlink: 'parent-post',
+          post_id: 1,
+          created: '2024-01-01T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        },
+        {
+          author: 'child-user',
+          permlink: 'child-post',
+          post_id: 2,
+          created: '2024-01-02T00:00:00',
+          parent_author: 'parent-user',
+          parent_permlink: 'parent-post'
+        }
+      ] as Entry[]
+
+      const result = mapThreadItemsToWaveEntries(items, mockContainer, mockHost)
+
+      expect(result).toHaveLength(2)
+      const childEntry = result.find(e => e.post_id === 2)
+      expect(childEntry?.parent).toBeDefined()
+      expect(childEntry?.parent?.author).toBe('parent-user')
+    })
+
+    it('should not link parent if parent author is host', () => {
+      const items = [
+        {
+          author: mockHost,
+          permlink: 'host-post',
+          post_id: 1,
+          created: '2024-01-01T00:00:00',
+          parent_author: 'container-author',
+          parent_permlink: 'container-post'
+        },
+        {
+          author: 'child-user',
+          permlink: 'child-post',
+          post_id: 2,
+          created: '2024-01-02T00:00:00',
+          parent_author: mockHost,
+          parent_permlink: 'host-post'
+        }
+      ] as Entry[]
+
+      const result = mapThreadItemsToWaveEntries(items, mockContainer, mockHost)
+
+      const childEntry = result.find(e => e.post_id === 2)
+      expect(childEntry?.parent).toBeUndefined()
+    })
+  })
+})

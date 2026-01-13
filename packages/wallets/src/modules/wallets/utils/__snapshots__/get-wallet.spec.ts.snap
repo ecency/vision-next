@@ -1,0 +1,65 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getWallet > Aptos wallet > should return AptosWallet for APT currency 1`] = `
+{
+  "type": "APT",
+}
+`;
+
+exports[`getWallet > Bitcoin wallet > should return BtcWallet for BTC currency 1`] = `
+{
+  "type": "BTC",
+}
+`;
+
+exports[`getWallet > Ethereum-based wallets > should return EthWallet for ETH currency 1`] = `
+{
+  "type": "ETH",
+}
+`;
+
+exports[`getWallet > Solana wallet > should return SolWallet for SOL currency 1`] = `
+{
+  "type": "SOL",
+}
+`;
+
+exports[`getWallet > TON wallet > should return TonWallet for TON currency 1`] = `
+{
+  "type": "TON",
+}
+`;
+
+exports[`getWallet > Tron wallet > should return TrxWallet for TRON currency 1`] = `
+{
+  "type": "TRON",
+}
+`;
+
+exports[`getWallet > complete snapshots > should match snapshot for all supported wallet types 1`] = `
+{
+  "apt": {
+    "type": "APT",
+  },
+  "bnb": {
+    "type": "ETH",
+  },
+  "btc": {
+    "type": "BTC",
+  },
+  "eth": {
+    "type": "ETH",
+  },
+  "sol": {
+    "type": "SOL",
+  },
+  "ton": {
+    "type": "TON",
+  },
+  "tron": {
+    "type": "TRON",
+  },
+}
+`;
+
+exports[`getWallet > complete snapshots > should match snapshot for undefined result 1`] = `undefined`;
