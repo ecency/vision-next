@@ -513,14 +513,14 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('32b - Should treat titled Hive links as non-inline', () => {
+    it('32b - Should treat titled Hive links as inline', () => {
       const input = {
         author: 'foo33436',
         permlink: 'bar32436',
         last_update: '2019-05-10T09:15:21',
         body: '[Waves mobile app](https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore "https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore")'
       }
-      const expected = '<p dir=\"auto\"><a title=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" class=\"markdown-post-link\" data-href=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" data-is-inline=\"false\" data-tag=\"hive-125125\" data-author=\"ecency\" data-permlink=\"waves-mobile-app-update-explore\">Waves mobile app</a></p>'
+      const expected = '<p dir=\"auto\"><a title=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" class=\"markdown-post-link\" data-href=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" data-is-inline=\"true\" data-tag=\"hive-125125\" data-author=\"ecency\" data-permlink=\"waves-mobile-app-update-explore\">Waves mobile app</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -1031,9 +1031,9 @@ describe('Markdown2Html', () => {
 
   })
 
-  describe("Brightreon support", () => {
+  describe("Brighteon support", () => {
 
-    it('Brightreon iframes', () => {
+    it('Brighteon iframes', () => {
       let expected = '<iframe src="https://www.brighteon.com/embed/5821540656001" frameborder=\"0\" allowfullscreen=\"allowfullscreen\"></iframe>'
       let input = {
         author: 'foo351x',

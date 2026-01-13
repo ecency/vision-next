@@ -80,32 +80,32 @@ var CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i;
 var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
 var YOUTUBE_EMBED_REGEX = /^(https?:)?\/\/www.youtube.com\/(embed|shorts)\/.*/i;
 var VIMEO_REGEX = /(https?:\/\/)?(www\.)?(?:vimeo)\.com.*(?:videos|video|channels|)\/([\d]+)/i;
-var VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)/;
+var VIMEO_EMBED_REGEX = /https:\/\/player\.vimeo\.com\/video\/([0-9]+)(?:$|[?#])/;
 var BITCHUTE_REGEX = /^(?:https?:\/\/)?(?:www\.)?bitchute.com\/(?:video|embed)\/([a-z0-9]+)/i;
 var D_TUBE_REGEX = /(https?:\/\/d.tube.#!\/v\/)(\w+)\/(\w+)/g;
 var D_TUBE_REGEX2 = /(https?:\/\/d.tube\/v\/)(\w+)\/(\w+)/g;
-var D_TUBE_EMBED_REGEX = /^https:\/\/emb.d.tube\/.*/i;
+var D_TUBE_EMBED_REGEX = /^https:\/\/emb.d.tube\/#!\/[^/?#]+\/[^/?#]+(?:$|[?#])/i;
 var TWITCH_REGEX = /https?:\/\/(?:www.)?twitch.tv\/(?:(videos)\/)?([a-zA-Z0-9][\w]{3,24})/i;
 var DAPPLR_REGEX = /^(https?:)?\/\/[a-z]*\.dapplr.in\/file\/dapplr-videos\/.*/i;
 var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
-var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/.*/i;
-var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/.*/i;
+var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
+var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
-var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/.*/i;
+var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
 var SPEAK_REGEX = /(?:https?:\/\/(?:3speak.([a-z]+)\/watch\?v=)|(?:3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
-var SPEAK_EMBED_REGEX = /^(https?:)?\/\/3speak.([a-z]+)\/embed\?.*/i;
+var SPEAK_EMBED_REGEX = /^(https?:)?\/\/3speak.([a-z]+)\/embed\?[^/]+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
 var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
 var BRIGHTEON_REGEX = /^https?:\/\/(www\.)?brighteon\.com\/(?:embed\/)?(.*[0-9].*)/i;
-var VIMM_EMBED_REGEX = /^https:\/\/www.vimm.tv\/.*/i;
-var SPOTIFY_EMBED_REGEX = /^https:\/\/open\.spotify\.com\/(embed|embed-podcast)\/(playlist|show|episode|track|album)\/(.*)/i;
-var SOUNDCLOUD_EMBED_REGEX = /^https:\/\/w.soundcloud.com\/player\/.*/i;
-var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player.twitch.tv\/.*/i;
+var VIMM_EMBED_REGEX = /^https:\/\/www.vimm.tv\/[^?#]+(?:$|[?#])/i;
+var SPOTIFY_EMBED_REGEX = /^https:\/\/open\.spotify\.com\/(embed|embed-podcast)\/(playlist|show|episode|track|album)\/([^/?#]+)(?:$|[?#])/i;
+var SOUNDCLOUD_EMBED_REGEX = /^https:\/\/w.soundcloud.com\/player\/\?[^#]+$/i;
+var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player.twitch.tv\/(?:\?[^/]+)?$/i;
 var BRAND_NEW_TUBE_REGEX = /^https:\/\/brandnewtube\.com\/embed\/[a-z0-9]+$/i;
-var LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/(.*)/i;
-var LOOM_EMBED_REGEX = /^(https?:)?\/\/www.loom.com\/embed\/(.*)/i;
-var AUREAL_EMBED_REGEX = /^(https?:\/\/)?(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)/i;
+var LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/([^/?#]+)(?:$|[?#])/i;
+var LOOM_EMBED_REGEX = /^(https?:)?\/\/www.loom.com\/embed\/([^/?#]+)(?:$|[?#])/i;
+var AUREAL_EMBED_REGEX = /^(https?:\/\/)?(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)(?:$|[?#])/i;
 var ENTITY_REGEX = /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig;
 var SECTION_REGEX = /\B(\#[\da-zA-Z-_]+\b)(?!;)/i;
 var ID_WHITELIST = /^[A-Za-z][-A-Za-z0-9_]*$/;
@@ -395,10 +395,11 @@ var matchesHref = (href, value) => {
 };
 var getInlineMeta = (el, href) => {
   const textMatches = matchesHref(href, el.textContent);
-  matchesHref(href, el.getAttribute("title"));
+  const titleMatches = matchesHref(href, el.getAttribute("title"));
   return {
     textMatches,
-    isInline: textMatches
+    titleMatches,
+    isInline: textMatches || titleMatches
   };
 };
 function a(el, forApp, webp, parentDomain = "ecency.com") {
@@ -958,6 +959,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       el.setAttribute("target", "_blank");
       el.setAttribute("rel", "noopener");
     }
+    el.setAttribute("href", href);
   }
 }
 

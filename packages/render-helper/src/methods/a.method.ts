@@ -50,7 +50,8 @@ const getInlineMeta = (el: HTMLElement, href: string) => {
 
   return {
     textMatches,
-    isInline: textMatches
+    titleMatches,
+    isInline: textMatches || titleMatches
   }
 }
 
@@ -802,6 +803,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       el.setAttribute('target', '_blank');
       el.setAttribute('rel', 'noopener');
     }
+    el.setAttribute('href', href)
   }
 }
 
