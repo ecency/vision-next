@@ -767,8 +767,10 @@ function a(el, forApp, webp) {
       let embedSrc = "";
       if (e[1] === void 0) {
         embedSrc = `https://player.twitch.tv/?channel=${e[2]}`;
+      } else if (e[1] === "videos") {
+        embedSrc = `https://player.twitch.tv/?video=${e[2]}`;
       } else {
-        embedSrc = `https://player.twitch.tv/?video=${e[1]}`;
+        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`;
       }
       el.textContent = "";
       const ifr = el.ownerDocument.createElement("iframe");
@@ -781,6 +783,7 @@ function a(el, forApp, webp) {
   }
   match = href.match(SPOTIFY_REGEX);
   if (match && el.textContent.trim() === href) {
+    SPOTIFY_REGEX.lastIndex = 0;
     const e = SPOTIFY_REGEX.exec(href);
     if (e[1]) {
       el.setAttribute("class", "markdown-audio-link markdown-audio-link-spotify");
@@ -817,6 +820,7 @@ function a(el, forApp, webp) {
   if (match) {
     const imgEls = el.getElementsByTagName("img");
     if (imgEls.length === 1 || el.textContent.trim() === href) {
+      D_TUBE_REGEX.lastIndex = 0;
       const e = D_TUBE_REGEX.exec(href);
       if (e[2] && e[3]) {
         el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
@@ -824,13 +828,16 @@ function a(el, forApp, webp) {
         const videoHref = `https://emb.d.tube/#!/${e[2]}/${e[3]}`;
         el.setAttribute("data-embed-src", videoHref);
         if (imgEls.length === 1) {
-          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute("src").replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
-          const thumbImg = el.ownerDocument.createElement("img");
-          thumbImg.setAttribute("class", "no-replace video-thumbnail");
-          thumbImg.setAttribute("itemprop", "thumbnailUrl");
-          thumbImg.setAttribute("src", thumbnail);
-          el.appendChild(thumbImg);
-          el.removeChild(imgEls[0]);
+          const src = imgEls[0].getAttribute("src");
+          if (src) {
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+            const thumbImg = el.ownerDocument.createElement("img");
+            thumbImg.setAttribute("class", "no-replace video-thumbnail");
+            thumbImg.setAttribute("itemprop", "thumbnailUrl");
+            thumbImg.setAttribute("src", thumbnail);
+            el.appendChild(thumbImg);
+            el.removeChild(imgEls[0]);
+          }
         } else {
           el.textContent = "";
         }
@@ -843,6 +850,7 @@ function a(el, forApp, webp) {
   }
   match = href.match(D_TUBE_REGEX2);
   if (match) {
+    D_TUBE_REGEX2.lastIndex = 0;
     const e = D_TUBE_REGEX2.exec(href);
     if (e[2] && e[3]) {
       el.setAttribute("class", "markdown-video-link markdown-video-link-dtube");
@@ -870,13 +878,16 @@ function a(el, forApp, webp) {
           el.textContent = "";
         }
         if (imgEls.length === 1) {
-          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute("src").replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
-          const thumbImg = el.ownerDocument.createElement("img");
-          thumbImg.setAttribute("class", "no-replace video-thumbnail");
-          thumbImg.setAttribute("itemprop", "thumbnailUrl");
-          thumbImg.setAttribute("src", thumbnail);
-          el.appendChild(thumbImg);
-          el.removeChild(imgEls[0]);
+          const src = imgEls[0].getAttribute("src");
+          if (src) {
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+            const thumbImg = el.ownerDocument.createElement("img");
+            thumbImg.setAttribute("class", "no-replace video-thumbnail");
+            thumbImg.setAttribute("itemprop", "thumbnailUrl");
+            thumbImg.setAttribute("src", thumbnail);
+            el.appendChild(thumbImg);
+            el.removeChild(imgEls[0]);
+          }
         }
         const play = el.ownerDocument.createElement("span");
         play.setAttribute("class", "markdown-video-play");
@@ -887,14 +898,23 @@ function a(el, forApp, webp) {
   }
   const matchT = href.match(TWITTER_REGEX);
   if (matchT && el.textContent.trim() === href) {
+    TWITTER_REGEX.lastIndex = 0;
     const e = TWITTER_REGEX.exec(href);
     if (e) {
       const url = e[0].replace(/(<([^>]+)>)/gi, "");
       const author = e[1].replace(/(<([^>]+)>)/gi, "");
-      const twitterCode = `<blockquote class="twitter-tweet"><p>${url}</p>- <a href="${url}">${author}</a></blockquote>`;
-      const doc = DOMParser.parseFromString(twitterCode, "text/html");
-      const replaceNode = doc.documentElement || doc.firstChild;
-      el.parentNode.replaceChild(replaceNode, el);
+      const blockquote = el.ownerDocument.createElement("blockquote");
+      blockquote.setAttribute("class", "twitter-tweet");
+      const p2 = el.ownerDocument.createElement("p");
+      p2.textContent = url;
+      const textNode = el.ownerDocument.createTextNode("- ");
+      const a2 = el.ownerDocument.createElement("a");
+      a2.setAttribute("href", url);
+      a2.textContent = author;
+      blockquote.appendChild(p2);
+      blockquote.appendChild(textNode);
+      blockquote.appendChild(a2);
+      el.parentNode.replaceChild(blockquote, el);
       return;
     }
   }
@@ -1148,17 +1168,21 @@ function text(node, forApp, webp) {
       `<span class="wr">${linkified}</span>`,
       "text/html"
     );
-    const replaceNode = doc.documentElement || doc.firstChild;
-    node.parentNode.insertBefore(replaceNode, node);
-    node.parentNode.removeChild(node);
+    const replaceNode = doc.body?.firstChild || doc.firstChild;
+    if (replaceNode) {
+      node.parentNode.insertBefore(replaceNode, node);
+      node.parentNode.removeChild(node);
+    }
     return;
   }
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false;
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
     const doc = DOMParser.parseFromString(imageHTML, "text/html");
-    const replaceNode = doc.documentElement || doc.firstChild;
-    node.parentNode.replaceChild(replaceNode, node);
+    const replaceNode = doc.body?.firstChild || doc.firstChild;
+    if (replaceNode) {
+      node.parentNode.replaceChild(replaceNode, node);
+    }
     return;
   }
   if (nodeValue.match(YOUTUBE_REGEX)) {
@@ -1167,11 +1191,7 @@ function text(node, forApp, webp) {
       const vid = e[1];
       const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
-      let attrs = `class="markdown-video-link markdown-video-link-youtube" data-embed-src="${embedSrc}" data-youtube="${vid}"`;
       const startTime = extractYtStartTime(nodeValue);
-      if (startTime) {
-        attrs = attrs.concat(` data-start-time="${startTime}"`);
-      }
       const container = node.ownerDocument.createElement("p");
       const anchor = node.ownerDocument.createElement("a");
       anchor.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
@@ -1194,7 +1214,7 @@ function text(node, forApp, webp) {
   }
   if (nodeValue && typeof nodeValue === "string") {
     const postMatch = nodeValue.trim().match(POST_REGEX);
-    if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./, ""))) {
+    if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/^www\./, ""))) {
       const tag = postMatch[2];
       const author = postMatch[3].replace("@", "");
       const permlink = sanitizePermlink(postMatch[4]);
@@ -1206,8 +1226,10 @@ function text(node, forApp, webp) {
         `<a ${attrs}>/@${author}/${permlink}</a>`,
         "text/html"
       );
-      const replaceNode = doc.documentElement || doc.firstChild;
-      node.parentNode.replaceChild(replaceNode, node);
+      const replaceNode = doc.body?.firstChild || doc.firstChild;
+      if (replaceNode) {
+        node.parentNode.replaceChild(replaceNode, node);
+      }
     }
   }
 }
@@ -1241,9 +1263,19 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
 function cleanReply(s) {
   return (s ? s.split("\n").filter((item) => item.toLowerCase().includes("posted using [partiko") === false).filter((item) => item.toLowerCase().includes("posted using [dapplr") === false).filter((item) => item.toLowerCase().includes("posted using [leofinance") === false).filter((item) => item.toLowerCase().includes("posted via [neoxian") === false).filter((item) => item.toLowerCase().includes("posted using [neoxian") === false).filter((item) => item.toLowerCase().includes("posted with [stemgeeks") === false).filter((item) => item.toLowerCase().includes("posted using [bilpcoin") === false).filter((item) => item.toLowerCase().includes("posted using [inleo") === false).filter((item) => item.toLowerCase().includes("posted using [sportstalksocial]") === false).filter((item) => item.toLowerCase().includes("<center><sub>[posted using aeneas.blog") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [proofofbrain.io") === false).filter((item) => item.toLowerCase().includes("<center>posted on [hypnochain") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [weedcash.network") === false).filter((item) => item.toLowerCase().includes("<center>posted on [naturalmedicine.io") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [musicforlife.io") === false).filter((item) => item.toLowerCase().includes("if the truvvl embed is unsupported by your current frontend, click this link to view this story") === false).filter((item) => item.toLowerCase().includes("<center><em>posted from truvvl") === false).filter((item) => item.toLowerCase().includes('view this post <a href="https://travelfeed.io/') === false).filter((item) => item.toLowerCase().includes("read this post on travelfeed.io for the best experience") === false).filter((item) => item.toLowerCase().includes('posted via <a href="https://www.dporn.co/"') === false).filter((item) => item.toLowerCase().includes("\u25B6\uFE0F [watch on 3speak](https://3speak") === false).filter((item) => item.toLowerCase().includes("<sup><sub>posted via [inji.com]") === false).filter((item) => item.toLowerCase().includes("view this post on [liketu]") === false).filter((item) => item.toLowerCase().includes("[via Inbox]") === false).join("\n") : "").replace('Posted via <a href="https://d.buzz" data-link="promote-link">D.Buzz</a>', "").replace('<div class="pull-right"><a href="/@hive.engage">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace('<div><a href="https://engage.hivechain.app">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace(`<div class="text-center"><img src="https://cdn.steemitimages.com/DQmNp6YwAm2qwquALZw8PdcovDorwaBSFuxQ38TrYziGT6b/A-20.png"><a href="https://bit.ly/actifit-app"><img src="https://cdn.steemitimages.com/DQmQqfpSmcQtfrHAtzfBtVccXwUL9vKNgZJ2j93m8WNjizw/l5.png"></a><a href="https://bit.ly/actifit-ios"><img src="https://cdn.steemitimages.com/DQmbWy8KzKT1UvCvznUTaFPw6wBUcyLtBT5XL9wdbB7Hfmn/l6.png"></a></div>`, "");
 }
-var lolight = __require("lolight");
 var { Remarkable } = __require("remarkable");
 var { linkify: linkify2 } = __require("remarkable/linkify");
+var lolight = null;
+function getLolightInstance() {
+  if (!lolight) {
+    try {
+      lolight = __require("lolight");
+    } catch (e) {
+      return null;
+    }
+  }
+  return lolight;
+}
 function markdownToHTML(input, forApp, webp) {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
@@ -1256,8 +1288,12 @@ function markdownToHTML(input, forApp, webp) {
     breaks: true,
     typographer: false,
     highlight: function(str) {
+      const lolightInstance = getLolightInstance();
+      if (!lolightInstance) {
+        return str;
+      }
       try {
-        const tokens = lolight.tok(str);
+        const tokens = lolightInstance.tok(str);
         return tokens.map(
           (token) => `<span class="ll-${token[0]}">${token[1]}</span>`
         ).join("");
@@ -1289,10 +1325,11 @@ function markdownToHTML(input, forApp, webp) {
   const entities = input.match(ENTITY_REGEX);
   const entityPlaceholders = [];
   if (entities && forApp) {
-    entities.forEach((entity, index) => {
+    const uniqueEntities = [...new Set(entities)];
+    uniqueEntities.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
       entityPlaceholders.push(entity);
-      input = input.replace(entity, placeholder);
+      input = input.split(entity).join(placeholder);
     });
   }
   try {
@@ -1324,7 +1361,7 @@ function markdownToHTML(input, forApp, webp) {
   if (forApp && output && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
-      output = output.replace(placeholder, entity);
+      output = output.split(placeholder).join(entity);
     });
   }
   output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
@@ -1470,10 +1507,11 @@ function postBodySummary(entryBody, length, platform = "web") {
   const entities = entryBody.match(ENTITY_REGEX);
   const entityPlaceholders = [];
   if (entities && platform !== "web") {
-    entities.forEach((entity, index) => {
+    const uniqueEntities = [...new Set(entities)];
+    uniqueEntities.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
       entityPlaceholders.push(entity);
-      entryBody = entryBody.replace(entity, placeholder);
+      entryBody = entryBody.split(entity).join(placeholder);
     });
   }
   let text2 = "";
@@ -1490,7 +1528,7 @@ function postBodySummary(entryBody, length, platform = "web") {
   if (platform !== "web" && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
-      text2 = text2.replace(placeholder, entity);
+      text2 = text2.split(placeholder).join(entity);
     });
   }
   text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ +(?= )/g, "");

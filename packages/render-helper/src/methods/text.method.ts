@@ -21,10 +21,12 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
       `<span class="wr">${linkified}</span>`,
       'text/html'
     )
-    const replaceNode = doc.documentElement || doc.firstChild
+    const replaceNode = doc.body?.firstChild || doc.firstChild
 
-    node.parentNode.insertBefore(replaceNode, node)
-    node.parentNode.removeChild(node)
+    if (replaceNode) {
+      node.parentNode.insertBefore(replaceNode, node)
+      node.parentNode.removeChild(node)
+    }
     return
   }
 
@@ -32,8 +34,10 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     const isLCP = false; // Traverse handles LCP; no need to double-count
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
     const doc = DOMParser.parseFromString(imageHTML, 'text/html');
-    const replaceNode = doc.documentElement || doc.firstChild
-    node.parentNode.replaceChild(replaceNode, node);
+    const replaceNode = doc.body?.firstChild || doc.firstChild
+    if (replaceNode) {
+      node.parentNode.replaceChild(replaceNode, node);
+    }
     return; // Early return after replacing node
   }
   // If a youtube video
@@ -43,13 +47,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
       const vid = e[1]
       const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
-
-      let attrs = `class="markdown-video-link markdown-video-link-youtube" data-embed-src="${embedSrc}" data-youtube="${vid}"`
-      //extract start time if available
       const startTime = extractYtStartTime(nodeValue);
-      if(startTime){
-        attrs = attrs.concat(` data-start-time="${startTime}"`);
-      }
 
       // Create container paragraph
       const container = node.ownerDocument.createElement('p')
@@ -82,7 +80,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
   }
   if (nodeValue && typeof nodeValue === 'string') {
     const postMatch = nodeValue.trim().match(POST_REGEX)
-    if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/www./,''))) {
+    if (postMatch && WHITE_LIST.includes(postMatch[1].replace(/^www\./,''))) {
       const tag = postMatch[2]
       const author = postMatch[3].replace('@', '')
       const permlink = sanitizePermlink(postMatch[4])
@@ -98,8 +96,10 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
         `<a ${attrs}>/@${author}/${permlink}</a>`,
         'text/html'
       )
-      const replaceNode = doc.documentElement || doc.firstChild
-      node.parentNode.replaceChild(replaceNode, node)
+      const replaceNode = doc.body?.firstChild || doc.firstChild
+      if (replaceNode) {
+        node.parentNode.replaceChild(replaceNode, node)
+      }
     }
   }
 }

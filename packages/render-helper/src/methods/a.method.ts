@@ -549,9 +549,14 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
       let embedSrc = ''
 
       if (e[1] === undefined) {
+        // No "videos" in URL, e[2] is the channel name
         embedSrc = `https://player.twitch.tv/?channel=${e[2]}`
+      } else if (e[1] === 'videos') {
+        // URL contains "videos/", e[2] is the video ID
+        embedSrc = `https://player.twitch.tv/?video=${e[2]}`
       } else {
-        embedSrc = `https://player.twitch.tv/?video=${e[1]}`
+        // Fallback (shouldn't happen with current regex)
+        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`
       }
 
       el.textContent = ''
@@ -569,6 +574,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   // If a spotify audio
   match = href.match(SPOTIFY_REGEX)
   if (match && el.textContent.trim() === href) {
+    SPOTIFY_REGEX.lastIndex = 0 // Reset for exec() after match()
     const e = SPOTIFY_REGEX.exec(href)
     if (e[1]) {
 
@@ -622,6 +628,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
      const imgEls = el.getElementsByTagName('img')
 
      if (imgEls.length === 1 || el.textContent.trim() === href) {
+      D_TUBE_REGEX.lastIndex = 0 // Reset for exec() after match()
       const e = D_TUBE_REGEX.exec(href)
       // e[2] = username, e[3] object id
       if (e[2] && e[3]) {
@@ -636,17 +643,20 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
         //process thumb img element
         if (imgEls.length === 1) {
-          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute('src').replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
-          const thumbImg = el.ownerDocument.createElement('img')
+          const src = imgEls[0].getAttribute('src')
+          if (src) {
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+            const thumbImg = el.ownerDocument.createElement('img')
 
-          thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-          thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+            thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+            thumbImg.setAttribute('itemprop', 'thumbnailUrl')
 
-          thumbImg.setAttribute('src', thumbnail)
-          el.appendChild(thumbImg)
+            thumbImg.setAttribute('src', thumbnail)
+            el.appendChild(thumbImg)
 
-          // Remove image.
-          el.removeChild(imgEls[0])
+            // Remove image.
+            el.removeChild(imgEls[0])
+          }
         } else {
             el.textContent = '';
         }
@@ -663,6 +673,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   }
   match = href.match(D_TUBE_REGEX2)
   if (match) {
+    D_TUBE_REGEX2.lastIndex = 0 // Reset for exec() after match()
     const e = D_TUBE_REGEX2.exec(href)
     // e[2] = username, e[3] object id
     if (e[2] && e[3]) {
@@ -700,14 +711,17 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
           el.textContent = ''
         }
         if (imgEls.length === 1) {
-          const thumbnail = proxifyImageSrc(imgEls[0].getAttribute('src').replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
-          const thumbImg = el.ownerDocument.createElement('img')
-          thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-          thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-          thumbImg.setAttribute('src', thumbnail)
-          el.appendChild(thumbImg)
-          // Remove image.
-          el.removeChild(imgEls[0])
+          const src = imgEls[0].getAttribute('src')
+          if (src) {
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+            const thumbImg = el.ownerDocument.createElement('img')
+            thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+            thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+            thumbImg.setAttribute('src', thumbnail)
+            el.appendChild(thumbImg)
+            // Remove image.
+            el.removeChild(imgEls[0])
+          }
         }
 
         const play = el.ownerDocument.createElement('span')
@@ -721,15 +735,30 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   // If tweets
   const matchT = href.match(TWITTER_REGEX)
   if (matchT && el.textContent.trim() === href) {
+    TWITTER_REGEX.lastIndex = 0 // Reset for exec() after match()
     const e = TWITTER_REGEX.exec(href)
     if (e) {
       const url = e[0].replace(/(<([^>]+)>)/gi, '')
       const author = e[1].replace(/(<([^>]+)>)/gi, '')
 
-      const twitterCode = `<blockquote class="twitter-tweet"><p>${url}</p>- <a href="${url}">${author}</a></blockquote>`
-      const doc = DOMParser.parseFromString(twitterCode, 'text/html')
-      const replaceNode = doc.documentElement || doc.firstChild
-      el.parentNode.replaceChild(replaceNode, el)
+      // Use proper DOM construction to avoid XSS from unescaped url/author
+      const blockquote = el.ownerDocument.createElement('blockquote')
+      blockquote.setAttribute('class', 'twitter-tweet')
+
+      const p = el.ownerDocument.createElement('p')
+      p.textContent = url // textContent automatically escapes
+
+      const textNode = el.ownerDocument.createTextNode('- ')
+
+      const a = el.ownerDocument.createElement('a')
+      a.setAttribute('href', url) // setAttribute escapes automatically
+      a.textContent = author // textContent automatically escapes
+
+      blockquote.appendChild(p)
+      blockquote.appendChild(textNode)
+      blockquote.appendChild(a)
+
+      el.parentNode.replaceChild(blockquote, el)
       return
     }
   }

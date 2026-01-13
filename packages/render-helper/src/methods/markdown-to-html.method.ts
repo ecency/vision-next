@@ -3,10 +3,22 @@ import { sanitizeHtml } from './sanitize-html.method'
 import { DOMParser, ENTITY_REGEX } from '../consts'
 import { XMLSerializer } from '@xmldom/xmldom'
 
-const lolight = require('lolight')
 const { Remarkable } = require('remarkable')
 const { linkify } = require('remarkable/linkify')
 
+// Lazy-load lolight to avoid dynamic require issues in browser builds
+let lolight: any = null
+function getLolightInstance() {
+  if (!lolight) {
+    try {
+      lolight = require('lolight')
+    } catch (e) {
+      // Lolight not available (browser build) - use fallback
+      return null
+    }
+  }
+  return lolight
+}
 
 export function markdownToHTML(input: string, forApp: boolean, webp: boolean): string {
   // Internalize leofinance.io links
@@ -23,8 +35,14 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
     breaks: true,
     typographer: false,
     highlight: function (str: string) {
+      const lolightInstance = getLolightInstance()
+      if (!lolightInstance) {
+        // Fallback when lolight is not available
+        return str
+      }
+
       try {
-        const tokens = lolight.tok(str);
+        const tokens = lolightInstance.tok(str);
         return tokens.map(
           (token: string[]) => `<span class="ll-${token[0]}">${token[1]}</span>`
         ).join('')
@@ -60,11 +78,14 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
   const entityPlaceholders: string[] = [];
 
   if (entities && forApp) {
-    entities.forEach((entity, index) => {
+    // Deduplicate entities to avoid duplicate placeholders
+    const uniqueEntities = [...new Set(entities)];
+    uniqueEntities.forEach((entity, index) => {
       // Use deterministic unique placeholder
       const placeholder = `__ENTITY_${index}__`;
       entityPlaceholders.push(entity);
-      input = input.replace(entity, placeholder);
+      // Replace all occurrences of this entity
+      input = input.split(entity).join(placeholder);
     })
   }
 
@@ -121,7 +142,8 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
   if (forApp && output && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
-      output = output.replace(placeholder, entity);
+      // Replace all occurrences of the placeholder
+      output = output.split(placeholder).join(entity);
     })
   }
 

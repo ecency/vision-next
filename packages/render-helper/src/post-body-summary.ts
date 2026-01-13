@@ -38,7 +38,7 @@ const joint = (arr: string[], limit = 200) => {
  * @param entryBody - The post body content to summarize
  * @param length - Maximum length of the summary (default: 200)
  * @param platform - Target platform: 'web' for browser/Node.js, 'ios'/'android' for React Native (default: 'web')
- *                   Determines which crypto implementation to use ('web' = standard, other = react-native-crypto-js)
+ *                   Controls entity/placeholder handling - 'web' skips placeholder substitution, other values enable it
  */
 function postBodySummary(entryBody: string, length?: number, platform:'ios'|'android'|'web' = 'web'): string {
   if (!entryBody) {
@@ -70,11 +70,14 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
   const entities = entryBody.match(ENTITY_REGEX);
   const entityPlaceholders: string[] = [];
   if (entities && platform !== 'web') {
-    entities.forEach((entity, index) => {
+    // Deduplicate entities to avoid duplicate placeholders
+    const uniqueEntities = [...new Set(entities)];
+    uniqueEntities.forEach((entity, index) => {
       // Use deterministic unique placeholder
       const placeholder = `__ENTITY_${index}__`;
       entityPlaceholders.push(entity);
-      entryBody = entryBody.replace(entity, placeholder);
+      // Replace all occurrences of this entity
+      entryBody = entryBody.split(entity).join(placeholder);
     })
   }
 
@@ -98,7 +101,8 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
   if (platform !== 'web' && entityPlaceholders.length > 0) {
     entityPlaceholders.forEach((entity, index) => {
       const placeholder = `__ENTITY_${index}__`;
-      text = text.replace(placeholder, entity);
+      // Replace all occurrences of the placeholder
+      text = text.split(placeholder).join(entity);
     })
   }
 
