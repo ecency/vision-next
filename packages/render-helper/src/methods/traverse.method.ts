@@ -9,25 +9,30 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     return
   }
 
-  Array.from(Array(node.childNodes.length).keys())
-    .map(i => node.childNodes[i])
-    .forEach(child => {
-      if (child.nodeName.toLowerCase() === 'a') {
-        a(<HTMLElement>child, forApp, webp, parentDomain)
-      }
-      if (child.nodeName.toLowerCase() === 'iframe') {
-        iframe(<HTMLElement>child, parentDomain)
-      }
-      if (child.nodeName === '#text') {
-        text(<HTMLElement>child, forApp, webp)
-      }
-      if (child.nodeName.toLowerCase() === 'img') {
-        img(<HTMLElement>child, webp, state)
-      }
-      if (child.nodeName.toLowerCase() === 'p') {
-        p(<HTMLElement>child)
-      }
+  Array.from(Array(node.childNodes.length).keys()).forEach(i => {
+    const child = node.childNodes[i];
+    if (!child) return; // Child might have been removed
 
-      traverse(child, forApp, depth + 1, webp, state, parentDomain)
-    })
+    if (child.nodeName.toLowerCase() === 'a') {
+      a(<HTMLElement>child, forApp, webp, parentDomain)
+    }
+    if (child.nodeName.toLowerCase() === 'iframe') {
+      iframe(<HTMLElement>child, parentDomain)
+    }
+    if (child.nodeName === '#text') {
+      text(<HTMLElement>child, forApp, webp)
+    }
+    if (child.nodeName.toLowerCase() === 'img') {
+      img(<HTMLElement>child, webp, state)
+    }
+    if (child.nodeName.toLowerCase() === 'p') {
+      p(<HTMLElement>child)
+    }
+
+    // Recapture child reference in case handler replaced it
+    const currentChild = node.childNodes[i];
+    if (currentChild) {
+      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain)
+    }
+  })
 }

@@ -32,7 +32,8 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // Twitch
   if (src.match(TWITCH_EMBED_REGEX)) {
-    const s = `${src}&parent=${parentDomain}&autoplay=false`;
+    const separator = src.includes('?') ? '&' : '?';
+    const s = `${src}${separator}parent=${parentDomain}&autoplay=false`;
     el.setAttribute('src', s);
     return;
   }

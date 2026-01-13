@@ -386,10 +386,10 @@ var matchesHref = (href, value) => {
 };
 var getInlineMeta = (el, href) => {
   const textMatches = matchesHref(href, el.textContent);
-  const titleMatches = matchesHref(href, el.getAttribute("title"));
+  matchesHref(href, el.getAttribute("title"));
   return {
     textMatches,
-    isInline: !(textMatches || titleMatches)
+    isInline: textMatches
   };
 };
 function a(el, forApp, webp, parentDomain = "ecency.com") {
@@ -974,7 +974,8 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(TWITCH_EMBED_REGEX)) {
-    const s = `${src}&parent=${parentDomain}&autoplay=false`;
+    const separator = src.includes("?") ? "&" : "?";
+    const s = `${src}${separator}parent=${parentDomain}&autoplay=false`;
     el.setAttribute("src", s);
     return;
   }
@@ -1223,7 +1224,9 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
   if (!node || !node.childNodes) {
     return;
   }
-  Array.from(Array(node.childNodes.length).keys()).map((i) => node.childNodes[i]).forEach((child) => {
+  Array.from(Array(node.childNodes.length).keys()).forEach((i) => {
+    const child = node.childNodes[i];
+    if (!child) return;
     if (child.nodeName.toLowerCase() === "a") {
       a(child, forApp, webp, parentDomain);
     }
@@ -1239,7 +1242,10 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
     if (child.nodeName.toLowerCase() === "p") {
       p(child);
     }
-    traverse(child, forApp, depth + 1, webp, state, parentDomain);
+    const currentChild = node.childNodes[i];
+    if (currentChild) {
+      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain);
+    }
   });
 }
 

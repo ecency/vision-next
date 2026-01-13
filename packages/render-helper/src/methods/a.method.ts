@@ -50,7 +50,7 @@ const getInlineMeta = (el: HTMLElement, href: string) => {
 
   return {
     textMatches,
-    isInline: !(textMatches || titleMatches)
+    isInline: textMatches
   }
 }
 
