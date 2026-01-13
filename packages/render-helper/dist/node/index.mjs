@@ -402,7 +402,7 @@ function a(el, forApp, webp) {
   if (["markdown-author-link", "markdown-tag-link"].indexOf(className) !== -1) {
     return;
   }
-  if (href.startsWith("javascript")) {
+  if (href && href.trim().toLowerCase().startsWith("javascript:")) {
     el.removeAttribute("href");
     return;
   }
@@ -671,9 +671,8 @@ function a(el, forApp, webp) {
     return;
   }
   const BCmatch = href.match(BITCHUTE_REGEX);
-  if (BCmatch && el.textContent.trim() === href) {
-    const e = BITCHUTE_REGEX.exec(href);
-    const vid = e[1];
+  if (BCmatch && BCmatch[1] && el.textContent.trim() === href) {
+    const vid = BCmatch[1];
     el.setAttribute("class", "markdown-video-link");
     el.removeAttribute("href");
     const embedSrc = `https://www.bitchute.com/embed/${vid}/`;
@@ -1139,7 +1138,7 @@ function text(node, forApp, webp) {
   if (!node || !node.parentNode) {
     return;
   }
-  if (["a", "code"].includes(node.parentNode.nodeName)) {
+  if (node.parentNode && ["a", "code"].includes(node.parentNode.nodeName.toLowerCase())) {
     return;
   }
   const nodeValue = node.nodeValue || "";
@@ -1199,6 +1198,7 @@ function text(node, forApp, webp) {
       const tag = postMatch[2];
       const author = postMatch[3].replace("@", "");
       const permlink = sanitizePermlink(postMatch[4]);
+      if (!tag || !/^[a-z0-9_-]+$/i.test(tag)) return;
       if (!isValidUsername(author)) return;
       if (!isValidPermlink(permlink)) return;
       const attrs = forApp ? `data-tag="${tag}" data-author="${author}" data-permlink="${permlink}" class="markdown-post-link"` : `class="markdown-post-link" href="/${tag}/@${author}/${permlink}"`;
@@ -1287,19 +1287,13 @@ function markdownToHTML(input, forApp, webp) {
   }
   let output = "";
   const entities = input.match(ENTITY_REGEX);
-  const encEntities = [];
-  try {
-    if (entities && forApp) {
-      entities.forEach((entity) => {
-        const CryptoJS = __require("react-native-crypto-js");
-        const encData = CryptoJS.AES.encrypt(entity, "key").toString();
-        const encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
-        encEntities.push(encyptedEntity);
-        input = input.replace(entity, encyptedEntity);
-      });
-    }
-  } catch (err) {
-    console.log("failed to encrypt entities, ignore if not using mobile");
+  const entityPlaceholders = [];
+  if (entities && forApp) {
+    entities.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      entityPlaceholders.push(entity);
+      input = input.replace(entity, placeholder);
+    });
   }
   try {
     output = md.render(input);
@@ -1327,12 +1321,10 @@ function markdownToHTML(input, forApp, webp) {
       output = `<p dir="auto">${escapedContent}</p>`;
     }
   }
-  if (forApp && output) {
-    encEntities.forEach((encEntity) => {
-      const CryptoJS = __require("react-native-crypto-js");
-      const decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
-      const entity = CryptoJS.AES.decrypt(decData, "key").toString(CryptoJS.enc.Utf8);
-      output = output.replace(encEntity, entity);
+  if (forApp && output && entityPlaceholders.length > 0) {
+    entityPlaceholders.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      output = output.replace(placeholder, entity);
     });
   }
   output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
@@ -1476,28 +1468,29 @@ function postBodySummary(entryBody, length, platform = "web") {
     "sup"
   ]);
   const entities = entryBody.match(ENTITY_REGEX);
-  const encEntities = [];
+  const entityPlaceholders = [];
   if (entities && platform !== "web") {
-    entities.forEach((entity) => {
-      var CryptoJS = __require("react-native-crypto-js");
-      const encData = CryptoJS.AES.encrypt(entity, "key").toString();
-      let encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
-      encEntities.push(encyptedEntity);
-      entryBody = entryBody.replace(entity, encyptedEntity);
+    entities.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      entityPlaceholders.push(entity);
+      entryBody = entryBody.replace(entity, placeholder);
     });
   }
   let text2 = "";
   try {
     text2 = mdd.render(entryBody);
   } catch (err) {
-    console.log(err);
+    console.error("[postBodySummary] Failed to render markdown:", {
+      error: err instanceof Error ? err.message : String(err),
+      entryBodyLength: entryBody?.length || 0,
+      platform
+    });
+    text2 = "";
   }
-  if (platform !== "web") {
-    encEntities.forEach((encEntity) => {
-      var CryptoJS = __require("react-native-crypto-js");
-      let decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
-      let entity = CryptoJS.AES.decrypt(decData, "key").toString(CryptoJS.enc.Utf8);
-      text2 = text2.replace(encEntity, entity);
+  if (platform !== "web" && entityPlaceholders.length > 0) {
+    entityPlaceholders.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      text2 = text2.replace(placeholder, entity);
     });
   }
   text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ +(?= )/g, "");
@@ -1513,7 +1506,7 @@ function getPostBodySummary(obj, length, platform) {
   if (typeof obj === "string") {
     return postBodySummary(obj, length, platform);
   }
-  const key = `${makeEntryCacheKey(obj)}-sum-${length}`;
+  const key = `${makeEntryCacheKey(obj)}-sum-${length}-${platform || "web"}`;
   const item = cacheGet(key);
   if (item) {
     return item;

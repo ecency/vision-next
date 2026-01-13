@@ -66,16 +66,15 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
     'sup'
   ]);
 
-  //encrypt entities
+  // Replace entities with deterministic placeholders to preserve them during rendering
   const entities = entryBody.match(ENTITY_REGEX);
-  const encEntities:string[] = [];
-  if(entities && platform !== 'web'){
-    entities.forEach((entity)=>{
-      var CryptoJS = require("react-native-crypto-js");
-      const encData = CryptoJS.AES.encrypt(entity, 'key').toString();
-      let encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
-      encEntities.push(encyptedEntity);
-      entryBody = entryBody.replace(entity, encyptedEntity);
+  const entityPlaceholders: string[] = [];
+  if (entities && platform !== 'web') {
+    entities.forEach((entity, index) => {
+      // Use deterministic unique placeholder
+      const placeholder = `__ENTITY_${index}__`;
+      entityPlaceholders.push(entity);
+      entryBody = entryBody.replace(entity, placeholder);
     })
   }
 
@@ -84,17 +83,22 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
   try {
     text = mdd.render(entryBody)
   } catch (err) {
-    console.log(err)
+    // Log error with context for debugging
+    console.error('[postBodySummary] Failed to render markdown:', {
+      error: err instanceof Error ? err.message : String(err),
+      entryBodyLength: entryBody?.length || 0,
+      platform
+    })
+    // Set empty text on error - caller receives empty summary
+    text = ''
   }
 
 
-  //decrypt and put back entiteis
-  if(platform !== 'web'){
-    encEntities.forEach((encEntity)=>{
-      var CryptoJS = require("react-native-crypto-js");
-      let decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
-      let entity = CryptoJS.AES.decrypt(decData, 'key').toString(CryptoJS.enc.Utf8);
-      text = text.replace(encEntity, entity);
+  // Restore original entities from placeholders
+  if (platform !== 'web' && entityPlaceholders.length > 0) {
+    entityPlaceholders.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      text = text.replace(placeholder, entity);
     })
   }
 
@@ -126,14 +130,14 @@ function postBodySummary(entryBody: string, length?: number, platform:'ios'|'and
  *                   Determines which crypto implementation to use ('web' = standard, other = react-native-crypto-js)
  * @returns Text summary of the post body
  */
-export function getPostBodySummary(obj: Entry | string, length?: number, platform?:'ios'|'android'|'web'): any {
+export function getPostBodySummary(obj: Entry | string, length?: number, platform?:'ios'|'android'|'web'): string {
   if (typeof obj === 'string') {
     return postBodySummary(obj as string, length, platform)
   }
 
-  const key = `${makeEntryCacheKey(obj)}-sum-${length}`
+  const key = `${makeEntryCacheKey(obj)}-sum-${length}-${platform || 'web'}`
 
-  const item = cacheGet(key)
+  const item = cacheGet<string>(key)
   if (item) {
     return item
   }

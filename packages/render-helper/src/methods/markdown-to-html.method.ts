@@ -55,22 +55,17 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
 
   let output = '';
 
-  //encrypt entities
+  // Replace entities with deterministic placeholders to preserve them during rendering
   const entities = input.match(ENTITY_REGEX);
-  const encEntities:string[] = [];
+  const entityPlaceholders: string[] = [];
 
-  try{
-    if(entities && forApp){
-      entities.forEach((entity)=>{
-        const CryptoJS = require("react-native-crypto-js");
-        const encData = CryptoJS.AES.encrypt(entity, 'key').toString();
-        const encyptedEntity = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encData));
-        encEntities.push(encyptedEntity);
-        input = input.replace(entity, encyptedEntity);
-      })
-    }
-  } catch (err){
-    console.log("failed to encrypt entities, ignore if not using mobile");
+  if (entities && forApp) {
+    entities.forEach((entity, index) => {
+      // Use deterministic unique placeholder
+      const placeholder = `__ENTITY_${index}__`;
+      entityPlaceholders.push(entity);
+      input = input.replace(entity, placeholder);
+    })
   }
 
 
@@ -122,13 +117,11 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean): s
     }
   }
 
-  //decrypt and put back entiteis
-  if(forApp && output){
-    encEntities.forEach((encEntity)=>{
-      const CryptoJS = require("react-native-crypto-js");
-      const decData = CryptoJS.enc.Base64.parse(encEntity).toString(CryptoJS.enc.Utf8);
-      const entity = CryptoJS.AES.decrypt(decData, 'key').toString(CryptoJS.enc.Utf8);
-      output = output.replace(encEntity, entity);
+  // Restore original entities from placeholders
+  if (forApp && output && entityPlaceholders.length > 0) {
+    entityPlaceholders.forEach((entity, index) => {
+      const placeholder = `__ENTITY_${index}__`;
+      output = output.replace(placeholder, entity);
     })
   }
 

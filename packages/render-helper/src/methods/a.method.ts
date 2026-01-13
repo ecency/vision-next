@@ -73,8 +73,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
     return
   }
 
-  // Do not allow js hrefs
-  if (href.startsWith('javascript')) {
+  // Do not allow js hrefs (case-insensitive, with colon)
+  if (href && href.trim().toLowerCase().startsWith('javascript:')) {
     el.removeAttribute('href')
     return
   }
@@ -426,9 +426,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
 
 
   const BCmatch = href.match(BITCHUTE_REGEX)
-  if (BCmatch && el.textContent.trim() === href) {
-    const e = BITCHUTE_REGEX.exec(href)
-    const vid = e[1]
+  if (BCmatch && BCmatch[1] && el.textContent.trim() === href) {
+    const vid = BCmatch[1]
     el.setAttribute('class', 'markdown-video-link')
     el.removeAttribute('href')
 

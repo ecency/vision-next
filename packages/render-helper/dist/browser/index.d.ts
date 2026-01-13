@@ -18,7 +18,7 @@ declare function catchPostImage(obj: Entry | string, width?: number, height?: nu
  *                   Determines which crypto implementation to use ('web' = standard, other = react-native-crypto-js)
  * @returns Text summary of the post body
  */
-declare function getPostBodySummary(obj: Entry | string, length?: number, platform?: 'ios' | 'android' | 'web'): any;
+declare function getPostBodySummary(obj: Entry | string, length?: number, platform?: 'ios' | 'android' | 'web'): string;
 
 declare function setProxyBase(p: string): void;
 declare function proxifyImageSrc(url?: string, width?: number, height?: number, format?: string): string;

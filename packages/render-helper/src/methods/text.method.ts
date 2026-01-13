@@ -9,7 +9,8 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     return
   }
 
-  if (['a', 'code'].includes(node.parentNode.nodeName)) {
+  // Case-insensitive check with null safety
+  if (node.parentNode && ['a', 'code'].includes(node.parentNode.nodeName.toLowerCase())) {
     return
   }
 
@@ -86,6 +87,9 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
       const author = postMatch[3].replace('@', '')
       const permlink = sanitizePermlink(postMatch[4])
 
+      // Validate tag to prevent attribute breakout XSS
+      // Allow only alphanumeric, hyphens, and underscores
+      if (!tag || !/^[a-z0-9_-]+$/i.test(tag)) return
       if (!isValidUsername(author)) return
       if (!isValidPermlink(permlink)) return
 
