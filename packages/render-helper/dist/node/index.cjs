@@ -716,86 +716,74 @@ function a(el, forApp, webp) {
     }
   }
   const BNmatch = href.match(BRIGHTEON_REGEX);
-  if (BNmatch && el.textContent.trim() === href) {
-    const e = BRIGHTEON_REGEX.exec(href);
-    if (e[2]) {
-      const vid = e[2];
-      const embedSrc = `https://www.brighteon.com/embed/${vid}`;
-      el.setAttribute("class", "markdown-video-link");
-      el.removeAttribute("href");
-      el.textContent = "";
-      el.setAttribute("data-embed-src", embedSrc);
-      const play = el.ownerDocument.createElement("span");
-      play.setAttribute("class", "markdown-video-play");
-      el.appendChild(play);
-      return;
-    }
+  if (BNmatch && BNmatch[2] && el.textContent.trim() === href) {
+    const vid = BNmatch[2];
+    const embedSrc = `https://www.brighteon.com/embed/${vid}`;
+    el.setAttribute("class", "markdown-video-link");
+    el.removeAttribute("href");
+    el.textContent = "";
+    el.setAttribute("data-embed-src", embedSrc);
+    const play = el.ownerDocument.createElement("span");
+    play.setAttribute("class", "markdown-video-play");
+    el.appendChild(play);
+    return;
   }
   let match = href.match(YOUTUBE_REGEX);
-  if (match && el.textContent.trim() === href) {
-    const e = YOUTUBE_REGEX.exec(href);
-    if (e[1]) {
-      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
-      el.removeAttribute("href");
-      const vid = e[1];
-      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
-      const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
-      el.textContent = "";
-      el.setAttribute("data-embed-src", embedSrc);
-      el.setAttribute("data-youtube", vid);
-      const startTime = extractYtStartTime(href);
-      if (startTime) {
-        el.setAttribute("data-start-time", startTime);
-      }
-      const thumbImg = el.ownerDocument.createElement("img");
-      thumbImg.setAttribute("class", "no-replace video-thumbnail");
-      thumbImg.setAttribute("itemprop", "thumbnailUrl");
-      thumbImg.setAttribute("src", thumbnail);
-      const play = el.ownerDocument.createElement("span");
-      play.setAttribute("class", "markdown-video-play");
-      el.appendChild(thumbImg);
-      el.appendChild(play);
-      return;
+  if (match && match[1] && el.textContent.trim() === href) {
+    el.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
+    el.removeAttribute("href");
+    const vid = match[1];
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+    const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
+    el.textContent = "";
+    el.setAttribute("data-embed-src", embedSrc);
+    el.setAttribute("data-youtube", vid);
+    const startTime = extractYtStartTime(href);
+    if (startTime) {
+      el.setAttribute("data-start-time", startTime);
     }
+    const thumbImg = el.ownerDocument.createElement("img");
+    thumbImg.setAttribute("class", "no-replace video-thumbnail");
+    thumbImg.setAttribute("itemprop", "thumbnailUrl");
+    thumbImg.setAttribute("src", thumbnail);
+    const play = el.ownerDocument.createElement("span");
+    play.setAttribute("class", "markdown-video-play");
+    el.appendChild(thumbImg);
+    el.appendChild(play);
+    return;
   }
   match = href.match(VIMEO_REGEX);
-  if (match && href === el.textContent) {
-    const e = VIMEO_REGEX.exec(href);
-    if (e[3]) {
-      el.setAttribute("class", "markdown-video-link markdown-video-link-vimeo");
-      el.removeAttribute("href");
-      const embedSrc = `https://player.vimeo.com/video/${e[3]}`;
-      el.textContent = "";
-      const ifr = el.ownerDocument.createElement("iframe");
-      ifr.setAttribute("frameborder", "0");
-      ifr.setAttribute("allowfullscreen", "true");
-      ifr.setAttribute("src", embedSrc);
-      el.appendChild(ifr);
-      return;
-    }
+  if (match && match[3] && href === el.textContent) {
+    el.setAttribute("class", "markdown-video-link markdown-video-link-vimeo");
+    el.removeAttribute("href");
+    const embedSrc = `https://player.vimeo.com/video/${match[3]}`;
+    el.textContent = "";
+    const ifr = el.ownerDocument.createElement("iframe");
+    ifr.setAttribute("frameborder", "0");
+    ifr.setAttribute("allowfullscreen", "true");
+    ifr.setAttribute("src", embedSrc);
+    el.appendChild(ifr);
+    return;
   }
   match = href.match(TWITCH_REGEX);
-  if (match && href === el.textContent) {
-    const e = TWITCH_REGEX.exec(href);
-    if (e[2]) {
-      el.setAttribute("class", "markdown-video-link markdown-video-link-twitch");
-      el.removeAttribute("href");
-      let embedSrc = "";
-      if (e[1] === void 0) {
-        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`;
-      } else if (e[1] === "videos") {
-        embedSrc = `https://player.twitch.tv/?video=${e[2]}`;
-      } else {
-        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`;
-      }
-      el.textContent = "";
-      const ifr = el.ownerDocument.createElement("iframe");
-      ifr.setAttribute("frameborder", "0");
-      ifr.setAttribute("allowfullscreen", "true");
-      ifr.setAttribute("src", embedSrc);
-      el.appendChild(ifr);
-      return;
+  if (match && match[2] && href === el.textContent) {
+    el.setAttribute("class", "markdown-video-link markdown-video-link-twitch");
+    el.removeAttribute("href");
+    let embedSrc = "";
+    if (match[1] === void 0) {
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`;
+    } else if (match[1] === "videos") {
+      embedSrc = `https://player.twitch.tv/?video=${match[2]}`;
+    } else {
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`;
     }
+    el.textContent = "";
+    const ifr = el.ownerDocument.createElement("iframe");
+    ifr.setAttribute("frameborder", "0");
+    ifr.setAttribute("allowfullscreen", "true");
+    ifr.setAttribute("src", embedSrc);
+    el.appendChild(ifr);
+    return;
   }
   match = href.match(SPOTIFY_REGEX);
   if (match && el.textContent.trim() === href) {
@@ -884,9 +872,8 @@ function a(el, forApp, webp) {
   if (match) {
     const imgEls = el.getElementsByTagName("img");
     if (imgEls.length === 1 || el.textContent.trim() === href) {
-      const e = SPEAK_REGEX.exec(href);
-      if ((e[1] || e[2]) && e[3]) {
-        const videoHref = `https://3speak.tv/embed?v=${e[3]}`;
+      if ((match[1] || match[2]) && match[3]) {
+        const videoHref = `https://3speak.tv/embed?v=${match[3]}`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -960,15 +947,12 @@ function a(el, forApp, webp) {
   if (forApp) {
     el.setAttribute("data-href", href);
     const match2 = href.match(YOUTUBE_REGEX);
-    if (match2) {
-      const e = YOUTUBE_REGEX.exec(href);
-      if (e[1]) {
-        const vid = e[1];
-        el.setAttribute("data-youtube", vid);
-        const startTime = extractYtStartTime(href);
-        if (startTime) {
-          el.setAttribute("data-start-time", startTime);
-        }
+    if (match2 && match2[1]) {
+      const vid = match2[1];
+      el.setAttribute("data-youtube", vid);
+      const startTime = extractYtStartTime(href);
+      if (startTime) {
+        el.setAttribute("data-start-time", startTime);
       }
     }
     el.removeAttribute("href");

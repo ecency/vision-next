@@ -65,14 +65,19 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
 
         // Fall back to keychain if available
         if (hasKeyChain) {
-          const keychainAuthority =
-            authority === "active"
-              ? "Active"
-              : authority === "posting"
-                ? "Posting"
-                : authority === "owner"
-                  ? "Owner"
-                  : "Memo";
+          // Validate authority explicitly and map to keychain format
+          let keychainAuthority: "Active" | "Posting" | "Owner" | "Memo";
+          if (authority === "active") {
+            keychainAuthority = "Active";
+          } else if (authority === "posting") {
+            keychainAuthority = "Posting";
+          } else if (authority === "owner") {
+            keychainAuthority = "Owner";
+          } else if (authority === "memo") {
+            keychainAuthority = "Memo";
+          } else {
+            throw new Error(`[SDK][Auth] – invalid authority "${authority}" for keychain`);
+          }
           return keychain
             .broadcast(activeUser.username, operations, keychainAuthority)
             .then((result: any) => result.result);

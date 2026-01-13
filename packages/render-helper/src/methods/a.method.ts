@@ -469,114 +469,102 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   }
 
   const BNmatch = href.match(BRIGHTEON_REGEX)
-  if (BNmatch && el.textContent.trim() === href) {
-    const e = BRIGHTEON_REGEX.exec(href)
-    if (e[2]) {
-      const vid = e[2]
-      const embedSrc = `https://www.brighteon.com/embed/${vid}`
-      el.setAttribute('class', 'markdown-video-link')
-      el.removeAttribute('href')
+  if (BNmatch && BNmatch[2] && el.textContent.trim() === href) {
+    const vid = BNmatch[2]
+    const embedSrc = `https://www.brighteon.com/embed/${vid}`
+    el.setAttribute('class', 'markdown-video-link')
+    el.removeAttribute('href')
 
-      el.textContent = ''
-      el.setAttribute('data-embed-src', embedSrc)
-      const play = el.ownerDocument.createElement('span')
-      play.setAttribute('class', 'markdown-video-play')
-      el.appendChild(play)
-      return
-    }
+    el.textContent = ''
+    el.setAttribute('data-embed-src', embedSrc)
+    const play = el.ownerDocument.createElement('span')
+    play.setAttribute('class', 'markdown-video-play')
+    el.appendChild(play)
+    return
   }
 
   // If a youtube video
   let match = href.match(YOUTUBE_REGEX)
-  if (match && el.textContent.trim() === href) {
-    const e = YOUTUBE_REGEX.exec(href)
-    if (e[1]) {
-      el.setAttribute('class', 'markdown-video-link markdown-video-link-youtube')
-      el.removeAttribute('href')
+  if (match && match[1] && el.textContent.trim() === href) {
+    el.setAttribute('class', 'markdown-video-link markdown-video-link-youtube')
+    el.removeAttribute('href')
 
-      const vid = e[1]
-      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
-      const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
+    const vid = match[1]
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
+    const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
 
-      el.textContent = ''
+    el.textContent = ''
 
-      el.setAttribute('data-embed-src', embedSrc);
-      el.setAttribute('data-youtube', vid);
+    el.setAttribute('data-embed-src', embedSrc);
+    el.setAttribute('data-youtube', vid);
 
-      //extract start time if available
-      const startTime = extractYtStartTime(href);
-      if(startTime){
-        el.setAttribute('data-start-time', startTime);
-      }
-
-      const thumbImg = el.ownerDocument.createElement('img')
-      thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-      thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-      thumbImg.setAttribute('src', thumbnail)
-
-      const play = el.ownerDocument.createElement('span')
-      play.setAttribute('class', 'markdown-video-play')
-
-      el.appendChild(thumbImg)
-      el.appendChild(play)
-
-      return
+    //extract start time if available
+    const startTime = extractYtStartTime(href);
+    if(startTime){
+      el.setAttribute('data-start-time', startTime);
     }
+
+    const thumbImg = el.ownerDocument.createElement('img')
+    thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+    thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+    thumbImg.setAttribute('src', thumbnail)
+
+    const play = el.ownerDocument.createElement('span')
+    play.setAttribute('class', 'markdown-video-play')
+
+    el.appendChild(thumbImg)
+    el.appendChild(play)
+
+    return
   }
 
   // If vimeo video
   match = href.match(VIMEO_REGEX)
-  if (match && href === el.textContent) {
-    const e = VIMEO_REGEX.exec(href)
-    if (e[3]) {
-      el.setAttribute('class', 'markdown-video-link markdown-video-link-vimeo')
-      el.removeAttribute('href')
+  if (match && match[3] && href === el.textContent) {
+    el.setAttribute('class', 'markdown-video-link markdown-video-link-vimeo')
+    el.removeAttribute('href')
 
-      const embedSrc = `https://player.vimeo.com/video/${e[3]}`
+    const embedSrc = `https://player.vimeo.com/video/${match[3]}`
 
-      el.textContent = ''
+    el.textContent = ''
 
-      const ifr = el.ownerDocument.createElement('iframe')
-      ifr.setAttribute('frameborder', '0')
-      ifr.setAttribute('allowfullscreen', 'true')
-      ifr.setAttribute('src', embedSrc)
-      el.appendChild(ifr)
+    const ifr = el.ownerDocument.createElement('iframe')
+    ifr.setAttribute('frameborder', '0')
+    ifr.setAttribute('allowfullscreen', 'true')
+    ifr.setAttribute('src', embedSrc)
+    el.appendChild(ifr)
 
-      return
-    }
+    return
   }
 
   // If twitch video
   match = href.match(TWITCH_REGEX)
-  if (match && href === el.textContent) {
-    const e = TWITCH_REGEX.exec(href)
-    if (e[2]) {
-      el.setAttribute('class', 'markdown-video-link markdown-video-link-twitch')
-      el.removeAttribute('href')
+  if (match && match[2] && href === el.textContent) {
+    el.setAttribute('class', 'markdown-video-link markdown-video-link-twitch')
+    el.removeAttribute('href')
 
-      let embedSrc = ''
+    let embedSrc = ''
 
-      if (e[1] === undefined) {
-        // No "videos" in URL, e[2] is the channel name
-        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`
-      } else if (e[1] === 'videos') {
-        // URL contains "videos/", e[2] is the video ID
-        embedSrc = `https://player.twitch.tv/?video=${e[2]}`
-      } else {
-        // Fallback (shouldn't happen with current regex)
-        embedSrc = `https://player.twitch.tv/?channel=${e[2]}`
-      }
-
-      el.textContent = ''
-
-      const ifr = el.ownerDocument.createElement('iframe')
-      ifr.setAttribute('frameborder', '0')
-      ifr.setAttribute('allowfullscreen', 'true')
-      ifr.setAttribute('src', embedSrc)
-      el.appendChild(ifr)
-
-      return
+    if (match[1] === undefined) {
+      // No "videos" in URL, match[2] is the channel name
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`
+    } else if (match[1] === 'videos') {
+      // URL contains "videos/", match[2] is the video ID
+      embedSrc = `https://player.twitch.tv/?video=${match[2]}`
+    } else {
+      // Fallback (shouldn't happen with current regex)
+      embedSrc = `https://player.twitch.tv/?channel=${match[2]}`
     }
+
+    el.textContent = ''
+
+    const ifr = el.ownerDocument.createElement('iframe')
+    ifr.setAttribute('frameborder', '0')
+    ifr.setAttribute('allowfullscreen', 'true')
+    ifr.setAttribute('src', embedSrc)
+    el.appendChild(ifr)
+
+    return
   }
 
   // If a spotify audio
@@ -708,10 +696,9 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   if (match) {
     const imgEls = el.getElementsByTagName('img')
     if (imgEls.length === 1 || el.textContent.trim() === href) {
-      const e = SPEAK_REGEX.exec(href)
-      // e[1] / e[2] = tld , e[3] = embed address
-      if ((e[1] || e[2]) && e[3]) {
-        const videoHref = `https://3speak.tv/embed?v=${e[3]}`
+      // match[1] / match[2] = tld , match[3] = embed address
+      if ((match[1] || match[2]) && match[3]) {
+        const videoHref = `https://3speak.tv/embed?v=${match[3]}`
         el.setAttribute('class', 'markdown-video-link markdown-video-link-speak')
         el.removeAttribute('href')
         el.setAttribute('data-embed-src', videoHref)
@@ -804,17 +791,14 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean): void 
   if (forApp) {
     el.setAttribute('data-href', href)
     const match = href.match(YOUTUBE_REGEX)
-    if (match) {
-      const e = YOUTUBE_REGEX.exec(href)
-      if (e[1]) {
-        const vid = e[1]
-        el.setAttribute('data-youtube', vid);
+    if (match && match[1]) {
+      const vid = match[1]
+      el.setAttribute('data-youtube', vid);
 
-        //extract start time if available
-        const startTime = extractYtStartTime(href);
-        if(startTime){
-          el.setAttribute('data-start-time', startTime);
-        }
+      //extract start time if available
+      const startTime = extractYtStartTime(href);
+      if(startTime){
+        el.setAttribute('data-start-time', startTime);
       }
     }
     el.removeAttribute('href')
