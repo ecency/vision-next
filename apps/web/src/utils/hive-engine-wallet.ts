@@ -50,7 +50,7 @@ export class HiveEngineToken {
       return false;
     }
 
-    return this.delegationsIn > 0 && this.delegationsOut > 0;
+    return this.delegationsIn > 0 || this.delegationsOut > 0;
   };
 
   delegations = (): string => {

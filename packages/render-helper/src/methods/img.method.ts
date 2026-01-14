@@ -16,7 +16,8 @@ export function img(el: HTMLElement, webp: boolean, state?: { firstImageFound: b
   }
 
   // ❌ Skip relative paths (e.g., `photo.jpg`, `./photo.png`, `assets/pic.jpeg`)
-  const isRelative = !/^https?:\/\//i.test(src) && !src.startsWith("/");
+  // Use trimmed decodedSrc for protocol check to handle leading/trailing whitespace
+  const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
     //console.warn("Skipped relative image:", src);
     src = ""

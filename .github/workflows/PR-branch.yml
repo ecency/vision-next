@@ -29,6 +29,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Validate DMCA patterns
         run: pnpm validate:dmca
+      - name: Run Tests
+        run: pnpm -r test
       - name: Build
         run: pnpm build
         env:

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   prefetchQuery,
   prefetchInfiniteQuery,
@@ -8,28 +9,41 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 
 // Mock the getQueryClient function
-jest.mock("../../../core/react-query/index", () => ({
-  getQueryClient: jest.fn()
+vi.mock("../../../core/react-query/index", () => ({
+  getQueryClient: vi.fn()
+}));
+
+// Mock the EcencyConfigManager
+vi.mock("../../../config", () => ({
+  EcencyConfigManager: {
+    CONFIG: {
+      visionFeatures: {
+        points: { enabled: true },
+        promoted: { enabled: true }
+      }
+    }
+  }
 }));
 
 import { getQueryClient } from "../../../core/react-query/index";
+import { EcencyConfigManager } from "../../../config";
 
 describe("Query Helpers", () => {
-  let mockQueryClient: jest.Mocked<QueryClient>;
+  let mockQueryClient: any;
 
   beforeEach(() => {
     mockQueryClient = {
-      prefetchQuery: jest.fn().mockResolvedValue(undefined),
-      prefetchInfiniteQuery: jest.fn().mockResolvedValue(undefined),
-      getQueryData: jest.fn(),
-      fetchQuery: jest.fn()
+      prefetchQuery: vi.fn().mockResolvedValue(undefined),
+      prefetchInfiniteQuery: vi.fn().mockResolvedValue(undefined),
+      getQueryData: vi.fn(),
+      fetchQuery: vi.fn()
     } as any;
 
-    (getQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+    (getQueryClient as any).mockReturnValue(mockQueryClient);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("prefetchQuery", () => {
@@ -37,7 +51,7 @@ describe("Query Helpers", () => {
       const mockData = { id: 1, title: "Test Post" };
       const queryOptions = {
         queryKey: ["post", "author", "permlink"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(mockData);
@@ -52,7 +66,7 @@ describe("Query Helpers", () => {
     it("should handle undefined cached data", async () => {
       const queryOptions = {
         queryKey: ["post", "author", "permlink"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(undefined);
@@ -71,9 +85,9 @@ describe("Query Helpers", () => {
       };
       const queryOptions = {
         queryKey: ["posts", "username"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         initialPageParam: undefined,
-        getNextPageParam: jest.fn()
+        getNextPageParam: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(mockData);
@@ -135,30 +149,9 @@ describe("Query Helpers", () => {
 
   describe("withFeatureFlag", () => {
     it("should enable query when feature flag is true", () => {
-      const condition = (config: any) => config.visionFeatures.points.enabled;
       const queryOptions = {
         queryKey: ["points", "username"],
-        queryFn: jest.fn()
-      };
-
-      const mockConfig = {
-        visionFeatures: { points: { enabled: true } }
-      };
-
-      const result = withFeatureFlag(
-        (config) => config.visionFeatures.points.enabled,
-        queryOptions
-      );
-
-      // Manually test the enabled function with mock config
-      const enabledFn = result.enabled as (config: any) => boolean;
-      expect(typeof enabledFn).toBe("function");
-    });
-
-    it("should disable query when feature flag is false", () => {
-      const queryOptions = {
-        queryKey: ["points", "username"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       const result = withFeatureFlag(
@@ -167,28 +160,59 @@ describe("Query Helpers", () => {
       );
 
       expect(result).toHaveProperty("enabled");
-      expect(typeof result.enabled).toBe("function");
+      expect(typeof result.enabled).toBe("boolean");
+      expect(result.enabled).toBe(true);
+    });
+
+    it("should disable query when feature flag is false", () => {
+      // Temporarily override the config to have points disabled
+      const originalConfig = EcencyConfigManager.CONFIG;
+      (EcencyConfigManager as any).CONFIG = {
+        visionFeatures: {
+          points: { enabled: false },
+          promoted: { enabled: true }
+        }
+      };
+
+      const queryOptions = {
+        queryKey: ["points", "username"],
+        queryFn: vi.fn()
+      };
+
+      const result = withFeatureFlag(
+        (config) => config.visionFeatures.points.enabled,
+        queryOptions
+      );
+
+      expect(result).toHaveProperty("enabled");
+      expect(typeof result.enabled).toBe("boolean");
+      expect(result.enabled).toBe(false);
+
+      // Restore original config
+      (EcencyConfigManager as any).CONFIG = originalConfig;
     });
 
     it("should preserve existing enabled state when feature flag is true", () => {
       const queryOptions = {
         queryKey: ["points", "username"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         enabled: false
       };
 
-      const result = withFeatureFlag((config) => true, queryOptions);
+      const result = withFeatureFlag((config) => config.visionFeatures.points.enabled, queryOptions);
 
       // The result should still respect the original enabled: false
       expect(result).toHaveProperty("enabled");
+      expect(typeof result.enabled).toBe("boolean");
+      expect(result.enabled).toBe(false);
     });
 
     it("should work with infinite query options", () => {
       const queryOptions = {
         queryKey: ["promoted"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         initialPageParam: undefined,
-        getNextPageParam: jest.fn()
+        getNextPageParam: vi.fn()
       };
 
       const result = withFeatureFlag(
@@ -197,6 +221,8 @@ describe("Query Helpers", () => {
       );
 
       expect(result).toHaveProperty("enabled");
+      expect(typeof result.enabled).toBe("boolean");
+      expect(result.enabled).toBe(true);
       expect(result).toHaveProperty("queryKey");
       expect(result).toHaveProperty("initialPageParam");
     });

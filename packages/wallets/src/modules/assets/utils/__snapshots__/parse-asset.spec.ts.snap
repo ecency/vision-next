@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseAsset > SMTAsset input > should parse HBD SMTAsset correctly 1`] = `
+{
+  "amount": 50.123,
+  "symbol": "HBD",
+}
+`;
+
+exports[`parseAsset > SMTAsset input > should parse HIVE SMTAsset correctly 1`] = `
+{
+  "amount": 123.456,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`parseAsset > SMTAsset input > should parse VESTS SMTAsset correctly 1`] = `
+{
+  "amount": 1000000,
+  "symbol": "VESTS",
+}
+`;
+
+exports[`parseAsset > string input > should parse HBD asset string correctly 1`] = `
+{
+  "amount": 50.123,
+  "symbol": "HBD",
+}
+`;
+
+exports[`parseAsset > string input > should parse HIVE asset string correctly 1`] = `
+{
+  "amount": 123.456,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`parseAsset > string input > should parse VESTS asset string correctly 1`] = `
+{
+  "amount": 1000000,
+  "symbol": "VESTS",
+}
+`;

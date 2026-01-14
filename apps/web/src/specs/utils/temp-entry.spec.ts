@@ -1,17 +1,26 @@
+import { vi } from 'vitest';
 import { tempEntry, TempEntryProps } from "../../utils/temp-entry";
 import { fullAccountInstance } from "../test-helper";
 
-jest.mock("../../../package.json", () => ({
-  version: "3.0.4",
-}));
+vi.mock("../../../package.json", async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      version: "3.0.4",
+    },
+  };
+});
 
 describe("tempEntry", () => {
   beforeAll(() => {
-    jest.useFakeTimers().setSystemTime(new Date("2019-04-22T10:20:30Z"));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2019-04-22T10:20:30Z"));
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("(1) Create temp entry", () => {

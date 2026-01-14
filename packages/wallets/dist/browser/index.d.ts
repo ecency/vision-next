@@ -1574,7 +1574,7 @@ interface ClaimRewardsPayload<T extends HiveBasedAssetSignType> {
 }
 declare function claimHiveEngineRewards<T extends HiveBasedAssetSignType>(payload: T extends "key" ? ClaimRewardsPayload<T> & {
     key: PrivateKey;
-} : ClaimRewardsPayload<T>, auth?: AuthContext): Promise<unknown>;
+} : ClaimRewardsPayload<T>, auth?: AuthContext): Promise<any>;
 
 declare function useClaimPoints(username: string | undefined, accessToken: string | undefined, onSuccess?: () => void, onError?: Parameters<typeof useMutation>["0"]["onError"]): _tanstack_react_query.UseMutationResult<any, unknown, unknown, unknown>;
 

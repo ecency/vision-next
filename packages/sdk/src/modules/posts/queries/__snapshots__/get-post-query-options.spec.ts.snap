@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`getPostQueryOptions > query key generation > should generate correct query key for author and permlink 1`] = `
+[
+  "posts",
+  "entry",
+  "/@testauthor/test-permlink",
+]
+`;

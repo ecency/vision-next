@@ -1,0 +1,366 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`communities utilities > getCommunityPermissions > permission snapshots > should match snapshot for all role/type combinations 1`] = `
+[
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "guest",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "member",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "mod",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "admin",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": false,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": true,
+      "canPost": true,
+      "isModerator": true,
+    },
+    "subscribed": true,
+    "userRole": "owner",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "muted",
+  },
+  {
+    "communityType": "Topic",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "muted",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "muted",
+  },
+  {
+    "communityType": "Journal",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "muted",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": false,
+    "userRole": "muted",
+  },
+  {
+    "communityType": "Council",
+    "permissions": {
+      "canComment": false,
+      "canPost": false,
+      "isModerator": false,
+    },
+    "subscribed": true,
+    "userRole": "muted",
+  },
+]
+`;

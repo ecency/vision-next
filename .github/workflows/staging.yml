@@ -28,6 +28,8 @@ jobs:
       run: pnpm install --frozen-lockfile
       env:
         CI: true
+    - name: Run Tests
+      run: pnpm -r test
     - name: Build web app
       run: pnpm --filter @ecency/web build
       env:

@@ -33,6 +33,8 @@ export const getGifsQuery = (query: string, limit = 20) => ({
     _allPages: GifPage[],
     lastPageParam: GifCursor | undefined
   ): GifCursor | undefined => {
+    // Handle invalid or zero limit - no pagination
+    if (limit <= 0) return undefined;
     if (!lastPage || lastPage.length === 0) return undefined;
     // If Giphy returned fewer than the limit, we're done
     if (lastPage.length < limit) return undefined;

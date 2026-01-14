@@ -90,10 +90,15 @@ export class HiveWallet {
       ? vestsToHp(Number(account.to_withdraw) / 1e6, hivePerMVests)
       : 0;
     this.withdrawn = this.isPoweringDown
-      ? vestsToHp(Number(account.withdrawn), hivePerMVests / 1e6)
+      ? vestsToHp(Number(account.withdrawn) / 1e6, hivePerMVests)  // FIX: Divide account.withdrawn by 1e6, not hivePerMVests
       : 0;
-    this.weeksLeft = Math.round(
-      (Number(this.toWithdraw) - Number(this.withdrawn)) / this.nextVestingSharesWithdrawalHive
-    );
+    // FIX: Prevent NaN when nextVestingSharesWithdrawalHive is 0
+    this.weeksLeft =
+      this.isPoweringDown && this.nextVestingSharesWithdrawalHive > 0
+        ? Math.round(
+            (Number(this.toWithdraw) - Number(this.withdrawn)) /
+              this.nextVestingSharesWithdrawalHive
+          )
+        : 0;
   }
 }

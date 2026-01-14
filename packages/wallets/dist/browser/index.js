@@ -2642,24 +2642,21 @@ async function claimHiveEngineRewards(payload, auth) {
   if (payload.type === "key" && "key" in payload) {
     return CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
   }
-  if (payload.type === "keychain") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "posting");
-    }
-    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+  if (auth?.broadcast) {
+    return auth.broadcast([operation], "posting");
+  }
+  if (auth?.postingKey) {
+    const key = PrivateKey.fromString(auth.postingKey);
+    return CONFIG.hiveClient.broadcast.sendOperations([operation], key);
+  }
+  if (auth?.accessToken) {
+    const client = new hs.Client({ accessToken: auth.accessToken });
+    return client.broadcast([operation]);
   }
   if (payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "posting");
-    }
     return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
   }
-  return hs.sendOperation(
-    operation,
-    { callback: `https://ecency.com/@${payload.account}/wallet/engine` },
-    () => {
-    }
-  );
+  throw new Error("[SDK][Wallets] \u2013 cannot broadcast without auth context");
 }
 function getPointsQueryOptions(username) {
   return queryOptions({

@@ -13,10 +13,10 @@ import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { LoginRequired } from "../login-required";
 import "./_index.scss";
 import { error, success } from "../feedback";
 import { getAccessToken } from "@/utils";
+import { useGlobalStore } from "@/core/global-store";
 
 export interface Props {
   entry: Entry;
@@ -25,6 +25,7 @@ export interface Props {
 export function BookmarkBtn({ entry }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
+  const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const accessToken = useMemo(
     () => (username ? getAccessToken(username) : undefined),
     [username]
@@ -56,14 +57,13 @@ export function BookmarkBtn({ entry }: Props) {
   );
 
   if (!activeUser) {
+    // Show button that triggers login when clicked
     return (
-      <LoginRequired>
-        <div className="bookmark-btn">
-          <Tooltip content={i18next.t("bookmark-btn.add")}>
-            <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
-          </Tooltip>
-        </div>
-      </LoginRequired>
+      <div className="bookmark-btn" onClick={() => toggleUiProp("login")}>
+        <Tooltip content={i18next.t("bookmark-btn.add")}>
+          <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+        </Tooltip>
+      </div>
     );
   }
 
