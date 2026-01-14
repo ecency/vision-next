@@ -6,6 +6,9 @@ const createJestConfig = nextJest({
   dir: "./"
 });
 
+// Set timezone before tests run
+process.env.TZ = "UTC";
+
 // Add any custom config to be passed to Jest
 const config: Config = {
   coverageProvider: "v8",

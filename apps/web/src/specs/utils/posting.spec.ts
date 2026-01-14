@@ -127,11 +127,14 @@ describe("Posting", () => {
   });
 
   it("createReplyPermlink", () => {
-    // @ts-ignore
-    jest.spyOn(Date, "now").mockImplementation(() => {
-      return new Date("2018-09-21T12:00:50.000Z");
-    });
+    // Use fake timers and set system time (timezone is UTC via jest.config.ts)
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2018-09-21T12:00:50.000Z"));
+
     expect(createReplyPermlink("good-karma")).toMatchSnapshot();
+
+    // Restore real timers
+    jest.useRealTimers();
   });
 
   it("createPatch", () => {

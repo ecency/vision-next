@@ -28,7 +28,7 @@ exports[`Posting createPatch 1`] = `
 "@@ -6,16 +6,17 @@
   ipsum d
 +o
- lor sit
+ lor sit 
 "
 `;
 

@@ -1,24 +1,21 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { useGlobalStore } from "@/core/global-store";
-import {
-  getBoostPlusPricesQuery,
-  getPointsQuery,
-  useGetBoostPlusAccountPricesQuery
-} from "@/api/queries";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { boostPlus } from "@/api/operations";
 import { BoostDialog } from "../../../features/shared/boost";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-// Mocking required modules and functions
-jest.mock("@/core/global-store", () => ({
-  useGlobalStore: jest.fn()
-}));
-
-jest.mock("@/api/queries", () => ({
-  getBoostPlusPricesQuery: jest.fn(),
-  getPointsQuery: jest.fn(),
-  useGetBoostPlusAccountPricesQuery: jest.fn()
+// Mock EcencyConfigManager to enable feature flags
+jest.mock("@/config", () => ({
+  EcencyConfigManager: {
+    CONFIG: {
+      visionFeatures: {
+        points: { enabled: true },
+        promotions: { enabled: true }
+      }
+    }
+  }
 }));
 
 jest.mock("@/api/operations", () => ({
@@ -51,9 +48,45 @@ jest.mock("@/features/shared/search-by-username", () => ({
 
 describe("BoostDialog", () => {
   const onHideMock = jest.fn();
+  let queryClient: QueryClient;
+
+  const renderWithQueryClient = (component: React.ReactElement, options?: any) => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>,
+      options
+    );
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Override useActiveAccount mock from setup file
+    (useActiveAccount as jest.Mock).mockReturnValue({
+      activeUser: { username: "testuser" },
+      username: "testuser",
+      account: null,
+      isLoading: false,
+      isPending: false,
+      isError: false,
+      isSuccess: true,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          refetchOnMount: false,
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+          staleTime: Infinity
+        },
+        mutations: { retry: false }
+      }
+    });
 
     // Add modal-specific elements to the document body
     const modalDialogContainer = document.createElement("div");
@@ -64,30 +97,19 @@ describe("BoostDialog", () => {
     modalOverlayContainer.setAttribute("id", "modal-overlay-container");
     document.body.appendChild(modalOverlayContainer);
 
-    // Mock active user in the global store
-    useGlobalStore.mockReturnValue({
-      activeUser: { username: "testuser" }
+    // Seed QueryClient with mock data using simplified keys from the mocked SDK
+    queryClient.setQueryData(["boost-prices"], [
+      { duration: 1, price: 100 },
+      { duration: 7, price: 500 }
+    ]);
+
+    queryClient.setQueryData(["points"], {
+      points: "1000",
+      uPoints: "0",
+      transactions: []
     });
 
-    // Mock API queries
-    getBoostPlusPricesQuery.mockReturnValue({
-      useClientQuery: jest.fn(() => ({
-        data: [
-          { duration: 1, price: 100 },
-          { duration: 7, price: 500 }
-        ]
-      }))
-    });
-
-    getPointsQuery.mockReturnValue({
-      useClientQuery: jest.fn(() => ({
-        data: { points: "1000" }
-      }))
-    });
-
-    useGetBoostPlusAccountPricesQuery.mockReturnValue({
-      data: { expires: null }
-    });
+    queryClient.setQueryData(["boost-account"], null);
   });
 
   afterEach(() => {
@@ -96,7 +118,7 @@ describe("BoostDialog", () => {
   });
 
   test("renders and displays step 1 with correct initial data", () => {
-    render(<BoostDialog onHide={onHideMock} />, {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
@@ -111,7 +133,7 @@ describe("BoostDialog", () => {
   });
 
   test("progresses to step 2 when the next button is clicked", () => {
-    render(<BoostDialog onHide={onHideMock} />, {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
@@ -129,7 +151,7 @@ describe("BoostDialog", () => {
   });
 
   test("handles signing process and transitions to step 3", async () => {
-    render(<BoostDialog onHide={onHideMock} />, {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
@@ -152,7 +174,7 @@ describe("BoostDialog", () => {
   });
 
   test("finishes and calls onHide when finish button is clicked", async () => {
-    render(<BoostDialog onHide={onHideMock} />, {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
@@ -187,13 +209,13 @@ describe("BoostDialog", () => {
 
   test("shows balance error message if funds are insufficient", () => {
     // Adjust points to simulate insufficient funds
-    getPointsQuery.mockReturnValue({
-      useClientQuery: jest.fn(() => ({
-        data: { points: "50" } // Less than the minimum price
-      }))
+    queryClient.setQueryData(["points"], {
+      points: "50", // Less than the minimum price
+      uPoints: "0",
+      transactions: []
     });
 
-    render(<BoostDialog onHide={onHideMock} />, {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
