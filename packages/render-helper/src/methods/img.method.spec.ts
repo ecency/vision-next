@@ -503,7 +503,7 @@ describe('img() method - Image Processing', () => {
       expect(image.getAttribute('class')).toBe('existing-class')
     })
 
-    it('should not handle leading whitespace in src attribute correctly', () => {
+    it('should handle leading/trailing whitespace in src attribute correctly', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
       image.setAttribute('src', '  https://example.com/image.jpg  ')
@@ -511,10 +511,11 @@ describe('img() method - Image Processing', () => {
 
       img(image, false)
 
-      // The function trims in decodedSrc but checks the untrimmed src for relative path
-      // So leading whitespace causes the regex /^https?:\/\//i to fail, marking it as relative
+      // After fix: function now uses trimmed decodedSrc for protocol check
+      // So URLs with whitespace are recognized as absolute and proxified (not removed)
       const src = image.getAttribute('src')
-      expect(src).toBe('')
+      expect(src).toContain('https://images.ecency.com')
+      expect(src).not.toBe('') // Should not be empty (the bug made it empty)
     })
 
     it('should handle case variations in protocols', () => {

@@ -223,6 +223,23 @@ describe('getGifsQuery', () => {
 
       expect(result).toBe(20);
     });
+
+    it('should return undefined for zero limit to prevent infinite pagination', () => {
+      const lastPage = Array.from({ length: 5 }, (_, i) => ({ id: String(i) }));
+      const options = getGifsQuery('test', 0);
+      // With limit=0, should return undefined to stop pagination
+      const result = options.getNextPageParam(lastPage, [], 0);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined for negative limit', () => {
+      const lastPage = Array.from({ length: 5 }, (_, i) => ({ id: String(i) }));
+      const options = getGifsQuery('test', -5);
+      const result = options.getNextPageParam(lastPage, [], 0);
+
+      expect(result).toBeUndefined();
+    });
   });
 
   describe('edge cases', () => {

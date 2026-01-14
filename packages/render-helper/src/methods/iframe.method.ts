@@ -170,7 +170,9 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // Aureal
   if (src.match(AUREAL_EMBED_REGEX)) {
-    el.setAttribute('src', src);
+    // Normalize protocol-relative URLs to https://
+    const normalizedSrc = src.startsWith('//') ? `https:${src}` : src;
+    el.setAttribute('src', normalizedSrc);
     el.setAttribute('frameborder', '0');
     return;
   }

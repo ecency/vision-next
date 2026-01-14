@@ -96,7 +96,7 @@ var TWITCH_EMBED_REGEX = /^(https?:)?\/\/player.twitch.tv\/(?:\?[^/]+)?$/i;
 var BRAND_NEW_TUBE_REGEX = /^https:\/\/brandnewtube\.com\/embed\/[a-z0-9]+$/i;
 var LOOM_REGEX = /^(https?:)?\/\/www.loom.com\/share\/([^/?#]+)(?:$|[?#])/i;
 var LOOM_EMBED_REGEX = /^(https?:)?\/\/www.loom.com\/embed\/([^/?#]+)(?:$|[?#])/i;
-var AUREAL_EMBED_REGEX = /^(https?:\/\/)?(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)(?:$|[?#])/i;
+var AUREAL_EMBED_REGEX = /^(https?:)?\/\/(www\.)?(?:aureal-embed)\.web\.app\/([0-9]+)(?:$|[?#])/i;
 var ENTITY_REGEX = /&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-fA-F]{1,6});/ig;
 var SECTION_REGEX = /\B(\#[\da-zA-Z-_]+\b)(?!;)/i;
 var ID_WHITELIST = /^[A-Za-z][-A-Za-z0-9_]*$/;
@@ -336,7 +336,7 @@ function img(el, webp, state) {
   if (isInvalid) {
     src = "";
   }
-  const isRelative = !/^https?:\/\//i.test(src) && !src.startsWith("/");
+  const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
     src = "";
   }
@@ -1078,7 +1078,8 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(AUREAL_EMBED_REGEX)) {
-    el.setAttribute("src", src);
+    const normalizedSrc = src.startsWith("//") ? `https:${src}` : src;
+    el.setAttribute("src", normalizedSrc);
     el.setAttribute("frameborder", "0");
     return;
   }

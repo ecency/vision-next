@@ -881,17 +881,31 @@ describe('iframe() method - Iframe Sanitization', () => {
       expect(hasChildWithTag(parent, 'iframe')).toBe(true)
     })
 
-    it('should handle Aureal URLs without protocol', () => {
+    it('should not match bare hostnames without protocol slashes', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
-      // The regex allows https:// to be optional
+      // After fix: regex requires // so bare hostnames don't match
       el.setAttribute('src', 'aureal-embed.web.app/123456')
       parent.appendChild(el)
 
       iframe(el)
 
-      // This should match since protocol is optional in the regex
+      // Should be replaced with unsupported div (relative URL not allowed)
+      expect(hasChildWithTag(parent, 'iframe')).toBe(false)
+      expect(hasChildWithClass(parent, 'unsupported-iframe')).toBe(true)
+    })
+
+    it('should handle protocol-relative Aureal URLs', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', '//aureal-embed.web.app/123456')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      // Should normalize to https://
       expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('src')).toBe('https://aureal-embed.web.app/123456')
       expect(el.getAttribute('frameborder')).toBe('0')
     })
   })
