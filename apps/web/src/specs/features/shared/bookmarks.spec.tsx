@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -5,24 +6,24 @@ import { useBookmarksQuery, useFavouritesQuery } from "@/api/queries";
 import { BookmarksDialog } from "../../../features/shared/bookmarks";
 
 // Mocking the required modules
-jest.mock("@/api/queries", () => ({
-  useBookmarksQuery: jest.fn(),
-  useFavouritesQuery: jest.fn()
+vi.mock("@/api/queries", () => ({
+  useBookmarksQuery: vi.fn(),
+  useFavouritesQuery: vi.fn()
 }));
 
-jest.mock("@/features/shared/bookmarks/bookmarks-list", () => ({
-  BookmarksList: jest.fn(() => <div>Bookmarks List</div>)
+vi.mock("@/features/shared/bookmarks/bookmarks-list", () => ({
+  BookmarksList: vi.fn(() => <div>Bookmarks List</div>)
 }));
 
-jest.mock("@/features/shared/bookmarks/favourites-list", () => ({
-  FavouritesList: jest.fn(() => <div>Favourites List</div>)
+vi.mock("@/features/shared/bookmarks/favourites-list", () => ({
+  FavouritesList: vi.fn(() => <div>Favourites List</div>)
 }));
 
 describe("BookmarksDialog", () => {
-  const setShowMock = jest.fn();
+  const setShowMock = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Add modal-specific elements to the document body
     const modalDialogContainer = document.createElement("div");
@@ -41,10 +42,10 @@ describe("BookmarksDialog", () => {
 
   test("renders the modal with bookmarks [...sections] active", () => {
     useBookmarksQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
     useFavouritesQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
 
     render(<BookmarksDialog show={true} setShow={setShowMock} />, {
@@ -61,10 +62,10 @@ describe("BookmarksDialog", () => {
 
   test("switches to favourites [...sections] when the corresponding menu item is clicked", () => {
     useBookmarksQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
     useFavouritesQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
 
     render(<BookmarksDialog show={true} setShow={setShowMock} />, {
@@ -80,10 +81,10 @@ describe("BookmarksDialog", () => {
 
   test("hides the modal when close button is clicked", () => {
     useBookmarksQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
     useFavouritesQuery.mockReturnValue({
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
 
     render(<BookmarksDialog show={true} setShow={setShowMock} />, {

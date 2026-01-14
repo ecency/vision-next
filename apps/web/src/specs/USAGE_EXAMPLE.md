@@ -10,18 +10,19 @@ From `src/specs/features/shared/bookmark-btn.spec.tsx`:
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useBookmarkAdd, useBookmarkDelete } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { Entry } from "@/entities";
 import { BookmarkBtn } from "../../../features/shared";
 
-jest.mock("@/core/hooks/use-active-account", () => ({
-  useActiveAccount: jest.fn()
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: vi.fn()
 }));
 
-jest.mock("@tanstack/react-query", () => ({
-  useQuery: jest.fn()
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: vi.fn()
 }));
 
 describe("BookmarkBtn", () => {
@@ -32,14 +33,14 @@ describe("BookmarkBtn", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("renders login required when no active user", () => {
     useActiveAccount.mockReturnValue({ activeUser: null, username: null });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -51,9 +52,9 @@ describe("BookmarkBtn", () => {
       activeUser: { username: "user1" },
       username: "user1"
     });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -68,18 +69,19 @@ describe("BookmarkBtn", () => {
 import React from "react";
 import { fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useBookmarkAdd, useBookmarkDelete } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { BookmarkBtn } from "../../../features/shared";
 import { renderWithQueryClient, mockEntry, mockActiveUser } from "@/specs/test-utils";
 
-jest.mock("@/core/hooks/use-active-account", () => ({
-  useActiveAccount: jest.fn()
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: vi.fn()
 }));
 
-jest.mock("@tanstack/react-query", () => ({
-  useQuery: jest.fn()
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: vi.fn()
 }));
 
 describe("BookmarkBtn", () => {
@@ -90,14 +92,14 @@ describe("BookmarkBtn", () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("renders login required when no active user", () => {
     useActiveAccount.mockReturnValue({ activeUser: null, username: null });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     // Use renderWithQueryClient instead of render
     renderWithQueryClient(<BookmarkBtn entry={entry} />);
@@ -113,9 +115,9 @@ describe("BookmarkBtn", () => {
       activeUser,
       username: activeUser.username
     });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     renderWithQueryClient(<BookmarkBtn entry={entry} />);
 
@@ -137,6 +139,7 @@ describe("BookmarkBtn", () => {
 For complex scenarios with related entities:
 
 ```typescript
+import { vi } from "vitest";
 import { EntryBuilder, AccountBuilder, renderWithQueryClient } from "@/specs/test-utils";
 
 test("renders post with author profile", () => {
@@ -185,6 +188,7 @@ test("renders post with author profile", () => {
 ## Modal Testing Example
 
 ```typescript
+import { vi } from "vitest";
 import {
   renderWithQueryClient,
   setupModalContainers,
@@ -207,7 +211,7 @@ describe("MyModal", () => {
       title: "Test Post"
     });
 
-    renderWithQueryClient(<MyModal entry={entry} onHide={jest.fn()} />, {
+    renderWithQueryClient(<MyModal entry={entry} onHide={vi.fn()} />, {
       renderOptions: {
         container: document.getElementById("modal-dialog-container")
       }

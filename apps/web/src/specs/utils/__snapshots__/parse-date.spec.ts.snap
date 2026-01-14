@@ -1,3 +1,5 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Parse date > Parse hive date 1`] = `"Tue, 28 Aug 2018 22:10:21 GMT"`;
 
 exports[`Parse date Parse hive date 1`] = `"Tue, 28 Aug 2018 22:10:21 GMT"`;

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import {
   prefetchQuery,
   prefetchInfiniteQuery,
@@ -8,12 +9,12 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 
 // Mock the getQueryClient function
-jest.mock("../../../core/react-query/index", () => ({
-  getQueryClient: jest.fn()
+vi.mock("../../../core/react-query/index", () => ({
+  getQueryClient: vi.fn()
 }));
 
 // Mock the EcencyConfigManager
-jest.mock("../../../config", () => ({
+vi.mock("../../../config", () => ({
   EcencyConfigManager: {
     CONFIG: {
       visionFeatures: {
@@ -28,21 +29,21 @@ import { getQueryClient } from "../../../core/react-query/index";
 import { EcencyConfigManager } from "../../../config";
 
 describe("Query Helpers", () => {
-  let mockQueryClient: jest.Mocked<QueryClient>;
+  let mockQueryClient: any;
 
   beforeEach(() => {
     mockQueryClient = {
-      prefetchQuery: jest.fn().mockResolvedValue(undefined),
-      prefetchInfiniteQuery: jest.fn().mockResolvedValue(undefined),
-      getQueryData: jest.fn(),
-      fetchQuery: jest.fn()
+      prefetchQuery: vi.fn().mockResolvedValue(undefined),
+      prefetchInfiniteQuery: vi.fn().mockResolvedValue(undefined),
+      getQueryData: vi.fn(),
+      fetchQuery: vi.fn()
     } as any;
 
-    (getQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
+    (getQueryClient as any).mockReturnValue(mockQueryClient);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("prefetchQuery", () => {
@@ -50,7 +51,7 @@ describe("Query Helpers", () => {
       const mockData = { id: 1, title: "Test Post" };
       const queryOptions = {
         queryKey: ["post", "author", "permlink"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(mockData);
@@ -65,7 +66,7 @@ describe("Query Helpers", () => {
     it("should handle undefined cached data", async () => {
       const queryOptions = {
         queryKey: ["post", "author", "permlink"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(undefined);
@@ -84,9 +85,9 @@ describe("Query Helpers", () => {
       };
       const queryOptions = {
         queryKey: ["posts", "username"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         initialPageParam: undefined,
-        getNextPageParam: jest.fn()
+        getNextPageParam: vi.fn()
       };
 
       mockQueryClient.getQueryData.mockReturnValue(mockData);
@@ -150,7 +151,7 @@ describe("Query Helpers", () => {
     it("should enable query when feature flag is true", () => {
       const queryOptions = {
         queryKey: ["points", "username"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       const result = withFeatureFlag(
@@ -175,7 +176,7 @@ describe("Query Helpers", () => {
 
       const queryOptions = {
         queryKey: ["points", "username"],
-        queryFn: jest.fn()
+        queryFn: vi.fn()
       };
 
       const result = withFeatureFlag(
@@ -194,7 +195,7 @@ describe("Query Helpers", () => {
     it("should preserve existing enabled state when feature flag is true", () => {
       const queryOptions = {
         queryKey: ["points", "username"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         enabled: false
       };
 
@@ -209,9 +210,9 @@ describe("Query Helpers", () => {
     it("should work with infinite query options", () => {
       const queryOptions = {
         queryKey: ["promoted"],
-        queryFn: jest.fn(),
+        queryFn: vi.fn(),
         initialPageParam: undefined,
-        getNextPageParam: jest.fn()
+        getNextPageParam: vi.fn()
       };
 
       const result = withFeatureFlag(

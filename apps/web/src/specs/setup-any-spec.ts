@@ -1,75 +1,64 @@
+import { vi } from "vitest";
 import { TextDecoder, TextEncoder } from "util";
 
 global.TextEncoder = TextEncoder;
 // @ts-ignore
 global.TextDecoder = TextDecoder;
 
-jest.mock("i18next", () => ({
+vi.mock("i18next", () => ({
   __esModule: true,
   default: {
-    t: jest.fn((key) => key),
-    init: jest.fn(),
-    changeLanguage: jest.fn(),
-    on: jest.fn()
+    t: vi.fn((key) => key),
+    init: vi.fn(),
+    changeLanguage: vi.fn(),
+    on: vi.fn()
   }
 }));
 
-jest.mock(
-  "@ecency/sdk",
-  () => ({
-    ConfigManager: { setQueryClient: jest.fn() },
-    CONFIG: {
-      hiveClient: {
-        database: { call: jest.fn() },
-        broadcast: { sendOperations: jest.fn() }
-      }
-    },
-    getActiveAccountBookmarksQueryOptions: jest.fn(),
-    getAccountFullQueryOptions: jest.fn(() => ({ queryKey: ['account'], queryFn: jest.fn() })),
-    getBoostPlusPricesQueryOptions: jest.fn(() => ({ queryKey: ['boost-prices'], queryFn: jest.fn() })),
-    getPointsQueryOptions: jest.fn(() => ({ queryKey: ['points'], queryFn: jest.fn() })),
-    getBoostPlusAccountPricesQueryOptions: jest.fn(() => ({ queryKey: ['boost-account'], queryFn: jest.fn() })),
-    useBookmarkAdd: jest.fn(),
-    useBookmarkDelete: jest.fn(),
-    usrActivity: jest.fn(),
-    buildProfileMetadata: jest.fn(),
-    parseProfileMetadata: jest.fn()
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  "@ecency/renderer",
-  () => ({
-    EcencyRenderer: () => null,
-    setupPostEnhancements: jest.fn()
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  "@ecency/wallets",
-  () => ({
-    validateKey: jest.fn(),
-    validateWif: jest.fn(),
-    EXTERNAL_BLOCKCHAINS: [],
-    useGetHiveEngineTokensBalances: jest.fn(),
-    useGetSpkWallet: jest.fn(),
-    EcencyWalletCurrency: {
-      BTC: "BTC",
-      ETH: "ETH",
-      BNB: "BNB",
-      APT: "APT",
-      TON: "TON",
-      TRON: "TRX",
-      SOL: "SOL"
+vi.mock("@ecency/sdk", () => ({
+  ConfigManager: { setQueryClient: vi.fn() },
+  CONFIG: {
+    hiveClient: {
+      database: { call: vi.fn() },
+      broadcast: { sendOperations: vi.fn() }
     }
-  }),
-  { virtual: true }
-);
+  },
+  getActiveAccountBookmarksQueryOptions: vi.fn(),
+  getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ['account'], queryFn: vi.fn() })),
+  getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-prices'], queryFn: vi.fn() })),
+  getPointsQueryOptions: vi.fn(() => ({ queryKey: ['points'], queryFn: vi.fn() })),
+  getBoostPlusAccountPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-account'], queryFn: vi.fn() })),
+  useBookmarkAdd: vi.fn(),
+  useBookmarkDelete: vi.fn(),
+  usrActivity: vi.fn(),
+  buildProfileMetadata: vi.fn(),
+  parseProfileMetadata: vi.fn()
+}));
 
-jest.mock("@/core/hooks/use-active-account", () => ({
-  useActiveAccount: jest.fn(() => ({
+vi.mock("@ecency/renderer", () => ({
+  EcencyRenderer: () => null,
+  setupPostEnhancements: vi.fn()
+}));
+
+vi.mock("@ecency/wallets", () => ({
+  validateKey: vi.fn(),
+  validateWif: vi.fn(),
+  EXTERNAL_BLOCKCHAINS: [],
+  useGetHiveEngineTokensBalances: vi.fn(),
+  useGetSpkWallet: vi.fn(),
+  EcencyWalletCurrency: {
+    BTC: "BTC",
+    ETH: "ETH",
+    BNB: "BNB",
+    APT: "APT",
+    TON: "TON",
+    TRON: "TRX",
+    SOL: "SOL"
+  }
+}));
+
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: vi.fn(() => ({
     activeUser: null,
     username: null,
     account: null,
@@ -78,12 +67,12 @@ jest.mock("@/core/hooks/use-active-account", () => ({
     isError: false,
     isSuccess: false,
     error: null,
-    refetch: jest.fn()
+    refetch: vi.fn()
   }))
-}), { virtual: true });
+}));
 
-jest.mock("react-tweet", () => ({}), { virtual: true });
-jest.mock("@/utils", () => ({
-  random: jest.fn(),
-  getAccessToken: jest.fn(() => "mock-token")
-}), { virtual: true });
+vi.mock("react-tweet", () => ({}));
+vi.mock("@/utils", () => ({
+  random: vi.fn(),
+  getAccessToken: vi.fn(() => "mock-token")
+}));

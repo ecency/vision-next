@@ -1,6 +1,6 @@
 # Test Utilities Documentation
 
-This directory contains test utilities and helper functions for testing Ecency Vision components.
+This directory contains test utilities and helper functions for testing Ecency Vision components with Vitest.
 
 ## Overview
 
@@ -253,6 +253,7 @@ Here's a comprehensive example testing a component that uses React Query and mod
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 import { useGlobalStore } from '@/core/global-store';
 import { getPostQuery } from '@/api/queries';
 import {
@@ -266,17 +267,17 @@ import {
 import { PostDetailModal } from '@/features/shared/post-detail-modal';
 
 // Mock dependencies
-jest.mock('@/core/global-store', () => ({
-  useGlobalStore: jest.fn()
+vi.mock('@/core/global-store', () => ({
+  useGlobalStore: vi.fn()
 }));
 
-jest.mock('@/api/queries', () => ({
-  getPostQuery: jest.fn()
+vi.mock('@/api/queries', () => ({
+  getPostQuery: vi.fn()
 }));
 
 describe('PostDetailModal', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     setupModalContainers();
 
     // Mock active user
@@ -305,7 +306,7 @@ describe('PostDetailModal', () => {
 
     // Mock API query
     getPostQuery.mockReturnValue({
-      useClientQuery: jest.fn(() => ({
+      useClientQuery: vi.fn(() => ({
         data: post,
         isLoading: false
       }))
@@ -313,7 +314,7 @@ describe('PostDetailModal', () => {
 
     // Render component
     renderWithQueryClient(
-      <PostDetailModal author="alice" permlink="test-post" onHide={jest.fn()} />,
+      <PostDetailModal author="alice" permlink="test-post" onHide={vi.fn()} />,
       {
         renderOptions: { container: document.getElementById('modal-dialog-container') }
       }
@@ -328,17 +329,17 @@ describe('PostDetailModal', () => {
 
   test('handles voting', async () => {
     const post = mockEntry({ author: 'alice', permlink: 'test-post' });
-    const voteMock = jest.fn();
+    const voteMock = vi.fn();
 
     getPostQuery.mockReturnValue({
-      useClientQuery: jest.fn(() => ({
+      useClientQuery: vi.fn(() => ({
         data: post,
         isLoading: false
       }))
     });
 
     renderWithQueryClient(
-      <PostDetailModal author="alice" permlink="test-post" onHide={jest.fn()} />,
+      <PostDetailModal author="alice" permlink="test-post" onHide={vi.fn()} />,
       {
         renderOptions: { container: document.getElementById('modal-dialog-container') }
       }
@@ -360,11 +361,12 @@ describe('PostDetailModal', () => {
 ### Testing Components with Global Store
 
 ```typescript
+import { vi } from 'vitest';
 import { useGlobalStore } from '@/core/global-store';
 import { mockActiveUser } from '@/specs/test-utils';
 
-jest.mock('@/core/global-store', () => ({
-  useGlobalStore: jest.fn()
+vi.mock('@/core/global-store', () => ({
+  useGlobalStore: vi.fn()
 }));
 
 beforeEach(() => {
@@ -377,16 +379,17 @@ beforeEach(() => {
 ### Testing Components with API Queries
 
 ```typescript
+import { vi } from 'vitest';
 import { getPostQuery } from '@/api/queries';
 import { mockEntry } from '@/specs/test-utils';
 
-jest.mock('@/api/queries', () => ({
-  getPostQuery: jest.fn()
+vi.mock('@/api/queries', () => ({
+  getPostQuery: vi.fn()
 }));
 
 beforeEach(() => {
   getPostQuery.mockReturnValue({
-    useClientQuery: jest.fn(() => ({
+    useClientQuery: vi.fn(() => ({
       data: mockEntry({ author: 'alice' }),
       isLoading: false
     }))

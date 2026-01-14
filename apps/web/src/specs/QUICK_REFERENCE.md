@@ -96,10 +96,11 @@ test("uses cached data", () => {
 ### Component with Global Store
 
 ```typescript
+import { vi } from "vitest";
 import { renderWithQueryClient, mockActiveUser } from "@/specs/test-utils";
 
-jest.mock("@/core/global-store", () => ({
-  useGlobalStore: jest.fn()
+vi.mock("@/core/global-store", () => ({
+  useGlobalStore: vi.fn()
 }));
 
 beforeEach(() => {
@@ -255,11 +256,12 @@ When writing a new test:
 ## Common Test Structure
 
 ```typescript
+import { vi } from "vitest";
 import { renderWithQueryClient, mockEntry } from "@/specs/test-utils";
 
 // Mocks
-jest.mock("@/api/queries");
-jest.mock("@/core/global-store");
+vi.mock("@/api/queries");
+vi.mock("@/core/global-store");
 
 describe("MyComponent", () => {
   // Test data
@@ -267,7 +269,7 @@ describe("MyComponent", () => {
 
   // Setup
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Setup mocks
   });
 
@@ -301,6 +303,7 @@ describe("MyComponent", () => {
 - **Utility Tests**: `src/specs/test-utils.spec.tsx`
 - **React Testing Library**: https://testing-library.com/react
 - **TanStack Query Testing**: https://tanstack.com/query/latest/docs/framework/react/guides/testing
+- **Vitest Documentation**: https://vitest.dev
 
 ## Version Info
 

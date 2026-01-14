@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -7,15 +8,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Entry } from "@/entities";
 import { BookmarkBtn } from "../../../features/shared";
 
-jest.mock("@/core/hooks/use-active-account", () => ({
-  useActiveAccount: jest.fn()
+vi.mock("@/core/hooks/use-active-account", () => ({
+  useActiveAccount: vi.fn()
 }));
 
-jest.mock("@tanstack/react-query", () => ({
-  useQuery: jest.fn()
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: vi.fn()
 }));
 
-jest.mock("@tooni/iconscout-unicons-react", () => ({
+vi.mock("@tooni/iconscout-unicons-react", () => ({
   UilBookmark: () => <svg data-testid="bookmark-icon" />
 }));
 
@@ -27,14 +28,14 @@ describe("BookmarkBtn", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test("renders login required when no active user", () => {
     useActiveAccount.mockReturnValue({ activeUser: null, username: null });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -43,9 +44,9 @@ describe("BookmarkBtn", () => {
 
   test("renders add bookmark button for non-bookmarked entry", () => {
     useActiveAccount.mockReturnValue({ activeUser: { username: "user1" }, username: "user1" });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    (useQuery as any).mockReturnValue({ data: [] });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -53,11 +54,11 @@ describe("BookmarkBtn", () => {
   });
 
   test("calls addBookmark when button is clicked", () => {
-    const addBookmarkMock = jest.fn();
+    const addBookmarkMock = vi.fn();
     useActiveAccount.mockReturnValue({ activeUser: { username: "user1" }, username: "user1" });
-    (useQuery as jest.Mock).mockReturnValue({ data: [] });
+    (useQuery as any).mockReturnValue({ data: [] });
     useBookmarkAdd.mockReturnValue({ mutateAsync: addBookmarkMock, isPending: false });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -69,10 +70,10 @@ describe("BookmarkBtn", () => {
   test("renders delete bookmark button for bookmarked entry", () => {
     const bookmarkId = "bookmark123";
     useActiveAccount.mockReturnValue({ activeUser: { username: "user1" }, username: "user1" });
-    (useQuery as jest.Mock).mockReturnValue({
+    (useQuery as any).mockReturnValue({
       data: [{ _id: bookmarkId, author: entry.author, permlink: entry.permlink }]
     });
-    useBookmarkDelete.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    useBookmarkDelete.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
 
     render(<BookmarkBtn entry={entry} />);
 
@@ -80,13 +81,13 @@ describe("BookmarkBtn", () => {
   });
 
   test("calls deleteBookmark when button is clicked", () => {
-    const deleteBookmarkMock = jest.fn();
+    const deleteBookmarkMock = vi.fn();
     const bookmarkId = "bookmark123";
     useActiveAccount.mockReturnValue({ activeUser: { username: "user1" }, username: "user1" });
-    (useQuery as jest.Mock).mockReturnValue({
+    (useQuery as any).mockReturnValue({
       data: [{ _id: bookmarkId, author: entry.author, permlink: entry.permlink }]
     });
-    useBookmarkAdd.mockReturnValue({ mutateAsync: jest.fn(), isPending: false });
+    useBookmarkAdd.mockReturnValue({ mutateAsync: vi.fn(), isPending: false });
     useBookmarkDelete.mockReturnValue({
       mutateAsync: deleteBookmarkMock,
       isPending: false

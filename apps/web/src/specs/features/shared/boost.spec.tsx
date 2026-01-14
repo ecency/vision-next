@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -7,7 +8,7 @@ import { BoostDialog } from "../../../features/shared/boost";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 // Mock EcencyConfigManager to enable feature flags
-jest.mock("@/config", () => ({
+vi.mock("@/config", () => ({
   EcencyConfigManager: {
     CONFIG: {
       visionFeatures: {
@@ -18,26 +19,26 @@ jest.mock("@/config", () => ({
   }
 }));
 
-jest.mock("@/api/operations", () => ({
-  boostPlus: jest.fn(),
-  boostPlusHot: jest.fn(),
-  boostPlusKc: jest.fn(),
-  formatError: jest.fn((e) => [e.message])
+vi.mock("@/api/operations", () => ({
+  boostPlus: vi.fn(),
+  boostPlusHot: vi.fn(),
+  boostPlusKc: vi.fn(),
+  formatError: vi.fn((e) => [e.message])
 }));
 
-jest.mock("@/features/shared", () => ({
-  KeyOrHot: jest.fn(({ onKey, onHot, onKc }) => (
+vi.mock("@/features/shared", () => ({
+  KeyOrHot: vi.fn(({ onKey, onHot, onKc }) => (
     <div>
       <button onClick={() => onKey()}>KeyOrHot Component</button>
       <button onClick={() => onHot()}>Hot Component</button>
       <button onClick={() => onKc()}>Kc Component</button>
     </div>
   )),
-  LinearProgress: jest.fn(() => <div />)
+  LinearProgress: vi.fn(() => <div />)
 }));
 
-jest.mock("@/features/shared/search-by-username", () => ({
-  SearchByUsername: jest.fn(({ setUsername }) => (
+vi.mock("@/features/shared/search-by-username", () => ({
+  SearchByUsername: vi.fn(({ setUsername }) => (
     <input
       type="text"
       placeholder="Search by username"
@@ -47,7 +48,7 @@ jest.mock("@/features/shared/search-by-username", () => ({
 }));
 
 describe("BoostDialog", () => {
-  const onHideMock = jest.fn();
+  const onHideMock = vi.fn();
   let queryClient: QueryClient;
 
   const renderWithQueryClient = (component: React.ReactElement, options?: any) => {
@@ -60,10 +61,10 @@ describe("BoostDialog", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Override useActiveAccount mock from setup file
-    (useActiveAccount as jest.Mock).mockReturnValue({
+    (useActiveAccount as any).mockReturnValue({
       activeUser: { username: "testuser" },
       username: "testuser",
       account: null,
@@ -72,7 +73,7 @@ describe("BoostDialog", () => {
       isError: false,
       isSuccess: true,
       error: null,
-      refetch: jest.fn()
+      refetch: vi.fn()
     });
 
     queryClient = new QueryClient({

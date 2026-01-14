@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import {
   createPatch,
   createPermlink,
@@ -16,7 +17,7 @@ describe("Posting", () => {
   });
 
   it("createPermlink random", () => {
-    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
+    const randomSpy = vi.spyOn(Math, "random").mockImplementation(() => {
       return 1.95136022969379;
     });
     const input = "lorem ipsum dolor sit amet";
@@ -25,7 +26,7 @@ describe("Posting", () => {
   });
 
   it("createPermlink non-latin chars", () => {
-    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
+    const randomSpy = vi.spyOn(Math, "random").mockImplementation(() => {
       return 1.95136022969379;
     });
     const input = "ปลาตัวใหญ่สีเหลืองทอง";
@@ -40,7 +41,7 @@ describe("Posting", () => {
   });
 
   it("ensureValidPermlink sanitizes invalid permlink", () => {
-    const randomSpy = jest.spyOn(Math, "random").mockImplementation(() => {
+    const randomSpy = vi.spyOn(Math, "random").mockImplementation(() => {
       return 1.95136022969379;
     });
 
@@ -127,14 +128,14 @@ describe("Posting", () => {
   });
 
   it("createReplyPermlink", () => {
-    // Use fake timers and set system time (timezone is UTC via jest.config.ts)
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date("2018-09-21T12:00:50.000Z"));
+    // Use fake timers and set system time (timezone is UTC via vitest.config.ts)
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2018-09-21T12:00:50.000Z"));
 
     expect(createReplyPermlink("good-karma")).toMatchSnapshot();
 
     // Restore real timers
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it("createPatch", () => {
