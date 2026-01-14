@@ -9,7 +9,7 @@
     "build": "node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
     "lint": "node ./node_modules/next/dist/bin/next lint",
-    "test": "vitest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
