@@ -20,7 +20,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/Users/f/pjs/vision-next/packages/wallets/src',
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })

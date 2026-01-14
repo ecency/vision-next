@@ -1,7 +1,8 @@
 import { catchPostImage } from './catch-post-image'
 
 describe('catchPostImage', () => {
-  it('1- Should extract entry image from json_metadata', () => {
+  describe('extracting from json_metadata', () => {
+    it('should extract first image from json_metadata image array', () => {
     const input = {
       author: 'foo1',
       permlink: 'bar1',
@@ -14,9 +15,9 @@ describe('catchPostImage', () => {
     const expected = 'https://images.ecency.com/p/2N61tysBoFrHXFxZDViD89h3bB1XeSgVQ4AKkLUBP2yqmAVL2ZqehqfzwxCQq2g82mHjH9LZV4ugYdmL4TbpNqAoc5LaDDRVPYNurZeK7HpTFq6fjtFG1s9ZpXZWuCufpLhZsDw1G1wL.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
+    })
 
-  it('2- Should extract entry image from json_metadata', () => {
+    it('should extract image URL from json_metadata with busy app format', () => {
     const input = {
       author: 'foo2',
       permlink: 'bar2',
@@ -29,9 +30,9 @@ describe('catchPostImage', () => {
     const expected = 'https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnAvKo1Rap9w75mXk.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
+    })
 
-  it('3- Should extract nothing from json_metadata because there is no image field ', () => {
+    it('should return null when json_metadata has no image field', () => {
     const input = {
       author: 'foo3',
       permlink: 'bar3',
@@ -41,9 +42,48 @@ describe('catchPostImage', () => {
       last_update: '2019-05-10T09:15:21'
     }
     expect(catchPostImage(input)).toBe(null)
+    })
+
+    it('should extract image from new post style with image object', () => {
+      const input = {
+        'json_metadata': {
+          'image': ['https://files.peakd.com/file/peakd-hive/aggroed/agtirkG8-image.png', 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.adafruit.com%2Fblog%2Fwp-content%2Fuploads%2F2014%2F04%2Fgeordi-la-forge-600x458.jpg&amp;f=1&amp;nofb=1']
+        }
+      }
+
+      const expected = 'https://images.ecency.com/p/hgjbks2vRxvf3xsYr6qQ7dm31DuBHGui8pKMdEVPxhLfEeEoVMPfUw4Z6QduNMpLay65R9vadbefhmDKmhM6HD8w8a.png?format=match&mode=fit'
+
+      expect(catchPostImage(input as any)).toBe(expected)
+    })
+
+    it('should return empty string when image field contains nested arrays', () => {
+      const input = {
+        author: 'foo-10',
+        permlink: 'bar-baz-10',
+        json_metadata: {
+          image: [
+            [
+              '![](https://cdn.steemitimages.com/DQmecSNtkk82zz62rymdK7wvXujn5P47zkARUMR13QLXmya/image.png)'
+            ]
+          ]
+        }
+      }
+      expect(catchPostImage(input as any)).toBe('')
+    })
+
+    it('should extract image when image field is a string', () => {
+      const input = {
+        'json_metadata': {
+          'image': 'https://files.peakd.com/file/peakd-hive/aggroed/agtirkG8-image.png'
+        }
+      }
+      const expected = 'https://images.ecency.com/p/hgjbks2vRxvf3xsYr6qQ7dm31DuBHGui8pKMdEVPxhLfEeEoVMPfUw4Z6QduNMpLay65R9vadbefhmDKmhM6HD8w8a.png?format=match&mode=fit'
+      expect(catchPostImage(input as any)).toBe(expected)
+    })
   })
 
-  it('4- Should extract entry image from image link', () => {
+  describe('extracting from body content', () => {
+    it('should extract image from image link in body', () => {
     const input = {
       author: 'foo4',
       permlink: 'bar4',
@@ -55,9 +95,9 @@ describe('catchPostImage', () => {
     const expected = 'https://images.ecency.com/p/F7pXcna7voXwGzRSmsevszxeTZTcnhJVu7akN.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
+    })
 
-  it('5- Should extract entry image from img tag', () => {
+    it('should extract image from HTML img tag', () => {
     const input = {
       author: 'foo5',
       permlink: 'bar5',
@@ -69,9 +109,9 @@ describe('catchPostImage', () => {
     const expected = 'https://images.ecency.com/p/46aP2QbqUqBqwzwxM6L1P6uLNceBDDCMCT7ReED4mRE2QxpU6UqBLE8rB5qCFGv3PRxu6pX61M3gUWVEEkTHbKBUQ2Kc.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
+    })
 
-  it('6- Should extract entry image from markdown img tag', () => {
+    it('should extract image from markdown image syntax', () => {
     const input = {
       author: 'foo6',
       permlink: 'bar6',
@@ -84,9 +124,9 @@ describe('catchPostImage', () => {
     const expected = 'https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMxpZmncLuDWMUeztZaUN.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
+    })
 
-  it('7- Should extract nothing', () => {
+    it('should return null when no images found in body', () => {
     const input = {
       author: 'foo7',
       permlink: 'bar7',
@@ -96,49 +136,13 @@ describe('catchPostImage', () => {
     }
 
     expect(catchPostImage(input)).toBe(null)
-  })
+    })
 
-  it('8- Test with not obj param', () => {
+    it('should extract image when input is a string instead of object', () => {
     const input = '<center>![ezrni9y9pw.jpg](https://img.esteem.ws/ezrni9y9pw.jpg)</center><hr>'
     const expected = 'https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMxpZmncLuDWMUeztZaUN.png?format=match&mode=fit'
 
     expect(catchPostImage(input)).toBe(expected)
-  })
-
-  it('9- Should catch from new post style', () => {
-    const input = {
-      'json_metadata': {
-        'image': ['https://files.peakd.com/file/peakd-hive/aggroed/agtirkG8-image.png', 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.adafruit.com%2Fblog%2Fwp-content%2Fuploads%2F2014%2F04%2Fgeordi-la-forge-600x458.jpg&amp;f=1&amp;nofb=1']
-      }
-    }
-
-    const expected = 'https://images.ecency.com/p/hgjbks2vRxvf3xsYr6qQ7dm31DuBHGui8pKMdEVPxhLfEeEoVMPfUw4Z6QduNMpLay65R9vadbefhmDKmhM6HD8w8a.png?format=match&mode=fit'
-
-    expect(catchPostImage(input as any)).toBe(expected)
-  })
-
-  it('10- Image field can contain only string ', () => {
-    const input = {
-      author: 'foo-10',
-      permlink: 'bar-baz-10',
-      json_metadata: {
-        image: [
-          [
-            '![](https://cdn.steemitimages.com/DQmecSNtkk82zz62rymdK7wvXujn5P47zkARUMR13QLXmya/image.png)'
-          ]
-        ]
-      }
-    }
-    expect(catchPostImage(input as any)).toBe('')
-  })
-
-  it('11- Image field is string', () => {
-    const input = {
-      'json_metadata': {
-        'image': 'https://files.peakd.com/file/peakd-hive/aggroed/agtirkG8-image.png'
-      }
-    }
-    const expected = 'https://images.ecency.com/p/hgjbks2vRxvf3xsYr6qQ7dm31DuBHGui8pKMdEVPxhLfEeEoVMPfUw4Z6QduNMpLay65R9vadbefhmDKmhM6HD8w8a.png?format=match&mode=fit'
-    expect(catchPostImage(input as any)).toBe(expected)
+    })
   })
 })

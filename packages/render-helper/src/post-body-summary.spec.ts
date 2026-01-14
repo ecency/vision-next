@@ -1,99 +1,108 @@
 import { getPostBodySummary } from './post-body-summary'
 
 describe('postBodySummary', () => {
-  it('1- Should return empty string', () => {
-    const input = {
-      author: 'foo81',
-      permlink: 'bar81',
-      last_update: '2019-05-10T09:15:21',
-      body: ''
-    }
-    const expected = ''
-    expect(getPostBodySummary(input)).toBe(expected)
+  describe('basic text processing', () => {
+    it('should return empty string for empty body', () => {
+      const input = {
+        author: 'foo81',
+        permlink: 'bar81',
+        last_update: '2019-05-10T09:15:21',
+        body: ''
+      }
+      const expected = ''
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should remove HTML tags', () => {
+      const input = {
+        author: 'foo82',
+        permlink: 'bar82',
+        last_update: '2019-05-10T09:15:21',
+        body: '<center>Lorem Ipsum Dolor</center>'
+      }
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should remove new line characters', () => {
+      const input = {
+        author: 'foo83',
+        permlink: 'bar83',
+        last_update: '2019-05-10T09:15:21',
+        body: 'Lorem \n Ipsum \n Dolor'
+      }
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should trim leading and trailing whitespace', () => {
+      const input = {
+        author: 'foo84',
+        permlink: 'bar84',
+        last_update: '2019-05-10T09:15:21',
+        body: '   Lorem Ipsum Dolor     '
+      }
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should remove URLs from text', () => {
+      const input = {
+        author: 'foo85',
+        permlink: 'bar85',
+        last_update: '2019-05-10T09:15:21',
+        body: 'Lorem http://lorem.com Ipsum Dolor https://ipsum.com'
+      }
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should normalize multiple whitespaces to single space', () => {
+      const input = {
+        author: 'foo86',
+        permlink: 'bar86',
+        last_update: '2019-05-10T09:15:21',
+        body: '   Lorem       Ipsum      Dolor     '
+      }
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
+
+    it('should decode HTML entities', () => {
+      const input = 'http://lorem.com Lorem &lt; Ipsum &amp; Dolor &euro;	'
+      const expected = 'Lorem < Ipsum & Dolor €'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
   })
 
-  it('2- Should remove html tags', () => {
-    const input = {
-      author: 'foo82',
-      permlink: 'bar82',
-      last_update: '2019-05-10T09:15:21',
-      body: '<center>Lorem Ipsum Dolor</center>'
-    }
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
+  describe('with length limits', () => {
+    it('should limit output to specified character length', () => {
+      const input = {
+        author: 'foo87',
+        permlink: 'bar87',
+        last_update: '2019-05-10T09:15:21',
+        body: 'lorem ipsum dolor sit amet'
+      }
+      const expected = 'lorem ipsum dolor sit'
+      expect(getPostBodySummary(input, 20)).toBe(expected)
+    })
 
-  it('3- Should remove new lines', () => {
-    const input = {
-      author: 'foo83',
-      permlink: 'bar83',
-      last_update: '2019-05-10T09:15:21',
-      body: 'Lorem \n Ipsum \n Dolor'
-    }
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
-
-  it('4- Should trim', () => {
-    const input = {
-      author: 'foo84',
-      permlink: 'bar84',
-      last_update: '2019-05-10T09:15:21',
-      body: '   Lorem Ipsum Dolor     '
-    }
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
-
-  it('5- Should remove urls', () => {
-    const input = {
-      author: 'foo85',
-      permlink: 'bar85',
-      last_update: '2019-05-10T09:15:21',
-      body: 'Lorem http://lorem.com Ipsum Dolor https://ipsum.com'
-    }
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
-
-  it('6- Should remove white spaces between words', () => {
-    const input = {
-      author: 'foo86',
-      permlink: 'bar86',
-      last_update: '2019-05-10T09:15:21',
-      body: '   Lorem       Ipsum      Dolor     '
-    }
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
-
-  it('7- Should limit to 20', () => {
-    const input = {
-      author: 'foo87',
-      permlink: 'bar87',
-      last_update: '2019-05-10T09:15:21',
-      body: 'lorem ipsum dolor sit amet'
-    }
-    const expected = 'lorem ipsum dolor sit'
-    expect(getPostBodySummary(input, 20)).toBe(expected)
-  })
-
-  it('8- Test with long markdown', () => {
-    const input = {
-      author: 'foo88',
-      permlink: 'bar88',
-      last_update: '2019-05-10T09:15:21',
-      body: `https://youtu.be/DII2VTXDP7A
+    it('should process long markdown content and apply length limit', () => {
+      const input = {
+        author: 'foo88',
+        permlink: 'bar88',
+        last_update: '2019-05-10T09:15:21',
+        body: `https://youtu.be/DII2VTXDP7A
 In this post, we want to bring you up to speed on what is happening inside Steemit, as well as give you our perspective on the successes (and failures) of the past year, let you know what we see as our mission going forward, and provide some insight into what we have planned.
-<h1>Steemit’s Vision and Mission</h1>
+<h1>Steemit's Vision and Mission</h1>
 Through our vision of **empowering entrepreneurs to tokenize the internet**, our primary roles in the Steem ecosystem are providing the community with software enhancements to the Steem blockchain, modular framework applications made up of components that can be leveraged by application developers and inspiration through these platforms to entrepreneurial end-users. We believe we must build in ways that create as many opportunities — and catalyze as many amazing Steem-based entrepreneurs and communities — as possible.`
-    }
+      }
 
-    const expected = 'In this post, we want to bring you up to speed on what is happening inside Steemit, as well as give you our perspective on the successes (and failures) of the past year, let you know what we see as our'
-    expect(getPostBodySummary(input, 200)).toBe(expected)
-  })
+      const expected = 'In this post, we want to bring you up to speed on what is happening inside Steemit, as well as give you our perspective on the successes (and failures) of the past year, let you know what we see as our'
+      expect(getPostBodySummary(input, 200)).toBe(expected)
+    })
 
-  it('9- Test with long markdown', () => {
+    it('should process complex HTML content with length limit', () => {
     const input = {
       author: 'foo89',
       permlink: 'bar89',
@@ -110,10 +119,10 @@ Through our vision of **empowering entrepreneurs to tokenize the internet**, our
     }
 
     const expected = 'Everybody has a dream. Most of the time it takes us a while to turn these great wishes into reality, especially because they usually come with a bigger price tag. Now thanks to Steem some of us will be'
-    expect(getPostBodySummary(input, 200)).toBe(expected)
-  })
+      expect(getPostBodySummary(input, 200)).toBe(expected)
+    })
 
-  it('10- Test with long markdown', () => {
+    it('should extract summary from markdown with headings and formatting', () => {
     const input = {
       author: 'foo90',
       permlink: 'bar90',
@@ -132,19 +141,15 @@ So, how can you qualify to get one?`
 
     const expected = 'Hey Dtube! Hey Steemian It\'s your boy marpe @marpemusic. I greet you from my stable, Ibadan Nigeria. There\'s excitement in the air! The epoch making STEEMIB (that is, STEEMIT IBADAN) meet up is around'
 
-    expect(getPostBodySummary(input, 200)).toBe(expected)
+      expect(getPostBodySummary(input, 200)).toBe(expected)
+    })
   })
 
-  it('11- Test with not obj param', () => {
-    const input = '<center>Lorem Ipsum Dolor</center>'
-    const expected = 'Lorem Ipsum Dolor'
-    expect(getPostBodySummary(input)).toBe(expected)
-  })
-
-
-  it('12- Test entity parsing', () => {
-    const input = 'http://lorem.com Lorem &lt; Ipsum &amp; Dolor &euro;	'
-    const expected = 'Lorem < Ipsum & Dolor €'
-    expect(getPostBodySummary(input)).toBe(expected)
+  describe('with string input', () => {
+    it('should process string input instead of object', () => {
+      const input = '<center>Lorem Ipsum Dolor</center>'
+      const expected = 'Lorem Ipsum Dolor'
+      expect(getPostBodySummary(input)).toBe(expected)
+    })
   })
 })
