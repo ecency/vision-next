@@ -293,8 +293,11 @@ describe('useImageDownloader', () => {
         { wrapper }
       );
 
+      // The source code catches FileReader errors and returns fallback (noImage)
+      // So the query succeeds with fallback value instead of erroring
       await waitFor(() => {
-        expect(result.current.isError).toBe(true);
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.data).toBe(noImage);
       });
 
       global.FileReader = originalFileReader;

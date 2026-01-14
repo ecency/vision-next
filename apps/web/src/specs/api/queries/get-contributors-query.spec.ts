@@ -37,7 +37,7 @@ describe('getContributorsQueryOptions', () => {
       expect(result.length).toBeGreaterThan(0);
     });
 
-    it('should return shuffled contributors', () => {
+    it('should return shuffled contributors', async () => {  // Fixed: Made function async
       const { shuffle } = (await import('remeda' as any));
       shuffle.mockReturnValue([...contributors]);
 

@@ -10,9 +10,10 @@ import {
 } from '@ecency/sdk';
 import { prefetchInfiniteQuery, getInfiniteQueryData } from '@/core/react-query';
 import { appAxios } from '@/api/axios';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createTestQueryClient } from '@/specs/test-utils';
+import React from 'react';
 
 // Mock dependencies
 vi.mock('@ecency/sdk', () => ({
@@ -20,10 +21,14 @@ vi.mock('@ecency/sdk', () => ({
   getPostsRankedInfiniteQueryOptions: vi.fn(),
 }));
 
-vi.mock('@/core/react-query', () => ({
-  prefetchInfiniteQuery: vi.fn(),
-  getInfiniteQueryData: vi.fn(),
-}));
+vi.mock('@/core/react-query', async () => {
+  const actual = await vi.importActual('@/core/react-query');
+  return {
+    ...actual,
+    prefetchInfiniteQuery: vi.fn(),
+    getInfiniteQueryData: vi.fn(),
+  };
+});
 
 vi.mock('@/api/axios', () => ({
   appAxios: {
@@ -349,9 +354,9 @@ describe('get-account-posts-feed-query', () => {
 
       const { result } = renderHook(() => usePostsFeedQuery('promoted', '', undefined, 20), {
         wrapper: ({ children }) => (
-          <div>
+          <QueryClientProvider client={queryClient}>
             {children}
-          </div>
+          </QueryClientProvider>
         ),
       });
 
@@ -370,9 +375,9 @@ describe('get-account-posts-feed-query', () => {
 
       const { result } = renderHook(() => usePostsFeedQuery('blog', '@alice', 'observer', 20), {
         wrapper: ({ children }) => (
-          <div>
+          <QueryClientProvider client={queryClient}>
             {children}
-          </div>
+          </QueryClientProvider>
         ),
       });
 
@@ -397,9 +402,9 @@ describe('get-account-posts-feed-query', () => {
 
       const { result } = renderHook(() => usePostsFeedQuery('feed', 'tag1', 'observer', 20), {
         wrapper: ({ children }) => (
-          <div>
+          <QueryClientProvider client={queryClient}>
             {children}
-          </div>
+          </QueryClientProvider>
         ),
       });
 
@@ -425,9 +430,9 @@ describe('get-account-posts-feed-query', () => {
 
       renderHook(() => usePostsFeedQuery('trending', 'tag1', undefined, 20), {
         wrapper: ({ children }) => (
-          <div>
+          <QueryClientProvider client={queryClient}>
             {children}
-          </div>
+          </QueryClientProvider>
         ),
       });
 
