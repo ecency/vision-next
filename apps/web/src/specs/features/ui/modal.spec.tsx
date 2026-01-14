@@ -63,7 +63,7 @@ describe("Modal", () => {
   });
 
   describe("Modal Visibility", () => {
-    it("calls onHide when clicking overlay", () => {
+    it("calls onHide when clicking overlay", async () => {  // Fixed: Made function async
       const handleHide = vi.fn();
       render(
         <Modal show={true} onHide={handleHide}>
@@ -71,11 +71,13 @@ describe("Modal", () => {
         </Modal>
       );
 
-      const overlay = document.querySelector(".bg-black");
-      if (overlay?.parentElement) {
-        fireEvent.click(overlay.parentElement);
+      // Click the container div (which has the onClick handler), not the overlay visual element
+      // Use overflow-y-auto class to distinguish from the overlay div
+      const container = document.querySelector(".overflow-y-auto");
+      if (container) {
+        fireEvent.click(container);
       }
-      waitFor(() => {
+      await waitFor(() => {  // Fixed: Added await
         expect(handleHide).toHaveBeenCalled();
       });
     });

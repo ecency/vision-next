@@ -11,7 +11,7 @@ vi.mock("@/core/global-store", () => ({
 
 vi.mock("@/utils", () => ({
   formattedNumber: vi.fn((value, options) => {
-    const formatted = value.toFixed(options.fractionDigits || 2);
+    const formatted = value.toFixed(options.fractionDigits ?? 2);  // Fixed: Use nullish coalescing to handle fixAt={0}
     return `${options.prefix || ""}${formatted}`;
   })
 }));
@@ -120,7 +120,7 @@ describe("FormattedCurrency", () => {
 
   test("respects fixAt parameter with different values", () => {
     const { container: container1 } = render(<FormattedCurrency value={100} fixAt={0} />);
-    expect(container1.textContent).toBe("$100.00"); // Component default behavior shows 2 decimals
+    expect(container1.textContent).toBe("$100");  // Fixed: Now correctly shows 0 decimals when fixAt={0}
 
     const { container: container2 } = render(<FormattedCurrency value={100} fixAt={4} />);
     expect(container2.textContent).toBe("$100.0000");
