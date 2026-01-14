@@ -18,9 +18,13 @@ vi.mock("@/utils", async () => {
   };
 });
 
-vi.mock("@ui/svg", () => ({
-  creditCardSvg: () => <svg data-testid="credit-card-icon" />
-}));
+vi.mock("@ui/svg", async () => {
+  const actual = await vi.importActual("@ui/svg");
+  return {
+    ...actual,
+    creditCardSvg: () => <svg data-testid="credit-card-icon" />
+  };
+});
 
 vi.mock("@ecency/sdk", async () => {
   const actual = await vi.importActual("@ecency/sdk");
@@ -43,13 +47,13 @@ describe("WalletBadge", () => {
     reward_vesting_balance: "100.000000 VESTS"
   };
 
-  let mockmockHiveWallet: any;
+  let mockHiveWallet: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const { mockHiveWallet } = await import("@/utils");
-    mockmockHiveWallet = mockHiveWallet as any;
+    const utils = await import("@/utils");
+    mockHiveWallet = utils.mockHiveWallet as any;
 
     (useActiveAccount as any).mockReturnValue({
       username: "testuser",
@@ -58,7 +62,7 @@ describe("WalletBadge", () => {
   });
 
   test("renders wallet link with username", () => {
-    mockmockHiveWallet.mockImplementation(() => ({
+    mockHiveWallet.mockImplementation(() => ({
       hasUnclaimedRewards: false
     }));
 

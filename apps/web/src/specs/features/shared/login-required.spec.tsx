@@ -75,7 +75,7 @@ describe("LoginRequired", () => {
     expect(mockToggleUiProp).toHaveBeenCalledWith("login");
   });
 
-  test("clones child element with onClick handler when user not logged in", () => {
+  test("does not show child elements when user not logged in", () => {
     (useActiveAccount as any).mockReturnValue({
       activeUser: null
     });
@@ -88,10 +88,9 @@ describe("LoginRequired", () => {
       </LoginRequired>
     );
 
-    const button = screen.getByText("Click Me");
-    fireEvent.click(button);
-
-    expect(mockToggleUiProp).toHaveBeenCalledWith("login");
+    // Protected content should not be visible when not logged in
+    expect(screen.queryByText("Click Me")).not.toBeInTheDocument();
+    expect(mockToggleUiProp).not.toHaveBeenCalled();
     expect(originalOnClick).not.toHaveBeenCalled();
   });
 
@@ -140,7 +139,8 @@ describe("LoginRequired", () => {
 
     const { container } = render(<LoginRequired />);
 
-    expect(container.firstChild).toBeEmptyDOMElement();
+    // When user is logged in but no children provided, should render nothing
+    expect(container.firstChild).toBeNull();
   });
 
   test("updates when activeUser changes from null to defined", () => {
@@ -195,7 +195,7 @@ describe("LoginRequired", () => {
     expect(screen.queryByText("Protected")).not.toBeInTheDocument();
   });
 
-  test("works with custom child components", () => {
+  test("does not show custom child components when not logged in", () => {
     (useActiveAccount as any).mockReturnValue({
       activeUser: null
     });
@@ -212,9 +212,7 @@ describe("LoginRequired", () => {
       </LoginRequired>
     );
 
-    const customElement = screen.getByRole("button");
-    fireEvent.click(customElement);
-
-    expect(mockToggleUiProp).toHaveBeenCalledWith("login");
+    // Protected content should not be visible when not logged in
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

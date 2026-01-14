@@ -51,10 +51,10 @@ describe("DetectBottom", () => {
   });
 
   test("updates when inViewport changes from false to true", () => {
-    const { rerender } = render(<DetectBottom onBottom={mockOnBottom} />);
-
+    // Set initial mock value before first render
     (useInViewport as any).mockReturnValue({ inViewport: false });
-    rerender(<DetectBottom onBottom={mockOnBottom} />);
+
+    const { rerender } = render(<DetectBottom onBottom={mockOnBottom} />);
 
     expect(mockOnBottom).not.toHaveBeenCalled();
 
