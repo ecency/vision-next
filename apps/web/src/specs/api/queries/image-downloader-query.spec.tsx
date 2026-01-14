@@ -6,11 +6,12 @@ import { appAxios } from '@/api/axios';
 import { catchPostImage } from '@ecency/render-helper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockEntry, createTestQueryClient } from '@/specs/test-utils';
+import { QueryIdentifiers } from '@/core/react-query';
 import React from 'react';
 
 // Mock dependencies
 vi.mock('@/core/global-store', () => ({
-  useGlobalStore: vi.fn(),
+  useGlobalStore: vi.fn((selector) => selector({ canUseWebp: true })),
 }));
 
 vi.mock('@/api/axios', () => ({
@@ -50,7 +51,10 @@ describe('useImageDownloader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     queryClient = createTestQueryClient();
-    (useGlobalStore as any).mockReturnValue(false);
+    // Mock useGlobalStore to properly invoke selector with mock state
+    (useGlobalStore as any).mockImplementation((selector: any) =>
+      selector({ canUseWebp: false })
+    );
     (catchPostImage as any).mockReturnValue('https://example.com/image.png');
   });
 
@@ -61,50 +65,89 @@ describe('useImageDownloader', () => {
   describe('query key generation', () => {
     it('should generate query key with entry author, permlink, width, and height', () => {
       const { result } = renderHook(
-        () => useImageDownloader(entry, noImage, width, height, false),
+        () => useImageDownloader(entry, noImage, width, height, true),
         { wrapper }
       );
 
-      // Query key should include entry author, permlink, dimensions
+      // Verify query key structure
+      const queries = queryClient.getQueryCache().getAll();
+      const imageQuery = queries.find(q =>
+        q.queryKey[0] === QueryIdentifiers.ENTRY_THUMB
+      );
+
+      expect(imageQuery).toBeDefined();
+      expect(imageQuery?.queryKey).toEqual([
+        QueryIdentifiers.ENTRY_THUMB,
+        'testauthor',
+        'test-post',
+        600,
+        400
+      ]);
       expect(result.current).toBeDefined();
     });
 
     it('should generate different keys for different entries', () => {
       const entry2 = mockEntry({ author: 'otheracc', permlink: 'other-post' });
 
-      const { result: result1 } = renderHook(
-        () => useImageDownloader(entry, noImage, width, height, false),
+      renderHook(
+        () => useImageDownloader(entry, noImage, width, height, true),
         { wrapper }
       );
 
-      const { result: result2 } = renderHook(
-        () => useImageDownloader(entry2, noImage, width, height, false),
+      renderHook(
+        () => useImageDownloader(entry2, noImage, width, height, true),
         { wrapper }
       );
 
-      expect(result1.current).toBeDefined();
-      expect(result2.current).toBeDefined();
+      const queries = queryClient.getQueryCache().getAll();
+      const imageQueries = queries.filter(q =>
+        q.queryKey[0] === QueryIdentifiers.ENTRY_THUMB
+      );
+
+      // Should have two different queries
+      expect(imageQueries.length).toBe(2);
+
+      // Verify keys are different
+      const key1 = imageQueries.find(q => q.queryKey[1] === 'testauthor');
+      const key2 = imageQueries.find(q => q.queryKey[1] === 'otheracc');
+
+      expect(key1?.queryKey).toEqual([QueryIdentifiers.ENTRY_THUMB, 'testauthor', 'test-post', 600, 400]);
+      expect(key2?.queryKey).toEqual([QueryIdentifiers.ENTRY_THUMB, 'otheracc', 'other-post', 600, 400]);
     });
 
     it('should generate different keys for different dimensions', () => {
-      const { result: result1 } = renderHook(
-        () => useImageDownloader(entry, noImage, 600, 400, false),
+      renderHook(
+        () => useImageDownloader(entry, noImage, 600, 400, true),
         { wrapper }
       );
 
-      const { result: result2 } = renderHook(
-        () => useImageDownloader(entry, noImage, 800, 600, false),
+      renderHook(
+        () => useImageDownloader(entry, noImage, 800, 600, true),
         { wrapper }
       );
 
-      expect(result1.current).toBeDefined();
-      expect(result2.current).toBeDefined();
+      const queries = queryClient.getQueryCache().getAll();
+      const imageQueries = queries.filter(q =>
+        q.queryKey[0] === QueryIdentifiers.ENTRY_THUMB
+      );
+
+      // Should have two different queries
+      expect(imageQueries.length).toBe(2);
+
+      // Verify dimensions are different
+      const key1 = imageQueries.find(q => q.queryKey[3] === 600);
+      const key2 = imageQueries.find(q => q.queryKey[3] === 800);
+
+      expect(key1?.queryKey).toEqual([QueryIdentifiers.ENTRY_THUMB, 'testauthor', 'test-post', 600, 400]);
+      expect(key2?.queryKey).toEqual([QueryIdentifiers.ENTRY_THUMB, 'testauthor', 'test-post', 800, 600]);
     });
   });
 
   describe('WebP support', () => {
     it('should use WebP format when canUseWebp is true', async () => {
-      (useGlobalStore as any).mockReturnValue(true);
+      (useGlobalStore as any).mockImplementation((selector: any) =>
+        selector({ canUseWebp: true })
+      );
       (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
       renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
@@ -115,7 +158,9 @@ describe('useImageDownloader', () => {
     });
 
     it('should not use WebP format when canUseWebp is false', async () => {
-      (useGlobalStore as any).mockReturnValue(false);
+      (useGlobalStore as any).mockImplementation((selector: any) =>
+        selector({ canUseWebp: false })
+      );
       (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
       renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });

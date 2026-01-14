@@ -46,9 +46,9 @@ describe('markdownToHTML() method', () => {
     })
 
     it('should render H3 headers', () => {
-      const input = '## Heading 3'
+      const input = '### Heading 3'
       const result = markdownToHTML(input, false, false, 'ecency.com')
-      expect(result).toContain('<h2>Heading 3</h2>')
+      expect(result).toContain('<h3>Heading 3</h3>')
     })
 
     it('should render unordered lists', () => {

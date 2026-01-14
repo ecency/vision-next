@@ -157,13 +157,17 @@ describe("useSynchronizedState", () => {
   });
 
   it("should clean up event listener on unmount", () => {
+    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
     const { unmount } = renderHook(() => useSynchronizedState<string>("test-key"));
 
-    const listenersBefore = window.addEventListener.length;
     unmount();
 
     // Verify cleanup happened (implementation detail check)
-    expect(true).toBe(true); // Event listener should be removed
+    expect(removeEventListenerSpy).toHaveBeenCalledWith(
+         "useSynchronizedStateUpdate",
+         expect.any(Function)
+       );
+    removeEventListenerSpy.mockRestore();
   });
 
   it("should handle rapid successive updates", async () => {

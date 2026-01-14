@@ -80,21 +80,22 @@ describe("useMounted", () => {
     rerender();
     rerender();
 
-    // Effect should only run once after mount
+    // The hook body runs on each render (3 times), demonstrating
+    // that useMounted returns true consistently after mount
     expect(effectRuns).toBe(3);
   });
 
   it("should be useful for preventing state updates after unmount", () => {
-    const { result, unmount } = renderHook(() => useMounted());
+    const { result, rerender, unmount } = renderHook(() => useMounted());
 
-    // Simulate checking before state update
-    const canUpdate = () => result.current;
-
-    expect(canUpdate()).toBe(false);
+    // Initially false
+    expect(result.current).toBe(false);
+    // After mount
+    rerender();
+    expect(result.current).toBe(true);
     unmount();
-
-    // After unmount, the ref persists but component is gone
-    // This test verifies the hook's intended use case
+    // Note: After unmount, result.current is stale and shouldn't be accessed
+    // The hook's value is meant to be checked before async callbacks
   });
 
   it("should handle rapid mount/unmount cycles", () => {

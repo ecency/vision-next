@@ -345,13 +345,6 @@ describe('get-account-posts-feed-query', () => {
 
   describe('usePostsFeedQuery', () => {
     it('should return query for promoted section', () => {
-      const mockOptions = {
-        queryKey: ['promoted-entries', 'infinite'],
-        queryFn: vi.fn(),
-        initialPageParam: 'empty',
-        getNextPageParam: vi.fn(),
-      };
-
       const { result } = renderHook(() => usePostsFeedQuery('promoted', '', undefined, 20), {
         wrapper: ({ children }) => (
           <QueryClientProvider client={queryClient}>
@@ -360,7 +353,12 @@ describe('get-account-posts-feed-query', () => {
         ),
       });
 
+      // Verify the hook returns a proper query result with expected properties
       expect(result.current).toBeDefined();
+      expect(result.current).toHaveProperty('data');
+      expect(result.current).toHaveProperty('isLoading');
+      expect(result.current).toHaveProperty('error');
+      expect(result.current).toHaveProperty('fetchNextPage');
     });
 
     it('should handle account posts with @ symbol', () => {

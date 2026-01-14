@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { applyImageZoom } from '../imageZoomEnhancer'
 
 // Mock medium-zoom
@@ -135,8 +135,6 @@ describe('applyImageZoom', () => {
       img.src = 'test.jpg'
       wrapper.appendChild(img)
       container.appendChild(wrapper)
-
-      const initialHTML = container.innerHTML
 
       applyImageZoom(document.body)
 
