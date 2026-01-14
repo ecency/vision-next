@@ -9,6 +9,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/specs/setup-any-spec.ts'],
     include: ['src/specs/**/*.spec.{ts,tsx}'],
+    server: {
+      deps: {
+        inline: ['uuid']
+      }
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

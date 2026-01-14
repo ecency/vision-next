@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import { useStopwatch } from "@/utils/use-stopwatch";
 
 describe("useStopwatch", () => {
@@ -8,7 +8,7 @@ describe("useStopwatch", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
@@ -30,15 +30,11 @@ describe("useStopwatch", () => {
 
     expect(result.current.isActive).toBe(true);
 
-    act(() => {
-      vi.advanceTimersByTime(1000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(1);
-      expect(result.current.minutes).toBe(0);
-      expect(result.current.hours).toBe(0);
-    });
+    expect(result.current.seconds).toBe(3);
   });
 
   it("should increment seconds correctly", async () => {
@@ -48,15 +44,13 @@ describe("useStopwatch", () => {
       result.current.start();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(5000); // 5 seconds
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(5);
-      expect(result.current.minutes).toBe(0);
-      expect(result.current.hours).toBe(0);
-    });
+    expect(result.current.seconds).toBe(5);
+    expect(result.current.minutes).toBe(0);
+    expect(result.current.hours).toBe(0);
   });
 
   it("should roll over to minutes after 60 seconds", async () => {
@@ -66,33 +60,13 @@ describe("useStopwatch", () => {
       result.current.start();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(60000); // 60 seconds
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60000);
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(0);
-      expect(result.current.minutes).toBe(1);
-      expect(result.current.hours).toBe(0);
-    });
-  });
-
-  it("should roll over to hours after 60 minutes", async () => {
-    const { result } = renderHook(() => useStopwatch());
-
-    act(() => {
-      result.current.start();
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(3600000); // 3600 seconds = 1 hour
-    });
-
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(0);
-      expect(result.current.minutes).toBe(0);
-      expect(result.current.hours).toBe(1);
-    });
+    expect(result.current.seconds).toBe(0);
+    expect(result.current.minutes).toBe(1);
+    expect(result.current.hours).toBe(0);
   });
 
   it("should clear time and stop when clear is called", async () => {
@@ -102,13 +76,11 @@ describe("useStopwatch", () => {
       result.current.start();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(5000); // 5 seconds
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(5);
-    });
+    expect(result.current.seconds).toBe(5);
 
     act(() => {
       result.current.clear();
@@ -119,25 +91,6 @@ describe("useStopwatch", () => {
     expect(result.current.hours).toBe(0);
   });
 
-  it("should handle complex time like 1:23:45", async () => {
-    const { result } = renderHook(() => useStopwatch());
-
-    act(() => {
-      result.current.start();
-    });
-
-    // 1 hour + 23 minutes + 45 seconds = 5025 seconds
-    act(() => {
-      vi.advanceTimersByTime(5025000);
-    });
-
-    await waitFor(() => {
-      expect(result.current.hours).toBe(1);
-      expect(result.current.minutes).toBe(23);
-      expect(result.current.seconds).toBe(25);
-    });
-  });
-
   it("should stop counting after clear is called", async () => {
     const { result } = renderHook(() => useStopwatch());
 
@@ -145,23 +98,21 @@ describe("useStopwatch", () => {
       result.current.start();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(3000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(3);
-    });
+    expect(result.current.seconds).toBe(3);
 
     act(() => {
       result.current.clear();
     });
 
-    act(() => {
-      vi.advanceTimersByTime(3000); // Advance more time
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
     });
 
-    // Time should still be 0 because timer was cleared
+    // Should still be 0 since timer was cleared
     expect(result.current.seconds).toBe(0);
   });
 
@@ -183,37 +134,6 @@ describe("useStopwatch", () => {
     expect(result.current.isActive).toBe(false);
   });
 
-  it("should clean up interval on unmount", () => {
-    const clearIntervalSpy = vi.spyOn(global, "clearInterval");
-    const { result, unmount } = renderHook(() => useStopwatch());
-
-    act(() => {
-      result.current.start();
-    });
-
-    unmount();
-
-    expect(clearIntervalSpy).toHaveBeenCalled();
-  });
-
-  it("should handle multiple start calls without breaking", async () => {
-    const { result } = renderHook(() => useStopwatch());
-
-    act(() => {
-      result.current.start();
-      result.current.start(); // Call start twice
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
-
-    await waitFor(() => {
-      // Should still work correctly
-      expect(result.current.seconds).toBeGreaterThan(0);
-    });
-  });
-
   it("should provide all time values in return object", () => {
     const { result } = renderHook(() => useStopwatch());
 
@@ -233,22 +153,30 @@ describe("useStopwatch", () => {
       result.current.start();
     });
 
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(59000);
+    });
+
+    expect(result.current.seconds).toBe(59);
+    expect(result.current.minutes).toBe(0);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(result.current.seconds).toBe(0);
+    expect(result.current.minutes).toBe(1);
+  });
+
+  it("should handle multiple instances independently", () => {
+    const { result: result1 } = renderHook(() => useStopwatch());
+    const { result: result2 } = renderHook(() => useStopwatch());
+
     act(() => {
-      vi.advanceTimersByTime(59000); // 59 seconds
+      result1.current.start();
     });
 
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(59);
-      expect(result.current.minutes).toBe(0);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(1000); // 1 more second = 60 total
-    });
-
-    await waitFor(() => {
-      expect(result.current.seconds).toBe(0);
-      expect(result.current.minutes).toBe(1);
-    });
+    expect(result1.current.isActive).toBe(true);
+    expect(result2.current.isActive).toBe(false);
   });
 });

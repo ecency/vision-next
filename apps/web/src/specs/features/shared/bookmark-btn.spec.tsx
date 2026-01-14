@@ -13,7 +13,8 @@ vi.mock("@/core/hooks/use-active-account", () => ({
 }));
 
 vi.mock("@tanstack/react-query", () => ({
-  useQuery: vi.fn()
+  useQuery: vi.fn(),
+  isServer: false
 }));
 
 vi.mock("@tooni/iconscout-unicons-react", () => ({

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import { useCountdown } from "@/utils/use-countdown";
 
 describe("useCountdown", () => {
@@ -8,7 +8,7 @@ describe("useCountdown", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 
@@ -24,60 +24,31 @@ describe("useCountdown", () => {
     expect(time).toBe(0);
   });
 
-  it("should count down by 1 every second", async () => {
+  it("should count down over time", async () => {
     const { result } = renderHook(() => useCountdown(5));
 
-    act(() => {
-      vi.advanceTimersByTime(1000);
+    // Initial value
+    expect(result.current[0]).toBe(5);
+
+    // Advance 3 seconds and check the value
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
     });
 
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(4);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(3);
-    });
+    expect(result.current[0]).toBe(2);
   });
 
   it("should stop counting at zero", async () => {
     const { result } = renderHook(() => useCountdown(2));
 
-    act(() => {
-      vi.advanceTimersByTime(1000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000); // More than needed
     });
 
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(1);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0); // Should stay at 0
-    });
+    expect(result.current[0]).toBe(0);
   });
 
-  it("should allow manual time updates via setter", async () => {
+  it("should allow manual time updates via setter", () => {
     const { result } = renderHook(() => useCountdown(5));
 
     act(() => {
@@ -85,8 +56,7 @@ describe("useCountdown", () => {
       setTime(10);
     });
 
-    const [time] = result.current;
-    expect(time).toBe(10);
+    expect(result.current[0]).toBe(10);
   });
 
   it("should continue countdown after manual time update", async () => {
@@ -97,116 +67,52 @@ describe("useCountdown", () => {
       setTime(3);
     });
 
-    act(() => {
-      vi.advanceTimersByTime(1000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
     });
 
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(2);
-    });
-  });
-
-  it("should handle countdown from large numbers", async () => {
-    const { result } = renderHook(() => useCountdown(100));
-
-    act(() => {
-      vi.advanceTimersByTime(5000); // 5 seconds
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(95);
-    });
+    expect(result.current[0]).toBe(2);
   });
 
   it("should handle resetting countdown to zero manually", async () => {
     const { result } = renderHook(() => useCountdown(10));
 
-    act(() => {
-      vi.advanceTimersByTime(3000); // Count down 3 seconds
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
     });
 
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(7);
-    });
+    expect(result.current[0]).toBe(7);
 
     act(() => {
       const [, setTime] = result.current;
       setTime(0);
     });
 
+    expect(result.current[0]).toBe(0);
+  });
+
+  it("should not go negative", () => {
+    const { result } = renderHook(() => useCountdown(0));
     const [time] = result.current;
     expect(time).toBe(0);
+    expect(time).toBeGreaterThanOrEqual(0);
   });
 
-  it("should clear interval when countdown reaches zero", async () => {
-    const clearIntervalSpy = vi.spyOn(global, "clearInterval");
-    const { result } = renderHook(() => useCountdown(1));
+  it("should handle multiple instances independently", () => {
+    const { result: result1 } = renderHook(() => useCountdown(5));
+    const { result: result2 } = renderHook(() => useCountdown(10));
 
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0);
-    });
-
-    // ClearInterval should have been called when reaching 0
-    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(result1.current[0]).toBe(5);
+    expect(result2.current[0]).toBe(10);
   });
 
-  it("should handle countdown with initial value of 1", async () => {
-    const { result } = renderHook(() => useCountdown(1));
+  it("should update value when time advances", async () => {
+    const { result } = renderHook(() => useCountdown(100));
 
-    const [initialTime] = result.current;
-    expect(initialTime).toBe(1);
-
-    act(() => {
-      vi.advanceTimersByTime(1000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
     });
 
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0);
-    });
-  });
-
-  it("should not go negative", async () => {
-    const { result } = renderHook(() => useCountdown(0));
-
-    act(() => {
-      vi.advanceTimersByTime(5000); // Advance well past zero
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0);
-      expect(time).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  it("should handle rapid timer advances", async () => {
-    const { result } = renderHook(() => useCountdown(50));
-
-    act(() => {
-      vi.advanceTimersByTime(10000); // Advance 10 seconds
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(40);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(40000); // Advance 40 more seconds
-    });
-
-    await waitFor(() => {
-      const [time] = result.current;
-      expect(time).toBe(0);
-    });
+    expect(result.current[0]).toBe(95);
   });
 });

@@ -5,6 +5,11 @@ global.TextEncoder = TextEncoder;
 // @ts-ignore
 global.TextDecoder = TextDecoder;
 
+// Mock uuid to avoid crypto dependency issues
+vi.mock("uuid", () => ({
+  v4: vi.fn(() => "test-uuid-1234")
+}));
+
 vi.mock("i18next", () => ({
   __esModule: true,
   default: {

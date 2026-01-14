@@ -41,14 +41,18 @@ describe("MessageNoData", () => {
     const { container } = render(<MessageNoData {...defaultProps} />);
 
     const image = container.querySelector("img");
-    expect(image).toHaveAttribute("src", "/assets/writer.png");
+    // Next.js Image component transforms and URL-encodes src URLs
+    const src = image?.getAttribute("src") || "";
+    expect(decodeURIComponent(src)).toContain("/assets/writer.png");
   });
 
   test("renders custom image when img prop provided", () => {
     const { container } = render(<MessageNoData {...defaultProps} img="/custom-image.png" />);
 
     const image = container.querySelector("img");
-    expect(image).toHaveAttribute("src", "/custom-image.png");
+    // Next.js Image component transforms and URL-encodes src URLs
+    const src = image?.getAttribute("src") || "";
+    expect(decodeURIComponent(src)).toContain("/custom-image.png");
   });
 
   test("does not render button when buttonText is empty", () => {
