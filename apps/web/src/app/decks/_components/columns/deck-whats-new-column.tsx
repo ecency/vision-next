@@ -3,7 +3,7 @@ import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import "./_deck-whats-new-column.scss";
-import { markdownToHTML } from "@ecency/render-helper/lib/methods";
+import { renderPostBody } from "@ecency/render-helper";
 import appPackage from "../../../../../package.json";
 import { DeckGridContext } from "../deck-manager";
 import { ReloadableDeckGridItem } from "../types";
@@ -79,7 +79,7 @@ export const DeckWhatsNewColumn = ({ id, draggable, settings }: Props) => {
               <AccordionCollapse eventKey="1">
                 <div
                   className="wn-item-content"
-                  dangerouslySetInnerHTML={{ __html: markdownToHTML(item.body, false, true) }}
+                  dangerouslySetInnerHTML={{ __html: renderPostBody(item.body, false, true) }}
                 />
               </AccordionCollapse>
             </Accordion>

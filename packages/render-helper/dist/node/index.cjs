@@ -66,7 +66,7 @@ var SECTION_LIST = [
 ];
 
 // src/consts/regexes.const.ts
-var IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp))(.*)/gim;
+var IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw))(.*)/gim;
 var IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim;
 var POST_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/i;
 var CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i;
@@ -194,7 +194,7 @@ function createDoc(html) {
   if (html.trim() === "") {
     return null;
   }
-  const doc = DOMParser.parseFromString(html, "text/html");
+  const doc = DOMParser.parseFromString(`<body>${html}</body>`, "text/html");
   return doc;
 }
 function makeEntryCacheKey(entry) {
@@ -868,7 +868,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
+        const videoHref = `https://3speak.tv/embed?v=${match[3]}`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -1001,10 +1001,7 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
-    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "play.3speak.tv");
-    if (!/[?&]mode=iframe/.test(normalizedSrc)) {
-      normalizedSrc = `${normalizedSrc}${normalizedSrc.includes("?") ? "&" : "?"}mode=iframe`;
-    }
+    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "3speak.tv");
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
     const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);
@@ -1289,6 +1286,20 @@ function getLolightInstance() {
   }
   return lolight;
 }
+function fixBlockLevelTagsInParagraphs(html) {
+  const blockTags = "center|div|table|figure|section|article|aside|header|footer|nav|main";
+  const openingPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)<\\/p>`, "gi");
+  html = html.replace(openingPattern, "$1");
+  const closingPattern = new RegExp(`<p>(<\\/(?:${blockTags})>)<\\/p>`, "gi");
+  html = html.replace(closingPattern, "$1");
+  const startPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, "gi");
+  html = html.replace(startPattern, "$1<p>");
+  const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, "gi");
+  html = html.replace(endPattern, "</p>$1");
+  html = html.replace(/<p>\s*<\/p>/g, "");
+  html = html.replace(/<p><br>\s*<\/p>/g, "");
+  return html;
+}
 function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
@@ -1347,6 +1358,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
   }
   try {
     output = md.render(input);
+    output = fixBlockLevelTagsInParagraphs(output);
     const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, "text/html");
     traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
     output = serializer.serializeToString(doc);

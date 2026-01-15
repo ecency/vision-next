@@ -6,7 +6,11 @@ export function createDoc(html: string): Document | null {
     return null
   }
 
-  const doc = DOMParser.parseFromString(html, 'text/html')
+  // Wrap in body tag to handle multiple root elements
+  // This is needed because markdownToHTML can generate multiple top-level elements
+  // (e.g., <center>...</center><hr />) which DOMParser doesn't accept without a wrapper
+  // Using <body> instead of <div> prevents conflicts with <div> elements in the content
+  const doc = DOMParser.parseFromString(`<body>${html}</body>`, 'text/html')
 
   return doc
 }

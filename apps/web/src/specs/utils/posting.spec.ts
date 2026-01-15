@@ -63,6 +63,24 @@ describe("Posting", () => {
     expect(extractMetaData(input)).toMatchSnapshot();
   });
 
+  it("(3) extractMetadata with .arw (Sony RAW) images", () => {
+    const input =
+      'Check out this RAW photo: https://example.com/photo.arw and this one https://example.com/DSC_1234.ARW';
+    expect(extractMetaData(input)).toMatchSnapshot();
+  });
+
+  it("(4) extractMetadata with images.ecency.com URLs", () => {
+    const input =
+      'Here are some proxified images: https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnAvKo1Rap9w75mXk and https://images.ecency.com/DQmXYZ123/image.jpg';
+    expect(extractMetaData(input)).toMatchSnapshot();
+  });
+
+  it("(5) extractMetadata with mixed image types", () => {
+    const input =
+      '<img src="https://example.com/photo.png"> https://images.ecency.com/p/abc123 ![raw](https://example.com/photo.arw) Regular JPEG: https://example.com/photo.jpg';
+    expect(extractMetaData(input)).toMatchSnapshot();
+  });
+
   it("makeJsonMetaData", () => {
     const meta = {
       image: ["http://www.xx.com/a.png", "https://img.esteem.ws/h74zrad2fh.jpg"]
