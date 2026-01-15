@@ -48,6 +48,16 @@ const styleTemplate = InstanceConfigManager.getConfigValue(
 );
 document.documentElement.setAttribute('data-style-template', styleTemplate);
 
+// Apply sidebar placement
+const sidebarPlacement = InstanceConfigManager.getConfigValue(
+  ({ configuration }) =>
+    configuration.instanceConfiguration.layout.sidebar.placement ?? 'right',
+);
+document.documentElement.setAttribute(
+  'data-sidebar-placement',
+  sidebarPlacement,
+);
+
 // Listen for system theme changes when theme is set to "system"
 if (configuredTheme === 'system') {
   window

@@ -192,3 +192,32 @@
 .content-width-theme {
   max-width: var(--theme-content-width);
 }
+
+/* Sidebar Placement - controlled via data-sidebar-placement attribute */
+@media (min-width: 1024px) {
+  /* Right sidebar (default) */
+  [data-sidebar-placement="right"] .blog-layout-grid {
+    grid-template-columns: 1fr 300px;
+  }
+
+  [data-sidebar-placement="right"] .blog-sidebar-container {
+    order: 2;
+  }
+
+  [data-sidebar-placement="right"] .blog-main-container {
+    order: 1;
+  }
+
+  /* Left sidebar */
+  [data-sidebar-placement="left"] .blog-layout-grid {
+    grid-template-columns: 300px 1fr;
+  }
+
+  [data-sidebar-placement="left"] .blog-sidebar-container {
+    order: 1;
+  }
+
+  [data-sidebar-placement="left"] .blog-main-container {
+    order: 2;
+  }
+}

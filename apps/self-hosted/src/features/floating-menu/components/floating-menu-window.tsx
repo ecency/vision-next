@@ -1,10 +1,101 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InstanceConfigManager } from '@/core';
 import { configFieldsMap } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
 import type { ConfigValue } from '../types';
 import { downloadJson, updateNestedPath } from '../utils';
 import { ConfigEditor } from './config-editor';
+
+interface OriginalState {
+  theme: string;
+  styleTemplate: string;
+  sidebarPlacement: string;
+  backgroundClasses: string[];
+}
+
+function applyPreviewConfig(config: Record<string, ConfigValue>) {
+  const configuration = config.configuration as Record<string, ConfigValue>;
+  const general = configuration?.general as Record<string, ConfigValue>;
+  const instanceConfiguration = configuration?.instanceConfiguration as Record<
+    string,
+    ConfigValue
+  >;
+
+  if (!general) return;
+
+  // Apply theme
+  const theme = (general.theme as string) || 'light';
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    document.documentElement.setAttribute(
+      'data-theme',
+      prefersDark ? 'dark' : 'light',
+    );
+  } else {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  // Apply style template
+  const styleTemplate = (general.styleTemplate as string) || 'medium';
+  document.documentElement.setAttribute('data-style-template', styleTemplate);
+
+  // Apply sidebar placement
+  const layout = instanceConfiguration?.layout as Record<string, ConfigValue>;
+  const sidebar = layout?.sidebar as Record<string, ConfigValue>;
+  const sidebarPlacement = (sidebar?.placement as string) || 'right';
+  document.documentElement.setAttribute(
+    'data-sidebar-placement',
+    sidebarPlacement,
+  );
+
+  // Apply background styles
+  const styles = general.styles as Record<string, ConfigValue>;
+  const background = (styles?.background as string) || '';
+
+  // Remove old background classes and add new ones
+  const bodyClasses = Array.from(document.body.classList);
+  for (const c of bodyClasses) {
+    if (c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-')) {
+      document.body.classList.remove(c);
+    }
+  }
+
+  if (background) {
+    for (const className of background.split(' ')) {
+      if (className) document.body.classList.add(className);
+    }
+  }
+}
+
+function restoreOriginalState(original: OriginalState) {
+  // Restore theme
+  document.documentElement.setAttribute('data-theme', original.theme);
+
+  // Restore style template
+  document.documentElement.setAttribute(
+    'data-style-template',
+    original.styleTemplate,
+  );
+
+  // Restore sidebar placement
+  document.documentElement.setAttribute(
+    'data-sidebar-placement',
+    original.sidebarPlacement,
+  );
+
+  // Restore background classes
+  const bodyClasses = Array.from(document.body.classList);
+  for (const c of bodyClasses) {
+    if (c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-')) {
+      document.body.classList.remove(c);
+    }
+  }
+  for (const c of original.backgroundClasses) {
+    document.body.classList.add(c);
+  }
+}
 
 interface FloatingMenuWindowProps {
   isOpen: boolean;
@@ -18,6 +109,8 @@ export function FloatingMenuWindow({
   const [config, setConfig] = useState<Record<string, ConfigValue>>(() => {
     return InstanceConfigManager.CONFIG as Record<string, ConfigValue>;
   });
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const originalStateRef = useRef<OriginalState | null>(null);
 
   const handleUpdate = useCallback((path: string, value: ConfigValue) => {
     setConfig((prev) => updateNestedPath(prev, path, value));
@@ -26,6 +119,53 @@ export function FloatingMenuWindow({
   const handleDownload = useCallback(() => {
     downloadJson(config, 'config.json');
   }, [config]);
+
+  const handleTogglePreview = useCallback(() => {
+    setIsPreviewMode((prev) => {
+      if (!prev) {
+        // Entering preview mode - save original state
+        const bodyClasses = Array.from(document.body.classList);
+        originalStateRef.current = {
+          theme: document.documentElement.getAttribute('data-theme') || 'light',
+          styleTemplate:
+            document.documentElement.getAttribute('data-style-template') ||
+            'medium',
+          sidebarPlacement:
+            document.documentElement.getAttribute('data-sidebar-placement') ||
+            'right',
+          backgroundClasses: bodyClasses.filter(
+            (c) =>
+              c.startsWith('bg-') ||
+              c.startsWith('from-') ||
+              c.startsWith('to-'),
+          ),
+        };
+        applyPreviewConfig(config);
+      } else {
+        // Exiting preview mode - restore original state
+        if (originalStateRef.current) {
+          restoreOriginalState(originalStateRef.current);
+          originalStateRef.current = null;
+        }
+      }
+      return !prev;
+    });
+  }, [config]);
+
+  // Apply preview when config changes (if in preview mode)
+  useEffect(() => {
+    if (isPreviewMode) {
+      applyPreviewConfig(config);
+    }
+  }, [config, isPreviewMode]);
+
+  const handleExitPreview = useCallback(() => {
+    if (originalStateRef.current) {
+      restoreOriginalState(originalStateRef.current);
+      originalStateRef.current = null;
+    }
+    setIsPreviewMode(false);
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -44,9 +184,46 @@ export function FloatingMenuWindow({
     [isOpen],
   );
 
+  // Preview indicator component (shown regardless of menu state)
+  const previewIndicator = isPreviewMode && (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+      <button
+        type="button"
+        onClick={handleExitPreview}
+        className="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-sm font-sans font-medium text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer group"
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+        }}
+        aria-label="Exit preview mode"
+      >
+        <span
+          className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+          aria-hidden="true"
+        />
+        <span>Preview Mode</span>
+        <svg
+          className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  );
+
   if (!isOpen) {
     return (
       <div className="fixed inset-0 z-40 pointer-events-none">
+        {previewIndicator}
         <div
           className={windowClassName}
           style={{
@@ -63,6 +240,8 @@ export function FloatingMenuWindow({
       className="fixed inset-0 z-40 pointer-events-none"
       onKeyDown={handleKeyDown}
     >
+      {previewIndicator}
+
       <div
         className={windowClassName}
         style={{
@@ -82,6 +261,46 @@ export function FloatingMenuWindow({
               Configuration Editor
             </h2>
             <div className="flex items-center gap-2">
+              <button
+                onClick={handleTogglePreview}
+                className={`text-sm font-sans px-3 py-1.5 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1.5 ${
+                  isPreviewMode
+                    ? 'text-emerald-400 hover:text-emerald-300'
+                    : 'text-gray-300 hover:text-gray-100'
+                }`}
+                style={{
+                  backgroundColor: isPreviewMode
+                    ? 'rgba(16, 185, 129, 0.2)'
+                    : FLOATING_MENU_THEME.buttonBackground,
+                }}
+                type="button"
+                aria-label={
+                  isPreviewMode ? 'Exit preview mode' : 'Preview configuration'
+                }
+                aria-pressed={isPreviewMode}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+                {isPreviewMode ? 'Exit Preview' : 'Preview'}
+              </button>
               <button
                 onClick={handleDownload}
                 className="text-sm font-sans px-3 py-1.5 text-gray-300 hover:text-gray-100 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500"

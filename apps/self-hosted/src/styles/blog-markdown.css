@@ -131,9 +131,9 @@
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   margin: 0;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
   background-color: transparent;
-  font-family: "Georgia", "Times New Roman", serif;
+  font-family: var(--theme-font-body);
   font-size: 16px;
   line-height: 1.58;
   letter-spacing: -0.003em;
@@ -179,14 +179,14 @@
 
 .markdown-body a {
   background-color: transparent;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
   text-decoration: underline;
-  text-decoration-color: rgba(0, 0, 0, 0.3);
+  text-decoration-color: var(--theme-link-decoration-color);
   transition: text-decoration-color 0.2s;
 }
 
 .markdown-body a:hover {
-  text-decoration-color: rgba(0, 0, 0, 0.84);
+  text-decoration-color: var(--theme-link-decoration-hover);
 }
 
 .markdown-body abbr[title] {
@@ -210,11 +210,9 @@
   padding-bottom: 0;
   font-size: 2em;
   border-bottom: none;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body mark {
@@ -421,11 +419,9 @@
   margin-bottom: 13px;
   font-weight: 700;
   line-height: 1.15;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body h2 {
@@ -433,51 +429,41 @@
   padding-bottom: 0;
   font-size: 1.5em;
   border-bottom: none;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body h3 {
   font-weight: 700;
   font-size: 1.25em;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body h4 {
   font-weight: 700;
   font-size: 1em;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body h5 {
   font-weight: 700;
   font-size: 0.875em;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-primary);
 }
 
 .markdown-body h6 {
   font-weight: 700;
   font-size: 0.85em;
-  font-family:
-    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
-    sans-serif;
+  font-family: var(--theme-font-heading);
   letter-spacing: -0.015em;
-  color: rgba(0, 0, 0, 0.68);
+  color: var(--theme-text-secondary);
 }
 
 .markdown-body p {
@@ -491,8 +477,8 @@
 .markdown-body blockquote {
   margin: 0 0 29px 0;
   padding: 0 0 0 29px;
-  color: rgba(0, 0, 0, 0.68);
-  border-left: 3px solid rgba(0, 0, 0, 0.84);
+  color: var(--theme-text-secondary);
+  border-left: 3px solid var(--theme-text-primary);
   font-style: italic;
   font-size: 16px;
   line-height: 1.58;
@@ -898,7 +884,7 @@
   margin: 0;
   font-size: 0.9em;
   white-space: break-spaces;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--theme-bg-tertiary);
   border-radius: 3px;
   font-family: "Courier New", Courier, monospace;
 }
@@ -944,8 +930,8 @@
   overflow: auto;
   font-size: 16px;
   line-height: 1.45;
-  color: rgba(0, 0, 0, 0.84);
-  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--theme-text-primary);
+  background-color: var(--theme-bg-tertiary);
   border-radius: 3px;
   font-family: "Courier New", Courier, monospace;
 }

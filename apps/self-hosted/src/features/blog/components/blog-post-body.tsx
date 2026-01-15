@@ -17,10 +17,7 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
   if (isRawContent) {
     return (
       <div className="mb-6 sm:mb-8">
-        <pre
-          className="bg-gray-50 rounded p-3 sm:p-4 text-xs sm:text-sm font-mono whitespace-pre-wrap break-words overflow-x-auto"
-          style={{ color: 'rgba(0, 0, 0, 0.84)' }}
-        >
+        <pre className="bg-theme-secondary rounded p-3 sm:p-4 text-xs sm:text-sm font-mono whitespace-pre-wrap break-words overflow-x-auto text-theme-primary">
           {entryData.body}
         </pre>
       </div>
