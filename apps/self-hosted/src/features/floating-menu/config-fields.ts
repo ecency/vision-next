@@ -3,13 +3,15 @@ export type ConfigFieldType =
   | 'number'
   | 'boolean'
   | 'array'
-  | 'section';
+  | 'section'
+  | 'select';
 
 export interface ConfigField {
   label: string;
   type: ConfigFieldType;
   description?: string;
   fields?: Record<string, ConfigField>;
+  options?: Array<{ value: string; label: string }>;
 }
 
 export const configFieldsMap: Record<string, ConfigField> = {
@@ -33,13 +35,44 @@ export const configFieldsMap: Record<string, ConfigField> = {
         fields: {
           theme: {
             label: 'Theme',
-            type: 'string',
+            type: 'select',
             description: 'Theme setting (system, light, dark)',
+            options: [
+              { value: 'system', label: 'System' },
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+            ],
+          },
+          styleTemplate: {
+            label: 'Style Template',
+            type: 'select',
+            description: 'Visual style template for the blog',
+            options: [
+              { value: 'medium', label: 'Medium (Editorial)' },
+              { value: 'minimal', label: 'Minimal (Clean)' },
+              { value: 'magazine', label: 'Magazine (Editorial)' },
+              { value: 'developer', label: 'Developer (Tech)' },
+              { value: 'modern-gradient', label: 'Modern Gradient' },
+            ],
           },
           language: {
             label: 'Language',
-            type: 'string',
-            description: 'Default language code',
+            type: 'select',
+            description: 'Default language',
+            options: [
+              { value: 'en', label: 'English' },
+              { value: 'es', label: 'Spanish' },
+              { value: 'de', label: 'German' },
+              { value: 'fr', label: 'French' },
+              { value: 'ko', label: 'Korean' },
+              { value: 'ru', label: 'Russian' },
+              { value: 'pt', label: 'Portuguese' },
+              { value: 'ja', label: 'Japanese' },
+              { value: 'zh', label: 'Chinese' },
+              { value: 'it', label: 'Italian' },
+              { value: 'pl', label: 'Polish' },
+              { value: 'tr', label: 'Turkish' },
+            ],
           },
           timezone: {
             label: 'Timezone',
@@ -120,8 +153,12 @@ export const configFieldsMap: Record<string, ConfigField> = {
             fields: {
               listType: {
                 label: 'List Type',
-                type: 'string',
+                type: 'select',
                 description: 'Type of list display',
+                options: [
+                  { value: 'list', label: 'List View' },
+                  { value: 'grid', label: 'Grid View' },
+                ],
               },
               search: {
                 label: 'Search',
@@ -140,8 +177,12 @@ export const configFieldsMap: Record<string, ConfigField> = {
                 fields: {
                   placement: {
                     label: 'Placement',
-                    type: 'string',
-                    description: 'Sidebar placement (left, right)',
+                    type: 'select',
+                    description: 'Sidebar placement',
+                    options: [
+                      { value: 'left', label: 'Left' },
+                      { value: 'right', label: 'Right' },
+                    ],
                   },
                   followers: {
                     label: 'Followers',

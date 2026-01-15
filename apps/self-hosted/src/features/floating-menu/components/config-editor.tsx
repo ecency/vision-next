@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { type ConfigField, configFieldsMap } from '../config-fields';
+import type { ConfigField } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
 import type {
   ConfigEditorProps,
@@ -189,7 +189,48 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
         );
       }
 
-      case 'string':
+      case 'select': {
+        const selectValue = typeof value === 'string' ? value : '';
+        const options = field.options || [];
+        return (
+          <div className="mb-4">
+            <label
+              htmlFor={fullPath}
+              className="block text-sm font-medium text-gray-200 mb-2 font-sans"
+            >
+              {field.label}
+            </label>
+            {field.description && (
+              <p className="text-xs text-gray-400 mb-2 font-sans">
+                {field.description}
+              </p>
+            )}
+            <select
+              id={fullPath}
+              value={selectValue}
+              onChange={(e) => handleChange(e.target.value)}
+              className={inputClassName}
+              style={{
+                ...inputStyle,
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 0.75rem center',
+                backgroundSize: '1rem',
+                paddingRight: '2.5rem',
+              }}
+            >
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      }
+
       default: {
         const stringValue = typeof value === 'string' ? value : '';
         return (

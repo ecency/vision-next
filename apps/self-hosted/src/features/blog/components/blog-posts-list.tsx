@@ -21,7 +21,12 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
     ({ configuration }) => configuration.instanceConfiguration.layout.listType,
   );
 
-  const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery({
+  const {
+    data = [],
+    fetchNextPage,
+    isFetching,
+    hasNextPage,
+  } = useInfiniteQuery({
     ...getAccountPostsInfiniteQueryOptions(username, filter, limit),
     select: (data) => data.pages.flat(),
   });
