@@ -448,7 +448,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://peakd.com/@demo/tests'
       }
-      const expected = '<p dir=\"auto\"><a class=\"markdown-post-link\" data-href=\"https://peakd.com/@demo/tests\" data-is-inline=\"true\" data-tag=\"post\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a></p>'
+      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/@demo/tests\" data-is-inline=\"true\" data-tag=\"post\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -496,7 +496,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://peakd.com/tag/@demo/tests and https://steemit.com/test/@demo/post'
       }
-      const expected = '<p dir=\"auto\"><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a class=\"markdown-external-link\" data-href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
+      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -520,7 +520,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: '[Waves mobile app](https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore "https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore")'
       }
-      const expected = '<p dir=\"auto\"><a title=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" class=\"markdown-post-link\" data-href=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" data-is-inline=\"true\" data-tag=\"hive-125125\" data-author=\"ecency\" data-permlink=\"waves-mobile-app-update-explore\">Waves mobile app</a></p>'
+      const expected = '<p dir=\"auto\"><br /><a title=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" class=\"markdown-post-link\" data-href=\"https://ecency.com/hive-125125/@ecency/waves-mobile-app-update-explore\" data-is-inline=\"true\" data-tag=\"hive-125125\" data-author=\"ecency\" data-permlink=\"waves-mobile-app-update-explore\">Waves mobile app</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -688,7 +688,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'this is link https://peakd.com/ccc/jarvie/one-week-roadtrip-to-all-5-utah-national-parks-and-more'
       }
-      const expected = '<p dir=\"auto\">this is link <a class=\"markdown-post-link\" data-href=\"https://peakd.com/ccc/jarvie/one-week-roadtrip-to-all-5-utah-national-parks-and-more\" data-is-inline=\"true\" data-tag=\"ccc\" data-author=\"jarvie\" data-permlink=\"one-week-roadtrip-to-all-5-utah-national-parks-and-more\">@jarvie/one-week-roadtrip-to-all-5-utah-national-parks-and-more</a></p>'
+      const expected = '<p dir=\"auto\">this is link <br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/ccc/jarvie/one-week-roadtrip-to-all-5-utah-national-parks-and-more\" data-is-inline=\"true\" data-tag=\"ccc\" data-author=\"jarvie\" data-permlink=\"one-week-roadtrip-to-all-5-utah-national-parks-and-more\">@jarvie/one-week-roadtrip-to-all-5-utah-national-parks-and-more</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -934,7 +934,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'direct link https://ecency.com/@ecency/faq?history'
       }
-      const expected = '<p dir=\"auto\">direct link <a class=\"markdown-post-link\" data-href=\"https://ecency.com/@ecency/faq?history\" data-is-inline=\"true\" data-tag=\"post\" data-author=\"ecency\" data-permlink=\"faq\">@ecency/faq</a></p>'
+      const expected = '<p dir=\"auto\">direct link <br /><a class=\"markdown-post-link\" data-href=\"https://ecency.com/@ecency/faq?history\" data-is-inline=\"true\" data-tag=\"post\" data-author=\"ecency\" data-permlink=\"faq\">@ecency/faq</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })

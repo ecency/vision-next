@@ -424,6 +424,12 @@ var getInlineMeta = (el, href) => {
     isInline: textMatches || titleMatches
   };
 };
+var addLineBreakBeforePostLink = (el, forApp, isInline) => {
+  if (forApp && isInline && el.parentNode) {
+    const br = el.ownerDocument.createElement("br");
+    el.parentNode.insertBefore(br, el);
+  }
+};
 function a(el, forApp, webp, parentDomain = "ecency.com") {
   if (!el || !el.parentNode) {
     return;
@@ -487,6 +493,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       el.setAttribute("href", h);
       el.setAttribute("data-is-inline", "" + isInline);
     }
+    addLineBreakBeforePostLink(el, forApp, isInline);
     return;
   }
   const mentionMatch = href.match(MENTION_REGEX);
@@ -564,6 +571,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
         el.setAttribute("href", h);
         el.setAttribute("data-is-inline", "" + isInline);
       }
+      addLineBreakBeforePostLink(el, forApp, isInline);
       return;
     }
   }
@@ -628,6 +636,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
         el.setAttribute("href", h);
         el.setAttribute("data-is-inline", "" + isInline);
       }
+      addLineBreakBeforePostLink(el, forApp, isInline);
       return;
     }
   }
@@ -713,6 +722,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       el.setAttribute("href", h);
       el.setAttribute("data-is-inline", "" + isInline);
     }
+    addLineBreakBeforePostLink(el, forApp, isInline);
     return;
   }
   const BCmatch = href.match(BITCHUTE_REGEX);

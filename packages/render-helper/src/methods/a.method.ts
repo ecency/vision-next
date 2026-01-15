@@ -55,6 +55,17 @@ const getInlineMeta = (el: HTMLElement, href: string) => {
   }
 }
 
+/**
+ * Adds a line break before inline post links in mobile app mode
+ * This ensures enhanced post links (where the raw URL is displayed) render on separate lines
+ * in React Native where CSS display properties don't work the same way as in browsers
+ */
+const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: boolean): void => {
+  if (forApp && isInline && el.parentNode) {
+    const br = el.ownerDocument.createElement('br')
+    el.parentNode.insertBefore(br, el)
+  }
+}
 
 export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): void {
   if (!el || !el.parentNode) {
@@ -152,6 +163,8 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       el.setAttribute('href', h)
       el.setAttribute('data-is-inline', '' + isInline)
     }
+
+    addLineBreakBeforePostLink(el, forApp, isInline)
     return
   }
 
@@ -254,6 +267,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
         el.setAttribute('data-is-inline', '' + isInline)
       }
 
+      addLineBreakBeforePostLink(el, forApp, isInline)
       return
     }
   }
@@ -335,6 +349,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
         el.setAttribute('data-is-inline', '' + isInline)
       }
 
+      addLineBreakBeforePostLink(el, forApp, isInline)
       return
     }
   }
@@ -440,6 +455,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       el.setAttribute('href', h)
       el.setAttribute('data-is-inline', '' + isInline)
     }
+    addLineBreakBeforePostLink(el, forApp, isInline)
     return
   }
 
