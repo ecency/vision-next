@@ -1,6 +1,24 @@
 import { Client } from "@hiveio/dhive";
 import { QueryClient } from "@tanstack/react-query";
 
+// Safe environment variable access for browser builds
+// In browser builds, tsup will replace process.env.* with literal values at compile time
+const isDevelopment = (() => {
+  try {
+    return process.env?.NODE_ENV === 'development';
+  } catch {
+    return false;
+  }
+})();
+
+const getHeliusApiKey = () => {
+  try {
+    return process.env?.VITE_HELIUS_API_KEY;
+  } catch {
+    return undefined;
+  }
+};
+
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
@@ -24,7 +42,7 @@ export const CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",
@@ -172,7 +190,7 @@ export namespace ConfigManager {
    * @returns Compiled RegExp or null if invalid/unsafe
    */
   function safeCompileRegex(pattern: string, maxLength = 200): RegExp | null {
-    const isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
+    // Use the module-level isDevelopment constant
 
     try {
       // Layer 1: Basic validation
@@ -256,7 +274,7 @@ export namespace ConfigManager {
 
     // Only log once to avoid noise during builds/hot reloads
     // Only show in development mode to avoid cluttering production console
-    const isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
+    // Use the module-level isDevelopment constant
 
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);

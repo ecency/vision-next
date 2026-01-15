@@ -43,6 +43,20 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
     }
   });
 }
+var isDevelopment = (() => {
+  try {
+    return process.env?.NODE_ENV === "development";
+  } catch {
+    return false;
+  }
+})();
+var getHeliusApiKey = () => {
+  try {
+    return process.env?.VITE_HELIUS_API_KEY;
+  } catch {
+    return void 0;
+  }
+};
 var CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
@@ -66,7 +80,7 @@ var CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",
@@ -158,7 +172,6 @@ var ConfigManager;
     return { safe: true };
   }
   function safeCompileRegex(pattern, maxLength = 200) {
-    const isDevelopment = typeof process !== "undefined" && process.env?.NODE_ENV === "development";
     try {
       if (!pattern) {
         if (isDevelopment) {
@@ -210,7 +223,6 @@ var ConfigManager;
     CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
-    const isDevelopment = typeof process !== "undefined" && process.env?.NODE_ENV === "development";
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
       console.log(`  - Accounts: ${accounts.length}`);

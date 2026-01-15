@@ -39,6 +39,7 @@ export default defineConfig([
         },
         define: {
             "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV ?? "production"),
+            "process.env.VITE_HELIUS_API_KEY": JSON.stringify(process.env.VITE_HELIUS_API_KEY ?? ""),
         },
     },
     // Node build (SSR, scripts, CLI)

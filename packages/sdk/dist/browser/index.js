@@ -43,6 +43,20 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
     }
   });
 }
+var isDevelopment = (() => {
+  try {
+    return false;
+  } catch {
+    return false;
+  }
+})();
+var getHeliusApiKey = () => {
+  try {
+    return "";
+  } catch {
+    return void 0;
+  }
+};
 var CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
@@ -66,7 +80,7 @@ var CONFIG = {
       consoleOnFailover: true
     }
   ),
-  heliusApiKey: process.env.VITE_HELIUS_API_KEY,
+  heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",
@@ -158,35 +172,47 @@ var ConfigManager;
     return { safe: true };
   }
   function safeCompileRegex(pattern, maxLength = 200) {
-    const isDevelopment = typeof process !== "undefined" && false;
     try {
       if (!pattern) {
-        if (isDevelopment) ;
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: empty pattern`);
+        }
         return null;
       }
       if (pattern.length > maxLength) {
-        if (isDevelopment) ;
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: length ${pattern.length} exceeds max ${maxLength} - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
       const staticAnalysis = analyzeRedosRisk(pattern);
       if (!staticAnalysis.safe) {
-        if (isDevelopment) ;
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: static analysis failed (${staticAnalysis.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
       let regex;
       try {
         regex = new RegExp(pattern);
       } catch (compileErr) {
-        if (isDevelopment) ;
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: compilation failed - pattern: ${pattern.substring(0, 50)}...`, compileErr);
+        }
         return null;
       }
       const runtimeTest = testRegexPerformance(regex);
       if (!runtimeTest.safe) {
-        if (isDevelopment) ;
+        if (isDevelopment) {
+          console.warn(`[SDK] DMCA pattern rejected: runtime test failed (${runtimeTest.reason}) - pattern: ${pattern.substring(0, 50)}...`);
+        }
         return null;
       }
       return regex;
     } catch (err) {
+      if (isDevelopment) {
+        console.warn(`[SDK] DMCA pattern rejected: unexpected error - pattern: ${pattern.substring(0, 50)}...`, err);
+      }
       return null;
     }
   }
@@ -197,7 +223,6 @@ var ConfigManager;
     CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
     const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
-    const isDevelopment = typeof process !== "undefined" && false;
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
       console.log(`  - Accounts: ${accounts.length}`);
