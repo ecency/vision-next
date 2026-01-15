@@ -859,7 +859,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
+        const videoHref = `https://3speak.tv/watch?v=${match[3]}`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
