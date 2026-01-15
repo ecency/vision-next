@@ -5,7 +5,7 @@ import { BlogPostItem } from "./blog-post-item";
 import { DetectBottom } from "./detect-bottom";
 import { InstanceConfigManager } from "@/core";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getAccountPostsQueryOptions } from "@ecency/sdk";
+import { getAccountPostsInfiniteQueryOptions } from "@ecency/sdk";
 import clsx from "clsx";
 
 interface Props {
@@ -22,7 +22,7 @@ export function BlogPostsList({ filter = "posts", limit = 20 }: Props) {
   );
 
   const { data, fetchNextPage, isFetching, hasNextPage } = useInfiniteQuery({
-    ...getAccountPostsQueryOptions({ username, filter, limit }),
+    ...getAccountPostsInfiniteQueryOptions(username, filter, limit),
     select: (data) => data.pages.flatMap((page) => page),
   });
 
