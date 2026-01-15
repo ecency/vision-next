@@ -5,6 +5,7 @@ import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { parseAsset } from "../../utils";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 interface SpkPowerPayload<T extends HiveBasedAssetSignType> {
   mode: "up" | "down";
@@ -45,7 +46,7 @@ export async function powerUpLarynx<T extends HiveBasedAssetSignType>(
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    throw new Error("[SDK][Wallets] – missing broadcaster");
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");

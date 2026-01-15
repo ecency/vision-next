@@ -3,6 +3,7 @@ import type { AuthContext } from "@ecency/sdk";
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 const ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
 
@@ -66,15 +67,19 @@ async function broadcastEngineOperation(
       }
       return CONFIG.hiveClient.broadcast.json(operation, options.key);
     }
-    case "keychain":
+    case "keychain": {
+      // Use auth.broadcast if available (preferred method with full auth context)
+      if (options.auth?.broadcast) {
+        return options.auth.broadcast([opTuple], "active");
+      }
+      // Fallback: Call Keychain extension directly if auth.broadcast is not available
+      return broadcastWithKeychainFallback(account, [opTuple], "Active");
+    }
     case "hiveauth": {
       if (options.auth?.broadcast) {
         return options.auth.broadcast([opTuple], "active");
       }
-      if (options.method === "hiveauth") {
-        return broadcastWithWalletHiveAuth(account, [opTuple], "active");
-      }
-      throw new Error("[SDK][Wallets] – missing broadcaster");
+      return broadcastWithWalletHiveAuth(account, [opTuple], "active");
     }
     case "hivesigner":
       return hs.sendOperation(

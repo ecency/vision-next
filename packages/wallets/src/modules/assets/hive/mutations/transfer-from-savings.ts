@@ -4,6 +4,7 @@ import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 interface PayloadBase {
   from: string;
@@ -48,7 +49,7 @@ export async function transferFromSavingsHive<
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    throw new Error("[SDK][Wallets] – missing broadcaster");
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   }
 
   if (payload.type === "hiveauth") {

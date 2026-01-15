@@ -5,6 +5,7 @@ import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { Symbol as AssetSymbol, parseAsset } from "../../utils";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 export interface TransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -50,10 +51,12 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
       key
     );
   } else if (payload.type === "keychain") {
+    // Use auth.broadcast if available (preferred method with full auth context)
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    throw new Error("[SDK][Wallets] – missing broadcaster");
+    // Fallback: Call Keychain extension directly if auth.broadcast is not available
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");

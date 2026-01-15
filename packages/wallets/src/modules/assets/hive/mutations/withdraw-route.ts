@@ -4,6 +4,7 @@ import { CONFIG } from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 interface Payload<T extends HiveBasedAssetSignType> {
   from_account: string;
@@ -39,7 +40,7 @@ export async function withdrawVestingRouteHive<
     if (auth?.broadcast) {
       return auth.broadcast([operation], "active");
     }
-    throw new Error("[SDK][Wallets] – missing broadcaster");
+    return broadcastWithKeychainFallback(payload.from_account, [operation], "Active");
   }
 
   if (payload.type === "hiveauth") {

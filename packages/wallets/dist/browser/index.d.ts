@@ -810,7 +810,7 @@ interface TransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? TransferPayload<T> & {
     key: PrivateKey;
-} : TransferPayload<T>, auth?: AuthContext): Promise<unknown>;
+} : TransferPayload<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload$5<T extends HiveBasedAssetSignType> {
     from: string;
@@ -821,7 +821,7 @@ interface Payload$5<T extends HiveBasedAssetSignType> {
 }
 declare function transferToSavingsHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$5<T> & {
     key: PrivateKey;
-} : Payload$5<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload$5<T>, auth?: AuthContext): Promise<any>;
 
 interface PayloadBase$1 {
     from: string;
@@ -835,7 +835,7 @@ interface PayloadWithKey$1<T extends HiveBasedAssetSignType> extends PayloadBase
 }
 declare function transferFromSavingsHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? PayloadWithKey$1<T> & {
     key: PrivateKey;
-} : PayloadWithKey$1<T>, auth?: AuthContext): Promise<unknown>;
+} : PayloadWithKey$1<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload$4<T extends HiveBasedAssetSignType> {
     from: string;
@@ -846,7 +846,7 @@ interface Payload$4<T extends HiveBasedAssetSignType> {
 }
 declare function powerUpHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$4<T> & {
     key: PrivateKey;
-} : Payload$4<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload$4<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload$3<T extends HiveBasedAssetSignType> {
     from: string;
@@ -857,7 +857,7 @@ interface Payload$3<T extends HiveBasedAssetSignType> {
 }
 declare function delegateHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$3<T> & {
     key: PrivateKey;
-} : Payload$3<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload$3<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload$2<T extends HiveBasedAssetSignType> {
     from: string;
@@ -866,7 +866,7 @@ interface Payload$2<T extends HiveBasedAssetSignType> {
 }
 declare function powerDownHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$2<T> & {
     key: PrivateKey;
-} : Payload$2<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload$2<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload$1<T extends HiveBasedAssetSignType> {
     from_account: string;
@@ -877,7 +877,7 @@ interface Payload$1<T extends HiveBasedAssetSignType> {
 }
 declare function withdrawVestingRouteHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload$1<T> & {
     key: PrivateKey;
-} : Payload$1<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload$1<T>, auth?: AuthContext): Promise<any>;
 
 declare function useClaimRewards(username: string, auth: AuthContext | undefined, onSuccess: () => void): ReturnType<typeof useBroadcastMutation<void>>;
 
@@ -893,7 +893,7 @@ interface PayloadWithKey<T extends HiveBasedAssetSignType> extends PayloadBase {
 }
 declare function claimInterestHive<T extends HiveBasedAssetSignType>(payload: T extends "key" ? PayloadWithKey<T> & {
     key: PrivateKey;
-} : PayloadWithKey<T>, auth?: AuthContext): Promise<unknown>;
+} : PayloadWithKey<T>, auth?: AuthContext): Promise<any>;
 
 interface Payload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -902,7 +902,7 @@ interface Payload<T extends HiveBasedAssetSignType> {
 }
 declare function convertHbd<T extends HiveBasedAssetSignType>(payload: T extends "key" ? Payload<T> & {
     key: PrivateKey;
-} : Payload<T>, auth?: AuthContext): Promise<unknown>;
+} : Payload<T>, auth?: AuthContext): Promise<any>;
 
 declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
 
@@ -951,7 +951,7 @@ interface SpkTransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferSpk<T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkTransferPayload<T> & {
     key: PrivateKey;
-} : SpkTransferPayload<T>, auth?: AuthContext): Promise<unknown>;
+} : SpkTransferPayload<T>, auth?: AuthContext): Promise<any>;
 
 interface SpkLockPayload<T extends HiveBasedAssetSignType> {
     mode: "lock" | "unlock";
@@ -961,7 +961,7 @@ interface SpkLockPayload<T extends HiveBasedAssetSignType> {
 }
 declare const lockLarynx: <T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkLockPayload<T> & {
     key: PrivateKey;
-} : SpkLockPayload<T>, auth?: AuthContext) => Promise<unknown>;
+} : SpkLockPayload<T>, auth?: AuthContext) => Promise<any>;
 
 interface SpkPowerPayload<T extends HiveBasedAssetSignType> {
     mode: "up" | "down";
@@ -971,7 +971,7 @@ interface SpkPowerPayload<T extends HiveBasedAssetSignType> {
 }
 declare function powerUpLarynx<T extends HiveBasedAssetSignType>(payload: T extends "key" ? SpkPowerPayload<T> & {
     key: PrivateKey;
-} : SpkPowerPayload<T>, auth?: AuthContext): Promise<unknown>;
+} : SpkPowerPayload<T>, auth?: AuthContext): Promise<any>;
 
 interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -982,7 +982,7 @@ interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferLarynx<T extends HiveBasedAssetSignType>(payload: T extends "key" ? LarynxTransferPayload<T> & {
     key: PrivateKey;
-} : LarynxTransferPayload<T>, auth?: AuthContext): Promise<unknown>;
+} : LarynxTransferPayload<T>, auth?: AuthContext): Promise<any>;
 
 declare function getLarynxAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: string;
@@ -1510,7 +1510,7 @@ interface DelegateEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function delegateEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? DelegateEnginePayload<T> & {
     key: PrivateKey;
-} : DelegateEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
+} : DelegateEnginePayload<T>, auth?: AuthContext): Promise<any>;
 
 interface UndelegateEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1521,7 +1521,7 @@ interface UndelegateEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function undelegateEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? UndelegateEnginePayload<T> & {
     key: PrivateKey;
-} : UndelegateEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
+} : UndelegateEnginePayload<T>, auth?: AuthContext): Promise<any>;
 
 interface StakeEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1532,7 +1532,7 @@ interface StakeEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function stakeEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? StakeEnginePayload<T> & {
     key: PrivateKey;
-} : StakeEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
+} : StakeEnginePayload<T>, auth?: AuthContext): Promise<any>;
 
 interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1543,7 +1543,7 @@ interface UnstakeEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function unstakeEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? UnstakeEnginePayload<T> & {
     key: PrivateKey;
-} : UnstakeEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
+} : UnstakeEnginePayload<T>, auth?: AuthContext): Promise<any>;
 
 interface TransferEnginePayload<T extends HiveBasedAssetSignType> {
     from: string;
@@ -1555,7 +1555,7 @@ interface TransferEnginePayload<T extends HiveBasedAssetSignType> {
 }
 declare function transferEngineToken<T extends HiveBasedAssetSignType>(payload: T extends "key" ? TransferEnginePayload<T> & {
     key: PrivateKey;
-} : TransferEnginePayload<T>, auth?: AuthContext): Promise<unknown>;
+} : TransferEnginePayload<T>, auth?: AuthContext): Promise<any>;
 
 type EngineOrderSignMethod = "key" | "keychain" | "hivesigner" | "hiveauth";
 interface EngineOrderBroadcastOptions {
@@ -1563,9 +1563,9 @@ interface EngineOrderBroadcastOptions {
     key?: PrivateKey;
     auth?: AuthContext;
 }
-declare const placeHiveEngineBuyOrder: (account: string, symbol: string, quantity: string, price: string, options?: EngineOrderBroadcastOptions) => Promise<unknown>;
-declare const placeHiveEngineSellOrder: (account: string, symbol: string, quantity: string, price: string, options?: EngineOrderBroadcastOptions) => Promise<unknown>;
-declare const cancelHiveEngineOrder: (account: string, type: "buy" | "sell", orderId: string, options?: EngineOrderBroadcastOptions) => Promise<unknown>;
+declare const placeHiveEngineBuyOrder: (account: string, symbol: string, quantity: string, price: string, options?: EngineOrderBroadcastOptions) => Promise<any>;
+declare const placeHiveEngineSellOrder: (account: string, symbol: string, quantity: string, price: string, options?: EngineOrderBroadcastOptions) => Promise<any>;
+declare const cancelHiveEngineOrder: (account: string, type: "buy" | "sell", orderId: string, options?: EngineOrderBroadcastOptions) => Promise<any>;
 
 interface ClaimRewardsPayload<T extends HiveBasedAssetSignType> {
     account: string;
