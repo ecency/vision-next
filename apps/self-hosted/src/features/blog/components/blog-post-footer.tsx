@@ -3,6 +3,7 @@
 import { Entry } from "@ecency/sdk";
 import { useMemo } from "react";
 import { UilComment, UilHeart, UilRedo } from "@tooni/iconscout-unicons-react";
+import { InstanceConfigManager } from "@/core";
 
 interface Props {
   entry: Entry;
@@ -10,6 +11,13 @@ interface Props {
 
 export function BlogPostFooter({ entry }: Props) {
   const entryData = entry.original_entry || entry;
+
+  const showLikes = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.features.likes?.enabled ?? true
+  );
+  const showComments = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+  );
 
   const likesCount = useMemo(
     () => entryData.active_votes?.length || 0,
@@ -48,18 +56,22 @@ export function BlogPostFooter({ entry }: Props) {
         </div>
       )}
 
-      <div 
+      <div
         className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm"
         style={{ color: 'rgba(0, 0, 0, 0.54)', fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif' }}
       >
-        <div className="flex items-center gap-1">
-          <UilHeart className="w-4 h-4" />
-          <span>{likesCount} likes</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <UilComment className="w-4 h-4" />
-          <span>{commentsCount} comments</span>
-        </div>
+        {showLikes && (
+          <div className="flex items-center gap-1">
+            <UilHeart className="w-4 h-4" />
+            <span>{likesCount} likes</span>
+          </div>
+        )}
+        {showComments && (
+          <div className="flex items-center gap-1">
+            <UilComment className="w-4 h-4" />
+            <span>{commentsCount} comments</span>
+          </div>
+        )}
         <div className="flex items-center gap-1">
           <UilRedo className="w-4 h-4" />
           <span>{reblogsCount} reblogs</span>

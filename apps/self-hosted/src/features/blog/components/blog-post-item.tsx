@@ -22,6 +22,12 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   const listType = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.layout.listType
   );
+  const showLikes = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.features.likes?.enabled ?? true
+  );
+  const showComments = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+  );
   const entryData = entry.original_entry || entry;
 
   const summary = useMemo(
@@ -175,15 +181,19 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
             '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
         }}
       >
-        <div className="flex items-center gap-1">
-          <UilHeart className="w-3 h-3" />
-          <span>{likesCount}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <UilComment className="w-3 h-3" />
-          <span>{commentsCount}</span>
-        </div>
-        <span>•</span>
+        {showLikes && (
+          <div className="flex items-center gap-1">
+            <UilHeart className="w-3 h-3" />
+            <span>{likesCount}</span>
+          </div>
+        )}
+        {showComments && (
+          <div className="flex items-center gap-1">
+            <UilComment className="w-3 h-3" />
+            <span>{commentsCount}</span>
+          </div>
+        )}
+        {(showLikes || showComments) && <span>•</span>}
         <span>{new Date(entryData.created).toLocaleDateString()}</span>
       </div>
     </>

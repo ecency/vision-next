@@ -8,10 +8,15 @@ import { BlogPostBody } from "./blog-post-body";
 import { BlogPostFooter } from "./blog-post-footer";
 import { BlogPostDiscussion } from "./blog-post-discussion";
 import { BlogLayout } from "../layout/blog-layout";
+import { InstanceConfigManager } from "@/core";
 
 export function BlogPostPage() {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
+
+  const showComments = InstanceConfigManager.getConfigValue(
+    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+  );
 
   // Handle both URL patterns: /:category/:author/:permlink and /:author/:permlink
   const author = (params.author as string)?.replace("@", "") || "";
@@ -57,11 +62,13 @@ export function BlogPostPage() {
         <BlogPostHeader entry={entry} />
         <BlogPostBody entry={entry} isRawContent={isRawContent} />
         <BlogPostFooter entry={entry} />
-        <BlogPostDiscussion
-          entry={entry}
-          category={category}
-          isRawContent={isRawContent}
-        />
+        {showComments && (
+          <BlogPostDiscussion
+            entry={entry}
+            category={category}
+            isRawContent={isRawContent}
+          />
+        )}
       </article>
     </BlogLayout>
   );
