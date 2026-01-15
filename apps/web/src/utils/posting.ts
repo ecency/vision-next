@@ -61,9 +61,16 @@ export const ensureValidPermlink = (
 
 
 export const extractMetaData = (body: string, initialMeta: MetaData = {}): MetaData => {
-  const imgReg = /https?:\/\/[^\s"']+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp)/gi;
+  // Match images with common file extensions (including RAW formats like .arw)
+  const imgReg = /https?:\/\/[^\s"']+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/gi;
 
-  const bodyImages = body.match(imgReg) || [];
+  // Match images.ecency.com URLs (which may not have file extensions)
+  const ecencyImgReg = /https?:\/\/images\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi;
+
+  const bodyImagesWithExt = body.match(imgReg) || [];
+  const ecencyImages = body.match(ecencyImgReg) || [];
+  const bodyImages = [...bodyImagesWithExt, ...ecencyImages];
+
   const existingImages = initialMeta.image ?? [];
   const existingThumbnails = initialMeta.thumbnails ?? [];
 
