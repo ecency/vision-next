@@ -1,5 +1,6 @@
 import { EntriesRssHandler } from "@/features/rss/entries-rss-handler";
-import { getPostsRankedQuery } from "@/api/queries";
+import { getPostsRankedInfiniteQueryOptions } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
 
 export class FeedRssHandler extends EntriesRssHandler {
   private filter = "";
@@ -14,7 +15,9 @@ export class FeedRssHandler extends EntriesRssHandler {
   }
 
   protected async fetchData() {
-    const data = await getPostsRankedQuery(this.filter, this.tag, 20).fetchAndGet();
+    const data = await getQueryClient().fetchInfiniteQuery(
+      getPostsRankedInfiniteQueryOptions(this.filter, this.tag, 20)
+    );
     return data.pages?.[0] ?? [];
   }
 }

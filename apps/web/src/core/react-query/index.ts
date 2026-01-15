@@ -115,7 +115,7 @@ export function makeQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
-        // staleTime: 60 * 1000,
+        staleTime: 60 * 1000, // 60 seconds - prevents immediate refetch after SSR prefetch
         refetchOnWindowFocus: false,
         refetchOnMount: false
       }
@@ -136,4 +136,4 @@ export const getQueryClient = isServer
       return (global as any).clientQueryClient as QueryClient;
     };
 
-export * from "./ecency-queries-manager";
+export * from "./query-helpers";

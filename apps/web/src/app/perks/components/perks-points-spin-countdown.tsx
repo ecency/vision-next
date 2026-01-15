@@ -1,4 +1,4 @@
-import { useCountdown } from "@/utils";
+import { getAccessToken, useCountdown } from "@/utils";
 import { getGameStatusCheckQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
@@ -9,7 +9,11 @@ export function PerksPointsSpinCountdown() {
   const { activeUser } = useActiveAccount();
 
   const { data, isFetching } = useQuery({
-    ...getGameStatusCheckQueryOptions(activeUser?.username, "spin"),
+    ...getGameStatusCheckQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      "spin"
+    ),
     refetchOnMount: true
   });
 

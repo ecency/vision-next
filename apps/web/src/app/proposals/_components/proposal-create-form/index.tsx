@@ -24,7 +24,7 @@ import {
   proposalCreateHot,
   proposalCreateKc
 } from "@/api/operations";
-import { getAccountPosts } from "@/api/bridge";
+import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { checkAllSvg } from "@ui/svg";
 import { ProfileFilter } from "@/enums";
 
@@ -84,13 +84,15 @@ export function ProposalCreateForm() {
     setPermlinkSuggestionsError(false);
 
     try {
-      const items = await getAccountPosts(
-        ProfileFilter.posts,
-        activeUser.username,
-        "",
-        "",
-        20,
-        activeUser.username
+      const items = await queryClient.fetchQuery(
+        getAccountPostsQueryOptions(
+          activeUser.username,
+          ProfileFilter.posts,
+          "",
+          "",
+          20,
+          activeUser.username
+        )
       );
 
       const mapped = (items ?? [])
@@ -109,7 +111,7 @@ export function ProposalCreateForm() {
     } finally {
       setPermlinkSuggestionsLoading(false);
     }
-  }, [activeUser?.username]);
+  }, [activeUser?.username, queryClient]);
 
   useEffect(() => {
     if (showPermlinkSuggestions && !permlinkSuggestionsLoaded) {

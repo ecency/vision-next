@@ -25,16 +25,37 @@ describe("HiveEngineToken", () => {
       expect(subject.hasDelegations()).toBe(false);
     });
 
-    it("should return true if there is some delegations", () => {
+    it("should return true if there are incoming delegations", () => {
       subject.delegationEnabled = true;
       subject.delegationsIn = 1.0;
+      subject.delegationsOut = 0;
 
-      expect(subject.hasDelegations()).toBe(false);
+      expect(subject.hasDelegations()).toBe(true);  // Fixed: Should return true when there are incoming delegations
+    });
+
+    it("should return true if there are outgoing delegations", () => {
+      subject.delegationEnabled = true;
+      subject.delegationsIn = 0;
+      subject.delegationsOut = 1.0;
+
+      expect(subject.hasDelegations()).toBe(true);  // Should return true when there are outgoing delegations
+    });
+
+    it("should return true if there are both incoming and outgoing delegations", () => {
+      subject.delegationEnabled = true;
+      subject.delegationsIn = 1.0;
+      subject.delegationsOut = 0.5;
+
+      expect(subject.hasDelegations()).toBe(true);  // Should return true when there are both types of delegations
     });
   });
 
   describe("delegations", () => {
     it("should return an empty string if delegations are disabled", () => {
+      subject.delegationEnabled = false;
+      subject.delegationsIn = 0;
+      subject.delegationsOut = 0;
+
       expect(subject.delegations()).toBe("");
     });
 

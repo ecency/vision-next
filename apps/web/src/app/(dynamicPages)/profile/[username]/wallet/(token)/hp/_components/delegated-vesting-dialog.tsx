@@ -1,6 +1,6 @@
 import { useDelegateVestingSharesByKey, useDelegateVestingSharesByKeychain } from "@/api/mutations";
 import { delegateVestingSharesHot } from "@/api/operations";
-import { DEFAULT_DYNAMIC_PROPS } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { KeyOrHotDialog, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { List, ListItem } from "@/features/ui/list";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";

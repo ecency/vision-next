@@ -1,7 +1,8 @@
+import { getStatsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { useGetStatsQuery } from "@/api/queries";
-import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
   totalViews: number;
@@ -9,10 +10,12 @@ interface Props {
 }
 
 export function EntryPageStatsByDevices({ totalViews, cleanedPathname }: Props) {
-    const { data: stats } = useGetStatsQuery({
-        url: cleanedPathname,
-        dimensions: ["visit:device"]
-    }).useClientQuery();
+  const { data: stats } = useQuery(
+    getStatsQueryOptions({
+      url: cleanedPathname,
+      dimensions: ["visit:device"]
+    })
+  );
 
   const devices = useMemo(
     () =>

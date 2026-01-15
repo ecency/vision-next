@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core";
+import type { AuthContext } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
@@ -13,7 +14,10 @@ interface Payload {
   tokens: AccountProfile["tokens"];
 }
 
-export function useAccountUpdate(username: string) {
+export function useAccountUpdate(
+  username: string,
+  auth?: AuthContext
+) {
   const queryClient = useQueryClient();
 
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -46,7 +50,7 @@ export function useAccountUpdate(username: string) {
         ],
       ];
     },
-    (_, variables) =>
+    (_data: unknown, variables: Partial<Payload>) =>
       queryClient.setQueryData<FullAccount>(
         getAccountFullQueryOptions(username).queryKey,
         (data) => {
@@ -63,6 +67,7 @@ export function useAccountUpdate(username: string) {
 
           return obj;
         }
-      )
+      ),
+    auth
   );
 }

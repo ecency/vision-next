@@ -8,8 +8,7 @@ import {
   TransactionConfirmation
 } from "@hiveio/dhive";
 import { encodeOp, Parameters } from "hive-uri";
-import { client as hiveClient } from "./hive";
-import { usrActivity } from "./private-api";
+import { CONFIG, usrActivity } from "@ecency/sdk";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
 import {
@@ -23,6 +22,8 @@ import {
 import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
+
+const hiveClient = CONFIG.hiveClient;
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {
@@ -293,7 +294,7 @@ export const reblog = (
   const json = ["reblog", message];
 
   return broadcastPostingJSON(username, "follow", json).then((r: TransactionConfirmation) => {
-    usrActivity(username, 130, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), 130, r.block_num, r.id).then();
     return r;
   });
 };
@@ -329,7 +330,7 @@ export const comment = async (
   const r = await broadcastPostingOperations(username, opArray);
   if (point) {
     const t = title ? 100 : 110;
-    usrActivity(username, t, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), t, r.block_num, r.id).then();
   }
   return r;
 };
@@ -365,7 +366,7 @@ export const vote = (
   const opArray: Operation[] = [["vote", params]];
 
   return broadcastPostingOperations(username, opArray).then((r: TransactionConfirmation) => {
-    usrActivity(username, 120, r.block_num, r.id).then();
+    usrActivity(getAccessToken(username), 120, r.block_num, r.id).then();
     return r;
   });
 };

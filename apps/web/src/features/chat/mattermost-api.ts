@@ -1,10 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken, getRefreshToken } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
-import { hsTokenRenew } from "@/api/auth-api";
+import { hsTokenRenew } from "@ecency/sdk";
 
 interface MattermostChannel {
   id: string;
@@ -28,7 +28,7 @@ interface MattermostChannelSummary {
 }
 
 export function useMattermostBootstrap(community?: string) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
   const addUser = useGlobalStore((state) => state.addUser);
 
@@ -124,7 +124,7 @@ export function useMattermostBootstrap(community?: string) {
 }
 
 export function useMattermostChannels(enabled: boolean) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
   return useQuery({
@@ -355,7 +355,7 @@ export function useMattermostAdminDeleteUserPosts() {
 }
 
 export function useMattermostUnread(enabled: boolean) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
   return useQuery({

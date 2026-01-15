@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as bridgeApi from "../../../api/bridge";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
 import { comment, formatError, reblog } from "@/api/operations";
 import { useThreeSpeakManager } from "../_hooks";
@@ -18,10 +17,11 @@ import { useRouter } from "next/navigation";
 import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
-import { getAccountFullQuery } from "@/api/queries";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 
 export function usePublishApi(onClear: () => void) {
   const queryClient = useQueryClient();
@@ -72,7 +72,7 @@ export function usePublishApi(onClear: () => void) {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           return [];
         }
@@ -87,15 +87,33 @@ export function usePublishApi(onClear: () => void) {
 
       let permlink = createPermlink(title);
 
-      // permlink duplication check
-      let c;
-      try {
-        c = await bridgeApi.getPostHeader(author, permlink);
-      } catch (e) {}
+      // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await queryClient.fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
-      if (c && c.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title, true);
+          if (existingEntry && existingEntry.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Publish] Failed to generate unique permlink after multiple attempts");
       }
 
       const [parentPermlink] = tags;

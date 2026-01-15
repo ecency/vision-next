@@ -2,9 +2,9 @@ import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "
 import { entryCanonical } from "@/utils/entry-canonical";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { getContent } from "@/api/hive";
-import { getProfiles, Profile } from "@/api/bridge";
-import { getPostQuery } from "@/api/queries";
+import { getContentQueryOptions, getProfilesQueryOptions, Profile } from "@ecency/sdk";
+import { prefetchQuery } from "@/core/react-query";
+import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { FullAccount } from "@/entities";
 
@@ -39,7 +39,7 @@ export async function generateEntryMetadata(
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    let entry = await getPostQuery(cleanAuthor, cleanPermlink).prefetch();
+    let entry = await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(cleanAuthor, cleanPermlink));
 
     if (!entry || !entry.body || !entry.created) {
       console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
@@ -48,7 +48,9 @@ export async function generateEntryMetadata(
       });
       try {
         // fallback to direct content API
-        entry = await getContent(cleanAuthor, cleanPermlink);
+        entry = await prefetchQuery(
+          getContentQueryOptions(cleanAuthor, cleanPermlink)
+        );
       } catch (e) {
         console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink);
         return {};
@@ -84,7 +86,9 @@ export async function generateEntryMetadata(
     let accountFetchFailed = false;
 
     try {
-      const profiles = await getProfiles([entry.author]);
+      const profiles = await prefetchQuery(
+        getProfilesQueryOptions([entry.author])
+      );
       authorAccount = profiles?.[0] ?? null;
     } catch (e) {
       accountFetchFailed = true;

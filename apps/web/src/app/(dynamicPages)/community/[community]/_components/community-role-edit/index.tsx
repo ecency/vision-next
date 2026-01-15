@@ -8,7 +8,8 @@ import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { LinearProgress } from "@/features/shared";
 import { useCommunitySetUserRole } from "@/api/mutations";
-import { getAccount } from "@/api/hive";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   community: Community;
@@ -30,6 +31,7 @@ export function CommunityRoleEditDialog({
   const [user, setUser] = useState(propsUser);
   const [role, setRole] = useState(propsRole);
   const [userError, setUserError] = useState("");
+  const queryClient = useQueryClient();
 
   const { mutateAsync: setUserRole, isPending } = useCommunitySetUserRole(community.name, () =>
     onHide()
@@ -54,7 +56,7 @@ export function CommunityRoleEditDialog({
     let userData: Account | null | undefined;
 
     try {
-      userData = await getAccount(user);
+      userData = await queryClient.fetchQuery(getAccountFullQueryOptions(user));
     } catch (e) {
       userData = null;
     }

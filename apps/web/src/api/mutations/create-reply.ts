@@ -10,7 +10,7 @@ import * as ss from "@/utils/session-storage";
 import i18next from "i18next";
 import { getAccountRcQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import {useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useCreateReply(
   entry: Entry,
@@ -18,7 +18,7 @@ export function useCreateReply(
   onSuccess?: () => void,
   onBlockchainError?: (text: string, error: any) => void
 ) {
-  const activeUser = useClientActiveUser();
+  const { activeUser, account } = useActiveAccount();
   const queryClient = useQueryClient();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
@@ -38,10 +38,10 @@ export function useCreateReply(
       point: boolean;
       options?: CommentOptions;
     }) => {
-      if (!activeUser || !entry) throw new Error("Missing active user or entry");
+      if (!activeUser || !account || !entry) throw new Error("Missing active user or entry");
 
       const optimisticEntry = tempEntry({
-        author: activeUser.data as FullAccount,
+        author: account,
         permlink,
         parentAuthor: entry.author,
         parentPermlink: entry.permlink,
@@ -67,7 +67,8 @@ export function useCreateReply(
         // Blockchain confirmed - replace optimistic entry with real one
         queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -89,7 +90,8 @@ export function useCreateReply(
         // Blockchain failed - remove optimistic entry
         queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -126,10 +128,10 @@ export function useCreateReply(
     },
 
     onMutate: async ({ permlink, text }) => {
-      if (!activeUser) return;
+      if (!activeUser || !account) return;
 
       const optimistic = tempEntry({
-        author: activeUser.data as FullAccount,
+        author: account,
         permlink,
         parentAuthor: entry.author,
         parentPermlink: entry.permlink,
@@ -143,7 +145,8 @@ export function useCreateReply(
       // Add optimistic entry to cache immediately
       queryClient.setQueryData<Entry[]>(
           [
-            QueryIdentifiers.FETCH_DISCUSSIONS,
+            "posts",
+            "discussions",
             root.author,
             root.permlink,
             SortOrder.created,
@@ -168,7 +171,8 @@ export function useCreateReply(
       if (optimistic) {
         queryClient.setQueryData<Entry[]>(
             [
-              QueryIdentifiers.FETCH_DISCUSSIONS,
+              "posts",
+              "discussions",
               root.author,
               root.permlink,
               SortOrder.created,

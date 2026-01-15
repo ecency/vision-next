@@ -8,9 +8,10 @@ import { DeckTopicsContentViewer } from "./content-viewer/deck-topics-content-vi
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { TrendingTag } from "@/entities";
 import { PREFIX } from "@/utils/local-storage";
-import { getAllTrendingTags } from "@/api/hive";
+import { getTrendingTagsWithStatsQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   id: string;
@@ -24,6 +25,7 @@ export const DeckTopicsColumn = ({ id, settings, draggable }: Props) => {
   const [data, setData] = useState<IdentifiableTrendingTag[]>([]);
   const [isReloading, setIsReloading] = useState(false);
   const [isFirstLoaded, setIsFirstLoaded] = useState(false);
+  const queryClient = useQueryClient();
 
   const [currentViewingTopic, setCurrentViewingTopic] = useLocalStorage<string | null>(
     PREFIX + `_dtop_cvt_${id}`,
@@ -42,7 +44,10 @@ export const DeckTopicsColumn = ({ id, settings, draggable }: Props) => {
     }
 
     try {
-      const response: TrendingTag[] = await getAllTrendingTags();
+      const responsePages = await queryClient.fetchInfiniteQuery(
+        getTrendingTagsWithStatsQueryOptions()
+      );
+      const response: TrendingTag[] = responsePages.pages[0] ?? [];
       response.sort((a, b) => (a.top_posts + a.comments > b.top_posts + b.comments ? -1 : 1));
       setData(response.map((item) => ({ ...item, id: item.name })) ?? []);
     } catch (e) {

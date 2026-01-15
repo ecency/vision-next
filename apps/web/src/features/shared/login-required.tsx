@@ -1,23 +1,25 @@
 import { cloneElement, PropsWithChildren, ReactElement } from "react";
 import { useGlobalStore } from "@/core/global-store";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@ui/button";
 
 export function LoginRequired({ children }: PropsWithChildren) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
 
   if (activeUser) {
-    return <>{children}</>;
+    // User is logged in - render children if provided, otherwise nothing
+    return children ? <>{children}</> : null;
   }
 
+  // User is not logged in
   if (!children) {
+    // No children provided - show default login button
     return (
       <Button onClick={() => toggleUiProp("login")}>Login to continue</Button>
     );
   }
 
-  return cloneElement(children as ReactElement, {
-    onClick: () => toggleUiProp("login")
-  });
+  // Has children but user not logged in - don't render protected content
+  return null;
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getSubscriptions } from "@/api/bridge";
+import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
 import { Subscription } from "@/entities";
+import { getQueryClient } from "@/core/react-query";
 import {
   ensureCommunityChannelMembership,
   ensureMattermostUser,
@@ -82,7 +83,10 @@ export async function POST(req: Request) {
     // 4) Hive subscriptions (already partly protected)
     let subscriptions: Subscription[] = [];
     try {
-        subscriptions = (await getSubscriptions(username)) || [];
+        subscriptions =
+          (await getQueryClient().fetchQuery(
+            getAccountSubscriptionsQueryOptions(username)
+          )) || [];
     } catch (error) {
         console.error("MM bootstrap: Unable to load Hive/Ecency subscriptions", error);
     }

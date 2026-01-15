@@ -10,7 +10,7 @@ import { useWavesGrid } from "@/app/waves/_hooks";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useWavesHost, useWavesTagFilter } from "@/app/waves/_context";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import clsx from "clsx";
 import { WavesFeedType } from "@/app/waves/_constants";
@@ -20,7 +20,7 @@ export function WavesPage() {
   const [, setWaveFormHost] = useLocalStorage<string>(PREFIX + "_wf_th", "ecency.waves");
   const [grid, setGrid] = useWavesGrid();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
   const [storedFeedType, setStoredFeedType] = useLocalStorage<WavesFeedType>(
     PREFIX + "_waves_feed_type",

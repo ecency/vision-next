@@ -191,15 +191,15 @@ export function PollsCreation({
             <FormControl
               placeholder="1"
               type="number"
-              min={0}
+              min={1}
               max={choices?.length ?? 1}
               value={maxChoicesVoted}
               disabled={readonly}
               onChange={(e) => {
                 const value = +e.target.value;
-                if (value >= 0 && value <= (choices?.length ?? 1)) {
+                if (value >= 1 && value <= (choices?.length ?? 1)) {
                   setMaxChoicesVoted(+e.target.value);
-                } else if (value < 0) {
+                } else if (value < 1) {
                   setMaxChoicesVoted(1);
                 } else {
                   setMaxChoicesVoted(choices?.length ?? 1);
@@ -301,7 +301,7 @@ export function PollsCreation({
                     choices,
                     voteChange: !!voteChange,
                     hideVotes: !!hideVotes,
-                    maxChoicesVoted: maxChoicesVoted ?? 1,
+                    maxChoicesVoted: maxChoicesVoted || 1,
                     filters: {
                       accountAge
                     },

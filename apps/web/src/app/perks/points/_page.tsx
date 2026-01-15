@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
 import { formatError } from "@/api/operations";
+import { getAccessToken } from "@/utils";
 
 export function PointsPage() {
   const { activeUser } = useActiveAccount();
@@ -25,6 +26,7 @@ export function PointsPage() {
 
   const { mutateAsync: claim, isPending } = useClaimPoints(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     () => success(i18next.t("points.claim-ok")),
     (err) => error(...formatError(err))
   );

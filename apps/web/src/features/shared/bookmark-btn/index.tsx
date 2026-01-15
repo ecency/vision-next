@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import {
   getActiveAccountBookmarksQueryOptions,
@@ -13,20 +13,28 @@ import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { LoginRequired } from "../login-required";
 import "./_index.scss";
 import { error, success } from "../feedback";
+import { getAccessToken } from "@/utils";
+import { useGlobalStore } from "@/core/global-store";
 
 export interface Props {
   entry: Entry;
 }
 
 export function BookmarkBtn({ entry }: Props) {
-  const activeUser = useClientActiveUser();
-
-  const { data: bookmarks = [] } = useQuery(
-    getActiveAccountBookmarksQueryOptions(activeUser?.username)
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const toggleUiProp = useGlobalStore((state) => state.toggleUiProp);
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
   );
+
+  const { data: bookmarks = [] } = useQuery({
+    ...getActiveAccountBookmarksQueryOptions(username, accessToken),
+    enabled: !!username && !!accessToken,
+  });
 
   const bookmarkId = useMemo(() => {
     const bookmark = bookmarks.find(
@@ -36,25 +44,26 @@ export function BookmarkBtn({ entry }: Props) {
   }, [bookmarks, entry.author, entry.permlink]);
 
   const { mutateAsync: addBookmark, isPending: isAdding } = useBookmarkAdd(
-    activeUser?.username,
+    username,
+    accessToken,
     () => success(i18next.t("bookmark-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
   const { mutateAsync: deleteBookmark, isPending: isDeleting } = useBookmarkDelete(
-    activeUser?.username,
+    username,
+    accessToken,
     () => success(i18next.t("bookmark-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );
 
   if (!activeUser) {
+    // Show button that triggers login when clicked
     return (
-      <LoginRequired>
-        <div className="bookmark-btn">
-          <Tooltip content={i18next.t("bookmark-btn.add")}>
-            <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
-          </Tooltip>
-        </div>
-      </LoginRequired>
+      <div className="bookmark-btn" onClick={() => toggleUiProp("login")}>
+        <Tooltip content={i18next.t("bookmark-btn.add")}>
+          <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+        </Tooltip>
+      </div>
     );
   }
 

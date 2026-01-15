@@ -1,12 +1,14 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { getTokenLogo, WalletOperationsDialog } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-username";
 import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import {
   AssetOperation,
@@ -54,7 +56,8 @@ interface Props {
 }
 
 export function ProfileWalletTokensListItem({ asset, username }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
+  const currency = useGlobalStore((state) => state.currency);
   const sanitizedUsername = useMemo(
     () => sanitizeWalletUsername(username),
     [username]
@@ -63,7 +66,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
   const assetSymbol = useMemo(() => asset.toUpperCase(), [asset]);
 
   const { data } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset)
+    getAccountWalletAssetInfoQueryOptions(sanitizedUsername, asset, { refetch: false, currency: currency || "usd" })
   );
   const { data: allTokens } = useQuery(
     getAllTokensListQueryOptions(sanitizedUsername)
@@ -72,7 +75,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     getTokenOperationsQueryOptions(
       assetSymbol,
       sanitizedUsername,
-      activeUser?.username === sanitizedUsername
+      activeUser?.username === sanitizedUsername,
+      currency || "usd"
     )
   );
   const layer2Token = useMemo(
@@ -106,7 +110,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     return getTokenLogo(tokenName);
   }, [assetSymbol, data?.name, layer2Token]);
 
-  const formattedAccountBalance = Number(data?.accountBalance ?? 0).toFixed(3);
+  const formattedAccountBalance = formatAssetBalance(Number(data?.accountBalance ?? 0));
 
   const filteredOperations = useMemo(
     () =>
@@ -206,7 +210,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     useHiveEngineClaimRewardsState(
       sanitizedUsername,
       assetSymbol,
-      Boolean(layer2Token)
+      Boolean(layer2Token),
+      data?.pendingRewards
     );
 
   const handleLinkClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -267,6 +272,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         username={sanitizedUsername}
         showIcon
         fullWidth
+        pendingRewards={data?.pendingRewards}
       />
     );
   }
@@ -305,7 +311,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
               {formattedApr && <Badge>{formattedApr}% APR</Badge>}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+              <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
             </div>
             <div
               className={clsx(

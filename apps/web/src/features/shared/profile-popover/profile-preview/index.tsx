@@ -4,7 +4,8 @@ import { FollowControls } from "@/features/shared";
 import i18next from "i18next";
 import { dateToFullRelative } from "@/utils";
 import { FavouriteBtn } from "@/features/shared/favorite-btn";
-import { getAccountFullQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { ProfilePreviewAbout } from "@/features/shared/profile-popover/profile-preview/profile-preview-about";
 import { ProfilePreviewFollowers } from "@/features/shared/profile-popover/profile-preview/profile-preview-followers";
 import { ProfilePreviewCellLayout } from "@/features/shared/profile-popover/profile-preview/profile-preview-cell-layout";
@@ -23,7 +24,7 @@ export const ProfilePreview = ({ username }: Props) => {
   const { activeUser } = useActiveAccount();
 
   const { data: profile, isLoading: isProfileLoading } =
-    getAccountFullQuery(username).useClientQuery();
+    useQuery(getAccountFullQueryOptions(username));
 
   return (
     <>

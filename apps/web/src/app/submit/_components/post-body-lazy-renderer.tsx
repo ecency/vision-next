@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useEffect, useState } from "react";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import md5 from "js-md5";

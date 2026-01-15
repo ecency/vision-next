@@ -12,6 +12,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
@@ -24,7 +25,7 @@ function isEntry(x: unknown): x is Entry {
 export function EntryPageEdit({ entry: initialEntry }: Props) {
   const router = useRouter();
   const { data: entryRaw } =
-      EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+      useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   // ✅ Use a guaranteed Entry for the rest of the component
   const entry = useMemo<Entry>(() => (isEntry(entryRaw) ? entryRaw : initialEntry), [entryRaw, initialEntry]);

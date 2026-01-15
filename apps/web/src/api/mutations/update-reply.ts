@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
 import { useActiveAccount } from "@/core/hooks/use-active-account";

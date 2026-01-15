@@ -3,8 +3,9 @@ import i18next from "i18next";
 import { Button } from "@ui/button";
 import { TransferAsset } from "@/features/shared";
 import { Form } from "@ui/form";
-import { FormControl, InputGroup } from "@ui/input";
-import React, { useCallback, useEffect, useMemo } from "react";
+import { FormControl, InputGroup, InputGroupCopyClipboard } from "@ui/input";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { UilAngleDown, UilAngleUp } from "@tooni/iconscout-unicons-react";
 import {
   dateToFullRelative,
   formatNumber,
@@ -14,12 +15,11 @@ import {
   vestsToHp
 } from "@/utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getDynamicPropsQuery,
-  getPointsQuery,
-  getSpkWalletQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { withFeatureFlag } from "@/core/react-query";
+import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
+import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";
 import { EXCHANGE_ACCOUNTS } from "@/consts";
@@ -29,7 +29,6 @@ import { amountFormatCheck } from "@/utils/amount-format-check";
 import { cryptoUtils } from "@hiveio/dhive";
 import { EcencyConfigManager } from "@/config";
 import { TransferStep1To } from "@/features/shared/transfer/transfer-step-1-to";
-import { useGetHiveEngineBalancesQuery } from "@/api/queries/engine";
 
 interface Props {
   titleLngKey: string;
@@ -58,16 +57,24 @@ export function TransferStep1({ titleLngKey }: Props) {
     setAsset
   } = useTransferSharedState();
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: spkWallet } = getSpkWalletQuery(activeUser?.username).useClientQuery();
-  const { data: engineBalances } = useGetHiveEngineBalancesQuery(
-    activeUser?.username
+  const { data: activeUserPoints } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
   );
-  const { toWarning, toData, delegatedAmount, toError, delegateAccount } =
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const { data: spkWallet } = useQuery(getSpkWalletQueryOptions(activeUser?.username));
+  const { data: allTokens } = useQuery(getAllHiveEngineTokensQueryOptions());
+  const { data: engineBalances } = useQuery(
+    getHiveEngineBalancesWithUsdQueryOptions(activeUser?.username ?? "", dynamicProps, allTokens)
+  );
+  const { toWarning, toData, delegatedAmount, toError, delegateAccount, externalWallets } =
     useDebounceTransferAccountData();
 
-  const hiveAccount = useMemo(() => account ?? activeUser?.data, [account, activeUser?.data]);
+  const [isExternalWalletsExpanded, setIsExternalWalletsExpanded] = useState(false);
+
+  const hiveAccount = useMemo(() => account, [account]);
 
   const w = useMemo(
     () => (hiveAccount ? new HiveWallet(hiveAccount, dynamicProps ?? DEFAULT_DYNAMIC_PROPS) : null),
@@ -343,6 +350,42 @@ export function TransferStep1({ titleLngKey }: Props) {
             </div>
 
             {showTo && <TransferStep1To toError={toError} toWarning={toWarning} />}
+
+            {showTo && externalWallets.length > 0 && (
+              <div className="grid items-center grid-cols-12 mb-4">
+                <div className="col-span-12 sm:col-span-10 sm:col-start-3">
+                  <div className="border-t border-[--border-color] pt-3">
+                    <div
+                      className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity mb-2"
+                      onClick={() => setIsExternalWalletsExpanded(!isExternalWalletsExpanded)}
+                    >
+                      <div className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
+                        {i18next.t("transfer.external-wallets-label")}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400">
+                        {isExternalWalletsExpanded ? (
+                          <UilAngleUp className="w-4 h-4" />
+                        ) : (
+                          <UilAngleDown className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
+                    {isExternalWalletsExpanded && (
+                      <div className="flex flex-col gap-2">
+                        {externalWallets.map(({ symbol, address }) => (
+                          <div key={`${symbol}-${address}`} className="flex flex-col gap-1">
+                            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                              {symbol}
+                            </div>
+                            <InputGroupCopyClipboard value={address} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid items-center grid-cols-12">
               <div className="col-span-12 sm:col-span-2">

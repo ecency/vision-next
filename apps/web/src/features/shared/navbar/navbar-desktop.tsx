@@ -14,8 +14,9 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { useState } from "react";
 import { NavbarTextMenu } from "./navbar-text-menu";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step?: number;
@@ -35,7 +36,7 @@ export function NavbarDesktop({
   setMainBarExpanded,
   experimental = false
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
   const uiNotifications = useGlobalStore((state) => state.uiNotifications);
@@ -80,7 +81,7 @@ export function NavbarDesktop({
         <div className="flex items-center ml-3 gap-3">
           <NavbarPerksButton />
           <Tooltip content={i18next.t("chat.title")}>
-            <div key={activeUser?.username || "anon"} className="relative">
+            <div key={`desktop-chat-${activeUser?.username || "anon"}`} className="relative">
               <Button
                 href="/chats"
                 appearance="gray-link"
@@ -102,14 +103,14 @@ export function NavbarDesktop({
             />
           </Tooltip>
           {hydrated && activeUser && (
-            <NavbarNotificationsButton key={activeUser.username} />
+            <NavbarNotificationsButton key={`desktop-notifications-${activeUser.username}`} />
           )}
         </div>
         <div className="btn-menu">
           <AnonUserButtons />
           {hydrated && activeUser && (
             <div
-              key={activeUser.username}
+              key={`desktop-avatar-${activeUser.username}`}
               className="cursor-pointer ml-4"
               onClick={() => {
                 setShowSidebar(true);
@@ -124,7 +125,7 @@ export function NavbarDesktop({
         </div>
       </div>
       {hydrated && activeUser && (
-        <NavbarSide key={activeUser.username} show={showSidebar} setShow={setShowSidebar} />
+        <NavbarSide key={`desktop-${activeUser.username}`} show={showSidebar} setShow={setShowSidebar} />
       )}
       <NavbarMainSidebar
         show={mainBarExpanded}

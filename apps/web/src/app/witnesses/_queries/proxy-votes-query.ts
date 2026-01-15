@@ -1,7 +1,8 @@
 import { useSearchParams } from "next/navigation";
-import { getAccountFullQuery } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export function useProxyVotesQuery() {
   const searchParams = useSearchParams();
@@ -10,9 +11,9 @@ export function useProxyVotesQuery() {
   const voter = searchParams?.get("voter") ?? "";
   const usernameFromParams = searchParams?.get("username") ?? searchParams?.get("account") ?? "";
 
-  const activeUserAccountQuery = getAccountFullQuery(activeUser?.username).useClientQuery();
-  const urlParamAccountQuery = getAccountFullQuery(usernameFromParams).useClientQuery();
-  const voterAccountQuery = getAccountFullQuery(voter).useClientQuery();
+  const activeUserAccountQuery = useQuery(getAccountFullQueryOptions(activeUser?.username));
+  const urlParamAccountQuery = useQuery(getAccountFullQueryOptions(usernameFromParams));
+  const voterAccountQuery = useQuery(getAccountFullQueryOptions(voter));
 
   const shouldUseVoterAccount = Boolean(voter);
   const shouldUseUrlAccount = !shouldUseVoterAccount && Boolean(usernameFromParams);
@@ -24,7 +25,7 @@ export function useProxyVotesQuery() {
     : activeUserAccountQuery.data ?? undefined;
 
   const baseAccountProxy = baseAccount?.proxy ?? "";
-  const proxiedAccountQuery = getAccountFullQuery(baseAccountProxy || undefined).useClientQuery();
+  const proxiedAccountQuery = useQuery(getAccountFullQueryOptions(baseAccountProxy || undefined));
 
   const baseAccountVotes = baseAccount?.witness_votes ?? [];
   const proxiedAccountVotes = proxiedAccountQuery.data?.witness_votes ?? [];

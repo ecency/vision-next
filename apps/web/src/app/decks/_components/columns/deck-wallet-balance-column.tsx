@@ -5,10 +5,17 @@ import { UserDeckGridItem } from "../types";
 import "./_deck-wallet-balance-column.scss";
 import { DeckGridContext } from "../deck-manager";
 import { Spinner } from "@ui/spinner";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, getPointsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { withFeatureFlag } from "@/core/react-query";
+import {
+  getAccountFullQueryOptions,
+  getConversionRequestsQueryOptions,
+  getDynamicPropsQueryOptions,
+  getPointsQueryOptions
+} from "@ecency/sdk";
 import { FullAccount } from "@/entities";
-import { getAccount, getConversionRequests } from "@/api/hive";
-import { getCurrencyTokenRate } from "@/api/private-api";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCurrencyTokenRate } from "@ecency/sdk";
 import {
   formattedNumber,
   getSplEstimatedBalance,
@@ -16,8 +23,8 @@ import {
   parseAsset,
   vestsToHp
 } from "@/utils";
-import { getHiveEngineTokenBalances, getMetrics } from "@/api/hive-engine";
-import { getSpkWallet } from "@/api/spk-api";
+import { getHiveEngineMetrics } from "@ecency/sdk";
+import { getHiveEngineTokensBalancesQueryOptions, getSpkWalletQueryOptions } from "@ecency/wallets";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
 import useMount from "react-use/lib/useMount";
@@ -53,7 +60,8 @@ export const DeckWalletBalanceColumn = ({
   draggable,
   settings: { username, updateIntervalMs }
 }: Props) => {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const queryClient = useQueryClient();
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
 
   const [tab, setTab] = useState<Tab>("ecency");
@@ -62,7 +70,12 @@ export const DeckWalletBalanceColumn = ({
   // Ecency wallet
   const [pointsLoading, setPointsLoading] = useState(false);
   const [estimatedValue, setEstimatedValue] = useState(0);
-  const { data: points } = getPointsQuery(username).useClientQuery();
+  const { data: points } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(username)
+    )
+  );
 
   // Hive wallet
   const [hive, setHive] = useState("0");
@@ -90,7 +103,9 @@ export const DeckWalletBalanceColumn = ({
 
   const fetchAccount = async () => {
     try {
-      const response = await getAccount(username);
+      const response = await queryClient.fetchQuery(
+        getAccountFullQueryOptions(username)
+      );
       if (response) {
         setAccount(response);
       }
@@ -116,7 +131,9 @@ export const DeckWalletBalanceColumn = ({
     setHiveLoading(true);
 
     try {
-      const crd = await getConversionRequests(username);
+      const crd = await queryClient.fetchQuery(
+        getConversionRequestsQueryOptions(username)
+      );
 
       let converting = 0;
       crd.forEach((x) => {
@@ -142,14 +159,16 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setHiveLoading(false);
     }
-  }, [account, dynamicProps, username]);
+  }, [account, dynamicProps, queryClient, username]);
 
   const fetchEngine = useCallback(async () => {
     setEngineLoading(true);
 
     try {
-      const tokens = await getMetrics();
-      const userTokens = await getHiveEngineTokenBalances(username);
+      const tokens = await getHiveEngineMetrics();
+      const userTokens = await queryClient.fetchQuery(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
 
       const pricePerHive =
         (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).base /
@@ -181,13 +200,13 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setEngineLoading(false);
     }
-  }, [dynamicProps, username]);
+  }, [dynamicProps, queryClient, username]);
 
   const fetchSpk = useCallback(async () => {
     setSpkLoading(true);
 
     try {
-      const response = await getSpkWallet(username);
+      const response = await queryClient.fetchQuery(getSpkWalletQueryOptions(username));
       setSpk(formattedNumber(response.spk / 1000, { suffix: "SPK" }));
       setLarynx(formattedNumber(response.balance / 1000, { suffix: "LARYNX" }));
       setLarynxPower(formattedNumber(response.poweredUp / 1000, { suffix: "LARYNX" }));
@@ -197,7 +216,7 @@ export const DeckWalletBalanceColumn = ({
     } finally {
       setSpkLoading(false);
     }
-  }, [username]);
+  }, [queryClient, username]);
 
   const fetch = useCallback(() => {
     if (tab === "ecency") {

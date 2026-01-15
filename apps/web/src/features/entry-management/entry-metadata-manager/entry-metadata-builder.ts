@@ -2,12 +2,8 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
-import {
-  ensureValidPermlink,
-  extractMetaData,
-  makeApp,
-  makeEntryPath
-} from "@/utils";
+import { ensureValidPermlink, extractMetaData, makeApp } from "@/utils/posting";
+import { makeEntryPath } from "@/utils/make-path";
 import { Entry, MetaData } from "@/entities";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 
@@ -176,7 +172,7 @@ export class EntryMetadataBuilder {
             token: poll.interpretation === "tokens" ? "HIVE:HP" : null,
             hide_votes: poll.hideVotes,
             vote_change: poll.voteChange,
-            max_choices_voted: poll.maxChoicesVoted,
+            max_choices_voted: poll.maxChoicesVoted || 1,
             filters: {
               account_age: poll.filters.accountAge
             },

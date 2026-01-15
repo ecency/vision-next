@@ -25,10 +25,8 @@ export function ProfileEntriesInfiniteList({
   initialPageEntriesCount,
   initialDataLoaded
 }: Props) {
-  const { fetchNextPage, data, isFetching, isLoading } = usePostsFeedQuery(
-    section,
-    `@${account.name}`
-  );
+  const { fetchNextPage, data, isFetching, isLoading, hasNextPage, isFetchingNextPage } =
+    usePostsFeedQuery(section, `@${account.name}`);
 
   const dropFirstPage = initialPageEntriesCount > 0;
 
@@ -45,9 +43,14 @@ export function ProfileEntriesInfiniteList({
   const totalEntriesCount = initialEntriesCount + entryList.length;
   const hasClientData = (data?.pages?.length ?? 0) > 0;
   const isDataReady = initialDataLoaded || hasClientData;
-  const isFetchingData = isLoading || isFetching;
+  const isFetchingData = isFetching || isFetchingNextPage;
   const shouldShowEmptyState =
     isDataReady && !isFetchingData && totalEntriesCount === 0;
+
+  const handleBottom = () => {
+    if (!hasNextPage || isFetchingData) return;
+    fetchNextPage();
+  };
 
   return (
     <>
@@ -66,7 +69,7 @@ export function ProfileEntriesInfiniteList({
           section={section}
         />
       )}
-      <DetectBottom onBottom={() => fetchNextPage()} />
+      <DetectBottom onBottom={handleBottom} />
       {isFetchingData && <EntryListContentLoading />}
     </>
   );

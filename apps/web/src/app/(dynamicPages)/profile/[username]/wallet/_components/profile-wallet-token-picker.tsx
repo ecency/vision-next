@@ -16,8 +16,9 @@ import {
 import Image from "next/image";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { useParams } from "next/navigation";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils/user-token";
+import { getSdkAuthContext, getUser } from "@/utils";
 import { getTokenLogo } from "@/features/wallet";
 import { getLayer2TokenIcon } from "@/features/wallet/utils/get-layer2-token-icon";
 import * as R from "remeda";
@@ -102,7 +103,7 @@ function normalizeChainTokenCandidate(
 
 export function ProfileWalletTokenPicker() {
   const { username } = useParams();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [show, setShow] = useState(false);
   const [query, setQuery] = useState("");
@@ -331,7 +332,10 @@ export function ProfileWalletTokenPicker() {
     );
   }, [allTokens?.layer2, normalizedQuery, sortTokensWithSelection]);
 
-  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(profileUsername);
+  const { mutateAsync: updateWallet } = useSaveWalletInformationToMetadata(
+    profileUsername,
+    getSdkAuthContext(getUser(activeUser?.username ?? profileUsername))
+  );
 
   const chainTokensBySymbol = useMemo(() => {
     return new Map(

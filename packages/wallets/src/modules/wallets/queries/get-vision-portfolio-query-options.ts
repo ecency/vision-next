@@ -1,11 +1,35 @@
-import { AssetOperation, type GeneralAssetInfo } from "@/modules/assets";
 import { CONFIG } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 
+type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
+
+interface TokenAction {
+  id: string;
+  [key: string]: unknown;
+}
+
 export interface VisionPortfolioWalletItem {
+  name: string;
   symbol: string;
-  info: GeneralAssetInfo;
-  operations: AssetOperation[];
+  layer: PortfolioLayer;
+  balance: number;
+  fiatRate: number;
+  currency: string;
+  precision: number;
+  address?: string;
+  error?: string;
+  pendingRewards?: number;
+  pendingRewardsFiat?: number;
+  liquid?: number;
+  liquidFiat?: number;
+  savings?: number;
+  savingsFiat?: number;
+  staked?: number;
+  stakedFiat?: number;
+  iconUrl?: string;
+  actions?: TokenAction[];
+  extraData?: Array<{ dataKey: string; value: any }>;
+  apr?: number;
 }
 
 export interface VisionPortfolioResponse {
@@ -13,84 +37,6 @@ export interface VisionPortfolioResponse {
   currency?: string;
   wallets: VisionPortfolioWalletItem[];
 }
-
-const ACTION_ALIAS_MAP: Record<string, AssetOperation> = {
-  "transfer-to-savings": AssetOperation.TransferToSavings,
-  "transfer-savings": AssetOperation.TransferToSavings,
-  "savings-transfer": AssetOperation.TransferToSavings,
-  "withdraw-from-savings": AssetOperation.WithdrawFromSavings,
-  "withdraw-savings": AssetOperation.WithdrawFromSavings,
-  "savings-withdraw": AssetOperation.WithdrawFromSavings,
-  "transfer-from-savings": AssetOperation.WithdrawFromSavings,
-  "powerup": AssetOperation.PowerUp,
-  "power-down": AssetOperation.PowerDown,
-  "powerdown": AssetOperation.PowerDown,
-  "withdraw-vesting": AssetOperation.PowerDown,
-  "hp-delegate": AssetOperation.Delegate,
-  "delegate-hp": AssetOperation.Delegate,
-  "delegate-power": AssetOperation.Delegate,
-  "delegate-vesting-shares": AssetOperation.Delegate,
-  "undelegate-power": AssetOperation.Undelegate,
-  "undelegate-token": AssetOperation.Undelegate,
-  "stake-token": AssetOperation.Stake,
-  "stake-power": AssetOperation.Stake,
-  "unstake-token": AssetOperation.Unstake,
-  "unstake-power": AssetOperation.Unstake,
-  "transfer-to-vesting": AssetOperation.PowerUp,
-  "lock-liquidity": AssetOperation.LockLiquidity,
-  "lock-liq": AssetOperation.LockLiquidity,
-  "gift-points": AssetOperation.Gift,
-  "points-gift": AssetOperation.Gift,
-  "promote-post": AssetOperation.Promote,
-  "promote-entry": AssetOperation.Promote,
-  boost: AssetOperation.Promote,
-  convert: AssetOperation.Swap,
-  "swap-token": AssetOperation.Swap,
-  "swap_tokens": AssetOperation.Swap,
-  "claim-points": AssetOperation.Claim,
-  "claim-rewards": AssetOperation.Claim,
-  "buy-points": AssetOperation.Buy,
-  "ecency-point-transfer": AssetOperation.Transfer,
-  "spkcc-spk-send": AssetOperation.Transfer,
-  "withdraw-routes": AssetOperation.WithdrawRoutes,
-  "withdrawroutes": AssetOperation.WithdrawRoutes,
-  "claim-interest": AssetOperation.ClaimInterest,
-};
-
-const KNOWN_OPERATION_VALUES = new Map<string, AssetOperation>(
-  Object.values(AssetOperation).map((value) => [value, value])
-);
-
-const DERIVED_PART_KEY_MAP: Record<string, string[]> = {
-  liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
-  savings: ["savings", "savingsBalance", "savings_amount"],
-  staked: ["staked", "stakedBalance", "staking", "stake", "power"],
-  delegated: ["delegated", "delegatedBalance", "delegationsOut"],
-  received: ["received", "receivedBalance", "delegationsIn"],
-  pending: [
-    "pending",
-    "pendingRewards",
-    "unclaimed",
-    "unclaimedBalance",
-    "pendingReward",
-  ],
-};
-
-const EXTRA_DATA_PART_KEY_MAP: Record<string, string> = {
-  delegated: "outgoing_delegations",
-  outgoing: "outgoing_delegations",
-  delegations_out: "outgoing_delegations",
-  delegated_hive_power: "outgoing_delegations",
-  delegated_hp: "outgoing_delegations",
-  received: "incoming_delegations",
-  incoming: "incoming_delegations",
-  delegations_in: "incoming_delegations",
-  received_hive_power: "incoming_delegations",
-  received_hp: "incoming_delegations",
-  powering_down: "pending_power_down",
-  power_down: "pending_power_down",
-  powering_down_hive_power: "pending_power_down",
-};
 
 function normalizeString(value: unknown): string | undefined {
   if (typeof value === "string") {
@@ -130,309 +76,36 @@ function normalizeNumber(value: unknown): number | undefined {
   return undefined;
 }
 
-function normalizeApr(value: unknown): string | undefined {
-  const numeric = normalizeNumber(value);
-
-  if (numeric === undefined) {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      return trimmed.length > 0 ? trimmed : undefined;
-    }
-
-    return undefined;
-  }
-
-  return numeric.toString();
-}
-
-function normalizeParts(
-  rawParts: unknown
-): GeneralAssetInfo["parts"] | undefined {
-  if (Array.isArray(rawParts)) {
-    const parsed = rawParts
-      .map((item) => {
-        if (!item || typeof item !== "object") {
-          return undefined;
-        }
-
-        const name = normalizeString(
-          (item as Record<string, unknown>).name ??
-            (item as Record<string, unknown>).label ??
-            (item as Record<string, unknown>).type ??
-            (item as Record<string, unknown>).part
-        );
-        const balance = normalizeNumber(
-          (item as Record<string, unknown>).balance ??
-            (item as Record<string, unknown>).amount ??
-            (item as Record<string, unknown>).value
-        );
-
-        if (!name || balance === undefined) {
-          return undefined;
-        }
-
-        return { name, balance };
-      })
-      .filter((item): item is { name: string; balance: number } => Boolean(item));
-
-    return parsed.length ? parsed : undefined;
-  }
-
-  if (rawParts && typeof rawParts === "object") {
-    const parsed = Object.entries(rawParts as Record<string, unknown>)
-      .map(([name, amount]) => {
-        const balance = normalizeNumber(amount);
-        if (!name || balance === undefined) {
-          return undefined;
-        }
-
-        return { name, balance };
-      })
-      .filter((item): item is { name: string; balance: number } => Boolean(item));
-
-    return parsed.length ? parsed : undefined;
-  }
-
-  return undefined;
-}
-
-function deriveParts(record: Record<string, unknown>) {
-  const derived = Object.entries(DERIVED_PART_KEY_MAP)
-    .map(([name, keys]) => {
-      for (const key of keys) {
-        const value = normalizeNumber(record[key]);
-        if (value !== undefined) {
-          return { name, balance: value };
-        }
-      }
-
-      return undefined;
-    })
-    .filter((item): item is { name: string; balance: number } => Boolean(item));
-
-  return derived.length ? derived : undefined;
-}
-
-function normalizePartKey(value: string) {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-
-function mergeParts(
-  ...sources: (GeneralAssetInfo["parts"] | undefined)[]
-): GeneralAssetInfo["parts"] | undefined {
-  const order: string[] = [];
-  const values = new Map<string, number>();
-
-  for (const parts of sources) {
-    if (!parts) {
-      continue;
-    }
-
-    for (const part of parts) {
-      if (!part?.name || typeof part.balance !== "number") {
-        continue;
-      }
-
-      const existing = values.get(part.name);
-      if (existing === undefined) {
-        order.push(part.name);
-        values.set(part.name, part.balance);
-      } else {
-        values.set(part.name, existing + part.balance);
-      }
-    }
-  }
-
-  return order.length
-    ? order.map((name) => ({ name, balance: values.get(name)! }))
-    : undefined;
-}
-
-function normalizeExtraDataParts(
-  rawExtraData: unknown
-): GeneralAssetInfo["parts"] | undefined {
-  const items = Array.isArray(rawExtraData)
-    ? rawExtraData
-    : rawExtraData && typeof rawExtraData === "object"
-      ? Object.values(rawExtraData as Record<string, unknown>)
-      : [];
-
-  const parts = items
-    .map((item) => {
-      if (!item || typeof item !== "object") {
-        return undefined;
-      }
-
-      const record = item as Record<string, unknown>;
-      const keyCandidate =
-        normalizeString(record.dataKey) ??
-        normalizeString(record.key) ??
-        normalizeString(record.name);
-
-      if (!keyCandidate) {
-        return undefined;
-      }
-
-      const canonical = normalizePartKey(keyCandidate);
-      const partName = EXTRA_DATA_PART_KEY_MAP[canonical];
-
-      if (!partName) {
-        return undefined;
-      }
-
-      const balance = normalizeNumber(
-        record.balance ??
-          record.amount ??
-          record.value ??
-          record.displayValue ??
-          record.text
-      );
-
-      if (balance === undefined) {
-        return undefined;
-      }
-
-      return { name: partName, balance: Math.abs(balance) };
-    })
-    .filter((part): part is { name: string; balance: number } => Boolean(part));
-
-  return parts.length ? parts : undefined;
-}
-
-function normalizeActionKey(value: string) {
-  return value.trim().toLowerCase().replace(/[\s_]+/g, "-");
-}
-
-function mapActions(rawActions: unknown): AssetOperation[] {
-  if (!rawActions) {
-    return [];
-  }
-
-  const rawList = Array.isArray(rawActions) ? rawActions : [rawActions];
-  const result: AssetOperation[] = [];
-
-  for (const raw of rawList) {
-    let candidate: string | undefined;
-    if (typeof raw === "string") {
-      candidate = raw;
-    } else if (raw && typeof raw === "object") {
-      const record = raw as Record<string, unknown>;
-      candidate =
-        normalizeString(record.code) ??
-        normalizeString(record.id) ??
-        normalizeString(record.name) ??
-        normalizeString(record.action);
-    }
-
-    if (!candidate) {
-      continue;
-    }
-
-    const canonical = normalizeActionKey(candidate);
-    const operation =
-      KNOWN_OPERATION_VALUES.get(canonical) ?? ACTION_ALIAS_MAP[canonical];
-
-    if (operation && !result.includes(operation)) {
-      result.push(operation);
-    }
-  }
-
-  return result;
-}
-
 function parseToken(rawToken: unknown): VisionPortfolioWalletItem | undefined {
   if (!rawToken || typeof rawToken !== "object") {
     return undefined;
   }
 
   const token = rawToken as Record<string, unknown>;
-  const symbol =
-    normalizeString(token.symbol) ??
-    normalizeString(token.asset) ??
-    normalizeString(token.name);
 
-  if (!symbol) {
-    return undefined;
-  }
-
-  const normalizedSymbol = symbol.toUpperCase();
-  const title =
-    normalizeString(token.title) ??
-    normalizeString(token.display) ??
-    normalizeString(token.label) ??
-    normalizeString(token.friendlyName) ??
-    normalizeString(token.name) ??
-    normalizedSymbol;
-  const price =
-    normalizeNumber(token.fiatRate) ??
-    normalizeNumber(token.price) ??
-    normalizeNumber(token.priceUsd) ??
-    normalizeNumber(token.usdPrice) ??
-    normalizeNumber((token.metrics as Record<string, unknown> | undefined)?.price) ??
-    normalizeNumber(
-      (token.metrics as Record<string, unknown> | undefined)?.priceUsd
-    ) ??
-    0;
-  const apr =
-    normalizeApr(token.apr) ??
-    normalizeApr(token.aprPercent) ??
-    normalizeApr((token.metrics as Record<string, unknown> | undefined)?.apr) ??
-    normalizeApr(
-      (token.metrics as Record<string, unknown> | undefined)?.aprPercent
-    );
-  const baseParts =
-    normalizeParts(
-      token.parts ??
-        token.balances ??
-        token.sections ??
-        token.breakdown ??
-        token.accountBreakdown ??
-        token.walletParts
-    ) ?? deriveParts(token);
-  const parts = mergeParts(
-    baseParts,
-    normalizeExtraDataParts(
-      (token.extraData ?? token.extra_data ?? token.extra ?? token.badges) as
-        | Record<string, unknown>
-        | unknown[]
-        | undefined
-    )
-  );
-  const accountBalance =
-    normalizeNumber(token.balance) ??
-    normalizeNumber(token.accountBalance) ??
-    normalizeNumber(token.totalBalance) ??
-    normalizeNumber(token.total) ??
-    normalizeNumber(token.amount) ??
-    (baseParts
-      ? baseParts.reduce((total, part) => total + (part.balance ?? 0), 0)
-      : parts
-        ? parts.reduce((total, part) => total + (part.balance ?? 0), 0)
-        : 0);
-  const layer =
-    normalizeString(token.layer) ??
-    normalizeString(token.chain) ??
-    normalizeString(token.category) ??
-    normalizeString(token.type);
-
+  // Portfolio v2 returns well-defined PortfolioItem structure
   return {
-    symbol: normalizedSymbol,
-    info: {
-      name: normalizedSymbol,
-      title,
-      price,
-      accountBalance,
-      apr: apr ?? undefined,
-      layer: layer ?? undefined,
-      parts,
-    },
-    operations: mapActions(
-      token.actions ??
-        token.available_actions ??
-        token.availableActions ??
-        token.operations ??
-        token.supportedActions
-    ),
+    name: normalizeString(token.name) ?? "",
+    symbol: normalizeString(token.symbol) ?? "",
+    layer: (normalizeString(token.layer) ?? "hive") as PortfolioLayer,
+    balance: normalizeNumber(token.balance) ?? 0,
+    fiatRate: normalizeNumber(token.fiatRate) ?? 0,
+    currency: normalizeString(token.currency) ?? "usd",
+    precision: normalizeNumber(token.precision) ?? 3,
+    address: normalizeString(token.address),
+    error: normalizeString(token.error),
+    pendingRewards: normalizeNumber(token.pendingRewards),
+    pendingRewardsFiat: normalizeNumber(token.pendingRewardsFiat),
+    liquid: normalizeNumber(token.liquid),
+    liquidFiat: normalizeNumber(token.liquidFiat),
+    savings: normalizeNumber(token.savings),
+    savingsFiat: normalizeNumber(token.savingsFiat),
+    staked: normalizeNumber(token.staked),
+    stakedFiat: normalizeNumber(token.stakedFiat),
+    iconUrl: normalizeString(token.iconUrl),
+    actions: (token.actions ?? []) as TokenAction[],
+    extraData: (token.extraData ?? []) as Array<{ dataKey: string; value: any }>,
+    apr: normalizeNumber(token.apr),
   };
 }
 
@@ -491,7 +164,7 @@ function resolveUsername(payload: unknown): string | undefined {
   );
 }
 
-export function getVisionPortfolioQueryOptions(username: string) {
+export function getVisionPortfolioQueryOptions(username: string, currency: string = "usd") {
   return queryOptions({
     queryKey: [
       "ecency-wallets",
@@ -499,6 +172,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
       "v2",
       username,
       "only-enabled",
+      currency,
     ],
     enabled: Boolean(username),
     staleTime: 60000,
@@ -508,7 +182,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
         throw new Error("[SDK][Wallets] – username is required");
       }
 
-      if (!CONFIG.privateApiHost) {
+      if (CONFIG.privateApiHost === undefined || CONFIG.privateApiHost === null) {
         throw new Error(
           "[SDK][Wallets] – privateApiHost isn't configured for portfolio"
         );
@@ -521,7 +195,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, onlyEnabled: true }),
+        body: JSON.stringify({ username, onlyEnabled: true, currency }),
       });
 
       if (!response.ok) {
@@ -544,6 +218,7 @@ export function getVisionPortfolioQueryOptions(username: string) {
       return {
         username: resolveUsername(payload) ?? username,
         currency: normalizeString(
+          (payload as Record<string, unknown> | undefined)?.fiatCurrency ??
           (payload as Record<string, unknown> | undefined)?.currency
         )?.toUpperCase(),
         wallets: tokens,

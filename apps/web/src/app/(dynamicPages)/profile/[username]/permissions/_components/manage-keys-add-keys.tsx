@@ -1,5 +1,5 @@
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { KeyInput, KeyInputImperativeHandle } from "@/features/ui";
 import { WalletSeedPhrase } from "@/features/wallet";
@@ -16,7 +16,7 @@ interface Props {
 export function ManageKeysAddKeys({ onSuccess }: Props) {
   const keyInputRef = useRef<KeyInputImperativeHandle>(null);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: keys } = useHiveKeysQuery(activeUser?.username!);
 

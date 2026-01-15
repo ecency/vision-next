@@ -1,7 +1,7 @@
 "use client";
 
 import { formatError } from "@/api/operations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, success } from "@/features/shared";
 import {
   getAccountFullQueryOptions,
@@ -20,6 +20,7 @@ import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import { getAccessToken, getSdkAuthContext, getUser } from "@/utils";
 
 const ECENCY = "ecency";
 
@@ -38,10 +39,15 @@ const schema = yup.object({
 });
 
 export function AccountRecovery() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data } = useQuery(getAccountFullQueryOptions(activeUser?.username));
-  const { data: recoveries } = useQuery(getAccountRecoveriesQueryOptions(activeUser?.username));
+  const { data: recoveries } = useQuery(
+    getAccountRecoveriesQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? "")
+    )
+  );
   const { data: pendingRecovery } = useQuery(
     getAccountPendingRecoveryQueryOptions(activeUser?.username)
   );
@@ -61,10 +67,12 @@ export function AccountRecovery() {
 
   const { mutateAsync: updateRecovery, isPending } = useAccountUpdateRecovery(
     activeUser?.username,
+    getAccessToken(activeUser?.username ?? ""),
     {
       onError: (e) => error(...formatError(e)),
       onSuccess: () => success(i18next.t("account-recovery.success-message"))
-    }
+    },
+    getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
 
   const update = useCallback(() => setKeyDialog(true), []);

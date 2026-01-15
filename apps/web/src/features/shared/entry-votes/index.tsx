@@ -9,7 +9,8 @@ import { heartSvg } from "@ui/svg";
 import usePrevious from "react-use/lib/usePrevious";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryVotesDialog } from "@/features/shared/entry-votes/entry-votes-dialog";
-import {useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQuery } from "@tanstack/react-query";
 
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
@@ -20,10 +21,10 @@ interface Props {
 }
 
 export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Props) {
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQuery(initialEntry).useClientQuery();
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
   const previousEntry = usePrevious(entry);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const [visible, setVisible] = useState(false);
 

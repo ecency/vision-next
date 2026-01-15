@@ -57,7 +57,7 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
             </DropdownMenu>
           </Dropdown>
         </div>
-        <NotificationsActions filter={activeFilter ?? null} />
+        <NotificationsActions filter={activeFilter ?? undefined} />
       </div>
 
       <NotificationsStatusButtons
@@ -79,13 +79,13 @@ export function NotificationsContent({ openLinksInNewTab }: Props) {
         onMarkAsRead={() => markAsRead({ set: selectedNotifications })}
       />
 
-        <NotificationList
-          openLinksInNewTab={openLinksInNewTab}
-          select={select}
-          filter={activeFilter ?? null}
-          currentStatus={status!}
-          selectNotification={selectNotification}
-        />
+      <NotificationList
+        openLinksInNewTab={openLinksInNewTab}
+        select={select}
+        filter={activeFilter ?? undefined}
+        currentStatus={status!}
+        selectNotification={selectNotification}
+      />
     </div>
   );
 }

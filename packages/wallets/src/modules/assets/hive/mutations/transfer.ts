@@ -1,9 +1,11 @@
 import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import hs from "hivesigner";
 import { HiveBasedAssetSignType } from "../../types";
 import { Symbol as AssetSymbol, parseAsset } from "../../utils";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 export interface TransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -16,7 +18,8 @@ export interface TransferPayload<T extends HiveBasedAssetSignType> {
 export async function transferHive<T extends HiveBasedAssetSignType>(
   payload: T extends "key"
     ? TransferPayload<T> & { key: PrivateKey }
-    : TransferPayload<T>
+    : TransferPayload<T>,
+  auth?: AuthContext
 ) {
   const parsedAsset = parseAsset(payload.amount);
   const token = parsedAsset.symbol;
@@ -48,25 +51,16 @@ export async function transferHive<T extends HiveBasedAssetSignType>(
       key
     );
   } else if (payload.type === "keychain") {
-    return new Promise((resolve, reject) =>
-      (window as any).hive_keychain?.requestTransfer(
-        payload.from,
-        payload.to,
-        formattedAmount,
-        payload.memo,
-        token,
-        (resp: { success: boolean }) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-
-          resolve(resp);
-        },
-        true,
-        null
-      )
-    );
+    // Use auth.broadcast if available (preferred method with full auth context)
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    // Fallback: Call Keychain extension directly if auth.broadcast is not available
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     // For hivesigner, include the same payload fields; amount already contains token denomination

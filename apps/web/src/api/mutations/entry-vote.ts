@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Entry } from "@/entities";
 import { formatError, vote } from "@/api/operations";
@@ -39,7 +41,7 @@ export function useEntryVote(entry?: Entry) {
     onSuccess: ([estimated, votes]) => {
       // Invalidate account query to refresh voting power
       qc.invalidateQueries({
-        queryKey: [QueryIdentifiers.ACCOUNT_FULL, activeUser?.username]
+        queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, activeUser?.username]
       });
 
       if (!entry) {

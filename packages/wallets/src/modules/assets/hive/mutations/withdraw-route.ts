@@ -1,8 +1,10 @@
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 interface Payload<T extends HiveBasedAssetSignType> {
   from_account: string;
@@ -14,7 +16,10 @@ interface Payload<T extends HiveBasedAssetSignType> {
 
 export async function withdrawVestingRouteHive<
   T extends HiveBasedAssetSignType,
->(payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>) {
+>(
+  payload: T extends "key" ? Payload<T> & { key: PrivateKey } : Payload<T>,
+  auth?: AuthContext
+) {
   const baseParams = {
     from_account: payload.from_account,
     to_account: payload.to_account,
@@ -32,11 +37,16 @@ export async function withdrawVestingRouteHive<
   }
 
   if (payload.type === "keychain") {
-    const { type, ...params } = payload as Payload<"keychain">;
-    return Keychain.broadcast(params.from_account, [operation], "Active") as Promise<unknown>;
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from_account, [operation], "Active");
   }
 
   if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
   }
 

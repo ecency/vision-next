@@ -23,7 +23,7 @@ import { useDebounce, useMount } from "react-use";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import useUnmount from "react-use/lib/useUnmount";
 import "./_index.scss";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery } from "@tanstack/react-query";
 import {
   getCommunityContextQueryOptions,
@@ -64,7 +64,7 @@ export function Comment({
   initialText = null
 }: Props) {
   const commentBodyRef = useRef<HTMLDivElement>(null);
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { selection, setSelection } = useContext(EntryPageContext);
 
   const [text, setText] = useLocalStorage(

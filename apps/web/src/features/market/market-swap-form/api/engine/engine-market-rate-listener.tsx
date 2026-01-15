@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import Decimal from "decimal.js";
 
-import { getEngineOrderBook } from "@/api/hive-engine";
+import { getHiveEngineOrderBook } from "@ecency/sdk";
 import { HiveEngineOrderBookEntry } from "@/entities";
 import { error } from "@/features/shared";
 
@@ -174,7 +174,7 @@ export const EngineMarket = {
     }
 
     try {
-      return await getEngineOrderBook(symbol, limit);
+      return await getHiveEngineOrderBook(symbol, limit);
     } catch (e) {
       error("Order book is empty.");
     }

@@ -1,7 +1,9 @@
-jest.mock("@/features/shared", () => ({
-  error: jest.fn()
+import { vi } from 'vitest';
+
+vi.mock("@/features/shared", () => ({
+  error: vi.fn()
 }));
-jest.mock("@/features/tiptap-editor/extensions", () => ({
+vi.mock("@/features/tiptap-editor/extensions", () => ({
   HIVE_POST_PURE_REGEX: /$a^/,
   TAG_MENTION_PURE_REGEX: /$a^/,
   USER_MENTION_PURE_REGEX: /$a^/,

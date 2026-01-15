@@ -1,5 +1,6 @@
 import {
   AssetOperation,
+  claimHiveEngineRewards,
   delegateEngineToken,
   delegateHive,
   getHiveEngineTokensBalancesQueryOptions,
@@ -20,8 +21,10 @@ import {
   powerUpLarynx,
   transferLarynx,
   claimInterestHive,
+  convertHbd,
 } from "@/modules/assets";
 import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
 
@@ -40,6 +43,7 @@ const operationToFunctionMap: Record<
     [AssetOperation.TransferToSavings]: transferToSavingsHive,
     [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
     [AssetOperation.ClaimInterest]: claimInterestHive,
+    [AssetOperation.Convert]: convertHbd,
   },
   HP: {
     [AssetOperation.PowerDown]: powerDownHive,
@@ -66,12 +70,25 @@ const engineOperationToFunctionMap: Partial<Record<AssetOperation, any>> = {
   [AssetOperation.Unstake]: unstakeEngineToken,
   [AssetOperation.Delegate]: delegateEngineToken,
   [AssetOperation.Undelegate]: undelegateEngineToken,
+  [AssetOperation.Claim]: (payload: any, auth?: any) => {
+    // Claim expects account and tokens array
+    return claimHiveEngineRewards(
+      {
+        account: payload.from,
+        tokens: [payload.asset],
+        type: payload.type,
+        ...(payload.type === "key" && payload.key ? { key: payload.key } : {}),
+      },
+      auth
+    );
+  },
 };
 
 export function useWalletOperation(
   username: string,
   asset: string,
-  operation: AssetOperation
+  operation: AssetOperation,
+  auth?: AuthContext
 ) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
@@ -83,7 +100,7 @@ export function useWalletOperation(
     mutationFn: async (payload: Record<string, unknown>) => {
       const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
-        return operationFn(payload);
+        return operationFn(payload, auth);
       }
 
       // Handle Hive engine ops
@@ -94,10 +111,11 @@ export function useWalletOperation(
         balancesListQuery.queryKey
       );
 
-      if (balances?.some((b) => b.symbol === asset)) {
+      const engineBalances = (balances ?? []) as HiveEngineTokenBalance[];
+      if (engineBalances.some((balance) => balance.symbol === asset)) {
         const operationFn = engineOperationToFunctionMap[operation];
         if (operationFn) {
-          return operationFn({ ...payload, asset });
+          return operationFn({ ...payload, asset }, auth);
         }
       }
 
@@ -135,6 +153,14 @@ export function useWalletOperation(
           5000
         );
       });
+
+      setTimeout(
+        () =>
+          getQueryClient().invalidateQueries({
+            queryKey: ["ecency-wallets", "portfolio", "v2", username],
+          }),
+        4000
+      );
     },
   });
 }

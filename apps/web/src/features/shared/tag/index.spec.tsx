@@ -8,12 +8,23 @@ import { globalInstance, communityInstance1 } from "../../helper/test-helper";
 
 import { EntryFilter, AllFilter } from "../../store/global/_types";
 
-jest.mock("../../api/bridge", () => ({
-  getCommunity: () =>
-    new Promise((resolve) => {
-      resolve(communityInstance1);
-    })
-}));
+jest.mock("@tanstack/react-query", () => {
+  const actual = jest.requireActual("@tanstack/react-query");
+  const useQuery = jest.fn((options: { enabled?: boolean }) => ({
+    data: options?.enabled ? communityInstance1 : undefined,
+    isLoading: options?.enabled === false,
+    isError: false,
+    error: null,
+    isFetching: false,
+    isFetched: true,
+    status: "success",
+    refetch: jest.fn()
+  }));
+  return {
+    ...actual,
+    useQuery
+  };
+});
 
 it("(1) Link", () => {
   const props = {

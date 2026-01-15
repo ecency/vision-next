@@ -3,11 +3,12 @@ import { AllFilter, ListStyle, Theme } from "@/enums";
 import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
-import { getCurrencyRate } from "@/api/misc";
+import { getCurrencyRate } from "@ecency/sdk";
 import { currencySymbol } from "@/utils/currency-symbol";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
+import { getQueryClient } from "@/core/react-query";
 
 export function createGlobalState() {
   const storedCurrency = ls.get("currency");
@@ -32,7 +33,7 @@ export function createGlobalState() {
     currencySymbol: initialCurrencySymbol,
     lang: ls.get("lang") || ls.get("current-language") || "en-US",
     searchIndexCount: 0,
-    canUseWebp: false,
+    canUseWebp: true, // WebP supported by >95% of modern browsers - defaults to true for LCP optimization
     hasKeyChain: false,
     newVersion: null,
     globalNotifications: true,
@@ -100,6 +101,22 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
         currencyRate: rate,
         currencySymbol: symbol
       });
+
+      // Invalidate wallet-related queries so they refetch with new currency
+      const queryClient = getQueryClient();
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          if (!Array.isArray(key) || key.length < 2) return false;
+
+          // Invalidate portfolio, asset-info, and list queries
+          return (
+            (key[0] === "ecency-wallets" &&
+             (key[1] === "portfolio" || key[1] === "asset-info" || key[1] === "list"))
+          );
+        },
+      });
+
       success(i18next.t("preferences.updated"));
     },
     setNsfw(value: string) {

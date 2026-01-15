@@ -1,8 +1,10 @@
 "use client";
 
-import {getAccountFullQuery, useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { UserAvatar } from "@/features/shared";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import Image from "next/image";
 import i18next from "i18next";
 import { Followers, Following } from "@/app/(dynamicPages)/profile/[username]/_components/friends";
@@ -12,10 +14,10 @@ import { Button } from "@ui/button";
 import Link from "next/link";
 
 export function WavesProfileCard() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const toggleUiProp = useGlobalStore((s) => s.toggleUiProp);
 
-  const { data, isLoading } = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const { data, isLoading } = useQuery(getAccountFullQueryOptions(activeUser?.username));
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);

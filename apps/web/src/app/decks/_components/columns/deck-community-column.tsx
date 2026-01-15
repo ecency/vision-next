@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ListItemSkeleton, SearchListItem } from "./deck-items";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import { CommunityDeckGridItem } from "../types";
@@ -12,9 +12,11 @@ import { newDataComingPaginatedCondition } from "../utils";
 import { InfiniteScrollLoader } from "./helpers";
 import dayjs from "@/utils/dayjs";
 import { Entry } from "@/entities";
-import { getPostsRanked } from "@/api/bridge";
+import { getPostsRankedQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDataLimit } from "@/utils/data-limit";
 
 interface Props {
   id: string;
@@ -25,7 +27,10 @@ interface Props {
 type IdentifiableEntry = Entry & Required<Pick<Entry, "id">>;
 
 export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
+  const queryClient = useQueryClient();
+  const dataLimit = useDataLimit();
   const [data, setData] = useState<IdentifiableEntry[]>([]);
+  const dataRef = useRef<IdentifiableEntry[]>([]);
   const prevData = usePrevious(data);
   const [isReloading, setIsReloading] = useState(false);
   const [currentViewingEntry, setCurrentViewingEntry] = useState<Entry | null>(null);
@@ -35,9 +40,13 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
   const prevSettings = usePrevious(settings);
 
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   const fetchData = useCallback(
     async (since?: Entry) => {
-      if (data.length) {
+      if (dataRef.current.length) {
         setIsReloading(true);
       }
 
@@ -46,12 +55,14 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
       }
 
       try {
-        const response = await getPostsRanked(
-          settings.contentType,
-          since?.author,
-          since?.permlink,
-          20,
-          settings.tag
+        const response = await queryClient.fetchQuery(
+          getPostsRankedQueryOptions(
+            settings.contentType,
+            since?.author,
+            since?.permlink,
+            dataLimit,
+            settings.tag
+          )
         );
         let items = ((response as IdentifiableEntry[] | null) ?? [])
           .filter((e) => !e.stats?.is_pinned)
@@ -64,7 +75,7 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
         }
 
         if (since) {
-          setData([...data, ...items]);
+          setData((prev) => [...prev, ...items]);
         } else {
           setData(items);
         }
@@ -74,12 +85,18 @@ export const DeckCommunityColumn = ({ id, settings, draggable }: Props) => {
         setIsFirstLoaded(true);
       }
     },
-    [data, isReloading, settings.contentType, settings.tag]
+    [dataLimit, isReloading, queryClient, settings.contentType, settings.tag]
   );
 
   useMount(() => {
     fetchData();
   });
+
+  useEffect(() => {
+    setData([]);
+    setHasNextPage(true);
+    fetchData();
+  }, [dataLimit]);
 
   useEffect(() => {
     if (prevSettings && prevSettings?.contentType !== settings.contentType) {

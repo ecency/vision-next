@@ -1,14 +1,15 @@
 import i18next from "i18next";
 import Link from "next/link";
 import React from "react";
-import { getAccountFullQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   username: string;
 }
 
 export function ProfilePreviewAbout({ username }: Props) {
-  const { data: profile, isLoading } = getAccountFullQuery(username).useClientQuery();
+  const { data: profile, isLoading } = useQuery(getAccountFullQueryOptions(username));
 
   return (
     <div className="text-sm">

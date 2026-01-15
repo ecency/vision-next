@@ -32,12 +32,12 @@ const BASIC_TOKENS: string[] = [
   EcencyWalletBasicTokens.HiveDollar,
 ];
 
-export function getAccountWalletListQueryOptions(username: string) {
+export function getAccountWalletListQueryOptions(username: string, currency: string = "usd") {
   return queryOptions({
-    queryKey: ["ecency-wallets", "list", username],
+    queryKey: ["ecency-wallets", "list", username, currency],
     enabled: !!username,
     queryFn: async () => {
-      const portfolioQuery = getVisionPortfolioQueryOptions(username);
+      const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
       const queryClient = getQueryClient();
       const accountQuery = getAccountFullQueryOptions(username);
 
@@ -84,7 +84,7 @@ export function getAccountWalletListQueryOptions(username: string) {
       try {
         const portfolio = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
-          (asset) => asset.info.name
+          (asset) => asset.symbol
         );
 
         if (tokensFromPortfolio.length > 0) {

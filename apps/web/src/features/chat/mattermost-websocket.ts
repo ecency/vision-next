@@ -58,9 +58,11 @@ export class MattermostWebSocket {
   private connectionState: "disconnected" | "connecting" | "connected" | "error" = "disconnected";
   private queryClient: QueryClient | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
+  private maxReconnectAttempts = Infinity; // Never give up - keep trying with backoff
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
+  private pongTimeout: NodeJS.Timeout | null = null;
+  private lastPongReceived = Date.now();
   private onConnectionChangeCallback: ((active: boolean) => void) | null = null;
   private onConnectionStatusCallback: ((status: ConnectionStatus) => void) | null = null;
   private onTypingCallback: ((userId: string) => void) | null = null;
@@ -77,6 +79,12 @@ export class MattermostWebSocket {
   private pollInterval: NodeJS.Timeout | null = null;
   private currentStatus: ConnectionStatus = "disconnected";
 
+  // Event listeners for cleanup
+  private visibilityChangeHandler: (() => void) | null = null;
+  private onlineHandler: (() => void) | null = null;
+  private offlineHandler: (() => void) | null = null;
+  private networkChangeHandler: (() => void) | null = null;
+
   // Idle thresholds
   private readonly IDLE_WARNING_MS = 5 * 60 * 1000;      // 5 min - reduce ping frequency
   private readonly IDLE_DISCONNECT_MS = 15 * 60 * 1000;  // 15 min - disconnect and poll
@@ -86,8 +94,18 @@ export class MattermostWebSocket {
   private readonly PING_ACTIVE = 30 * 1000;      // 30s when active
   private readonly PING_IDLE = 120 * 1000;       // 2 min when idle but connected
   private readonly PING_BACKGROUND = 180 * 1000; // 3 min when tab hidden
+  private readonly PONG_TIMEOUT = 10 * 1000;     // 10s to receive pong
 
   private currentPingInterval = this.PING_ACTIVE;
+
+  // Exponential backoff for reconnections
+  private getReconnectDelay(): number {
+    const baseDelay = 1000; // 1 second
+    const maxDelay = 60000; // 60 seconds max
+    const delay = Math.min(baseDelay * Math.pow(2, this.reconnectAttempts), maxDelay);
+    // Add jitter to prevent thundering herd
+    return delay + Math.random() * 1000;
+  }
 
   // Builder pattern methods
   public withChannel(channelId: string): this {
@@ -143,8 +161,9 @@ export class MattermostWebSocket {
       this.ws.onopen = () => {
         this.isConnected = true;
         this.connectionState = "connected";
-        this.reconnectAttempts = 0;
+        this.reconnectAttempts = 0; // Reset on successful connection
         this.lastActivityTime = Date.now();
+        this.lastPongReceived = Date.now();
         this.updateStatus("live");
         this.onConnectionChangeCallback?.(true);
 
@@ -156,40 +175,52 @@ export class MattermostWebSocket {
 
         // Monitor page visibility for background optimization
         this.setupPageVisibilityListener();
+
+        // Monitor network connectivity changes
+        this.setupNetworkListeners();
       };
 
       this.ws.onmessage = (event) => {
         try {
           const message: MattermostWSEvent = JSON.parse(event.data);
+
+          // Handle pong responses
+          if (message.event === "pong") {
+            this.handlePong();
+            return;
+          }
+
           this.handleMessage(message);
         } catch (error) {
           console.error("Failed to parse WebSocket message:", error);
         }
       };
 
-      this.ws.onerror = () => {
+      this.ws.onerror = (error) => {
+        console.warn("WebSocket error:", error);
         this.connectionState = "error";
-        this.reconnectAttempts++;
-
-        // Close the errored connection and trigger reconnect via onclose
-        if (this.ws && this.reconnectAttempts < this.maxReconnectAttempts) {
-          this.ws.close();
-        } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-          this.onConnectionChangeCallback?.(false);
-        }
+        // Don't increment reconnectAttempts here - will be handled in onclose
       };
 
       this.ws.onclose = (evt: CloseEvent) => {
         this.isConnected = false;
         this.connectionState = "disconnected";
         this.stopPingInterval();
+        this.stopPongTimeout();
 
-        if (!evt.wasClean && this.reconnectAttempts < this.maxReconnectAttempts) {
-          // Auto-reconnect after 2 seconds
-          this.reconnectTimeout = setTimeout(() => {
-            this.connect();
-          }, 2000);
-        } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+        // Always attempt to reconnect (unless manually disconnected via disconnect())
+        // Exponential backoff handles the delay
+        this.reconnectAttempts++;
+        const delay = this.getReconnectDelay();
+
+        console.log(`WebSocket closed (code: ${evt.code}, clean: ${evt.wasClean}). Reconnecting in ${Math.round(delay/1000)}s (attempt ${this.reconnectAttempts})...`);
+
+        this.reconnectTimeout = setTimeout(() => {
+          this.connect();
+        }, delay);
+
+        // Notify callback on first disconnect
+        if (this.reconnectAttempts === 1) {
           this.onConnectionChangeCallback?.(false);
         }
       };
@@ -205,6 +236,9 @@ export class MattermostWebSocket {
   }
 
   public disconnect(): void {
+    // Mark as intentional disconnect to prevent auto-reconnect
+    this.maxReconnectAttempts = 0;
+
     // Clear reconnect timeout
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
@@ -214,11 +248,17 @@ export class MattermostWebSocket {
     // Stop ping interval
     this.stopPingInterval();
 
+    // Stop pong timeout
+    this.stopPongTimeout();
+
     // Stop idle management
     this.stopIdleManagement();
 
     // Stop polling
     this.stopPolling();
+
+    // Remove event listeners to prevent memory leaks
+    this.removeEventListeners();
 
     // Clear typing throttle map to prevent memory leak
     this.typingThrottle.clear();
@@ -237,6 +277,37 @@ export class MattermostWebSocket {
     this.connectionState = "disconnected";
     this.updateStatus("disconnected");
     this.onConnectionChangeCallback?.(false);
+
+    // Restore unlimited reconnects for future connections
+    this.maxReconnectAttempts = Infinity;
+  }
+
+  // Clean up all event listeners
+  private removeEventListeners(): void {
+    if (typeof document !== "undefined" && this.visibilityChangeHandler) {
+      document.removeEventListener("visibilitychange", this.visibilityChangeHandler);
+      this.visibilityChangeHandler = null;
+    }
+
+    if (typeof window !== "undefined") {
+      if (this.onlineHandler) {
+        window.removeEventListener("online", this.onlineHandler);
+        this.onlineHandler = null;
+      }
+
+      if (this.offlineHandler) {
+        window.removeEventListener("offline", this.offlineHandler);
+        this.offlineHandler = null;
+      }
+    }
+
+    if (typeof navigator !== "undefined" && "connection" in navigator && this.networkChangeHandler) {
+      const connection = (navigator as any).connection;
+      if (connection && "removeEventListener" in connection) {
+        connection.removeEventListener("change", this.networkChangeHandler);
+        this.networkChangeHandler = null;
+      }
+    }
   }
 
   // Event handlers
@@ -429,13 +500,28 @@ export class MattermostWebSocket {
     this.stopPingInterval(); // Clear any existing interval
     this.pingInterval = setInterval(() => {
       if (this.ws && this.connectionState === "connected") {
+        // Check if last pong was received recently
+        const timeSinceLastPong = Date.now() - this.lastPongReceived;
+        if (timeSinceLastPong > this.PONG_TIMEOUT * 2) {
+          console.warn("No pong received for too long, reconnecting...");
+          this.ws.close(1000, "Ping timeout");
+          return;
+        }
+
         try {
           this.ws.send(JSON.stringify({
             action: "ping",
             seq: this.messageSeq++
           }));
+
+          // Start timeout for pong response
+          this.startPongTimeout();
         } catch (error) {
           console.error("Failed to send ping:", error);
+          // Try to reconnect on ping failure
+          if (this.ws) {
+            this.ws.close(1011, "Ping send failed");
+          }
         }
       }
     }, this.currentPingInterval);
@@ -445,6 +531,29 @@ export class MattermostWebSocket {
     if (this.pingInterval) {
       clearInterval(this.pingInterval);
       this.pingInterval = null;
+    }
+  }
+
+  private handlePong(): void {
+    this.lastPongReceived = Date.now();
+    this.stopPongTimeout();
+  }
+
+  private startPongTimeout(): void {
+    this.stopPongTimeout();
+    this.pongTimeout = setTimeout(() => {
+      console.warn("Pong timeout - no response to ping");
+      // Close connection to trigger reconnect
+      if (this.ws) {
+        this.ws.close(1000, "Pong timeout");
+      }
+    }, this.PONG_TIMEOUT);
+  }
+
+  private stopPongTimeout(): void {
+    if (this.pongTimeout) {
+      clearTimeout(this.pongTimeout);
+      this.pongTimeout = null;
     }
   }
 
@@ -546,8 +655,9 @@ export class MattermostWebSocket {
   // Page visibility handling
   private setupPageVisibilityListener(): void {
     if (typeof document === "undefined") return;
+    if (this.visibilityChangeHandler) return; // Already set up
 
-    const handleVisibilityChange = () => {
+    this.visibilityChangeHandler = () => {
       if (document.hidden) {
         // Tab hidden - reduce ping frequency to save resources
         if (this.isConnected) {
@@ -570,7 +680,7 @@ export class MattermostWebSocket {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", this.visibilityChangeHandler);
   }
 
   private updateStatus(status: ConnectionStatus): void {
@@ -578,5 +688,55 @@ export class MattermostWebSocket {
 
     this.currentStatus = status;
     this.onConnectionStatusCallback?.(status);
+  }
+
+  // Network connectivity monitoring
+  private setupNetworkListeners(): void {
+    if (typeof window === "undefined" || !("onLine" in navigator)) return;
+    if (this.onlineHandler || this.offlineHandler) return; // Already set up
+
+    this.onlineHandler = () => {
+      console.log("Network connection restored, attempting to reconnect WebSocket...");
+      // Reset reconnect attempts when network comes back
+      this.reconnectAttempts = Math.max(0, this.reconnectAttempts - 2);
+      // Try to reconnect immediately when network is back
+      if (!this.isConnected && this.connectionState !== "connecting") {
+        this.connect();
+      }
+    };
+
+    this.offlineHandler = () => {
+      console.log("Network connection lost");
+      if (this.ws) {
+        this.ws.close(1000, "Network offline");
+      }
+    };
+
+    window.addEventListener("online", this.onlineHandler);
+    window.addEventListener("offline", this.offlineHandler);
+
+    // Also monitor network changes via connection API
+    if ("connection" in navigator) {
+      const connection = (navigator as any).connection;
+      if (connection && "addEventListener" in connection && !this.networkChangeHandler) {
+        this.networkChangeHandler = () => {
+          console.log("Network type changed:", connection.effectiveType);
+          // On network type change, verify connection is still alive
+          if (this.isConnected && this.ws) {
+            // Send a ping to verify connection
+            try {
+              this.ws.send(JSON.stringify({
+                action: "ping",
+                seq: this.messageSeq++
+              }));
+            } catch {
+              // If ping fails, close and reconnect
+              this.ws.close(1000, "Network change verification failed");
+            }
+          }
+        };
+        connection.addEventListener("change", this.networkChangeHandler);
+      }
+    }
   }
 }

@@ -2,10 +2,11 @@
 
 import htmlParse from "html-react-parser";
 import "./_index.scss";
+import "@/styles/static-pages.scss"; // Page-specific styles for LCP optimization
 import { FormEvent, useRef, useState } from "react";
 import { apiBase } from "@/api/helper";
 import { useGlobalStore } from "@/core/global-store";
-import { subscribeEmail } from "@/api/private-api";
+import { subscribeEmail } from "@ecency/sdk";
 import { error, LinearProgress, success } from "@/features/shared";
 import i18next from "i18next";
 import Link from "next/link";
@@ -75,7 +76,7 @@ export function LandingPage() {
     setLoading(true);
     try {
       const response = await subscribeEmail(email);
-      if (200 == response?.status) {
+      if (response?.status === 200) {
         success(i18next.t("landing-page.success-message-subscribe"));
       }
     } catch (err) {

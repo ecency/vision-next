@@ -65,19 +65,19 @@ export function getSizedTokenLogo(token: string, size = 32) {
     case "APT":
       return (
         <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon} alt="" />
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon.src} alt="" />
         </LogoBox>
       );
     case "BTC":
       return (
         <LogoBox size={size}>
-          <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon} alt="" />
+          <Image width={32} height={32} src={CURRENCIES_META_DATA.BTC.icon.src} alt="" />
         </LogoBox>
       );
     case "BNB":
       return (
         <LogoBox size={size}>
-          <Image width={32} height={32} src={CURRENCIES_META_DATA.BNB.icon} alt="" />
+          <Image width={32} height={32} src={CURRENCIES_META_DATA.BNB.icon.src} alt="" />
         </LogoBox>
       );
     case "ETH":
@@ -86,7 +86,7 @@ export function getSizedTokenLogo(token: string, size = 32) {
           <Image
             width={24}
             height={24}
-            src={CURRENCIES_META_DATA.ETH.icon}
+            src={CURRENCIES_META_DATA.ETH.icon.src}
             alt=""
             className="h-6"
           />
@@ -95,19 +95,19 @@ export function getSizedTokenLogo(token: string, size = 32) {
     case "SOL":
       return (
         <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon} alt="" />
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon.src} alt="" />
         </LogoBox>
       );
     case "TON":
       return (
         <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon} alt="" />
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon.src} alt="" />
         </LogoBox>
       );
     case "TRX":
       return (
         <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon} alt="" />
+          <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon.src} alt="" />
         </LogoBox>
       );
   }

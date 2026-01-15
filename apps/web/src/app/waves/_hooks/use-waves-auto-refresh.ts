@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
-import * as bridgeApi from "@/api/bridge";
+import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { ProfileFilter } from "@/enums";
 import { Entry, WaveEntry } from "@/entities";
-import { client } from "@/api/hive";
+import { getContentRepliesQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
-async function fetchLatestWaves(host: string) {
+async function fetchLatestWaves(host: string, queryClient: QueryClient) {
   let containers = (
-    (await bridgeApi.getAccountPosts(
-      ProfileFilter.posts,
-      host,
-      undefined,
-      undefined,
-      1
+    (await queryClient.fetchQuery(
+      getAccountPostsQueryOptions(host, ProfileFilter.posts, "", "", 1)
     )) as WaveEntry[]
   )?.map((c) => ({ ...c, id: c.post_id, host }));
 
@@ -20,10 +17,8 @@ async function fetchLatestWaves(host: string) {
     return [] as WaveEntry[];
   }
 
-  const items = (await client.call(
-    "condenser_api",
-    "get_content_replies",
-    [host, containers[0].permlink]
+  const items = (await queryClient.fetchQuery(
+    getContentRepliesQueryOptions(host, containers[0].permlink)
   )) as Entry[];
 
   if (items.length === 0) {
@@ -56,6 +51,7 @@ async function fetchLatestWaves(host: string) {
 export function useWavesAutoRefresh(latest?: WaveEntry) {
   const [newWaves, setNewWaves] = useState<WaveEntry[]>([]);
   const [now, setNow] = useState(Date.now());
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -68,7 +64,7 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
         return;
       }
 
-      const items = await fetchLatestWaves(latest.host);
+      const items = await fetchLatestWaves(latest.host, queryClient);
       EcencyEntriesCacheManagement.updateEntryQueryData(items);
       const latestTime = new Date(latest.created).getTime();
       const fresh = items.filter(
@@ -85,8 +81,7 @@ export function useWavesAutoRefresh(latest?: WaveEntry) {
     check();
 
     return () => clearTimeout(timer);
-  }, [latest]);
+  }, [latest, queryClient]);
 
   return { newWaves, clear: () => setNewWaves([]), now };
 }
-

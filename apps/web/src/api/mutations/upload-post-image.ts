@@ -1,7 +1,7 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
-import { uploadImage } from "../misc";
-import { addImage } from "../private-api";
-import axios from "axios";
+import { addImage, uploadImage } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
@@ -26,8 +26,8 @@ export function useUploadPostImage() {
       return uploadImage(file, token, signal);
     },
     onError: (e: Error) => {
-      if (axios.isAxiosError(e)) {
-        const status = e.response?.status;
+      if ("status" in e) {
+        const status = (e as { status?: number }).status;
         if (status === 413) {
           error(i18next.t("editor-toolbar.image-error-size"));
         } else if (status === 429) {
@@ -61,14 +61,14 @@ export function useUploadPostImage() {
         }
 
         if (url.length > 0) {
-          await addImage(username, url);
+          await addImage(token, url);
           return;
         }
 
         throw new Error("URL missed");
       },
       onError: (e: Error) => {
-        if (axios.isAxiosError(e)) {
+        if ("status" in e) {
           error(i18next.t("editor-toolbar.image-error-network"));
         } else if (e.message === "Token missed") {
           error(i18next.t("g.image-error-cache"));

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Posting (1) extractMetadata 1`] = `
+exports[`Posting > (1) extractMetadata 1`] = `
 {
   "image": [
     "http://www.xx.com/a.png",
@@ -11,7 +11,7 @@ exports[`Posting (1) extractMetadata 1`] = `
 }
 `;
 
-exports[`Posting (2) extractMetadata 1`] = `
+exports[`Posting > (2) extractMetadata 1`] = `
 {
   "image": [
     "http://www.xx.com/a.png",
@@ -24,23 +24,66 @@ exports[`Posting (2) extractMetadata 1`] = `
 }
 `;
 
-exports[`Posting createPatch 1`] = `
+exports[`Posting > (3) extractMetadata with .arw (Sony RAW) images 1`] = `
+{
+  "image": [
+    "https://example.com/photo.arw",
+    "https://example.com/DSC_1234.ARW",
+  ],
+  "thumbnails": [
+    "https://example.com/photo.arw",
+    "https://example.com/DSC_1234.ARW",
+  ],
+}
+`;
+
+exports[`Posting > (4) extractMetadata with images.ecency.com URLs 1`] = `
+{
+  "image": [
+    "https://images.ecency.com/DQmXYZ123/image.jpg",
+    "https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnAvKo1Rap9w75mXk",
+  ],
+  "thumbnails": [
+    "https://images.ecency.com/DQmXYZ123/image.jpg",
+    "https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnAvKo1Rap9w75mXk",
+  ],
+}
+`;
+
+exports[`Posting > (5) extractMetadata with mixed image types 1`] = `
+{
+  "image": [
+    "https://example.com/photo.png",
+    "https://example.com/photo.arw",
+    "https://example.com/photo.jpg",
+    "https://images.ecency.com/p/abc123",
+  ],
+  "thumbnails": [
+    "https://example.com/photo.png",
+    "https://example.com/photo.arw",
+    "https://example.com/photo.jpg",
+    "https://images.ecency.com/p/abc123",
+  ],
+}
+`;
+
+exports[`Posting > createPatch 1`] = `
 "@@ -6,16 +6,17 @@
   ipsum d
 +o
- lor sit
+ lor sit 
 "
 `;
 
-exports[`Posting createPermlink 1`] = `"lorem-ipsum-dolor-sit-amet"`;
+exports[`Posting > createPermlink 1`] = `"lorem-ipsum-dolor-sit-amet"`;
 
-exports[`Posting createPermlink non-latin chars 1`] = `"f38c58113ff7e"`;
+exports[`Posting > createPermlink non-latin chars 1`] = `"f38c58113ff7e"`;
 
-exports[`Posting createPermlink random 1`] = `"lorem-ipsum-dolor-sit-amet-f38c58113ff7e"`;
+exports[`Posting > createPermlink random 1`] = `"lorem-ipsum-dolor-sit-amet-f38c58113ff7e"`;
 
-exports[`Posting createReplyPermlink 1`] = `"re-good-karma-2018921t120500z"`;
+exports[`Posting > createReplyPermlink 1`] = `"re-good-karma-2018921t120500z"`;
 
-exports[`Posting makeCommentOptions (2) Power Up 100% 1`] = `
+exports[`Posting > makeCommentOptions > (2) Power Up 100% 1`] = `
 {
   "allow_curation_rewards": true,
   "allow_votes": true,
@@ -52,7 +95,7 @@ exports[`Posting makeCommentOptions (2) Power Up 100% 1`] = `
 }
 `;
 
-exports[`Posting makeCommentOptions (3) Decline Payout 1`] = `
+exports[`Posting > makeCommentOptions > (3) Decline Payout 1`] = `
 {
   "allow_curation_rewards": true,
   "allow_votes": true,
@@ -64,7 +107,7 @@ exports[`Posting makeCommentOptions (3) Decline Payout 1`] = `
 }
 `;
 
-exports[`Posting makeCommentOptions (5) With beneficiary list 1`] = `
+exports[`Posting > makeCommentOptions > (5) With beneficiary list 1`] = `
 {
   "allow_curation_rewards": true,
   "allow_votes": true,
@@ -92,7 +135,7 @@ exports[`Posting makeCommentOptions (5) With beneficiary list 1`] = `
 }
 `;
 
-exports[`Posting makeJsonMetaData 1`] = `
+exports[`Posting > makeJsonMetaData 1`] = `
 {
   "app": "ecency/2.0.0-vision",
   "description": "",
@@ -108,7 +151,7 @@ exports[`Posting makeJsonMetaData 1`] = `
 }
 `;
 
-exports[`Posting makeJsonMetadataReply 1`] = `
+exports[`Posting > makeJsonMetadataReply 1`] = `
 {
   "app": "ecency/1.1-vision",
   "format": "markdown+html",

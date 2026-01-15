@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const DeckToolbarUser = ({ isExpanded, items, setIsExpanded }: Props) => {
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const [showUserSide, setShowUserSide] = useState(false);
@@ -52,7 +52,7 @@ export const DeckToolbarUser = ({ isExpanded, items, setIsExpanded }: Props) => 
         activeUser ? (
           <>
             <div className="content">
-              <div className="name">{(activeUser.data as FullAccount).name}</div>
+              <div className="name">{account?.name}</div>
               <div className="username">@{activeUser.username}</div>
             </div>
             <NavbarSideThemeSwitcher floatRight={true} />

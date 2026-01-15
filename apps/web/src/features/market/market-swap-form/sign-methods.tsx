@@ -12,7 +12,6 @@ import { PrivateKey } from "@hiveio/dhive";
 import { HiveMarket } from "./api/hive";
 import { EngineMarket } from "./api/engine";
 import { Button } from "@ui/button";
-import { getAccountFull } from "@/api/hive";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
 import i18next from "i18next";

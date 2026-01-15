@@ -85,7 +85,7 @@ export function Pagination({
 
   return (
     <div className={className}>
-      <PageButton disabled={!(sliceStart > 0)} onClick={() => changePage(1)}>
+      <PageButton disabled={page <= 1} onClick={() => changePage(1)}>
         {i18next.t("g.first")}
       </PageButton>
       <PageButton disabled={!(page > 1)} onClick={() => changePage(page - 1)}>

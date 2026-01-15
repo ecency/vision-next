@@ -1,10 +1,16 @@
 import { getAccountFullQueryOptions, useBroadcastMutation } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getHivePowerAssetGeneralInfoQueryOptions } from "../queries";
+import {
+  getHbdAssetGeneralInfoQueryOptions,
+  getHiveAssetGeneralInfoQueryOptions,
+  getHivePowerAssetGeneralInfoQueryOptions,
+} from "../queries";
 import { delay } from "@/modules/wallets/utils";
 
 export function useClaimRewards(
   username: string,
+  auth: AuthContext | undefined,
   onSuccess: () => void
 ): ReturnType<typeof useBroadcastMutation<void>> {
   const { data } = useQuery(getAccountFullQueryOptions(username));
@@ -47,8 +53,47 @@ export function useClaimRewards(
         queryKey: getAccountFullQueryOptions(username).queryKey,
       });
       queryClient.invalidateQueries({
+        queryKey: ["ecency-wallets", "portfolio", "v2", username],
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey,
+      });
+      queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey,
       });
-    }
+      ["HIVE", "HBD", "HP"].forEach((asset) => {
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "asset-info", username, asset],
+        });
+      });
+
+      // Fallback refetch in case the first invalidate hits before state is updated.
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: getAccountFullQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "portfolio", "v2", username],
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey,
+        });
+        ["HIVE", "HBD", "HP"].forEach((asset) => {
+          queryClient.invalidateQueries({
+            queryKey: ["ecency-wallets", "asset-info", username, asset],
+          });
+        });
+      }, 5000);
+    },
+    auth
   );
 }

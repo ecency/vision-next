@@ -1,101 +1,122 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import useMountedState from "react-use/lib/useMountedState";
+import { useEffect, useRef, useState, type CSSProperties, type MutableRefObject } from "react";
 import "./_index.scss";
-import { v4 } from "uuid";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
-import useClickAway from "react-use/lib/useClickAway";
 import { useGlobalStore } from "@/core/global-store";
 import { classNameObject } from "@ui/util";
 
 interface Props {
-  anchor: Element | null;
+  show: boolean;
+  changeState: (show: boolean) => void;
   onSelect: (e: string) => void;
-  position?: "top" | "bottom";
   isDisabled?: boolean;
+  style?: CSSProperties;
+  rootRef?: MutableRefObject<HTMLDivElement | null>;
+  buttonRef?: MutableRefObject<HTMLElement | null>;
+  position?: "top" | "bottom";
 }
 
-const PICKER_ESTIMATED_HEIGHT = 380; // px, rough emoji-mart height
-const PICKER_ESTIMATED_WIDTH = 340;  // px
+const PICKER_ESTIMATED_HEIGHT = 380;
+const PICKER_ESTIMATED_WIDTH = 340;
 
-export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled }: Props) {
-  const ref = useRef<HTMLDivElement | null>(null);
+export function EmojiPicker({
+  show,
+  changeState,
+  onSelect,
+  isDisabled,
+  style,
+  rootRef,
+  buttonRef,
+  position = "bottom"
+}: Props) {
+  const internalRootRef = useRef<HTMLDivElement | null>(null);
+  const ref = rootRef ?? internalRootRef;
   const theme = useGlobalStore((state) => state.theme);
-
-  const [show, setShow] = useState(false);
   const [pickerPosition, setPickerPosition] = useState<{ top: number; left: number } | null>(null);
 
-  const dialogId = useMemo(() => v4(), []);
-  const isMounted = useMountedState();
-
-  useClickAway(ref, () => {
-    setShow(false);
-  });
-
+  // Calculate position when picker is shown
   useEffect(() => {
-    if (!anchor) return;
+    if (!show || !buttonRef?.current) {
+      return;
+    }
 
-    const handleClick = () => {
-      setShow((prev) => !prev);
+    const rect = buttonRef.current.getBoundingClientRect();
+    let top: number;
+    let left: number;
 
-      if (!anchor) return;
+    // Align the picker to the right edge of the trigger button
+    const desiredLeft = rect.right - PICKER_ESTIMATED_WIDTH;
 
-      const rect = anchor.getBoundingClientRect();
+    if (position === "top") {
+      top = rect.top - PICKER_ESTIMATED_HEIGHT - 8;
+    } else {
+      top = rect.bottom + 8;
+    }
 
-      let top: number;
-      let left: number;
+    // Clamp top so it stays on screen
+    const minTop = 8;
+    const maxTop = window.innerHeight - PICKER_ESTIMATED_HEIGHT - 8;
+    top = Math.max(minTop, Math.min(top, maxTop));
 
-      // Align the picker to the right edge of the trigger button for a tighter visual connection
-      const desiredLeft = rect.right - PICKER_ESTIMATED_WIDTH;
+    // Clamp left so it stays on screen
+    const minLeft = 8;
+    const maxLeft = window.innerWidth - PICKER_ESTIMATED_WIDTH - 8;
+    left = Math.max(minLeft, Math.min(desiredLeft, maxLeft));
 
-      if (position === "top") {
-        // Put picker above the anchor
-        top = rect.top - PICKER_ESTIMATED_HEIGHT - 8;
-      } else {
-        // Put picker below the anchor
-        top = rect.bottom + 8;
+    setPickerPosition({ top, left });
+  }, [show, buttonRef, position]);
+
+  // Handle click outside to close picker (same pattern as GIF picker)
+  useEffect(() => {
+    if (!show) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const targetNode = event.target as Node | null;
+
+      if (!targetNode) {
+        return;
       }
 
-      // Clamp top so it stays on screen
-      const minTop = 8;
-      const maxTop = window.innerHeight - PICKER_ESTIMATED_HEIGHT - 8;
-      top = Math.max(minTop, Math.min(top, maxTop));
+      // Don't close if clicking inside the picker
+      if (ref.current?.contains(targetNode)) {
+        return;
+      }
 
-      // Clamp left so it stays on screen
-      const minLeft = 8;
-      const maxLeft = window.innerWidth - PICKER_ESTIMATED_WIDTH - 8;
-      left = Math.max(minLeft, Math.min(desiredLeft, maxLeft));
+      // Don't close if clicking the button that opens the picker
+      // This prevents the picker from closing on pointerdown then reopening on click
+      if (buttonRef?.current?.contains(targetNode)) {
+        return;
+      }
 
-      setPickerPosition({ top, left });
+      changeState(false);
     };
 
-    anchor.addEventListener("click", handleClick);
+    document.addEventListener("pointerdown", handlePointerDown);
+
     return () => {
-      anchor.removeEventListener("click", handleClick);
+      document.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [anchor, position]);
+  }, [show, changeState, buttonRef]);
 
-  if (!isMounted()) {
-    return null;
-  }
+  const mergedStyle: CSSProperties = {
+    position: "fixed",
+    top: pickerPosition?.top,
+    left: pickerPosition?.left,
+    zIndex: 9999,
+    ...style
+  };
 
   return (
     <div
       ref={ref}
-      id={dialogId}
-      key={dialogId}
       className={classNameObject({
         "emoji-picker-dialog": true
       })}
-      style={{
-        display: show ? "block" : "none",
-        position: "fixed",
-        top: pickerPosition?.top,
-        left: pickerPosition?.left,
-        zIndex: 9999
-      }}
+      style={mergedStyle}
     >
       <Picker
         data={emojiData}
@@ -105,7 +126,7 @@ export function EmojiPicker({ anchor, onSelect, position = "bottom", isDisabled 
             return;
           }
           onSelect(e.native);
-          setShow(false);
+          changeState(false);
         }}
         previewPosition="none"
         // Render native emoji glyphs so we don't depend on sprite sheets that may not load

@@ -1,9 +1,10 @@
-import { getDiscussionsQuery } from "@/api/queries";
+import { getDiscussionsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 import { WaveEntry } from "@/entities";
 
 export function useWaveDiscussionsList(entry: WaveEntry) {
-  const { data: discussions } = getDiscussionsQuery(entry).useClientQuery();
+  const { data: discussions } = useQuery(getDiscussionsQueryOptions(entry));
 
   const build = useCallback(
     (dataset: Record<string, WaveEntry>) => {

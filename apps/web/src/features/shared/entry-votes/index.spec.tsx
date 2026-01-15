@@ -19,11 +19,17 @@ jest.mock("@/utils/dayjs", () => ({
   })
 }));
 
-jest.mock("../../api/hive", () => ({
-  getActiveVotes: () =>
-    new Promise((resolve) => {
-      resolve(votesInstance1);
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: () => ({
+    data: { ...entryInstance1, active_votes: votesInstance1 },
+    isLoading: false,
+    isError: false,
+    error: null,
+    isFetching: false,
+    status: "success",
+    refetch: jest.fn()
+  })
 }));
 
 it("(1) Default render", () => {

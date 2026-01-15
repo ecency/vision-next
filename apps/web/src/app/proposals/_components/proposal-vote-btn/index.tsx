@@ -3,10 +3,11 @@ import "./_index.scss";
 import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
 import { useProposalVoteByKey, useProposalVoteByKeychain } from "@/api/mutations/proposal-vote";
 import { proposalVoteHot } from "@/api/operations";
-import { getProposalVotesQuery } from "@/api/queries";
+import { getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
 import { UilArrowUp } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   proposal: number;
@@ -15,11 +16,9 @@ interface Props {
 export function ProposalVoteBtn({ proposal }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const { data, isLoading } = getProposalVotesQuery(
-    proposal,
-    activeUser?.username ?? "",
-    1
-  ).useClientQuery();
+  const { data, isLoading } = useInfiniteQuery(
+    getProposalVotesInfiniteQueryOptions(proposal, activeUser?.username ?? "", 1)
+  );
   const votes = useMemo(
     () => data?.pages?.reduce((acc, page) => [...acc, ...page], []),
     [data?.pages]
@@ -53,7 +52,7 @@ export function ProposalVoteBtn({ proposal }: Props) {
         outline={!voted}
         noPadding={true}
         className="w-[34px]"
-        isLoading={isVotingByKey}
+        isLoading={isVotingByKey || isVotingByKeychain}
       />
     </KeyOrHotDialog>
   );

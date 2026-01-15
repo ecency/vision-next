@@ -4,8 +4,9 @@ import { FormControl, InputGroup } from "@ui/input";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import React, { useContext, useMemo } from "react";
 import { TransferSharedStateContext } from "@/features/shared/transfer/transfer-shared-state";
-import { getTransactionsQuery } from "@/api/queries";
+import { getTransactionsInfiniteQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   toWarning: string | undefined;
@@ -17,7 +18,7 @@ export function TransferStep1To({ toWarning, toError }: Props) {
 
   const { activeUser } = useActiveAccount();
 
-  const { data: transactions } = getTransactionsQuery(activeUser?.username).useClientQuery();
+  const { data: transactions } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(activeUser?.username));
   const transactionsFlow = useMemo(
     () => transactions?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
     [transactions]

@@ -144,7 +144,7 @@ export const globalInstance: Partial<GlobalStore> = {
   currencySymbol: "$",
   lang: "en-US",
   searchIndexCount: 10000000,
-  canUseWebp: false,
+  canUseWebp: true,
   hasKeyChain: false,
   isMobile: false,
   globalNotifications: true,

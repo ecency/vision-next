@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LinearProgress } from "@/features/shared";
 import { FormControl } from "@ui/input";
 import { ScheduledListItem } from "@/features/shared/schedules/scheduled-list-item";
-import { useSchedulesQuery } from "@/api/queries";
+import { getSchedulesQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
 import i18next from "i18next";
 import { useMount } from "react-use";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onHide: () => void;
@@ -13,10 +16,13 @@ interface Props {
 
 export function SchedulesList({}: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { activeUser } = useActiveAccount();
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isPending, refetch } = useSchedulesQuery();
+  const { data, isPending, refetch } = useQuery(
+    getSchedulesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  );
 
   const items = useMemo(
     () =>

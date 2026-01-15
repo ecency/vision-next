@@ -3,7 +3,6 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import Image from "next/image";
-import { volumeOffSvg } from "@ui/svg";
 import i18next from "i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
@@ -13,7 +12,8 @@ import { postBodySummary } from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { EcencyClientServerBridge } from "@/core/client-server-bridge";
 import { EntryListItemContext } from "@/features/shared/entry-list-item/entry-list-item-context";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
+import { getMutedUsersQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
 import { useEntryLocation } from "@/utils";
@@ -29,7 +29,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
 
   const [showMuted, setShowMuted] = useState(false);
   const [showModMuted, setShowModMuted] = useState(false);
-  const { data: mutedUsers } = getMutedUsersQuery(activeUser).useClientQuery();
+  const { data: mutedUsers } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
 
   const location = useEntryLocation(entryProp);
 
@@ -83,12 +83,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
         />
       </div>
       <div className="item-summary">
-        <div className="item-nsfw">
-          <span className="nsfw-badge text-capitalize d-inline-flex items-center">
-            <div className="mute-icon">{volumeOffSvg}</div> <div>{i18next.t("g.muted")}</div>
-          </span>
-        </div>
-        <div className="item-nsfw-options">
+        <div className="item-nsfw-options mt-2">
           <a
             href="#"
             onClick={(e) => {

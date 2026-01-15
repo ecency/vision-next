@@ -16,14 +16,14 @@ import {
 } from "@/app/communities/create/_components";
 import { useGlobalStore } from "@/core/global-store";
 import { CommunityTypes } from "@/enums";
-import { delay, parseAsset, random } from "@/utils";
+import { delay, getAccessToken, parseAsset, random } from "@/utils";
 import { EcencyAnalytics, getChainPropertiesQueryOptions, useAccountUpdate } from "@ecency/sdk";
 import { cryptoUtils } from "@hiveio/dhive";
 import { useQuery } from "@tanstack/react-query";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import numeral from "numeral";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 function generateUsername(type: CommunityTypes) {
   switch (type) {
@@ -52,6 +52,9 @@ export function CreateCommunityPage() {
   const [wif, setWif] = useState(generateWif());
   const [progress, setProgress] = useState("");
   const [step, setStep] = useState(CommunityStepperSteps.INTRO);
+  const [communityAccessToken, setCommunityAccessToken] = useState<string | undefined>(
+    () => getAccessToken(username)
+  );
   const [defaultBeneficiary, setDefaultBeneficiary] = useState<{
     username: string;
     reward: number;
@@ -64,7 +67,14 @@ export function CreateCommunityPage() {
       return `${numeral(asset.amount).format("0.000")} ${asset.symbol}`;
     }
   });
-  const { mutateAsync: updateAccount } = useAccountUpdate(username);
+  const { mutateAsync: updateAccount } = useAccountUpdate(
+    username,
+    communityAccessToken
+      ? {
+          accessToken: communityAccessToken
+        }
+      : undefined
+  );
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username);
   const { mutateAsync: setUserRole } = useCommunitySetUserRole(username);
@@ -72,10 +82,35 @@ export function CreateCommunityPage() {
     activeUser?.username,
     "community-created" as any
   );
+  const updateAccountRef = useRef(updateAccount);
+  const tokenWaiterRef = useRef<((token: string) => void) | null>(null);
+  const communityAccessTokenRef = useRef(communityAccessToken);
 
   useEffect(() => {
     setUsername(generateUsername(communityType));
   }, [communityType]);
+
+  useEffect(() => {
+    setCommunityAccessToken(getAccessToken(username));
+  }, [username]);
+
+  useEffect(() => {
+    updateAccountRef.current = updateAccount;
+    communityAccessTokenRef.current = communityAccessToken;
+    if (communityAccessTokenRef.current && tokenWaiterRef.current) {
+      tokenWaiterRef.current(communityAccessTokenRef.current);
+      tokenWaiterRef.current = null;
+    }
+  }, [communityAccessToken, updateAccount]);
+
+  const waitForCommunityToken = useCallback(() => {
+    if (communityAccessTokenRef.current) {
+      return Promise.resolve(communityAccessTokenRef.current);
+    }
+    return new Promise<string>((resolve) => {
+      tokenWaiterRef.current = resolve;
+    });
+  }, []);
 
   const prepareCreatedCommunity = useCallback(
     async (code: string) => {
@@ -95,6 +130,7 @@ export function CreateCommunityPage() {
         postingKey: null,
         loginType: "hivesigner"
       });
+      setCommunityAccessToken(renewOpts.access_token);
 
       // set admin role
       setProgress(i18next.t("communities-create.progress-role", { u: activeUser.username }));
@@ -119,7 +155,8 @@ export function CreateCommunityPage() {
       });
 
       if (defaultBeneficiary.username && defaultBeneficiary.reward) {
-        await updateAccount({
+        await waitForCommunityToken();
+        await updateAccountRef.current({
           profile: {
             beneficiary: {
               account: defaultBeneficiary.username,
@@ -146,7 +183,8 @@ export function CreateCommunityPage() {
       about,
       updateAccount,
       defaultBeneficiary,
-      recordActivity
+      recordActivity,
+      waitForCommunityToken
     ]
   );
 

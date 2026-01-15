@@ -6,7 +6,8 @@ import { Account } from "@/entities";
 import i18next from "i18next";
 import { Pagination, Tooltip } from "@ui/index";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
-import { getConversionRequestsQuery } from "@/api/queries";
+import { getConversionRequestsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { LinearProgress } from "@/features/shared";
 
 interface Props {
@@ -15,9 +16,9 @@ interface Props {
 }
 
 export function ConversionRequests({ account, onHide }: Props) {
-  const { data: conversionRequests, isLoading } = getConversionRequestsQuery(
+  const { data: conversionRequests, isLoading } = useQuery(getConversionRequestsQueryOptions(
     account.name
-  ).useClientQuery();
+  ));
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);

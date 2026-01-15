@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, UserAvatar } from "@/features/shared";
 import { ProfilePreview } from "@/features/shared/profile-popover/profile-preview";
 import { Popover } from "@/features/ui";
@@ -11,9 +11,10 @@ import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
 import { shouldUseHiveAuth } from "@/utils/client";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 export function ManageAuthorities() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(activeUser?.username!),
@@ -30,10 +31,14 @@ export function ManageAuthorities() {
   const [revokingAccount, setRevokingAccount] = useState("");
   const [keyDialog, setKeyDialog] = useState(false);
 
-  const { mutateAsync: revoke, isPending } = useAccountRevokePosting(activeUser?.username, {
-    onError: (err) => error((err as Error).message),
-    onSuccess: () => setKeyDialog(false)
-  });
+  const { mutateAsync: revoke, isPending } = useAccountRevokePosting(
+    activeUser?.username,
+    {
+      onError: (err) => error((err as Error).message),
+      onSuccess: () => setKeyDialog(false)
+    },
+    getSdkAuthContext(getUser(activeUser?.username ?? ""))
+  );
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
 
   const handleRevoke = useCallback((account: string) => {

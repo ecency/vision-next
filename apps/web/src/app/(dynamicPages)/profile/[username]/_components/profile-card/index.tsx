@@ -1,7 +1,6 @@
 "use client";
 
-import { rcPower } from "@/api/hive";
-import { getAccountFullQuery } from "@/api/queries";
+import { rcPower } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { Account } from "@/entities";
@@ -12,7 +11,8 @@ import { accountReputation, dateToFormatted } from "@/utils";
 import {
   getAccountRcQueryOptions,
   getAccountSubscriptionsQueryOptions,
-  getRelationshipBetweenAccountsQueryOptions
+  getRelationshipBetweenAccountsQueryOptions,
+  getAccountFullQueryOptions
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -40,21 +40,22 @@ interface Props {
 export function ProfileCard({ account }: Props) {
   const { username: activeUsername, account: activeAccount } = useActiveAccount();
 
-  const { data } = getAccountFullQuery(account.name).useClientQuery();
-  const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
-  const { data: relationshipBetweenAccounts } = useQuery(
-    getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined)
+  const isMyProfile = useMemo(
+    () => activeUsername === account?.name && activeAccount?.profile,
+    [account?.name, activeUsername, activeAccount]
   );
+
+  const { data } = useQuery(getAccountFullQueryOptions(account.name));
+  const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
+  const { data: relationshipBetweenAccounts } = useQuery({
+    ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),
+    enabled: !isMyProfile && !!account?.name && !!activeUsername
+  });
   const { data: subscriptions } = useQuery(getAccountSubscriptionsQueryOptions(account?.name));
 
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
-
-  const isMyProfile = useMemo(
-    () => activeUsername === account?.name && activeAccount?.profile,
-    [account?.name, activeUsername, activeAccount]
-  );
   const moderatedCommunities = useMemo(
     () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],
     [subscriptions]

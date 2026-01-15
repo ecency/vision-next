@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`decryptMemoWithKeys > should decrypt encrypted memo 1`] = `"Hello, this is a secret message"`;
+
+exports[`encrypt and decrypt round-trip > should match snapshot for complete round-trip 1`] = `
+{
+  "decrypted": "Complete round-trip test",
+  "encrypted": "encrypted:Complete round-trip test",
+  "original": "Complete round-trip test",
+}
+`;
+
+exports[`encryptMemoWithAccounts > should encrypt memo by fetching recipient public key 1`] = `"encrypted:Secret message for recipient"`;
+
+exports[`encryptMemoWithKeys > should encrypt memo with given keys 1`] = `"encrypted:Hello, this is a secret message"`;

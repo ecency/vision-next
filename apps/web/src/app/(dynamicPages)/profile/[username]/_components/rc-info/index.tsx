@@ -7,7 +7,7 @@ import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import { List, ListItem } from "@ui/list";
-import { findRcAccounts, getRcOperationStats } from "@/api/hive";
+import { getAccountRcQueryOptions, getRcStatsQueryOptions } from "@ecency/sdk";
 import { rcFormatter } from "@/utils";
 import i18next from "i18next";
 import { RcProgressCircle } from "./rc-progress-circle";
@@ -15,6 +15,7 @@ import { ClaimAccountCredit } from "../claim-account-credit";
 import { ConfirmDelete, RcDelegationsList } from "../rc-delegations-list";
 import { ResourceCreditsDelegation } from "@/app/(dynamicPages)/profile/[username]/_components/rc-delegation";
 import { FullAccount } from "@/entities";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   rcPercent: number;
@@ -23,6 +24,7 @@ interface Props {
 
 export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const radius = 70;
   const dasharray = 440;
@@ -90,7 +92,8 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
   };
 
   const fetchRCData = () => {
-    findRcAccounts(account.name)
+    queryClient
+      .fetchQuery(getAccountRcQueryOptions(account.name))
       .then((r) => {
         const outGoing = r.map((a: any) => a.delegated_rc);
         const delegated = outGoing[0];
@@ -104,8 +107,8 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
         setResourceCredit(totalRc);
 
         const rcOperationsCost = async () => {
-          const rcStats: any = await getRcOperationStats();
-          const operationCosts = rcStats.rc_stats.ops;
+          const rcStats: any = await queryClient.fetchQuery(getRcStatsQueryOptions());
+          const operationCosts = rcStats.ops;
           const commentCost = operationCosts.comment_operation.avg_cost;
           const transferCost = operationCosts.transfer_operation.avg_cost;
           const voteCost = operationCosts.vote_operation.avg_cost;

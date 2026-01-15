@@ -18,13 +18,6 @@ jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
 }));
 
-jest.mock("../../api/hive", () => ({
-  getFollowing: () =>
-    new Promise((resolve) => {
-      resolve([]);
-    })
-}));
-
 const defProps = {
   history: createBrowserHistory(),
   global: { ...globalInstance },

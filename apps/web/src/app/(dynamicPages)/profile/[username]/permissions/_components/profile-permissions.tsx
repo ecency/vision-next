@@ -1,6 +1,6 @@
 "use client";
 
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { AccountRecovery } from "@/app/(dynamicPages)/profile/[username]/permissions/_components/account-recovery";
 import { ManageAuthorities } from "./manage-authorities";
 import { ManageKeys } from "./manage-keys";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 
 export function ProfilePermissions() {
   const router = useRouter();
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { username } = useParams<{ username: string }>();
 
   useEffect(() => {

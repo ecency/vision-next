@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`isEmptyDate > snapshots > should match snapshot for empty date 1`] = `true`;
+
+exports[`isEmptyDate > snapshots > should match snapshot for typical valid date 1`] = `false`;
+
+exports[`isEmptyDate > snapshots > should match snapshot for undefined 1`] = `true`;
+
+exports[`vestsToHp > basic conversions > should convert vests to HP correctly 1`] = `500`;
+
+exports[`vestsToHp > snapshots > should match snapshot for small amount 1`] = `0.4855`;
+
+exports[`vestsToHp > snapshots > should match snapshot for typical conversion 1`] = `4855`;

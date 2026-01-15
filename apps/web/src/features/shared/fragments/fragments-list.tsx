@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
 import { useEffect, useRef, useState } from "react";
 import { FragmentsListItem } from "./fragments-list-item";
+import { getAccessToken } from "@/utils";
 
 interface Props {
   onPick?: (body: string) => void;
@@ -20,11 +21,13 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const accessToken = username ? getAccessToken(username) : undefined;
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: items, isPending } = useQuery({
-    ...getFragmentsQueryOptions(activeUser!.username),
+    ...getFragmentsQueryOptions(username ?? "", accessToken),
     refetchOnMount: true,
     select: (data) =>
       data

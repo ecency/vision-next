@@ -1,0 +1,124 @@
+import { CONFIG } from "@/modules/core";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { Entry } from "../types";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
+import { getPostsRanked } from "@/modules/bridge";
+
+type PageParam = {
+  author: string | undefined;
+  permlink: string | undefined;
+  hasNextPage: boolean;
+};
+
+interface GetPostsRankedOptions {
+  resolvePosts?: boolean;
+}
+
+export function getPostsRankedInfiniteQueryOptions(
+  sort: string,
+  tag: string,
+  limit = 20,
+  observer = "",
+  enabled = true,
+  _options: GetPostsRankedOptions = {}
+) {
+  return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
+    queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
+    queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+      if (!pageParam.hasNextPage) {
+        return [];
+      }
+
+      let sanitizedTag = tag;
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
+        sanitizedTag = "";
+      }
+
+      const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {
+        sort,
+        start_author: pageParam.author,
+        start_permlink: pageParam.permlink,
+        limit,
+        tag: sanitizedTag,
+        observer,
+      });
+
+      if (response && Array.isArray(response)) {
+        const data = response as Entry[];
+
+        // Sort by created date unless it's "hot"
+        const sorted =
+          sort === "hot"
+            ? data
+            : data.sort(
+                (a, b) =>
+                  new Date(b.created).getTime() - new Date(a.created).getTime()
+              );
+
+        // Handle pinned entries
+        const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
+        const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
+
+        const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
+        return filterDmcaEntry(combined);
+      }
+
+      return [];
+    },
+    enabled,
+    initialPageParam: {
+      author: undefined,
+      permlink: undefined,
+      hasNextPage: true,
+    } as PageParam,
+    getNextPageParam: (lastPage: Entry[]) => {
+      const last = lastPage?.[lastPage.length - 1];
+      return {
+        author: last?.author,
+        permlink: last?.permlink,
+        hasNextPage: (lastPage?.length ?? 0) > 0,
+      };
+    },
+  });
+}
+
+export function getPostsRankedQueryOptions(
+  sort: string,
+  start_author: string = "",
+  start_permlink: string = "",
+  limit: number = 20,
+  tag: string = "",
+  observer: string = "",
+  enabled = true
+) {
+  return queryOptions({
+    queryKey: [
+      "posts",
+      "posts-ranked-page",
+      sort,
+      start_author,
+      start_permlink,
+      limit,
+      tag,
+      observer,
+    ],
+    enabled,
+    queryFn: async () => {
+      let sanitizedTag = tag;
+      if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
+        sanitizedTag = "";
+      }
+
+      const response = await getPostsRanked(
+        sort,
+        start_author,
+        start_permlink,
+        limit,
+        sanitizedTag,
+        observer
+      );
+
+      return filterDmcaEntry(response ?? []) as Entry[];
+    },
+  });
+}

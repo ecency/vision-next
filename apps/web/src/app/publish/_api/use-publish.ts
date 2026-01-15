@@ -1,9 +1,9 @@
-import { validatePostCreating } from "@/api/hive";
+import { validatePostCreating } from "@ecency/sdk";
 import { comment, reblog } from "@/api/operations";
-import { getAccountFullQuery, getPostHeaderQuery } from "@/api/queries";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
@@ -73,7 +73,7 @@ export function usePublishApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Publish] Failed to load account data");
         }
@@ -88,15 +88,34 @@ export function usePublishApi() {
 
       let permlink = createPermlink(title!);
 
-      // permlink duplication check
-      try {
-        const existingEntry = await getPostHeaderQuery(author, permlink).fetchAndGet();
+      // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await getQueryClient().fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
-        if (existingEntry?.author) {
-          // create permlink with random suffix
-          permlink = createPermlink(title!, true);
+          if (existingEntry?.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title!, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
         }
-      } catch (e) {}
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Publish] Failed to generate unique permlink after multiple attempts");
+      }
 
       const [parentPermlink] = tags!;
       const videoMetadata = publishingVideo

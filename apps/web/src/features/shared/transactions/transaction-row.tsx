@@ -17,8 +17,10 @@ import { dateToFullRelative, formattedNumber, parseAsset, vestsToHp } from "@/ut
 import i18next from "i18next";
 import { EntryLink, UserAvatar } from "@/features/shared";
 import { TwoUserAvatar } from "@/features/shared/two-user-avatar";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Transaction } from "@/entities";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   transaction: Transaction;
@@ -27,7 +29,7 @@ interface Props {
 }
 
 export function TransactionRow({ entry, transaction: item }: Props) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const { hivePerMVests } = dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
   const tr = item || entry;

@@ -1,11 +1,11 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 
 export function PermissionsCard() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
 
   return (
     <div className="bg-white rounded-xl p-4 flex items-center gap-4">

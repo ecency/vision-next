@@ -3,11 +3,12 @@
 import React, { Fragment, useMemo } from "react";
 import "./_index.scss";
 import { Button } from "@ui/button";
-import { getAccountNotificationsQuery } from "@/api/queries";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { getAccountNotificationsInfiniteQueryOptions } from "@ecency/sdk";
 import { EntryLink, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import i18next from "i18next";
 import { Community } from "@/entities";
-import { AccountNotification } from "@/api/bridge";
+import { AccountNotification } from "@ecency/sdk";
 import { dateToFullRelative } from "@/utils";
 import type { InfiniteData } from "@tanstack/react-query";
 
@@ -86,7 +87,7 @@ function isInfinite<TPage>(d: unknown): d is InfiniteData<TPage, unknown> {
 }
 
 export function CommunityActivities({ community }: Props) {
-  const result = getAccountNotificationsQuery(community, 50).useClientQuery();
+  const result = useInfiniteQuery(getAccountNotificationsInfiniteQueryOptions(community.name, 50));
   const { isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = result;
 
   // Narrow `data` safely

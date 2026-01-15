@@ -5,15 +5,15 @@ import i18next from "i18next";
 import React, { useCallback } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { PrivateKey } from "@hiveio/dhive";
-import { getAccountFullQuery } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
   useSignTransferByHiveSigner,
   useSignTransferByKey,
   useSignTransferByKeychain
 } from "@/api/mutations";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   onHide: () => void;
@@ -24,7 +24,7 @@ export function TransferStep3({ onHide }: Props) {
 
   const { step, setStep, to, amount, asset, mode, memo, inProgress } = useTransferSharedState();
 
-  const { refetch } = getAccountFullQuery(activeUser?.username).useClientQuery();
+  const { refetch } = useQuery(getAccountFullQueryOptions(activeUser?.username));
   const queryClient = useQueryClient();
   const activeUsername = activeUser?.username;
 

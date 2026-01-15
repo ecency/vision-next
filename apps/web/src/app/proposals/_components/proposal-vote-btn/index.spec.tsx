@@ -9,23 +9,14 @@ import { ProposalVoteBtn } from "./index";
 
 let MOCK_MODE: number = 1;
 
-jest.mock("../../api/hive", () => ({
-  getProposalVotes: (proposalId: number, voter: string = "", limit: number = 300) =>
-    new Promise((resolve) => {
-      if (MOCK_MODE === 1) {
-        resolve([]);
-        return;
-      }
-
-      if (MOCK_MODE === 2) {
-        resolve([
-          {
-            voter: "foo"
-          }
-        ]);
-        return;
-      }
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useInfiniteQuery: () => ({
+    data: {
+      pages: MOCK_MODE === 2 ? [[{ voter: "foo" }]] : [[]]
+    },
+    isLoading: false
+  })
 }));
 
 const defProps = {

@@ -108,6 +108,9 @@ export function UPGRADE(
 
   // Connect to upstream Mattermost WebSocket
   let upstream: WebSocket;
+  let connectionTimeout: NodeJS.Timeout;
+  let pingInterval: NodeJS.Timeout | null = null;
+
   try {
     const mattermostWsUrl = getMattermostWebsocketUrl();
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_BASE || "https://ecency.com";
@@ -116,8 +119,19 @@ export function UPGRADE(
       headers: {
         "Origin": origin,
         "User-Agent": "Ecency-WebSocket-Proxy/1.0"
-      }
+      },
+      // Add handshake timeout
+      handshakeTimeout: 10000, // 10 seconds
     });
+
+    // Set connection timeout
+    connectionTimeout = setTimeout(() => {
+      if (upstream.readyState !== WebSocket.OPEN) {
+        console.error("Chat WebSocket: upstream connection timeout");
+        upstream.terminate();
+        client.close(1011, "Upstream connection timeout");
+      }
+    }, 15000); // 15 seconds total timeout
   } catch (error) {
     console.error("Chat WebSocket: failed to connect upstream", error);
     client.close(1011, "Chat service unavailable");
@@ -125,6 +139,13 @@ export function UPGRADE(
   }
 
   const closeBoth = (code = 1011, reason = "websocket error") => {
+    // Clear all timers
+    clearTimeout(connectionTimeout);
+    if (pingInterval) {
+      clearInterval(pingInterval);
+      pingInterval = null;
+    }
+
     try {
       client.close(code, reason);
     } catch (error) {
@@ -165,12 +186,39 @@ export function UPGRADE(
 
   // Upstream -> Client forwarding
   upstream.on("open", () => {
+    // Clear connection timeout
+    clearTimeout(connectionTimeout);
+
     try {
       upstream.send(buildAuthenticationChallenge(token));
+
+      // Start keepalive ping every 30 seconds to keep proxy connection alive
+      // This prevents load balancers/proxies from closing idle connections
+      pingInterval = setInterval(() => {
+        if (upstream.readyState === WebSocket.OPEN) {
+          try {
+            // Send ping frame
+            upstream.ping();
+          } catch (error) {
+            console.error("Chat WebSocket: failed to send ping", error);
+            closeBoth(1011, "ping failed");
+          }
+        } else {
+          if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+          }
+        }
+      }, 30000); // 30 seconds
     } catch (error) {
       console.error("Chat WebSocket: auth challenge failed", error);
       closeBoth(1011, "auth error");
     }
+  });
+
+  // Handle pong responses
+  upstream.on("pong", () => {
+    // Pong received, connection is alive
   });
 
   upstream.on("message", (data, isBinary) => {

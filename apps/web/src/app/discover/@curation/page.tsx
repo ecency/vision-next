@@ -7,8 +7,8 @@ import {
 } from "@/app/discover/_components";
 import { LeaderBoardDuration } from "@/entities";
 import { EcencyConfigManager } from "@/config";
-import { getDiscoverCurationQuery, getDynamicPropsQuery } from "@/api/queries";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getDynamicPropsQueryOptions, getDiscoverCurationQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
@@ -25,10 +25,10 @@ interface Props {
 export default function CurationPage({ searchParams }: Props) {
   const params = useSearchParams();
 
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data } = getDiscoverCurationQuery(
-    (params.get("period") as LeaderBoardDuration) ?? "day"
-  ).useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const { data } = useQuery(
+    getDiscoverCurationQueryOptions((params.get("period") as LeaderBoardDuration) ?? "day")
+  );
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

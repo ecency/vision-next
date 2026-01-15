@@ -72,7 +72,7 @@ export function EntryIndexMenu() {
     if (value === "my") {
       router.push(`/${filter}/my`);
     } else if (value === "global") {
-      router.push(`/${filter}/global`);
+      router.push(`/${filter}`); // Global means no tag, just /trending
     } else {
       router.push(`/${filter}/${value}`);
     }
@@ -241,19 +241,6 @@ export function EntryIndexMenu() {
       filter === "feed"
     ) {
       router.push(`/@${activeUser?.username}/${filter}`);
-    } else if (
-      ["controversial", "rising"].includes(prevFilter as string) &&
-      !["controversial", "rising"].includes(filter)
-    ) {
-      if (tag && tag.includes("@")) {
-        router.push(`/${tag}/${filter}`);
-      } else {
-        router.push(`/${filter}`);
-      }
-    } else if (["controversial", "rising"].includes(filter)) {
-      const tagValue =
-        tag && tag !== "my" && ["week", "month", "year", "all"].includes(tag) ? "/" + tag : "/week";
-      router.push(`/${filter}${tagValue}`);
     }
   }, [activeUser, filter, pathname, prevActiveUser, prevFilter, router, tag]);
 

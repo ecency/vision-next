@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import React from "react";
-import { useGetFollowCount } from "@/api/queries";
+import { getFollowCountQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { ProfilePreviewCellLayout } from "@/features/shared/profile-popover/profile-preview/profile-preview-cell-layout";
 import { ProfilePreviewPropertiesRowLayout } from "@/features/shared/profile-popover/profile-preview/profile-preview-properties-row-layout";
 
@@ -9,7 +10,7 @@ interface Props {
 }
 
 export function ProfilePreviewFollowers({ username }: Props) {
-  const { data: followCount, isLoading: loadingFollowCount } = useGetFollowCount(username);
+  const { data: followCount, isLoading: loadingFollowCount } = useQuery(getFollowCountQueryOptions(username));
 
   return (
     <ProfilePreviewPropertiesRowLayout>

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch } from "@/modules/core";
 
 export interface StatsResponse {
   results: [
@@ -32,7 +32,7 @@ export function getStatsQueryOptions({
     queryKey: ["integrations", "plausible", url, dimensions, metrics],
     queryFn: async () => {
       const fetchApi = getBoundFetch();
-      const response = await fetchApi(`https://ecency.com/api/stats`, {
+      const response = await fetchApi(`${CONFIG.privateApiHost}/api/stats`, {
         method: "POST",
         body: JSON.stringify({
           metrics,

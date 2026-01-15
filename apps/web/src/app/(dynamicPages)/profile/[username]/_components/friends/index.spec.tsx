@@ -13,44 +13,26 @@ jest.mock("@/defaults", () => ({
   imageServer: "https://images.ecency.com"
 }));
 
-jest.mock("../../api/hive", () => ({
-  getFollowers: () =>
-    new Promise((resolve) => {
-      resolve([
-        {
-          follower: "foo",
-          following: "user1",
-          what: ["blog"]
-        },
-        {
-          follower: "bar",
-          following: "user2",
-          what: ["blog"]
-        },
-        {
-          follower: "baz",
-          following: "user3",
-          what: ["blog"]
-        }
-      ]);
-    }),
-  getAccounts: () =>
-    new Promise((resolve) => {
-      resolve([
-        {
-          name: "user1",
-          profile: { name: "User One" }
-        },
-        {
-          name: "user2",
-          profile: { name: "User Two" }
-        },
-        {
-          name: "user3",
-          profile: { name: "User Three" }
-        }
-      ]);
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useInfiniteQuery: () => ({
+    data: {
+      pages: [
+        [
+          { name: "user1", active: "2020-01-01T00:00:00" },
+          { name: "user2", active: "2020-01-02T00:00:00" },
+          { name: "user3", active: "2020-01-03T00:00:00" }
+        ]
+      ]
+    },
+    isFetching: false,
+    fetchNextPage: jest.fn()
+  }),
+  useQuery: () => ({
+    data: [],
+    isFetching: false,
+    refetch: jest.fn()
+  })
 }));
 
 const props = {

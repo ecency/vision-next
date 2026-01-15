@@ -1,80 +1,45 @@
+import { CONFIG } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
-import { CONFIG } from "@/modules/core/config";
-import { validateEntry } from "../functions";
-import { dmca_accounts } from "@/modules/core";
+import { filterDmcaEntry } from "../utils/filter-dmca-entries";
+
+function makeEntryPath(category: string, author: string, permlink: string) {
+  return `${category}/@${author}/${permlink}`;
+}
 
 export function getPostQueryOptions(
   author: string,
-  permlink: string,
-  observer: string = "",
+  permlink?: string,
+  observer = "",
   num?: number
 ) {
+  const cleanPermlink = permlink?.trim();
+  const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
+
   return queryOptions({
-    queryKey: ["posts", "post", author, permlink],
+    queryKey: ["posts", "entry", entryPath],
     queryFn: async () => {
-      const resp = await CONFIG.hiveClient.call("bridge", "get_post", {
+      if (!cleanPermlink || cleanPermlink === "undefined") {
+        return null;
+      }
+
+      const response = await CONFIG.hiveClient.call("bridge", "get_post", {
         author,
-        permlink,
+        permlink: cleanPermlink,
         observer,
       });
 
-      if (resp) {
-        // Validate and fix the entry before processing
-        const validatedEntry = validateEntry(resp);
-        const post = await resolvePost(validatedEntry, observer, num);
-
-        if (
-          dmca_accounts.some((rx) =>
-            new RegExp(rx).test(`@${post.author}/${post.permlink}`)
-          )
-        ) {
-          post.body =
-            "This post is not available due to a copyright/fraudulent claim.";
-          post.title = "";
-        }
-
-        return post;
+      if (!response) {
+        return null;
       }
 
-      return undefined;
+      const entry = num !== undefined ? { ...response, num } as Entry : response as Entry;
+      return filterDmcaEntry(entry);
     },
+    enabled:
+      !!author &&
+      !!permlink &&
+      permlink.trim() !== "" &&
+      permlink.trim() !== "undefined",
   });
-}
-
-export async function resolvePost(
-  post: Entry,
-  observer: string,
-  num?: number
-): Promise<Entry> {
-  const { json_metadata: json } = post;
-
-  if (
-    json?.original_author &&
-    json?.original_permlink &&
-    json.tags?.[0] === "cross-post"
-  ) {
-    try {
-      const query = getPostQueryOptions(
-        json.original_author,
-        json.original_permlink,
-        observer,
-        num
-      );
-      await CONFIG.queryClient.prefetchQuery(query);
-      const resp = await CONFIG.queryClient.getQueryData(query.queryKey);
-      if (resp) {
-        return {
-          ...post,
-          original_entry: resp,
-          num,
-        };
-      }
-      return post;
-    } catch (e) {
-      return post;
-    }
-  }
-
-  return { ...post, num };
 }

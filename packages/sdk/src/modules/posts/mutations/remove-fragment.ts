@@ -1,23 +1,25 @@
-import {
-  CONFIG,
-  getAccessToken,
-  getBoundFetch,
-  getQueryClient,
-} from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 import { Fragment } from "../types";
 import { getFragmentsQueryOptions } from "../queries";
 
-export function useRemoveFragment(username: string, fragmentId: string) {
+export function useRemoveFragment(
+  username: string,
+  fragmentId: string,
+  code: string | undefined
+) {
   return useMutation({
     mutationKey: ["posts", "remove-fragment", username],
     mutationFn: async () => {
+      if (!code) {
+        throw new Error("[SDK][Posts] Missing access token");
+      }
       const fetchApi = getBoundFetch();
 
       return fetchApi(CONFIG.privateApiHost + "/private-api/fragments-delete", {
         method: "POST",
         body: JSON.stringify({
-          code: getAccessToken(username),
+          code,
           id: fragmentId,
         }),
         headers: {
@@ -27,7 +29,7 @@ export function useRemoveFragment(username: string, fragmentId: string) {
     },
     onSuccess() {
       getQueryClient().setQueryData<Fragment[]>(
-        getFragmentsQueryOptions(username).queryKey,
+        getFragmentsQueryOptions(username, code).queryKey,
         (data) => [...(data ?? [])].filter(({ id }) => id !== fragmentId)
       );
     },

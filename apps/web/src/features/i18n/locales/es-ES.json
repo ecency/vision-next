@@ -47,6 +47,7 @@
     "hot": "inicio",
     "trending": "inicio",
     "created": "inicio",
+    "promoted": "promocionado",
     "muted": "silenciado",
     "trail": "sendero",
     "controversial": "polémico",
@@ -295,7 +296,7 @@
     "description": "¡Libertad de Expresión, Verdadera propiedad de contenidos, Libertad financiera!",
     "description-2": "Hive provee muchas aplicaciones y está completamente descentralizada por miembros de la comunidad de todo el mundo. Con una cuenta, usted tiene acceso directo al ecosistema.",
     "bottom-description": "Una cuenta, una cartera para gestionar todo en Blockchain.",
-    "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"/faq#how-to-join\">Preguntas frecuentes</a>",
+    "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"https://docs.ecency.com/guides/create-account/\">Preguntas frecuentes FAQ</a>",
     "username": "Elige un nombre de usuario",
     "email": "Ingresa tu dirección de email",
     "ref": "Usuario Referido (Opcional)",
@@ -407,6 +408,22 @@
     "ascending": "Ascendente",
     "descending": "Descendente"
   },
+  "tags-page": {
+    "title": "Etiquetas en Tendencia",
+    "description": "Descubre los temas más activos con su volumen de comentarios, mensajes y pagos.",
+    "error": "No se pueden cargar etiquetas de tendencia en este momento.",
+    "columns": {
+      "tag": "Etiqueta",
+      "comments": "Comentarios",
+      "top-posts": "Publicaciones en Top",
+      "total-payouts": "Pagos totales"
+    },
+    "load-more": {
+      "cta": "Cargar más",
+      "loading": "Cargando...",
+      "done": "No hay más etiquetas"
+    }
+  },
   "entry-list-item": {
     "cross-posted": "publicación-cruzada",
     "cross-posted-to": "para",
@@ -445,7 +462,10 @@
     "delete-success": "Reblog eliminado"
   },
   "entry-tip": {
-    "title": "Sugerencia"
+    "title": "Sugerencia",
+    "send-tip": "Enviar una propina",
+    "count": "{{count}} propina",
+    "count_plural": "{{count}} propinas"
   },
   "entry-share": {
     "title": "Compartir"
@@ -1111,7 +1131,7 @@
     "confirm": "Confirmar",
     "cancel": "Cancelar",
     "check-faq": "Más información sobre CR en nuestro",
-    "learn-more": "/PreguntasFrecuentes#qué-son-cr",
+    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
     "faq-link": "Preguntas Frecuentes (FAQ)",
     "insufficient-rc-error": "Créditos de Recursos insuficientes",
     "minimum-rc-error": "CR mínimo es de 5.000.000.000",
@@ -1402,6 +1422,7 @@
     "to-placeholder": "nombre de Usuario",
     "to-not-found": "¡El usuario al que estás intentando transferir fondos no existe!",
     "to-bad-actor": "Tenga cuidado enviando a esta cuenta. Por favor verifique la ortografía ante posible suplantación de identidad (phishing).",
+    "external-wallets-label": "Cartera (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Cantidad",
     "amount-placeholder": "cantidad",
     "wrong-amount": "Cantidad incorrecta",
@@ -1532,7 +1553,9 @@
     "key-placeholder": "Clave privada, contraseña maestra o semilla",
     "with-hivesigner": "Iniciar Sesión con hivesigner",
     "with-keychain": "Iniciar sesión con KeyChain",
-    "with-hiveauth": "Firmar con HiveAuth"
+    "with-hiveauth": "Firmar con HiveAuth",
+    "invalid-key": "Formato de clave no válido. Por favor, compruebe los caracteres no válidos.",
+    "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta."
   },
   "hive-auth": {
     "pending-request": "Solicitud de HiveAuth pendiente. Coincide con el ID {{id}} en tu cartera."
@@ -1778,7 +1801,7 @@
     "payouts": "Su pago de contenido está listo.",
     "payouts-amount": "Has recibido el pago de {{amount}}.",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Has creado una publicación {{count}}{{suffix}} este mes. ¡Sigue así!"
+    "monthly-posts": "Has creado {{count}} publicación{{suffix}} este mes. ¡Sigue así!"
   },
   "notifications": {
     "type-all": "Todas las notificaciones",
@@ -1959,7 +1982,7 @@
     "create": {
       "step-setup-title": "Establecer detalles de la propuesta",
       "step-setup-sub-title": "Describa la propuesta que desea enviar al DHF.",
-      "description": "<p>Before submitting a proposal make sure you have published a Hive post that explains the scope of the work and link to it below. Creating a proposal costs <strong>10 HBD</strong> plus <strong>1 HBD</strong> for each day over 60.</p>",
+      "description": "<p>Antes de enviar una propuesta, asegúrate de hacer una publicar en Hive que explique el alcance del trabajo y enlazarla a la propuesta. Crear una propuesta cuesta <strong>10 HBD</strong> más <strong>1 HBD</strong> por cada día más allá de los 60 días.</p>",
       "subject-label": "Título",
       "subject-placeholder": "Título público corto",
       "subject-help": "Esto aparece en la lista de propuestas. Manténgalo conciso (máximo 80 caracteres).",
@@ -2107,7 +2130,7 @@
     "search-channels": "Buscar canales, usuarios o DMs",
     "loading": "Cargando…",
     "mark-as-read": "Marcar como leído",
-    "marking-as-read": "Marking…",
+    "marking-as-read": "Marcando…",
     "channel-type-dm": "DM",
     "channel-type": "Canal",
     "favorite-channel": "Canal favorito",
@@ -2122,7 +2145,7 @@
     "channel-type-public": "Canal público",
     "channel-type-private": "Canal privado",
     "join-channel-action": "Unirse",
-    "joining-channel": "Joining…",
+    "joining-channel": "Uniéndose…",
     "no-additional-channels": "No se encontraron canales adicionales.",
     "title": "Chats",
     "no-admin": "No hay administrador o moderador para este chat de la comunidad.",
@@ -2133,7 +2156,12 @@
     "enter-private-key-detail": "Introduzca la clave privada del chat para importar todos los chats",
     "message-search-results": "Resultados de búsqueda de mensajes",
     "no-messages-found": "No se encontraron mensajes.",
-    "no-message": "Sin contenido de mensaje."
+    "no-message": "Sin contenido de mensaje.",
+    "translate": "Traducir",
+    "translate-target-language": "Idioma destino",
+    "pinned-messages": "Mensajes Anclados",
+    "pin-message": "Anclar mensaje",
+    "unpin-message": "Desanclar mensaje"
   },
   "add-image": {
     "title": "Añadir imagen",

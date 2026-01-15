@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Vesting (1) vestsToHp 1`] = `0.17326914375512842`;
+
+exports[`Vesting (2) hpToVests 1`] = `350.00000000000006`;
+
+exports[`Vesting (3) vestsToRshares 1`] = `1107033164.754156`;
+
+exports[`Vesting > (1) vestsToHp 1`] = `0.17326914375512842`;
+
+exports[`Vesting > (2) hpToVests 1`] = `350.00000000000006`;
+
+exports[`Vesting > (3) vestsToRshares 1`] = `1107033164.754156`;

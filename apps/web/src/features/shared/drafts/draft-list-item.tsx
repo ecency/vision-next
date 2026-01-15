@@ -13,6 +13,7 @@ import Image from "next/image";
 import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   draft: Draft;
@@ -26,10 +27,10 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
 
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage;
+  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
   const summary = postBodySummary(draft.body, 200);
 
-  const { data: community } = getCommunityCache(tag).useClientQuery();
+  const { data: community } = useQuery(getCommunityCache(tag));
 
   const dateRelative = useMemo(() => dateToFullRelative(draft.created), [draft]);
   const dateFormatted = useMemo(() => dateToFormatted(draft.created), [draft]);
@@ -78,8 +79,8 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
               target.src = fallbackImage.src;
             }}
             className={classNameObject({
-              "w-full h-auto": img !== noImage,
-              "w-[40px] h-auto": img === noImage
+              "w-full h-auto": img !== noImage.src,
+              "w-[40px] h-auto": img === noImage.src
             })}
           />
         </div>

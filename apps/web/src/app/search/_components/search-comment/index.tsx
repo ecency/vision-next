@@ -5,7 +5,8 @@ import "./_index.scss";
 import { DetectBottom, LinearProgress, SearchListItem } from "@/features/shared";
 import i18next from "i18next";
 import { SearchAdvancedForm } from "@/app/search/_components/search-advanced-form";
-import { getSearchApiQuery } from "@/api/queries";
+import { getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { SearchResult } from "@/entities";
 import { Button } from "@/features/ui";
@@ -56,12 +57,15 @@ export function SearchComment({ disableResults }: Props) {
     isLoading,
     fetchNextPage,
     hasNextPage
-  } = getSearchApiQuery(
-    params?.get("q") ?? "",
-    params?.get("sort") ?? SearchSort.NEWEST,
-    params?.get("hd") !== "0",
-    since
-  ).useClientQuery();
+  } = useInfiniteQuery({
+    ...getSearchApiInfiniteQueryOptions(
+      params?.get("q") ?? "",
+      params?.get("sort") ?? SearchSort.NEWEST,
+      params?.get("hd") !== "0",
+      since
+    ),
+    initialData: { pages: [], pageParams: [] }
+  });
   const results = useMemo(
     () =>
       resultsPages?.pages?.reduce<SearchResult[]>((acc, page) => [...acc, ...page.results], []) ??

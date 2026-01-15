@@ -1,21 +1,17 @@
-import {
-  CONFIG,
-  getAccessToken,
-  getBoundFetch,
-  getQueryClient,
-} from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
 export function useAccountFavouriteDelete(
   username: string | undefined,
+  code: string | undefined,
   onSuccess: () => void,
   onError: (e: Error) => void
 ) {
   return useMutation({
     mutationKey: ["accounts", "favourites", "add", username],
     mutationFn: async (account: string) => {
-      if (!username) {
-        throw new Error("[SDK][Account][Bookmarks] – no active user");
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
@@ -28,7 +24,7 @@ export function useAccountFavouriteDelete(
           },
           body: JSON.stringify({
             account,
-            code: getAccessToken(username),
+            code,
           }),
         }
       );

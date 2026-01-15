@@ -1,12 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PollsContext } from "./polls-manager";
 import { Draft } from "@/entities";
-import { QueryIdentifiers } from "@/core/react-query";
-import { getDrafts } from "@/api/private-api";
+import { getDraftsQueryOptions } from "@ecency/sdk";
 import { useLocation } from "react-use";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 
 export function useApiDraftDetector(
   draftId: string | undefined,
@@ -21,50 +21,53 @@ export function useApiDraftDetector(
   const location = useLocation();
   const previousLocation = usePrevious(location);
 
+  const draftsQueryOptions = useMemo(
+    () =>
+      getDraftsQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? "")),
+    [activeUser?.username]
+  );
   const draftsQuery = useQuery({
-    queryKey: [QueryIdentifiers.DRAFTS, activeUser?.username],
-    queryFn: async () => {
-      if (!activeUser) {
-        return [];
-      }
-
-      try {
-        return await getDrafts(activeUser.username);
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    },
-    initialData: []
+    ...draftsQueryOptions,
+    placeholderData: [],
+    refetchOnMount: true
   });
-  const draftQuery = useQuery({
-    queryKey: [QueryIdentifiers.BY_DRAFT_ID, draftId],
-    queryFn: () => {
-      const existingDraft = draftsQuery.data.find((draft) => draft._id === draftId);
-
-      if (!existingDraft) {
-        onInvalidDraft();
-        return;
-      }
-
-      return existingDraft;
-    },
-    enabled: draftsQuery.data.length > 0 && !!draftId
-  });
+  const onDraftLoadedRef = useRef(onDraftLoaded);
+  const onInvalidDraftRef = useRef(onInvalidDraft);
 
   useEffect(() => {
-    if (draftQuery.data) {
-      onDraftLoaded(draftQuery.data);
-      setActivePoll(draftQuery.data.meta?.poll);
+    onDraftLoadedRef.current = onDraftLoaded;
+    onInvalidDraftRef.current = onInvalidDraft;
+  }, [onDraftLoaded, onInvalidDraft]);
+
+  const existingDraft = useMemo(
+    () => draftsQuery.data.find((draft) => draft._id === draftId),
+    [draftId, draftsQuery.data]
+  );
+
+  useEffect(() => {
+    if (existingDraft) {
+      onDraftLoadedRef.current(existingDraft);
+      setActivePoll(existingDraft.meta?.poll);
     }
-  }, [draftQuery.data]);
+  }, [existingDraft, setActivePoll]);
+
+  useEffect(() => {
+    if (draftId && draftsQuery.data.length > 0 && !existingDraft) {
+      onInvalidDraftRef.current();
+    }
+  }, [draftId, draftsQuery.data.length, existingDraft]);
 
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog
     if (location.pathname !== previousLocation?.pathname) {
       queryClient.invalidateQueries({
-        queryKey: [QueryIdentifiers.BY_DRAFT_ID, draftId]
+        queryKey: draftsQueryOptions.queryKey
       });
     }
-  }, [location.pathname, draftId, previousLocation?.pathname, queryClient]);
+  }, [
+    location.pathname,
+    previousLocation?.pathname,
+    queryClient,
+    draftsQueryOptions.queryKey
+  ]);
 }

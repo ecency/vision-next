@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { Community, Entry } from "@/entities";
 import { formatError, mutePost } from "@/api/operations";

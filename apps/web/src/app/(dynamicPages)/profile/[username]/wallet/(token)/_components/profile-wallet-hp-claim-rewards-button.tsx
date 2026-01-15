@@ -1,6 +1,8 @@
 "use client";
 
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery, useClientActiveUser } from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -9,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
-import { formatNumber, parseAsset, vestsToHp } from "@/utils";
+import { formatNumber, parseAsset, vestsToHp, getSdkAuthContext, getUser } from "@/utils";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { formatError } from "@/api/operations";
 
@@ -30,14 +32,14 @@ export function useProfileWalletHpClaimState(
   username: string,
   enabled = true
 ): ClaimState {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
   const { data: accountData } = useQuery({
     ...getAccountFullQueryOptions(username),
     enabled: enabled && Boolean(username),
   });
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const rewardAmount = useMemo(() => {
     const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
@@ -66,11 +68,13 @@ export function ProfileWalletHpClaimRewardsButton({
   className,
   showIcon = false,
 }: Props) {
+  const { activeUser } = useActiveAccount();
   const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHpClaimState(username);
 
   const { mutateAsync: claimRewards, isPending } = useClaimRewards(
     username,
+    getSdkAuthContext(getUser(activeUser?.username ?? username)),
     () => success(i18next.t("wallet.claim-reward-balance-ok"))
   );
 

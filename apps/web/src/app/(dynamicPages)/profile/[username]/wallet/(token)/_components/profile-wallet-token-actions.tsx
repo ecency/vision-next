@@ -1,4 +1,5 @@
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useGlobalStore } from "@/core/global-store";
 import { WalletOperationsDialog } from "@/features/wallet";
 import {
   AssetOperation,
@@ -31,7 +32,8 @@ import {
 } from "./profile-wallet-token-operation-helpers";
 
 export function ProfileWalletTokenActions() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
+  const currency = useGlobalStore((state) => state.currency);
   const { token, username } = useParams();
   const pathname = usePathname();
 
@@ -39,13 +41,15 @@ export function ProfileWalletTokenActions() {
     (token as string)?.toUpperCase() ?? pathname.split("/")[3]?.toUpperCase();
   const cleanUsername = (username as string).replace("%40", "");
 
-  const { data: operations } = useQuery(
-    getTokenOperationsQueryOptions(
+  const { data: operations } = useQuery({
+    ...getTokenOperationsQueryOptions(
       tokenSymbol,
       cleanUsername,
-      activeUser?.username === cleanUsername
-    )
-  );
+      activeUser?.username === cleanUsername,
+      currency || "usd"
+    ),
+    enabled: !!tokenSymbol && !!cleanUsername,
+  });
 
   const isExternalToken = useMemo(
     () =>

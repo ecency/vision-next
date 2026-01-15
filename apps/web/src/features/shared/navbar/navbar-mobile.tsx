@@ -1,7 +1,8 @@
 "use client";
 
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useGlobalStore } from "@/core/global-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
@@ -31,7 +32,7 @@ export function NavbarMobile({
   mainBarExpanded,
   setMainBarExpanded
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
   const { data: unread } = useMattermostUnread(Boolean(activeUser && hydrated));
@@ -60,7 +61,7 @@ export function NavbarMobile({
         onClick={() => setMainBarExpanded(true)}
       />
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
-      <div key={activeUser?.username || "anon"} className="relative">
+      <div key={`mobile-chat-${activeUser?.username || "anon"}`} className="relative">
         <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
         {unread?.totalUnread ? (
           <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-black dark:text-white shadow">
@@ -77,7 +78,7 @@ export function NavbarMobile({
             appearance="gray-link"
             icon={<UilWallet width={20} height={20} />}
           />
-          <div key={activeUser.username} onClick={() => setExpanded(true)}>
+          <div key={`mobile-avatar-${activeUser.username}`} onClick={() => setExpanded(true)}>
             <UserAvatar size="medium" username={activeUser.username} />
           </div>
         </>
@@ -95,7 +96,7 @@ export function NavbarMobile({
         </Button>
       )}
 
-      {activeUser && <NavbarSide key={activeUser.username} show={expanded} setShow={setExpanded} />}
+      {activeUser && <NavbarSide key={`mobile-${activeUser.username}`} show={expanded} setShow={setExpanded} />}
       <NavbarMainSidebar setShow={setMainBarExpanded} show={mainBarExpanded} setStepOne={setStepOne} />
     </div>
   );

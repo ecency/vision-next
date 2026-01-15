@@ -2,8 +2,8 @@
 
 import { LeaderBoardDuration } from "@/entities";
 import { EcencyConfigManager } from "@/config";
-import { getDiscoverLeaderboardQuery } from "@/api/queries";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getDiscoverLeaderboardQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary, useQuery } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { DiscoverPeriodDropdown } from "@/app/discover/_components/discover-period-dropdown";
 import i18next from "i18next";
@@ -27,9 +27,9 @@ interface Props {
 export default function LeaderboardPage({ searchParams }: Props) {
   const params = useSearchParams();
 
-  const { data } = getDiscoverLeaderboardQuery(
-    (params.get("period") as LeaderBoardDuration) ?? "day"
-  ).useClientQuery();
+  const { data } = useQuery(
+    getDiscoverLeaderboardQueryOptions((params.get("period") as LeaderBoardDuration) ?? "day")
+  );
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

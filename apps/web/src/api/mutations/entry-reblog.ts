@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BlogEntry, Entry } from "@/entities";
 import { broadcastPostingJSON, formatError } from "@/api/operations";

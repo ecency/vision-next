@@ -7,12 +7,14 @@ import i18next from "i18next";
 import { error, LinearProgress, UserAvatar } from "@/features/shared";
 import { arrowRightSvg } from "@ui/svg";
 import { delegateRC, formatError } from "@/api/operations";
-import { getAccount } from "@/api/hive";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "react-use";
 
 export const ResourceCreditsDelegation = (props: any) => {
   const { resourceCredit, activeUser, hideDelegation, toFromList, amountFromList, delegateeData } =
     props;
+  const queryClient = useQueryClient();
 
   const [to, setTo] = useState<string>(toFromList || "");
   const [amount, setAmount] = useState<any>(amountFromList || "");
@@ -102,7 +104,9 @@ export const ResourceCreditsDelegation = (props: any) => {
       setInProgress(true);
 
       try {
-        const resp = await getAccount(value);
+        const resp = await queryClient.fetchQuery(
+          getAccountFullQueryOptions(value)
+        );
         if (resp) {
           setToError("");
           setToData(resp);

@@ -119,7 +119,10 @@ interface Payload$4 {
     profile: Partial<AccountProfile>;
     tokens: AccountProfile["tokens"];
 }
-declare function useAccountUpdate(username: string): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+declare function useAccountUpdate(username: string, accessToken: string | undefined, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
 
 type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
@@ -513,7 +516,7 @@ declare function getActiveAccountFavouritesQueryOptions(activeUsername: string |
     };
 };
 
-declare function getAccountRecoveriesQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
+declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -570,9 +573,15 @@ declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKey
     };
 };
 
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"]): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, accessToken: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
 
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T): Promise<any>;
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, accessToken?: string, auth?: {
+    postingKey?: string | null;
+    loginType?: string | null;
+}): Promise<any>;
 
 interface StoringUser {
     username: string;
@@ -791,7 +800,7 @@ interface ThreeSpeakVideo {
     _id: string;
 }
 
-declare function getAccountTokenQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
+declare function getAccountTokenQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -800,7 +809,7 @@ declare function getAccountTokenQueryOptions(username: string | undefined): _tan
     };
 };
 
-declare function getAccountVideosQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
+declare function getAccountVideosQueryOptions(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ThreeSpeakVideo[], Error, ThreeSpeakVideo[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<ThreeSpeakVideo[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -819,7 +828,7 @@ declare const ThreeSpeakIntegration: {
     queries: typeof queries$1;
 };
 
-declare function getDecodeMemoQueryOptions(username: string, memo: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+declare function getDecodeMemoQueryOptions(username: string, memo: string, accessToken: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
 } & {
     queryKey: string[] & {

@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
-import { getAccountFullQuery } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useEffect, useMemo } from "react";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export interface WitnessProxyQueryResult {
   highlightedProxy: string;
@@ -15,10 +15,10 @@ export function useWitnessProxyQuery() {
   const queryClient = useQueryClient();
 
   const { activeUser } = useActiveAccount();
-  const { data: activeUserAccount } = getAccountFullQuery(activeUser?.username).useClientQuery();
-  const { data: urlParamAccount } = getAccountFullQuery(
-    searchParams?.get("username") ?? searchParams?.get("account") ?? ""
-  ).useClientQuery();
+  const { data: activeUserAccount } = useQuery(getAccountFullQueryOptions(activeUser?.username));
+  const { data: urlParamAccount } = useQuery(
+    getAccountFullQueryOptions(searchParams?.get("username") ?? searchParams?.get("account") ?? "")
+  );
 
   const activeUserProxy = activeUserAccount?.proxy ?? "";
   const urlAccountProxy = urlParamAccount?.proxy ?? "";

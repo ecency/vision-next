@@ -7,9 +7,11 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { comment } from "@/api/operations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { validatePostCreating } from "@/api/hive";
-import { addReplyToDiscussionsList, getAccountFullQuery } from "@/api/queries";
+import { validatePostCreating } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
+import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
+import { SortOrder } from "@/enums";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -39,7 +41,7 @@ export function useWavesApi() {
       // Wait for account data if still loading
       let authorData: FullAccount;
       if (isLoading) {
-        const accountData = await getAccountFullQuery(username).fetchAndGet();
+        const accountData = await getQueryClient().fetchQuery(getAccountFullQueryOptions(username));
         if (!accountData) {
           throw new Error("[Wave][Thread-base][API] – Failed to load account data");
         }
@@ -105,7 +107,9 @@ export function useWavesApi() {
           });
 
       if (!editingEntry) {
-        addReplyToDiscussionsList(entry, tempReply, queryClient);
+        // Inline cache update for discussions list
+        const options = getDiscussionsQueryOptions(entry, SDKSortOrder.created, true, entry?.author);
+        queryClient.setQueryData<Entry[]>(options.queryKey, (data) => [...(data ?? []), tempReply]);
         updateRepliesCount(entry.children + 1, entry);
       }
 

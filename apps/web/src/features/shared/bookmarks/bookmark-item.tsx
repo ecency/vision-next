@@ -1,6 +1,7 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { motion } from "framer-motion";
 import { EntryListItem } from "../entry-list-item";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   author: string;
@@ -9,10 +10,10 @@ interface Props {
 }
 
 export function BookmarkItem({ author, permlink, i }: Props) {
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     author,
     permlink
-  ).useClientQuery();
+  ));
   if (!entry) {
     return <></>;
   }

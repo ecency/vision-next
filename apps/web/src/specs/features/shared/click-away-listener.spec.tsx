@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -7,8 +8,8 @@ describe("ClickAwayListener", () => {
   let onClickAwayMock;
 
   beforeEach(() => {
-    onClickAwayMock = jest.fn();
-    jest.clearAllMocks();
+    onClickAwayMock = vi.fn();
+    vi.clearAllMocks();
   });
 
   test("renders children correctly", () => {

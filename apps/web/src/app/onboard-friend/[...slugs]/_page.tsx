@@ -27,7 +27,7 @@ import {
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
 import Head from "next/head";
-import { getRcOperationStats } from "@/api/hive";
+import { getRcStatsQueryOptions } from "@ecency/sdk";
 import {
   createAccountHs,
   createAccountKc,
@@ -37,10 +37,12 @@ import {
   createAccountWithCreditKey,
   delegateRC
 } from "@/api/operations";
-import { DEFAULT_DYNAMIC_PROPS, getDynamicPropsQuery } from "@/api/queries";
-import { onboardEmail } from "@/api/private-api";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { onboardEmail } from "@ecency/sdk";
 import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDownloadSeed } from "@/features/wallet";
 
 export interface AccountInfo {
@@ -89,9 +91,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const type = slugs[0];
   const paramSecret = slugs[1];
 
-  const { activeUser } = useActiveAccount();
+  const { activeUser, account } = useActiveAccount();
   const queryParams = useSearchParams();
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const queryClient = useQueryClient();
 
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
@@ -142,10 +145,10 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   }, [type, seedPhrase, decodedInfo]);
 
   useEffect(() => {
-    (activeUser?.data as FullAccount) &&
-      (activeUser?.data as FullAccount).pending_claimed_accounts &&
-      setAccountCredit((activeUser?.data as FullAccount).pending_claimed_accounts);
-  }, [activeUser]);
+    if (account?.pending_claimed_accounts) {
+      setAccountCredit(account.pending_claimed_accounts);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (decodedInfo) {
@@ -458,8 +461,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   };
 
   const rcOperationsCost = async () => {
-    const rcStats: any = await getRcOperationStats();
-    const operationCosts = rcStats.rc_stats.ops;
+    const rcStats: any = await queryClient.fetchQuery(getRcStatsQueryOptions());
+    const operationCosts = rcStats.ops;
     const commentCost = operationCosts.comment_operation.avg_cost;
     const transferCost = operationCosts.transfer_operation.avg_cost;
     const voteCost = operationCosts.vote_operation.avg_cost;

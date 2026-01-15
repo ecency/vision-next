@@ -14,8 +14,8 @@ import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { getGifsQuery } from "@/api/queries";
 import { useInfiniteDataFlow } from "@/utils";
-import useMount from "react-use/lib/useMount";
 import { GifPickerBottom } from "./gif-picker-bottom";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface Props {
   fallback?: (e: string) => void;
@@ -44,14 +44,12 @@ export function GifPicker(props: Props) {
 
   const [filter, setFilter] = useState("");
 
-  const { data, refetch, fetchNextPage, hasNextPage } = getGifsQuery(filter).useClientQuery();
+  const { data, refetch, fetchNextPage, hasNextPage } = useInfiniteQuery(getGifsQuery(filter));
   const dataFlow = useInfiniteDataFlow(data);
 
-  useMount(() => {
-    if (dataFlow.length === 0) {
-      refetch();
-    }
-  });
+  useEffect(() => {
+    refetch();
+  }, [filter, refetch]);
 
   const itemClicked = useCallback(
     async (url: string, _filter?: string | any) => {

@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState } from "react";
 import "./_index.scss";
-import { getCommunitySubscribersQuery, useGetAccountsQuery } from "@/api/queries";
+import { getCommunitySubscribersQueryOptions, getAccountsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { Community, roleMap, Subscription } from "@/entities";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
@@ -21,7 +22,7 @@ export function CommunitySubscribers({ community }: Props) {
   const {
     data: subscribersRaw,
     isLoading
-  } = getCommunitySubscribersQuery(community).useClientQuery();
+  } = useQuery(getCommunitySubscribersQueryOptions(community.name));
 
   // ✅ normalize query result to an array
   const subscribers = useMemo<Subscription[]>(
@@ -43,7 +44,7 @@ export function CommunitySubscribers({ community }: Props) {
   );
 
   // ✅ default to []
-  const { data: accounts = [] } = useGetAccountsQuery(usernames);
+  const { data: accounts = [] } = useQuery(getAccountsQueryOptions(usernames));
 
   const role = useMemo(
       () => community.team.find((x) => x[0] === activeUser?.username),

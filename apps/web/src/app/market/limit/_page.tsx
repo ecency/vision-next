@@ -7,7 +7,12 @@ import {
   OpenOrdersData,
   OrdersData
 } from "@/entities";
-import { getMarketStatistics, getOpenOrder, getOrderBook, getTradeHistory } from "@/api/hive";
+import {
+  getMarketStatisticsQueryOptions,
+  getOpenOrdersQueryOptions,
+  getOrderBookQueryOptions,
+  getTradeHistoryQueryOptions
+} from "@ecency/sdk";
 import { ButtonGroup } from "@/features/ui";
 import { Feedback, Navbar, Skeleton } from "@/features/shared";
 import i18next from "i18next";
@@ -20,7 +25,8 @@ import { MarketMode } from "@/app/market/_enums/market-mode";
 import { Tsx } from "@/features/i18n/helper";
 import { ModeSelector } from "@/app/market/_components/mode-selector";
 import { useRouter } from "next/navigation";
-import { getAllHiveEngineTokensQuery } from "@/api/queries/engine";
+import { getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MarketTokenSelector, MarketSelection } from "@/app/market/limit/_components/token-selector";
 import { EngineMarketSection } from "@/app/market/limit/_engine";
 import "../index.scss";
@@ -30,7 +36,7 @@ export function MarketLimitPage() {
   const router = useRouter();
   const [selection, setSelection] = useState<MarketSelection>({ type: "core" });
 
-  const tokensQuery = getAllHiveEngineTokensQuery().useClientQuery();
+  const tokensQuery = useQuery(getAllHiveEngineTokensQueryOptions());
   const tokens = tokensQuery.data ?? [];
 
   useEffect(() => {
@@ -126,6 +132,7 @@ const EngineLimitContent = ({
 
 const HiveLimitContent = () => {
   const { username: activeUsername, account: activeAccount } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const [data, setData] = useState<MarketStatistics | null>(null);
   const [loading, setLoading] = useState(false);
@@ -152,27 +159,32 @@ const HiveLimitContent = () => {
         setopenOrdersDataLoading(true);
       }
 
-      getMarketStatistics().then((res) => {
-        setLoading(false);
-        setData(res);
-      });
-      getOrderBook().then((res) => {
-        getTradeHistory().then((trading) => {
-          setLoadingTablesData(false);
-          setTablesData({ ...res, trading });
+      queryClient
+        .fetchQuery(getMarketStatisticsQueryOptions())
+        .then((res) => {
+          setLoading(false);
+          setData(res);
         });
+      Promise.all([
+        queryClient.fetchQuery(getOrderBookQueryOptions()),
+        queryClient.fetchQuery(getTradeHistoryQueryOptions())
+      ]).then(([res, trading]) => {
+        setLoadingTablesData(false);
+        setTablesData({ ...res, trading });
       });
       if (activeUsername) {
-        getOpenOrder(activeUsername).then((res) => {
-          setopenOrdersdata(res);
-          setopenOrdersDataLoading(false);
-        });
+        queryClient
+          .fetchQuery(getOpenOrdersQueryOptions(activeUsername))
+          .then((res) => {
+            setopenOrdersdata(res);
+            setopenOrdersDataLoading(false);
+          });
       } else if (withLoading) {
         setopenOrdersdata([]);
         setopenOrdersDataLoading(false);
       }
     },
-    [activeUsername]
+    [activeUsername, queryClient]
   );
 
   const updateOpenData = useCallback(() => {
@@ -183,11 +195,11 @@ const HiveLimitContent = () => {
     }
 
     setopenOrdersDataLoading(true);
-    getOpenOrder(activeUsername).then((res) => {
+    queryClient.fetchQuery(getOpenOrdersQueryOptions(activeUsername)).then((res) => {
       setopenOrdersdata(res);
       setopenOrdersDataLoading(false);
     });
-  }, [activeUsername]);
+  }, [activeUsername, queryClient]);
 
   useEffect(() => {
     updateData(true);

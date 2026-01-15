@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { chevronUpSvg } from "@ui/svg";
-import { downVotingPower, votingPower } from "@/api/hive";
+import { downVotingPower, votingPower } from "@ecency/sdk";
 import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks";
 

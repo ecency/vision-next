@@ -2,24 +2,34 @@ import React, { useCallback, useEffect, useState } from "react";
 import { GenericOrderItem } from "./generic-order-item";
 import "./index.scss";
 import { OpenOrdersData } from "@/entities";
-import { getOpenOrder } from "@/api/hive";
+import { getOpenOrdersQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { BuySellHiveDialog } from "@/features/shared";
 import { BuySellHiveTransactionType } from "@/enums";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const MarketSwapActiveOrders = () => {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const [orders, setOrders] = useState<OpenOrdersData[]>([]);
   const [cancelingOrder, setCancelingOrder] = useState(0);
 
   const fetch = useCallback(async () => {
+    if (!activeUser) {
+      setOrders([]);
+      return;
+    }
     try {
-      const orders = await getOpenOrder(activeUser!.username);
+      const orders = await queryClient.fetchQuery(
+        getOpenOrdersQueryOptions(activeUser.username)
+      );
       setOrders(orders.filter((order) => order.orderid.toString().startsWith("9")));
-    } catch (e) {}
-  }, [activeUser]);
+    } catch (e) {
+      console.error("market-swap-active-orders error", e);
+    }
+  }, [activeUser, queryClient]);
 
   useEffect(() => {
     fetch();

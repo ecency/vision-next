@@ -1,13 +1,13 @@
 "use client";
 
-import { dataLimit, getCommunities } from "@/api/bridge";
-import { getAccountReputations } from "@/api/hive";
+import { useDataLimit } from "@/utils/data-limit";
+import { getAccountReputationsQueryOptions } from "@ecency/sdk";
 import defaults from "@/defaults";
 import { Community, Reputations } from "@/entities";
 import { SuggestionList, UserAvatar } from "@/features/shared";
 import { accountReputation } from "@/utils";
-import { getTrendingTagsQueryOptions } from "@ecency/sdk";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { getCommunitiesQueryOptions, getTrendingTagsQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@ui/badge";
 import i18next from "i18next";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,10 +38,12 @@ export function SearchSuggester({
   containerClassName,
   extraSuggestions
 }: Props) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
   const previousValue = usePrevious(value);
+  const dataLimit = useDataLimit();
 
   const [suggestions, setSuggestions] = useState<string[] | Community[]>([]);
   const [loading, setLoading] = useState(false);
@@ -144,7 +146,9 @@ export function SearchSuggester({
       const name = value.replace("@", "");
       setLoading(true);
       try {
-        const r = await getAccountReputations(name, 20);
+        const r = await queryClient.fetchQuery(
+          getAccountReputationsQueryOptions(name, 20)
+        );
         const validReputations = r || [];
         validReputations.sort((a, b) => (a.reputation > b.reputation ? -1 : 1));
         const suggestions = validReputations.map((x) => `${x.account}`);
@@ -177,7 +181,9 @@ export function SearchSuggester({
     if (value.startsWith("$")) {
       const q = value.replace("$", "");
       try {
-        const r = await getCommunities("", dataLimit, q);
+        const r = await queryClient.fetchQuery(
+          getCommunitiesQueryOptions("rank", q, dataLimit)
+        );
         if (r) {
           const suggestionWithMode = [
             {
@@ -207,12 +213,16 @@ export function SearchSuggester({
           .map((x) => `#${x}`)
           .slice(0, 2);
         // account
-        const lookup_accounts = await getAccountReputations(value, 20);
+        const lookup_accounts = await queryClient.fetchQuery(
+          getAccountReputationsQueryOptions(value, 20)
+        );
         const accountsug = (lookup_accounts || [])
           .sort((a, b) => (a.reputation > b.reputation ? -1 : 1))
           .slice(0, 3);
         // Community
-        const get_communities = await getCommunities("", 2, value);
+        const get_communities = await queryClient.fetchQuery(
+          getCommunitiesQueryOptions("rank", value, 2)
+        );
         const communities_suggestions = get_communities || [];
         const suggestionWithMode = [
           {
@@ -259,7 +269,17 @@ export function SearchSuggester({
         setSuggestions([]);
       }
     }
-  }, [accountSelected, communitySelected, loading, tagSelected, trendingTags, value]);
+  }, [
+    accountSelected,
+    communitySelected,
+    extraSuggestions,
+    loading,
+    queryClient,
+    tagSelected,
+    trendingTags,
+    dataLimit,
+    value
+  ]);
 
   useEffect(() => {
     if (value !== previousValue && changed) {

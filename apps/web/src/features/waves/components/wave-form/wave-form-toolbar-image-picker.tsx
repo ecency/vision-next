@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button } from "@ui/button";
 import { UilImage, UilLink, UilUpload } from "@tooni/iconscout-unicons-react";
 import { getAccessToken } from "@/utils";
-import { uploadImage } from "@/api/misc";
+import { uploadImage } from "@ecency/sdk";
 import { error } from "@/features/shared";
 import i18next from "i18next";
 import { AddImage } from "@/features/shared/editor-toolbar/add-image";

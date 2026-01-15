@@ -1,7 +1,7 @@
 "use client";
 
 import { useCreateReply, usePinReply, useUpdateReply } from "@/api/mutations";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryIdentifiers } from "@/core/react-query";
 import { Community, Entry } from "@/entities";
@@ -64,7 +64,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   mutedUsers,
   canMute
 }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [reply, setReply] = useState(false);
   const [edit, setEdit] = useState(false);
   const [failedReplyText, setFailedReplyText] = useState<string | null>(null);
@@ -173,11 +173,12 @@ export const DiscussionItem = memo(function DiscussionItem({
   const queryClient = useQueryClient();
 
   const allReplies = queryClient.getQueryData<Entry[]>([
-    QueryIdentifiers.FETCH_DISCUSSIONS,
+    "posts",
+    "discussions",
     root.author,
     root.permlink,
     SortOrder.created,
-    activeUser?.username
+    activeUser?.username ?? root.author
   ]);
 
   const filtered = useMemo(

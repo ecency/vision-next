@@ -1,9 +1,11 @@
 import { PrivateKey, type Operation } from "@hiveio/dhive";
 import { HiveBasedAssetSignType } from "../../types";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { parseAsset } from "../../utils";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
+import { broadcastWithKeychainFallback } from "../../utils/keychain-fallback";
 
 interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
   from: string;
@@ -16,7 +18,8 @@ interface LarynxTransferPayload<T extends HiveBasedAssetSignType> {
 export async function transferLarynx<T extends HiveBasedAssetSignType>(
   payload: T extends "key"
     ? LarynxTransferPayload<T> & { key: PrivateKey }
-    : LarynxTransferPayload<T>
+    : LarynxTransferPayload<T>,
+  auth?: AuthContext
 ) {
   const json = JSON.stringify({
     to: payload.to,
@@ -45,14 +48,14 @@ export async function transferLarynx<T extends HiveBasedAssetSignType>(
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      "spkcc_send",
-      "Active",
-      json,
-      payload.to
-    ) as Promise<unknown>;
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);

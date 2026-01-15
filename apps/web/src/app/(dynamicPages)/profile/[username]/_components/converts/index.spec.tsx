@@ -17,17 +17,12 @@ jest.mock("@/defaults", () => ({
 
 let MOCK_MODE = 1;
 
-jest.mock("../../api/hive", () => ({
-  getConversionRequests: () =>
-    new Promise((resolve) => {
-      if (MOCK_MODE === 1) {
-        resolve(conversionRequestInstance);
-      }
-
-      if (MOCK_MODE === 2) {
-        resolve([]);
-      }
-    })
+jest.mock("@tanstack/react-query", () => ({
+  ...jest.requireActual("@tanstack/react-query"),
+  useQuery: () => ({
+    data: MOCK_MODE === 1 ? conversionRequestInstance : [],
+    isLoading: false
+  })
 }));
 
 const defaultProps = {

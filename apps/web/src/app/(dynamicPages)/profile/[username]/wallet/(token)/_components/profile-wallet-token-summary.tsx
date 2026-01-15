@@ -5,6 +5,7 @@ import { FormattedCurrency } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
 import { formatApr } from "@/utils";
+import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
@@ -28,8 +29,7 @@ import {
 import { ProfileWalletHbdInterest } from "./profile-wallet-hbd-interest";
 
 function format(value: number) {
-  const formatter = new Intl.NumberFormat();
-  return formatter.format(value);
+  return formatAssetBalance(value);
 }
 
 export function ProfileWalletTokenSummary() {
@@ -67,7 +67,7 @@ export function ProfileWalletTokenSummary() {
     );
 
   const { data, isFetching } = useQuery(
-    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback)
+    getAccountWalletAssetInfoQueryOptions(cleanUsername, tokenWithFallback, { refetch: false, currency: currency || "usd" })
   );
 
   const logo = useGetTokenLogoImage((username as string).replace("%40", ""), tokenWithFallback);
@@ -171,7 +171,7 @@ export function ProfileWalletTokenSummary() {
         </div>
         <div className="flex flex-col gap-2 sm:items-end sm:text-right">
           <div className="text-blue-dark-sky">
-            <FormattedCurrency value={data?.price ?? 0} fixAt={3} />
+            <FormattedCurrency value={data?.price ?? 0} fixAt={3} skipConversion />
           </div>
           <HiveEngineClaimRewardsButton className="w-full sm:w-auto" />
           {tokenWithFallback === "POINTS" && hasPendingPoints && (

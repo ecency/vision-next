@@ -7,8 +7,9 @@ import { ProposalListItem } from "../_components";
 import { parseDate } from "@/utils";
 import Head from "next/head";
 import { notFound } from "next/navigation";
-import { getProposalQuery } from "@/api/queries";
+import { getProposalQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { prefetchQuery } from "@/core/react-query";
 import "../_page.scss";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
@@ -27,7 +28,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  const proposal = await getProposalQuery(+id).prefetch();
+  const proposal = await prefetchQuery(getProposalQueryOptions(+id));
   const basic = await PagesMetadataGenerator.getForPage("proposals");
   return {
     ...basic,
@@ -39,11 +40,10 @@ export async function generateMetadata(
 export default async function ProposalDetailsPage({ params }: Props) {
   const { id } = await params;
 
-  const proposal = await getProposalQuery(+id).prefetch();
-  const entry = await EcencyEntriesCacheManagement.getEntryQueryByPath(
-    proposal?.creator,
-    proposal?.permlink
-  ).prefetch();
+  const proposal = await prefetchQuery(getProposalQueryOptions(+id));
+  const entry = await prefetchQuery(
+    EcencyEntriesCacheManagement.getEntryQueryByPath(proposal?.creator, proposal?.permlink)
+  );
 
   if (!proposal || !entry) {
     return notFound();

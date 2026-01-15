@@ -1,4 +1,5 @@
-import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, Keychain, useBroadcastMutation, EcencyAnalytics, getAccessToken, useAccountUpdate } from '@ecency/sdk';
+import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, useAccountUpdate, getCurrencyRate } from '@ecency/sdk';
+export { getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTradeHistory } from '@ecency/sdk';
 import { useQuery, queryOptions, infiniteQueryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
 import { LRUCache } from 'lru-cache';
@@ -14,13 +15,16 @@ import { cryptoUtils } from '@hiveio/dhive/lib/crypto';
 import { Memo } from '@hiveio/dhive/lib/memo';
 import dayjs from 'dayjs';
 import hs from 'hivesigner';
+import numeral from 'numeral';
 import * as R from 'remeda';
 
 var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
 // src/internal/scrypt-guard.ts
 var globalLike = globalThis;
@@ -182,7 +186,14 @@ function useGetExternalWalletBalanceQuery(currency, address) {
 function useSeedPhrase(username) {
   return useQuery({
     queryKey: ["ecency-wallets", "seed", username],
-    queryFn: async () => bip39.generateMnemonic(128)
+    queryFn: async () => bip39.generateMnemonic(128),
+    // CRITICAL: Prevent seed regeneration - cache forever
+    // Once generated, the seed must NEVER change to ensure consistency between:
+    // 1. Displayed seed phrase
+    // 2. Downloaded seed file
+    // 3. Keys sent to API for account creation
+    staleTime: Infinity,
+    gcTime: Infinity
   });
 }
 var options = {
@@ -1227,7 +1238,30 @@ function getHivePowerDelegatingsQueryOptions(username) {
     )
   });
 }
-async function transferHive(payload) {
+
+// src/modules/assets/utils/keychain-fallback.ts
+async function broadcastWithKeychainFallback(account, operations, authority = "Active") {
+  if (typeof window === "undefined" || !window.hive_keychain) {
+    throw new Error("[SDK][Wallets] \u2013 Keychain extension not found");
+  }
+  return new Promise((resolve, reject) => {
+    window.hive_keychain.requestBroadcast(
+      account,
+      operations,
+      authority,
+      (response) => {
+        if (!response.success) {
+          reject(new Error(response.message || "Keychain operation cancelled"));
+          return;
+        }
+        resolve(response.result);
+      }
+    );
+  });
+}
+
+// src/modules/assets/hive/mutations/transfer.ts
+async function transferHive(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const token = parsedAsset.symbol;
   const precision = token === "VESTS" /* VESTS */ ? 6 : 3;
@@ -1254,24 +1288,14 @@ async function transferHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestTransfer(
-        payload.from,
-        payload.to,
-        formattedAmount,
-        payload.memo,
-        token,
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        },
-        true,
-        null
-      )
-    );
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(
@@ -1282,7 +1306,7 @@ async function transferHive(payload) {
     );
   }
 }
-async function transferToSavingsHive(payload) {
+async function transferToSavingsHive(payload, auth) {
   const operationPayload = {
     from: payload.from,
     to: payload.to,
@@ -1297,15 +1321,21 @@ async function transferToSavingsHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function transferFromSavingsHive(payload) {
+async function transferFromSavingsHive(payload, auth) {
   const requestId = payload.request_id ?? Date.now() >>> 0;
   const operationPayload = {
     from: payload.from,
@@ -1323,15 +1353,21 @@ async function transferFromSavingsHive(payload) {
     );
   }
   if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   }
   if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   }
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
 }
-async function powerUpHive(payload) {
+async function powerUpHive(payload, auth) {
   const operationPayload = {
     from: payload.from,
     to: payload.to,
@@ -1346,15 +1382,21 @@ async function powerUpHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function delegateHive(payload) {
+async function delegateHive(payload, auth) {
   const operationPayload = {
     delegator: payload.from,
     delegatee: payload.to,
@@ -1368,15 +1410,21 @@ async function delegateHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function powerDownHive(payload) {
+async function powerDownHive(payload, auth) {
   const operationPayload = {
     account: payload.from,
     vesting_shares: payload.amount
@@ -1389,15 +1437,21 @@ async function powerDownHive(payload) {
       key
     );
   } else if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
     });
   }
 }
-async function withdrawVestingRouteHive(payload) {
+async function withdrawVestingRouteHive(payload, auth) {
   const baseParams = {
     from_account: payload.from_account,
     to_account: payload.to_account,
@@ -1413,17 +1467,22 @@ async function withdrawVestingRouteHive(payload) {
     );
   }
   if (payload.type === "keychain") {
-    const { type: type2, ...params2 } = payload;
-    return Keychain.broadcast(params2.from_account, [operation], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from_account, [operation], "Active");
   }
   if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from_account, [operation], "active");
   }
   const { type, ...params } = payload;
   return hs.sendOperation(operation, { callback: `https://ecency.com/@${params.from_account}/wallet` }, () => {
   });
 }
-function useClaimRewards(username, onSuccess) {
+function useClaimRewards(username, auth, onSuccess) {
   const { data } = useQuery(getAccountFullQueryOptions(username));
   const queryClient = useQueryClient();
   return useBroadcastMutation(
@@ -1457,12 +1516,49 @@ function useClaimRewards(username, onSuccess) {
         queryKey: getAccountFullQueryOptions(username).queryKey
       });
       queryClient.invalidateQueries({
+        queryKey: ["ecency-wallets", "portfolio", "v2", username]
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
+      });
+      queryClient.invalidateQueries({
+        queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
+      });
+      queryClient.invalidateQueries({
         queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
       });
-    }
+      ["HIVE", "HBD", "HP"].forEach((asset) => {
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "asset-info", username, asset]
+        });
+      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: getAccountFullQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["ecency-wallets", "portfolio", "v2", username]
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        queryClient.invalidateQueries({
+          queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
+        });
+        ["HIVE", "HBD", "HP"].forEach((asset) => {
+          queryClient.invalidateQueries({
+            queryKey: ["ecency-wallets", "asset-info", username, asset]
+          });
+        });
+      }, 5e3);
+    },
+    auth
   );
 }
-async function claimInterestHive(payload) {
+async function claimInterestHive(payload, auth) {
   const requestId = payload.request_id ?? Date.now() >>> 0;
   const baseOperation = {
     from: payload.from,
@@ -1484,13 +1580,48 @@ async function claimInterestHive(payload) {
     return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
   }
   if (payload.type === "keychain") {
-    return Keychain.broadcast(payload.from, operations, "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, operations, "Active");
   }
   if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast(operations, "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, operations, "active");
   }
   return hs.sendOperations(operations, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
   });
+}
+async function convertHbd(payload, auth) {
+  const requestid = Math.floor(Date.now() / 1e3);
+  const operationPayload = {
+    owner: payload.from,
+    requestid,
+    amount: payload.amount
+  };
+  const operation = ["convert", operationPayload];
+  if (payload.type === "key" && "key" in payload) {
+    const { key, type, ...params } = payload;
+    return CONFIG.hiveClient.broadcast.sendOperations(
+      [["convert", { ...params, owner: params.from, requestid }]],
+      key
+    );
+  } else if (payload.type === "keychain") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
+  } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else {
+    return hs.sendOperation(operation, { callback: `https://ecency.com/@${payload.from}/wallet` }, () => {
+    });
+  }
 }
 
 // src/modules/assets/types/asset-operation.ts
@@ -1504,6 +1635,7 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["WithdrawRoutes"] = "withdraw-routes";
   AssetOperation2["ClaimInterest"] = "claim-interest";
   AssetOperation2["Swap"] = "swap";
+  AssetOperation2["Convert"] = "convert";
   AssetOperation2["Gift"] = "gift";
   AssetOperation2["Promote"] = "promote";
   AssetOperation2["Claim"] = "claim";
@@ -1514,7 +1646,7 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["Undelegate"] = "undelegate";
   return AssetOperation2;
 })(AssetOperation || {});
-async function transferSpk(payload) {
+async function transferSpk(payload, auth) {
   const json = JSON.stringify({
     to: payload.to,
     amount: parseAsset(payload.amount).amount * 1e3,
@@ -1539,14 +1671,14 @@ async function transferSpk(payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      "spkcc_spk_send",
-      "Active",
-      json,
-      payload.to
-    );
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
@@ -1567,7 +1699,7 @@ async function transferSpk(payload) {
     );
   }
 }
-var lockLarynx = async (payload) => {
+var lockLarynx = async (payload, auth) => {
   const json = JSON.stringify({ amount: +payload.amount * 1e3 });
   const op = {
     id: payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down",
@@ -1588,14 +1720,14 @@ var lockLarynx = async (payload) => {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      op.id,
-      "Active",
-      json,
-      payload.from
-    );
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
@@ -1612,7 +1744,7 @@ var lockLarynx = async (payload) => {
     );
   }
 };
-async function powerUpLarynx(payload) {
+async function powerUpLarynx(payload, auth) {
   const json = JSON.stringify({ amount: +payload.amount * 1e3 });
   const op = {
     id: `spkcc_power_${payload.mode}`,
@@ -1633,14 +1765,14 @@ async function powerUpLarynx(payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      `spkcc_power_${payload.mode}`,
-      "Active",
-      json,
-      ""
-    );
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
@@ -1657,7 +1789,7 @@ async function powerUpLarynx(payload) {
     );
   }
 }
-async function transferLarynx(payload) {
+async function transferLarynx(payload, auth) {
   const json = JSON.stringify({
     to: payload.to,
     amount: parseAsset(payload.amount).amount * 1e3,
@@ -1682,14 +1814,14 @@ async function transferLarynx(payload) {
     const { key } = payload;
     return CONFIG.hiveClient.broadcast.json(op, key);
   } else if (payload.type === "keychain") {
-    return Keychain.customJson(
-      payload.from,
-      "spkcc_send",
-      "Active",
-      json,
-      payload.to
-    );
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
   } else if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
     return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
   } else {
     const { amount } = parseAsset(payload.amount);
@@ -1716,8 +1848,7 @@ function getSpkMarketsQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(`${CONFIG.spkNode}/markets`);
-      const data = await response.json();
+      const data = await getSpkMarkets();
       return {
         list: Object.entries(data.markets.node).map(([name, node]) => ({
           name,
@@ -1732,8 +1863,10 @@ function getSpkWalletQueryOptions(username) {
   return queryOptions({
     queryKey: ["assets", "spk", "wallet", username],
     queryFn: async () => {
-      const response = await fetch(CONFIG.spkNode + `/@${username}`);
-      return response.json();
+      if (!username) {
+        throw new Error("[SDK][Wallets][SPK] \u2013 username wasn't provided");
+      }
+      return getSpkWallet(username);
     },
     enabled: !!username,
     staleTime: 6e4,
@@ -1901,33 +2034,165 @@ function getLarynxPowerAssetGeneralInfoQueryOptions(username) {
     }
   });
 }
+function getAllHiveEngineTokensQueryOptions(account, symbol) {
+  return queryOptions({
+    queryKey: ["assets", "hive-engine", "all-tokens", account, symbol],
+    queryFn: async () => {
+      return getHiveEngineTokensMarket(account, symbol);
+    }
+  });
+}
+function formattedNumber(value, options2 = void 0) {
+  let opts = {
+    fractionDigits: 3,
+    prefix: "",
+    suffix: ""
+  };
+  if (options2) {
+    opts = { ...opts, ...options2 };
+  }
+  const { fractionDigits, prefix, suffix } = opts;
+  let format4 = "0,0";
+  if (fractionDigits) {
+    format4 += "." + "0".repeat(fractionDigits);
+  }
+  let out = "";
+  if (prefix) out += prefix + " ";
+  const av = Math.abs(parseFloat(value.toString())) < 1e-4 ? 0 : value;
+  out += numeral(av).format(format4);
+  if (suffix) out += " " + suffix;
+  return out;
+}
+
+// src/modules/assets/hive-engine/utils/hive-engine-token.ts
+var HiveEngineToken = class {
+  constructor(props) {
+    __publicField(this, "symbol");
+    __publicField(this, "name");
+    __publicField(this, "icon");
+    __publicField(this, "precision");
+    __publicField(this, "stakingEnabled");
+    __publicField(this, "delegationEnabled");
+    __publicField(this, "balance");
+    __publicField(this, "stake");
+    __publicField(this, "stakedBalance");
+    __publicField(this, "delegationsIn");
+    __publicField(this, "delegationsOut");
+    __publicField(this, "usdValue");
+    __publicField(this, "hasDelegations", () => {
+      if (!this.delegationEnabled) {
+        return false;
+      }
+      return this.delegationsIn > 0 && this.delegationsOut > 0;
+    });
+    __publicField(this, "delegations", () => {
+      if (!this.hasDelegations()) {
+        return "";
+      }
+      return `(${formattedNumber(this.stake, {
+        fractionDigits: this.precision
+      })} + ${formattedNumber(this.delegationsIn, {
+        fractionDigits: this.precision
+      })} - ${formattedNumber(this.delegationsOut, {
+        fractionDigits: this.precision
+      })})`;
+    });
+    __publicField(this, "staked", () => {
+      if (!this.stakingEnabled) {
+        return "-";
+      }
+      if (this.stakedBalance < 1e-4) {
+        return this.stakedBalance.toString();
+      }
+      return formattedNumber(this.stakedBalance, {
+        fractionDigits: this.precision
+      });
+    });
+    __publicField(this, "balanced", () => {
+      if (this.balance < 1e-4) {
+        return this.balance.toString();
+      }
+      return formattedNumber(this.balance, { fractionDigits: this.precision });
+    });
+    this.symbol = props.symbol;
+    this.name = props.name || "";
+    this.icon = props.icon || "";
+    this.precision = props.precision || 0;
+    this.stakingEnabled = props.stakingEnabled || false;
+    this.delegationEnabled = props.delegationEnabled || false;
+    this.balance = parseFloat(props.balance) || 0;
+    this.stake = parseFloat(props.stake) || 0;
+    this.delegationsIn = parseFloat(props.delegationsIn) || 0;
+    this.delegationsOut = parseFloat(props.delegationsOut) || 0;
+    this.stakedBalance = this.stake + this.delegationsIn - this.delegationsOut;
+    this.usdValue = props.usdValue;
+  }
+};
+
+// src/modules/assets/hive-engine/queries/get-hive-engine-balances-with-usd-query-options.ts
+function getHiveEngineBalancesWithUsdQueryOptions(account, dynamicProps, allTokens) {
+  return queryOptions({
+    queryKey: [
+      "assets",
+      "hive-engine",
+      "balances-with-usd",
+      account,
+      dynamicProps,
+      allTokens
+    ],
+    queryFn: async () => {
+      if (!account) {
+        throw new Error("[HiveEngine] No account in a balances query");
+      }
+      const balances = await getHiveEngineTokensBalances(account);
+      const tokens = await getHiveEngineTokensMetadata(
+        balances.map((t) => t.symbol)
+      );
+      const pricePerHive = dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
+      const metrics = Array.isArray(
+        allTokens
+      ) ? allTokens : [];
+      return balances.map((balance) => {
+        const token = tokens.find((t) => t.symbol === balance.symbol);
+        let tokenMetadata;
+        if (token?.metadata) {
+          try {
+            tokenMetadata = JSON.parse(token.metadata);
+          } catch {
+            tokenMetadata = void 0;
+          }
+        }
+        const metric = metrics.find((m) => m.symbol === balance.symbol);
+        const lastPrice = Number(metric?.lastPrice ?? "0");
+        const balanceAmount = Number(balance.balance);
+        const usdValue = balance.symbol === "SWAP.HIVE" ? pricePerHive * balanceAmount : lastPrice === 0 ? 0 : Number(
+          (lastPrice * pricePerHive * balanceAmount).toFixed(10)
+        );
+        return new HiveEngineToken({
+          symbol: balance.symbol,
+          name: token?.name ?? balance.symbol,
+          icon: tokenMetadata?.icon ?? "",
+          precision: token?.precision ?? 0,
+          stakingEnabled: token?.stakingEnabled ?? false,
+          delegationEnabled: token?.delegationEnabled ?? false,
+          balance: balance.balance,
+          stake: balance.stake,
+          delegationsIn: balance.delegationsIn,
+          delegationsOut: balance.delegationsOut,
+          usdValue
+        });
+      });
+    },
+    enabled: !!account
+  });
+}
 function getHiveEngineTokensMetadataQueryOptions(tokens) {
   return queryOptions({
     queryKey: ["assets", "hive-engine", "metadata-list", tokens],
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "tokens",
-              query: {
-                symbol: { $in: tokens }
-              }
-            },
-            id: 2
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensMetadata(tokens);
     }
   });
 }
@@ -1937,27 +2202,7 @@ function getHiveEngineTokensBalancesQueryOptions(username) {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "tokens",
-              table: "balances",
-              query: {
-                account: username
-              }
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensBalances(username);
     }
   });
 }
@@ -1967,25 +2212,7 @@ function getHiveEngineTokensMarketQueryOptions() {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const response = await fetch(
-        `${CONFIG.privateApiHost}/private-api/engine-api`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "find",
-            params: {
-              contract: "market",
-              table: "metrics",
-              query: {}
-            },
-            id: 1
-          }),
-          headers: { "Content-type": "application/json" }
-        }
-      );
-      const data = await response.json();
-      return data.result;
+      return getHiveEngineTokensMarket();
     }
   });
 }
@@ -2055,18 +2282,12 @@ function getHiveEngineTokenTransactionsQueryOptions(username, symbol, limit = 20
           "[SDK][Wallets] \u2013 hive engine token or username missed"
         );
       }
-      const url = new URL(
-        `${CONFIG.privateApiHost}/private-api/engine-account-history`
+      return getHiveEngineTokenTransactions(
+        username,
+        symbol,
+        limit,
+        pageParam
       );
-      url.searchParams.set("account", username);
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("limit", limit.toString());
-      url.searchParams.set("offset", pageParam.toString());
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
     }
   });
 }
@@ -2076,19 +2297,50 @@ function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
     staleTime: 6e4,
     refetchInterval: 9e4,
     queryFn: async () => {
-      const url = new URL(
-        `${CONFIG.privateApiHost}/private-api/engine-chart-api`
-      );
-      url.searchParams.set("symbol", symbol);
-      url.searchParams.set("interval", interval);
-      const response = await fetch(url, {
-        headers: { "Content-type": "application/json" }
-      });
-      return await response.json();
+      return getHiveEngineTokenMetrics(symbol, interval);
     }
   });
 }
-async function delegateEngineToken(payload) {
+function getHiveEngineUnclaimedRewardsQueryOptions(username) {
+  return queryOptions({
+    queryKey: ["assets", "hive-engine", "unclaimed", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    enabled: !!username,
+    queryFn: async () => {
+      try {
+        const data = await getHiveEngineUnclaimedRewards(
+          username
+        );
+        return Object.values(data).filter(
+          ({ pending_token }) => pending_token > 0
+        );
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+}
+
+// src/modules/assets/hive-engine/mutations/broadcast-hive-engine-operation.ts
+async function broadcastHiveEngineOperation(payload, operation, auth) {
+  if (payload.type === "keychain") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
+  }
+  if (payload.type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([operation], "active");
+    }
+    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  }
+  throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
+}
+
+// src/modules/assets/hive-engine/mutations/delegate.ts
+async function delegateEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2125,24 +2377,8 @@ async function delegateEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Delegation",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2152,7 +2388,7 @@ async function delegateEngineToken(payload) {
     );
   }
 }
-async function undelegateEngineToken(payload) {
+async function undelegateEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2189,24 +2425,8 @@ async function undelegateEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Undelegation",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2216,7 +2436,7 @@ async function undelegateEngineToken(payload) {
     );
   }
 }
-async function stakeEngineToken(payload) {
+async function stakeEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2253,24 +2473,8 @@ async function stakeEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Staking",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2280,7 +2484,7 @@ async function stakeEngineToken(payload) {
     );
   }
 }
-async function unstakeEngineToken(payload) {
+async function unstakeEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2317,24 +2521,8 @@ async function unstakeEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Unstaking",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2344,7 +2532,7 @@ async function unstakeEngineToken(payload) {
     );
   }
 }
-async function transferEngineToken(payload) {
+async function transferEngineToken(payload, auth) {
   const parsedAsset = parseAsset(payload.amount);
   const quantity = parsedAsset.amount.toString();
   const operation = [
@@ -2383,24 +2571,8 @@ async function transferEngineToken(payload) {
       required_posting_auths: []
     };
     return CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    return new Promise(
-      (resolve, reject) => window.hive_keychain?.requestCustomJson(
-        payload.from,
-        "ssc-mainnet-hive",
-        "Active",
-        operation[1].json,
-        "Token Transfer",
-        (resp) => {
-          if (!resp.success) {
-            reject({ message: "Operation cancelled" });
-          }
-          resolve(resp);
-        }
-      )
-    );
-  } else if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
+  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
+    return broadcastHiveEngineOperation(payload, operation, auth);
   } else {
     return hs.sendOperation(
       operation,
@@ -2409,6 +2581,107 @@ async function transferEngineToken(payload) {
       }
     );
   }
+}
+var ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
+function buildEngineOrderPayload(action, symbol, quantity, price) {
+  return {
+    contractName: "market",
+    contractAction: action,
+    contractPayload: { symbol, quantity, price }
+  };
+}
+function buildEngineCancelPayload(type, orderId) {
+  return {
+    contractName: "market",
+    contractAction: "cancel",
+    contractPayload: { type, id: orderId }
+  };
+}
+function buildEngineOperation(account, payload) {
+  return {
+    id: ENGINE_CONTRACT_ID,
+    required_auths: [account],
+    required_posting_auths: [],
+    json: JSON.stringify(payload)
+  };
+}
+async function broadcastEngineOperation(account, payload, options2) {
+  const operation = buildEngineOperation(account, payload);
+  const opTuple = ["custom_json", operation];
+  switch (options2?.method) {
+    case "key": {
+      if (!options2.key) {
+        throw new Error("[SDK][Wallets] \u2013 active key is required");
+      }
+      return CONFIG.hiveClient.broadcast.json(operation, options2.key);
+    }
+    case "keychain": {
+      if (options2.auth?.broadcast) {
+        return options2.auth.broadcast([opTuple], "active");
+      }
+      return broadcastWithKeychainFallback(account, [opTuple], "Active");
+    }
+    case "hiveauth": {
+      if (options2.auth?.broadcast) {
+        return options2.auth.broadcast([opTuple], "active");
+      }
+      return broadcastWithWalletHiveAuth(account, [opTuple], "active");
+    }
+    case "hivesigner":
+      return hs.sendOperation(
+        opTuple,
+        { callback: `https://ecency.com/@${account}/wallet/engine` },
+        () => {
+        }
+      );
+    default:
+      throw new Error("[SDK][Wallets] \u2013 broadcast method is required");
+  }
+}
+var placeHiveEngineBuyOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("buy", symbol, quantity, price),
+  options2
+);
+var placeHiveEngineSellOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
+  account,
+  buildEngineOrderPayload("sell", symbol, quantity, price),
+  options2
+);
+var cancelHiveEngineOrder = async (account, type, orderId, options2) => broadcastEngineOperation(
+  account,
+  buildEngineCancelPayload(type, orderId),
+  options2
+);
+async function claimHiveEngineRewards(payload, auth) {
+  const json = JSON.stringify(payload.tokens.map((symbol) => ({ symbol })));
+  const operation = [
+    "custom_json",
+    {
+      id: "scot_claim_token",
+      required_auths: [],
+      required_posting_auths: [payload.account],
+      json
+    }
+  ];
+  if (payload.type === "key" && "key" in payload) {
+    return CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
+  }
+  if (auth?.broadcast) {
+    return auth.broadcast([operation], "posting");
+  }
+  if (auth?.postingKey) {
+    const key = PrivateKey.fromString(auth.postingKey);
+    return CONFIG.hiveClient.broadcast.sendOperations([operation], key);
+  }
+  if (auth?.accessToken) {
+    const client = new hs.Client({ accessToken: auth.accessToken });
+    return client.broadcast([operation]);
+  }
+  if (payload.type === "hiveauth") {
+    return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
+  }
+  throw new Error("[SDK][Wallets] \u2013 cannot broadcast without auth context");
 }
 function getPointsQueryOptions(username) {
   return queryOptions({
@@ -2497,7 +2770,7 @@ function getPointsAssetTransactionsQueryOptions(username, type) {
 }
 
 // src/modules/assets/points/mutations/claim-points.ts
-function useClaimPoints(username, onSuccess, onError) {
+function useClaimPoints(username, accessToken, onSuccess, onError) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
     "points-claimed"
@@ -2507,16 +2780,38 @@ function useClaimPoints(username, onSuccess, onError) {
     mutationFn: async () => {
       if (!username) {
         throw new Error(
-          "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn`t provided"
+          "[SDK][Wallets][Assets][Points][Claim] \u2013 username wasn't provided"
         );
       }
-      return fetchApi(CONFIG.privateApiHost + "/private-api/points-claim", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ code: getAccessToken(username) })
-      });
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][Assets][Points][Claim] \u2013 access token wasn't found"
+        );
+      }
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/points-claim",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code: accessToken })
+        }
+      );
+      if (!response.ok) {
+        const body = await response.text();
+        if (response.status === 406) {
+          try {
+            return JSON.parse(body);
+          } catch {
+            return { message: body, code: response.status };
+          }
+        }
+        throw new Error(
+          `[SDK][Wallets][Assets][Points][Claim] \u2013 failed with status ${response.status}${body ? `: ${body}` : ""}`
+        );
+      }
+      return response.json();
     },
     onError,
     onSuccess: () => {
@@ -2544,7 +2839,7 @@ async function transferPoint({
   memo,
   type,
   ...payload
-}) {
+}, auth) {
   const op = [
     "custom_json",
     {
@@ -2564,9 +2859,15 @@ async function transferPoint({
     return CONFIG.hiveClient.broadcast.sendOperations([op], key);
   }
   if (type === "keychain") {
-    return Keychain.broadcast(from, [op], "Active");
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
+    throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
   }
   if (type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
     return broadcastWithWalletHiveAuth(from, [op], "active");
   }
   return hs.sendOperation(op, { callback: `https://ecency.com/@${from}/wallet` }, () => {
@@ -2661,80 +2962,6 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
-var ACTION_ALIAS_MAP = {
-  "transfer-to-savings": "transfer-saving" /* TransferToSavings */,
-  "transfer-savings": "transfer-saving" /* TransferToSavings */,
-  "savings-transfer": "transfer-saving" /* TransferToSavings */,
-  "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
-  "transfer-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
-  "powerup": "power-up" /* PowerUp */,
-  "power-down": "power-down" /* PowerDown */,
-  "powerdown": "power-down" /* PowerDown */,
-  "withdraw-vesting": "power-down" /* PowerDown */,
-  "hp-delegate": "delegate" /* Delegate */,
-  "delegate-hp": "delegate" /* Delegate */,
-  "delegate-power": "delegate" /* Delegate */,
-  "delegate-vesting-shares": "delegate" /* Delegate */,
-  "undelegate-power": "undelegate" /* Undelegate */,
-  "undelegate-token": "undelegate" /* Undelegate */,
-  "stake-token": "stake" /* Stake */,
-  "stake-power": "stake" /* Stake */,
-  "unstake-token": "unstake" /* Unstake */,
-  "unstake-power": "unstake" /* Unstake */,
-  "transfer-to-vesting": "power-up" /* PowerUp */,
-  "lock-liquidity": "lock" /* LockLiquidity */,
-  "lock-liq": "lock" /* LockLiquidity */,
-  "gift-points": "gift" /* Gift */,
-  "points-gift": "gift" /* Gift */,
-  "promote-post": "promote" /* Promote */,
-  "promote-entry": "promote" /* Promote */,
-  boost: "promote" /* Promote */,
-  convert: "swap" /* Swap */,
-  "swap-token": "swap" /* Swap */,
-  "swap_tokens": "swap" /* Swap */,
-  "claim-points": "claim" /* Claim */,
-  "claim-rewards": "claim" /* Claim */,
-  "buy-points": "buy" /* Buy */,
-  "ecency-point-transfer": "transfer" /* Transfer */,
-  "spkcc-spk-send": "transfer" /* Transfer */,
-  "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
-  "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
-  "claim-interest": "claim-interest" /* ClaimInterest */
-};
-var KNOWN_OPERATION_VALUES = new Map(
-  Object.values(AssetOperation).map((value) => [value, value])
-);
-var DERIVED_PART_KEY_MAP = {
-  liquid: ["liquid", "liquidBalance", "liquid_amount", "liquidTokens"],
-  savings: ["savings", "savingsBalance", "savings_amount"],
-  staked: ["staked", "stakedBalance", "staking", "stake", "power"],
-  delegated: ["delegated", "delegatedBalance", "delegationsOut"],
-  received: ["received", "receivedBalance", "delegationsIn"],
-  pending: [
-    "pending",
-    "pendingRewards",
-    "unclaimed",
-    "unclaimedBalance",
-    "pendingReward"
-  ]
-};
-var EXTRA_DATA_PART_KEY_MAP = {
-  delegated: "outgoing_delegations",
-  outgoing: "outgoing_delegations",
-  delegations_out: "outgoing_delegations",
-  delegated_hive_power: "outgoing_delegations",
-  delegated_hp: "outgoing_delegations",
-  received: "incoming_delegations",
-  incoming: "incoming_delegations",
-  delegations_in: "incoming_delegations",
-  received_hive_power: "incoming_delegations",
-  received_hp: "incoming_delegations",
-  powering_down: "pending_power_down",
-  power_down: "pending_power_down",
-  powering_down_hive_power: "pending_power_down"
-};
 function normalizeString(value) {
   if (typeof value === "string") {
     const trimmed = value.trim();
@@ -2766,181 +2993,33 @@ function normalizeNumber(value) {
   }
   return void 0;
 }
-function normalizeApr(value) {
-  const numeric = normalizeNumber(value);
-  if (numeric === void 0) {
-    if (typeof value === "string") {
-      const trimmed = value.trim();
-      return trimmed.length > 0 ? trimmed : void 0;
-    }
-    return void 0;
-  }
-  return numeric.toString();
-}
-function normalizeParts(rawParts) {
-  if (Array.isArray(rawParts)) {
-    const parsed = rawParts.map((item) => {
-      if (!item || typeof item !== "object") {
-        return void 0;
-      }
-      const name = normalizeString(
-        item.name ?? item.label ?? item.type ?? item.part
-      );
-      const balance = normalizeNumber(
-        item.balance ?? item.amount ?? item.value
-      );
-      if (!name || balance === void 0) {
-        return void 0;
-      }
-      return { name, balance };
-    }).filter((item) => Boolean(item));
-    return parsed.length ? parsed : void 0;
-  }
-  if (rawParts && typeof rawParts === "object") {
-    const parsed = Object.entries(rawParts).map(([name, amount]) => {
-      const balance = normalizeNumber(amount);
-      if (!name || balance === void 0) {
-        return void 0;
-      }
-      return { name, balance };
-    }).filter((item) => Boolean(item));
-    return parsed.length ? parsed : void 0;
-  }
-  return void 0;
-}
-function deriveParts(record) {
-  const derived = Object.entries(DERIVED_PART_KEY_MAP).map(([name, keys]) => {
-    for (const key of keys) {
-      const value = normalizeNumber(record[key]);
-      if (value !== void 0) {
-        return { name, balance: value };
-      }
-    }
-    return void 0;
-  }).filter((item) => Boolean(item));
-  return derived.length ? derived : void 0;
-}
-function normalizePartKey(value) {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-function mergeParts(...sources) {
-  const order = [];
-  const values2 = /* @__PURE__ */ new Map();
-  for (const parts of sources) {
-    if (!parts) {
-      continue;
-    }
-    for (const part of parts) {
-      if (!part?.name || typeof part.balance !== "number") {
-        continue;
-      }
-      const existing = values2.get(part.name);
-      if (existing === void 0) {
-        order.push(part.name);
-        values2.set(part.name, part.balance);
-      } else {
-        values2.set(part.name, existing + part.balance);
-      }
-    }
-  }
-  return order.length ? order.map((name) => ({ name, balance: values2.get(name) })) : void 0;
-}
-function normalizeExtraDataParts(rawExtraData) {
-  const items = Array.isArray(rawExtraData) ? rawExtraData : rawExtraData && typeof rawExtraData === "object" ? Object.values(rawExtraData) : [];
-  const parts = items.map((item) => {
-    if (!item || typeof item !== "object") {
-      return void 0;
-    }
-    const record = item;
-    const keyCandidate = normalizeString(record.dataKey) ?? normalizeString(record.key) ?? normalizeString(record.name);
-    if (!keyCandidate) {
-      return void 0;
-    }
-    const canonical = normalizePartKey(keyCandidate);
-    const partName = EXTRA_DATA_PART_KEY_MAP[canonical];
-    if (!partName) {
-      return void 0;
-    }
-    const balance = normalizeNumber(
-      record.balance ?? record.amount ?? record.value ?? record.displayValue ?? record.text
-    );
-    if (balance === void 0) {
-      return void 0;
-    }
-    return { name: partName, balance: Math.abs(balance) };
-  }).filter((part) => Boolean(part));
-  return parts.length ? parts : void 0;
-}
-function normalizeActionKey(value) {
-  return value.trim().toLowerCase().replace(/[\s_]+/g, "-");
-}
-function mapActions(rawActions) {
-  if (!rawActions) {
-    return [];
-  }
-  const rawList = Array.isArray(rawActions) ? rawActions : [rawActions];
-  const result = [];
-  for (const raw of rawList) {
-    let candidate;
-    if (typeof raw === "string") {
-      candidate = raw;
-    } else if (raw && typeof raw === "object") {
-      const record = raw;
-      candidate = normalizeString(record.code) ?? normalizeString(record.id) ?? normalizeString(record.name) ?? normalizeString(record.action);
-    }
-    if (!candidate) {
-      continue;
-    }
-    const canonical = normalizeActionKey(candidate);
-    const operation = KNOWN_OPERATION_VALUES.get(canonical) ?? ACTION_ALIAS_MAP[canonical];
-    if (operation && !result.includes(operation)) {
-      result.push(operation);
-    }
-  }
-  return result;
-}
 function parseToken(rawToken) {
   if (!rawToken || typeof rawToken !== "object") {
     return void 0;
   }
   const token = rawToken;
-  const symbol = normalizeString(token.symbol) ?? normalizeString(token.asset) ?? normalizeString(token.name);
-  if (!symbol) {
-    return void 0;
-  }
-  const normalizedSymbol = symbol.toUpperCase();
-  const title = normalizeString(token.title) ?? normalizeString(token.display) ?? normalizeString(token.label) ?? normalizeString(token.friendlyName) ?? normalizeString(token.name) ?? normalizedSymbol;
-  const price = normalizeNumber(token.fiatRate) ?? normalizeNumber(token.price) ?? normalizeNumber(token.priceUsd) ?? normalizeNumber(token.usdPrice) ?? normalizeNumber(token.metrics?.price) ?? normalizeNumber(
-    token.metrics?.priceUsd
-  ) ?? 0;
-  const apr = normalizeApr(token.apr) ?? normalizeApr(token.aprPercent) ?? normalizeApr(token.metrics?.apr) ?? normalizeApr(
-    token.metrics?.aprPercent
-  );
-  const baseParts = normalizeParts(
-    token.parts ?? token.balances ?? token.sections ?? token.breakdown ?? token.accountBreakdown ?? token.walletParts
-  ) ?? deriveParts(token);
-  const parts = mergeParts(
-    baseParts,
-    normalizeExtraDataParts(
-      token.extraData ?? token.extra_data ?? token.extra ?? token.badges
-    )
-  );
-  const accountBalance = normalizeNumber(token.balance) ?? normalizeNumber(token.accountBalance) ?? normalizeNumber(token.totalBalance) ?? normalizeNumber(token.total) ?? normalizeNumber(token.amount) ?? (baseParts ? baseParts.reduce((total, part) => total + (part.balance ?? 0), 0) : parts ? parts.reduce((total, part) => total + (part.balance ?? 0), 0) : 0);
-  const layer = normalizeString(token.layer) ?? normalizeString(token.chain) ?? normalizeString(token.category) ?? normalizeString(token.type);
   return {
-    symbol: normalizedSymbol,
-    info: {
-      name: normalizedSymbol,
-      title,
-      price,
-      accountBalance,
-      apr: apr ?? void 0,
-      layer: layer ?? void 0,
-      parts
-    },
-    operations: mapActions(
-      token.actions ?? token.available_actions ?? token.availableActions ?? token.operations ?? token.supportedActions
-    )
+    name: normalizeString(token.name) ?? "",
+    symbol: normalizeString(token.symbol) ?? "",
+    layer: normalizeString(token.layer) ?? "hive",
+    balance: normalizeNumber(token.balance) ?? 0,
+    fiatRate: normalizeNumber(token.fiatRate) ?? 0,
+    currency: normalizeString(token.currency) ?? "usd",
+    precision: normalizeNumber(token.precision) ?? 3,
+    address: normalizeString(token.address),
+    error: normalizeString(token.error),
+    pendingRewards: normalizeNumber(token.pendingRewards),
+    pendingRewardsFiat: normalizeNumber(token.pendingRewardsFiat),
+    liquid: normalizeNumber(token.liquid),
+    liquidFiat: normalizeNumber(token.liquidFiat),
+    savings: normalizeNumber(token.savings),
+    savingsFiat: normalizeNumber(token.savingsFiat),
+    staked: normalizeNumber(token.staked),
+    stakedFiat: normalizeNumber(token.stakedFiat),
+    iconUrl: normalizeString(token.iconUrl),
+    actions: token.actions ?? [],
+    extraData: token.extraData ?? [],
+    apr: normalizeNumber(token.apr)
   };
 }
 function extractTokens(payload) {
@@ -2987,14 +3066,15 @@ function resolveUsername(payload) {
   const record = payload;
   return normalizeString(record.username) ?? normalizeString(record.name) ?? normalizeString(record.account);
 }
-function getVisionPortfolioQueryOptions(username) {
+function getVisionPortfolioQueryOptions(username, currency = "usd") {
   return queryOptions({
     queryKey: [
       "ecency-wallets",
       "portfolio",
       "v2",
       username,
-      "only-enabled"
+      "only-enabled",
+      currency
     ],
     enabled: Boolean(username),
     staleTime: 6e4,
@@ -3003,7 +3083,7 @@ function getVisionPortfolioQueryOptions(username) {
       if (!username) {
         throw new Error("[SDK][Wallets] \u2013 username is required");
       }
-      if (!CONFIG.privateApiHost) {
+      if (CONFIG.privateApiHost === void 0 || CONFIG.privateApiHost === null) {
         throw new Error(
           "[SDK][Wallets] \u2013 privateApiHost isn't configured for portfolio"
         );
@@ -3015,7 +3095,7 @@ function getVisionPortfolioQueryOptions(username) {
           Accept: "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, onlyEnabled: true })
+        body: JSON.stringify({ username, onlyEnabled: true, currency })
       });
       if (!response.ok) {
         throw new Error(
@@ -3032,7 +3112,7 @@ function getVisionPortfolioQueryOptions(username) {
       return {
         username: resolveUsername(payload) ?? username,
         currency: normalizeString(
-          payload?.currency
+          payload?.fiatCurrency ?? payload?.currency
         )?.toUpperCase(),
         wallets: tokens
       };
@@ -3058,12 +3138,12 @@ var BASIC_TOKENS = [
   "HP" /* HivePower */,
   "HBD" /* HiveDollar */
 ];
-function getAccountWalletListQueryOptions(username) {
+function getAccountWalletListQueryOptions(username, currency = "usd") {
   return queryOptions({
-    queryKey: ["ecency-wallets", "list", username],
+    queryKey: ["ecency-wallets", "list", username, currency],
     enabled: !!username,
     queryFn: async () => {
-      const portfolioQuery = getVisionPortfolioQueryOptions(username);
+      const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
       const queryClient = getQueryClient();
       const accountQuery = getAccountFullQueryOptions(username);
       let account;
@@ -3096,7 +3176,7 @@ function getAccountWalletListQueryOptions(username) {
       try {
         const portfolio = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
-          (asset) => asset.info.name
+          (asset) => asset.symbol
         );
         if (tokensFromPortfolio.length > 0) {
           const visibleTokens = tokensFromPortfolio.map((token) => token?.toUpperCase?.()).filter((token) => Boolean(token)).filter(isTokenVisible);
@@ -3541,90 +3621,140 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 // src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = getQueryClient();
-  const fetchQuery = async (queryOptions40) => {
+  const currency = options2.currency ?? "usd";
+  const fetchQuery = async (queryOptions43) => {
     if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions40);
+      await queryClient.fetchQuery(queryOptions43);
     } else {
-      await queryClient.prefetchQuery(queryOptions40);
+      await queryClient.prefetchQuery(queryOptions43);
     }
-    return queryClient.getQueryData(queryOptions40.queryKey);
+    return queryClient.getQueryData(queryOptions43.queryKey);
   };
-  const portfolioQuery = getVisionPortfolioQueryOptions(username);
+  const convertPriceToUserCurrency = async (assetInfo) => {
+    if (!assetInfo || currency === "usd") {
+      return assetInfo;
+    }
+    try {
+      const conversionRate = await getCurrencyRate(currency);
+      return {
+        ...assetInfo,
+        price: assetInfo.price * conversionRate
+      };
+    } catch (error) {
+      console.warn(`Failed to convert price from USD to ${currency}:`, error);
+      return assetInfo;
+    }
+  };
+  const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
   const getPortfolioAssetInfo = async () => {
     try {
       const portfolio = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.info.name === asset.toUpperCase()
+        (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
       );
-      return assetInfo?.info;
-    } catch {
+      if (!assetInfo) return void 0;
+      const parts = [];
+      if (assetInfo.liquid !== void 0 && assetInfo.liquid !== null) {
+        parts.push({ name: "liquid", balance: assetInfo.liquid });
+      }
+      if (assetInfo.staked !== void 0 && assetInfo.staked !== null && assetInfo.staked > 0) {
+        parts.push({ name: "staked", balance: assetInfo.staked });
+      }
+      if (assetInfo.savings !== void 0 && assetInfo.savings !== null && assetInfo.savings > 0) {
+        parts.push({ name: "savings", balance: assetInfo.savings });
+      }
+      if (assetInfo.extraData && Array.isArray(assetInfo.extraData)) {
+        for (const extraItem of assetInfo.extraData) {
+          if (!extraItem || typeof extraItem !== "object") continue;
+          const dataKey = extraItem.dataKey;
+          const value = extraItem.value;
+          if (typeof value === "string") {
+            const cleanValue = value.replace(/,/g, "");
+            const match = cleanValue.match(/[+-]?\s*(\d+(?:\.\d+)?)/);
+            if (match) {
+              const numValue = Math.abs(Number.parseFloat(match[1]));
+              if (dataKey === "delegated_hive_power") {
+                parts.push({ name: "outgoing_delegations", balance: numValue });
+              } else if (dataKey === "received_hive_power") {
+                parts.push({ name: "incoming_delegations", balance: numValue });
+              } else if (dataKey === "powering_down_hive_power") {
+                parts.push({ name: "pending_power_down", balance: numValue });
+              }
+            }
+          }
+        }
+      }
+      return {
+        name: assetInfo.symbol,
+        title: assetInfo.name,
+        price: assetInfo.fiatRate,
+        accountBalance: assetInfo.balance,
+        apr: assetInfo.apr?.toString(),
+        layer: assetInfo.layer,
+        pendingRewards: assetInfo.pendingRewards,
+        parts
+      };
+    } catch (e) {
       return void 0;
     }
   };
   return queryOptions({
-    queryKey: ["ecency-wallets", "asset-info", username, asset],
+    queryKey: ["ecency-wallets", "asset-info", username, asset, currency],
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
-      if (portfolioAssetInfo) {
+      if (portfolioAssetInfo && portfolioAssetInfo.price > 0) {
         return portfolioAssetInfo;
       }
+      let assetInfo;
       if (asset === "HIVE") {
-        return fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHiveAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HP") {
-        return fetchQuery(getHivePowerAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHivePowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "HBD") {
-        return fetchQuery(getHbdAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getHbdAssetGeneralInfoQueryOptions(username));
       } else if (asset === "SPK") {
-        return fetchQuery(getSpkAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getSpkAssetGeneralInfoQueryOptions(username));
       } else if (asset === "LARYNX") {
-        return fetchQuery(getLarynxAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getLarynxAssetGeneralInfoQueryOptions(username));
       } else if (asset === "LP") {
-        return fetchQuery(getLarynxPowerAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getLarynxPowerAssetGeneralInfoQueryOptions(username));
       } else if (asset === "POINTS") {
-        return fetchQuery(getPointsAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getPointsAssetGeneralInfoQueryOptions(username));
       } else if (asset === "APT") {
-        return fetchQuery(getAptAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getAptAssetGeneralInfoQueryOptions(username));
       } else if (asset === "BNB") {
-        return fetchQuery(getBnbAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getBnbAssetGeneralInfoQueryOptions(username));
       } else if (asset === "BTC") {
-        return fetchQuery(getBtcAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getBtcAssetGeneralInfoQueryOptions(username));
       } else if (asset === "ETH") {
-        return fetchQuery(getEthAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getEthAssetGeneralInfoQueryOptions(username));
       } else if (asset === "SOL") {
-        return fetchQuery(getSolAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getSolAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TON") {
-        return fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
+        assetInfo = await fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
       } else if (asset === "TRX") {
-        return fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
-      }
-      const balances = await queryClient.ensureQueryData(
-        getHiveEngineTokensBalancesQueryOptions(username)
-      );
-      if (balances.some((balance) => balance.symbol === asset)) {
-        return await fetchQuery(
-          getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
-        );
+        assetInfo = await fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
       } else {
-        throw new Error(
-          "[SDK][Wallets] \u2013 has requested unrecognized asset info"
+        const balances = await queryClient.ensureQueryData(
+          getHiveEngineTokensBalancesQueryOptions(username)
         );
+        if (balances.some((balance) => balance.symbol === asset)) {
+          assetInfo = await fetchQuery(
+            getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
+          );
+        } else {
+          throw new Error(
+            "[SDK][Wallets] \u2013 has requested unrecognized asset info"
+          );
+        }
       }
+      return await convertPriceToUserCurrency(assetInfo);
     }
   });
 }
-function normalizePartKey2(value) {
-  return value.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-function hasNonZeroSavingsBalance(parts) {
-  return Boolean(
-    parts?.some(
-      (part) => normalizePartKey2(part.name) === "savings" && Number(part.balance) > 0
-    )
-  );
-}
-function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
+function getTokenOperationsQueryOptions(token, username, isForOwner = false, currency = "usd") {
   return queryOptions({
-    queryKey: ["wallets", "token-operations", token, username, isForOwner],
+    queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
     queryFn: async () => {
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
@@ -3633,19 +3763,97 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false) {
       }
       try {
         const portfolio = await queryClient.fetchQuery(
-          getVisionPortfolioQueryOptions(username)
+          getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.info.name === normalizedToken
+          (assetItem) => assetItem.symbol.toUpperCase() === normalizedToken
         );
         if (!assetEntry) {
           return [];
         }
-        const operations = assetEntry.operations ?? [];
-        const isHiveOrHbd = ["HIVE", "HBD"].includes(
-          assetEntry.info.name.toUpperCase()
-        );
-        if (isHiveOrHbd && !hasNonZeroSavingsBalance(assetEntry.info.parts)) {
+        const rawActions = assetEntry.actions ?? [];
+        const operations = rawActions.map((action) => {
+          if (typeof action === "string") return action;
+          if (action && typeof action === "object") {
+            const record = action;
+            return record.id ?? record.code ?? record.name ?? record.action;
+          }
+          return void 0;
+        }).filter((id) => Boolean(id)).map((id) => {
+          const canonical = id.trim().toLowerCase().replace(/[\s_]+/g, "-");
+          const aliasMap = {
+            // Common operations
+            "transfer": "transfer" /* Transfer */,
+            "ecency-point-transfer": "transfer" /* Transfer */,
+            "spkcc-spk-send": "transfer" /* Transfer */,
+            // Savings operations
+            "transfer-to-savings": "transfer-saving" /* TransferToSavings */,
+            "transfer-savings": "transfer-saving" /* TransferToSavings */,
+            "savings-transfer": "transfer-saving" /* TransferToSavings */,
+            "withdraw-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "transfer-from-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "withdraw-savings": "withdraw-saving" /* WithdrawFromSavings */,
+            "savings-withdraw": "withdraw-saving" /* WithdrawFromSavings */,
+            // Vesting/Power operations
+            "transfer-to-vesting": "power-up" /* PowerUp */,
+            "powerup": "power-up" /* PowerUp */,
+            "power-up": "power-up" /* PowerUp */,
+            "withdraw-vesting": "power-down" /* PowerDown */,
+            "power-down": "power-down" /* PowerDown */,
+            "powerdown": "power-down" /* PowerDown */,
+            // Delegation
+            "delegate": "delegate" /* Delegate */,
+            "delegate-vesting-shares": "delegate" /* Delegate */,
+            "hp-delegate": "delegate" /* Delegate */,
+            "delegate-hp": "delegate" /* Delegate */,
+            "delegate-power": "delegate" /* Delegate */,
+            "undelegate": "undelegate" /* Undelegate */,
+            "undelegate-power": "undelegate" /* Undelegate */,
+            "undelegate-token": "undelegate" /* Undelegate */,
+            // Staking (Layer 2)
+            "stake": "stake" /* Stake */,
+            "stake-token": "stake" /* Stake */,
+            "stake-power": "stake" /* Stake */,
+            "unstake": "unstake" /* Unstake */,
+            "unstake-token": "unstake" /* Unstake */,
+            "unstake-power": "unstake" /* Unstake */,
+            // Swap/Convert
+            "swap": "swap" /* Swap */,
+            "swap-token": "swap" /* Swap */,
+            "swap-tokens": "swap" /* Swap */,
+            "convert": "convert" /* Convert */,
+            // Points operations
+            "promote": "promote" /* Promote */,
+            "promote-post": "promote" /* Promote */,
+            "promote-entry": "promote" /* Promote */,
+            "boost": "promote" /* Promote */,
+            "gift": "gift" /* Gift */,
+            "gift-points": "gift" /* Gift */,
+            "points-gift": "gift" /* Gift */,
+            "claim": "claim" /* Claim */,
+            "claim-rewards": "claim" /* Claim */,
+            "claim-points": "claim" /* Claim */,
+            "buy": "buy" /* Buy */,
+            "buy-points": "buy" /* Buy */,
+            // Other
+            "claim-interest": "claim-interest" /* ClaimInterest */,
+            "withdraw-routes": "withdraw-routes" /* WithdrawRoutes */,
+            "withdrawroutes": "withdraw-routes" /* WithdrawRoutes */,
+            "lock": "lock" /* LockLiquidity */,
+            "lock-liquidity": "lock" /* LockLiquidity */,
+            "lock-liq": "lock" /* LockLiquidity */
+          };
+          const mapped = aliasMap[canonical];
+          if (mapped) return mapped;
+          const directMatch = Object.values(AssetOperation).find(
+            (op) => op.toLowerCase() === canonical
+          );
+          return directMatch;
+        }).filter((op) => Boolean(op)).filter((op, index, self) => self.indexOf(op) === index);
+        const isHiveOrHbd = ["HIVE", "HBD"].includes(normalizedToken);
+        const rawToken = assetEntry;
+        const hasSavings = Number(rawToken.savings ?? 0) > 0;
+        if (isHiveOrHbd && !hasSavings) {
           return operations.filter(
             (operation) => operation !== "withdraw-saving" /* WithdrawFromSavings */
           );
@@ -3791,7 +3999,7 @@ function useCheckWalletExistence() {
     }
   });
 }
-function useUpdateAccountWithWallets(username) {
+function useUpdateAccountWithWallets(username, accessToken) {
   const fetchApi = getBoundFetch();
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
@@ -3801,6 +4009,11 @@ function useUpdateAccountWithWallets(username) {
         return new Response(null, { status: 204 });
       }
       const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
+        );
+      }
       return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
         method: "POST",
         headers: {
@@ -3808,7 +4021,7 @@ function useUpdateAccountWithWallets(username) {
         },
         body: JSON.stringify({
           username,
-          code: getAccessToken(username),
+          code: accessToken,
           token: primaryToken,
           address: primaryAddress,
           status: 3,
@@ -3942,10 +4155,10 @@ function getGroupedChainTokens(tokens, defaultShow) {
     )
   );
 }
-function useSaveWalletInformationToMetadata(username, options2) {
+function useSaveWalletInformationToMetadata(username, auth, options2) {
   const queryClient = useQueryClient();
   const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateProfile } = useAccountUpdate(username);
+  const { mutateAsync: updateProfile } = useAccountUpdate(username, auth);
   return useMutation({
     mutationKey: [
       "ecency-wallets",
@@ -4000,7 +4213,8 @@ var operationToFunctionMap = {
     ["transfer" /* Transfer */]: transferHive,
     ["transfer-saving" /* TransferToSavings */]: transferToSavingsHive,
     ["withdraw-saving" /* WithdrawFromSavings */]: transferFromSavingsHive,
-    ["claim-interest" /* ClaimInterest */]: claimInterestHive
+    ["claim-interest" /* ClaimInterest */]: claimInterestHive,
+    ["convert" /* Convert */]: convertHbd
   },
   HP: {
     ["power-down" /* PowerDown */]: powerDownHive,
@@ -4025,9 +4239,20 @@ var engineOperationToFunctionMap = {
   ["stake" /* Stake */]: stakeEngineToken,
   ["unstake" /* Unstake */]: unstakeEngineToken,
   ["delegate" /* Delegate */]: delegateEngineToken,
-  ["undelegate" /* Undelegate */]: undelegateEngineToken
+  ["undelegate" /* Undelegate */]: undelegateEngineToken,
+  ["claim" /* Claim */]: (payload, auth) => {
+    return claimHiveEngineRewards(
+      {
+        account: payload.from,
+        tokens: [payload.asset],
+        type: payload.type,
+        ...payload.type === "key" && payload.key ? { key: payload.key } : {}
+      },
+      auth
+    );
+  }
 };
-function useWalletOperation(username, asset, operation) {
+function useWalletOperation(username, asset, operation, auth) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
     operation
@@ -4037,17 +4262,18 @@ function useWalletOperation(username, asset, operation) {
     mutationFn: async (payload) => {
       const operationFn = operationToFunctionMap[asset]?.[operation];
       if (operationFn) {
-        return operationFn(payload);
+        return operationFn(payload, auth);
       }
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
       await getQueryClient().prefetchQuery(balancesListQuery);
       const balances = getQueryClient().getQueryData(
         balancesListQuery.queryKey
       );
-      if (balances?.some((b) => b.symbol === asset)) {
+      const engineBalances = balances ?? [];
+      if (engineBalances.some((balance) => balance.symbol === asset)) {
         const operationFn2 = engineOperationToFunctionMap[operation];
         if (operationFn2) {
-          return operationFn2({ ...payload, asset });
+          return operationFn2({ ...payload, asset }, auth);
         }
       }
       throw new Error("[SDK][Wallets] \u2013 no operation for given asset");
@@ -4077,6 +4303,12 @@ function useWalletOperation(username, asset, operation) {
           5e3
         );
       });
+      setTimeout(
+        () => getQueryClient().invalidateQueries({
+          queryKey: ["ecency-wallets", "portfolio", "v2", username]
+        }),
+        4e3
+      );
     }
   });
 }
@@ -4084,6 +4316,6 @@ function useWalletOperation(username, asset, operation) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, claimInterestHive, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
+export { AssetOperation, EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol2 as Symbol, broadcastWithWalletHiveAuth, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, cancelHiveEngineOrder, claimHiveEngineRewards, claimInterestHive, convertHbd, decryptMemoWithAccounts, decryptMemoWithKeys, delay, delegateEngineToken, delegateHive, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAccountWalletListQueryOptions, getAllHiveEngineTokensQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getVisionPortfolioQueryOptions, getWallet, hasWalletHiveAuthBroadcast, isEmptyDate, lockLarynx, mnemonicToSeedBip39, parseAsset, placeHiveEngineBuyOrder, placeHiveEngineSellOrder, powerDownHive, powerUpHive, powerUpLarynx, registerWalletHiveAuthBroadcast, resolveHiveOperationFilters, rewardSpk, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, stakeEngineToken, transferEngineToken, transferFromSavingsHive, transferHive, transferLarynx, transferPoint, transferSpk, transferToSavingsHive, undelegateEngineToken, unstakeEngineToken, useClaimPoints, useClaimRewards, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletOperation, useWalletsCacheQuery, vestsToHp, withdrawVestingRouteHive };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

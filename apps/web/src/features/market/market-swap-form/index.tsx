@@ -8,8 +8,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import useMount from "react-use/lib/useMount";
 
-import { getTokenBalances, getTokens } from "@/api/hive-engine";
-import { fetchAllHiveEngineTokens } from "@/api/queries/engine";
+import {
+  getAllHiveEngineTokensQueryOptions,
+  getHiveEngineTokensBalancesQueryOptions,
+  getHiveEngineTokensMetadataQueryOptions
+} from "@ecency/wallets";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -88,15 +91,13 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
 
   const queryClient = useQueryClient();
 
-  const { data: engineTokens = [] } = useQuery<HiveEngineTokenInfo[]>({
-    queryKey: [QueryIdentifiers.HIVE_ENGINE_ALL_TOKENS, undefined],
-    queryFn: () => fetchAllHiveEngineTokens(),
+  const { data: engineTokens = [] } = useQuery({
+    ...getAllHiveEngineTokensQueryOptions(),
     staleTime: 60000
   });
 
   const engineBalancesQuery = useQuery({
-    queryKey: [QueryIdentifiers.HIVE_ENGINE_TOKEN_BALANCES, activeUsername],
-    queryFn: () => getTokenBalances(activeUsername!),
+    ...getHiveEngineTokensBalancesQueryOptions(activeUsername ?? ""),
     enabled: !!activeUsername,
     refetchInterval: 60000
   });
@@ -202,19 +203,13 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
   }, [activeUsername, engineBalancesMap, fromAsset, toAsset]);
 
   const engineTokenDefinitionQuery = useQuery({
-    queryKey: ["market-swap-engine-token", engineSymbol],
-    queryFn: async () => {
-      if (!engineSymbol) {
-        return undefined;
-      }
-
-      const tokens = await getTokens([engineSymbol]);
-      return tokens[0];
-    },
+    ...getHiveEngineTokensMetadataQueryOptions(engineSymbol ? [engineSymbol] : []),
     enabled: !!engineSymbol
   });
 
-  const engineTokenPrecision = (engineTokenDefinitionQuery.data as Token | undefined)?.precision ?? DEFAULT_ENGINE_PRECISION;
+  const engineTokenPrecision =
+    (engineTokenDefinitionQuery.data as Token[] | undefined)?.[0]?.precision ??
+    DEFAULT_ENGINE_PRECISION;
 
   const engineTokenPrecisionMap = useMemo(() => {
     const precisionMap = new Map<string, number>();

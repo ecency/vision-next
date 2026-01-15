@@ -3,14 +3,15 @@ import { Entry } from "@/entities";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
 import { dateToFullRelative, formattedNumber, parseAsset } from "@/utils";
-import { getDynamicPropsQuery } from "@/api/queries";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   entry: Entry;
 }
 
 export function EntryPayoutDetail({ entry }: Props) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   const { base, quote, hbdPrintRate } = dynamicProps ?? { base: 1, hbdPrintRate: 1, quote: 1 };
 

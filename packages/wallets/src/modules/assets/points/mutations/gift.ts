@@ -1,5 +1,6 @@
 import { PrivateKey, type Operation } from "@hiveio/dhive";
-import { CONFIG, Keychain } from "@ecency/sdk";
+import { CONFIG } from "@ecency/sdk";
+import type { AuthContext } from "@ecency/sdk";
 import hs from "hivesigner";
 import { broadcastWithWalletHiveAuth } from "../../utils/hive-auth";
 
@@ -24,7 +25,7 @@ export async function transferPoint<T extends PointsSignType>({
   memo,
   type,
   ...payload
-}: PointsTransferPayload<T>) {
+}: PointsTransferPayload<T>, auth?: AuthContext) {
   const op: Operation = [
     "custom_json",
     {
@@ -47,11 +48,16 @@ export async function transferPoint<T extends PointsSignType>({
   }
 
   if (type === "keychain") {
-    // Broadcast via Hive Keychain as custom_json with Active authority
-    return Keychain.broadcast(from, [op], "Active") as Promise<unknown>;
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
+    throw new Error("[SDK][Wallets] – missing broadcaster");
   }
 
   if (type === "hiveauth") {
+    if (auth?.broadcast) {
+      return auth.broadcast([op], "active");
+    }
     return broadcastWithWalletHiveAuth(from, [op], "active");
   }
 

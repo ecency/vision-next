@@ -2,11 +2,11 @@ import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { ProfilePermissions } from "./_components";
-import { getAccountFullQuery } from "@/api/queries";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -22,7 +22,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
 export default async function PermissionsPage({ params }: Props) {
   const { username } = await params;
   const { get } = await cookies();
-  const account = await getAccountFullQuery(username.replace("%40", "")).prefetch();
+  const account = await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
 
   if (!account) {
     return notFound();

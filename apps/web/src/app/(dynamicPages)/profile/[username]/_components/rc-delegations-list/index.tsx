@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
-import { getAccount, getIncomingRc } from "@/api/hive";
-import { getOutgoingRcDelegationsQuery } from "@/api/queries";
+import {
+  getAccountFullQueryOptions,
+  getIncomingRcQueryOptions,
+  getOutgoingRcDelegationsInfiniteQueryOptions
+} from "@ecency/sdk";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -34,6 +38,7 @@ export const RcDelegationsList = ({
   account
 }: Props) => {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
 
   const otherUser = account.name;
   const {
@@ -42,7 +47,7 @@ export const RcDelegationsList = ({
     hasNextPage,
     isLoading: outgoingLoading,
     isFetchingNextPage
-  } = getOutgoingRcDelegationsQuery(otherUser).useClientQuery();
+  } = useInfiniteQuery(getOutgoingRcDelegationsInfiniteQueryOptions(otherUser));
   const outGoingList = outgoingPages?.pages.flat() ?? [];
   const [incoming, setIncoming]: any = useState([]);
   const [incomingLoading, setIncomingLoading] = useState(false);
@@ -55,7 +60,9 @@ export const RcDelegationsList = ({
 
   const getIncomingRcList = async () => {
     setIncomingLoading(true);
-    const delegationsIn: any = await getIncomingRc(otherUser);
+    const delegationsIn: any = await queryClient.fetchQuery(
+      getIncomingRcQueryOptions(otherUser)
+    );
     const incomingInfo = delegationsIn.list;
     setIncoming(incomingInfo);
     setIncomingLoading(false);
@@ -71,7 +78,8 @@ export const RcDelegationsList = ({
     setLoadList(moreList);
   };
 
-  const getToData = async (data: any) => getAccount(data);
+  const getToData = async (data: any) =>
+    queryClient.fetchQuery(getAccountFullQueryOptions(data));
   const searchLower = search.toLowerCase();
 
   return (

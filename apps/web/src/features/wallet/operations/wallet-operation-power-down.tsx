@@ -1,9 +1,7 @@
-import {
-  DEFAULT_DYNAMIC_PROPS,
-  getAccountFullQuery,
-  getDynamicPropsQuery
-} from "@/api/queries";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { Button } from "@/features/ui";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { dateToFullRelative, formatNumber } from "@/utils";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
@@ -29,8 +27,8 @@ export function WalletOperationPowerDown({ username, asset, onSubmit, showSubmit
   const { data: accountWallet } = useQuery(
     getAccountWalletAssetInfoQueryOptions(username, asset)
   );
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
-  const { data: account } = getAccountFullQuery(username).useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
+  const { data: account } = useQuery(getAccountFullQueryOptions(username));
 
   const hivePerMVests = (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
 

@@ -3,6 +3,7 @@ import { Entry } from "@/entities";
 import { Editor } from "@tiptap/core";
 import { useEffect, useRef } from "react";
 import { usePublishState } from "./use-publish-state";
+import { getQueryClient } from "@/core/react-query";
 
 function parseEntryFromHref(href: string): readonly [string, string] | undefined {
   try {
@@ -70,15 +71,16 @@ export function usePublishLinksAttach(editor: Editor | null) {
             return existing;
           }
 
-          const query = EcencyEntriesCacheManagement.getEntryQueryByPath(
+          const queryOptions = EcencyEntriesCacheManagement.getEntryQueryByPath(
             author,
             permlink
           );
 
-          let entryData = query.getData();
+          const qc = getQueryClient();
+          let entryData = qc.getQueryData<Entry>(queryOptions.queryKey);
           if (!entryData) {
-            await query.prefetch();
-            entryData = query.getData();
+            await qc.fetchQuery(queryOptions);
+            entryData = qc.getQueryData<Entry>(queryOptions.queryKey);
           }
 
           return entryData ?? null;

@@ -1,8 +1,9 @@
 "use client";
 
-import { getAccountFullQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { FullAccount } from "@/entities";
-import { useClientGlobalStore } from "@/core/global-store/initialization/client-init";
+import { useGlobalStore } from "@/core/global-store";
 
 /**
  * Hook to access the active user's account data with proper loading states.
@@ -40,10 +41,10 @@ import { useClientGlobalStore } from "@/core/global-store/initialization/client-
  * ```
  */
 export function useActiveAccount() {
-  const activeUser = useClientGlobalStore((s) => s.activeUser);
+  const activeUser = useGlobalStore((s) => s.activeUser);
   const username = activeUser?.username ?? null;
 
-  const query = getAccountFullQuery(username).useClientQuery();
+  const query = useQuery(getAccountFullQueryOptions(username));
   const account: FullAccount | null | undefined =
       username ? (query.data as FullAccount | null | undefined) : null;
 

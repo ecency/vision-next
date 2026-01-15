@@ -3,7 +3,8 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import i18next from "i18next";
-import { getFollowingQuery } from "@/api/queries";
+import { getFollowingQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Entry } from "@/entities";
 
@@ -14,12 +15,12 @@ interface Props {
 export function EntryPageMightContainsMutedCommentsWarning({ entry }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const { data: followingsRaw } = getFollowingQuery(
+  const { data: followingsRaw } = useQuery(getFollowingQueryOptions(
       activeUser?.username,
       "",
       "ignore",
       100
-  ).useClientQuery();
+  ));
 
   // ✅ normalize to an array of usernames (muted/ignored accounts)
   const ignoredUsernames = useMemo<string[]>(

@@ -4,10 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { UilArrowLeft, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
-import {useClientActiveUser} from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function PointsBasicInfo() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const { data: activeUserPoints, isPending } = useQuery(
     getPointsQueryOptions(activeUser?.username)
   );

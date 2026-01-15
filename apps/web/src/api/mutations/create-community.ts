@@ -7,7 +7,7 @@ import { EcencyConfigManager } from "@/config";
 import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import hs from "hivesigner";
-import { client } from "@/api/hive";
+import { CONFIG } from "@ecency/sdk";
 
 function makeOperation(
   creator: string,
@@ -88,7 +88,7 @@ export function useCreateCommunityByApi() {
       const keys = makePrivateKeys(username, wif);
       const auths = makeAuthorities(keys);
       const operation = makeOperation(activeUser.username, fee, username, auths, keys.memoKey);
-      await client.broadcast.sendOperations([operation], creatorKey);
+      await CONFIG.hiveClient.broadcast.sendOperations([operation], creatorKey);
 
       // create hive signer code from active private key
       const signer = (message: string): Promise<string> => {

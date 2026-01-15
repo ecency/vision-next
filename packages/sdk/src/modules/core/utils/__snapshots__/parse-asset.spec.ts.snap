@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseAsset > with SMTAsset input > should parse HBD NAI asset 1`] = `
+{
+  "amount": 50.5,
+  "symbol": "HBD",
+}
+`;
+
+exports[`parseAsset > with SMTAsset input > should parse HIVE NAI asset 1`] = `
+{
+  "amount": 100,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`parseAsset > with SMTAsset input > should parse VESTS NAI asset 1`] = `
+{
+  "amount": 123456.789012,
+  "symbol": "VESTS",
+}
+`;
+
+exports[`parseAsset > with string input > should parse HBD asset string 1`] = `
+{
+  "amount": 50.5,
+  "symbol": "HBD",
+}
+`;
+
+exports[`parseAsset > with string input > should parse HIVE asset string 1`] = `
+{
+  "amount": 100,
+  "symbol": "HIVE",
+}
+`;
+
+exports[`parseAsset > with string input > should parse VESTS asset string 1`] = `
+{
+  "amount": 1234567.890123,
+  "symbol": "VESTS",
+}
+`;

@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import "./_index.scss";
 import Link from "next/link";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useQuery } from "@tanstack/react-query";
 
 interface Props {
   tags: string[];
@@ -33,7 +34,7 @@ function extractCommunityName(tags: string[]) {
 export function CommunitySelector({ tags, onSelect }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const { data: community } = getCommunityCache(extractCommunityName(tags)).useClientQuery();
+  const { data: community } = useQuery(getCommunityCache(extractCommunityName(tags)));
 
   const [visible, setVisible] = useState(false);
 

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import React from "react";
 import { useGlobalStore } from "@/core/global-store";
-import { getAccountFullQuery } from "@/api/queries";
+import { useQuery } from "@tanstack/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface Props {
   username: string;
@@ -12,7 +13,7 @@ export function ProfilePreviewCover({ username }: Props) {
   const theme = useGlobalStore((s) => s.theme);
 
   const { data: profile, isLoading: isProfileLoading } =
-    getAccountFullQuery(username).useClientQuery();
+    useQuery(getAccountFullQueryOptions(username));
 
   return isProfileLoading ? (
     <div className="animate-pulse h-[128px] w-full bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />

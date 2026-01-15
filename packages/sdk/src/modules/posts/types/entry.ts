@@ -95,13 +95,12 @@ export interface EntryHeader {
   depth: number;
 }
 
-export interface EntryGroup {
-  // filter(arg0: (entry: any) => boolean): EntryGroup;
-  entries: Entry[];
-  error: string | null;
-  sid: string; //scroll_id for controversial/rising results
-  loading: boolean;
-  hasMore: boolean;
+export interface Vote {
+  percent: number;
+  reputation: number;
+  rshares: string;
+  time: string;
+  timestamp?: number;
+  voter: string;
+  weight: number;
 }
-
-export interface Entries extends Record<string, EntryGroup> {}

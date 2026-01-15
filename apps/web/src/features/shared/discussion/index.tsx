@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getDiscussionsQuery, getBotsQuery, useClientActiveUser } from "@/api/queries";
+import { getBotsQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { DiscussionList } from "./discussion-list";
@@ -28,7 +30,7 @@ interface Props {
 }
 
 export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const [order, setOrder] = useState(SortOrder.created);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const processedCommentsRef = useRef<Set<string>>(new Set());
@@ -41,14 +43,16 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
     parentIdRef.current = currentParentId;
   }
 
-  const { data: allComments = [], isLoading } = getDiscussionsQuery(
+  const { data: allComments = [], isLoading } = useQuery(
+    getDiscussionsQueryOptions(
       parent,
-      order,
+      order as unknown as SDKSortOrder,
       true,
       activeUser?.username
-  ).useClientQuery();
+    )
+  );
 
-  const { data: botsList } = getBotsQuery().useClientQuery();
+  const { data: botsList } = useQuery(getBotsQueryOptions());
 
   const topLevelComments = useMemo(
       () =>

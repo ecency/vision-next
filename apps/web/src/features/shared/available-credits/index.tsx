@@ -1,6 +1,6 @@
 "use client";
 
-import { client, powerRechargeTime, rcPower } from "@/api/hive";
+import { CONFIG, powerRechargeTime, rcPower } from "@ecency/sdk";
 import { RcOperation } from "@/entities";
 import { rcFormatter } from "@/utils";
 import { useMounted } from "@/utils/use-mounted";
@@ -54,7 +54,7 @@ export const AvailableCredits = ({ username, className }: Props) => {
 
     const account = rcValues[0];
 
-    setRcp(client.rc.calculateRCMana(account).current_mana);
+    setRcp(CONFIG.hiveClient.rc.calculateRCMana(account).current_mana);
     setRcpFixed(Math.floor(+rcPower(account)));
     setRcpRechargeDate(dayjs().add(powerRechargeTime(rcPower(account)), "second"));
 

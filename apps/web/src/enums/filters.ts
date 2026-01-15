@@ -5,8 +5,6 @@ export enum EntryFilter {
   payout = "payout",
   payout_comments = "payout_comments",
   muted = "muted",
-  controversial = "controversial",
-  rising = "rising",
   promoted = "promoted"
 }
 
@@ -32,7 +30,5 @@ export enum AllFilter {
   communities = "communities",
   feed = "feed",
   no_reblog = "no_reblog",
-  controversial = "controversial",
-  rising = "rising",
   promoted = "promoted"
 }

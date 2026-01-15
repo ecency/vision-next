@@ -4,9 +4,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useMount, useUnmount } from "react-use";
 import { DiscussionItem } from "./discussion-item";
 import { Community, Entry, ROLES } from "@/entities";
-import { getMutedUsersQuery } from "@/api/queries/get-muted-users-query";
-import {getBotsQuery, useClientActiveUser} from "@/api/queries";
+import { getMutedUsersQueryOptions, getBotsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { htmlPositionManager } from "@/utils/html-position-manager";
 
 interface Props {
@@ -28,11 +29,11 @@ export function DiscussionList({
 }: Props) {
     const [isHiddenPermitted, setIsHiddenPermitted] = useState(false);
 
-    const activeUser = useClientActiveUser();
+    const { activeUser } = useActiveAccount();
 
     const location = useLocation();
-    const { data: mutedUsers = [] } = getMutedUsersQuery(activeUser).useClientQuery();
-    const { data: botsList = [] } = getBotsQuery().useClientQuery();
+    const { data: mutedUsers = [] } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
+    const { data: botsList = [] } = useQuery(getBotsQueryOptions());
 
     const canMute = useMemo(() => {
         return !!activeUser && !!community &&

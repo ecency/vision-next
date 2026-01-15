@@ -37,7 +37,7 @@ export function WalletOperationCardWrapper({
         </div>
 
         <AnimatePresence>
-          {balance !== undefined && (
+          {balance !== undefined && Number.isFinite(balance) && (
             <motion.div
               key="balance"
               initial={{ opacity: 0, y: -8 }}

@@ -142,7 +142,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
         )}
         {!resultsMode && (
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            {i18next.t("polls.max-votes-hint", { n: poll.maxChoicesVoted ?? 1 })}
+            {i18next.t("polls.max-votes-hint", { n: poll.maxChoicesVoted || 1 })}
           </div>
         )}
       </div>
@@ -162,7 +162,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
                 choice={choice}
                 key={choice}
                 addActiveChoice={(v) => {
-                  if (activeChoices.size < (pollDetails.data?.max_choices_voted ?? 1)) {
+                  if (activeChoices.size < (pollDetails.data?.max_choices_voted || 1)) {
                     addActiveChoice(v);
                   }
                 }}

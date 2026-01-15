@@ -1,6 +1,8 @@
-import { EcencyQueriesManager, getQueryClient, QueryIdentifiers } from "../react-query";
-import * as bridgeApi from "../../api/bridge";
-import dmca from "@/dmca.json";
+import { getQueryClient, QueryIdentifiers } from "../react-query";
+import {
+  getNormalizePostQueryOptions,
+  getPostQueryOptions
+} from "@ecency/sdk";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
@@ -8,37 +10,37 @@ import { useCallback } from "react";
 
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
-    return EcencyQueriesManager.generateClientServerQuery({
+    return {
+      ...getPostQueryOptions(author ?? "", permlink),
       queryKey: [
         QueryIdentifiers.ENTRY,
-        author && permlink ? makeEntryPath("", author!!, permlink!!) : "EMPTY"
+        author && permlink ? makeEntryPath("", author, permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.getPost(author, permlink),
       enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
-    });
+    };
   }
 
   export function getEntryQuery<T extends Entry>(initialEntry?: T) {
-    return EcencyQueriesManager.generateClientServerQuery({
+    return {
+      ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
       queryKey: [
         QueryIdentifiers.ENTRY,
         initialEntry ? makeEntryPath("", initialEntry.author, initialEntry.permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.getPost(initialEntry?.author, initialEntry?.permlink) as Promise<T>,
       initialData: initialEntry,
       enabled: !!initialEntry
-    });
+    };
   }
 
   export function getNormalizedPostQuery<T extends Entry>(entry?: T) {
-    return EcencyQueriesManager.generateClientServerQuery({
+    return {
+      ...getNormalizePostQueryOptions(entry),
       queryKey: [
         QueryIdentifiers.NORMALIZED_ENTRY,
         entry ? makeEntryPath("", entry.author, entry.permlink) : "EMPTY"
       ],
-      queryFn: () => bridgeApi.normalizePost(entry),
       enabled: !!entry
-    });
+    };
   }
 
   export function useAddReply(initialEntry?: Entry) {
@@ -143,17 +145,7 @@ export namespace EcencyEntriesCacheManagement {
     entries.forEach((entry) => {
       qc.setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
-        () => {
-          const data = { ...entry };
-          if (
-            dmca.some((rx: string) => new RegExp(rx).test(`@${entry.author}/${entry.permlink}`))
-          ) {
-            data.body = "This post is not available due to a copyright/fraudulent claim.";
-            data.title = "";
-          }
-
-          return data;
-        }
+        () => entry
       );
     });
   }

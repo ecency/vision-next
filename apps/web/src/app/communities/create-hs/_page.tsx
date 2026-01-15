@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import { hsTokenRenew } from "@/api/auth-api";
+import { hsTokenRenew } from "@ecency/sdk";
 import { setUserRole, updateCommunity } from "@/api/operations";
 import { useGlobalStore } from "@/core/global-store";
 import { User } from "@/entities";

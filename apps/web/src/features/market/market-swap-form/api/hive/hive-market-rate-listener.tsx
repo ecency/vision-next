@@ -1,7 +1,7 @@
 import { HiveMarketAsset } from "../../market-pair";
 import React, { useEffect, useState } from "react";
 import { OrdersDataItem } from "@/entities";
-import { getOrderBook } from "@/api/hive";
+import { getOrderBookQueryOptions, getQueryClient } from "@ecency/sdk";
 import { error } from "@/features/shared";
 
 export namespace HiveMarket {
@@ -24,7 +24,7 @@ export namespace HiveMarket {
 
   export async function fetchHiveOrderBook() {
     try {
-      return await getOrderBook();
+      return await getQueryClient().fetchQuery(getOrderBookQueryOptions());
     } catch (e) {
       error("Order book is empty.");
     }

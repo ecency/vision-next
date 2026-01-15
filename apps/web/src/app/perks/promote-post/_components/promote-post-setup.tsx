@@ -1,4 +1,7 @@
-import { getPointsQuery, useGetPromotePriceQuery, useSearchPathQuery } from "@/api/queries";
+import { withFeatureFlag } from "@/core/react-query";
+import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions } from "@ecency/sdk";
+import { getAccessToken } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryListItem, SuggestionList } from "@/features/shared";
 import { Button, FormControl } from "@/features/ui";
@@ -19,17 +22,28 @@ export function PromotePostSetup({ onSuccess }: Props) {
 
   const [path, setPath] = useState(activeUser ? `${activeUser.username}/` : "");
   const [pathQuery, setPathQuery] = useState("");
+  const [debouncedPathQuery, setDebouncedPathQuery] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(7);
 
   const [author, permlink] = useMemo(() => path.split("/"), [path]);
 
-  const { data: activeUserPoints } = getPointsQuery(activeUser?.username).useClientQuery();
-  const { data: prices, isLoading: isPricesLoading } = useGetPromotePriceQuery();
-  const { data: paths } = useSearchPathQuery(pathQuery);
-  const { data: entry } = EcencyEntriesCacheManagement.getEntryQueryByPath(
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : "";
+
+  const { data: activeUserPoints, isPending: isPointsPending } = useQuery(
+    withFeatureFlag(
+      ({ visionFeatures }) => visionFeatures.points.enabled,
+      getPointsQueryOptions(activeUser?.username)
+    )
+  );
+  const { data: prices, isLoading: isPricesLoading } = useQuery({
+    ...getPromotePriceQueryOptions(accessToken),
+    select: (data) => data.sort((a, b) => a.duration - b.duration)
+  });
+  const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
+  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
     author,
     permlink
-  ).useClientQuery();
+  ));
 
   const isAmountMoreThanBalance = useMemo(() => {
     const price = prices?.find((p) => p.duration === selectedDuration);
@@ -40,12 +54,15 @@ export function PromotePostSetup({ onSuccess }: Props) {
   }, [activeUserPoints, prices, selectedDuration]);
 
   useDebounce(() => setPathQuery(path), 500, [path]);
+  useDebounce(() => setDebouncedPathQuery(pathQuery), 500, [pathQuery]);
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
         <div className="opacity-50">{i18next.t("redeem-common.balance")}:</div>
-        <div className="text-blue-dark-sky">{activeUserPoints?.points ?? 0} POINTS</div>
+        <div className="text-blue-dark-sky">
+          {isPointsPending ? "..." : `${activeUserPoints?.points ?? "0"} POINTS`}
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
         <div>

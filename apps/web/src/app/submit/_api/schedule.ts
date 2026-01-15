@@ -1,12 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
-import * as bridgeApi from "../../../api/bridge";
-import { addSchedule } from "@/api/private-api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addSchedule, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
-import { createPermlink, isCommunity, makeCommentOptions } from "@/utils";
+import { createPermlink, getAccessToken, isCommunity, makeCommentOptions } from "@/utils";
 import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
@@ -16,6 +15,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useScheduleApi(onClear: () => void) {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
   const { buildBody } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
@@ -46,15 +46,33 @@ export function useScheduleApi(onClear: () => void) {
       let author = activeUser.username;
       let permlink = createPermlink(title);
 
-      // permlink duplication check
-      let c;
-      try {
-        c = await bridgeApi.getPostHeader(author, permlink);
-      } catch (e) {}
+      // permlink duplication check - ensure uniqueness with retry logic
+      // IMPORTANT: Always fetch fresh data (staleTime: 0) to ensure accurate collision detection
+      let attempts = 0;
+      const maxAttempts = 10;
+      while (attempts < maxAttempts) {
+        try {
+          const existingEntry = await queryClient.fetchQuery({
+            ...getPostHeaderQueryOptions(author, permlink),
+            staleTime: 0 // Force fresh fetch - never use cached data for collision checks
+          });
 
-      if (c && c.author) {
-        // create permlink with random suffix
-        permlink = createPermlink(title, true);
+          if (existingEntry && existingEntry.author) {
+            // Permlink collision detected, create new permlink with random suffix
+            permlink = createPermlink(title, true);
+            attempts++;
+          } else {
+            // No collision, permlink is unique
+            break;
+          }
+        } catch (e) {
+          // Fetch failed (likely 404), permlink is available
+          break;
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error("[Schedule] Failed to generate unique permlink after multiple attempts");
       }
 
       const jsonMetaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
@@ -84,7 +102,7 @@ export function useScheduleApi(onClear: () => void) {
 
       try {
         await addSchedule(
-          author,
+          getAccessToken(author),
           permlink,
           title,
           buildBody(body),

@@ -13,7 +13,7 @@ import {
   useRef,
   useState
 } from "react";
-import { useClientActiveUser } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { error } from "@/features/shared";
@@ -46,7 +46,7 @@ export const KeyInput = forwardRef<
 ) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
 
   const [key, setKey] = useState("");

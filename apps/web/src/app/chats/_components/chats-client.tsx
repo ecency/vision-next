@@ -19,7 +19,7 @@ import { LoginRequired } from "@/features/shared";
 import { UserAvatar } from "@/features/shared/user-avatar";
 import i18next from "i18next";
 import Link from "next/link";
-import { useClientActiveUser, useHydrated } from "@/api/queries";
+import { useHydrated } from "@/api/queries";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
@@ -28,11 +28,12 @@ import { checkSvg, dotsHorizontal, settingsSvg, volumeOffSvg } from "@ui/svg";
 import { MouseEvent, useCallback, useMemo, useState } from "react";
 import clsx from "clsx";
 import { useChatAdminStore } from "@/features/chat/chat-admin-store";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const TOWN_HALL_CHANNEL_NAME = "town-hall";
 
 export function ChatsClient() {
-  const activeUser = useClientActiveUser();
+  const { activeUser } = useActiveAccount();
   const hydrated = useHydrated();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -368,6 +369,15 @@ export function ChatsClient() {
         >
           Retry
         </button>
+      </div>
+    );
+  }
+
+  // Wait for bootstrap to complete before showing channel list
+  if (isLoading || !bootstrap) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className="text-sm text-[--text-muted]">{i18next.t("chat.loading-chats")}</div>
       </div>
     );
   }

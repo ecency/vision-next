@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
 import { Operation, PrivateKey } from "@hiveio/dhive";
-import { client as hiveClient } from "@/api/hive";
+import { CONFIG } from "@ecency/sdk";
 import { error } from "@/features/shared";
 import * as keychain from "@/utils/keychain";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -29,7 +29,7 @@ export function useDelegateVestingSharesByKey(username?: string) {
         }
       ];
 
-      return hiveClient.broadcast.sendOperations([op], key);
+      return CONFIG.hiveClient.broadcast.sendOperations([op], key);
     },
     onError: (err) => error(...formatError(err))
   });

@@ -3,8 +3,8 @@ import dayjs from "@/utils/dayjs";
 import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
-import { DEFAULT_DYNAMIC_PROPS, getAccountFullQuery, getDynamicPropsQuery } from "@/api/queries";
-import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@/api/hive";
+import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
+import { downVotingPower, powerRechargeTime, rcPower, votingPower, votingValue } from "@ecency/sdk";
 import { formattedNumber } from "@/utils";
 import i18next from "i18next";
 import { hiveSvg } from "@ui/svg";
@@ -12,7 +12,7 @@ import { StyledTooltip } from "@ui/tooltip";
 import { Spinner } from "@ui/spinner";
 import { UilInfo, UilInfoCircle } from "@tooni/iconscout-unicons-react";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountRcQueryOptions } from "@ecency/sdk";
+import { getAccountRcQueryOptions, getDynamicPropsQueryOptions, getAccountFullQueryOptions } from "@ecency/sdk";
 import { Button } from "@/features/ui";
 
 interface ContentProps {
@@ -21,7 +21,7 @@ interface ContentProps {
 }
 
 function ProfileInfoContent({ account, rcAccount }: ContentProps) {
-  const { data: dynamicProps } = getDynamicPropsQuery().useClientQuery();
+  const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
   // Voting power
   const vPower = votingPower(account);
@@ -118,7 +118,7 @@ function isFullAccount(account?: Account | null): account is FullAccount {
 }
 
 export function ProfileInfo({ account }: Props) {
-  const accountQuery = getAccountFullQuery(account?.name).useClientQuery();
+  const accountQuery = useQuery(getAccountFullQueryOptions(account?.name));
 
   const hydratedAccount = accountQuery.data ?? undefined;
 
