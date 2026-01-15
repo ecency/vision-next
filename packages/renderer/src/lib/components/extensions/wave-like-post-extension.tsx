@@ -4,10 +4,17 @@ import React, { RefObject, useEffect, useMemo, useState } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { findPostLinkElements, isWaveLikePost } from "../functions";
 import { getCachedPost } from "../../api";
-import { Entry } from "@ecency/render-helper/lib/types";
 import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
+
+interface Entry {
+  author?: string;
+  permlink?: string;
+  last_update?: string;
+  body: any;
+  json_metadata?: any;
+}
 
 export function WaveLikePostRenderer({ link }: { link: string }) {
   const [post, setPost] = useState<Entry & { title: string }>();

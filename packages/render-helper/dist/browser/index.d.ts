@@ -1,3 +1,6 @@
+/**
+ * Entry interface for Hive post data
+ */
 interface Entry {
     author?: string;
     permlink?: string;
@@ -29,4 +32,4 @@ declare const SECTION_LIST: string[];
 
 declare function isValidPermlink(permlink: string): boolean;
 
-export { SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+export { type Entry, SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };

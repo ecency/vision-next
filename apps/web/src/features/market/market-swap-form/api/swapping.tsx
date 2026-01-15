@@ -89,10 +89,8 @@ export const swapByKey = (key: PrivateKey, options: SwapOptions) => {
 export const swapByKc = (options: SwapOptions) => {
   const fromAmount = +options.fromAmount.replace(/,/gm, "");
   const toAmount = +options.toAmount.replace(/,/gm, "");
-  const auth =
-    options.activeUser?.username
-      ? getSdkAuthContext(getUser(options.activeUser.username))
-      : undefined;
+  const user = options.activeUser?.username ? getUser(options.activeUser.username) : undefined;
+  const auth = user ? getSdkAuthContext(user) : undefined;
 
   if (options.fromAsset === HiveMarketAsset.HIVE) {
     return limitOrderCreateKc(
@@ -113,8 +111,10 @@ export const swapByKc = (options: SwapOptions) => {
   }
 
   if (isEnginePair(options.fromAsset, options.toAsset)) {
+    // Use actual loginType instead of shouldUseHiveAuth to avoid method/auth mismatch
+    const method = user?.loginType === "hiveauth" ? "hiveauth" : "keychain";
     return swapEngine(
-      shouldUseHiveAuth(options.activeUser?.username) ? "hiveauth" : "keychain",
+      method,
       options,
       undefined,
       auth

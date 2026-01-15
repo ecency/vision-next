@@ -1,4 +1,10 @@
-import { Entry } from "@ecency/render-helper/lib/types";
+interface Entry {
+  author?: string;
+  permlink?: string;
+  last_update?: string;
+  body: any;
+  json_metadata?: any;
+}
 
 const cache = new Map<string, Entry>();
 
