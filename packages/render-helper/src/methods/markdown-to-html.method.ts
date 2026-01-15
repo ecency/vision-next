@@ -10,18 +10,46 @@ import * as domSerializerModule from 'dom-serializer'
 
 const domSerializer = (domSerializerModule as any).default || domSerializerModule
 
-// Lazy-load lolight to avoid dynamic require issues in browser builds
-let lolight: any = null
-function getLolightInstance() {
-  if (!lolight) {
-    try {
-      lolight = require('lolight')
-    } catch (e) {
-      // Lolight not available (browser build) - use fallback
-      return null
-    }
+// Conditionally load lolight for syntax highlighting (Node.js only)
+// Browser builds will gracefully handle missing lolight by using fallback
+let lolightPromise: Promise<any> | null = null
+let lolightModule: any = null
+
+async function loadLolight() {
+  if (typeof window !== 'undefined') {
+    // Skip in browser environment
+    return null
   }
-  return lolight
+
+  if (lolightModule) {
+    return lolightModule
+  }
+
+  if (!lolightPromise) {
+    lolightPromise = import('lolight')
+      .then((mod) => {
+        lolightModule = mod.default || mod
+        return lolightModule
+      })
+      .catch(() => {
+        lolightModule = null
+        return null
+      })
+  }
+
+  return lolightPromise
+}
+
+// Synchronous wrapper for backward compatibility
+function getLolightInstance() {
+  return lolightModule
+}
+
+// Pre-load lolight when module is imported (Node.js only)
+if (typeof window === 'undefined') {
+  loadLolight().catch(() => {
+    // Silently fail if lolight is not available
+  })
 }
 
 /**
