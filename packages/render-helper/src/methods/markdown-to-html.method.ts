@@ -19,6 +19,52 @@ function getLolightInstance() {
   return lolight
 }
 
+/**
+ * Fixes block-level HTML tags that Remarkable incorrectly wraps inside <p> tags.
+ *
+ * Problem: When Remarkable encounters block-level HTML tags (like <center>, <div>)
+ * with blank lines after them, it generates malformed HTML like:
+ *   <p><center></p>
+ *   <p>content</p>
+ *   <p></center></p>
+ *
+ * This function repairs such patterns by:
+ * 1. Extracting block-level tags from paragraph wrappers
+ * 2. Removing empty paragraphs created by this mismatch
+ *
+ * @param html - The HTML string to fix
+ * @returns The repaired HTML string
+ */
+function fixBlockLevelTagsInParagraphs(html: string): string {
+  // Block-level tags that should never be wrapped in <p> tags
+  const blockTags = 'center|div|table|figure|section|article|aside|header|footer|nav|main'
+
+  // Pattern 1: <p><tag></p> - opening tag wrapped in <p>
+  // Replace with just <tag> (remove the wrapping <p>)
+  const openingPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)<\\/p>`, 'gi')
+  html = html.replace(openingPattern, '$1')
+
+  // Pattern 2: <p></tag></p> - closing tag wrapped in <p>
+  // Replace with just </tag> (remove the wrapping <p>)
+  const closingPattern = new RegExp(`<p>(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
+  html = html.replace(closingPattern, '$1')
+
+  // Pattern 3: <p><tag><br> or <p><tag> at start of <p>
+  // This handles cases where the tag is at the start but followed by content
+  const startPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, 'gi')
+  html = html.replace(startPattern, '$1<p>')
+
+  // Pattern 4: </tag></p> or <br>\n</tag></p> - closing tag at end of <p>
+  const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
+  html = html.replace(endPattern, '</p>$1')
+
+  // Clean up any empty paragraphs that may have been created
+  html = html.replace(/<p>\s*<\/p>/g, '')
+  html = html.replace(/<p><br>\s*<\/p>/g, '')
+
+  return html
+}
+
 export function markdownToHTML(input: string, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): string {
   // Internalize leofinance.io links
   input = input.replace(new RegExp("https://leofinance.io/threads/view/","g"), "/@");
@@ -91,6 +137,11 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
 
   try {
     output = md.render(input)
+
+    // Fix malformed block-level HTML tags that Remarkable wraps in <p> tags
+    // This prevents "Opening and ending tag mismatch" errors from DOMParser
+    output = fixBlockLevelTagsInParagraphs(output)
+
     const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, 'text/html')
 
     traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)

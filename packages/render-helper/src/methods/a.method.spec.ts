@@ -1056,7 +1056,7 @@ describe('a() method - Link Processing', () => {
         a(el, false, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-speak')
-        expect(el.getAttribute('data-embed-src')).toBe('https://3speak.tv/watch?v=username/permlink')
+        expect(el.getAttribute('data-embed-src')).toBe('https://3speak.tv/embed?v=username/permlink')
       })
 
       it('should handle 3Speak with thumbnail', () => {

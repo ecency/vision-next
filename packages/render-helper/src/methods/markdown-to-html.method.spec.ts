@@ -698,4 +698,111 @@ describe('markdownToHTML() method', () => {
       expect(result).toBeTruthy()
     })
   })
+
+  describe('block-level HTML tag handling', () => {
+    it('should properly handle <center> tags with blank lines', () => {
+      const input = `<center>
+
+[![Image](https://example.com/image.jpg)](https://example.com)
+
+Link text
+
+</center>`
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Should not wrap center tag in paragraphs
+      expect(result).not.toContain('<p><center>')
+      expect(result).not.toContain('</center></p>')
+      expect(result).not.toContain('<p><center></p>')
+      expect(result).not.toContain('<p></center></p>')
+
+      // Should have properly matched center tags
+      const openingTags = (result.match(/<center[^>]*>/g) || []).length
+      const closingTags = (result.match(/<\/center>/g) || []).length
+      expect(openingTags).toBe(closingTags)
+      expect(openingTags).toBe(1)
+    })
+
+    it('should properly handle <div> tags with blank lines', () => {
+      const input = `<div class="custom">
+
+Some **bold** content
+
+</div>`
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Should not wrap div tag in paragraphs
+      expect(result).not.toContain('<p><div')
+      expect(result).not.toContain('</div></p>')
+
+      // Should have properly matched div tags
+      const openingTags = (result.match(/<div[^>]*>/g) || []).length
+      const closingTags = (result.match(/<\/div>/g) || []).length
+      expect(openingTags).toBe(closingTags)
+    })
+
+    it('should handle 3Speak embed with center tags', () => {
+      const input = `<center>
+
+[![](https://ipfs-3speak.b-cdn.net/ipfs/QmTest/)](https://3speak.tv/watch?v=test/permlink)
+
+▶️ [Watch on 3Speak](https://3speak.tv/watch?v=test/permlink)
+
+</center>`
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Should have properly structured center tags
+      expect(result).toContain('<center>')
+      expect(result).toContain('</center>')
+      expect(result).not.toContain('<p><center>')
+      expect(result).not.toContain('</center></p>')
+
+      // Should contain the 3speak video link
+      expect(result).toContain('markdown-video-link-speak')
+    })
+
+    it('should handle nested block-level tags', () => {
+      const input = `<div>
+
+<center>
+
+Content
+
+</center>
+
+</div>`
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Both tags should be properly matched
+      const divOpenings = (result.match(/<div[^>]*>/g) || []).length
+      const divClosings = (result.match(/<\/div>/g) || []).length
+      const centerOpenings = (result.match(/<center[^>]*>/g) || []).length
+      const centerClosings = (result.match(/<\/center>/g) || []).length
+
+      expect(divOpenings).toBe(divClosings)
+      expect(centerOpenings).toBe(centerClosings)
+    })
+
+    it('should not affect inline tags like <span>', () => {
+      const input = 'This is <span class="highlight">highlighted</span> text'
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Inline tags should remain inside paragraphs
+      expect(result).toContain('<span class="highlight">')
+      expect(result).toContain('</span>')
+    })
+
+    it('should handle table tags', () => {
+      const input = `<table>
+
+<tr><td>Cell</td></tr>
+
+</table>`
+      const result = markdownToHTML(input, false, false, 'ecency.com')
+
+      // Table should not be wrapped in paragraphs
+      expect(result).not.toContain('<p><table>')
+      expect(result).not.toContain('</table></p>')
+    })
+  })
 })
