@@ -49,11 +49,19 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // 3Speak
   if (src.match(SPEAK_EMBED_REGEX)) {
-    const normalizedSrc = src.replace(/3speak\.[a-z]+/i, '3speak.tv');
+    // Normalize domain to play.3speak.tv
+    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, 'play.3speak.tv');
+
+    // Ensure mode=iframe parameter is present
+    if (!/[?&]mode=iframe/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}${normalizedSrc.includes('?') ? '&' : '?'}mode=iframe`;
+    }
+
+    // Add autoplay if not present
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
     const s = hasAutoplay
       ? normalizedSrc
-      : `${normalizedSrc}${normalizedSrc.includes('?') ? '&' : '?'}autoplay=true`;
+      : `${normalizedSrc}&autoplay=true`;
     el.setAttribute('src', s);
     return;
   }

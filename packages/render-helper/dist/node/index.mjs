@@ -83,8 +83,8 @@ var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
 var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
-var SPEAK_REGEX = /(?:https?:\/\/(?:3speak.([a-z]+)\/watch\?v=)|(?:3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
-var SPEAK_EMBED_REGEX = /^(https?:)?\/\/3speak.([a-z]+)\/embed\?[^/]+$/i;
+var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
+var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak.([a-z]+)\/embed\?[^/]+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
 var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
@@ -859,7 +859,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://3speak.tv/embed?v=${match[3]}`;
+        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -992,9 +992,12 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
-    const normalizedSrc = src.replace(/3speak\.[a-z]+/i, "3speak.tv");
+    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "play.3speak.tv");
+    if (!/[?&]mode=iframe/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}${normalizedSrc.includes("?") ? "&" : "?"}mode=iframe`;
+    }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}${normalizedSrc.includes("?") ? "&" : "?"}autoplay=true`;
+    const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);
     return;
   }

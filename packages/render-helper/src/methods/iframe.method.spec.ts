@@ -348,7 +348,7 @@ describe('iframe() method - Iframe Sanitization', () => {
   })
 
   describe('3Speak Iframes', () => {
-    it('should normalize 3speak.co domain to 3speak.tv', () => {
+    it('should normalize 3speak.co domain to play.3speak.tv', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
       el.setAttribute('src', 'https://3speak.co/embed?v=video123')
@@ -356,11 +356,12 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       iframe(el)
 
-      expect(el.getAttribute('src')).toContain('3speak.tv')
+      expect(el.getAttribute('src')).toContain('play.3speak.tv')
       expect(el.getAttribute('src')).not.toContain('3speak.co')
+      expect(el.getAttribute('src')).toContain('mode=iframe')
     })
 
-    it('should normalize 3speak.online domain to 3speak.tv', () => {
+    it('should normalize 3speak.online domain to play.3speak.tv', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
       el.setAttribute('src', 'https://3speak.online/embed?v=video123')
@@ -368,11 +369,12 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       iframe(el)
 
-      expect(el.getAttribute('src')).toContain('3speak.tv')
+      expect(el.getAttribute('src')).toContain('play.3speak.tv')
       expect(el.getAttribute('src')).not.toContain('3speak.online')
+      expect(el.getAttribute('src')).toContain('mode=iframe')
     })
 
-    it('should add autoplay parameter if missing', () => {
+    it('should add mode=iframe and autoplay parameters if missing', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
       el.setAttribute('src', 'https://3speak.tv/embed?v=video123')
@@ -380,6 +382,7 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       iframe(el)
 
+      expect(el.getAttribute('src')).toContain('mode=iframe')
       expect(el.getAttribute('src')).toContain('autoplay=true')
     })
 
@@ -395,6 +398,7 @@ describe('iframe() method - Iframe Sanitization', () => {
       const autoplayMatches = src.match(/autoplay=/g)
       expect(autoplayMatches).toHaveLength(1)
       expect(src).toContain('autoplay=false')
+      expect(src).toContain('mode=iframe')
     })
 
     it('should handle 3speak URLs with multiple query parameters', () => {
@@ -406,9 +410,10 @@ describe('iframe() method - Iframe Sanitization', () => {
       iframe(el)
 
       const src = el.getAttribute('src')!
-      expect(src).toContain('3speak.tv')
+      expect(src).toContain('play.3speak.tv')
       expect(src).toContain('v=video123')
       expect(src).toContain('muted=1')
+      expect(src).toContain('mode=iframe')
       expect(src).toContain('autoplay=true')
     })
 
@@ -420,7 +425,8 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       iframe(el)
 
-      expect(el.getAttribute('src')).toContain('3speak.tv')
+      expect(el.getAttribute('src')).toContain('play.3speak.tv')
+      expect(el.getAttribute('src')).toContain('mode=iframe')
     })
   })
 
