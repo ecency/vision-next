@@ -7,6 +7,9 @@ const shared = {
     treeshake: true,
     external: [
         "he",
+        "htmlparser2",
+        "dom-serializer",
+        "@xmldom/xmldom",
         "lolight",
         "lru-cache",
         "multihashes",
