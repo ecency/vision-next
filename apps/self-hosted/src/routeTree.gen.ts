@@ -8,106 +8,106 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as BlogRouteRouteImport } from './routes/blog/route'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthorPermlinkRouteImport } from './routes/$author.$permlink'
-import { Route as CategoryAuthorPermlinkRouteImport } from './routes/$category.$author.$permlink'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as AuthorPermlinkRouteImport } from './routes/$author.$permlink';
+import { Route as CategoryAuthorPermlinkRouteImport } from './routes/$category.$author.$permlink';
+import { Route as BlogRouteRouteImport } from './routes/blog/route';
+import { Route as IndexRouteImport } from './routes/index';
 
 const BlogRouteRoute = BlogRouteRouteImport.update({
   id: '/blog',
   path: '/blog',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthorPermlinkRoute = AuthorPermlinkRouteImport.update({
   id: '/$author/$permlink',
   path: '/$author/$permlink',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const CategoryAuthorPermlinkRoute = CategoryAuthorPermlinkRouteImport.update({
   id: '/$category/$author/$permlink',
   path: '/$category/$author/$permlink',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/blog': typeof BlogRouteRoute
-  '/$author/$permlink': typeof AuthorPermlinkRoute
-  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  '/': typeof IndexRoute;
+  '/blog': typeof BlogRouteRoute;
+  '/$author/$permlink': typeof AuthorPermlinkRoute;
+  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/blog': typeof BlogRouteRoute
-  '/$author/$permlink': typeof AuthorPermlinkRoute
-  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  '/': typeof IndexRoute;
+  '/blog': typeof BlogRouteRoute;
+  '/$author/$permlink': typeof AuthorPermlinkRoute;
+  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/blog': typeof BlogRouteRoute
-  '/$author/$permlink': typeof AuthorPermlinkRoute
-  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/blog': typeof BlogRouteRoute;
+  '/$author/$permlink': typeof AuthorPermlinkRoute;
+  '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/blog'
     | '/$author/$permlink'
-    | '/$category/$author/$permlink'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/blog' | '/$author/$permlink' | '/$category/$author/$permlink'
+    | '/$category/$author/$permlink';
+  fileRoutesByTo: FileRoutesByTo;
+  to: '/' | '/blog' | '/$author/$permlink' | '/$category/$author/$permlink';
   id:
     | '__root__'
     | '/'
     | '/blog'
     | '/$author/$permlink'
-    | '/$category/$author/$permlink'
-  fileRoutesById: FileRoutesById
+    | '/$category/$author/$permlink';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BlogRouteRoute: typeof BlogRouteRoute
-  AuthorPermlinkRoute: typeof AuthorPermlinkRoute
-  CategoryAuthorPermlinkRoute: typeof CategoryAuthorPermlinkRoute
+  IndexRoute: typeof IndexRoute;
+  BlogRouteRoute: typeof BlogRouteRoute;
+  AuthorPermlinkRoute: typeof AuthorPermlinkRoute;
+  CategoryAuthorPermlinkRoute: typeof CategoryAuthorPermlinkRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/blog';
+      path: '/blog';
+      fullPath: '/blog';
+      preLoaderRoute: typeof BlogRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/$author/$permlink': {
-      id: '/$author/$permlink'
-      path: '/$author/$permlink'
-      fullPath: '/$author/$permlink'
-      preLoaderRoute: typeof AuthorPermlinkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/$author/$permlink';
+      path: '/$author/$permlink';
+      fullPath: '/$author/$permlink';
+      preLoaderRoute: typeof AuthorPermlinkRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/$category/$author/$permlink': {
-      id: '/$category/$author/$permlink'
-      path: '/$category/$author/$permlink'
-      fullPath: '/$category/$author/$permlink'
-      preLoaderRoute: typeof CategoryAuthorPermlinkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/$category/$author/$permlink';
+      path: '/$category/$author/$permlink';
+      fullPath: '/$category/$author/$permlink';
+      preLoaderRoute: typeof CategoryAuthorPermlinkRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -116,7 +116,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRouteRoute: BlogRouteRoute,
   AuthorPermlinkRoute: AuthorPermlinkRoute,
   CategoryAuthorPermlinkRoute: CategoryAuthorPermlinkRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

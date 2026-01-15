@@ -5,9 +5,12 @@
 
 [data-style-template="modern-gradient"] {
   /* Typography - Modern sans-serif */
-  --theme-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --theme-font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --theme-font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-body:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-heading:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-ui:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* Typography Sizes */
   --theme-text-base: 17px;
@@ -40,9 +43,11 @@
   --theme-radius-full: 9999px;
 
   /* Glass morphism shadows */
-  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --theme-shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
   --theme-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --theme-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 10px rgba(0, 0, 0, 0.08);
+  --theme-shadow-lg:
+    0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 10px rgba(0, 0, 0, 0.08);
 
   /* Link style */
   --theme-link-decoration: none;
@@ -50,7 +55,11 @@
   --theme-link-decoration-hover: var(--theme-accent);
 
   /* Tag style - Gradient-friendly */
-  --theme-tag-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(37, 99, 235, 0.1));
+  --theme-tag-bg: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.1),
+    rgba(37, 99, 235, 0.1)
+  );
   --theme-tag-text: #7c3aed;
   --theme-tag-radius: 9999px;
 
@@ -84,7 +93,11 @@
   --theme-border: rgba(148, 163, 184, 0.15);
   --theme-border-strong: rgba(148, 163, 184, 0.25);
 
-  --theme-tag-bg: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(96, 165, 250, 0.15));
+  --theme-tag-bg: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.15),
+    rgba(96, 165, 250, 0.15)
+  );
   --theme-tag-text: #a78bfa;
 
   --theme-glass-bg: rgba(30, 30, 50, 0.7);

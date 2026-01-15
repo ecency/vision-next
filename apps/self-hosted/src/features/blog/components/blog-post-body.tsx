@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Entry } from "@ecency/sdk";
-import { EcencyRenderer } from "@ecency/renderer";
-import { memo } from "react";
+import { EcencyRenderer } from '@ecency/renderer';
+import type { Entry } from '@ecency/sdk';
+import { memo } from 'react';
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
@@ -19,7 +19,7 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
       <div className="mb-6 sm:mb-8">
         <pre
           className="bg-gray-50 rounded p-3 sm:p-4 text-xs sm:text-sm font-mono whitespace-pre-wrap break-words overflow-x-auto"
-          style={{ color: "rgba(0, 0, 0, 0.84)" }}
+          style={{ color: 'rgba(0, 0, 0, 0.84)' }}
         >
           {entryData.body}
         </pre>

@@ -1,2 +1,1 @@
-export { FloatingMenu } from "./components";
-
+export { FloatingMenu } from './components';

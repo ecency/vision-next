@@ -1,17 +1,17 @@
 import {
-  ComponentType,
-  memo,
-  PropsWithChildren,
-  ReactNode,
-  useMemo,
-} from "react";
-import config from "../../config.json";
-import {
-  DefaultError,
-  QueryClient,
+  type DefaultError,
+  type QueryClient,
+  type UseMutationOptions,
   useMutation,
-  UseMutationOptions,
-} from "@tanstack/react-query";
+} from '@tanstack/react-query';
+import {
+  type ComponentType,
+  memo,
+  type PropsWithChildren,
+  type ReactNode,
+  useMemo,
+} from 'react';
+import config from '../../config.json';
 
 export namespace InstanceConfigManager {
   export const CONFIG = { ...config } as const;
@@ -28,7 +28,7 @@ export namespace InstanceConfigManager {
 
   export function withConditional<T>(
     condition: ConfigBasedCondition,
-    callback: () => T
+    callback: () => T,
   ) {
     if (condition(CONFIG)) {
       return callback();
@@ -43,7 +43,7 @@ export namespace InstanceConfigManager {
    * Use it for more declarative spreading operations
    */
   export function composeConditionals<
-    T extends ReturnType<typeof withConditional>
+    T extends ReturnType<typeof withConditional>,
   >(...withConditionals: T[]): NonNullable<T>[] {
     return withConditionals.filter((c) => !!c) as NonNullable<T>[];
   }
@@ -51,7 +51,7 @@ export namespace InstanceConfigManager {
   export function withConditionalComponent<F, CT>(
     condition: ConfigBasedCondition,
     component: ComponentType<CT>,
-    fallback: () => F
+    fallback: () => F,
   ) {
     if (condition(CONFIG)) {
       return component;
@@ -64,11 +64,11 @@ export namespace InstanceConfigManager {
     TData = unknown,
     TError = DefaultError,
     TVariables = void,
-    TContext = unknown
+    TContext = unknown,
   >(
     condition: ConfigBasedCondition,
     options: UseMutationOptions<TData, TError, TVariables, TContext>,
-    queryClient?: QueryClient
+    queryClient?: QueryClient,
   ) =>
     useMutation(
       {
@@ -79,13 +79,13 @@ export namespace InstanceConfigManager {
           }
 
           if (!options.mutationFn) {
-            throw new Error("Called conditional mutation w/o mutationFn");
+            throw new Error('Called conditional mutation w/o mutationFn');
           }
 
-          throw new Error("Called conditional mutation which isn`t configured");
+          throw new Error('Called conditional mutation which isn`t configured');
         },
       },
-      queryClient
+      queryClient,
     );
 
   interface ConditionalProps extends PropsWithChildren {
@@ -100,5 +100,5 @@ export namespace InstanceConfigManager {
 
     return props.fallback;
   });
-  Conditional.displayName = "ConditionalByConfig";
+  Conditional.displayName = 'ConditionalByConfig';
 }

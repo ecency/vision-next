@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { BlogPostPage } from "@/features/blog/components/blog-post-page";
+import { createFileRoute } from '@tanstack/react-router';
+import { BlogPostPage } from '@/features/blog/components/blog-post-page';
 
-export const Route = createFileRoute("/$category/$author/$permlink")({
+export const Route = createFileRoute('/$category/$author/$permlink')({
   component: BlogPostPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
@@ -9,4 +9,3 @@ export const Route = createFileRoute("/$category/$author/$permlink")({
     };
   },
 });
-

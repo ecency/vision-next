@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { FLOATING_MENU_THEME } from "../constants";
+import { memo } from 'react';
+import { FLOATING_MENU_THEME } from '../constants';
 
 interface FloatingMenuButtonProps {
   onClick: () => void;
@@ -15,7 +15,7 @@ export const FloatingMenuButton = memo<FloatingMenuButtonProps>(
         style={{
           backgroundColor: FLOATING_MENU_THEME.background,
         }}
-        aria-label={isOpen ? "Close config editor" : "Open config editor"}
+        aria-label={isOpen ? 'Close config editor' : 'Open config editor'}
         aria-expanded={isOpen}
         type="button"
       >
@@ -38,7 +38,7 @@ export const FloatingMenuButton = memo<FloatingMenuButtonProps>(
         <span>Theme Settings</span>
       </button>
     );
-  }
+  },
 );
 
-FloatingMenuButton.displayName = "FloatingMenuButton";
+FloatingMenuButton.displayName = 'FloatingMenuButton';

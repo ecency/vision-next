@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { Entry } from "@ecency/sdk";
-import { useMemo, useState, memo } from "react";
-import { EcencyRenderer } from "@ecency/renderer";
-import { UilHeart, UilComment } from "@tooni/iconscout-unicons-react";
-import { BlogDiscussionList } from "./blog-discussion-list";
-import { UserAvatar } from "@/features/shared/user-avatar";
-import { formatRelativeTime, t } from "@/core";
+import { EcencyRenderer } from '@ecency/renderer';
+import type { Entry } from '@ecency/sdk';
+import { UilComment, UilHeart } from '@tooni/iconscout-unicons-react';
+import { memo, useMemo, useState } from 'react';
+import { formatRelativeTime } from '@/core';
+import { UserAvatar } from '@/features/shared/user-avatar';
+import { BlogDiscussionList } from './blog-discussion-list';
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
@@ -32,22 +32,22 @@ export function BlogDiscussionItem({
       discussionList.filter(
         (x) =>
           x.parent_author === entry.author &&
-          x.parent_permlink === entry.permlink
+          x.parent_permlink === entry.permlink,
       ).length,
-    [discussionList, entry]
+    [discussionList, entry],
   );
 
   const hasReplies = repliesCount > 0;
   const createdDate = useMemo(
     () => formatRelativeTime(entry.created),
-    [entry.created]
+    [entry.created],
   );
 
   const entryLink = useMemo(() => {
     // Comments should have same link as regular post
     // Use the same URL pattern as the post page routes
     // If category exists, use /:category/:author/:permlink, otherwise /:author/:permlink
-    if (entry.category && entry.category !== "created") {
+    if (entry.category && entry.category !== 'created') {
       return `/${entry.category}/@${entry.author}/${entry.permlink}`;
     }
     return `/@${entry.author}/${entry.permlink}`;
@@ -92,12 +92,13 @@ export function BlogDiscussionItem({
             </div>
             {hasReplies && (
               <button
+                type="button"
                 onClick={() => setShowReplies(!showReplies)}
                 className="flex items-center gap-1 transition-theme hover:opacity-70"
               >
                 <UilComment className="w-3 h-3" />
                 <span>
-                  {repliesCount} {repliesCount === 1 ? "reply" : "replies"}
+                  {repliesCount} {repliesCount === 1 ? 'reply' : 'replies'}
                 </span>
               </button>
             )}

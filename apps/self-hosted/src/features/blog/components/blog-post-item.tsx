@@ -1,15 +1,15 @@
-import { EcencyRenderer } from "@ecency/renderer";
-import { catchPostImage, postBodySummary } from "@ecency/render-helper";
-import { Entry } from "@ecency/sdk";
+import { catchPostImage, postBodySummary } from '@ecency/render-helper';
+import { EcencyRenderer } from '@ecency/renderer';
+import type { Entry } from '@ecency/sdk';
 import {
   UilComment,
   UilHeart,
   UilMapPinAlt,
-} from "@tooni/iconscout-unicons-react";
-import { memo, useMemo } from "react";
-import { InstanceConfigManager, formatDate } from "@/core";
-import clsx from "clsx";
-import { motion } from "framer-motion";
+} from '@tooni/iconscout-unicons-react';
+import clsx from 'clsx';
+import { motion } from 'framer-motion';
+import { memo, useMemo } from 'react';
+import { formatDate, InstanceConfigManager } from '@/core';
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
@@ -20,13 +20,15 @@ interface Props {
 
 export function BlogPostItem({ entry, index = 0 }: Props) {
   const listType = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.layout.listType
+    ({ configuration }) => configuration.instanceConfiguration.layout.listType,
   );
   const showLikes = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.features.likes?.enabled ?? true
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.likes?.enabled ?? true,
   );
   const showComments = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.comments?.enabled ?? true,
   );
   const entryData = entry.original_entry || entry;
 
@@ -34,12 +36,12 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
     () =>
       entryData.json_metadata?.description ||
       postBodySummary(entryData.body, 300),
-    [entryData]
+    [entryData],
   );
 
   const likesCount = useMemo(
     () => entryData.active_votes?.length || 0,
-    [entryData]
+    [entryData],
   );
 
   const commentsCount = entryData.children || 0;
@@ -47,7 +49,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   const tags = useMemo(() => {
     return (
       entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community
+        (tag) => tag !== entryData.community,
       ) || []
     );
   }, [entryData]);
@@ -55,10 +57,10 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   const location = useMemo(() => {
     if (entryData.json_metadata?.location) {
       const loc = entryData.json_metadata.location;
-      if (typeof loc === "string") {
+      if (typeof loc === 'string') {
         return loc;
       }
-      if (typeof loc === "object" && loc.address) {
+      if (typeof loc === 'object' && loc.address) {
         return loc.address;
       }
     }
@@ -96,7 +98,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
         </a>
       </h2>
 
-      {listType === "grid" && imageUrl && (
+      {listType === 'grid' && imageUrl && (
         <div className="mb-4 overflow-hidden">
           <a
             href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
@@ -159,7 +161,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
   return (
     <motion.article
-      className={clsx("py-6 sm:py-8 border-b border-theme")}
+      className={clsx('py-6 sm:py-8 border-b border-theme')}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -168,7 +170,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
         ease: [0.25, 0.1, 0.25, 1],
       }}
     >
-      {listType === "list" && imageUrl ? (
+      {listType === 'list' && imageUrl ? (
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           <div className="flex-1">{contentSection}</div>
           <div className="shrink-0 w-full sm:w-48">

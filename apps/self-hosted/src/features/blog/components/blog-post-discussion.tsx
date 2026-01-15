@@ -1,24 +1,22 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { Entry } from "@ecency/sdk";
-import { CONFIG } from "@ecency/sdk";
-import { BlogDiscussionList } from "./blog-discussion-list";
-import { useMemo, useState } from "react";
-import { UilComment } from "@tooni/iconscout-unicons-react";
+import { CONFIG, type Entry } from '@ecency/sdk';
+import { useQuery } from '@tanstack/react-query';
+import { UilComment } from '@tooni/iconscout-unicons-react';
+import { useMemo, useState } from 'react';
+import { BlogDiscussionList } from './blog-discussion-list';
 
 interface Props {
   entry: Entry;
-  category: string;
   isRawContent?: boolean;
 }
 
-type SortOrder = "trending" | "author_reputation" | "votes" | "created";
+type SortOrder = 'trending' | 'author_reputation' | 'votes' | 'created';
 
 function sortDiscussions(
   entry: Entry,
   discussions: Entry[],
-  order: SortOrder
+  order: SortOrder,
 ): Entry[] {
   const isPinned = (a: Entry) =>
     entry.json_metadata?.pinned_reply === `${a.author}/${a.permlink}`;
@@ -28,11 +26,11 @@ function sortDiscussions(
       if (a.net_rshares < 0) return 1;
       if (b.net_rshares < 0) return -1;
       const aPayout =
-        typeof a.pending_payout_value === "string"
+        typeof a.pending_payout_value === 'string'
           ? parseFloat(a.pending_payout_value) || 0
           : a.pending_payout_value || 0;
       const bPayout =
-        typeof b.pending_payout_value === "string"
+        typeof b.pending_payout_value === 'string'
           ? parseFloat(b.pending_payout_value) || 0
           : b.pending_payout_value || 0;
       return bPayout - aPayout;
@@ -60,24 +58,24 @@ function sortDiscussions(
   return sorted;
 }
 
-export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
-  const [order, setOrder] = useState<SortOrder>("created");
+export function BlogPostDiscussion({ entry, isRawContent }: Props) {
+  const [order, setOrder] = useState<SortOrder>('created');
   const entryData = entry.original_entry || entry;
 
   const { data: allComments = [], isLoading } = useQuery({
-    queryKey: ["discussions", entryData.author, entryData.permlink, order],
+    queryKey: ['discussions', entryData.author, entryData.permlink, order],
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(
-        "bridge",
-        "get_discussion",
+        'bridge',
+        'get_discussion',
         {
           author: entryData.author,
           permlink: entryData.permlink,
           observer: entryData.author,
-        }
+        },
       );
 
-      if (response && typeof response === "object") {
+      if (response && typeof response === 'object') {
         const comments = Object.values(response) as Entry[];
         return sortDiscussions(entryData, comments, order);
       }
@@ -91,18 +89,15 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
       allComments.filter(
         (x) =>
           x.parent_author === entryData.author &&
-          x.parent_permlink === entryData.permlink
+          x.parent_permlink === entryData.permlink,
       ),
-    [allComments, entryData]
+    [allComments, entryData],
   );
 
   if (isLoading) {
     return (
       <div className="mb-8">
-        <div 
-          className="text-center py-8"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
-        >
+        <div className="text-center py-8 text-theme-muted">
           Loading comments...
         </div>
       </div>
@@ -112,10 +107,7 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
   if (topLevelComments.length === 0) {
     return (
       <div className="mb-8">
-        <div 
-          className="text-center py-8"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
-        >
+        <div className="text-center py-8 text-theme-muted">
           No comments yet.
         </div>
       </div>
@@ -124,29 +116,18 @@ export function BlogPostDiscussion({ entry, category, isRawContent }: Props) {
 
   return (
     <div className="mb-6 sm:mb-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-theme">
         <div className="flex items-center gap-2">
-          <UilComment className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
-          <h2 
-            className="text-lg sm:text-xl font-semibold"
-            style={{ 
-              fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-              color: 'rgba(0, 0, 0, 0.84)'
-            }}
-          >
-            {topLevelComments.length}{" "}
-            {topLevelComments.length === 1 ? "Comment" : "Comments"}
+          <UilComment className="w-4 h-4 sm:w-5 sm:h-5 text-theme-muted" />
+          <h2 className="text-lg sm:text-xl font-semibold heading-theme">
+            {topLevelComments.length}{' '}
+            {topLevelComments.length === 1 ? 'Comment' : 'Comments'}
           </h2>
         </div>
         <select
           value={order}
           onChange={(e) => setOrder(e.target.value as SortOrder)}
-          className="px-3 py-2 border border-gray-300 rounded text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-opacity hover:opacity-70 w-full sm:w-auto"
-          style={{ 
-            backgroundColor: 'white',
-            color: 'rgba(0, 0, 0, 0.84)',
-            fontFamily: '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
-          }}
+          className="px-3 py-2 border border-theme rounded-theme-sm text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-theme-strong focus:border-transparent transition-theme hover:opacity-70 w-full sm:w-auto bg-theme-primary text-theme-primary font-theme-ui"
         >
           <option value="trending">Trending</option>
           <option value="author_reputation">Reputation</option>

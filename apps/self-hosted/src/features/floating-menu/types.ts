@@ -1,6 +1,11 @@
-import type { ConfigField } from "./config-fields";
+import type { ConfigField } from './config-fields';
 
-export type ConfigValue = string | number | boolean | ConfigValue[] | Record<string, ConfigValue>;
+export type ConfigValue =
+  | string
+  | number
+  | boolean
+  | ConfigValue[]
+  | Record<string, ConfigValue>;
 
 export interface ConfigEditorProps {
   config: Record<string, ConfigValue>;
@@ -16,4 +21,3 @@ export interface ConfigFieldEditorProps {
   path?: string;
   onUpdate: (path: string, value: ConfigValue) => void;
 }
-

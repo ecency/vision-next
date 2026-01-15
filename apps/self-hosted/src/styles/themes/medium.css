@@ -5,8 +5,12 @@
 [data-style-template="medium"] {
   /* Typography */
   --theme-font-body: "Georgia", "Times New Roman", serif;
-  --theme-font-heading: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  --theme-font-ui: "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --theme-font-heading:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
+  --theme-font-ui:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
 
   /* Typography Sizes */
   --theme-text-base: 18px;

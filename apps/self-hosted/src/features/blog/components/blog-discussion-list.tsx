@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Entry } from "@ecency/sdk";
-import { useMemo, useState } from "react";
-import { BlogDiscussionItem } from "./blog-discussion-item";
+import type { Entry } from '@ecency/sdk';
+import { useMemo } from 'react';
+import { BlogDiscussionItem } from './blog-discussion-item';
 
 interface Props {
   discussionList: Entry[];
@@ -20,9 +20,11 @@ export function BlogDiscussionList({
   const filtered = useMemo(
     () =>
       discussionList.filter(
-        (x) => x.parent_author === parent.author && x.parent_permlink === parent.permlink
+        (x) =>
+          x.parent_author === parent.author &&
+          x.parent_permlink === parent.permlink,
       ),
-    [discussionList, parent]
+    [discussionList, parent],
   );
 
   if (filtered.length === 0) {
@@ -43,4 +45,3 @@ export function BlogDiscussionList({
     </div>
   );
 }
-

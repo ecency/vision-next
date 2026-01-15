@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 interface Props {
   onBottom: () => void;
@@ -20,7 +20,7 @@ export function DetectBottom({ onBottom }: Props) {
       },
       {
         threshold: 0.1,
-      }
+      },
     );
 
     observer.observe(element);

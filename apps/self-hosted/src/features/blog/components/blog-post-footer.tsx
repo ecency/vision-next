@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Entry } from "@ecency/sdk";
-import { useMemo } from "react";
-import { UilComment, UilHeart, UilRedo } from "@tooni/iconscout-unicons-react";
-import { InstanceConfigManager, t } from "@/core";
+import type { Entry } from '@ecency/sdk';
+import { UilComment, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
+import { useMemo } from 'react';
+import { InstanceConfigManager, t } from '@/core';
 
 interface Props {
   entry: Entry;
@@ -13,15 +13,17 @@ export function BlogPostFooter({ entry }: Props) {
   const entryData = entry.original_entry || entry;
 
   const showLikes = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.features.likes?.enabled ?? true
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.likes?.enabled ?? true,
   );
   const showComments = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.comments?.enabled ?? true,
   );
 
   const likesCount = useMemo(
     () => entryData.active_votes?.length || 0,
-    [entryData]
+    [entryData],
   );
 
   const commentsCount = entryData.children || 0;
@@ -30,7 +32,7 @@ export function BlogPostFooter({ entry }: Props) {
   const tags = useMemo(() => {
     return (
       entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community
+        (tag) => tag !== entryData.community,
       ) || []
     );
   }, [entryData]);
@@ -55,18 +57,24 @@ export function BlogPostFooter({ entry }: Props) {
         {showLikes && (
           <div className="flex items-center gap-1">
             <UilHeart className="w-4 h-4" />
-            <span>{likesCount} {t("likes")}</span>
+            <span>
+              {likesCount} {t('likes')}
+            </span>
           </div>
         )}
         {showComments && (
           <div className="flex items-center gap-1">
             <UilComment className="w-4 h-4" />
-            <span>{commentsCount} {t("comments")}</span>
+            <span>
+              {commentsCount} {t('comments')}
+            </span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <UilRedo className="w-4 h-4" />
-          <span>{reblogsCount} {t("reblogs")}</span>
+          <span>
+            {reblogsCount} {t('reblogs')}
+          </span>
         </div>
       </div>
     </footer>

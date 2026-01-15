@@ -1,10 +1,10 @@
-import { useState, useCallback, useMemo } from "react";
-import { ConfigEditor } from "./config-editor";
-import { configFieldsMap } from "../config-fields";
-import { InstanceConfigManager } from "@/core";
-import { FLOATING_MENU_THEME } from "../constants";
-import { updateNestedPath, downloadJson } from "../utils";
-import type { ConfigValue } from "../types";
+import { useCallback, useMemo, useState } from 'react';
+import { InstanceConfigManager } from '@/core';
+import { configFieldsMap } from '../config-fields';
+import { FLOATING_MENU_THEME } from '../constants';
+import type { ConfigValue } from '../types';
+import { downloadJson, updateNestedPath } from '../utils';
+import { ConfigEditor } from './config-editor';
 
 interface FloatingMenuWindowProps {
   isOpen: boolean;
@@ -24,24 +24,24 @@ export function FloatingMenuWindow({
   }, []);
 
   const handleDownload = useCallback(() => {
-    downloadJson(config, "config.json");
+    downloadJson(config, 'config.json');
   }, [config]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   const windowClassName = useMemo(
     () =>
       `absolute bottom-0 left-0 right-0 shadow-2xl transition-all duration-300 ease-in-out pointer-events-auto overflow-hidden ${
-        isOpen ? "h-[80vh] rounded-t-2xl" : "h-0"
+        isOpen ? 'h-[80vh] rounded-t-2xl' : 'h-0'
       }`,
-    [isOpen]
+    [isOpen],
   );
 
   if (!isOpen) {
@@ -50,7 +50,7 @@ export function FloatingMenuWindow({
         <div
           className={windowClassName}
           style={{
-            maxHeight: "80vh",
+            maxHeight: '80vh',
             backgroundColor: FLOATING_MENU_THEME.background,
           }}
         />
@@ -66,7 +66,7 @@ export function FloatingMenuWindow({
       <div
         className={windowClassName}
         style={{
-          maxHeight: "80vh",
+          maxHeight: '80vh',
           backgroundColor: FLOATING_MENU_THEME.background,
         }}
       >

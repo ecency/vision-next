@@ -1,16 +1,16 @@
-import { InstanceConfigManager, formatMonthYear, t } from "@/core";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
-import { UserAvatar } from "@/features/shared/user-avatar";
-import { useMemo } from "react";
+import { getAccountFullQueryOptions } from '@ecency/sdk';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { formatMonthYear, InstanceConfigManager, t } from '@/core';
+import { UserAvatar } from '@/features/shared/user-avatar';
 
 export function BlogSidebar() {
   const username = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.username
+    ({ configuration }) => configuration.instanceConfiguration.username,
   );
 
   const sidebarConfig = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.layout.sidebar
+    ({ configuration }) => configuration.instanceConfiguration.layout.sidebar,
   );
 
   const showFollowers = sidebarConfig.followers?.enabled ?? true;
@@ -41,9 +41,7 @@ export function BlogSidebar() {
         <div className="flex gap-6 mb-4">
           {showFollowers && (
             <div className="flex flex-col">
-              <div className="text-xs text-theme-muted">
-                {t("followers")}
-              </div>
+              <div className="text-xs text-theme-muted">{t('followers')}</div>
               <div className="text-sm font-medium text-theme-primary">
                 {data.follow_stats.follower_count}
               </div>
@@ -51,9 +49,7 @@ export function BlogSidebar() {
           )}
           {showFollowing && (
             <div className="flex flex-col">
-              <div className="text-xs text-theme-muted">
-                {t("following")}
-              </div>
+              <div className="text-xs text-theme-muted">{t('following')}</div>
               <div className="text-sm font-medium text-theme-primary">
                 {data.follow_stats.following_count}
               </div>
@@ -64,34 +60,36 @@ export function BlogSidebar() {
       {showHiveInfo && data && (
         <div className="border-t border-theme pt-4 mt-4">
           <div className="text-xs font-medium mb-2 text-theme-muted">
-            {t("hiveInfo")}
+            {t('hiveInfo')}
           </div>
           {data.reputation !== undefined && (
             <div className="text-xs mb-1 text-theme-muted">
-              <span className="font-medium">{t("reputation")}:</span>{" "}
+              <span className="font-medium">{t('reputation')}:</span>{' '}
               {Math.floor(data.reputation)}
             </div>
           )}
           {joinDate && (
             <div className="text-xs mb-1 text-theme-muted">
-              <span className="font-medium">{t("joined")}:</span> {joinDate}
+              <span className="font-medium">{t('joined')}:</span> {joinDate}
             </div>
           )}
           {data.post_count !== undefined && (
             <div className="text-xs text-theme-muted">
-              <span className="font-medium">{t("posts")}:</span> {data.post_count}
+              <span className="font-medium">{t('posts')}:</span>{' '}
+              {data.post_count}
             </div>
           )}
         </div>
       )}
       {data?.profile?.location && (
         <div className="text-xs mb-2 mt-4 text-theme-muted">
-          <span className="font-medium">{t("location")}:</span> {data.profile.location}
+          <span className="font-medium">{t('location')}:</span>{' '}
+          {data.profile.location}
         </div>
       )}
       {data?.profile?.website && (
         <div className="text-xs text-theme-muted">
-          <span className="font-medium">{t("website")}:</span>{" "}
+          <span className="font-medium">{t('website')}:</span>{' '}
           <a
             href={data.profile.website}
             target="_blank"

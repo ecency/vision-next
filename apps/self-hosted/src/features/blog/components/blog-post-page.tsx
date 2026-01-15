@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { useParams, useSearch } from "@tanstack/react-router";
-import { getPostQueryOptions } from "@ecency/sdk";
-import { BlogPostHeader } from "./blog-post-header";
-import { BlogPostBody } from "./blog-post-body";
-import { BlogPostFooter } from "./blog-post-footer";
-import { BlogPostDiscussion } from "./blog-post-discussion";
-import { BlogLayout } from "../layout/blog-layout";
-import { InstanceConfigManager, t } from "@/core";
+import { getPostQueryOptions } from '@ecency/sdk';
+import { useQuery } from '@tanstack/react-query';
+import { useParams, useSearch } from '@tanstack/react-router';
+import { InstanceConfigManager, t } from '@/core';
+import { BlogLayout } from '../layout/blog-layout';
+import { BlogPostBody } from './blog-post-body';
+import { BlogPostDiscussion } from './blog-post-discussion';
+import { BlogPostFooter } from './blog-post-footer';
+import { BlogPostHeader } from './blog-post-header';
 
 export function BlogPostPage() {
   const params = useParams({ strict: false });
   const search = useSearch({ strict: false });
 
   const showComments = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.features.comments?.enabled ?? true
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.comments?.enabled ?? true,
   );
 
   // Handle both URL patterns: /:category/:author/:permlink and /:author/:permlink
-  const author = (params.author as string)?.replace("@", "") || "";
-  const permlink = (params.permlink as string) || "";
-  const category = (params.category as string) || "created";
+  const author = (params.author as string)?.replace('@', '') || '';
+  const permlink = (params.permlink as string) || '';
   const isRawContent = search?.raw !== undefined;
 
   const {
@@ -34,7 +34,7 @@ export function BlogPostPage() {
     return (
       <BlogLayout>
         <div className="text-center py-12 text-theme-muted">
-          {t("loadingPost")}
+          {t('loadingPost')}
         </div>
       </BlogLayout>
     );
@@ -44,7 +44,7 @@ export function BlogPostPage() {
     return (
       <BlogLayout>
         <div className="text-center py-12 text-theme-muted">
-          {t("postNotFound")}
+          {t('postNotFound')}
         </div>
       </BlogLayout>
     );
@@ -57,11 +57,7 @@ export function BlogPostPage() {
         <BlogPostBody entry={entry} isRawContent={isRawContent} />
         <BlogPostFooter entry={entry} />
         {showComments && (
-          <BlogPostDiscussion
-            entry={entry}
-            category={category}
-            isRawContent={isRawContent}
-          />
+          <BlogPostDiscussion entry={entry} isRawContent={isRawContent} />
         )}
       </article>
     </BlogLayout>

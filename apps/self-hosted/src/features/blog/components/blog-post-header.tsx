@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Entry } from "@ecency/sdk";
-import { useMemo } from "react";
-import { UilComment, UilHeart, UilRedo } from "@tooni/iconscout-unicons-react";
-import { formatRelativeTime, t } from "@/core";
+import type { Entry } from '@ecency/sdk';
+import { UilComment, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
+import { useMemo } from 'react';
+import { formatRelativeTime, t } from '@/core';
 
 interface Props {
   entry: Entry;
@@ -27,7 +27,7 @@ export function BlogPostHeader({ entry }: Props) {
 
   const likesCount = useMemo(
     () => entryData.active_votes?.length || 0,
-    [entryData]
+    [entryData],
   );
 
   const commentsCount = entryData.children || 0;
@@ -36,19 +36,19 @@ export function BlogPostHeader({ entry }: Props) {
   const tags = useMemo(() => {
     return (
       entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community
+        (tag) => tag !== entryData.community,
       ) || []
     );
   }, [entryData]);
 
   const readTime = useMemo(
     () => calculateReadTime(entryData.body),
-    [entryData.body]
+    [entryData.body],
   );
 
   const createdDate = useMemo(
     () => formatRelativeTime(entryData.created),
-    [entryData.created]
+    [entryData.created],
   );
 
   return (
@@ -71,7 +71,9 @@ export function BlogPostHeader({ entry }: Props) {
           <span>{reblogsCount}</span>
         </div>
         <span>•</span>
-        <span>{readTime} {t("minRead")}</span>
+        <span>
+          {readTime} {t('minRead')}
+        </span>
         <span>•</span>
         <span>{createdDate}</span>
       </div>

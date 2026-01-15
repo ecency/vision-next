@@ -1,6 +1,6 @@
-import { useState, useCallback, memo } from "react";
-import { FloatingMenuButton } from "./floating-menu-button";
-import { FloatingMenuWindow } from "./floating-menu-window";
+import { memo, useCallback, useState } from 'react';
+import { FloatingMenuButton } from './floating-menu-button';
+import { FloatingMenuWindow } from './floating-menu-window';
 
 interface FloatingMenuProps {
   show?: boolean;
@@ -27,4 +27,4 @@ export const FloatingMenu = memo<FloatingMenuProps>(({ show = true }) => {
   );
 });
 
-FloatingMenu.displayName = "FloatingMenu";
+FloatingMenu.displayName = 'FloatingMenu';

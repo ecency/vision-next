@@ -1,45 +1,45 @@
-import { memo, useMemo } from "react";
-import { configFieldsMap, ConfigField } from "../config-fields";
-import { FLOATING_MENU_THEME } from "../constants";
+import { memo, useMemo } from 'react';
+import { type ConfigField, configFieldsMap } from '../config-fields';
+import { FLOATING_MENU_THEME } from '../constants';
 import type {
   ConfigEditorProps,
   ConfigFieldEditorProps,
   ConfigValue,
-} from "../types";
+} from '../types';
 
 const sectionIcons: Record<string, string> = {
-  configuration: "⚙️",
-  general: "🌐",
-  styles: "🎨",
-  instanceConfiguration: "🔧",
-  meta: "📝",
-  layout: "📐",
-  search: "🔍",
-  sidebar: "📋",
-  followers: "👥",
-  following: "👤",
-  hiveInformation: "🐝",
-  features: "✨",
-  communities: "🏘️",
-  likes: "❤️",
-  wallet: "💳",
-  comments: "💬",
-  post: "📄",
-  text2Speeech: "🔊",
+  configuration: '⚙️',
+  general: '🌐',
+  styles: '🎨',
+  instanceConfiguration: '🔧',
+  meta: '📝',
+  layout: '📐',
+  search: '🔍',
+  sidebar: '📋',
+  followers: '👥',
+  following: '👤',
+  hiveInformation: '🐝',
+  features: '✨',
+  communities: '🏘️',
+  likes: '❤️',
+  wallet: '💳',
+  comments: '💬',
+  post: '📄',
+  text2Speeech: '🔊',
 } as const;
 
 function getSectionIcon(label: string): string {
   const key = Object.keys(sectionIcons).find(
-    (k) => k.toLowerCase() === label.toLowerCase().replace(/\s+/g, "")
+    (k) => k.toLowerCase() === label.toLowerCase().replace(/\s+/g, ''),
   );
-  return key ? sectionIcons[key]! : "📦";
+  return key ? sectionIcons[key]! : '📦';
 }
 
 const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
   ({ field, fieldKey, value, path, onUpdate }) => {
     const fullPath = path ? `${path}.${fieldKey}` : fieldKey;
 
-    if (field.type === "section" && field.fields) {
+    if (field.type === 'section' && field.fields) {
       return (
         <section
           className="mb-6 border rounded-lg p-4"
@@ -71,14 +71,14 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
     };
 
     const inputClassName =
-      "w-full px-3 py-2 rounded text-sm text-gray-100 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors";
+      'w-full px-3 py-2 rounded text-sm text-gray-100 font-sans focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors';
     const inputStyle = {
       backgroundColor: FLOATING_MENU_THEME.inputBackground,
       border: `1px solid ${FLOATING_MENU_THEME.borderColorStrong}`,
     };
 
     switch (field.type) {
-      case "boolean": {
+      case 'boolean': {
         const isChecked = value === true;
         return (
           <div className="mb-4">
@@ -97,7 +97,7 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
                 onChange={(e) => handleChange(e.target.checked)}
                 className="sr-only peer"
                 aria-label={`${field.label}: ${
-                  isChecked ? "Enabled" : "Disabled"
+                  isChecked ? 'Enabled' : 'Disabled'
                 }`}
               />
               <div
@@ -111,15 +111,15 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
                 aria-hidden="true"
               />
               <span className="ml-3 text-sm text-gray-300 font-sans">
-                {isChecked ? "Enabled" : "Disabled"}
+                {isChecked ? 'Enabled' : 'Disabled'}
               </span>
             </label>
           </div>
         );
       }
 
-      case "number": {
-        const numValue = typeof value === "number" ? value : undefined;
+      case 'number': {
+        const numValue = typeof value === 'number' ? value : undefined;
         return (
           <div className="mb-4">
             <label
@@ -136,10 +136,10 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
             <input
               id={fullPath}
               type="number"
-              value={numValue ?? ""}
+              value={numValue ?? ''}
               onChange={(e) =>
                 handleChange(
-                  e.target.value === "" ? undefined : Number(e.target.value)
+                  e.target.value === '' ? undefined : Number(e.target.value),
                 )
               }
               className={inputClassName}
@@ -149,7 +149,7 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
         );
       }
 
-      case "array": {
+      case 'array': {
         const arrayValue = Array.isArray(value) ? value : [];
         return (
           <div className="mb-4">
@@ -189,9 +189,9 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
         );
       }
 
-      case "string":
+      case 'string':
       default: {
-        const stringValue = typeof value === "string" ? value : "";
+        const stringValue = typeof value === 'string' ? value : '';
         return (
           <div className="mb-4">
             <label
@@ -217,10 +217,10 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
         );
       }
     }
-  }
+  },
 );
 
-ConfigFieldEditor.displayName = "ConfigFieldEditor";
+ConfigFieldEditor.displayName = 'ConfigFieldEditor';
 
 export const ConfigEditor = memo<ConfigEditorProps>(
   ({ config, fields, path, onUpdate }) => {
@@ -229,7 +229,7 @@ export const ConfigEditor = memo<ConfigEditorProps>(
       const regularList: Array<[string, ConfigField]> = [];
 
       Object.entries(fields).forEach(([key, field]) => {
-        if (field.type === "section") {
+        if (field.type === 'section') {
           sectionsList.push([key, field]);
         } else {
           regularList.push([key, field]);
@@ -279,7 +279,7 @@ export const ConfigEditor = memo<ConfigEditorProps>(
         })}
       </div>
     );
-  }
+  },
 );
 
-ConfigEditor.displayName = "ConfigEditor";
+ConfigEditor.displayName = 'ConfigEditor';
