@@ -1,13 +1,12 @@
 "use client";
 
 import { Entry } from "@ecency/sdk";
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { EcencyRenderer } from "@ecency/renderer";
-import { formatDistanceToNow } from "date-fns";
 import { UilHeart, UilComment } from "@tooni/iconscout-unicons-react";
 import { BlogDiscussionList } from "./blog-discussion-list";
 import { UserAvatar } from "@/features/shared/user-avatar";
-import { memo } from "react";
+import { formatRelativeTime, t } from "@/core";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
@@ -40,7 +39,7 @@ export function BlogDiscussionItem({
 
   const hasReplies = repliesCount > 0;
   const createdDate = useMemo(
-    () => formatDistanceToNow(new Date(entry.created), { addSuffix: true }),
+    () => formatRelativeTime(entry.created),
     [entry.created]
   );
 

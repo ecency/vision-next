@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { BlogPostItem } from "./blog-post-item";
 import { DetectBottom } from "./detect-bottom";
-import { InstanceConfigManager } from "@/core";
+import { InstanceConfigManager, t } from "@/core";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAccountPostsInfiniteQueryOptions } from "@ecency/sdk";
 import clsx from "clsx";
@@ -51,7 +51,7 @@ export function BlogPostsList({ filter = "posts", limit = 20 }: Props) {
           className="text-center py-12"
           style={{ color: "rgba(0, 0, 0, 0.54)" }}
         >
-          No posts found.
+          {t("noPosts")}
         </div>
       )}
 
@@ -74,7 +74,7 @@ export function BlogPostsList({ filter = "posts", limit = 20 }: Props) {
           className="text-center py-8"
           style={{ color: "rgba(0, 0, 0, 0.54)" }}
         >
-          Loading more posts...
+          {t("loadingMore")}
         </div>
       )}
     </div>

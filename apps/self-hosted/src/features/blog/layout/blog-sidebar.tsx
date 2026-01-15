@@ -1,4 +1,4 @@
-import { InstanceConfigManager } from "@/core";
+import { InstanceConfigManager, formatMonthYear, t } from "@/core";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UserAvatar } from "@/features/shared/user-avatar";
@@ -21,10 +21,7 @@ export function BlogSidebar() {
 
   const joinDate = useMemo(() => {
     if (!data?.created) return null;
-    return new Date(data.created).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-    });
+    return formatMonthYear(data.created);
   }, [data?.created]);
 
   return (
@@ -55,7 +52,7 @@ export function BlogSidebar() {
           {showFollowers && (
             <div className="flex flex-col">
               <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-                Followers
+                {t("followers")}
               </div>
               <div
                 className="text-sm font-medium"
@@ -68,7 +65,7 @@ export function BlogSidebar() {
           {showFollowing && (
             <div className="flex flex-col">
               <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-                Following
+                {t("following")}
               </div>
               <div
                 className="text-sm font-medium"
@@ -86,34 +83,34 @@ export function BlogSidebar() {
             className="text-xs font-medium mb-2"
             style={{ color: "rgba(0, 0, 0, 0.54)" }}
           >
-            Hive Info
+            {t("hiveInfo")}
           </div>
           {data.reputation !== undefined && (
             <div className="text-xs mb-1" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-              <span className="font-medium">Reputation:</span>{" "}
+              <span className="font-medium">{t("reputation")}:</span>{" "}
               {Math.floor(data.reputation)}
             </div>
           )}
           {joinDate && (
             <div className="text-xs mb-1" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-              <span className="font-medium">Joined:</span> {joinDate}
+              <span className="font-medium">{t("joined")}:</span> {joinDate}
             </div>
           )}
           {data.post_count !== undefined && (
             <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-              <span className="font-medium">Posts:</span> {data.post_count}
+              <span className="font-medium">{t("posts")}:</span> {data.post_count}
             </div>
           )}
         </div>
       )}
       {data?.profile?.location && (
         <div className="text-xs mb-2 mt-4" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-          <span className="font-medium">Location:</span> {data.profile.location}
+          <span className="font-medium">{t("location")}:</span> {data.profile.location}
         </div>
       )}
       {data?.profile?.website && (
         <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
-          <span className="font-medium">Website:</span>{" "}
+          <span className="font-medium">{t("website")}:</span>{" "}
           <a
             href={data.profile.website}
             target="_blank"

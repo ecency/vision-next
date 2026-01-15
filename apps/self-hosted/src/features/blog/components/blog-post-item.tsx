@@ -7,7 +7,7 @@ import {
   UilMapPinAlt,
 } from "@tooni/iconscout-unicons-react";
 import { memo, useMemo } from "react";
-import { InstanceConfigManager } from "@/core";
+import { InstanceConfigManager, formatDate } from "@/core";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 
@@ -194,7 +194,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
           </div>
         )}
         {(showLikes || showComments) && <span>•</span>}
-        <span>{new Date(entryData.created).toLocaleDateString()}</span>
+        <span>{formatDate(entryData.created)}</span>
       </div>
     </>
   );

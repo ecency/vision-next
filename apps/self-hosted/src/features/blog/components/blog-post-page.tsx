@@ -8,7 +8,7 @@ import { BlogPostBody } from "./blog-post-body";
 import { BlogPostFooter } from "./blog-post-footer";
 import { BlogPostDiscussion } from "./blog-post-discussion";
 import { BlogLayout } from "../layout/blog-layout";
-import { InstanceConfigManager } from "@/core";
+import { InstanceConfigManager, t } from "@/core";
 
 export function BlogPostPage() {
   const params = useParams({ strict: false });
@@ -33,11 +33,11 @@ export function BlogPostPage() {
   if (isLoading) {
     return (
       <BlogLayout>
-        <div 
+        <div
           className="text-center py-12"
           style={{ color: 'rgba(0, 0, 0, 0.54)' }}
         >
-          Loading post...
+          {t("loadingPost")}
         </div>
       </BlogLayout>
     );
@@ -46,11 +46,11 @@ export function BlogPostPage() {
   if (error || !entry) {
     return (
       <BlogLayout>
-        <div 
+        <div
           className="text-center py-12"
           style={{ color: 'rgba(0, 0, 0, 0.54)' }}
         >
-          Post not found.
+          {t("postNotFound")}
         </div>
       </BlogLayout>
     );

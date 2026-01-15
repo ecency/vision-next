@@ -3,7 +3,7 @@
 import { Entry } from "@ecency/sdk";
 import { useMemo } from "react";
 import { UilComment, UilHeart, UilRedo } from "@tooni/iconscout-unicons-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatRelativeTime, t } from "@/core";
 
 interface Props {
   entry: Entry;
@@ -47,7 +47,7 @@ export function BlogPostHeader({ entry }: Props) {
   );
 
   const createdDate = useMemo(
-    () => formatDistanceToNow(new Date(entryData.created), { addSuffix: true }),
+    () => formatRelativeTime(entryData.created),
     [entryData.created]
   );
 
@@ -87,7 +87,7 @@ export function BlogPostHeader({ entry }: Props) {
           <span>{reblogsCount}</span>
         </div>
         <span>•</span>
-        <span>{readTime} min read</span>
+        <span>{readTime} {t("minRead")}</span>
         <span>•</span>
         <span>{createdDate}</span>
       </div>

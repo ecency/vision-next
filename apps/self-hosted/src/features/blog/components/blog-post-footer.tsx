@@ -3,7 +3,7 @@
 import { Entry } from "@ecency/sdk";
 import { useMemo } from "react";
 import { UilComment, UilHeart, UilRedo } from "@tooni/iconscout-unicons-react";
-import { InstanceConfigManager } from "@/core";
+import { InstanceConfigManager, t } from "@/core";
 
 interface Props {
   entry: Entry;
@@ -63,18 +63,18 @@ export function BlogPostFooter({ entry }: Props) {
         {showLikes && (
           <div className="flex items-center gap-1">
             <UilHeart className="w-4 h-4" />
-            <span>{likesCount} likes</span>
+            <span>{likesCount} {t("likes")}</span>
           </div>
         )}
         {showComments && (
           <div className="flex items-center gap-1">
             <UilComment className="w-4 h-4" />
-            <span>{commentsCount} comments</span>
+            <span>{commentsCount} {t("comments")}</span>
           </div>
         )}
         <div className="flex items-center gap-1">
           <UilRedo className="w-4 h-4" />
-          <span>{reblogsCount} reblogs</span>
+          <span>{reblogsCount} {t("reblogs")}</span>
         </div>
       </div>
     </footer>
