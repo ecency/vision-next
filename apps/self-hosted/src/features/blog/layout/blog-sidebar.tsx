@@ -25,25 +25,15 @@ export function BlogSidebar() {
   }, [data?.created]);
 
   return (
-    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-gray-200 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
         <UserAvatar username={username} size="sLarge" />
-        <div
-          className="text-sm sm:text-base font-bold"
-          style={{
-            fontFamily:
-              '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            color: "rgba(0, 0, 0, 0.84)",
-          }}
-        >
+        <div className="text-sm sm:text-base font-bold font-theme-ui text-theme-primary">
           {data?.name || username}
         </div>
       </div>
       {data?.profile?.about && (
-        <div
-          className="text-sm mb-4"
-          style={{ color: "rgba(0, 0, 0, 0.54)", lineHeight: "1.58" }}
-        >
+        <div className="text-sm mb-4 text-theme-muted leading-[1.58]">
           {data.profile.about}
         </div>
       )}
@@ -51,26 +41,20 @@ export function BlogSidebar() {
         <div className="flex gap-6 mb-4">
           {showFollowers && (
             <div className="flex flex-col">
-              <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+              <div className="text-xs text-theme-muted">
                 {t("followers")}
               </div>
-              <div
-                className="text-sm font-medium"
-                style={{ color: "rgba(0, 0, 0, 0.84)" }}
-              >
+              <div className="text-sm font-medium text-theme-primary">
                 {data.follow_stats.follower_count}
               </div>
             </div>
           )}
           {showFollowing && (
             <div className="flex flex-col">
-              <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+              <div className="text-xs text-theme-muted">
                 {t("following")}
               </div>
-              <div
-                className="text-sm font-medium"
-                style={{ color: "rgba(0, 0, 0, 0.84)" }}
-              >
+              <div className="text-sm font-medium text-theme-primary">
                 {data.follow_stats.following_count}
               </div>
             </div>
@@ -78,44 +62,41 @@ export function BlogSidebar() {
         </div>
       )}
       {showHiveInfo && data && (
-        <div className="border-t border-gray-200 pt-4 mt-4">
-          <div
-            className="text-xs font-medium mb-2"
-            style={{ color: "rgba(0, 0, 0, 0.54)" }}
-          >
+        <div className="border-t border-theme pt-4 mt-4">
+          <div className="text-xs font-medium mb-2 text-theme-muted">
             {t("hiveInfo")}
           </div>
           {data.reputation !== undefined && (
-            <div className="text-xs mb-1" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+            <div className="text-xs mb-1 text-theme-muted">
               <span className="font-medium">{t("reputation")}:</span>{" "}
               {Math.floor(data.reputation)}
             </div>
           )}
           {joinDate && (
-            <div className="text-xs mb-1" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+            <div className="text-xs mb-1 text-theme-muted">
               <span className="font-medium">{t("joined")}:</span> {joinDate}
             </div>
           )}
           {data.post_count !== undefined && (
-            <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+            <div className="text-xs text-theme-muted">
               <span className="font-medium">{t("posts")}:</span> {data.post_count}
             </div>
           )}
         </div>
       )}
       {data?.profile?.location && (
-        <div className="text-xs mb-2 mt-4" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+        <div className="text-xs mb-2 mt-4 text-theme-muted">
           <span className="font-medium">{t("location")}:</span> {data.profile.location}
         </div>
       )}
       {data?.profile?.website && (
-        <div className="text-xs" style={{ color: "rgba(0, 0, 0, 0.54)" }}>
+        <div className="text-xs text-theme-muted">
           <span className="font-medium">{t("website")}:</span>{" "}
           <a
             href={data.profile.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline"
+            className="underline text-theme-accent"
           >
             {data.profile.website}
           </a>

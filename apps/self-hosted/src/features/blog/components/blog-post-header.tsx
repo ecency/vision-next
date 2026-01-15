@@ -53,27 +53,11 @@ export function BlogPostHeader({ entry }: Props) {
 
   return (
     <header className="mb-6 sm:mb-8">
-      <h1
-        className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 break-words"
-        style={{
-          fontFamily:
-            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-          color: "rgba(0, 0, 0, 0.84)",
-          letterSpacing: "-0.015em",
-          lineHeight: "1.04",
-        }}
-      >
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 break-words heading-theme leading-[1.04]">
         {entryData.title}
       </h1>
 
-      <div
-        className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm mb-4 sm:mb-6"
-        style={{
-          color: "rgba(0, 0, 0, 0.54)",
-          fontFamily:
-            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-        }}
-      >
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm mb-4 sm:mb-6 text-theme-muted font-theme-ui">
         <div className="flex items-center gap-1">
           <UilHeart className="w-4 h-4" />
           <span>{likesCount}</span>
@@ -98,13 +82,7 @@ export function BlogPostHeader({ entry }: Props) {
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-xs sm:text-sm px-2 py-1 rounded-full transition-opacity hover:opacity-70"
-              style={{
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                color: "rgba(0, 0, 0, 0.68)",
-                fontFamily:
-                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-              }}
+              className="text-xs sm:text-sm px-2 py-1 tag-theme transition-theme"
             >
               #{tag}
             </a>

@@ -1,0 +1,122 @@
+/* Developer Theme - Technical, code-friendly, terminal-inspired
+ * Monospace influences, dark-mode first, syntax highlighting focus
+ * Fonts: JetBrains Mono + Inter (loaded via fonts.css)
+ */
+
+[data-style-template="developer"] {
+  /* Typography - Mono headings, clean body */
+  --theme-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-heading: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --theme-font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Typography Sizes */
+  --theme-text-base: 16px;
+  --theme-leading-normal: 1.7;
+  --theme-tracking-normal: 0;
+  --theme-tracking-tight: -0.02em;
+
+  /* Colors - Dark by default (optimized for dark mode) */
+  --theme-bg-primary: #1e1e2e;
+  --theme-bg-secondary: #181825;
+  --theme-bg-tertiary: #313244;
+  --theme-bg-card: #1e1e2e;
+
+  --theme-text-primary: #cdd6f4;
+  --theme-text-secondary: #a6adc8;
+  --theme-text-muted: #7f849c;
+
+  /* Terminal-inspired accent colors */
+  --theme-accent: #89b4fa;
+  --theme-accent-hover: #b4befe;
+
+  --theme-border: #313244;
+  --theme-border-strong: #45475a;
+
+  /* Effects */
+  --theme-radius-sm: 4px;
+  --theme-radius: 6px;
+  --theme-radius-lg: 8px;
+  --theme-radius-full: 9999px;
+
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --theme-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --theme-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Link style */
+  --theme-link-decoration: none;
+  --theme-link-decoration-color: transparent;
+  --theme-link-decoration-hover: #89b4fa;
+
+  /* Tag style - Code-like */
+  --theme-tag-bg: #313244;
+  --theme-tag-text: #cdd6f4;
+  --theme-tag-radius: 4px;
+
+  /* Code syntax colors (Catppuccin-inspired) */
+  --theme-code-bg: #1e1e2e;
+  --theme-code-text: #cdd6f4;
+  --theme-code-comment: #6c7086;
+  --theme-code-keyword: #cba6f7;
+  --theme-code-string: #a6e3a1;
+  --theme-code-number: #fab387;
+  --theme-code-function: #89b4fa;
+  --theme-code-variable: #f5c2e7;
+}
+
+/* Developer Light Mode */
+[data-style-template="developer"][data-theme="light"] {
+  --theme-bg-primary: #eff1f5;
+  --theme-bg-secondary: #e6e9ef;
+  --theme-bg-tertiary: #ccd0da;
+  --theme-bg-card: #ffffff;
+
+  --theme-text-primary: #4c4f69;
+  --theme-text-secondary: #5c5f77;
+  --theme-text-muted: #7c7f93;
+
+  --theme-accent: #1e66f5;
+  --theme-accent-hover: #7287fd;
+
+  --theme-border: #ccd0da;
+  --theme-border-strong: #bcc0cc;
+
+  --theme-tag-bg: #ccd0da;
+  --theme-tag-text: #4c4f69;
+
+  --theme-code-bg: #e6e9ef;
+  --theme-code-text: #4c4f69;
+  --theme-code-comment: #7c7f93;
+  --theme-code-keyword: #8839ef;
+  --theme-code-string: #40a02b;
+  --theme-code-number: #fe640b;
+  --theme-code-function: #1e66f5;
+  --theme-code-variable: #ea76cb;
+}
+
+/* Developer-specific styles */
+[data-style-template="developer"] h1,
+[data-style-template="developer"] h2,
+[data-style-template="developer"] h3,
+[data-style-template="developer"] h4,
+[data-style-template="developer"] h5,
+[data-style-template="developer"] h6 {
+  font-family: var(--theme-font-heading);
+}
+
+[data-style-template="developer"] .markdown-body pre,
+[data-style-template="developer"] .markdown-body code {
+  background-color: var(--theme-code-bg);
+  border: 1px solid var(--theme-border);
+}
+
+/* Terminal cursor blink effect for code blocks */
+[data-style-template="developer"] .markdown-body pre::after {
+  content: "_";
+  animation: blink 1s step-end infinite;
+  color: var(--theme-accent);
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}

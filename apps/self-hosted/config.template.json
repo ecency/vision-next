@@ -4,6 +4,7 @@
     "instanceType": "ecency/blog",
     "general": {
       "theme": "system",
+      "styleTemplate": "medium",
       "language": "en",
       "timezone": "UTC",
       "dateFormat": "YYYY-MM-DD",

@@ -1,0 +1,116 @@
+/* Modern Gradient Theme - Vibrant, contemporary, glass morphism
+ * Gradient backgrounds, soft shadows, rounded corners
+ * Fonts: Inter (loaded via fonts.css)
+ */
+
+[data-style-template="modern-gradient"] {
+  /* Typography - Modern sans-serif */
+  --theme-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theme-font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Typography Sizes */
+  --theme-text-base: 17px;
+  --theme-leading-normal: 1.65;
+  --theme-tracking-normal: -0.01em;
+  --theme-tracking-tight: -0.02em;
+
+  /* Colors - Vibrant gradient-friendly */
+  --theme-bg-primary: #f8fafc;
+  --theme-bg-secondary: rgba(255, 255, 255, 0.7);
+  --theme-bg-tertiary: rgba(255, 255, 255, 0.5);
+  --theme-bg-card: rgba(255, 255, 255, 0.8);
+
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #334155;
+  --theme-text-muted: #64748b;
+
+  /* Vibrant accent - Purple/Blue gradient colors */
+  --theme-accent: #7c3aed;
+  --theme-accent-hover: #6d28d9;
+  --theme-accent-secondary: #2563eb;
+
+  --theme-border: rgba(148, 163, 184, 0.2);
+  --theme-border-strong: rgba(148, 163, 184, 0.4);
+
+  /* Effects - Prominent, modern */
+  --theme-radius-sm: 8px;
+  --theme-radius: 12px;
+  --theme-radius-lg: 16px;
+  --theme-radius-full: 9999px;
+
+  /* Glass morphism shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --theme-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --theme-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 10px rgba(0, 0, 0, 0.08);
+
+  /* Link style */
+  --theme-link-decoration: none;
+  --theme-link-decoration-color: transparent;
+  --theme-link-decoration-hover: var(--theme-accent);
+
+  /* Tag style - Gradient-friendly */
+  --theme-tag-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(37, 99, 235, 0.1));
+  --theme-tag-text: #7c3aed;
+  --theme-tag-radius: 9999px;
+
+  /* Glass morphism */
+  --theme-glass-bg: rgba(255, 255, 255, 0.6);
+  --theme-glass-border: rgba(255, 255, 255, 0.3);
+  --theme-glass-blur: blur(20px);
+
+  /* Gradients */
+  --theme-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --theme-gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --theme-gradient-accent: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+  --theme-gradient-subtle: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 100%);
+}
+
+/* Modern Gradient Dark Mode */
+[data-style-template="modern-gradient"][data-theme="dark"] {
+  --theme-bg-primary: #0f0f23;
+  --theme-bg-secondary: rgba(30, 30, 50, 0.8);
+  --theme-bg-tertiary: rgba(40, 40, 70, 0.6);
+  --theme-bg-card: rgba(30, 30, 50, 0.9);
+
+  --theme-text-primary: #f1f5f9;
+  --theme-text-secondary: #cbd5e1;
+  --theme-text-muted: #94a3b8;
+
+  --theme-accent: #a78bfa;
+  --theme-accent-hover: #c4b5fd;
+  --theme-accent-secondary: #60a5fa;
+
+  --theme-border: rgba(148, 163, 184, 0.15);
+  --theme-border-strong: rgba(148, 163, 184, 0.25);
+
+  --theme-tag-bg: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(96, 165, 250, 0.15));
+  --theme-tag-text: #a78bfa;
+
+  --theme-glass-bg: rgba(30, 30, 50, 0.7);
+  --theme-glass-border: rgba(255, 255, 255, 0.1);
+
+  --theme-gradient-primary: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%);
+  --theme-gradient-subtle: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+}
+
+/* Modern Gradient specific styles */
+[data-style-template="modern-gradient"] .bg-theme-card {
+  background: var(--theme-glass-bg);
+  backdrop-filter: var(--theme-glass-blur);
+  -webkit-backdrop-filter: var(--theme-glass-blur);
+  border: 1px solid var(--theme-glass-border);
+}
+
+[data-style-template="modern-gradient"] .theme-tag {
+  background: var(--theme-tag-bg);
+  border: 1px solid var(--theme-border);
+}
+
+/* Gradient text for headings (optional class) */
+[data-style-template="modern-gradient"] .text-gradient {
+  background: var(--theme-gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

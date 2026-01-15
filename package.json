@@ -18,6 +18,7 @@
     "wallets": "pnpm --filter @ecency/wallets build",
     "renderer": "pnpm --filter @ecency/renderer build",
     "render-helper": "pnpm --filter @ecency/render-helper build",
+    "dev:self": "pnpm --filter @ecency/self-hosted dev",
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",
     "dev:renderer": "pnpm --filter @ecency/renderer dev",

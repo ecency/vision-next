@@ -77,41 +77,18 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
     <>
       <div className="mb-2">
         {entryData.community && entryData.community_title && (
-          <span
-            className="text-xs font-medium"
-            style={{
-              color: "rgba(0, 0, 0, 0.54)",
-              fontFamily:
-                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            }}
-          >
+          <span className="text-xs font-medium text-theme-muted font-theme-ui">
             Community: {entryData.community_title}
           </span>
         )}
         {!entryData.community && entryData.category && (
-          <span
-            className="text-xs font-medium"
-            style={{
-              color: "rgba(0, 0, 0, 0.54)",
-              fontFamily:
-                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            }}
-          >
+          <span className="text-xs font-medium text-theme-muted font-theme-ui">
             {entryData.category}
           </span>
         )}
       </div>
 
-      <h2
-        className="text-xl sm:text-2xl font-bold mb-3 transition-opacity hover:opacity-70"
-        style={{
-          fontFamily:
-            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-          color: "rgba(0, 0, 0, 0.84)",
-          letterSpacing: "-0.015em",
-          lineHeight: "1.15",
-        }}
-      >
+      <h2 className="text-xl sm:text-2xl font-bold mb-3 transition-theme hover:opacity-70 heading-theme leading-[1.15]">
         <a
           href={`/${entryData.category}/@${entryData.author}/${entryData.permlink}`}
         >
@@ -135,20 +112,14 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       )}
 
       {location && (
-        <div
-          className="mb-3 flex items-center text-xs"
-          style={{ color: "rgba(0, 0, 0, 0.54)" }}
-        >
+        <div className="mb-3 flex items-center text-xs text-theme-muted">
           <UilMapPinAlt className="w-3 h-3 mr-1" />
           <span>{location}</span>
         </div>
       )}
 
       <div className="mb-4">
-        <div
-          className="markdown-body text-sm sm:text-base max-w-none"
-          style={{ fontSize: "clamp(16px, 4vw, 18px)", lineHeight: "1.58" }}
-        >
+        <div className="markdown-body text-sm sm:text-base max-w-none body-theme">
           <MemoEcencyRenderer value={summary} />
         </div>
       </div>
@@ -159,13 +130,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
             <a
               key={tag}
               href={`/trending/${tag}`}
-              className="text-xs px-2 py-1 rounded-full transition-opacity hover:opacity-70"
-              style={{
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                color: "rgba(0, 0, 0, 0.68)",
-                fontFamily:
-                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-              }}
+              className="text-xs px-2 py-1 tag-theme transition-theme"
             >
               #{tag}
             </a>
@@ -173,14 +138,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
         </div>
       )}
 
-      <div
-        className="flex items-center gap-4 text-xs"
-        style={{
-          color: "rgba(0, 0, 0, 0.54)",
-          fontFamily:
-            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-        }}
-      >
+      <div className="flex items-center gap-4 text-xs text-theme-muted font-theme-ui">
         {showLikes && (
           <div className="flex items-center gap-1">
             <UilHeart className="w-3 h-3" />
@@ -201,7 +159,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
 
   return (
     <motion.article
-      className={clsx("py-6 sm:py-8 border-b border-gray-200")}
+      className={clsx("py-6 sm:py-8 border-b border-theme")}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{

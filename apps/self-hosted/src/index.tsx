@@ -37,6 +37,12 @@ const configuredTheme = InstanceConfigManager.getConfigValue(
 );
 applyTheme(configuredTheme);
 
+// Apply style template
+const styleTemplate = InstanceConfigManager.getConfigValue(
+  ({ configuration }) => configuration.general.styleTemplate ?? "medium"
+);
+document.documentElement.setAttribute("data-style-template", styleTemplate);
+
 // Listen for system theme changes when theme is set to "system"
 if (configuredTheme === "system") {
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {

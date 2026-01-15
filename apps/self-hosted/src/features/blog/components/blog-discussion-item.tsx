@@ -54,39 +54,28 @@ export function BlogDiscussionItem({
   }, [entry]);
 
   return (
-    <div className="border-l-2 border-gray-200 pl-3 sm:pl-6 py-3 sm:py-4">
+    <div className="border-l-2 border-theme pl-3 sm:pl-6 py-3 sm:py-4">
       <div className="flex items-start gap-2 sm:gap-3">
         <div className="shrink-0">
           <UserAvatar username={entry.author} size="medium" />
         </div>
         <div className="flex-1 min-w-0">
-          <div
-            className="flex items-center gap-1.5 sm:gap-2 mb-2 text-xs sm:text-sm"
-            style={{
-              color: "rgba(0, 0, 0, 0.54)",
-              fontFamily:
-                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            }}
-          >
+          <div className="flex items-center gap-1.5 sm:gap-2 mb-2 text-xs sm:text-sm text-theme-muted font-theme-ui">
             <a
               href={`/@${entry.author}`}
-              className="font-semibold transition-opacity hover:opacity-70"
-              style={{ color: "rgba(0, 0, 0, 0.84)" }}
+              className="font-semibold transition-theme hover:opacity-70 text-theme-primary"
             >
               @{entry.author}
             </a>
             <span>•</span>
-            <a href={entryLink} className="transition-opacity hover:opacity-70">
+            <a href={entryLink} className="transition-theme hover:opacity-70">
               {createdDate}
             </a>
           </div>
 
           <div className="mt-2">
             {isRawContent ? (
-              <pre
-                className="text-sm font-mono whitespace-pre-wrap break-words bg-gray-50 p-2 rounded"
-                style={{ color: "rgba(0, 0, 0, 0.84)" }}
-              >
+              <pre className="text-sm font-mono whitespace-pre-wrap break-words bg-theme-tertiary p-2 rounded-theme-sm text-theme-primary">
                 {entry.body}
               </pre>
             ) : (
@@ -96,14 +85,7 @@ export function BlogDiscussionItem({
             )}
           </div>
 
-          <div
-            className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs"
-            style={{
-              color: "rgba(0, 0, 0, 0.54)",
-              fontFamily:
-                '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            }}
-          >
+          <div className="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3 text-xs text-theme-muted font-theme-ui">
             <div className="flex items-center gap-1">
               <UilHeart className="w-3 h-3" />
               <span>{likesCount}</span>
@@ -111,7 +93,7 @@ export function BlogDiscussionItem({
             {hasReplies && (
               <button
                 onClick={() => setShowReplies(!showReplies)}
-                className="flex items-center gap-1 transition-opacity hover:opacity-70"
+                className="flex items-center gap-1 transition-theme hover:opacity-70"
               >
                 <UilComment className="w-3 h-3" />
                 <span>

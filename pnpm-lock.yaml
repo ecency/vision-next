@@ -38,8 +38,8 @@ importers:
   apps/self-hosted:
     dependencies:
       '@ecency/render-helper':
-        specifier: ^2.3.17
-        version: 2.4.6
+        specifier: workspace:*
+        version: link:../../packages/render-helper
       '@ecency/renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
@@ -1715,9 +1715,6 @@ packages:
   '@ecency/bytebuffer@6.0.0':
     resolution: {integrity: sha512-rGPjzD7a7cPtMHjpJEtLMt/RmqX8XK25tN5qjuu9iaDMK/Ril86CecU5DN/TXEMUQMY1p6b2cVvKBLTdFMr2DA==}
     engines: {node: '>=6'}
-
-  '@ecency/render-helper@2.4.6':
-    resolution: {integrity: sha512-5g70j4/ByhxWP0uFjzcSZztjDIMAMcnBH5Glm50FdOHsr38jAj1dXQTw3DySRRottaSvD1nPkCEVn+CEJmqxng==}
 
   '@emnapi/core@1.5.0':
     resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
@@ -11132,22 +11129,6 @@ snapshots:
   '@ecency/bytebuffer@6.0.0':
     dependencies:
       long: 3.2.0
-
-  '@ecency/render-helper@2.4.6':
-    dependencies:
-      '@xmldom/xmldom': 0.9.8
-      dom-serializer: 2.0.0
-      he: 1.2.0
-      htmlparser2: 10.0.0
-      lolight: 1.4.1
-      lru-cache: 11.2.2
-      multihashes: 0.4.13
-      path: 0.12.7
-      querystring: 0.2.1
-      react-native-crypto-js: 1.0.0
-      remarkable: 2.0.1
-      url: 0.11.4
-      xss: 1.0.15
 
   '@emnapi/core@1.5.0':
     dependencies:

@@ -33,10 +33,7 @@ export function BlogPostPage() {
   if (isLoading) {
     return (
       <BlogLayout>
-        <div
-          className="text-center py-12"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
-        >
+        <div className="text-center py-12 text-theme-muted">
           {t("loadingPost")}
         </div>
       </BlogLayout>
@@ -46,10 +43,7 @@ export function BlogPostPage() {
   if (error || !entry) {
     return (
       <BlogLayout>
-        <div
-          className="text-center py-12"
-          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
-        >
+        <div className="text-center py-12 text-theme-muted">
           {t("postNotFound")}
         </div>
       </BlogLayout>

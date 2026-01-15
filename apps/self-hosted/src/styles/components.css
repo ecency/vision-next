@@ -1,0 +1,191 @@
+/* Component Utility Classes - Using Theme Variables */
+
+/* Text Colors */
+.text-theme-primary {
+  color: var(--theme-text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.text-theme-muted {
+  color: var(--theme-text-muted);
+}
+
+.text-theme-disabled {
+  color: var(--theme-text-disabled);
+}
+
+.text-theme-accent {
+  color: var(--theme-accent);
+}
+
+/* Background Colors */
+.bg-theme-primary {
+  background-color: var(--theme-bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--theme-bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--theme-bg-tertiary);
+}
+
+.bg-theme-card {
+  background-color: var(--theme-bg-card);
+}
+
+/* Font Families */
+.font-theme-body {
+  font-family: var(--theme-font-body);
+}
+
+.font-theme-heading {
+  font-family: var(--theme-font-heading);
+}
+
+.font-theme-ui {
+  font-family: var(--theme-font-ui);
+}
+
+.font-theme-mono {
+  font-family: var(--theme-font-mono);
+}
+
+/* Borders */
+.border-theme {
+  border-color: var(--theme-border);
+}
+
+.border-theme-strong {
+  border-color: var(--theme-border-strong);
+}
+
+/* Border Radius */
+.rounded-theme-sm {
+  border-radius: var(--theme-radius-sm);
+}
+
+.rounded-theme {
+  border-radius: var(--theme-radius);
+}
+
+.rounded-theme-lg {
+  border-radius: var(--theme-radius-lg);
+}
+
+.rounded-theme-full {
+  border-radius: var(--theme-radius-full);
+}
+
+/* Shadows */
+.shadow-theme-sm {
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.shadow-theme {
+  box-shadow: var(--theme-shadow);
+}
+
+.shadow-theme-lg {
+  box-shadow: var(--theme-shadow-lg);
+}
+
+/* Typography Combinations */
+.heading-theme {
+  font-family: var(--theme-font-heading);
+  color: var(--theme-text-primary);
+  letter-spacing: var(--theme-tracking-tight);
+  line-height: var(--theme-leading-tight);
+}
+
+.body-theme {
+  font-family: var(--theme-font-body);
+  color: var(--theme-text-primary);
+  letter-spacing: var(--theme-tracking-normal);
+  line-height: var(--theme-leading-normal);
+}
+
+.ui-text-theme {
+  font-family: var(--theme-font-ui);
+  color: var(--theme-text-muted);
+}
+
+/* Tag/Chip Styles */
+.tag-theme {
+  background-color: var(--theme-tag-bg, var(--theme-bg-tertiary));
+  color: var(--theme-tag-text, var(--theme-text-secondary));
+  border-radius: var(--theme-tag-radius, var(--theme-radius-full));
+  font-family: var(--theme-font-ui);
+  transition: opacity var(--theme-transition);
+}
+
+.tag-theme:hover {
+  opacity: 0.7;
+}
+
+/* Link Styles */
+.link-theme {
+  color: inherit;
+  text-decoration: var(--theme-link-decoration, none);
+  text-decoration-color: var(--theme-link-decoration-color, transparent);
+  transition: all var(--theme-transition);
+}
+
+.link-theme:hover {
+  text-decoration-color: var(--theme-link-decoration-hover, var(--theme-accent));
+}
+
+/* Card Styles */
+.card-theme {
+  background-color: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-radius);
+  box-shadow: var(--theme-shadow);
+}
+
+/* Divider */
+.divider-theme {
+  border-color: var(--theme-border);
+}
+
+/* Transitions */
+.transition-theme {
+  transition: all var(--theme-transition);
+}
+
+.transition-theme-fast {
+  transition: all var(--theme-transition-fast);
+}
+
+.transition-theme-slow {
+  transition: all var(--theme-transition-slow);
+}
+
+/* Icon Colors (for use with SVG icons) */
+.icon-theme-primary {
+  color: var(--theme-text-primary);
+}
+
+.icon-theme-muted {
+  color: var(--theme-text-muted);
+}
+
+.icon-theme-accent {
+  color: var(--theme-accent);
+}
+
+/* Meta text style (for dates, stats, etc.) */
+.meta-theme {
+  font-family: var(--theme-font-ui);
+  color: var(--theme-text-muted);
+  font-size: var(--theme-text-sm);
+}
+
+/* Article content max-width */
+.content-width-theme {
+  max-width: var(--theme-content-width);
+}

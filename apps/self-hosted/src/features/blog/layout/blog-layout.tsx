@@ -13,7 +13,7 @@ export function BlogLayout(props: PropsWithChildren) {
   const isLeftSidebar = sidebarPlacement === "left";
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-theme-primary">
       <div className="container mx-auto px-4 sm:px-5">
         {/* Mobile/Tablet: Single column with sidebar on top */}
         <div

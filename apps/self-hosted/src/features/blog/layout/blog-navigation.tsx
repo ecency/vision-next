@@ -43,7 +43,7 @@ export function BlogNavigation() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto border-b border-gray-200 pb-3 sm:pb-4 mb-6 sm:mb-8">
+    <div className="max-w-3xl mx-auto border-b border-theme pb-3 sm:pb-4 mb-6 sm:mb-8">
       <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         {blogLogo && (
           <img
@@ -52,14 +52,7 @@ export function BlogNavigation() {
             className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
           />
         )}
-        <h1
-          className="text-xl sm:text-2xl font-bold"
-          style={{
-            fontFamily:
-              '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-            color: "rgba(0, 0, 0, 0.84)",
-          }}
-        >
+        <h1 className="text-xl sm:text-2xl font-bold heading-theme">
           {blogTitle}
         </h1>
       </div>
@@ -73,15 +66,11 @@ export function BlogNavigation() {
               to="/blog"
               search={{ filter }}
               className={clsx(
-                "text-sm font-normal transition-opacity pb-2 border-b-2",
+                "text-sm font-normal transition-theme pb-2 border-b-2 font-theme-ui",
                 isActive
-                  ? "border-black text-black"
-                  : "border-transparent text-gray-600 hover:text-black hover:border-gray-300"
+                  ? "border-theme-strong text-theme-primary"
+                  : "border-transparent text-theme-muted hover:text-theme-primary hover:border-theme"
               )}
-              style={{
-                fontFamily:
-                  '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
-              }}
             >
               {filterLabels[filter] ||
                 filter.charAt(0).toUpperCase() + filter.slice(1)}
