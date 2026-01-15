@@ -4,6 +4,11 @@ import { DOMParser, ENTITY_REGEX } from '../consts'
 import { XMLSerializer } from '@xmldom/xmldom'
 import { Remarkable } from 'remarkable'
 import { linkify } from 'remarkable/linkify'
+import he from 'he'
+import * as htmlparser2 from 'htmlparser2'
+import * as domSerializerModule from 'dom-serializer'
+
+const domSerializer = (domSerializerModule as any).default || domSerializerModule
 
 // Lazy-load lolight to avoid dynamic require issues in browser builds
 let lolight: any = null
@@ -161,9 +166,6 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
       const preSanitized = sanitizeHtml(output)
 
       // Use htmlparser2 to parse malformed HTML leniently
-      const htmlparser2 = require('htmlparser2')
-      const domSerializer = require('dom-serializer').default
-
       const dom = htmlparser2.parseDocument(preSanitized, {
         // lenient options - don't throw on malformed HTML
         lowerCaseTags: false,
@@ -182,7 +184,6 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
     } catch (fallbackError) {
       // If repair + re-parsing fails, HTML-escape to preserve content visibility
       // This prevents XSS while still showing users what they wrote
-      const he = require('he')
       const escapedContent = he.encode(output || md.render(input))
       output = `<p dir="auto">${escapedContent}</p>`
     }

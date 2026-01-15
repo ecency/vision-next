@@ -6,15 +6,37 @@ var multihash = require('multihashes');
 var querystring = require('querystring');
 var remarkable = require('remarkable');
 var linkify$1 = require('remarkable/linkify');
-var lruCache = require('lru-cache');
 var he = require('he');
+var htmlparser2 = require('htmlparser2');
+var domSerializerModule = require('dom-serializer');
+var lruCache = require('lru-cache');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
+
+function _interopNamespace(e) {
+  if (e && e.__esModule) return e;
+  var n = Object.create(null);
+  if (e) {
+    Object.keys(e).forEach(function (k) {
+      if (k !== 'default') {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  }
+  n.default = e;
+  return Object.freeze(n);
+}
 
 var xss__default = /*#__PURE__*/_interopDefault(xss);
 var multihash__default = /*#__PURE__*/_interopDefault(multihash);
 var querystring__default = /*#__PURE__*/_interopDefault(querystring);
 var he__default = /*#__PURE__*/_interopDefault(he);
+var htmlparser2__namespace = /*#__PURE__*/_interopNamespace(htmlparser2);
+var domSerializerModule__namespace = /*#__PURE__*/_interopNamespace(domSerializerModule);
 
 var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
   get: (a2, b) => (typeof require !== "undefined" ? require : a2)[b]
@@ -1275,6 +1297,7 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
 function cleanReply(s) {
   return (s ? s.split("\n").filter((item) => item.toLowerCase().includes("posted using [partiko") === false).filter((item) => item.toLowerCase().includes("posted using [dapplr") === false).filter((item) => item.toLowerCase().includes("posted using [leofinance") === false).filter((item) => item.toLowerCase().includes("posted via [neoxian") === false).filter((item) => item.toLowerCase().includes("posted using [neoxian") === false).filter((item) => item.toLowerCase().includes("posted with [stemgeeks") === false).filter((item) => item.toLowerCase().includes("posted using [bilpcoin") === false).filter((item) => item.toLowerCase().includes("posted using [inleo") === false).filter((item) => item.toLowerCase().includes("posted using [sportstalksocial]") === false).filter((item) => item.toLowerCase().includes("<center><sub>[posted using aeneas.blog") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [proofofbrain.io") === false).filter((item) => item.toLowerCase().includes("<center>posted on [hypnochain") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [weedcash.network") === false).filter((item) => item.toLowerCase().includes("<center>posted on [naturalmedicine.io") === false).filter((item) => item.toLowerCase().includes("<center><sub>posted via [musicforlife.io") === false).filter((item) => item.toLowerCase().includes("if the truvvl embed is unsupported by your current frontend, click this link to view this story") === false).filter((item) => item.toLowerCase().includes("<center><em>posted from truvvl") === false).filter((item) => item.toLowerCase().includes('view this post <a href="https://travelfeed.io/') === false).filter((item) => item.toLowerCase().includes("read this post on travelfeed.io for the best experience") === false).filter((item) => item.toLowerCase().includes('posted via <a href="https://www.dporn.co/"') === false).filter((item) => item.toLowerCase().includes("\u25B6\uFE0F [watch on 3speak](https://3speak") === false).filter((item) => item.toLowerCase().includes("<sup><sub>posted via [inji.com]") === false).filter((item) => item.toLowerCase().includes("view this post on [liketu]") === false).filter((item) => item.toLowerCase().includes("[via Inbox]") === false).join("\n") : "").replace('Posted via <a href="https://d.buzz" data-link="promote-link">D.Buzz</a>', "").replace('<div class="pull-right"><a href="/@hive.engage">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace('<div><a href="https://engage.hivechain.app">![](https://i.imgur.com/XsrNmcl.png)</a></div>', "").replace(`<div class="text-center"><img src="https://cdn.steemitimages.com/DQmNp6YwAm2qwquALZw8PdcovDorwaBSFuxQ38TrYziGT6b/A-20.png"><a href="https://bit.ly/actifit-app"><img src="https://cdn.steemitimages.com/DQmQqfpSmcQtfrHAtzfBtVccXwUL9vKNgZJ2j93m8WNjizw/l5.png"></a><a href="https://bit.ly/actifit-ios"><img src="https://cdn.steemitimages.com/DQmbWy8KzKT1UvCvznUTaFPw6wBUcyLtBT5XL9wdbB7Hfmn/l6.png"></a></div>`, "");
 }
+var domSerializer = domSerializerModule__namespace.default || domSerializerModule__namespace;
 var lolight = null;
 function getLolightInstance() {
   if (!lolight) {
@@ -1366,9 +1389,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
     try {
       output = md.render(input);
       const preSanitized = sanitizeHtml(output);
-      const htmlparser2 = __require("htmlparser2");
-      const domSerializer = __require("dom-serializer").default;
-      const dom = htmlparser2.parseDocument(preSanitized, {
+      const dom = htmlparser2__namespace.parseDocument(preSanitized, {
         // lenient options - don't throw on malformed HTML
         lowerCaseTags: false,
         lowerCaseAttributeNames: false
@@ -1378,8 +1399,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
       traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
-      const he2 = __require("he");
-      const escapedContent = he2.encode(output || md.render(input));
+      const escapedContent = he__default.default.encode(output || md.render(input));
       output = `<p dir="auto">${escapedContent}</p>`;
     }
   }
