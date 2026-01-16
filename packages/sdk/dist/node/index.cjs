@@ -3136,7 +3136,16 @@ var mutations_exports = {};
 __export(mutations_exports, {
   useRecordActivity: () => useRecordActivity
 });
-function useRecordActivity(username, activityType) {
+function getLocationInfo() {
+  if (typeof window !== "undefined" && window.location) {
+    return {
+      url: window.location.href,
+      domain: window.location.host
+    };
+  }
+  return { url: "", domain: "" };
+}
+function useRecordActivity(username, activityType, options) {
   return reactQuery.useMutation({
     mutationKey: ["analytics", activityType],
     mutationFn: async () => {
@@ -3144,6 +3153,9 @@ function useRecordActivity(username, activityType) {
         throw new Error("[SDK][Analytics] \u2013 no activity type provided");
       }
       const fetchApi = getBoundFetch();
+      const locationInfo = getLocationInfo();
+      const url = options?.url ?? locationInfo.url;
+      const domain = options?.domain ?? locationInfo.domain;
       await fetchApi(CONFIG.plausibleHost + "/api/event", {
         method: "POST",
         headers: {
@@ -3151,8 +3163,8 @@ function useRecordActivity(username, activityType) {
         },
         body: JSON.stringify({
           name: activityType,
-          url: window.location.href,
-          domain: window.location.host,
+          url,
+          domain,
           props: {
             username
           }
@@ -3739,7 +3751,7 @@ var NotificationViewType = /* @__PURE__ */ ((NotificationViewType2) => {
 })(NotificationViewType || {});
 
 // src/modules/notifications/queries/get-notifications-settings-query-options.ts
-function getNotificationsSettingsQueryOptions(activeUsername, code) {
+function getNotificationsSettingsQueryOptions(activeUsername, code, initialMuted) {
   return reactQuery.queryOptions({
     queryKey: ["notifications", "settings", activeUsername],
     queryFn: async () => {
@@ -3769,12 +3781,11 @@ function getNotificationsSettingsQueryOptions(activeUsername, code) {
     enabled: !!activeUsername && !!code,
     refetchOnMount: false,
     initialData: () => {
-      const wasMutedPreviously = typeof window !== "undefined" ? localStorage.getItem("notifications") !== "true" : false;
       return {
         status: 0,
         system: "web",
         allows_notify: 0,
-        notify_types: wasMutedPreviously ? [] : [
+        notify_types: initialMuted ? [] : [
           4 /* COMMENT */,
           3 /* FOLLOW */,
           2 /* MENTION */,

@@ -65,7 +65,11 @@ export function useLoginInApp(username: string) {
       if (notifToken) {
         // Fetch notification settings for the newly logged-in user
         const existingSettings = await queryClient.fetchQuery(
-          getNotificationsSettingsQueryOptions(user.username, getAccessToken(user.username))
+          getNotificationsSettingsQueryOptions(
+            user.username,
+            getAccessToken(user.username),
+            ls.get("notifications") !== "true"
+          )
         );
 
         if (!existingSettings || existingSettings.allows_notify === -1) {

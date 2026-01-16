@@ -5,7 +5,8 @@ import { CONFIG } from "@/modules/core";
 
 export function getNotificationsSettingsQueryOptions(
   activeUsername: string | undefined,
-  code: string | undefined
+  code: string | undefined,
+  initialMuted?: boolean
 ) {
   return queryOptions({
     queryKey: ["notifications", "settings", activeUsername],
@@ -36,15 +37,11 @@ export function getNotificationsSettingsQueryOptions(
     enabled: !!activeUsername && !!code,
     refetchOnMount: false,
     initialData: () => {
-      const wasMutedPreviously =
-        typeof window !== "undefined"
-          ? localStorage.getItem("notifications") !== "true"
-          : false;
       return {
         status: 0,
         system: "web",
         allows_notify: 0,
-        notify_types: wasMutedPreviously
+        notify_types: initialMuted
           ? []
           : ([
               NotifyTypes.COMMENT,

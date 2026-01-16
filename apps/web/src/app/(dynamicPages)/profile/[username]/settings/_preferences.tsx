@@ -34,7 +34,8 @@ export function Preferences() {
   const { data: notificationSettings } = useQuery(
     getNotificationsSettingsQueryOptions(
       activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
+      getAccessToken(activeUser?.username ?? ""),
+      ls.get("notifications") !== "true"
     )
   );
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();

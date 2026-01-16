@@ -33,6 +33,10 @@ vi.mock("@ecency/sdk", () => ({
   getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-prices'], queryFn: vi.fn() })),
   getPointsQueryOptions: vi.fn(() => ({ queryKey: ['points'], queryFn: vi.fn() })),
   getBoostPlusAccountPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-account'], queryFn: vi.fn() })),
+  getDeletedEntryQueryOptions: vi.fn((author, permlink) => ({
+    queryKey: ['posts', 'deleted-entry', `@${author}/${permlink}`],
+    queryFn: vi.fn()
+  })),
   useBookmarkAdd: vi.fn(),
   useBookmarkDelete: vi.fn(),
   usrActivity: vi.fn(),

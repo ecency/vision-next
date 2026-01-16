@@ -56,24 +56,21 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   if (!entry) {
-    const deletedEntry = await prefetchQuery(getDeletedEntryQueryOptions(author, permlink));
-    if (deletedEntry) {
-      return (
-        <EntryPageContextProvider>
-          <div className="app-content entry-page">
-            <div className="the-entry">
-              <DeletedPostScreen
-                deletedEntry={deletedEntry}
-                username={author}
-                permlink={permlink}
-              />
-            </div>
-          </div>
-        </EntryPageContextProvider>
-      );
-    }
+    // Prefetch deleted entry data for SSR (component will handle loading/error states)
+    await prefetchQuery(getDeletedEntryQueryOptions(author, permlink));
 
-    return notFound();
+    return (
+      <EntryPageContextProvider>
+        <div className="app-content entry-page">
+          <div className="the-entry">
+            <DeletedPostScreen
+              username={author}
+              permlink={permlink}
+            />
+          </div>
+        </div>
+      </EntryPageContextProvider>
+    );
   }
 
   return (

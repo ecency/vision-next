@@ -23,10 +23,15 @@ export function PushNotificationsProvider({ children }: PropsWithChildren) {
   const wsRef = useRef(new NotificationsWebSocket());
   const setFbSupport = useGlobalStore((state) => state.setFbSupport);
 
+  // Safely check if notifications were muted previously
+  // Returns true if muted, false if not muted or if localStorage is unavailable
+  const wasMutedPreviously = ls.get("notifications") !== "true";
+
   const notificationsSettingsQuery = useQuery(
     getNotificationsSettingsQueryOptions(
       activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
+      getAccessToken(activeUser?.username ?? ""),
+      wasMutedPreviously
     )
   );
   const notificationUnreadCountQuery = useQuery(
