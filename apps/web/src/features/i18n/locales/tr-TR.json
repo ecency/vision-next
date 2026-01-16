@@ -864,6 +864,8 @@
     "muted-warning": "Bu içerik topluluk kurallarına uymadığı için {{community}} moderatörleri tarafından engellendi.",
     "lowrep-warning": "Bu içeriğin yazarı düşük itibar puanına sahiptir.",
     "deleted-content-warning": "İçerik yazarı tarafından silinmiştir. Blockchain'den bakabilirsiniz ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "Bu gönderinin yazarı tarafınızdan engellenmiştir.",
     "address-copy": "Copy link",
     "address-copied": "Link copied to clipboard",
