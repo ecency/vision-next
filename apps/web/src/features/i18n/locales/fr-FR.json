@@ -1077,7 +1077,9 @@
     "go-community": "Page communautaire",
     "com-mod": "Modérateur de ces communautés",
     "empty-communities": "Aucune communauté ici",
-    "empty-communities-hint": "L'utilisateur n'est membre d'aucune communauté pour le moment. Rejoignez l'une des communautés ou créez la vôtre"
+    "empty-communities-hint": "L'utilisateur n'est membre d'aucune communauté pour le moment. Rejoignez l'une des communautés ou créez la vôtre",
+    "dm-followers-only": "MP : suiveurs uniquement",
+    "dm-disabled": "DMs : désactivé"
   },
   "profile-info": {
     "joined": "Inscrit",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Touches & autorisations",
     "permissions-hint": "Gérez vos clés, contrôlez les autorisations sur les applications",
     "permissions": "Ouvrir les permissions"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Confidentialité du message direct",
+      "who-can-message": "Qui peut vous envoyer des messages directs ?",
+      "description": "Contrôlez qui peut vous envoyer des messages directs pour prévenir les tentatives de spam et d'hameçonnage.",
+      "allow-all": "Tout le monde",
+      "followers-only": "Seulement les personnes que je suis",
+      "no-one": "Personne (désactiver les DMs)"
+    },
+    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès"
   },
   "wallet": {
     "unclaimed-rewards": "Récompenses non réclamées",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Langue cible",
     "pinned-messages": "Messages épinglés",
     "pin-message": "Épingler le message",
-    "unpin-message": "Désépingler le message"
+    "unpin-message": "Désépingler le message",
+    "dm-not-allowed": "@{{username}} n'accepte pas les messages de votre part",
+    "dm-followers-only": "N'accepte que les MP des personnes qu'ils suivent",
+    "dm-disabled": "A désactivé les messages directs"
   },
   "add-image": {
     "title": "Ajouter une image",
