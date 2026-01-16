@@ -1077,7 +1077,9 @@
     "go-community": "Community page",
     "com-mod": "Moderator of these communities",
     "empty-communities": "No communities here",
-    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own",
+    "dm-followers-only": "DMs: followers only",
+    "dm-disabled": "DMs: disabled"
   },
   "profile-info": {
     "joined": "Joined",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Keys & permissions",
     "permissions-hint": "Manage your keys, control permissions over applications",
     "permissions": "Open permissions"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Direct Message Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully"
   },
   "wallet": {
     "unclaimed-rewards": "Neatsiimtas atlygis",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Target language",
     "pinned-messages": "Pinned messages",
     "pin-message": "Pin message",
-    "unpin-message": "Unpin message"
+    "unpin-message": "Unpin message",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "Only accepts DMs from people they follow",
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "Pridėti nuotrauką",
