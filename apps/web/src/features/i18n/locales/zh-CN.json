@@ -1077,7 +1077,9 @@
     "go-community": "社区页面",
     "com-mod": "这些社区的管理员",
     "empty-communities": "这里没有社区",
-    "empty-communities-hint": "用户还不是任何社区的成员。加入一个社区或创建你自己的社区"
+    "empty-communities-hint": "用户还不是任何社区的成员。加入一个社区或创建你自己的社区",
+    "dm-followers-only": "DM：仅关注者",
+    "dm-disabled": "DM：已禁用"
   },
   "profile-info": {
     "joined": "已加入",
@@ -1184,6 +1186,17 @@
     "permissions-title": "密钥和权限",
     "permissions-hint": "管理您的密钥，控制应用程序的权限",
     "permissions": "打开权限"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "直接消息隐私",
+      "who-can-message": "谁可以向您发送私信？",
+      "description": "控制谁可以向您发送邮件来防止垃圾邮件和钓鱼尝试。",
+      "allow-all": "每个人",
+      "followers-only": "只有我关注的人",
+      "no-one": "没有人(禁用DMs)"
+    },
+    "dm-privacy-updated": "已成功更新 DM 隐私设置"
   },
   "wallet": {
     "unclaimed-rewards": "未认领的奖励",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "目标语言",
     "pinned-messages": "置頂消息",
     "pin-message": "置顶消息",
-    "unpin-message": "取消置顶消息"
+    "unpin-message": "取消置顶消息",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "只接受他们所关注的人的私信",
+    "dm-disabled": "已禁用私信"
   },
   "add-image": {
     "title": "添加图像",
