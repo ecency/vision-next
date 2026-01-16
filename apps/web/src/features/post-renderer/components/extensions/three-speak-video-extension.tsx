@@ -1,3 +1,5 @@
+"use client";
+
 import React, { RefObject, useCallback, useEffect, useState } from "react";
 import { hydrateRoot } from "react-dom/client";
 import "./three-speak-video-extension.scss";

@@ -3,7 +3,7 @@
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { Badge } from "@/features/ui";
 import { useInfiniteDataFlow } from "@/utils";
-import { EcencyRenderer } from "@ecency/renderer";
+import { EcencyRenderer } from "@/features/post-renderer";
 import { getHiveEngineTokenTransactionsQueryOptions } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";

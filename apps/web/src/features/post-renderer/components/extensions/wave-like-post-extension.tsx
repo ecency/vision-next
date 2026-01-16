@@ -1,23 +1,58 @@
 "use client";
 
-import React, { RefObject, useEffect, useMemo, useState } from "react";
+import React, { RefObject, useEffect, useMemo } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { useQuery } from "@tanstack/react-query";
+import { getPostQueryOptions } from "@ecency/sdk";
+import { QueryIdentifiers } from "@/core/react-query";
+import { makeEntryPath } from "@/utils";
 import { findPostLinkElements, isWaveLikePost } from "../functions";
-import { getCachedPost } from "../../api";
 import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
 
-interface Entry {
-  author?: string;
-  permlink?: string;
-  last_update?: string;
-  body: any;
-  json_metadata?: any;
-}
-
 export function WaveLikePostRenderer({ link }: { link: string }) {
-  const [post, setPost] = useState<Entry & { title: string }>();
+  const [author, permlink] = useMemo(() => {
+    try {
+      const pathname = new URL(link, "https://ecency.com").pathname;
+      const segments = pathname.split("/").filter((seg) => seg.length > 0);
+
+      // Find the index of the username segment (starts with @)
+      const usernameIndex = segments.findIndex((seg) => seg.startsWith("@"));
+
+      if (usernameIndex === -1) {
+        // No @ segment found, try to find after "waves" prefix
+        const wavesIndex = segments.findIndex((seg) => seg === "waves");
+        if (wavesIndex !== -1 && segments.length > wavesIndex + 2) {
+          const username = segments[wavesIndex + 1];
+          const perm = segments[wavesIndex + 2];
+          return [username.replace("@", ""), perm];
+        }
+        console.warn(`[WaveLikePost] Could not parse author from link: ${link}`);
+        return [null, null];
+      }
+
+      // Extract author (strip @) and permlink (next segment)
+      const username = segments[usernameIndex];
+      const perm = segments[usernameIndex + 1];
+
+      if (!username || !perm) {
+        console.warn(`[WaveLikePost] Missing author or permlink in link: ${link}`);
+        return [null, null];
+      }
+
+      return [username.replace("@", ""), perm];
+    } catch (error) {
+      console.error(`[WaveLikePost] Failed to parse link: ${link}`, error);
+      return [null, null];
+    }
+  }, [link]);
+
+  const { data: post } = useQuery({
+    ...getPostQueryOptions(author ?? "", permlink ?? ""),
+    queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", author ?? "", permlink ?? "")],
+    enabled: !!author && !!permlink,
+  });
 
   const host = useMemo(() => {
     if (
@@ -38,19 +73,8 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
     return "";
   }, [post]);
 
-  useEffect(() => {
-    const [_, __, ___, username, permlink] = new URL(
-      link,
-      "https://ecency.com",
-    ).pathname.split("/");
-    getCachedPost(username.replace("@", ""), permlink)
-      .then((resp) => {
-        setPost(resp as any);
-      })
-      .catch((e) => console.error(e));
-  }, []);
-
-  if (!post) {
+  // Return early if link parsing failed or post not loaded
+  if (!author || !permlink || !post) {
     return <></>;
   }
 

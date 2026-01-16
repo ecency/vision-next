@@ -18,7 +18,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@ecency/render-helper": "workspace:*",
-    "@ecency/renderer": "workspace:*",
     "@ecency/sdk": "workspace:*",
     "@ecency/wallets": "workspace:*",
     "@emoji-mart/data": "^1.1.2",
