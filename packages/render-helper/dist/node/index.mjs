@@ -391,7 +391,7 @@ var getInlineMeta = (el, href, author, permlink, communityTag) => {
   if (communityTag) {
     expectedDisplays.add(`${communityTag.toLowerCase()}/${normalizedTarget}`);
   }
-  const sophisticatedMatch = normalizedDisplay === normalizedTarget || communityTag && normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}`;
+  const sophisticatedMatch = normalizedDisplay === normalizedTarget || (communityTag ? normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}` : false);
   return {
     textMatches,
     titleMatches,

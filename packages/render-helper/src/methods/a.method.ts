@@ -88,7 +88,7 @@ const getInlineMeta = (el: HTMLElement, href: string, author: string, permlink: 
 
   const sophisticatedMatch =
     normalizedDisplay === normalizedTarget ||
-    (communityTag && normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}`);
+    (communityTag ? normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}` : false);
 
   return {
     textMatches,
