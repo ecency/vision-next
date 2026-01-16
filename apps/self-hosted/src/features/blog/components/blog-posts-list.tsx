@@ -8,6 +8,7 @@ import { BlogPostItem } from './blog-post-item';
 import { DetectBottom } from './detect-bottom';
 import { useInstanceConfig } from '../hooks/use-instance-config';
 import { getCommunityPostsInfiniteQueryOptions } from '../queries/community-queries';
+import { ErrorMessage } from '@/features/shared/error-message';
 
 interface Props {
   filter?: string;
@@ -43,7 +44,7 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
     enabled: isCommunityMode,
   });
 
-  const { data = [], fetchNextPage, isFetching, hasNextPage } = isCommunityMode
+  const { data = [], fetchNextPage, isFetching, hasNextPage, isError, refetch } = isCommunityMode
     ? communityQuery
     : blogQuery;
 
@@ -57,6 +58,10 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
       previousLengthRef.current = data.length;
     }
   }, [data.length]);
+
+  if (isError) {
+    return <ErrorMessage onRetry={() => refetch()} />;
+  }
 
   return (
     <div className="blog-posts-list">

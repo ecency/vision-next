@@ -5,6 +5,7 @@ import { UilComment, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
 import { useMemo } from 'react';
 import { formatRelativeTime, InstanceConfigManager, t } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
+import { TextToSpeechButton } from './text-to-speech-button';
 
 interface Props {
   entry: Entry;
@@ -29,6 +30,11 @@ export function BlogPostHeader({ entry }: Props) {
     ({ configuration }) =>
       (configuration.instanceConfiguration.type as string) ?? 'blog',
   );
+  const profileBaseUrl = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      (configuration.general as Record<string, unknown>).profileBaseUrl as string ||
+      'https://ecency.com/@',
+  );
   const isCommunity = instanceType === 'community';
 
   const likesCount = useMemo(
@@ -40,11 +46,9 @@ export function BlogPostHeader({ entry }: Props) {
   const reblogsCount = entryData.reblogs || 0;
 
   const tags = useMemo(() => {
-    return (
-      entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community,
-      ) || []
-    );
+    const rawTags = entryData.json_metadata?.tags;
+    if (!Array.isArray(rawTags)) return [];
+    return rawTags.filter((tag) => tag !== entryData.community);
   }, [entryData]);
 
   const readTime = useMemo(
@@ -66,7 +70,7 @@ export function BlogPostHeader({ entry }: Props) {
       {/* Author byline */}
       <div className="flex items-center gap-3 mb-4 sm:mb-6">
         <a
-          href={`https://ecency.com/@${entryData.author}`}
+          href={`${profileBaseUrl}${entryData.author}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 hover:opacity-70 transition-opacity"
@@ -98,18 +102,22 @@ export function BlogPostHeader({ entry }: Props) {
         <span>
           {readTime} {t('minRead')}
         </span>
+        <TextToSpeechButton
+          text={entryData.body}
+          title={entryData.title}
+          className="ml-auto"
+        />
       </div>
 
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <a
+            <span
               key={tag}
-              href={`/trending/${tag}`}
-              className="text-xs sm:text-sm px-2 py-1 tag-theme transition-theme"
+              className="text-xs sm:text-sm px-2 py-1 tag-theme"
             >
               #{tag}
-            </a>
+            </span>
           ))}
         </div>
       )}

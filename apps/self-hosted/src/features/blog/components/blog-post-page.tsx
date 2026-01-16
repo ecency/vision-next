@@ -9,6 +9,7 @@ import { BlogPostBody } from './blog-post-body';
 import { BlogPostDiscussion } from './blog-post-discussion';
 import { BlogPostFooter } from './blog-post-footer';
 import { BlogPostHeader } from './blog-post-header';
+import { ErrorMessage } from '@/features/shared/error-message';
 
 export function BlogPostPage() {
   const params = useParams({ strict: false });
@@ -28,6 +29,7 @@ export function BlogPostPage() {
     data: entry,
     isLoading,
     error,
+    refetch,
   } = useQuery(getPostQueryOptions(author, permlink));
 
   if (isLoading) {
@@ -40,7 +42,15 @@ export function BlogPostPage() {
     );
   }
 
-  if (error || !entry) {
+  if (error) {
+    return (
+      <BlogLayout>
+        <ErrorMessage onRetry={() => refetch()} />
+      </BlogLayout>
+    );
+  }
+
+  if (!entry) {
     return (
       <BlogLayout>
         <div className="text-center py-12 text-theme-muted">

@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { InstanceConfigManager } from '@/core';
 import { UserMenu, CreatePostButton } from '@/features/auth';
 import { useInstanceConfig, useCommunityData } from '../hooks/use-instance-config';
+import { SearchInput } from '../components/search-input';
 
 export function BlogNavigation() {
   const location = useLocation();
@@ -100,6 +101,7 @@ export function BlogNavigation() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <SearchInput />
           <CreatePostButton />
           <UserMenu />
         </div>

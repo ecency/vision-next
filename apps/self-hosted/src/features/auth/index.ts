@@ -36,3 +36,4 @@ export { VoteButton } from './components/vote-button';
 export { CommentForm } from './components/comment-form';
 export { UserMenu } from './components/user-menu';
 export { CreatePostButton } from './components/create-post-button';
+export { ReblogButton } from './components/reblog-button';

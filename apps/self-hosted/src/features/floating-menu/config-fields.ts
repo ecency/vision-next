@@ -290,6 +290,16 @@ export const configFieldsMap: Record<string, ConfigField> = {
             type: 'string',
             description: 'Image proxy base URL (e.g., https://images.ecency.com)',
           },
+          profileBaseUrl: {
+            label: 'Profile Base URL',
+            type: 'string',
+            description: 'Base URL for user profiles (e.g., https://ecency.com/@)',
+          },
+          createPostUrl: {
+            label: 'Create Post URL',
+            type: 'string',
+            description: 'URL for creating new posts (e.g., https://ecency.com/submit)',
+          },
           styles: {
             label: 'Styles',
             type: 'section',

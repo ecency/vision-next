@@ -10,6 +10,8 @@
       "timeFormat": "HH:mm:ss",
       "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
       "imageProxy": "https://images.ecency.com",
+      "profileBaseUrl": "https://ecency.com/@",
+      "createPostUrl": "https://ecency.com/submit",
       "styles": {
         "background": "bg-gradient-to-br from-[#d8e5fa] to-[#fcfdfe]"
       }

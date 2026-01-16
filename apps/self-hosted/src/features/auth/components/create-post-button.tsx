@@ -3,7 +3,7 @@
 import { UilPen } from '@tooni/iconscout-unicons-react';
 import clsx from 'clsx';
 import { useIsBlogOwner, useIsAuthEnabled } from '../hooks';
-import { t } from '@/core';
+import { InstanceConfigManager, t } from '@/core';
 
 interface CreatePostButtonProps {
   className?: string;
@@ -13,6 +13,12 @@ export function CreatePostButton({ className }: CreatePostButtonProps) {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
 
+  const createPostUrl = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      (configuration.general as Record<string, unknown>).createPostUrl as string ||
+      'https://ecency.com/submit',
+  );
+
   // Only show for blog owner when auth is enabled
   if (!isAuthEnabled || !isBlogOwner) {
     return null;
@@ -20,7 +26,7 @@ export function CreatePostButton({ className }: CreatePostButtonProps) {
 
   return (
     <a
-      href="https://ecency.com/submit"
+      href={createPostUrl}
       target="_blank"
       rel="noopener noreferrer"
       className={clsx(

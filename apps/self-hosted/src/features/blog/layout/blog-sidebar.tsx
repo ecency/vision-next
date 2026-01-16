@@ -16,14 +16,6 @@ export function BlogSidebar() {
 }
 
 function BlogSidebarContent({ username }: { username: string }) {
-  const sidebarConfig = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.layout.sidebar,
-  );
-
-  const showFollowers = sidebarConfig.followers?.enabled ?? true;
-  const showFollowing = sidebarConfig.following?.enabled ?? true;
-  const showHiveInfo = sidebarConfig.hiveInformation?.enabled ?? true;
-
   const { data } = useQuery(getAccountFullQueryOptions(username));
 
   const joinDate = useMemo(() => {

@@ -1,10 +1,10 @@
 'use client';
 
 import type { Entry } from '@ecency/sdk';
-import { UilComment, UilRedo } from '@tooni/iconscout-unicons-react';
+import { UilComment } from '@tooni/iconscout-unicons-react';
 import { useMemo } from 'react';
 import { InstanceConfigManager, t } from '@/core';
-import { VoteButton } from '@/features/auth';
+import { VoteButton, ReblogButton } from '@/features/auth';
 
 interface Props {
   entry: Entry;
@@ -26,11 +26,9 @@ export function BlogPostFooter({ entry }: Props) {
   const reblogsCount = entryData.reblogs || 0;
 
   const tags = useMemo(() => {
-    return (
-      entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community,
-      ) || []
-    );
+    const rawTags = entryData.json_metadata?.tags;
+    if (!Array.isArray(rawTags)) return [];
+    return rawTags.filter((tag) => tag !== entryData.community);
   }, [entryData]);
 
   return (
@@ -38,13 +36,12 @@ export function BlogPostFooter({ entry }: Props) {
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
           {tags.map((tag) => (
-            <a
+            <span
               key={tag}
-              href={`/trending/${tag}`}
-              className="text-xs sm:text-sm px-2 py-1 tag-theme transition-theme"
+              className="text-xs sm:text-sm px-2 py-1 tag-theme"
             >
               #{tag}
-            </a>
+            </span>
           ))}
         </div>
       )}
@@ -65,12 +62,11 @@ export function BlogPostFooter({ entry }: Props) {
             </span>
           </div>
         )}
-        <div className="flex items-center gap-1">
-          <UilRedo className="w-4 h-4" />
-          <span>
-            {reblogsCount} {t('reblogs')}
-          </span>
-        </div>
+        <ReblogButton
+          author={entryData.author}
+          permlink={entryData.permlink}
+          reblogCount={reblogsCount}
+        />
       </div>
     </footer>
   );

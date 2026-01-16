@@ -36,6 +36,11 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
     ({ configuration }) =>
       (configuration.instanceConfiguration.type as string) ?? 'blog',
   );
+  const profileBaseUrl = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      (configuration.general as Record<string, unknown>).profileBaseUrl as string ||
+      'https://ecency.com/@',
+  );
   const entryData = entry.original_entry || entry;
   const isCommunity = instanceType === 'community';
 
@@ -54,11 +59,9 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   const commentsCount = entryData.children || 0;
 
   const tags = useMemo(() => {
-    return (
-      entryData.json_metadata?.tags?.filter(
-        (tag) => tag !== entryData.community,
-      ) || []
-    );
+    const rawTags = entryData.json_metadata?.tags;
+    if (!Array.isArray(rawTags)) return [];
+    return rawTags.filter((tag) => tag !== entryData.community);
   }, [entryData]);
 
   const location = useMemo(() => {
@@ -139,20 +142,19 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       {tags.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <a
+            <span
               key={tag}
-              href={`/trending/${tag}`}
-              className="text-xs px-2 py-1 tag-theme transition-theme"
+              className="text-xs px-2 py-1 tag-theme"
             >
               #{tag}
-            </a>
+            </span>
           ))}
         </div>
       )}
 
       <div className="flex items-center gap-4 text-xs text-theme-muted font-theme-ui">
         <a
-          href={`https://ecency.com/@${entryData.author}`}
+          href={`${profileBaseUrl}${entryData.author}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 hover:opacity-70 transition-opacity"

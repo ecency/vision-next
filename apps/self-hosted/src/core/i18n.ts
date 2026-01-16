@@ -40,7 +40,20 @@ type TranslationKey =
   | 'created'
   | 'language'
   | 'pending_posts'
-  | 'team';
+  | 'team'
+  | 'search'
+  | 'searching'
+  | 'search_error'
+  | 'no_results'
+  | 'results_for'
+  | 'enter_search_query'
+  | 'listen'
+  | 'pause'
+  | 'resume'
+  | 'stop'
+  | 'reblogging'
+  | 'error_loading'
+  | 'retry';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -85,6 +98,19 @@ const translations: Record<string, Translations> = {
     language: 'Language',
     pending_posts: 'Pending Posts',
     team: 'Team',
+    search: 'Search',
+    searching: 'Searching...',
+    search_error: 'Search failed. Please try again.',
+    no_results: 'No results found.',
+    results_for: 'results for',
+    enter_search_query: 'Enter a search term to find posts.',
+    listen: 'Listen',
+    pause: 'Pause',
+    resume: 'Resume',
+    stop: 'Stop',
+    reblogging: 'Reblogging...',
+    error_loading: 'Something went wrong. Please try again.',
+    retry: 'Retry',
   },
   es: {
     loading: 'Cargando...',
@@ -126,6 +152,19 @@ const translations: Record<string, Translations> = {
     language: 'Idioma',
     pending_posts: 'Posts Pendientes',
     team: 'Equipo',
+    search: 'Buscar',
+    searching: 'Buscando...',
+    search_error: 'Error en la búsqueda. Intente de nuevo.',
+    no_results: 'No se encontraron resultados.',
+    results_for: 'resultados para',
+    enter_search_query: 'Ingrese un término para buscar publicaciones.',
+    listen: 'Escuchar',
+    pause: 'Pausar',
+    resume: 'Reanudar',
+    stop: 'Detener',
+    reblogging: 'Reblogueando...',
+    error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
+    retry: 'Reintentar',
   },
   de: {
     loading: 'Lädt...',
@@ -167,6 +206,19 @@ const translations: Record<string, Translations> = {
     language: 'Sprache',
     pending_posts: 'Ausstehende Beiträge',
     team: 'Team',
+    search: 'Suchen',
+    searching: 'Suche...',
+    search_error: 'Suche fehlgeschlagen. Bitte erneut versuchen.',
+    no_results: 'Keine Ergebnisse gefunden.',
+    results_for: 'Ergebnisse für',
+    enter_search_query: 'Geben Sie einen Suchbegriff ein.',
+    listen: 'Anhören',
+    pause: 'Pause',
+    resume: 'Fortsetzen',
+    stop: 'Stopp',
+    reblogging: 'Rebloggen...',
+    error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
+    retry: 'Erneut versuchen',
   },
   fr: {
     loading: 'Chargement...',
@@ -208,6 +260,19 @@ const translations: Record<string, Translations> = {
     language: 'Langue',
     pending_posts: 'Articles en attente',
     team: 'Équipe',
+    search: 'Rechercher',
+    searching: 'Recherche...',
+    search_error: 'La recherche a échoué. Veuillez réessayer.',
+    no_results: 'Aucun résultat trouvé.',
+    results_for: 'résultats pour',
+    enter_search_query: 'Entrez un terme pour rechercher des articles.',
+    listen: 'Écouter',
+    pause: 'Pause',
+    resume: 'Reprendre',
+    stop: 'Arrêter',
+    reblogging: 'Repartage...',
+    error_loading: "Une erreur s'est produite. Veuillez réessayer.",
+    retry: 'Réessayer',
   },
   ko: {
     loading: '로딩 중...',
@@ -249,6 +314,19 @@ const translations: Record<string, Translations> = {
     language: '언어',
     pending_posts: '대기 중인 게시물',
     team: '팀',
+    search: '검색',
+    searching: '검색 중...',
+    search_error: '검색에 실패했습니다. 다시 시도해주세요.',
+    no_results: '결과가 없습니다.',
+    results_for: '검색 결과',
+    enter_search_query: '검색어를 입력하세요.',
+    listen: '듣기',
+    pause: '일시정지',
+    resume: '재개',
+    stop: '정지',
+    reblogging: '리블로그 중...',
+    error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
+    retry: '다시 시도',
   },
   ru: {
     loading: 'Загрузка...',
@@ -290,6 +368,19 @@ const translations: Record<string, Translations> = {
     language: 'Язык',
     pending_posts: 'Ожидающие посты',
     team: 'Команда',
+    search: 'Поиск',
+    searching: 'Поиск...',
+    search_error: 'Ошибка поиска. Попробуйте снова.',
+    no_results: 'Результаты не найдены.',
+    results_for: 'результатов для',
+    enter_search_query: 'Введите поисковый запрос.',
+    listen: 'Слушать',
+    pause: 'Пауза',
+    resume: 'Продолжить',
+    stop: 'Стоп',
+    reblogging: 'Реблог...',
+    error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
+    retry: 'Повторить',
   },
 };
 

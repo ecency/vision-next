@@ -36,8 +36,11 @@ export function CommentForm({
     setError(null);
 
     try {
-      // Generate unique permlink for the comment
-      const permlink = `re-${parentAuthor.replace(/\./g, '')}-${Date.now()}`;
+      // Generate unique permlink for the comment with random suffix to avoid collisions
+      const randomSuffix = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+      const permlink = `re-${parentAuthor.replace(/\./g, '')}-${Date.now()}-${randomSuffix}`;
 
       // Create the comment operation
       const commentOp: Operation = [
