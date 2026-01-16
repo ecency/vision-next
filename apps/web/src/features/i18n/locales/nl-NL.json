@@ -864,6 +864,8 @@
     "muted-warning": "Deze inhoud is verborgen {{community}} moderators voor het niet volgen van communityrichtlijnen.",
     "lowrep-warning": "De Maker van dit bericht heeft een slechte reputatie.",
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
+    "deleted-content": "Dit bericht is verwijderd door {{author}}",
+    "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
     "comments-hidden": "Auteur van dit bericht is gedempt door jou.",
     "address-copy": "Link kopiëren",
     "address-copied": "Link gekopieerd naar klembord",
