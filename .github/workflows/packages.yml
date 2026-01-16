@@ -47,15 +47,6 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Detect changes in @ecency/renderer
-        id: detect_renderer
-        run: |
-          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/renderer; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Detect changes in @ecency/render-helper
         id: detect_render_helper
         run: |
@@ -68,7 +59,7 @@ jobs:
       - name: Check if any package changed
         id: packages_changed
         run: |
-          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || [ "${{ steps.detect_renderer.outputs.changed }}" = "true" ] || [ "${{ steps.detect_render_helper.outputs.changed }}" = "true" ]; then
+          if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || [ "${{ steps.detect_render_helper.outputs.changed }}" = "true" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -122,10 +113,6 @@ jobs:
         env:
           VITE_HELIUS_API_KEY: ${{ secrets.VITE_HELIUS_API_KEY }}
 
-      - name: Build @ecency/renderer
-        if: steps.detect_renderer.outputs.changed == 'true'
-        run: pnpm --filter @ecency/renderer build
-
       - name: Build @ecency/render-helper
         if: steps.detect_render_helper.outputs.changed == 'true'
         run: pnpm --filter @ecency/render-helper build
@@ -147,12 +134,6 @@ jobs:
         env:
           PNPM_CONFIG_GIT_CHECKS: "false"
         run: pnpm publish:wallets
-
-      - name: Publish @ecency/renderer
-        if: steps.detect_renderer.outputs.changed == 'true'
-        env:
-          PNPM_CONFIG_GIT_CHECKS: "false"
-        run: pnpm publish:renderer
 
       - name: Publish @ecency/render-helper
         if: steps.detect_render_helper.outputs.changed == 'true'
