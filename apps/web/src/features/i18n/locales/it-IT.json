@@ -1077,7 +1077,9 @@
     "go-community": "Pagina della Comunità",
     "com-mod": "Moderatore di queste comunità",
     "empty-communities": "Nessuna comunità qui",
-    "empty-communities-hint": "L'utente non è ancora un membro di nessuna comunità. Unisciti a una delle comunità o crea la tua stessa"
+    "empty-communities-hint": "L'utente non è ancora un membro di nessuna comunità. Unisciti a una delle comunità o crea la tua stessa",
+    "dm-followers-only": "DM: solo follower",
+    "dm-disabled": "DM: disabilitato"
   },
   "profile-info": {
     "joined": "Iscritto",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Chiavi e permessi",
     "permissions-hint": "Gestisci le tue chiavi, controlla i permessi sulle applicazioni",
     "permissions": "Autorizzazioni aperte"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacy Del Messaggio Diretto",
+      "who-can-message": "Chi può inviarti messaggi diretti?",
+      "description": "Controlla chi può inviarti messaggi diretti per prevenire i tentativi di spam e phishing.",
+      "allow-all": "Tutti",
+      "followers-only": "Solo le persone che seguo",
+      "no-one": "Nessuno (disattiva DM)"
+    },
+    "dm-privacy-updated": "Impostazioni privacy DM aggiornate con successo"
   },
   "wallet": {
     "unclaimed-rewards": "Ricompense non riscosse",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Lingua di destinazione",
     "pinned-messages": "Messaggi bloccati",
     "pin-message": "Messaggio di pin",
-    "unpin-message": "Sblocca messaggio"
+    "unpin-message": "Sblocca messaggio",
+    "dm-not-allowed": "@{{username}} non accetta messaggi da te",
+    "dm-followers-only": "Accetta solo DM da persone che seguono",
+    "dm-disabled": "Ha messaggi diretti disabilitati"
   },
   "add-image": {
     "title": "Aggiungi immagine",
