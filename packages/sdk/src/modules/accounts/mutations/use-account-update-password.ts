@@ -13,15 +13,16 @@ interface Payload {
   keepCurrent?: boolean;
 }
 
-/**
- * Only native Hive and custom passwords could be updated here
- * Seed based password cannot be updated here, it will be in an account always for now
- */
 type UpdatePasswordOptions = Pick<
   UseMutationOptions<unknown, Error, Payload>,
   "onSuccess" | "onError"
 >;
 
+/**
+ * @deprecated
+ * Only native Hive and custom passwords could be updated here
+ * Seed based password cannot be updated here, it will be in an account always for now
+ */
 export function useAccountUpdatePassword(
   username: string,
   options?: UpdatePasswordOptions
