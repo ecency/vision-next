@@ -1077,7 +1077,9 @@
     "go-community": "समुदाय पृष्ठ",
     "com-mod": "इन समुदायों के मॉडरेटर",
     "empty-communities": "यहाँ कोई समुदाय नहीं है",
-    "empty-communities-hint": "उपयोगकर्ता अभी तक किसी भी समुदाय का सदस्य नहीं है। किसी एक समुदाय में शामिल हों या अपना खुद का समुदाय बनाएँ"
+    "empty-communities-hint": "उपयोगकर्ता अभी तक किसी भी समुदाय का सदस्य नहीं है। किसी एक समुदाय में शामिल हों या अपना खुद का समुदाय बनाएँ",
+    "dm-followers-only": "DMs: followers only",
+    "dm-disabled": "DMs: disabled"
   },
   "profile-info": {
     "joined": "शामिल हो गए हैं",
@@ -1184,6 +1186,17 @@
     "permissions-title": "कुंजियाँ और अनुमतियाँ",
     "permissions-hint": "अपनी कुंजियाँ प्रबंधित करें, एप्लिकेशन पर अनुमतियों को नियंत्रित करें",
     "permissions": "खुली अनुमतियाँ"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Direct Message Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully"
   },
   "wallet": {
     "unclaimed-rewards": "दावा न किए गए पुरस्कार",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Target language",
     "pinned-messages": "Pinned messages",
     "pin-message": "Pin message",
-    "unpin-message": "Unpin message"
+    "unpin-message": "Unpin message",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "Only accepts DMs from people they follow",
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "छवि जोड़ें",
