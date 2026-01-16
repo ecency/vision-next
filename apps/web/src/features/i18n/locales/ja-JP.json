@@ -864,6 +864,8 @@
     "muted-warning": "このコンテンツは、コミュニティガイドラインに準拠していないとして、 {{community}} モデレータによってミュートされました。",
     "lowrep-warning": "このコンテンツの著者の評判は低いです。",
     "deleted-content-warning": "このコンテンツは著者によって削除されました。ブロックチェーンから見ることができます ",
+    "deleted-content": "この投稿は {{author}}によって削除されました",
+    "deleted-no-history": "削除されたコンテンツの履歴はブロックチェーンからは利用できません。",
     "comments-hidden": "この投稿の投稿者はあなたによってミュートされています。",
     "address-copy": "リンクをコピー",
     "address-copied": "リンクをクリップボードにコピーしました",
