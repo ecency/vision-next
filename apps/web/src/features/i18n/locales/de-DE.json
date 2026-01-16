@@ -864,6 +864,8 @@
     "muted-warning": "Dieser Inhalt wurde von Moderatoren der {{community}} stumm geschaltet, da er nicht den Richtlinien der Community entspricht.",
     "lowrep-warning": "Der Autor dieses Inhalts hat einen schlechten Ruf.",
     "deleted-content-warning": "Dieser Inhalt wurde vom Autor gelöscht. Du kannst ihn jedoch in der Blockchain einsehen ",
+    "deleted-content": "Dieser Beitrag wurde von {{author}} gelöscht",
+    "deleted-no-history": "Der gelöschte Inhaltsverlauf ist nicht in der Blockchain verfügbar.",
     "comments-hidden": "Autor dieses Beitrags ist von dir stumm geschaltet.",
     "address-copy": "Link kopieren",
     "address-copied": "Link in Zwischenablage kopiert",
