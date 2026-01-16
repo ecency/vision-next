@@ -2,9 +2,9 @@
 
 import React, { RefObject, useEffect, useMemo } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, QueryClientProvider } from "@tanstack/react-query";
 import { getPostQueryOptions } from "@ecency/sdk";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
 import { makeEntryPath } from "@/utils";
 import { findPostLinkElements, isWaveLikePost } from "../functions";
 import "./wave-like-post-extension.scss";
@@ -128,6 +128,8 @@ export function WaveLikePostExtension({
       return;
     }
 
+    const queryClient = getQueryClient();
+
     findPostLinkElements(container)
       .filter((el) => isWaveLikePost(el.getAttribute("href") ?? ""))
       .forEach((element) => {
@@ -135,7 +137,9 @@ export function WaveLikePostExtension({
         container.classList.add("ecency-renderer-wave-like-extension");
         hydrateRoot(
           container,
-          <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />,
+          <QueryClientProvider client={queryClient}>
+            <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
+          </QueryClientProvider>,
         );
         element.parentElement?.replaceChild(container, element);
       });

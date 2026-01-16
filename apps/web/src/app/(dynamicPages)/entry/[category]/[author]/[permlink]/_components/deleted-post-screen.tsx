@@ -25,7 +25,7 @@ export const DeletedPostScreen = ({ username, permlink, staticNav, deletedEntry 
   return (
     <div>
       {staticNav ? <StaticNavbar fullVersionUrl="" /> : <Navbar />}
-      {deletedEntry && (
+      {deletedEntry && deletedEntry.body && (
         <div className="container overflow-x-hidden">
           <ScrollToTop />
           <Theme />
@@ -43,9 +43,9 @@ export const DeletedPostScreen = ({ username, permlink, staticNav, deletedEntry 
                   {i18next.t("g.logs")}.
                 </div>
                 <div className="cross-post">
-                  <h1 className="entry-title">{deletedEntry!.title}</h1>
+                  <h1 className="entry-title">{deletedEntry.title || i18next.t("entry.untitled")}</h1>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderPostBody(deletedEntry!.body) }} />
+                <div dangerouslySetInnerHTML={{ __html: renderPostBody(deletedEntry.body) }} />
                 {editHistory && (
                   <EditHistory
                     entry={
