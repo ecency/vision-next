@@ -139,7 +139,7 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
               value={numValue ?? ''}
               onChange={(e) =>
                 handleChange(
-                  e.target.value === '' ? undefined : Number(e.target.value),
+                  e.target.value === '' ? null : Number(e.target.value),
                 )
               }
               className={inputClassName}
