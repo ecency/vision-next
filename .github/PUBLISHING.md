@@ -7,7 +7,6 @@ This document explains how packages in the vision-next monorepo are published to
 The monorepo contains 4 publishable packages:
 - **@ecency/sdk** - Core SDK for Ecency/Hive interactions
 - **@ecency/wallets** - Cryptocurrency wallet integrations
-- **@ecency/renderer** - React components for rendering Hive posts
 - **@ecency/render-helper** - Markdown+HTML rendering and sanitization library
 
 ## Automated Publishing (CI/CD)
@@ -57,7 +56,6 @@ pnpm publish --access public
 pnpm render-helper
 pnpm sdk
 pnpm wallets
-pnpm renderer
 
 # Build all packages
 pnpm build:packages
@@ -66,27 +64,12 @@ pnpm build:packages
 pnpm publish:render-helper
 pnpm publish:sdk
 pnpm publish:wallets
-pnpm publish:renderer
 ```
 
 ## Package Dependencies
 
 ### Workspace Dependencies
 
-The `@ecency/renderer` package depends on `@ecency/render-helper` as a workspace dependency:
-
-```json
-{
-  "devDependencies": {
-    "@ecency/render-helper": "workspace:*"
-  }
-}
-```
-
-When publishing:
-1. If you change `@ecency/render-helper`, bump its version
-2. The renderer will automatically use the published version in production
-3. Local development uses the workspace version (symlinked)
 
 ### Publishing Order
 
@@ -95,7 +78,6 @@ When multiple packages need updates:
 1. **@ecency/render-helper** - No dependencies on other packages
 2. **@ecency/sdk** - No dependencies on other packages
 3. **@ecency/wallets** - Depends on @ecency/sdk
-4. **@ecency/renderer** - Depends on @ecency/render-helper
 
 The CI workflow handles this automatically by building/publishing in parallel where possible.
 
@@ -166,4 +148,3 @@ View published versions:
 - https://www.npmjs.com/package/@ecency/render-helper
 - https://www.npmjs.com/package/@ecency/sdk
 - https://www.npmjs.com/package/@ecency/wallets
-- https://www.npmjs.com/package/@ecency/renderer

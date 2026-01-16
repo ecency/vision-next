@@ -40,7 +40,7 @@ vi.mock("@ecency/sdk", () => ({
   parseProfileMetadata: vi.fn()
 }));
 
-vi.mock("@ecency/renderer", () => ({
+vi.mock("@/features/post-renderer", () => ({
   EcencyRenderer: () => null,
   setupPostEnhancements: vi.fn()
 }));

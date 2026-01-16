@@ -44,14 +44,56 @@ const matchesHref = (href: string, value?: string | null): boolean => {
   return normalizeValue(value) === normalizedHref
 }
 
-const getInlineMeta = (el: HTMLElement, href: string) => {
+/**
+ * Normalizes display text for inline detection by:
+ * - Stripping protocol and domain (ecency.com, peakd.com, hive.blog)
+ * - Removing leading/trailing slashes
+ * - Removing query parameters
+ * - Removing comment hashes (#@...)
+ * - Converting to lowercase
+ */
+const normalizeDisplayText = (text: string): string => {
+  return text
+    .trim()
+    .replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "")
+    .replace(/^\/+/, "")
+    .split("?")[0]
+    .replace(/#@.*$/i, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
+}
+
+/**
+ * Enhanced inline detection that handles edge cases like:
+ * - Full URLs: https://ecency.com/@author/permlink
+ * - Relative URLs: /@author/permlink
+ * - With community tags: hive-123456/@author/permlink
+ * - With query params: @author/permlink?ref=twitter
+ * - With trailing slashes: @author/permlink/
+ */
+const getInlineMeta = (el: HTMLElement, href: string, author: string, permlink: string, communityTag?: string) => {
+  // Simple exact match (original behavior)
   const textMatches = matchesHref(href, el.textContent)
   const titleMatches = matchesHref(href, el.getAttribute('title'))
+
+  // Sophisticated normalized matching
+  const normalizedDisplay = normalizeDisplayText(el.textContent || "");
+  const normalizedTarget = `@${author}/${permlink}`.toLowerCase();
+
+  // Build expected display patterns
+  const expectedDisplays = new Set([normalizedTarget]);
+  if (communityTag) {
+    expectedDisplays.add(`${communityTag.toLowerCase()}/${normalizedTarget}`);
+  }
+
+  const sophisticatedMatch =
+    normalizedDisplay === normalizedTarget ||
+    (communityTag ? normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}` : false);
 
   return {
     textMatches,
     titleMatches,
-    isInline: textMatches || titleMatches
+    isInline: textMatches || titleMatches || sophisticatedMatch
   }
 }
 
@@ -144,7 +186,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
     if (!isValidPermlink(permlink)) return;
 
-    const inlineMeta = getInlineMeta(el, href)
+    const inlineMeta = getInlineMeta(el, href, author, permlink)
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`
     }
@@ -247,7 +289,9 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
       if (!isValidPermlink(permlink)) return;
 
-      const inlineMeta = getInlineMeta(el, href)
+      // Pass community tag if it starts with "hive-"
+      const communityTag = tag.toLowerCase().startsWith('hive-') ? tag : undefined
+      const inlineMeta = getInlineMeta(el, href, author, permlink, communityTag)
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`
       }
@@ -329,7 +373,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
       if (!isValidPermlink(permlink)) return;
 
-      const inlineMeta = getInlineMeta(el, href)
+      const inlineMeta = getInlineMeta(el, href, author, permlink)
 
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`
@@ -436,7 +480,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
 
     if (!isValidPermlink(permlink)) return;
 
-    const inlineMeta = getInlineMeta(el, href)
+    const inlineMeta = getInlineMeta(el, href, author, permlink)
 
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`
@@ -707,7 +751,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     if (imgEls.length === 1 || el.textContent.trim() === href) {
       // match[1] / match[2] = tld , match[3] = embed address
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://3speak.tv/embed?v=${match[3]}`
+        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`
         el.setAttribute('class', 'markdown-video-link markdown-video-link-speak')
         el.removeAttribute('href')
         el.setAttribute('data-embed-src', videoHref)

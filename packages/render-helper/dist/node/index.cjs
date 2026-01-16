@@ -408,13 +408,23 @@ var matchesHref = (href, value) => {
   }
   return normalizeValue(value) === normalizedHref;
 };
-var getInlineMeta = (el, href) => {
+var normalizeDisplayText = (text2) => {
+  return text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "").replace(/\/+$/, "").toLowerCase();
+};
+var getInlineMeta = (el, href, author, permlink, communityTag) => {
   const textMatches = matchesHref(href, el.textContent);
   const titleMatches = matchesHref(href, el.getAttribute("title"));
+  const normalizedDisplay = normalizeDisplayText(el.textContent || "");
+  const normalizedTarget = `@${author}/${permlink}`.toLowerCase();
+  const expectedDisplays = /* @__PURE__ */ new Set([normalizedTarget]);
+  if (communityTag) {
+    expectedDisplays.add(`${communityTag.toLowerCase()}/${normalizedTarget}`);
+  }
+  const sophisticatedMatch = normalizedDisplay === normalizedTarget || (communityTag ? normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}` : false);
   return {
     textMatches,
     titleMatches,
-    isInline: textMatches || titleMatches
+    isInline: textMatches || titleMatches || sophisticatedMatch
   };
 };
 var addLineBreakBeforePostLink = (el, forApp, isInline) => {
@@ -469,7 +479,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const author = postMatch[3].replace("@", "");
     const permlink = sanitizePermlink(postMatch[4]);
     if (!isValidPermlink(permlink)) return;
-    const inlineMeta = getInlineMeta(el, href);
+    const inlineMeta = getInlineMeta(el, href, author, permlink);
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }
@@ -547,7 +557,8 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       const author = tpostMatch[2].replace("@", "");
       const permlink = sanitizePermlink(tpostMatch[3]);
       if (!isValidPermlink(permlink)) return;
-      const inlineMeta = getInlineMeta(el, href);
+      const communityTag = tag.toLowerCase().startsWith("hive-") ? tag : void 0;
+      const inlineMeta = getInlineMeta(el, href, author, permlink, communityTag);
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
@@ -612,7 +623,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       const author = cpostMatch[1].replace("@", "");
       const permlink = sanitizePermlink(cpostMatch[2]);
       if (!isValidPermlink(permlink)) return;
-      const inlineMeta = getInlineMeta(el, href);
+      const inlineMeta = getInlineMeta(el, href, author, permlink);
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
@@ -698,7 +709,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const author = cccMatch[2].replace("@", "");
     const permlink = sanitizePermlink(cccMatch[3]);
     if (!isValidPermlink(permlink)) return;
-    const inlineMeta = getInlineMeta(el, href);
+    const inlineMeta = getInlineMeta(el, href, author, permlink);
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }
@@ -893,7 +904,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://3speak.tv/embed?v=${match[3]}`;
+        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -1026,7 +1037,11 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
-    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "3speak.tv");
+    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "play.3speak.tv");
+    const hasMode = /[?&]mode=/.test(normalizedSrc);
+    if (!hasMode) {
+      normalizedSrc = `${normalizedSrc}&mode=iframe`;
+    }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
     const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);

@@ -1,5 +1,5 @@
 import { Button, Popover, PopoverContent } from "@/features/ui";
-import { EcencyRenderer } from "@ecency/renderer";
+import { EcencyRenderer } from "@/features/post-renderer";
 import { Node, nodePasteRule, NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";

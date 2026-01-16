@@ -90,8 +90,7 @@ import {
   HivePostLinkRenderer,
   WaveLikePostRenderer,
   isWaveLikePost,
-} from "@ecency/renderer";
-import "@ecency/renderer/style.css";
+} from "@/features/post-renderer";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [

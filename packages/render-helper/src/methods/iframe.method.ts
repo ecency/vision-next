@@ -49,8 +49,14 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
 
   // 3Speak
   if (src.match(SPEAK_EMBED_REGEX)) {
-    // Normalize domain to 3speak.tv
-    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, '3speak.tv');
+    // Normalize domain to play.3speak.tv for new embed player
+    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, 'play.3speak.tv');
+
+    // Ensure mode=iframe parameter is present for minimal embed UI
+    const hasMode = /[?&]mode=/.test(normalizedSrc);
+    if (!hasMode) {
+      normalizedSrc = `${normalizedSrc}&mode=iframe`;
+    }
 
     // Add autoplay if not present
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
