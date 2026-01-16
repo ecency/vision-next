@@ -1077,7 +1077,9 @@
     "go-community": "Community-Seite",
     "com-mod": "Moderator dieser Gemeinschaften",
     "empty-communities": "Keine Gemeinschaften hier",
-    "empty-communities-hint": "Benutzer ist noch kein Mitglied einer Gemeinschaft. Treten Sie einer der Gemeinschaften bei oder erstellen Sie Ihre eigene"
+    "empty-communities-hint": "Benutzer ist noch kein Mitglied einer Gemeinschaft. Treten Sie einer der Gemeinschaften bei oder erstellen Sie Ihre eigene",
+    "dm-followers-only": "DMs: nur Follower",
+    "dm-disabled": "DM: deaktiviert"
   },
   "profile-info": {
     "joined": "Beitreten",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Schlüssel & Berechtigungen",
     "permissions-hint": "Verwalten Sie Ihre Schlüssel, steuern Sie die Berechtigungen über Anwendungen",
     "permissions": "Öffne Berechtigungen"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Direkte Nachrichten Privatsphäre",
+      "who-can-message": "Wer kann Ihnen direkte Nachrichten schicken?",
+      "description": "Legen Sie fest, wer Ihnen direkte Nachrichten senden kann, um Spam und Phishing-Versuche zu verhindern.",
+      "allow-all": "Alle",
+      "followers-only": "Nur Leute, denen ich folge",
+      "no-one": "Niemand (deaktiviere DMs)"
+    },
+    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert"
   },
   "wallet": {
     "unclaimed-rewards": "Nicht abgeholte Belohnungen",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Zielsprache",
     "pinned-messages": "Angeheftete Nachrichten",
     "pin-message": "Nachricht anheften",
-    "unpin-message": "Nachricht lösen"
+    "unpin-message": "Nachricht lösen",
+    "dm-not-allowed": "@{{username}} akzeptiert keine Nachrichten von Ihnen",
+    "dm-followers-only": "Akzeptiert nur DMs von Personen, denen sie folgen",
+    "dm-disabled": "Hat Direktnachrichten deaktiviert"
   },
   "add-image": {
     "title": "Bild hinzufügen",
