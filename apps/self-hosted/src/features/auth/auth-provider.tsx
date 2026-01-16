@@ -47,7 +47,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Check if current user is blog owner
   const isBlogOwner = useMemo(() => {
-    return !!user && user.username.toLowerCase() === blogOwner.toLowerCase();
+    if (!user || !blogOwner) return false;
+    return (user.username ?? '').toLowerCase() === (blogOwner ?? '').toLowerCase();
   }, [user, blogOwner]);
 
   // Load session from localStorage on mount

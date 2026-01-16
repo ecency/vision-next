@@ -32,16 +32,20 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
   // Use different query based on instance type
   const communitySort = communityFilterMap[filter] || 'created';
 
+  // Get query options and preserve their built-in enabled guards
+  const accountOptions = getAccountPostsInfiniteQueryOptions(username, filter, limit);
+  const communityOptions = getCommunityPostsInfiniteQueryOptions(communityId, communitySort, limit);
+
   const blogQuery = useInfiniteQuery({
-    ...getAccountPostsInfiniteQueryOptions(username, filter, limit),
+    ...accountOptions,
     select: (data) => data.pages.flat(),
-    enabled: !isCommunityMode,
+    enabled: accountOptions.enabled && !isCommunityMode,
   });
 
   const communityQuery = useInfiniteQuery({
-    ...getCommunityPostsInfiniteQueryOptions(communityId, communitySort, limit),
+    ...communityOptions,
     select: (data) => data.pages.flat(),
-    enabled: isCommunityMode,
+    enabled: communityOptions.enabled && isCommunityMode,
   });
 
   const { data = [], fetchNextPage, isFetching, hasNextPage, isError, refetch } = isCommunityMode

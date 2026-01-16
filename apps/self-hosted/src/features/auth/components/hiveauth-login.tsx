@@ -1,5 +1,6 @@
 'use client';
 
+import { QRCodeSVG } from 'qrcode.react';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../hooks';
 import { LoginMethodButton } from './login-method-button';
@@ -155,17 +156,14 @@ export function HiveAuthLogin({ onSuccess, onError }: HiveAuthLoginProps) {
   );
 }
 
-// Simple QR Code component using a third-party API
+// Local QR Code component - keeps sensitive data on-device
 function QRCode({ data }: { data: string }) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}`;
-
   return (
-    <img
-      src={qrUrl}
-      alt="HiveAuth QR Code"
-      width={200}
-      height={200}
-      className="block"
+    <QRCodeSVG
+      value={data}
+      size={200}
+      level="M"
+      includeMargin={false}
     />
   );
 }

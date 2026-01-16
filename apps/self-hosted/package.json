@@ -22,13 +22,13 @@
     "date-fns-tz": "^3.2.0",
     "framer-motion": "^11.18.2",
     "motion": "^12.23.22",
+    "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-use": "^17.6.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.3",
-    "@esbuild/darwin-arm64": "^0.25.10",
     "@rsbuild/core": "^1.5.6",
     "@rsbuild/plugin-react": "^1.4.0",
     "@tailwindcss/postcss": "^4.1.13",

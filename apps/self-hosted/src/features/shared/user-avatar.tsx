@@ -2,7 +2,7 @@
 
 import { proxifyImageSrc } from '@ecency/render-helper';
 import clsx from 'clsx';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { InstanceConfigManager } from '@/core';
 
 interface Props {
@@ -80,9 +80,20 @@ export function UserAvatar({
     return proxifyImageSrc(src, 0, 0, format) || fallbackUrl;
   }, [src, imgSize, username, canUseWebp, hasMounted]);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        onClick();
+      }
+    },
+    [onClick],
+  );
+
   return (
     <span
       onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : undefined}
       className={clsx(
         'inline-block rounded-full bg-gray-300 dark:bg-gray-700 bg-cover bg-center bg-no-repeat shrink-0',
         sizeClasses[size],
@@ -92,7 +103,8 @@ export function UserAvatar({
       style={{
         backgroundImage: `url(${imageSrc})`,
       }}
-      role="img"
+      role={onClick ? 'button' : 'img'}
+      tabIndex={onClick ? 0 : undefined}
       aria-label={`${username} avatar`}
     />
   );

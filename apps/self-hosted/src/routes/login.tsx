@@ -8,10 +8,42 @@ import { HiveAuthLogin } from '@/features/auth/components/hiveauth-login';
 import { HivesignerLogin } from '@/features/auth/components/hivesigner-login';
 import { InstanceConfigManager } from '@/core';
 
+/**
+ * Validates that a redirect URL is safe (internal path only).
+ * Prevents open redirect vulnerabilities by only allowing:
+ * - Relative paths starting with a single '/'
+ * - Not starting with '//' (protocol-relative URLs)
+ * - Not containing URL schemes like 'http:', 'javascript:', etc.
+ */
+function sanitizeRedirect(redirect: string | undefined): string {
+  if (!redirect || typeof redirect !== 'string') {
+    return '/';
+  }
+
+  const trimmed = redirect.trim();
+
+  // Must start with exactly one '/' and not be a protocol-relative URL
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) {
+    return '/';
+  }
+
+  // Check for URL schemes (http:, https:, javascript:, data:, etc.)
+  if (/^\/[a-zA-Z][a-zA-Z0-9+.-]*:/i.test(trimmed)) {
+    return '/';
+  }
+
+  // Block encoded characters that could bypass the checks
+  if (trimmed.includes('%2f') || trimmed.includes('%2F') || trimmed.includes('%5c') || trimmed.includes('%5C')) {
+    return '/';
+  }
+
+  return trimmed;
+}
+
 export const Route = createFileRoute('/login')({
   component: LoginPage,
   validateSearch: (search: Record<string, unknown>) => ({
-    redirect: (search.redirect as string) || '/',
+    redirect: sanitizeRedirect(search.redirect as string),
   }),
 });
 

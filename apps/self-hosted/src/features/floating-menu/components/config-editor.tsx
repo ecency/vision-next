@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import type { ConfigField } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
 import type {
@@ -33,6 +33,85 @@ function getSectionIcon(label: string): string {
     (k) => k.toLowerCase() === label.toLowerCase().replace(/\s+/g, ''),
   );
   return key ? sectionIcons[key]! : '📦';
+}
+
+// Separate component for array fields to handle draft state
+interface ArrayFieldEditorProps {
+  field: ConfigField;
+  fullPath: string;
+  value: ConfigValue;
+  inputClassName: string;
+  inputStyle: React.CSSProperties;
+  handleChange: (newValue: ConfigValue) => void;
+}
+
+function ArrayFieldEditor({
+  field,
+  fullPath,
+  value,
+  inputClassName,
+  inputStyle,
+  handleChange,
+}: ArrayFieldEditorProps) {
+  const arrayValue = Array.isArray(value) ? value : [];
+  const [draftJson, setDraftJson] = useState(() => JSON.stringify(arrayValue, null, 2));
+  const [isValid, setIsValid] = useState(true);
+
+  // Sync draft when external value changes
+  useEffect(() => {
+    const newJson = JSON.stringify(arrayValue, null, 2);
+    setDraftJson(newJson);
+    setIsValid(true);
+  }, [JSON.stringify(arrayValue)]);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setDraftJson(newValue);
+
+    try {
+      const parsed = JSON.parse(newValue);
+      if (Array.isArray(parsed)) {
+        setIsValid(true);
+        handleChange(parsed);
+      } else {
+        setIsValid(false);
+      }
+    } catch {
+      setIsValid(false);
+    }
+  };
+
+  return (
+    <div className="mb-4">
+      <label
+        htmlFor={fullPath}
+        className="block text-sm font-medium text-gray-200 mb-2 font-sans"
+      >
+        {field.label}
+      </label>
+      {field.description && (
+        <p className="text-xs text-gray-400 mb-2 font-sans">
+          {field.description}
+        </p>
+      )}
+      <textarea
+        id={fullPath}
+        value={draftJson}
+        onChange={handleTextChange}
+        className={`${inputClassName} font-mono`}
+        style={{
+          ...inputStyle,
+          borderColor: isValid ? inputStyle.border : '#ef4444',
+        }}
+        rows={4}
+        aria-label={field.label}
+        aria-invalid={!isValid}
+      />
+      <p className={`text-xs mt-1 font-sans ${isValid ? 'text-gray-400' : 'text-red-400'}`}>
+        {isValid ? 'Enter a valid JSON array' : 'Invalid JSON array'}
+      </p>
+    </div>
+  );
 }
 
 const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
@@ -150,42 +229,15 @@ const ConfigFieldEditor = memo<ConfigFieldEditorProps>(
       }
 
       case 'array': {
-        const arrayValue = Array.isArray(value) ? value : [];
         return (
-          <div className="mb-4">
-            <label
-              htmlFor={fullPath}
-              className="block text-sm font-medium text-gray-200 mb-2 font-sans"
-            >
-              {field.label}
-            </label>
-            {field.description && (
-              <p className="text-xs text-gray-400 mb-2 font-sans">
-                {field.description}
-              </p>
-            )}
-            <textarea
-              id={fullPath}
-              value={JSON.stringify(arrayValue, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsed = JSON.parse(e.target.value);
-                  if (Array.isArray(parsed)) {
-                    handleChange(parsed);
-                  }
-                } catch {
-                  // Invalid JSON, ignore
-                }
-              }}
-              className={`${inputClassName} font-mono`}
-              style={inputStyle}
-              rows={4}
-              aria-label={field.label}
-            />
-            <p className="text-xs text-gray-400 mt-1 font-sans">
-              Enter a valid JSON array
-            </p>
-          </div>
+          <ArrayFieldEditor
+            field={field}
+            fullPath={fullPath}
+            value={value}
+            inputClassName={inputClassName}
+            inputStyle={inputStyle}
+            handleChange={handleChange}
+          />
         );
       }
 

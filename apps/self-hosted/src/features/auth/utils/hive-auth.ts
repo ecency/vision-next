@@ -91,8 +91,13 @@ export async function loginWithHiveAuth(
     const ws = new WebSocket(HIVEAUTH_API);
     const key = generateKey();
     let uuid: string | null = null;
+    let authTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const cleanup = () => {
+      if (authTimeout) {
+        clearTimeout(authTimeout);
+        authTimeout = null;
+      }
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
@@ -184,11 +189,15 @@ export async function loginWithHiveAuth(
     };
 
     ws.onclose = () => {
-      // Connection closed
+      // Connection closed - ensure timeout is cleared
+      if (authTimeout) {
+        clearTimeout(authTimeout);
+        authTimeout = null;
+      }
     };
 
     // Timeout after 5 minutes
-    setTimeout(() => {
+    authTimeout = setTimeout(() => {
       if (ws.readyState === WebSocket.OPEN) {
         callbacks.onError?.('Authentication timeout');
         cleanup();
@@ -208,8 +217,13 @@ export async function broadcastWithHiveAuth(
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(HIVEAUTH_API);
+    let signTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const cleanup = () => {
+      if (signTimeout) {
+        clearTimeout(signTimeout);
+        signTimeout = null;
+      }
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
@@ -271,8 +285,16 @@ export async function broadcastWithHiveAuth(
       reject(new Error('WebSocket connection error'));
     };
 
+    ws.onclose = () => {
+      // Connection closed - ensure timeout is cleared
+      if (signTimeout) {
+        clearTimeout(signTimeout);
+        signTimeout = null;
+      }
+    };
+
     // Timeout after 2 minutes for signing
-    setTimeout(() => {
+    signTimeout = setTimeout(() => {
       if (ws.readyState === WebSocket.OPEN) {
         callbacks?.onError?.('Signing timeout');
         cleanup();
