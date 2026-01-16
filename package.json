@@ -17,6 +17,7 @@
     "sdk": "pnpm --filter @ecency/sdk build",
     "wallets": "pnpm --filter @ecency/wallets build",
     "render-helper": "pnpm --filter @ecency/render-helper build",
+    "dev:self": "pnpm --filter @ecency/self-hosted dev",
     "dev:sdk": "pnpm --filter @ecency/sdk dev",
     "dev:wallets": "pnpm --filter @ecency/wallets dev",
     "publish:sdk": "cd packages/sdk && npx -y npm@latest publish --access public",

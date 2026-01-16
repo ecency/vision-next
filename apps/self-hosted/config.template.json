@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "configuration": {
+    "general": {
+      "theme": "system",
+      "styleTemplate": "medium",
+      "language": "en",
+      "timezone": "UTC",
+      "dateFormat": "YYYY-MM-DD",
+      "timeFormat": "HH:mm:ss",
+      "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+      "imageProxy": "https://images.ecency.com",
+      "profileBaseUrl": "https://ecency.com/@",
+      "createPostUrl": "https://ecency.com/submit",
+      "styles": {
+        "background": "bg-gradient-to-br from-[#d8e5fa] to-[#fcfdfe]"
+      }
+    },
+    "instanceConfiguration": {
+      "type": "blog",
+      "username": "ecency",
+      "communityId": "",
+      "meta": {
+        "title": "My Blog",
+        "description": "My Blog Description",
+        "logo": "https://myblog.com/logo.png",
+        "favicon": "https://myblog.com/favicon.ico",
+        "keywords": "My Blog, My Blog Description"
+      },
+      "layout": {
+        "listType": "list",
+        "search": {
+          "enabled": true
+        },
+        "sidebar": {
+          "placement": "right",
+          "followers": {
+            "enabled": true
+          },
+          "following": {
+            "enabled": true
+          },
+          "hiveInformation": {
+            "enabled": true
+          }
+        }
+      },
+      "features": {
+        "postsFilters": ["blog", "posts", "comments", "replies"],
+        "likes": {
+          "enabled": true
+        },
+        "comments": {
+          "enabled": true
+        },
+        "post": {
+          "text2Speech": {
+            "enabled": true
+          }
+        },
+        "auth": {
+          "enabled": true,
+          "methods": ["keychain", "hivesigner", "hiveauth"]
+        }
+      }
+    }
+  }
+}
