@@ -864,6 +864,8 @@
     "muted-warning": "此内容被 {{community}} 版主禁言，因为他们不遵守社区指南。",
     "lowrep-warning": "此内容的作者信誉积分较低。",
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
     "comments-hidden": "这个帖子的作者被你禁言。",
     "address-copy": "复制链接",
     "address-copied": "链接已复制到剪贴板",
