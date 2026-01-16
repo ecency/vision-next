@@ -1,6 +1,6 @@
 "use client";
 
-import { EcencyRenderer } from "@ecency/renderer";
+import { EcencyRenderer } from "@/features/post-renderer";
 import { HTMLProps, memo, useCallback, useState } from "react";
 import { Tweet } from "react-tweet";
 import TransactionSigner from "./transactions/transaction-signer";

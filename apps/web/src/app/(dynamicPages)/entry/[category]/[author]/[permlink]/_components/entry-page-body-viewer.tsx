@@ -3,7 +3,7 @@
 import { Entry } from "@/entities";
 import { SelectionPopover } from "./selection-popover";
 import { EntryPageViewerManager } from "./entry-page-viewer-manager";
-import { setupPostEnhancements } from "@ecency/renderer";
+import { setupPostEnhancements } from "@/features/post-renderer";
 import dynamic from "next/dynamic";
 import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
