@@ -1,3 +1,5 @@
+"use client";
+
 import React, { RefObject, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 

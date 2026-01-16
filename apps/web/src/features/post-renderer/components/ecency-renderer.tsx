@@ -1,3 +1,5 @@
+"use client";
+
 import React, { HTMLProps, useRef } from "react";
 import { renderPostBody } from "@ecency/render-helper";
 import { clsx } from "clsx";

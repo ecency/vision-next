@@ -1,23 +1,29 @@
 "use client";
 
-import React, { RefObject, useEffect, useMemo, useState } from "react";
+import React, { RefObject, useEffect, useMemo } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { useQuery } from "@tanstack/react-query";
+import { getPostQueryOptions } from "@ecency/sdk";
+import { QueryIdentifiers } from "@/core/react-query";
+import { makeEntryPath } from "@/utils";
 import { findPostLinkElements, isWaveLikePost } from "../functions";
-import { getCachedPost } from "../../api";
 import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
 
-interface Entry {
-  author?: string;
-  permlink?: string;
-  last_update?: string;
-  body: any;
-  json_metadata?: any;
-}
-
 export function WaveLikePostRenderer({ link }: { link: string }) {
-  const [post, setPost] = useState<Entry & { title: string }>();
+  const [author, permlink] = useMemo(() => {
+    const [_, __, ___, username, perm] = new URL(
+      link,
+      "https://ecency.com",
+    ).pathname.split("/");
+    return [username.replace("@", ""), perm];
+  }, [link]);
+
+  const { data: post } = useQuery({
+    ...getPostQueryOptions(author, permlink),
+    queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", author, permlink)],
+  });
 
   const host = useMemo(() => {
     if (
@@ -37,18 +43,6 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
 
     return "";
   }, [post]);
-
-  useEffect(() => {
-    const [_, __, ___, username, permlink] = new URL(
-      link,
-      "https://ecency.com",
-    ).pathname.split("/");
-    getCachedPost(username.replace("@", ""), permlink)
-      .then((resp) => {
-        setPost(resp as any);
-      })
-      .catch((e) => console.error(e));
-  }, []);
 
   if (!post) {
     return <></>;
