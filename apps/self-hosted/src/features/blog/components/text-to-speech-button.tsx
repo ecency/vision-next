@@ -19,7 +19,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
 
   const isEnabled = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
-      configuration.instanceConfiguration.features.post?.text2Speeech?.enabled ?? false,
+      configuration.instanceConfiguration.features.post?.text2Speech?.enabled ?? false,
   );
 
   const language = InstanceConfigManager.getConfigValue(

@@ -187,7 +187,7 @@ export const configFieldsMap: Record<string, ConfigField> = {
                 label: 'Post',
                 type: 'section',
                 fields: {
-                  text2Speeech: {
+                  text2Speech: {
                     label: 'Text to Speech',
                     type: 'section',
                     fields: {

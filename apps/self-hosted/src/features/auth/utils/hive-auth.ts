@@ -1,4 +1,5 @@
 import type { Operation } from '@hiveio/dhive';
+import CryptoJS from 'crypto-js';
 import { HIVEAUTH_API, HIVEAUTH_APP } from '../constants';
 import type { HiveAuthSession } from '../types';
 
@@ -45,19 +46,13 @@ function generateKey(): string {
 }
 
 /**
- * Simple XOR-based encryption for HiveAuth challenge
- * Note: This is a simplified version - production should use proper crypto
+ * Encrypt challenge using AES-CBC with EVP_BytesToKey derivation
+ * This matches HiveAuth's expected encryption format
  */
 function encryptChallenge(challenge: string, key: string): string {
-  const keyBytes = new Uint8Array(key.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
-  const challengeBytes = new TextEncoder().encode(challenge);
-  const encrypted = new Uint8Array(challengeBytes.length);
-
-  for (let i = 0; i < challengeBytes.length; i++) {
-    encrypted[i] = challengeBytes[i] ^ keyBytes[i % keyBytes.length];
-  }
-
-  return btoa(String.fromCharCode(...encrypted));
+  // CryptoJS.AES.encrypt with a string key uses EVP_BytesToKey internally
+  // which derives the AES key and IV using MD5 - this is what HiveAuth expects
+  return CryptoJS.AES.encrypt(challenge, key).toString();
 }
 
 /**

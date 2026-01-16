@@ -54,7 +54,7 @@
           "enabled": true
         },
         "post": {
-          "text2Speeech": {
+          "text2Speech": {
             "enabled": true
           }
         },

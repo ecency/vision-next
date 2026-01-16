@@ -25,7 +25,7 @@ const sectionIcons: Record<string, string> = {
   wallet: '💳',
   comments: '💬',
   post: '📄',
-  text2Speeech: '🔊',
+  text2Speech: '🔊',
 } as const;
 
 function getSectionIcon(label: string): string {
