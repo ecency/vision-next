@@ -1077,7 +1077,9 @@
     "go-community": "Página da comunidade",
     "com-mod": "Moderador dessas comunidades",
     "empty-communities": "Nenhuma comunidade aqui",
-    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade"
+    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade",
+    "dm-followers-only": "DMs: apenas seguidores",
+    "dm-disabled": "Dados: desativado"
   },
   "profile-info": {
     "joined": "Entrou",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
     "permissions": "Abrir permissões"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacidade de mensagens diretas",
+      "who-can-message": "Quem pode te enviar mensagens diretas?",
+      "description": "Controle quem pode enviar-lhe mensagens diretas para evitar tentativas de spam e phishing.",
+      "allow-all": "Todos",
+      "followers-only": "Somente pessoas que sigo",
+      "no-one": "Ninguém (desativar DMs)"
+    },
+    "dm-privacy-updated": "Configurações de privacidade DM atualizadas com sucesso"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas não reclamadas",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Idioma alvo",
     "pinned-messages": "Mensagens fixadas",
     "pin-message": "Fixar mensagem",
-    "unpin-message": "Desafixar mensagem"
+    "unpin-message": "Desafixar mensagem",
+    "dm-not-allowed": "@{{username}} não aceita mensagens suas",
+    "dm-followers-only": "Só aceita DMs de pessoas que elas seguem",
+    "dm-disabled": "Tem mensagens diretas desabilitadas"
   },
   "add-image": {
     "title": "Adicionar imagem",
