@@ -864,6 +864,8 @@
     "muted-warning": "Este conteúdo foi silenciado pelos moderadores da {{community}} por não seguir as diretrizes da comunidade.",
     "lowrep-warning": "O autor desse conteúdo tem uma baixa reputação.",
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
+    "deleted-content": "Esta publicação foi excluída por {{author}}",
+    "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
     "comments-hidden": "O autor desta publicação foi silenciado por você.",
     "address-copy": "Copiar link",
     "address-copied": "Link copiado para a área de transferência",
