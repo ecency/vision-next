@@ -864,6 +864,8 @@
     "muted-warning": "Konten ini dibisukan oleh moderator {{community}} karena tidak mengikuti pedoman komunitas.",
     "lowrep-warning": "Penulis konten ini memiliki reputasi rendah.",
     "deleted-content-warning": "Konten ini telah dihapus oleh penulis. Anda dapat melihatnya dari Blockchain ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "Penulis konten ini diheningkan oleh Anda.",
     "address-copy": "Copy link",
     "address-copied": "Link copied to clipboard",
