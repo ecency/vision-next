@@ -864,6 +864,8 @@
     "muted-warning": "Ta zawartość została wyciszona przez moderatorów {{community}} za nieprzestrzeganie wytycznych społeczności.",
     "lowrep-warning": "Autor tej zawartości ma niską reputację.",
     "deleted-content-warning": "Ta zawartość została usunięta przez autora. Możesz ją zobaczyć z Blockchain ",
+    "deleted-content": "Ten post został usunięty przez {{author}}",
+    "deleted-no-history": "Usunięta historia treści nie jest dostępna z blockchain.",
     "comments-hidden": "Autor tego wpisu jest wyciszony przez ciebie.",
     "address-copy": "Kopiuj link",
     "address-copied": "Link skopiowany do schowka",
