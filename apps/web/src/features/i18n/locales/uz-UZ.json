@@ -864,6 +864,8 @@
     "muted-warning": "Bu kontent guruh qoidalariga rioya qilmagani uchun {{community}} moderatorlari tomonidan ovozsiz qilingan.",
     "lowrep-warning": "Bu kontent avtoring reputatsiyasi past.",
     "deleted-content-warning": "Bu kontent muallif tomonidan o'chirilgan. Siz uni Blokcheyndan ko'rishingiz mumkin ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "Bu post muallifini ovozsiz qilgansiz.",
     "address-copy": "Linkni nusxalash",
     "address-copied": "Link nusxalandi",
