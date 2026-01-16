@@ -101,7 +101,7 @@ function ArrayFieldEditor({
         className={`${inputClassName} font-mono`}
         style={{
           ...inputStyle,
-          borderColor: isValid ? inputStyle.border : '#ef4444',
+          borderColor: isValid ? FLOATING_MENU_THEME.borderColor : '#ef4444',
         }}
         rows={4}
         aria-label={field.label}

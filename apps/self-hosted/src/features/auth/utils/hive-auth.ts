@@ -87,6 +87,16 @@ export async function loginWithHiveAuth(
     const key = generateKey();
     let uuid: string | null = null;
     let authTimeout: ReturnType<typeof setTimeout> | null = null;
+    let settled = false;
+
+    // Create challenge once to ensure consistent timestamps between auth_req and QR data
+    const challenge: HiveAuthChallenge = {
+      key_type: 'posting',
+      challenge: JSON.stringify({
+        login: true,
+        ts: Date.now(),
+      }),
+    };
 
     const cleanup = () => {
       if (authTimeout) {
@@ -98,16 +108,22 @@ export async function loginWithHiveAuth(
       }
     };
 
-    ws.onopen = () => {
-      // Send auth request
-      const challenge: HiveAuthChallenge = {
-        key_type: 'posting',
-        challenge: JSON.stringify({
-          login: true,
-          ts: Date.now(),
-        }),
-      };
+    const safeReject = (error: Error) => {
+      if (!settled) {
+        settled = true;
+        reject(error);
+      }
+    };
 
+    const safeResolve = () => {
+      if (!settled) {
+        settled = true;
+        resolve();
+      }
+    };
+
+    ws.onopen = () => {
+      // Send auth request using the pre-created challenge
       const authReq = {
         cmd: 'auth_req',
         account: username,
@@ -131,13 +147,7 @@ export async function loginWithHiveAuth(
           case 'auth_wait':
             if (msg.uuid) {
               uuid = msg.uuid;
-              const challenge: HiveAuthChallenge = {
-                key_type: 'posting',
-                challenge: JSON.stringify({
-                  login: true,
-                  ts: Date.now(),
-                }),
-              };
+              // Reuse the same challenge for QR data
               const qrData = generateQRData(username, uuid, key, challenge);
               callbacks.onQRCode?.(qrData);
               callbacks.onWaiting?.();
@@ -154,33 +164,33 @@ export async function loginWithHiveAuth(
               };
               callbacks.onSuccess?.(session);
               cleanup();
-              resolve();
+              safeResolve();
             }
             break;
 
           case 'auth_nack':
             callbacks.onError?.('Authentication rejected');
             cleanup();
-            reject(new Error('Authentication rejected'));
+            safeReject(new Error('Authentication rejected'));
             break;
 
           case 'auth_err':
             callbacks.onError?.(msg.error || 'Authentication error');
             cleanup();
-            reject(new Error(msg.error || 'Authentication error'));
+            safeReject(new Error(msg.error || 'Authentication error'));
             break;
         }
       } catch (error) {
         callbacks.onError?.('Failed to parse response');
         cleanup();
-        reject(error);
+        safeReject(error instanceof Error ? error : new Error('Failed to parse response'));
       }
     };
 
     ws.onerror = () => {
       callbacks.onError?.('WebSocket connection error');
       cleanup();
-      reject(new Error('WebSocket connection error'));
+      safeReject(new Error('WebSocket connection error'));
     };
 
     ws.onclose = () => {
@@ -189,6 +199,11 @@ export async function loginWithHiveAuth(
         clearTimeout(authTimeout);
         authTimeout = null;
       }
+      // Reject if the Promise hasn't been settled yet
+      if (!settled) {
+        callbacks.onError?.('WebSocket closed before authentication completed');
+        safeReject(new Error('WebSocket closed before authentication completed'));
+      }
     };
 
     // Timeout after 5 minutes
@@ -196,7 +211,7 @@ export async function loginWithHiveAuth(
       if (ws.readyState === WebSocket.OPEN) {
         callbacks.onError?.('Authentication timeout');
         cleanup();
-        reject(new Error('Authentication timeout'));
+        safeReject(new Error('Authentication timeout'));
       }
     }, 5 * 60 * 1000);
   });
@@ -213,6 +228,7 @@ export async function broadcastWithHiveAuth(
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(HIVEAUTH_API);
     let signTimeout: ReturnType<typeof setTimeout> | null = null;
+    let settled = false;
 
     const cleanup = () => {
       if (signTimeout) {
@@ -221,6 +237,20 @@ export async function broadcastWithHiveAuth(
       }
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
+      }
+    };
+
+    const safeReject = (error: Error) => {
+      if (!settled) {
+        settled = true;
+        reject(error);
+      }
+    };
+
+    const safeResolve = () => {
+      if (!settled) {
+        settled = true;
+        resolve();
       }
     };
 
@@ -252,32 +282,32 @@ export async function broadcastWithHiveAuth(
           case 'sign_ack':
             callbacks?.onSuccess?.(msg.data);
             cleanup();
-            resolve();
+            safeResolve();
             break;
 
           case 'sign_nack':
             callbacks?.onError?.('Transaction rejected');
             cleanup();
-            reject(new Error('Transaction rejected'));
+            safeReject(new Error('Transaction rejected'));
             break;
 
           case 'sign_err':
             callbacks?.onError?.(msg.error || 'Signing error');
             cleanup();
-            reject(new Error(msg.error || 'Signing error'));
+            safeReject(new Error(msg.error || 'Signing error'));
             break;
         }
       } catch (error) {
         callbacks?.onError?.('Failed to parse response');
         cleanup();
-        reject(error);
+        safeReject(error instanceof Error ? error : new Error('Failed to parse response'));
       }
     };
 
     ws.onerror = () => {
       callbacks?.onError?.('WebSocket connection error');
       cleanup();
-      reject(new Error('WebSocket connection error'));
+      safeReject(new Error('WebSocket connection error'));
     };
 
     ws.onclose = () => {
@@ -286,6 +316,11 @@ export async function broadcastWithHiveAuth(
         clearTimeout(signTimeout);
         signTimeout = null;
       }
+      // Reject if the Promise hasn't been settled yet
+      if (!settled) {
+        callbacks?.onError?.('WebSocket closed before signing completed');
+        safeReject(new Error('WebSocket closed before signing completed'));
+      }
     };
 
     // Timeout after 2 minutes for signing
@@ -293,7 +328,7 @@ export async function broadcastWithHiveAuth(
       if (ws.readyState === WebSocket.OPEN) {
         callbacks?.onError?.('Signing timeout');
         cleanup();
-        reject(new Error('Signing timeout'));
+        safeReject(new Error('Signing timeout'));
       }
     }, 2 * 60 * 1000);
   });

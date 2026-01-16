@@ -136,6 +136,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             onClick={handleStop}
             className="p-1 text-theme-muted hover:text-red-500 transition-colors rounded"
             title={t('stop')}
+            aria-label={t('stop')}
           >
             <UilStopCircle className="w-4 h-4" />
           </button>
@@ -158,6 +159,7 @@ export function TextToSpeechButton({ text, title, className }: Props) {
             onClick={handleStop}
             className="p-1 text-theme-muted hover:text-red-500 transition-colors rounded"
             title={t('stop')}
+            aria-label={t('stop')}
           >
             <UilStopCircle className="w-4 h-4" />
           </button>
@@ -169,24 +171,68 @@ export function TextToSpeechButton({ text, title, className }: Props) {
 
 // Helper to split text into chunks for speech synthesis
 function splitIntoChunks(text: string, maxLength: number): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  // Match sentences with punctuation, and also capture trailing text without punctuation
+  const sentenceRegex = /[^.!?]+[.!?]+|[^.!?]+$/g;
+  const sentences = text.match(sentenceRegex) || [text];
   const chunks: string[] = [];
   let currentChunk = '';
 
+  // Helper to split a long sentence into word-boundary chunks
+  const splitLongSentence = (sentence: string): string[] => {
+    const words = sentence.split(/\s+/);
+    const subChunks: string[] = [];
+    let subChunk = '';
+
+    for (const word of words) {
+      if (subChunk.length + word.length + 1 > maxLength) {
+        if (subChunk) {
+          subChunks.push(subChunk.trim());
+        }
+        // If a single word is longer than maxLength, add it anyway
+        subChunk = word;
+      } else {
+        subChunk += (subChunk ? ' ' : '') + word;
+      }
+    }
+
+    if (subChunk) {
+      subChunks.push(subChunk.trim());
+    }
+
+    return subChunks;
+  };
+
   for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > maxLength) {
+    const trimmedSentence = sentence.trim();
+    if (!trimmedSentence) continue;
+
+    // If the sentence itself is too long, split it at word boundaries
+    if (trimmedSentence.length > maxLength) {
+      // First, flush the current chunk if any
+      if (currentChunk) {
+        chunks.push(currentChunk.trim());
+        currentChunk = '';
+      }
+      // Split the long sentence and add sub-chunks
+      const subChunks = splitLongSentence(trimmedSentence);
+      for (const subChunk of subChunks) {
+        chunks.push(subChunk);
+      }
+    } else if ((currentChunk + ' ' + trimmedSentence).length > maxLength) {
+      // Adding this sentence would exceed the limit
       if (currentChunk) {
         chunks.push(currentChunk.trim());
       }
-      currentChunk = sentence;
+      currentChunk = trimmedSentence;
     } else {
-      currentChunk += sentence;
+      currentChunk += (currentChunk ? ' ' : '') + trimmedSentence;
     }
   }
 
+  // Always push the final chunk
   if (currentChunk) {
     chunks.push(currentChunk.trim());
   }
 
-  return chunks;
+  return chunks.filter(chunk => chunk.length > 0);
 }
