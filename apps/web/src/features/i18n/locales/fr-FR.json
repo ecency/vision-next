@@ -864,6 +864,8 @@
     "muted-warning": "Ce contenu a été désactivé par les modérateurs de {{community}} car il n'a pas suivi les directives de la communauté.",
     "lowrep-warning": "L'auteur de ce contenu a une faible réputation.",
     "deleted-content-warning": "Ce contenu a été supprimé par l'auteur. Vous pouvez le voir depuis la Blockchain ",
+    "deleted-content": "Ce message a été supprimé par {{author}}",
+    "deleted-no-history": "L'historique de contenu supprimé n'est pas disponible depuis la blockchain.",
     "comments-hidden": "Vous avez mis en sourdine l'auteur de ce message.",
     "address-copy": "Copier le lien",
     "address-copied": "Lien copié dans le presse-papiers",
