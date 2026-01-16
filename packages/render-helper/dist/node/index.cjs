@@ -408,13 +408,23 @@ var matchesHref = (href, value) => {
   }
   return normalizeValue(value) === normalizedHref;
 };
-var getInlineMeta = (el, href) => {
+var normalizeDisplayText = (text2) => {
+  return text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "").replace(/\/+$/, "").toLowerCase();
+};
+var getInlineMeta = (el, href, author, permlink, communityTag) => {
   const textMatches = matchesHref(href, el.textContent);
   const titleMatches = matchesHref(href, el.getAttribute("title"));
+  const normalizedDisplay = normalizeDisplayText(el.textContent || "");
+  const normalizedTarget = `@${author}/${permlink}`.toLowerCase();
+  const expectedDisplays = /* @__PURE__ */ new Set([normalizedTarget]);
+  if (communityTag) {
+    expectedDisplays.add(`${communityTag.toLowerCase()}/${normalizedTarget}`);
+  }
+  const sophisticatedMatch = normalizedDisplay === normalizedTarget || communityTag && normalizedDisplay === `${communityTag.toLowerCase()}/${normalizedTarget}`;
   return {
     textMatches,
     titleMatches,
-    isInline: textMatches || titleMatches
+    isInline: textMatches || titleMatches || sophisticatedMatch
   };
 };
 var addLineBreakBeforePostLink = (el, forApp, isInline) => {
@@ -469,7 +479,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const author = postMatch[3].replace("@", "");
     const permlink = sanitizePermlink(postMatch[4]);
     if (!isValidPermlink(permlink)) return;
-    const inlineMeta = getInlineMeta(el, href);
+    const inlineMeta = getInlineMeta(el, href, author, permlink);
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }
@@ -547,7 +557,8 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       const author = tpostMatch[2].replace("@", "");
       const permlink = sanitizePermlink(tpostMatch[3]);
       if (!isValidPermlink(permlink)) return;
-      const inlineMeta = getInlineMeta(el, href);
+      const communityTag = tag.toLowerCase().startsWith("hive-") ? tag : void 0;
+      const inlineMeta = getInlineMeta(el, href, author, permlink, communityTag);
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
@@ -612,7 +623,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       const author = cpostMatch[1].replace("@", "");
       const permlink = sanitizePermlink(cpostMatch[2]);
       if (!isValidPermlink(permlink)) return;
-      const inlineMeta = getInlineMeta(el, href);
+      const inlineMeta = getInlineMeta(el, href, author, permlink);
       if (inlineMeta.textMatches) {
         el.textContent = `@${author}/${permlink}`;
       }
@@ -698,7 +709,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
     const author = cccMatch[2].replace("@", "");
     const permlink = sanitizePermlink(cccMatch[3]);
     if (!isValidPermlink(permlink)) return;
-    const inlineMeta = getInlineMeta(el, href);
+    const inlineMeta = getInlineMeta(el, href, author, permlink);
     if (inlineMeta.textMatches) {
       el.textContent = `@${author}/${permlink}`;
     }

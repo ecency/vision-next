@@ -10,7 +10,6 @@ export function applyWaveLikePosts(
     postLinkElements: HTMLAnchorElement[] = findPostLinkElements(container),
 ) {
     postLinkElements
-        .filter((el) => el.dataset.isInline !== "true")
         .filter((el) => isWaveLikePost(el.getAttribute("href") ?? ""))
         .forEach((el) => {
             if (el.dataset.enhanced === "true") return;

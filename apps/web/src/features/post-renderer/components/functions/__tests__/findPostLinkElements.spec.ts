@@ -9,184 +9,104 @@ describe('findPostLinkElements', () => {
     container.classList.add('markdown-view')
   })
 
-  describe('valid post links', () => {
-    it('should find basic Ecency post links', () => {
+  describe('trusts render-helper attributes', () => {
+    it('should find links marked as inline by render-helper', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/my-post'
       anchor.innerText = '@alice/my-post'
+      anchor.classList.add('markdown-post-link') // Set by render-helper
+      anchor.dataset.isInline = 'true' // Set by render-helper
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(1)
       expect(results[0]).toBe(anchor)
-      expect(anchor.classList.contains('markdown-post-link')).toBe(true)
     })
 
+    it('should skip links marked as non-inline by render-helper', () => {
+      const anchor = document.createElement('a')
+      anchor.href = 'https://ecency.com/@alice/post'
+      anchor.innerText = 'Click here to read my post' // Custom text
+      anchor.classList.add('markdown-post-link') // Set by render-helper
+      anchor.dataset.isInline = 'false' // Set by render-helper (not inline)
+      container.appendChild(anchor)
+
+      const results = findPostLinkElements(container)
+      expect(results).toHaveLength(0)
+    })
+
+    it('should skip links without markdown-post-link class', () => {
+      const anchor = document.createElement('a')
+      anchor.href = 'https://example.com/article'
+      anchor.innerText = 'External link'
+      container.appendChild(anchor)
+
+      const results = findPostLinkElements(container)
+      expect(results).toHaveLength(0)
+    })
+
+    it('should skip links without data-is-inline attribute', () => {
+      const anchor = document.createElement('a')
+      anchor.href = 'https://ecency.com/@alice/post'
+      anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
+      // No data-is-inline set
+      container.appendChild(anchor)
+
+      const results = findPostLinkElements(container)
+      expect(results).toHaveLength(0)
+    })
+  })
+
+  describe('supports different post link formats', () => {
     it('should find PeakD post links', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://peakd.com/@bob/test-post'
       anchor.innerText = '@bob/test-post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(1)
-      expect(anchor.classList.contains('markdown-post-link')).toBe(true)
     })
 
     it('should find Hive Blog post links', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://hive.blog/@charlie/another-post'
       anchor.innerText = '@charlie/another-post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(1)
-      expect(anchor.classList.contains('markdown-post-link')).toBe(true)
     })
 
     it('should find community post links', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/hive-123456/@alice/post'
       anchor.innerText = 'hive-123456/@alice/post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(1)
-      expect(anchor.classList.contains('markdown-post-link')).toBe(true)
     })
 
     it('should find links with exact URL as text', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/my-post'
       anchor.innerText = 'https://ecency.com/@alice/my-post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(1)
-    })
-
-    it('should handle relative URLs', () => {
-      const anchor = document.createElement('a')
-      anchor.href = '/@alice/my-post'
-      anchor.innerText = '@alice/my-post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(1)
-    })
-
-    it('should handle URLs with www prefix', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://www.ecency.com/@alice/post'
-      anchor.innerText = '@alice/post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(1)
-    })
-  })
-
-  describe('invalid post links', () => {
-    it('should skip links without href', () => {
-      const anchor = document.createElement('a')
-      anchor.innerText = '@alice/my-post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip links without author', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/my-post'
-      anchor.innerText = 'my-post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip links without @ prefix on author', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/alice/my-post'
-      anchor.innerText = 'alice/my-post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip comment links (hash with @)', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post#@bob/comment'
-      anchor.innerText = '@alice/post#@bob/comment'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip external links', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://example.com/@alice/post'
-      anchor.innerText = '@alice/post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip non-http protocols', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'javascript:alert("xss")'
-      anchor.innerText = '@alice/post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip links with data-isInline="true"', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post'
-      anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
       anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
+      expect(results).toHaveLength(1)
     })
 
-    it('should skip links with mismatched display text', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post'
-      anchor.innerText = 'Click here for my post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip links with too many path segments', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/a/b/c/@alice/post'
-      anchor.innerText = '@alice/post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
-
-    it('should skip links in markdown-view-pure containers', () => {
-      container.classList.add('markdown-view-pure')
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post'
-      anchor.innerText = '@alice/post'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(0)
-    })
   })
 
   describe('caching behavior', () => {
@@ -194,16 +114,21 @@ describe('findPostLinkElements', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/post'
       anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       findPostLinkElements(container)
       expect(anchor.dataset.postLinkChecked).toBe('true')
+      expect(anchor.dataset.postLinkEnhanceable).toBe('true')
     })
 
     it('should return cached results on second call', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/post'
       anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       container.appendChild(anchor)
 
       const firstResult = findPostLinkElements(container)
@@ -214,12 +139,14 @@ describe('findPostLinkElements', () => {
       expect(firstResult[0]).toBe(secondResult[0])
     })
 
-    it('should return already classified post links', () => {
+    it('should use cached result even if data-is-inline changes', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/post'
       anchor.innerText = '@alice/post'
       anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       anchor.dataset.postLinkChecked = 'true'
+      anchor.dataset.postLinkEnhanceable = 'true'
       container.appendChild(anchor)
 
       const results = findPostLinkElements(container)
@@ -228,19 +155,39 @@ describe('findPostLinkElements', () => {
     })
   })
 
+  describe('markdown-view-pure containers', () => {
+    it('should skip links in markdown-view-pure containers', () => {
+      container.classList.add('markdown-view-pure')
+      const anchor = document.createElement('a')
+      anchor.href = 'https://ecency.com/@alice/post'
+      anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
+      container.appendChild(anchor)
+
+      const results = findPostLinkElements(container)
+      expect(results).toHaveLength(0)
+    })
+  })
+
   describe('multiple links', () => {
-    it('should find multiple valid post links', () => {
+    it('should find multiple inline post links', () => {
       const anchor1 = document.createElement('a')
       anchor1.href = 'https://ecency.com/@alice/post1'
       anchor1.innerText = '@alice/post1'
+      anchor1.classList.add('markdown-post-link')
+      anchor1.dataset.isInline = 'true'
 
       const anchor2 = document.createElement('a')
       anchor2.href = 'https://ecency.com/@bob/post2'
       anchor2.innerText = '@bob/post2'
+      anchor2.classList.add('markdown-post-link')
+      anchor2.dataset.isInline = 'true'
 
       const anchor3 = document.createElement('a')
       anchor3.href = 'https://example.com/not-a-post'
       anchor3.innerText = 'External link'
+      // No markdown-post-link class - not a post link
 
       container.appendChild(anchor1)
       container.appendChild(anchor2)
@@ -252,37 +199,27 @@ describe('findPostLinkElements', () => {
       expect(results).toContain(anchor2)
       expect(results).not.toContain(anchor3)
     })
-  })
 
-  describe('URL normalization', () => {
-    it('should handle URLs with query parameters', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post?ref=twitter'
-      anchor.innerText = 'https://ecency.com/@alice/post?ref=twitter'
-      container.appendChild(anchor)
+    it('should filter out non-inline post links', () => {
+      const inlineLink = document.createElement('a')
+      inlineLink.href = 'https://ecency.com/@alice/post1'
+      inlineLink.innerText = '@alice/post1'
+      inlineLink.classList.add('markdown-post-link')
+      inlineLink.dataset.isInline = 'true'
 
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(1)
-    })
+      const nonInlineLink = document.createElement('a')
+      nonInlineLink.href = 'https://ecency.com/@bob/post2'
+      nonInlineLink.innerText = 'Check out this post!'
+      nonInlineLink.classList.add('markdown-post-link')
+      nonInlineLink.dataset.isInline = 'false'
 
-    it('should handle URLs with encoded characters', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post-with%20space'
-      anchor.innerText = '@alice/post-with space'
-      container.appendChild(anchor)
+      container.appendChild(inlineLink)
+      container.appendChild(nonInlineLink)
 
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(1)
-    })
-
-    it('should handle URLs with trailing slashes', () => {
-      const anchor = document.createElement('a')
-      anchor.href = 'https://ecency.com/@alice/post/'
-      anchor.innerText = 'https://ecency.com/@alice/post/'
-      container.appendChild(anchor)
-
-      const results = findPostLinkElements(container)
-      expect(results).toHaveLength(1)
+      expect(results).toContain(inlineLink)
+      expect(results).not.toContain(nonInlineLink)
     })
   })
 
@@ -292,8 +229,8 @@ describe('findPostLinkElements', () => {
       expect(results).toHaveLength(0)
     })
 
-    it('should handle container with no anchors', () => {
-      container.innerHTML = '<div>Some text</div><p>More text</p>'
+    it('should handle container with no post links', () => {
+      container.innerHTML = '<div>Some text</div><p>More text</p><a href="https://example.com">External</a>'
       const results = findPostLinkElements(container)
       expect(results).toHaveLength(0)
     })
@@ -303,6 +240,8 @@ describe('findPostLinkElements', () => {
       const anchor = document.createElement('a')
       anchor.href = 'https://ecency.com/@alice/post'
       anchor.innerText = '@alice/post'
+      anchor.classList.add('markdown-post-link')
+      anchor.dataset.isInline = 'true'
       wrapper.appendChild(anchor)
       container.appendChild(wrapper)
 
