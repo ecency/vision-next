@@ -8,6 +8,9 @@ const MATTERMOST_ADMIN_TOKEN = process.env.MATTERMOST_ADMIN_TOKEN;
 const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
+export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
+
+export type DmPrivacyLevel = "all" | "followers" | "none";
 
 export interface MattermostUser {
   id: string;
@@ -352,6 +355,14 @@ export function isUserChatBanned(user: Pick<MattermostUserWithProps, "props">) {
   return expiration;
 }
 
+export function getUserDmPrivacy(user: Pick<MattermostUserWithProps, "props">): DmPrivacyLevel {
+  const dmPrivacy = user.props?.[CHAT_DM_PRIVACY_PROP];
+  if (dmPrivacy === "followers" || dmPrivacy === "none") {
+    return dmPrivacy;
+  }
+  return "all"; // default: allow all DMs
+}
+
 async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
   const teamId = getMattermostTeamId();
 
@@ -427,4 +438,23 @@ export async function banMattermostUserForHoursAsAdmin(username: string, hours: 
   });
 
   return { user: targetUser, bannedUntil: expiration } as const;
+}
+
+export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  if (privacy === "all") {
+    delete props[CHAT_DM_PRIVACY_PROP];
+  } else {
+    props[CHAT_DM_PRIVACY_PROP] = privacy;
+  }
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return privacy;
 }
