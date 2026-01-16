@@ -13,16 +13,45 @@ import { Logo } from "../icons";
 
 export function WaveLikePostRenderer({ link }: { link: string }) {
   const [author, permlink] = useMemo(() => {
-    const [_, __, ___, username, perm] = new URL(
-      link,
-      "https://ecency.com",
-    ).pathname.split("/");
-    return [username.replace("@", ""), perm];
+    try {
+      const pathname = new URL(link, "https://ecency.com").pathname;
+      const segments = pathname.split("/").filter((seg) => seg.length > 0);
+
+      // Find the index of the username segment (starts with @)
+      const usernameIndex = segments.findIndex((seg) => seg.startsWith("@"));
+
+      if (usernameIndex === -1) {
+        // No @ segment found, try to find after "waves" prefix
+        const wavesIndex = segments.findIndex((seg) => seg === "waves");
+        if (wavesIndex !== -1 && segments.length > wavesIndex + 2) {
+          const username = segments[wavesIndex + 1];
+          const perm = segments[wavesIndex + 2];
+          return [username.replace("@", ""), perm];
+        }
+        console.warn(`[WaveLikePost] Could not parse author from link: ${link}`);
+        return [null, null];
+      }
+
+      // Extract author (strip @) and permlink (next segment)
+      const username = segments[usernameIndex];
+      const perm = segments[usernameIndex + 1];
+
+      if (!username || !perm) {
+        console.warn(`[WaveLikePost] Missing author or permlink in link: ${link}`);
+        return [null, null];
+      }
+
+      return [username.replace("@", ""), perm];
+    } catch (error) {
+      console.error(`[WaveLikePost] Failed to parse link: ${link}`, error);
+      return [null, null];
+    }
   }, [link]);
 
   const { data: post } = useQuery({
-    ...getPostQueryOptions(author, permlink),
-    queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", author, permlink)],
+    ...getPostQueryOptions(author ?? "", permlink ?? ""),
+    queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", author ?? "", permlink ?? "")],
+    enabled: !!author && !!permlink,
   });
 
   const host = useMemo(() => {
@@ -44,7 +73,8 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
     return "";
   }, [post]);
 
-  if (!post) {
+  // Return early if link parsing failed or post not loaded
+  if (!author || !permlink || !post) {
     return <></>;
   }
 
