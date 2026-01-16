@@ -26,7 +26,14 @@ type TranslationKey =
   | 'votes'
   | 'discussion'
   | 'readTime'
-  | 'minRead';
+  | 'minRead'
+  | 'login'
+  | 'logout'
+  | 'login_to_comment'
+  | 'write_comment'
+  | 'posting'
+  | 'post_comment'
+  | 'create_post';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -57,6 +64,13 @@ const translations: Record<string, Translations> = {
     discussion: 'Discussion',
     readTime: 'read',
     minRead: 'min read',
+    login: 'Login',
+    logout: 'Logout',
+    login_to_comment: 'Login to leave a comment',
+    write_comment: 'Write a comment...',
+    posting: 'Posting...',
+    post_comment: 'Post Comment',
+    create_post: 'Create Post',
   },
   es: {
     loading: 'Cargando...',
@@ -84,6 +98,13 @@ const translations: Record<string, Translations> = {
     discussion: 'Discusión',
     readTime: 'lectura',
     minRead: 'min de lectura',
+    login: 'Iniciar sesión',
+    logout: 'Cerrar sesión',
+    login_to_comment: 'Inicia sesión para comentar',
+    write_comment: 'Escribe un comentario...',
+    posting: 'Publicando...',
+    post_comment: 'Publicar comentario',
+    create_post: 'Crear publicación',
   },
   de: {
     loading: 'Lädt...',
@@ -111,6 +132,13 @@ const translations: Record<string, Translations> = {
     discussion: 'Diskussion',
     readTime: 'Lesezeit',
     minRead: 'Min. Lesezeit',
+    login: 'Anmelden',
+    logout: 'Abmelden',
+    login_to_comment: 'Melden Sie sich an, um zu kommentieren',
+    write_comment: 'Schreibe einen Kommentar...',
+    posting: 'Wird gepostet...',
+    post_comment: 'Kommentar posten',
+    create_post: 'Beitrag erstellen',
   },
   fr: {
     loading: 'Chargement...',
@@ -138,6 +166,13 @@ const translations: Record<string, Translations> = {
     discussion: 'Discussion',
     readTime: 'lecture',
     minRead: 'min de lecture',
+    login: 'Connexion',
+    logout: 'Déconnexion',
+    login_to_comment: 'Connectez-vous pour commenter',
+    write_comment: 'Écrire un commentaire...',
+    posting: 'Publication...',
+    post_comment: 'Publier le commentaire',
+    create_post: 'Créer un article',
   },
   ko: {
     loading: '로딩 중...',
@@ -165,6 +200,13 @@ const translations: Record<string, Translations> = {
     discussion: '토론',
     readTime: '읽기',
     minRead: '분 읽기',
+    login: '로그인',
+    logout: '로그아웃',
+    login_to_comment: '댓글을 남기려면 로그인하세요',
+    write_comment: '댓글 작성...',
+    posting: '게시 중...',
+    post_comment: '댓글 게시',
+    create_post: '게시물 작성',
   },
   ru: {
     loading: 'Загрузка...',
@@ -192,6 +234,13 @@ const translations: Record<string, Translations> = {
     discussion: 'Обсуждение',
     readTime: 'чтение',
     minRead: 'мин чтения',
+    login: 'Вход',
+    logout: 'Выход',
+    login_to_comment: 'Войдите, чтобы оставить комментарий',
+    write_comment: 'Написать комментарий...',
+    posting: 'Публикация...',
+    post_comment: 'Опубликовать',
+    create_post: 'Создать пост',
   },
 };
 

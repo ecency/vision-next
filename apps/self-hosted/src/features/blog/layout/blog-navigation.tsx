@@ -4,6 +4,7 @@ import { Link, useLocation } from '@tanstack/react-router';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { InstanceConfigManager } from '@/core';
+import { UserMenu, CreatePostButton } from '@/features/auth';
 
 export function BlogNavigation() {
   const location = useLocation();
@@ -44,17 +45,23 @@ export function BlogNavigation() {
 
   return (
     <div className="max-w-3xl mx-auto border-b border-theme pb-3 sm:pb-4 mb-6 sm:mb-8">
-      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-        {blogLogo && (
-          <img
-            src={blogLogo}
-            alt={blogTitle}
-            className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
-          />
-        )}
-        <h1 className="text-xl sm:text-2xl font-bold heading-theme">
-          {blogTitle}
-        </h1>
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
+          {blogLogo && (
+            <img
+              src={blogLogo}
+              alt={blogTitle}
+              className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+            />
+          )}
+          <h1 className="text-xl sm:text-2xl font-bold heading-theme">
+            {blogTitle}
+          </h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <CreatePostButton />
+          <UserMenu />
+        </div>
       </div>
 
       <nav className="flex gap-4 sm:gap-6 pt-3 sm:pt-4 overflow-x-auto">

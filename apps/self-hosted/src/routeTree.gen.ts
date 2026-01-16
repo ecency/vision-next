@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as BlogRouteRouteImport } from './routes/blog/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthorPermlinkRouteImport } from './routes/$author.$permlink'
 import { Route as CategoryAuthorPermlinkRouteImport } from './routes/$category.$author.$permlink'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogRouteRoute = BlogRouteRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -38,12 +44,14 @@ const CategoryAuthorPermlinkRoute = CategoryAuthorPermlinkRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/login': typeof LoginRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/login': typeof LoginRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
 }
@@ -51,6 +59,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/login': typeof LoginRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
 }
@@ -59,14 +68,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/blog'
+    | '/login'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/blog' | '/$author/$permlink' | '/$category/$author/$permlink'
+  to:
+    | '/'
+    | '/blog'
+    | '/login'
+    | '/$author/$permlink'
+    | '/$category/$author/$permlink'
   id:
     | '__root__'
     | '/'
     | '/blog'
+    | '/login'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
   fileRoutesById: FileRoutesById
@@ -74,12 +90,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BlogRouteRoute: typeof BlogRouteRoute
+  LoginRoute: typeof LoginRoute
   AuthorPermlinkRoute: typeof AuthorPermlinkRoute
   CategoryAuthorPermlinkRoute: typeof CategoryAuthorPermlinkRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog': {
       id: '/blog'
       path: '/blog'
@@ -114,6 +138,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BlogRouteRoute: BlogRouteRoute,
+  LoginRoute: LoginRoute,
   AuthorPermlinkRoute: AuthorPermlinkRoute,
   CategoryAuthorPermlinkRoute: CategoryAuthorPermlinkRoute,
 }

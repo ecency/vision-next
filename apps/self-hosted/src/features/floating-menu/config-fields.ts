@@ -291,6 +291,22 @@ export const configFieldsMap: Record<string, ConfigField> = {
                   },
                 },
               },
+              auth: {
+                label: 'Authentication',
+                type: 'section',
+                fields: {
+                  enabled: {
+                    label: 'Enabled',
+                    type: 'boolean',
+                    description: 'Enable user authentication for interactions',
+                  },
+                  methods: {
+                    label: 'Auth Methods',
+                    type: 'array',
+                    description: 'Available login methods: keychain, hivesigner, hiveauth',
+                  },
+                },
+              },
             },
           },
         },

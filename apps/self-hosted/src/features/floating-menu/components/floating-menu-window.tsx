@@ -11,6 +11,8 @@ interface OriginalState {
   styleTemplate: string;
   sidebarPlacement: string;
   backgroundClasses: string[];
+  pageTitle: string;
+  language: string;
 }
 
 function applyPreviewConfig(config: Record<string, ConfigValue>) {
@@ -41,6 +43,11 @@ function applyPreviewConfig(config: Record<string, ConfigValue>) {
   const styleTemplate = (general.styleTemplate as string) || 'medium';
   document.documentElement.setAttribute('data-style-template', styleTemplate);
 
+  // Apply language
+  const language = (general.language as string) || 'en';
+  document.documentElement.setAttribute('lang', language);
+  document.documentElement.setAttribute('data-language', language);
+
   // Apply sidebar placement
   const layout = instanceConfiguration?.layout as Record<string, ConfigValue>;
   const sidebar = layout?.sidebar as Record<string, ConfigValue>;
@@ -49,6 +56,17 @@ function applyPreviewConfig(config: Record<string, ConfigValue>) {
     'data-sidebar-placement',
     sidebarPlacement,
   );
+
+  // Apply list type
+  const listType = (layout?.listType as string) || 'grid';
+  document.documentElement.setAttribute('data-list-type', listType);
+
+  // Apply meta title to page
+  const meta = instanceConfiguration?.meta as Record<string, ConfigValue>;
+  const title = (meta?.title as string) || '';
+  if (title) {
+    document.title = title;
+  }
 
   // Apply background styles
   const styles = general.styles as Record<string, ConfigValue>;
@@ -84,6 +102,13 @@ function restoreOriginalState(original: OriginalState) {
     'data-sidebar-placement',
     original.sidebarPlacement,
   );
+
+  // Restore language
+  document.documentElement.setAttribute('lang', original.language);
+  document.documentElement.setAttribute('data-language', original.language);
+
+  // Restore page title
+  document.title = original.pageTitle;
 
   // Restore background classes
   const bodyClasses = Array.from(document.body.classList);
@@ -139,6 +164,8 @@ export function FloatingMenuWindow({
               c.startsWith('from-') ||
               c.startsWith('to-'),
           ),
+          pageTitle: document.title,
+          language: document.documentElement.getAttribute('lang') || 'en',
         };
         applyPreviewConfig(config);
       } else {

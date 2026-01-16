@@ -1,9 +1,10 @@
 'use client';
 
 import type { Entry } from '@ecency/sdk';
-import { UilComment, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
+import { UilComment, UilRedo } from '@tooni/iconscout-unicons-react';
 import { useMemo } from 'react';
 import { InstanceConfigManager, t } from '@/core';
+import { VoteButton } from '@/features/auth';
 
 interface Props {
   entry: Entry;
@@ -19,11 +20,6 @@ export function BlogPostFooter({ entry }: Props) {
   const showComments = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
       configuration.instanceConfiguration.features.comments?.enabled ?? true,
-  );
-
-  const likesCount = useMemo(
-    () => entryData.active_votes?.length || 0,
-    [entryData],
   );
 
   const commentsCount = entryData.children || 0;
@@ -55,12 +51,11 @@ export function BlogPostFooter({ entry }: Props) {
 
       <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm text-theme-muted font-theme-ui">
         {showLikes && (
-          <div className="flex items-center gap-1">
-            <UilHeart className="w-4 h-4" />
-            <span>
-              {likesCount} {t('likes')}
-            </span>
-          </div>
+          <VoteButton
+            author={entryData.author}
+            permlink={entryData.permlink}
+            activeVotes={entryData.active_votes || []}
+          />
         )}
         {showComments && (
           <div className="flex items-center gap-1">

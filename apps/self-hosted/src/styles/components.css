@@ -22,6 +22,10 @@
 }
 
 /* Background Colors */
+.bg-theme {
+  background-color: var(--theme-bg-primary);
+}
+
 .bg-theme-primary {
   background-color: var(--theme-bg-primary);
 }
@@ -36,6 +40,14 @@
 
 .bg-theme-card {
   background-color: var(--theme-bg-card);
+}
+
+.bg-theme-hover {
+  background-color: var(--theme-bg-secondary);
+}
+
+.hover\:bg-theme-hover:hover {
+  background-color: var(--theme-bg-tertiary);
 }
 
 /* Font Families */
@@ -191,6 +203,59 @@
 /* Article content max-width */
 .content-width-theme {
   max-width: var(--theme-content-width);
+}
+
+/* Form Input Styles */
+.input-theme {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-radius);
+}
+
+.input-theme:focus {
+  outline: none;
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.input-theme::placeholder {
+  color: var(--theme-text-muted);
+}
+
+/* Focus Ring */
+.focus-ring-theme:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-accent);
+}
+
+/* List Type - controlled via data-list-type attribute */
+.blog-posts-list {
+  width: 100%;
+}
+
+[data-list-type="list"] .blog-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+[data-list-type="grid"] .blog-posts-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  [data-list-type="grid"] .blog-posts-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-list-type="grid"] .blog-posts-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Sidebar Placement - controlled via data-sidebar-placement attribute */

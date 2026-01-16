@@ -58,6 +58,13 @@ document.documentElement.setAttribute(
   sidebarPlacement,
 );
 
+// Apply list type
+const listType = InstanceConfigManager.getConfigValue(
+  ({ configuration }) =>
+    configuration.instanceConfiguration.layout.listType ?? 'grid',
+);
+document.documentElement.setAttribute('data-list-type', listType);
+
 // Listen for system theme changes when theme is set to "system"
 if (configuredTheme === 'system') {
   window

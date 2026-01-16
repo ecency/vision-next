@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { UilComment } from '@tooni/iconscout-unicons-react';
 import { useMemo, useState } from 'react';
 import { BlogDiscussionList } from './blog-discussion-list';
+import { CommentForm } from '@/features/auth';
 
 interface Props {
   entry: Entry;
@@ -97,6 +98,11 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
   if (isLoading) {
     return (
       <div className="mb-8">
+        <CommentForm
+          parentAuthor={entryData.author}
+          parentPermlink={entryData.permlink}
+          className="mb-6"
+        />
         <div className="text-center py-8 text-theme-muted">
           Loading comments...
         </div>
@@ -107,8 +113,13 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
   if (topLevelComments.length === 0) {
     return (
       <div className="mb-8">
+        <CommentForm
+          parentAuthor={entryData.author}
+          parentPermlink={entryData.permlink}
+          className="mb-6"
+        />
         <div className="text-center py-8 text-theme-muted">
-          No comments yet.
+          No comments yet. Be the first to comment!
         </div>
       </div>
     );
@@ -116,6 +127,12 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
 
   return (
     <div className="mb-6 sm:mb-8">
+      <CommentForm
+        parentAuthor={entryData.author}
+        parentPermlink={entryData.permlink}
+        className="mb-6"
+      />
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-theme">
         <div className="flex items-center gap-2">
           <UilComment className="w-4 h-4 sm:w-5 sm:h-5 text-theme-muted" />

@@ -2,7 +2,6 @@
 
 import { getAccountPostsInfiniteQueryOptions } from '@ecency/sdk';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import clsx from 'clsx';
 import { useEffect, useRef } from 'react';
 import { InstanceConfigManager, t } from '@/core';
 import { BlogPostItem } from './blog-post-item';
@@ -16,9 +15,6 @@ interface Props {
 export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
   const username = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.username,
-  );
-  const listType = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.layout.listType,
   );
 
   const {
@@ -43,14 +39,7 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
   }, [data.length]);
 
   return (
-    <div
-      className={clsx(
-        'w-full',
-        listType === 'list' && 'flex flex-col gap-4',
-        listType === 'grid' &&
-          'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
-      )}
-    >
+    <div className="blog-posts-list">
       {data.length === 0 && !isFetching && (
         <div className="text-center py-12 text-theme-muted">{t('noPosts')}</div>
       )}
