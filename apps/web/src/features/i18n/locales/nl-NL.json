@@ -1077,7 +1077,9 @@
     "go-community": "Gemeenschap pagina",
     "com-mod": "Moderator van deze gemeenschappen",
     "empty-communities": "Geen gemeenschappen hier",
-    "empty-communities-hint": "Gebruiker is nog geen lid van een gemeenschap. Word lid van een van de gemeenschappen of maak je eigen"
+    "empty-communities-hint": "Gebruiker is nog geen lid van een gemeenschap. Word lid van een van de gemeenschappen of maak je eigen",
+    "dm-followers-only": "DMs: alleen volgers",
+    "dm-disabled": "DMs: uitgeschakeld"
   },
   "profile-info": {
     "joined": "Aangesloten",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Sleutels & machtigingen",
     "permissions-hint": "Beheer uw sleutels, beheer machtigingen over applicaties",
     "permissions": "Open permissies"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacy directe berichten",
+      "who-can-message": "Wie kan je privéberichten sturen?",
+      "description": "Bepaal wie u rechtstreeks berichten kan sturen om spam en phishing pogingen te voorkomen.",
+      "allow-all": "Iedereen",
+      "followers-only": "Alleen mensen die ik volg",
+      "no-one": "Niemand (DMs) uitschakelen"
+    },
+    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt"
   },
   "wallet": {
     "unclaimed-rewards": "Niet opgeëiste beloningen",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Taal van doel",
     "pinned-messages": "Vastgezette berichten",
     "pin-message": "Bericht vastmaken",
-    "unpin-message": "Bericht losmaken"
+    "unpin-message": "Bericht losmaken",
+    "dm-not-allowed": "@{{username}} accepteert geen berichten van jou",
+    "dm-followers-only": "Accepteert DM's alleen van mensen die ze volgen",
+    "dm-disabled": "Heeft privéberichten uitgeschakeld"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
