@@ -1,7 +1,6 @@
 {
   "version": 1,
   "configuration": {
-    "instanceType": "ecency/blog",
     "general": {
       "theme": "system",
       "styleTemplate": "medium",
@@ -15,7 +14,9 @@
       }
     },
     "instanceConfiguration": {
+      "type": "blog",
       "username": "ecency",
+      "communityId": "",
       "meta": {
         "title": "My Blog",
         "description": "My Blog Description",
@@ -43,13 +44,7 @@
       },
       "features": {
         "postsFilters": ["blog", "posts", "comments", "replies"],
-        "communities": {
-          "enabled": true
-        },
         "likes": {
-          "enabled": true
-        },
-        "wallet": {
           "enabled": true
         },
         "comments": {
@@ -59,6 +54,10 @@
           "text2Speeech": {
             "enabled": true
           }
+        },
+        "auth": {
+          "enabled": true,
+          "methods": ["keychain", "hivesigner", "hiveauth"]
         }
       }
     }

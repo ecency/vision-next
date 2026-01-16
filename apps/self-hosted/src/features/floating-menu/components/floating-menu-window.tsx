@@ -13,6 +13,10 @@ interface OriginalState {
   backgroundClasses: string[];
   pageTitle: string;
   language: string;
+  instanceType: string;
+  showFollowers: string;
+  showFollowing: string;
+  showHiveInfo: string;
 }
 
 function applyPreviewConfig(config: Record<string, ConfigValue>) {
@@ -85,6 +89,28 @@ function applyPreviewConfig(config: Record<string, ConfigValue>) {
       if (className) document.body.classList.add(className);
     }
   }
+
+  // Apply instance type
+  const instanceType = (instanceConfiguration?.type as string) || 'blog';
+  document.documentElement.setAttribute('data-instance-type', instanceType);
+
+  // Apply sidebar section visibility
+  const followers = sidebar?.followers as Record<string, ConfigValue>;
+  const following = sidebar?.following as Record<string, ConfigValue>;
+  const hiveInfo = sidebar?.hiveInformation as Record<string, ConfigValue>;
+
+  document.documentElement.setAttribute(
+    'data-show-followers',
+    followers?.enabled !== false ? 'true' : 'false',
+  );
+  document.documentElement.setAttribute(
+    'data-show-following',
+    following?.enabled !== false ? 'true' : 'false',
+  );
+  document.documentElement.setAttribute(
+    'data-show-hive-info',
+    hiveInfo?.enabled !== false ? 'true' : 'false',
+  );
 }
 
 function restoreOriginalState(original: OriginalState) {
@@ -120,6 +146,14 @@ function restoreOriginalState(original: OriginalState) {
   for (const c of original.backgroundClasses) {
     document.body.classList.add(c);
   }
+
+  // Restore instance type
+  document.documentElement.setAttribute('data-instance-type', original.instanceType);
+
+  // Restore sidebar section visibility
+  document.documentElement.setAttribute('data-show-followers', original.showFollowers);
+  document.documentElement.setAttribute('data-show-following', original.showFollowing);
+  document.documentElement.setAttribute('data-show-hive-info', original.showHiveInfo);
 }
 
 interface FloatingMenuWindowProps {
@@ -138,7 +172,23 @@ export function FloatingMenuWindow({
   const originalStateRef = useRef<OriginalState | null>(null);
 
   const handleUpdate = useCallback((path: string, value: ConfigValue) => {
-    setConfig((prev) => updateNestedPath(prev, path, value));
+    setConfig((prev) => {
+      let updated = updateNestedPath(prev, path, value);
+
+      // Auto-fill postsFilters when instance type changes
+      if (path === 'configuration.instanceConfiguration.type') {
+        const blogFilters = ['blog', 'posts', 'comments', 'replies'];
+        const communityFilters = ['trending', 'hot', 'new'];
+        const filters = value === 'community' ? communityFilters : blogFilters;
+        updated = updateNestedPath(
+          updated,
+          'configuration.instanceConfiguration.features.postsFilters',
+          filters,
+        );
+      }
+
+      return updated;
+    });
   }, []);
 
   const handleDownload = useCallback(() => {
@@ -166,6 +216,14 @@ export function FloatingMenuWindow({
           ),
           pageTitle: document.title,
           language: document.documentElement.getAttribute('lang') || 'en',
+          instanceType:
+            document.documentElement.getAttribute('data-instance-type') || 'blog',
+          showFollowers:
+            document.documentElement.getAttribute('data-show-followers') || 'true',
+          showFollowing:
+            document.documentElement.getAttribute('data-show-following') || 'true',
+          showHiveInfo:
+            document.documentElement.getAttribute('data-show-hive-info') || 'true',
         };
         applyPreviewConfig(config);
       } else {

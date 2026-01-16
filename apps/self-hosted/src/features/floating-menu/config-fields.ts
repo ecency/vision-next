@@ -24,97 +24,28 @@ export const configFieldsMap: Record<string, ConfigField> = {
     label: 'Configuration',
     type: 'section',
     fields: {
-      instanceType: {
-        label: 'Instance Type',
-        type: 'string',
-        description: 'Type of instance (e.g., ecency/blog)',
-      },
-      general: {
-        label: 'General Settings',
-        type: 'section',
-        fields: {
-          theme: {
-            label: 'Theme',
-            type: 'select',
-            description: 'Theme setting (system, light, dark)',
-            options: [
-              { value: 'system', label: 'System' },
-              { value: 'light', label: 'Light' },
-              { value: 'dark', label: 'Dark' },
-            ],
-          },
-          styleTemplate: {
-            label: 'Style Template',
-            type: 'select',
-            description: 'Visual style template for the blog',
-            options: [
-              { value: 'medium', label: 'Medium (Editorial)' },
-              { value: 'minimal', label: 'Minimal (Clean)' },
-              { value: 'magazine', label: 'Magazine (Editorial)' },
-              { value: 'developer', label: 'Developer (Tech)' },
-              { value: 'modern-gradient', label: 'Modern Gradient' },
-            ],
-          },
-          language: {
-            label: 'Language',
-            type: 'select',
-            description: 'Default language',
-            options: [
-              { value: 'en', label: 'English' },
-              { value: 'es', label: 'Spanish' },
-              { value: 'de', label: 'German' },
-              { value: 'fr', label: 'French' },
-              { value: 'ko', label: 'Korean' },
-              { value: 'ru', label: 'Russian' },
-              { value: 'pt', label: 'Portuguese' },
-              { value: 'ja', label: 'Japanese' },
-              { value: 'zh', label: 'Chinese' },
-              { value: 'it', label: 'Italian' },
-              { value: 'pl', label: 'Polish' },
-              { value: 'tr', label: 'Turkish' },
-            ],
-          },
-          timezone: {
-            label: 'Timezone',
-            type: 'string',
-            description: 'Default timezone',
-          },
-          dateFormat: {
-            label: 'Date Format',
-            type: 'string',
-            description: 'Date format pattern',
-          },
-          timeFormat: {
-            label: 'Time Format',
-            type: 'string',
-            description: 'Time format pattern',
-          },
-          dateTimeFormat: {
-            label: 'Date Time Format',
-            type: 'string',
-            description: 'Date and time format pattern',
-          },
-          styles: {
-            label: 'Styles',
-            type: 'section',
-            fields: {
-              background: {
-                label: 'Background',
-                type: 'string',
-                description: 'CSS classes for background styling',
-              },
-            },
-          },
-        },
-      },
       instanceConfiguration: {
         label: 'Instance Configuration',
         type: 'section',
         fields: {
+          type: {
+            label: 'Instance Type',
+            type: 'select',
+            description: 'Blog (personal) or Community mode',
+            options: [
+              { value: 'blog', label: 'Blog (Personal)' },
+              { value: 'community', label: 'Community' },
+            ],
+          },
           username: {
             label: 'Username',
             type: 'string',
-            description: 'Instance username',
+            description: 'Blog owner username (for blog mode)',
+          },
+          communityId: {
+            label: 'Community ID',
+            type: 'string',
+            description: 'Hive community ID (e.g., hive-123456) for community mode',
           },
           meta: {
             label: 'Meta Information',
@@ -228,18 +159,7 @@ export const configFieldsMap: Record<string, ConfigField> = {
               postsFilters: {
                 label: 'Post Filters',
                 type: 'array',
-                description: 'Available post filter types',
-              },
-              communities: {
-                label: 'Communities',
-                type: 'section',
-                fields: {
-                  enabled: {
-                    label: 'Enabled',
-                    type: 'boolean',
-                    description: 'Enable communities feature',
-                  },
-                },
+                description: 'Available post filter types (blog: blog, posts, comments, replies | community: trending, hot, created)',
               },
               likes: {
                 label: 'Likes',
@@ -249,17 +169,6 @@ export const configFieldsMap: Record<string, ConfigField> = {
                     label: 'Enabled',
                     type: 'boolean',
                     description: 'Enable likes feature',
-                  },
-                },
-              },
-              wallet: {
-                label: 'Wallet',
-                type: 'section',
-                fields: {
-                  enabled: {
-                    label: 'Enabled',
-                    type: 'boolean',
-                    description: 'Enable wallet feature',
                   },
                 },
               },
@@ -306,6 +215,84 @@ export const configFieldsMap: Record<string, ConfigField> = {
                     description: 'Available login methods: keychain, hivesigner, hiveauth',
                   },
                 },
+              },
+            },
+          },
+        },
+      },
+      general: {
+        label: 'General Settings',
+        type: 'section',
+        fields: {
+          theme: {
+            label: 'Theme',
+            type: 'select',
+            description: 'Theme setting (system, light, dark)',
+            options: [
+              { value: 'system', label: 'System' },
+              { value: 'light', label: 'Light' },
+              { value: 'dark', label: 'Dark' },
+            ],
+          },
+          styleTemplate: {
+            label: 'Style Template',
+            type: 'select',
+            description: 'Visual style template for the blog',
+            options: [
+              { value: 'medium', label: 'Medium (Editorial)' },
+              { value: 'minimal', label: 'Minimal (Clean)' },
+              { value: 'magazine', label: 'Magazine (Editorial)' },
+              { value: 'developer', label: 'Developer (Tech)' },
+              { value: 'modern-gradient', label: 'Modern Gradient' },
+            ],
+          },
+          language: {
+            label: 'Language',
+            type: 'select',
+            description: 'Default language',
+            options: [
+              { value: 'en', label: 'English' },
+              { value: 'es', label: 'Spanish' },
+              { value: 'de', label: 'German' },
+              { value: 'fr', label: 'French' },
+              { value: 'ko', label: 'Korean' },
+              { value: 'ru', label: 'Russian' },
+              { value: 'pt', label: 'Portuguese' },
+              { value: 'ja', label: 'Japanese' },
+              { value: 'zh', label: 'Chinese' },
+              { value: 'it', label: 'Italian' },
+              { value: 'pl', label: 'Polish' },
+              { value: 'tr', label: 'Turkish' },
+            ],
+          },
+          timezone: {
+            label: 'Timezone',
+            type: 'string',
+            description: 'Default timezone',
+          },
+          dateFormat: {
+            label: 'Date Format',
+            type: 'string',
+            description: 'Date format pattern',
+          },
+          timeFormat: {
+            label: 'Time Format',
+            type: 'string',
+            description: 'Time format pattern',
+          },
+          dateTimeFormat: {
+            label: 'Date Time Format',
+            type: 'string',
+            description: 'Date and time format pattern',
+          },
+          styles: {
+            label: 'Styles',
+            type: 'section',
+            fields: {
+              background: {
+                label: 'Background',
+                type: 'string',
+                description: 'CSS classes for background styling',
               },
             },
           },

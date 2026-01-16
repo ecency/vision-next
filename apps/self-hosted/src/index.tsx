@@ -65,6 +65,30 @@ const listType = InstanceConfigManager.getConfigValue(
 );
 document.documentElement.setAttribute('data-list-type', listType);
 
+// Apply instance type
+const instanceType = InstanceConfigManager.getConfigValue(
+  ({ configuration }) =>
+    (configuration.instanceConfiguration.type as string) ?? 'blog',
+);
+document.documentElement.setAttribute('data-instance-type', instanceType);
+
+// Apply sidebar section visibility
+const sidebarConfig = InstanceConfigManager.getConfigValue(
+  ({ configuration }) => configuration.instanceConfiguration.layout.sidebar,
+);
+document.documentElement.setAttribute(
+  'data-show-followers',
+  sidebarConfig.followers?.enabled !== false ? 'true' : 'false',
+);
+document.documentElement.setAttribute(
+  'data-show-following',
+  sidebarConfig.following?.enabled !== false ? 'true' : 'false',
+);
+document.documentElement.setAttribute(
+  'data-show-hive-info',
+  sidebarConfig.hiveInformation?.enabled !== false ? 'true' : 'false',
+);
+
 // Listen for system theme changes when theme is set to "system"
 if (configuredTheme === 'system') {
   window

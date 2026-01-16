@@ -3,29 +3,49 @@
 import { getAccountPostsInfiniteQueryOptions } from '@ecency/sdk';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { InstanceConfigManager, t } from '@/core';
+import { t } from '@/core';
 import { BlogPostItem } from './blog-post-item';
 import { DetectBottom } from './detect-bottom';
+import { useInstanceConfig } from '../hooks/use-instance-config';
+import { getCommunityPostsInfiniteQueryOptions } from '../queries/community-queries';
 
 interface Props {
   filter?: string;
   limit?: number;
 }
 
-export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
-  const username = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.username,
-  );
+// Map blog filters to community sort options
+const communityFilterMap: Record<string, string> = {
+  posts: 'created',
+  blog: 'created',
+  trending: 'trending',
+  hot: 'hot',
+  new: 'created',
+  payout: 'payout',
+  muted: 'muted',
+};
 
-  const {
-    data = [],
-    fetchNextPage,
-    isFetching,
-    hasNextPage,
-  } = useInfiniteQuery({
+export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
+  const { username, communityId, isCommunityMode } = useInstanceConfig();
+
+  // Use different query based on instance type
+  const communitySort = communityFilterMap[filter] || 'created';
+
+  const blogQuery = useInfiniteQuery({
     ...getAccountPostsInfiniteQueryOptions(username, filter, limit),
     select: (data) => data.pages.flat(),
+    enabled: !isCommunityMode,
   });
+
+  const communityQuery = useInfiniteQuery({
+    ...getCommunityPostsInfiniteQueryOptions(communityId, communitySort, limit),
+    select: (data) => data.pages.flat(),
+    enabled: isCommunityMode,
+  });
+
+  const { data = [], fetchNextPage, isFetching, hasNextPage } = isCommunityMode
+    ? communityQuery
+    : blogQuery;
 
   const previousLengthRef = useRef(0);
 

@@ -33,7 +33,14 @@ type TranslationKey =
   | 'write_comment'
   | 'posting'
   | 'post_comment'
-  | 'create_post';
+  | 'create_post'
+  | 'subscribers'
+  | 'authors'
+  | 'community_info'
+  | 'created'
+  | 'language'
+  | 'pending_posts'
+  | 'team';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -71,6 +78,13 @@ const translations: Record<string, Translations> = {
     posting: 'Posting...',
     post_comment: 'Post Comment',
     create_post: 'Create Post',
+    subscribers: 'Subscribers',
+    authors: 'Authors',
+    community_info: 'Community Info',
+    created: 'Created',
+    language: 'Language',
+    pending_posts: 'Pending Posts',
+    team: 'Team',
   },
   es: {
     loading: 'Cargando...',
@@ -105,6 +119,13 @@ const translations: Record<string, Translations> = {
     posting: 'Publicando...',
     post_comment: 'Publicar comentario',
     create_post: 'Crear publicación',
+    subscribers: 'Suscriptores',
+    authors: 'Autores',
+    community_info: 'Info de Comunidad',
+    created: 'Creado',
+    language: 'Idioma',
+    pending_posts: 'Posts Pendientes',
+    team: 'Equipo',
   },
   de: {
     loading: 'Lädt...',
@@ -139,6 +160,13 @@ const translations: Record<string, Translations> = {
     posting: 'Wird gepostet...',
     post_comment: 'Kommentar posten',
     create_post: 'Beitrag erstellen',
+    subscribers: 'Abonnenten',
+    authors: 'Autoren',
+    community_info: 'Community-Info',
+    created: 'Erstellt',
+    language: 'Sprache',
+    pending_posts: 'Ausstehende Beiträge',
+    team: 'Team',
   },
   fr: {
     loading: 'Chargement...',
@@ -173,6 +201,13 @@ const translations: Record<string, Translations> = {
     posting: 'Publication...',
     post_comment: 'Publier le commentaire',
     create_post: 'Créer un article',
+    subscribers: 'Abonnés',
+    authors: 'Auteurs',
+    community_info: 'Info Communauté',
+    created: 'Créé',
+    language: 'Langue',
+    pending_posts: 'Articles en attente',
+    team: 'Équipe',
   },
   ko: {
     loading: '로딩 중...',
@@ -207,6 +242,13 @@ const translations: Record<string, Translations> = {
     posting: '게시 중...',
     post_comment: '댓글 게시',
     create_post: '게시물 작성',
+    subscribers: '구독자',
+    authors: '작성자',
+    community_info: '커뮤니티 정보',
+    created: '생성됨',
+    language: '언어',
+    pending_posts: '대기 중인 게시물',
+    team: '팀',
   },
   ru: {
     loading: 'Загрузка...',
@@ -241,6 +283,13 @@ const translations: Record<string, Translations> = {
     posting: 'Публикация...',
     post_comment: 'Опубликовать',
     create_post: 'Создать пост',
+    subscribers: 'Подписчики',
+    authors: 'Авторы',
+    community_info: 'Информация о сообществе',
+    created: 'Создано',
+    language: 'Язык',
+    pending_posts: 'Ожидающие посты',
+    team: 'Команда',
   },
 };
 

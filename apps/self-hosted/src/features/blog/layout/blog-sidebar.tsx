@@ -3,12 +3,19 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { formatMonthYear, InstanceConfigManager, t } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
+import { useInstanceConfig, useCommunityData } from '../hooks/use-instance-config';
 
 export function BlogSidebar() {
-  const username = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.instanceConfiguration.username,
-  );
+  const { username, isCommunityMode } = useInstanceConfig();
 
+  if (isCommunityMode) {
+    return <CommunitySidebar />;
+  }
+
+  return <BlogSidebarContent username={username} />;
+}
+
+function BlogSidebarContent({ username }: { username: string }) {
   const sidebarConfig = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.layout.sidebar,
   );
@@ -37,28 +44,24 @@ export function BlogSidebar() {
           {data.profile.about}
         </div>
       )}
-      {data?.follow_stats && (showFollowers || showFollowing) && (
+      {data?.follow_stats && (
         <div className="flex gap-6 mb-4">
-          {showFollowers && (
-            <div className="flex flex-col">
-              <div className="text-xs text-theme-muted">{t('followers')}</div>
-              <div className="text-sm font-medium text-theme-primary">
-                {data.follow_stats.follower_count}
-              </div>
+          <div className="flex flex-col sidebar-followers-section">
+            <div className="text-xs text-theme-muted">{t('followers')}</div>
+            <div className="text-sm font-medium text-theme-primary">
+              {data.follow_stats.follower_count}
             </div>
-          )}
-          {showFollowing && (
-            <div className="flex flex-col">
-              <div className="text-xs text-theme-muted">{t('following')}</div>
-              <div className="text-sm font-medium text-theme-primary">
-                {data.follow_stats.following_count}
-              </div>
+          </div>
+          <div className="flex flex-col sidebar-following-section">
+            <div className="text-xs text-theme-muted">{t('following')}</div>
+            <div className="text-sm font-medium text-theme-primary">
+              {data.follow_stats.following_count}
             </div>
-          )}
+          </div>
         </div>
       )}
-      {showHiveInfo && data && (
-        <div className="border-t border-theme pt-4 mt-4">
+      {data && (
+        <div className="border-t border-theme pt-4 mt-4 sidebar-hive-info-section">
           <div className="text-xs font-medium mb-2 text-theme-muted">
             {t('hiveInfo')}
           </div>
@@ -98,6 +101,126 @@ export function BlogSidebar() {
           >
             {data.profile.website}
           </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CommunitySidebar() {
+  const { data: community, isLoading } = useCommunityData();
+
+  if (isLoading) {
+    return (
+      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+        <div className="animate-pulse">
+          <div className="w-16 h-16 rounded-full bg-theme-tertiary mb-4" />
+          <div className="h-4 w-32 bg-theme-tertiary rounded mb-2" />
+          <div className="h-3 w-48 bg-theme-tertiary rounded" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!community) {
+    return (
+      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+        <div className="text-sm text-theme-muted">Community not found</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+      <div className="flex items-center gap-3 mb-4">
+        {community.avatar_url ? (
+          <img
+            src={community.avatar_url}
+            alt={community.title}
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-theme-tertiary flex items-center justify-center">
+            <span className="text-xl font-bold text-theme-muted">
+              {community.title?.charAt(0) || 'C'}
+            </span>
+          </div>
+        )}
+        <div>
+          <div className="text-sm sm:text-base font-bold font-theme-ui text-theme-primary">
+            {community.title}
+          </div>
+          <div className="text-xs text-theme-muted">{community.name}</div>
+        </div>
+      </div>
+
+      {community.about && (
+        <div className="text-sm mb-4 text-theme-muted leading-[1.58]">
+          {community.about}
+        </div>
+      )}
+
+      {community.description && community.description !== community.about && (
+        <div className="text-xs mb-4 text-theme-muted leading-relaxed">
+          {community.description}
+        </div>
+      )}
+
+      <div className="flex gap-6 mb-4">
+        <div className="flex flex-col">
+          <div className="text-xs text-theme-muted">{t('subscribers')}</div>
+          <div className="text-sm font-medium text-theme-primary">
+            {community.subscribers?.toLocaleString() || 0}
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <div className="text-xs text-theme-muted">{t('authors')}</div>
+          <div className="text-sm font-medium text-theme-primary">
+            {community.num_authors?.toLocaleString() || 0}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-theme pt-4 mt-4">
+        <div className="text-xs font-medium mb-2 text-theme-muted">
+          {t('community_info')}
+        </div>
+        {community.created_at && (
+          <div className="text-xs mb-1 text-theme-muted">
+            <span className="font-medium">{t('created')}:</span>{' '}
+            {formatMonthYear(community.created_at)}
+          </div>
+        )}
+        {community.lang && (
+          <div className="text-xs mb-1 text-theme-muted">
+            <span className="font-medium">{t('language')}:</span>{' '}
+            {community.lang.toUpperCase()}
+          </div>
+        )}
+        {community.num_pending > 0 && (
+          <div className="text-xs text-theme-muted">
+            <span className="font-medium">{t('pending_posts')}:</span>{' '}
+            {community.num_pending}
+          </div>
+        )}
+      </div>
+
+      {community.team && community.team.length > 0 && (
+        <div className="border-t border-theme pt-4 mt-4">
+          <div className="text-xs font-medium mb-2 text-theme-muted">
+            {t('team')}
+          </div>
+          <div className="space-y-2">
+            {community.team.slice(0, 5).map((member) => (
+              <div key={member[0]} className="flex items-center gap-2">
+                <UserAvatar username={member[0]} size="small" />
+                <div className="text-xs">
+                  <span className="text-theme-primary">{member[0]}</span>
+                  <span className="text-theme-muted ml-1">({member[1]})</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

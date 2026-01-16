@@ -35,7 +35,7 @@ export const FloatingMenuButton = memo<FloatingMenuButtonProps>(
             />
           </svg>
         )}
-        <span>Theme Settings</span>
+        <span>Settings</span>
       </button>
     );
   },

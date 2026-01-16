@@ -286,3 +286,16 @@
     order: 2;
   }
 }
+
+/* Sidebar Section Visibility - controlled via data attributes */
+[data-show-followers="false"] .sidebar-followers-section {
+  display: none;
+}
+
+[data-show-following="false"] .sidebar-following-section {
+  display: none;
+}
+
+[data-show-hive-info="false"] .sidebar-hive-info-section {
+  display: none;
+}
