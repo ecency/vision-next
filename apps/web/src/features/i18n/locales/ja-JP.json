@@ -1077,7 +1077,9 @@
     "go-community": "コミュニティページ",
     "com-mod": "これらのコミュニティのモデレーター",
     "empty-communities": "ここにコミュニティはありません",
-    "empty-communities-hint": "ユーザーはまだどのコミュニティのメンバーでもありません。いずれかのコミュニティに参加するか、独自のコミュニティを作成してください。"
+    "empty-communities-hint": "ユーザーはまだどのコミュニティのメンバーでもありません。いずれかのコミュニティに参加するか、独自のコミュニティを作成してください。",
+    "dm-followers-only": "DM: フォロワーのみ",
+    "dm-disabled": "DMs: 無効"
   },
   "profile-info": {
     "joined": "参加しました",
@@ -1184,6 +1186,17 @@
     "permissions-title": "キーと権限",
     "permissions-hint": "キーを管理し、アプリケーションに対する権限を制御します",
     "permissions": "権限を開く"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "ダイレクトメッセージのプライバシー",
+      "who-can-message": "ダイレクトメッセージを送信できるのは誰ですか？",
+      "description": "スパムやフィッシングの試みを防ぐためにダイレクトメッセージを送信できるユーザーを制御します。",
+      "allow-all": "全員に",
+      "followers-only": "フォローしている人のみ",
+      "no-one": "誰もいない（DMを無効にする）"
+    },
+    "dm-privacy-updated": "DM のプライバシー設定が更新されました"
   },
   "wallet": {
     "unclaimed-rewards": "未請求の報酬",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "翻訳先の言語",
     "pinned-messages": "ピン留め済みのメッセージ",
     "pin-message": "メッセージをピン留めする",
-    "unpin-message": "メッセージのピン留めを解除"
+    "unpin-message": "メッセージのピン留めを解除",
+    "dm-not-allowed": "@{{username}} はあなたからのメッセージを受け入れません",
+    "dm-followers-only": "フォローしている人からのDMのみ受け付けます",
+    "dm-disabled": "ダイレクトメッセージを無効にする"
   },
   "add-image": {
     "title": "画像を追加",
