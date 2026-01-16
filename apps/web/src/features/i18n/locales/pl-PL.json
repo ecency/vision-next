@@ -1077,7 +1077,9 @@
     "go-community": "Strona społeczności",
     "com-mod": "Moderator tych społeczności",
     "empty-communities": "Brak społeczności tutaj",
-    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną"
+    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną",
+    "dm-followers-only": "DM: tylko obserwujący",
+    "dm-disabled": "DM: wyłączone"
   },
   "profile-info": {
     "joined": "Dołączono",
@@ -1184,6 +1186,17 @@
     "permissions-title": "Klucze i uprawnienia",
     "permissions-hint": "Zarządzaj kluczami, kontroluj uprawnienia nad aplikacjami",
     "permissions": "Otwórz uprawnienia"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Prywatność wiadomości bezpośredniej",
+      "who-can-message": "Kto może wysyłać Ci bezpośrednie wiadomości?",
+      "description": "Kontroluj, kto może wysyłać Ci bezpośrednie wiadomości, aby zapobiec próbom spamu i phishingu.",
+      "allow-all": "Wszyscy",
+      "followers-only": "Tylko osoby, które obserwuję",
+      "no-one": "Nikt (wyłącz DM)"
+    },
+    "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane"
   },
   "wallet": {
     "unclaimed-rewards": "Nieodebrane wynagrodzenie",
@@ -2161,7 +2174,10 @@
     "translate-target-language": "Docelowy język",
     "pinned-messages": "Przypięte wiadomości",
     "pin-message": "Przypnij wiadomość",
-    "unpin-message": "Odepnij wiadomość"
+    "unpin-message": "Odepnij wiadomość",
+    "dm-not-allowed": "@{{username}} nie akceptuje wiadomości od Ciebie",
+    "dm-followers-only": "Akceptuje tylko prezent od ludzi, którzy obserwują",
+    "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie"
   },
   "add-image": {
     "title": "Dodaj obraz",
