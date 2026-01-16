@@ -13,6 +13,7 @@ import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { formatDate, InstanceConfigManager } from '@/core';
+import { UserAvatar } from '@/features/shared/user-avatar';
 
 interface Props {
   entry: Entry;
@@ -31,7 +32,12 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
     ({ configuration }) =>
       configuration.instanceConfiguration.features.comments?.enabled ?? true,
   );
+  const instanceType = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      (configuration.instanceConfiguration.type as string) ?? 'blog',
+  );
   const entryData = entry.original_entry || entry;
+  const isCommunity = instanceType === 'community';
 
   const summary = useMemo(
     () =>
@@ -145,20 +151,37 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       )}
 
       <div className="flex items-center gap-4 text-xs text-theme-muted font-theme-ui">
+        <a
+          href={`https://ecency.com/@${entryData.author}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+        >
+          <UserAvatar username={entryData.author} size="small" />
+          <span className={isCommunity ? 'font-medium text-theme-secondary' : ''}>
+            {entryData.author}
+          </span>
+        </a>
+        <span>•</span>
+        <span>{formatDate(entryData.created)}</span>
         {showLikes && (
-          <div className="flex items-center gap-1">
-            <UilHeart className="w-3 h-3" />
-            <span>{likesCount}</span>
-          </div>
+          <>
+            <span>•</span>
+            <div className="flex items-center gap-1">
+              <UilHeart className="w-3 h-3" />
+              <span>{likesCount}</span>
+            </div>
+          </>
         )}
         {showComments && (
-          <div className="flex items-center gap-1">
-            <UilComment className="w-3 h-3" />
-            <span>{commentsCount}</span>
-          </div>
+          <>
+            <span>•</span>
+            <div className="flex items-center gap-1">
+              <UilComment className="w-3 h-3" />
+              <span>{commentsCount}</span>
+            </div>
+          </>
         )}
-        {(showLikes || showComments) && <span>•</span>}
-        <span>{formatDate(entryData.created)}</span>
       </div>
     </>
   );
