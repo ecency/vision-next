@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@ecency/render-helper": "workspace:*",
-    "@ecency/renderer": "workspace:*",
     "@ecency/sdk": "workspace:*",
     "@ecency/wallets": "workspace:*",
     "@tanstack/react-query": "^5.90.2",
@@ -20,6 +19,7 @@
     "@tooni/iconscout-unicons-react": "^1.0.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "framer-motion": "^11.18.2",
     "motion": "^12.23.22",
     "react": "^19.1.1",

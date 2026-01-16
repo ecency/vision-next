@@ -1,14 +1,12 @@
 'use client';
 
-import { EcencyRenderer } from '@ecency/renderer';
+import { renderPostBody } from '@ecency/render-helper';
 import type { Entry } from '@ecency/sdk';
 import { UilComment, UilHeart } from '@tooni/iconscout-unicons-react';
-import { memo, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatRelativeTime } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
 import { BlogDiscussionList } from './blog-discussion-list';
-
-const MemoEcencyRenderer = memo(EcencyRenderer);
 
 interface Props {
   entry: Entry;
@@ -79,9 +77,12 @@ export function BlogDiscussionItem({
                 {entry.body}
               </pre>
             ) : (
-              <div className="markdown-body text-sm! max-w-none">
-                <MemoEcencyRenderer value={entry.body} />
-              </div>
+              <div
+                className="markdown-body text-sm! max-w-none entry-body"
+                dangerouslySetInnerHTML={{
+                  __html: renderPostBody(entry.body, false, true),
+                }}
+              />
             )}
           </div>
 

@@ -43,8 +43,19 @@ export function BlogNavigation() {
   // Use community title if available and in community mode
   const displayTitle = isCommunityMode && community?.title ? community.title : blogTitle;
 
-  // Use community avatar if available and no custom logo
-  const displayLogo = blogLogo || (isCommunityMode && community?.avatar_url ? community.avatar_url : null);
+  // Use community avatar from image proxy if no custom logo
+  const displayLogo = useMemo(() => {
+    if (blogLogo) return blogLogo;
+    if (isCommunityMode && community?.name) {
+      const proxyBase = InstanceConfigManager.getConfigValue(
+        ({ configuration }) =>
+          (configuration.general as Record<string, unknown>).imageProxy as string ||
+          'https://images.ecency.com',
+      );
+      return `${proxyBase}/u/${community.name}/avatar/medium`;
+    }
+    return null;
+  }, [blogLogo, isCommunityMode, community?.name]);
 
   // Blog filters
   const blogFilterLabels: Record<string, string> = {

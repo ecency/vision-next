@@ -110,6 +110,18 @@ function BlogSidebarContent({ username }: { username: string }) {
 function CommunitySidebar() {
   const { data: community, isLoading } = useCommunityData();
 
+  // Get the community avatar URL from the image proxy
+  const communityAvatarUrl = useMemo(() => {
+    if (!community?.name) return null;
+    const proxyBase = InstanceConfigManager.getConfigValue(
+      ({ configuration }) =>
+        (configuration.general as Record<string, unknown>).imageProxy as string ||
+        'https://images.ecency.com',
+    );
+    // Community avatars use the same pattern as user avatars
+    return `${proxyBase}/u/${community.name}/avatar/medium`;
+  }, [community?.name]);
+
   if (isLoading) {
     return (
       <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
@@ -133,9 +145,9 @@ function CommunitySidebar() {
   return (
     <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
-        {community.avatar_url ? (
+        {communityAvatarUrl ? (
           <img
-            src={community.avatar_url}
+            src={communityAvatarUrl}
             alt={community.title}
             className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
           />

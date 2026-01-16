@@ -1,5 +1,8 @@
-import { catchPostImage, postBodySummary } from '@ecency/render-helper';
-import { EcencyRenderer } from '@ecency/renderer';
+import {
+  catchPostImage,
+  postBodySummary,
+  renderPostBody,
+} from '@ecency/render-helper';
 import type { Entry } from '@ecency/sdk';
 import {
   UilComment,
@@ -8,10 +11,8 @@ import {
 } from '@tooni/iconscout-unicons-react';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import { formatDate, InstanceConfigManager } from '@/core';
-
-const MemoEcencyRenderer = memo(EcencyRenderer);
 
 interface Props {
   entry: Entry;
@@ -121,9 +122,12 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       )}
 
       <div className="mb-4">
-        <div className="markdown-body text-sm sm:text-base max-w-none body-theme">
-          <MemoEcencyRenderer value={summary} />
-        </div>
+        <div
+          className="markdown-body text-sm sm:text-base max-w-none body-theme entry-body"
+          dangerouslySetInnerHTML={{
+            __html: renderPostBody(summary, false, true),
+          }}
+        />
       </div>
 
       {tags.length > 0 && (

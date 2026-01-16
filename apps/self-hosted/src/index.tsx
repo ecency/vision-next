@@ -1,9 +1,19 @@
+import { setProxyBase } from '@ecency/render-helper';
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './globals.css';
 import { InstanceConfigManager } from './core';
 import { routeTree } from './routeTree.gen';
+
+// Set up image proxy base URL
+// This must be done before any content rendering
+const imageProxyBase = InstanceConfigManager.getConfigValue(
+  ({ configuration }) =>
+    (configuration.general as Record<string, unknown>).imageProxy as string ||
+    'https://images.ecency.com',
+);
+setProxyBase(imageProxyBase);
 
 const router = createRouter({ routeTree });
 

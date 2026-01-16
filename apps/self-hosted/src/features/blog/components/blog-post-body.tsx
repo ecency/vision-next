@@ -1,10 +1,8 @@
 'use client';
 
-import { EcencyRenderer } from '@ecency/renderer';
+import { renderPostBody } from '@ecency/render-helper';
 import type { Entry } from '@ecency/sdk';
-import { memo } from 'react';
-
-const MemoEcencyRenderer = memo(EcencyRenderer);
+import { useMemo } from 'react';
 
 interface Props {
   entry: Entry;
@@ -13,6 +11,11 @@ interface Props {
 
 export function BlogPostBody({ entry, isRawContent }: Props) {
   const entryData = entry.original_entry || entry;
+
+  const renderedBody = useMemo(
+    () => renderPostBody(entryData.body, false, true),
+    [entryData.body],
+  );
 
   if (isRawContent) {
     return (
@@ -26,9 +29,10 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
 
   return (
     <div className="mb-6 sm:mb-8">
-      <div className="markdown-body text-sm! max-w-none">
-        <MemoEcencyRenderer value={entryData.body} />
-      </div>
+      <div
+        className="markdown-body text-sm! max-w-none entry-body"
+        dangerouslySetInnerHTML={{ __html: renderedBody }}
+      />
     </div>
   );
 }

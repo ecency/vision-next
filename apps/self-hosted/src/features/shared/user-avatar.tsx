@@ -1,11 +1,9 @@
 'use client';
 
-import { proxifyImageSrc, setProxyBase } from '@ecency/render-helper';
+import { proxifyImageSrc } from '@ecency/render-helper';
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
-
-// Set proxy base for images
-setProxyBase('https://images.ecency.com');
+import { InstanceConfigManager } from '@/core';
 
 interface Props {
   username: string;
@@ -70,7 +68,12 @@ export function UserAvatar({
     // Always return a URL, even during SSR/hydration
     // This ensures the avatar shows immediately
     const format = hasMounted && canUseWebp ? 'webp' : 'match';
-    const fallbackUrl = `https://images.ecency.com${
+    const proxyBase = InstanceConfigManager.getConfigValue(
+      ({ configuration }) =>
+        (configuration.general as Record<string, unknown>).imageProxy as string ||
+        'https://images.ecency.com',
+    );
+    const fallbackUrl = `${proxyBase}${
       format === 'webp' ? '/webp' : ''
     }/u/${username}/avatar/${imgSize}`;
 

@@ -285,6 +285,11 @@ export const configFieldsMap: Record<string, ConfigField> = {
             type: 'string',
             description: 'Date and time format pattern',
           },
+          imageProxy: {
+            label: 'Image Proxy URL',
+            type: 'string',
+            description: 'Image proxy base URL (e.g., https://images.ecency.com)',
+          },
           styles: {
             label: 'Styles',
             type: 'section',
