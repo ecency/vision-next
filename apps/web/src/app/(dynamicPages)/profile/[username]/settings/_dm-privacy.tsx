@@ -7,10 +7,10 @@ import { FormControl } from "@ui/input";
 import i18next from "i18next";
 
 export function DmPrivacySettings() {
-  const { data: privacy, isLoading } = useDmPrivacyQuery();
+  const { data: privacy, isLoading, isError } = useDmPrivacyQuery();
   const { mutate: updatePrivacy } = useUpdateDmPrivacy();
 
-  if (isLoading) return null;
+  if (isLoading || isError) return null;
 
   const handlePrivacyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newPrivacy = e.target.value as DmPrivacyLevel;
