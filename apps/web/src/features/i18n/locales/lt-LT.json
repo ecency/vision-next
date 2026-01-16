@@ -864,6 +864,8 @@
     "muted-warning": "Šį turinį nutildė {{community}} moderatoriai, nes nesilaikė bendruomenės gairių.",
     "lowrep-warning": "Šio turinio autorius turi prastą reputaciją.",
     "deleted-content-warning": "Šį turinį ištrynė autorius. Tai galite pamatyti iš Blockchain ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "Šio įrašo autorių nutildėte.",
     "address-copy": "Kopijuoti nuorodą",
     "address-copied": "Nuoroda nukopijuota į iškarpinę",
