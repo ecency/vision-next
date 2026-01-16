@@ -5,6 +5,8 @@ import {
   ensureUserInTeam,
   followMattermostThreadForUser,
   getMattermostCommunityModerationContext,
+  getMattermostUserWithProps,
+  getUserDmPrivacy,
   handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
@@ -12,6 +14,8 @@ import {
   isUserChatBanned,
   CHAT_BAN_PROP
 } from "@/server/mattermost";
+import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
 
 const USER_MENTION_REGEX =
   /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
@@ -244,6 +248,47 @@ export async function POST(
         },
         { status: 403 }
       );
+    }
+
+    // --- DM Privacy Check (Defense-in-Depth) ---
+    // For DM channels, verify sender is allowed based on recipient's privacy settings
+    const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
+
+    if (channel.type === "D") {
+      // Get the other user in the DM
+      const members = await mmUserFetch<{ user_id: string }[]>(
+        `/channels/${channelId}/members`,
+        token
+      );
+
+      const otherUserId = members.find((m) => m.user_id !== currentUser.id)?.user_id;
+
+      if (otherUserId) {
+        const otherUser = await getMattermostUserWithProps(otherUserId);
+        const dmPrivacy = getUserDmPrivacy(otherUser);
+
+        if (dmPrivacy === "none") {
+          return NextResponse.json(
+            { error: `@${otherUser.username} has disabled direct messages.` },
+            { status: 403 }
+          );
+        }
+
+        if (dmPrivacy === "followers") {
+          const relationship = await getQueryClient().fetchQuery(
+            getRelationshipBetweenAccountsQueryOptions(otherUser.username, currentUser.username)
+          );
+
+          if (!relationship?.follows) {
+            return NextResponse.json(
+              {
+                error: `@${otherUser.username} only accepts messages from accounts they follow.`
+              },
+              { status: 403 }
+            );
+          }
+        }
+      }
     }
 
     // --- Thread following for participants ---

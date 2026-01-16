@@ -763,3 +763,45 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
     }
   });
 }
+
+export type DmPrivacyLevel = "all" | "followers" | "none";
+
+export function useDmPrivacyQuery() {
+  return useQuery({
+    queryKey: ["mattermost", "dm-privacy"],
+    queryFn: async () => {
+      const res = await fetch("/api/mattermost/me/dm-privacy");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to fetch DM privacy");
+      }
+      const data = await res.json();
+      return data.privacy as DmPrivacyLevel;
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+}
+
+export function useUpdateDmPrivacy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (privacy: DmPrivacyLevel) => {
+      const res = await fetch("/api/mattermost/me/dm-privacy", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ privacy })
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to update DM privacy");
+      }
+
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "dm-privacy"] });
+    }
+  });
+}
