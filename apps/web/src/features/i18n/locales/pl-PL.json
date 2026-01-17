@@ -296,7 +296,7 @@
     "description": "Freespeech, Prawdziwa własność, swoboda finansowa!",
     "description-2": "Ul potęguje wiele aplikacji i jest całkowicie zdecentralizowany przez członków społeczności na całym świecie. Z kontem masz bezpośredni dostęp do ekosystemu.",
     "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkimi w Blockchain.",
-    "learn-more": "Dowiedz się więcej o korzyściach w naszym <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Dowiedz się więcej o korzyściach w <a href=\"/faq#how-to-join\">sekcji pytań i odpowiedzi</a>",
     "username": "Wybierz nazwę użytkownika",
     "email": "Podaj swój adres e-mail",
     "ref": "Użytkownik rekomendowany (opcjonalnie)",
@@ -864,6 +864,8 @@
     "muted-warning": "Ta zawartość została wyciszona przez moderatorów {{community}} za nieprzestrzeganie wytycznych społeczności.",
     "lowrep-warning": "Autor tej zawartości ma niską reputację.",
     "deleted-content-warning": "Ta zawartość została usunięta przez autora. Możesz ją zobaczyć z Blockchain ",
+    "deleted-content": "Ten post został usunięty przez {{author}}",
+    "deleted-no-history": "Usunięta historia treści nie jest dostępna z blockchain.",
     "comments-hidden": "Autor tego wpisu jest wyciszony przez ciebie.",
     "address-copy": "Kopiuj link",
     "address-copied": "Link skopiowany do schowka",
@@ -1077,7 +1079,9 @@
     "go-community": "Strona społeczności",
     "com-mod": "Moderator tych społeczności",
     "empty-communities": "Brak społeczności tutaj",
-    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną"
+    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną",
+    "dm-followers-only": "DM: tylko obserwujący",
+    "dm-disabled": "DM: wyłączone"
   },
   "profile-info": {
     "joined": "Dołączono",
@@ -1131,7 +1135,7 @@
     "confirm": "Potwierdź",
     "cancel": "Anuluj",
     "check-faq": "Dowiedz się więcej o RC w naszym",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "Często zadawane pytania",
     "insufficient-rc-error": "Niewystarczająca ilość punktów zasobów",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1188,17 @@
     "permissions-title": "Klucze i uprawnienia",
     "permissions-hint": "Zarządzaj kluczami, kontroluj uprawnienia nad aplikacjami",
     "permissions": "Otwórz uprawnienia"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Prywatność wiadomości bezpośredniej",
+      "who-can-message": "Kto może wysyłać Ci bezpośrednie wiadomości?",
+      "description": "Kontroluj, kto może wysyłać Ci bezpośrednie wiadomości, aby zapobiec próbom spamu i phishingu.",
+      "allow-all": "Wszyscy",
+      "followers-only": "Tylko osoby, które obserwuję",
+      "no-one": "Nikt (wyłącz DM)"
+    },
+    "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane"
   },
   "wallet": {
     "unclaimed-rewards": "Nieodebrane wynagrodzenie",
@@ -2161,7 +2176,10 @@
     "translate-target-language": "Docelowy język",
     "pinned-messages": "Przypięte wiadomości",
     "pin-message": "Przypnij wiadomość",
-    "unpin-message": "Odepnij wiadomość"
+    "unpin-message": "Odepnij wiadomość",
+    "dm-not-allowed": "@{{username}} nie akceptuje wiadomości od Ciebie",
+    "dm-followers-only": "Akceptuje tylko prezent od ludzi, którzy obserwują",
+    "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie"
   },
   "add-image": {
     "title": "Dodaj obraz",
@@ -3033,6 +3051,7 @@
       "power-up": "Zasil",
       "power-down": "Siła w dół",
       "swap": "Zamień",
+      "convert": "Konwertuj",
       "delegate": "Delegat",
       "withdraw-saving": "Wycofaj trasy",
       "gift": "Prezent",
