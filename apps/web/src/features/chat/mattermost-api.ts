@@ -354,6 +354,33 @@ export function useMattermostAdminDeleteUserPosts() {
   });
 }
 
+export function useMattermostAdminDeleteUserDmPosts() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      // channelId is not needed since we delete from all DM channels, but the route requires it
+      const res = await fetch(`/api/mattermost/channels/_/posts/user/${encodeURIComponent(username)}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to delete DM posts");
+      }
+
+      return (await res.json()) as { deleted: number; dmOnly: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] })
+      ]);
+    }
+  });
+}
+
 export function useMattermostUnread(enabled: boolean) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;

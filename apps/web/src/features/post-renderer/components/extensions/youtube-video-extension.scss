@@ -6,6 +6,8 @@
   height: 0;
   cursor: pointer;
   overflow: hidden;
+  margin: 1rem 0;
+  background-color: #000;
 
   .video-thumbnail,
   .markdown-video-play,
@@ -19,7 +21,8 @@
 
   .video-thumbnail {
     z-index: 1;
-    object-fit: cover;
+    object-fit: contain;
+    background-color: #000;
   }
 
   .markdown-video-play {
@@ -31,5 +34,14 @@
 
   .ecency-renderer-youtube-extension-frame {
     z-index: 3; // on top of everything when video plays
+  }
+
+  .youtube-shorts-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 }

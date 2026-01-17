@@ -408,6 +408,79 @@ export async function deleteMattermostPostsByUserAsAdmin(username: string) {
   return { deleted, user: targetUser } as const;
 }
 
+export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  const perPage = 200;
+  let deleted = 0;
+  const teamId = getMattermostTeamId();
+
+  // Build a set of DM channel IDs by searching all posts and filtering by channel type
+  const dmChannelIds = new Set<string>();
+
+  // First, get a sample of posts to identify DM channels
+  const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
+
+  if (order && order.length > 0) {
+    // Get unique channel IDs from posts
+    const channelIds = new Set<string>();
+    for (const postId of order) {
+      const post = posts[postId];
+      if (post?.channel_id) {
+        channelIds.add(post.channel_id);
+      }
+    }
+
+    // Check each channel to see if it's a DM
+    for (const channelId of channelIds) {
+      try {
+        const channel = await mmFetch<{ id: string; type: string }>(
+          `/channels/${channelId}`,
+          { headers: getAdminHeaders() }
+        );
+
+        if (channel.type === "D") {
+          dmChannelIds.add(channelId);
+        }
+      } catch (err) {
+        // Channel might not exist or be accessible, skip it
+        console.error(`Failed to check channel ${channelId}:`, err);
+      }
+    }
+  }
+
+  // Now delete all posts in DM channels
+  while (true) {
+    const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
+    const postsToDelete = (order || [])
+      .map((id) => posts[id])
+      .filter(Boolean)
+      // Filter to only include posts from DM channels
+      .filter((post) => dmChannelIds.has(post.channel_id));
+
+    if (!postsToDelete.length) {
+      break;
+    }
+
+    for (const post of postsToDelete) {
+      await deleteMattermostPostAsAdmin(post.id);
+      deleted += 1;
+    }
+
+    // If we're not finding any more DM posts but there are still posts, we're done
+    if (postsToDelete.length === 0 && order && order.length > 0) {
+      break;
+    }
+  }
+
+  return { deleted, user: targetUser, dmOnly: true } as const;
+}
+
 export async function banMattermostUserForHoursAsAdmin(username: string, hours: number) {
   if (Number.isNaN(hours) || !Number.isFinite(hours)) {
     throw new MattermostError("hours must be a finite number", 400);

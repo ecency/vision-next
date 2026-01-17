@@ -23,6 +23,7 @@ import {
   useMattermostUpdatePost,
   useMattermostAdminBanUser,
   useMattermostAdminDeleteUserPosts,
+  useMattermostAdminDeleteUserDmPosts,
   useMattermostPostsAround,
   useMattermostJoinChannel,
   useMattermostPinnedPosts,
@@ -218,6 +219,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const updateMutation = useMattermostUpdatePost(channelId);
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
+  const deleteUserDmPostsMutation = useMattermostAdminDeleteUserDmPosts();
   const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
@@ -1518,7 +1520,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
     if (
       typeof window !== "undefined" &&
-      !window.confirm(`Delete all posts by @${normalizedUsername} across chat channels?`)
+      !window.confirm(`Delete all posts by @${normalizedUsername} across all chat channels?`)
     ) {
       return;
     }
@@ -1532,6 +1534,36 @@ export function MattermostChannelView({ channelId }: Props) {
       },
       onError: (err) => {
         setAdminError((err as Error)?.message || "Unable to delete posts");
+      }
+    });
+  };
+
+  const handleDeleteAllDmPosts = () => {
+    if (!isEcencyAdmin) return;
+
+    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
+    if (!normalizedUsername) {
+      setAdminError("Enter a username to manage");
+      setAdminMessage(null);
+      return;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(`Delete all DM posts by @${normalizedUsername}? This will remove all their direct messages across all DM conversations.`)
+    ) {
+      return;
+    }
+
+    setAdminError(null);
+    setAdminMessage(null);
+
+    deleteUserDmPostsMutation.mutate(normalizedUsername, {
+      onSuccess: ({ deleted }) => {
+        setAdminMessage(`Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
+      },
+      onError: (err) => {
+        setAdminError((err as Error)?.message || "Unable to delete DM posts");
       }
     });
   };
@@ -1938,7 +1970,20 @@ export function MattermostChannelView({ channelId }: Props) {
                 Delete all posts by user
               </Button>
               <div className="text-[11px] text-[--text-muted]">
-                Removes every chat message from the user across channels.
+                Removes every chat message from the user across all channels.
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                appearance="danger"
+                onClick={handleDeleteAllDmPosts}
+                isLoading={deleteUserDmPostsMutation.isPending}
+                disabled={deleteUserDmPostsMutation.isPending}
+              >
+                Delete all DM posts by user
+              </Button>
+              <div className="text-[11px] text-[--text-muted]">
+                Removes all direct messages from the user across all DM conversations.
               </div>
             </div>
           </div>

@@ -417,7 +417,7 @@ $xxxl-break: "1600px";
     }
   }
 
-  iframe {
+  iframe:not(.youtube-shorts-iframe):not(.speak-iframe) {
     max-width: 100% !important;
     max-height: 500px;
     display: block;
