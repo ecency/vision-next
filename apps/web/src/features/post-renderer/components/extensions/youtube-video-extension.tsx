@@ -3,7 +3,6 @@
 import React, { RefObject, useCallback, useEffect, useState } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { clsx } from "clsx";
-import "./youtube-video-extension.scss";
 import { getYoutubeEmbedUrl } from "../utils/getYoutubeEmbedUrl";
 
 export function YoutubeVideoRenderer({
