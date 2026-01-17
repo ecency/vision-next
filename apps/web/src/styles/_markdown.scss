@@ -410,7 +410,7 @@
 
 
   // Exclude video iframes from global iframe styling
-  iframe:not(.youtube-shorts-iframe):not(.speak-iframe) {
+  iframe:not(.youtube-shorts-iframe):not(.speak-iframe):not(.portrait-embed) {
     max-width: 100% !important;
     max-height: 500px;
     display: block;
