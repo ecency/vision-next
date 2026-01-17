@@ -420,61 +420,60 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
   let deleted = 0;
   const teamId = getMattermostTeamId();
 
-  // Build a set of DM channel IDs by searching all posts and filtering by channel type
-  const dmChannelIds = new Set<string>();
+  // Build a cache of channel types as we discover them
+  const channelTypeCache = new Map<string, string>();
 
-  // First, get a sample of posts to identify DM channels
-  const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
-
-  if (order && order.length > 0) {
-    // Get unique channel IDs from posts
-    const channelIds = new Set<string>();
-    for (const postId of order) {
-      const post = posts[postId];
-      if (post?.channel_id) {
-        channelIds.add(post.channel_id);
-      }
+  // Helper to check if a channel is a DM
+  async function isDmChannel(channelId: string): Promise<boolean> {
+    // Check cache first
+    if (channelTypeCache.has(channelId)) {
+      return channelTypeCache.get(channelId) === "D";
     }
 
-    // Check each channel to see if it's a DM
-    for (const channelId of channelIds) {
-      try {
-        const channel = await mmFetch<{ id: string; type: string }>(
-          `/channels/${channelId}`,
-          { headers: getAdminHeaders() }
-        );
-
-        if (channel.type === "D") {
-          dmChannelIds.add(channelId);
-        }
-      } catch (err) {
-        // Channel might not exist or be accessible, skip it
-        console.error(`Failed to check channel ${channelId}:`, err);
-      }
+    // Fetch and cache the channel type
+    try {
+      const channel = await mmFetch<{ id: string; type: string }>(
+        `/channels/${channelId}`,
+        { headers: getAdminHeaders() }
+      );
+      channelTypeCache.set(channelId, channel.type);
+      return channel.type === "D";
+    } catch (err) {
+      console.error(`Failed to check channel ${channelId}:`, err);
+      channelTypeCache.set(channelId, ""); // Cache as non-DM to avoid re-checking
+      return false;
     }
   }
 
-  // Now delete all posts in DM channels
+  // Delete all DM posts by continuously searching and deleting
   while (true) {
     const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
-    const postsToDelete = (order || [])
-      .map((id) => posts[id])
-      .filter(Boolean)
-      // Filter to only include posts from DM channels
-      .filter((post) => dmChannelIds.has(post.channel_id));
 
-    if (!postsToDelete.length) {
+    if (!order || order.length === 0) {
+      break;
+    }
+
+    // Check each post's channel and delete if it's a DM
+    const postsToDelete = [];
+    for (const postId of order) {
+      const post = posts[postId];
+      if (post && post.channel_id) {
+        const isDm = await isDmChannel(post.channel_id);
+        if (isDm) {
+          postsToDelete.push(post);
+        }
+      }
+    }
+
+    if (postsToDelete.length === 0) {
+      // No more DM posts found in this batch, check if we should continue
+      // If there are still posts but none are DMs, we're done
       break;
     }
 
     for (const post of postsToDelete) {
       await deleteMattermostPostAsAdmin(post.id);
       deleted += 1;
-    }
-
-    // If we're not finding any more DM posts but there are still posts, we're done
-    if (postsToDelete.length === 0 && order && order.length > 0) {
-      break;
     }
   }
 
