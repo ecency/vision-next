@@ -1,7 +1,7 @@
 "use client";
 
 import React, { RefObject, useEffect, useMemo } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import { useQuery, QueryClientProvider } from "@tanstack/react-query";
 import { getPostQueryOptions } from "@ecency/sdk";
 import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
@@ -133,15 +133,31 @@ export function WaveLikePostExtension({
     findPostLinkElements(container)
       .filter((el) => isWaveLikePost(el.getAttribute("href") ?? ""))
       .forEach((element) => {
-        const container = document.createElement("div");
-        container.classList.add("ecency-renderer-wave-like-extension");
-        hydrateRoot(
-          container,
-          <QueryClientProvider client={queryClient}>
-            <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
-          </QueryClientProvider>,
-        );
-        element.parentElement?.replaceChild(container, element);
+        try {
+          // Verify element is still connected to the DOM before manipulation
+          if (!element.isConnected || !element.parentNode) {
+            console.warn("Wave-like post element is not connected to DOM, skipping");
+            return;
+          }
+
+          const container = document.createElement("div");
+          container.classList.add("ecency-renderer-wave-like-extension");
+
+          // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
+          const root = createRoot(container);
+          root.render(
+            <QueryClientProvider client={queryClient}>
+              <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
+            </QueryClientProvider>
+          );
+
+          // Final safety check before replacing
+          if (element.isConnected && element.parentElement) {
+            element.parentElement.replaceChild(container, element);
+          }
+        } catch (error) {
+          console.warn("Error enhancing wave-like post element:", error);
+        }
       });
   }, []);
 
