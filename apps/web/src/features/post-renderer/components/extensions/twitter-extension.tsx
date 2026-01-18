@@ -24,6 +24,12 @@ export function TwitterExtension({
         })
         .forEach((element) => {
           try {
+            // Verify element is still connected to the DOM before manipulation
+            if (!element.isConnected || !element.parentNode) {
+              console.warn("Twitter link element is not connected to DOM, skipping");
+              return;
+            }
+
             const href = element.getAttribute("href");
             if (!href) return;
 
@@ -36,10 +42,14 @@ export function TwitterExtension({
             element.classList.add("ecency-renderer-twitter-extension");
 
             element.innerHTML = "";
-            element.appendChild(container);
 
-            const root = createRoot(container);
-            root.render(<ComponentInstance id={tweetId} />);
+            // Final safety check before appending
+            if (element.isConnected && element.parentNode) {
+              element.appendChild(container);
+
+              const root = createRoot(container);
+              root.render(<ComponentInstance id={tweetId} />);
+            }
           } catch (e) {
             console.warn("TwitterExtension failed to render tweet:", e);
           }

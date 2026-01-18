@@ -37,25 +37,38 @@ export function AuthorLinkExtension({
     );
 
     elements.forEach((element) => {
-      if (element.dataset.enhanced === "true") return;
+      try {
+        if (element.dataset.enhanced === "true") return;
 
-      const authorHref = element.getAttribute("href");
-      if (!authorHref) return;
+        // Verify element is still connected to the DOM before manipulation
+        if (!element.isConnected || !element.parentNode) {
+          console.warn("Author link element is not connected to DOM, skipping");
+          return;
+        }
 
-      const container = document.createElement("a");
+        const authorHref = element.getAttribute("href");
+        if (!authorHref) return;
 
-      container.setAttribute("href", authorHref);
-      container.setAttribute("target", "_blank");
-      container.setAttribute("rel", "noopener");
+        const container = document.createElement("a");
 
-      container.classList.add("ecency-renderer-author-extension");
-      container.classList.add("ecency-renderer-author-extension-link");
+        container.setAttribute("href", authorHref);
+        container.setAttribute("target", "_blank");
+        container.setAttribute("rel", "noopener");
 
-      const root = createRoot(container);
-      root.render(<AuthorLinkRenderer author={authorHref} />);
+        container.classList.add("ecency-renderer-author-extension");
+        container.classList.add("ecency-renderer-author-extension-link");
 
-      element.parentElement?.replaceChild(container, element);
-      container.dataset.enhanced = "true";
+        const root = createRoot(container);
+        root.render(<AuthorLinkRenderer author={authorHref} />);
+
+        // Final safety check before replacing
+        if (element.isConnected && element.parentElement) {
+          element.parentElement.replaceChild(container, element);
+          container.dataset.enhanced = "true";
+        }
+      } catch (error) {
+        console.warn("Error enhancing author link element:", error);
+      }
     });
   }, []);
 
