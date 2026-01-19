@@ -1493,11 +1493,23 @@ function getImage(entry, width = 0, height = 0, format = "match") {
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
-    const entryWrapper = {
-      body: obj,
-      json_metadata: "{}"
-    };
-    return getImage(entryWrapper, width, height, format);
+    const html = markdown2Html(obj);
+    const doc = createDoc(html);
+    if (!doc) {
+      return null;
+    }
+    const imgEls = doc.getElementsByTagName("img");
+    if (imgEls.length >= 1) {
+      const src = imgEls[0].getAttribute("src");
+      if (!src) {
+        return null;
+      }
+      if (isGifLink(src)) {
+        return proxifyImageSrc(src, 0, 0, format);
+      }
+      return proxifyImageSrc(src, width, height, format);
+    }
+    return null;
   }
   const key = `${makeEntryCacheKey(obj)}-${width}x${height}-${format}`;
   const item = cacheGet(key);

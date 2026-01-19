@@ -889,6 +889,47 @@ function getActiveAccountBookmarksQueryOptions(activeUsername, code) {
     }
   });
 }
+function getActiveAccountBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/bookmarks?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bookmarks: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
 function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "favourites", activeUsername],
@@ -910,6 +951,47 @@ function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
       );
       return await response.json();
     }
+  });
+}
+function getActiveAccountFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/favorites?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch favorites: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
   });
 }
 function getAccountRecoveriesQueryOptions(username, code) {
@@ -1241,6 +1323,49 @@ function getFragmentsQueryOptions(username, code) {
         }
       );
       return response.json();
+    },
+    enabled: !!username && !!code
+  });
+}
+function getFragmentsInfiniteQueryOptions(username, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "fragments", "infinite", username, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!username || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/fragments?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch fragments: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
     },
     enabled: !!username && !!code
   });
@@ -1865,6 +1990,49 @@ function getSchedulesQueryOptions(activeUsername, code) {
     enabled: !!activeUsername && !!code
   });
 }
+function getSchedulesInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "schedules", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/schedules?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch schedules: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
 function getDraftsQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "drafts", activeUsername],
@@ -1886,6 +2054,49 @@ function getDraftsQueryOptions(activeUsername, code) {
         throw new Error(`Failed to fetch drafts: ${response.status}`);
       }
       return response.json();
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
+function getDraftsInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "drafts", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/drafts?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch drafts: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
     },
     enabled: !!activeUsername && !!code
   });
@@ -1928,6 +2139,49 @@ function getGalleryImagesQueryOptions(activeUsername, code) {
       return fetchUserImages(code);
     },
     enabled: !!activeUsername && !!code
+  });
+}
+function getImagesInfiniteQueryOptions(username, code, limit = 10) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["posts", "images", "infinite", username, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!username || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/images?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!username && !!code
   });
 }
 function getCommentHistoryQueryOptions(author, permlink, onlyMeta = false) {
@@ -5215,7 +5469,9 @@ exports.getAccountReputationsQueryOptions = getAccountReputationsQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
 exports.getAccountVoteHistoryInfiniteQueryOptions = getAccountVoteHistoryInfiniteQueryOptions;
 exports.getAccountsQueryOptions = getAccountsQueryOptions;
+exports.getActiveAccountBookmarksInfiniteQueryOptions = getActiveAccountBookmarksInfiniteQueryOptions;
 exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
+exports.getActiveAccountFavouritesInfiniteQueryOptions = getActiveAccountFavouritesInfiniteQueryOptions;
 exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
 exports.getAnnouncementsQueryOptions = getAnnouncementsQueryOptions;
 exports.getBoostPlusAccountPricesQueryOptions = getBoostPlusAccountPricesQueryOptions;
@@ -5246,11 +5502,13 @@ exports.getDiscoverLeaderboardQueryOptions = getDiscoverLeaderboardQueryOptions;
 exports.getDiscussion = getDiscussion;
 exports.getDiscussionQueryOptions = getDiscussionQueryOptions;
 exports.getDiscussionsQueryOptions = getDiscussionsQueryOptions;
+exports.getDraftsInfiniteQueryOptions = getDraftsInfiniteQueryOptions;
 exports.getDraftsQueryOptions = getDraftsQueryOptions;
 exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
 exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
 exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
 exports.getFollowingQueryOptions = getFollowingQueryOptions;
+exports.getFragmentsInfiniteQueryOptions = getFragmentsInfiniteQueryOptions;
 exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getFriendsInfiniteQueryOptions = getFriendsInfiniteQueryOptions;
 exports.getGalleryImagesQueryOptions = getGalleryImagesQueryOptions;
@@ -5268,6 +5526,7 @@ exports.getHiveEngineUnclaimedRewards = getHiveEngineUnclaimedRewards;
 exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
 exports.getHivePrice = getHivePrice;
+exports.getImagesInfiniteQueryOptions = getImagesInfiniteQueryOptions;
 exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getIncomingRcQueryOptions = getIncomingRcQueryOptions;
 exports.getMarketData = getMarketData;
@@ -5312,6 +5571,7 @@ exports.getRelationshipBetweenAccounts = getRelationshipBetweenAccounts;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
 exports.getRewardedCommunitiesQueryOptions = getRewardedCommunitiesQueryOptions;
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
+exports.getSchedulesInfiniteQueryOptions = getSchedulesInfiniteQueryOptions;
 exports.getSchedulesQueryOptions = getSchedulesQueryOptions;
 exports.getSearchAccountQueryOptions = getSearchAccountQueryOptions;
 exports.getSearchAccountsByUsernameQueryOptions = getSearchAccountsByUsernameQueryOptions;

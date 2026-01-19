@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LinearProgress } from "@/features/shared";
 import { FormControl } from "@ui/input";
 import { ScheduledListItem } from "@/features/shared/schedules/scheduled-list-item";
-import { getSchedulesQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { getSchedulesInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
 import i18next from "i18next";
 import { useMount } from "react-use";
 import { getAccessToken } from "@/utils";
+import { Button } from "@ui/button";
 
 interface Props {
   onHide: () => void;
@@ -20,18 +21,34 @@ export function SchedulesList({}: Props) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isPending, refetch } = useQuery(
-    getSchedulesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  const {
+    data,
+    isPending,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    getSchedulesInfiniteQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      10
+    )
+  );
+
+  const allSchedules = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
   );
 
   const items = useMemo(
     () =>
-      data
-        ?.filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
+      allSchedules
+        .filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
         .sort((a, b) =>
           new Date(b.schedule).getTime() > new Date(a.schedule).getTime() ? 1 : -1
-        ) ?? [],
-    [data, searchQuery]
+        ),
+    [allSchedules, searchQuery]
   );
 
   useMount(() => {
@@ -39,16 +56,16 @@ export function SchedulesList({}: Props) {
   });
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (allSchedules && allSchedules.length > 0) {
       inputRef?.current?.focus();
     }
-  }, [data]);
+  }, [allSchedules]);
 
   if (isPending) {
     return <LinearProgress />;
   }
 
-  if (data?.length === 0) {
+  if (allSchedules.length === 0) {
     return <div className="schedules-list">{i18next.t("g.empty-list")}</div>;
   }
 
@@ -73,6 +90,17 @@ export function SchedulesList({}: Props) {
               <ScheduledListItem key={item._id} post={item} />
             ))}
           </div>
+          {hasNextPage && (
+            <div className="flex justify-center my-4">
+              <Button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                isLoading={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? i18next.t("g.loading") : i18next.t("g.load-more")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

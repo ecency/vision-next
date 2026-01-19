@@ -2,14 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { LinearProgress } from "@/features/shared";
 import { FormControl } from "@ui/input";
 import { DraftListItem } from "@/features/shared/drafts/draft-list-item";
-import { getDraftsQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { getDraftsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { useCloneDraft, useDeleteDraft } from "@/api/mutations";
 import { usePathname, useRouter } from "next/navigation";
 import useMount from "react-use/lib/useMount";
 import { getAccessToken } from "@/utils";
+import { Button } from "@ui/button";
 
 interface Props {
   onHide: () => void;
@@ -24,17 +25,32 @@ export function DraftsList({ onHide, onPick }: Props) {
   const { activeUser } = useActiveAccount();
 
   const [filter, setFilter] = useState("");
-  const { data, isPending, refetch } = useQuery(
-    getDraftsQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  const {
+    data,
+    isPending,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    getDraftsInfiniteQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      10
+    )
+  );
+
+  const allDrafts = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
   );
 
   const items = useMemo(
     () =>
-      data
-        ?.filter((x) => x.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.modified).getTime() > new Date(a.modified).getTime() ? 1 : -1)) ??
-      [],
-    [data, filter]
+      allDrafts
+        .filter((x) => x.title.toLowerCase().indexOf(filter.toLowerCase()) !== -1)
+        .sort((a, b) => (new Date(b.modified).getTime() > new Date(a.modified).getTime() ? 1 : -1)),
+    [allDrafts, filter]
   );
 
   const { mutateAsync: cloneDraft, isPending: isCloning } = useCloneDraft(() => {
@@ -52,16 +68,16 @@ export function DraftsList({ onHide, onPick }: Props) {
   });
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (allDrafts && allDrafts.length > 0) {
       innerRef.current?.focus();
     }
-  }, [data]);
+  }, [allDrafts]);
 
   if (isPending) {
     return <LinearProgress />;
   }
 
-  if (data?.length === 0) {
+  if (allDrafts.length === 0) {
     return <div className="drafts-list">{i18next.t("g.empty-list")}</div>;
   }
 
@@ -99,6 +115,17 @@ export function DraftsList({ onHide, onPick }: Props) {
               />
             ))}
           </div>
+          {hasNextPage && (
+            <div className="flex justify-center my-4">
+              <Button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                isLoading={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? i18next.t("g.loading") : i18next.t("g.load-more")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

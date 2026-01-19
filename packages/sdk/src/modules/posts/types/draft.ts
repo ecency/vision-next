@@ -1,3 +1,5 @@
+import { WrappedResponse } from "@/modules/core/types";
+
 export interface DraftMetadata {
   beneficiaries?: Array<{ account: string; weight: number }>;
   rewardType?: string;
@@ -18,3 +20,5 @@ export interface Draft {
   _id: string;
   meta?: DraftMetadata;
 }
+
+export type DraftsWrappedResponse = WrappedResponse<Draft>;

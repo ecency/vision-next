@@ -864,6 +864,47 @@ function getActiveAccountBookmarksQueryOptions(activeUsername, code) {
     }
   });
 }
+function getActiveAccountBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/bookmarks?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bookmarks: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
 function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
   return queryOptions({
     queryKey: ["accounts", "favourites", activeUsername],
@@ -885,6 +926,47 @@ function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
       );
       return await response.json();
     }
+  });
+}
+function getActiveAccountFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/favorites?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch favorites: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
   });
 }
 function getAccountRecoveriesQueryOptions(username, code) {
@@ -1216,6 +1298,49 @@ function getFragmentsQueryOptions(username, code) {
         }
       );
       return response.json();
+    },
+    enabled: !!username && !!code
+  });
+}
+function getFragmentsInfiniteQueryOptions(username, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "fragments", "infinite", username, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!username || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/fragments?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch fragments: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
     },
     enabled: !!username && !!code
   });
@@ -1840,6 +1965,49 @@ function getSchedulesQueryOptions(activeUsername, code) {
     enabled: !!activeUsername && !!code
   });
 }
+function getSchedulesInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "schedules", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/schedules?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch schedules: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
 function getDraftsQueryOptions(activeUsername, code) {
   return queryOptions({
     queryKey: ["posts", "drafts", activeUsername],
@@ -1861,6 +2029,49 @@ function getDraftsQueryOptions(activeUsername, code) {
         throw new Error(`Failed to fetch drafts: ${response.status}`);
       }
       return response.json();
+    },
+    enabled: !!activeUsername && !!code
+  });
+}
+function getDraftsInfiniteQueryOptions(activeUsername, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "drafts", "infinite", activeUsername, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!activeUsername || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/drafts?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch drafts: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
     },
     enabled: !!activeUsername && !!code
   });
@@ -1903,6 +2114,49 @@ function getGalleryImagesQueryOptions(activeUsername, code) {
       return fetchUserImages(code);
     },
     enabled: !!activeUsername && !!code
+  });
+}
+function getImagesInfiniteQueryOptions(username, code, limit = 10) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "images", "infinite", username, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!username || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false
+          }
+        };
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/images?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images: ${response.status}`);
+      }
+      return response.json();
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return void 0;
+    },
+    enabled: !!username && !!code
   });
 }
 function getCommentHistoryQueryOptions(author, permlink, onlyMeta = false) {
@@ -5149,6 +5403,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksInfiniteQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesInfiniteQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
