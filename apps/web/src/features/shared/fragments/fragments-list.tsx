@@ -1,13 +1,13 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
-import { Fragment, getFragmentsQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { Fragment, getFragmentsInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilMinusCircle } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FragmentsListItem } from "./fragments-list-item";
 import { getAccessToken } from "@/utils";
 
@@ -26,14 +26,28 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: items, isPending } = useQuery({
-    ...getFragmentsQueryOptions(username ?? "", accessToken),
-    refetchOnMount: true,
-    select: (data) =>
-      data
+  const {
+    data,
+    isPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    getFragmentsInfiniteQueryOptions(username, accessToken, 10)
+  );
+
+  const allFragments = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
+  );
+
+  const items = useMemo(
+    () =>
+      allFragments
         .filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
-        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1))
-  });
+        .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)),
+    [allFragments, searchQuery]
+  );
 
   useEffect(() => {
     if (items && items.length > 0) {
@@ -84,6 +98,17 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
             />
           ))}
         </AnimatePresence>
+        {hasNextPage && (
+          <div className="flex justify-center my-4">
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              isLoading={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? i18next.t("g.loading") : i18next.t("g.load-more")}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

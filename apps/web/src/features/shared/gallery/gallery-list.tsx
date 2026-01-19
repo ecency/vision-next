@@ -1,5 +1,5 @@
-import { getGalleryImagesQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { getImagesInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import React, { useMemo } from "react";
@@ -23,15 +23,32 @@ export function GalleryList({ onPick }: Props) {
   const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const { activeUser } = useActiveAccount();
 
-  const { data, refetch, isPending } = useQuery(
-    getGalleryImagesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? ""))
+  const {
+    data,
+    refetch,
+    isPending,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    getImagesInfiniteQueryOptions(
+      activeUser?.username,
+      getAccessToken(activeUser?.username ?? ""),
+      10
+    )
   );
+
+  const allImages = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
+  );
+
   const items = useMemo(
     () =>
-      data?.sort((a, b) =>
+      allImages.sort((a, b) =>
         new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1
-      ) ?? [],
-    [data]
+      ),
+    [allImages]
   );
 
   const { mutateAsync: deleteImage } = useDeleteGalleryImage();
@@ -78,6 +95,17 @@ export function GalleryList({ onPick }: Props) {
               );
             })}
           </div>
+          {hasNextPage && (
+            <div className="flex justify-center my-4">
+              <Button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                isLoading={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? i18next.t("g.loading") : i18next.t("g.load-more")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       {!isPending && items.length === 0 && (
