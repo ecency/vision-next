@@ -23,6 +23,7 @@ import { default as i18n, default as i18next } from "i18next";
 import { useEffect } from "react";
 import { useDebounce, useMap, useMount } from "react-use";
 import { getAccessToken } from "@/utils";
+import * as ls from "@/utils/local-storage";
 
 interface Props {
   filter?: NotificationFilter;
@@ -47,7 +48,8 @@ export function NotificationsActions({ filter }: Props) {
   const { data: notificationSettings } = useQuery(
     getNotificationsSettingsQueryOptions(
       activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
+      getAccessToken(activeUser?.username ?? ""),
+      ls.get("notifications") !== "true"
     )
   );
   const {

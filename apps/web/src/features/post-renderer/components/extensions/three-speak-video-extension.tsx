@@ -1,8 +1,7 @@
 "use client";
 
 import React, { RefObject, useCallback, useEffect, useState } from "react";
-import { hydrateRoot } from "react-dom/client";
-import "./three-speak-video-extension.scss";
+import { createRoot } from "react-dom/client";
 
 export function ThreeSpeakVideoRenderer({
   embedSrc,
@@ -53,19 +52,34 @@ export function ThreeSpeakVideoExtension({
       ) ?? []
     );
     elements.forEach((element) => {
-      const container = document.createElement("div");
+      try {
+        // Verify element is still connected to the DOM before manipulation
+        if (!element.isConnected || !element.parentNode) {
+          console.warn("3Speak video element is not connected to DOM, skipping");
+          return;
+        }
 
-      container.classList.add("ecency-renderer-speak-extension-frame");
-      element.classList.add("ecency-renderer-speak-extension");
+        const container = document.createElement("div");
 
-      hydrateRoot(
-        container,
-        <ThreeSpeakVideoRenderer
-          embedSrc={element.dataset.embedSrc ?? ""}
-          container={element}
-        />
-      );
-      element.appendChild(container);
+        container.classList.add("ecency-renderer-speak-extension-frame");
+        element.classList.add("ecency-renderer-speak-extension");
+
+        // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
+        const root = createRoot(container);
+        root.render(
+          <ThreeSpeakVideoRenderer
+            embedSrc={element.dataset.embedSrc ?? ""}
+            container={element}
+          />
+        );
+
+        // Final safety check before appending
+        if (element.isConnected && element.parentNode) {
+          element.appendChild(container);
+        }
+      } catch (error) {
+        console.warn("Error enhancing 3Speak video element:", error);
+      }
     });
   }, []);
 

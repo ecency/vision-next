@@ -1,9 +1,8 @@
 "use client";
 
 import React, { RefObject, useCallback, useEffect, useState } from "react";
-import { hydrateRoot } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import { clsx } from "clsx";
-import "./youtube-video-extension.scss";
 import { getYoutubeEmbedUrl } from "../utils/getYoutubeEmbedUrl";
 
 export function YoutubeVideoRenderer({
@@ -54,20 +53,33 @@ export function YoutubeVideoExtension({
       ) ?? [],
     );
     elements.forEach((element) => {
-      const embedSrc =
-        element.dataset.embedSrc ||
-        getYoutubeEmbedUrl(element.getAttribute("href") ?? "");
-      element.dataset.embedSrc = embedSrc;
-      const container = document.createElement("div");
+      try {
+        // Verify element is still connected to the DOM before manipulation
+        if (!element.isConnected || !element.parentNode) {
+          console.warn("YouTube video element is not connected to DOM, skipping");
+          return;
+        }
 
-      container.classList.add("ecency-renderer-youtube-extension-frame");
-      element.classList.add("ecency-renderer-youtube-extension");
+        const embedSrc =
+          element.dataset.embedSrc ||
+          getYoutubeEmbedUrl(element.getAttribute("href") ?? "");
+        element.dataset.embedSrc = embedSrc;
+        const container = document.createElement("div");
 
-      hydrateRoot(
-        container,
-        <YoutubeVideoRenderer embedSrc={embedSrc} container={element} />,
-      );
-      element.appendChild(container);
+        container.classList.add("ecency-renderer-youtube-extension-frame");
+        element.classList.add("ecency-renderer-youtube-extension");
+
+        // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
+        const root = createRoot(container);
+        root.render(<YoutubeVideoRenderer embedSrc={embedSrc} container={element} />);
+
+        // Final safety check before appending
+        if (element.isConnected && element.parentNode) {
+          element.appendChild(container);
+        }
+      } catch (error) {
+        console.warn("Error enhancing YouTube video element:", error);
+      }
     });
   }, []);
 

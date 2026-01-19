@@ -1,43 +1,43 @@
 import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { Fragment } from "../types";
+import { AccountFavorite } from "../types";
 
-export function getFragmentsQueryOptions(username: string, code?: string) {
+export function getFavouritesQueryOptions(
+  activeUsername: string | undefined,
+  code: string | undefined
+) {
   return queryOptions({
-    queryKey: ["posts", "fragments", username],
+    queryKey: ["accounts", "favourites", activeUsername],
+    enabled: !!activeUsername && !!code,
     queryFn: async () => {
-      if (!code) {
-        return [];
+      if (!activeUsername || !code) {
+        throw new Error("[SDK][Accounts][Favourites] – missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/fragments",
+        CONFIG.privateApiHost + "/private-api/favorites",
         {
           method: "POST",
-          body: JSON.stringify({
-            code,
-          }),
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ code }),
         }
       );
-
-      return response.json() as Promise<Fragment[]>;
+      return (await response.json()) as AccountFavorite[];
     },
-    enabled: !!username && !!code,
   });
 }
 
-export function getFragmentsInfiniteQueryOptions(
-  username: string | undefined,
-  code?: string,
+export function getFavouritesInfiniteQueryOptions(
+  activeUsername: string | undefined,
+  code: string | undefined,
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "fragments", "infinite", username, limit],
+    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
     queryFn: async ({ pageParam = 0 }) => {
-      if (!username || !code) {
+      if (!activeUsername || !code) {
         return {
           data: [],
           pagination: {
@@ -51,24 +51,22 @@ export function getFragmentsInfiniteQueryOptions(
 
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        `${CONFIG.privateApiHost}/private-api/fragments?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        `${CONFIG.privateApiHost}/private-api/favorites?format=wrapped&offset=${pageParam}&limit=${limit}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            code,
-          }),
+          body: JSON.stringify({ code }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch fragments: ${response.status}`);
+        throw new Error(`Failed to fetch favorites: ${response.status}`);
       }
 
       const json = await response.json();
-      return normalizeToWrappedResponse<Fragment>(json, limit);
+      return normalizeToWrappedResponse<AccountFavorite>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -77,6 +75,6 @@ export function getFragmentsInfiniteQueryOptions(
       }
       return undefined;
     },
-    enabled: !!username && !!code,
+    enabled: !!activeUsername && !!code,
   });
 }

@@ -8,6 +8,9 @@ const MATTERMOST_ADMIN_TOKEN = process.env.MATTERMOST_ADMIN_TOKEN;
 const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
+export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
+
+export type DmPrivacyLevel = "all" | "followers" | "none";
 
 export interface MattermostUser {
   id: string;
@@ -352,6 +355,14 @@ export function isUserChatBanned(user: Pick<MattermostUserWithProps, "props">) {
   return expiration;
 }
 
+export function getUserDmPrivacy(user: Pick<MattermostUserWithProps, "props">): DmPrivacyLevel {
+  const dmPrivacy = user.props?.[CHAT_DM_PRIVACY_PROP];
+  if (dmPrivacy === "followers" || dmPrivacy === "none") {
+    return dmPrivacy;
+  }
+  return "all"; // default: allow all DMs
+}
+
 async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
   const teamId = getMattermostTeamId();
 
@@ -397,6 +408,78 @@ export async function deleteMattermostPostsByUserAsAdmin(username: string) {
   return { deleted, user: targetUser } as const;
 }
 
+export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  const perPage = 200;
+  let deleted = 0;
+  const teamId = getMattermostTeamId();
+
+  // Build a cache of channel types as we discover them
+  const channelTypeCache = new Map<string, string>();
+
+  // Helper to check if a channel is a DM
+  async function isDmChannel(channelId: string): Promise<boolean> {
+    // Check cache first
+    if (channelTypeCache.has(channelId)) {
+      return channelTypeCache.get(channelId) === "D";
+    }
+
+    // Fetch and cache the channel type
+    try {
+      const channel = await mmFetch<{ id: string; type: string }>(
+        `/channels/${channelId}`,
+        { headers: getAdminHeaders() }
+      );
+      channelTypeCache.set(channelId, channel.type);
+      return channel.type === "D";
+    } catch (err) {
+      console.error(`Failed to check channel ${channelId}:`, err);
+      channelTypeCache.set(channelId, ""); // Cache as non-DM to avoid re-checking
+      return false;
+    }
+  }
+
+  // Delete all DM posts by continuously searching and deleting
+  while (true) {
+    const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
+
+    if (!order || order.length === 0) {
+      break;
+    }
+
+    // Check each post's channel and delete if it's a DM
+    const postsToDelete = [];
+    for (const postId of order) {
+      const post = posts[postId];
+      if (post && post.channel_id) {
+        const isDm = await isDmChannel(post.channel_id);
+        if (isDm) {
+          postsToDelete.push(post);
+        }
+      }
+    }
+
+    if (postsToDelete.length === 0) {
+      // No more DM posts found in this batch, check if we should continue
+      // If there are still posts but none are DMs, we're done
+      break;
+    }
+
+    for (const post of postsToDelete) {
+      await deleteMattermostPostAsAdmin(post.id);
+      deleted += 1;
+    }
+  }
+
+  return { deleted, user: targetUser, dmOnly: true } as const;
+}
+
 export async function banMattermostUserForHoursAsAdmin(username: string, hours: number) {
   if (Number.isNaN(hours) || !Number.isFinite(hours)) {
     throw new MattermostError("hours must be a finite number", 400);
@@ -427,4 +510,23 @@ export async function banMattermostUserForHoursAsAdmin(username: string, hours: 
   });
 
   return { user: targetUser, bannedUntil: expiration } as const;
+}
+
+export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  if (privacy === "all") {
+    delete props[CHAT_DM_PRIVACY_PROP];
+  } else {
+    props[CHAT_DM_PRIVACY_PROP] = privacy;
+  }
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return privacy;
 }

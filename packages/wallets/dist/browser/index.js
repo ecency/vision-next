@@ -38,9 +38,22 @@ if (typeof globalLike._scrypt_bsv !== "undefined") {
     globalLike._scrypt_bsv = void 0;
   }
 }
+if (typeof globalLike._bitcore !== "undefined") {
+  if (typeof globalLike._bitcore === "object") {
+    globalLike.__bitcorePreviousVersion = globalLike._bitcore;
+  }
+  try {
+    delete globalLike._bitcore;
+  } catch {
+    globalLike._bitcore = void 0;
+  }
+}
 function rememberScryptBsvVersion() {
   if (typeof globalLike._scrypt_bsv === "string") {
     globalLike.__scryptBsvPreviousVersion = globalLike._scrypt_bsv;
+  }
+  if (typeof globalLike._bitcore === "object") {
+    globalLike.__bitcorePreviousVersion = globalLike._bitcore;
   }
 }
 

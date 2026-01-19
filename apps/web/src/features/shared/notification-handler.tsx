@@ -13,6 +13,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { usePrevious } from "react-use";
 import { getAccessToken } from "@/utils";
+import * as ls from "@/utils/local-storage";
 
 export function NotificationHandler() {
   const nws = useRef(new NotificationsWebSocket());
@@ -33,7 +34,11 @@ export function NotificationHandler() {
     getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken)
   );
   const notificationsSettingsQuery = useQuery(
-    getNotificationsSettingsQueryOptions(activeUser?.username, accessToken)
+    getNotificationsSettingsQueryOptions(
+      activeUser?.username,
+      accessToken,
+      ls.get("notifications") !== "true"
+    )
   );
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { UserImage } from "../types/user-image";
 
 async function fetchUserImages(code: string | undefined): Promise<UserImage[]> {
@@ -44,5 +44,57 @@ export function getGalleryImagesQueryOptions(activeUsername: string | undefined,
       return fetchUserImages(code);
     },
     enabled: !!activeUsername && !!code,
+  });
+}
+
+export function getImagesInfiniteQueryOptions(
+  username: string | undefined,
+  code?: string,
+  limit: number = 10
+) {
+  return infiniteQueryOptions({
+    queryKey: ["posts", "images", "infinite", username, limit],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!username || !code) {
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit,
+            offset: 0,
+            has_next: false,
+          },
+        };
+      }
+
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        `${CONFIG.privateApiHost}/private-api/images?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            code,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch images: ${response.status}`);
+      }
+
+      const json = await response.json();
+      return normalizeToWrappedResponse<UserImage>(json, limit);
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.has_next) {
+        return lastPage.pagination.offset + lastPage.pagination.limit;
+      }
+      return undefined;
+    },
+    enabled: !!username && !!code,
   });
 }

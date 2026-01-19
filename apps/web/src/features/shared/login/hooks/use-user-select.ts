@@ -18,7 +18,11 @@ export function useUserSelect(user: User) {
   const router = useRouter();
   const { mutateAsync: updateNotificationSettings } = useUpdateNotificationsSettings();
   const notificationsSettingsQuery = useQuery(
-    getNotificationsSettingsQueryOptions(user.username, getAccessToken(user.username))
+    getNotificationsSettingsQueryOptions(
+      user.username,
+      getAccessToken(user.username),
+      ls.get("notifications") !== "true"
+    )
   );
 
   return useMutation({

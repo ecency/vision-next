@@ -28,9 +28,29 @@ type ActivityType =
   | "signed-up-with-wallets"
   | "signed-up-with-email";
 
+export interface RecordActivityOptions {
+  url?: string;
+  domain?: string;
+}
+
+/**
+ * Get current location info safely (works in browser and Node.js)
+ * Returns empty strings in non-browser environments
+ */
+function getLocationInfo(): { url: string; domain: string } {
+  if (typeof window !== "undefined" && window.location) {
+    return {
+      url: window.location.href,
+      domain: window.location.host,
+    };
+  }
+  return { url: "", domain: "" };
+}
+
 export function useRecordActivity(
   username: string | undefined,
-  activityType: ActivityType
+  activityType: ActivityType,
+  options?: RecordActivityOptions
 ) {
   return useMutation({
     mutationKey: ["analytics", activityType],
@@ -40,6 +60,12 @@ export function useRecordActivity(
       }
       const fetchApi = getBoundFetch();
 
+      // Use provided values or auto-detect from browser environment
+      // Falls back to empty strings in non-browser environments (Node.js, React Native, etc.)
+      const locationInfo = getLocationInfo();
+      const url = options?.url ?? locationInfo.url;
+      const domain = options?.domain ?? locationInfo.domain;
+
       await fetchApi(CONFIG.plausibleHost + "/api/event", {
         method: "POST",
         headers: {
@@ -47,8 +73,8 @@ export function useRecordActivity(
         },
         body: JSON.stringify({
           name: activityType,
-          url: window.location.href,
-          domain: window.location.host,
+          url,
+          domain,
           props: {
             username,
           },

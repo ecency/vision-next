@@ -21,20 +21,33 @@ export function TagLinkExtension({
     );
 
     elements.forEach((element) => {
-      const container = document.createElement("a");
+      try {
+        // Verify element is still connected to the DOM before manipulation
+        if (!element.isConnected || !element.parentNode) {
+          console.warn("Tag link element is not connected to DOM, skipping");
+          return;
+        }
 
-      container.setAttribute("href", element.getAttribute("href") ?? "");
-      container.setAttribute("target", "_blank");
-      container.setAttribute("rel", "noopener");
+        const container = document.createElement("a");
 
-      container.classList.add("ecency-renderer-tag-extension");
-      container.classList.add("ecency-renderer-tag-extension-link");
+        container.setAttribute("href", element.getAttribute("href") ?? "");
+        container.setAttribute("target", "_blank");
+        container.setAttribute("rel", "noopener");
 
-      // Use createRoot instead of hydrateRoot
-      const root = createRoot(container);
-      root.render(<TagLinkRenderer tag={element.innerText} />);
+        container.classList.add("ecency-renderer-tag-extension");
+        container.classList.add("ecency-renderer-tag-extension-link");
 
-      element.parentElement?.replaceChild(container, element);
+        // Use createRoot instead of hydrateRoot
+        const root = createRoot(container);
+        root.render(<TagLinkRenderer tag={element.innerText} />);
+
+        // Final safety check before replacing
+        if (element.isConnected && element.parentElement) {
+          element.parentElement.replaceChild(container, element);
+        }
+      } catch (error) {
+        console.warn("Error enhancing tag link element:", error);
+      }
     });
   }, []);
 

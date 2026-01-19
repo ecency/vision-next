@@ -157,18 +157,32 @@ export function HivePostLinkExtension({
         }
       })
       .forEach((element) => {
-        // Prevent multiple injections
-        if ((element as HTMLElement).dataset.enhanced === "true") return;
-        (element as HTMLElement).dataset.enhanced = "true";
+        try {
+          // Prevent multiple injections
+          if ((element as HTMLElement).dataset.enhanced === "true") return;
 
-        const container = document.createElement("div");
-        container.classList.add("ecency-renderer-hive-post-extension");
+          // Verify element is still connected to the DOM before manipulation
+          if (!element.isConnected || !element.parentNode) {
+            console.warn("Hive post link element is not connected to DOM, skipping");
+            return;
+          }
 
-        const href = element.getAttribute("href") ?? "";
-        const root = createRoot(container);
-        root.render(<HivePostLinkRenderer link={href} />);
+          (element as HTMLElement).dataset.enhanced = "true";
 
-        element.parentElement?.replaceChild(container, element);
+          const container = document.createElement("div");
+          container.classList.add("ecency-renderer-hive-post-extension");
+
+          const href = element.getAttribute("href") ?? "";
+          const root = createRoot(container);
+          root.render(<HivePostLinkRenderer link={href} />);
+
+          // Final safety check before replacing
+          if (element.isConnected && element.parentElement) {
+            element.parentElement.replaceChild(container, element);
+          }
+        } catch (error) {
+          console.warn("Error enhancing Hive post link element:", error);
+        }
       });
   }, []);
 

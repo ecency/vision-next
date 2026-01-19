@@ -1,1 +1,1 @@
-export { getActiveAccountBookmarksQueryOptions, useBookmarkAdd, useBookmarkDelete } from "@ecency/sdk";
+export { getBookmarksQueryOptions, useBookmarkAdd, useBookmarkDelete } from "@ecency/sdk";

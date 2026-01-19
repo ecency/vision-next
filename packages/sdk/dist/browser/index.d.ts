@@ -28,6 +28,23 @@ interface AuthContext {
     broadcast?: (operations: Operation[], authority?: "active" | "posting" | "owner" | "memo") => Promise<unknown>;
 }
 
+/**
+ * Generic pagination metadata for wrapped API responses
+ */
+interface PaginationMeta {
+    total: number;
+    limit: number;
+    offset: number;
+    has_next: boolean;
+}
+/**
+ * Generic wrapped response with pagination metadata
+ */
+interface WrappedResponse<T> {
+    data: T[];
+    pagination: PaginationMeta;
+}
+
 interface AccountFollowStats {
     follower_count: number;
     following_count: number;
@@ -792,7 +809,124 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
     };
 };
 
-declare function getActiveAccountBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContext): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
+
+declare const CONFIG: {
+    privateApiHost: string;
+    imageHost: string;
+    hiveClient: Client;
+    heliusApiKey: string | undefined;
+    queryClient: QueryClient;
+    plausibleHost: string;
+    spkNode: string;
+    dmcaAccounts: string[];
+    dmcaTags: string[];
+    dmcaPatterns: string[];
+    dmcaTagRegexes: RegExp[];
+    dmcaPatternRegexes: RegExp[];
+    _dmcaInitialized: boolean;
+};
+declare namespace ConfigManager {
+    function setQueryClient(client: QueryClient): void;
+    /**
+     * Set the private API host
+     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
+     */
+    function setPrivateApiHost(host: string): void;
+    /**
+     * Get a validated base URL for API requests
+     * Returns a valid base URL that can be used with new URL(path, baseUrl)
+     *
+     * Priority:
+     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
+     * 2. window.location.origin if in browser (production with relative URLs)
+     * 3. 'https://ecency.com' as fallback for SSR (production default)
+     *
+     * @returns A valid base URL string
+     * @throws Never throws - always returns a valid URL
+     */
+    function getValidatedBaseUrl(): string;
+    /**
+     * Set the image host
+     * @param host - The image host URL (e.g., "https://images.ecency.com")
+     */
+    function setImageHost(host: string): void;
+    /**
+     * Set DMCA filtering lists
+     * @param accounts - List of account usernames to filter (plain strings)
+     * @param tags - List of tag patterns (regex strings) to filter
+     * @param patterns - List of post patterns (plain strings) like "@author/permlink" for exact matching
+     */
+    function setDmcaLists(accounts?: string[], tags?: string[], patterns?: string[]): void;
+}
+
+declare function makeQueryClient(): QueryClient;
+declare const getQueryClient: () => QueryClient;
+declare namespace EcencyQueriesManager {
+    function getQueryData<T>(queryKey: QueryKey): T | undefined;
+    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
+    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
+    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
+    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
+        prefetch: () => Promise<T | undefined>;
+        getData: () => T | undefined;
+        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
+        fetchAndGet: () => Promise<T>;
+    };
+    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
+        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
+        getData: () => InfiniteData<T, unknown> | undefined;
+        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
+        fetchAndGet: () => Promise<InfiniteData<T, P>>;
+    };
+}
+
+declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps, Error, DynamicProps, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: DynamicProps;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function encodeObj(o: any): string;
+declare function decodeObj(o: any): any;
+
+declare enum Symbol {
+    HIVE = "HIVE",
+    HBD = "HBD",
+    VESTS = "VESTS",
+    SPK = "SPK"
+}
+declare enum NaiMap {
+    "@@000000021" = "HIVE",
+    "@@000000013" = "HBD",
+    "@@000000037" = "VESTS"
+}
+interface Asset {
+    amount: number;
+    symbol: Symbol;
+}
+declare function parseAsset(sval: string | SMTAsset): Asset;
+
+declare function getBoundFetch(): typeof fetch;
+
+declare function isCommunity(value: unknown): boolean;
+
+/**
+ * Type guard to check if response is wrapped with pagination metadata
+ */
+declare function isWrappedResponse<T>(response: any): response is WrappedResponse<T>;
+/**
+ * Normalize response to wrapped format for backwards compatibility
+ * If the backend returns old format (array), convert it to wrapped format
+ */
+declare function normalizeToWrappedResponse<T>(response: T[] | WrappedResponse<T>, limit: number): WrappedResponse<T>;
+
+declare function getBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AccountBookmark[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
@@ -800,12 +934,28 @@ declare function getActiveAccountBookmarksQueryOptions(activeUsername: string | 
         [dataTagErrorSymbol]: Error;
     };
 };
+declare function getBookmarksInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountBookmark>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountBookmark>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
 
-declare function getActiveAccountFavouritesQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
+declare function getFavouritesQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AccountFavorite[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: AccountFavorite[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getFavouritesInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountFavorite>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountFavorite>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1101,6 +1251,7 @@ interface Draft {
     _id: string;
     meta?: DraftMetadata;
 }
+type DraftsWrappedResponse = WrappedResponse<Draft>;
 
 interface Schedule {
     _id: string;
@@ -1206,113 +1357,6 @@ declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKey
     };
 };
 
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContext): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
-
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
-
-declare const CONFIG: {
-    privateApiHost: string;
-    imageHost: string;
-    hiveClient: Client;
-    heliusApiKey: string | undefined;
-    queryClient: QueryClient;
-    plausibleHost: string;
-    spkNode: string;
-    dmcaAccounts: string[];
-    dmcaTags: string[];
-    dmcaPatterns: string[];
-    dmcaTagRegexes: RegExp[];
-    dmcaPatternRegexes: RegExp[];
-    _dmcaInitialized: boolean;
-};
-declare namespace ConfigManager {
-    function setQueryClient(client: QueryClient): void;
-    /**
-     * Set the private API host
-     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
-     */
-    function setPrivateApiHost(host: string): void;
-    /**
-     * Get a validated base URL for API requests
-     * Returns a valid base URL that can be used with new URL(path, baseUrl)
-     *
-     * Priority:
-     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
-     * 2. window.location.origin if in browser (production with relative URLs)
-     * 3. 'https://ecency.com' as fallback for SSR (production default)
-     *
-     * @returns A valid base URL string
-     * @throws Never throws - always returns a valid URL
-     */
-    function getValidatedBaseUrl(): string;
-    /**
-     * Set the image host
-     * @param host - The image host URL (e.g., "https://images.ecency.com")
-     */
-    function setImageHost(host: string): void;
-    /**
-     * Set DMCA filtering lists
-     * @param accounts - List of account usernames to filter (plain strings)
-     * @param tags - List of tag patterns (regex strings) to filter
-     * @param patterns - List of post patterns (plain strings) like "@author/permlink" for exact matching
-     */
-    function setDmcaLists(accounts?: string[], tags?: string[], patterns?: string[]): void;
-}
-
-declare function makeQueryClient(): QueryClient;
-declare const getQueryClient: () => QueryClient;
-declare namespace EcencyQueriesManager {
-    function getQueryData<T>(queryKey: QueryKey): T | undefined;
-    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
-    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
-    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
-    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
-        prefetch: () => Promise<T | undefined>;
-        getData: () => T | undefined;
-        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
-        fetchAndGet: () => Promise<T>;
-    };
-    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
-        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
-        getData: () => InfiniteData<T, unknown> | undefined;
-        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
-        fetchAndGet: () => Promise<InfiniteData<T, P>>;
-    };
-}
-
-declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps, Error, DynamicProps, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: DynamicProps;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function encodeObj(o: any): string;
-declare function decodeObj(o: any): any;
-
-declare enum Symbol {
-    HIVE = "HIVE",
-    HBD = "HBD",
-    VESTS = "VESTS",
-    SPK = "SPK"
-}
-declare enum NaiMap {
-    "@@000000021" = "HIVE",
-    "@@000000013" = "HBD",
-    "@@000000037" = "VESTS"
-}
-interface Asset {
-    amount: number;
-    symbol: Symbol;
-}
-declare function parseAsset(sval: string | SMTAsset): Asset;
-
-declare function getBoundFetch(): typeof fetch;
-
-declare function isCommunity(value: unknown): boolean;
-
 declare function getTrendingTagsQueryOptions(limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<string[], Error, _tanstack_react_query.InfiniteData<string[], unknown>, string[], {
     afterTag: string;
 }>, "queryFn"> & {
@@ -1344,6 +1388,14 @@ declare function getFragmentsQueryOptions(username: string, code?: string): _tan
 } & {
     queryKey: string[] & {
         [dataTagSymbol]: Fragment[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getFragmentsInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Fragment>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Fragment>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Fragment>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Fragment>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1504,12 +1556,28 @@ declare function getSchedulesQueryOptions(activeUsername: string | undefined, co
         [dataTagErrorSymbol]: Error;
     };
 };
+declare function getSchedulesInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Schedule>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Schedule>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Schedule>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Schedule>, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
 
 declare function getDraftsQueryOptions(activeUsername: string | undefined, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Draft[], Error, Draft[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<Draft[], (string | undefined)[], never> | undefined;
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: Draft[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getDraftsInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Draft>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Draft>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Draft>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Draft>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1527,6 +1595,14 @@ declare function getGalleryImagesQueryOptions(activeUsername: string | undefined
 } & {
     queryKey: (string | undefined)[] & {
         [dataTagSymbol]: UserImage[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getImagesInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<UserImage>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<UserImage>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<UserImage>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<UserImage>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -1657,11 +1733,16 @@ type ValidatePostCreatingOptions = {
 declare function validatePostCreating(author: string, permlink: string, attempts?: number, options?: ValidatePostCreatingOptions): Promise<void>;
 
 type ActivityType = "post-created" | "post-updated" | "post-scheduled" | "draft-created" | "video-published" | "legacy-post-created" | "legacy-post-updated" | "legacy-post-scheduled" | "legacy-draft-created" | "legacy-video-published" | "perks-points-by-qr" | "perks-account-boost" | "perks-promote" | "perks-boost-plus" | "points-claimed" | "spin-rolled" | "signed-up-with-wallets" | "signed-up-with-email";
-declare function useRecordActivity(username: string | undefined, activityType: ActivityType): _tanstack_react_query.UseMutationResult<void, Error, void, unknown>;
+interface RecordActivityOptions {
+    url?: string;
+    domain?: string;
+}
+declare function useRecordActivity(username: string | undefined, activityType: ActivityType, options?: RecordActivityOptions): _tanstack_react_query.UseMutationResult<void, Error, void, unknown>;
 
+type index_RecordActivityOptions = RecordActivityOptions;
 declare const index_useRecordActivity: typeof useRecordActivity;
 declare namespace index {
-  export { index_useRecordActivity as useRecordActivity };
+  export { type index_RecordActivityOptions as RecordActivityOptions, index_useRecordActivity as useRecordActivity };
 }
 
 interface LeaderBoardItem {
@@ -2409,7 +2490,7 @@ declare function getNotificationsInfiniteQueryOptions(activeUsername: string | u
     };
 };
 
-declare function getNotificationsSettingsQueryOptions(activeUsername: string | undefined, code: string | undefined): Omit<_tanstack_react_query.UseQueryOptions<ApiNotificationSetting, Error, ApiNotificationSetting, (string | undefined)[]>, "queryFn"> & {
+declare function getNotificationsSettingsQueryOptions(activeUsername: string | undefined, code: string | undefined, initialMuted?: boolean): Omit<_tanstack_react_query.UseQueryOptions<ApiNotificationSetting, Error, ApiNotificationSetting, (string | undefined)[]>, "queryFn"> & {
     initialData: ApiNotificationSetting | (() => ApiNotificationSetting);
     queryFn?: _tanstack_react_query.QueryFunction<ApiNotificationSetting, (string | undefined)[]> | undefined;
 } & {
@@ -3191,4 +3272,4 @@ declare function getHiveEngineUnclaimedRewards<T = Record<string, unknown>>(user
 declare function getSpkWallet<T = Record<string, unknown>>(username: string): Promise<T>;
 declare function getSpkMarkets<T = Record<string, unknown>>(): Promise<T>;
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthContext, type AuthorReward, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveEngineOpenOrder, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type PageStatsResponse, type Payer, type PointTransaction, type Points, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReceivedVestingShare, type Recoveries, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getActiveAccountBookmarksQueryOptions, getActiveAccountFavouritesQueryOptions, getAnnouncementsQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthContext, type AuthorReward, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveEngineOpenOrder, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type Payer, type PointTransaction, type Points, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalPay, type ProposalVote, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };

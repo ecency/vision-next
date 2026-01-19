@@ -1,10 +1,12 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
-import { getActiveAccountBookmarksQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { getBookmarksInfiniteQueryOptions } from "@ecency/sdk";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { BookmarkItem } from "./bookmark-item";
 import { getAccessToken } from "@/utils";
+import { Button } from "@ui/button";
+import { useMemo } from "react";
 
 interface Props {
   onHide: () => void;
@@ -13,28 +15,54 @@ interface Props {
 export function BookmarksList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const { data, isLoading } = useQuery({
-    ...getActiveAccountBookmarksQueryOptions(
+  const {
+    data,
+    isPending: isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    getBookmarksInfiniteQueryOptions(
       activeUser?.username,
-      getAccessToken(activeUser?.username ?? "")
-    ),
-    refetchOnMount: true,
-    select: (data) => data?.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)) ?? []
-  });
+      getAccessToken(activeUser?.username ?? ""),
+      10
+    )
+  );
+
+  const allBookmarks = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
+  );
+
+  const items = useMemo(
+    () => allBookmarks.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)),
+    [allBookmarks]
+  );
 
   return (
     <div className="dialog-content ">
       {isLoading && <LinearProgress />}
-      {data && data.length > 0 && (
+      {items && items.length > 0 && (
         <div className="dialog-list">
           <div className="grid grid-cols-1 gap-4">
-            {data.map((item, i) => (
+            {items.map((item, i) => (
               <BookmarkItem i={i} key={item._id} author={item.author} permlink={item.permlink} />
             ))}
           </div>
+          {hasNextPage && (
+            <div className="flex justify-center my-4">
+              <Button
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                isLoading={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? i18next.t("g.loading") : i18next.t("g.load-more")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
-      {!isLoading && data?.length === 0 && (
+      {!isLoading && items.length === 0 && (
         <div className="dialog-list">{i18next.t("g.empty-list")}</div>
       )}
     </div>

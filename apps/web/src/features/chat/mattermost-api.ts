@@ -354,6 +354,33 @@ export function useMattermostAdminDeleteUserPosts() {
   });
 }
 
+export function useMattermostAdminDeleteUserDmPosts() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      // channelId is not needed since we delete from all DM channels, but the route requires it
+      const res = await fetch(`/api/mattermost/channels/_/posts/user/${encodeURIComponent(username)}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to delete DM posts");
+      }
+
+      return (await res.json()) as { deleted: number; dmOnly: boolean };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] })
+      ]);
+    }
+  });
+}
+
 export function useMattermostUnread(enabled: boolean) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
@@ -760,6 +787,48 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
       ]);
+    }
+  });
+}
+
+export type DmPrivacyLevel = "all" | "followers" | "none";
+
+export function useDmPrivacyQuery() {
+  return useQuery({
+    queryKey: ["mattermost", "dm-privacy"],
+    queryFn: async () => {
+      const res = await fetch("/api/mattermost/me/dm-privacy");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to fetch DM privacy");
+      }
+      const data = await res.json();
+      return data.privacy as DmPrivacyLevel;
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+}
+
+export function useUpdateDmPrivacy() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (privacy: DmPrivacyLevel) => {
+      const res = await fetch("/api/mattermost/me/dm-privacy", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ privacy })
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to update DM privacy");
+      }
+
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "dm-privacy"] });
     }
   });
 }
