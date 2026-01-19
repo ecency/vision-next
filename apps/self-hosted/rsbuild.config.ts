@@ -21,6 +21,7 @@ export default defineConfig({
         alias: {
           react: path.resolve(__dirname, 'node_modules/react'),
           'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+          '@ecency/ui': path.resolve(__dirname, '../../packages/ui/dist/index.js'),
         },
       },
       plugins: [

@@ -30,6 +30,8 @@ type TranslationKey =
   | 'login'
   | 'logout'
   | 'login_to_comment'
+  | 'login_to_vote'
+  | 'login_to_reblog'
   | 'write_comment'
   | 'posting'
   | 'post_comment'
@@ -52,6 +54,10 @@ type TranslationKey =
   | 'resume'
   | 'stop'
   | 'reblogging'
+  | 'reblog_confirm'
+  | 'cant_reblog_own'
+  | 'already_reblogged'
+  | 'reblog_to_followers'
   | 'error_loading'
   | 'retry';
 
@@ -87,6 +93,8 @@ const translations: Record<string, Translations> = {
     login: 'Login',
     logout: 'Logout',
     login_to_comment: 'Login to leave a comment',
+    login_to_vote: 'Login to vote',
+    login_to_reblog: 'Login to reblog',
     write_comment: 'Write a comment...',
     posting: 'Posting...',
     post_comment: 'Post Comment',
@@ -109,6 +117,10 @@ const translations: Record<string, Translations> = {
     resume: 'Resume',
     stop: 'Stop',
     reblogging: 'Reblogging...',
+    reblog_confirm: 'Are you sure you want to reblog this post to your followers?',
+    cant_reblog_own: "You can't reblog your own post",
+    already_reblogged: 'Already reblogged',
+    reblog_to_followers: 'Reblog to your followers',
     error_loading: 'Something went wrong. Please try again.',
     retry: 'Retry',
   },
@@ -141,6 +153,8 @@ const translations: Record<string, Translations> = {
     login: 'Iniciar sesión',
     logout: 'Cerrar sesión',
     login_to_comment: 'Inicia sesión para comentar',
+    login_to_vote: 'Inicia sesión para votar',
+    login_to_reblog: 'Inicia sesión para rebloguear',
     write_comment: 'Escribe un comentario...',
     posting: 'Publicando...',
     post_comment: 'Publicar comentario',
@@ -163,6 +177,10 @@ const translations: Record<string, Translations> = {
     resume: 'Reanudar',
     stop: 'Detener',
     reblogging: 'Reblogueando...',
+    reblog_confirm: '¿Estás seguro de que quieres rebloguear esta publicación a tus seguidores?',
+    cant_reblog_own: 'No puedes rebloguear tu propia publicación',
+    already_reblogged: 'Ya reblogueado',
+    reblog_to_followers: 'Rebloguear a tus seguidores',
     error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
     retry: 'Reintentar',
   },
@@ -195,6 +213,8 @@ const translations: Record<string, Translations> = {
     login: 'Anmelden',
     logout: 'Abmelden',
     login_to_comment: 'Melden Sie sich an, um zu kommentieren',
+    login_to_vote: 'Melden Sie sich an, um abzustimmen',
+    login_to_reblog: 'Melden Sie sich an, um zu rebloggen',
     write_comment: 'Schreibe einen Kommentar...',
     posting: 'Wird gepostet...',
     post_comment: 'Kommentar posten',

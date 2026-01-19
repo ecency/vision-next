@@ -1,9 +1,9 @@
 'use client';
 
 import type { Operation } from '@hiveio/dhive';
+import { ReblogButton as BaseReblogButton } from '@ecency/ui';
 import { UilRedo } from '@tooni/iconscout-unicons-react';
-import clsx from 'clsx';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { t } from '@/core';
 import { useAuth, useIsAuthenticated, useIsAuthEnabled } from '../hooks';
@@ -13,6 +13,10 @@ interface ReblogButtonProps {
   permlink: string;
   reblogCount?: number;
   className?: string;
+}
+
+function ReblogIcon({ className }: { className?: string }) {
+  return <UilRedo className={className} />;
 }
 
 export function ReblogButton({
@@ -25,105 +29,56 @@ export function ReblogButton({
   const isAuthenticated = useIsAuthenticated();
   const isAuthEnabled = useIsAuthEnabled();
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasReblogged, setHasReblogged] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Can't reblog your own post
-  const isOwnPost = user?.username === author;
 
   const handleReblog = useCallback(async () => {
-    if (!user || isSubmitting || isOwnPost || hasReblogged) return;
+    if (!user) return;
 
-    // Confirm with user
-    const confirmed = window.confirm(
-      `Are you sure you want to reblog this post to your followers?`,
-    );
-    if (!confirmed) return;
+    // Create the reblog custom_json operation
+    const reblogOp: Operation = [
+      'custom_json',
+      {
+        required_auths: [],
+        required_posting_auths: [user.username],
+        id: 'follow',
+        json: JSON.stringify([
+          'reblog',
+          {
+            account: user.username,
+            author,
+            permlink,
+          },
+        ]),
+      },
+    ];
 
-    setIsSubmitting(true);
-    setError(null);
+    await broadcast([reblogOp]);
 
-    try {
-      // Create the reblog custom_json operation
-      const reblogOp: Operation = [
-        'custom_json',
-        {
-          required_auths: [],
-          required_posting_auths: [user.username],
-          id: 'follow',
-          json: JSON.stringify([
-            'reblog',
-            {
-              account: user.username,
-              author,
-              permlink,
-            },
-          ]),
-        },
-      ];
-
-      await broadcast([reblogOp]);
-
-      setHasReblogged(true);
-
-      // Invalidate the entry query to refresh reblog count
-      queryClient.invalidateQueries({
-        queryKey: ['entry', author, permlink],
-      });
-    } catch (err) {
-      console.error('Reblog failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to reblog');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [user, isSubmitting, isOwnPost, hasReblogged, author, permlink, broadcast, queryClient]);
-
-  const buttonLabel = useMemo(() => {
-    if (isSubmitting) return t('reblogging');
-    return `${reblogCount + (hasReblogged ? 1 : 0)} ${t('reblogs')}`;
-  }, [reblogCount, hasReblogged, isSubmitting]);
-
-  // If auth is not enabled, just show count
-  if (!isAuthEnabled) {
-    return (
-      <div className={clsx('flex items-center gap-1 text-theme-muted', className)}>
-        <UilRedo className="w-4 h-4" />
-        <span>{reblogCount} {t('reblogs')}</span>
-      </div>
-    );
-  }
+    // Invalidate the entry query to refresh reblog count
+    queryClient.invalidateQueries({
+      queryKey: ['entry', author, permlink],
+    });
+  }, [user, author, permlink, broadcast, queryClient]);
 
   return (
-    <div className={clsx('flex items-center', className)}>
-      <button
-        type="button"
-        onClick={handleReblog}
-        disabled={!isAuthenticated || isSubmitting || isOwnPost || hasReblogged}
-        className={clsx(
-          'flex items-center gap-1 transition-colors',
-          hasReblogged
-            ? 'text-green-500'
-            : isAuthenticated && !isOwnPost
-              ? 'text-theme-muted hover:text-green-500 cursor-pointer'
-              : 'text-theme-muted cursor-not-allowed',
-        )}
-        title={
-          !isAuthenticated
-            ? 'Login to reblog'
-            : isOwnPost
-              ? "You can't reblog your own post"
-              : hasReblogged
-                ? 'Already reblogged'
-                : 'Reblog to your followers'
-        }
-      >
-        <UilRedo className="w-4 h-4" />
-        <span>{buttonLabel}</span>
-      </button>
-      {error && (
-        <span className="ml-2 text-xs text-red-500">{error}</span>
-      )}
-    </div>
+    <BaseReblogButton
+      author={author}
+      permlink={permlink}
+      reblogCount={reblogCount}
+      currentUser={user?.username}
+      isReblogEnabled={isAuthEnabled}
+      isAuthenticated={isAuthenticated}
+      onReblog={handleReblog}
+      className={className}
+      labels={{
+        reblogs: t('reblogs'),
+        reblogging: t('reblogging'),
+        confirmMessage: t('reblog_confirm'),
+        loginTitle: t('login_to_reblog'),
+        ownPostTitle: t('cant_reblog_own'),
+        rebloggedTitle: t('already_reblogged'),
+        reblogTitle: t('reblog_to_followers'),
+      }}
+      icon={<ReblogIcon className="w-4 h-4" />}
+    />
   );
 }

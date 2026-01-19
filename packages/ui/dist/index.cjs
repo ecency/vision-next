@@ -41,10 +41,13 @@ function UserAvatar({
   react.useEffect(() => {
     setHasMounted(true);
     if (typeof document !== "undefined") {
-      const canvas = document.createElement("canvas");
-      setCanUseWebp(
-        canvas.toDataURL("image/webp").indexOf("data:image/webp") === 0
-      );
+      try {
+        const canvas = document.createElement("canvas");
+        const dataUrl = canvas.toDataURL("image/webp");
+        setCanUseWebp(dataUrl?.indexOf("data:image/webp") === 0);
+      } catch {
+        setCanUseWebp(false);
+      }
     }
   }, []);
   const apiSize = react.useMemo(() => sizeToApiSize[size] || "medium", [size]);

@@ -13,6 +13,7 @@
   "dependencies": {
     "@ecency/render-helper": "workspace:*",
     "@ecency/sdk": "workspace:*",
+    "@ecency/ui": "workspace:*",
     "@ecency/wallets": "workspace:*",
     "@tanstack/react-query": "^5.90.2",
     "@tanstack/react-router": "^1.132.27",
