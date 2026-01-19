@@ -3,7 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import {
-  getActiveAccountBookmarksQueryOptions,
+  getBookmarksQueryOptions,
   useBookmarkAdd,
   useBookmarkDelete
 } from "@ecency/sdk";
@@ -32,7 +32,7 @@ export function BookmarkBtn({ entry }: Props) {
   );
 
   const { data: bookmarks = [] } = useQuery({
-    ...getActiveAccountBookmarksQueryOptions(username, accessToken),
+    ...getBookmarksQueryOptions(username, accessToken),
     enabled: !!username && !!accessToken,
   });
 

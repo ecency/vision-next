@@ -28,7 +28,7 @@ vi.mock("@ecency/sdk", () => ({
       broadcast: { sendOperations: vi.fn() }
     }
   },
-  getActiveAccountBookmarksQueryOptions: vi.fn(),
+  getBookmarksQueryOptions: vi.fn(),
   getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ['account'], queryFn: vi.fn() })),
   getBoostPlusPricesQueryOptions: vi.fn(() => ({ queryKey: ['boost-prices'], queryFn: vi.fn() })),
   getPointsQueryOptions: vi.fn(() => ({ queryKey: ['points'], queryFn: vi.fn() })),

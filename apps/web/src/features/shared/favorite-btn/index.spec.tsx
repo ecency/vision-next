@@ -9,7 +9,7 @@ import { UiInstance, activeUserInstance, allOver } from "../../helper/test-helpe
 let TEST_MODE = 0;
 
 jest.mock("@ecency/sdk", () => ({
-  getActiveAccountFavouritesQueryOptions: (_activeUsername?: string) => ({
+  getFavouritesQueryOptions: (_activeUsername?: string) => ({
     queryKey: ["favourites"],
     queryFn: () =>
       new Promise((resolve) => {

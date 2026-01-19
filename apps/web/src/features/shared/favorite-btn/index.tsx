@@ -1,7 +1,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import {
-  getActiveAccountFavouritesQueryOptions,
+  getFavouritesQueryOptions,
   useAccountFavouriteAdd,
   useAccountFavouriteDelete
 } from "@ecency/sdk";
@@ -26,7 +26,7 @@ export function FavouriteBtn({ targetUsername }: Props) {
   );
 
   const { data, isPending } = useQuery({
-    ...getActiveAccountFavouritesQueryOptions(username, accessToken),
+    ...getFavouritesQueryOptions(username, accessToken),
     enabled: !!username && !!accessToken,
   });
 
