@@ -247,42 +247,21 @@ export function FloatingMenuWindow({
   }, [config]);
 
   // Apply preview when config changes (if in preview mode)
-  // Also handles cleanup on unmount to restore original DOM state
+  // Uses originalStateRef (set in handleTogglePreview) for cleanup to ensure
+  // the true pre-preview state is restored, not re-captured preview state
   useEffect(() => {
     if (!isPreviewMode) {
       return;
     }
 
-    // Capture original state before applying preview
-    const bodyClasses = Array.from(document.body.classList);
-    const capturedState: OriginalState = {
-      theme: document.documentElement.getAttribute('data-theme') || 'light',
-      styleTemplate:
-        document.documentElement.getAttribute('data-style-template') || 'medium',
-      sidebarPlacement:
-        document.documentElement.getAttribute('data-sidebar-placement') || 'right',
-      backgroundClasses: bodyClasses.filter(
-        (c) =>
-          c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-'),
-      ),
-      pageTitle: document.title,
-      language: document.documentElement.getAttribute('lang') || 'en',
-      instanceType:
-        document.documentElement.getAttribute('data-instance-type') || 'blog',
-      showFollowers:
-        document.documentElement.getAttribute('data-show-followers') || 'true',
-      showFollowing:
-        document.documentElement.getAttribute('data-show-following') || 'true',
-      showHiveInfo:
-        document.documentElement.getAttribute('data-show-hive-info') || 'true',
-      listType: document.documentElement.getAttribute('data-list-type'),
-    };
-
     applyPreviewConfig(config);
 
     // Cleanup: restore original state on unmount or when isPreviewMode becomes false
+    // Uses the snapshot captured in handleTogglePreview when entering preview mode
     return () => {
-      restoreOriginalState(capturedState);
+      if (originalStateRef.current) {
+        restoreOriginalState(originalStateRef.current);
+      }
     };
   }, [config, isPreviewMode]);
 
@@ -366,6 +345,7 @@ export function FloatingMenuWindow({
     <div
       className="fixed inset-0 z-40 pointer-events-none"
       onKeyDown={handleKeyDown}
+      tabIndex={0}
     >
       {previewIndicator}
 

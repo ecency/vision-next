@@ -301,15 +301,19 @@ export namespace InstanceConfigManager {
       {
         ...options,
         mutationFn: (args, ctx) => {
-          if (condition(configStore.getConfig()) && options.mutationFn) {
-            return options.mutationFn(args, ctx);
-          }
-
           if (!options.mutationFn) {
-            throw new Error('Called conditional mutation w/o mutationFn');
+            return Promise.reject(
+              new Error('Conditional mutation called without mutationFn'),
+            );
           }
 
-          throw new Error('Called conditional mutation which isn`t configured');
+          if (!condition(configStore.getConfig())) {
+            return Promise.reject(
+              new Error('Condition not met for conditional mutation'),
+            );
+          }
+
+          return options.mutationFn(args, ctx);
         },
       },
       queryClient,
