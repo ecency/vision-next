@@ -1,7 +1,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
 import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
-import { getActiveAccountFavouritesInfiniteQueryOptions } from "@ecency/sdk";
+import { getFavouritesInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
@@ -25,7 +25,7 @@ export function FavouritesList({ onHide }: Props) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    getActiveAccountFavouritesInfiniteQueryOptions(username, accessToken, 10)
+    getFavouritesInfiniteQueryOptions(username, accessToken, 10)
   );
 
   const allFavourites = useMemo(

@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch, WrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { Schedule } from "../types/schedule";
 
 export function getSchedulesQueryOptions(activeUsername: string | undefined, code?: string) {
@@ -69,7 +69,8 @@ export function getSchedulesInfiniteQueryOptions(
         throw new Error(`Failed to fetch schedules: ${response.status}`);
       }
 
-      return response.json() as Promise<WrappedResponse<Schedule>>;
+      const json = await response.json();
+      return normalizeToWrappedResponse<Schedule>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

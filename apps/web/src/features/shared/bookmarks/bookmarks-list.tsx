@@ -1,6 +1,6 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
-import { getActiveAccountBookmarksInfiniteQueryOptions } from "@ecency/sdk";
+import { getBookmarksInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { BookmarkItem } from "./bookmark-item";
@@ -22,7 +22,7 @@ export function BookmarksList({ onHide }: Props) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    getActiveAccountBookmarksInfiniteQueryOptions(
+    getBookmarksInfiniteQueryOptions(
       activeUser?.username,
       getAccessToken(activeUser?.username ?? ""),
       10

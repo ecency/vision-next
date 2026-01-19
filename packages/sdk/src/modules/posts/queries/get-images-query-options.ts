@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch, WrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { UserImage } from "../types/user-image";
 
 async function fetchUserImages(code: string | undefined): Promise<UserImage[]> {
@@ -85,7 +85,8 @@ export function getImagesInfiniteQueryOptions(
         throw new Error(`Failed to fetch images: ${response.status}`);
       }
 
-      return response.json() as Promise<WrappedResponse<UserImage>>;
+      const json = await response.json();
+      return normalizeToWrappedResponse<UserImage>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

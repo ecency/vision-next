@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch, WrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Fragment } from "../types";
 
@@ -67,7 +67,8 @@ export function getFragmentsInfiniteQueryOptions(
         throw new Error(`Failed to fetch fragments: ${response.status}`);
       }
 
-      return response.json() as Promise<WrappedResponse<Fragment>>;
+      const json = await response.json();
+      return normalizeToWrappedResponse<Fragment>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

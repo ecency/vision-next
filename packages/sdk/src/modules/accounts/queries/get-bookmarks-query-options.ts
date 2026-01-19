@@ -1,21 +1,21 @@
-import { CONFIG, getBoundFetch, WrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { AccountFavorite } from "../types";
+import { AccountBookmark } from "../types";
 
-export function getActiveAccountFavouritesQueryOptions(
+export function getBookmarksQueryOptions(
   activeUsername: string | undefined,
   code: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["accounts", "favourites", activeUsername],
+    queryKey: ["accounts", "bookmarks", activeUsername],
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
-        throw new Error("[SDK][Accounts][Favourites] – missing auth");
+        throw new Error("[SDK][Accounts][Bookmarks] – missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites",
+        CONFIG.privateApiHost + "/private-api/bookmarks",
         {
           method: "POST",
           headers: {
@@ -24,18 +24,18 @@ export function getActiveAccountFavouritesQueryOptions(
           body: JSON.stringify({ code }),
         }
       );
-      return (await response.json()) as AccountFavorite[];
+      return (await response.json()) as AccountBookmark[];
     },
   });
 }
 
-export function getActiveAccountFavouritesInfiniteQueryOptions(
+export function getBookmarksInfiniteQueryOptions(
   activeUsername: string | undefined,
   code: string | undefined,
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
+    queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {
@@ -51,7 +51,7 @@ export function getActiveAccountFavouritesInfiniteQueryOptions(
 
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        `${CONFIG.privateApiHost}/private-api/favorites?format=wrapped&offset=${pageParam}&limit=${limit}`,
+        `${CONFIG.privateApiHost}/private-api/bookmarks?format=wrapped&offset=${pageParam}&limit=${limit}`,
         {
           method: "POST",
           headers: {
@@ -62,10 +62,11 @@ export function getActiveAccountFavouritesInfiniteQueryOptions(
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch favorites: ${response.status}`);
+        throw new Error(`Failed to fetch bookmarks: ${response.status}`);
       }
 
-      return response.json() as Promise<WrappedResponse<AccountFavorite>>;
+      const json = await response.json();
+      return normalizeToWrappedResponse<AccountBookmark>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

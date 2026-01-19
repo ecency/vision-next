@@ -413,6 +413,25 @@ function isCommunity(value) {
   return typeof value === "string" ? /^hive-\d+$/.test(value) : false;
 }
 
+// src/modules/core/utils/pagination-helpers.ts
+function isWrappedResponse(response) {
+  return response && typeof response === "object" && "data" in response && "pagination" in response && Array.isArray(response.data);
+}
+function normalizeToWrappedResponse(response, limit) {
+  if (isWrappedResponse(response)) {
+    return response;
+  }
+  return {
+    data: Array.isArray(response) ? response : [],
+    pagination: {
+      total: Array.isArray(response) ? response.length : 0,
+      limit,
+      offset: 0,
+      has_next: false
+    }
+  };
+}
+
 // src/modules/core/queries/get-dynamic-props-query-options.ts
 function getDynamicPropsQueryOptions() {
   return reactQuery.queryOptions({
@@ -866,7 +885,7 @@ function getAccountSubscriptionsQueryOptions(username) {
     }
   });
 }
-function getActiveAccountBookmarksQueryOptions(activeUsername, code) {
+function getBookmarksQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "bookmarks", activeUsername],
     enabled: !!activeUsername && !!code,
@@ -889,7 +908,7 @@ function getActiveAccountBookmarksQueryOptions(activeUsername, code) {
     }
   });
 }
-function getActiveAccountBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
+function getBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
     queryFn: async ({ pageParam = 0 }) => {
@@ -918,7 +937,8 @@ function getActiveAccountBookmarksInfiniteQueryOptions(activeUsername, code, lim
       if (!response.ok) {
         throw new Error(`Failed to fetch bookmarks: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -930,7 +950,7 @@ function getActiveAccountBookmarksInfiniteQueryOptions(activeUsername, code, lim
     enabled: !!activeUsername && !!code
   });
 }
-function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
+function getFavouritesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "favourites", activeUsername],
     enabled: !!activeUsername && !!code,
@@ -953,7 +973,7 @@ function getActiveAccountFavouritesQueryOptions(activeUsername, code) {
     }
   });
 }
-function getActiveAccountFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
+function getFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
     queryFn: async ({ pageParam = 0 }) => {
@@ -982,7 +1002,8 @@ function getActiveAccountFavouritesInfiniteQueryOptions(activeUsername, code, li
       if (!response.ok) {
         throw new Error(`Failed to fetch favorites: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -1358,7 +1379,8 @@ function getFragmentsInfiniteQueryOptions(username, code, limit = 10) {
       if (!response.ok) {
         throw new Error(`Failed to fetch fragments: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -2021,7 +2043,8 @@ function getSchedulesInfiniteQueryOptions(activeUsername, code, limit = 10) {
       if (!response.ok) {
         throw new Error(`Failed to fetch schedules: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -2089,7 +2112,8 @@ function getDraftsInfiniteQueryOptions(activeUsername, code, limit = 10) {
       if (!response.ok) {
         throw new Error(`Failed to fetch drafts: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -2172,7 +2196,8 @@ function getImagesInfiniteQueryOptions(username, code, limit = 10) {
       if (!response.ok) {
         throw new Error(`Failed to fetch images: ${response.status}`);
       }
-      return response.json();
+      const json = await response.json();
+      return normalizeToWrappedResponse(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -5469,11 +5494,9 @@ exports.getAccountReputationsQueryOptions = getAccountReputationsQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
 exports.getAccountVoteHistoryInfiniteQueryOptions = getAccountVoteHistoryInfiniteQueryOptions;
 exports.getAccountsQueryOptions = getAccountsQueryOptions;
-exports.getActiveAccountBookmarksInfiniteQueryOptions = getActiveAccountBookmarksInfiniteQueryOptions;
-exports.getActiveAccountBookmarksQueryOptions = getActiveAccountBookmarksQueryOptions;
-exports.getActiveAccountFavouritesInfiniteQueryOptions = getActiveAccountFavouritesInfiniteQueryOptions;
-exports.getActiveAccountFavouritesQueryOptions = getActiveAccountFavouritesQueryOptions;
 exports.getAnnouncementsQueryOptions = getAnnouncementsQueryOptions;
+exports.getBookmarksInfiniteQueryOptions = getBookmarksInfiniteQueryOptions;
+exports.getBookmarksQueryOptions = getBookmarksQueryOptions;
 exports.getBoostPlusAccountPricesQueryOptions = getBoostPlusAccountPricesQueryOptions;
 exports.getBoostPlusPricesQueryOptions = getBoostPlusPricesQueryOptions;
 exports.getBotsQueryOptions = getBotsQueryOptions;
@@ -5506,6 +5529,8 @@ exports.getDraftsInfiniteQueryOptions = getDraftsInfiniteQueryOptions;
 exports.getDraftsQueryOptions = getDraftsQueryOptions;
 exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
 exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
+exports.getFavouritesInfiniteQueryOptions = getFavouritesInfiniteQueryOptions;
+exports.getFavouritesQueryOptions = getFavouritesQueryOptions;
 exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
 exports.getFollowingQueryOptions = getFollowingQueryOptions;
 exports.getFragmentsInfiniteQueryOptions = getFragmentsInfiniteQueryOptions;
@@ -5600,12 +5625,14 @@ exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
 exports.hsTokenRenew = hsTokenRenew;
 exports.isCommunity = isCommunity;
+exports.isWrappedResponse = isWrappedResponse;
 exports.lookupAccountsQueryOptions = lookupAccountsQueryOptions;
 exports.makeQueryClient = makeQueryClient;
 exports.mapThreadItemsToWaveEntries = mapThreadItemsToWaveEntries;
 exports.markNotifications = markNotifications;
 exports.moveSchedule = moveSchedule;
 exports.normalizePost = normalizePost;
+exports.normalizeToWrappedResponse = normalizeToWrappedResponse;
 exports.normalizeWaveEntryFromApi = normalizeWaveEntryFromApi;
 exports.onboardEmail = onboardEmail;
 exports.parseAccounts = parseAccounts;

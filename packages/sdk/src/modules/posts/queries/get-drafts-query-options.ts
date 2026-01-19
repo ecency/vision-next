@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch } from "@/modules/core";
-import { Draft, DraftsWrappedResponse } from "../types/draft";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { Draft } from "../types/draft";
 
 export function getDraftsQueryOptions(activeUsername: string | undefined, code?: string) {
   return queryOptions({
@@ -69,7 +69,10 @@ export function getDraftsInfiniteQueryOptions(
         throw new Error(`Failed to fetch drafts: ${response.status}`);
       }
 
-      return response.json() as Promise<DraftsWrappedResponse>;
+      const json = await response.json();
+      // Normalize response for backwards compatibility
+      // If backend doesn't support wrapped format yet, it returns Draft[]
+      return normalizeToWrappedResponse<Draft>(json, limit);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
