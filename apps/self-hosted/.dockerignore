@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.rsbuild/
+
+# Development files
+*.log
+*.local
+.env*
+!.env.template
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed in build)
+*.md
+!README.md
+
+# Docker files (avoid recursive context)
+docker-compose*.yml
+Dockerfile*
