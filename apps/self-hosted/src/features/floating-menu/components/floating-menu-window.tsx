@@ -17,6 +17,7 @@ interface OriginalState {
   showFollowers: string;
   showFollowing: string;
   showHiveInfo: string;
+  listType: string | null;
 }
 
 function applyPreviewConfig(config: Record<string, ConfigValue>) {
@@ -154,6 +155,13 @@ function restoreOriginalState(original: OriginalState) {
   document.documentElement.setAttribute('data-show-followers', original.showFollowers);
   document.documentElement.setAttribute('data-show-following', original.showFollowing);
   document.documentElement.setAttribute('data-show-hive-info', original.showHiveInfo);
+
+  // Restore list type
+  if (original.listType !== null) {
+    document.documentElement.setAttribute('data-list-type', original.listType);
+  } else {
+    document.documentElement.removeAttribute('data-list-type');
+  }
 }
 
 interface FloatingMenuWindowProps {
@@ -166,7 +174,7 @@ export function FloatingMenuWindow({
   onClose,
 }: FloatingMenuWindowProps) {
   const [config, setConfig] = useState<Record<string, ConfigValue>>(() => {
-    return InstanceConfigManager.CONFIG as unknown as Record<string, ConfigValue>;
+    return InstanceConfigManager.getConfig() as unknown as Record<string, ConfigValue>;
   });
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const originalStateRef = useRef<OriginalState | null>(null);
@@ -224,6 +232,7 @@ export function FloatingMenuWindow({
             document.documentElement.getAttribute('data-show-following') || 'true',
           showHiveInfo:
             document.documentElement.getAttribute('data-show-hive-info') || 'true',
+          listType: document.documentElement.getAttribute('data-list-type'),
         };
         applyPreviewConfig(config);
       } else {
@@ -238,10 +247,43 @@ export function FloatingMenuWindow({
   }, [config]);
 
   // Apply preview when config changes (if in preview mode)
+  // Also handles cleanup on unmount to restore original DOM state
   useEffect(() => {
-    if (isPreviewMode) {
-      applyPreviewConfig(config);
+    if (!isPreviewMode) {
+      return;
     }
+
+    // Capture original state before applying preview
+    const bodyClasses = Array.from(document.body.classList);
+    const capturedState: OriginalState = {
+      theme: document.documentElement.getAttribute('data-theme') || 'light',
+      styleTemplate:
+        document.documentElement.getAttribute('data-style-template') || 'medium',
+      sidebarPlacement:
+        document.documentElement.getAttribute('data-sidebar-placement') || 'right',
+      backgroundClasses: bodyClasses.filter(
+        (c) =>
+          c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-'),
+      ),
+      pageTitle: document.title,
+      language: document.documentElement.getAttribute('lang') || 'en',
+      instanceType:
+        document.documentElement.getAttribute('data-instance-type') || 'blog',
+      showFollowers:
+        document.documentElement.getAttribute('data-show-followers') || 'true',
+      showFollowing:
+        document.documentElement.getAttribute('data-show-following') || 'true',
+      showHiveInfo:
+        document.documentElement.getAttribute('data-show-hive-info') || 'true',
+      listType: document.documentElement.getAttribute('data-list-type'),
+    };
+
+    applyPreviewConfig(config);
+
+    // Cleanup: restore original state on unmount or when isPreviewMode becomes false
+    return () => {
+      restoreOriginalState(capturedState);
+    };
   }, [config, isPreviewMode]);
 
   const handleExitPreview = useCallback(() => {

@@ -203,8 +203,12 @@ export namespace InstanceConfigManager {
 
   /**
    * Get the full config object (synchronous, returns current config)
+   * This function returns the current config on each call to ensure
+   * consumers always see runtime updates after initialize() is called.
    */
-  export const CONFIG = configStore.getConfig();
+  export function getConfig(): InstanceConfig {
+    return configStore.getConfig();
+  }
 
   export type ConfigBasedCondition<T = boolean> = (config: InstanceConfig) => T;
 
