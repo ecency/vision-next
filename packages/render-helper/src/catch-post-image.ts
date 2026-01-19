@@ -64,12 +64,27 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
 
 export function catchPostImage(obj: Entry | string, width = 0, height = 0, format = 'match'): string | null {
   if (typeof obj === 'string') {
-    // Create minimal Entry-like wrapper for string input
-    const entryWrapper: Entry = {
-      body: obj,
-      json_metadata: '{}',
-    } as Entry
-    return getImage(entryWrapper, width, height, format)
+    // Process string directly to avoid cache key collision
+    // Don't create Entry wrapper as it would generate invalid cache keys
+    const html = markdown2Html(obj)
+    const doc = createDoc(html)
+    if (!doc) {
+      return null
+    }
+
+    const imgEls = doc.getElementsByTagName('img')
+    if (imgEls.length >= 1) {
+      const src = imgEls[0].getAttribute('src')
+      if (!src) {
+        return null
+      }
+      if (isGifLink(src)) {
+        return proxifyImageSrc(src, 0, 0, format)
+      }
+      return proxifyImageSrc(src, width, height, format)
+    }
+
+    return null
   }
   const key = `${makeEntryCacheKey(obj)}-${width}x${height}-${format}`
 
