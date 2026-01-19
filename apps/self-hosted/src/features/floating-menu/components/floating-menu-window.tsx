@@ -166,7 +166,7 @@ export function FloatingMenuWindow({
   onClose,
 }: FloatingMenuWindowProps) {
   const [config, setConfig] = useState<Record<string, ConfigValue>>(() => {
-    return InstanceConfigManager.CONFIG as Record<string, ConfigValue>;
+    return InstanceConfigManager.CONFIG as unknown as Record<string, ConfigValue>;
   });
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const originalStateRef = useRef<OriginalState | null>(null);
