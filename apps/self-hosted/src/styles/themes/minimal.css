@@ -56,8 +56,18 @@
   --theme-tag-text: #4a4a4a;
   --theme-tag-radius: 4px;
 
-  /* Content width - Narrower */
+  /* Layout - Minimal: Clean, spacious, focused */
   --theme-content-width: 640px;
+  --theme-sidebar-width: 260px;
+  --theme-layout-gap: 4rem;
+  --theme-layout-container-padding: 1.5rem;
+  --theme-layout-section-gap: 2.5rem;
+  --theme-card-padding: 1.25rem;
+  --theme-grid-gap: 1.25rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 2;
+  --theme-post-card-image-height: 180px;
+  --theme-post-card-image-radius: 6px;
 }
 
 /* Minimal Dark Mode */

@@ -14,9 +14,7 @@ export function CreatePostButton({ className }: CreatePostButtonProps) {
   const isAuthEnabled = useIsAuthEnabled();
 
   const createPostUrl = InstanceConfigManager.getConfigValue(
-    ({ configuration }) =>
-      (configuration.general as Record<string, unknown>).createPostUrl as string ||
-      'https://ecency.com/submit',
+    ({ configuration }) => configuration.general.createPostUrl || 'https://ecency.com/submit',
   );
 
   // Only show for blog owner when auth is enabled

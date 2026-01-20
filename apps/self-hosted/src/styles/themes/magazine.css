@@ -52,8 +52,18 @@
   --theme-tag-text: #4a4540;
   --theme-tag-radius: 2px;
 
-  /* Content width - Wider for magazine feel */
+  /* Layout - Magazine: Wide, editorial, dramatic */
   --theme-content-width: 720px;
+  --theme-sidebar-width: 300px;
+  --theme-layout-gap: 3.5rem;
+  --theme-layout-container-padding: 1.5rem;
+  --theme-layout-section-gap: 2.5rem;
+  --theme-card-padding: 1.75rem;
+  --theme-grid-gap: 2rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+  --theme-post-card-image-height: 240px;
+  --theme-post-card-image-radius: 4px;
 
   /* Magazine-specific variables */
   --theme-dropcap-size: 4.5em;

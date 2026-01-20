@@ -53,6 +53,19 @@
   --theme-tag-bg: rgba(0, 0, 0, 0.05);
   --theme-tag-text: rgba(0, 0, 0, 0.68);
   --theme-tag-radius: 9999px;
+
+  /* Layout - Medium: Classic editorial, comfortable reading */
+  --theme-content-width: 680px;
+  --theme-sidebar-width: 280px;
+  --theme-layout-gap: 3rem;
+  --theme-layout-container-padding: 1.25rem;
+  --theme-layout-section-gap: 2rem;
+  --theme-card-padding: 1.5rem;
+  --theme-grid-gap: 1.5rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+  --theme-post-card-image-height: 200px;
+  --theme-post-card-image-radius: 3px;
 }
 
 /* Medium Dark Mode */

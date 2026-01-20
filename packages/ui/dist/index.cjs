@@ -140,6 +140,85 @@ function ErrorMessage({
     }
   );
 }
+var ErrorBoundary = class extends react.Component {
+  constructor(props) {
+    super(props);
+    this.handleRetry = () => {
+      this.setState({ hasError: false, error: null });
+    };
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("ErrorBoundary caught an error:", error, errorInfo);
+    }
+    this.props.onError?.(error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      const errorMessage = this.props.errorMessage || this.state.error?.message || "Something went wrong";
+      return /* @__PURE__ */ jsxRuntime.jsx(
+        "div",
+        {
+          className: clsx.clsx(
+            "flex items-center justify-center min-h-[200px] p-4",
+            this.props.className
+          ),
+          children: /* @__PURE__ */ jsxRuntime.jsx(
+            ErrorMessage,
+            {
+              message: errorMessage,
+              onRetry: this.handleRetry,
+              retryText: this.props.retryText
+            }
+          )
+        }
+      );
+    }
+    return this.props.children;
+  }
+};
+function SkipToContent({
+  targetId = "main-content",
+  children = "Skip to main content",
+  className
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    "a",
+    {
+      href: `#${targetId}`,
+      className: clsx.clsx(
+        // Visually hidden by default
+        "sr-only",
+        // Visible when focused
+        "focus:not-sr-only",
+        "focus:absolute",
+        "focus:top-4",
+        "focus:left-4",
+        "focus:z-[100]",
+        "focus:px-4",
+        "focus:py-2",
+        "focus:bg-blue-600",
+        "focus:text-white",
+        "focus:rounded",
+        "focus:outline-none",
+        "focus:ring-2",
+        "focus:ring-blue-400",
+        "focus:ring-offset-2",
+        "focus:font-medium",
+        "focus:text-sm",
+        className
+      ),
+      children
+    }
+  );
+}
 function HeartIcon({ filled, className }) {
   return /* @__PURE__ */ jsxRuntime.jsx(
     "svg",
@@ -501,9 +580,11 @@ function useWebpSupport() {
   return supportsWebp;
 }
 
+exports.ErrorBoundary = ErrorBoundary;
 exports.ErrorMessage = ErrorMessage;
 exports.ReblogButton = ReblogButton;
 exports.Skeleton = Skeleton;
+exports.SkipToContent = SkipToContent;
 exports.Spinner = Spinner;
 exports.UserAvatar = UserAvatar;
 exports.VoteButton = VoteButton;

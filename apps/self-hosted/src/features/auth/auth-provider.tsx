@@ -57,14 +57,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const storedHiveAuth = getHiveAuthSession();
 
     if (storedUser) {
-      setUser(storedUser);
+      // Check if token has expired
+      if (storedUser.expiresAt && Date.now() > storedUser.expiresAt) {
+        // Token expired, clear session
+        clearUser();
+        clearHiveAuthSession();
+      } else {
+        setUser(storedUser);
+      }
     }
     if (storedHiveAuth) {
-      setHiveAuthSession(storedHiveAuth);
+      // Check if HiveAuth session has expired
+      if (Date.now() > storedHiveAuth.expire * 1000) {
+        clearHiveAuthSession();
+      } else {
+        setHiveAuthSession(storedHiveAuth);
+      }
     }
 
     setIsLoading(false);
   }, []);
+
+  // Periodically check token expiry and auto-logout if expired
+  useEffect(() => {
+    if (!user?.expiresAt) return;
+
+    const checkExpiry = () => {
+      if (user.expiresAt && Date.now() > user.expiresAt) {
+        // Token expired, logout
+        setUser(null);
+        setHiveAuthSession(null);
+        clearUser();
+        clearHiveAuthSession();
+      }
+    };
+
+    // Check every minute
+    const interval = setInterval(checkExpiry, 60 * 1000);
+
+    // Also check immediately
+    checkExpiry();
+
+    return () => clearInterval(interval);
+  }, [user?.expiresAt]);
 
   // Handle Hivesigner callback
   useEffect(() => {
@@ -195,6 +230,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [user, hiveAuthSession]
   );
 
+  // Check if session is expiring within 5 minutes
+  const isSessionExpiringSoon = useMemo(() => {
+    if (!user?.expiresAt) return false;
+    const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+    return user.expiresAt < fiveMinutesFromNow;
+  }, [user?.expiresAt]);
+
   const value: AuthContextValue = useMemo(
     () => ({
       user,
@@ -203,6 +245,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthEnabled,
       availableMethods,
       isBlogOwner,
+      isSessionExpiringSoon,
       login,
       loginWithHivesigner: loginWithHivesignerFn,
       logout,
@@ -214,6 +257,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthEnabled,
       availableMethods,
       isBlogOwner,
+      isSessionExpiringSoon,
       login,
       loginWithHivesignerFn,
       logout,

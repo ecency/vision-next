@@ -73,9 +73,24 @@
   --theme-transition: 0.2s ease;
   --theme-transition-slow: 0.3s ease;
 
-  /* Layout */
+  /* Layout - Content & Sidebar */
   --theme-content-width: 680px;
   --theme-sidebar-width: 280px;
+
+  /* Layout - Spacing */
+  --theme-layout-gap: 3rem;
+  --theme-layout-container-padding: 1rem;
+  --theme-layout-section-gap: 2rem;
+  --theme-card-padding: 1.5rem;
+
+  /* Layout - Grid */
+  --theme-grid-gap: 1.5rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+
+  /* Layout - Post Cards */
+  --theme-post-card-image-height: 200px;
+  --theme-post-card-image-radius: var(--theme-radius);
 }
 
 /* Dark Mode Overrides */

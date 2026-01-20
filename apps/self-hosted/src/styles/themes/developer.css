@@ -66,6 +66,19 @@
   --theme-code-number: #fab387;
   --theme-code-function: #89b4fa;
   --theme-code-variable: #f5c2e7;
+
+  /* Layout - Developer: Wide for code, compact UI */
+  --theme-content-width: 760px;
+  --theme-sidebar-width: 280px;
+  --theme-layout-gap: 2.5rem;
+  --theme-layout-container-padding: 1rem;
+  --theme-layout-section-gap: 1.5rem;
+  --theme-card-padding: 1.25rem;
+  --theme-grid-gap: 1rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 2;
+  --theme-post-card-image-height: 160px;
+  --theme-post-card-image-radius: 6px;
 }
 
 /* Developer Light Mode */

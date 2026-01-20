@@ -10,7 +10,8 @@ interface OriginalState {
   theme: string;
   styleTemplate: string;
   sidebarPlacement: string;
-  backgroundClasses: string[];
+  /** Complete snapshot of all body classes at capture time */
+  allBodyClasses: string[];
   pageTitle: string;
   language: string;
   instanceType: string;
@@ -137,14 +138,13 @@ function restoreOriginalState(original: OriginalState) {
   // Restore page title
   document.title = original.pageTitle;
 
-  // Restore background classes
-  const bodyClasses = Array.from(document.body.classList);
-  for (const c of bodyClasses) {
-    if (c.startsWith('bg-') || c.startsWith('from-') || c.startsWith('to-')) {
-      document.body.classList.remove(c);
-    }
+  // Restore all body classes to original state
+  // Remove all current classes and restore the original snapshot
+  const currentClasses = Array.from(document.body.classList);
+  for (const c of currentClasses) {
+    document.body.classList.remove(c);
   }
-  for (const c of original.backgroundClasses) {
+  for (const c of original.allBodyClasses) {
     document.body.classList.add(c);
   }
 
@@ -178,6 +178,14 @@ export function FloatingMenuWindow({
   });
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const originalStateRef = useRef<OriginalState | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Focus the dialog when it opens for keyboard accessibility
+  useEffect(() => {
+    if (isOpen && dialogRef.current) {
+      dialogRef.current.focus();
+    }
+  }, [isOpen]);
 
   const handleUpdate = useCallback((path: string, value: ConfigValue) => {
     setConfig((prev) => {
@@ -207,7 +215,6 @@ export function FloatingMenuWindow({
     setIsPreviewMode((prev) => {
       if (!prev) {
         // Entering preview mode - save original state
-        const bodyClasses = Array.from(document.body.classList);
         originalStateRef.current = {
           theme: document.documentElement.getAttribute('data-theme') || 'light',
           styleTemplate:
@@ -216,12 +223,7 @@ export function FloatingMenuWindow({
           sidebarPlacement:
             document.documentElement.getAttribute('data-sidebar-placement') ||
             'right',
-          backgroundClasses: bodyClasses.filter(
-            (c) =>
-              c.startsWith('bg-') ||
-              c.startsWith('from-') ||
-              c.startsWith('to-'),
-          ),
+          allBodyClasses: Array.from(document.body.classList),
           pageTitle: document.title,
           language: document.documentElement.getAttribute('lang') || 'en',
           instanceType:
@@ -343,9 +345,13 @@ export function FloatingMenuWindow({
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-40 pointer-events-none"
       onKeyDown={handleKeyDown}
-      tabIndex={0}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="config-editor-title"
     >
       {previewIndicator}
 
@@ -364,7 +370,7 @@ export function FloatingMenuWindow({
               borderColor: FLOATING_MENU_THEME.borderColor,
             }}
           >
-            <h2 className="text-sm font-semibold font-sans text-white">
+            <h2 id="config-editor-title" className="text-sm font-semibold font-sans text-white">
               Configuration Editor
             </h2>
             <div className="flex items-center gap-2">

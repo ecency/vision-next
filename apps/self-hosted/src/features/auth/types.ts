@@ -23,6 +23,8 @@ export interface AuthContextValue {
   isAuthEnabled: boolean;
   availableMethods: AuthMethod[];
   isBlogOwner: boolean;
+  /** True if the session will expire within 5 minutes */
+  isSessionExpiringSoon: boolean;
   login: (method: AuthMethod, username: string) => Promise<void>;
   loginWithHivesigner: () => void;
   logout: () => void;

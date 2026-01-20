@@ -1,4 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import { Component, ReactNode, ErrorInfo } from 'react';
 
 /**
  * Common size variants used across UI components
@@ -132,6 +133,98 @@ interface ErrorMessageProps {
  * ```
  */
 declare function ErrorMessage({ message, onRetry, className, retryText, icon, }: ErrorMessageProps): react_jsx_runtime.JSX.Element;
+
+interface ErrorBoundaryProps {
+    /** Child components to render */
+    children: ReactNode;
+    /** Optional fallback UI to render instead of the default ErrorMessage */
+    fallback?: ReactNode;
+    /** Called when an error is caught */
+    onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    /** Additional CSS classes for the error container */
+    className?: string;
+    /** Custom error message (default: error.message or "Something went wrong") */
+    errorMessage?: string;
+    /** Custom retry button text */
+    retryText?: string;
+}
+interface ErrorBoundaryState {
+    hasError: boolean;
+    error: Error | null;
+}
+/**
+ * ErrorBoundary catches JavaScript errors anywhere in its child component tree
+ * and displays a fallback UI instead of crashing the whole app.
+ *
+ * Features:
+ * - Catches render errors in child components
+ * - Displays customizable fallback UI
+ * - Optional error callback for logging/reporting
+ * - Retry functionality to attempt re-rendering
+ * - Accessible error display
+ *
+ * @example
+ * ```tsx
+ * // Basic usage
+ * <ErrorBoundary>
+ *   <MyComponent />
+ * </ErrorBoundary>
+ *
+ * // With custom fallback
+ * <ErrorBoundary fallback={<CustomErrorUI />}>
+ *   <MyComponent />
+ * </ErrorBoundary>
+ *
+ * // With error logging
+ * <ErrorBoundary onError={(error, info) => logError(error, info)}>
+ *   <MyComponent />
+ * </ErrorBoundary>
+ * ```
+ */
+declare class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+    constructor(props: ErrorBoundaryProps);
+    static getDerivedStateFromError(error: Error): ErrorBoundaryState;
+    componentDidCatch(error: Error, errorInfo: ErrorInfo): void;
+    handleRetry: () => void;
+    render(): string | number | boolean | react_jsx_runtime.JSX.Element | Iterable<ReactNode> | null | undefined;
+}
+
+interface SkipToContentProps {
+    /** Target element ID to skip to (default: "main-content") */
+    targetId?: string;
+    /** Link text (default: "Skip to main content") */
+    children?: string;
+    /** Additional CSS classes */
+    className?: string;
+}
+/**
+ * SkipToContent provides a keyboard-accessible link that allows users to
+ * skip past navigation and go directly to main content.
+ *
+ * The link is visually hidden but becomes visible when focused,
+ * following WCAG 2.1 accessibility guidelines.
+ *
+ * Features:
+ * - Visually hidden until focused
+ * - Keyboard accessible (Tab to reveal)
+ * - Customizable target and text
+ * - High contrast focus state
+ *
+ * @example
+ * ```tsx
+ * // Basic usage - add at the beginning of your layout
+ * // Ensure main content has id="main-content"
+ * <SkipToContent />
+ * <Navigation />
+ * <main id="main-content">...</main>
+ *
+ * // Custom target
+ * <SkipToContent targetId="article-content">
+ *   Skip to article
+ * </SkipToContent>
+ * ```
+ */
+declare function SkipToContent({ targetId, children, className, }: SkipToContentProps): react_jsx_runtime.JSX.Element;
 
 interface VoteButtonProps {
     /** Post author username */
@@ -366,4 +459,4 @@ declare function useMounted(): boolean;
  */
 declare function useWebpSupport(): boolean;
 
-export { type AuthContext, type BaseInteractiveProps, ErrorMessage, type ErrorMessageProps, type ImageProxyConfig, type LoadingProps, ReblogButton, type ReblogButtonProps, type Size, Skeleton, type SkeletonProps, Spinner, type SpinnerProps, UserAvatar, type UserAvatarProps, type Vote, VoteButton, type VoteButtonProps, useMounted, useWebpSupport };
+export { type AuthContext, type BaseInteractiveProps, ErrorBoundary, type ErrorBoundaryProps, ErrorMessage, type ErrorMessageProps, type ImageProxyConfig, type LoadingProps, ReblogButton, type ReblogButtonProps, type Size, Skeleton, type SkeletonProps, SkipToContent, type SkipToContentProps, Spinner, type SpinnerProps, UserAvatar, type UserAvatarProps, type Vote, VoteButton, type VoteButtonProps, useMounted, useWebpSupport };

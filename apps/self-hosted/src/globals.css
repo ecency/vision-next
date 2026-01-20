@@ -2,6 +2,8 @@
 @import "tailwindcss";
 /* biome-ignore lint/suspicious/noUnknownAtRules: @source is a Tailwind v4 feature */
 @source "../config.json";
+/* biome-ignore lint/suspicious/noUnknownAtRules: @source is a Tailwind v4 feature */
+@source "../../../packages/ui/src/**/*.tsx";
 /* biome-ignore lint/correctness/noInvalidPositionAtImportRule: Tailwind v4 requires @source before these imports */
 @import "./styles/themes/index.css";
 /* biome-ignore lint/correctness/noInvalidPositionAtImportRule: Tailwind v4 requires @source before these imports */

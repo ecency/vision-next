@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, Component } from 'react';
 import { jsx, jsxs } from 'react/jsx-runtime';
 
 // src/components/user-avatar/index.tsx
@@ -135,6 +135,85 @@ function ErrorMessage({
           }
         )
       ]
+    }
+  );
+}
+var ErrorBoundary = class extends Component {
+  constructor(props) {
+    super(props);
+    this.handleRetry = () => {
+      this.setState({ hasError: false, error: null });
+    };
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("ErrorBoundary caught an error:", error, errorInfo);
+    }
+    this.props.onError?.(error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      const errorMessage = this.props.errorMessage || this.state.error?.message || "Something went wrong";
+      return /* @__PURE__ */ jsx(
+        "div",
+        {
+          className: clsx(
+            "flex items-center justify-center min-h-[200px] p-4",
+            this.props.className
+          ),
+          children: /* @__PURE__ */ jsx(
+            ErrorMessage,
+            {
+              message: errorMessage,
+              onRetry: this.handleRetry,
+              retryText: this.props.retryText
+            }
+          )
+        }
+      );
+    }
+    return this.props.children;
+  }
+};
+function SkipToContent({
+  targetId = "main-content",
+  children = "Skip to main content",
+  className
+}) {
+  return /* @__PURE__ */ jsx(
+    "a",
+    {
+      href: `#${targetId}`,
+      className: clsx(
+        // Visually hidden by default
+        "sr-only",
+        // Visible when focused
+        "focus:not-sr-only",
+        "focus:absolute",
+        "focus:top-4",
+        "focus:left-4",
+        "focus:z-[100]",
+        "focus:px-4",
+        "focus:py-2",
+        "focus:bg-blue-600",
+        "focus:text-white",
+        "focus:rounded",
+        "focus:outline-none",
+        "focus:ring-2",
+        "focus:ring-blue-400",
+        "focus:ring-offset-2",
+        "focus:font-medium",
+        "focus:text-sm",
+        className
+      ),
+      children
     }
   );
 }
@@ -499,6 +578,6 @@ function useWebpSupport() {
   return supportsWebp;
 }
 
-export { ErrorMessage, ReblogButton, Skeleton, Spinner, UserAvatar, VoteButton, useMounted, useWebpSupport };
+export { ErrorBoundary, ErrorMessage, ReblogButton, Skeleton, SkipToContent, Spinner, UserAvatar, VoteButton, useMounted, useWebpSupport };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

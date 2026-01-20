@@ -6,13 +6,13 @@ import './globals.css';
 import { InstanceConfigManager } from './core';
 import { routeTree } from './routeTree.gen';
 
+// Get config once and extract all needed values
+const config = InstanceConfigManager.getConfig();
+const { general, instanceConfiguration } = config.configuration;
+
 // Set up image proxy base URL
 // This must be done before any content rendering
-const imageProxyBase = InstanceConfigManager.getConfigValue(
-  ({ configuration }) =>
-    (configuration.general as Record<string, unknown>).imageProxy as string ||
-    'https://images.ecency.com',
-);
+const imageProxyBase = general.imageProxy || 'https://images.ecency.com';
 setProxyBase(imageProxyBase);
 
 const router = createRouter({ routeTree });
@@ -24,13 +24,12 @@ declare module '@tanstack/react-router' {
 }
 
 // Apply background styles
-InstanceConfigManager.getConfigValue(
-  ({ configuration }) => configuration.general.styles.background,
-)
-  .split(' ')
-  .forEach((className) => {
-    document.body.classList.add(className);
+const backgroundClasses = general.styles.background;
+if (backgroundClasses) {
+  backgroundClasses.split(' ').forEach((className) => {
+    if (className) document.body.classList.add(className);
   });
+}
 
 // Apply theme
 const applyTheme = (theme: string) => {
@@ -47,45 +46,30 @@ const applyTheme = (theme: string) => {
   }
 };
 
-const configuredTheme = InstanceConfigManager.getConfigValue(
-  ({ configuration }) => configuration.general.theme,
-);
+const configuredTheme = general.theme;
 applyTheme(configuredTheme);
 
 // Apply style template
-const styleTemplate = InstanceConfigManager.getConfigValue(
-  ({ configuration }) => configuration.general.styleTemplate ?? 'medium',
-);
+const styleTemplate = general.styleTemplate ?? 'medium';
 document.documentElement.setAttribute('data-style-template', styleTemplate);
 
 // Apply sidebar placement
-const sidebarPlacement = InstanceConfigManager.getConfigValue(
-  ({ configuration }) =>
-    configuration.instanceConfiguration.layout.sidebar.placement ?? 'right',
-);
+const sidebarConfig = instanceConfiguration.layout.sidebar;
+const sidebarPlacement = sidebarConfig.placement ?? 'right';
 document.documentElement.setAttribute(
   'data-sidebar-placement',
   sidebarPlacement,
 );
 
 // Apply list type
-const listType = InstanceConfigManager.getConfigValue(
-  ({ configuration }) =>
-    configuration.instanceConfiguration.layout.listType ?? 'grid',
-);
+const listType = instanceConfiguration.layout.listType ?? 'grid';
 document.documentElement.setAttribute('data-list-type', listType);
 
 // Apply instance type
-const instanceType = InstanceConfigManager.getConfigValue(
-  ({ configuration }) =>
-    (configuration.instanceConfiguration.type as string) ?? 'blog',
-);
+const instanceType = instanceConfiguration.type ?? 'blog';
 document.documentElement.setAttribute('data-instance-type', instanceType);
 
 // Apply sidebar section visibility
-const sidebarConfig = InstanceConfigManager.getConfigValue(
-  ({ configuration }) => configuration.instanceConfiguration.layout.sidebar,
-);
 document.documentElement.setAttribute(
   'data-show-followers',
   sidebarConfig.followers?.enabled !== false ? 'true' : 'false',
@@ -112,9 +96,7 @@ if (configuredTheme === 'system') {
 }
 
 // Apply SEO meta tags
-const meta = InstanceConfigManager.getConfigValue(
-  ({ configuration }) => configuration.instanceConfiguration.meta,
-);
+const meta = instanceConfiguration.meta;
 
 // Set document title
 if (meta.title) {

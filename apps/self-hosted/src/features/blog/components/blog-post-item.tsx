@@ -33,13 +33,10 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
       configuration.instanceConfiguration.features.comments?.enabled ?? true,
   );
   const instanceType = InstanceConfigManager.getConfigValue(
-    ({ configuration }) =>
-      (configuration.instanceConfiguration.type as string) ?? 'blog',
+    ({ configuration }) => configuration.instanceConfiguration.type ?? 'blog',
   );
   const profileBaseUrl = InstanceConfigManager.getConfigValue(
-    ({ configuration }) =>
-      (configuration.general as Record<string, unknown>).profileBaseUrl as string ||
-      'https://ecency.com/@',
+    ({ configuration }) => configuration.general.profileBaseUrl || 'https://ecency.com/@',
   );
   const entryData = entry.original_entry || entry;
   const isCommunity = instanceType === 'community';
@@ -116,7 +113,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
             <img
               src={imageUrl}
               alt={entryData.title}
-              className="w-full h-auto object-cover"
+              className="w-full object-cover post-card-image-theme"
               loading="lazy"
             />
           </a>
@@ -209,7 +206,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
               <img
                 src={imageUrl}
                 alt={entryData.title}
-                className="w-full h-48 sm:h-32 object-cover"
+                className="w-full h-48 sm:h-32 object-cover rounded-theme"
                 loading="lazy"
               />
             </a>

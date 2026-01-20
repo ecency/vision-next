@@ -2,7 +2,7 @@
 
 import { getAccountPostsInfiniteQueryOptions } from '@ecency/sdk';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { t } from '@/core';
 import { BlogPostItem } from './blog-post-item';
 import { DetectBottom } from './detect-bottom';
@@ -32,19 +32,26 @@ export function BlogPostsList({ filter = 'posts', limit = 20 }: Props) {
   // Use different query based on instance type
   const communitySort = communityFilterMap[filter] || 'created';
 
+  // Memoize select function to avoid creating new reference on each render
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectPosts = useCallback(
+    (data: { pages: any[][] }) => data.pages.flat(),
+    []
+  );
+
   // Get query options and preserve their built-in enabled guards
   const accountOptions = getAccountPostsInfiniteQueryOptions(username, filter, limit);
   const communityOptions = getCommunityPostsInfiniteQueryOptions(communityId, communitySort, limit);
 
   const blogQuery = useInfiniteQuery({
     ...accountOptions,
-    select: (data) => data.pages.flat(),
+    select: selectPosts,
     enabled: accountOptions.enabled && !isCommunityMode,
   });
 
   const communityQuery = useInfiniteQuery({
     ...communityOptions,
-    select: (data) => data.pages.flat(),
+    select: selectPosts,
     enabled: communityOptions.enabled && isCommunityMode,
   });
 

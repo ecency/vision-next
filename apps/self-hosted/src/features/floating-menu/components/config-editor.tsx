@@ -54,6 +54,8 @@ function ArrayFieldEditor({
   handleChange,
 }: ArrayFieldEditorProps) {
   const arrayValue = Array.isArray(value) ? value : [];
+  // Memoize the serialized value to avoid recalculating on every render
+  const serializedValue = useMemo(() => JSON.stringify(arrayValue), [arrayValue]);
   const [draftJson, setDraftJson] = useState(() => JSON.stringify(arrayValue, null, 2));
   const [isValid, setIsValid] = useState(true);
 
@@ -62,7 +64,7 @@ function ArrayFieldEditor({
     const newJson = JSON.stringify(arrayValue, null, 2);
     setDraftJson(newJson);
     setIsValid(true);
-  }, [JSON.stringify(arrayValue)]);
+  }, [serializedValue]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;

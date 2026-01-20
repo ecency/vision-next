@@ -49,9 +49,7 @@ export function BlogNavigation() {
     if (blogLogo) return blogLogo;
     if (isCommunityMode && community?.name) {
       const proxyBase = InstanceConfigManager.getConfigValue(
-        ({ configuration }) =>
-          (configuration.general as Record<string, unknown>).imageProxy as string ||
-          'https://images.ecency.com',
+        ({ configuration }) => configuration.general.imageProxy || 'https://images.ecency.com',
       );
       return `${proxyBase}/u/${community.name}/avatar/medium`;
     }

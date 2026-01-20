@@ -11,9 +11,7 @@ export type UserAvatarProps = Omit<BaseUserAvatarProps, 'imageProxyBase'>;
  */
 export function UserAvatar(props: UserAvatarProps) {
   const imageProxyBase = InstanceConfigManager.getConfigValue(
-    ({ configuration }) =>
-      (configuration.general as Record<string, unknown>).imageProxy as string ||
-      'https://images.ecency.com',
+    ({ configuration }) => configuration.general.imageProxy || 'https://images.ecency.com',
   );
 
   return <BaseUserAvatar {...props} imageProxyBase={imageProxyBase} />;

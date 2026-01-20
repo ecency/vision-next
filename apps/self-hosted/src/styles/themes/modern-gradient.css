@@ -73,6 +73,19 @@
   --theme-gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --theme-gradient-accent: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
   --theme-gradient-subtle: linear-gradient(135deg, #e0e7ff 0%, #fce7f3 100%);
+
+  /* Layout - Modern Gradient: Spacious, airy, contemporary */
+  --theme-content-width: 700px;
+  --theme-sidebar-width: 300px;
+  --theme-layout-gap: 4rem;
+  --theme-layout-container-padding: 1.5rem;
+  --theme-layout-section-gap: 3rem;
+  --theme-card-padding: 2rem;
+  --theme-grid-gap: 2rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+  --theme-post-card-image-height: 220px;
+  --theme-post-card-image-radius: 16px;
 }
 
 /* Modern Gradient Dark Mode */
