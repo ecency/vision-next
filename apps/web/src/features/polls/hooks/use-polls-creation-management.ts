@@ -8,13 +8,20 @@ import { PREFIX } from "@/utils/local-storage";
 
 export function usePollsCreationManagement(poll?: PollSnapshot) {
   const [title, setTitle, clearTitle] = useLocalStorage(PREFIX + "_plls_t", "");
-  const [endTime, setEndTime, clearEndTime] = useLocalStorage(PREFIX + "_plls_et", "00:00");
+  const [endTime, setEndTime, clearEndTime] = useLocalStorage(PREFIX + "_plls_et", "23:59");
   const [endDate, setEndDate, clearEndDate] = useLocalStorage(
     PREFIX + "_plls_ed",
     dayjs().add(7, "day").toDate(),
     {
       raw: false,
-      deserializer: (v: string) => new Date(v),
+      deserializer: (v: string) => {
+        const date = new Date(v);
+        // If the stored date is in the past, reset to 7 days from now
+        if (dayjs(date).isBefore(dayjs())) {
+          return dayjs().add(7, "day").toDate();
+        }
+        return date;
+      },
       serializer: (v: Date) => v.toISOString()
     }
   );
@@ -93,10 +100,10 @@ export function usePollsCreationManagement(poll?: PollSnapshot) {
     setMaxChoicesVoted,
     clearAll: () => {
       clearTitle();
-      clearEndDate();
+      setEndDate(dayjs().add(7, "day").toDate()); // Reset to 7 days from now
       clearAccountAge();
       setChoices(["", ""]); // Reset to 2 empty choices instead of clearing
-      clearEndTime();
+      setEndTime("23:59"); // Default to end of day
     }
   };
 }
