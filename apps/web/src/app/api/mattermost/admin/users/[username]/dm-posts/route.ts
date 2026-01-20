@@ -17,7 +17,7 @@ const CHAT_SUPER_ADMIN = "ecency";
 export async function DELETE(
   _req: Request,
   { params }: { params: { username: string } }
-): Promise<NextResponse<{ deleted: number; dmOnly: boolean } | { error: string }>> {
+): Promise<NextResponse<{ deleted: number; dmOnly: boolean; timedOut?: boolean } | { error: string }>> {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -30,9 +30,9 @@ export async function DELETE(
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    const { deleted, dmOnly } = await deleteMattermostDmPostsByUserAsAdmin(params.username);
+    const { deleted, dmOnly, timedOut } = await deleteMattermostDmPostsByUserAsAdmin(params.username);
 
-    return NextResponse.json({ deleted, dmOnly });
+    return NextResponse.json({ deleted, dmOnly, timedOut });
   } catch (error) {
     return handleMattermostError(error);
   }

@@ -1563,8 +1563,15 @@ export function MattermostChannelView({ channelId }: Props) {
     setAdminMessage(null);
 
     deleteUserDmPostsMutation.mutate(normalizedUsername, {
-      onSuccess: ({ deleted }) => {
-        setAdminMessage(`Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
+      onSuccess: ({ deleted, timedOut }) => {
+        if (timedOut) {
+          setAdminMessage(
+            `⏱️ Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}.\n` +
+            `Operation timed out - there may be more posts. Click the button again to continue deleting.`
+          );
+        } else {
+          setAdminMessage(`✓ Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
+        }
       },
       onError: (err) => {
         setAdminError((err as Error)?.message || "Unable to delete DM posts");
@@ -2070,7 +2077,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 Delete all DM posts by user
               </Button>
               <div className="text-[11px] text-[--text-muted]">
-                Removes all direct messages from the user across all DM conversations.
+                Removes all direct messages from the user across all DM conversations. For users with many DMs, this may time out - just click again to continue deleting in chunks.
               </div>
             </div>
 

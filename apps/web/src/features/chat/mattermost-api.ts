@@ -368,7 +368,7 @@ export function useMattermostAdminDeleteUserDmPosts() {
         throw new Error(data?.error || "Unable to delete DM posts");
       }
 
-      return (await res.json()) as { deleted: number; dmOnly: boolean };
+      return (await res.json()) as { deleted: number; dmOnly: boolean; timedOut?: boolean };
     },
     onSuccess: async () => {
       await Promise.all([

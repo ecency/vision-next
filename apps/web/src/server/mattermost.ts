@@ -408,7 +408,7 @@ export async function deleteMattermostPostsByUserAsAdmin(username: string) {
   return { deleted, user: targetUser } as const;
 }
 
-export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
+export async function deleteMattermostDmPostsByUserAsAdmin(username: string, timeoutMs = 25000) {
   const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
   const targetUser = await findMattermostUser(normalizedUsername);
 
@@ -417,7 +417,18 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
   }
 
   let deleted = 0;
+  let timedOut = false;
+  const startTime = Date.now();
   const teamId = getMattermostTeamId();
+
+  // Helper to check if we should continue
+  const shouldContinue = () => {
+    if (Date.now() - startTime > timeoutMs) {
+      timedOut = true;
+      return false;
+    }
+    return true;
+  };
 
   // Get all channels for the user (includes DMs and group messages)
   const channels = await mmFetch<Array<{ id: string; type: string; team_id: string }>>(
@@ -429,11 +440,13 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
   const dmChannels = channels.filter((ch) => ch.type === "D" || ch.type === "G");
 
   // For each DM channel, get and delete all posts by the user
-  for (const channel of dmChannels) {
+  channelLoop: for (const channel of dmChannels) {
+    if (!shouldContinue()) break;
+
     let page = 0;
     const perPage = 200;
 
-    while (true) {
+    while (shouldContinue()) {
       // Get posts in this channel
       const posts = await mmFetch<
         Array<{ id: string; user_id: string; channel_id: string }>
@@ -453,14 +466,23 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
         break; // No more posts by this user in this channel
       }
 
-      // Delete each post
-      for (const post of userPosts) {
-        try {
-          await deleteMattermostPostAsAdmin(post.id);
-          deleted += 1;
-        } catch (err) {
-          // Silent failure - continue deleting other posts
-        }
+      // Delete posts in parallel batches for speed
+      const BATCH_SIZE = 10;
+      for (let i = 0; i < userPosts.length; i += BATCH_SIZE) {
+        if (!shouldContinue()) break channelLoop;
+
+        const batch = userPosts.slice(i, i + BATCH_SIZE);
+        const deletePromises = batch.map(async (post) => {
+          try {
+            await deleteMattermostPostAsAdmin(post.id);
+            return true;
+          } catch (err) {
+            return false; // Silent failure
+          }
+        });
+
+        const results = await Promise.allSettled(deletePromises);
+        deleted += results.filter((r) => r.status === "fulfilled" && r.value === true).length;
       }
 
       // If we got fewer posts than requested, we've reached the end
@@ -472,7 +494,7 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
     }
   }
 
-  return { deleted, user: targetUser, dmOnly: true } as const;
+  return { deleted, user: targetUser, dmOnly: true, timedOut } as const;
 }
 
 export async function banMattermostUserForHoursAsAdmin(username: string, hours: number) {
