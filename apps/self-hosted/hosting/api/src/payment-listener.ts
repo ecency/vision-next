@@ -9,6 +9,7 @@ import { Client } from '@hiveio/dhive';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
+import { parseMemo, type ParsedMemo } from '../types';
 
 // Configuration
 const CONFIG = {
@@ -20,38 +21,6 @@ const CONFIG = {
 };
 
 const hiveClient = new Client(CONFIG.HIVE_API_NODES);
-
-interface ParsedMemo {
-  action: 'blog' | 'upgrade' | 'unknown';
-  username: string;
-  months: number;
-}
-
-function parseMemo(memo: string): ParsedMemo {
-  const parts = memo.trim().toLowerCase().split(':');
-
-  if (parts[0] === 'blog' && parts[1]) {
-    return {
-      action: 'blog',
-      username: parts[1],
-      months: parseInt(parts[2] || '1', 10) || 1,
-    };
-  }
-
-  if (parts[0] === 'upgrade' && parts[1]) {
-    return {
-      action: 'upgrade',
-      username: parts[1],
-      months: 1,
-    };
-  }
-
-  return {
-    action: 'unknown',
-    username: '',
-    months: 0,
-  };
-}
 
 class PaymentListener {
   private lastProcessedBlock: number = 0;

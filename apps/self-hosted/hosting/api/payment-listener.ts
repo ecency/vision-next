@@ -36,6 +36,20 @@ const db = {
     const result = await pool.query<T>(text, params);
     return result.rows[0] || null;
   },
+  transaction: async <T>(fn: (client: pg.PoolClient) => Promise<T>): Promise<T> => {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await fn(client);
+      await client.query('COMMIT');
+      return result;
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  },
 };
 
 /**
@@ -220,42 +234,100 @@ class PaymentListener {
   ) {
     console.log(`[PaymentListener] Processing subscription: ${username} for ${months} months`);
 
-    try {
-      // 1. Check if tenant exists, create if not
-      let tenant = await this.getTenant(username);
-
-      if (!tenant) {
-        tenant = await this.createTenant(username);
-      }
-
-      // 2. Extend subscription
-      const newExpiryDate = this.calculateNewExpiry(tenant.subscription_expires_at, months);
-
-      await this.updateTenantSubscription(username, {
-        status: 'active',
-        expiresAt: newExpiryDate,
-      });
-
-      // 3. Generate/update config file
-      await this.generateConfigFile(username, tenant.config);
-
-      // 4. Log payment
+    // Validate username format (Hive username rules)
+    if (!this.isValidHiveUsername(username)) {
+      console.log(`[PaymentListener] Invalid username format: ${username}`);
       await this.logPayment({
-        tenantId: tenant.id,
         trxId: transfer.trx_id,
         blockNum: transfer.block_num,
         fromAccount: transfer.from,
         amount,
         currency: 'HBD',
         memo: transfer.memo,
-        status: 'processed',
-        monthsCredited: months,
-        subscriptionExtendedTo: newExpiryDate,
+        status: 'failed',
+        monthsCredited: 0,
+        note: 'Invalid username format',
+      });
+      return;
+    }
+
+    try {
+      // Use transaction to ensure atomicity of subscription update and payment log
+      await db.transaction(async (client) => {
+        // 1. Insert payment row first with status='processing' to claim the trx_id
+        // This serves as dedup - if insert fails due to unique constraint, abort
+        const insertResult = await client.query(
+          `INSERT INTO payments
+           (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
+           VALUES (NULL, $1, $2, $3, $4, 'HBD', $5, 'processing', $6)
+           ON CONFLICT (trx_id) DO NOTHING
+           RETURNING id`,
+          [transfer.trx_id, transfer.block_num, transfer.from, amount, transfer.memo, months]
+        );
+
+        // If no row returned, trx_id already exists (duplicate)
+        if (insertResult.rows.length === 0) {
+          console.log(`[PaymentListener] Duplicate transaction detected: ${transfer.trx_id}`);
+          return; // Exit transaction, no error
+        }
+
+        const paymentId = insertResult.rows[0].id;
+
+        // 2. Check if tenant exists, create if not
+        let tenantResult = await client.query(
+          'SELECT * FROM tenants WHERE username = $1',
+          [username.toLowerCase()]
+        );
+        let tenant = tenantResult.rows[0];
+
+        if (!tenant) {
+          const defaultConfig = this.getDefaultConfig(username);
+          const createResult = await client.query(
+            `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
+             VALUES ($1, $2, 'inactive', 'standard')
+             RETURNING *`,
+            [username.toLowerCase(), JSON.stringify(defaultConfig)]
+          );
+          tenant = createResult.rows[0];
+        }
+
+        // 3. Calculate and update subscription
+        const newExpiryDate = this.calculateNewExpiry(tenant.subscription_expires_at, months);
+
+        await client.query(
+          `UPDATE tenants
+           SET subscription_status = 'active',
+               subscription_expires_at = $2,
+               subscription_started_at = COALESCE(subscription_started_at, NOW()),
+               updated_at = NOW()
+           WHERE username = $1`,
+          [username.toLowerCase(), newExpiryDate]
+        );
+
+        // 4. Update payment row to 'processed' with tenant_id and subscription info
+        await client.query(
+          `UPDATE payments
+           SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
+           WHERE id = $1`,
+          [paymentId, tenant.id, newExpiryDate]
+        );
+
+        console.log(`[PaymentListener] Subscription activated for ${username} until ${newExpiryDate}`);
+
+        // 5. Generate config file AFTER transaction commits (outside try block)
+        // Store config for post-commit generation
+        (this as any)._pendingConfigGeneration = { username, config: tenant.config };
       });
 
-      console.log(`[PaymentListener] Subscription activated for ${username} until ${newExpiryDate}`);
+      // Generate config file after transaction commits successfully
+      if ((this as any)._pendingConfigGeneration) {
+        const { username: cfgUsername, config } = (this as any)._pendingConfigGeneration;
+        delete (this as any)._pendingConfigGeneration;
+        await this.generateConfigFile(cfgUsername, config);
+      }
     } catch (error) {
       console.error(`[PaymentListener] Failed to process subscription for ${username}:`, error);
+      // Log failure (may fail if trx_id already exists, which is fine)
       await this.logPayment({
         trxId: transfer.trx_id,
         blockNum: transfer.block_num,
@@ -272,6 +344,23 @@ class PaymentListener {
 
   private async processUpgrade(transfer: HiveTransfer, username: string, amount: number) {
     console.log(`[PaymentListener] Processing upgrade: ${username}`);
+
+    // Validate username format
+    if (!this.isValidHiveUsername(username)) {
+      console.log(`[PaymentListener] Invalid username format: ${username}`);
+      await this.logPayment({
+        trxId: transfer.trx_id,
+        blockNum: transfer.block_num,
+        fromAccount: transfer.from,
+        amount,
+        currency: 'HBD',
+        memo: transfer.memo,
+        status: 'failed',
+        monthsCredited: 0,
+        note: 'Invalid username format',
+      });
+      return;
+    }
 
     if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
       console.log(`[PaymentListener] Insufficient amount for upgrade: ${amount} HBD`);
@@ -290,12 +379,31 @@ class PaymentListener {
     }
 
     try {
+      // Check tenant exists before upgrading
+      const tenant = await this.getTenant(username);
+      if (!tenant) {
+        console.log(`[PaymentListener] Tenant not found for upgrade: ${username}`);
+        await this.logPayment({
+          trxId: transfer.trx_id,
+          blockNum: transfer.block_num,
+          fromAccount: transfer.from,
+          amount,
+          currency: 'HBD',
+          memo: transfer.memo,
+          status: 'failed',
+          monthsCredited: 0,
+          note: 'Tenant not found - create subscription first before upgrading',
+        });
+        return;
+      }
+
       // Upgrade tenant to Pro plan
       await this.updateTenantSubscription(username, {
         plan: 'pro',
       });
 
       await this.logPayment({
+        tenantId: tenant.id,
         trxId: transfer.trx_id,
         blockNum: transfer.block_num,
         fromAccount: transfer.from,
@@ -372,11 +480,16 @@ class PaymentListener {
 
     const transfers: HiveTransfer[] = [];
 
-    for (const tx of block.transactions) {
+    // Use index to get trx_id from block.transaction_ids array
+    // tx.transaction_id is undefined in the Hive API response
+    for (let txIndex = 0; txIndex < block.transactions.length; txIndex++) {
+      const tx = block.transactions[txIndex];
+      const trxId = block.transaction_ids?.[txIndex] || '';
+
       for (const op of tx.operations) {
         if (op[0] === 'transfer' && op[1].to === CONFIG.PAYMENT_ACCOUNT) {
           transfers.push({
-            trx_id: tx.transaction_id,
+            trx_id: trxId,
             block_num: blockNum,
             from: op[1].from,
             to: op[1].to,
@@ -526,12 +639,49 @@ class PaymentListener {
   }
 
   private async generateConfigFile(username: string, config: any): Promise<void> {
-    // Write config to /app/configs/{username}.json
-    // This is read by nginx to serve the correct config per tenant
+    // Validate and sanitize username to prevent path traversal
+    if (!this.isValidHiveUsername(username)) {
+      throw new Error(`Invalid username for config generation: ${username}`);
+    }
+
+    // Sanitized username (already validated, just lowercase and alphanumeric + dots/dashes)
+    const safeUsername = username.toLowerCase();
+
+    // Use path.join to construct path safely within fixed configs directory
+    const path = await import('path');
     const fs = await import('fs/promises');
-    const configPath = `/app/configs/${username}.json`;
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2));
-    console.log(`[PaymentListener] Generated config: ${configPath}`);
+    const configsDir = '/app/configs';
+    const configPath = path.join(configsDir, `${safeUsername}.json`);
+
+    // Verify the resolved path is still within configsDir (defense in depth)
+    const resolvedPath = path.resolve(configPath);
+    const resolvedConfigsDir = path.resolve(configsDir);
+    if (!resolvedPath.startsWith(resolvedConfigsDir + path.sep)) {
+      throw new Error(`Path traversal attempt detected: ${username}`);
+    }
+
+    await fs.writeFile(resolvedPath, JSON.stringify(config, null, 2));
+    console.log(`[PaymentListener] Generated config: ${resolvedPath}`);
+  }
+
+  /**
+   * Validate Hive username format
+   * Rules: 3-16 characters, lowercase letters, numbers, dots, and dashes
+   * Cannot start/end with dot or dash, no consecutive dots/dashes
+   */
+  private isValidHiveUsername(username: string): boolean {
+    if (!username || typeof username !== 'string') return false;
+    if (username.length < 3 || username.length > 16) return false;
+
+    // Hive username regex: lowercase letters, numbers, dots, dashes
+    // Must start with letter, cannot end with dot/dash
+    const hiveUsernameRegex = /^[a-z][a-z0-9.-]*[a-z0-9]$|^[a-z]{3}$/;
+    if (!hiveUsernameRegex.test(username.toLowerCase())) return false;
+
+    // No consecutive dots or dashes
+    if (/[.-]{2}/.test(username)) return false;
+
+    return true;
   }
 
   private getDefaultConfig(username: string): any {

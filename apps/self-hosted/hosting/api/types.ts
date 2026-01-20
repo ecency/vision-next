@@ -255,23 +255,29 @@ export interface ParsedMemo {
 
 export function parseMemo(memo: string): ParsedMemo {
   const parts = memo.trim().toLowerCase().split(':');
-  
-  if (parts[0] === 'blog' && parts[1]) {
+
+  // Trim username and validate it's not empty/whitespace-only
+  const username = parts[1]?.trim() || '';
+
+  if (parts[0] === 'blog' && username !== '') {
+    // Trim months string before parsing to avoid whitespace issues
+    const monthsStr = parts[2]?.trim() || '1';
+    const months = parseInt(monthsStr, 10) || 1;
     return {
       action: 'blog',
-      username: parts[1],
-      months: parseInt(parts[2] || '1', 10) || 1,
+      username,
+      months,
     };
   }
-  
-  if (parts[0] === 'upgrade' && parts[1]) {
+
+  if (parts[0] === 'upgrade' && username !== '') {
     return {
       action: 'upgrade',
-      username: parts[1],
+      username,
       months: 1,
     };
   }
-  
+
   return {
     action: 'unknown',
     username: '',

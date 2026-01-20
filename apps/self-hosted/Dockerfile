@@ -4,14 +4,16 @@
 # This Dockerfile builds a lightweight, static self-hosted blog powered by Hive.
 #
 # Build args:
-#   CONFIG_JSON - JSON string with instance configuration (optional)
+#   CONFIG_JSON_B64 - Base64-encoded JSON config (recommended, avoids shell issues)
 #
 # Usage:
 #   # Build with default config
 #   docker build -t ecency/self-hosted .
 #
-#   # Build with custom config
-#   docker build --build-arg CONFIG_JSON="$(cat config.json)" -t myblog .
+#   # Build with custom config (base64 encoded)
+#   CONFIG_B64=$(base64 -w0 config.json)  # Linux
+#   # or: CONFIG_B64=$(base64 -i config.json)  # macOS
+#   docker build --build-arg CONFIG_JSON_B64="$CONFIG_B64" -t myblog .
 #
 #   # Run
 #   docker run -p 3000:80 ecency/self-hosted
@@ -62,10 +64,11 @@ COPY --from=deps /app/packages/wallets/node_modules ./packages/wallets/node_modu
 COPY . .
 
 # Build-time config injection (optional)
-# If CONFIG_JSON is provided, it will be used; otherwise, config.template.json is used
-ARG CONFIG_JSON=""
-RUN if [ -n "$CONFIG_JSON" ]; then \
-      echo "$CONFIG_JSON" > apps/self-hosted/config.json; \
+# If CONFIG_JSON_B64 is provided (base64-encoded), decode and use it
+# Otherwise, use existing config.json or fall back to config.template.json
+ARG CONFIG_JSON_B64=""
+RUN if [ -n "$CONFIG_JSON_B64" ]; then \
+      echo "$CONFIG_JSON_B64" | base64 -d > apps/self-hosted/config.json; \
     elif [ ! -f apps/self-hosted/config.json ]; then \
       cp apps/self-hosted/config.template.json apps/self-hosted/config.json; \
     fi

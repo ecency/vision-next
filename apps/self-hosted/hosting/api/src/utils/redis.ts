@@ -7,12 +7,20 @@
 import { createClient, type RedisClientType } from 'redis';
 
 let redisClient: RedisClientType | null = null;
+let redisConnectPromise: Promise<RedisClientType> | null = null;
 
 export async function getRedisClient(): Promise<RedisClientType> {
+  // Return existing open client
   if (redisClient && redisClient.isOpen) {
     return redisClient;
   }
 
+  // If a connection is in progress, wait for it
+  if (redisConnectPromise) {
+    return redisConnectPromise;
+  }
+
+  // Create new connection with shared promise to prevent race conditions
   const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
   redisClient = createClient({
@@ -21,14 +29,27 @@ export async function getRedisClient(): Promise<RedisClientType> {
 
   redisClient.on('error', (err) => {
     console.error('[Redis] Connection error:', err);
+    // Reset promise on error so callers can retry
+    redisConnectPromise = null;
   });
 
   redisClient.on('connect', () => {
     console.log('[Redis] Connected');
   });
 
-  await redisClient.connect();
-  return redisClient;
+  // Store the promise so concurrent callers wait for the same connection
+  redisConnectPromise = redisClient.connect().then(() => {
+    // Connection successful, clear the promise (client is now open)
+    redisConnectPromise = null;
+    return redisClient!;
+  }).catch((err) => {
+    // Connection failed, reset state so callers can retry
+    redisConnectPromise = null;
+    redisClient = null;
+    throw err;
+  });
+
+  return redisConnectPromise;
 }
 
 /**
