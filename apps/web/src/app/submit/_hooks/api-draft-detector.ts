@@ -39,10 +39,30 @@ export function useApiDraftDetector(
     onInvalidDraftRef.current = onInvalidDraft;
   }, [onDraftLoaded, onInvalidDraft]);
 
-  const existingDraft = useMemo(
-    () => draftsQuery.data.find((draft) => draft._id === draftId),
-    [draftId, draftsQuery.data]
-  );
+  const existingDraft = useMemo(() => {
+    // First, try to find the draft in the regular query
+    const draftFromRegularQuery = draftsQuery.data.find((draft) => draft._id === draftId);
+    if (draftFromRegularQuery) {
+      return draftFromRegularQuery;
+    }
+
+    // If not found, check the infinite query cache (for paginated drafts)
+    const infiniteQueryKey = ["posts", "drafts", "infinite", activeUser?.username, 10];
+    const infiniteQueryData = queryClient.getQueryData<{
+      pages: Array<{ data: Draft[] }>;
+    }>(infiniteQueryKey);
+
+    if (infiniteQueryData?.pages) {
+      for (const page of infiniteQueryData.pages) {
+        const draft = page.data.find((d) => d._id === draftId);
+        if (draft) {
+          return draft;
+        }
+      }
+    }
+
+    return undefined;
+  }, [draftId, draftsQuery.data, activeUser?.username, queryClient]);
 
   useEffect(() => {
     if (existingDraft) {

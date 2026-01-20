@@ -29,6 +29,7 @@ interface Props {
   description: string | null;
   selectedThumbnail: string | undefined;
   validate: () => boolean;
+  onDraftCreated?: (draft: Draft) => void;
 }
 
 export function EditorActions({
@@ -47,13 +48,14 @@ export function EditorActions({
   beneficiaries,
   description,
   selectedThumbnail,
-  validate
+  validate,
+  onDraftCreated
 }: Props) {
   const { activeUser } = useActiveAccount();
   const router = useRouter();
 
   const { mutateAsync: doSchedule, isPending: scheduling } = useScheduleApi(onClear);
-  const { mutateAsync: saveDraft, isPending: savingDraft } = useSaveDraftApi();
+  const { mutateAsync: saveDraft, isPending: savingDraft } = useSaveDraftApi(onDraftCreated);
   const { mutateAsync: publish, isPending: publishing } = usePublishApi(onClear);
   const { mutateAsync: update, isPending: updating } = useUpdateApi(onClear);
   const cancelUpdate = useCallback(() => {
