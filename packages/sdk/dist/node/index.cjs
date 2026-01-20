@@ -2340,8 +2340,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions86 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions86);
+  const queryOptions87 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions87);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -4292,6 +4292,15 @@ function getReceivedVestingSharesQueryOptions(username) {
     }
   });
 }
+function getRecurrentTransfersQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["wallet", "recurrent-transfers", username],
+    queryFn: () => CONFIG.hiveClient.call("condenser_api", "find_recurrent_transfers", [
+      username
+    ]),
+    enabled: !!username
+  });
+}
 function getWitnessesInfiniteQueryOptions(limit) {
   return reactQuery.infiniteQueryOptions({
     queryKey: ["witnesses", "list", limit],
@@ -5590,6 +5599,7 @@ exports.getQueryClient = getQueryClient;
 exports.getRcStatsQueryOptions = getRcStatsQueryOptions;
 exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getReceivedVestingSharesQueryOptions = getReceivedVestingSharesQueryOptions;
+exports.getRecurrentTransfersQueryOptions = getRecurrentTransfersQueryOptions;
 exports.getReferralsInfiniteQueryOptions = getReferralsInfiniteQueryOptions;
 exports.getReferralsStatsQueryOptions = getReferralsStatsQueryOptions;
 exports.getRelationshipBetweenAccounts = getRelationshipBetweenAccounts;
