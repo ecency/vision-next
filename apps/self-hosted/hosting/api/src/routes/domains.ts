@@ -32,7 +32,7 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
   }
 
   // Check if Pro plan
-  if (tenant.subscription_plan !== 'pro') {
+  if (tenant.subscriptionPlan !== 'pro') {
     return c.json({ error: 'Custom domains require Pro plan' }, 402);
   }
 
@@ -70,28 +70,28 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
     return c.json({ error: 'Tenant not found' }, 404);
   }
 
-  if (!tenant.custom_domain) {
+  if (!tenant.customDomain) {
     return c.json({ error: 'No custom domain configured' }, 400);
   }
 
   // Check DNS
-  const isVerified = await DomainService.verifyDomain(tenant.custom_domain, username);
+  const isVerified = await DomainService.verifyDomain(tenant.customDomain, username);
 
   if (!isVerified) {
     return c.json({
       verified: false,
-      domain: tenant.custom_domain,
+      domain: tenant.customDomain,
       message: 'DNS verification failed. Please check your CNAME record.',
     });
   }
 
   // Mark as verified
   await TenantService.verifyCustomDomain(username);
-  await DomainService.markVerified(username, tenant.custom_domain);
+  await DomainService.markVerified(username, tenant.customDomain);
 
   return c.json({
     verified: true,
-    domain: tenant.custom_domain,
+    domain: tenant.customDomain,
     message: 'Domain verified successfully!',
   });
 });

@@ -278,14 +278,14 @@ class PaymentListener {
           `UPDATE payments
            SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
            WHERE id = $1`,
-          [paymentId, updatedTenant.id, updatedTenant.subscription_expires_at]
+          [paymentId, updatedTenant.id, updatedTenant.subscriptionExpiresAt]
         );
 
         console.log(
           '[PaymentListener] Subscription activated for',
           username,
           'until',
-          updatedTenant.subscription_expires_at
+          updatedTenant.subscriptionExpiresAt
         );
       });
 

@@ -48,13 +48,13 @@ tenantRoutes.get('/:username', async (c) => {
   
   return c.json({
     username: tenant.username,
-    subscriptionStatus: tenant.subscription_status,
-    subscriptionPlan: tenant.subscription_plan,
-    subscriptionExpiresAt: tenant.subscription_expires_at,
-    customDomain: tenant.custom_domain,
-    customDomainVerified: tenant.custom_domain_verified,
+    subscriptionStatus: tenant.subscriptionStatus,
+    subscriptionPlan: tenant.subscriptionPlan,
+    subscriptionExpiresAt: tenant.subscriptionExpiresAt,
+    customDomain: tenant.customDomain,
+    customDomainVerified: tenant.customDomainVerified,
     blogUrl: TenantService.getBlogUrl(tenant),
-    createdAt: tenant.created_at,
+    createdAt: tenant.createdAt,
   });
 });
 
@@ -69,7 +69,7 @@ tenantRoutes.get('/:username/config', async (c) => {
   }
   
   // Check subscription is active
-  if (tenant.subscription_status !== 'active') {
+  if (tenant.subscriptionStatus !== 'active') {
     return c.json({ error: 'Subscription inactive' }, 402);
   }
   
@@ -105,7 +105,7 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   return c.json({
     tenant: {
       username: tenant.username,
-      subscriptionStatus: tenant.subscription_status,
+      subscriptionStatus: tenant.subscriptionStatus,
       blogUrl: `https://${tenant.username}.${baseDomain}`,
     },
     paymentInstructions: {
@@ -160,16 +160,16 @@ tenantRoutes.get('/:username/status', async (c) => {
   }
   
   const now = new Date();
-  const expiresAt = tenant.subscription_expires_at ? new Date(tenant.subscription_expires_at) : null;
+  const expiresAt = tenant.subscriptionExpiresAt ? new Date(tenant.subscriptionExpiresAt) : null;
   const daysRemaining = expiresAt ? Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
-  
+
   return c.json({
     exists: true,
-    subscriptionStatus: tenant.subscription_status,
-    subscriptionPlan: tenant.subscription_plan,
+    subscriptionStatus: tenant.subscriptionStatus,
+    subscriptionPlan: tenant.subscriptionPlan,
     daysRemaining,
-    customDomain: tenant.custom_domain,
-    customDomainVerified: tenant.custom_domain_verified,
+    customDomain: tenant.customDomain,
+    customDomainVerified: tenant.customDomainVerified,
     blogUrl: TenantService.getBlogUrl(tenant),
   });
 });

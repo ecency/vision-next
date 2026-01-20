@@ -140,9 +140,9 @@ authRoutes.get('/me', async (c) => {
     hasTenant: !!tenant,
     tenant: tenant
       ? {
-          subscriptionStatus: tenant.subscription_status,
-          subscriptionPlan: tenant.subscription_plan,
-          subscriptionExpiresAt: tenant.subscription_expires_at,
+          subscriptionStatus: tenant.subscriptionStatus,
+          subscriptionPlan: tenant.subscriptionPlan,
+          subscriptionExpiresAt: tenant.subscriptionExpiresAt,
           blogUrl: TenantService.getBlogUrl(tenant),
         }
       : null,

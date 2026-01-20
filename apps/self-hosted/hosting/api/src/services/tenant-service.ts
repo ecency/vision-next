@@ -4,44 +4,35 @@
 
 import { db } from '../db/client';
 import { Client } from '@hiveio/dhive';
+import { Tenant, TenantRow, mapTenantFromDb } from '../../types';
+
+// Re-export Tenant type for backward compatibility
+export type { Tenant } from '../../types';
 
 const hiveClient = new Client(process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog']);
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
-
-export interface Tenant {
-  id: string;
-  username: string;
-  subscription_status: 'inactive' | 'active' | 'expired' | 'suspended';
-  subscription_plan: 'standard' | 'pro';
-  subscription_started_at: Date | null;
-  subscription_expires_at: Date | null;
-  custom_domain: string | null;
-  custom_domain_verified: boolean;
-  custom_domain_verified_at: Date | null;
-  config: any;
-  created_at: Date;
-  updated_at: Date;
-}
 
 export const TenantService = {
   /**
    * Get tenant by username
    */
   async getByUsername(username: string): Promise<Tenant | null> {
-    return db.queryOne<Tenant>(
+    const row = await db.queryOne<TenantRow>(
       'SELECT * FROM tenants WHERE username = $1',
       [username.toLowerCase()]
     );
+    return row ? mapTenantFromDb(row) : null;
   },
   
   /**
    * Get tenant by custom domain
    */
   async getByDomain(domain: string): Promise<Tenant | null> {
-    return db.queryOne<Tenant>(
+    const row = await db.queryOne<TenantRow>(
       'SELECT * FROM tenants WHERE custom_domain = $1 AND custom_domain_verified = true',
       [domain.toLowerCase()]
     );
+    return row ? mapTenantFromDb(row) : null;
   },
   
   /**
@@ -49,18 +40,18 @@ export const TenantService = {
    */
   async create(username: string, configOverrides?: any): Promise<Tenant> {
     const defaultConfig = await this.getDefaultConfig(username);
-    const config = configOverrides 
+    const config = configOverrides
       ? this.mergeConfig(defaultConfig, configOverrides)
       : defaultConfig;
-    
-    const result = await db.queryOne<Tenant>(
+
+    const row = await db.queryOne<TenantRow>(
       `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
        VALUES ($1, $2, 'inactive', 'standard')
        RETURNING *`,
       [username.toLowerCase(), JSON.stringify(config)]
     );
-    
-    return result!;
+
+    return mapTenantFromDb(row!);
   },
   
   /**
@@ -69,21 +60,21 @@ export const TenantService = {
   async activateSubscription(username: string, months: number): Promise<Tenant> {
     const tenant = await this.getByUsername(username);
     if (!tenant) throw new Error('Tenant not found');
-    
+
     const now = new Date();
-    const currentExpiry = tenant.subscription_expires_at 
-      ? new Date(tenant.subscription_expires_at)
+    const currentExpiry = tenant.subscriptionExpiresAt
+      ? new Date(tenant.subscriptionExpiresAt)
       : now;
-    
+
     // If expired, start from now; otherwise extend from current expiry
     const baseDate = currentExpiry > now ? currentExpiry : now;
     const newExpiry = new Date(baseDate);
     newExpiry.setMonth(newExpiry.getMonth() + months);
-    
-    const startedAt = tenant.subscription_started_at || now;
-    
-    const result = await db.queryOne<Tenant>(
-      `UPDATE tenants 
+
+    const startedAt = tenant.subscriptionStartedAt || now;
+
+    const row = await db.queryOne<TenantRow>(
+      `UPDATE tenants
        SET subscription_status = 'active',
            subscription_started_at = $2,
            subscription_expires_at = $3,
@@ -92,25 +83,25 @@ export const TenantService = {
        RETURNING *`,
       [username.toLowerCase(), startedAt, newExpiry]
     );
-    
-    return result!;
+
+    return mapTenantFromDb(row!);
   },
   
   /**
    * Upgrade to Pro plan
    */
   async upgradeToPro(username: string): Promise<Tenant> {
-    const result = await db.queryOne<Tenant>(
-      `UPDATE tenants 
+    const row = await db.queryOne<TenantRow>(
+      `UPDATE tenants
        SET subscription_plan = 'pro',
            updated_at = NOW()
        WHERE username = $1
        RETURNING *`,
       [username.toLowerCase()]
     );
-    
-    if (!result) throw new Error('Tenant not found');
-    return result;
+
+    if (!row) throw new Error('Tenant not found');
+    return mapTenantFromDb(row);
   },
   
   /**
@@ -119,27 +110,27 @@ export const TenantService = {
   async updateConfig(username: string, configUpdates: any): Promise<Tenant> {
     const tenant = await this.getByUsername(username);
     if (!tenant) throw new Error('Tenant not found');
-    
+
     const newConfig = this.mergeConfig(tenant.config, configUpdates);
-    
-    const result = await db.queryOne<Tenant>(
-      `UPDATE tenants 
+
+    const row = await db.queryOne<TenantRow>(
+      `UPDATE tenants
        SET config = $2,
            updated_at = NOW()
        WHERE username = $1
        RETURNING *`,
       [username.toLowerCase(), JSON.stringify(newConfig)]
     );
-    
-    return result!;
+
+    return mapTenantFromDb(row!);
   },
   
   /**
    * Set custom domain
    */
   async setCustomDomain(username: string, domain: string): Promise<Tenant> {
-    const result = await db.queryOne<Tenant>(
-      `UPDATE tenants 
+    const row = await db.queryOne<TenantRow>(
+      `UPDATE tenants
        SET custom_domain = $2,
            custom_domain_verified = false,
            custom_domain_verified_at = NULL,
@@ -148,16 +139,16 @@ export const TenantService = {
        RETURNING *`,
       [username.toLowerCase(), domain.toLowerCase()]
     );
-    
-    if (!result) throw new Error('Tenant not found');
-    return result;
+
+    if (!row) throw new Error('Tenant not found');
+    return mapTenantFromDb(row);
   },
   
   /**
    * Verify custom domain
    */
   async verifyCustomDomain(username: string): Promise<Tenant> {
-    const result = await db.queryOne<Tenant>(
+    const row = await db.queryOne<TenantRow>(
       `UPDATE tenants
        SET custom_domain_verified = true,
            custom_domain_verified_at = NOW(),
@@ -167,8 +158,8 @@ export const TenantService = {
       [username.toLowerCase()]
     );
 
-    if (!result) throw new Error('Tenant not found');
-    return result;
+    if (!row) throw new Error('Tenant not found');
+    return mapTenantFromDb(row);
   },
 
   /**
@@ -230,10 +221,11 @@ export const TenantService = {
   /**
    * Get all active tenants
    */
-  async getActivetenants(): Promise<Tenant[]> {
-    return db.queryAll<Tenant>(
+  async getActiveTenants(): Promise<Tenant[]> {
+    const rows = await db.queryAll<TenantRow>(
       `SELECT * FROM tenants WHERE subscription_status = 'active' ORDER BY username`
     );
+    return rows.map(mapTenantFromDb);
   },
   
   /**
@@ -252,8 +244,8 @@ export const TenantService = {
    * Get blog URL for tenant
    */
   getBlogUrl(tenant: Tenant): string {
-    if (tenant.custom_domain && tenant.custom_domain_verified) {
-      return `https://${tenant.custom_domain}`;
+    if (tenant.customDomain && tenant.customDomainVerified) {
+      return `https://${tenant.customDomain}`;
     }
     return `https://${tenant.username}.${baseDomain}`;
   },

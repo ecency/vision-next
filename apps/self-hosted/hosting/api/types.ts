@@ -76,6 +76,62 @@ export interface BlogConfig {
   };
 }
 
+// Database row type (snake_case) for Tenant
+export interface TenantRow {
+  id: string;
+  username: string;
+  subscription_status: 'inactive' | 'active' | 'expired' | 'suspended';
+  subscription_plan: 'standard' | 'pro';
+  subscription_started_at: string | null;
+  subscription_expires_at: string | null;
+  custom_domain: string | null;
+  custom_domain_verified: boolean;
+  custom_domain_verified_at: string | null;
+  config: any; // JSON from DB
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Convert database row (snake_case) to Tenant (camelCase)
+ */
+export function mapTenantFromDb(row: TenantRow): Tenant {
+  return {
+    id: row.id,
+    username: row.username,
+    subscriptionStatus: row.subscription_status,
+    subscriptionPlan: row.subscription_plan,
+    subscriptionStartedAt: row.subscription_started_at ? new Date(row.subscription_started_at) : null,
+    subscriptionExpiresAt: row.subscription_expires_at ? new Date(row.subscription_expires_at) : null,
+    customDomain: row.custom_domain,
+    customDomainVerified: row.custom_domain_verified,
+    customDomainVerifiedAt: row.custom_domain_verified_at ? new Date(row.custom_domain_verified_at) : null,
+    config: row.config,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+  };
+}
+
+/**
+ * Convert Tenant (camelCase) to database fields (snake_case)
+ * For use in INSERT/UPDATE queries - only includes fields that are set
+ */
+export function mapTenantToDb(tenant: Partial<Tenant>): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  if (tenant.username !== undefined) result.username = tenant.username;
+  if (tenant.subscriptionStatus !== undefined) result.subscription_status = tenant.subscriptionStatus;
+  if (tenant.subscriptionPlan !== undefined) result.subscription_plan = tenant.subscriptionPlan;
+  if (tenant.subscriptionStartedAt !== undefined) result.subscription_started_at = tenant.subscriptionStartedAt;
+  if (tenant.subscriptionExpiresAt !== undefined) result.subscription_expires_at = tenant.subscriptionExpiresAt;
+  if (tenant.customDomain !== undefined) result.custom_domain = tenant.customDomain;
+  if (tenant.customDomainVerified !== undefined) result.custom_domain_verified = tenant.customDomainVerified;
+  if (tenant.customDomainVerifiedAt !== undefined) result.custom_domain_verified_at = tenant.customDomainVerifiedAt;
+  if (tenant.config !== undefined) result.config = JSON.stringify(tenant.config);
+
+  return result;
+}
+
 // =============================================================================
 // Payment Types
 // =============================================================================

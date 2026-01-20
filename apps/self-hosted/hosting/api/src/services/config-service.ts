@@ -95,7 +95,7 @@ export const ConfigService = {
     console.log('[ConfigService] Syncing', tenants.length, 'configs to disk...');
 
     for (const tenant of tenants) {
-      if (tenant.subscription_status === 'active') {
+      if (tenant.subscriptionStatus === 'active') {
         await this.generateConfigFile(tenant);
       }
     }
