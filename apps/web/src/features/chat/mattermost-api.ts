@@ -359,8 +359,7 @@ export function useMattermostAdminDeleteUserDmPosts() {
 
   return useMutation({
     mutationFn: async (username: string) => {
-      // channelId is not needed since we delete from all DM channels, but the route requires it
-      const res = await fetch(`/api/mattermost/channels/_/posts/user/${encodeURIComponent(username)}`, {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/dm-posts`, {
         method: "DELETE"
       });
 
@@ -376,6 +375,65 @@ export function useMattermostAdminDeleteUserDmPosts() {
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostAdminDeleteUserAccount() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/delete-account`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to delete account");
+      }
+
+      return (await res.json()) as { deleted: boolean; username: string };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
+      ]);
+    }
+  });
+}
+
+export function useMattermostAdminNukeUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/nuke`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to nuke user");
+      }
+
+      return (await res.json()) as {
+        username: string;
+        deletedPublicPosts: number;
+        deletedDmPosts: number;
+        accountDeleted: boolean;
+      };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
       ]);
     }
   });

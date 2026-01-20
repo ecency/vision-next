@@ -24,6 +24,8 @@ import {
   useMattermostAdminBanUser,
   useMattermostAdminDeleteUserPosts,
   useMattermostAdminDeleteUserDmPosts,
+  useMattermostAdminDeleteUserAccount,
+  useMattermostAdminNukeUser,
   useMattermostPostsAround,
   useMattermostJoinChannel,
   useMattermostPinnedPosts,
@@ -220,6 +222,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const banUserMutation = useMattermostAdminBanUser();
   const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
   const deleteUserDmPostsMutation = useMattermostAdminDeleteUserDmPosts();
+  const deleteUserAccountMutation = useMattermostAdminDeleteUserAccount();
+  const nukeUserMutation = useMattermostAdminNukeUser();
   const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
@@ -1568,6 +1572,89 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  const handleDeleteUserAccount = () => {
+    if (!isEcencyAdmin) return;
+
+    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
+    if (!normalizedUsername) {
+      setAdminError("Enter a username to manage");
+      setAdminMessage(null);
+      return;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `⚠️ PERMANENTLY DELETE account @${normalizedUsername}?\n\n` +
+        `This will:\n` +
+        `• Delete the user profile\n` +
+        `• Remove all memberships\n` +
+        `• Delete all posts (handled by Mattermost)\n` +
+        `• Delete uploaded files\n\n` +
+        `THIS CANNOT BE UNDONE!`
+      )
+    ) {
+      return;
+    }
+
+    setAdminError(null);
+    setAdminMessage(null);
+
+    deleteUserAccountMutation.mutate(normalizedUsername, {
+      onSuccess: ({ username }) => {
+        setAdminMessage(`✓ Account @${username} permanently deleted`);
+        setAdminUsername("");
+      },
+      onError: (err) => {
+        setAdminError((err as Error)?.message || "Unable to delete account");
+      }
+    });
+  };
+
+  const handleNukeUser = () => {
+    if (!isEcencyAdmin) return;
+
+    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
+    if (!normalizedUsername) {
+      setAdminError("Enter a username to manage");
+      setAdminMessage(null);
+      return;
+    }
+
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm(
+        `💣 NUCLEAR OPTION: Completely remove @${normalizedUsername}?\n\n` +
+        `This will:\n` +
+        `1. Delete ALL public/community posts\n` +
+        `2. Delete ALL DM and group messages\n` +
+        `3. PERMANENTLY delete the account\n\n` +
+        `⚠️ THIS IS IRREVERSIBLE AND CANNOT BE UNDONE!\n\n` +
+        `Only use this for severe violations (spam bots, abuse, etc.)`
+      )
+    ) {
+      return;
+    }
+
+    setAdminError(null);
+    setAdminMessage("🔄 Nuking user... (this may take a while)");
+
+    nukeUserMutation.mutate(normalizedUsername, {
+      onSuccess: ({ username, deletedPublicPosts, deletedDmPosts, accountDeleted }) => {
+        setAdminMessage(
+          `✓ User @${username} completely removed:\n` +
+          `• ${deletedPublicPosts} public posts deleted\n` +
+          `• ${deletedDmPosts} DM/group posts deleted\n` +
+          `• Account ${accountDeleted ? "deleted" : "deletion failed"}`
+        );
+        setAdminUsername("");
+      },
+      onError: (err) => {
+        setAdminError((err as Error)?.message || "Unable to nuke user");
+      }
+    });
+  };
+
   const toggleReaction = useCallback(
     (post: MattermostPost, emoji: string, closePicker = false) => {
       const emojiName = toMattermostEmojiName(emoji);
@@ -1984,6 +2071,37 @@ export function MattermostChannelView({ channelId }: Props) {
               </Button>
               <div className="text-[11px] text-[--text-muted]">
                 Removes all direct messages from the user across all DM conversations.
+              </div>
+            </div>
+
+            <div className="border-t border-[--border-color] my-3" />
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                appearance="danger"
+                outline
+                onClick={handleDeleteUserAccount}
+                isLoading={deleteUserAccountMutation.isPending}
+                disabled={deleteUserAccountMutation.isPending}
+              >
+                🔴 Delete Account Permanently
+              </Button>
+              <div className="text-[11px] text-[--text-muted]">
+                Permanently removes the user account. IRREVERSIBLE.
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                appearance="danger"
+                onClick={handleNukeUser}
+                isLoading={nukeUserMutation.isPending}
+                disabled={nukeUserMutation.isPending}
+              >
+                💣 Nuclear Option: Delete Everything
+              </Button>
+              <div className="text-[11px] text-red-600 font-semibold">
+                Deletes ALL posts (public + DMs) AND permanently removes account. Use only for severe violations.
               </div>
             </div>
           </div>

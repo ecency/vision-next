@@ -12,6 +12,7 @@ COPY apps/web/package.json apps/web/package.json
 COPY packages/sdk/package.json packages/sdk/package.json
 COPY packages/wallets/package.json packages/wallets/package.json
 COPY packages/render-helper/package.json packages/render-helper/package.json
+COPY packages/ui/package.json packages/ui/package.json
 
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 

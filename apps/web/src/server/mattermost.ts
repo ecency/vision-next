@@ -428,8 +428,6 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
   // Filter to only DM channels (type: 'D') and group messages (type: 'G')
   const dmChannels = channels.filter((ch) => ch.type === "D" || ch.type === "G");
 
-  console.log(`Found ${dmChannels.length} DM/group channels for user ${targetUser.username}`);
-
   // For each DM channel, get and delete all posts by the user
   for (const channel of dmChannels) {
     let page = 0;
@@ -461,7 +459,7 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
           await deleteMattermostPostAsAdmin(post.id);
           deleted += 1;
         } catch (err) {
-          console.error(`Failed to delete post ${post.id}:`, err);
+          // Silent failure - continue deleting other posts
         }
       }
 
@@ -474,7 +472,6 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
     }
   }
 
-  console.log(`Deleted ${deleted} DM/group messages from user ${targetUser.username}`);
   return { deleted, user: targetUser, dmOnly: true } as const;
 }
 
@@ -590,34 +587,25 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
 
   try {
     // Step 1: Delete all public/community posts
-    console.log(`[Nuke User] Deleting public posts for ${targetUser.username}...`);
     const publicResult = await deleteMattermostPostsByUserAsAdmin(targetUser.username);
     result.deletedPublicPosts = publicResult.deleted;
-    console.log(`[Nuke User] Deleted ${publicResult.deleted} public posts`);
   } catch (err) {
-    console.error(`[Nuke User] Failed to delete public posts:`, err);
     // Continue anyway
   }
 
   try {
     // Step 2: Delete all DM and group message posts
-    console.log(`[Nuke User] Deleting DM/group posts for ${targetUser.username}...`);
     const dmResult = await deleteMattermostDmPostsByUserAsAdmin(targetUser.username);
     result.deletedDmPosts = dmResult.deleted;
-    console.log(`[Nuke User] Deleted ${dmResult.deleted} DM/group posts`);
   } catch (err) {
-    console.error(`[Nuke User] Failed to delete DM posts:`, err);
     // Continue anyway
   }
 
   try {
     // Step 3: Permanently delete the user account
-    console.log(`[Nuke User] Permanently deleting account for ${targetUser.username}...`);
     await deleteMattermostUserAccountAsAdmin(targetUser.username);
     result.accountDeleted = true;
-    console.log(`[Nuke User] Account deleted successfully`);
   } catch (err) {
-    console.error(`[Nuke User] Failed to delete account:`, err);
     throw err; // This is critical, so we throw
   }
 
