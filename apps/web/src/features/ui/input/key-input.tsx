@@ -33,17 +33,14 @@ export interface KeyInputImperativeHandle {
 }
 
 function capitalizeFirstLetter(str) {
-    if (typeof str !== 'string' || str.length === 0) return '';
-    return str[0].toUpperCase() + str.slice(1);
+  if (typeof str !== "string" || str.length === 0) return "";
+  return str[0].toUpperCase() + str.slice(1);
 }
 
 export const KeyInput = forwardRef<
   KeyInputImperativeHandle,
   Props & Omit<HTMLProps<HTMLInputElement>, "ref" | "type">
->((
-  { onSign, isLoading, keyType, className, ...inputProps },
-  ref
-) => {
+>(({ onSign, isLoading, keyType, className, ...inputProps }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { activeUser } = useActiveAccount();
@@ -65,17 +62,13 @@ export const KeyInput = forwardRef<
       }
 
       let privateKey: PrivateKey;
-
+      
       try {
         if (cryptoUtils.isWif(key)) {
           privateKey = PrivateKey.fromString(key);
         } else {
-          const derivation = await detectHiveKeyDerivation(
-            activeUser.username,
-            key,
-            keyType
-          );
-
+          const derivation = await detectHiveKeyDerivation(activeUser.username, key, keyType);
+  
           if (derivation === "bip44") {
             const keys = deriveHiveKeys(key);
             const derivedKey = keyType === "active" ? keys.active : keys.owner;
@@ -83,10 +76,11 @@ export const KeyInput = forwardRef<
           } else if (derivation === "master-password") {
             privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
           } else {
-            privateKey = PrivateKey.from(key);
+              privateKey = PrivateKey.from(key);
           }
         }
-      } catch (err) {
+      }
+      catch (err) {
         const errorMessage = err instanceof Error && err.message.includes("base58")
           ? i18next.t("key-or-hot.invalid-key")
           : i18next.t("key-or-hot.key-error");
