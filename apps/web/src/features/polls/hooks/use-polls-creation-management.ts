@@ -19,7 +19,10 @@ export function usePollsCreationManagement(poll?: PollSnapshot) {
     }
   );
   const [accountAge, setAccountAge, clearAccountAge] = useLocalStorage(PREFIX + "_plls_ag", 100);
-  const [choices, setChoices, clearChoices] = useLocalStorage<string[]>(PREFIX + "_plls_ch", []);
+  const [choices, setChoices, clearChoices] = useLocalStorage<string[]>(PREFIX + "_plls_ch", [
+    "",
+    ""
+  ]);
   const [interpretation, setInterpretation] =
     useState<PollSnapshot["interpretation"]>("number_of_votes");
   const [voteChange, setVoteChange] = useLocalStorage(PREFIX + "_plls_vc", true);
@@ -92,7 +95,7 @@ export function usePollsCreationManagement(poll?: PollSnapshot) {
       clearTitle();
       clearEndDate();
       clearAccountAge();
-      clearChoices();
+      setChoices(["", ""]); // Reset to 2 empty choices instead of clearing
       clearEndTime();
     }
   };
