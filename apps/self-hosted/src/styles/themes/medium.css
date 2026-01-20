@@ -1,0 +1,93 @@
+/* Medium Theme - Editorial, clean, readable
+ * Inspired by Medium.com's typography and design
+ */
+
+[data-style-template="medium"] {
+  /* Typography */
+  --theme-font-body: "Georgia", "Times New Roman", serif;
+  --theme-font-heading:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
+  --theme-font-ui:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
+
+  /* Typography Sizes */
+  --theme-text-base: 18px;
+  --theme-leading-normal: 1.58;
+  --theme-tracking-normal: -0.003em;
+  --theme-tracking-tight: -0.015em;
+
+  /* Colors - Light */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #fafafa;
+  --theme-bg-tertiary: rgba(0, 0, 0, 0.05);
+  --theme-bg-card: #ffffff;
+
+  --theme-text-primary: rgba(0, 0, 0, 0.84);
+  --theme-text-secondary: rgba(0, 0, 0, 0.68);
+  --theme-text-muted: rgba(0, 0, 0, 0.54);
+
+  --theme-accent: rgba(0, 0, 0, 0.84);
+  --theme-accent-hover: rgba(0, 0, 0, 1);
+
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-border-strong: rgba(0, 0, 0, 0.15);
+
+  /* Effects */
+  --theme-radius-sm: 3px;
+  --theme-radius: 3px;
+  --theme-radius-lg: 6px;
+  --theme-radius-full: 9999px;
+
+  --theme-shadow-sm: none;
+  --theme-shadow: none;
+  --theme-shadow-lg: none;
+
+  /* Link underline style */
+  --theme-link-decoration: underline;
+  --theme-link-decoration-color: rgba(0, 0, 0, 0.3);
+  --theme-link-decoration-hover: rgba(0, 0, 0, 0.84);
+
+  /* Tag style */
+  --theme-tag-bg: rgba(0, 0, 0, 0.05);
+  --theme-tag-text: rgba(0, 0, 0, 0.68);
+  --theme-tag-radius: 9999px;
+
+  /* Layout - Medium: Classic editorial, comfortable reading */
+  --theme-content-width: 680px;
+  --theme-sidebar-width: 280px;
+  --theme-layout-gap: 3rem;
+  --theme-layout-container-padding: 1.25rem;
+  --theme-layout-section-gap: 2rem;
+  --theme-card-padding: 1.5rem;
+  --theme-grid-gap: 1.5rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+  --theme-post-card-image-height: 200px;
+  --theme-post-card-image-radius: 3px;
+}
+
+/* Medium Dark Mode */
+[data-style-template="medium"][data-theme="dark"] {
+  --theme-bg-primary: #121212;
+  --theme-bg-secondary: #1a1a1a;
+  --theme-bg-tertiary: rgba(255, 255, 255, 0.08);
+  --theme-bg-card: #1e1e1e;
+
+  --theme-text-primary: rgba(255, 255, 255, 0.92);
+  --theme-text-secondary: rgba(255, 255, 255, 0.76);
+  --theme-text-muted: rgba(255, 255, 255, 0.6);
+
+  --theme-accent: rgba(255, 255, 255, 0.92);
+  --theme-accent-hover: rgba(255, 255, 255, 1);
+
+  --theme-border: rgba(255, 255, 255, 0.1);
+  --theme-border-strong: rgba(255, 255, 255, 0.15);
+
+  --theme-link-decoration-color: rgba(255, 255, 255, 0.3);
+  --theme-link-decoration-hover: rgba(255, 255, 255, 0.92);
+
+  --theme-tag-bg: rgba(255, 255, 255, 0.08);
+  --theme-tag-text: rgba(255, 255, 255, 0.68);
+}

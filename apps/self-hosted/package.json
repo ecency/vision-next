@@ -1,0 +1,46 @@
+{
+  "name": "@ecency/self-hosted",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rsbuild build",
+    "check": "biome check --write",
+    "dev": "rsbuild dev --open",
+    "format": "biome format --write",
+    "preview": "rsbuild preview"
+  },
+  "dependencies": {
+    "@ecency/render-helper": "workspace:*",
+    "@ecency/sdk": "workspace:*",
+    "@ecency/ui": "workspace:*",
+    "@ecency/wallets": "workspace:*",
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-router": "^1.132.27",
+    "@tooni/iconscout-unicons-react": "^1.0.1",
+    "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "framer-motion": "^11.18.2",
+    "motion": "^12.23.22",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-use": "^17.6.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.3",
+    "@types/crypto-js": "^4.2.2",
+    "@rsbuild/core": "^1.5.6",
+    "@rsbuild/plugin-react": "^1.4.0",
+    "@tailwindcss/postcss": "^4.1.13",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "@tanstack/router-plugin": "^1.132.27",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.3"
+  }
+}

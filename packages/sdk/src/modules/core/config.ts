@@ -39,7 +39,7 @@ export const CONFIG = {
     {
       timeout: 2000,
       failoverThreshold: 2,
-      consoleOnFailover: true
+      consoleOnFailover: true,
     }
   ),
   heliusApiKey: getHeliusApiKey(),

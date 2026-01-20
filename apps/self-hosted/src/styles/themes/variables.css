@@ -1,0 +1,117 @@
+/* Base CSS Variables - Default values overridden by theme files */
+
+:root {
+  /* Typography - Font Families */
+  --theme-font-body: "Georgia", "Times New Roman", serif;
+  --theme-font-heading:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
+  --theme-font-ui:
+    "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+    sans-serif;
+  --theme-font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+
+  /* Typography - Sizes */
+  --theme-text-base: 18px;
+  --theme-text-sm: 14px;
+  --theme-text-xs: 12px;
+  --theme-text-lg: 21px;
+  --theme-text-xl: 24px;
+  --theme-text-2xl: 30px;
+  --theme-text-3xl: 36px;
+  --theme-text-4xl: 48px;
+
+  /* Typography - Line Heights */
+  --theme-leading-tight: 1.15;
+  --theme-leading-normal: 1.58;
+  --theme-leading-relaxed: 1.75;
+
+  /* Typography - Letter Spacing */
+  --theme-tracking-tight: -0.015em;
+  --theme-tracking-normal: -0.003em;
+
+  /* Colors - Light Mode */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f6f8fa;
+  --theme-bg-tertiary: rgba(0, 0, 0, 0.05);
+  --theme-bg-card: #ffffff;
+
+  --theme-text-primary: rgba(0, 0, 0, 0.84);
+  --theme-text-secondary: rgba(0, 0, 0, 0.68);
+  --theme-text-muted: rgba(0, 0, 0, 0.54);
+  --theme-text-disabled: rgba(0, 0, 0, 0.38);
+
+  --theme-accent: #0969da;
+  --theme-accent-hover: #0550ae;
+
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-border-strong: rgba(0, 0, 0, 0.2);
+
+  /* Spacing */
+  --theme-space-1: 4px;
+  --theme-space-2: 8px;
+  --theme-space-3: 12px;
+  --theme-space-4: 16px;
+  --theme-space-6: 24px;
+  --theme-space-8: 32px;
+
+  /* Border Radius */
+  --theme-radius-sm: 3px;
+  --theme-radius: 6px;
+  --theme-radius-lg: 12px;
+  --theme-radius-full: 9999px;
+
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --theme-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --theme-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --theme-transition-fast: 0.15s ease;
+  --theme-transition: 0.2s ease;
+  --theme-transition-slow: 0.3s ease;
+
+  /* Layout - Content & Sidebar */
+  --theme-content-width: 680px;
+  --theme-sidebar-width: 280px;
+
+  /* Layout - Spacing */
+  --theme-layout-gap: 3rem;
+  --theme-layout-container-padding: 1rem;
+  --theme-layout-section-gap: 2rem;
+  --theme-card-padding: 1.5rem;
+
+  /* Layout - Grid */
+  --theme-grid-gap: 1.5rem;
+  --theme-grid-columns-tablet: 2;
+  --theme-grid-columns-desktop: 3;
+
+  /* Layout - Post Cards */
+  --theme-post-card-image-height: 200px;
+  --theme-post-card-image-radius: var(--theme-radius);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+  --theme-bg-primary: #0d1117;
+  --theme-bg-secondary: #151b23;
+  --theme-bg-tertiary: rgba(255, 255, 255, 0.08);
+  --theme-bg-card: #161b22;
+
+  --theme-text-primary: rgba(255, 255, 255, 0.92);
+  --theme-text-secondary: rgba(255, 255, 255, 0.76);
+  --theme-text-muted: rgba(255, 255, 255, 0.6);
+  --theme-text-disabled: rgba(255, 255, 255, 0.38);
+
+  --theme-accent: #58a6ff;
+  --theme-accent-hover: #79c0ff;
+
+  --theme-border: rgba(255, 255, 255, 0.1);
+  --theme-border-strong: rgba(255, 255, 255, 0.2);
+
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --theme-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --theme-shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.4);
+}

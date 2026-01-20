@@ -1,0 +1,327 @@
+/* Component Utility Classes - Using Theme Variables */
+
+/* Text Colors */
+.text-theme-primary {
+  color: var(--theme-text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--theme-text-secondary);
+}
+
+.text-theme-muted {
+  color: var(--theme-text-muted);
+}
+
+.text-theme-disabled {
+  color: var(--theme-text-disabled);
+}
+
+.text-theme-accent {
+  color: var(--theme-accent);
+}
+
+/* Background Colors */
+.bg-theme {
+  background-color: var(--theme-bg-primary);
+}
+
+.bg-theme-primary {
+  background-color: var(--theme-bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--theme-bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--theme-bg-tertiary);
+}
+
+.bg-theme-card {
+  background-color: var(--theme-bg-card);
+}
+
+.bg-theme-hover {
+  background-color: var(--theme-bg-secondary);
+}
+
+.hover\:bg-theme-hover:hover {
+  background-color: var(--theme-bg-tertiary);
+}
+
+/* Font Families */
+.font-theme-body {
+  font-family: var(--theme-font-body);
+}
+
+.font-theme-heading {
+  font-family: var(--theme-font-heading);
+}
+
+.font-theme-ui {
+  font-family: var(--theme-font-ui);
+}
+
+.font-theme-mono {
+  font-family: var(--theme-font-mono);
+}
+
+/* Borders */
+.border-theme {
+  border-color: var(--theme-border);
+}
+
+.border-theme-strong {
+  border-color: var(--theme-border-strong);
+}
+
+/* Border Radius */
+.rounded-theme-sm {
+  border-radius: var(--theme-radius-sm);
+}
+
+.rounded-theme {
+  border-radius: var(--theme-radius);
+}
+
+.rounded-theme-lg {
+  border-radius: var(--theme-radius-lg);
+}
+
+.rounded-theme-full {
+  border-radius: var(--theme-radius-full);
+}
+
+/* Shadows */
+.shadow-theme-sm {
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.shadow-theme {
+  box-shadow: var(--theme-shadow);
+}
+
+.shadow-theme-lg {
+  box-shadow: var(--theme-shadow-lg);
+}
+
+/* Typography Combinations */
+.heading-theme {
+  font-family: var(--theme-font-heading);
+  color: var(--theme-text-primary);
+  letter-spacing: var(--theme-tracking-tight);
+  line-height: var(--theme-leading-tight);
+}
+
+.body-theme {
+  font-family: var(--theme-font-body);
+  color: var(--theme-text-primary);
+  letter-spacing: var(--theme-tracking-normal);
+  line-height: var(--theme-leading-normal);
+}
+
+.ui-text-theme {
+  font-family: var(--theme-font-ui);
+  color: var(--theme-text-muted);
+}
+
+/* Tag/Chip Styles */
+.tag-theme {
+  background-color: var(--theme-tag-bg, var(--theme-bg-tertiary));
+  color: var(--theme-tag-text, var(--theme-text-secondary));
+  border-radius: var(--theme-tag-radius, var(--theme-radius-full));
+  font-family: var(--theme-font-ui);
+  transition: opacity var(--theme-transition);
+}
+
+.tag-theme:hover {
+  opacity: 0.7;
+}
+
+/* Link Styles */
+.link-theme {
+  color: inherit;
+  text-decoration: var(--theme-link-decoration, none);
+  text-decoration-color: var(--theme-link-decoration-color, transparent);
+  transition: all var(--theme-transition);
+}
+
+.link-theme:hover {
+  text-decoration-color: var(
+    --theme-link-decoration-hover,
+    var(--theme-accent)
+  );
+}
+
+/* Card Styles */
+.card-theme {
+  background-color: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-radius);
+  box-shadow: var(--theme-shadow);
+}
+
+/* Divider */
+.divider-theme {
+  border-color: var(--theme-border);
+}
+
+/* Transitions */
+.transition-theme {
+  transition: all var(--theme-transition);
+}
+
+.transition-theme-fast {
+  transition: all var(--theme-transition-fast);
+}
+
+.transition-theme-slow {
+  transition: all var(--theme-transition-slow);
+}
+
+/* Icon Colors (for use with SVG icons) */
+.icon-theme-primary {
+  color: var(--theme-text-primary);
+}
+
+.icon-theme-muted {
+  color: var(--theme-text-muted);
+}
+
+.icon-theme-accent {
+  color: var(--theme-accent);
+}
+
+/* Meta text style (for dates, stats, etc.) */
+.meta-theme {
+  font-family: var(--theme-font-ui);
+  color: var(--theme-text-muted);
+  font-size: var(--theme-text-sm);
+}
+
+/* Article content max-width */
+.content-width-theme {
+  max-width: var(--theme-content-width);
+}
+
+/* Form Input Styles */
+.input-theme {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-radius);
+}
+
+.input-theme:focus {
+  outline: none;
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.input-theme::placeholder {
+  color: var(--theme-text-muted);
+}
+
+/* Focus Ring */
+.focus-ring-theme:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-accent);
+}
+
+/* Layout Utilities - Using theme variables */
+.layout-gap-theme {
+  gap: var(--theme-layout-gap);
+}
+
+.section-gap-theme {
+  gap: var(--theme-layout-section-gap);
+}
+
+.card-padding-theme {
+  padding: var(--theme-card-padding);
+}
+
+.container-padding-theme {
+  padding-left: var(--theme-layout-container-padding);
+  padding-right: var(--theme-layout-container-padding);
+}
+
+/* Post Card Image Styles */
+.post-card-image-theme {
+  height: var(--theme-post-card-image-height);
+  border-radius: var(--theme-post-card-image-radius);
+}
+
+/* List Type - controlled via data-list-type attribute */
+.blog-posts-list {
+  width: 100%;
+}
+
+[data-list-type="list"] .blog-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--theme-grid-gap);
+}
+
+[data-list-type="grid"] .blog-posts-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--theme-grid-gap);
+}
+
+@media (min-width: 768px) {
+  [data-list-type="grid"] .blog-posts-list {
+    grid-template-columns: repeat(var(--theme-grid-columns-tablet), 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-list-type="grid"] .blog-posts-list {
+    grid-template-columns: repeat(var(--theme-grid-columns-desktop), 1fr);
+  }
+}
+
+/* Sidebar Placement - controlled via data-sidebar-placement attribute */
+@media (min-width: 1024px) {
+  /* Right sidebar (default) */
+  [data-sidebar-placement="right"] .blog-layout-grid {
+    grid-template-columns: 1fr var(--theme-sidebar-width);
+    gap: var(--theme-layout-gap);
+  }
+
+  [data-sidebar-placement="right"] .blog-sidebar-container {
+    order: 2;
+  }
+
+  [data-sidebar-placement="right"] .blog-main-container {
+    order: 1;
+  }
+
+  /* Left sidebar */
+  [data-sidebar-placement="left"] .blog-layout-grid {
+    grid-template-columns: var(--theme-sidebar-width) 1fr;
+    gap: var(--theme-layout-gap);
+  }
+
+  [data-sidebar-placement="left"] .blog-sidebar-container {
+    order: 1;
+  }
+
+  [data-sidebar-placement="left"] .blog-main-container {
+    order: 2;
+  }
+}
+
+/* Sidebar Section Visibility - controlled via data attributes */
+[data-show-followers="false"] .sidebar-followers-section {
+  display: none;
+}
+
+[data-show-following="false"] .sidebar-following-section {
+  display: none;
+}
+
+[data-show-hive-info="false"] .sidebar-hive-info-section {
+  display: none;
+}

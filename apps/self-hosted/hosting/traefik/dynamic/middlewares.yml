@@ -1,0 +1,36 @@
+# Traefik Dynamic Configuration - Middlewares
+
+http:
+  middlewares:
+    # Rate limiting for API
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50
+        period: 1m
+
+    # Security headers
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        customResponseHeaders:
+          X-Robots-Tag: "noindex, nofollow"
+
+    # Compress responses
+    compress:
+      compress: {}
+
+    # Strip /hosting prefix for API
+    strip-hosting-prefix:
+      stripPrefix:
+        prefixes:
+          - "/hosting"
+
+    # Retry on failure
+    retry:
+      retry:
+        attempts: 3
+        initialInterval: 100ms

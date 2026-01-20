@@ -1,0 +1,220 @@
+# Ecency Managed Hosting Platform
+# Multi-tenant blog hosting infrastructure
+
+version: "3.9"
+
+services:
+  # ==========================================================================
+  # Edge Router - Handles SSL, routing, load balancing
+  # ==========================================================================
+  traefik:
+    image: traefik:v3.0
+    container_name: ecency-hosting-traefik
+    restart: unless-stopped
+    command:
+      # API & Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=ecency-hosting"
+      
+      # File provider for dynamic config
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      
+      # HTTP to HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      
+      # Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@ecency.com}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      
+      # Wildcard certificate for *.blogs.ecency.com
+      - "--certificatesresolvers.letsencrypt-dns.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt-dns.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.letsencrypt-dns.acme.email=${ACME_EMAIL:-admin@ecency.com}"
+      - "--certificatesresolvers.letsencrypt-dns.acme.storage=/letsencrypt/acme-dns.json"
+      
+      # Logging
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik-letsencrypt:/letsencrypt"
+      - "./traefik/dynamic:/etc/traefik/dynamic:ro"
+    networks:
+      - ecency-hosting
+    labels:
+      # Dashboard
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${BASE_DOMAIN:-blogs.ecency.com}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
+
+  # ==========================================================================
+  # Blog Server - Serves static SPA with multi-tenant config routing
+  # ==========================================================================
+  blog-server:
+    build:
+      context: ../../..
+      dockerfile: apps/self-hosted/Dockerfile
+    container_name: ecency-hosting-blog
+    restart: unless-stopped
+    volumes:
+      - "./nginx-multi-tenant.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "tenant-configs:/usr/share/nginx/html/configs:ro"
+      - "./default-config.json:/usr/share/nginx/html/configs/default.json:ro"
+    networks:
+      - ecency-hosting
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      
+      # Wildcard subdomain routing
+      - "traefik.http.routers.blogs-wildcard.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.${BASE_DOMAIN:-blogs.ecency.com}`)"
+      - "traefik.http.routers.blogs-wildcard.entrypoints=websecure"
+      - "traefik.http.routers.blogs-wildcard.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.blogs-wildcard.tls.domains[0].main=${BASE_DOMAIN:-blogs.ecency.com}"
+      - "traefik.http.routers.blogs-wildcard.tls.domains[0].sans=*.${BASE_DOMAIN:-blogs.ecency.com}"
+      - "traefik.http.routers.blogs-wildcard.service=blog-server"
+      
+      # Custom domain routing (handled by hosting-api middleware)
+      - "traefik.http.routers.blogs-custom.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.blogs-custom.entrypoints=websecure"
+      - "traefik.http.routers.blogs-custom.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.blogs-custom.priority=1"
+      - "traefik.http.routers.blogs-custom.middlewares=tenant-lookup"
+      - "traefik.http.routers.blogs-custom.service=blog-server"
+      
+      - "traefik.http.services.blog-server.loadbalancer.server.port=80"
+
+  # ==========================================================================
+  # Hosting API - Tenant management, subscriptions, config generation
+  # ==========================================================================
+  hosting-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: ecency-hosting-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/hosting
+      - REDIS_URL=redis://redis:6379
+      - HIVE_API_URL=${HIVE_API_URL:-https://api.hive.blog}
+      - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT:-ecency.hosting}
+      - BASE_DOMAIN=${BASE_DOMAIN:-blogs.ecency.com}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - "tenant-configs:/app/configs"
+    networks:
+      - ecency-hosting
+    depends_on:
+      - postgres
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hosting-api.rule=Host(`api.${BASE_DOMAIN:-blogs.ecency.com}`) && PathPrefix(`/hosting`)"
+      - "traefik.http.routers.hosting-api.entrypoints=websecure"
+      - "traefik.http.routers.hosting-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.hosting-api.loadbalancer.server.port=3001"
+      
+      # Middleware for tenant lookup (custom domains)
+      - "traefik.http.middlewares.tenant-lookup.forwardauth.address=http://hosting-api:3001/v1/auth/tenant-lookup"
+      - "traefik.http.middlewares.tenant-lookup.forwardauth.authResponseHeaders=X-Tenant-Id"
+
+  # ==========================================================================
+  # HBD Payment Listener - Monitors blockchain for subscription payments
+  # ==========================================================================
+  payment-listener:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.payment-listener
+    container_name: ecency-hosting-payments
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/hosting
+      - REDIS_URL=redis://redis:6379
+      - HIVE_API_URL=${HIVE_API_URL:-https://api.hive.blog}
+      - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT:-ecency.hosting}
+      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-1.000}
+    networks:
+      - ecency-hosting
+    depends_on:
+      - postgres
+      - redis
+
+  # ==========================================================================
+  # PostgreSQL - Persistent data storage
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecency-hosting-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=hosting
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+      - "./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+    networks:
+      - ecency-hosting
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # Redis - Caching and pub/sub
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: ecency-hosting-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - "redis-data:/data"
+    networks:
+      - ecency-hosting
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  ecency-hosting:
+    name: ecency-hosting
+    driver: bridge
+
+volumes:
+  traefik-letsencrypt:
+  tenant-configs:
+  postgres-data:
+  redis-data:
