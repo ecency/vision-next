@@ -248,23 +248,27 @@ export function FloatingMenuWindow({
     });
   }, [config]);
 
-  // Apply preview when config changes (if in preview mode)
-  // Uses originalStateRef (set in handleTogglePreview) for cleanup to ensure
-  // the true pre-preview state is restored, not re-captured preview state
+  // Handle cleanup when exiting preview mode or unmounting
+  // This effect ONLY depends on isPreviewMode to avoid restore/reapply loops
   useEffect(() => {
     if (!isPreviewMode) {
       return;
     }
 
-    applyPreviewConfig(config);
-
-    // Cleanup: restore original state on unmount or when isPreviewMode becomes false
-    // Uses the snapshot captured in handleTogglePreview when entering preview mode
+    // Cleanup: restore original state only when exiting preview mode
     return () => {
       if (originalStateRef.current) {
         restoreOriginalState(originalStateRef.current);
       }
     };
+  }, [isPreviewMode]);
+
+  // Apply preview config when config changes while in preview mode
+  // This effect has NO cleanup to avoid restore/reapply flicker
+  useEffect(() => {
+    if (isPreviewMode) {
+      applyPreviewConfig(config);
+    }
   }, [config, isPreviewMode]);
 
   const handleExitPreview = useCallback(() => {

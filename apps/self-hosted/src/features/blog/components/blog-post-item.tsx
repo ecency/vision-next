@@ -75,7 +75,13 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
   }, [entryData]);
 
   const imageUrl = useMemo(() => {
-    const firstImage = entryData.json_metadata?.image?.[0];
+    const imageMetadata = entryData.json_metadata?.image;
+    // Handle both string and array formats
+    const firstImage = Array.isArray(imageMetadata)
+      ? imageMetadata[0]
+      : typeof imageMetadata === 'string'
+        ? imageMetadata
+        : null;
     if (firstImage) {
       return catchPostImage(firstImage, 800, 600) || firstImage;
     }

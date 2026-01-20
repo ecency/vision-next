@@ -3,7 +3,7 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import { InstanceConfigManager } from '@/core';
+import { InstanceConfigManager, t } from '@/core';
 import { UserMenu, CreatePostButton } from '@/features/auth';
 import { useInstanceConfig, useCommunityData } from '../hooks/use-instance-config';
 import { SearchInput } from '../components/search-input';
@@ -13,20 +13,28 @@ export function BlogNavigation() {
   const { isCommunityMode } = useInstanceConfig();
   const { data: community } = useCommunityData();
 
+  const availableFilters = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.postsFilters || ['posts'],
+  );
+
   const currentFilter = useMemo(() => {
+    // Default to the first configured filter
+    const defaultFilter = availableFilters[0] || 'posts';
+
     if (typeof location.search === 'string') {
       const searchParams = new URLSearchParams(location.search);
-      return searchParams.get('filter') || (isCommunityMode ? 'trending' : 'posts');
+      return searchParams.get('filter') || defaultFilter;
     }
     if (
       location.search &&
       typeof location.search === 'object' &&
       'filter' in location.search
     ) {
-      return (location.search.filter as string) || (isCommunityMode ? 'trending' : 'posts');
+      return (location.search.filter as string) || defaultFilter;
     }
-    return isCommunityMode ? 'trending' : 'posts';
-  }, [location.search, isCommunityMode]);
+    return defaultFilter;
+  }, [location.search, availableFilters]);
 
   const blogTitle = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.meta.title,
@@ -34,11 +42,6 @@ export function BlogNavigation() {
 
   const blogLogo = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.meta.logo,
-  );
-
-  const availableFilters = InstanceConfigManager.getConfigValue(
-    ({ configuration }) =>
-      configuration.instanceConfiguration.features.postsFilters || ['posts'],
   );
 
   // Use community title if available and in community mode
@@ -56,25 +59,17 @@ export function BlogNavigation() {
     return null;
   }, [blogLogo, isCommunityMode, community?.name]);
 
-  // Blog filters
-  const blogFilterLabels: Record<string, string> = {
-    blog: 'Blog',
-    posts: 'Posts',
-    comments: 'Comments',
-    replies: 'Replies',
+  // Get localized filter label
+  const getFilterLabel = (filter: string): string => {
+    // Try i18n key first (e.g., blog.navigation.blog, blog.navigation.trending)
+    const i18nKey = `blog.navigation.${filter}`;
+    const translated = t(i18nKey);
+    // If translation returns the key itself, use capitalized filter name
+    if (translated === i18nKey) {
+      return filter.charAt(0).toUpperCase() + filter.slice(1);
+    }
+    return translated;
   };
-
-  // Community filters
-  const communityFilterLabels: Record<string, string> = {
-    trending: 'Trending',
-    hot: 'Hot',
-    new: 'New',
-    payout: 'Payout',
-    muted: 'Muted',
-  };
-
-  // Use configured filters for both modes
-  const filterLabels = isCommunityMode ? communityFilterLabels : blogFilterLabels;
 
   return (
     <div className="max-w-3xl mx-auto border-b border-theme pb-3 sm:pb-4 mb-6 sm:mb-8">
@@ -120,8 +115,7 @@ export function BlogNavigation() {
                   : 'border-transparent text-theme-muted hover:text-theme-primary hover:border-theme',
               )}
             >
-              {filterLabels[filter] ||
-                filter.charAt(0).toUpperCase() + filter.slice(1)}
+              {getFilterLabel(filter)}
             </Link>
           );
         })}
