@@ -15,7 +15,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 
-export function useSaveDraftApi() {
+export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();
   const { videos } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
@@ -86,6 +86,46 @@ export function useSaveDraftApi() {
             draftMeta
           );
           success(i18next.t("submit.draft-updated"));
+
+          // Construct the updated draft with fresh data
+          const updatedDraft: Draft = {
+            ...editingDraft,
+            title,
+            body,
+            tags: tagJ,
+            tags_arr: tags,
+            meta: draftMeta,
+            modified: new Date().toISOString()
+          };
+
+          // Update the draft in the infinite query cache
+          queryClient.setQueryData(
+            ["posts", "drafts", "infinite", username, 10],
+            (oldData: any) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any) => ({
+                  ...page,
+                  data: page.data.map((d: Draft) =>
+                    d._id === editingDraft._id ? updatedDraft : d
+                  )
+                }))
+              };
+            }
+          );
+
+          // Also update the regular query cache
+          queryClient.setQueryData(
+            [QueryIdentifiers.DRAFTS, username],
+            (oldDrafts: Draft[] | undefined) => {
+              if (!oldDrafts) return oldDrafts;
+              return oldDrafts.map((d) => (d._id === editingDraft._id ? updatedDraft : d));
+            }
+          );
+
+          clearActivePoll();
+          return { draft: updatedDraft, isNew: false };
         } else {
           const resp = await addDraft(getAccessToken(username), title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
@@ -95,12 +135,36 @@ export function useSaveDraftApi() {
           const { drafts } = resp;
           const draft = drafts[drafts?.length - 1];
 
+          // Update both regular and infinite query caches
           queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
 
-          router.push(`/draft/${draft._id}`);
-        }
+          // Update infinite query cache to include the new draft in the first page
+          queryClient.setQueryData(
+            ["posts", "drafts", "infinite", username, 10],
+            (oldData: any) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any, index: number) =>
+                  index === 0
+                    ? { ...page, data: [draft, ...page.data] }
+                    : page
+                )
+              };
+            }
+          );
 
-        clearActivePoll();
+          // Update URL without navigation to reflect that we're now editing a draft
+          router.replace(`/draft/${draft._id}`, { scroll: false });
+
+          // Notify parent component about the new draft
+          if (onDraftCreated) {
+            onDraftCreated(draft);
+          }
+
+          clearActivePoll();
+          return { draft, isNew: true };
+        }
       } catch (e) {
         error(i18next.t("g.server-error"));
       }

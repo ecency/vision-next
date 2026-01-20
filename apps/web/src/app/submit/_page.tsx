@@ -656,6 +656,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               description={description}
               selectedThumbnail={selectedThumbnail}
               validate={validate}
+              onDraftCreated={(draft) => setEditingDraft(draft)}
             />
           </div>
         )}
@@ -683,6 +684,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               description={description}
               selectedThumbnail={selectedThumbnail}
               validate={validate}
+              onDraftCreated={(draft) => setEditingDraft(draft)}
             />
           </div>
         )}

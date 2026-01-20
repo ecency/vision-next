@@ -6,3 +6,4 @@ export * from "./open-orders-data";
 export * from "./rc-direct-delegation";
 export * from "./incoming-rc";
 export * from "./received-vesting-share";
+export * from "./recurrent-transfer";

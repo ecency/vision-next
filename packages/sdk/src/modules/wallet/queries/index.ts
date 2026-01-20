@@ -7,3 +7,4 @@ export * from "./get-open-orders-query-options";
 export * from "./get-outgoing-rc-delegations-infinite-query-options";
 export * from "./get-incoming-rc-query-options";
 export * from "./get-received-vesting-shares-query-options";
+export * from "./get-recurrent-transfers-query-options";
