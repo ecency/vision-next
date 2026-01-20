@@ -35,7 +35,8 @@ ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ENV SENTRY_LOG_LEVEL=debug
 
 # Single build that emits the EXACT assets we ship
-RUN pnpm -r build
+# Build packages first, then the web app (exclude self-hosted)
+RUN pnpm build:packages && pnpm --filter @ecency/web build
 
 # Prune runtime deps for the web workspace
 RUN pnpm deploy --filter @ecency/web --prod --legacy /var/app/.deploy-workdir \
