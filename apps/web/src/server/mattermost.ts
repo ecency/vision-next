@@ -416,67 +416,65 @@ export async function deleteMattermostDmPostsByUserAsAdmin(username: string) {
     throw new MattermostError(`User @${normalizedUsername} not found`, 404);
   }
 
-  const perPage = 200;
   let deleted = 0;
   const teamId = getMattermostTeamId();
 
-  // Build a cache of channel types as we discover them
-  const channelTypeCache = new Map<string, string>();
+  // Get all channels for the user (includes DMs and group messages)
+  const channels = await mmFetch<Array<{ id: string; type: string; team_id: string }>>(
+    `/users/${targetUser.id}/channels`,
+    { headers: getAdminHeaders() }
+  );
 
-  // Helper to check if a channel is a DM
-  async function isDmChannel(channelId: string): Promise<boolean> {
-    // Check cache first
-    if (channelTypeCache.has(channelId)) {
-      return channelTypeCache.get(channelId) === "D";
-    }
+  // Filter to only DM channels (type: 'D') and group messages (type: 'G')
+  const dmChannels = channels.filter((ch) => ch.type === "D" || ch.type === "G");
 
-    // Fetch and cache the channel type
-    try {
-      const channel = await mmFetch<{ id: string; type: string }>(
-        `/channels/${channelId}`,
-        { headers: getAdminHeaders() }
-      );
-      channelTypeCache.set(channelId, channel.type);
-      return channel.type === "D";
-    } catch (err) {
-      console.error(`Failed to check channel ${channelId}:`, err);
-      channelTypeCache.set(channelId, ""); // Cache as non-DM to avoid re-checking
-      return false;
-    }
-  }
+  console.log(`Found ${dmChannels.length} DM/group channels for user ${targetUser.username}`);
 
-  // Delete all DM posts by continuously searching and deleting
-  while (true) {
-    const { order, posts } = await searchMattermostPostsByUserAsAdmin(targetUser.username, 0, perPage);
+  // For each DM channel, get and delete all posts by the user
+  for (const channel of dmChannels) {
+    let page = 0;
+    const perPage = 200;
 
-    if (!order || order.length === 0) {
-      break;
-    }
+    while (true) {
+      // Get posts in this channel
+      const posts = await mmFetch<
+        Array<{ id: string; user_id: string; channel_id: string }>
+      >(`/channels/${channel.id}/posts?page=${page}&per_page=${perPage}`, {
+        headers: getAdminHeaders()
+      }).catch(() => ({ order: [], posts: {} }));
 
-    // Check each post's channel and delete if it's a DM
-    const postsToDelete = [];
-    for (const postId of order) {
-      const post = posts[postId];
-      if (post && post.channel_id) {
-        const isDm = await isDmChannel(post.channel_id);
-        if (isDm) {
-          postsToDelete.push(post);
+      // Extract posts array from the response
+      const postsArray = Array.isArray(posts)
+        ? posts
+        : Object.values((posts as any).posts || {});
+
+      // Filter to only posts by the target user
+      const userPosts = postsArray.filter((post: any) => post.user_id === targetUser.id);
+
+      if (userPosts.length === 0) {
+        break; // No more posts by this user in this channel
+      }
+
+      // Delete each post
+      for (const post of userPosts) {
+        try {
+          await deleteMattermostPostAsAdmin(post.id);
+          deleted += 1;
+        } catch (err) {
+          console.error(`Failed to delete post ${post.id}:`, err);
         }
       }
-    }
 
-    if (postsToDelete.length === 0) {
-      // No more DM posts found in this batch, check if we should continue
-      // If there are still posts but none are DMs, we're done
-      break;
-    }
+      // If we got fewer posts than requested, we've reached the end
+      if (postsArray.length < perPage) {
+        break;
+      }
 
-    for (const post of postsToDelete) {
-      await deleteMattermostPostAsAdmin(post.id);
-      deleted += 1;
+      page += 1;
     }
   }
 
+  console.log(`Deleted ${deleted} DM/group messages from user ${targetUser.username}`);
   return { deleted, user: targetUser, dmOnly: true } as const;
 }
 
@@ -529,4 +527,99 @@ export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) 
   });
 
   return privacy;
+}
+
+/**
+ * Permanently deletes a Mattermost user account and all associated data.
+ * This is IRREVERSIBLE and will:
+ * - Delete the user profile
+ * - Remove user from all channels and DMs
+ * - Delete all their posts (handled by Mattermost)
+ * - Delete all uploaded files
+ * - Remove all preferences and settings
+ */
+export async function deleteMattermostUserAccountAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  // Permanently delete the user account
+  // The permanent=true parameter ensures complete deletion (not just deactivation)
+  await mmFetch(`/users/${targetUser.id}?permanent=true`, {
+    method: "DELETE",
+    headers: getAdminHeaders()
+  });
+
+  return {
+    deleted: true,
+    userId: targetUser.id,
+    username: targetUser.username
+  } as const;
+}
+
+/**
+ * Complete user removal: deletes all messages (including DMs) and then permanently deletes the account.
+ * This is the nuclear option for handling abusive users.
+ *
+ * Steps:
+ * 1. Delete all public/community channel messages
+ * 2. Delete all DM and group message posts
+ * 3. Permanently delete the user account
+ *
+ * Note: Mattermost's permanent user deletion will also remove posts, but we do it explicitly
+ * first to ensure all messages are gone before the account is deleted.
+ */
+export async function nukeUserCompletelyAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  const result = {
+    username: targetUser.username,
+    userId: targetUser.id,
+    deletedPublicPosts: 0,
+    deletedDmPosts: 0,
+    accountDeleted: false
+  };
+
+  try {
+    // Step 1: Delete all public/community posts
+    console.log(`[Nuke User] Deleting public posts for ${targetUser.username}...`);
+    const publicResult = await deleteMattermostPostsByUserAsAdmin(targetUser.username);
+    result.deletedPublicPosts = publicResult.deleted;
+    console.log(`[Nuke User] Deleted ${publicResult.deleted} public posts`);
+  } catch (err) {
+    console.error(`[Nuke User] Failed to delete public posts:`, err);
+    // Continue anyway
+  }
+
+  try {
+    // Step 2: Delete all DM and group message posts
+    console.log(`[Nuke User] Deleting DM/group posts for ${targetUser.username}...`);
+    const dmResult = await deleteMattermostDmPostsByUserAsAdmin(targetUser.username);
+    result.deletedDmPosts = dmResult.deleted;
+    console.log(`[Nuke User] Deleted ${dmResult.deleted} DM/group posts`);
+  } catch (err) {
+    console.error(`[Nuke User] Failed to delete DM posts:`, err);
+    // Continue anyway
+  }
+
+  try {
+    // Step 3: Permanently delete the user account
+    console.log(`[Nuke User] Permanently deleting account for ${targetUser.username}...`);
+    await deleteMattermostUserAccountAsAdmin(targetUser.username);
+    result.accountDeleted = true;
+    console.log(`[Nuke User] Account deleted successfully`);
+  } catch (err) {
+    console.error(`[Nuke User] Failed to delete account:`, err);
+    throw err; // This is critical, so we throw
+  }
+
+  return result;
 }
