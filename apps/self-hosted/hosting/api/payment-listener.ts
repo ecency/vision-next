@@ -462,29 +462,54 @@ class PaymentListener {
   }
 
   private async getTransfersInBlock(blockNum: number): Promise<HiveTransfer[]> {
+    // Use block_api.get_block (AppBase) instead of legacy condenser_api.get_block
     const response = await fetch(CONFIG.HIVE_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         jsonrpc: '2.0',
-        method: 'condenser_api.get_block',
-        params: [blockNum],
+        method: 'block_api.get_block',
+        params: { block_num: blockNum },
         id: 1,
       }),
     });
 
     const data = await response.json();
-    const block = data.result;
 
-    if (!block || !block.transactions) return [];
+    // AppBase wraps the block in data.result.block
+    const block = data.result?.block;
+
+    // Defensive checks for the new response shape
+    if (!block) {
+      console.log(`[PaymentListener] No block returned for block ${blockNum}`);
+      return [];
+    }
+
+    if (!block.transactions || !Array.isArray(block.transactions)) {
+      return [];
+    }
+
+    if (!block.transaction_ids || !Array.isArray(block.transaction_ids)) {
+      console.log(`[PaymentListener] No transaction_ids in block ${blockNum}`);
+      return [];
+    }
 
     const transfers: HiveTransfer[] = [];
 
     // Use index to get trx_id from block.transaction_ids array
-    // tx.transaction_id is undefined in the Hive API response
     for (let txIndex = 0; txIndex < block.transactions.length; txIndex++) {
       const tx = block.transactions[txIndex];
-      const trxId = block.transaction_ids?.[txIndex] || '';
+      const trxId = block.transaction_ids[txIndex];
+
+      // Skip if no trx_id available
+      if (!trxId) {
+        console.log(`[PaymentListener] Missing trx_id for tx at index ${txIndex} in block ${blockNum}`);
+        continue;
+      }
+
+      if (!tx.operations || !Array.isArray(tx.operations)) {
+        continue;
+      }
 
       for (const op of tx.operations) {
         if (op[0] === 'transfer' && op[1].to === CONFIG.PAYMENT_ACCOUNT) {

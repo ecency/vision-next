@@ -98,11 +98,23 @@ class PaymentListener {
     const block = await hiveClient.database.getBlock(blockNum);
     if (!block || !block.transactions) return;
 
-    for (const tx of block.transactions) {
+    // transaction_ids array contains the IDs - tx.transaction_id is undefined
+    const transactionIds = (block as any).transaction_ids as string[] | undefined;
+
+    for (let txIndex = 0; txIndex < block.transactions.length; txIndex++) {
+      const tx = block.transactions[txIndex];
+      const trxId = transactionIds?.[txIndex];
+
+      // Skip if no trx_id available
+      if (!trxId) {
+        console.log(`[PaymentListener] Missing trx_id for tx at index ${txIndex} in block ${blockNum}`);
+        continue;
+      }
+
       for (const op of tx.operations) {
         if (op[0] === 'transfer' && op[1].to === CONFIG.PAYMENT_ACCOUNT) {
           await this.processTransfer({
-            trxId: tx.transaction_id,
+            trxId,
             blockNum,
             from: op[1].from,
             to: op[1].to,
@@ -155,43 +167,55 @@ class PaymentListener {
       return;
     }
 
-    // Calculate months based on amount - only credit what was actually paid
-    const monthsFromAmount = Math.floor(amount / CONFIG.MONTHLY_PRICE_HBD);
-
-    if (monthsFromAmount < 1) {
-      console.log('[PaymentListener] Insufficient amount:', amount, 'HBD for', parsed.username);
-      await this.logPayment(transfer, amount, 'failed', 0, null, 'Insufficient amount');
-      return;
-    }
-
-    // If user requested more months than they paid for, reject
-    if (parsed.months > monthsFromAmount) {
-      console.log(
-        '[PaymentListener] Requested months exceed payment:',
-        parsed.months,
-        'requested but only',
-        monthsFromAmount,
-        'paid for',
-        parsed.username
-      );
-      await this.logPayment(
-        transfer,
-        amount,
-        'failed',
-        0,
-        null,
-        `Requested ${parsed.months} months but only paid for ${monthsFromAmount}`
-      );
-      return;
-    }
-
-    // Grant only the months that were paid for
-    const months = monthsFromAmount;
-
     // Process based on action
     if (parsed.action === 'blog') {
+      // For blog subscriptions: validate monthly payment
+      const monthsFromAmount = Math.floor(amount / CONFIG.MONTHLY_PRICE_HBD);
+
+      if (monthsFromAmount < 1) {
+        console.log('[PaymentListener] Insufficient amount:', amount, 'HBD for', parsed.username);
+        await this.logPayment(transfer, amount, 'failed', 0, null, 'Insufficient amount for subscription');
+        return;
+      }
+
+      // If user requested more months than they paid for, reject
+      if (parsed.months > monthsFromAmount) {
+        console.log(
+          '[PaymentListener] Requested months exceed payment:',
+          parsed.months,
+          'requested but only',
+          monthsFromAmount,
+          'paid for',
+          parsed.username
+        );
+        await this.logPayment(
+          transfer,
+          amount,
+          'failed',
+          0,
+          null,
+          `Requested ${parsed.months} months but only paid for ${monthsFromAmount}`
+        );
+        return;
+      }
+
+      // Grant only the months that were paid for
+      const months = monthsFromAmount;
       await this.processSubscription(transfer, parsed.username, months, amount);
     } else if (parsed.action === 'upgrade') {
+      // For upgrades: validate against pro upgrade price, not monthly price
+      if (amount < CONFIG.PRO_UPGRADE_PRICE_HBD) {
+        console.log('[PaymentListener] Insufficient amount for upgrade:', amount, 'HBD');
+        await this.logPayment(
+          transfer,
+          amount,
+          'failed',
+          0,
+          null,
+          `Insufficient amount for Pro upgrade (need ${CONFIG.PRO_UPGRADE_PRICE_HBD} HBD)`
+        );
+        return;
+      }
       await this.processUpgrade(transfer, parsed.username, amount);
     }
   }
@@ -204,46 +228,74 @@ class PaymentListener {
   ) {
     console.log('[PaymentListener] Processing subscription:', username, 'for', months, 'months');
 
-    try {
-      // Check if tenant exists, create if not
-      let tenant = await TenantService.getByUsername(username);
+    let updatedTenant: any = null;
 
-      if (!tenant) {
-        // Verify Hive account exists
-        const accountExists = await TenantService.verifyHiveAccount(username);
-        if (!accountExists) {
-          console.log('[PaymentListener] Hive account not found:', username);
-          await this.logPayment(transfer, amount, 'failed', 0, null, 'Hive account not found');
+    try {
+      // Use transaction to ensure atomicity of payment insert and subscription update
+      await db.transaction(async (client) => {
+        // 1. Insert payment with 'processing' status first (serves as dedup via unique trx_id)
+        const insertResult = await client.query(
+          `INSERT INTO payments
+           (tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited)
+           VALUES (NULL, $1, $2, $3, $4, 'HBD', $5, 'processing', $6)
+           ON CONFLICT (trx_id) DO NOTHING
+           RETURNING id`,
+          [transfer.trxId, transfer.blockNum, transfer.from, amount, transfer.memo, months]
+        );
+
+        // If no row returned, trx_id already exists (duplicate)
+        if (insertResult.rows.length === 0) {
+          console.log('[PaymentListener] Duplicate transaction detected:', transfer.trxId);
           return;
         }
 
-        tenant = await TenantService.create(username);
-        console.log('[PaymentListener] Created new tenant:', username);
+        const paymentId = insertResult.rows[0].id;
+
+        // 2. Check if tenant exists, create if not
+        let tenant = await TenantService.getByUsername(username);
+
+        if (!tenant) {
+          // Verify Hive account exists
+          const accountExists = await TenantService.verifyHiveAccount(username);
+          if (!accountExists) {
+            // Update payment to failed status
+            await client.query(
+              `UPDATE payments SET status = 'failed' WHERE id = $1`,
+              [paymentId]
+            );
+            throw new Error('Hive account not found');
+          }
+
+          tenant = await TenantService.create(username);
+          console.log('[PaymentListener] Created new tenant:', username);
+        }
+
+        // 3. Activate/extend subscription
+        updatedTenant = await TenantService.activateSubscription(username, months);
+
+        // 4. Update payment to 'processed' with tenant_id and subscription info
+        await client.query(
+          `UPDATE payments
+           SET tenant_id = $2, status = 'processed', subscription_extended_to = $3
+           WHERE id = $1`,
+          [paymentId, updatedTenant.id, updatedTenant.subscription_expires_at]
+        );
+
+        console.log(
+          '[PaymentListener] Subscription activated for',
+          username,
+          'until',
+          updatedTenant.subscription_expires_at
+        );
+      });
+
+      // 5. Generate config file AFTER transaction commits successfully
+      if (updatedTenant) {
+        await ConfigService.generateConfigFile(updatedTenant);
       }
-
-      // Activate/extend subscription
-      const updatedTenant = await TenantService.activateSubscription(username, months);
-
-      // Generate config file
-      await ConfigService.generateConfigFile(updatedTenant);
-
-      // Log successful payment
-      await this.logPayment(
-        transfer,
-        amount,
-        'processed',
-        months,
-        updatedTenant.subscription_expires_at
-      );
-
-      console.log(
-        '[PaymentListener] Subscription activated for',
-        username,
-        'until',
-        updatedTenant.subscription_expires_at
-      );
     } catch (error) {
       console.error('[PaymentListener] Failed to process subscription for', username, error);
+      // Log failure (may fail if trx_id already exists, which is fine)
       await this.logPayment(transfer, amount, 'failed', 0, null, String(error));
     }
   }

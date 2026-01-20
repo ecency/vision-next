@@ -464,7 +464,7 @@ Memo: blog:YOUR_HIVE_USERNAME
 ## Support
 
 - GitHub Issues: https://github.com/ecency/vision-next/issues
-- Discord: https://discord.gg/ecency
+- Discord: https://discord.me/ecency
 - Hive: @ecency
 
 ## License
