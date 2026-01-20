@@ -5,7 +5,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { db } from '../db/client';
 import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { authMiddleware } from '../middleware/auth';
@@ -102,16 +101,16 @@ domainRoutes.delete('/', authMiddleware, async (c) => {
   const authUser = c.get('user');
   const username = authUser.username;
 
-  await db.query(
-    `UPDATE tenants
-     SET custom_domain = NULL,
-         custom_domain_verified = false,
-         custom_domain_verified_at = NULL
-     WHERE username = $1`,
-    [username]
-  );
-
-  return c.json({ message: 'Custom domain removed' });
+  try {
+    await TenantService.removeCustomDomain(username);
+    return c.json({ message: 'Custom domain removed' });
+  } catch (error: any) {
+    if (error.message === 'Tenant not found') {
+      return c.json({ error: 'Tenant not found' }, 404);
+    }
+    console.error('[Domains] Error removing custom domain:', error);
+    return c.json({ error: 'Failed to remove custom domain' }, 500);
+  }
 });
 
 // GET /v1/domains/check/:domain - Check domain availability

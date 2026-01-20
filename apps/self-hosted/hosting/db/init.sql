@@ -139,7 +139,7 @@ ORDER BY t.subscription_expires_at ASC;
 
 -- View for payment statistics
 CREATE VIEW payment_stats AS
-SELECT 
+SELECT
     DATE_TRUNC('month', created_at) as month,
     COUNT(*) as total_payments,
     SUM(amount) as total_hbd,
@@ -148,3 +148,15 @@ FROM payments
 WHERE status = 'processed'
 GROUP BY DATE_TRUNC('month', created_at)
 ORDER BY month DESC;
+
+-- System configuration table (for payment listener state, etc.)
+CREATE TABLE system_config (
+    key VARCHAR(255) PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Insert default values
+INSERT INTO system_config (key, value) VALUES
+    ('payment_listener.last_block', '0')
+ON CONFLICT (key) DO NOTHING;

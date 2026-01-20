@@ -7,20 +7,13 @@
 import { promises as dns } from 'dns';
 import { db } from '../db/client';
 import { nanoid } from 'nanoid';
+import {
+  type DomainVerification,
+  type DomainVerificationRow,
+  mapDomainVerificationFromDb,
+} from '../../types';
 
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
-
-export interface DomainVerification {
-  id: string;
-  tenant_id: string;
-  domain: string;
-  verification_token: string;
-  verification_method: 'cname' | 'txt';
-  verified: boolean;
-  verified_at: Date | null;
-  expires_at: Date;
-  created_at: Date;
-}
 
 export const DomainService = {
   /**
@@ -47,7 +40,7 @@ export const DomainService = {
     );
 
     // Create new verification
-    const result = await db.queryOne<DomainVerification>(
+    const result = await db.queryOne<DomainVerificationRow>(
       `INSERT INTO domain_verifications
        (tenant_id, domain, verification_token, verification_method, expires_at)
        VALUES ($1, $2, $3, 'cname', $4)
@@ -55,26 +48,31 @@ export const DomainService = {
       [tenant.id, domain.toLowerCase(), token, expiresAt]
     );
 
-    return result!;
+    return mapDomainVerificationFromDb(result!);
   },
 
   /**
    * Verify domain via DNS lookup
+   * Only accepts exact CNAME match to the tenant's subdomain to prevent
+   * domains pointed to other tenants from being validated.
    */
   async verifyDomain(domain: string, username: string): Promise<boolean> {
-    const expectedTarget = username + '.' + baseDomain;
+    const expectedTarget = (username + '.' + baseDomain).toLowerCase();
 
     try {
       // Check CNAME record
       const records = await dns.resolveCname(domain);
 
       for (const record of records) {
-        // Check if CNAME points to our domain
-        if (record.toLowerCase() === expectedTarget.toLowerCase()) {
-          return true;
-        }
-        // Also accept direct match to base domain with wildcard
-        if (record.toLowerCase().endsWith('.' + baseDomain.toLowerCase())) {
+        const normalizedRecord = record.toLowerCase();
+        // Strip trailing dot if present (some DNS servers include it)
+        const cleanRecord = normalizedRecord.endsWith('.')
+          ? normalizedRecord.slice(0, -1)
+          : normalizedRecord;
+
+        // ONLY accept exact match to this tenant's subdomain
+        // Do NOT accept any other subdomain - that would allow hijacking
+        if (cleanRecord === expectedTarget) {
           return true;
         }
       }
@@ -111,10 +109,11 @@ export const DomainService = {
    * Get pending verifications (for cleanup job)
    */
   async getExpiredVerifications(): Promise<DomainVerification[]> {
-    return db.queryAll<DomainVerification>(
+    const rows = await db.queryAll<DomainVerificationRow>(
       `SELECT * FROM domain_verifications
        WHERE verified = false AND expires_at < NOW()`
     );
+    return rows.map(mapDomainVerificationFromDb);
   },
 
   /**

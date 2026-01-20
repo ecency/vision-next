@@ -187,14 +187,37 @@ docker run -d \
 
 ### Option 4: Build with Config Baked In
 
-For immutable deployments (e.g., Kubernetes):
+For immutable deployments (e.g., Kubernetes), use base64 encoding to safely pass the config:
 
 ```bash
-# Build with config at build time
+# Encode config as base64 to avoid shell interpolation issues
+CONFIG_B64=$(base64 -w0 config.json)  # Linux
+# or: CONFIG_B64=$(base64 -i config.json)  # macOS
+
+# Build with base64-encoded config
 docker build \
-  --build-arg CONFIG_JSON="$(cat config.json)" \
+  --build-arg CONFIG_JSON_B64="$CONFIG_B64" \
   -t myblog:configured \
   -f Dockerfile ../..
+```
+
+The Dockerfile should decode this during build:
+
+```dockerfile
+ARG CONFIG_JSON_B64
+RUN echo "$CONFIG_JSON_B64" | base64 -d > /usr/share/nginx/html/config.json
+```
+
+**Alternative: COPY method** (simpler, requires config.json in build context):
+
+```dockerfile
+# In Dockerfile, add:
+COPY apps/self-hosted/config.json /usr/share/nginx/html/config.json
+```
+
+Then build without build-args:
+```bash
+docker build -t myblog:configured -f Dockerfile ../..
 ```
 
 ## Production Deployment

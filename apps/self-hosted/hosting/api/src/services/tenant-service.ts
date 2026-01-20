@@ -158,7 +158,7 @@ export const TenantService = {
    */
   async verifyCustomDomain(username: string): Promise<Tenant> {
     const result = await db.queryOne<Tenant>(
-      `UPDATE tenants 
+      `UPDATE tenants
        SET custom_domain_verified = true,
            custom_domain_verified_at = NOW(),
            updated_at = NOW()
@@ -166,9 +166,45 @@ export const TenantService = {
        RETURNING *`,
       [username.toLowerCase()]
     );
-    
+
     if (!result) throw new Error('Tenant not found');
     return result;
+  },
+
+  /**
+   * Remove custom domain and clean up verification records
+   */
+  async removeCustomDomain(username: string): Promise<void> {
+    await db.transaction(async (client) => {
+      // Get tenant first
+      const tenant = await client.query<{ id: string }>(
+        'SELECT id FROM tenants WHERE username = $1',
+        [username.toLowerCase()]
+      );
+
+      if (tenant.rows.length === 0) {
+        throw new Error('Tenant not found');
+      }
+
+      const tenantId = tenant.rows[0].id;
+
+      // Remove custom domain from tenant
+      await client.query(
+        `UPDATE tenants
+         SET custom_domain = NULL,
+             custom_domain_verified = false,
+             custom_domain_verified_at = NULL,
+             updated_at = NOW()
+         WHERE username = $1`,
+        [username.toLowerCase()]
+      );
+
+      // Delete related domain verification records
+      await client.query(
+        'DELETE FROM domain_verifications WHERE tenant_id = $1',
+        [tenantId]
+      );
+    });
   },
   
   /**
@@ -282,18 +318,30 @@ export const TenantService = {
   
   /**
    * Deep merge configs
+   * Protected against prototype pollution attacks
    */
   mergeConfig(base: any, updates: any): any {
-    const result = { ...base };
-    
+    // Create result with null prototype to prevent pollution
+    const result = Object.assign(Object.create(null), base);
+
+    // Only iterate own enumerable string keys
     for (const key of Object.keys(updates)) {
-      if (updates[key] && typeof updates[key] === 'object' && !Array.isArray(updates[key])) {
-        result[key] = this.mergeConfig(result[key] || {}, updates[key]);
-      } else if (updates[key] !== undefined) {
-        result[key] = updates[key];
+      // Skip prototype pollution vectors
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        console.warn('[TenantService] Blocked prototype pollution attempt with key:', key);
+        continue;
+      }
+
+      const value = updates[key];
+
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // Recursively merge objects, using empty plain object as default
+        result[key] = this.mergeConfig(result[key] || Object.create(null), value);
+      } else if (value !== undefined) {
+        result[key] = value;
       }
     }
-    
+
     return result;
   },
 };

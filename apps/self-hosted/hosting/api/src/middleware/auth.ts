@@ -1,15 +1,11 @@
 /**
  * Auth Middleware
  *
- * Validates Bearer tokens for protected routes
+ * Validates Bearer tokens for protected routes using secure JWT verification
  */
 
 import type { Context, Next } from 'hono';
-import { cryptoUtils } from '@hiveio/dhive';
-
-interface AuthUser {
-  username: string;
-}
+import { verifyToken, type AuthUser } from '../utils/auth';
 
 declare module 'hono' {
   interface ContextVariableMap {
@@ -35,23 +31,23 @@ export async function authMiddleware(c: Context, next: Next) {
   await next();
 }
 
-function verifyToken(token: string): AuthUser | null {
-  try {
-    const [payload, sig] = token.split('.');
-    if (!payload || !sig) return null;
+/**
+ * Admin middleware - validates user is an admin
+ * Call after authMiddleware
+ */
+export async function adminMiddleware(c: Context, next: Next) {
+  const user = c.get('user');
 
-    const secret = process.env.JWT_SECRET || 'dev-secret';
-    const expectedSig = cryptoUtils.sha256(payload + secret).toString('hex').slice(0, 32);
-
-    if (sig !== expectedSig) return null;
-
-    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
-
-    // Check expiration
-    if (data.exp < Date.now()) return null;
-
-    return { username: data.username };
-  } catch {
-    return null;
+  if (!user) {
+    return c.json({ error: 'Authentication required' }, 401);
   }
+
+  // Check if user is admin (defined in environment variable)
+  const adminUsers = (process.env.ADMIN_USERS || '').split(',').map((u) => u.trim().toLowerCase());
+
+  if (!adminUsers.includes(user.username.toLowerCase())) {
+    return c.json({ error: 'Admin access required' }, 403);
+  }
+
+  await next();
 }

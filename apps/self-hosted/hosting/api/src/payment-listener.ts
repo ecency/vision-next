@@ -56,25 +56,39 @@ function parseMemo(memo: string): ParsedMemo {
 class PaymentListener {
   private lastProcessedBlock: number = 0;
   private isRunning: boolean = false;
+  private expirationIntervalId: ReturnType<typeof setInterval> | null = null;
 
   async start() {
     console.log('[PaymentListener] Starting...');
     console.log('[PaymentListener] Monitoring account:', CONFIG.PAYMENT_ACCOUNT);
     console.log('[PaymentListener] Monthly price:', CONFIG.MONTHLY_PRICE_HBD, 'HBD');
 
-    // Get last processed block from DB or use head block
+    // Get last processed block from DB or use head block minus backfill window
     const lastBlock = await this.getLastProcessedBlock();
-    this.lastProcessedBlock = lastBlock || (await this.getHeadBlockNumber()) - 1;
-    console.log('[PaymentListener] Starting from block:', this.lastProcessedBlock);
+    if (lastBlock !== null) {
+      this.lastProcessedBlock = lastBlock;
+      console.log('[PaymentListener] Resuming from saved block:', this.lastProcessedBlock);
+    } else {
+      // Start from head block minus some blocks to backfill recent transactions
+      const headBlock = await this.getHeadBlockNumber();
+      const backfillBlocks = 100; // ~5 minutes of blocks
+      this.lastProcessedBlock = Math.max(0, headBlock - backfillBlocks);
+      console.log('[PaymentListener] No saved block, starting from:', this.lastProcessedBlock);
+    }
 
     this.isRunning = true;
     this.pollLoop();
 
     // Also run subscription expiry check periodically
-    setInterval(() => this.checkExpirations(), 60 * 60 * 1000); // Every hour
+    this.expirationIntervalId = setInterval(() => this.checkExpirations(), 60 * 60 * 1000); // Every hour
   }
 
   async stop() {
+    // Clear the expiration check interval
+    if (this.expirationIntervalId !== null) {
+      clearInterval(this.expirationIntervalId);
+      this.expirationIntervalId = null;
+    }
     this.isRunning = false;
     console.log('[PaymentListener] Stopped');
   }
@@ -172,15 +186,38 @@ class PaymentListener {
       return;
     }
 
-    // Calculate months based on amount
+    // Calculate months based on amount - only credit what was actually paid
     const monthsFromAmount = Math.floor(amount / CONFIG.MONTHLY_PRICE_HBD);
-    const months = Math.max(parsed.months, monthsFromAmount);
 
-    if (months < 1) {
+    if (monthsFromAmount < 1) {
       console.log('[PaymentListener] Insufficient amount:', amount, 'HBD for', parsed.username);
       await this.logPayment(transfer, amount, 'failed', 0, null, 'Insufficient amount');
       return;
     }
+
+    // If user requested more months than they paid for, reject
+    if (parsed.months > monthsFromAmount) {
+      console.log(
+        '[PaymentListener] Requested months exceed payment:',
+        parsed.months,
+        'requested but only',
+        monthsFromAmount,
+        'paid for',
+        parsed.username
+      );
+      await this.logPayment(
+        transfer,
+        amount,
+        'failed',
+        0,
+        null,
+        `Requested ${parsed.months} months but only paid for ${monthsFromAmount}`
+      );
+      return;
+    }
+
+    // Grant only the months that were paid for
+    const months = monthsFromAmount;
 
     // Process based on action
     if (parsed.action === 'blog') {
@@ -314,14 +351,36 @@ class PaymentListener {
   }
 
   private async getLastProcessedBlock(): Promise<number | null> {
-    // Store last processed block in Redis or a simple file
-    // For now, return null to start from head
-    return null;
+    try {
+      const result = await db.queryOne<{ value: string }>(
+        "SELECT value FROM system_config WHERE key = 'payment_listener.last_block'"
+      );
+      if (result && result.value) {
+        const blockNum = parseInt(result.value, 10);
+        if (!isNaN(blockNum) && blockNum > 0) {
+          return blockNum;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('[PaymentListener] Error loading last processed block:', error);
+      return null;
+    }
   }
 
   private async saveLastProcessedBlock(blockNum: number): Promise<void> {
-    // Store last processed block
-    // Could use Redis or a file
+    try {
+      await db.query(
+        `INSERT INTO system_config (key, value, updated_at)
+         VALUES ('payment_listener.last_block', $1, NOW())
+         ON CONFLICT (key)
+         DO UPDATE SET value = $1, updated_at = NOW()`,
+        [blockNum.toString()]
+      );
+    } catch (error) {
+      console.error('[PaymentListener] Error saving last processed block:', error);
+      throw error; // Re-throw to prevent block from being marked as processed
+    }
   }
 
   private sleep(ms: number): Promise<void> {

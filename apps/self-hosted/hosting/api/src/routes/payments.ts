@@ -4,7 +4,7 @@
 
 import { Hono } from 'hono';
 import { db } from '../db/client';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware, adminMiddleware } from '../middleware/auth';
 
 export const paymentRoutes = new Hono();
 
@@ -88,9 +88,7 @@ paymentRoutes.get('/verify/:trxId', async (c) => {
 });
 
 // GET /v1/payments/stats - Admin stats (requires admin auth)
-paymentRoutes.get('/stats', async (c) => {
-  // TODO: Add admin authentication
-
+paymentRoutes.get('/stats', authMiddleware, adminMiddleware, async (c) => {
   const stats = await db.queryOne(`
     SELECT
       COUNT(*) FILTER (WHERE status = 'processed') as total_payments,

@@ -129,6 +129,54 @@ export interface DomainVerification {
   createdAt: Date;
 }
 
+// Database row type (snake_case)
+export interface DomainVerificationRow {
+  id: string;
+  tenant_id: string;
+  domain: string;
+  verification_token: string;
+  verification_method: 'cname' | 'txt';
+  verified: boolean;
+  verified_at: string | null;
+  expires_at: string;
+  created_at: string;
+}
+
+/**
+ * Convert database row (snake_case) to DomainVerification (camelCase)
+ */
+export function mapDomainVerificationFromDb(row: DomainVerificationRow): DomainVerification {
+  return {
+    id: row.id,
+    tenantId: row.tenant_id,
+    domain: row.domain,
+    verificationToken: row.verification_token,
+    verificationMethod: row.verification_method,
+    verified: row.verified,
+    verifiedAt: row.verified_at ? new Date(row.verified_at) : null,
+    expiresAt: new Date(row.expires_at),
+    createdAt: new Date(row.created_at),
+  };
+}
+
+/**
+ * Convert DomainVerification (camelCase) to database fields (snake_case)
+ * For use in INSERT/UPDATE queries
+ */
+export function mapDomainVerificationToDb(verification: Partial<DomainVerification>): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  if (verification.tenantId !== undefined) result.tenant_id = verification.tenantId;
+  if (verification.domain !== undefined) result.domain = verification.domain;
+  if (verification.verificationToken !== undefined) result.verification_token = verification.verificationToken;
+  if (verification.verificationMethod !== undefined) result.verification_method = verification.verificationMethod;
+  if (verification.verified !== undefined) result.verified = verification.verified;
+  if (verification.verifiedAt !== undefined) result.verified_at = verification.verifiedAt;
+  if (verification.expiresAt !== undefined) result.expires_at = verification.expiresAt;
+
+  return result;
+}
+
 // =============================================================================
 // API Request/Response Types
 // =============================================================================
