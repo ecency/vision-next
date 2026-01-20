@@ -549,6 +549,35 @@ export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) 
 }
 
 /**
+ * Deactivates a Mattermost user account (Team Edition compatible).
+ * This will:
+ * - Mark user as inactive/deleted
+ * - Prevent login
+ * - Remove from channels
+ * Note: Does NOT permanently delete data (requires Enterprise Edition)
+ */
+export async function deactivateMattermostUserAsAdmin(username: string) {
+  const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
+  const targetUser = await findMattermostUser(normalizedUsername);
+
+  if (!targetUser) {
+    throw new MattermostError(`User @${normalizedUsername} not found`, 404);
+  }
+
+  // Deactivate user (Team Edition compatible)
+  await mmFetch(`/users/${targetUser.id}`, {
+    method: "DELETE",
+    headers: getAdminHeaders()
+  });
+
+  return {
+    deactivated: true,
+    userId: targetUser.id,
+    username: targetUser.username
+  } as const;
+}
+
+/**
  * Permanently deletes a Mattermost user account and all associated data.
  * This is IRREVERSIBLE and will:
  * - Delete the user profile
@@ -556,6 +585,8 @@ export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) 
  * - Delete all their posts (handled by Mattermost)
  * - Delete all uploaded files
  * - Remove all preferences and settings
+ *
+ * REQUIRES: Mattermost Enterprise Edition
  */
 export async function deleteMattermostUserAccountAsAdmin(username: string) {
   const normalizedUsername = username.trim().replace(/^@/, "").toLowerCase();
@@ -565,18 +596,28 @@ export async function deleteMattermostUserAccountAsAdmin(username: string) {
     throw new MattermostError(`User @${normalizedUsername} not found`, 404);
   }
 
-  // Permanently delete the user account
-  // The permanent=true parameter ensures complete deletion (not just deactivation)
-  await mmFetch(`/users/${targetUser.id}?permanent=true`, {
-    method: "DELETE",
-    headers: getAdminHeaders()
-  });
+  try {
+    // Try permanent deletion first (Enterprise Edition)
+    await mmFetch(`/users/${targetUser.id}?permanent=true`, {
+      method: "DELETE",
+      headers: getAdminHeaders()
+    });
 
-  return {
-    deleted: true,
-    userId: targetUser.id,
-    username: targetUser.username
-  } as const;
+    return {
+      deleted: true,
+      userId: targetUser.id,
+      username: targetUser.username
+    } as const;
+  } catch (error) {
+    // If permanent deletion fails, try deactivation (Team Edition fallback)
+    const response = await deactivateMattermostUserAsAdmin(username);
+    return {
+      deleted: false,
+      deactivated: true,
+      userId: response.userId,
+      username: response.username
+    } as const;
+  }
 }
 
 /**

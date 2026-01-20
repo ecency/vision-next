@@ -1537,7 +1537,9 @@ export function MattermostChannelView({ channelId }: Props) {
         setAdminMessage(`Deleted ${deleted} post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
       },
       onError: (err) => {
-        setAdminError((err as Error)?.message || "Unable to delete posts");
+        const errorMessage = (err as Error)?.message || "Unable to delete posts";
+        setAdminError(`Error: ${errorMessage}. Note: This feature may require Mattermost Enterprise Edition.`);
+        console.error("Delete posts error:", err);
       }
     });
   };
@@ -1608,12 +1610,29 @@ export function MattermostChannelView({ channelId }: Props) {
     setAdminMessage(null);
 
     deleteUserAccountMutation.mutate(normalizedUsername, {
-      onSuccess: ({ username }) => {
-        setAdminMessage(`✓ Account @${username} permanently deleted`);
+      onSuccess: ({ deleted, deactivated, username }) => {
+        if (deleted) {
+          setAdminMessage(`✓ Account @${username} permanently deleted (Enterprise Edition)`);
+        } else if (deactivated) {
+          setAdminMessage(
+            `⚠️ Account @${username} deactivated (Team Edition fallback).\n` +
+            `Permanent deletion requires Enterprise Edition. User is now inactive and cannot log in.`
+          );
+        } else {
+          setAdminMessage(`✓ Account @${username} removed`);
+        }
         setAdminUsername("");
       },
       onError: (err) => {
-        setAdminError((err as Error)?.message || "Unable to delete account");
+        const errorMessage = (err as Error)?.message || "Unable to delete account";
+        setAdminError(
+          `Error: ${errorMessage}\n\n` +
+          `Common causes:\n` +
+          `• @ecency user needs System Admin role in Mattermost\n` +
+          `• MATTERMOST_ADMIN_TOKEN not configured\n` +
+          `• Check browser console for details`
+        );
+        console.error("Delete account error:", err);
       }
     });
   };
@@ -1652,12 +1671,17 @@ export function MattermostChannelView({ channelId }: Props) {
           `✓ User @${username} completely removed:\n` +
           `• ${deletedPublicPosts} public posts deleted\n` +
           `• ${deletedDmPosts} DM/group posts deleted\n` +
-          `• Account ${accountDeleted ? "deleted" : "deletion failed"}`
+          `• Account ${accountDeleted ? "deleted" : "deletion failed (may require Enterprise Edition)"}`
         );
         setAdminUsername("");
       },
       onError: (err) => {
-        setAdminError((err as Error)?.message || "Unable to nuke user");
+        const errorMessage = (err as Error)?.message || "Unable to nuke user";
+        setAdminError(
+          `Error: ${errorMessage}. ` +
+          `This operation may require Mattermost Enterprise Edition.`
+        );
+        console.error("Nuke user error:", err);
       }
     });
   };
@@ -1982,10 +2006,29 @@ export function MattermostChannelView({ channelId }: Props) {
                 <div className="text-xs text-[--text-muted]">
                   Ban users or delete their posts across channels as @ecency.
                 </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/mattermost/admin/check-permissions");
+                      const data = await res.json();
+                      if (data.error) {
+                        setAdminError(`Permission check failed: ${data.error}`);
+                      } else {
+                        setAdminMessage(data.message);
+                        console.log("Admin permissions:", data);
+                      }
+                    } catch (err) {
+                      setAdminError("Failed to check permissions");
+                    }
+                  }}
+                  className="mt-1 text-xs text-blue-500 hover:underline"
+                >
+                  Check admin permissions
+                </button>
               </div>
               <div className="flex flex-col gap-1 text-xs md:items-end">
-                {adminMessage && <div className="text-green-600">{adminMessage}</div>}
-                {adminError && <div className="text-red-500">{adminError}</div>}
+                {adminMessage && <div className="text-green-600 whitespace-pre-wrap">{adminMessage}</div>}
+                {adminError && <div className="text-red-500 whitespace-pre-wrap">{adminError}</div>}
               </div>
             </div>
 

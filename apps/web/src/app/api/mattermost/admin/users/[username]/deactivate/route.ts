@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   MattermostUser,
-  deleteMattermostUserAccountAsAdmin,
+  deactivateMattermostUserAsAdmin,
   getMattermostTokenFromCookies,
   handleMattermostError,
   mmUserFetch
@@ -9,10 +9,14 @@ import {
 
 const CHAT_SUPER_ADMIN = "ecency";
 
+/**
+ * Deactivates a user account (Team Edition compatible).
+ * Unlike permanent deletion, this works in Team Edition and marks the user as inactive.
+ */
 export async function DELETE(
   _req: Request,
   { params }: { params: { username: string } }
-): Promise<NextResponse<{ deleted: boolean; username: string } | { error: string }>> {
+): Promise<NextResponse<{ deactivated: boolean; username: string } | { error: string }>> {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -25,13 +29,9 @@ export async function DELETE(
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    const result = await deleteMattermostUserAccountAsAdmin(params.username);
+    const { deactivated, username } = await deactivateMattermostUserAsAdmin(params.username);
 
-    return NextResponse.json({
-      deleted: result.deleted,
-      deactivated: result.deactivated,
-      username: result.username
-    });
+    return NextResponse.json({ deactivated, username });
   } catch (error) {
     return handleMattermostError(error);
   }

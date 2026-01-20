@@ -380,6 +380,33 @@ export function useMattermostAdminDeleteUserDmPosts() {
   });
 }
 
+export function useMattermostAdminDeactivateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (username: string) => {
+      const res = await fetch(`/api/mattermost/admin/users/${encodeURIComponent(username)}/deactivate`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Unable to deactivate account");
+      }
+
+      return (await res.json()) as { deactivated: boolean; username: string };
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
+      ]);
+    }
+  });
+}
+
 export function useMattermostAdminDeleteUserAccount() {
   const queryClient = useQueryClient();
 
@@ -394,7 +421,7 @@ export function useMattermostAdminDeleteUserAccount() {
         throw new Error(data?.error || "Unable to delete account");
       }
 
-      return (await res.json()) as { deleted: boolean; username: string };
+      return (await res.json()) as { deleted: boolean; deactivated?: boolean; username: string };
     },
     onSuccess: async () => {
       await Promise.all([
