@@ -1,0 +1,35 @@
+# Ecency Hosting Payment Listener - Dockerfile
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy source
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Production image
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy built files
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+# Create configs directory
+RUN mkdir -p /app/configs
+
+# Set environment
+ENV NODE_ENV=production
+ENV CONFIG_DIR=/app/configs
+
+# No exposed port - this is a background worker
+
+CMD ["node", "dist/payment-listener.js"]

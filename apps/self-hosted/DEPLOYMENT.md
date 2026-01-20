@@ -390,6 +390,68 @@ docker-compose build --no-cache
               └────────────────────────┘
 ```
 
+---
+
+## Managed Hosting by Ecency
+
+Don't want to manage your own infrastructure? Let Ecency host your blog.
+
+### Pricing
+
+| Plan | Price | Features |
+|------|-------|----------|
+| **Standard** | 1 HBD/month | Custom subdomain, SSL, CDN, 99.9% uptime |
+| **Pro** | 3 HBD/month | Custom domain, priority support, analytics |
+
+### How to Get Started
+
+1. **Visit** [ecency.com/blog-hosting](https://ecency.com/blog-hosting)
+2. **Connect** your Hive wallet
+3. **Configure** your blog (username, theme, features)
+4. **Pay** via HBD transfer to `@ecency.hosting`
+5. **Go live** instantly!
+
+### Custom Domain Setup
+
+For custom domains, add a CNAME record:
+
+```
+Type:  CNAME
+Name:  blog (or @ for root domain)
+Value: YOUR-BLOG-ID.blogs.ecency.com
+TTL:   3600
+```
+
+**Example:**
+- Your domain: `myblog.com`
+- CNAME: `myblog.com` → `alice.blogs.ecency.com`
+
+### Payment Memo Format
+
+When paying via HBD transfer:
+
+```
+To: @ecency.hosting
+Amount: 1.000 HBD
+Memo: blog:YOUR_HIVE_USERNAME
+```
+
+For renewals, use the same memo format. Subscriptions auto-renew if balance is available.
+
+### Managed Hosting API
+
+Programmatic access for advanced users:
+
+```bash
+# Check subscription status
+curl https://api.ecency.com/blog-hosting/status/YOUR_USERNAME
+
+# Get config
+curl https://api.ecency.com/blog-hosting/config/YOUR_USERNAME
+```
+
+---
+
 ## Support
 
 - GitHub Issues: https://github.com/ecency/vision-next/issues

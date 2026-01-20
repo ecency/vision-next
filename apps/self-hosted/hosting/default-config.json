@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "configuration": {
+    "general": {
+      "theme": "system",
+      "styleTemplate": "medium",
+      "language": "en",
+      "timezone": "UTC",
+      "dateFormat": "YYYY-MM-DD",
+      "timeFormat": "HH:mm:ss",
+      "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+      "imageProxy": "https://images.ecency.com",
+      "profileBaseUrl": "https://ecency.com/@",
+      "createPostUrl": "https://ecency.com/submit",
+      "styles": {
+        "background": "bg-gradient-to-br from-[#f8fafc] to-[#e2e8f0]"
+      }
+    },
+    "instanceConfiguration": {
+      "type": "blog",
+      "username": "",
+      "communityId": "",
+      "meta": {
+        "title": "My Hive Blog",
+        "description": "Powered by Ecency",
+        "logo": "",
+        "favicon": "https://ecency.com/favicon.ico",
+        "keywords": "hive, blog, blockchain"
+      },
+      "layout": {
+        "listType": "list",
+        "search": {
+          "enabled": true
+        },
+        "sidebar": {
+          "placement": "right",
+          "followers": {
+            "enabled": true
+          },
+          "following": {
+            "enabled": true
+          },
+          "hiveInformation": {
+            "enabled": true
+          }
+        }
+      },
+      "features": {
+        "postsFilters": ["posts", "blog"],
+        "likes": {
+          "enabled": true
+        },
+        "comments": {
+          "enabled": true
+        },
+        "post": {
+          "text2Speech": {
+            "enabled": true
+          }
+        },
+        "auth": {
+          "enabled": true,
+          "methods": ["keychain", "hivesigner", "hiveauth"]
+        }
+      }
+    }
+  }
+}
