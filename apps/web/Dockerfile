@@ -9,6 +9,7 @@ ENV CI=true
 # ---- manifests ----
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
+COPY apps/self-hosted/package.json apps/self-hosted/package.json
 COPY packages/sdk/package.json packages/sdk/package.json
 COPY packages/wallets/package.json packages/wallets/package.json
 COPY packages/render-helper/package.json packages/render-helper/package.json
