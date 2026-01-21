@@ -1441,11 +1441,11 @@ function getUserPostVoteQueryOptions(username, author, permlink) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "user-vote", username, author, permlink],
     queryFn: async () => {
-      const result = await CONFIG.hiveClient.call("database_api", "list_votes", [
-        [username, author, permlink],
-        1,
-        "by_voter_comment"
-      ]);
+      const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
+        start: [username, author, permlink],
+        limit: 1,
+        order: "by_voter_comment"
+      });
       return result?.votes?.[0] || null;
     },
     enabled: !!username && !!author && !!permlink

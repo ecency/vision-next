@@ -18,11 +18,11 @@ export function getUserPostVoteQueryOptions(
   return queryOptions({
     queryKey: ["posts", "user-vote", username, author, permlink],
     queryFn: async () => {
-      const result = await CONFIG.hiveClient.call("database_api", "list_votes", [
-        [username, author, permlink],
-        1,
-        "by_voter_comment",
-      ]);
+      const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
+        start: [username, author, permlink],
+        limit: 1,
+        order: "by_voter_comment"
+      });
 
       // Return first vote if found, otherwise null
       return (result?.votes?.[0] || null) as Vote | null;
