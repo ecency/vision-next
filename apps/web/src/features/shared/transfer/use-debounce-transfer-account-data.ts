@@ -5,7 +5,7 @@ import { formatError } from "@/api/operations";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions, getVestingDelegationsQueryOptions } from "@ecency/sdk";
+import { getDynamicPropsQueryOptions, getVestingDelegationsInfiniteQueryOptions } from "@ecency/sdk";
 import { useDebounce } from "react-use";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -31,7 +31,7 @@ export function useDebounceTransferAccountData() {
     data: vestingDelegationsData,
     error: vestingDelegationsError,
     isLoading: vestingLoading
-  } = useInfiniteQuery(getVestingDelegationsQueryOptions(vestingDelegationUsername, to, 1000));
+  } = useInfiniteQuery(getVestingDelegationsInfiniteQueryOptions(vestingDelegationUsername, 1000));
 
   const vestingDelegations = useMemo(
     () => vestingDelegationsData?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],
