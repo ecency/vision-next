@@ -3288,10 +3288,14 @@ function useAddFragment(username, code) {
     }
   });
 }
-function useEditFragment(username, fragmentId, code) {
+function useEditFragment(username, code) {
   return useMutation({
-    mutationKey: ["posts", "edit-fragment", username, fragmentId],
-    mutationFn: async ({ title, body }) => {
+    mutationKey: ["posts", "edit-fragment", username],
+    mutationFn: async ({
+      fragmentId,
+      title,
+      body
+    }) => {
       if (!code) {
         throw new Error("[SDK][Posts] Missing access token");
       }
@@ -3313,14 +3317,14 @@ function useEditFragment(username, fragmentId, code) {
       );
       return response.json();
     },
-    onSuccess(response) {
+    onSuccess(response, variables) {
       getQueryClient().setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
           if (!data) {
             return [];
           }
-          const index = data.findIndex(({ id }) => id === fragmentId);
+          const index = data.findIndex(({ id }) => id === variables.fragmentId);
           if (index >= 0) {
             data[index] = response;
           }
@@ -3330,10 +3334,10 @@ function useEditFragment(username, fragmentId, code) {
     }
   });
 }
-function useRemoveFragment(username, fragmentId, code) {
+function useRemoveFragment(username, code) {
   return useMutation({
     mutationKey: ["posts", "remove-fragment", username],
-    mutationFn: async () => {
+    mutationFn: async ({ fragmentId }) => {
       if (!code) {
         throw new Error("[SDK][Posts] Missing access token");
       }
@@ -3349,12 +3353,482 @@ function useRemoveFragment(username, fragmentId, code) {
         }
       });
     },
-    onSuccess() {
+    onSuccess(_data, variables) {
       getQueryClient().setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
-        (data) => [...data ?? []].filter(({ id }) => id !== fragmentId)
+        (data) => [...data ?? []].filter(({ id }) => id !== variables.fragmentId)
       );
     }
+  });
+}
+
+// src/modules/private-api/requests.ts
+async function parseJsonResponse(response) {
+  if (!response.ok) {
+    let errorData = void 0;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = void 0;
+    }
+    const error = new Error(`Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = errorData;
+    throw error;
+  }
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return "";
+  }
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.warn("[SDK] Failed to parse JSON response:", e, "Response:", text);
+    return "";
+  }
+}
+async function signUp(username, email, referral) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/account-create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, email, referral })
+  });
+  const data = await parseJsonResponse(response);
+  return { status: response.status, data };
+}
+async function subscribeEmail(email) {
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/subscribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  });
+  const data = await parseJsonResponse(response);
+  return { status: response.status, data };
+}
+async function usrActivity(code, ty, bl = "", tx = "") {
+  const params = { code, ty };
+  if (bl) {
+    params.bl = bl;
+  }
+  if (tx) {
+    params.tx = tx;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/usr-activity", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(params)
+  });
+  await parseJsonResponse(response);
+}
+async function getNotifications(code, filter, since = null, user = null) {
+  const data = {
+    code
+  };
+  if (filter) {
+    data.filter = filter;
+  }
+  if (since) {
+    data.since = since;
+  }
+  if (user) {
+    data.user = user;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function saveNotificationSetting(code, username, system, allows_notify, notify_types, token) {
+  const data = {
+    code,
+    username,
+    token,
+    system,
+    allows_notify,
+    notify_types
+  };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/register-device", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function getNotificationSetting(code, username, token) {
+  const data = { code, username, token };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/detail-device", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function markNotifications(code, id) {
+  const data = {
+    code
+  };
+  if (id) {
+    data.id = id;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications/mark", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function addImage(code, url) {
+  const data = { code, url };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function uploadImage(file, token, signal) {
+  const fetchApi = getBoundFetch();
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetchApi(`${CONFIG.imageHost}/hs/${token}`, {
+    method: "POST",
+    body: formData,
+    signal
+  });
+  return parseJsonResponse(response);
+}
+async function deleteImage(code, imageId) {
+  const data = { code, id: imageId };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function addDraft(code, title, body, tags, meta) {
+  const data = { code, title, body, tags, meta };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function updateDraft(code, draftId, title, body, tags, meta) {
+  const data = { code, id: draftId, title, body, tags, meta };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function deleteDraft(code, draftId) {
+  const data = { code, id: draftId };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function addSchedule(code, permlink, title, body, meta, options, schedule, reblog) {
+  const data = {
+    code,
+    permlink,
+    title,
+    body,
+    meta,
+    schedule,
+    reblog
+  };
+  if (options) {
+    data.options = options;
+  }
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function deleteSchedule(code, id) {
+  const data = { code, id };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function moveSchedule(code, id) {
+  const data = { code, id };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-move", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function getPromotedPost(code, author, permlink) {
+  const data = { code, author, permlink };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/promoted-post", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return parseJsonResponse(response);
+}
+async function onboardEmail(username, email, friend) {
+  const dataBody = {
+    username,
+    email,
+    friend
+  };
+  const fetchApi = getBoundFetch();
+  const response = await fetchApi(
+    CONFIG.privateApiHost + "/private-api/account-create-friend",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dataBody)
+    }
+  );
+  return parseJsonResponse(response);
+}
+
+// src/modules/posts/mutations/use-add-draft.ts
+function useAddDraft(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "drafts", "add", username],
+    mutationFn: async ({
+      title,
+      body,
+      tags,
+      meta
+    }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for addDraft");
+      }
+      return addDraft(code, title, body, tags, meta);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "drafts", username]
+      });
+    },
+    onError
+  });
+}
+function useUpdateDraft(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "drafts", "update", username],
+    mutationFn: async ({
+      draftId,
+      title,
+      body,
+      tags,
+      meta
+    }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for updateDraft");
+      }
+      return updateDraft(code, draftId, title, body, tags, meta);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "drafts", username]
+      });
+    },
+    onError
+  });
+}
+function useDeleteDraft(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "drafts", "delete", username],
+    mutationFn: async ({ draftId }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for deleteDraft");
+      }
+      return deleteDraft(code, draftId);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "drafts", username]
+      });
+    },
+    onError
+  });
+}
+function useAddSchedule(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "schedules", "add", username],
+    mutationFn: async ({
+      permlink,
+      title,
+      body,
+      meta,
+      options,
+      schedule,
+      reblog
+    }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for addSchedule");
+      }
+      return addSchedule(code, permlink, title, body, meta, options, schedule, reblog);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "schedules", username]
+      });
+    },
+    onError
+  });
+}
+function useDeleteSchedule(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "schedules", "delete", username],
+    mutationFn: async ({ id }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for deleteSchedule");
+      }
+      return deleteSchedule(code, id);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "schedules", username]
+      });
+    },
+    onError
+  });
+}
+function useMoveSchedule(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "schedules", "move", username],
+    mutationFn: async ({ id }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for moveSchedule");
+      }
+      return moveSchedule(code, id);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "schedules", username]
+      });
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "drafts", username]
+      });
+    },
+    onError
+  });
+}
+function useAddImage(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "images", "add", username],
+    mutationFn: async ({ url }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for addImage");
+      }
+      return addImage(code, url);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "images", username]
+      });
+    },
+    onError
+  });
+}
+function useDeleteImage(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "images", "delete", username],
+    mutationFn: async ({ imageId }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Posts] \u2013 missing auth for deleteImage");
+      }
+      return deleteImage(code, imageId);
+    },
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "images", username]
+      });
+    },
+    onError
+  });
+}
+function useUploadImage(onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["posts", "images", "upload"],
+    mutationFn: async ({
+      file,
+      token,
+      signal
+    }) => {
+      return uploadImage(file, token, signal);
+    },
+    onSuccess,
+    onError
   });
 }
 
@@ -4072,6 +4546,63 @@ function getAnnouncementsQueryOptions() {
     staleTime: 36e5
   });
 }
+function useMarkNotificationsRead(username, code, onSuccess, onError) {
+  const queryClient = getQueryClient();
+  return useMutation({
+    mutationKey: ["notifications", "mark-read", username],
+    mutationFn: async ({ id }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Notifications] \u2013 missing auth for markNotifications");
+      }
+      return markNotifications(code, id);
+    },
+    // Optimistic update: Immediately mark notifications as read in cache
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      const previousNotifications = [];
+      const queriesData = queryClient.getQueriesData({
+        queryKey: ["notifications"]
+      });
+      queriesData.forEach(([queryKey, data]) => {
+        if (data) {
+          previousNotifications.push([queryKey, data]);
+          const updatedData = data.map((item) => ({
+            ...item,
+            // If specific ID provided: mark only that notification
+            // If no ID (mark all): mark ALL notifications
+            read: !id || id === item.id ? 1 : item.read
+          }));
+          queryClient.setQueryData(queryKey, updatedData);
+        }
+      });
+      return { previousNotifications };
+    },
+    onSuccess: (response, variables) => {
+      const unreadCount = typeof response === "object" && response !== null ? response.unread : void 0;
+      onSuccess?.(unreadCount);
+      if (!variables.id) {
+        queryClient.invalidateQueries({
+          queryKey: ["notifications"]
+        });
+      }
+    },
+    // Rollback optimistic update on error
+    onError: (error, _variables, context) => {
+      if (context?.previousNotifications) {
+        context.previousNotifications.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      onError?.(error);
+    },
+    // Always refetch after mutation settles
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["notifications"]
+      });
+    }
+  });
+}
 function getProposalQueryOptions(id) {
   return queryOptions({
     queryKey: ["proposals", "proposal", id],
@@ -4380,7 +4911,7 @@ function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
 }
 
 // src/modules/market/requests.ts
-async function parseJsonResponse(response) {
+async function parseJsonResponse2(response) {
   const data = await response.json();
   if (!response.ok) {
     const error = new Error(`Request failed with status ${response.status}`);
@@ -4394,7 +4925,7 @@ async function getMarketData(coin, vsCurrency, fromTs, toTs) {
   const fetchApi = getBoundFetch();
   const url = `https://api.coingecko.com/api/v3/coins/${coin}/market_chart/range?vs_currency=${vsCurrency}&from=${fromTs}&to=${toTs}`;
   const response = await fetchApi(url);
-  return parseJsonResponse(response);
+  return parseJsonResponse2(response);
 }
 async function getCurrencyRate(cur) {
   if (cur === "hbd") {
@@ -4403,7 +4934,7 @@ async function getCurrencyRate(cur) {
   const fetchApi = getBoundFetch();
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=hive_dollar&vs_currencies=${cur}`;
   const response = await fetchApi(url);
-  const data = await parseJsonResponse(response);
+  const data = await parseJsonResponse2(response);
   return data.hive_dollar[cur];
 }
 async function getCurrencyTokenRate(currency, token) {
@@ -4411,19 +4942,19 @@ async function getCurrencyTokenRate(currency, token) {
   const response = await fetchApi(
     CONFIG.privateApiHost + `/private-api/market-data/${currency === "hbd" ? "usd" : currency}/${token}`
   );
-  return parseJsonResponse(response);
+  return parseJsonResponse2(response);
 }
 async function getCurrencyRates() {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(CONFIG.privateApiHost + "/private-api/market-data/latest");
-  return parseJsonResponse(response);
+  return parseJsonResponse2(response);
 }
 async function getHivePrice() {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(
     "https://api.coingecko.com/api/v3/simple/price?ids=hive&vs_currencies=usd"
   );
-  return parseJsonResponse(response);
+  return parseJsonResponse2(response);
 }
 function getPointsQueryOptions(username, filter = 0) {
   return queryOptions({
@@ -4697,7 +5228,7 @@ function getSearchPathQueryOptions(q) {
 }
 
 // src/modules/search/requests.ts
-async function parseJsonResponse2(response) {
+async function parseJsonResponse3(response) {
   const parseBody = async () => {
     try {
       return await response.json();
@@ -4740,7 +5271,7 @@ async function search(q, sort, hideLow, since, scroll_id, votes) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function searchAccount(q = "", limit = 20, random = 1) {
   const data = { q, limit, random };
@@ -4752,7 +5283,7 @@ async function searchAccount(q = "", limit = 20, random = 1) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function searchTag(q = "", limit = 20, random = 0) {
   const data = { q, limit, random };
@@ -4764,7 +5295,7 @@ async function searchTag(q = "", limit = 20, random = 0) {
     },
     body: JSON.stringify(data)
   });
-  return parseJsonResponse2(response);
+  return parseJsonResponse3(response);
 }
 async function searchPath(q) {
   const fetchApi = getBoundFetch();
@@ -4775,7 +5306,7 @@ async function searchPath(q) {
     },
     body: JSON.stringify({ q })
   });
-  const data = await parseJsonResponse2(response);
+  const data = await parseJsonResponse3(response);
   return data?.length > 0 ? data : [q];
 }
 function getBoostPlusPricesQueryOptions(accessToken) {
@@ -4846,294 +5377,6 @@ function getBoostPlusAccountPricesQueryOptions(account, accessToken) {
     },
     enabled: !!account && !!accessToken
   });
-}
-
-// src/modules/private-api/requests.ts
-async function parseJsonResponse3(response) {
-  if (!response.ok) {
-    let errorData = void 0;
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = void 0;
-    }
-    const error = new Error(`Request failed with status ${response.status}`);
-    error.status = response.status;
-    error.data = errorData;
-    throw error;
-  }
-  const text = await response.text();
-  if (!text || text.trim() === "") {
-    return "";
-  }
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.warn("[SDK] Failed to parse JSON response:", e, "Response:", text);
-    return "";
-  }
-}
-async function signUp(username, email, referral) {
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/account-create", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username, email, referral })
-  });
-  const data = await parseJsonResponse3(response);
-  return { status: response.status, data };
-}
-async function subscribeEmail(email) {
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/subscribe", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email })
-  });
-  const data = await parseJsonResponse3(response);
-  return { status: response.status, data };
-}
-async function usrActivity(code, ty, bl = "", tx = "") {
-  const params = { code, ty };
-  if (bl) {
-    params.bl = bl;
-  }
-  if (tx) {
-    params.tx = tx;
-  }
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/usr-activity", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(params)
-  });
-  await parseJsonResponse3(response);
-}
-async function getNotifications(code, filter, since = null, user = null) {
-  const data = {
-    code
-  };
-  if (filter) {
-    data.filter = filter;
-  }
-  if (since) {
-    data.since = since;
-  }
-  if (user) {
-    data.user = user;
-  }
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function saveNotificationSetting(code, username, system, allows_notify, notify_types, token) {
-  const data = {
-    code,
-    username,
-    token,
-    system,
-    allows_notify,
-    notify_types
-  };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/register-device", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function getNotificationSetting(code, username, token) {
-  const data = { code, username, token };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/detail-device", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function markNotifications(code, id) {
-  const data = {
-    code
-  };
-  if (id) {
-    data.id = id;
-  }
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/notifications/mark", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function addImage(code, url) {
-  const data = { code, url };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-add", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function uploadImage(file, token, signal) {
-  const fetchApi = getBoundFetch();
-  const formData = new FormData();
-  formData.append("file", file);
-  const response = await fetchApi(`${CONFIG.imageHost}/hs/${token}`, {
-    method: "POST",
-    body: formData,
-    signal
-  });
-  return parseJsonResponse3(response);
-}
-async function deleteImage(code, imageId) {
-  const data = { code, id: imageId };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/images-delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function addDraft(code, title, body, tags, meta) {
-  const data = { code, title, body, tags, meta };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-add", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function updateDraft(code, draftId, title, body, tags, meta) {
-  const data = { code, id: draftId, title, body, tags, meta };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-update", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function deleteDraft(code, draftId) {
-  const data = { code, id: draftId };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/drafts-delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function addSchedule(code, permlink, title, body, meta, options, schedule, reblog) {
-  const data = {
-    code,
-    permlink,
-    title,
-    body,
-    meta,
-    schedule,
-    reblog
-  };
-  if (options) {
-    data.options = options;
-  }
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-add", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function deleteSchedule(code, id) {
-  const data = { code, id };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-delete", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function moveSchedule(code, id) {
-  const data = { code, id };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/schedules-move", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function getPromotedPost(code, author, permlink) {
-  const data = { code, author, permlink };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/private-api/promoted-post", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-  return parseJsonResponse3(response);
-}
-async function onboardEmail(username, email, friend) {
-  const dataBody = {
-    username,
-    email,
-    friend
-  };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(
-    CONFIG.privateApiHost + "/private-api/account-create-friend",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(dataBody)
-    }
-  );
-  return parseJsonResponse3(response);
 }
 
 // src/modules/auth/requests.ts
@@ -5437,6 +5680,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddFragment, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useEditFragment, useGameClaim, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFollowCountQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useUpdateDraft, useUploadImage, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

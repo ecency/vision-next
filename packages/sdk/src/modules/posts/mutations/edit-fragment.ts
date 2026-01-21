@@ -5,12 +5,19 @@ import { getFragmentsQueryOptions } from "../queries";
 
 export function useEditFragment(
   username: string,
-  fragmentId: string,
   code: string | undefined
 ) {
   return useMutation({
-    mutationKey: ["posts", "edit-fragment", username, fragmentId],
-    mutationFn: async ({ title, body }: { title: string; body: string }) => {
+    mutationKey: ["posts", "edit-fragment", username],
+    mutationFn: async ({
+      fragmentId,
+      title,
+      body
+    }: {
+      fragmentId: string;
+      title: string;
+      body: string;
+    }) => {
       if (!code) {
         throw new Error("[SDK][Posts] Missing access token");
       }
@@ -32,7 +39,7 @@ export function useEditFragment(
       );
       return response.json() as Promise<Fragment>;
     },
-    onSuccess(response) {
+    onSuccess(response, variables) {
       getQueryClient().setQueryData<Fragment[]>(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
@@ -40,7 +47,7 @@ export function useEditFragment(
             return [];
           }
 
-          const index = data.findIndex(({ id }) => id === fragmentId);
+          const index = data.findIndex(({ id }) => id === variables.fragmentId);
           if (index >= 0) {
             data[index] = response;
           }
