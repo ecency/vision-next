@@ -6,7 +6,7 @@ var multihash = require('multihashes');
 var querystring = require('querystring');
 var remarkable = require('remarkable');
 var linkify$1 = require('remarkable/linkify');
-var he = require('he');
+var he2 = require('he');
 var htmlparser2 = require('htmlparser2');
 var domSerializerModule = require('dom-serializer');
 var lruCache = require('lru-cache');
@@ -34,7 +34,7 @@ function _interopNamespace(e) {
 var xss__default = /*#__PURE__*/_interopDefault(xss);
 var multihash__default = /*#__PURE__*/_interopDefault(multihash);
 var querystring__default = /*#__PURE__*/_interopDefault(querystring);
-var he__default = /*#__PURE__*/_interopDefault(he);
+var he2__default = /*#__PURE__*/_interopDefault(he2);
 var htmlparser2__namespace = /*#__PURE__*/_interopNamespace(htmlparser2);
 var domSerializerModule__namespace = /*#__PURE__*/_interopNamespace(domSerializerModule);
 
@@ -1433,7 +1433,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
       traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
-      const escapedContent = he__default.default.encode(output || md.render(input));
+      const escapedContent = he2__default.default.encode(output || md.render(input));
       output = `<p dir="auto">${escapedContent}</p>`;
     }
   }
@@ -1473,8 +1473,6 @@ function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.
   cacheSet(key, res);
   return res;
 }
-
-// src/catch-post-image.ts
 var gifLinkRegex = /\.(gif)$/i;
 function isGifLink(link) {
   return gifLinkRegex.test(link);
@@ -1491,12 +1489,20 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    if (isGifLink(meta.image)) {
-      return proxifyImageSrc(meta.image, 0, 0, format);
+    const decodedImage = he2__default.default.decode(meta.image);
+    if (isGifLink(decodedImage)) {
+      return proxifyImageSrc(decodedImage, 0, 0, format);
     }
-    return proxifyImageSrc(meta.image, width, height, format);
+    return proxifyImageSrc(decodedImage, width, height, format);
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
+    if (typeof meta.image[0] === "string") {
+      const decodedImage = he2__default.default.decode(meta.image[0]);
+      if (isGifLink(decodedImage)) {
+        return proxifyImageSrc(decodedImage, 0, 0, format);
+      }
+      return proxifyImageSrc(decodedImage, width, height, format);
+    }
     if (isGifLink(meta.image[0])) {
       return proxifyImageSrc(meta.image[0], 0, 0, format);
     }
@@ -1513,10 +1519,11 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     if (!src) {
       return null;
     }
-    if (isGifLink(src)) {
-      return proxifyImageSrc(src, 0, 0, format);
+    const decodedSrc = he2__default.default.decode(src);
+    if (isGifLink(decodedSrc)) {
+      return proxifyImageSrc(decodedSrc, 0, 0, format);
     }
-    return proxifyImageSrc(src, width, height, format);
+    return proxifyImageSrc(decodedSrc, width, height, format);
   }
   return null;
 }
@@ -1533,10 +1540,11 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
       if (!src) {
         return null;
       }
-      if (isGifLink(src)) {
-        return proxifyImageSrc(src, 0, 0, format);
+      const decodedSrc = he2__default.default.decode(src);
+      if (isGifLink(decodedSrc)) {
+        return proxifyImageSrc(decodedSrc, 0, 0, format);
       }
-      return proxifyImageSrc(src, width, height, format);
+      return proxifyImageSrc(decodedSrc, width, height, format);
     }
     return null;
   }
@@ -1625,7 +1633,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
-    text2 = he__default.default.decode(text2);
+    text2 = he2__default.default.decode(text2);
   }
   return text2;
 }
