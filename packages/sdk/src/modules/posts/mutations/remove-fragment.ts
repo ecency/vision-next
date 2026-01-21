@@ -5,12 +5,11 @@ import { getFragmentsQueryOptions } from "../queries";
 
 export function useRemoveFragment(
   username: string,
-  fragmentId: string,
   code: string | undefined
 ) {
   return useMutation({
     mutationKey: ["posts", "remove-fragment", username],
-    mutationFn: async () => {
+    mutationFn: async ({ fragmentId }: { fragmentId: string }) => {
       if (!code) {
         throw new Error("[SDK][Posts] Missing access token");
       }
@@ -27,10 +26,10 @@ export function useRemoveFragment(
         },
       });
     },
-    onSuccess() {
+    onSuccess(_data, variables) {
       getQueryClient().setQueryData<Fragment[]>(
         getFragmentsQueryOptions(username, code).queryKey,
-        (data) => [...(data ?? [])].filter(({ id }) => id !== fragmentId)
+        (data) => [...(data ?? [])].filter(({ id }) => id !== variables.fragmentId)
       );
     },
   });
