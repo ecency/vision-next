@@ -4724,6 +4724,9 @@ function getVestingDelegationsQueryOptions(username, limit = 50) {
         pageParam || "",
         limit
       ]);
+      if (pageParam && result.length > 0 && result[0]?.delegatee === pageParam) {
+        return result.slice(1);
+      }
       return result;
     },
     getNextPageParam: (lastPage) => {

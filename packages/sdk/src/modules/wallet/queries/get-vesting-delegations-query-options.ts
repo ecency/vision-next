@@ -22,6 +22,12 @@ export function getVestingDelegationsQueryOptions(
         limit,
       ]) as DelegatedVestingShare[];
 
+      // Filter out duplicate first item on subsequent pages
+      // Hive API is inclusive of the 'from' cursor
+      if (pageParam && result.length > 0 && result[0]?.delegatee === pageParam) {
+        return result.slice(1);
+      }
+
       return result;
     },
     getNextPageParam: (lastPage: DelegatedVestingShare[]) => {
