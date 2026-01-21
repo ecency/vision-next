@@ -31,7 +31,7 @@ export function useDebounceTransferAccountData() {
     data: vestingDelegationsData,
     error: vestingDelegationsError,
     isLoading: vestingLoading
-  } = useInfiniteQuery(getVestingDelegationsQueryOptions(vestingDelegationUsername, to, 1000));
+  } = useInfiniteQuery(getVestingDelegationsQueryOptions(vestingDelegationUsername, 1000));
 
   const vestingDelegations = useMemo(
     () => vestingDelegationsData?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],

@@ -2340,8 +2340,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions87 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions87);
+  const queryOptions86 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions86);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -4714,14 +4714,25 @@ function getUserProposalVotesQueryOptions(voter) {
     }
   });
 }
-function getVestingDelegationsQueryOptions(username, from, limit = 50) {
-  return reactQuery.queryOptions({
-    queryKey: ["wallet", "vesting-delegations", username, from, limit],
-    queryFn: () => CONFIG.hiveClient.database.call("get_vesting_delegations", [
-      username,
-      from,
-      limit
-    ]),
+function getVestingDelegationsQueryOptions(username, limit = 50) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["wallet", "vesting-delegations", username, limit],
+    initialPageParam: "",
+    queryFn: async ({ pageParam }) => {
+      const result = await CONFIG.hiveClient.database.call("get_vesting_delegations", [
+        username,
+        pageParam || "",
+        limit
+      ]);
+      return result;
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || lastPage.length < limit) {
+        return void 0;
+      }
+      const lastDelegation = lastPage[lastPage.length - 1];
+      return lastDelegation?.delegatee;
+    },
     enabled: !!username
   });
 }

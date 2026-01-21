@@ -2815,17 +2815,16 @@ interface RecurrentTransfer {
 }
 
 /**
- * Get vesting delegations for an account
+ * Get vesting delegations for an account with infinite scroll support
  *
  * @param username - The account username
- * @param from - Pagination start point (delegatee name)
- * @param limit - Maximum number of results (default: 50)
+ * @param limit - Maximum number of results per page (default: 50)
  */
-declare function getVestingDelegationsQueryOptions(username?: string, from?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DelegatedVestingShare[], Error, DelegatedVestingShare[], (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<DelegatedVestingShare[], (string | number | undefined)[], never> | undefined;
+declare function getVestingDelegationsQueryOptions(username?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<DelegatedVestingShare[], Error, _tanstack_react_query.InfiniteData<DelegatedVestingShare[], unknown>, (string | number | undefined)[], string>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DelegatedVestingShare[], (string | number | undefined)[], string> | undefined;
 } & {
     queryKey: (string | number | undefined)[] & {
-        [dataTagSymbol]: DelegatedVestingShare[];
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<DelegatedVestingShare[], unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };
