@@ -1,6 +1,7 @@
 export * from "./get-account-full-query-options";
 export * from "./get-accounts-query-options";
 export * from "./get-follow-count-query-options";
+export * from "./get-followers-query-options";
 export * from "./get-following-query-options";
 export * from "./get-muted-users-query-options";
 export * from "./lookup-accounts-query-options";

@@ -3,6 +3,7 @@ export * from "./get-trending-tags-with-stats-query-options";
 export * from "./get-fragments-query-options";
 export * from "./get-promoted-posts-query-options";
 export * from "./get-entry-active-votes-query-options";
+export * from "./get-user-post-vote-query-options";
 export * from "./get-content-query-options";
 export * from "./get-content-replies-query-options";
 export * from "./get-post-header-query-options";
