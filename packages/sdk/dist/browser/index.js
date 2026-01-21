@@ -4694,13 +4694,14 @@ function getVestingDelegationsQueryOptions(username, limit = 50) {
     queryKey: ["wallet", "vesting-delegations", username, limit],
     initialPageParam: "",
     queryFn: async ({ pageParam }) => {
+      const fetchLimit = pageParam ? limit + 1 : limit;
       const result = await CONFIG.hiveClient.database.call("get_vesting_delegations", [
         username,
         pageParam || "",
-        limit
+        fetchLimit
       ]);
       if (pageParam && result.length > 0 && result[0]?.delegatee === pageParam) {
-        return result.slice(1);
+        return result.slice(1, limit + 1);
       }
       return result;
     },
