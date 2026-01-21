@@ -1,7 +1,5 @@
 "use client";
 
-import { useActiveAccount } from "@/core/hooks/use-active-account";
-
 import { ErrorTypes } from "@/enums";
 import {
   clearErrorFeedbackContext,
@@ -19,6 +17,7 @@ import { useCallback, useRef, useState } from "react";
 import { useMount, useUnmount } from "react-use";
 import * as Sentry from "@sentry/nextjs";
 import { getConsoleHistory } from "@/utils/console-msg";
+import { useGlobalStore } from "@/core/global-store";
 
 interface Props {
   feedback: FeedbackObject;
@@ -27,7 +26,9 @@ interface Props {
 
 export function FeedbackMessage({ feedback, onClose }: Props) {
   const timeoutRef = useRef<any>();
-  const { activeUser } = useActiveAccount();
+  // Use global store directly instead of useActiveAccount() to avoid QueryClient dependency
+  // We only need the username for the purchase link, not the full account data
+  const activeUser = useGlobalStore((s) => s.activeUser);
 
   const [showDialog, setShowDialog] = useState(false);
   const errorType = (feedback as ErrorFeedbackObject).errorType;

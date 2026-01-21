@@ -705,6 +705,18 @@ function getFollowCountQueryOptions(username) {
     ])
   });
 }
+function getFollowersQueryOptions(following, startFollower, followType = "blog", limit = 100) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "followers", following, startFollower, followType, limit],
+    queryFn: () => CONFIG.hiveClient.database.call("get_followers", [
+      following,
+      startFollower,
+      followType,
+      limit
+    ]),
+    enabled: !!following
+  });
+}
 function getFollowingQueryOptions(follower, startFollowing, followType = "blog", limit = 100) {
   return reactQuery.queryOptions({
     queryKey: ["accounts", "following", follower, startFollowing, followType, limit],
@@ -1423,6 +1435,20 @@ function getEntryActiveVotesQueryOptions(entry) {
       ]);
     },
     enabled: !!entry
+  });
+}
+function getUserPostVoteQueryOptions(username, author, permlink) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "user-vote", username, author, permlink],
+    queryFn: async () => {
+      const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
+        start: [username, author, permlink],
+        limit: 1,
+        order: "by_voter_comment"
+      });
+      return result?.votes?.[0] || null;
+    },
+    enabled: !!username && !!author && !!permlink
   });
 }
 function getContentQueryOptions(author, permlink) {
@@ -2340,8 +2366,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions86 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions86);
+  const queryOptions88 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions88);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -5799,6 +5825,7 @@ exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
 exports.getFavouritesInfiniteQueryOptions = getFavouritesInfiniteQueryOptions;
 exports.getFavouritesQueryOptions = getFavouritesQueryOptions;
 exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
+exports.getFollowersQueryOptions = getFollowersQueryOptions;
 exports.getFollowingQueryOptions = getFollowingQueryOptions;
 exports.getFragmentsInfiniteQueryOptions = getFragmentsInfiniteQueryOptions;
 exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
@@ -5882,6 +5909,7 @@ exports.getTradeHistoryQueryOptions = getTradeHistoryQueryOptions;
 exports.getTransactionsInfiniteQueryOptions = getTransactionsInfiniteQueryOptions;
 exports.getTrendingTagsQueryOptions = getTrendingTagsQueryOptions;
 exports.getTrendingTagsWithStatsQueryOptions = getTrendingTagsWithStatsQueryOptions;
+exports.getUserPostVoteQueryOptions = getUserPostVoteQueryOptions;
 exports.getUserProposalVotesQueryOptions = getUserProposalVotesQueryOptions;
 exports.getVestingDelegationsQueryOptions = getVestingDelegationsQueryOptions;
 exports.getVisibleFirstLevelThreadItems = getVisibleFirstLevelThreadItems;
