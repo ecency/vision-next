@@ -1377,8 +1377,11 @@ export function MattermostChannelView({ channelId }: Props) {
     params.delete("text");
     const nextUrl = params.size ? `/chats/${channelId}?${params.toString()}` : `/chats/${channelId}`;
 
+    // Generate unique pending_post_id for idempotency across load-balanced instances
+    const pendingPostId = `${channelData?.member?.user_id || 'user'}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+
     sendMutation.mutate(
-      { message: trimmedMessage, rootId, props: parentProps },
+      { message: trimmedMessage, rootId, props: parentProps, pendingPostId },
       {
         onError: (err) => {
           setMessageError((err as Error)?.message || "Unable to send message");

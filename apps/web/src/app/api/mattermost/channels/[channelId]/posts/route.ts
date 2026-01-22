@@ -17,6 +17,10 @@ import {
 import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 
+// Prevent artificial timeout - this route should be fast now
+export const maxDuration = 60; // 60 seconds max
+export const dynamic = "force-dynamic";
+
 const USER_MENTION_REGEX =
   /@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z][a-zA-Z0-9-]{2,}(?:\.[a-zA-Z][a-zA-Z0-9-]{2,})*\b/gi;
 
@@ -108,30 +112,29 @@ export async function GET(
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
 
+    // Fetch channel users first, then parallel fetch their statuses
     const channelUsers = await mmUserFetch<MattermostUser[]>(
       `/users?in_channel=${channelId}&per_page=200&page=0`,
       token
     );
 
-    // Fetch status for channel members to determine who is online
+    // Fetch status for channel members to determine who is online (parallel with other operations)
     let onlineUserIds: string[] = [];
-    try {
-      const statuses = await mmUserFetch<{ user_id: string; status: string }[]>(
-        `/users/status/ids`,
-        token,
-        {
-          method: "POST",
-          body: JSON.stringify(channelUsers.map((user) => user.id))
-        }
-      );
-
+    const statusPromise = mmUserFetch<{ user_id: string; status: string }[]>(
+      `/users/status/ids`,
+      token,
+      {
+        method: "POST",
+        body: JSON.stringify(channelUsers.map((user) => user.id))
+      }
+    ).then((statuses) => {
       onlineUserIds = statuses
         .filter((status) => status.status && status.status !== "offline")
         .map((status) => status.user_id);
-    } catch (error) {
+    }).catch((error) => {
       // If we cannot fetch statuses, continue without online information
       console.error("Failed to fetch channel member statuses:", error);
-    }
+    });
 
     const users = channelUsers.reduce<Record<string, MattermostUser>>(
       (acc, user) => {
@@ -162,32 +165,26 @@ export async function GET(
       }
     }
 
-    const member = await mmUserFetch<{
-      channel_id: string;
-      user_id: string;
-      roles: string;
-      last_viewed_at: number;
-      mention_count: number;
-      msg_count: number;
-    }>(`/channels/${channelId}/members/me`, token);
+    // Parallelize independent fetches for better performance
+    const [member, moderation, statsResult] = await Promise.all([
+      mmUserFetch<{
+        channel_id: string;
+        user_id: string;
+        roles: string;
+        last_viewed_at: number;
+        mention_count: number;
+        msg_count: number;
+      }>(`/channels/${channelId}/members/me`, token),
+      getMattermostCommunityModerationContext(token, channelId),
+      mmUserFetch<{ member_count: number }>(`/channels/${channelId}/stats`, token)
+        .catch((error) => {
+          console.error("Failed to fetch channel stats:", error);
+          return null;
+        }),
+      statusPromise // Wait for online status fetch to complete
+    ]);
 
-    const moderation = await getMattermostCommunityModerationContext(
-      token,
-      channelId
-    );
-
-    // Fetch channel stats to get member count
-    let memberCount: number | undefined;
-    try {
-      const stats = await mmUserFetch<{ member_count: number }>(
-        `/channels/${channelId}/stats`,
-        token
-      );
-      memberCount = stats.member_count;
-    } catch (error) {
-      // If stats fetch fails, continue without member count
-      console.error("Failed to fetch channel stats:", error);
-    }
+    const memberCount = statsResult?.member_count;
 
     // Check if there are more messages by looking at the order length
     // For "around" queries, set hasMore to true to allow infinite scroll to work
@@ -230,11 +227,15 @@ export async function POST(
       return NextResponse.json({ error: "message required" }, { status: 400 });
     }
 
-    const currentUser = await mmUserFetch<{
-      id: string;
-      username: string;
-      props?: Record<string, string>;
-    }>(`/users/me`, token);
+    // Fetch user and channel in parallel - they don't depend on each other
+    const [currentUser, channel] = await Promise.all([
+      mmUserFetch<{
+        id: string;
+        username: string;
+        props?: Record<string, string>;
+      }>(`/users/me`, token),
+      mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token)
+    ]);
 
     const bannedUntil = isUserChatBanned(currentUser);
     if (bannedUntil) {
@@ -252,7 +253,6 @@ export async function POST(
 
     // --- DM Privacy Check (Defense-in-Depth) ---
     // For DM channels, verify sender is allowed based on recipient's privacy settings
-    const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
 
     if (channel.type === "D") {
       // Get the other user in the DM
@@ -291,35 +291,7 @@ export async function POST(
       }
     }
 
-    // --- Thread following for participants ---
-    // If replying in a thread, follow the thread for all participants
-    if (rootId) {
-      try {
-        // Fetch all posts in the thread
-        const threadData = await mmUserFetch<{
-          posts: Record<string, { user_id: string }>;
-          order: string[];
-        }>(`/posts/${rootId}/thread`, token);
-
-        // Extract unique user IDs from all posts in the thread
-        const participantIds = new Set<string>();
-        threadData.order.forEach((postId) => {
-          const post = threadData.posts[postId];
-          if (post?.user_id && post.user_id !== currentUser.id) {
-            participantIds.add(post.user_id);
-          }
-        });
-
-        // Follow the thread for all participants
-        await Promise.all(
-          Array.from(participantIds).map((userId) =>
-            followMattermostThreadForUser(userId, rootId)
-          )
-        );
-      } catch (error) {
-        console.error("Unable to follow thread for participants", error);
-      }
-    }
+    // Thread following moved to AFTER response to avoid blocking client
 
     // --- Special mentions & regular @mentions in text ---
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);
@@ -349,41 +321,59 @@ export async function POST(
       }
     }
 
-    // --- Ensure @mentioned users are members of the public channel ---
-    // Mattermost's native @mention system will handle notifications
-    if (mentionedUsers.length) {
-      const channel = await mmUserFetch<MattermostChannel>(
-        `/channels/${channelId}`,
-        token
-      );
-
-      if (channel.type === "O") {
-        await Promise.all(
-          mentionedUsers.map(async (username) => {
-            try {
-              const user = await ensureMattermostUser(username);
-              await ensureUserInTeam(user.id);
-              await ensureUserInChannel(user.id, channel.id);
-            } catch (error) {
-              console.error(
-                `Unable to ensure mentioned user ${username} in channel`,
-                error
-              );
-            }
-          })
-        );
-      }
-    }
-
+    // Send the message FIRST, then handle mentions async to avoid blocking response
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
       body: JSON.stringify({
         channel_id: channelId,
         message,
         root_id: rootId || undefined,
-        props: props || undefined
+        props: props || undefined,
+        pending_post_id: body.pendingPostId || `${currentUser.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       })
     });
+
+    // --- Background tasks (non-blocking) ---
+
+    // Ensure @mentioned users are members of the public channel (async)
+    // Mattermost's native @mention system will handle notifications
+    if (mentionedUsers.length) {
+      mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token)
+        .then((channel) => {
+          if (channel.type === "O") {
+            return Promise.all(
+              mentionedUsers.map(async (username) => {
+                try {
+                  const user = await ensureMattermostUser(username);
+                  await ensureUserInTeam(user.id);
+                  await ensureUserInChannel(user.id, channel.id);
+                } catch (error) {
+                  console.error(
+                    `Unable to ensure mentioned user ${username} in channel`,
+                    error
+                  );
+                }
+              })
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Unable to process mentioned users", error);
+        });
+    }
+
+    // Follow thread for parent author only in public channels (async)
+    if (rootId && props?.parent_id && channel.type === "O") {
+      mmUserFetch<{ user_id: string }>(`/posts/${props.parent_id}`, token)
+        .then((parentPost) => {
+          if (parentPost.user_id !== currentUser.id) {
+            return followMattermostThreadForUser(parentPost.user_id, rootId);
+          }
+        })
+        .catch((error) => {
+          console.error("Unable to follow thread for parent author", error);
+        });
+    }
 
     return NextResponse.json({ post });
   } catch (error) {
