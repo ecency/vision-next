@@ -113,6 +113,9 @@ export async function GET() {
     let directMemberCounts: Record<string, MattermostChannelMemberCounts> = {};
 
     if (directChannels.length) {
+      // NOTE: N+1 pattern - Mattermost API limitation
+      // For N DM channels, makes 2*N requests (N members + N counts)
+      // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
       const [memberLists, memberCounts] = await Promise.all([
         Promise.all(
           directChannels.map((channel) =>

@@ -25,7 +25,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "username required" }, { status: 400 });
     }
 
-    const targetUser = await findMattermostUser(username);
+    // Fetch both users in parallel - they don't depend on each other
+    const [targetUser, currentUser] = await Promise.all([
+      findMattermostUser(username),
+      mmUserFetch<MattermostUser>(`/users/me`, token)
+    ]);
 
     if (!targetUser) {
       return NextResponse.json(
@@ -33,8 +37,6 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
-
-    const currentUser = await mmUserFetch<MattermostUser>(`/users/me`, token);
 
     // Check target user's DM privacy settings
     const targetUserWithProps = await getMattermostUserWithProps(targetUser.id);

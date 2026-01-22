@@ -671,16 +671,18 @@ export function useMattermostSendMessage(channelId: string | undefined) {
     mutationFn: async ({
         message,
         rootId,
-        props
+        props,
+        pendingPostId
       }: {
         message: string;
         rootId?: string | null;
         props?: MattermostPostProps;
+        pendingPostId?: string;
       }) => {
       const res = await fetch(`/api/mattermost/channels/${channelId}/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, rootId, props })
+        body: JSON.stringify({ message, rootId, props, pendingPostId })
       });
 
       if (!res.ok) {
@@ -690,11 +692,11 @@ export function useMattermostSendMessage(channelId: string | undefined) {
 
       return (await res.json()) as { post: MattermostPost };
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
-      ]);
+    onSuccess: () => {
+      // Don't await - WebSocket handles real-time updates, this is just a fallback
+      // Prevents mutation from staying in pending state while queries invalidate
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
     }
   });
 }
@@ -803,11 +805,11 @@ export function useMattermostUpdatePost(channelId: string | undefined) {
 
       return (await res.json()) as { post: MattermostPost };
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
-      ]);
+    onSuccess: () => {
+      // Don't await - WebSocket handles real-time updates, this is just a fallback
+      // Prevents mutation from staying in pending state while queries invalidate
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
     }
   });
 }

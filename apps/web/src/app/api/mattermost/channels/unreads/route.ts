@@ -43,6 +43,9 @@ export async function GET() {
       return acc;
     }, {});
 
+    // NOTE: N+1 pattern - Mattermost API limitation
+    // For N DM channels, makes N requests for member counts
+    // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
     const directMemberCounts = await Promise.all(
       channels
         .filter((channel) => channel.type === "D")
