@@ -66,6 +66,7 @@ export class MattermostWebSocket {
   private onConnectionChangeCallback: ((active: boolean) => void) | null = null;
   private onConnectionStatusCallback: ((status: ConnectionStatus) => void) | null = null;
   private onTypingCallback: ((userId: string) => void) | null = null;
+  private onPostedCallback: ((post: any) => void) | null = null;
   private typingThrottle = new Map<string, number>();
   private readonly TYPING_THROTTLE_MS = 3000;
   private isConnected = false;
@@ -136,6 +137,11 @@ export class MattermostWebSocket {
 
   public onTyping(callback: (userId: string) => void): this {
     this.onTypingCallback = callback;
+    return this;
+  }
+
+  public onPosted(callback: (post: any) => void): this {
+    this.onPostedCallback = callback;
     return this;
   }
 
@@ -353,6 +359,16 @@ export class MattermostWebSocket {
   private handlePosted(message: MattermostWSEvent): void {
     const channelId = message.broadcast?.channel_id;
     if (!channelId || !this.queryClient) return;
+
+    // Notify callback with the post data (for input clearing)
+    if (this.onPostedCallback && message.data?.post) {
+      try {
+        const post = JSON.parse(message.data.post);
+        this.onPostedCallback(post);
+      } catch (error) {
+        console.error("Failed to parse posted message", error);
+      }
+    }
 
     // Invalidate queries to trigger refetch
     this.queryClient.invalidateQueries({

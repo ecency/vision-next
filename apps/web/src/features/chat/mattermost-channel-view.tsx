@@ -186,7 +186,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const [emojiSuggestions, setEmojiSuggestions] = useState<EmojiSuggestion[]>([]);
   const [isEmojiSearchLoading, setIsEmojiSearchLoading] = useState(false);
 
-  const sendMutation = useMattermostSendMessage(channelId);
+  // Skip query invalidation when WebSocket is active - it handles updates via "posted" event
+  const sendMutation = useMattermostSendMessage(channelId, { skipInvalidation: isWebSocketActive });
   const deleteMutation = useMattermostDeletePost(channelId);
   const [moderationError, setModerationError] = useState<string | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
@@ -243,6 +244,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
   const TYPING_TIMEOUT = 5000; // 5 seconds
   const queryClient = useQueryClient();
+  const lastSentPendingIdRef = useRef<string | null>(null);
 
     type GifStyle = {
       width: string;
@@ -657,6 +659,25 @@ export function MattermostChannelView({ channelId }: Props) {
           // Don't show typing indicator for current user
           if (userId === currentUserId) return;
           setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
+        })
+        .onPosted((post) => {
+          // Clear input when we get confirmation of our own message via WebSocket
+          if (post.user_id === currentUserId && post.pending_post_id === lastSentPendingIdRef.current) {
+            setMessage("");
+            setUploadedImages([]);
+            clearDraft(channelId);
+            setMentionQuery("");
+            setMentionStart(null);
+            setEmojiQuery("");
+            setEmojiStart(null);
+            setReplyingTo(null);
+            setMessageError(null);
+            lastSentPendingIdRef.current = null;
+            // Refocus input after sending
+            requestAnimationFrame(() => {
+              messageInputRef.current?.focus();
+            });
+          }
         });
 
       websocketRef.current = ws;
@@ -1380,30 +1401,34 @@ export function MattermostChannelView({ channelId }: Props) {
     // Generate unique pending_post_id for idempotency across load-balanced instances
     const pendingPostId = `${channelData?.member?.user_id || 'user'}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
+    // Store pending ID for WebSocket confirmation
+    lastSentPendingIdRef.current = pendingPostId;
+
     sendMutation.mutate(
       { message: finalMessage, rootId, props: parentProps, pendingPostId },
       {
         onError: (err) => {
           setMessageError((err as Error)?.message || "Unable to send message");
+          lastSentPendingIdRef.current = null; // Clear on error
         },
         onSuccess: () => {
-          setMessage("");
-          setUploadedImages([]); // Clear images
-          clearDraft(channelId); // Clear draft after successful send
-          setMentionQuery("");
-          setMentionStart(null);
-          setEmojiQuery("");
-          setEmojiStart(null);
-          setReplyingTo(null);
+          // Only clear input via HTTP if WebSocket is NOT connected
+          // WebSocket will handle it via onPosted callback for instant feedback
+          if (!isWebSocketActive) {
+            setMessage("");
+            setUploadedImages([]); // Clear images
+            clearDraft(channelId); // Clear draft after successful send
+            setMentionQuery("");
+            setMentionStart(null);
+            setEmojiQuery("");
+            setEmojiStart(null);
+            setReplyingTo(null);
+            lastSentPendingIdRef.current = null;
+            requestAnimationFrame(() => {
+              messageInputRef.current?.focus();
+            });
+          }
           router.replace(nextUrl);
-          requestAnimationFrame(() => {
-            const container = scrollContainerRef.current;
-            if (container) {
-              container.scrollTop = container.scrollHeight;
-            }
-            // Refocus input after sending
-            messageInputRef.current?.focus();
-          });
           markChannelRead();
         }
       }

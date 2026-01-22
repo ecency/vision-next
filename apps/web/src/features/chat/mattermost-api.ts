@@ -664,7 +664,7 @@ export function useMattermostDeletePost(channelId: string | undefined) {
   });
 }
 
-export function useMattermostSendMessage(channelId: string | undefined) {
+export function useMattermostSendMessage(channelId: string | undefined, options?: { skipInvalidation?: boolean }) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -693,10 +693,12 @@ export function useMattermostSendMessage(channelId: string | undefined) {
       return (await res.json()) as { post: MattermostPost };
     },
     onSuccess: () => {
-      // Don't await - WebSocket handles real-time updates, this is just a fallback
-      // Prevents mutation from staying in pending state while queries invalidate
-      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
-      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+      // Skip invalidation when WebSocket is active - it handles updates via "posted" event
+      // This prevents redundant fetches and improves performance
+      if (!options?.skipInvalidation) {
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+      }
     }
   });
 }

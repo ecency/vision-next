@@ -50,7 +50,9 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const around = searchParams.get("around") || "";
-    const perPage = searchParams.get("per_page") || "60";
+    // Reduced from 60 to 40 for better performance on invalidation
+    // 40 messages = ~2 screens of chat, good balance between UX and data transfer
+    const perPage = searchParams.get("per_page") || "40";
 
     let posts: Record<string, any>;
     let order: string[];
@@ -58,13 +60,14 @@ export async function GET(
 
     if (around) {
       // Fetch messages around a specific message (for deep linking)
+      // 20 before + 20 after = 40 total, same as regular page size
       const [beforeData, afterData, targetPost] = await Promise.all([
         mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-          `/channels/${channelId}/posts?before=${around}&per_page=30`,
+          `/channels/${channelId}/posts?before=${around}&per_page=20`,
           token
         ).catch(() => ({ posts: {}, order: [] })),
         mmUserFetch<{ posts: Record<string, any>; order: string[] }>(
-          `/channels/${channelId}/posts?after=${around}&per_page=30`,
+          `/channels/${channelId}/posts?after=${around}&per_page=20`,
           token
         ).catch(() => ({ posts: {}, order: [] })),
         mmUserFetch<any>(`/posts/${around}`, token).catch(() => null)
@@ -321,7 +324,7 @@ export async function POST(
       }
     }
 
-    // Send the message FIRST, then handle mentions async to avoid blocking response
+    // Send the message - WebSocket will handle UI updates, HTTP is for persistence
     const post = await mmUserFetch(`/posts`, token, {
       method: "POST",
       body: JSON.stringify({
