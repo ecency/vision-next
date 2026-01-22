@@ -163,6 +163,8 @@ interface Props {
 export function MattermostChannelView({ channelId }: Props) {
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [isWebSocketActive, setIsWebSocketActive] = useState(true);
+  const [reconnectAttempt, setReconnectAttempt] = useState<number | null>(null);
+  const [reconnectDelay, setReconnectDelay] = useState<number | null>(null);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
     // Only poll if WebSocket inactive or user scrolled away
     refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false
@@ -654,7 +656,18 @@ export function MattermostChannelView({ channelId }: Props) {
       const ws = new MattermostWebSocket()
         .withChannel(channelId)
         .withQueryClient(queryClient)
-        .onConnectionChange(setIsWebSocketActive)
+        .onConnectionChange((active) => {
+          setIsWebSocketActive(active);
+          // Clear reconnect state when connected
+          if (active) {
+            setReconnectAttempt(null);
+            setReconnectDelay(null);
+          }
+        })
+        .onReconnecting((attempt, delay) => {
+          setReconnectAttempt(attempt);
+          setReconnectDelay(delay);
+        })
         .onTyping((userId) => {
           // Don't show typing indicator for current user
           if (userId === currentUserId) return;
@@ -2025,6 +2038,18 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Reconnection status banner */}
+        {reconnectAttempt !== null && reconnectDelay !== null && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-3">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-lg leading-none" aria-hidden>⚠️</span>
+              <span className="font-medium text-yellow-800 dark:text-yellow-200">
+                Reconnecting to chat (attempt {reconnectAttempt} in {Math.round(reconnectDelay / 1000)}s)...
+              </span>
+            </div>
+          </div>
+        )}
 
         {isEcencyAdmin && showAdminTools && (
           <div className="mt-3 space-y-3 rounded border border-[--border-color] bg-[--surface-color] p-4">

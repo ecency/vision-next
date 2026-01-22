@@ -51,6 +51,9 @@ interface MattermostWSEvent {
 
 export type ConnectionStatus = "live" | "connected" | "paused" | "disconnected";
 
+// Global instance tracker to prevent duplicate connections
+let globalInstance: MattermostWebSocket | null = null;
+
 export class MattermostWebSocket {
   private ws: WebSocket | null = null;
   private channelId: string | null = null;
@@ -67,6 +70,7 @@ export class MattermostWebSocket {
   private onConnectionStatusCallback: ((status: ConnectionStatus) => void) | null = null;
   private onTypingCallback: ((userId: string) => void) | null = null;
   private onPostedCallback: ((post: any) => void) | null = null;
+  private onReconnectingCallback: ((attempt: number, nextDelay: number) => void) | null = null;
   private typingThrottle = new Map<string, number>();
   private readonly TYPING_THROTTLE_MS = 3000;
   private isConnected = false;
@@ -79,6 +83,20 @@ export class MattermostWebSocket {
   private idleCheckInterval: NodeJS.Timeout | null = null;
   private pollInterval: NodeJS.Timeout | null = null;
   private currentStatus: ConnectionStatus = "disconnected";
+
+  // Connection metrics for debugging
+  private metrics = {
+    connectionsOpened: 0,
+    reconnects: 0,
+    totalDisconnects: 0,
+    firstConnectedAt: 0,
+    lastConnectedAt: 0,
+    lastDisconnectedAt: 0
+  };
+
+  // Prevent indefinite reconnects - give up after 1 hour
+  private readonly MAX_DISCONNECT_DURATION = 60 * 60 * 1000; // 1 hour
+  private firstDisconnectTime: number | null = null;
 
   // Event listeners for cleanup
   private visibilityChangeHandler: (() => void) | null = null;
@@ -106,6 +124,22 @@ export class MattermostWebSocket {
     const delay = Math.min(baseDelay * Math.pow(2, this.reconnectAttempts), maxDelay);
     // Add jitter to prevent thundering herd
     return delay + Math.random() * 1000;
+  }
+
+  // Constructor warns if multiple instances exist
+  constructor() {
+    if (globalInstance && globalInstance.isConnected) {
+      console.warn("[WebSocket] Creating new instance while another is still connected. This may indicate a memory leak. Previous instance should be disconnected first.");
+    }
+    // Store reference for tracking (not enforcing singleton - channels can change)
+    globalInstance = this;
+  }
+
+  // Clear global instance reference (called by disconnect)
+  private clearInstanceIfCurrent(): void {
+    if (globalInstance === this) { // Only clear if we're the current global instance
+      globalInstance = null;
+    }
   }
 
   // Builder pattern methods
@@ -145,6 +179,22 @@ export class MattermostWebSocket {
     return this;
   }
 
+  public onReconnecting(callback: (attempt: number, nextDelay: number) => void): this {
+    this.onReconnectingCallback = callback;
+    return this;
+  }
+
+  // Get connection metrics for debugging
+  public getMetrics() {
+    return {
+      ...this.metrics,
+      currentState: this.connectionState,
+      isConnected: this.isConnected,
+      reconnectAttempts: this.reconnectAttempts,
+      uptime: this.metrics.firstConnectedAt ? Date.now() - this.metrics.firstConnectedAt : 0
+    };
+  }
+
   // Connection management
   public async connect(): Promise<void> {
     if (this.isConnected || this.connectionState === "connecting") {
@@ -168,9 +218,18 @@ export class MattermostWebSocket {
         this.isConnected = true;
         this.connectionState = "connected";
         this.reconnectAttempts = 0; // Reset on successful connection
+        this.firstDisconnectTime = null; // Reset disconnect timer
         this.lastActivityTime = Date.now();
         this.lastPongReceived = Date.now();
         this.updateStatus("live");
+
+        // Track metrics
+        this.metrics.connectionsOpened++;
+        if (this.metrics.firstConnectedAt === 0) {
+          this.metrics.firstConnectedAt = Date.now();
+        }
+        this.metrics.lastConnectedAt = Date.now();
+
         this.onConnectionChangeCallback?.(true);
 
         // Start ping interval to keep connection alive
@@ -214,12 +273,40 @@ export class MattermostWebSocket {
         this.stopPingInterval();
         this.stopPongTimeout();
 
+        // Track metrics
+        this.metrics.totalDisconnects++;
+        this.metrics.lastDisconnectedAt = Date.now();
+
+        // Don't reconnect if this is an intentional disconnect (maxReconnectAttempts === 0)
+        // This prevents reconnecting to old channels after component unmounts
+        if (this.maxReconnectAttempts === 0) {
+          console.warn("[WebSocket] Closed intentionally, not reconnecting");
+          return;
+        }
+
+        // Track first disconnect time for max duration check
+        if (this.firstDisconnectTime === null) {
+          this.firstDisconnectTime = Date.now();
+        }
+
+        // Check if we've been disconnected too long (1 hour)
+        const disconnectDuration = Date.now() - this.firstDisconnectTime;
+        if (disconnectDuration > this.MAX_DISCONNECT_DURATION) {
+          console.error(`[WebSocket] Disconnected for ${Math.round(disconnectDuration / 1000 / 60)} minutes. Giving up. Please refresh the page.`);
+          this.onConnectionChangeCallback?.(false);
+          return;
+        }
+
         // Always attempt to reconnect (unless manually disconnected via disconnect())
         // Exponential backoff handles the delay
         this.reconnectAttempts++;
+        this.metrics.reconnects++;
         const delay = this.getReconnectDelay();
 
-        console.log(`WebSocket closed (code: ${evt.code}, clean: ${evt.wasClean}). Reconnecting in ${Math.round(delay/1000)}s (attempt ${this.reconnectAttempts})...`);
+        console.log(`[WebSocket] Closed (code: ${evt.code}, clean: ${evt.wasClean}). Reconnecting in ${Math.round(delay/1000)}s (attempt ${this.reconnectAttempts})...`);
+
+        // Notify reconnecting callback with attempt number and delay
+        this.onReconnectingCallback?.(this.reconnectAttempts, delay);
 
         this.reconnectTimeout = setTimeout(() => {
           this.connect();
@@ -283,6 +370,9 @@ export class MattermostWebSocket {
     this.connectionState = "disconnected";
     this.updateStatus("disconnected");
     this.onConnectionChangeCallback?.(false);
+
+    // Clear global instance reference if we're the current one
+    this.clearInstanceIfCurrent();
 
     // Restore unlimited reconnects for future connections
     this.maxReconnectAttempts = Infinity;
