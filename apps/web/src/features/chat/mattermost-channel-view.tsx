@@ -1381,7 +1381,7 @@ export function MattermostChannelView({ channelId }: Props) {
     const pendingPostId = `${channelData?.member?.user_id || 'user'}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
     sendMutation.mutate(
-      { message: trimmedMessage, rootId, props: parentProps, pendingPostId },
+      { message: finalMessage, rootId, props: parentProps, pendingPostId },
       {
         onError: (err) => {
           setMessageError((err as Error)?.message || "Unable to send message");
