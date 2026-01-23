@@ -1198,14 +1198,7 @@
       "followers-only": "Only people I follow",
       "no-one": "No one (disable DMs)"
     },
-    "dm-privacy-updated": "DM privacy settings updated successfully",
-    "hidden-items": {
-      "title": "Hidden Conversations",
-      "conversations": "Hidden Conversations",
-      "empty-conversations": "No hidden conversations",
-      "restore": "Restore",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "DM privacy settings updated successfully"
   },
   "wallet": {
     "unclaimed-rewards": "Talep edilmemiş ödüller",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Mute channel",
     "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
+    "leave-conversation": "Leave conversation",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Unpin message",
     "dm-not-allowed": "@{{username}} doesn't accept messages from you",
     "dm-followers-only": "Only accepts DMs from people they follow",
-    "dm-disabled": "Has disabled direct messages",
-    "hide-conversation": "Hide conversation",
-    "conversation-hidden": "Conversation hidden"
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "Görsel Ekle",
