@@ -650,8 +650,6 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     if (!channelId) return;
 
-    const currentUserId = channelData?.member?.user_id;
-
     try {
       const ws = new MattermostWebSocket()
         .withChannel(channelId)
@@ -670,11 +668,15 @@ export function MattermostChannelView({ channelId }: Props) {
         })
         .onTyping((userId) => {
           // Don't show typing indicator for current user
+          // Read userId dynamically to avoid recreating WebSocket when channelData changes
+          const currentUserId = channelData?.member?.user_id;
           if (userId === currentUserId) return;
           setTypingUsers(prev => new Map(prev).set(userId, Date.now()));
         })
         .onPosted((post) => {
           // Clear input when we get confirmation of our own message via WebSocket
+          // Read userId dynamically to avoid recreating WebSocket when channelData changes
+          const currentUserId = channelData?.member?.user_id;
           if (post.user_id === currentUserId && post.pending_post_id === lastSentPendingIdRef.current) {
             setMessage("");
             setUploadedImages([]);
@@ -705,7 +707,7 @@ export function MattermostChannelView({ channelId }: Props) {
         websocketRef.current = null;
       }
     };
-  }, [channelId, queryClient, channelData?.member?.user_id]);
+  }, [channelId, queryClient]);
 
   // Typing indicators auto-cleanup
   useEffect(() => {
