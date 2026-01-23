@@ -303,7 +303,7 @@ export class MattermostWebSocket {
         this.metrics.reconnects++;
         const delay = this.getReconnectDelay();
 
-        console.log(`[WebSocket] Closed (code: ${evt.code}, clean: ${evt.wasClean}). Reconnecting in ${Math.round(delay/1000)}s (attempt ${this.reconnectAttempts})...`);
+        console.warn(`[WebSocket] Closed (code: ${evt.code}, clean: ${evt.wasClean}). Reconnecting in ${Math.round(delay/1000)}s (attempt ${this.reconnectAttempts})...`);
 
         // Notify reconnecting callback with attempt number and delay
         this.onReconnectingCallback?.(this.reconnectAttempts, delay);
