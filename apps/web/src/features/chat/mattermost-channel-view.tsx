@@ -31,7 +31,6 @@ import {
   useMattermostPinnedPosts,
   useMattermostPinPost,
   useMattermostUnpinPost,
-  useHideMessage,
   useHideChannel
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
@@ -234,7 +233,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
   const [showPinnedModal, setShowPinnedModal] = useState(false);
-  const hideMessageMutation = useHideMessage();
   const hideChannelMutation = useHideChannel();
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
@@ -1533,10 +1531,6 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-  const handleHideMessage = useCallback((postId: string, channelId: string) => {
-    hideMessageMutation.mutate({ postId, channelId });
-  }, [hideMessageMutation]);
-
   const handleHideChannel = useCallback((channelId: string) => {
     hideChannelMutation.mutate(channelId, {
       onSuccess: () => {
@@ -2349,7 +2343,6 @@ export function MattermostChannelView({ channelId }: Props) {
               handleDelete={handleDelete}
               handlePinToggle={handlePinToggle}
               toggleReaction={toggleReaction}
-              handleHideMessage={handleHideMessage}
               openReactionPostId={openReactionPostId}
               setOpenReactionPostId={setOpenReactionPostId}
               deletingPostId={deletingPostId}

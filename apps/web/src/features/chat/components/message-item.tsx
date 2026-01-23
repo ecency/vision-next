@@ -50,7 +50,6 @@ interface MessageItemProps {
   handleDelete: (postId: string) => void;
   handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
-  handleHideMessage: (postId: string, channelId: string) => void;
 
   // State
   openReactionPostId: string | null;
@@ -125,7 +124,6 @@ export function MessageItem({
   handleDelete,
   handlePinToggle,
   toggleReaction,
-  handleHideMessage,
   openReactionPostId,
   setOpenReactionPostId,
   deletingPostId,
@@ -428,11 +426,6 @@ export function MessageItem({
                   icon={earthSvg}
                   label="Translate"
                   onClick={() => setShowTranslateModal(true)}
-                />
-                <DropdownItemWithIcon
-                  icon={eyeOffSvg}
-                  label="Hide message"
-                  onClick={() => handleHideMessage(post.id, channelId)}
                 />
                 {canPin && (
                   <DropdownItemWithIcon

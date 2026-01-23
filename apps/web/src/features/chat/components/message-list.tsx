@@ -46,7 +46,6 @@ interface MessageListProps {
   handleDelete: (postId: string) => void;
   handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
-  handleHideMessage: (postId: string, channelId: string) => void;
 
   // State
   openReactionPostId: string | null;
@@ -82,7 +81,6 @@ export function MessageList({
   handleDelete,
   handlePinToggle,
   toggleReaction,
-  handleHideMessage,
   openReactionPostId,
   setOpenReactionPostId,
   deletingPostId,
@@ -170,7 +168,6 @@ export function MessageList({
             handleDelete={handleDelete}
             handlePinToggle={handlePinToggle}
             toggleReaction={toggleReaction}
-            handleHideMessage={handleHideMessage}
             openReactionPostId={openReactionPostId}
             setOpenReactionPostId={setOpenReactionPostId}
             deletingPostId={deletingPostId}

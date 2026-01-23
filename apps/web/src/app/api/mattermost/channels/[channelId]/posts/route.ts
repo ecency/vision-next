@@ -7,7 +7,6 @@ import {
   getMattermostCommunityModerationContext,
   getMattermostUserWithProps,
   getUserDmPrivacy,
-  getHiddenMessages,
   handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
@@ -133,12 +132,6 @@ export async function GET(
         .filter(Boolean)
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
-
-    // Filter out hidden messages
-    const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
-    const hiddenMessagesData = await getHiddenMessages(currentUser.id);
-    const hiddenMessageIds = new Set(hiddenMessagesData.messages.map((m) => m.id));
-    orderedPosts = orderedPosts.filter((post) => !hiddenMessageIds.has(post.id));
 
     // Fetch channel users first, then parallel fetch their statuses
     const channelUsers = await mmUserFetch<MattermostUser[]>(
