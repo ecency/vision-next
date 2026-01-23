@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "已成功更新 DM 隐私设置",
     "hidden-items": {
-      "title": "隐藏消息和对话",
+      "title": "隐藏对话",
       "conversations": "隐藏对话",
-      "messages": "隐藏消息",
       "empty-conversations": "没有隐藏的对话",
-      "empty-messages": "没有隐藏消息",
       "restore": "恢复",
-      "clear-all": "全部清除",
-      "confirm-clear": "清除所有隐藏消息？",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "社区聊天",
     "public-key": "公钥",
     "private-key": "私钥",
-    "hide-message": "隐藏消息",
     "enter-private-key-detail": "输入私钥导入所有聊天",
     "message-search-results": "消息搜索结果",
     "no-messages-found": "未找到消息。",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "只接受他们所关注的人的私信",
     "dm-disabled": "已禁用私信",
     "hide-conversation": "隐藏对话",
-    "message-hidden": "消息已隐藏",
     "conversation-hidden": "对话已隐藏"
   },
   "add-image": {
