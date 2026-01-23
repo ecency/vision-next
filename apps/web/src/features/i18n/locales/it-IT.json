@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "Impostazioni privacy DM aggiornate con successo",
     "hidden-items": {
-      "title": "Messaggi & Conversazioni Nascosti",
+      "title": "Conversazioni Nascoste",
       "conversations": "Conversazioni Nascoste",
-      "messages": "Messaggi Nascosti",
       "empty-conversations": "Nessuna conversazione nascosta",
-      "empty-messages": "Nessun messaggio nascosto",
       "restore": "Ripristina",
-      "clear-all": "Cancella Tutto",
-      "confirm-clear": "Cancellare tutti i messaggi nascosti?",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "Chat della Comunità",
     "public-key": "Chiave pubblica",
     "private-key": "Chiave privata",
-    "hide-message": "Nascondi messaggio",
     "enter-private-key-detail": "Inserisci la chiave privata di chat per importare tutte le chat",
     "message-search-results": "Risultati ricerca messaggi",
     "no-messages-found": "Nessun messaggio trovato.",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "Accetta solo DM da persone che seguono",
     "dm-disabled": "Ha messaggi diretti disabilitati",
     "hide-conversation": "Nascondi conversazione",
-    "message-hidden": "Messaggio nascosto",
     "conversation-hidden": "Conversazione nascosta"
   },
   "add-image": {
