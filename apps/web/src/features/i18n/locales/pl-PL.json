@@ -1198,14 +1198,7 @@
       "followers-only": "Tylko osoby, które obserwuję",
       "no-one": "Nikt (wyłącz DM)"
     },
-    "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane",
-    "hidden-items": {
-      "title": "Ukryte rozmowy",
-      "conversations": "Ukryte rozmowy",
-      "empty-conversations": "Brak ukrytych konwersacji",
-      "restore": "Przywróć",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane"
   },
   "wallet": {
     "unclaimed-rewards": "Nieodebrane wynagrodzenie",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Wycisz kanał",
     "unmute-channel": "Wyłącz wyciszenie kanału",
     "leave-channel": "Opuść kanał",
+    "leave-conversation": "Opuść rozmowę",
     "no-channels": "Brak przypisanych kanałów.",
     "no-channels-search": "Żaden kanał nie pasuje do Twojego wyszukiwania.",
     "joinable-channels": "Kanały do przyłączenia",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Odepnij wiadomość",
     "dm-not-allowed": "@{{username}} nie akceptuje wiadomości od Ciebie",
     "dm-followers-only": "Akceptuje tylko prezent od ludzi, którzy obserwują",
-    "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie",
-    "hide-conversation": "Ukryj konwersację",
-    "conversation-hidden": "Rozmowa ukryta"
+    "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie"
   },
   "add-image": {
     "title": "Dodaj obraz",
