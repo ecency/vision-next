@@ -1198,14 +1198,7 @@
       "followers-only": "Только подписчики",
       "no-one": "Никто (отключить DMs)"
     },
-    "dm-privacy-updated": "Настройки конфиденциальности ДМ успешно обновлены",
-    "hidden-items": {
-      "title": "Скрытые разговоры",
-      "conversations": "Скрытые разговоры",
-      "empty-conversations": "Нет скрытых сообщений",
-      "restore": "Восстановить",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "Настройки конфиденциальности ДМ успешно обновлены"
   },
   "wallet": {
     "unclaimed-rewards": "Невостребованные награды",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Заглушить канал",
     "unmute-channel": "Включить канал",
     "leave-channel": "Покинуть канал",
+    "leave-conversation": "Покинуть разговор",
     "no-channels": "Каналы еще не назначены.",
     "no-channels-search": "Нет каналов, соответствующих вашему запросу.",
     "joinable-channels": "Каналы для подключения",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Открепить сообщение",
     "dm-not-allowed": "@{{username}} не принимает от вас сообщения",
     "dm-followers-only": "Принимает СМС только от пользователей, за которыми они следуют",
-    "dm-disabled": "Отключил личные сообщения",
-    "hide-conversation": "Скрыть разговор",
-    "conversation-hidden": "Разговор скрыт"
+    "dm-disabled": "Отключил личные сообщения"
   },
   "add-image": {
     "title": "Добавить изображение",
