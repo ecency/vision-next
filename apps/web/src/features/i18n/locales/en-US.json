@@ -1198,7 +1198,7 @@
       "followers-only": "Only people I follow",
       "no-one": "No one (disable DMs)"
     },
-    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-updated": "DM privacy settings updated successfully"
   },
   "wallet": {
     "unclaimed-rewards": "Unclaimed rewards",
