@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt",
     "hidden-items": {
-      "title": "Verborgen berichten & conversaties",
+      "title": "Verborgen conversaties",
       "conversations": "Verborgen conversaties",
-      "messages": "Verborgen berichten",
       "empty-conversations": "Geen verborgen gesprekken",
-      "empty-messages": "Geen verborgen berichten",
       "restore": "Herstellen",
-      "clear-all": "Alles wissen",
-      "confirm-clear": "Verwijder alle verborgen berichten?",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "Community chat",
     "public-key": "Publieke sleutel",
     "private-key": "Privé sleutel",
-    "hide-message": "Bericht verbergen",
     "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
     "message-search-results": "Resultaten van berichten",
     "no-messages-found": "Geen berichten gevonden.",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "Accepteert DM's alleen van mensen die ze volgen",
     "dm-disabled": "Heeft privéberichten uitgeschakeld",
     "hide-conversation": "Gesprek verbergen",
-    "message-hidden": "Bericht verborgen",
     "conversation-hidden": "Gesprek verborgen"
   },
   "add-image": {
