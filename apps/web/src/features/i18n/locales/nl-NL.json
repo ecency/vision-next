@@ -1198,14 +1198,7 @@
       "followers-only": "Alleen mensen die ik volg",
       "no-one": "Niemand (DMs) uitschakelen"
     },
-    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt",
-    "hidden-items": {
-      "title": "Verborgen conversaties",
-      "conversations": "Verborgen conversaties",
-      "empty-conversations": "Geen verborgen gesprekken",
-      "restore": "Herstellen",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt"
   },
   "wallet": {
     "unclaimed-rewards": "Niet opgeëiste beloningen",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Kanaal dempen",
     "unmute-channel": "Kanaal inschakelen",
     "leave-channel": "Kanaal verlaten",
+    "leave-conversation": "Gesprek verlaten",
     "no-channels": "Nog geen kanalen toegewezen.",
     "no-channels-search": "Geen kanalen gevonden die overeenkomen met uw zoekopdracht.",
     "joinable-channels": "Kanalen inschrijven",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Bericht losmaken",
     "dm-not-allowed": "@{{username}} accepteert geen berichten van jou",
     "dm-followers-only": "Accepteert DM's alleen van mensen die ze volgen",
-    "dm-disabled": "Heeft privéberichten uitgeschakeld",
-    "hide-conversation": "Gesprek verbergen",
-    "conversation-hidden": "Gesprek verborgen"
+    "dm-disabled": "Heeft privéberichten uitgeschakeld"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
