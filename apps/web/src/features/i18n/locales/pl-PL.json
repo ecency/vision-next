@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane",
     "hidden-items": {
-      "title": "Ukryte wiadomości i rozmowy",
+      "title": "Ukryte rozmowy",
       "conversations": "Ukryte rozmowy",
-      "messages": "Ukryte wiadomości",
       "empty-conversations": "Brak ukrytych konwersacji",
-      "empty-messages": "Brak ukrytych wiadomości",
       "restore": "Przywróć",
-      "clear-all": "Wyczyść wszystko",
-      "confirm-clear": "Wyczyścić wszystkie ukryte wiadomości?",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "Czat Społeczności",
     "public-key": "Klucz publiczny",
     "private-key": "Klucz prywatny",
-    "hide-message": "Ukryj wiadomość",
     "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
     "message-search-results": "Wyniki wyszukiwania wiadomości",
     "no-messages-found": "Nie znaleziono wiadomości.",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "Akceptuje tylko prezent od ludzi, którzy obserwują",
     "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie",
     "hide-conversation": "Ukryj konwersację",
-    "message-hidden": "Wiadomość ukryta",
     "conversation-hidden": "Rozmowa ukryta"
   },
   "add-image": {
