@@ -1198,14 +1198,7 @@
       "followers-only": "Тільки люди, за якими я слідкую",
       "no-one": "Ніхто (заборонити ОП)"
     },
-    "dm-privacy-updated": "Налаштування конфіденційності DM успішно оновлено",
-    "hidden-items": {
-      "title": "Приховані розмови",
-      "conversations": "Приховані розмови",
-      "empty-conversations": "Немає прихованих розмов",
-      "restore": "Відновити",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "Налаштування конфіденційності DM успішно оновлено"
   },
   "wallet": {
     "unclaimed-rewards": "Не отримана винагорода",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Вимкнути звук каналу",
     "unmute-channel": "Увімкнути канал",
     "leave-channel": "Покинути канал",
+    "leave-conversation": "Вийти з розмови",
     "no-channels": "Немає призначених каналів.",
     "no-channels-search": "Пошук не дав результатів.",
     "joinable-channels": "Доступні канали",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Відкріпити повідомлення",
     "dm-not-allowed": "@{{username}} не приймає повідомлення від вас",
     "dm-followers-only": "Лише приймаються ОП людей, за якими вони стежать,",
-    "dm-disabled": "Є вимкнені прямі повідомлення",
-    "hide-conversation": "Приховати розмову",
-    "conversation-hidden": "Бесіду приховано"
+    "dm-disabled": "Є вимкнені прямі повідомлення"
   },
   "add-image": {
     "title": "Додати зображення",
