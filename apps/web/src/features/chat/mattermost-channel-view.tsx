@@ -30,8 +30,7 @@ import {
   useMattermostJoinChannel,
   useMattermostPinnedPosts,
   useMattermostPinPost,
-  useMattermostUnpinPost,
-  useHideChannel
+  useMattermostUnpinPost
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -233,7 +232,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
   const [showPinnedModal, setShowPinnedModal] = useState(false);
-  const hideChannelMutation = useHideChannel();
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -1531,15 +1529,6 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
-  const handleHideChannel = useCallback((channelId: string) => {
-    hideChannelMutation.mutate(channelId, {
-      onSuccess: () => {
-        // Navigate away from hidden channel
-        router.push("/chats");
-      }
-    });
-  }, [hideChannelMutation, router]);
-
   const handleBanUser = (hoursOverride?: number | null) => {
     if (!isEcencyAdmin) return;
 
@@ -2039,27 +2028,6 @@ export function MattermostChannelView({ channelId }: Props) {
                 >
                   Last viewed {formatTimestamp(effectiveLastViewedAt)}
                 </div>
-              )}
-
-              {/* Channel options dropdown - only for DM channels */}
-              {(channelData?.channel?.type === "D" || directChannelFromList?.type === "D") && (
-                <Dropdown>
-                  <DropdownToggle>
-                    <Button
-                      icon={dotsHorizontal}
-                      size="xs"
-                      appearance="gray-link"
-                      aria-label="Channel options"
-                    />
-                  </DropdownToggle>
-                  <DropdownMenu align="right" size="small">
-                    <DropdownItemWithIcon
-                      icon={eyeOffSvg}
-                      label="Hide conversation"
-                      onClick={() => handleHideChannel(channelId)}
-                    />
-                  </DropdownMenu>
-                </Dropdown>
               )}
 
               {/* Keyboard shortcuts button */}

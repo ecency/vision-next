@@ -4,7 +4,6 @@ import { PermissionsCard } from "./_permissions-card";
 import { Preferences } from "./_preferences";
 import { ReferralInfo } from "./_referral-info";
 import { DmPrivacySettings } from "./_dm-privacy";
-import { HiddenItemsSettings } from "./_hidden-items";
 
 export function ProfileSettings() {
   return (
@@ -13,7 +12,6 @@ export function ProfileSettings() {
       <Preferences />
 
       <DmPrivacySettings />
-      <HiddenItemsSettings />
 
       <PermissionsCard />
       <ReferralInfo />

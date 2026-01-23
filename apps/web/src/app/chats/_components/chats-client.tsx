@@ -693,18 +693,18 @@ export function ChatsClient() {
                               </span>
                             )}
 
-                            {unread > 0 && (
-                              <div className="flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
-                                <Dropdown>
-                                  <DropdownToggle
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                    }}
-                                  >
-                                    <Button appearance="gray-link" icon={dotsHorizontal} />
-                                  </DropdownToggle>
-                                  <DropdownMenu align="right">
+                            <div className="flex-shrink-0" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
+                              <Dropdown>
+                                <DropdownToggle
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <Button appearance="gray-link" icon={dotsHorizontal} />
+                                </DropdownToggle>
+                                <DropdownMenu align="right">
+                                  {unread > 0 && (
                                     <DropdownItemWithIcon
                                       icon={checkSvg}
                                       label={markAsReadLabel}
@@ -713,10 +713,16 @@ export function ChatsClient() {
                                       }
                                       disabled={markChannelViewedMutation.isPending}
                                     />
-                                  </DropdownMenu>
-                                </Dropdown>
-                              </div>
-                            )}
+                                  )}
+                                  <DropdownItemWithIcon
+                                    label={i18next.t("chat.leave-conversation")}
+                                    onClick={(e: MouseEvent) =>
+                                      handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
+                                    }
+                                  />
+                                </DropdownMenu>
+                              </Dropdown>
+                            </div>
                           </div>
                         </Link>
                       );
