@@ -1198,14 +1198,7 @@
       "followers-only": "フォローしている人のみ",
       "no-one": "誰もいない（DMを無効にする）"
     },
-    "dm-privacy-updated": "DM のプライバシー設定が更新されました",
-    "hidden-items": {
-      "title": "非表示の会話",
-      "conversations": "非表示の会話",
-      "empty-conversations": "非表示の会話はありません",
-      "restore": "復元",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "DM のプライバシー設定が更新されました"
   },
   "wallet": {
     "unclaimed-rewards": "未請求の報酬",
@@ -2160,6 +2153,7 @@
     "mute-channel": "チャンネルをミュート",
     "unmute-channel": "チャンネルのミュートを解除",
     "leave-channel": "僅用於中文",
+    "leave-conversation": "会話から出る",
     "no-channels": "割り当てられたチャンネルはまだありません。",
     "no-channels-search": "検索に一致するチャンネルがありません。",
     "joinable-channels": "参加可能なチャンネル",
@@ -2185,9 +2179,7 @@
     "unpin-message": "メッセージのピン留めを解除",
     "dm-not-allowed": "@{{username}} はあなたからのメッセージを受け入れません",
     "dm-followers-only": "フォローしている人からのDMのみ受け付けます",
-    "dm-disabled": "ダイレクトメッセージを無効にする",
-    "hide-conversation": "会話を非表示",
-    "conversation-hidden": "会話を非表示"
+    "dm-disabled": "ダイレクトメッセージを無効にする"
   },
   "add-image": {
     "title": "画像を追加",
