@@ -921,3 +921,186 @@ export function useUpdateDmPrivacy() {
     }
   });
 }
+
+// Hidden Messages & Channels
+
+export interface HiddenMessage {
+  id: string;
+  channelId: string;
+  hiddenAt: number;
+}
+
+export interface HiddenChannel {
+  id: string;
+  hiddenAt: number;
+}
+
+export interface HiddenMessagesData {
+  messages: HiddenMessage[];
+}
+
+export interface HiddenChannelsData {
+  channels: HiddenChannel[];
+}
+
+export function useHiddenMessagesQuery() {
+  return useQuery({
+    queryKey: ["mattermost", "hidden-messages"],
+    queryFn: async () => {
+      const res = await fetch("/api/mattermost/me/hidden-messages");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to fetch hidden messages");
+      }
+      return (await res.json()) as HiddenMessagesData;
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+}
+
+export function useHiddenChannelsQuery() {
+  return useQuery({
+    queryKey: ["mattermost", "hidden-channels"],
+    queryFn: async () => {
+      const res = await fetch("/api/mattermost/me/hidden-channels");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to fetch hidden channels");
+      }
+      return (await res.json()) as HiddenChannelsData;
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+}
+
+export function useHideMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ postId, channelId }: { postId: string; channelId: string }) => {
+      const res = await fetch("/api/mattermost/me/hidden-messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, channelId })
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to hide message");
+      }
+
+      return (await res.json()) as HiddenMessagesData;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate all queries that might show the hidden message
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "hidden-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", variables.channelId] });
+      queryClient.invalidateQueries({
+        queryKey: ["mattermost-posts-infinite", variables.channelId]
+      });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-search"] });
+    }
+  });
+}
+
+export function useUnhideMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const res = await fetch(`/api/mattermost/me/hidden-messages/${postId}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to unhide message");
+      }
+
+      return (await res.json()) as HiddenMessagesData;
+    },
+    onSuccess: () => {
+      // Invalidate all queries that might need to show the restored message
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "hidden-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-search"] });
+    }
+  });
+}
+
+export function useClearAllHiddenMessages() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/mattermost/me/hidden-messages", {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to clear hidden messages");
+      }
+
+      return (await res.json()) as { cleared: number };
+    },
+    onSuccess: () => {
+      // Invalidate all queries to show all restored messages
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "hidden-messages"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-search"] });
+    }
+  });
+}
+
+export function useHideChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await fetch("/api/mattermost/me/hidden-channels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channelId })
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to hide channel");
+      }
+
+      return (await res.json()) as HiddenChannelsData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "hidden-channels"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-unreads"] });
+    }
+  });
+}
+
+export function useUnhideChannel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (channelId: string) => {
+      const res = await fetch(`/api/mattermost/me/hidden-channels/${channelId}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to unhide channel");
+      }
+
+      return (await res.json()) as HiddenChannelsData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "hidden-channels"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-unreads"] });
+    }
+  });
+}

@@ -9,8 +9,29 @@ const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
 export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
+export const CHAT_HIDDEN_MESSAGES_PROP = "ecency_chat_hidden_messages";
+export const CHAT_HIDDEN_CHANNELS_PROP = "ecency_chat_hidden_channels";
 
 export type DmPrivacyLevel = "all" | "followers" | "none";
+
+export interface HiddenMessage {
+  id: string;
+  channelId: string;
+  hiddenAt: number;
+}
+
+export interface HiddenChannel {
+  id: string;
+  hiddenAt: number;
+}
+
+export interface HiddenMessagesData {
+  messages: HiddenMessage[];
+}
+
+export interface HiddenChannelsData {
+  channels: HiddenChannel[];
+}
 
 export interface MattermostUser {
   id: string;
@@ -546,6 +567,174 @@ export async function setUserDmPrivacy(userId: string, privacy: DmPrivacyLevel) 
   });
 
   return privacy;
+}
+
+// Hidden Messages Management
+const MAX_HIDDEN_MESSAGES = 500;
+
+export async function getHiddenMessages(userId: string): Promise<HiddenMessagesData> {
+  const user = await getMattermostUserWithProps(userId);
+  const raw = user.props?.[CHAT_HIDDEN_MESSAGES_PROP];
+
+  if (!raw) {
+    return { messages: [] };
+  }
+
+  try {
+    return JSON.parse(raw) as HiddenMessagesData;
+  } catch {
+    return { messages: [] };
+  }
+}
+
+export async function hideMessage(
+  userId: string,
+  postId: string,
+  channelId: string
+): Promise<HiddenMessagesData> {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  const current = await getHiddenMessages(userId);
+
+  // Check if already hidden
+  if (current.messages.some((m) => m.id === postId)) {
+    return current;
+  }
+
+  // Add new hidden message
+  current.messages.push({
+    id: postId,
+    channelId,
+    hiddenAt: Date.now()
+  });
+
+  // Enforce 500 message limit (FIFO)
+  if (current.messages.length > MAX_HIDDEN_MESSAGES) {
+    current.messages.sort((a, b) => a.hiddenAt - b.hiddenAt);
+    current.messages = current.messages.slice(-MAX_HIDDEN_MESSAGES);
+  }
+
+  props[CHAT_HIDDEN_MESSAGES_PROP] = JSON.stringify(current);
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return current;
+}
+
+export async function unhideMessage(userId: string, postId: string): Promise<HiddenMessagesData> {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  const current = await getHiddenMessages(userId);
+
+  // Remove the message
+  current.messages = current.messages.filter((m) => m.id !== postId);
+
+  if (current.messages.length === 0) {
+    delete props[CHAT_HIDDEN_MESSAGES_PROP];
+  } else {
+    props[CHAT_HIDDEN_MESSAGES_PROP] = JSON.stringify(current);
+  }
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return current;
+}
+
+export async function clearAllHiddenMessages(userId: string): Promise<number> {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  const current = await getHiddenMessages(userId);
+  const count = current.messages.length;
+
+  delete props[CHAT_HIDDEN_MESSAGES_PROP];
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return count;
+}
+
+// Hidden Channels Management
+
+export async function getHiddenChannels(userId: string): Promise<HiddenChannelsData> {
+  const user = await getMattermostUserWithProps(userId);
+  const raw = user.props?.[CHAT_HIDDEN_CHANNELS_PROP];
+
+  if (!raw) {
+    return { channels: [] };
+  }
+
+  try {
+    return JSON.parse(raw) as HiddenChannelsData;
+  } catch {
+    return { channels: [] };
+  }
+}
+
+export async function hideChannel(userId: string, channelId: string): Promise<HiddenChannelsData> {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  const current = await getHiddenChannels(userId);
+
+  // Check if already hidden
+  if (current.channels.some((c) => c.id === channelId)) {
+    return current;
+  }
+
+  // Add new hidden channel
+  current.channels.push({
+    id: channelId,
+    hiddenAt: Date.now()
+  });
+
+  props[CHAT_HIDDEN_CHANNELS_PROP] = JSON.stringify(current);
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return current;
+}
+
+export async function unhideChannel(userId: string, channelId: string): Promise<HiddenChannelsData> {
+  const user = await getMattermostUserWithProps(userId);
+  const props = { ...(user.props || {}) };
+
+  const current = await getHiddenChannels(userId);
+
+  // Remove the channel
+  current.channels = current.channels.filter((c) => c.id !== channelId);
+
+  if (current.channels.length === 0) {
+    delete props[CHAT_HIDDEN_CHANNELS_PROP];
+  } else {
+    props[CHAT_HIDDEN_CHANNELS_PROP] = JSON.stringify(current);
+  }
+
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+
+  return current;
 }
 
 /**

@@ -30,7 +30,9 @@ import {
   useMattermostJoinChannel,
   useMattermostPinnedPosts,
   useMattermostPinPost,
-  useMattermostUnpinPost
+  useMattermostUnpinPost,
+  useHideMessage,
+  useHideChannel
 } from "./mattermost-api";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
@@ -71,6 +73,7 @@ import {
   blogSvg,
   deleteForeverSvg,
   dotsHorizontal,
+  eyeOffSvg,
   mailSvg
 } from "@ui/svg";
 import { emojiIconSvg } from "@ui/icons";
@@ -231,6 +234,8 @@ export function MattermostChannelView({ channelId }: Props) {
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
   const [showPinnedModal, setShowPinnedModal] = useState(false);
+  const hideMessageMutation = useHideMessage();
+  const hideChannelMutation = useHideChannel();
   const isSubmitting = sendMutation.isPending || updateMutation.isPending;
   const [openReactionPostId, setOpenReactionPostId] = useState<string | null>(null);
   const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -780,13 +785,6 @@ export function MattermostChannelView({ channelId }: Props) {
     // Wait for initial data to load before checking membership
     if (isLoading) return;
 
-    // Check if user is channel member (only after data has loaded)
-    const channelData = data?.pages?.[0];
-    if (data && focusedPostId && !channelData?.member) {
-      setShowJoinPrompt(true);
-      return;
-    }
-
     // Check if post is already loaded
     const allPosts = data?.pages?.flatMap(page => page?.posts || []) || [];
     const postInView = allPosts.some(post => post.id === focusedPostId);
@@ -799,6 +797,7 @@ export function MattermostChannelView({ channelId }: Props) {
       );
     } else if (!aroundQuery.data && !aroundQuery.isLoading && !needsAroundFetch) {
       // Post not loaded, trigger around fetch
+      // Try to fetch regardless of membership - API will handle authorization
       setNeedsAroundFetch(true);
     }
   }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
@@ -814,6 +813,25 @@ export function MattermostChannelView({ channelId }: Props) {
       setNeedsAroundFetch(false);
     }, 100);
   }, [aroundQuery.data, focusedPostId, scrollToPost]);
+
+  // Handle around query errors (e.g., not a member)
+  useEffect(() => {
+    if (!aroundQuery.error || !focusedPostId) return;
+
+    // Check if error is due to lack of membership
+    const errorMessage = (aroundQuery.error as Error)?.message || '';
+    const isMembershipError =
+      errorMessage.includes('unauthorized') ||
+      errorMessage.includes('forbidden') ||
+      errorMessage.includes('not found') ||
+      errorMessage.includes('403') ||
+      errorMessage.includes('404');
+
+    if (isMembershipError) {
+      setShowJoinPrompt(true);
+      setNeedsAroundFetch(false);
+    }
+  }, [aroundQuery.error, focusedPostId]);
 
   useEffect(() => {
     if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
@@ -1515,6 +1533,19 @@ export function MattermostChannelView({ channelId }: Props) {
     });
   };
 
+  const handleHideMessage = useCallback((postId: string, channelId: string) => {
+    hideMessageMutation.mutate({ postId, channelId });
+  }, [hideMessageMutation]);
+
+  const handleHideChannel = useCallback((channelId: string) => {
+    hideChannelMutation.mutate(channelId, {
+      onSuccess: () => {
+        // Navigate away from hidden channel
+        router.push("/chats");
+      }
+    });
+  }, [hideChannelMutation, router]);
+
   const handleBanUser = (hoursOverride?: number | null) => {
     if (!isEcencyAdmin) return;
 
@@ -2016,6 +2047,27 @@ export function MattermostChannelView({ channelId }: Props) {
                 </div>
               )}
 
+              {/* Channel options dropdown - only for DM channels */}
+              {(channelData?.channel?.type === "D" || directChannelFromList?.type === "D") && (
+                <Dropdown>
+                  <DropdownToggle>
+                    <Button
+                      icon={dotsHorizontal}
+                      size="xs"
+                      appearance="gray-link"
+                      aria-label="Channel options"
+                    />
+                  </DropdownToggle>
+                  <DropdownMenu align="right" size="small">
+                    <DropdownItemWithIcon
+                      icon={eyeOffSvg}
+                      label="Hide conversation"
+                      onClick={() => handleHideChannel(channelId)}
+                    />
+                  </DropdownMenu>
+                </Dropdown>
+              )}
+
               {/* Keyboard shortcuts button */}
               <button
                 type="button"
@@ -2297,6 +2349,7 @@ export function MattermostChannelView({ channelId }: Props) {
               handleDelete={handleDelete}
               handlePinToggle={handlePinToggle}
               toggleReaction={toggleReaction}
+              handleHideMessage={handleHideMessage}
               openReactionPostId={openReactionPostId}
               setOpenReactionPostId={setOpenReactionPostId}
               deletingPostId={deletingPostId}

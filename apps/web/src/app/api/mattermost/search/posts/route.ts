@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
+  getHiddenMessages,
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
@@ -37,7 +38,13 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    const orderedPosts = (order || []).map((id) => posts[id]).filter(Boolean);
+    let orderedPosts = (order || []).map((id) => posts[id]).filter(Boolean);
+
+    // Filter out hidden messages
+    const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
+    const hiddenMessagesData = await getHiddenMessages(currentUser.id);
+    const hiddenMessageIds = new Set(hiddenMessagesData.messages.map((m) => m.id));
+    orderedPosts = orderedPosts.filter((post) => !hiddenMessageIds.has(post.id));
 
     return NextResponse.json({ posts: orderedPosts });
   } catch (error) {

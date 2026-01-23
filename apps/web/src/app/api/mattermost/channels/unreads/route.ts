@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
+  getHiddenChannels,
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
@@ -33,10 +34,16 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [channels, members] = await Promise.all([
+    const [allChannels, members, currentUser] = await Promise.all([
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
-      mmUserFetch<MattermostChannelMember[]>(`/users/me/teams/${teamId}/channels/members`, token)
+      mmUserFetch<MattermostChannelMember[]>(`/users/me/teams/${teamId}/channels/members`, token),
+      mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
+
+    // Filter out hidden channels
+    const hiddenChannelsData = await getHiddenChannels(currentUser.id);
+    const hiddenChannelIds = new Set(hiddenChannelsData.channels.map((c) => c.id));
+    const channels = allChannels.filter((channel) => !hiddenChannelIds.has(channel.id));
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;

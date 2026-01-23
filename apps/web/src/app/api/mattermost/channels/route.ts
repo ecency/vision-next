@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
+  getHiddenChannels,
   handleMattermostError,
+  MattermostUser as ServerMattermostUser,
   mmUserFetch
 } from "@/server/mattermost";
 
@@ -226,7 +228,12 @@ export async function GET() {
       return orderA - orderB;
     });
 
-    return NextResponse.json({ channels: orderedChannels });
+    // Filter out hidden channels
+    const hiddenChannelsData = await getHiddenChannels(currentUser.id);
+    const hiddenChannelIds = new Set(hiddenChannelsData.channels.map((c) => c.id));
+    const visibleChannels = orderedChannels.filter((channel) => !hiddenChannelIds.has(channel.id));
+
+    return NextResponse.json({ channels: visibleChannels });
   } catch (error) {
     return handleMattermostError(error);
   }

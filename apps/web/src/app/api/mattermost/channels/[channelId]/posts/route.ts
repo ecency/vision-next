@@ -7,6 +7,7 @@ import {
   getMattermostCommunityModerationContext,
   getMattermostUserWithProps,
   getUserDmPrivacy,
+  getHiddenMessages,
   handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
@@ -53,6 +54,24 @@ export async function GET(
     // Reduced from 60 to 40 for better performance on invalidation
     // 40 messages = ~2 screens of chat, good balance between UX and data transfer
     const perPage = searchParams.get("per_page") || "40";
+
+    // Auto-join users to public channels when accessing via deep link
+    // This allows sharing channel/message links that work immediately
+    if (around) {
+      try {
+        const channel = await mmUserFetch<MattermostChannel>(`/channels/${channelId}`, token);
+
+        // Only auto-join to public channels (type "O")
+        if (channel.type === "O") {
+          const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
+          await ensureUserInTeam(currentUser.id);
+          await ensureUserInChannel(currentUser.id, channelId);
+        }
+      } catch (error) {
+        // Ignore auto-join errors - if it fails, the subsequent fetch will handle authorization
+        console.error("Auto-join to channel failed:", error);
+      }
+    }
 
     let posts: Record<string, any>;
     let order: string[];
@@ -114,6 +133,12 @@ export async function GET(
         .filter(Boolean)
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
+
+    // Filter out hidden messages
+    const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
+    const hiddenMessagesData = await getHiddenMessages(currentUser.id);
+    const hiddenMessageIds = new Set(hiddenMessagesData.messages.map((m) => m.id));
+    orderedPosts = orderedPosts.filter((post) => !hiddenMessageIds.has(post.id));
 
     // Fetch channel users first, then parallel fetch their statuses
     const channelUsers = await mmUserFetch<MattermostUser[]>(
