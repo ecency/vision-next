@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
-  getHiddenChannels,
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
@@ -40,10 +39,6 @@ export async function GET() {
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
 
-    // Filter out hidden channels
-    const hiddenChannelsData = await getHiddenChannels(currentUser.id);
-    const hiddenChannelIds = new Set(hiddenChannelsData.channels.map((c) => c.id));
-    const channels = allChannels.filter((channel) => !hiddenChannelIds.has(channel.id));
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
@@ -54,7 +49,7 @@ export async function GET() {
     // For N DM channels, makes N requests for member counts
     // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
     const directMemberCounts = await Promise.all(
-      channels
+      allChannels
         .filter((channel) => channel.type === "D")
         .map((channel) => mmUserFetch<MattermostChannelMember>(`/channels/${channel.id}/members/me`, token))
     );
@@ -63,7 +58,7 @@ export async function GET() {
       memberByChannelId[member.channel_id] = member;
     });
 
-    const channelsWithCounts = channels.map((channel) => {
+    const channelsWithCounts = allChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
       const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return {
