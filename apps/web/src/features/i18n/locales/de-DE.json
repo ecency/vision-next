@@ -1198,14 +1198,7 @@
       "followers-only": "Nur Leute, denen ich folge",
       "no-one": "Niemand (deaktiviere DMs)"
     },
-    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert",
-    "hidden-items": {
-      "title": "Versteckte Unterhaltungen",
-      "conversations": "Versteckte Unterhaltungen",
-      "empty-conversations": "Keine versteckten Unterhaltungen",
-      "restore": "Wiederherstellen",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert"
   },
   "wallet": {
     "unclaimed-rewards": "Nicht abgeholte Belohnungen",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Kanal stumm",
     "unmute-channel": "Kanal entmuten",
     "leave-channel": "Kanal verlassen",
+    "leave-conversation": "Gespräch verlassen",
     "no-channels": "Noch keine Kanäle zugewiesen.",
     "no-channels-search": "Keine Kanäle stimmen mit Ihrer Suche überein.",
     "joinable-channels": "Beitrittbare Kanäle",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Nachricht lösen",
     "dm-not-allowed": "@{{username}} akzeptiert keine Nachrichten von Ihnen",
     "dm-followers-only": "Akzeptiert nur DMs von Personen, denen sie folgen",
-    "dm-disabled": "Hat Direktnachrichten deaktiviert",
-    "hide-conversation": "Unterhaltung ausblenden",
-    "conversation-hidden": "Unterhaltung ausgeblendet"
+    "dm-disabled": "Hat Direktnachrichten deaktiviert"
   },
   "add-image": {
     "title": "Bild hinzufügen",
