@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert",
     "hidden-items": {
-      "title": "Versteckte Nachrichten & Unterhaltungen",
+      "title": "Versteckte Unterhaltungen",
       "conversations": "Versteckte Unterhaltungen",
-      "messages": "Versteckte Nachrichten",
       "empty-conversations": "Keine versteckten Unterhaltungen",
-      "empty-messages": "Keine versteckten Nachrichten",
       "restore": "Wiederherstellen",
-      "clear-all": "Alles löschen",
-      "confirm-clear": "Alle versteckten Nachrichten löschen?",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "Community-Chat",
     "public-key": "Öffentlicher Schlüssel",
     "private-key": "Privater Schlüssel",
-    "hide-message": "Nachricht ausblenden",
     "enter-private-key-detail": "Chat-Privatschlüssel eingeben um alle Chats zu importieren",
     "message-search-results": "Nachrichten Suchergebnisse",
     "no-messages-found": "Keine Nachrichten gefunden.",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "Akzeptiert nur DMs von Personen, denen sie folgen",
     "dm-disabled": "Hat Direktnachrichten deaktiviert",
     "hide-conversation": "Unterhaltung ausblenden",
-    "message-hidden": "Nachricht versteckt",
     "conversation-hidden": "Unterhaltung ausgeblendet"
   },
   "add-image": {
