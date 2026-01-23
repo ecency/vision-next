@@ -1198,7 +1198,18 @@
       "followers-only": "Only people I follow",
       "no-one": "No one (disable DMs)"
     },
-    "dm-privacy-updated": "DM privacy settings updated successfully"
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "hidden-items": {
+      "title": "Hidden Messages & Conversations",
+      "conversations": "Hidden Conversations",
+      "messages": "Hidden Messages",
+      "empty-conversations": "No hidden conversations",
+      "empty-messages": "No hidden messages",
+      "restore": "Restore",
+      "clear-all": "Clear All",
+      "confirm-clear": "Clear all hidden messages?",
+      "hidden-at": "Hidden {{time}}"
+    }
   },
   "wallet": {
     "unclaimed-rewards": "Reward yang belum diklaim",
@@ -2179,7 +2190,10 @@
     "unpin-message": "Unpin message",
     "dm-not-allowed": "@{{username}} doesn't accept messages from you",
     "dm-followers-only": "Only accepts DMs from people they follow",
-    "dm-disabled": "Has disabled direct messages"
+    "dm-disabled": "Has disabled direct messages",
+    "hide-conversation": "Hide conversation",
+    "message-hidden": "Message hidden",
+    "conversation-hidden": "Conversation hidden"
   },
   "add-image": {
     "title": "Tambahkan gambar",
