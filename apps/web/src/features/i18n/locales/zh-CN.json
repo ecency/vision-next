@@ -1198,14 +1198,7 @@
       "followers-only": "只有我关注的人",
       "no-one": "没有人(禁用DMs)"
     },
-    "dm-privacy-updated": "已成功更新 DM 隐私设置",
-    "hidden-items": {
-      "title": "隐藏对话",
-      "conversations": "隐藏对话",
-      "empty-conversations": "没有隐藏的对话",
-      "restore": "恢复",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "已成功更新 DM 隐私设置"
   },
   "wallet": {
     "unclaimed-rewards": "未认领的奖励",
@@ -2160,6 +2153,7 @@
     "mute-channel": "静音频道",
     "unmute-channel": "取消静音频道",
     "leave-channel": "离开频道",
+    "leave-conversation": "离开对话",
     "no-channels": "尚未分配频道。",
     "no-channels-search": "没有匹配您搜索的频道。",
     "joinable-channels": "可加入的频道",
@@ -2185,9 +2179,7 @@
     "unpin-message": "取消置顶消息",
     "dm-not-allowed": "@{{username}} doesn't accept messages from you",
     "dm-followers-only": "只接受他们所关注的人的私信",
-    "dm-disabled": "已禁用私信",
-    "hide-conversation": "隐藏对话",
-    "conversation-hidden": "对话已隐藏"
+    "dm-disabled": "已禁用私信"
   },
   "add-image": {
     "title": "添加图像",
