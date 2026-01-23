@@ -1200,14 +1200,10 @@
     },
     "dm-privacy-updated": "DM のプライバシー設定が更新されました",
     "hidden-items": {
-      "title": "隠しメッセージと会話",
+      "title": "非表示の会話",
       "conversations": "非表示の会話",
-      "messages": "隠しメッセージ",
       "empty-conversations": "非表示の会話はありません",
-      "empty-messages": "非表示のメッセージはありません",
       "restore": "復元",
-      "clear-all": "すべてクリア",
-      "confirm-clear": "すべての非表示メッセージを消去しますか？",
       "hidden-at": "Hidden {{time}}"
     }
   },
@@ -2178,7 +2174,6 @@
     "view-community-channel": "コミュニティチャット",
     "public-key": "公開キー",
     "private-key": "Private key",
-    "hide-message": "メッセージを隠す",
     "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
     "message-search-results": "メッセージ検索結果",
     "no-messages-found": "メッセージが見つかりません。",
@@ -2192,7 +2187,6 @@
     "dm-followers-only": "フォローしている人からのDMのみ受け付けます",
     "dm-disabled": "ダイレクトメッセージを無効にする",
     "hide-conversation": "会話を非表示",
-    "message-hidden": "メッセージを非表示",
     "conversation-hidden": "会話を非表示"
   },
   "add-image": {
