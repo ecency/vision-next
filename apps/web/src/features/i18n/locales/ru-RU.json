@@ -1198,7 +1198,18 @@
       "followers-only": "Только подписчики",
       "no-one": "Никто (отключить DMs)"
     },
-    "dm-privacy-updated": "Настройки конфиденциальности ДМ успешно обновлены"
+    "dm-privacy-updated": "Настройки конфиденциальности ДМ успешно обновлены",
+    "hidden-items": {
+      "title": "Скрытые сообщения и беседы",
+      "conversations": "Скрытые разговоры",
+      "messages": "Скрытые сообщения",
+      "empty-conversations": "Нет скрытых сообщений",
+      "empty-messages": "Нет скрытых сообщений",
+      "restore": "Восстановить",
+      "clear-all": "Очистить все",
+      "confirm-clear": "Удалить все скрытые сообщения?",
+      "hidden-at": "Hidden {{time}}"
+    }
   },
   "wallet": {
     "unclaimed-rewards": "Невостребованные награды",
@@ -2179,7 +2190,10 @@
     "unpin-message": "Открепить сообщение",
     "dm-not-allowed": "@{{username}} не принимает от вас сообщения",
     "dm-followers-only": "Принимает СМС только от пользователей, за которыми они следуют",
-    "dm-disabled": "Отключил личные сообщения"
+    "dm-disabled": "Отключил личные сообщения",
+    "hide-conversation": "Скрыть разговор",
+    "message-hidden": "Сообщение скрыто",
+    "conversation-hidden": "Разговор скрыт"
   },
   "add-image": {
     "title": "Добавить изображение",
