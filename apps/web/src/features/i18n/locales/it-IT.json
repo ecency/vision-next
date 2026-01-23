@@ -1198,14 +1198,7 @@
       "followers-only": "Solo le persone che seguo",
       "no-one": "Nessuno (disattiva DM)"
     },
-    "dm-privacy-updated": "Impostazioni privacy DM aggiornate con successo",
-    "hidden-items": {
-      "title": "Conversazioni Nascoste",
-      "conversations": "Conversazioni Nascoste",
-      "empty-conversations": "Nessuna conversazione nascosta",
-      "restore": "Ripristina",
-      "hidden-at": "Hidden {{time}}"
-    }
+    "dm-privacy-updated": "Impostazioni privacy DM aggiornate con successo"
   },
   "wallet": {
     "unclaimed-rewards": "Ricompense non riscosse",
@@ -2160,6 +2153,7 @@
     "mute-channel": "Silenzia canale",
     "unmute-channel": "Riattiva canale",
     "leave-channel": "Lascia il canale",
+    "leave-conversation": "Lascia la conversazione",
     "no-channels": "Nessun canale ancora assegnato.",
     "no-channels-search": "Nessun canale corrisponde alla tua ricerca.",
     "joinable-channels": "Canali unibili",
@@ -2185,9 +2179,7 @@
     "unpin-message": "Sblocca messaggio",
     "dm-not-allowed": "@{{username}} non accetta messaggi da te",
     "dm-followers-only": "Accetta solo DM da persone che seguono",
-    "dm-disabled": "Ha messaggi diretti disabilitati",
-    "hide-conversation": "Nascondi conversazione",
-    "conversation-hidden": "Conversazione nascosta"
+    "dm-disabled": "Ha messaggi diretti disabilitati"
   },
   "add-image": {
     "title": "Aggiungi immagine",
