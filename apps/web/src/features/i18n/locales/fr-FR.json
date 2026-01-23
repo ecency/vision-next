@@ -1198,7 +1198,18 @@
       "followers-only": "Seulement les personnes que je suis",
       "no-one": "Personne (désactiver les DMs)"
     },
-    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès"
+    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès",
+    "hidden-items": {
+      "title": "Messages cachés & Conversations",
+      "conversations": "Conversations masquées",
+      "messages": "Messages cachés",
+      "empty-conversations": "Aucune conversation cachée",
+      "empty-messages": "Aucun message caché",
+      "restore": "Restaurer",
+      "clear-all": "Tout effacer",
+      "confirm-clear": "Effacer tous les messages cachés ?",
+      "hidden-at": "Hidden {{time}}"
+    }
   },
   "wallet": {
     "unclaimed-rewards": "Récompenses non réclamées",
@@ -2179,7 +2190,10 @@
     "unpin-message": "Désépingler le message",
     "dm-not-allowed": "@{{username}} n'accepte pas les messages de votre part",
     "dm-followers-only": "N'accepte que les MP des personnes qu'ils suivent",
-    "dm-disabled": "A désactivé les messages directs"
+    "dm-disabled": "A désactivé les messages directs",
+    "hide-conversation": "Cacher la conversation",
+    "message-hidden": "Message caché",
+    "conversation-hidden": "Conversation cachée"
   },
   "add-image": {
     "title": "Ajouter une image",
