@@ -249,6 +249,16 @@ export function MattermostChannelView({ channelId }: Props) {
   const TYPING_TIMEOUT = 5000; // 5 seconds
   const queryClient = useQueryClient();
   const lastSentPendingIdRef = useRef<string | null>(null);
+  const lastSentMessageRef = useRef<string | null>(null);
+  const lastSentRootIdRef = useRef<string | null>(null);
+  const lastSentAtRef = useRef<number>(0);
+  const confirmedPendingPostIdsRef = useRef<Set<string>>(new Set());
+  const pendingAbortControllerRef = useRef<AbortController | null>(null);
+  const sendMutationRef = useRef(sendMutation);
+
+  useEffect(() => {
+    sendMutationRef.current = sendMutation;
+  }, [sendMutation]);
 
     type GifStyle = {
       width: string;
@@ -684,7 +694,24 @@ export function MattermostChannelView({ channelId }: Props) {
           // Clear input when we get confirmation of our own message via WebSocket
           // Read userId dynamically to avoid recreating WebSocket when channelData changes
           const currentUserId = channelData?.member?.user_id;
-          if (post.user_id === currentUserId && post.pending_post_id === lastSentPendingIdRef.current) {
+          const pendingPostId = post.pending_post_id as string | undefined;
+          const pendingMatch =
+            pendingPostId &&
+            pendingPostId === lastSentPendingIdRef.current &&
+            post.user_id === currentUserId;
+          const fallbackMatch =
+            !pendingPostId &&
+            post.user_id === currentUserId &&
+            lastSentMessageRef.current !== null &&
+            post.message === lastSentMessageRef.current &&
+            (post.root_id ?? null) === (lastSentRootIdRef.current ?? null) &&
+            Math.abs(post.create_at - lastSentAtRef.current) < 30000;
+
+          if (pendingMatch || fallbackMatch) {
+            const confirmedId = lastSentPendingIdRef.current;
+            if (confirmedId) {
+              confirmedPendingPostIdsRef.current.add(confirmedId);
+            }
             setMessage("");
             setUploadedImages([]);
             clearDraft(channelId);
@@ -695,6 +722,14 @@ export function MattermostChannelView({ channelId }: Props) {
             setReplyingTo(null);
             setMessageError(null);
             lastSentPendingIdRef.current = null;
+            lastSentMessageRef.current = null;
+            lastSentRootIdRef.current = null;
+            lastSentAtRef.current = 0;
+            if (pendingAbortControllerRef.current) {
+              pendingAbortControllerRef.current.abort();
+              pendingAbortControllerRef.current = null;
+            }
+            sendMutationRef.current.reset();
             // Refocus input after sending
             requestAnimationFrame(() => {
               messageInputRef.current?.focus();
@@ -1438,18 +1473,38 @@ export function MattermostChannelView({ channelId }: Props) {
 
     // Store pending ID for WebSocket confirmation
     lastSentPendingIdRef.current = pendingPostId;
+    lastSentMessageRef.current = finalMessage;
+    lastSentRootIdRef.current = rootId;
+    lastSentAtRef.current = Date.now();
+    pendingAbortControllerRef.current = new AbortController();
 
     sendMutation.mutate(
-      { message: finalMessage, rootId, props: parentProps, pendingPostId },
+      { message: finalMessage, rootId, props: parentProps, pendingPostId, signal: pendingAbortControllerRef.current.signal },
       {
-        onError: (err) => {
+        onError: (err, variables) => {
+          if (pendingAbortControllerRef.current) {
+            pendingAbortControllerRef.current = null;
+          }
+          const pendingId = variables?.pendingPostId;
+          if (pendingId && confirmedPendingPostIdsRef.current.has(pendingId)) {
+            confirmedPendingPostIdsRef.current.delete(pendingId);
+            sendMutationRef.current.reset();
+            return;
+          }
+          if ((err as Error)?.name === "AbortError") {
+            return;
+          }
           setMessageError((err as Error)?.message || "Unable to send message");
           lastSentPendingIdRef.current = null; // Clear on error
         },
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
+          if (pendingAbortControllerRef.current) {
+            pendingAbortControllerRef.current = null;
+          }
+          const pendingId = variables?.pendingPostId;
           // Only clear input via HTTP if WebSocket is NOT connected
           // WebSocket will handle it via onPosted callback for instant feedback
-          if (!isWebSocketActive) {
+          if (!isWebSocketActive || (pendingId && lastSentPendingIdRef.current === pendingId)) {
             setMessage("");
             setUploadedImages([]); // Clear images
             clearDraft(channelId); // Clear draft after successful send
@@ -1459,6 +1514,10 @@ export function MattermostChannelView({ channelId }: Props) {
             setEmojiStart(null);
             setReplyingTo(null);
             lastSentPendingIdRef.current = null;
+            lastSentMessageRef.current = null;
+            lastSentRootIdRef.current = null;
+            lastSentAtRef.current = 0;
+            confirmedPendingPostIdsRef.current.delete(pendingId ?? "");
             requestAnimationFrame(() => {
               messageInputRef.current?.focus();
             });

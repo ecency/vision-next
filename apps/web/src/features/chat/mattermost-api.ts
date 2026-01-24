@@ -682,17 +682,20 @@ export function useMattermostSendMessage(channelId: string | undefined, options?
         message,
         rootId,
         props,
-        pendingPostId
+        pendingPostId,
+        signal
       }: {
         message: string;
         rootId?: string | null;
         props?: MattermostPostProps;
         pendingPostId?: string;
+        signal?: AbortSignal;
       }) => {
       const res = await fetch(`/api/mattermost/channels/${channelId}/posts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, rootId, props, pendingPostId })
+        body: JSON.stringify({ message, rootId, props, pendingPostId }),
+        signal
       });
 
       if (!res.ok) {
