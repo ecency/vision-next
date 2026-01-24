@@ -163,7 +163,10 @@ export function useMattermostFavoriteChannel() {
       return (await res.json()) as { ok: boolean };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["mattermost-channels"],
+        exact: false
+      });
     }
   });
 }
@@ -187,7 +190,10 @@ export function useMattermostMuteChannel() {
       return (await res.json()) as { ok: boolean };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["mattermost-channels"],
+        exact: false
+      });
     }
   });
 }
@@ -218,7 +224,11 @@ export function useMattermostLeaveChannel() {
       return (await res.json()) as { ok: boolean };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      // Invalidate all mattermost-channels queries (matches ["mattermost-channels", username])
+      await queryClient.invalidateQueries({
+        queryKey: ["mattermost-channels"],
+        exact: false
+      });
     }
   });
 }
@@ -239,9 +249,9 @@ export function useMattermostJoinChannel() {
     },
     onSuccess: async (_data, channelId) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -355,9 +365,9 @@ export function useMattermostAdminDeleteUserPosts() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false })
       ]);
     }
   });
@@ -381,9 +391,9 @@ export function useMattermostAdminDeleteUserDmPosts() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false })
       ]);
     }
   });
@@ -407,10 +417,10 @@ export function useMattermostAdminDeactivateUser() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"], exact: false })
       ]);
     }
   });
@@ -434,10 +444,10 @@ export function useMattermostAdminDeleteUserAccount() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"], exact: false })
       ]);
     }
   });
@@ -466,10 +476,10 @@ export function useMattermostAdminNukeUser() {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-bootstrap"], exact: false })
       ]);
     }
   });
@@ -518,10 +528,10 @@ export function useMattermostMarkChannelViewed() {
     },
     onSuccess: async (_data, channelId) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -676,8 +686,8 @@ export function useMattermostDeletePost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -727,8 +737,8 @@ export function useMattermostSendMessage(channelId: string | undefined, options?
       // Skip invalidation when WebSocket is active - it handles updates via "posted" event
       // This prevents redundant fetches and improves performance
       if (!options?.skipInvalidation) {
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false });
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false });
       }
     }
   });
@@ -753,7 +763,7 @@ export function useMattermostDirectChannel() {
       return (await res.json()) as { channelId: string };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"] });
+      await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false });
     }
   });
 }
@@ -813,8 +823,8 @@ export function useMattermostReactToPost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -841,8 +851,8 @@ export function useMattermostUpdatePost(channelId: string | undefined) {
     onSuccess: () => {
       // Don't await - WebSocket handles real-time updates, this is just a fallback
       // Prevents mutation from staying in pending state while queries invalidate
-      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] });
-      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false });
     }
   });
 }
@@ -879,9 +889,9 @@ export function useMattermostPinPost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -903,9 +913,9 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId] }),
-        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] })
+        queryClient.invalidateQueries({ queryKey: ["mattermost-pinned-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
     }
   });
@@ -948,7 +958,7 @@ export function useUpdateDmPrivacy() {
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["mattermost", "dm-privacy"] });
+      queryClient.invalidateQueries({ queryKey: ["mattermost", "dm-privacy"], exact: false });
     }
   });
 }
