@@ -135,11 +135,37 @@ export async function GET(
     let statusPromise: Promise<void> | null = null;
 
     if (includeOnline) {
-      // Fetch channel users first, then parallel fetch their statuses
-      const channelUsers = await mmUserFetch<MattermostUser[]>(
-        `/users?in_channel=${channelId}&per_page=200&page=0`,
-        token
-      );
+      // Fetch channel users first (paginated), then parallel fetch their statuses
+      const channelUsers: MattermostUser[] = [];
+      const perPage = 200;
+      const maxPages = 5; // Safety cap to avoid oversized status payloads
+      let page = 0;
+
+      while (true) {
+        if (page >= maxPages) {
+          console.warn(
+            `Online status fetch capped at ${maxPages * perPage} users for channel ${channelId}`
+          );
+          break;
+        }
+
+        const pageUsers = await mmUserFetch<MattermostUser[]>(
+          `/users?in_channel=${channelId}&per_page=${perPage}&page=${page}`,
+          token
+        );
+
+        if (pageUsers.length === 0) {
+          break;
+        }
+
+        channelUsers.push(...pageUsers);
+
+        if (pageUsers.length < perPage) {
+          break;
+        }
+
+        page += 1;
+      }
 
       // Fetch status for channel members to determine who is online (parallel with other operations)
       statusPromise = mmUserFetch<{ user_id: string; status: string }[]>(

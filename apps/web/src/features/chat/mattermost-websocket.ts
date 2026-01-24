@@ -482,7 +482,7 @@ export class MattermostWebSocket {
     if (message.data?.post) {
       try {
         const post = JSON.parse(message.data.post) as MattermostPost;
-        this.upsertPostInCaches(channelId, post);
+        this.updatePostInCaches(channelId, post.id, () => post);
       } catch (error) {
         console.error("Failed to parse edited message", error);
         this.queryClient.invalidateQueries({
