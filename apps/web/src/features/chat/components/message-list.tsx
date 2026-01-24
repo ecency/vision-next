@@ -28,6 +28,7 @@ interface MessageListProps {
   channelData?: {
     member?: { user_id: string };
     canModerate?: boolean;
+    channel?: { type?: string };
   };
   activeUser?: { username: string };
   postsById: Map<string, MattermostPost>;

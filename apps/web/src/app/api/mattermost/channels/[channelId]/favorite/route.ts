@@ -19,7 +19,7 @@ interface MattermostChannelCategory {
   channel_ids: string[];
 }
 
-export async function POST(req: NextRequest, { params }: { params: { channelId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ channelId: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
   const { favorite = true } = (await req.json().catch(() => ({}))) as { favorite?: boolean };
 
   try {
+    const { channelId } = await params;
     const currentUser = await mmUserFetch<{ id: string }>(`/users/me`, token);
     const teamId = getMattermostTeamId();
 
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
 
     const updatedCategories = categories.map((category) => ({
       ...category,
-      channel_ids: category.channel_ids.filter((id) => id !== params.channelId)
+      channel_ids: category.channel_ids.filter((id) => id !== channelId)
     }));
 
     if (favorite) {
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
           channel_ids: []
         };
 
-      favCategory.channel_ids = [params.channelId, ...favCategory.channel_ids.filter((id) => id !== params.channelId)];
+      favCategory.channel_ids = [channelId, ...favCategory.channel_ids.filter((id) => id !== channelId)];
 
       if (!favoritesCategory) {
         updatedCategories.push(favCategory);
@@ -93,8 +94,8 @@ export async function POST(req: NextRequest, { params }: { params: { channelId: 
           channel_ids: []
         };
 
-      if (!channelCategory.channel_ids.includes(params.channelId)) {
-        channelCategory.channel_ids = [params.channelId, ...channelCategory.channel_ids];
+      if (!channelCategory.channel_ids.includes(channelId)) {
+        channelCategory.channel_ids = [channelId, ...channelCategory.channel_ids];
       }
 
       if (!channelsCategory) {

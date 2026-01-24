@@ -9,13 +9,13 @@ interface MattermostUser {
   id: string;
 }
 
-export async function POST(_: Request, { params }: { params: { channelId?: string } }) {
+export async function POST(_: Request, { params }: { params: Promise<{ channelId?: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const channelId = params.channelId;
+  const { channelId } = await params;
   if (!channelId) {
     return NextResponse.json({ error: "channelId missing" }, { status: 400 });
   }

@@ -32,6 +32,7 @@ interface MessageItemProps {
   channelData?: {
     member?: { user_id: string };
     canModerate?: boolean;
+    channel?: { type?: string };
   };
   activeUser?: { username: string };
   postsById: Map<string, MattermostPost>;
@@ -417,11 +418,13 @@ export function MessageItem({
                   label="Open thread"
                   onClick={() => openThread(post)}
                 />
-                <DropdownItemWithIcon
-                  icon={linkSvg}
-                  label="Copy link"
-                  onClick={handleCopyLink}
-                />
+                {channelData?.channel?.type !== "D" && (
+                  <DropdownItemWithIcon
+                    icon={linkSvg}
+                    label="Copy link"
+                    onClick={handleCopyLink}
+                  />
+                )}
                 <DropdownItemWithIcon
                   icon={earthSvg}
                   label="Translate"

@@ -5,14 +5,15 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
-export async function POST(_: Request, { params }: { params: { channelId: string } }) {
+export async function POST(_: Request, { params }: { params: Promise<{ channelId: string }> }) {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
-    await mmUserFetch(`/channels/${params.channelId}/leave`, token, { method: "POST" });
+    const { channelId } = await params;
+    await mmUserFetch(`/channels/${channelId}/members/me`, token, { method: "DELETE" });
     return NextResponse.json({ ok: true });
   } catch (error) {
     return handleMattermostError(error);
