@@ -699,8 +699,17 @@ export function useMattermostSendMessage(channelId: string | undefined, options?
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.error || "Unable to send message");
+        let message = "Unable to send message";
+        try {
+          const data = await res.json();
+          message = data?.error || message;
+        } catch {
+          const text = await res.text();
+          if (text) {
+            message = text.startsWith("<") ? "Unable to send message" : text;
+          }
+        }
+        throw new Error(message);
       }
 
       return (await res.json()) as { post: MattermostPost };

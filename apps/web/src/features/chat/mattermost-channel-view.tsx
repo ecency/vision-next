@@ -697,13 +697,13 @@ export function MattermostChannelView({ channelId }: Props) {
           const pendingPostId = post.pending_post_id as string | undefined;
           const pendingMatch =
             pendingPostId &&
-            pendingPostId === lastSentPendingIdRef.current &&
-            post.user_id === currentUserId;
+            pendingPostId === lastSentPendingIdRef.current;
           const fallbackMatch =
             !pendingPostId &&
-            post.user_id === currentUserId &&
+            (!currentUserId || post.user_id === currentUserId) &&
             lastSentMessageRef.current !== null &&
-            post.message === lastSentMessageRef.current &&
+            post.message?.replace(/\r\n/g, "\n") ===
+              lastSentMessageRef.current.replace(/\r\n/g, "\n") &&
             (post.root_id ?? null) === (lastSentRootIdRef.current ?? null) &&
             Math.abs(post.create_at - lastSentAtRef.current) < 30000;
 
