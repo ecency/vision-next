@@ -1577,13 +1577,15 @@ export function MattermostChannelView({ channelId }: Props) {
     setEmojiStart(null);
   };
 
-  const handleDelete = (postId: string) => {
-    if (!channelData?.canModerate) return;
+  const handleDelete = (post: MattermostPost) => {
+    const currentUserId = channelData?.member?.user_id;
+    const canDelete = channelData?.canModerate || (currentUserId && post.user_id === currentUserId);
+    if (!canDelete) return;
     if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
 
     setModerationError(null);
-    setDeletingPostId(postId);
-    deleteMutation.mutate(postId, {
+    setDeletingPostId(post.id);
+    deleteMutation.mutate(post.id, {
       onError: (err) => {
         setModerationError((err as Error)?.message || "Unable to delete message");
         setDeletingPostId(null);

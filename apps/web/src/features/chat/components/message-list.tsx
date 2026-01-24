@@ -44,7 +44,7 @@ interface MessageListProps {
   openThread: (post: MattermostPost) => void;
   handleReply: (post: MattermostPost) => void;
   handleEdit: (post: MattermostPost) => void;
-  handleDelete: (postId: string) => void;
+  handleDelete: (post: MattermostPost) => void;
   handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
 

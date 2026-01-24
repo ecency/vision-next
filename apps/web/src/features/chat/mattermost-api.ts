@@ -202,8 +202,17 @@ export function useMattermostLeaveChannel() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.error || "Unable to leave channel");
+        let message = "Unable to leave channel";
+        try {
+          const data = await res.json();
+          message = data?.error || message;
+        } catch {
+          const text = await res.text();
+          if (text) {
+            message = text.startsWith("<") ? message : text;
+          }
+        }
+        throw new Error(message);
       }
 
       return (await res.json()) as { ok: boolean };
