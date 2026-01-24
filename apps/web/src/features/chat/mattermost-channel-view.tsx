@@ -166,9 +166,11 @@ export function MattermostChannelView({ channelId }: Props) {
   const [isWebSocketActive, setIsWebSocketActive] = useState(true);
   const [reconnectAttempt, setReconnectAttempt] = useState<number | null>(null);
   const [reconnectDelay, setReconnectDelay] = useState<number | null>(null);
+  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
     // Only poll if WebSocket inactive or user scrolled away
-    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false
+    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false,
+    includeOnline: showOnlineUsers
   });
   const searchParams = useSearchParams();
   const shareText = searchParams?.get("text")?.trim();
@@ -242,7 +244,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const websocketRef = useRef<MattermostWebSocket | null>(null);
   const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
   const TYPING_TIMEOUT = 5000; // 5 seconds
@@ -261,6 +262,11 @@ export function MattermostChannelView({ channelId }: Props) {
 
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
+
+  useEffect(() => {
+    if (!showOnlineUsers) return;
+    queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+  }, [showOnlineUsers, channelId, queryClient]);
 
   const posts = useMemo(() => {
     const infinitePosts = data?.pages?.flatMap(page => page.posts) || [];

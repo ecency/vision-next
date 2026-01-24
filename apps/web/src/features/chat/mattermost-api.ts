@@ -130,7 +130,7 @@ export function useMattermostChannels(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-channels", username],
     enabled: enabled && Boolean(username),
-    staleTime: 30 * 1000,
+    staleTime: 120 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     queryFn: async () => {
@@ -473,7 +473,9 @@ export function useMattermostUnread(enabled: boolean) {
   return useQuery({
     queryKey: ["mattermost-unread", username],
     enabled: enabled && Boolean(username),
-    refetchInterval: 30000,
+    refetchInterval: 60000,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels/unreads");
 
@@ -566,12 +568,19 @@ export interface MattermostPostSearchResponse {
   posts: MattermostPost[];
 }
 
-export function useMattermostPosts(channelId: string | undefined) {
+export function useMattermostPosts(
+  channelId: string | undefined,
+  options?: { includeOnline?: boolean }
+) {
   return useQuery({
     queryKey: ["mattermost-posts", channelId],
     enabled: Boolean(channelId),
     queryFn: async () => {
-      const res = await fetch(`/api/mattermost/channels/${channelId}/posts`);
+      const includeOnline = options?.includeOnline ? "include_online=1" : "";
+      const url = includeOnline
+        ? `/api/mattermost/channels/${channelId}/posts?${includeOnline}`
+        : `/api/mattermost/channels/${channelId}/posts`;
+      const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data?.error || "Unable to load messages");
@@ -584,16 +593,17 @@ export function useMattermostPosts(channelId: string | undefined) {
 
 export function useMattermostPostsInfinite(
   channelId: string | undefined,
-  options?: { refetchInterval?: number | false }
+  options?: { refetchInterval?: number | false; includeOnline?: boolean }
 ) {
   return useInfiniteQuery({
     queryKey: ["mattermost-posts-infinite", channelId],
     enabled: Boolean(channelId),
     refetchInterval: options?.refetchInterval ?? false,
     queryFn: async ({ pageParam }) => {
+      const includeOnlineQuery = options?.includeOnline ? "include_online=1" : "";
       const url = pageParam
-        ? `/api/mattermost/channels/${channelId}/posts?before=${pageParam}`
-        : `/api/mattermost/channels/${channelId}/posts`;
+        ? `/api/mattermost/channels/${channelId}/posts?before=${pageParam}${includeOnlineQuery ? `&${includeOnlineQuery}` : ""}`
+        : `/api/mattermost/channels/${channelId}/posts${includeOnlineQuery ? `?${includeOnlineQuery}` : ""}`;
 
       const res = await fetch(url);
       if (!res.ok) {
