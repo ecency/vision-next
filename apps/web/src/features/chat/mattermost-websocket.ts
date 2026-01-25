@@ -721,9 +721,10 @@ export class MattermostWebSocket {
     if (channelId === this.channelId) return;
 
     this.queryClient.setQueriesData<{
-      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number }>;
+      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number }>;
       totalMentions: number;
       totalDMs: number;
+      totalThreads?: number;
       totalUnread: number;
       truncated?: boolean;
     }>({ queryKey: ["mattermost-unread"] }, (data) => {
@@ -751,9 +752,10 @@ export class MattermostWebSocket {
     if (!this.queryClient) return;
 
     this.queryClient.setQueriesData<{
-      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number }>;
+      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number }>;
       totalMentions: number;
       totalDMs: number;
+      totalThreads?: number;
       totalUnread: number;
       truncated?: boolean;
     }>({ queryKey: ["mattermost-unread"] }, (data) => {

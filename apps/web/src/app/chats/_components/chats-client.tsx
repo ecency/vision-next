@@ -120,10 +120,11 @@ export function ChatsClient() {
     return unreadSummary.channels.reduce((acc, channel) => {
       acc.set(channel.channelId, {
         mention_count: channel.mention_count,
-        message_count: channel.message_count
+        message_count: channel.message_count,
+        thread_unread: channel.thread_unread
       });
       return acc;
-    }, new Map<string, { mention_count: number; message_count: number }>());
+    }, new Map<string, { mention_count: number; message_count: number; thread_unread: number }>());
   }, [unreadSummary?.channels]);
 
   const getUnreadCount = useCallback(
@@ -131,8 +132,11 @@ export function ChatsClient() {
       const unreadCounts = unreadByChannelId.get(channel.id);
       const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
       const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
+      const threadCount = unreadCounts?.thread_unread ?? 0;
 
-      return channel.type === "D" ? messageCount : Math.max(messageCount, mentionCount);
+      return channel.type === "D"
+        ? messageCount
+        : Math.max(messageCount, mentionCount) + threadCount;
     },
     [unreadByChannelId]
   );

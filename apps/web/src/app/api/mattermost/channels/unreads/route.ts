@@ -19,6 +19,17 @@ interface MattermostChannelMember {
   msg_count: number;
 }
 
+interface MattermostThread {
+  channel_id: string;
+  unread_replies?: number;
+  unread_mentions?: number;
+}
+
+interface MattermostThreadsResponse {
+  threads: MattermostThread[];
+  total: number;
+}
+
 const PAGE_SIZE = 200;
 const DEFAULT_MAX_PAGES = 2; // Safety cap to avoid long-running unread checks
 const MAX_ALLOWED_PAGES = 2;
@@ -52,6 +63,31 @@ async function fetchAllPages<T>(path: string, token: string, maxPages: number) {
   return { items: results, truncated };
 }
 
+async function fetchAllThreadPages(token: string, teamId: string, maxPages: number) {
+  const results: MattermostThread[] = [];
+  let truncated = false;
+
+  for (let page = 0; page < maxPages; page += 1) {
+    const response = await mmUserFetch<MattermostThreadsResponse>(
+      withPagination(`/users/me/teams/${teamId}/threads`, page),
+      token
+    );
+    const pageItems = response.threads || [];
+    if (!pageItems.length) {
+      break;
+    }
+    results.push(...pageItems);
+    if (pageItems.length < PAGE_SIZE) {
+      break;
+    }
+    if (page === maxPages - 1) {
+      truncated = true;
+    }
+  }
+
+  return { items: results, truncated };
+}
+
 export async function GET() {
   const token = await getMattermostTokenFromCookies();
 
@@ -60,6 +96,7 @@ export async function GET() {
       channels: [],
       totalMentions: 0,
       totalDMs: 0,
+      totalThreads: 0,
       totalUnread: 0
     });
   }
@@ -76,27 +113,33 @@ export async function GET() {
       Math.max(1, parsedMaxPages)
     );
 
-    const [channelsResult, membersResult, currentUser] = await Promise.all([
+    const [channelsResult, membersResult, threadsResult, currentUser] = await Promise.all([
       fetchAllPages<MattermostChannel>("/users/me/channels", token, maxPages),
       fetchAllPages<MattermostChannelMember>(
         `/users/me/teams/${teamId}/channels/members`,
         token,
         maxPages
       ),
+      fetchAllThreadPages(token, teamId, maxPages).catch(() => ({ items: [], truncated: false })),
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
 
     const allChannels = channelsResult.items;
     const members = membersResult.items;
-    const truncated = channelsResult.truncated || membersResult.truncated;
+    const threads = threadsResult.items;
+    const truncated = channelsResult.truncated || membersResult.truncated || threadsResult.truncated;
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
       return acc;
     }, {});
 
-    // NOTE: Avoid per-DM N+1 fetches to prevent timeouts.
-    // Rely on bulk membership data; for any missing entries, counts default to 0.
+    const threadUnreadByChannel = threads.reduce<Record<string, number>>((acc, thread) => {
+      const unreadReplies = thread.unread_replies || 0;
+      if (!unreadReplies) return acc;
+      acc[thread.channel_id] = (acc[thread.channel_id] || 0) + unreadReplies;
+      return acc;
+    }, {});
 
     const channelsWithCounts = allChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
@@ -105,7 +148,8 @@ export async function GET() {
         channelId: channel.id,
         type: channel.type,
         mention_count: member?.mention_count || 0,
-        message_count: unreadMessages
+        message_count: unreadMessages,
+        thread_unread: threadUnreadByChannel[channel.id] || 0
       };
     });
 
@@ -116,6 +160,10 @@ export async function GET() {
     const totalDMs = channelsWithCounts
       .filter((channel) => channel.type === "D")
       .reduce((sum, channel) => sum + channel.message_count, 0);
+
+    const totalThreads = channelsWithCounts
+      .filter((channel) => channel.type !== "D")
+      .reduce((sum, channel) => sum + channel.thread_unread, 0);
 
     if (truncated) {
       Sentry.withScope((scope) => {
@@ -136,7 +184,8 @@ export async function GET() {
       channels: channelsWithCounts,
       totalMentions,
       totalDMs,
-      totalUnread: totalMentions + totalDMs,
+      totalThreads,
+      totalUnread: totalMentions + totalDMs + totalThreads,
       truncated
     });
   } catch (error) {

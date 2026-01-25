@@ -503,6 +503,7 @@ export function useMattermostUnread(enabled: boolean) {
           channels: [],
           totalMentions: 0,
           totalDMs: 0,
+          totalThreads: 0,
           totalUnread: 0,
           truncated: false
         } satisfies MattermostUnreadSummary;
@@ -580,12 +581,14 @@ export interface MattermostUnreadChannel {
   type: string;
   mention_count: number;
   message_count: number;
+  thread_unread: number;
 }
 
 export interface MattermostUnreadSummary {
   channels: MattermostUnreadChannel[];
   totalMentions: number;
   totalDMs: number;
+  totalThreads: number;
   totalUnread: number;
   truncated?: boolean;
 }

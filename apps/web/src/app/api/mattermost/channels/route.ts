@@ -56,6 +56,13 @@ interface MattermostChannelCategory {
   channel_ids: string[];
 }
 
+interface MattermostPreference {
+  user_id: string;
+  category: string;
+  name: string;
+  value: string;
+}
+
 export async function GET() {
   const token = await getMattermostTokenFromCookies();
   if (!token) {
@@ -65,14 +72,15 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [channels, currentUser, channelMembers, categoriesResponse] = await Promise.all([
+    const [channels, currentUser, channelMembers, categoriesResponse, preferences] = await Promise.all([
       mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
       mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token),
       mmUserFetch<{ categories: MattermostChannelCategory[]; order: string[] }>(
         `/users/me/teams/${teamId}/channels/categories`,
         token
-      ).catch(() => ({ categories: [], order: [] }))
+      ).catch(() => ({ categories: [], order: [] })),
+      mmUserFetch<MattermostPreference[]>(`/users/me/preferences`, token).catch(() => [])
     ]);
 
     const categoryOrderIds = categoriesResponse.order && categoriesResponse.order.length
@@ -88,19 +96,41 @@ export async function GET() {
         .find((category) => category.type === "favorites")
         ?.channel_ids || []
     );
+    const directChannelPrefs = new Map(
+      (preferences || [])
+        .filter((pref) => pref.category === "direct_channel_show")
+        .map((pref) => [pref.name, pref.value])
+    );
     const directMessageCategoryIds = new Set(
       (categoriesResponse.categories || [])
         .find((category) => category.type === "direct_messages")
         ?.channel_ids || []
     );
     const hasCategories = (categoriesResponse.categories || []).length > 0;
-    const filteredChannels = hasCategories
-      ? channels.filter((channel) =>
-        channel.type !== "D" ||
-          favoriteIds.has(channel.id) ||
-          directMessageCategoryIds.has(channel.id)
-      )
-      : channels;
+    const filteredChannels = channels.filter((channel) => {
+      if (channel.type !== "D") return true;
+
+      if (hasCategories) {
+        if (favoriteIds.has(channel.id) || directMessageCategoryIds.has(channel.id)) {
+          return true;
+        }
+      }
+
+      const parts = channel.name?.split("__") ?? [];
+      const otherUserId =
+        parts.length === 2
+          ? parts.find((id) => id !== currentUser.id) || parts[0]
+          : undefined;
+
+      if (!otherUserId) return true;
+
+      const prefValue = directChannelPrefs.get(otherUserId);
+      if (prefValue === "false") return false;
+
+      if (hasCategories) return false;
+
+      return true;
+    });
 
     const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
       (acc, member) => {

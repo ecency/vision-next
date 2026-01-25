@@ -131,7 +131,7 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             onClick={() => setShow(false)}
             icon={<UilCommentDots size={16} />}
             badgeContent={unread?.truncated ? undefined : unread?.totalUnread || undefined}
-            dot={unread?.truncated ? false : Boolean(unread?.totalMentions || unread?.totalDMs)}
+            dot={unread?.truncated ? false : Boolean(unread?.totalUnread)}
           />
         </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional
