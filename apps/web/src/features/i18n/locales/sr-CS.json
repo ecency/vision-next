@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Direct Message Privacy",
+      "title": "Chat Privacy",
       "who-can-message": "Who can send you direct messages?",
       "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
       "allow-all": "Everyone",
       "followers-only": "Only people I follow",
       "no-one": "No one (disable DMs)"
     },
-    "dm-privacy-updated": "DM privacy settings updated successfully"
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
     "unclaimed-rewards": "Nepotvrđene nagrade",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
     "leave-conversation": "Leave conversation",
+    "dm-warning-title": "New conversation - Stay safe",
+    "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
+    "dm-warning-settings": "You can update your DM privacy in Settings.",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
