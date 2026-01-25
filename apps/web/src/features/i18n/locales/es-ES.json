@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Privacidad del mensaje directo",
+      "title": "Privacidad del chat",
       "who-can-message": "¿Quién puede enviarte mensajes directos?",
       "description": "Controla quién puede enviarte mensajes directos para prevenir el spam y los intentos de phishing.",
       "allow-all": "Todos",
       "followers-only": "Sólo personas a las que sigo",
       "no-one": "Nadie (desactivar DMs)"
     },
-    "dm-privacy-updated": "Ajustes de privacidad de DM actualizados correctamente"
+    "dm-privacy-updated": "Ajustes de privacidad de DM actualizados correctamente",
+    "dm-privacy-failed": "Error al actualizar la configuración de privacidad DM"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas no reclamadas",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "Dessilenciar canal",
     "leave-channel": "Abandonar canal",
     "leave-conversation": "Dejar conversación",
+    "dm-warning-title": "Nueva conversación - Mantente seguro",
+    "dm-warning-body": "Tenga cuidado con los mensajes de usuarios desconocidos. No haga clic en enlaces sospechosos ni comparta información confidencial como contraseñas o claves privadas. Verifique la identidad del remitente antes de tomar cualquier acción.",
+    "dm-warning-settings": "Puede actualizar su privacidad de DM en Configuración.",
     "no-channels": "No hay canales asignados aún.",
     "no-channels-search": "Ningún canal coincide con tu búsqueda.",
     "joinable-channels": "Canales unificables",
