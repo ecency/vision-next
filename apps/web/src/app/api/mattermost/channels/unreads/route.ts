@@ -5,6 +5,7 @@ import {
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
+import * as Sentry from "@sentry/nextjs";
 
 interface MattermostChannel {
   id: string;
@@ -16,6 +17,39 @@ interface MattermostChannelMember {
   channel_id: string;
   mention_count: number;
   msg_count: number;
+}
+
+const PAGE_SIZE = 200;
+const DEFAULT_MAX_PAGES = 2; // Safety cap to avoid long-running unread checks
+const MAX_ALLOWED_PAGES = 2;
+
+function withPagination(path: string, page: number) {
+  const [base, query] = path.split("?");
+  const params = new URLSearchParams(query ?? "");
+  params.set("page", String(page));
+  params.set("per_page", String(PAGE_SIZE));
+  return `${base}?${params.toString()}`;
+}
+
+async function fetchAllPages<T>(path: string, token: string, maxPages: number) {
+  const results: T[] = [];
+  let truncated = false;
+
+  for (let page = 0; page < maxPages; page += 1) {
+    const pageItems = await mmUserFetch<T[]>(withPagination(path, page), token);
+    if (!pageItems.length) {
+      break;
+    }
+    results.push(...pageItems);
+    if (pageItems.length < PAGE_SIZE) {
+      break;
+    }
+    if (page === maxPages - 1) {
+      truncated = true;
+    }
+  }
+
+  return { items: results, truncated };
 }
 
 export async function GET() {
@@ -33,30 +67,36 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [allChannels, members, currentUser] = await Promise.all([
-      mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
-      mmUserFetch<MattermostChannelMember[]>(`/users/me/teams/${teamId}/channels/members`, token),
+    const rawMaxPages = process.env.MATTERMOST_UNREAD_MAX_PAGES;
+    const parsedMaxPages = Number.isNaN(parseInt(rawMaxPages ?? "", 10))
+      ? DEFAULT_MAX_PAGES
+      : parseInt(rawMaxPages as string, 10);
+    const maxPages = Math.min(
+      MAX_ALLOWED_PAGES,
+      Math.max(1, parsedMaxPages)
+    );
+
+    const [channelsResult, membersResult, currentUser] = await Promise.all([
+      fetchAllPages<MattermostChannel>("/users/me/channels", token, maxPages),
+      fetchAllPages<MattermostChannelMember>(
+        `/users/me/teams/${teamId}/channels/members`,
+        token,
+        maxPages
+      ),
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
 
+    const allChannels = channelsResult.items;
+    const members = membersResult.items;
+    const truncated = channelsResult.truncated || membersResult.truncated;
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
       return acc;
     }, {});
 
-    // NOTE: N+1 pattern - Mattermost API limitation
-    // For N DM channels, makes N requests for member counts
-    // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
-    const directMemberCounts = await Promise.all(
-      allChannels
-        .filter((channel) => channel.type === "D")
-        .map((channel) => mmUserFetch<MattermostChannelMember>(`/channels/${channel.id}/members/me`, token))
-    );
-
-    directMemberCounts.forEach((member) => {
-      memberByChannelId[member.channel_id] = member;
-    });
+    // NOTE: Avoid per-DM N+1 fetches to prevent timeouts.
+    // Rely on bulk membership data; for any missing entries, counts default to 0.
 
     const channelsWithCounts = allChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
@@ -77,11 +117,27 @@ export async function GET() {
       .filter((channel) => channel.type === "D")
       .reduce((sum, channel) => sum + channel.message_count, 0);
 
+    if (truncated) {
+      Sentry.withScope((scope) => {
+        scope.setTag("context", "chat");
+        scope.setLevel("warning");
+        scope.setExtras({
+          userId: currentUser?.id,
+          channelCount: allChannels.length,
+          memberCount: members.length,
+          maxPages,
+          pageSize: PAGE_SIZE
+        });
+        Sentry.captureMessage("Mattermost unreads truncated");
+      });
+    }
+
     return NextResponse.json({
       channels: channelsWithCounts,
       totalMentions,
       totalDMs,
-      totalUnread: totalMentions + totalDMs
+      totalUnread: totalMentions + totalDMs,
+      truncated
     });
   } catch (error) {
     return handleMattermostError(error);

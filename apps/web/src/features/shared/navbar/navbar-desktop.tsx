@@ -88,7 +88,7 @@ export function NavbarDesktop({
                 className="relative"
                 icon={<UilComment width={20} height={20} />}
               />
-              {unread?.totalUnread ? (
+              {!unread?.truncated && unread?.totalUnread ? (
                 <span className="navbar-chat-badge notranslate">
                   {unread.totalUnread}
                 </span>

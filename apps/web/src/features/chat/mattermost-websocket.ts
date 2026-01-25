@@ -725,8 +725,10 @@ export class MattermostWebSocket {
       totalMentions: number;
       totalDMs: number;
       totalUnread: number;
+      truncated?: boolean;
     }>({ queryKey: ["mattermost-unread"] }, (data) => {
       if (!data?.channels) return data;
+      if (data.truncated) return data;
       const channels = data.channels.map((channel) => {
         if (channel.channelId !== channelId) return channel;
         return { ...channel, message_count: channel.message_count + 1 };
@@ -753,8 +755,10 @@ export class MattermostWebSocket {
       totalMentions: number;
       totalDMs: number;
       totalUnread: number;
+      truncated?: boolean;
     }>({ queryKey: ["mattermost-unread"] }, (data) => {
       if (!data?.channels) return data;
+      if (data.truncated) return data;
 
       const target = data.channels.find((channel) => channel.channelId === channelId);
       if (!target) return data;
