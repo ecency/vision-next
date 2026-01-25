@@ -1036,6 +1036,12 @@ export function MattermostChannelView({ channelId }: Props) {
       return;
     }
 
+    // If older pages exist, we may not have loaded the user's reply yet.
+    if (hasNextPage) {
+      setShowDmWarning(false);
+      return;
+    }
+
     // Check if the current user has sent any messages in this DM
     const userHasReplied = posts.some((post) => {
       const isSystem = typeof post.type === "string" && post.type.startsWith("system");
@@ -1044,7 +1050,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
     // Show warning only if user hasn't replied yet
     setShowDmWarning(!userHasReplied);
-  }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, posts]);
+  }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, hasNextPage, posts]);
 
   // Auto-hide warning when user sends a message
   useEffect(() => {

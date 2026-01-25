@@ -5,6 +5,7 @@ import {
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
+import * as Sentry from "@sentry/nextjs";
 
 interface MattermostChannel {
   id: string;
@@ -19,7 +20,8 @@ interface MattermostChannelMember {
 }
 
 const PAGE_SIZE = 200;
-const DEFAULT_MAX_PAGES = 5; // Safety cap to avoid long-running unread checks
+const DEFAULT_MAX_PAGES = 2; // Safety cap to avoid long-running unread checks
+const MAX_ALLOWED_PAGES = 2;
 
 function withPagination(path: string, page: number) {
   const [base, query] = path.split("?");
@@ -65,9 +67,13 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const maxPages = Math.max(
-      1,
-      Number(process.env.MATTERMOST_UNREAD_MAX_PAGES ?? DEFAULT_MAX_PAGES)
+    const rawMaxPages = process.env.MATTERMOST_UNREAD_MAX_PAGES;
+    const parsedMaxPages = Number.isNaN(parseInt(rawMaxPages ?? "", 10))
+      ? DEFAULT_MAX_PAGES
+      : parseInt(rawMaxPages as string, 10);
+    const maxPages = Math.min(
+      MAX_ALLOWED_PAGES,
+      Math.max(1, parsedMaxPages)
     );
 
     const [channelsResult, membersResult, currentUser] = await Promise.all([
@@ -110,6 +116,21 @@ export async function GET() {
     const totalDMs = channelsWithCounts
       .filter((channel) => channel.type === "D")
       .reduce((sum, channel) => sum + channel.message_count, 0);
+
+    if (truncated) {
+      Sentry.withScope((scope) => {
+        scope.setTag("context", "chat");
+        scope.setLevel("warning");
+        scope.setExtras({
+          userId: currentUser?.id,
+          channelCount: allChannels.length,
+          memberCount: members.length,
+          maxPages,
+          pageSize: PAGE_SIZE
+        });
+        Sentry.captureMessage("Mattermost unreads truncated");
+      });
+    }
 
     return NextResponse.json({
       channels: channelsWithCounts,
