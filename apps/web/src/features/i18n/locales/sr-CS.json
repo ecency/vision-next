@@ -296,7 +296,7 @@
     "description": "Freespeech, True ownership, Financial freedom!",
     "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
     "bottom-description": "One account, one wallet to manage everything on Blockchain.",
-    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Learn more about benefits in our <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Izaberite korisničko ime",
     "email": "Unesite svoju e-mail adresu",
     "ref": "Preporučeni korisnik (opcionalno)",
@@ -864,6 +864,8 @@
     "muted-warning": "This content was muted by {{community}} moderators for not following community guidelines.",
     "lowrep-warning": "Author of this content has low reputation.",
     "deleted-content-warning": "This content was deleted by the author. You can see it from Blockchain ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "Author of this post is muted by you.",
     "address-copy": "Copy link",
     "address-copied": "Link copied to clipboard",
@@ -1077,7 +1079,9 @@
     "go-community": "Community page",
     "com-mod": "Moderator of these communities",
     "empty-communities": "No communities here",
-    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own",
+    "dm-followers-only": "DMs: followers only",
+    "dm-disabled": "DMs: disabled"
   },
   "profile-info": {
     "joined": "Joined",
@@ -1131,7 +1135,7 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "check-faq": "Learn more about RC in our",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Insufficient resource credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1188,18 @@
     "permissions-title": "Keys & permissions",
     "permissions-hint": "Manage your keys, control permissions over applications",
     "permissions": "Open permissions"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Chat Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
     "unclaimed-rewards": "Nepotvrđene nagrade",
@@ -2138,6 +2154,10 @@
     "mute-channel": "Mute channel",
     "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
+    "leave-conversation": "Leave conversation",
+    "dm-warning-title": "New conversation - Stay safe",
+    "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
+    "dm-warning-settings": "You can update your DM privacy in Settings.",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
@@ -2152,7 +2172,6 @@
     "view-community-channel": "Community chat",
     "public-key": "Public key",
     "private-key": "Private key",
-    "hide-message": "Hide message",
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
@@ -2161,7 +2180,10 @@
     "translate-target-language": "Target language",
     "pinned-messages": "Pinned messages",
     "pin-message": "Pin message",
-    "unpin-message": "Unpin message"
+    "unpin-message": "Unpin message",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "Only accepts DMs from people they follow",
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "Add Image",
@@ -3033,6 +3055,7 @@
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
+      "convert": "Convert",
       "delegate": "Delegate",
       "withdraw-saving": "Withdraw routes",
       "gift": "Gift",

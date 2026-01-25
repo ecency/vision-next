@@ -296,7 +296,7 @@
     "description": "Liberdade de expressão, Propriedade verdadeira e Liberdade financeira!",
     "description-2": "A Colméia fortalece muitos aplicativos e é rodada completamente descentralizada por membros da comunidade ao redor do mundo. Com uma conta, você tem acesso direto ao ecossistema.",
     "bottom-description": "Uma conta. Uma carteira. Tudo na Blockchain.",
-    "learn-more": "Saiba mais sobre benefícios em nossa <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Aprenda mais sobre benefícios acessando nossas <a href=\"/faq#how-to-join\">Perguntas Frequentes</a>",
     "username": "Escolha um nome de usuário",
     "email": "Insira o seu email",
     "ref": "Usuário referenciado (opcional)",
@@ -864,6 +864,8 @@
     "muted-warning": "Este conteúdo foi silenciado pelos moderadores da {{community}} por não seguir as diretrizes da comunidade.",
     "lowrep-warning": "O autor desse conteúdo tem uma baixa reputação.",
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
+    "deleted-content": "Esta publicação foi excluída por {{author}}",
+    "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
     "comments-hidden": "O autor desta publicação foi silenciado por você.",
     "address-copy": "Copiar link",
     "address-copied": "Link copiado para a área de transferência",
@@ -1077,7 +1079,9 @@
     "go-community": "Página da comunidade",
     "com-mod": "Moderador dessas comunidades",
     "empty-communities": "Nenhuma comunidade aqui",
-    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade"
+    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade",
+    "dm-followers-only": "DMs: apenas seguidores",
+    "dm-disabled": "Dados: desativado"
   },
   "profile-info": {
     "joined": "Entrou",
@@ -1131,7 +1135,7 @@
     "confirm": "Confirmar",
     "cancel": "Cancelar",
     "check-faq": "Saiba mais sobre CR no nosso",
-    "learn-more": "https://docs.ecency.com/pt/hive/resource-credits/",
+    "learn-more": "/faq#oque-sao-cr",
     "faq-link": "Perguntas Frequentes",
     "insufficient-rc-error": "Créditos de recursos insuficientes",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1188,18 @@
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
     "permissions": "Abrir permissões"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacidade do Bate-papo",
+      "who-can-message": "Quem pode te enviar mensagens diretas?",
+      "description": "Controle quem pode enviar-lhe mensagens diretas para evitar tentativas de spam e phishing.",
+      "allow-all": "Todos",
+      "followers-only": "Somente pessoas que sigo",
+      "no-one": "Ninguém (desativar DMs)"
+    },
+    "dm-privacy-updated": "Configurações de privacidade DM atualizadas com sucesso",
+    "dm-privacy-failed": "Falha ao atualizar as configurações de privacidade de DM"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas não reclamadas",
@@ -2138,6 +2154,10 @@
     "mute-channel": "Silenciar canal",
     "unmute-channel": "Reativar canal",
     "leave-channel": "Sair do canal",
+    "leave-conversation": "Sair da conversa",
+    "dm-warning-title": "Nova conversa - Fique seguro",
+    "dm-warning-body": "Tenha cuidado com mensagens de usuários desconhecidos. Não clique em links suspeitos ou compartilhe informações confidenciais como senhas ou chaves privadas. Verifique a identidade do remetente antes de tomar qualquer ação.",
+    "dm-warning-settings": "Você pode atualizar sua privacidade de DM em Configurações.",
     "no-channels": "Nenhum canal atribuído ainda.",
     "no-channels-search": "Nenhum canal corresponde à sua pesquisa.",
     "joinable-channels": "Canais de inscrições",
@@ -2152,7 +2172,6 @@
     "view-community-channel": "View community channel",
     "public-key": "Chave pública",
     "private-key": "Chave privada",
-    "hide-message": "Ocultar mensagem",
     "enter-private-key-detail": "Introduza a chave privada para importar todas as conversas",
     "message-search-results": "Resultados da pesquisa de mensagens",
     "no-messages-found": "Nenhuma mensagem encontrada.",
@@ -2161,7 +2180,10 @@
     "translate-target-language": "Idioma alvo",
     "pinned-messages": "Mensagens fixadas",
     "pin-message": "Fixar mensagem",
-    "unpin-message": "Desafixar mensagem"
+    "unpin-message": "Desafixar mensagem",
+    "dm-not-allowed": "@{{username}} não aceita mensagens suas",
+    "dm-followers-only": "Só aceita DMs de pessoas que elas seguem",
+    "dm-disabled": "Tem mensagens diretas desabilitadas"
   },
   "add-image": {
     "title": "Adicionar imagem",
@@ -3033,6 +3055,7 @@
       "power-up": "Aumentar o Poder",
       "power-down": "Desligamento automático",
       "swap": "Trocar",
+      "convert": "Converter",
       "delegate": "Delegar",
       "withdraw-saving": "Rotas de retirada",
       "gift": "Presente",

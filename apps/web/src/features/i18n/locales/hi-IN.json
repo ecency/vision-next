@@ -296,7 +296,7 @@
     "description": "मुक्त भाषण, सच्चा स्वामित्व, वित्तीय स्वतंत्रता!",
     "description-2": "हाइव कई ऐप्स को संचालित करता है और दुनिया भर के समुदाय के सदस्यों द्वारा पूरी तरह से विकेंद्रीकृत रूप से चलाया जाता है। एक खाते के साथ, आपको पूरे पारिस्थितिकी तंत्र तक सीधी पहुँच मिलती है।",
     "bottom-description": "ब्लॉकचेन पर सब कुछ प्रबंधित करने के लिए एक खाता, एक वॉलेट।",
-    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "हमारे <a href=\"/faq#how-to-join\">FAQ</a> में लाभों के बारे में अधिक जानें",
     "username": "प्रयोक्ता नाम उठाओ",
     "email": "अपना ईमेल पता दर्ज करें",
     "ref": "संदर्भित उपयोगकर्ता (वैकल्पिक)",
@@ -864,6 +864,8 @@
     "muted-warning": "समुदाय दिशानिर्देशों का पालन न करने के कारण इस सामग्री को {{community}} मॉडरेटर द्वारा म्यूट कर दिया गया था।",
     "lowrep-warning": "इस सामग्री के लेखक की प्रतिष्ठा कम है।",
     "deleted-content-warning": "यह सामग्री लेखक द्वारा हटा दी गई है। आप इसे ब्लॉकचेन पर देख सकते हैं। ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
     "comments-hidden": "इस पोस्ट के लेखक को आपने म्यूट कर दिया है।",
     "address-copy": "लिंक की प्रतिलिपि करें",
     "address-copied": "लिंक को क्लिपबोर्ड पर कॉपी किया गया",
@@ -1077,7 +1079,9 @@
     "go-community": "समुदाय पृष्ठ",
     "com-mod": "इन समुदायों के मॉडरेटर",
     "empty-communities": "यहाँ कोई समुदाय नहीं है",
-    "empty-communities-hint": "उपयोगकर्ता अभी तक किसी भी समुदाय का सदस्य नहीं है। किसी एक समुदाय में शामिल हों या अपना खुद का समुदाय बनाएँ"
+    "empty-communities-hint": "उपयोगकर्ता अभी तक किसी भी समुदाय का सदस्य नहीं है। किसी एक समुदाय में शामिल हों या अपना खुद का समुदाय बनाएँ",
+    "dm-followers-only": "DMs: followers only",
+    "dm-disabled": "DMs: disabled"
   },
   "profile-info": {
     "joined": "शामिल हो गए हैं",
@@ -1131,7 +1135,7 @@
     "confirm": "पुष्टि करना",
     "cancel": "रद्द करना",
     "check-faq": "आरसी के बारे में अधिक जानें",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/अक्सर पूछे जाने वाले प्रश्न#आरसी क्या हैं",
     "faq-link": "अकसर किये गए सवाल",
     "insufficient-rc-error": "अपर्याप्त संसाधन क्रेडिट",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1188,18 @@
     "permissions-title": "कुंजियाँ और अनुमतियाँ",
     "permissions-hint": "अपनी कुंजियाँ प्रबंधित करें, एप्लिकेशन पर अनुमतियों को नियंत्रित करें",
     "permissions": "खुली अनुमतियाँ"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Chat Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
     "unclaimed-rewards": "दावा न किए गए पुरस्कार",
@@ -2138,6 +2154,10 @@
     "mute-channel": "Mute channel",
     "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
+    "leave-conversation": "Leave conversation",
+    "dm-warning-title": "New conversation - Stay safe",
+    "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
+    "dm-warning-settings": "You can update your DM privacy in Settings.",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
@@ -2152,7 +2172,6 @@
     "view-community-channel": "Community chat",
     "public-key": "Public key",
     "private-key": "Private key",
-    "hide-message": "Hide message",
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
@@ -2161,7 +2180,10 @@
     "translate-target-language": "Target language",
     "pinned-messages": "Pinned messages",
     "pin-message": "Pin message",
-    "unpin-message": "Unpin message"
+    "unpin-message": "Unpin message",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "Only accepts DMs from people they follow",
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "छवि जोड़ें",
@@ -3033,6 +3055,7 @@
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
+      "convert": "Convert",
       "delegate": "Delegate",
       "withdraw-saving": "Withdraw routes",
       "gift": "Gift",

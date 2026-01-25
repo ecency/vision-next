@@ -296,7 +296,7 @@
     "description": "¡Libertad de Expresión, Verdadera propiedad de contenidos, Libertad financiera!",
     "description-2": "Hive provee muchas aplicaciones y está completamente descentralizada por miembros de la comunidad de todo el mundo. Con una cuenta, usted tiene acceso directo al ecosistema.",
     "bottom-description": "Una cuenta, una cartera para gestionar todo en Blockchain.",
-    "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"https://docs.ecency.com/guides/create-account/\">Preguntas frecuentes FAQ</a>",
+    "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"/faq#how-to-join\">Preguntas frecuentes</a>",
     "username": "Elige un nombre de usuario",
     "email": "Ingresa tu dirección de email",
     "ref": "Usuario Referido (Opcional)",
@@ -864,6 +864,8 @@
     "muted-warning": "Este contenido fue silenciado por los moderadores de {{community}} por no seguir las pautas de la comunidad.",
     "lowrep-warning": "El autor de este contenido tiene poca reputación.",
     "deleted-content-warning": "Este contenido fue eliminado por el autor. Puedes verlo desde la Blockchain ",
+    "deleted-content": "Esta publicación fue eliminada por {{author}}",
+    "deleted-no-history": "El historial de contenido eliminado no está disponible en la blockchain.",
     "comments-hidden": "Silenciaste al autor de esta publicación.",
     "address-copy": "Copiar enlace",
     "address-copied": "Enlace copiado al portapapeles",
@@ -1077,7 +1079,9 @@
     "go-community": "Página de la comunidad",
     "com-mod": "Moderador de estas comunidades",
     "empty-communities": "No hay comunidades aquí",
-    "empty-communities-hint": "El usuario aún no es miembro de ninguna comunidad. Únete a una de las comunidades o crea la tuya propia"
+    "empty-communities-hint": "El usuario aún no es miembro de ninguna comunidad. Únete a una de las comunidades o crea la tuya propia",
+    "dm-followers-only": "DMs: sólo seguidores",
+    "dm-disabled": "DMs: desactivado"
   },
   "profile-info": {
     "joined": "Se unió",
@@ -1184,6 +1188,18 @@
     "permissions-title": "Claves y permisos",
     "permissions-hint": "Administra tus claves, controla los permisos sobre las aplicaciones",
     "permissions": "Permisos abiertos"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacidad del chat",
+      "who-can-message": "¿Quién puede enviarte mensajes directos?",
+      "description": "Controla quién puede enviarte mensajes directos para prevenir el spam y los intentos de phishing.",
+      "allow-all": "Todos",
+      "followers-only": "Sólo personas a las que sigo",
+      "no-one": "Nadie (desactivar DMs)"
+    },
+    "dm-privacy-updated": "Ajustes de privacidad de DM actualizados correctamente",
+    "dm-privacy-failed": "Error al actualizar la configuración de privacidad DM"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas no reclamadas",
@@ -2138,6 +2154,10 @@
     "mute-channel": "Silenciar canal",
     "unmute-channel": "Dessilenciar canal",
     "leave-channel": "Abandonar canal",
+    "leave-conversation": "Dejar conversación",
+    "dm-warning-title": "Nueva conversación - Mantente seguro",
+    "dm-warning-body": "Tenga cuidado con los mensajes de usuarios desconocidos. No haga clic en enlaces sospechosos ni comparta información confidencial como contraseñas o claves privadas. Verifique la identidad del remitente antes de tomar cualquier acción.",
+    "dm-warning-settings": "Puede actualizar su privacidad de DM en Configuración.",
     "no-channels": "No hay canales asignados aún.",
     "no-channels-search": "Ningún canal coincide con tu búsqueda.",
     "joinable-channels": "Canales unificables",
@@ -2152,7 +2172,6 @@
     "view-community-channel": "Ver canal comunitario",
     "public-key": "Clave pública",
     "private-key": "Clave privada",
-    "hide-message": "Ocultar mensaje",
     "enter-private-key-detail": "Introduzca la clave privada del chat para importar todos los chats",
     "message-search-results": "Resultados de búsqueda de mensajes",
     "no-messages-found": "No se encontraron mensajes.",
@@ -2161,7 +2180,10 @@
     "translate-target-language": "Idioma destino",
     "pinned-messages": "Mensajes Anclados",
     "pin-message": "Anclar mensaje",
-    "unpin-message": "Desanclar mensaje"
+    "unpin-message": "Desanclar mensaje",
+    "dm-not-allowed": "@{{username}} no acepta mensajes tuyos",
+    "dm-followers-only": "Sólo acepta DMs de personas a las que siguen",
+    "dm-disabled": "Ha deshabilitado mensajes directos"
   },
   "add-image": {
     "title": "Añadir imagen",
@@ -3033,6 +3055,7 @@
       "power-up": "Power Up (Potenciar)",
       "power-down": "Power Down (Apagado)",
       "swap": "Intercambiar",
+      "convert": "Convertir",
       "delegate": "Delegado",
       "withdraw-saving": "Rutas de Retiro",
       "gift": "Regalo",
