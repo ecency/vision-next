@@ -110,12 +110,7 @@ export async function GET() {
     const filteredChannels = channels.filter((channel) => {
       if (channel.type !== "D") return true;
 
-      if (hasCategories) {
-        if (favoriteIds.has(channel.id) || directMessageCategoryIds.has(channel.id)) {
-          return true;
-        }
-      }
-
+      // Extract the other user ID from channel name first
       const parts = channel.name?.split("__") ?? [];
       const otherUserId =
         parts.length === 2
@@ -124,10 +119,18 @@ export async function GET() {
 
       if (!otherUserId) return true;
 
+      // Check direct_channel_show preference FIRST (takes precedence over categories)
       const prefValue = directChannelPrefs.get(otherUserId);
       if (prefValue === "false") return false;
 
-      if (hasCategories) return false;
+      // Then check category membership
+      if (hasCategories) {
+        if (favoriteIds.has(channel.id) || directMessageCategoryIds.has(channel.id)) {
+          return true;
+        }
+        // If we have categories but the channel is not in any, hide it
+        return false;
+      }
 
       return true;
     });
