@@ -22,13 +22,20 @@ export async function POST(_: Request, { params }: { params: Promise<{ channelId
 
     if (channel.type === "D") {
       // Mattermost "Close conversation" for DMs is a preference update, not a leave.
+      // Extract the other user's ID from the channel name (format: userId1__userId2)
+      const parts = channel.name?.split("__") ?? [];
+      const otherUserId =
+        parts.length === 2
+          ? parts.find((id) => id !== currentUser.id) || parts[0]
+          : channelId; // Fallback to channelId if parsing fails
+
       await mmUserFetch(`/users/${currentUser.id}/preferences`, token, {
         method: "PUT",
         body: JSON.stringify([
           {
             user_id: currentUser.id,
             category: "direct_channel_show",
-            name: channelId,
+            name: otherUserId,
             value: "false"
           }
         ])
