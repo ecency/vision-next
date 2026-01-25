@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Confidentialité du message direct",
+      "title": "Confidentialité du chat",
       "who-can-message": "Qui peut vous envoyer des messages directs ?",
       "description": "Contrôlez qui peut vous envoyer des messages directs pour prévenir les tentatives de spam et d'hameçonnage.",
       "allow-all": "Tout le monde",
       "followers-only": "Seulement les personnes que je suis",
       "no-one": "Personne (désactiver les DMs)"
     },
-    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès"
+    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès",
+    "dm-privacy-failed": "Impossible de mettre à jour les paramètres de confidentialité du DM"
   },
   "wallet": {
     "unclaimed-rewards": "Récompenses non réclamées",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "Démuter le canal",
     "leave-channel": "Quitter le canal",
     "leave-conversation": "Quitter la conversation",
+    "dm-warning-title": "Nouvelle conversation - Restez en sécurité",
+    "dm-warning-body": "Soyez prudent avec les messages d'utilisateurs inconnus. Ne cliquez pas sur des liens suspects ou ne partagez pas des informations sensibles comme des mots de passe ou des clés privées. Vérifiez l'identité de l'expéditeur avant de prendre des mesures.",
+    "dm-warning-settings": "Vous pouvez mettre à jour la confidentialité de vos DM dans les paramètres.",
     "no-channels": "Aucune chaîne assignée pour le moment.",
     "no-channels-search": "Aucune chaîne ne correspond à votre recherche.",
     "joinable-channels": "Chaînes joignables",
