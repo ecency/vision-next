@@ -181,24 +181,17 @@ export async function GET() {
     const channelsWithCounts = channelsWithDirectUsers.map((channel) => ({
       ...channel,
       is_favorite: favoriteIds.has(channel.id),
-      is_muted:
-        (channel.type === "D"
-          ? directMemberCounts[channel.id]?.notify_props?.mark_unread
-          : channelMembersById[channel.id]?.notify_props?.mark_unread) === "mention",
+      is_muted: channelMembersById[channel.id]?.notify_props?.mark_unread === "mention",
       mention_count:
-        directMemberCounts[channel.id]?.mention_count ||
         channelMembersById[channel.id]?.mention_count ||
         channel.mention_count ||
         0,
       message_count:
         channel.type === "D"
-          ? Math.max((channel.total_msg_count || 0) - (directMemberCounts[channel.id]?.msg_count || 0), 0)
+          ? Math.max((channel.total_msg_count || 0) - (channelMembersById[channel.id]?.msg_count || 0), 0)
           : channel.message_count || 0,
       order: channelOrderFromCategories.get(channel.id),
-      last_viewed_at:
-        channel.type === "D"
-          ? directMemberCounts[channel.id]?.last_viewed_at
-          : channelMembersById[channel.id]?.last_viewed_at
+      last_viewed_at: channelMembersById[channel.id]?.last_viewed_at
     }));
 
     const orderedChannels = [...channelsWithCounts].sort((a, b) => {
