@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Privacy directe berichten",
+      "title": "Privacy chatten",
       "who-can-message": "Wie kan je privéberichten sturen?",
       "description": "Bepaal wie u rechtstreeks berichten kan sturen om spam en phishing pogingen te voorkomen.",
       "allow-all": "Iedereen",
       "followers-only": "Alleen mensen die ik volg",
       "no-one": "Niemand (DMs) uitschakelen"
     },
-    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt"
+    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt",
+    "dm-privacy-failed": "Bijwerken DM privacy-instellingen mislukt"
   },
   "wallet": {
     "unclaimed-rewards": "Niet opgeëiste beloningen",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "Kanaal inschakelen",
     "leave-channel": "Kanaal verlaten",
     "leave-conversation": "Gesprek verlaten",
+    "dm-warning-title": "Nieuw gesprek - Blijf veilig",
+    "dm-warning-body": "Wees voorzichtig met berichten van onbekende gebruikers. Klik niet op verdachte koppelingen of deel gevoelige informatie zoals wachtwoorden of privésleutels. Verifieer de identiteit van de afzender voordat u actie onderneemt.",
+    "dm-warning-settings": "U kunt uw DM privacy bijwerken in Instellingen.",
     "no-channels": "Nog geen kanalen toegewezen.",
     "no-channels-search": "Geen kanalen gevonden die overeenkomen met uw zoekopdracht.",
     "joinable-channels": "Kanalen inschrijven",
