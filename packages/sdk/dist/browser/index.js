@@ -1106,24 +1106,29 @@ function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
         return [];
       }
       let filters;
-      switch (group) {
-        case "transfers":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
-          break;
-        case "market-orders":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
-          break;
-        case "interests":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
-          break;
-        case "stake-operations":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
-          break;
-        case "rewards":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
-          break;
-        default:
-          filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+      try {
+        switch (group) {
+          case "transfers":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
+            break;
+          case "market-orders":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
+            break;
+          case "interests":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
+            break;
+          case "stake-operations":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
+            break;
+          case "rewards":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
+            break;
+          default:
+            filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+        }
+      } catch (error) {
+        console.warn("BigInt not supported, using client-side filtering", error);
+        filters = void 0;
       }
       const response = await (filters ? CONFIG.hiveClient.call("condenser_api", "get_account_history", [
         username,
