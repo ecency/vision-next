@@ -107,14 +107,17 @@ export async function POST(req: Request) {
 
     let channelId: string | null = null;
     try {
-        // Parallelize channel membership creation - CRITICAL for performance
-        // Sequential: 50 subscriptions = 50s, Parallel: 50 subscriptions = 1-2s
+        // Ensure channels exist for subscribed communities, but DON'T force membership
+        // This prevents auto-rejoining users to channels they've explicitly left
+        // Parallelize channel creation - CRITICAL for performance
         const channelPromises = Array.from(uniqueCommunityIds).map(
           async ([communityId, title]) => {
+            // autoJoin = false: only ensure channel exists, don't force user membership
             const ensuredChannelId = await ensureCommunityChannelMembership(
               user.id,
               communityId,
-              title
+              title,
+              false // Don't auto-join - users will join manually
             );
             return { communityId, channelId: ensuredChannelId };
           }
@@ -127,12 +130,14 @@ export async function POST(req: Request) {
           const found = channelResults.find((r) => r.communityId === community);
           channelId = found?.channelId || null;
 
-          // If not found in subscriptions, create it separately
+          // If not found in subscriptions, create it and join the user
           if (!channelId) {
+            // For explicitly requested community, DO auto-join
             channelId = await ensureCommunityChannelMembership(
               user.id,
               community,
-              communityTitle || displayName || community
+              communityTitle || displayName || community,
+              true // Auto-join for explicitly requested community
             );
           }
         }
