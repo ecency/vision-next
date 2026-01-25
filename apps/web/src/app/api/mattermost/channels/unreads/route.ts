@@ -18,6 +18,34 @@ interface MattermostChannelMember {
   msg_count: number;
 }
 
+const PAGE_SIZE = 200;
+const MAX_PAGES = 5; // Safety cap to avoid long-running unread checks
+
+function withPagination(path: string, page: number) {
+  const [base, query] = path.split("?");
+  const params = new URLSearchParams(query ?? "");
+  params.set("page", String(page));
+  params.set("per_page", String(PAGE_SIZE));
+  return `${base}?${params.toString()}`;
+}
+
+async function fetchAllPages<T>(path: string, token: string) {
+  const results: T[] = [];
+
+  for (let page = 0; page < MAX_PAGES; page += 1) {
+    const pageItems = await mmUserFetch<T[]>(withPagination(path, page), token);
+    if (!pageItems.length) {
+      break;
+    }
+    results.push(...pageItems);
+    if (pageItems.length < PAGE_SIZE) {
+      break;
+    }
+  }
+
+  return results;
+}
+
 export async function GET() {
   const token = await getMattermostTokenFromCookies();
 
@@ -34,29 +62,18 @@ export async function GET() {
     const teamId = getMattermostTeamId();
 
     const [allChannels, members, currentUser] = await Promise.all([
-      mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
-      mmUserFetch<MattermostChannelMember[]>(`/users/me/teams/${teamId}/channels/members`, token),
+      fetchAllPages<MattermostChannel>("/users/me/channels", token),
+      fetchAllPages<MattermostChannelMember>(`/users/me/teams/${teamId}/channels/members`, token),
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
-
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
       return acc;
     }, {});
 
-    // NOTE: N+1 pattern - Mattermost API limitation
-    // For N DM channels, makes N requests for member counts
-    // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
-    const directMemberCounts = await Promise.all(
-      allChannels
-        .filter((channel) => channel.type === "D")
-        .map((channel) => mmUserFetch<MattermostChannelMember>(`/channels/${channel.id}/members/me`, token))
-    );
-
-    directMemberCounts.forEach((member) => {
-      memberByChannelId[member.channel_id] = member;
-    });
+    // NOTE: Avoid per-DM N+1 fetches to prevent timeouts.
+    // Rely on bulk membership data; for any missing entries, counts default to 0.
 
     const channelsWithCounts = allChannels.map((channel) => {
       const member = memberByChannelId[channel.id];

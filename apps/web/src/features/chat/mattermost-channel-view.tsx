@@ -59,6 +59,7 @@ import { MessageInput } from "./components/message-input";
 import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
 import { MattermostWebSocket } from "./mattermost-websocket";
+import { DmWarningBanner } from "./components/dm-warning-banner";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -246,6 +247,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const websocketRef = useRef<MattermostWebSocket | null>(null);
   const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
+  const [showDmWarning, setShowDmWarning] = useState(false);
   const TYPING_TIMEOUT = 5000; // 5 seconds
   const queryClient = useQueryClient();
   const lastSentPendingIdRef = useRef<string | null>(null);
@@ -1015,6 +1017,44 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     handleScroll();
   }, [posts.length, handleScroll]);
+
+  // DM warning logic: show warning for new DM conversations where user hasn't replied yet
+  useEffect(() => {
+    const isDm = channelData?.channel?.type === "D";
+    if (!isDm || !channelId || !channelData?.member?.user_id) {
+      setShowDmWarning(false);
+      return;
+    }
+
+    const currentUserId = channelData.member.user_id;
+    const storageKey = `dm-warning-dismissed-${channelId}`;
+
+    // Check if warning was manually dismissed before
+    if (typeof window !== "undefined" && localStorage.getItem(storageKey) === "true") {
+      setShowDmWarning(false);
+      return;
+    }
+
+    // Check if the current user has sent any messages in this DM
+    const userHasReplied = posts.some((post) => post.user_id === currentUserId && post.type !== "system");
+
+    // Show warning only if user hasn't replied yet
+    setShowDmWarning(!userHasReplied);
+  }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, posts]);
+
+  // Auto-hide warning when user sends a message
+  useEffect(() => {
+    if (showDmWarning && sendMutation.isSuccess) {
+      setShowDmWarning(false);
+    }
+  }, [showDmWarning, sendMutation.isSuccess]);
+
+  const handleDismissDmWarning = useCallback(() => {
+    if (typeof window !== "undefined" && channelId) {
+      localStorage.setItem(`dm-warning-dismissed-${channelId}`, "true");
+    }
+    setShowDmWarning(false);
+  }, [channelId]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -2121,6 +2161,14 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
+
+        {/* DM safety warning */}
+        {showDmWarning && (
+          <DmWarningBanner
+            onDismiss={handleDismissDmWarning}
+            settingsHref={activeUser?.username ? `/@${activeUser.username}/settings` : undefined}
+          />
+        )}
 
         {/* Reconnection status banner */}
         {reconnectAttempt !== null && reconnectDelay !== null && (
