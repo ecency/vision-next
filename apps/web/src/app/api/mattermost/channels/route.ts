@@ -88,6 +88,19 @@ export async function GET() {
         .find((category) => category.type === "favorites")
         ?.channel_ids || []
     );
+    const directMessageCategoryIds = new Set(
+      (categoriesResponse.categories || [])
+        .find((category) => category.type === "direct_messages")
+        ?.channel_ids || []
+    );
+    const hasCategories = (categoriesResponse.categories || []).length > 0;
+    const filteredChannels = hasCategories
+      ? channels.filter((channel) =>
+        channel.type !== "D" ||
+          favoriteIds.has(channel.id) ||
+          directMessageCategoryIds.has(channel.id)
+      )
+      : channels;
 
     const channelMembersById = channelMembers.reduce<Record<string, MattermostChannelMemberCounts>>(
       (acc, member) => {
@@ -97,13 +110,13 @@ export async function GET() {
       {}
     );
 
-    const unreadMessagesById = channels.reduce<Record<string, number>>((acc, channel) => {
+    const unreadMessagesById = filteredChannels.reduce<Record<string, number>>((acc, channel) => {
       const member = channelMembersById[channel.id];
       acc[channel.id] = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return acc;
     }, {});
 
-    const directChannels = channels.filter((channel) => channel.type === "D");
+    const directChannels = filteredChannels.filter((channel) => channel.type === "D");
     const usersById: Record<string, MattermostUser> = {};
 
     if (directChannels.length) {
@@ -133,7 +146,7 @@ export async function GET() {
       }
     }
 
-    const channelsWithDirectUsers = channels.map((channel) => {
+    const channelsWithDirectUsers = filteredChannels.map((channel) => {
       if (channel.type !== "D") return channel;
 
       const parts = channel.name?.split("__") ?? [];
@@ -169,7 +182,7 @@ export async function GET() {
         });
       });
 
-      channels.forEach((channel) => {
+      filteredChannels.forEach((channel) => {
         if (!order.has(channel.id)) {
           order.set(channel.id, index++);
         }
