@@ -96,6 +96,7 @@ import {
   WaveLikePostRenderer,
   isWaveLikePost,
 } from "@/features/post-renderer";
+import * as ls from "@/utils/local-storage";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [
@@ -1027,16 +1028,19 @@ export function MattermostChannelView({ channelId }: Props) {
     }
 
     const currentUserId = channelData.member.user_id;
-    const storageKey = `dm-warning-dismissed-${channelId}`;
+    const storageKey = `dm-warning-dismissed-${currentUserId}-${channelId}`;
 
     // Check if warning was manually dismissed before
-    if (typeof window !== "undefined" && localStorage.getItem(storageKey) === "true") {
+    if (ls.get(storageKey) === true) {
       setShowDmWarning(false);
       return;
     }
 
     // Check if the current user has sent any messages in this DM
-    const userHasReplied = posts.some((post) => post.user_id === currentUserId && post.type !== "system");
+    const userHasReplied = posts.some((post) => {
+      const isSystem = typeof post.type === "string" && post.type.startsWith("system");
+      return post.user_id === currentUserId && !isSystem;
+    });
 
     // Show warning only if user hasn't replied yet
     setShowDmWarning(!userHasReplied);
@@ -1050,11 +1054,12 @@ export function MattermostChannelView({ channelId }: Props) {
   }, [showDmWarning, sendMutation.isSuccess]);
 
   const handleDismissDmWarning = useCallback(() => {
-    if (typeof window !== "undefined" && channelId) {
-      localStorage.setItem(`dm-warning-dismissed-${channelId}`, "true");
+    const currentUserId = channelData?.member?.user_id;
+    if (channelId && currentUserId) {
+      ls.set(`dm-warning-dismissed-${currentUserId}-${channelId}`, true);
     }
     setShowDmWarning(false);
-  }, [channelId]);
+  }, [channelId, channelData?.member?.user_id]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {

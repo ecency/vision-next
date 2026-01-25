@@ -499,7 +499,13 @@ export function useMattermostUnread(enabled: boolean) {
       const res = await fetch("/api/mattermost/channels/unreads");
 
       if (res.status === 401) {
-        return { channels: [], totalMentions: 0, totalDMs: 0, totalUnread: 0 } satisfies MattermostUnreadSummary;
+        return {
+          channels: [],
+          totalMentions: 0,
+          totalDMs: 0,
+          totalUnread: 0,
+          truncated: false
+        } satisfies MattermostUnreadSummary;
       }
 
       if (!res.ok) {
@@ -581,6 +587,7 @@ export interface MattermostUnreadSummary {
   totalMentions: number;
   totalDMs: number;
   totalUnread: number;
+  truncated?: boolean;
 }
 
 export interface MattermostPostSearchResponse {

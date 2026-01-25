@@ -19,7 +19,7 @@ interface MattermostChannelMember {
 }
 
 const PAGE_SIZE = 200;
-const MAX_PAGES = 5; // Safety cap to avoid long-running unread checks
+const DEFAULT_MAX_PAGES = 5; // Safety cap to avoid long-running unread checks
 
 function withPagination(path: string, page: number) {
   const [base, query] = path.split("?");
@@ -29,10 +29,11 @@ function withPagination(path: string, page: number) {
   return `${base}?${params.toString()}`;
 }
 
-async function fetchAllPages<T>(path: string, token: string) {
+async function fetchAllPages<T>(path: string, token: string, maxPages: number) {
   const results: T[] = [];
+  let truncated = false;
 
-  for (let page = 0; page < MAX_PAGES; page += 1) {
+  for (let page = 0; page < maxPages; page += 1) {
     const pageItems = await mmUserFetch<T[]>(withPagination(path, page), token);
     if (!pageItems.length) {
       break;
@@ -41,9 +42,12 @@ async function fetchAllPages<T>(path: string, token: string) {
     if (pageItems.length < PAGE_SIZE) {
       break;
     }
+    if (page === maxPages - 1) {
+      truncated = true;
+    }
   }
 
-  return results;
+  return { items: results, truncated };
 }
 
 export async function GET() {
@@ -61,11 +65,24 @@ export async function GET() {
   try {
     const teamId = getMattermostTeamId();
 
-    const [allChannels, members, currentUser] = await Promise.all([
-      fetchAllPages<MattermostChannel>("/users/me/channels", token),
-      fetchAllPages<MattermostChannelMember>(`/users/me/teams/${teamId}/channels/members`, token),
+    const maxPages = Math.max(
+      1,
+      Number(process.env.MATTERMOST_UNREAD_MAX_PAGES ?? DEFAULT_MAX_PAGES)
+    );
+
+    const [channelsResult, membersResult, currentUser] = await Promise.all([
+      fetchAllPages<MattermostChannel>("/users/me/channels", token, maxPages),
+      fetchAllPages<MattermostChannelMember>(
+        `/users/me/teams/${teamId}/channels/members`,
+        token,
+        maxPages
+      ),
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
+
+    const allChannels = channelsResult.items;
+    const members = membersResult.items;
+    const truncated = channelsResult.truncated || membersResult.truncated;
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
@@ -98,7 +115,8 @@ export async function GET() {
       channels: channelsWithCounts,
       totalMentions,
       totalDMs,
-      totalUnread: totalMentions + totalDMs
+      totalUnread: totalMentions + totalDMs,
+      truncated
     });
   } catch (error) {
     return handleMattermostError(error);
