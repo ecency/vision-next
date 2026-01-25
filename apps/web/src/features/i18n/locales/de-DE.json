@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Direkte Nachrichten Privatsphäre",
+      "title": "Chat-Privatsphäre",
       "who-can-message": "Wer kann Ihnen direkte Nachrichten schicken?",
       "description": "Legen Sie fest, wer Ihnen direkte Nachrichten senden kann, um Spam und Phishing-Versuche zu verhindern.",
       "allow-all": "Alle",
       "followers-only": "Nur Leute, denen ich folge",
       "no-one": "Niemand (deaktiviere DMs)"
     },
-    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert"
+    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert",
+    "dm-privacy-failed": "Aktualisierung der DM-Privatsphäre-Einstellungen fehlgeschlagen"
   },
   "wallet": {
     "unclaimed-rewards": "Nicht abgeholte Belohnungen",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "Kanal entmuten",
     "leave-channel": "Kanal verlassen",
     "leave-conversation": "Gespräch verlassen",
+    "dm-warning-title": "Neue Unterhaltung - Bleib sicher",
+    "dm-warning-body": "Seien Sie vorsichtig mit Nachrichten von unbekannten Benutzern. Klicken Sie nicht auf verdächtige Links oder teilen Sie vertrauliche Informationen wie Passwörter oder private Schlüssel. Überprüfen Sie die Identität des Absenders, bevor Sie etwas unternehmen.",
+    "dm-warning-settings": "Sie können Ihre DM-Privatsphäre in den Einstellungen aktualisieren.",
     "no-channels": "Noch keine Kanäle zugewiesen.",
     "no-channels-search": "Keine Kanäle stimmen mit Ihrer Suche überein.",
     "joinable-channels": "Beitrittbare Kanäle",
