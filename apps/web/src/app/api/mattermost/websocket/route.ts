@@ -93,8 +93,12 @@ export function UPGRADE(
   _server: WebSocketServer,
   request: NextRequest
 ): void {
+  const requestOrigin = request.headers.get("origin") || "none";
+  const requestHost = request.headers.get("host") || "unknown";
+
   // Check origin for CORS
   if (!checkOrigin(request)) {
+    console.warn("Chat WebSocket: origin blocked", { origin: requestOrigin, host: requestHost });
     client.close(1008, "Origin not allowed");
     return;
   }
@@ -102,6 +106,7 @@ export function UPGRADE(
   // Get authentication token
   const token = getToken(request);
   if (!token) {
+    console.warn("Chat WebSocket: missing token", { origin: requestOrigin, host: requestHost });
     client.close(1008, "Unauthorized");
     return;
   }
@@ -114,6 +119,13 @@ export function UPGRADE(
   try {
     const mattermostWsUrl = getMattermostWebsocketUrl();
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_BASE || "https://ecency.com";
+
+    console.info("Chat WebSocket: connecting upstream", {
+      origin,
+      host: requestHost,
+      upstream: mattermostWsUrl,
+      tokenPresent: true
+    });
 
     upstream = new WebSocket(mattermostWsUrl, {
       headers: {
@@ -181,6 +193,7 @@ export function UPGRADE(
   });
 
   client.on("error", () => {
+    console.error("Chat WebSocket: client error");
     closeBoth(1011, "client error");
   });
 
@@ -233,6 +246,10 @@ export function UPGRADE(
   });
 
   upstream.on("close", (code, reason) => {
+    console.warn("Chat WebSocket: upstream closed", {
+      code,
+      reason: reason?.toString?.() || ""
+    });
     try {
       if (client.readyState === WebSocket.OPEN) {
         client.close(code, reason);
