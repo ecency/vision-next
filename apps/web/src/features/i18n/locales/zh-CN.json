@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "直接消息隐私",
+      "title": "聊天隐私",
       "who-can-message": "谁可以向您发送私信？",
       "description": "控制谁可以向您发送邮件来防止垃圾邮件和钓鱼尝试。",
       "allow-all": "每个人",
       "followers-only": "只有我关注的人",
       "no-one": "没有人(禁用DMs)"
     },
-    "dm-privacy-updated": "已成功更新 DM 隐私设置"
+    "dm-privacy-updated": "已成功更新 DM 隐私设置",
+    "dm-privacy-failed": "更新 DM 隐私设置失败"
   },
   "wallet": {
     "unclaimed-rewards": "未认领的奖励",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "取消静音频道",
     "leave-channel": "离开频道",
     "leave-conversation": "离开对话",
+    "dm-warning-title": "新对话-保持安全",
+    "dm-warning-body": "谨慎对待来自未知用户的消息。请不要点击可疑链接或分享敏感信息，如密码或私钥。 在采取任何行动之前验证发送者的身份。",
+    "dm-warning-settings": "您可以在设置中更新您的DM隐私。",
     "no-channels": "尚未分配频道。",
     "no-channels-search": "没有匹配您搜索的频道。",
     "joinable-channels": "可加入的频道",
