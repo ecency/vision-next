@@ -3,7 +3,6 @@ import {
   getMattermostTeamId,
   getMattermostTokenFromCookies,
   handleMattermostError,
-  MattermostUser as ServerMattermostUser,
   mmUserFetch
 } from "@/server/mattermost";
 
@@ -32,11 +31,8 @@ interface MattermostUser {
   last_picture_update?: number;
 }
 
-interface MattermostChannelMember {
+interface MattermostChannelMemberCounts {
   user_id: string;
-}
-
-interface MattermostChannelMemberCounts extends MattermostChannelMember {
   channel_id: string;
   mention_count: number;
   msg_count: number;
@@ -108,40 +104,22 @@ export async function GET() {
     }, {});
 
     const directChannels = channels.filter((channel) => channel.type === "D");
-
-    let directChannelMembers: Record<string, string[]> = {};
-    let usersById: Record<string, MattermostUser> = {};
-    let directMemberCounts: Record<string, MattermostChannelMemberCounts> = {};
+    const usersById: Record<string, MattermostUser> = {};
 
     if (directChannels.length) {
-      // NOTE: N+1 pattern - Mattermost API limitation
-      // For N DM channels, makes 2*N requests (N members + N counts)
-      // Already parallelized, but could be optimized if Mattermost adds bulk endpoint
-      const [memberLists, memberCounts] = await Promise.all([
-        Promise.all(
-          directChannels.map((channel) =>
-            mmUserFetch<MattermostChannelMember[]>(`/channels/${channel.id}/members`, token)
-          )
-        ),
-        Promise.all(
-          directChannels.map((channel) =>
-            mmUserFetch<MattermostChannelMemberCounts>(`/channels/${channel.id}/members/me`, token)
-          )
-        )
-      ]);
-
-      directChannelMembers = memberLists.reduce<Record<string, string[]>>((acc, members, index) => {
-        acc[directChannels[index].id] = members.map((member) => member.user_id);
-        return acc;
-      }, {});
-
-      directMemberCounts = memberCounts.reduce<Record<string, MattermostChannelMemberCounts>>((acc, member, index) => {
-        acc[directChannels[index].id] = member;
-        return acc;
-      }, {});
-
       const memberIds = new Set<string>();
-      Object.values(directChannelMembers).forEach((ids) => ids.forEach((id) => memberIds.add(id)));
+
+      directChannels.forEach((channel) => {
+        const parts = channel.name?.split("__") ?? [];
+        const otherUserId =
+          parts.length === 2
+            ? parts.find((id) => id !== currentUser.id) || parts[0]
+            : undefined;
+
+        if (otherUserId) {
+          memberIds.add(otherUserId);
+        }
+      });
 
       if (memberIds.size) {
         const users = await mmUserFetch<MattermostUser[]>(`/users/ids`, token, {
@@ -158,18 +136,21 @@ export async function GET() {
     const channelsWithDirectUsers = channels.map((channel) => {
       if (channel.type !== "D") return channel;
 
-      const memberIds = directChannelMembers[channel.id] || [];
-      const otherUserId = memberIds.find((id) => id !== currentUser.id) || memberIds[0];
+      const parts = channel.name?.split("__") ?? [];
+      const otherUserId =
+        parts.length === 2
+          ? parts.find((id) => id !== currentUser.id) || parts[0]
+          : undefined;
       const directUser = otherUserId ? usersById[otherUserId] : undefined;
-      const directMember = directMemberCounts[channel.id];
+      const member = channelMembersById[channel.id];
 
       return {
         ...channel,
-        mention_count: directMember?.mention_count || channelMembersById[channel.id]?.mention_count || 0,
-        message_count: Math.max((channel.total_msg_count || 0) - (directMember?.msg_count || 0), 0),
+        mention_count: member?.mention_count || 0,
+        message_count: Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0),
         display_name: directUser ? `@${directUser.username}` : channel.display_name,
         directUser: directUser || null,
-        last_viewed_at: directMember?.last_viewed_at || channelMembersById[channel.id]?.last_viewed_at
+        last_viewed_at: member?.last_viewed_at
       };
     });
 
