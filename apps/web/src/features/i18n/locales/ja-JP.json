@@ -1191,14 +1191,15 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "ダイレクトメッセージのプライバシー",
+      "title": "チャットプライバシー",
       "who-can-message": "ダイレクトメッセージを送信できるのは誰ですか？",
       "description": "スパムやフィッシングの試みを防ぐためにダイレクトメッセージを送信できるユーザーを制御します。",
       "allow-all": "全員に",
       "followers-only": "フォローしている人のみ",
       "no-one": "誰もいない（DMを無効にする）"
     },
-    "dm-privacy-updated": "DM のプライバシー設定が更新されました"
+    "dm-privacy-updated": "DM のプライバシー設定が更新されました",
+    "dm-privacy-failed": "DM のプライバシー設定を更新できませんでした"
   },
   "wallet": {
     "unclaimed-rewards": "未請求の報酬",
@@ -2154,6 +2155,9 @@
     "unmute-channel": "チャンネルのミュートを解除",
     "leave-channel": "僅用於中文",
     "leave-conversation": "会話から出る",
+    "dm-warning-title": "新しい会話 - 安全を確保する",
+    "dm-warning-body": "不明なユーザーからのメッセージには注意してください。疑わしいリンクをクリックしたり、パスワードや秘密鍵などの機密情報を共有したりしないでください。 行動を起こす前に送信者の身元を確認してください。",
+    "dm-warning-settings": "DMプライバシーは設定で更新できます。",
     "no-channels": "割り当てられたチャンネルはまだありません。",
     "no-channels-search": "検索に一致するチャンネルがありません。",
     "joinable-channels": "参加可能なチャンネル",
