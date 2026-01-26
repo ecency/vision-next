@@ -1,7 +1,8 @@
 import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
-import { useMutation } from "@tanstack/react-query";
+import { InfiniteData, useMutation } from "@tanstack/react-query";
 import { Fragment } from "../types";
 import { getFragmentsQueryOptions } from "../queries";
+import { WrappedResponse } from "@/modules/core/types";
 
 export function useEditFragment(
   username: string,
@@ -40,7 +41,10 @@ export function useEditFragment(
       return response.json() as Promise<Fragment>;
     },
     onSuccess(response, variables) {
-      getQueryClient().setQueryData<Fragment[]>(
+      const queryClient = getQueryClient();
+
+      // Update regular query cache
+      queryClient.setQueryData<Fragment[]>(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
           if (!data) {
@@ -53,6 +57,24 @@ export function useEditFragment(
           }
 
           return [...data];
+        }
+      );
+
+      // Update infinite query cache - update fragment in all pages
+      queryClient.setQueriesData<InfiniteData<WrappedResponse<Fragment>>>(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map((fragment) =>
+                fragment.id === variables.fragmentId ? response : fragment
+              ),
+            })),
+          };
         }
       );
     },
