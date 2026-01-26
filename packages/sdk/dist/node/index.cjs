@@ -3337,9 +3337,22 @@ function useAddFragment(username, code) {
       return response.json();
     },
     onSuccess(response) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => [response, ...data ?? []]
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(
+              (page, index) => index === 0 ? { ...page, data: [response, ...page.data] } : page
+            )
+          };
+        }
       );
     }
   });
@@ -3374,7 +3387,8 @@ function useEditFragment(username, code) {
       return response.json();
     },
     onSuccess(response, variables) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
           if (!data) {
@@ -3385,6 +3399,21 @@ function useEditFragment(username, code) {
             data[index] = response;
           }
           return [...data];
+        }
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map(
+                (fragment) => fragment.id === variables.fragmentId ? response : fragment
+              )
+            }))
+          };
         }
       );
     }
@@ -3410,9 +3439,23 @@ function useRemoveFragment(username, code) {
       });
     },
     onSuccess(_data, variables) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => [...data ?? []].filter(({ id }) => id !== variables.fragmentId)
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((fragment) => fragment.id !== variables.fragmentId)
+            }))
+          };
+        }
       );
     }
   });
