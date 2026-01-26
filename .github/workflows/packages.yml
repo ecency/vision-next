@@ -29,34 +29,82 @@ jobs:
           fi
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
 
-      - name: Detect changes in @ecency/sdk
+      - name: Detect version bump in @ecency/sdk
         id: detect_sdk
         run: |
-          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/sdk; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+          BASE="${{ steps.diff_base.outputs.base }}"
+          FILE="packages/sdk/package.json"
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const { execSync } = require("child_process");
+          const fs = require("fs");
+          const base = process.env.BASE;
+          const file = process.env.FILE;
+          const headVersion = JSON.parse(fs.readFileSync(file, "utf8")).version;
+          let baseVersion = null;
+          try {
+            const out = execSync(`git show ${base}:${file}`, { encoding: "utf8" });
+            baseVersion = JSON.parse(out).version;
+          } catch (error) {
+            baseVersion = null;
+          }
+          const changed = baseVersion !== headVersion;
+          process.stdout.write(`changed=${changed ? "true" : "false"}\n`);
+          NODE
+        env:
+          BASE: ${{ steps.diff_base.outputs.base }}
+          FILE: packages/sdk/package.json
 
-      - name: Detect changes in @ecency/wallets
+      - name: Detect version bump in @ecency/wallets
         id: detect_wallets
         run: |
-          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/wallets; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+          BASE="${{ steps.diff_base.outputs.base }}"
+          FILE="packages/wallets/package.json"
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const { execSync } = require("child_process");
+          const fs = require("fs");
+          const base = process.env.BASE;
+          const file = process.env.FILE;
+          const headVersion = JSON.parse(fs.readFileSync(file, "utf8")).version;
+          let baseVersion = null;
+          try {
+            const out = execSync(`git show ${base}:${file}`, { encoding: "utf8" });
+            baseVersion = JSON.parse(out).version;
+          } catch (error) {
+            baseVersion = null;
+          }
+          const changed = baseVersion !== headVersion;
+          process.stdout.write(`changed=${changed ? "true" : "false"}\n`);
+          NODE
+        env:
+          BASE: ${{ steps.diff_base.outputs.base }}
+          FILE: packages/wallets/package.json
 
-      - name: Detect changes in @ecency/render-helper
+      - name: Detect version bump in @ecency/render-helper
         id: detect_render_helper
         run: |
-          if git diff --quiet "${{ steps.diff_base.outputs.base }}" HEAD -- packages/render-helper; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+          BASE="${{ steps.diff_base.outputs.base }}"
+          FILE="packages/render-helper/package.json"
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const { execSync } = require("child_process");
+          const fs = require("fs");
+          const base = process.env.BASE;
+          const file = process.env.FILE;
+          const headVersion = JSON.parse(fs.readFileSync(file, "utf8")).version;
+          let baseVersion = null;
+          try {
+            const out = execSync(`git show ${base}:${file}`, { encoding: "utf8" });
+            baseVersion = JSON.parse(out).version;
+          } catch (error) {
+            baseVersion = null;
+          }
+          const changed = baseVersion !== headVersion;
+          process.stdout.write(`changed=${changed ? "true" : "false"}\n`);
+          NODE
+        env:
+          BASE: ${{ steps.diff_base.outputs.base }}
+          FILE: packages/render-helper/package.json
 
-      - name: Check if any package changed
+      - name: Check if any package version changed
         id: packages_changed
         run: |
           if [ "${{ steps.detect_sdk.outputs.changed }}" = "true" ] || [ "${{ steps.detect_wallets.outputs.changed }}" = "true" ] || [ "${{ steps.detect_render_helper.outputs.changed }}" = "true" ]; then
