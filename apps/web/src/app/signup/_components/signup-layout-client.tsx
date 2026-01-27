@@ -4,11 +4,25 @@ import { Feedback, Navbar } from "@/features/shared";
 import i18next from "i18next";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 export function SignupLayoutClient({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const hideHeader = pathname?.startsWith("/signup/email");
+  const [, setTick] = useState(0);
+
+  // Subscribe to language changes to trigger re-render
+  useEffect(() => {
+    const handleLanguageChanged = () => {
+      setTick(prev => prev + 1);
+    };
+
+    i18next.on("languageChanged", handleLanguageChanged);
+
+    return () => {
+      i18next.off("languageChanged", handleLanguageChanged);
+    };
+  }, []);
 
   return (
     <div className=" bg-blue-duck-egg dark:bg-transparent pt-[63px] md:pt-[69px] min-h-[100vh] pb-16">

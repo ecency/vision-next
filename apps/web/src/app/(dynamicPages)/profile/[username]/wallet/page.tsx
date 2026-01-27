@@ -9,8 +9,9 @@ import { UilExchange } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "../_helpers";
-import { prefetchQuery } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -26,8 +27,9 @@ export default async function WalletPage(props: Props) {
 
   // Prefetch account data to avoid waterfall
   await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
+
   return (
-    <>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
       <ProfileWalletExternalBanner />
       <ProfileWalletSummaryWrapper />
       <div className="flex justify-end mb-2 gap-2">
@@ -44,6 +46,6 @@ export default async function WalletPage(props: Props) {
         <ProfileWalletTokenPicker />
       </div>
       <ProfileWalletTokensList />
-    </>
+    </HydrationBoundary>
   );
 }

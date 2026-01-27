@@ -15,7 +15,7 @@ import { PublishSuccessState } from "./_components/publish-success-state";
 import dynamic from "next/dynamic";
 
 const PublishEditor = dynamic(
-  () => import("@/app/publish/_components").then((m) => ({ default: m.PublishEditor })),
+  () => import("@/app/publish/_components/publish-editor").then((m) => ({ default: m.PublishEditor })),
   {
     ssr: false,
     loading: () => (

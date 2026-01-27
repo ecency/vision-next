@@ -19,7 +19,7 @@ const EcencyImagesUploadDialog = dynamic(
 );
 
 const GalleryDialog = dynamic(
-  () => import("@/features/shared").then((m) => ({
+  () => import("@/features/shared/gallery").then((m) => ({
     default: m.GalleryDialog
   })),
   { ssr: false }

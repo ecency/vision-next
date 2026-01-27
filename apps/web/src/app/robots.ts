@@ -1,9 +1,6 @@
 import { MetadataRoute } from "next";
-import { getServerAppBase } from "@/utils/server-app-base";
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const baseUrl = await getServerAppBase();
-
+export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
@@ -26,7 +23,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         userAgent: "ChatGPT-User",
         disallow: "/"
       }
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`
+    ]
   };
 }

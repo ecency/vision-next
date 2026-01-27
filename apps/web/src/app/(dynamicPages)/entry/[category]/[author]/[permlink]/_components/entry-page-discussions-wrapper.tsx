@@ -1,18 +1,24 @@
+"use client";
+
 import { Suspense } from "react";
 import { Entry } from "@/entities";
 import { EntryPageDiscussions } from "./entry-page-discussions";
-import { prefetchQuery } from "@/core/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getDiscussionsQueryOptions } from "@ecency/sdk";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   entry: Entry;
   category: string;
-  activeUsername?: string;
 }
 
-async function DiscussionsServerLoader({ entry, activeUsername }: Omit<Props, "category">) {
-  await prefetchQuery(getDiscussionsQueryOptions(entry, "created", true, activeUsername));
-  return null;
+function DiscussionsLoader({ entry, category }: Props) {
+  const { username: activeUsername } = useActiveAccount();
+
+  // Prefetch discussions on client-side with activeUsername
+  useQuery(getDiscussionsQueryOptions(entry, "created", true, activeUsername));
+
+  return <EntryPageDiscussions entry={entry} category={category} />;
 }
 
 function DiscussionsSkeleton() {
@@ -25,11 +31,10 @@ function DiscussionsSkeleton() {
   );
 }
 
-export function EntryPageDiscussionsWrapper({ entry, category, activeUsername }: Props) {
+export function EntryPageDiscussionsWrapper({ entry, category }: Props) {
   return (
     <Suspense fallback={<DiscussionsSkeleton />}>
-      <DiscussionsServerLoader entry={entry} activeUsername={activeUsername} />
-      <EntryPageDiscussions entry={entry} category={category} />
+      <DiscussionsLoader entry={entry} category={category} />
     </Suspense>
   );
 }
