@@ -46,7 +46,7 @@ export function SignupLayoutClient({ children }: PropsWithChildren) {
                 height={1920}
                 src="/assets/signup-main.svg"
                 alt=""
-                className="w-full max-h-[400px] object-fit"
+                className="w-full max-h-[400px] object-contain"
               />
             </div>
           </div>

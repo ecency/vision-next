@@ -14,15 +14,19 @@ import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warn
 import { PublishSuccessState } from "./_components/publish-success-state";
 import dynamic from "next/dynamic";
 
+function EditorLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <div className="text-gray-500">{i18next.t("publish.loading-editor")}</div>
+    </div>
+  );
+}
+
 const PublishEditor = dynamic(
   () => import("@/app/publish/_components/publish-editor").then((m) => ({ default: m.PublishEditor })),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Loading editor...</div>
-      </div>
-    )
+    loading: EditorLoadingFallback
   }
 );
 

@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { Entry } from "@/entities";
 import { EntryPageDiscussions } from "./entry-page-discussions";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getDiscussionsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -15,8 +15,8 @@ interface Props {
 function DiscussionsLoader({ entry, category }: Props) {
   const { username: activeUsername } = useActiveAccount();
 
-  // Prefetch discussions on client-side with activeUsername
-  useQuery(getDiscussionsQueryOptions(entry, "created", true, activeUsername));
+  // Use useSuspenseQuery to properly trigger Suspense boundary
+  useSuspenseQuery(getDiscussionsQueryOptions(entry, "created", true, activeUsername));
 
   return <EntryPageDiscussions entry={entry} category={category} />;
 }

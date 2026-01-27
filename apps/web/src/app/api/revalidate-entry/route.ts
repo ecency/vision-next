@@ -2,6 +2,17 @@ import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+  // Security: Verify revalidation secret to prevent abuse
+  const revalidateSecret = process.env.REVALIDATE_SECRET;
+  const authHeader = request.headers.get("x-revalidate-secret") || request.headers.get("authorization")?.replace("Bearer ", "");
+
+  if (!revalidateSecret || authHeader !== revalidateSecret) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { author, permlink } = body;
