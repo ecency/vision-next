@@ -8,6 +8,8 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
+import { cookies } from "next/headers";
+import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import {
   DeletedPostScreen,
   EntryPageContextProvider,
@@ -15,6 +17,7 @@ import {
   EntryPageEditHistory,
   MdHandler
 } from "./_components";
+import { EntryPageDiscussionsWrapper } from "./_components/entry-page-discussions-wrapper";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -43,6 +46,8 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   const author = username.replace("%40", "");
   const entry = await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink));
+  const cookiesStore = await cookies();
+  const activeUsername = cookiesStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
 
   if (
     permlink.startsWith("wave-") ||
@@ -83,6 +88,11 @@ export default async function EntryPage({ params, searchParams }: Props) {
             <span itemScope itemType="http://schema.org/Article">
               <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
               <EntryPageContentClient entry={entry} category={category} />
+              <EntryPageDiscussionsWrapper
+                entry={entry}
+                category={category}
+                activeUsername={activeUsername}
+              />
             </span>
           </div>
         </div>

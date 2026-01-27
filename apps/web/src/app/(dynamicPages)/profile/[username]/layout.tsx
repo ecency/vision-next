@@ -16,9 +16,13 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
 
   const [showSidebar, setShowSidebar] = useState(true);
 
-  const { data: account } = useQuery(
-    getAccountFullQueryOptions((username as string).replace("%40", ""))
-  );
+  const { data: account } = useQuery({
+    ...getAccountFullQueryOptions((username as string).replace("%40", "")),
+    staleTime: Infinity, // Trust server prefetch
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  });
 
   return (
     <>

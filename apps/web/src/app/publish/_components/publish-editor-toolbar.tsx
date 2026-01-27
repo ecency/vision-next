@@ -1,9 +1,29 @@
 "use client";
 
-import { PublishGifPickerDialog } from "@/app/publish/_components/publish-gif-picker-dialog";
 import { EcencyConfigManager } from "@/config";
-import { EcencyImagesUploadDialog } from "@/features/ecency-images";
-import { error, GalleryDialog, LoginRequired } from "@/features/shared";
+import { error, LoginRequired } from "@/features/shared";
+import dynamic from "next/dynamic";
+
+const PublishGifPickerDialog = dynamic(
+  () => import("@/app/publish/_components/publish-gif-picker-dialog").then((m) => ({
+    default: m.PublishGifPickerDialog
+  })),
+  { ssr: false }
+);
+
+const EcencyImagesUploadDialog = dynamic(
+  () => import("@/features/ecency-images").then((m) => ({
+    default: m.EcencyImagesUploadDialog
+  })),
+  { ssr: false }
+);
+
+const GalleryDialog = dynamic(
+  () => import("@/features/shared").then((m) => ({
+    default: m.GalleryDialog
+  })),
+  { ssr: false }
+);
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 import { EmojiPicker, StyledTooltip } from "@/features/ui";
 import { useEditorState } from "@tiptap/react";
@@ -50,12 +70,30 @@ import i18next from "i18next";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { usePublishState, usePublishVideoAttach } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorVideoByLinkDialog } from "./publish-editor-video-by-link-dialog";
 import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
-import { PublishImageByLinkDialog } from "./publish-image-by-link-dialog";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
-import { PublishEditorGeoTagDialog } from "./publish-editor-geo-tag/publish-editor-geo-tag-dialog";
+
+const PublishEditorVideoByLinkDialog = dynamic(
+  () => import("./publish-editor-video-by-link-dialog").then((m) => ({
+    default: m.PublishEditorVideoByLinkDialog
+  })),
+  { ssr: false }
+);
+
+const PublishImageByLinkDialog = dynamic(
+  () => import("./publish-image-by-link-dialog").then((m) => ({
+    default: m.PublishImageByLinkDialog
+  })),
+  { ssr: false }
+);
+
+const PublishEditorGeoTagDialog = dynamic(
+  () => import("./publish-editor-geo-tag/publish-editor-geo-tag-dialog").then((m) => ({
+    default: m.PublishEditorGeoTagDialog
+  })),
+  { ssr: false }
+);
 import clsx from "clsx";
 import { TEXT_COLORS, normalizeTextColor } from "../_constants/text-colors";
 
