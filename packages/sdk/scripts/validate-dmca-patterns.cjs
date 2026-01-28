@@ -198,6 +198,8 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
         result.errors.forEach(error => console.error(`   ↳ ${error}`));
       }
     });
+    // Ensure totals reflect parse failures too
+    results.tags.total = results.tags.valid + results.tags.invalid;
 
     if (results.tags.invalid === 0) {
       console.log(`✅ All ${results.tags.total} tag patterns are valid`);
@@ -241,6 +243,8 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
         result.errors.forEach(error => console.error(`   ↳ ${error}`));
       }
     });
+    // Ensure totals reflect parse failures too
+    results.patterns.total = results.patterns.valid + results.patterns.invalid;
 
     if (results.patterns.invalid === 0) {
       console.log(`✅ All ${results.patterns.total} post patterns are valid`);
