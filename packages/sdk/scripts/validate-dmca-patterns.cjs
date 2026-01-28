@@ -172,7 +172,11 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     console.log(`\n📋 Validating tag patterns (regex) from: ${tagFilePath}`);
     let tags;
     try {
-      tags = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
+      const raw = JSON.parse(fs.readFileSync(tagFilePath, 'utf8'));
+      if (!raw || typeof raw !== 'object' || !Array.isArray(raw.tags)) {
+        throw new Error('expected JSON object with a "tags" array');
+      }
+      tags = raw.tags;
     } catch (error) {
       console.error(`\n❌ Failed to parse tag patterns JSON file: ${tagFilePath}`);
       console.error(`   ↳ ${error.message}`);
@@ -210,7 +214,11 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
     console.log(`\n📋 Validating post patterns (plain strings) from: ${patternFilePath}`);
     let patterns;
     try {
-      patterns = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
+      const raw = JSON.parse(fs.readFileSync(patternFilePath, 'utf8'));
+      if (!raw || typeof raw !== 'object' || !Array.isArray(raw.posts)) {
+        throw new Error('expected JSON object with a "posts" array');
+      }
+      patterns = raw.posts;
     } catch (error) {
       console.error(`\n❌ Failed to parse post patterns JSON file: ${patternFilePath}`);
       console.error(`   ↳ ${error.message}`);
