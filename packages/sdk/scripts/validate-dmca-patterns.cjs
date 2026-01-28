@@ -182,7 +182,7 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
       console.error(`   ↳ ${error.message}`);
       hasErrors = true;
       results.tags.invalid = 1; // Mark as having errors
-      return;
+      tags = [];
     }
 
     results.tags.total = tags.length;
@@ -224,7 +224,7 @@ function validateDmcaFiles(tagFilePath, patternFilePath) {
       console.error(`   ↳ ${error.message}`);
       hasErrors = true;
       results.patterns.invalid = 1; // Mark as having errors
-      return;
+      patterns = [];
     }
 
     results.patterns.total = patterns.length;
