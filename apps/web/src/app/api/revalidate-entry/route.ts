@@ -1,6 +1,18 @@
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * API Route for on-demand revalidation of entry pages
+ *
+ * INTENDED USE: Server-to-server calls only (webhooks, external services, etc.)
+ * Requires REVALIDATE_SECRET environment variable for authentication.
+ *
+ * For client-side revalidation after publishing/editing posts, use the
+ * revalidateEntryAction Server Action instead, which has proper session-based
+ * authentication and authorization.
+ *
+ * @see /app/actions/revalidate-entry.ts for the recommended approach
+ */
 export async function POST(request: NextRequest) {
   // Security: Verify revalidation secret to prevent abuse
   const revalidateSecret = process.env.REVALIDATE_SECRET;
