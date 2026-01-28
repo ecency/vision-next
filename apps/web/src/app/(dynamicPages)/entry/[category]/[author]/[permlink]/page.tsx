@@ -22,9 +22,13 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-// Enable ISR with 60 second revalidation - posts don't change often after publishing
-// This provides massive performance improvement for one of the most visited page types
-export const revalidate = 60;
+// Entry pages require dynamic rendering for real-time blockchain data:
+// - Vote counts change every few seconds
+// - Comments appear in real-time
+// - Payout values fluctuate
+// - User-specific voting status
+// ISR would serve stale data which is harmful for blockchain UX
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   props: Props,

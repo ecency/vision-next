@@ -3,6 +3,7 @@ import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
 import * as Sentry from "@sentry/nextjs";
+import { setSessionCookie } from "@/app/actions/set-session";
 
 const makeActiveUser = (username: string): ActiveUser => ({
   username,
@@ -33,7 +34,7 @@ export const createAuthenticationActions = (
   set: (state: Partial<AuthenticationState>) => void,
   getState: () => AuthenticationState
 ) => ({
-  setActiveUser: (name: string | null) => {
+  setActiveUser: async (name: string | null) => {
     const currentUsername = getState().activeUser?.username;
 
     if (name === currentUsername) {
@@ -44,17 +45,35 @@ export const createAuthenticationActions = (
 
     if (name) {
       ls.set("active_user", name);
+      // Keep client-side cookie for backward compatibility (NOT trusted for auth)
       Cookies.set(ACTIVE_USER_COOKIE_NAME, name, { expires: 365 });
       set({ activeUser: nextActiveUser });
 
       Sentry.setUser({
         username: name
       });
+
+      // IMPORTANT: Set server-side signed session cookie
+      // This is the cryptographically verified session used for authorization
+      try {
+        await setSessionCookie(name);
+      } catch (error) {
+        console.error("Failed to set server-side session cookie:", error);
+        // Continue anyway - client-side session is set
+        // Server-side operations will fail but client still works
+      }
     } else {
       ls.remove("active_user");
       Cookies.remove(ACTIVE_USER_COOKIE_NAME);
       set({ activeUser: nextActiveUser });
       Sentry.setUser(null);
+
+      // Clear server-side session
+      try {
+        await setSessionCookie(null);
+      } catch (error) {
+        console.error("Failed to clear server-side session cookie:", error);
+      }
     }
   }
 });

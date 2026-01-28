@@ -1,15 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
+import { getSessionUser } from "./set-session";
 
 /**
  * Server Action to revalidate entry pages after publishing/editing
  *
- * AUTHENTICATION REQUIRED: This action verifies that the authenticated user
- * is the author of the entry before revalidating. Only the post author can
- * trigger revalidation of their own content.
+ * AUTHENTICATION REQUIRED: This action verifies the cryptographically signed
+ * session token to authenticate the user, then checks that the authenticated
+ * user is the author of the entry before revalidating.
+ *
+ * Security:
+ * - Uses HMAC-SHA256 signed session tokens (cannot be forged)
+ * - Verifies session signature and expiration
+ * - Checks ownership (user must be post author)
+ * - Logs unauthorized attempts
  *
  * This ensures users see their updates immediately instead of waiting for ISR revalidation.
  *
@@ -23,23 +28,23 @@ export async function revalidateEntryAction(author: string, permlink: string) {
   }
 
   try {
-    // Authenticate: Get current user from session cookie
-    const cookieStore = await cookies();
-    const activeUsername = cookieStore.get(ACTIVE_USER_COOKIE_NAME)?.value;
+    // Authenticate: Verify cryptographically signed session token
+    // This cannot be forged by the client due to HMAC signature
+    const authenticatedUsername = await getSessionUser();
 
-    if (!activeUsername) {
-      console.error("Revalidate attempt without authentication");
+    if (!authenticatedUsername) {
+      console.error("Revalidate attempt with invalid or missing session token");
       return {
         success: false,
-        error: "Unauthorized: No active session"
+        error: "Unauthorized: Invalid or expired session"
       };
     }
 
     // Authorize: Verify the authenticated user is the post author
     // On Hive blockchain, only the original author can edit their posts
-    if (activeUsername !== author) {
+    if (authenticatedUsername !== author) {
       console.error(
-        `Unauthorized revalidate attempt: user "${activeUsername}" tried to revalidate post by "${author}"`
+        `Unauthorized revalidate attempt: user "${authenticatedUsername}" tried to revalidate post by "${author}"`
       );
       return {
         success: false,

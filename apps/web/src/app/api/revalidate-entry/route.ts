@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
       now: Date.now()
     });
   } catch (err) {
+    console.error("Error revalidating entry via API route:", err);
     return NextResponse.json(
       { error: "Error revalidating" },
       { status: 500 }
