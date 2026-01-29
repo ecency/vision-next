@@ -47,8 +47,8 @@ export function Datepicker(props: Props) {
   const weekdays = useMemo(
     () =>
       Array.from(new Array(7).keys()).map((day) =>
-        // Start from Sunday: Jan 3, 2021 is a Sunday
-        weekdaysFormat.format(new Date(Date.UTC(2021, 0, day + 3)))
+        // Start from Sunday: Jan 3, 2021 is a Sunday (use local date to avoid timezone shift)
+        weekdaysFormat.format(new Date(2021, 0, day + 3))
       ),
     [weekdaysFormat]
   );
