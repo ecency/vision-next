@@ -1,7 +1,7 @@
 import { broadcastJson, getQueryClient } from "@/modules/core";
 import type { AuthContext } from "@/modules/core/types";
 import { useMutation } from "@tanstack/react-query";
-import { getRelationshipBetweenAccountsQueryOptions } from "../queries";
+import { getRelationshipBetweenAccountsQueryOptions, getAccountFullQueryOptions } from "../queries";
 import { AccountRelationship } from "../types";
 
 type Kind = "toggle-ignore" | "toggle-follow";
@@ -66,6 +66,14 @@ export function useAccountRelationsUpdate(
         ["accounts", "relations", reference, target],
         data
       );
+
+      // Invalidate account query to refetch follow stats (follower_count, following_count)
+      // This is needed because profile pages use staleTime: Infinity for performance
+      if (target) {
+        getQueryClient().invalidateQueries(
+          getAccountFullQueryOptions(target)
+        );
+      }
     },
   });
 }

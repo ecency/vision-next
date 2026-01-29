@@ -1,14 +1,17 @@
 import {
   ProfileWalletExternalBanner,
-  ProfileWalletSummary,
   ProfileWalletTokenPicker,
   ProfileWalletTokensList
 } from "./_components";
+import { ProfileWalletSummaryWrapper } from "./_components/profile-wallet-summary-wrapper";
 import { Button } from "@/features/ui";
 import { UilExchange } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "../_helpers";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -19,11 +22,16 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
   return generateProfileMetadata(username.replace("%40", ""), "wallet");
 }
 
-export default function WalletPage() {
+export default async function WalletPage(props: Props) {
+  const { username } = await props.params;
+
+  // Prefetch account data to avoid waterfall
+  await prefetchQuery(getAccountFullQueryOptions(username.replace("%40", "")));
+
   return (
-    <>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
       <ProfileWalletExternalBanner />
-      <ProfileWalletSummary />
+      <ProfileWalletSummaryWrapper />
       <div className="flex justify-end mb-2 gap-2">
         <Button
           size="sm"
@@ -38,6 +46,6 @@ export default function WalletPage() {
         <ProfileWalletTokenPicker />
       </div>
       <ProfileWalletTokensList />
-    </>
+    </HydrationBoundary>
   );
 }

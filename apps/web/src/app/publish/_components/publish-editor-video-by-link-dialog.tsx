@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, FormControl, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";

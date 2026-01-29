@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Button } from "@ui/button";
 import { UilSmile } from "@tooni/iconscout-unicons-react";
-import { EmojiPicker } from "@/features/ui";
+import { EmojiPicker } from "@/features/ui/emoji-picker/lazy-emoji-picker";
 
 interface Props {
   onPick: (v: string) => void;

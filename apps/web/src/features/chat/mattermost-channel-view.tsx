@@ -85,7 +85,7 @@ import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
-import { EmojiPicker } from "@ui/emoji-picker";
+import { EmojiPicker } from "@/features/ui/emoji-picker/lazy-emoji-picker";
 import { GifPicker } from "@ui/gif-picker";
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";

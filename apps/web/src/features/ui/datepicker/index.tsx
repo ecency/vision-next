@@ -47,7 +47,8 @@ export function Datepicker(props: Props) {
   const weekdays = useMemo(
     () =>
       Array.from(new Array(7).keys()).map((day) =>
-        weekdaysFormat.format(new Date(Date.UTC(2021, 1, day + 1)))
+        // Start from Sunday: Jan 3, 2021 is a Sunday (use local date to avoid timezone shift)
+        weekdaysFormat.format(new Date(2021, 0, day + 3))
       ),
     [weekdaysFormat]
   );
@@ -55,8 +56,9 @@ export function Datepicker(props: Props) {
     const monthStartDate = dayjs(calendarValue).startOf("month");
     const monthEndDate = dayjs(calendarValue).endOf("month");
 
-    const weekStartDate = monthStartDate.startOf("week").add(1, "day");
-    const endWeekDate = monthEndDate.endOf("week").add(1, "day");
+    // Start from Sunday (no offset needed)
+    const weekStartDate = monthStartDate.startOf("week");
+    const endWeekDate = monthEndDate.endOf("week");
 
     const allDates: Date[] = [];
     const nowHour = dayjs().hour();

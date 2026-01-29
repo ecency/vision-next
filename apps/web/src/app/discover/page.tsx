@@ -4,7 +4,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { PagesMetadataGenerator } from "@/features/metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // 5 minutes
 
 export async function generateMetadata(
   props: unknown,
