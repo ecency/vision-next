@@ -216,18 +216,25 @@ var ConfigManager;
       return null;
     }
   }
-  function setDmcaLists(accounts = [], tags = [], patterns = []) {
-    CONFIG.dmcaAccounts = accounts;
-    CONFIG.dmcaTags = tags;
-    CONFIG.dmcaPatterns = patterns;
-    CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
+  function setDmcaLists(lists = {}) {
+    const coerceList = (value) => Array.isArray(value) ? value.filter((item) => typeof item === "string") : [];
+    const input = lists || {};
+    const resolved = {
+      accounts: coerceList(input.accounts),
+      tags: coerceList(input.tags),
+      patterns: coerceList(input.posts)
+    };
+    CONFIG.dmcaAccounts = resolved.accounts;
+    CONFIG.dmcaTags = resolved.tags;
+    CONFIG.dmcaPatterns = resolved.patterns;
+    CONFIG.dmcaTagRegexes = resolved.tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
-    const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
+    const rejectedTagCount = resolved.tags.length - CONFIG.dmcaTagRegexes.length;
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
-      console.log(`  - Accounts: ${accounts.length}`);
-      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
-      console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
+      console.log(`  - Accounts: ${resolved.accounts.length}`);
+      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${resolved.tags.length} compiled (${rejectedTagCount} rejected)`);
+      console.log(`  - Post patterns: ${resolved.patterns.length} (using exact string matching)`);
       if (rejectedTagCount > 0) {
         console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
       }
@@ -1842,7 +1849,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
         ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
       };
       try {
-        if (CONFIG.dmcaAccounts.includes(username)) return [];
+        if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
         const resp = await CONFIG.hiveClient.call(
           "bridge",
           "get_account_posts",

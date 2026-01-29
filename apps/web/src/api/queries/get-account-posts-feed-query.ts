@@ -40,7 +40,8 @@ export async function prefetchGetPostsFeedQuery(
     observer?: string
 ): Promise<FeedInfinite | undefined> {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
+  // "feed" filter is always user-specific (from /@username/feed route)
+  const isAccountPosts = isUser || what === "feed";
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
@@ -59,6 +60,7 @@ export async function prefetchGetPostsFeedQuery(
     ) as Promise<FeedInfinite | undefined>;
   }
 
+  // This branch is now only for non-feed, non-user queries
   if (what === "feed") {
     return prefetchInfiniteQuery(
       getPostsRankedInfiniteQueryOptions(
@@ -84,7 +86,8 @@ export function getPostsFeedQueryData(
     observer?: string
 ): FeedInfinite | undefined {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
+  // "feed" filter is always user-specific (from /@username/feed route)
+  const isAccountPosts = isUser || what === "feed";
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
@@ -103,6 +106,7 @@ export function getPostsFeedQueryData(
     ) as FeedInfinite | undefined;
   }
 
+  // This branch is now only for non-feed, non-user queries
   if (what === "feed") {
     return getInfiniteQueryData(
       getPostsRankedInfiniteQueryOptions(
@@ -128,7 +132,8 @@ export function usePostsFeedQuery(
     limit = 20
 ): UseInfiniteQueryResult<Page, Error> {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
+  // "feed" filter is always user-specific (from /@username/feed route)
+  const isAccountPosts = isUser || what === "feed";
   const isPromotedSection = what === "promoted";
 
   const queryOptions =

@@ -49,7 +49,7 @@ export function getAccountPostsInfiniteQueryOptions(
       };
 
       try {
-        if (CONFIG.dmcaAccounts.includes(username)) return [];
+        if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
 
         const resp = await CONFIG.hiveClient.call(
           "bridge",

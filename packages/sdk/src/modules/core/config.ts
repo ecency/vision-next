@@ -254,18 +254,21 @@ export namespace ConfigManager {
 
   /**
    * Set DMCA filtering lists
-   * @param accounts - DMCA lists object containing accounts/tags/posts arrays
+   * @param lists - DMCA lists object containing accounts/tags/posts arrays
    */
   export function setDmcaLists(
-    accounts: DmcaListsInput = {}
+    lists: DmcaListsInput = {}
   ) {
     const coerceList = (value: unknown): string[] =>
       Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
+    // Ensure we have a valid object to work with
+    const input = lists || {};
+
     const resolved = {
-      accounts: coerceList(accounts.accounts),
-      tags: coerceList(accounts.tags),
-      patterns: coerceList(accounts.posts),
+      accounts: coerceList(input.accounts),
+      tags: coerceList(input.tags),
+      patterns: coerceList(input.posts),
     };
 
     CONFIG.dmcaAccounts = resolved.accounts;
