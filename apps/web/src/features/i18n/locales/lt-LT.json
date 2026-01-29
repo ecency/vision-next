@@ -866,6 +866,7 @@
     "deleted-content-warning": "Šį turinį ištrynė autorius. Tai galite pamatyti iš Blockchain ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "untitled": "Untitled",
     "comments-hidden": "Šio įrašo autorių nutildėte.",
     "address-copy": "Kopijuoti nuorodą",
     "address-copied": "Nuoroda nukopijuota į iškarpinę",
