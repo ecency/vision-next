@@ -866,6 +866,7 @@
     "deleted-content-warning": "यह सामग्री लेखक द्वारा हटा दी गई है। आप इसे ब्लॉकचेन पर देख सकते हैं। ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "untitled": "Untitled",
     "comments-hidden": "इस पोस्ट के लेखक को आपने म्यूट कर दिया है।",
     "address-copy": "लिंक की प्रतिलिपि करें",
     "address-copied": "लिंक को क्लिपबोर्ड पर कॉपी किया गया",
