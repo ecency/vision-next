@@ -2743,6 +2743,11 @@ function useAccountRelationsUpdate(reference, target, auth, onSuccess, onError) 
         ["accounts", "relations", reference, target],
         data
       );
+      if (target) {
+        getQueryClient().invalidateQueries(
+          getAccountFullQueryOptions(target)
+        );
+      }
     }
   });
 }

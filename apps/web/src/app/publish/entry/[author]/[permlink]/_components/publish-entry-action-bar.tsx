@@ -1,6 +1,15 @@
-import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
+"use client";
+
 import { usePublishState } from "@/app/publish/_hooks";
 import { LoginRequired } from "@/features/shared";
+import dynamic from "next/dynamic";
+
+const PublishMetaInfoDialog = dynamic(
+  () => import("@/app/publish/_components/publish-meta-info-dialog").then((m) => ({
+    default: m.PublishMetaInfoDialog
+  })),
+  { ssr: false }
+);
 import { Button, StyledTooltip } from "@/features/ui";
 import {
   Dropdown,

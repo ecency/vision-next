@@ -45,7 +45,8 @@ export function ProfileCard({ account }: Props) {
     [account?.name, activeUsername, activeAccount]
   );
 
-  const { data } = useQuery(getAccountFullQueryOptions(account.name));
+  // Use the account prop directly instead of re-fetching (already prefetched by layout)
+  const data = account;
   const { data: rcData } = useQuery(getAccountRcQueryOptions(account.name));
   const { data: relationshipBetweenAccounts } = useQuery({
     ...getRelationshipBetweenAccountsQueryOptions(account?.name, activeUsername ?? undefined),

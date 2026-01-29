@@ -2,7 +2,7 @@ import { type ChangeEvent, type CSSProperties, useState } from "react";
 import { Button } from "@ui/button";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { EmojiPicker } from "@ui/emoji-picker";
+import { EmojiPicker } from "@/features/ui/emoji-picker/lazy-emoji-picker";
 import { GifPicker } from "@ui/gif-picker";
 import clsx from "clsx";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";

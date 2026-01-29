@@ -1,3 +1,5 @@
+"use client";
+
 import { EcencyConfigManager } from "@/config";
 import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import { AdvancedMarker, APIProvider, Map, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";

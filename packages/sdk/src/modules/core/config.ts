@@ -57,6 +57,12 @@ export const CONFIG = {
   _dmcaInitialized: false,
 };
 
+type DmcaListsInput = {
+  accounts?: string[];
+  tags?: string[];
+  posts?: string[];
+};
+
 export namespace ConfigManager {
   export function setQueryClient(client: QueryClient) {
     CONFIG.queryClient = client;
@@ -248,21 +254,26 @@ export namespace ConfigManager {
 
   /**
    * Set DMCA filtering lists
-   * @param accounts - List of account usernames to filter (plain strings)
-   * @param tags - List of tag patterns (regex strings) to filter
-   * @param patterns - List of post patterns (plain strings) like "@author/permlink" for exact matching
+   * @param accounts - DMCA lists object containing accounts/tags/posts arrays
    */
   export function setDmcaLists(
-    accounts: string[] = [],
-    tags: string[] = [],
-    patterns: string[] = []
+    accounts: DmcaListsInput = {}
   ) {
-    CONFIG.dmcaAccounts = accounts;
-    CONFIG.dmcaTags = tags;
-    CONFIG.dmcaPatterns = patterns;
+    const coerceList = (value: unknown): string[] =>
+      Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+
+    const resolved = {
+      accounts: coerceList(accounts.accounts),
+      tags: coerceList(accounts.tags),
+      patterns: coerceList(accounts.posts),
+    };
+
+    CONFIG.dmcaAccounts = resolved.accounts;
+    CONFIG.dmcaTags = resolved.tags;
+    CONFIG.dmcaPatterns = resolved.patterns;
 
     // Pre-compile tag regex patterns (tags can be regex)
-    CONFIG.dmcaTagRegexes = tags
+    CONFIG.dmcaTagRegexes = resolved.tags
       .map((pattern) => safeCompileRegex(pattern))
       .filter((r): r is RegExp => r !== null);
 
@@ -270,7 +281,7 @@ export namespace ConfigManager {
     // No compilation needed - they will be used with simple string comparison
     CONFIG.dmcaPatternRegexes = [];
 
-    const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
+    const rejectedTagCount = resolved.tags.length - CONFIG.dmcaTagRegexes.length;
 
     // Only log once to avoid noise during builds/hot reloads
     // Only show in development mode to avoid cluttering production console
@@ -278,9 +289,9 @@ export namespace ConfigManager {
 
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
-      console.log(`  - Accounts: ${accounts.length}`);
-      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
-      console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
+      console.log(`  - Accounts: ${resolved.accounts.length}`);
+      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${resolved.tags.length} compiled (${rejectedTagCount} rejected)`);
+      console.log(`  - Post patterns: ${resolved.patterns.length} (using exact string matching)`);
 
       if (rejectedTagCount > 0) {
         console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);

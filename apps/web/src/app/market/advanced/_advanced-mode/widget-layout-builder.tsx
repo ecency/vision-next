@@ -7,8 +7,18 @@ import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import { HistoryWidget } from "@/app/market/advanced/_components/history-widget";
 import { StakeWidget } from "@/app/market/advanced/_components/stake-widget";
 import { TradingFormWidget } from "@/app/market/advanced/_components/trading-form-widget";
-import { TradingViewWidget } from "@/app/market/advanced/_components/trading-view-widget";
 import { OpenOrdersWidget } from "@/app/market/advanced/_components/open-orders-widget";
+import dynamic from "next/dynamic";
+
+const TradingViewWidget = dynamic(
+  () => import("@/app/market/advanced/_components/trading-view-widget").then((m) => ({
+    default: m.TradingViewWidget
+  })),
+  {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-96">Loading chart...</div>
+  }
+);
 
 interface Props {
   layout: GridLayout.Layouts;

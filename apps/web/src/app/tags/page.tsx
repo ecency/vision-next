@@ -4,7 +4,7 @@ import { getTrendingTagsWithStatsQueryOptions } from "@ecency/sdk";
 import { TagsPage } from "@/app/tags/_page";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 180; // 3 minutes
 
 export const metadata: Metadata = {
   title: "Tags"

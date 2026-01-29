@@ -26,4 +26,8 @@ ConfigManager.setImageHost(defaults.imageServer);
 // Initialize DMCA filtering immediately at module load time
 // This ensures the lists are available before any React Query fetches execute
 // Files are in public/dmca/ for both bundling and mobile app access
-ConfigManager.setDmcaLists(dmcaAccounts, dmcaTags, dmcaPosts);
+ConfigManager.setDmcaLists({
+  accounts: dmcaAccounts.accounts ?? [],
+  tags: dmcaTags.tags ?? [],
+  posts: dmcaPosts.posts ?? [],
+});

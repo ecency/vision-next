@@ -2,7 +2,7 @@ import { ProposalsPage } from "@/app/proposals/_page";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // 10 minutes
 
 export async function generateMetadata(
   props: unknown,

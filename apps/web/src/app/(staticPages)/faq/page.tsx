@@ -13,7 +13,7 @@ import { NavigationLocaleWatcher } from "@/features/i18n";
 import { FaqSearchResult } from "@/app/(staticPages)/faq/_components/faq-search-result";
 import { PagesMetadataGenerator } from "@/features/metadata";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400; // 24 hours
 
 export async function generateMetadata(
   props: unknown,

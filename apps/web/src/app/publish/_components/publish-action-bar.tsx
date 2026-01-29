@@ -1,10 +1,35 @@
 "use client";
 
-import { PublishBeneficiariesDialog } from "@/app/publish/_components/publish-beneficiaries-dialog";
-import { PublishMetaInfoDialog } from "@/app/publish/_components/publish-meta-info-dialog";
-import { PublishRewardsDialog } from "@/app/publish/_components/publish-rewards-dialog";
-import { PublishScheduleDialog } from "@/app/publish/_components/publish-schedule-dialog";
 import { LoginRequired } from "@/features/shared";
+import dynamic from "next/dynamic";
+
+const PublishBeneficiariesDialog = dynamic(
+  () => import("@/app/publish/_components/publish-beneficiaries-dialog").then((m) => ({
+    default: m.PublishBeneficiariesDialog
+  })),
+  { ssr: false }
+);
+
+const PublishMetaInfoDialog = dynamic(
+  () => import("@/app/publish/_components/publish-meta-info-dialog").then((m) => ({
+    default: m.PublishMetaInfoDialog
+  })),
+  { ssr: false }
+);
+
+const PublishRewardsDialog = dynamic(
+  () => import("@/app/publish/_components/publish-rewards-dialog").then((m) => ({
+    default: m.PublishRewardsDialog
+  })),
+  { ssr: false }
+);
+
+const PublishScheduleDialog = dynamic(
+  () => import("@/app/publish/_components/publish-schedule-dialog").then((m) => ({
+    default: m.PublishScheduleDialog
+  })),
+  { ssr: false }
+);
 import { StyledTooltip } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";

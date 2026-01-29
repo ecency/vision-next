@@ -1,3 +1,5 @@
+"use client";
+
 import { Button, FormControl, Modal, ModalBody, ModalFooter, ModalHeader } from "@/features/ui";
 import i18next from "i18next";
 import { useState } from "react";

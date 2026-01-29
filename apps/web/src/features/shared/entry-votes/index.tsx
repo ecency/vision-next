@@ -8,9 +8,16 @@ import i18next from "i18next";
 import { heartSvg } from "@ui/svg";
 import usePrevious from "react-use/lib/usePrevious";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { EntryVotesDialog } from "@/features/shared/entry-votes/entry-votes-dialog";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+
+const EntryVotesDialog = dynamic(
+  () => import("@/features/shared/entry-votes/entry-votes-dialog").then((m) => ({
+    default: m.EntryVotesDialog
+  })),
+  { ssr: false }
+);
 
 type SortOption = "reward" | "timestamp" | "voter" | "percent";
 
