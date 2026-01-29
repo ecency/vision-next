@@ -866,6 +866,7 @@
     "deleted-content-warning": "Questo contenuto è stato rimosso dall'autore. Puoi vederlo attraverso la Blockchain ",
     "deleted-content": "Questo post è stato eliminato da {{author}}",
     "deleted-no-history": "La cronologia dei contenuti eliminati non è disponibile dalla blockchain.",
+    "untitled": "Senza Titolo",
     "comments-hidden": "L'autore di questo post è stato silenziato da te.",
     "address-copy": "Copia il link",
     "address-copied": "Link copiato negli appunti",
