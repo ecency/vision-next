@@ -205,7 +205,6 @@ export function ProfileInsights({ username }: Props) {
       </div>
 
       <InsightsRange
-        key={selectedRange.dateRange}
         username={username}
         {...selectedRange}
       />
