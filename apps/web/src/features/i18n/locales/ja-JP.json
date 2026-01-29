@@ -866,6 +866,7 @@
     "deleted-content-warning": "このコンテンツは著者によって削除されました。ブロックチェーンから見ることができます ",
     "deleted-content": "この投稿は {{author}}によって削除されました",
     "deleted-no-history": "削除されたコンテンツの履歴はブロックチェーンからは利用できません。",
+    "untitled": "無題のタイトル",
     "comments-hidden": "この投稿の投稿者はあなたによってミュートされています。",
     "address-copy": "リンクをコピー",
     "address-copied": "リンクをクリップボードにコピーしました",
