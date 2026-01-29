@@ -866,6 +866,7 @@
     "deleted-content-warning": "This content was deleted by the author. You can see it from Blockchain ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "untitled": "Untitled",
     "comments-hidden": "Author of this post is muted by you.",
     "address-copy": "Copy link",
     "address-copied": "Link copied to clipboard",
