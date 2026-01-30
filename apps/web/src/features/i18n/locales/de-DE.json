@@ -71,6 +71,7 @@
     "more-results": "Mehr Ergebnisse",
     "close": "Schliessen",
     "loading": "Lädt",
+    "validating": "Validieren...",
     "stop": "Stop",
     "settings": "Einstellungen",
     "confirm": "Bestätigen",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Schlüssel & Passwörter",
       "hint": "Ein Hive-Konto kann mehrere Schlüssel gleichzeitig halten, die alle unten aufgelistet sind",
-      "add-key": "Neue Schlüssel hinzufügen",
+      "add-key": "Schlüssel hinzufügen/verwalten",
       "key-created": "Schlüssel wurden erfolgreich erstellt und zugewiesen.",
       "error-private-key-reveal": "Privater Schlüssel kann nur mit Masterpasswort oder Seed-Phrase angezeigt werden"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Hive-Schlüssel widerrufen",
       "hint": "Sie können jeden Hive-Schlüssel mit einem der Schlüssel/Master-Passwort/Seed widerrufen"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Authentifizieren",
+        "generate-seed": "Seed generieren",
+        "review-keys": "Überprüfungsschlüssel",
+        "confirm": "Bestätigen"
+      },
+      "step1": {
+        "title": "Neues Schlüsselset hinzufügen",
+        "info1": "Eine neue Seed-Phrase wird für Ihr Konto generiert",
+        "info2": "Sie können mehrere Schlüsselsets gleichzeitig aktiv halten",
+        "info3": "Du hast die Möglichkeit, alte Schlüssel in den nächsten Schritten zu widerrufen",
+        "authenticate": "Authentifizieren um fortzufahren",
+        "error-not-owner": "Der angegebene Schlüssel ist kein Owner-Schlüssel. Bitte geben Sie Ihren Owner-Schlüssel, Master-Passwort oder Seed-Phrase an.",
+        "error-invalid-key": "Ungültiges Format für privaten Schlüssel",
+        "error-authentication": "Authentifizierung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten und versuchen Sie es erneut.",
+        "error-credentials-not-match": "Die angegebenen Zugangsdaten stimmen nicht mit diesem Konto überein. Bitte überprüfen Sie Ihr Master-Passwort, Ihre Seed-Phrase oder Ihren Owner-Schlüssel.",
+        "error-account-not-loaded": "Kontodaten werden noch geladen. Bitte warten Sie einen Moment und versuchen Sie es erneut."
+      },
+      "step2": {
+        "warning-title": "Wichtig: Speichere deinen neuen Seed Phrase",
+        "warning1": "Dies ist eine NEUE Seed-Phrase, die sich von Ihrem ursprünglichen Account-Seed unterscheidet",
+        "warning2": "Speichern Sie es separat - Sie müssen sich mit diesen Schlüsseln anmelden",
+        "warning3": "Laden Sie die Seed-Datei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
+      },
+      "step3": {
+        "title": "Vorhandene Schlüssel überprüfen",
+        "description": "Wählen Sie alle alten Schlüssel, die Sie widerrufen möchten. Sie können diesen Schritt überspringen, um alle vorhandenen Schlüssel aktiv zu halten.",
+        "cannot-revoke-last": "Kann nicht widerrufen - dies ist der einzige Schlüssel dieses Typs",
+        "selected-count": "{{count}} Schlüssel(e) für den Widerruf ausgewählt",
+        "next-with-revoke": "Ausgewählte fortsetzen & widerrufen",
+        "next-skip": "Ohne Widerruf fortfahren",
+        "will-be-replaced": "wird durch neuen Schlüssel ersetzt",
+        "memo-will-replace": "Neuer Memo-Schlüssel ersetzt diesen",
+        "derivation-unknown": "Unbekannt",
+        "derivation-bip44": "BIP44 Seed",
+        "derivation-master-password": "Master-Passwort"
+      },
+      "step4": {
+        "title": "Bereit zur Übernahme von Änderungen",
+        "description": "Überprüfen Sie die nachstehenden Änderungen und bestätigen Sie, dass Sie Ihr Konto aktualisieren möchten.",
+        "adding": "Hinzufügen",
+        "new-bip44-keys": "Neue BIP44 Seed-basierte Schlüssel (Besitzer, aktiv, posten, Memo)",
+        "revoking": "Widerruf",
+        "revoking-count": "{{count}} vorhandene Schlüssel(e)",
+        "applying": "Änderungen werden angewendet...",
+        "please-wait": "Bitte warten Sie, während wir Ihr Konto aktualisieren",
+        "success": "Schlüssel erfolgreich aktualisiert!",
+        "success-description": "Ihre neuen Schlüssel wurden hinzugefügt und die ausgewählten alten Schlüssel wurden widerrufen.",
+        "error-no-keys": "Keine Schlüssel zum Hinzufügen verfügbar"
+      }
     }
   }
 }
