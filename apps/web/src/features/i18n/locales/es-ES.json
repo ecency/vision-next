@@ -71,6 +71,7 @@
     "more-results": "Más resultados",
     "close": "Cerrar",
     "loading": "Cargando",
+    "validating": "Validando...",
     "stop": "Detener",
     "settings": "Configuraciones",
     "confirm": "Confirmar",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Claves y contraseñas",
       "hint": "Una cuenta de Hive puede contener varias claves simultáneamente, todas las cuales están listadas a continuación",
-      "add-key": "Añadir nuevas claves",
+      "add-key": "Añadir/Administrar claves",
       "key-created": "Las claves se han creado y asignado correctamente.",
       "error-private-key-reveal": "La clave privada sólo puede ser revelada con contraseña maestra o frase de semilla"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Revocar clave de Hive",
       "hint": "Puede revocar cualquier clave de Hive usando una de las claves/contraseña maestra/semilla"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Autenticar",
+        "generate-seed": "Generar semilla",
+        "review-keys": "Revisar claves",
+        "confirm": "Confirmar"
+      },
+      "step1": {
+        "title": "Añadiendo nuevo conjunto de claves",
+        "info1": "Se generará una nueva frase de semilla para tu cuenta",
+        "info2": "Puedes mantener múltiples conjuntos de teclas activos simultáneamente",
+        "info3": "Tendrás la opción de revocar las claves antiguas en los siguientes pasos",
+        "authenticate": "Autenticar para continuar",
+        "error-not-owner": "La clave proporcionada no es una clave de propietario. Por favor, proporcione su clave de propietario, contraseña maestra o frase de semilla.",
+        "error-invalid-key": "Formato de clave privada inválido",
+        "error-authentication": "Error de autenticación. Por favor, comprueba tus credenciales e inténtalo de nuevo.",
+        "error-credentials-not-match": "Las credenciales proporcionadas no coinciden con esta cuenta. Por favor verifique su contraseña maestra, frase de semilla o clave de propietario.",
+        "error-account-not-loaded": "Los datos de la cuenta siguen cargándose. Por favor, espere un momento y vuelva a intentarlo."
+      },
+      "step2": {
+        "warning-title": "Importante: Guarda tu nueva frase de semilla",
+        "warning1": "Esta es una frase de semilla NUEVA, diferente de la semilla de tu cuenta original",
+        "warning2": "Guárdelo por separado - lo necesitarás para iniciar sesión con estas claves",
+        "warning3": "Descargue el archivo de semilla y guárdelo de forma segura antes de continuar"
+      },
+      "step3": {
+        "title": "Revisar claves existentes",
+        "description": "Seleccione las claves antiguas que desee revocar. Puede omitir este paso para mantener todas las claves existentes activas.",
+        "cannot-revoke-last": "No se puede revocar - esta es la única clave de este tipo",
+        "selected-count": "{{count}} key(s) selected for revocation",
+        "next-with-revoke": "Continuar y revocar seleccionados",
+        "next-skip": "Continuar sin revocar",
+        "will-be-replaced": "se reemplazará con una nueva clave",
+        "memo-will-replace": "La nueva clave de memo reemplazará esta",
+        "derivation-unknown": "Desconocido",
+        "derivation-bip44": "Semilla BIP44",
+        "derivation-master-password": "Contraseña maestra"
+      },
+      "step4": {
+        "title": "Listo para aplicar cambios",
+        "description": "Revisa los cambios a continuación y confirma para actualizar tu cuenta.",
+        "adding": "Agregando",
+        "new-bip44-keys": "Nuevas claves basadas en semillas BIP44 (propietario, activo, publicación, memo)",
+        "revoking": "Revocando",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "Aplicando cambios...",
+        "please-wait": "Por favor, espera mientras actualizamos tu cuenta",
+        "success": "Claves actualizadas con éxito!",
+        "success-description": "Sus nuevas claves han sido añadidas y las antiguas claves seleccionadas han sido revocadas.",
+        "error-no-keys": "No hay claves disponibles para añadir"
+      }
     }
   }
 }
