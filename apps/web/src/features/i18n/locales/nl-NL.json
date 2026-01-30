@@ -71,6 +71,7 @@
     "more-results": "Meer resultaten",
     "close": "Sluiten",
     "loading": "Laden",
+    "validating": "Valideren...",
     "stop": "Stop",
     "settings": "Instellingen",
     "confirm": "Bevestigen",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Sleutels & wachtwoorden",
       "hint": "Een Hive account kan meerdere sleutels tegelijk vastleggen, die allemaal hieronder worden weergegeven",
-      "add-key": "Voeg nieuwe sleutels toe",
+      "add-key": "Toevoegen/beheren van sleutels",
       "key-created": "Toetsen hebben met succes gemaakt en toegewezen.",
       "error-private-key-reveal": "Privé sleutel kan alleen worden onthuld met hoofdwachtwoord of herstelzin"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Intrekken Hive key",
       "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Verifiëren",
+        "generate-seed": "Genereer Seed",
+        "review-keys": "Beoordeel sleutels",
+        "confirm": "Bevestigen"
+      },
+      "step1": {
+        "title": "Nieuwe sleutelset toevoegen",
+        "info1": "Er wordt een nieuwe herstelzin gegenereerd voor uw account",
+        "info2": "Je kunt meerdere sleutelsets tegelijk actief houden",
+        "info3": "Je hebt de optie om oude sleutels in de volgende stappen in te trekken",
+        "authenticate": "Verifieer om verder te gaan",
+        "error-not-owner": "De opgegeven sleutel is geen eigenaarssleutel. Geef uw eigenaarssleutel, hoofdwachtwoord of herstelzin op.",
+        "error-invalid-key": "Ongeldig private key formaat",
+        "error-authentication": "Authenticatie mislukt. Controleer uw inloggegevens en probeer het opnieuw.",
+        "error-credentials-not-match": "De verstrekte referenties komen niet overeen met dit account. Verifieer uw hoofdwachtwoord, herstelzin of eigenaarssleutel.",
+        "error-account-not-loaded": "Rekeninggegevens worden nog steeds geladen. Wacht even en probeer het opnieuw."
+      },
+      "step2": {
+        "warning-title": "Belangrijk: Sla je nieuwe zin op",
+        "warning1": "Dit is een nieuwe herstelzin die afwijkt van uw oorspronkelijke account seed",
+        "warning2": "Sla het afzonderlijk op - u moet inloggen met deze sleutels",
+        "warning3": "Download het seed bestand en sla het veilig op alvorens verder te gaan"
+      },
+      "step3": {
+        "title": "Bestaande sleutels controleren",
+        "description": "Selecteer een oude sleutel die je wilt intrekken. Je kan deze stap overslaan om alle bestaande sleutels actief te houden.",
+        "cannot-revoke-last": "Niet intrekken - dit is de enige sleutel van dit type",
+        "selected-count": "{{count}} sleutel(s) geselecteerd voor herroeping",
+        "next-with-revoke": "Geselecteerde voortzetten en intrekken",
+        "next-skip": "Doorgaan zonder intrekken",
+        "will-be-replaced": "zal worden vervangen door nieuwe sleutel",
+        "memo-will-replace": "Nieuwe memo toets zal deze vervangen",
+        "derivation-unknown": "onbekend",
+        "derivation-bip44": "BIP44 Zaad",
+        "derivation-master-password": "Hoofdwachtwoord"
+      },
+      "step4": {
+        "title": "Klaar om wijzigingen toe te passen",
+        "description": "Controleer de onderstaande wijzigingen en bevestig dat u uw account bijwerkt.",
+        "adding": "Toevoegen",
+        "new-bip44-keys": "Nieuwe BIP44 seedgebaseerde sleutels (eigenaar, actief, posten, memo)",
+        "revoking": "Intrekken",
+        "revoking-count": "{{count}} bestaande sleutel(s)",
+        "applying": "Wijzigingen toepassen...",
+        "please-wait": "Een moment geduld aub terwijl we uw account updaten",
+        "success": "Sleutels succesvol bijgewerkt!",
+        "success-description": "Uw nieuwe sleutels zijn toegevoegd en de geselecteerde oude sleutels zijn ingetrokken.",
+        "error-no-keys": "Geen sleutels beschikbaar om toe te voegen"
+      }
     }
   }
 }
