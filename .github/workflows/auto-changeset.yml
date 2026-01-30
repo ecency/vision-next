@@ -1,0 +1,158 @@
+name: Auto Generate Changeset
+
+on:
+  pull_request:
+    types: [labeled, opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-changeset:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'patch') ||
+      contains(github.event.pull_request.labels.*.name, 'minor') ||
+      contains(github.event.pull_request.labels.*.name, 'major') ||
+      contains(github.event.pull_request.labels.*.name, 'patch:sdk') ||
+      contains(github.event.pull_request.labels.*.name, 'patch:wallets') ||
+      contains(github.event.pull_request.labels.*.name, 'patch:render-helper') ||
+      contains(github.event.pull_request.labels.*.name, 'minor:sdk') ||
+      contains(github.event.pull_request.labels.*.name, 'minor:wallets') ||
+      contains(github.event.pull_request.labels.*.name, 'minor:render-helper')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.18.1
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate changeset
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+        run: |
+          set -e
+
+          # Parse labels to determine packages and bump type
+          LABELS=$(echo "$PR_LABELS" | jq -r '.[]')
+
+          PACKAGES=""
+          BUMP_TYPE="patch"
+
+          # Check for package-specific labels first
+          if echo "$LABELS" | grep -q "patch:sdk"; then
+            PACKAGES="$PACKAGES @ecency/sdk"
+            BUMP_TYPE="patch"
+          fi
+          if echo "$LABELS" | grep -q "minor:sdk"; then
+            PACKAGES="$PACKAGES @ecency/sdk"
+            BUMP_TYPE="minor"
+          fi
+          if echo "$LABELS" | grep -q "patch:wallets"; then
+            PACKAGES="$PACKAGES @ecency/wallets"
+            BUMP_TYPE="patch"
+          fi
+          if echo "$LABELS" | grep -q "minor:wallets"; then
+            PACKAGES="$PACKAGES @ecency/wallets"
+            BUMP_TYPE="minor"
+          fi
+          if echo "$LABELS" | grep -q "patch:render-helper"; then
+            PACKAGES="$PACKAGES @ecency/render-helper"
+            BUMP_TYPE="patch"
+          fi
+          if echo "$LABELS" | grep -q "minor:render-helper"; then
+            PACKAGES="$PACKAGES @ecency/render-helper"
+            BUMP_TYPE="minor"
+          fi
+
+          # If no package-specific labels, use general labels and detect from files
+          if [ -z "$PACKAGES" ]; then
+            if echo "$LABELS" | grep -q "minor"; then
+              BUMP_TYPE="minor"
+            elif echo "$LABELS" | grep -q "major"; then
+              BUMP_TYPE="major"
+            fi
+
+            # Detect which packages were changed
+            git fetch origin ${{ github.event.pull_request.base.ref }}
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+            if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then
+              PACKAGES="$PACKAGES @ecency/sdk"
+            fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then
+              PACKAGES="$PACKAGES @ecency/wallets"
+            fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then
+              PACKAGES="$PACKAGES @ecency/render-helper"
+            fi
+          fi
+
+          # Skip if no packages detected
+          if [ -z "$PACKAGES" ]; then
+            echo "No publishable packages changed, skipping changeset generation"
+            exit 0
+          fi
+
+          # Create changeset file
+          CHANGESET_FILE=".changeset/pr-${PR_NUMBER}.md"
+
+          # Check if changeset already exists
+          if [ -f "$CHANGESET_FILE" ]; then
+            echo "Changeset already exists, updating it"
+            rm "$CHANGESET_FILE"
+          fi
+
+          # Generate frontmatter
+          echo "---" > "$CHANGESET_FILE"
+          for pkg in $PACKAGES; do
+            echo "\"$pkg\": $BUMP_TYPE" >> "$CHANGESET_FILE"
+          done
+          echo "---" >> "$CHANGESET_FILE"
+          echo "" >> "$CHANGESET_FILE"
+
+          # Use PR title as changeset description with PR link
+          # Format: "Title (#123)" - GitHub auto-links this in CHANGELOG
+          if [[ "$PR_TITLE" == *"(#${PR_NUMBER})"* ]]; then
+            # PR number already in title
+            echo "$PR_TITLE" >> "$CHANGESET_FILE"
+          else
+            # Add PR number to title
+            echo "$PR_TITLE (#${PR_NUMBER})" >> "$CHANGESET_FILE"
+          fi
+
+          echo "Generated changeset for packages:$PACKAGES with bump type: $BUMP_TYPE"
+          cat "$CHANGESET_FILE"
+
+      - name: Commit changeset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .changeset/
+
+          if git diff --staged --quiet; then
+            echo "No changeset changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: auto-generate changeset for PR #${{ github.event.pull_request.number }}"
+          git push

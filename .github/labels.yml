@@ -1,0 +1,50 @@
+# Changeset bump type labels
+- name: patch
+  description: Bug fixes and patches (1.0.0 → 1.0.1)
+  color: "0e8a16"
+
+- name: minor
+  description: New features, non-breaking changes (1.0.0 → 1.1.0)
+  color: "fbca04"
+
+- name: major
+  description: Breaking changes (1.0.0 → 2.0.0)
+  color: "d93f0b"
+
+# Package-specific labels
+- name: "patch:sdk"
+  description: Patch bump for @ecency/sdk
+  color: "c5def5"
+
+- name: "minor:sdk"
+  description: Minor bump for @ecency/sdk
+  color: "bfdadc"
+
+- name: "patch:wallets"
+  description: Patch bump for @ecency/wallets
+  color: "fef2c0"
+
+- name: "minor:wallets"
+  description: Minor bump for @ecency/wallets
+  color: "f9d0c4"
+
+- name: "patch:render-helper"
+  description: Patch bump for @ecency/render-helper
+  color: "e4e669"
+
+- name: "minor:render-helper"
+  description: Minor bump for @ecency/render-helper
+  color: "c2e0c6"
+
+# Other useful labels
+- name: dependencies
+  description: Dependency updates
+  color: "0366d6"
+
+- name: documentation
+  description: Documentation changes
+  color: "0075ca"
+
+- name: skip-changeset
+  description: Skip changeset generation (web-only changes)
+  color: "d4c5f9"
