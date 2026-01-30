@@ -71,6 +71,7 @@
     "more-results": "更多结果",
     "close": "关闭",
     "loading": "正在加载",
+    "validating": "正在验证...",
     "stop": "停止",
     "settings": "设置",
     "confirm": "确认",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "密钥和密码",
       "hint": "Hive 帐户可以同时持有多个键，所有键都列在下面：",
-      "add-key": "添加新密钥",
+      "add-key": "添加/管理密钥",
       "key-created": "密钥已成功创建和分配。",
       "error-private-key-reveal": "私钥只能通过主密码或种子短语暴露。"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "撤销Hive 密钥",
       "hint": "您可以使用一个所有者密钥/主密码/种子撤销任何Hive 密钥"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "验证",
+        "generate-seed": "生成种子",
+        "review-keys": "审查密钥",
+        "confirm": "确认"
+      },
+      "step1": {
+        "title": "添加新密钥集",
+        "info1": "将为您的帐户生成一个新的种子短语",
+        "info2": "您可以同时启用多个密钥集",
+        "info3": "您可以选择在下一步中撤销旧密钥",
+        "authenticate": "身份验证以继续",
+        "error-not-owner": "提供的密钥不是所有者密钥。请提供您的所有者密钥、主密码或种子短语。",
+        "error-invalid-key": "无效的私钥格式",
+        "error-authentication": "认证失败。请检查您的凭据，然后重试。",
+        "error-credentials-not-match": "提供的凭据与此账户不匹配。请验证您的主密码、种子短语或所有者密钥。",
+        "error-account-not-loaded": "帐户数据仍在加载。请稍等，然后重试。"
+      },
+      "step2": {
+        "warning-title": "重要：保存你新的种子词组",
+        "warning1": "这是一个新的种子短语，不同于您原始的帐户种子",
+        "warning2": "单独保存 - 您需要使用这些密钥登录",
+        "warning3": "在继续之前下载种子文件并安全存储"
+      },
+      "step3": {
+        "title": "查看现有密钥",
+        "description": "选择您想要撤销的任何旧密钥。您可以跳过此步骤来保持所有现有密钥的活动。",
+        "cannot-revoke-last": "无法吊销-这是此类型的唯一密钥",
+        "selected-count": "{{count}} key(s) selected for revocation",
+        "next-with-revoke": "继续并撤销选定的",
+        "next-skip": "不撤销则继续",
+        "will-be-replaced": "将被新密钥替换",
+        "memo-will-replace": "新的备注键将替换这个密钥",
+        "derivation-unknown": "未知的",
+        "derivation-bip44": "BIP44 种子",
+        "derivation-master-password": "主密码"
+      },
+      "step4": {
+        "title": "准备应用更改",
+        "description": "查看下面的更改并确认更新您的帐户。",
+        "adding": "添加中",
+        "new-bip44-keys": "新 BIP44 种子密钥(所有者，激活，发布，备忘录)",
+        "revoking": "正在取消",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "正在应用更改...",
+        "please-wait": "请稍等，我们正在更新您的帐户",
+        "success": "密钥更新成功！",
+        "success-description": "您的新密钥已被添加，所选的旧密钥已被撤销。",
+        "error-no-keys": "没有可用的密钥可添加"
+      }
     }
   }
 }
