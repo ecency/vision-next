@@ -71,6 +71,7 @@
     "more-results": "Più risultati",
     "close": "Chiudi",
     "loading": "Caricamento",
+    "validating": "Convalidazione...",
     "stop": "Interrompi",
     "settings": "Impostazioni",
     "confirm": "Conferma",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Chiavi E Password",
       "hint": "Un account Hive può contenere più chiavi contemporaneamente, tutte elencate di seguito",
-      "add-key": "Aggiungi nuove chiavi",
+      "add-key": "Aggiungi/Gestisci chiavi",
       "key-created": "Le chiavi hanno creato e assegnato con successo.",
       "error-private-key-reveal": "La chiave privata può essere rivelata solo con la password principale o la seed phrase"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Revoca chiave Hive",
       "hint": "È possibile revocare qualsiasi chiave Hive utilizzando una delle chiavi proprietarie/password principale/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Autenticazione",
+        "generate-seed": "Genera Seme",
+        "review-keys": "Revisione Chiavi",
+        "confirm": "Conferma"
+      },
+      "step1": {
+        "title": "Aggiunta Di Nuovo Set Di Chiavi",
+        "info1": "Un nuovo seed phrase verrà generato per il tuo account",
+        "info2": "È possibile mantenere più set di chiavi attivi contemporaneamente",
+        "info3": "Avrai la possibilità di revocare i vecchi tasti nei prossimi passi",
+        "authenticate": "Autenticazione per continuare",
+        "error-not-owner": "La chiave fornita non è una chiave proprietaria. Fornisci la tua chiave proprietaria, la password principale o la frase seme.",
+        "error-invalid-key": "Formato della chiave privata non valido",
+        "error-authentication": "Autenticazione non riuscita. Controlla le tue credenziali e riprova.",
+        "error-credentials-not-match": "Le credenziali fornite non corrispondono a questo account. Verifica la tua password principale, la frase seed o la chiave proprietaria.",
+        "error-account-not-loaded": "I dati dell'account sono ancora in caricamento. Si prega di attendere un momento e riprovare."
+      },
+      "step2": {
+        "warning-title": "Importante: Salva La Tua Nuova Frase Di Seme",
+        "warning1": "Questa è una frase di nuovo seme, diversa dal tuo seme originale",
+        "warning2": "Salva separatamente - avrai bisogno di effettuare il login con queste chiavi",
+        "warning3": "Scarica il file seed e memorizzalo in modo sicuro prima di continuare"
+      },
+      "step3": {
+        "title": "Controlla Le Chiavi Esistenti",
+        "description": "Seleziona le vecchie chiavi che vuoi revocare. Puoi saltare questo passaggio per mantenere attive tutte le chiavi esistenti.",
+        "cannot-revoke-last": "Impossibile revocare - questa è l'unica chiave di questo tipo",
+        "selected-count": "{{count}} chiavi selezionate per la revoca",
+        "next-with-revoke": "Continua E Revoca Selezionati",
+        "next-skip": "Continua Senza Revocare",
+        "will-be-replaced": "sarà sostituito con una nuova chiave",
+        "memo-will-replace": "La nuova chiave memo sostituirà quella",
+        "derivation-unknown": "Sconosciuto",
+        "derivation-bip44": "Seme BIP44",
+        "derivation-master-password": "Password Principale"
+      },
+      "step4": {
+        "title": "Pronto per applicare modifiche",
+        "description": "Controlla le modifiche qui sotto e conferma per aggiornare il tuo account.",
+        "adding": "Aggiunta",
+        "new-bip44-keys": "Nuove chiavi basate su seed BIP44 (proprietario, attivo, pubblicazione, memo)",
+        "revoking": "Revocando",
+        "revoking-count": "{{count}} chiavi esistenti",
+        "applying": "Applicazione Delle Modifiche...",
+        "please-wait": "Attendere mentre aggiorniamo il tuo account",
+        "success": "Chiavi Aggiornate Con Successo!",
+        "success-description": "Le nuove chiavi sono state aggiunte e le vecchie chiavi selezionate sono state revocate.",
+        "error-no-keys": "Nessuna chiave disponibile da aggiungere"
+      }
     }
   }
 }
