@@ -71,6 +71,7 @@
     "more-results": "Więcej wyników",
     "close": "Zamknij",
     "loading": "Ładowanie",
+    "validating": "Weryfikowanie...",
     "stop": "Zatrzymaj",
     "settings": "Ustawienia",
     "confirm": "Potwierdź",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Klucze i hasła",
       "hint": "Konto Ulowe może trzymać wiele kluczy jednocześnie, wszystkie są wymienione poniżej",
-      "add-key": "Dodaj nowe klucze",
+      "add-key": "Dodaj/Zarządzaj kluczami",
       "key-created": "Klucze zostały utworzone i przypisane pomyślnie.",
       "error-private-key-reveal": "Klucz prywatny można ujawnić tylko z hasłem głównym lub frazą seed"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Unieważnij klucz Ul",
       "hint": "Możesz odwołać dowolny klucz Uli, używając jednego z kluczy właściciela/hasła głównego/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Uwierzytelnij",
+        "generate-seed": "Wygeneruj ziarno",
+        "review-keys": "Klawisze recenzji",
+        "confirm": "Potwierdź"
+      },
+      "step1": {
+        "title": "Dodawanie nowego zestawu kluczy",
+        "info1": "Nowa fraza seed zostanie wygenerowana dla Twojego konta",
+        "info2": "Możesz zachować wiele zestawów klawiszy jednocześnie",
+        "info3": "Będziesz miał możliwość cofnięcia starych kluczy w kolejnych krokach",
+        "authenticate": "Uwierzytelnij, aby kontynuować",
+        "error-not-owner": "Podany klucz nie jest kluczem właściciela. Proszę podać klucz właściciela, hasło główne lub frazę seed",
+        "error-invalid-key": "Nieprawidłowy format klucza prywatnego",
+        "error-authentication": "Uwierzytelnianie nie powiodło się. Sprawdź swoje poświadczenia i spróbuj ponownie.",
+        "error-credentials-not-match": "Podane dane logowania nie pasują do tego konta. Sprawdź swoje hasło główne, frazę seed lub klucz właściciela.",
+        "error-account-not-loaded": "Dane konta nadal się ładują. Poczekaj chwilę i spróbuj ponownie."
+      },
+      "step2": {
+        "warning-title": "Ważne: Zapisz swoje nowe frazę seed",
+        "warning1": "To jest NOWA fraza ziaren, inna niż oryginalny seed konta",
+        "warning2": "Zapisz to osobno - będziesz potrzebował go aby zalogować się za pomocą tych kluczy",
+        "warning3": "Pobierz plik seed i przechowuj go bezpiecznie przed kontynuowaniem"
+      },
+      "step3": {
+        "title": "Przejrzyj istniejące klucze",
+        "description": "Wybierz stare klucze, które chcesz cofnąć. Możesz pominąć ten krok, aby wszystkie istniejące klucze były aktywne.",
+        "cannot-revoke-last": "Nie można odwołać - jest to jedyny klucz tego typu",
+        "selected-count": "Klucze {{count}} wybrane do cofnięcia",
+        "next-with-revoke": "Kontynuuj i cofnij zaznaczone",
+        "next-skip": "Kontynuuj bez cofania",
+        "will-be-replaced": "zostanie zastąpiony nowym kluczem",
+        "memo-will-replace": "Nowy klucz memo zastąpi ten",
+        "derivation-unknown": "Nieznane",
+        "derivation-bip44": "BIP44 Nasiona",
+        "derivation-master-password": "Hasło główne"
+      },
+      "step4": {
+        "title": "Gotowy do zastosowania zmian",
+        "description": "Przejrzyj poniższe zmiany i potwierdź aktualizację swojego konta.",
+        "adding": "Dodawanie",
+        "new-bip44-keys": "Nowe klucze seedowe BIP44 (właściciel, aktywny, posting, memo)",
+        "revoking": "Odwoływanie",
+        "revoking-count": "{{count}} istniejące klucze",
+        "applying": "Stosowanie zmian...",
+        "please-wait": "Proszę czekać, aktualizujemy Twoje konto",
+        "success": "Klucze zaktualizowane pomyślnie!",
+        "success-description": "Twoje nowe klucze zostały dodane i wybrane stare klucze zostały cofnięte.",
+        "error-no-keys": "Brak dostępnych kluczy do dodania"
+      }
     }
   }
 }
