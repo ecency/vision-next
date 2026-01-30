@@ -71,6 +71,7 @@
     "more-results": "Plus de résultats",
     "close": "Fermer",
     "loading": "Сhargement",
+    "validating": "Validation en cours...",
     "stop": "Arrêter",
     "settings": "Paramètres",
     "confirm": "Confirmer",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Clés et mots de passe",
       "hint": "Un compte Hive peut contenir plusieurs clés en même temps, toutes sont listées ci-dessous",
-      "add-key": "Ajouter de nouvelles clés",
+      "add-key": "Ajouter/Gérer les clés",
       "key-created": "Les clés ont été créées et assignées avec succès.",
       "error-private-key-reveal": "La clé privée ne peut être révélée qu'avec un mot de passe maître ou une phrase de graine"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Révoquer la touche Hive",
       "hint": "Vous pouvez révoquer n'importe quelle clé Hive en utilisant une des clés propriétaires/mot de passe maître/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "S'authentifier",
+        "generate-seed": "Générer une graine",
+        "review-keys": "Réviser les clés",
+        "confirm": "Valider"
+      },
+      "step1": {
+        "title": "Ajout d'un nouveau jeu de clés",
+        "info1": "Une nouvelle phrase de graine sera générée pour votre compte",
+        "info2": "Vous pouvez garder plusieurs ensembles de clés actifs simultanément",
+        "info3": "Vous aurez la possibilité de révoquer les anciennes clés dans les prochaines étapes",
+        "authenticate": "Authentification pour continuer",
+        "error-not-owner": "La clé fournie n'est pas une clé propriétaire. Veuillez fournir votre clé propriétaire, mot de passe principal ou phrase de graine.",
+        "error-invalid-key": "Format de clé privée invalide",
+        "error-authentication": "L'authentification a échoué. Veuillez vérifier vos identifiants et réessayer.",
+        "error-credentials-not-match": "Les identifiants fournis ne correspondent pas à ce compte. Veuillez vérifier votre mot de passe maître, votre phrase de graine ou votre clé propriétaire.",
+        "error-account-not-loaded": "Les données du compte sont toujours en cours de chargement. Veuillez patienter un instant et réessayer."
+      },
+      "step2": {
+        "warning-title": "Important : Sauvegardez votre nouvelle phrase de graine",
+        "warning1": "Ceci est une NOUVELLE phrase de graine, différente de votre graine de compte d'origine",
+        "warning2": "Enregistrez-le séparément - vous en aurez besoin pour vous connecter avec ces clés",
+        "warning3": "Télécharger le fichier de la graine et le stocker en toute sécurité avant de continuer"
+      },
+      "step3": {
+        "title": "Revoir les clés existantes",
+        "description": "Sélectionnez les anciennes clés que vous souhaitez révoquer. Vous pouvez sauter cette étape pour garder toutes les clés existantes activées.",
+        "cannot-revoke-last": "Impossible de révoquer - il s'agit de la seule clé de ce type",
+        "selected-count": "Clés {{count}} sélectionnées pour révocation",
+        "next-with-revoke": "Continuer et révoquer la sélection",
+        "next-skip": "Continuer sans révoquer",
+        "will-be-replaced": "sera remplacé par une nouvelle clé",
+        "memo-will-replace": "La nouvelle clé de mémo remplacera celle-ci",
+        "derivation-unknown": "Inconnu",
+        "derivation-bip44": "Graine BIP44",
+        "derivation-master-password": "Mot de passe principal"
+      },
+      "step4": {
+        "title": "Prêt à appliquer les modifications",
+        "description": "Examinez les modifications ci-dessous et confirmez pour mettre à jour votre compte.",
+        "adding": "Ajout en cours",
+        "new-bip44-keys": "Nouvelles clés de graines BIP44 (propriétaire, actif, poste, mémo)",
+        "revoking": "Révocation en cours",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "Application des modifications...",
+        "please-wait": "Veuillez patienter pendant que nous mettons à jour votre compte",
+        "success": "Clés mises à jour avec succès !",
+        "success-description": "Vos nouvelles clés ont été ajoutées et les anciennes clés sélectionnées ont été retirées.",
+        "error-no-keys": "Aucune clé disponible à ajouter"
+      }
     }
   }
 }
