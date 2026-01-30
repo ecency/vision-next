@@ -3156,7 +3156,10 @@
         "next-with-revoke": "Continue & Revoke Selected",
         "next-skip": "Continue Without Revoking",
         "will-be-replaced": "will be replaced with new key",
-        "memo-will-replace": "New memo key will replace this one"
+        "memo-will-replace": "New memo key will replace this one",
+        "derivation-unknown": "Unknown",
+        "derivation-bip44": "BIP44 Seed",
+        "derivation-master-password": "Master Password"
       },
       "step4": {
         "title": "Ready to Apply Changes",

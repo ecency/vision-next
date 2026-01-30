@@ -2901,7 +2901,13 @@ function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey, keysToRevoke = [] }) => {
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }) => {
       if (keys.length === 0) {
         throw new Error(
           "[SDK][Update password] \u2013 no new keys provided"
@@ -2914,7 +2920,12 @@ function useAccountUpdateKeyAuths(username, options) {
       }
       const prepareAuth = (keyName) => {
         const auth = R4__namespace.clone(accountData[keyName]);
-        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !keysToRevoke.includes(key.toString())) : [];
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...keysToRevokeByAuthority[keyName] === void 0 ? keysToRevoke : []
+        ];
+        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString())) : [];
         auth.key_auths = dedupeAndSortKeyAuths(
           existingKeys,
           keys.map(

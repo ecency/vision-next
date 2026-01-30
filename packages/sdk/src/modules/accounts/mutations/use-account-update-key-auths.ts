@@ -19,7 +19,8 @@ interface Payload {
   keepCurrent?: boolean;
   currentKey: PrivateKey;
   keys: Keys[];
-  keysToRevoke?: string[];
+  keysToRevoke?: string[]; // Deprecated: will be treated as revoking from all authorities
+  keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>; // Authority-specific revocation
 }
 
 export function dedupeAndSortKeyAuths(
@@ -54,7 +55,13 @@ export function useAccountUpdateKeyAuths(
 
   return useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey, keysToRevoke = [] }: Payload) => {
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }: Payload) => {
       if (keys.length === 0) {
         throw new Error(
           "[SDK][Update password] – no new keys provided"
@@ -70,9 +77,17 @@ export function useAccountUpdateKeyAuths(
       const prepareAuth = (keyName: keyof Keys) => {
         const auth: AuthorityType = R.clone(accountData[keyName]);
 
-        // Filter out keys to revoke from existing keys
+        // Get keys to revoke for this specific authority
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        // Fallback to global keysToRevoke for backwards compatibility
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...(keysToRevokeByAuthority[keyName] === undefined ? keysToRevoke : [])
+        ];
+
+        // Filter out keys to revoke from existing keys (authority-specific)
         const existingKeys = keepCurrent
-          ? auth.key_auths.filter(([key]) => !keysToRevoke.includes(key.toString()))
+          ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString()))
           : [];
 
         auth.key_auths = dedupeAndSortKeyAuths(

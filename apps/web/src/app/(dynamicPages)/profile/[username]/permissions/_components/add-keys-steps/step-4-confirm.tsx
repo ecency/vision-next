@@ -7,18 +7,20 @@ import { useHiveKeysQuery } from "@ecency/wallets";
 import { PrivateKey } from "@hiveio/dhive";
 import { UilArrowLeft, UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
+type KeyAuthority = "owner" | "active" | "posting" | "memo";
+
 interface Props {
   ownerKey: string;
-  keysToRevoke: string[];
+  keysToRevokeByAuthority: Record<KeyAuthority, string[]>;
   onBack: () => void;
   onSuccess: () => void;
 }
 
-export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Props) {
+export function Step4Confirm({ ownerKey, keysToRevokeByAuthority, onBack, onSuccess }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
@@ -30,6 +32,7 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
   const setMultipleDerivations = useKeyDerivationStore((state) => state.setMultipleDerivations);
   const [isApplying, setIsApplying] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const hasSubmittedRef = useRef(false);
   const queryClient = useQueryClient();
 
   const { mutateAsync: saveKeys } = useAccountUpdateKeyAuths(username, {
@@ -65,13 +68,18 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
       return;
     }
 
+    if (hasSubmittedRef.current || isApplying) {
+      return; // Prevent double submission
+    }
+
+    hasSubmittedRef.current = true;
     setIsApplying(true);
 
     try {
       await saveKeys({
-        keepCurrent: true, // Always keep current keys, keysToRevoke handles removal
+        keepCurrent: true, // Always keep current keys, keysToRevokeByAuthority handles removal
         currentKey: PrivateKey.fromString(ownerKey),
-        keysToRevoke,
+        keysToRevokeByAuthority,
         keys: [
           {
             owner: PrivateKey.fromString(keys.owner),
@@ -87,10 +95,12 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
   };
 
   useEffect(() => {
-    // Auto-apply on mount for better UX
+    // Auto-apply once keys are available and not already applying
+    if (!keys || isApplying || hasSubmittedRef.current) {
+      return;
+    }
     handleConfirm();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [keys, isApplying]);
 
   if (isComplete) {
     return (
@@ -114,6 +124,13 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
     );
   }
 
+  const getTotalRevocationCount = () => {
+    return Object.values(keysToRevokeByAuthority).reduce(
+      (total, keys) => total + keys.length,
+      0
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
@@ -136,14 +153,14 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
             </div>
           </div>
 
-          {keysToRevoke.length > 0 && (
+          {getTotalRevocationCount() > 0 && (
             <div>
               <div className="text-xs opacity-50 uppercase mb-1">
                 {i18next.t("permissions.add-keys.step4.revoking")}
               </div>
               <div className="text-sm text-red-600 dark:text-red-400">
                 {i18next.t("permissions.add-keys.step4.revoking-count", {
-                  count: keysToRevoke.length
+                  count: getTotalRevocationCount()
                 })}
               </div>
             </div>

@@ -8,15 +8,18 @@ import { useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
 
 type Keys = Record<string, [string, number][]>;
+type KeyAuthority = "owner" | "active" | "posting" | "memo";
+type SelectedKeysMap = Map<string, Set<KeyAuthority>>; // publicKey -> Set of authorities
 
 interface Props {
-  onNext: (keysToRevoke: string[]) => void;
+  onNext: (keysToRevokeByAuthority: Record<KeyAuthority, string[]>) => void;
   onBack: () => void;
 }
 
 export function Step3ReviewKeys({ onNext, onBack }: Props) {
   const { activeUser } = useActiveAccount();
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  // Track which authorities each selected key belongs to
+  const [selectedKeys, setSelectedKeys] = useState<SelectedKeysMap>(new Map());
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
 
   const username = activeUser?.username;
@@ -33,37 +36,67 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
       }) as Keys
   });
 
-  const toggleKey = (publicKey: string) => {
+  const toggleKey = (publicKey: string, authority: KeyAuthority) => {
     setSelectedKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(publicKey)) {
-        next.delete(publicKey);
+      const next = new Map(prev);
+      const authorities = next.get(publicKey) || new Set<KeyAuthority>();
+
+      if (authorities.has(authority)) {
+        authorities.delete(authority);
+        if (authorities.size === 0) {
+          next.delete(publicKey);
+        } else {
+          next.set(publicKey, authorities);
+        }
       } else {
-        next.add(publicKey);
+        authorities.add(authority);
+        next.set(publicKey, authorities);
       }
+
       return next;
     });
   };
 
+  const isKeySelected = (publicKey: string, authority: KeyAuthority) => {
+    const authorities = selectedKeys.get(publicKey);
+    return authorities?.has(authority) ?? false;
+  };
+
+  const getSelectedCount = () => {
+    let count = 0;
+    selectedKeys.forEach((authorities) => {
+      count += authorities.size;
+    });
+    return count;
+  };
+
   const getDerivationBadge = (publicKey: string) => {
     const method = getDerivation(username ?? "", publicKey);
-    if (method === "unknown") {
-      return (
-        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-          Unknown
-        </span>
-      );
-    }
 
+    const getBadgeConfig = () => {
+      switch (method) {
+        case "unknown":
+          return {
+            label: i18next.t("permissions.add-keys.step3.derivation-unknown"),
+            className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+          };
+        case "bip44":
+          return {
+            label: i18next.t("permissions.add-keys.step3.derivation-bip44"),
+            className: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+          };
+        case "master-password":
+          return {
+            label: i18next.t("permissions.add-keys.step3.derivation-master-password"),
+            className: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
+          };
+      }
+    };
+
+    const config = getBadgeConfig();
     return (
-      <span
-        className={`text-xs px-2 py-0.5 rounded-full ${
-          method === "bip44"
-            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-            : "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
-        }`}
-      >
-        {method === "bip44" ? "BIP44 Seed" : "Master Password"}
+      <span className={`text-xs px-2 py-0.5 rounded-full ${config.className}`}>
+        {config.label}
       </span>
     );
   };
@@ -73,6 +106,7 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
     if (keys.length === 0) return null;
 
     const isMemo = keyName === "memo";
+    const authority = keyName as KeyAuthority;
     const canRevoke = !isMemo && keys.length > 1;
 
     return (
@@ -94,8 +128,8 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
               {!isMemo && (
                 <input
                   type="checkbox"
-                  checked={selectedKeys.has(key[0])}
-                  onChange={() => toggleKey(key[0])}
+                  checked={isKeySelected(key[0], authority)}
+                  onChange={() => toggleKey(key[0], authority)}
                   className="mt-1"
                   disabled={!canRevoke}
                 />
@@ -142,9 +176,11 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
         {renderKeyType("memo")}
       </div>
 
-      {selectedKeys.size > 0 && (
+      {getSelectedCount() > 0 && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-sm text-yellow-800 dark:text-yellow-200">
-          {i18next.t("permissions.add-keys.step3.selected-count", { count: selectedKeys.size })}
+          {i18next.t("permissions.add-keys.step3.selected-count", {
+            count: getSelectedCount()
+          })}
         </div>
       )}
 
@@ -152,8 +188,27 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
         <Button appearance="gray-link" icon={<UilArrowLeft />} onClick={onBack}>
           {i18next.t("g.back")}
         </Button>
-        <Button icon={<UilArrowRight />} onClick={() => onNext(Array.from(selectedKeys))}>
-          {selectedKeys.size > 0
+        <Button
+          icon={<UilArrowRight />}
+          onClick={() => {
+            // Build authority-specific revocation map
+            const keysToRevokeByAuthority: Record<KeyAuthority, string[]> = {
+              owner: [],
+              active: [],
+              posting: [],
+              memo: []
+            };
+
+            selectedKeys.forEach((authorities, publicKey) => {
+              authorities.forEach((authority) => {
+                keysToRevokeByAuthority[authority].push(publicKey);
+              });
+            });
+
+            onNext(keysToRevokeByAuthority);
+          }}
+        >
+          {getSelectedCount() > 0
             ? i18next.t("permissions.add-keys.step3.next-with-revoke")
             : i18next.t("permissions.add-keys.step3.next-skip")}
         </Button>

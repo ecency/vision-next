@@ -12,11 +12,20 @@ interface Props {
   onSuccess: () => void;
 }
 
+type KeyAuthority = "owner" | "active" | "posting" | "memo";
+
 export function ManageKeysAddKeys({ onSuccess }: Props) {
   const { activeUser } = useActiveAccount();
   const [currentStep, setCurrentStep] = useState(1);
   const [ownerKey, setOwnerKey] = useState("");
-  const [keysToRevoke, setKeysToRevoke] = useState<string[]>([]);
+  const [keysToRevokeByAuthority, setKeysToRevokeByAuthority] = useState<
+    Record<KeyAuthority, string[]>
+  >({
+    owner: [],
+    active: [],
+    posting: [],
+    memo: []
+  });
 
   const username = activeUser?.username;
 
@@ -33,8 +42,8 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
     setCurrentStep(2);
   };
 
-  const handleStep3Next = (keys: string[]) => {
-    setKeysToRevoke(keys);
+  const handleStep3Next = (keys: Record<KeyAuthority, string[]>) => {
+    setKeysToRevokeByAuthority(keys);
     setCurrentStep(4);
   };
 
@@ -110,7 +119,7 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
         {currentStep === 4 && (
           <Step4Confirm
             ownerKey={ownerKey}
-            keysToRevoke={keysToRevoke}
+            keysToRevokeByAuthority={keysToRevokeByAuthority}
             onBack={() => setCurrentStep(3)}
             onSuccess={onSuccess}
           />
