@@ -2901,7 +2901,18 @@ function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey }) => {
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] \u2013 no new keys provided"
+        );
+      }
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] \u2013 cannot update keys for anon user"
@@ -2909,8 +2920,14 @@ function useAccountUpdateKeyAuths(username, options) {
       }
       const prepareAuth = (keyName) => {
         const auth = R4__namespace.clone(accountData[keyName]);
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...keysToRevokeByAuthority[keyName] === void 0 ? keysToRevoke : []
+        ];
+        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString())) : [];
         auth.key_auths = dedupeAndSortKeyAuths(
-          keepCurrent ? auth.key_auths : [],
+          existingKeys,
           keys.map(
             (values, i) => [values[keyName].createPublic().toString(), i + 1]
           )
@@ -2924,7 +2941,8 @@ function useAccountUpdateKeyAuths(username, options) {
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: keepCurrent ? accountData.memo_key : keys[0].memo_key.createPublic().toString()
+          // Always use new memo key when adding new keys
+          memo_key: keys[0].memo_key.createPublic().toString()
         },
         currentKey
       );
