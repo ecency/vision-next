@@ -71,6 +71,7 @@
     "more-results": "Daha fazla sonuç",
     "close": "Kapat",
     "loading": "Yükleniyor",
+    "validating": "Validating...",
     "stop": "Durdur",
     "settings": "Ayarlar",
     "confirm": "Confirm",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Keys & Passwords",
       "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
-      "add-key": "Add new keys",
+      "add-key": "Add/Manage keys",
       "key-created": "Keys have created and assigned successfully.",
       "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Authenticate",
+        "generate-seed": "Generate Seed",
+        "review-keys": "Review Keys",
+        "confirm": "Confirm"
+      },
+      "step1": {
+        "title": "Adding New Key Set",
+        "info1": "A new seed phrase will be generated for your account",
+        "info2": "You can keep multiple key sets active simultaneously",
+        "info3": "You'll have the option to revoke old keys in the next steps",
+        "authenticate": "Authenticate to Continue",
+        "error-not-owner": "The provided key is not an owner key. Please provide your owner key, master password, or seed phrase.",
+        "error-invalid-key": "Invalid private key format",
+        "error-authentication": "Authentication failed. Please check your credentials and try again.",
+        "error-credentials-not-match": "The provided credentials do not match this account. Please verify your master password, seed phrase, or owner key.",
+        "error-account-not-loaded": "Account data is still loading. Please wait a moment and try again."
+      },
+      "step2": {
+        "warning-title": "Important: Save Your New Seed Phrase",
+        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning2": "Save it separately - you'll need it to login with these keys",
+        "warning3": "Download the seed file and store it securely before continuing"
+      },
+      "step3": {
+        "title": "Review Existing Keys",
+        "description": "Select any old keys you want to revoke. You can skip this step to keep all existing keys active.",
+        "cannot-revoke-last": "Cannot revoke - this is the only key of this type",
+        "selected-count": "{{count}} key(s) selected for revocation",
+        "next-with-revoke": "Continue & Revoke Selected",
+        "next-skip": "Continue Without Revoking",
+        "will-be-replaced": "will be replaced with new key",
+        "memo-will-replace": "New memo key will replace this one",
+        "derivation-unknown": "Unknown",
+        "derivation-bip44": "BIP44 Seed",
+        "derivation-master-password": "Master Password"
+      },
+      "step4": {
+        "title": "Ready to Apply Changes",
+        "description": "Review the changes below and confirm to update your account.",
+        "adding": "Adding",
+        "new-bip44-keys": "New BIP44 seed-based keys (owner, active, posting, memo)",
+        "revoking": "Revoking",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "Applying Changes...",
+        "please-wait": "Please wait while we update your account",
+        "success": "Keys Updated Successfully!",
+        "success-description": "Your new keys have been added and selected old keys have been revoked.",
+        "error-no-keys": "No keys available to add"
+      }
     }
   }
 }
