@@ -1,67 +1,113 @@
-import { formatError } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { error, success } from "@/features/shared";
-import { KeyInput, KeyInputImperativeHandle } from "@/features/ui";
-import { WalletSeedPhrase } from "@/features/wallet";
-import { useAccountUpdateKeyAuths } from "@ecency/sdk";
-import { useHiveKeysQuery } from "@ecency/wallets";
-import { PrivateKey } from "@hiveio/dhive";
 import i18next from "i18next";
-import { useCallback, useRef } from "react";
+import { useState } from "react";
+import {
+  Step1Authenticate,
+  Step2GenerateSeed,
+  Step3ReviewKeys,
+  Step4Confirm
+} from "./add-keys-steps";
 
 interface Props {
   onSuccess: () => void;
 }
 
 export function ManageKeysAddKeys({ onSuccess }: Props) {
-  const keyInputRef = useRef<KeyInputImperativeHandle>(null);
-
   const { activeUser } = useActiveAccount();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [ownerKey, setOwnerKey] = useState("");
+  const [keysToRevoke, setKeysToRevoke] = useState<string[]>([]);
 
-  const { data: keys } = useHiveKeysQuery(activeUser?.username!);
+  const handleStep1Next = (derivedOwnerKey: string, originalCredential: string) => {
+    setOwnerKey(derivedOwnerKey);
+    setCurrentStep(2);
+  };
 
-  const { mutateAsync: saveKeys } = useAccountUpdateKeyAuths(activeUser?.username!, {
-    onSuccess: () => {
-      onSuccess?.();
-      success(i18next.t("permissions.keys.key-created"));
-    },
-    onError: (err) => {
-      error(...formatError(err));
-    }
-  });
+  const handleStep3Next = (keys: string[]) => {
+    setKeysToRevoke(keys);
+    setCurrentStep(4);
+  };
 
-  const handleSaveKeys = useCallback(async () => {
-    if (keys) {
-      const { privateKey } = await keyInputRef.current!.handleSign();
-      saveKeys({
-        keepCurrent: true,
-        currentKey: privateKey,
-        keys: [
-          {
-            owner: PrivateKey.fromString(keys.owner),
-            active: PrivateKey.fromString(keys.active),
-            posting: PrivateKey.fromString(keys.posting),
-            memo_key: PrivateKey.fromString(keys.memo)
-          }
-        ]
-      });
-    } else {
-      throw new Error("[AddKeys] – no keys found");
-    }
-  }, [keys, saveKeys]);
+  const renderStepIndicator = () => {
+    const steps = [
+      i18next.t("permissions.add-keys.stepper.authenticate"),
+      i18next.t("permissions.add-keys.stepper.generate-seed"),
+      i18next.t("permissions.add-keys.stepper.review-keys"),
+      i18next.t("permissions.add-keys.stepper.confirm")
+    ];
+
+    return (
+      <div className="flex items-center justify-between mb-6 px-4">
+        {steps.map((step, index) => {
+          const stepNumber = index + 1;
+          const isActive = stepNumber === currentStep;
+          const isCompleted = stepNumber < currentStep;
+
+          return (
+            <div key={stepNumber} className="flex items-center flex-1">
+              <div className="flex flex-col items-center flex-1">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                    isCompleted
+                      ? "bg-green-500 text-white"
+                      : isActive
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {stepNumber}
+                </div>
+                <div
+                  className={`text-xs mt-1 text-center transition-colors ${
+                    isActive
+                      ? "text-blue-600 dark:text-blue-400 font-semibold"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {step}
+                </div>
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`h-0.5 flex-1 transition-colors ${
+                    isCompleted ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div>
-      <div className="text-sm opacity-75 mb-4">{i18next.t("password-update.hint")}</div>
+      {renderStepIndicator()}
 
-      <KeyInput ref={keyInputRef} />
-
-      <WalletSeedPhrase
-        size="sm"
-        showTitle={false}
-        username={activeUser?.username!}
-        onValidated={handleSaveKeys}
-      />
+      <div className="mt-4">
+        {currentStep === 1 && (
+          <Step1Authenticate username={activeUser?.username!} onNext={handleStep1Next} />
+        )}
+        {currentStep === 2 && (
+          <Step2GenerateSeed
+            username={activeUser?.username!}
+            onNext={() => setCurrentStep(3)}
+            onBack={() => setCurrentStep(1)}
+          />
+        )}
+        {currentStep === 3 && (
+          <Step3ReviewKeys onNext={handleStep3Next} onBack={() => setCurrentStep(2)} />
+        )}
+        {currentStep === 4 && (
+          <Step4Confirm
+            ownerKey={ownerKey}
+            keysToRevoke={keysToRevoke}
+            onBack={() => setCurrentStep(3)}
+            onSuccess={onSuccess}
+          />
+        )}
+      </div>
     </div>
   );
 }

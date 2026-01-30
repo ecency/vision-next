@@ -463,6 +463,7 @@ interface Payload$2 {
     keepCurrent?: boolean;
     currentKey: PrivateKey;
     keys: Keys[];
+    keysToRevoke?: string[];
 }
 declare function dedupeAndSortKeyAuths(existing: AuthorityType["key_auths"], additions: [string, number][]): AuthorityType["key_auths"];
 type UpdateKeyAuthsOptions = Pick<UseMutationOptions<unknown, Error, Payload$2>, "onSuccess" | "onError">;

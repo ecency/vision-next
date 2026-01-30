@@ -19,6 +19,7 @@ interface Payload {
   keepCurrent?: boolean;
   currentKey: PrivateKey;
   keys: Keys[];
+  keysToRevoke?: string[];
 }
 
 export function dedupeAndSortKeyAuths(
@@ -53,7 +54,7 @@ export function useAccountUpdateKeyAuths(
 
   return useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey }: Payload) => {
+    mutationFn: async ({ keys, keepCurrent = false, currentKey, keysToRevoke = [] }: Payload) => {
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] – cannot update keys for anon user"
@@ -63,8 +64,13 @@ export function useAccountUpdateKeyAuths(
       const prepareAuth = (keyName: keyof Keys) => {
         const auth: AuthorityType = R.clone(accountData[keyName]);
 
+        // Filter out keys to revoke from existing keys
+        const existingKeys = keepCurrent
+          ? auth.key_auths.filter(([key]) => !keysToRevoke.includes(key.toString()))
+          : [];
+
         auth.key_auths = dedupeAndSortKeyAuths(
-          keepCurrent ? auth.key_auths : [],
+          existingKeys,
           keys.map(
             (values, i) =>
               [values[keyName].createPublic().toString(), i + 1] as [
@@ -84,9 +90,8 @@ export function useAccountUpdateKeyAuths(
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: keepCurrent
-            ? accountData.memo_key
-            : keys[0].memo_key.createPublic().toString(),
+          // Always use new memo key when adding new keys
+          memo_key: keys[0].memo_key.createPublic().toString(),
         },
         currentKey
       );

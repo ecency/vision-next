@@ -29,9 +29,10 @@ interface Props {
   onValidated: () => void;
   showTitle?: boolean;
   size?: "md" | "sm";
+  showRefreshButton?: boolean;
 }
 
-export function WalletSeedPhrase({ username, onValidated, showTitle = true, size = "md" }: Props) {
+export function WalletSeedPhrase({ username, onValidated, showTitle = true, size = "md", showRefreshButton = true }: Props) {
   const [hasRevealed, setHasRevealed] = useState(false);
 
   const { data: seed, refetch } = useSeedPhrase(username);
@@ -61,15 +62,17 @@ export function WalletSeedPhrase({ username, onValidated, showTitle = true, size
             }
           }}
         />
-        <Button
-          icon={<UilSync />}
-          appearance="gray-link"
-          size="sm"
-          onClick={(e: React.MouseEvent) => {
-            e.preventDefault();
-            refetch();
-          }}
-        />
+        {showRefreshButton && (
+          <Button
+            icon={<UilSync />}
+            appearance="gray-link"
+            size="sm"
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              refetch();
+            }}
+          />
+        )}
       </div>
       <div
         className="relative border border-[--border-color] p-4 grid grid-cols-3 xl:grid-cols-4 gap-4  rounded-xl cursor-pointer"
