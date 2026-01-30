@@ -18,6 +18,16 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
   const [ownerKey, setOwnerKey] = useState("");
   const [keysToRevoke, setKeysToRevoke] = useState<string[]>([]);
 
+  const username = activeUser?.username;
+
+  if (!username) {
+    return (
+      <div className="text-center py-4 text-gray-500">
+        {i18next.t("g.login")} required to manage keys
+      </div>
+    );
+  }
+
   const handleStep1Next = (derivedOwnerKey: string, originalCredential: string) => {
     setOwnerKey(derivedOwnerKey);
     setCurrentStep(2);
@@ -86,12 +96,10 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
       {renderStepIndicator()}
 
       <div className="mt-4">
-        {currentStep === 1 && (
-          <Step1Authenticate username={activeUser?.username!} onNext={handleStep1Next} />
-        )}
+        {currentStep === 1 && <Step1Authenticate username={username} onNext={handleStep1Next} />}
         {currentStep === 2 && (
           <Step2GenerateSeed
-            username={activeUser?.username!}
+            username={username}
             onNext={() => setCurrentStep(3)}
             onBack={() => setCurrentStep(1)}
           />

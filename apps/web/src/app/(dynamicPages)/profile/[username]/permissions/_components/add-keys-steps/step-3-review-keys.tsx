@@ -19,8 +19,11 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
 
+  const username = activeUser?.username;
+
   const { data: accountData } = useQuery({
-    ...getAccountFullQueryOptions(activeUser?.username!),
+    ...getAccountFullQueryOptions(username!),
+    enabled: Boolean(username),
     select: (resp) =>
       ({
         posting: resp.posting.key_auths,
@@ -43,7 +46,7 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
   };
 
   const getDerivationBadge = (publicKey: string) => {
-    const method = getDerivation(activeUser?.username ?? "", publicKey);
+    const method = getDerivation(username ?? "", publicKey);
     if (method === "unknown") {
       return (
         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">

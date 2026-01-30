@@ -20,17 +20,23 @@ interface Props {
 
 export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Props) {
   const { activeUser } = useActiveAccount();
-  const { data: keys } = useHiveKeysQuery(activeUser?.username!);
+  const username = activeUser?.username;
+
+  if (!username) {
+    throw new Error("Cannot confirm key update without an active user");
+  }
+
+  const { data: keys } = useHiveKeysQuery(username);
   const setMultipleDerivations = useKeyDerivationStore((state) => state.setMultipleDerivations);
   const [isApplying, setIsApplying] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const queryClient = useQueryClient();
 
-  const { mutateAsync: saveKeys } = useAccountUpdateKeyAuths(activeUser?.username!, {
+  const { mutateAsync: saveKeys } = useAccountUpdateKeyAuths(username, {
     onSuccess: async () => {
       // Store derivation info for the newly added BIP44 keys
-      if (keys && activeUser?.username) {
-        setMultipleDerivations(activeUser.username, {
+      if (keys) {
+        setMultipleDerivations(username, {
           [keys.ownerPubkey]: "bip44",
           [keys.activePubkey]: "bip44",
           [keys.postingPubkey]: "bip44",
@@ -40,7 +46,7 @@ export function Step4Confirm({ ownerKey, keysToRevoke, onBack, onSuccess }: Prop
 
       // Invalidate account query to refresh permissions page
       await queryClient.invalidateQueries({
-        queryKey: getAccountFullQueryOptions(activeUser?.username!).queryKey
+        queryKey: getAccountFullQueryOptions(username).queryKey
       });
 
       setIsComplete(true);

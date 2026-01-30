@@ -55,6 +55,12 @@ export function useAccountUpdateKeyAuths(
   return useMutation({
     mutationKey: ["accounts", "keys-update", username],
     mutationFn: async ({ keys, keepCurrent = false, currentKey, keysToRevoke = [] }: Payload) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] – no new keys provided"
+        );
+      }
+
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] – cannot update keys for anon user"

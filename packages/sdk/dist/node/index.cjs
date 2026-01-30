@@ -2902,6 +2902,11 @@ function useAccountUpdateKeyAuths(username, options) {
   return reactQuery.useMutation({
     mutationKey: ["accounts", "keys-update", username],
     mutationFn: async ({ keys, keepCurrent = false, currentKey, keysToRevoke = [] }) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] \u2013 no new keys provided"
+        );
+      }
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] \u2013 cannot update keys for anon user"

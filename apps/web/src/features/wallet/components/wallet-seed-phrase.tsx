@@ -5,7 +5,7 @@ import { UilArrowRight, UilCopyAlt, UilSync } from "@tooni/iconscout-unicons-rea
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { useDownloadSeed } from "../hooks";
 
