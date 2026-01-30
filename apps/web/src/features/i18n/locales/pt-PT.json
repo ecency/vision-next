@@ -71,6 +71,7 @@
     "more-results": "Mais resultados",
     "close": "Fechar",
     "loading": "Carregando",
+    "validating": "Validando...",
     "stop": "Parar",
     "settings": "Ajustes",
     "confirm": "Confirmar",
@@ -3110,7 +3111,7 @@
     "keys": {
       "title": "Chaves e Senhas",
       "hint": "Uma conta do Hive pode segurar várias chaves simultaneamente, todas listadas abaixo",
-      "add-key": "Adicionar novas chaves",
+      "add-key": "Adicionar/Gerenciar Chaves",
       "key-created": "As chaves criaram e atribuíram com sucesso.",
       "error-private-key-reveal": "Chave privada pode ser revelada apenas com senha mestra ou semente"
     },
@@ -3121,6 +3122,58 @@
     "revoke-key": {
       "title": "Revogar chave do Hive",
       "hint": "Você pode revogar qualquer chave do Hive usando uma das chaves/senha mestra do proprietário/semente"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Autenticar",
+        "generate-seed": "Gerar Seed",
+        "review-keys": "Chaves de Revisão",
+        "confirm": "Confirmar"
+      },
+      "step1": {
+        "title": "Adicionando Novo Conjunto de Chaves",
+        "info1": "Uma nova semente será gerada para sua conta",
+        "info2": "Você pode manter vários conjuntos de chaves ativos simultaneamente",
+        "info3": "Você terá a opção de revogar as chaves antigas nos próximos passos",
+        "authenticate": "Autenticar para Continuar",
+        "error-not-owner": "A chave fornecida não é uma chave do proprietário. Por favor, forneça a chave do proprietário, senha mestra ou semente de frase.",
+        "error-invalid-key": "Formato de chave privada inválido",
+        "error-authentication": "Falha na autenticação. Por favor, verifique suas credenciais e tente novamente.",
+        "error-credentials-not-match": "As credenciais fornecidas não correspondem a esta conta. Verifique sua senha mestra, frase de semente ou chave do proprietário.",
+        "error-account-not-loaded": "Os dados da conta ainda estão sendo carregados. Por favor, aguarde alguns instantes e tente novamente."
+      },
+      "step2": {
+        "warning-title": "Importante: Salve sua frase de nova semente",
+        "warning1": "Esta é uma NOVA frase de semente, diferente da sua seed de conta original",
+        "warning2": "Salve-o separadamente - você precisará dele para fazer login com essas chaves",
+        "warning3": "Baixe o arquivo de Seed e armazene-o com segurança antes de continuar"
+      },
+      "step3": {
+        "title": "Revisar chaves existentes",
+        "description": "Selecione quaisquer chaves antigas que deseja revogar. Você pode pular esta etapa para manter todas as chaves existentes ativas.",
+        "cannot-revoke-last": "Não é possível revogar - esta é a única chave deste tipo",
+        "selected-count": "{{count}} chave(s) selecionada(s) para revogação",
+        "next-with-revoke": "Continuar e Revogar Selecionados",
+        "next-skip": "Continuar sem revogar",
+        "will-be-replaced": "será substituído pela nova chave",
+        "memo-will-replace": "Nova tecla de memorando irá substituir esta",
+        "derivation-unknown": "Desconhecido",
+        "derivation-bip44": "Semente BIP44",
+        "derivation-master-password": "Senha Mestra"
+      },
+      "step4": {
+        "title": "Pronto para Aplicar Alterações",
+        "description": "Revise as alterações abaixo e confirme para atualizar sua conta.",
+        "adding": "Adicionando",
+        "new-bip44-keys": "Novas chaves BIP44 baseadas em semente (proprietário, ativo, ativo, postagem, memo)",
+        "revoking": "Revogando",
+        "revoking-count": "{{count}} chave(s) existente(s)",
+        "applying": "Aplicando alterações...",
+        "please-wait": "Por favor, aguarde enquanto atualizamos sua conta",
+        "success": "Chaves Atualizadas com sucesso!",
+        "success-description": "Suas novas chaves foram adicionadas e as chaves antigas selecionadas foram revogadas.",
+        "error-no-keys": "Não há chaves disponíveis para adicionar"
+      }
     }
   }
 }
