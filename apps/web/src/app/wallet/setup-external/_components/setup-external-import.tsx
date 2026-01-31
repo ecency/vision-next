@@ -80,10 +80,7 @@ const TOKENS = [
   EcencyWalletCurrency.TON
 ];
 
-export function SetupExternalImport({ onBack }: Props) {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
-
+function SetupExternalImportInner({ username, onBack }: Props & { username: string }) {
   const [step, setStep] = useState<"import" | "hive-keys" | "tokens" | "link" | "success" | "sign">(
     "import"
   );
@@ -92,23 +89,23 @@ export function SetupExternalImport({ onBack }: Props) {
   const [hiveKeys, setHiveKeys] = useState<ReturnType<typeof deriveHiveKeys> | null>(null);
 
   const { data: tokens } = useWalletsCacheQuery(username);
-  const authContext = useMemo(() => getSdkAuthContext(getUser(username ?? "")), [username]);
+  const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
-  const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username!, {
+  const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
     onError: (err) => {
       error(...formatError(err));
       setStep("sign");
     }
   });
-  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(username!, authContext, {
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(username, authContext, {
     onError: (err) => {
       error(...formatError(err));
       setStep("sign");
     }
   });
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
-    username!,
-    getAccessToken(username ?? "")
+    username,
+    getAccessToken(username)
   );
 
   const handleValidateSeed = () => {
@@ -193,14 +190,6 @@ export function SetupExternalImport({ onBack }: Props) {
     },
     [authContext, hiveKeys, importHiveKeys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
-
-  if (!username) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        {i18next.t("g.login")} required to import wallet
-      </div>
-    );
-  }
 
   return (
     <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
@@ -387,4 +376,19 @@ export function SetupExternalImport({ onBack }: Props) {
       </motion.div>
     </div>
   );
+}
+
+export function SetupExternalImport({ onBack }: Props) {
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+
+  if (!username) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        {i18next.t("g.login")} required to import wallet
+      </div>
+    );
+  }
+
+  return <SetupExternalImportInner username={username} onBack={onBack} />;
 }

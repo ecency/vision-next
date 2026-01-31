@@ -73,24 +73,13 @@ const TOKENS = [
   EcencyWalletCurrency.TON
 ];
 
-export function SetupExternalCreate({ onBack }: Props) {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
-
+function SetupExternalCreateInner({ username, onBack }: Props & { username: string }) {
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
-
-  if (!username) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        {i18next.t("g.login")} required to setup external wallets
-      </div>
-    );
-  }
 
   const { data: keys } = useHiveKeysQuery(username);
   const { data: tokens } = useWalletsCacheQuery(username);
   const authContext = useMemo(
-    () => getSdkAuthContext(getUser(username ?? "")),
+    () => getSdkAuthContext(getUser(username)),
     [username]
   );
 
@@ -108,7 +97,7 @@ export function SetupExternalCreate({ onBack }: Props) {
   });
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
     username,
-    getAccessToken(username ?? "")
+    getAccessToken(username)
   );
 
   const handleLinkByKey = useCallback(
@@ -253,4 +242,19 @@ export function SetupExternalCreate({ onBack }: Props) {
       </motion.div>
     </div>
   );
+}
+
+export function SetupExternalCreate({ onBack }: Props) {
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+
+  if (!username) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        {i18next.t("g.login")} required to setup external wallets
+      </div>
+    );
+  }
+
+  return <SetupExternalCreateInner username={username} onBack={onBack} />;
 }
