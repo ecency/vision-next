@@ -3152,7 +3152,7 @@
         "title": "Revisar claves existentes",
         "description": "Seleccione las claves antiguas que desee revocar. Puede omitir este paso para mantener todas las claves existentes activas.",
         "cannot-revoke-last": "No se puede revocar - esta es la única clave de este tipo",
-        "selected-count": "{{count}} key(s) selected for revocation",
+        "selected-count": "{{count}} clave(s) seleccionadas para revocación",
         "next-with-revoke": "Continuar y revocar seleccionados",
         "next-skip": "Continuar sin revocar",
         "will-be-replaced": "se reemplazará con una nueva clave",
