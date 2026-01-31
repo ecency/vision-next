@@ -3167,10 +3167,10 @@
         "adding": "Agregando",
         "new-bip44-keys": "Nuevas claves basadas en semillas BIP44 (propietario, activo, publicación, memo)",
         "revoking": "Revocando",
-        "revoking-count": "{{count}} existing key(s)",
+        "revoking-count": "{{count}} clave(s) existente(s)",
         "applying": "Aplicando cambios...",
         "please-wait": "Por favor, espera mientras actualizamos tu cuenta",
-        "success": "Claves actualizadas con éxito!",
+        "success": "¡Claves actualizadas con éxito!",
         "success-description": "Sus nuevas claves han sido añadidas y las antiguas claves seleccionadas han sido revocadas.",
         "error-no-keys": "No hay claves disponibles para añadir"
       }
