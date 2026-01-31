@@ -2861,6 +2861,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Loading editor...",
     "gif-picker": "Pick GIF image",
     "description-hint": "Helps to search engine systems to find out this post",
     "schedule-hint": "Scheduling is available for 1 hour forward. Select date, configure time and click/tap on 'Done'.",
@@ -3173,6 +3174,27 @@
         "success": "Keys Updated Successfully!",
         "success-description": "Your new keys have been added and selected old keys have been revoked.",
         "error-no-keys": "No keys available to add"
+      },
+      "import": {
+        "title": "Import Existing Seed Phrase",
+        "description": "Enter your existing 12-word seed phrase to import wallet addresses and optionally Hive keys.",
+        "warning": "Never share your seed phrase with anyone. Ecency will never ask for it. Only enter it on trusted devices.",
+        "placeholder": "Enter your 12-word seed phrase separated by spaces",
+        "error-word-count": "Seed phrase must be exactly 12 words",
+        "error-invalid-seed": "Invalid seed phrase. Please check and try again.",
+        "error-derive-keys": "Failed to derive keys from seed phrase",
+        "hive-keys-title": "Import Hive Keys",
+        "hive-keys-description": "We found Hive keys in your seed phrase. Would you like to import them to your account?",
+        "owner-key": "Owner Key",
+        "active-key": "Active Key",
+        "posting-key": "Posting Key",
+        "skip-hive-keys": "Skip Hive Keys",
+        "import-hive-keys": "Import Hive Keys",
+        "tokens-title": "Review Wallet Addresses",
+        "tokens-description": "These wallet addresses were derived from your seed phrase. Verify them before continuing.",
+        "sign-title": "Sign to Complete Import",
+        "success-title": "Import Successful!",
+        "success-description": "Your wallet addresses and keys have been successfully imported."
       }
     }
   }

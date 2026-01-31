@@ -2,7 +2,7 @@ name: Auto Generate Changeset
 
 on:
   pull_request:
-    types: [labeled, opened, synchronize, reopened]
+    types: [labeled]
 
 permissions:
   contents: write
@@ -156,3 +156,12 @@ jobs:
 
           git commit -m "chore: auto-generate changeset for PR #${{ github.event.pull_request.number }}"
           git push
+
+      - name: Create version PR
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset:version
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

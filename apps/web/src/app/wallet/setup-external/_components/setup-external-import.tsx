@@ -1,3 +1,390 @@
-export function SetupExternalImport() {
-  return <div>import</div>;
+"use client";
+
+import { formatError } from "@/api/operations";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { error, KeyOrHot, Stepper } from "@/features/shared";
+import { Button } from "@/features/ui";
+import { WalletTokenAddressItem } from "@/features/wallet";
+import {
+  EcencyWalletCurrency,
+  useSaveWalletInformationToMetadata,
+  EcencyWalletsPrivateApi,
+  useWalletsCacheQuery,
+  deriveHiveKeys
+} from "@ecency/wallets";
+import { useAccountUpdateKeyAuths } from "@ecency/sdk";
+import { PrivateKey } from "@hiveio/dhive";
+import {
+  UilArrowLeft,
+  UilArrowRight,
+  UilArrowUpRight,
+  UilBitcoinSign,
+  UilCheckCircle,
+  UilFileImport,
+  UilLock,
+  UilSpinner,
+  UilTransaction,
+  UilUser
+} from "@tooni/iconscout-unicons-react";
+import { AnimatePresence, motion } from "framer-motion";
+import i18next from "i18next";
+import { getAccessToken, getSdkAuthContext } from "@/utils";
+import { getUser } from "@/utils/user-token";
+import { useCallback, useMemo, useState } from "react";
+import { validateMnemonic } from "bip39";
+
+interface Props {
+  onBack: () => void;
+}
+
+const steps = [
+  {
+    step: "import",
+    title: "Import seed phrase",
+    icon: <UilFileImport />,
+    description: "Enter your existing 12-word seed phrase"
+  },
+  {
+    step: "hive-keys",
+    title: "Hive keys",
+    icon: <UilLock />,
+    description: "Optionally import Hive keys from the same seed phrase"
+  },
+  {
+    step: "tokens",
+    title: "Tokens",
+    icon: <UilBitcoinSign />,
+    description: "Review derived wallet addresses"
+  },
+  {
+    step: "sign",
+    title: "Sign changes",
+    icon: <UilTransaction />,
+    description: "Sign changes to link wallets"
+  },
+  {
+    step: "link",
+    title: "Link wallets",
+    icon: <UilUser />,
+    description: "Finalize wallet linking to Ecency account"
+  }
+];
+
+const TOKENS = [
+  EcencyWalletCurrency.BTC,
+  EcencyWalletCurrency.ETH,
+  EcencyWalletCurrency.BNB,
+  EcencyWalletCurrency.SOL,
+  EcencyWalletCurrency.TRON,
+  EcencyWalletCurrency.APT,
+  EcencyWalletCurrency.TON
+];
+
+export function SetupExternalImport({ onBack }: Props) {
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+
+  const [step, setStep] = useState<"import" | "hive-keys" | "tokens" | "link" | "success" | "sign">(
+    "import"
+  );
+  const [seedPhrase, setSeedPhrase] = useState("");
+  const [importHiveKeys, setImportHiveKeys] = useState(false);
+  const [hiveKeys, setHiveKeys] = useState<ReturnType<typeof deriveHiveKeys> | null>(null);
+
+  const { data: tokens } = useWalletsCacheQuery(username);
+  const authContext = useMemo(() => getSdkAuthContext(getUser(username ?? "")), [username]);
+
+  const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username!, {
+    onError: (err) => {
+      error(...formatError(err));
+      setStep("sign");
+    }
+  });
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(username!, authContext, {
+    onError: (err) => {
+      error(...formatError(err));
+      setStep("sign");
+    }
+  });
+  const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
+    username!,
+    getAccessToken(username ?? "")
+  );
+
+  const handleValidateSeed = () => {
+    const trimmedSeed = seedPhrase.trim().toLowerCase();
+    const words = trimmedSeed.split(/\s+/);
+
+    if (words.length !== 12) {
+      error(i18next.t("permissions.add-keys.import.error-word-count"));
+      return;
+    }
+
+    if (!validateMnemonic(trimmedSeed)) {
+      error(i18next.t("permissions.add-keys.import.error-invalid-seed"));
+      return;
+    }
+
+    // Derive Hive keys from seed to check if user wants to import them
+    try {
+      const derived = deriveHiveKeys(trimmedSeed);
+      setHiveKeys(derived);
+      setStep("hive-keys");
+    } catch (err) {
+      error(i18next.t("permissions.add-keys.import.error-derive-keys"));
+    }
+  };
+
+  const handleHiveKeysDecision = (shouldImport: boolean) => {
+    setImportHiveKeys(shouldImport);
+    // Populate wallet addresses using the imported seed
+    // The WalletTokenAddressItem components will use the seed from cache
+    setStep("tokens");
+  };
+
+  const handleLinkByKey = useCallback(
+    async (currentKey: PrivateKey) => {
+      if (!authContext) {
+        error("[Wallets] Missing auth context for signing.");
+        setStep("sign");
+        return;
+      }
+      setStep("link");
+
+      const tokenEntries = Array.from(tokens?.entries() ?? []);
+      const walletAddresses = Object.fromEntries(
+        tokenEntries
+          .filter(([, info]) => Boolean(info.address))
+          .map(([token, info]) => [token as string, info.address!])
+      ) as Record<string, string>;
+
+      await saveTokens(tokenEntries.map(([, info]) => info));
+
+      // Import Hive keys if user chose to
+      if (importHiveKeys && hiveKeys) {
+        await saveKeys({
+          keepCurrent: true,
+          currentKey,
+          keys: [
+            {
+              owner: PrivateKey.fromString(hiveKeys.owner),
+              active: PrivateKey.fromString(hiveKeys.active),
+              posting: PrivateKey.fromString(hiveKeys.posting),
+              memo_key: PrivateKey.fromString(hiveKeys.memo)
+            }
+          ]
+        });
+      }
+
+      await saveToPrivateApi({
+        tokens: walletAddresses,
+        ...(importHiveKeys && hiveKeys
+          ? {
+              hiveKeys: {
+                ownerPublicKey: hiveKeys.ownerPubkey,
+                activePublicKey: hiveKeys.activePubkey,
+                postingPublicKey: hiveKeys.postingPubkey,
+                memoPublicKey: hiveKeys.memoPubkey
+              }
+            }
+          : {})
+      });
+      setStep("success");
+    },
+    [authContext, hiveKeys, importHiveKeys, saveKeys, saveToPrivateApi, saveTokens, tokens]
+  );
+
+  if (!username) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        {i18next.t("g.login")} required to import wallet
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
+      <Stepper steps={steps} currentStep={step} />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="col-span-2 bg-white rounded-2xl p-6 flex flex-col items-start justify-between"
+      >
+        <Button
+          size="sm"
+          appearance="gray-link"
+          icon={<UilArrowLeft />}
+          iconPlacement="left"
+          noPadding={true}
+          onClick={onBack}
+        >
+          {i18next.t("g.back")}
+        </Button>
+
+        {/* Step 1: Import Seed Phrase */}
+        {step === "import" && (
+          <div className="w-full">
+            <div className="font-bold text-xl mt-2 md:mt-4 lg:mt-6">
+              {i18next.t("permissions.add-keys.import.title")}
+            </div>
+            <div className="opacity-50 mb-4">
+              {i18next.t("permissions.add-keys.import.description")}
+            </div>
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+              <div className="text-sm text-yellow-800 dark:text-yellow-200">
+                {i18next.t("permissions.add-keys.import.warning")}
+              </div>
+            </div>
+
+            <textarea
+              className="w-full border-2 border-[--border-color] rounded-xl p-4 min-h-[120px] font-mono text-sm focus:outline-none focus:border-blue-500 dark:bg-dark-200"
+              placeholder={i18next.t("permissions.add-keys.import.placeholder")}
+              value={seedPhrase}
+              onChange={(e) => setSeedPhrase(e.target.value)}
+            />
+
+            <div className="flex mt-4 justify-end">
+              <Button icon={<UilArrowRight />} onClick={handleValidateSeed}>
+                {i18next.t("g.next")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Hive Keys Decision */}
+        {step === "hive-keys" && (
+          <div className="w-full">
+            <div className="font-bold text-xl mt-2 md:mt-4 lg:mt-6">
+              {i18next.t("permissions.add-keys.import.hive-keys-title")}
+            </div>
+            <div className="opacity-50 mb-4">
+              {i18next.t("permissions.add-keys.import.hive-keys-description")}
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+              <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                <div>
+                  <span className="font-semibold">
+                    {i18next.t("permissions.add-keys.import.owner-key")}:
+                  </span>{" "}
+                  <span className="font-mono text-xs">{hiveKeys?.ownerPubkey}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">
+                    {i18next.t("permissions.add-keys.import.active-key")}:
+                  </span>{" "}
+                  <span className="font-mono text-xs">{hiveKeys?.activePubkey}</span>
+                </div>
+                <div>
+                  <span className="font-semibold">
+                    {i18next.t("permissions.add-keys.import.posting-key")}:
+                  </span>{" "}
+                  <span className="font-mono text-xs">{hiveKeys?.postingPubkey}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 mt-4 justify-end">
+              <Button appearance="gray" onClick={() => handleHiveKeysDecision(false)}>
+                {i18next.t("permissions.add-keys.import.skip-hive-keys")}
+              </Button>
+              <Button icon={<UilArrowRight />} onClick={() => handleHiveKeysDecision(true)}>
+                {i18next.t("permissions.add-keys.import.import-hive-keys")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Review Token Addresses */}
+        {step === "tokens" && (
+          <div className="w-full">
+            <div className="font-bold text-xl mt-2 md:mt-4 lg:mt-6">
+              {i18next.t("permissions.add-keys.import.tokens-title")}
+            </div>
+            <div className="opacity-50 mb-4">
+              {i18next.t("permissions.add-keys.import.tokens-description")}
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {TOKENS.map((currency, i) => (
+                <WalletTokenAddressItem
+                  username={username}
+                  i={i}
+                  key={i}
+                  currency={currency}
+                  importedSeed={seedPhrase.trim().toLowerCase()}
+                />
+              ))}
+            </div>
+
+            <div className="flex gap-4 mt-4 justify-between">
+              <Button
+                appearance="gray-link"
+                icon={<UilArrowLeft />}
+                onClick={() => setStep("hive-keys")}
+              >
+                {i18next.t("g.back")}
+              </Button>
+              <Button icon={<UilArrowRight />} onClick={() => setStep("sign")}>
+                {i18next.t("g.continue")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Sign */}
+        <AnimatePresence>
+          {step === "sign" && (
+            <div className="pt-4 lg:pt-6 w-full flex flex-col items-start gap-4">
+              <div className="font-bold text-xl">
+                {i18next.t("permissions.add-keys.import.sign-title")}
+              </div>
+              <div className="opacity-50">{i18next.t("account-recovery.sign-title")}</div>
+              <KeyOrHot inProgress={isSavingKeys} onKey={handleLinkByKey} authority={"owner"} />
+            </div>
+          )}
+
+          {/* Step 5: Linking */}
+          {step === "link" && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="flex items-center flex-col justify-center max-w-[600px] mx-auto min-h-[400px]"
+            >
+              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+              <div className="text-xl text-center font-semibold mt-4">
+                {i18next.t("profile-wallet.external-wallets-signup.linking")}
+              </div>
+              <div className="opacity-50 text-center mt-2">
+                {i18next.t("profile-wallet.external-wallets-signup.linking-hint")}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 6: Success */}
+          {step === "success" && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="flex items-center flex-col justify-center max-w-[600px] mx-auto min-h-[400px]"
+            >
+              <UilCheckCircle className="text-green w-16 h-16" />
+              <div className="text-xl text-center font-semibold mt-4">
+                {i18next.t("permissions.add-keys.import.success-title")}
+              </div>
+              <div className="opacity-50 text-center mt-2 mb-4">
+                {i18next.t("permissions.add-keys.import.success-description")}
+              </div>
+              <Button href="/wallet" icon={<UilArrowUpRight />} size="lg">
+                {i18next.t("user-nav.wallet")}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
 }
