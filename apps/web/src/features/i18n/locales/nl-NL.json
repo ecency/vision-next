@@ -1318,6 +1318,10 @@
       "account-value-description": "De geschatte Amerikaanse Dollar waarde voor alle SPK activa op uw account",
       "larynx-locked": "LARYNX vergrendeld",
       "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
+    },
+    "setup-external": {
+      "login-required": "Inloggen vereist om externe portemonnees in te stellen",
+      "import-login-required": "Inloggen vereist om portemonnee te importeren"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Editor laden...",
     "gif-picker": "Kies GIF-afbeelding",
     "description-hint": "Helpt bij het zoeken van motorsystemen om dit bericht te ontdekken",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "Sleutels succesvol bijgewerkt!",
         "success-description": "Uw nieuwe sleutels zijn toegevoegd en de geselecteerde oude sleutels zijn ingetrokken.",
         "error-no-keys": "Geen sleutels beschikbaar om toe te voegen"
+      },
+      "import": {
+        "title": "Importeer bestaande Seed Zin",
+        "description": "Voer uw bestaande 12-word herstelzin in om portemonnee-adressen en optioneel Hive sleutels te importeren.",
+        "warning": "Deel nooit uw herstelzin met iemand. Ecency zal nooit om het vragen. Voer het alleen in op vertrouwde apparaten.",
+        "placeholder": "Voer uw 12-woord herstelzin in, gescheiden door spaties",
+        "load-from-file": "Of laad van het seed-bestand",
+        "error-word-count": "Seed phrase moet precies 12 woorden zijn",
+        "error-invalid-seed": "Ongeldige herstelzin. Controleer en probeer het opnieuw.",
+        "error-derive-keys": "Kon sleutels niet afleiden uit herstelzin",
+        "error-invalid-file": "Ongeldig bestand. Upload een geldig herstelbestand.",
+        "error-invalid-file-format": "Ongeldig bestandsformaat. Seed bestand moet een 'seed' eigenschap bevatten.",
+        "error-no-wallets": "Geen wallet adressen gevonden. Wacht tot de portemonnee is aangemaakt.",
+        "hive-keys-title": "Importeer Hive Sleutels",
+        "hive-keys-description": "We vonden Hive sleutels in uw herstelzin. Wilt u ze importeren in uw account?",
+        "hive-keys-already-added": "Deze sleutels zijn al actief op uw account.",
+        "owner-key": "Eigenaar sleutel",
+        "active-key": "Actieve sleutel",
+        "posting-key": "Posten sleutel",
+        "skip-hive-keys": "Sla Hive Sleutels over",
+        "import-hive-keys": "Importeer Hive Sleutels",
+        "tokens-title": "Beoordeel Wallet Adressen",
+        "tokens-description": "Deze portemonnee-adressen zijn afgeleid van uw herstelzin. Controleer ze voordat u doorgaat.",
+        "sign-title": "Onderteken om de import te voltooien",
+        "success-title": "Importeren gelukt!",
+        "success-description": "Uw portefeuille adressen en sleutels zijn succesvol geïmporteerd.",
+        "step-import-title": "Herstelzin importeren",
+        "step-import-description": "Voer uw bestaande 12-word herstelzin in",
+        "step-hive-keys-title": "Hive toetsen",
+        "step-hive-keys-description": "Importeer Hive keys optioneel van dezelfde herstelzin",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Review afgeleide portemonnee adressen",
+        "step-sign-title": "Onderteken wijzigingen",
+        "step-sign-description": "Onderteken wijzigingen aan link-portemonnees",
+        "step-link-title": "Koppel portemonnees",
+        "step-link-description": "Portemonnee koppelen aan Ecency account afronden"
       }
     }
   }
