@@ -1318,6 +1318,10 @@
       "account-value-description": "El valor aproximado del dólar estadounidense para todos los activos de SPK en su cuenta",
       "larynx-locked": "LARYNX bloqueado",
       "larynx-locked-description": "Las fichas bloqueadas proporcionan liquidez a la red, ayudan a determinar el consenso y obtienen recompensas para los corredores de nodos"
+    },
+    "setup-external": {
+      "login-required": "Inicio de sesión necesario para configurar carteras externas",
+      "import-login-required": "Inicio de sesión necesario para importar cartera"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Cargando editor...",
     "gif-picker": "Elegir imagen GIF",
     "description-hint": "Ayuda al sistema de motor de búsqueda para encontrar este post",
     "schedule-hint": "La programación está disponible para 1 hora de anticipación. Seleccione la fecha, configure la hora y pulse en ‘Listo’.",
@@ -3173,6 +3178,42 @@
         "success": "¡Claves actualizadas con éxito!",
         "success-description": "Sus nuevas claves han sido añadidas y las antiguas claves seleccionadas han sido revocadas.",
         "error-no-keys": "No hay claves disponibles para añadir"
+      },
+      "import": {
+        "title": "Importar frase de semilla existente",
+        "description": "Introduzca su frase de semilla de 12 palabras existente para importar direcciones de cartera y opcionalmente Colgar claves.",
+        "warning": "Nunca compartas tu frase de semilla con nadie. La Ecencia nunca la pedirá. Sólo introdúzcala en dispositivos de confianza.",
+        "placeholder": "Introduzca su frase semilla de 12 palabras separada por espacios",
+        "load-from-file": "O cargar desde archivo de semilla",
+        "error-word-count": "La frase de semilla debe tener exactamente 12 palabras",
+        "error-invalid-seed": "Frase de semilla no válida. Por favor, comprueba e inténtalo de nuevo.",
+        "error-derive-keys": "Fallo al obtener claves de la frase de semilla",
+        "error-invalid-file": "Archivo inválido. Por favor, sube un archivo de semilla válido.",
+        "error-invalid-file-format": "Formato de archivo inválido. El archivo de la semilla debe contener una propiedad 'seed'.",
+        "error-no-wallets": "No se han encontrado direcciones de billetera. Espere a que se complete la creación de la billetera.",
+        "hive-keys-title": "Importar claves de colmena",
+        "hive-keys-description": "Encontramos claves de Hive en tu frase de semilla. ¿Quieres importarlas a tu cuenta?",
+        "hive-keys-already-added": "Estas claves ya están activas en tu cuenta.",
+        "owner-key": "Llave Propietaria",
+        "active-key": "Clave activa",
+        "posting-key": "Clave de publicación",
+        "skip-hive-keys": "Saltar colmenas",
+        "import-hive-keys": "Importar claves de colmena",
+        "tokens-title": "Revisar direcciones del monedero",
+        "tokens-description": "Estas direcciones de cartera fueron derivadas de su frase de semilla. Verifíquelas antes de continuar.",
+        "sign-title": "Firmar para importación completa",
+        "success-title": "Importación exitosa!",
+        "success-description": "Las direcciones y claves del monedero se han importado correctamente.",
+        "step-import-title": "Importar frase semilla",
+        "step-import-description": "Introduzca su frase de semilla de 12 palabras existente",
+        "step-hive-keys-title": "Colgar teclas",
+        "step-hive-keys-description": "Opcionalmente importar claves de la misma frase de semilla",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Revisar direcciones de cartera derivadas",
+        "step-sign-title": "Firmar cambios",
+        "step-sign-description": "Firmar cambios para vincular carteras",
+        "step-link-title": "Enlazar carteras",
+        "step-link-description": "Finalizar cartera vinculada a la cuenta Ecency"
       }
     }
   }
