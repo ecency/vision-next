@@ -1318,6 +1318,10 @@
       "account-value-description": "您帐户中所有SPK资产的大约美元价值",
       "larynx-locked": "LARYNX 锁定",
       "larynx-locked-description": "锁定令牌为网络提供流动性，帮助确定共识，为节点运行者赚取奖励"
+    },
+    "setup-external": {
+      "login-required": "设置外部钱包需要登录",
+      "import-login-required": "需要登录才能导入钱包"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "加载编辑器...",
     "gif-picker": "选择 GIF 图像",
     "description-hint": "帮助搜索引擎系统找到这篇文章",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "密钥更新成功！",
         "success-description": "您的新密钥已被添加，所选的旧密钥已被撤销。",
         "error-no-keys": "没有可用的密钥可添加"
+      },
+      "import": {
+        "title": "导入现有种子词组",
+        "description": "输入您现有的12个字的种子短语来导入钱包地址和可选的 Hive 密钥。",
+        "warning": "永远不会与任何人分享您的种子短语。生态将永远不会要求它。只能在信任的设备上输入它。",
+        "placeholder": "输入您的12个字的种子短语，用空格隔开",
+        "load-from-file": "或者从种子文件加载",
+        "error-word-count": "种子短语必须是12个单词",
+        "error-invalid-seed": "无效的种子短语。请检查并重试。",
+        "error-derive-keys": "从种子短语中获取密钥失败",
+        "error-invalid-file": "无效的文件。请上传有效的种子文件。",
+        "error-invalid-file-format": "无效的文件格式。种子文件必须包含 'seed' 属性。",
+        "error-no-wallets": "未找到钱包地址。请等待钱包创建完成。",
+        "hive-keys-title": "导入 Hive 密钥",
+        "hive-keys-description": "我们在您的种子短语中找到了Hive 密钥。您想要将它们导入到您的帐户吗？",
+        "hive-keys-already-added": "这些密钥已经在您的帐户上激活。",
+        "owner-key": "所有者密钥",
+        "active-key": "活动密钥",
+        "posting-key": "发布密钥",
+        "skip-hive-keys": "跳过Hive 密钥",
+        "import-hive-keys": "导入 Hive 密钥",
+        "tokens-title": "查看钱包地址",
+        "tokens-description": "这些钱包地址来自您的种子短语。在继续之前验证它们。",
+        "sign-title": "登录以完成导入",
+        "success-title": "导入成功！",
+        "success-description": "您的钱包地址和密钥已成功导入。",
+        "step-import-title": "导入种子短语",
+        "step-import-description": "输入您现有的12个字的种子短语",
+        "step-hive-keys-title": "Hive 密钥",
+        "step-hive-keys-description": "从相同种子短语导入Hive 密钥",
+        "step-tokens-title": "令牌",
+        "step-tokens-description": "审查派生的钱包地址",
+        "step-sign-title": "签名更改",
+        "step-sign-description": "签名更改以链接钱包",
+        "step-link-title": "链接钱包",
+        "step-link-description": "完成连接到生态帐户的钱包"
       }
     }
   }
