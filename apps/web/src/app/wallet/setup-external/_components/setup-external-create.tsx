@@ -152,7 +152,7 @@ function SetupExternalCreateInner({ username, onBack }: Props & { username: stri
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="col-span-2 bg-white rounded-2xl p-6 flex flex-col items-start justify-between"
+        className="col-span-2 bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col items-start justify-between"
       >
         <Button
           size="sm"

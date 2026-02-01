@@ -12,7 +12,8 @@ jobs:
   auto-changeset:
     runs-on: ubuntu-latest
     if: |
-      contains(github.event.pull_request.labels.*.name, 'patch') ||
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (contains(github.event.pull_request.labels.*.name, 'patch') ||
       contains(github.event.pull_request.labels.*.name, 'minor') ||
       contains(github.event.pull_request.labels.*.name, 'major') ||
       contains(github.event.pull_request.labels.*.name, 'patch:sdk') ||
@@ -23,7 +24,7 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'minor:render-helper') ||
       contains(github.event.pull_request.labels.*.name, 'major:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'major:wallets') ||
-      contains(github.event.pull_request.labels.*.name, 'major:render-helper')
+      contains(github.event.pull_request.labels.*.name, 'major:render-helper'))
 
     steps:
       - uses: actions/checkout@v4
@@ -52,8 +53,9 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -e
-          if git log --oneline --max-count=100 | grep -q "apply changeset versioning for PR #${PR_NUMBER}"; then
-            echo "Already versioned for PR #${PR_NUMBER}, skipping."
+          CHANGESET_FILE=".changeset/pr-${PR_NUMBER}.md"
+          if [ -f "$CHANGESET_FILE" ]; then
+            echo "Changeset already exists for PR #${PR_NUMBER}, skipping."
             echo "already_versioned=true" >> $GITHUB_OUTPUT
           else
             echo "already_versioned=false" >> $GITHUB_OUTPUT

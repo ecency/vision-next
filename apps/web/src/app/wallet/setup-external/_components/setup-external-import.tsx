@@ -246,7 +246,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="col-span-2 bg-white rounded-2xl p-6 flex flex-col items-start justify-between"
+        className="col-span-2 bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col items-start justify-between"
       >
         <Button
           size="sm"
@@ -406,7 +406,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
                 {i18next.t("permissions.add-keys.import.sign-title")}
               </div>
               <div className="opacity-50">{i18next.t("account-recovery.sign-title")}</div>
-              <KeyOrHot inProgress={isSavingKeys} onKey={handleLinkByKey} authority={"owner"} />
+              <KeyOrHot inProgress={isSavingKeys} onKey={handleLinkByKey} authority={"owner"} keyOnly />
             </div>
           )}
 
