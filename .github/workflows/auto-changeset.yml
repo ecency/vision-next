@@ -47,22 +47,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Skip if already versioned for this PR
-        id: check_versioned
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          set -e
-          CHANGESET_FILE=".changeset/pr-${PR_NUMBER}.md"
-          if [ -f "$CHANGESET_FILE" ]; then
-            echo "Changeset already exists for PR #${PR_NUMBER}, skipping."
-            echo "already_versioned=true" >> $GITHUB_OUTPUT
-          else
-            echo "already_versioned=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Generate changeset
-        if: steps.check_versioned.outputs.already_versioned != 'true'
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -150,9 +135,7 @@ jobs:
           cat "$CHANGESET_FILE"
 
       - name: Commit & push changes (same PR)
-        if: |
-          steps.check_versioned.outputs.already_versioned != 'true' &&
-          github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event.pull_request.head.repo.full_name == github.repository
         env:
           BRANCH_REF: ${{ github.event.pull_request.head.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
