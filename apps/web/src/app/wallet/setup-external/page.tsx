@@ -28,9 +28,8 @@ export default function WalletSetupExternalPage() {
               description: i18next.t(
                 "profile-wallet.external-wallets-signup.import-wallet-description"
               ),
-              buttonText: i18next.t("waves.promote.coming-soon"),
-              onClick: () => setStep("import"),
-              disabled: true
+              buttonText: i18next.t("g.continue"),
+              onClick: () => setStep("import")
             }
           ]
         : [],
@@ -66,7 +65,7 @@ export default function WalletSetupExternalPage() {
             </LoginRequired>
           ))}
           {step === "create" && <SetupExternalCreate onBack={() => setStep("intro")} />}
-          {step === "import" && <SetupExternalImport />}
+          {step === "import" && <SetupExternalImport onBack={() => setStep("intro")} />}
         </div>
       </div>
     </>

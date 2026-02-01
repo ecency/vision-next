@@ -2860,6 +2860,12 @@
       "success": "Your account created. Enjoy the Hive and Ecency!"
     }
   },
+  "wallet": {
+    "setup-external": {
+      "login-required": "Login required to setup external wallets",
+      "import-login-required": "Login required to import wallet"
+    }
+  },
   "publish": {
     "loading-editor": "Loading editor...",
     "gif-picker": "Pick GIF image",
@@ -3180,11 +3186,13 @@
         "description": "Enter your existing 12-word seed phrase to import wallet addresses and optionally Hive keys.",
         "warning": "Never share your seed phrase with anyone. Ecency will never ask for it. Only enter it on trusted devices.",
         "placeholder": "Enter your 12-word seed phrase separated by spaces",
+        "load-from-file": "Or load from seed file",
         "error-word-count": "Seed phrase must be exactly 12 words",
         "error-invalid-seed": "Invalid seed phrase. Please check and try again.",
         "error-derive-keys": "Failed to derive keys from seed phrase",
         "hive-keys-title": "Import Hive Keys",
         "hive-keys-description": "We found Hive keys in your seed phrase. Would you like to import them to your account?",
+        "hive-keys-already-added": "These keys are already active on your account.",
         "owner-key": "Owner Key",
         "active-key": "Active Key",
         "posting-key": "Posting Key",

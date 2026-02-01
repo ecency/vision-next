@@ -251,7 +251,7 @@ export function SetupExternalCreate({ onBack }: Props) {
   if (!username) {
     return (
       <div className="text-center py-8 text-gray-500">
-        {i18next.t("g.login")} required to setup external wallets
+        {i18next.t("wallet.setup-external.login-required")}
       </div>
     );
   }

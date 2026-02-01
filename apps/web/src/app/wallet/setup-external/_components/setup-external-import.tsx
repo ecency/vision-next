@@ -12,7 +12,7 @@ import {
   useWalletsCacheQuery,
   deriveHiveKeys
 } from "@ecency/wallets";
-import { useAccountUpdateKeyAuths } from "@ecency/sdk";
+import { useAccountUpdateKeyAuths, useAccountFullQuery } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
 import {
   UilArrowLeft,
@@ -89,6 +89,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
   const [hiveKeys, setHiveKeys] = useState<ReturnType<typeof deriveHiveKeys> | null>(null);
 
   const { data: tokens } = useWalletsCacheQuery(username);
+  const { data: account } = useAccountFullQuery(username);
   const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
   const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
@@ -107,6 +108,31 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
     username,
     getAccessToken(username)
   );
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        // Try to parse as JSON first (seed file format)
+        const json = JSON.parse(content);
+        if (json.seed) {
+          setSeedPhrase(json.seed);
+        } else {
+          // If no seed property, assume the content is the seed itself
+          setSeedPhrase(content.trim());
+        }
+      } catch {
+        // If JSON parsing fails, assume it's plain text seed
+        const content = e.target?.result as string;
+        setSeedPhrase(content.trim());
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleValidateSeed = () => {
     const trimmedSeed = seedPhrase.trim().toLowerCase();
@@ -130,6 +156,21 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
     } catch (err) {
       error(i18next.t("permissions.add-keys.import.error-derive-keys"));
     }
+  };
+
+  const checkIfKeysAlreadyExist = () => {
+    if (!account || !hiveKeys) return false;
+
+    // Check if any of the derived public keys already exist in the account
+    const ownerKeys = account.owner?.key_auths?.map(([key]) => key) || [];
+    const activeKeys = account.active?.key_auths?.map(([key]) => key) || [];
+    const postingKeys = account.posting?.key_auths?.map(([key]) => key) || [];
+
+    return (
+      ownerKeys.includes(hiveKeys.ownerPubkey) ||
+      activeKeys.includes(hiveKeys.activePubkey) ||
+      postingKeys.includes(hiveKeys.postingPubkey)
+    );
   };
 
   const handleHiveKeysDecision = (shouldImport: boolean) => {
@@ -233,7 +274,18 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
               onChange={(e) => setSeedPhrase(e.target.value)}
             />
 
-            <div className="flex mt-4 justify-end">
+            <div className="flex gap-2 mt-4 justify-between items-center">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept=".txt,.json"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <span className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                  {i18next.t("permissions.add-keys.import.load-from-file")}
+                </span>
+              </label>
               <Button icon={<UilArrowRight />} onClick={handleValidateSeed}>
                 {i18next.t("g.next")}
               </Button>
@@ -251,36 +303,52 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
               {i18next.t("permissions.add-keys.import.hive-keys-description")}
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-              <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
-                <div>
-                  <span className="font-semibold">
-                    {i18next.t("permissions.add-keys.import.owner-key")}:
-                  </span>{" "}
-                  <span className="font-mono text-xs">{hiveKeys?.ownerPubkey}</span>
-                </div>
-                <div>
-                  <span className="font-semibold">
-                    {i18next.t("permissions.add-keys.import.active-key")}:
-                  </span>{" "}
-                  <span className="font-mono text-xs">{hiveKeys?.activePubkey}</span>
-                </div>
-                <div>
-                  <span className="font-semibold">
-                    {i18next.t("permissions.add-keys.import.posting-key")}:
-                  </span>{" "}
-                  <span className="font-mono text-xs">{hiveKeys?.postingPubkey}</span>
+            {checkIfKeysAlreadyExist() ? (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                <div className="text-sm text-green-800 dark:text-green-200">
+                  {i18next.t("permissions.add-keys.import.hive-keys-already-added")}
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                  <div>
+                    <span className="font-semibold">
+                      {i18next.t("permissions.add-keys.import.owner-key")}:
+                    </span>{" "}
+                    <span className="font-mono text-xs">{hiveKeys?.ownerPubkey}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold">
+                      {i18next.t("permissions.add-keys.import.active-key")}:
+                    </span>{" "}
+                    <span className="font-mono text-xs">{hiveKeys?.activePubkey}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold">
+                      {i18next.t("permissions.add-keys.import.posting-key")}:
+                    </span>{" "}
+                    <span className="font-mono text-xs">{hiveKeys?.postingPubkey}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-4 mt-4 justify-end">
-              <Button appearance="gray" onClick={() => handleHiveKeysDecision(false)}>
-                {i18next.t("permissions.add-keys.import.skip-hive-keys")}
-              </Button>
-              <Button icon={<UilArrowRight />} onClick={() => handleHiveKeysDecision(true)}>
-                {i18next.t("permissions.add-keys.import.import-hive-keys")}
-              </Button>
+              {checkIfKeysAlreadyExist() ? (
+                <Button icon={<UilArrowRight />} onClick={() => handleHiveKeysDecision(false)}>
+                  {i18next.t("g.continue")}
+                </Button>
+              ) : (
+                <>
+                  <Button appearance="gray" onClick={() => handleHiveKeysDecision(false)}>
+                    {i18next.t("permissions.add-keys.import.skip-hive-keys")}
+                  </Button>
+                  <Button icon={<UilArrowRight />} onClick={() => handleHiveKeysDecision(true)}>
+                    {i18next.t("permissions.add-keys.import.import-hive-keys")}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -385,7 +453,7 @@ export function SetupExternalImport({ onBack }: Props) {
   if (!username) {
     return (
       <div className="text-center py-8 text-gray-500">
-        {i18next.t("g.login")} required to import wallet
+        {i18next.t("wallet.setup-external.import-login-required")}
       </div>
     );
   }
