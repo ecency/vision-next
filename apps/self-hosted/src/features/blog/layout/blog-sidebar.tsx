@@ -1,11 +1,11 @@
+import { formatMonthYear, InstanceConfigManager, t } from "@/core";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { formatMonthYear, InstanceConfigManager, t } from "@/core";
-import { UserAvatar } from "@/features/shared/user-avatar";
 import {
-  useInstanceConfig,
   useCommunityData,
+  useInstanceConfig,
 } from "../hooks/use-instance-config";
 
 export function BlogSidebar() {
@@ -30,7 +30,7 @@ function BlogSidebarContent({ username }: { username: string }) {
   }, [data?.created]);
 
   return (
-    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+    <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
         <UserAvatar username={username} size="sLarge" />
         <div className="text-sm sm:text-base font-bold font-theme-ui text-theme-primary">
@@ -139,7 +139,7 @@ function CommunitySidebar() {
 
   if (isLoading) {
     return (
-      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+      <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
         <div className="animate-pulse">
           <div className="w-16 h-16 rounded-full bg-theme-tertiary mb-4" />
           <div className="h-4 w-32 bg-theme-tertiary rounded mb-2" />
@@ -151,7 +151,7 @@ function CommunitySidebar() {
 
   if (!community) {
     return (
-      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+      <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
         <div className="text-sm text-theme-muted">
           {t("community_not_found")}
         </div>
@@ -160,7 +160,7 @@ function CommunitySidebar() {
   }
 
   return (
-    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto -ml-4">
+    <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto -ml-4">
       <div className="flex items-center gap-3 mb-4">
         {communityAvatarUrl ? (
           <img
