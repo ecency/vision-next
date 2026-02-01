@@ -76,18 +76,39 @@ jobs:
           declare -A PACKAGE_BUMPS
           DEFAULT_BUMP="patch"
 
+          # Helper function to set bump type with conflict detection
+          # Uses precedence: major > minor > patch
+          set_bump() {
+            local package=$1
+            local new_bump=$2
+            local current_bump="${PACKAGE_BUMPS[$package]}"
+
+            if [ -n "$current_bump" ] && [ "$current_bump" != "$new_bump" ]; then
+              echo "⚠️  Conflicting labels for $package: $current_bump and $new_bump"
+              # Use precedence: major > minor > patch
+              if [ "$new_bump" = "major" ] || [ "$current_bump" = "patch" -a "$new_bump" = "minor" ]; then
+                echo "   → Using higher severity: $new_bump"
+                PACKAGE_BUMPS[$package]=$new_bump
+              else
+                echo "   → Keeping higher severity: $current_bump"
+              fi
+            else
+              PACKAGE_BUMPS[$package]=$new_bump
+            fi
+          }
+
           # Check package-specific labels
-          if echo "$LABELS" | grep -q "patch:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="patch"; fi
-          if echo "$LABELS" | grep -q "minor:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="minor"; fi
-          if echo "$LABELS" | grep -q "major:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="major"; fi
+          if echo "$LABELS" | grep -q "patch:sdk"; then set_bump "@ecency/sdk" "patch"; fi
+          if echo "$LABELS" | grep -q "minor:sdk"; then set_bump "@ecency/sdk" "minor"; fi
+          if echo "$LABELS" | grep -q "major:sdk"; then set_bump "@ecency/sdk" "major"; fi
 
-          if echo "$LABELS" | grep -q "patch:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="patch"; fi
-          if echo "$LABELS" | grep -q "minor:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="minor"; fi
-          if echo "$LABELS" | grep -q "major:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="major"; fi
+          if echo "$LABELS" | grep -q "patch:wallets"; then set_bump "@ecency/wallets" "patch"; fi
+          if echo "$LABELS" | grep -q "minor:wallets"; then set_bump "@ecency/wallets" "minor"; fi
+          if echo "$LABELS" | grep -q "major:wallets"; then set_bump "@ecency/wallets" "major"; fi
 
-          if echo "$LABELS" | grep -q "patch:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="patch"; fi
-          if echo "$LABELS" | grep -q "minor:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="minor"; fi
-          if echo "$LABELS" | grep -q "major:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="major"; fi
+          if echo "$LABELS" | grep -q "patch:render-helper"; then set_bump "@ecency/render-helper" "patch"; fi
+          if echo "$LABELS" | grep -q "minor:render-helper"; then set_bump "@ecency/render-helper" "minor"; fi
+          if echo "$LABELS" | grep -q "major:render-helper"; then set_bump "@ecency/render-helper" "major"; fi
 
           # If no package-specific labels, check generic labels and detect changed packages
           if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
@@ -100,9 +121,9 @@ jobs:
             git fetch origin ${{ github.event.pull_request.base.ref }}
             CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
 
-            if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then PACKAGE_BUMPS["@ecency/sdk"]="$DEFAULT_BUMP"; fi
-            if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then PACKAGE_BUMPS["@ecency/wallets"]="$DEFAULT_BUMP"; fi
-            if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then PACKAGE_BUMPS["@ecency/render-helper"]="$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then set_bump "@ecency/sdk" "$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then set_bump "@ecency/wallets" "$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then set_bump "@ecency/render-helper" "$DEFAULT_BUMP"; fi
           fi
 
           if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then

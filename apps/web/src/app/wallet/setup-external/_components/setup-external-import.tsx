@@ -118,19 +118,25 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
     const reader = new FileReader();
     reader.onload = (e) => {
+      const content = e.target?.result;
+
+      // Validate content is a string
+      if (typeof content !== "string") {
+        error(i18next.t("permissions.add-keys.import.error-invalid-file"));
+        return;
+      }
+
       try {
-        const content = e.target?.result as string;
         // Try to parse as JSON first (seed file format)
         const json = JSON.parse(content);
-        if (json.seed) {
-          setSeedPhrase(json.seed);
+        if (json.seed && typeof json.seed === "string") {
+          setSeedPhrase(json.seed.trim());
         } else {
-          // If no seed property, assume the content is the seed itself
-          setSeedPhrase(content.trim());
+          error(i18next.t("permissions.add-keys.import.error-invalid-file-format"));
+          return;
         }
       } catch {
         // If JSON parsing fails, assume it's plain text seed
-        const content = e.target?.result as string;
         setSeedPhrase(content.trim());
       }
     };
@@ -194,13 +200,23 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
       try {
         const tokenEntries = Array.from(tokens?.entries() ?? []);
+
+        // Only include entries with valid addresses
+        const entriesWithAddresses = tokenEntries.filter(([, info]) => Boolean(info.address));
+
+        // Validate we have at least some wallets with addresses
+        if (entriesWithAddresses.length === 0) {
+          error(i18next.t("permissions.add-keys.import.error-no-wallets"));
+          setStep("tokens");
+          return;
+        }
+
         const walletAddresses = Object.fromEntries(
-          tokenEntries
-            .filter(([, info]) => Boolean(info.address))
-            .map(([token, info]) => [token as string, info.address!])
+          entriesWithAddresses.map(([token, info]) => [token as string, info.address!])
         ) as Record<string, string>;
 
-        await saveTokens(tokenEntries.map(([, info]) => info));
+        // Only save tokens that have addresses
+        await saveTokens(entriesWithAddresses.map(([, info]) => info));
 
         // Import Hive keys if user chose to
         if (importHiveKeys && hiveKeys) {
