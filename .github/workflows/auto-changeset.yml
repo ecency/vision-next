@@ -44,16 +44,20 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Skip if already versioned for this PR
+        id: check_versioned
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -e
           if git log --oneline --max-count=100 | grep -q "apply changeset versioning for PR #${PR_NUMBER}"; then
             echo "Already versioned for PR #${PR_NUMBER}, skipping."
-            exit 0
+            echo "already_versioned=true" >> $GITHUB_OUTPUT
+          else
+            echo "already_versioned=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Generate changeset
+        if: steps.check_versioned.outputs.already_versioned != 'true'
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -63,32 +67,40 @@ jobs:
 
           LABELS=$(echo "$PR_LABELS" | jq -r '.[]')
 
-          PACKAGES=""
-          BUMP_TYPE="patch"
+          # Use associative array to track per-package bump types
+          declare -A PACKAGE_BUMPS
+          DEFAULT_BUMP="patch"
 
-          if echo "$LABELS" | grep -q "patch:sdk"; then PACKAGES="$PACKAGES @ecency/sdk"; BUMP_TYPE="patch"; fi
-          if echo "$LABELS" | grep -q "minor:sdk"; then PACKAGES="$PACKAGES @ecency/sdk"; BUMP_TYPE="minor"; fi
-          if echo "$LABELS" | grep -q "patch:wallets"; then PACKAGES="$PACKAGES @ecency/wallets"; BUMP_TYPE="patch"; fi
-          if echo "$LABELS" | grep -q "minor:wallets"; then PACKAGES="$PACKAGES @ecency/wallets"; BUMP_TYPE="minor"; fi
-          if echo "$LABELS" | grep -q "patch:render-helper"; then PACKAGES="$PACKAGES @ecency/render-helper"; BUMP_TYPE="patch"; fi
-          if echo "$LABELS" | grep -q "minor:render-helper"; then PACKAGES="$PACKAGES @ecency/render-helper"; BUMP_TYPE="minor"; fi
+          # Check package-specific labels
+          if echo "$LABELS" | grep -q "patch:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="patch"; fi
+          if echo "$LABELS" | grep -q "minor:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="minor"; fi
+          if echo "$LABELS" | grep -q "major:sdk"; then PACKAGE_BUMPS["@ecency/sdk"]="major"; fi
 
-          if [ -z "$PACKAGES" ]; then
+          if echo "$LABELS" | grep -q "patch:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="patch"; fi
+          if echo "$LABELS" | grep -q "minor:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="minor"; fi
+          if echo "$LABELS" | grep -q "major:wallets"; then PACKAGE_BUMPS["@ecency/wallets"]="major"; fi
+
+          if echo "$LABELS" | grep -q "patch:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="patch"; fi
+          if echo "$LABELS" | grep -q "minor:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="minor"; fi
+          if echo "$LABELS" | grep -q "major:render-helper"; then PACKAGE_BUMPS["@ecency/render-helper"]="major"; fi
+
+          # If no package-specific labels, check generic labels and detect changed packages
+          if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
             if echo "$LABELS" | grep -q "major"; then
-              BUMP_TYPE="major"
+              DEFAULT_BUMP="major"
             elif echo "$LABELS" | grep -q "minor"; then
-              BUMP_TYPE="minor"
+              DEFAULT_BUMP="minor"
             fi
 
             git fetch origin ${{ github.event.pull_request.base.ref }}
             CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
 
-            if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then PACKAGES="$PACKAGES @ecency/sdk"; fi
-            if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then PACKAGES="$PACKAGES @ecency/wallets"; fi
-            if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then PACKAGES="$PACKAGES @ecency/render-helper"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then PACKAGE_BUMPS["@ecency/sdk"]="$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then PACKAGE_BUMPS["@ecency/wallets"]="$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then PACKAGE_BUMPS["@ecency/render-helper"]="$DEFAULT_BUMP"; fi
           fi
 
-          if [ -z "$PACKAGES" ]; then
+          if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
             echo "No publishable packages changed, skipping changeset generation"
             exit 0
           fi
@@ -97,8 +109,8 @@ jobs:
           rm -f "$CHANGESET_FILE"
 
           echo "---" > "$CHANGESET_FILE"
-          for pkg in $PACKAGES; do
-            echo "\"$pkg\": $BUMP_TYPE" >> "$CHANGESET_FILE"
+          for pkg in "${!PACKAGE_BUMPS[@]}"; do
+            echo "\"$pkg\": ${PACKAGE_BUMPS[$pkg]}" >> "$CHANGESET_FILE"
           done
           echo "---" >> "$CHANGESET_FILE"
           echo "" >> "$CHANGESET_FILE"
@@ -111,10 +123,8 @@ jobs:
 
           cat "$CHANGESET_FILE"
 
-      - name: Version packages (apply changeset)
-        run: pnpm changeset version
-
       - name: Commit & push changes (same PR)
+        if: steps.check_versioned.outputs.already_versioned != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
