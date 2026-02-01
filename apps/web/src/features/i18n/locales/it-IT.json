@@ -1318,6 +1318,10 @@
       "account-value-description": "Il valore approssimativo del Dollaro USA per tutte le attività SPK nel tuo conto",
       "larynx-locked": "LARYNX Bloccato",
       "larynx-locked-description": "I token bloccati forniscono liquidità alla rete, aiuto nel determinare il consenso, e guadagnare premi per i corridori di nodi"
+    },
+    "setup-external": {
+      "login-required": "Accesso richiesto per configurare portafogli esterni",
+      "import-login-required": "Login richiesto per importare il portafoglio"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Caricamento editor...",
     "gif-picker": "Scegli immagine GIF",
     "description-hint": "Aiuta a cercare i sistemi dei motori di ricerca per scoprire questo post",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "Chiavi Aggiornate Con Successo!",
         "success-description": "Le nuove chiavi sono state aggiunte e le vecchie chiavi selezionate sono state revocate.",
         "error-no-keys": "Nessuna chiave disponibile da aggiungere"
+      },
+      "import": {
+        "title": "Importa Frase Seed Esistente",
+        "description": "Inserisci la tua frase seme di 12 parole esistente per importare gli indirizzi del portafoglio e opzionalmente le chiavi Hive.",
+        "warning": "Non condividere mai la tua seed phrase con nessuno. Ecency non lo chiederà mai. Inseriscila solo su dispositivi attendibili.",
+        "placeholder": "Inserisci la tua frase seme di 12 parole separata da spazi",
+        "load-from-file": "O carica dal file seed",
+        "error-word-count": "La frase di seme deve contenere esattamente 12 parole",
+        "error-invalid-seed": "Frase seed non valida. Per favore controlla e riprova.",
+        "error-derive-keys": "Impossibile ricavare le chiavi dal seed phrase",
+        "error-invalid-file": "File non valido. Carica un file seed valido.",
+        "error-invalid-file-format": "Formato file non valido. Il file Seed deve contenere una proprietà 'seed'.",
+        "error-no-wallets": "Nessun indirizzo del portafoglio trovato. Attendere che la creazione del portafoglio sia completata.",
+        "hive-keys-title": "Importa Chiavi Hive",
+        "hive-keys-description": "Abbiamo trovato le chiavi Hive nella tua frase del seme. Vuoi importarle nel tuo account?",
+        "hive-keys-already-added": "Queste chiavi sono già attive sul tuo account.",
+        "owner-key": "Chiave Del Proprietario",
+        "active-key": "Chiave Attiva",
+        "posting-key": "Chiave Di Pubblicazione",
+        "skip-hive-keys": "Salta Tasti Alveari",
+        "import-hive-keys": "Importa Chiavi Hive",
+        "tokens-title": "Rivedi Indirizzi Portafoglio",
+        "tokens-description": "Questi indirizzi del portafoglio sono stati derivati dalla tua frase del seme. Verificali prima di continuare.",
+        "sign-title": "Firma per completare l'importazione",
+        "success-title": "Importazione Riuscita!",
+        "success-description": "Gli indirizzi e le chiavi del tuo portafoglio sono stati importati con successo.",
+        "step-import-title": "Importa frase seed",
+        "step-import-description": "Inserisci la tua frase seme di 12 parole esistente",
+        "step-hive-keys-title": "Tasti alveari",
+        "step-hive-keys-description": "Opzionalmente importa le chiavi Hive dalla stessa frase del seme",
+        "step-tokens-title": "Token",
+        "step-tokens-description": "Revisione degli indirizzi del portafoglio derivati",
+        "step-sign-title": "Firma modifiche",
+        "step-sign-description": "Firma le modifiche per collegare i portafogli",
+        "step-link-title": "Collega portafogli",
+        "step-link-description": "Finalizza il collegamento del portafoglio all'account Ecency"
       }
     }
   }
