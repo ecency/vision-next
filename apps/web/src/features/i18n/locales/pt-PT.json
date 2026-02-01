@@ -1318,6 +1318,10 @@
       "account-value-description": "O valor aproximado em dólares de todos os ativos SPK na sua conta",
       "larynx-locked": "LARYNX Guardado",
       "larynx-locked-description": "Tokens bloqueados fornecem liquidez à rede, ajudam na determinação do consenso e recebem recompensas para rodar servidores de nó"
+    },
+    "setup-external": {
+      "login-required": "Login necessário para configurar carteiras externas",
+      "import-login-required": "Login necessário para importar a carteira"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Carregando o editor...",
     "gif-picker": "Escolher imagem GIF",
     "description-hint": "Ajuda a pesquisar sistemas de motores para descobrir esta postagem",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "Chaves Atualizadas com sucesso!",
         "success-description": "Suas novas chaves foram adicionadas e as chaves antigas selecionadas foram revogadas.",
         "error-no-keys": "Não há chaves disponíveis para adicionar"
+      },
+      "import": {
+        "title": "Importar frase de semente existente",
+        "description": "Insira sua semente de 12 palavras existente para importar os endereços da carteira e, opcionalmente, as chaves do Hive.",
+        "warning": "Nunca compartilhe sua frase de semente com ninguém. A Ecency nunca pedirá por ela. Só digite-a em dispositivos confiáveis.",
+        "placeholder": "Digite sua frase de semente de 12 palavras separadas por espaços",
+        "load-from-file": "Ou carregar do arquivo Seed",
+        "error-word-count": "A frase Seed deve ser exatamente 12 palavras",
+        "error-invalid-seed": "Frase de seed inválida. Por favor, verifique e tente novamente.",
+        "error-derive-keys": "Falha ao derivar as chaves da frase de semente",
+        "error-invalid-file": "Arquivo inválido. Por favor, envie um arquivo de Seed válido.",
+        "error-invalid-file-format": "Formato de arquivo inválido. O arquivo Seed deve conter uma propriedade 'seed'.",
+        "error-no-wallets": "Nenhum endereço de carteira encontrado. Por favor, aguarde a criação da carteira ser concluída.",
+        "hive-keys-title": "Importar chaves do Hive",
+        "hive-keys-description": "Encontramos as chaves do Hive em sua frase de sementes. Deseja importá-las para sua conta?",
+        "hive-keys-already-added": "Essas chaves já estão ativas em sua conta.",
+        "owner-key": "Chave do proprietário",
+        "active-key": "Chave Ativa",
+        "posting-key": "Chave de postagem",
+        "skip-hive-keys": "Pular Chaves do Hive",
+        "import-hive-keys": "Importar chaves do Hive",
+        "tokens-title": "Revisar endereços da carteira",
+        "tokens-description": "Esses endereços de carteira foram derivados de sua frase de sementes. Verifique-os antes de continuar.",
+        "sign-title": "Assinar a importação completa",
+        "success-title": "Importação bem sucedida!",
+        "success-description": "Os endereços e chaves da carteira foram importados com sucesso.",
+        "step-import-title": "Importar semente",
+        "step-import-description": "Digite sua frase de semente existente de 12 palavras",
+        "step-hive-keys-title": "Chaves da colmeia",
+        "step-hive-keys-description": "Opcionalmente, importar as chaves do Hive da mesma frase de semente",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Revise os endereços da carteira derivada",
+        "step-sign-title": "Assinar alterações",
+        "step-sign-description": "Assinar alterações para as carteiras de link",
+        "step-link-title": "Carteiras de link",
+        "step-link-description": "Finalize a carteira vinculada à conta de Ecency"
       }
     }
   }
