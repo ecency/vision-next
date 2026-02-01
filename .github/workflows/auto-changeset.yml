@@ -134,6 +134,9 @@ jobs:
 
           cat "$CHANGESET_FILE"
 
+      - name: Apply version bumps
+        run: pnpm changeset version
+
       - name: Commit & push changes (same PR)
         if: github.event.pull_request.head.repo.full_name == github.repository
         env:
