@@ -21,6 +21,7 @@ interface Props {
   currency: EcencyWalletCurrency;
   selectable?: boolean;
   onSelect?: (wallet: EcencyTokenMetadata) => void;
+  importedSeed?: string; // Optional: use this seed instead of generating a new one
 }
 
 export function WalletTokenAddressItem({
@@ -28,13 +29,14 @@ export function WalletTokenAddressItem({
   username,
   currency,
   onSelect,
-  selectable = false
+  selectable = false,
+  importedSeed
 }: Props) {
   const [_, copy] = useCopyToClipboard();
   const { data: wallets } = useWalletsCacheQuery(username);
   const wallet = useMemo(() => wallets?.get(currency), [wallets, currency]);
 
-  const { createWallet } = useWalletCreate(username, currency);
+  const { createWallet } = useWalletCreate(username, currency, importedSeed);
 
   useMount(() => {
     if (!wallet) {
