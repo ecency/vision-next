@@ -1,5 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { usePublishEditor, PublishEditor, PublishActionBar } from "@/features/publish";
+import {
+  usePublishEditor,
+  PublishEditor,
+  PublishActionBar,
+} from "@/features/publish";
 import { useIsBlogOwner, useIsAuthEnabled } from "@/features/auth/hooks";
 import { BlogSidebar } from "@/features/blog/layout/blog-sidebar";
 import { useEffect } from "react";
@@ -32,7 +36,9 @@ function RouteComponent() {
           {/* Main content - appears first on mobile/tablet */}
           <main className="blog-main-container order-2 lg:order-1 items-start mt-4 sm:mt-8 section-gap-theme">
             <PublishActionBar />
-            <PublishEditor editor={editor} />
+            <div className="max-w-[1024px] w-full mx-auto px-2 md:px-4 py-4">
+              <PublishEditor editor={editor} />
+            </div>
           </main>
 
           {/* Sidebar - appears second on mobile/tablet, right on desktop */}

@@ -2,6 +2,7 @@ import { Editor, EditorContent } from "@tiptap/react";
 import { motion } from "framer-motion";
 import { usePublishState } from "../hooks/use-publish-state";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
+import { PublishTagsSelector } from "./publish-tags-selector";
 
 interface Props {
   editor: Editor | null;
@@ -10,7 +11,7 @@ interface Props {
 const MAX_TITLE_LENGTH = 255;
 
 export function PublishEditor({ editor }: Props) {
-  const { title, setTitleState } = usePublishState();
+  const { title, setTitleState, tags, setTagsState } = usePublishState();
 
   return (
     <motion.div
@@ -33,6 +34,7 @@ export function PublishEditor({ editor }: Props) {
           }
         }}
       />
+      <PublishTagsSelector tags={tags} onChange={setTagsState} />
       <div className="border-y border-gray-200 dark:border-gray-700 sticky top-[60px] md:top-[76px] -mx-2 z-10 bg-white dark:bg-gray-800">
         <PublishEditorToolbar editor={editor} />
       </div>

@@ -17,7 +17,10 @@ export function PublishActionBar({ onSuccess }: Props) {
   } = usePublishPost();
   const navigate = useNavigate();
 
-  const canPublish = title.trim().length > 0 && content.trim().length > 0;
+  const canPublish =
+    title.trim().length > 0 &&
+    content.trim().length > 0 &&
+    tags.length > 0;
 
   const handlePublish = async () => {
     if (!canPublish || isPublishing) return;

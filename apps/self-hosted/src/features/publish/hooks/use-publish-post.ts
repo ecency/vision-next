@@ -29,6 +29,10 @@ export function usePublishPost() {
         throw new Error("Post content cannot be empty");
       }
 
+      if (!tags.length) {
+        throw new Error("At least one tag is required");
+      }
+
       // Generate permlink from title
       let permlink = createPermlink(title);
 

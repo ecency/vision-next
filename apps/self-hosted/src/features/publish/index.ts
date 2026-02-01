@@ -3,6 +3,7 @@ export { PublishEditor } from "./components/publish-editor";
 export { PublishEditorToolbar } from "./components/publish-editor-toolbar";
 export { PublishEditorTableToolbar } from "./components/publish-editor-table-toolbar";
 export { PublishActionBar } from "./components/publish-action-bar";
+export { PublishTagsSelector } from "./components/publish-tags-selector";
 
 // Hooks
 export { usePublishState } from "./hooks/use-publish-state";
