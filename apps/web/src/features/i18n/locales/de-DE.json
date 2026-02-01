@@ -1318,6 +1318,10 @@
       "account-value-description": "Der ungefähre US-Dollar-Wert für alle SPK-Assets in Ihrem Konto",
       "larynx-locked": "LARYNX gesperrt",
       "larynx-locked-description": "Gesperrte Tokens sorgen für Liquidität im Netzwerk, helfen bei der Konsensfindung und verdienen Belohnungen für Knotenläufer"
+    },
+    "setup-external": {
+      "login-required": "Anmeldung erforderlich, um externe Brieftaschen einzurichten",
+      "import-login-required": "Anmeldung erforderlich, um Wallet zu importieren"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Editor wird geladen...",
     "gif-picker": "GIF-Bild auswählen",
     "description-hint": "Hilft den Suchmaschinensystemen diesen Beitrag zu finden",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "Schlüssel erfolgreich aktualisiert!",
         "success-description": "Ihre neuen Schlüssel wurden hinzugefügt und die ausgewählten alten Schlüssel wurden widerrufen.",
         "error-no-keys": "Keine Schlüssel zum Hinzufügen verfügbar"
+      },
+      "import": {
+        "title": "Existierende Seed-Phrase importieren",
+        "description": "Geben Sie Ihre vorhandene 12-Wort-Seed-Phrase ein, um Wallet-Adressen und optional Hive-Schlüssel zu importieren.",
+        "warning": "Teilen Sie niemals Ihre Seed-Phrase mit niemandem. Ecency wird nie danach fragen. Geben Sie sie nur auf vertrauenswürdigen Geräten ein.",
+        "placeholder": "Geben Sie Ihre 12-Wort-Seed-Phrase durch Leerzeichen getrennt ein",
+        "load-from-file": "Oder aus Seed-Datei laden",
+        "error-word-count": "Seed-Phrase muss genau 12 Wörter sein",
+        "error-invalid-seed": "Ungültige Seed-Phrase. Bitte überprüfen und erneut versuchen.",
+        "error-derive-keys": "Fehler beim Abholen der Schlüssel aus Seed-Phrase",
+        "error-invalid-file": "Ungültige Datei. Bitte laden Sie eine gültige Seed-Datei hoch.",
+        "error-invalid-file-format": "Ungültiges Dateiformat. Seed Datei muss eine 'seed' Eigenschaft enthalten.",
+        "error-no-wallets": "Keine Wallet-Adressen gefunden. Bitte warten Sie, bis die Wallet-Erstellung abgeschlossen ist.",
+        "hive-keys-title": "Hive-Schlüssel importieren",
+        "hive-keys-description": "Wir haben Hive-Schlüssel in Ihrer Seed-Phrase gefunden. Möchten Sie sie in Ihr Konto importieren?",
+        "hive-keys-already-added": "Diese Schlüssel sind bereits auf Ihrem Konto aktiv.",
+        "owner-key": "Eigentümerschlüssel",
+        "active-key": "Aktiver Schlüssel",
+        "posting-key": "Posting-Schlüssel",
+        "skip-hive-keys": "Hive-Schlüssel überspringen",
+        "import-hive-keys": "Hive-Schlüssel importieren",
+        "tokens-title": "Wallet-Adressen überprüfen",
+        "tokens-description": "Diese Wallet-Adressen wurden von Ihrer Seed-Phrase abgeleitet. Überprüfen Sie sie, bevor Sie fortfahren.",
+        "sign-title": "Zum vollständigen Import anmelden",
+        "success-title": "Import erfolgreich!",
+        "success-description": "Ihre Wallet-Adressen und Schlüssel wurden erfolgreich importiert.",
+        "step-import-title": "Seed-Phrase importieren",
+        "step-import-description": "Geben Sie Ihre vorhandene 12-Wort-Seed-Phrase ein",
+        "step-hive-keys-title": "Hive-Schlüssel",
+        "step-hive-keys-description": "Optional Hive-Schlüssel aus der gleichen Seed-Phrase importieren",
+        "step-tokens-title": "Token",
+        "step-tokens-description": "Abgeleitete Wallet-Adressen überprüfen",
+        "step-sign-title": "Signiere Änderungen",
+        "step-sign-description": "Signiere Änderungen an Link-Wallets",
+        "step-link-title": "Brieftaschen verknüpfen",
+        "step-link-description": "Wallet-Verlinkung zum Ecency Konto abschließen"
       }
     }
   }
