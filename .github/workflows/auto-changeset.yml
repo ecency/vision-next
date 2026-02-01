@@ -20,7 +20,10 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'patch:render-helper') ||
       contains(github.event.pull_request.labels.*.name, 'minor:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'minor:wallets') ||
-      contains(github.event.pull_request.labels.*.name, 'minor:render-helper')
+      contains(github.event.pull_request.labels.*.name, 'minor:render-helper') ||
+      contains(github.event.pull_request.labels.*.name, 'major:sdk') ||
+      contains(github.event.pull_request.labels.*.name, 'major:wallets') ||
+      contains(github.event.pull_request.labels.*.name, 'major:render-helper')
 
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +127,12 @@ jobs:
           cat "$CHANGESET_FILE"
 
       - name: Commit & push changes (same PR)
-        if: steps.check_versioned.outputs.already_versioned != 'true'
+        if: |
+          steps.check_versioned.outputs.already_versioned != 'true' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          BRANCH_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -136,5 +144,5 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: apply changeset versioning for PR #${{ github.event.pull_request.number }}"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git commit -m "chore: apply changeset versioning for PR #${PR_NUMBER}"
+          git push origin "HEAD:${BRANCH_REF}"

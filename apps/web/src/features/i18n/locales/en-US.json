@@ -1318,6 +1318,10 @@
       "account-value-description": "The approximate US Dollar value for all SPK assets in your account",
       "larynx-locked": "LARYNX Locked",
       "larynx-locked-description": "Locked tokens provide liquidity to the network, aid in determining consensus, and earn rewards for node runners"
+    },
+    "setup-external": {
+      "login-required": "Login required to setup external wallets",
+      "import-login-required": "Login required to import wallet"
     }
   },
   "wallet-engine-estimated": {
@@ -2860,12 +2864,6 @@
       "success": "Your account created. Enjoy the Hive and Ecency!"
     }
   },
-  "wallet": {
-    "setup-external": {
-      "login-required": "Login required to setup external wallets",
-      "import-login-required": "Login required to import wallet"
-    }
-  },
   "publish": {
     "loading-editor": "Loading editor...",
     "gif-picker": "Pick GIF image",
@@ -3202,7 +3200,17 @@
         "tokens-description": "These wallet addresses were derived from your seed phrase. Verify them before continuing.",
         "sign-title": "Sign to Complete Import",
         "success-title": "Import Successful!",
-        "success-description": "Your wallet addresses and keys have been successfully imported."
+        "success-description": "Your wallet addresses and keys have been successfully imported.",
+        "step-import-title": "Import seed phrase",
+        "step-import-description": "Enter your existing 12-word seed phrase",
+        "step-hive-keys-title": "Hive keys",
+        "step-hive-keys-description": "Optionally import Hive keys from the same seed phrase",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Review derived wallet addresses",
+        "step-sign-title": "Sign changes",
+        "step-sign-description": "Sign changes to link wallets",
+        "step-link-title": "Link wallets",
+        "step-link-description": "Finalize wallet linking to Ecency account"
       }
     }
   }

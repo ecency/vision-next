@@ -37,39 +37,6 @@ interface Props {
   onBack: () => void;
 }
 
-const steps = [
-  {
-    step: "import",
-    title: "Import seed phrase",
-    icon: <UilFileImport />,
-    description: "Enter your existing 12-word seed phrase"
-  },
-  {
-    step: "hive-keys",
-    title: "Hive keys",
-    icon: <UilLock />,
-    description: "Optionally import Hive keys from the same seed phrase"
-  },
-  {
-    step: "tokens",
-    title: "Tokens",
-    icon: <UilBitcoinSign />,
-    description: "Review derived wallet addresses"
-  },
-  {
-    step: "sign",
-    title: "Sign changes",
-    icon: <UilTransaction />,
-    description: "Sign changes to link wallets"
-  },
-  {
-    step: "link",
-    title: "Link wallets",
-    icon: <UilUser />,
-    description: "Finalize wallet linking to Ecency account"
-  }
-];
-
 const TOKENS = [
   EcencyWalletCurrency.BTC,
   EcencyWalletCurrency.ETH,
@@ -87,6 +54,42 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
   const [seedPhrase, setSeedPhrase] = useState("");
   const [importHiveKeys, setImportHiveKeys] = useState(false);
   const [hiveKeys, setHiveKeys] = useState<ReturnType<typeof deriveHiveKeys> | null>(null);
+
+  const steps = useMemo(
+    () => [
+      {
+        step: "import",
+        title: i18next.t("permissions.add-keys.import.step-import-title"),
+        icon: <UilFileImport />,
+        description: i18next.t("permissions.add-keys.import.step-import-description")
+      },
+      {
+        step: "hive-keys",
+        title: i18next.t("permissions.add-keys.import.step-hive-keys-title"),
+        icon: <UilLock />,
+        description: i18next.t("permissions.add-keys.import.step-hive-keys-description")
+      },
+      {
+        step: "tokens",
+        title: i18next.t("permissions.add-keys.import.step-tokens-title"),
+        icon: <UilBitcoinSign />,
+        description: i18next.t("permissions.add-keys.import.step-tokens-description")
+      },
+      {
+        step: "sign",
+        title: i18next.t("permissions.add-keys.import.step-sign-title"),
+        icon: <UilTransaction />,
+        description: i18next.t("permissions.add-keys.import.step-sign-description")
+      },
+      {
+        step: "link",
+        title: i18next.t("permissions.add-keys.import.step-link-title"),
+        icon: <UilUser />,
+        description: i18next.t("permissions.add-keys.import.step-link-description")
+      }
+    ],
+    []
+  );
 
   const { data: tokens } = useWalletsCacheQuery(username);
   const { data: account } = useAccountFullQuery(username);
@@ -189,45 +192,50 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
       }
       setStep("link");
 
-      const tokenEntries = Array.from(tokens?.entries() ?? []);
-      const walletAddresses = Object.fromEntries(
-        tokenEntries
-          .filter(([, info]) => Boolean(info.address))
-          .map(([token, info]) => [token as string, info.address!])
-      ) as Record<string, string>;
+      try {
+        const tokenEntries = Array.from(tokens?.entries() ?? []);
+        const walletAddresses = Object.fromEntries(
+          tokenEntries
+            .filter(([, info]) => Boolean(info.address))
+            .map(([token, info]) => [token as string, info.address!])
+        ) as Record<string, string>;
 
-      await saveTokens(tokenEntries.map(([, info]) => info));
+        await saveTokens(tokenEntries.map(([, info]) => info));
 
-      // Import Hive keys if user chose to
-      if (importHiveKeys && hiveKeys) {
-        await saveKeys({
-          keepCurrent: true,
-          currentKey,
-          keys: [
-            {
-              owner: PrivateKey.fromString(hiveKeys.owner),
-              active: PrivateKey.fromString(hiveKeys.active),
-              posting: PrivateKey.fromString(hiveKeys.posting),
-              memo_key: PrivateKey.fromString(hiveKeys.memo)
-            }
-          ]
-        });
-      }
-
-      await saveToPrivateApi({
-        tokens: walletAddresses,
-        ...(importHiveKeys && hiveKeys
-          ? {
-              hiveKeys: {
-                ownerPublicKey: hiveKeys.ownerPubkey,
-                activePublicKey: hiveKeys.activePubkey,
-                postingPublicKey: hiveKeys.postingPubkey,
-                memoPublicKey: hiveKeys.memoPubkey
+        // Import Hive keys if user chose to
+        if (importHiveKeys && hiveKeys) {
+          await saveKeys({
+            keepCurrent: true,
+            currentKey,
+            keys: [
+              {
+                owner: PrivateKey.fromString(hiveKeys.owner),
+                active: PrivateKey.fromString(hiveKeys.active),
+                posting: PrivateKey.fromString(hiveKeys.posting),
+                memo_key: PrivateKey.fromString(hiveKeys.memo)
               }
-            }
-          : {})
-      });
-      setStep("success");
+            ]
+          });
+        }
+
+        await saveToPrivateApi({
+          tokens: walletAddresses,
+          ...(importHiveKeys && hiveKeys
+            ? {
+                hiveKeys: {
+                  ownerPublicKey: hiveKeys.ownerPubkey,
+                  activePublicKey: hiveKeys.activePubkey,
+                  postingPublicKey: hiveKeys.postingPubkey,
+                  memoPublicKey: hiveKeys.memoPubkey
+                }
+              }
+            : {})
+        });
+        setStep("success");
+      } catch (err) {
+        error(...formatError(err));
+        setStep("sign");
+      }
     },
     [authContext, hiveKeys, importHiveKeys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
