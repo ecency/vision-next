@@ -12,8 +12,9 @@ import {
   useWalletsCacheQuery,
   deriveHiveKeys
 } from "@ecency/wallets";
-import { useAccountUpdateKeyAuths, useAccountFullQuery } from "@ecency/sdk";
+import { useAccountUpdateKeyAuths, getAccountFullQueryOptions } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
+import { useQuery } from "@tanstack/react-query";
 import {
   UilArrowLeft,
   UilArrowRight,
@@ -92,7 +93,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
   );
 
   const { data: tokens } = useWalletsCacheQuery(username);
-  const { data: account } = useAccountFullQuery(username);
+  const { data: account } = useQuery(getAccountFullQueryOptions(username));
   const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
   const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
