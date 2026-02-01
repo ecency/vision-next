@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { usePublishState } from "../hooks/use-publish-state";
 import { usePublishPost } from "../hooks/use-publish-post";
-import { useIsBlogOwner } from "@/features/auth/hooks";
 import { useNavigate } from "@tanstack/react-router";
 
 interface Props {
@@ -10,8 +9,11 @@ interface Props {
 
 export function PublishActionBar({ onSuccess }: Props) {
   const { title, content, tags, clearAll } = usePublishState();
-  const { publishPost, isPublishing, error } = usePublishPost();
-  const isBlogOwner = useIsBlogOwner();
+  const {
+    mutateAsync: publishPost,
+    isPending: isPublishing,
+    error,
+  } = usePublishPost();
   const navigate = useNavigate();
 
   const canPublish = title.trim().length > 0 && content.trim().length > 0;
@@ -20,22 +22,18 @@ export function PublishActionBar({ onSuccess }: Props) {
     if (!canPublish || isPublishing) return;
 
     try {
-      await publishPost(title, content, tags);
+      await publishPost({ title, body: content, tags });
       clearAll();
-      
+
       // Redirect to blog page after successful publish
       navigate({ to: "/blog", search: { filter: "posts" } });
-      
+
       onSuccess?.();
     } catch (err) {
       // Error is handled by usePublishPost hook
       console.error("Failed to publish:", err);
     }
   };
-
-  if (!isBlogOwner) {
-    return null;
-  }
 
   return (
     <motion.div
@@ -48,16 +46,16 @@ export function PublishActionBar({ onSuccess }: Props) {
       <div className="flex flex-col items-end gap-2">
         {error && (
           <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded">
-            {error}
+            {error.message}
           </div>
         )}
         <button
           type="button"
           onClick={handlePublish}
           disabled={!canPublish || isPublishing}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+          className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors cursor-pointer ${
             canPublish && !isPublishing
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              ? "bg-black hover:bg-black/80 text-white"
               : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
           }`}
         >

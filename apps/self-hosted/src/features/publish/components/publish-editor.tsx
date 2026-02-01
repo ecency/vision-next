@@ -1,6 +1,5 @@
 import { Editor, EditorContent } from "@tiptap/react";
 import { motion } from "framer-motion";
-import TextareaAutosize from "react-textarea-autosize";
 import { usePublishState } from "../hooks/use-publish-state";
 import { PublishEditorToolbar } from "./publish-editor-toolbar";
 
@@ -11,7 +10,7 @@ interface Props {
 const MAX_TITLE_LENGTH = 255;
 
 export function PublishEditor({ editor }: Props) {
-  const { title, setTitle } = usePublishState();
+  const { title, setTitleState } = usePublishState();
 
   return (
     <motion.div
@@ -20,11 +19,12 @@ export function PublishEditor({ editor }: Props) {
       exit={{ opacity: 0 }}
       className="max-w-[1024px] rounded-2xl bg-white dark:bg-gray-800 container mx-auto px-2 py-4"
     >
-      <TextareaAutosize
-        className="text-3xl w-full px-4 py-4 pb-3 bg-transparent outline-none font-serif resize-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+      <input
+        type="text"
+        className="text-3xl w-full px-4 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
         placeholder="Post title..."
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => setTitleState(e.target.value)}
         maxLength={MAX_TITLE_LENGTH}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === "Tab") {

@@ -39,7 +39,7 @@ export function usePublishEditor() {
       // Convert HTML to markdown and save to state
       const html = editor.getHTML();
       const markdown = htmlToMarkdown(html);
-      publishState.setContent(markdown);
+      publishState.setContentState(markdown);
     }
   });
 

@@ -1,78 +1,63 @@
-import { useCallback, useState } from "react";
 import { useAuth } from "@/features/auth/hooks";
+import type { Operation } from "@hiveio/dhive";
+import { useMutation } from "@tanstack/react-query";
 import { createPermlink } from "../utils/permlink";
-import type { Operation } from "@/features/auth/types";
 
 export function usePublishPost() {
   const { broadcast, user } = useAuth();
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const publishPost = useCallback(
-    async (title: string, body: string, tags: string[] = []) => {
+  return useMutation({
+    mutationKey: ["publish-post"],
+    mutationFn: async ({
+      title,
+      body,
+      tags,
+    }: {
+      title: string;
+      body: string;
+      tags: string[];
+    }) => {
       if (!user) {
-        setError("Authentication required to publish post");
-        return;
+        throw new Error("Authentication required to publish post");
       }
 
       if (!title.trim()) {
-        setError("Title cannot be empty");
-        return;
+        throw new Error("Title cannot be empty");
       }
 
       if (!body.trim()) {
-        setError("Post content cannot be empty");
-        return;
+        throw new Error("Post content cannot be empty");
       }
 
-      setIsPublishing(true);
-      setError(null);
+      // Generate permlink from title
+      let permlink = createPermlink(title);
 
-      try {
-        // Generate permlink from title
-        let permlink = createPermlink(title);
-        
-        // If permlink already exists or is too short, add random suffix
-        // In a real implementation, you might want to check if permlink exists
-        // For now, we'll add random suffix to ensure uniqueness
-        permlink = createPermlink(title, true);
+      // If permlink already exists or is too short, add random suffix
+      // In a real implementation, you might want to check if permlink exists
+      // For now, we'll add random suffix to ensure uniqueness
+      permlink = createPermlink(title, true);
 
-        // Create the post operation (top-level post has empty parent)
-        const postOp: Operation = [
-          "comment",
-          {
-            parent_author: "",
-            parent_permlink: "",
-            author: user.username,
-            permlink,
-            title: title.trim(),
-            body: body.trim(),
-            json_metadata: JSON.stringify({
-              tags: tags.length > 0 ? tags : [],
-              app: "ecency-selfhost/1.0",
-              format: "markdown"
-            })
-          }
-        ];
+      // Create the post operation (top-level post has empty parent)
+      const postOp: Operation = [
+        "comment",
+        {
+          parent_author: "",
+          parent_permlink: "",
+          author: user.username,
+          permlink,
+          title: title.trim(),
+          body: body.trim(),
+          json_metadata: JSON.stringify({
+            tags: tags.length > 0 ? tags : [],
+            app: "ecency-selfhost/1.0",
+            format: "markdown",
+          }),
+        },
+      ];
 
-        await broadcast([postOp]);
+      await broadcast([postOp]);
 
-        return { success: true, permlink };
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to publish post";
-        setError(errorMessage);
-        console.error("Publish failed:", err);
-        throw err;
-      } finally {
-        setIsPublishing(false);
-      }
+      return { success: true, permlink };
     },
-    [broadcast, user]
-  );
-
-  return {
-    publishPost,
-    isPublishing,
-    error
-  };
+  });
 }

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useLocalStorage } from "react-use";
 
 const STORAGE_KEY = "publish-draft";
 
@@ -11,78 +12,66 @@ interface PublishDraft {
 const MAX_TITLE_LENGTH = 255;
 const MAX_TAG_LENGTH = 24;
 
+const defaultDraft: PublishDraft = {
+  title: "",
+  content: "",
+  tags: [],
+};
+
 export function usePublishState() {
-  const [title, setTitleState] = useState<string>("");
-  const [content, setContentState] = useState<string>("");
-  const [tags, setTagsState] = useState<string[]>([]);
+  const [draft, setDraft, removeDraft] = useLocalStorage<PublishDraft>(
+    STORAGE_KEY,
+    defaultDraft,
+  );
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const draft: PublishDraft = JSON.parse(stored);
-        setTitleState(draft.title || "");
-        setContentState(draft.content || "");
-        setTagsState(draft.tags || []);
-      }
-    } catch (error) {
-      console.error("Failed to load draft from localStorage:", error);
-    }
-  }, []);
+  // Wrapper for setTitleState with validation
+  const setTitleState = useCallback(
+    (value: string) => {
+      setDraft((prev) => ({
+        ...(prev ?? defaultDraft),
+        title: value.slice(0, MAX_TITLE_LENGTH),
+      }));
+    },
+    [setDraft],
+  );
 
-  // Auto-save to localStorage
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      try {
-        const draft: PublishDraft = {
-          title,
-          content,
-          tags
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-      } catch (error) {
-        console.error("Failed to save draft to localStorage:", error);
-      }
-    }, 500); // Debounce 500ms
+  // Wrapper for setContentState
+  const setContentState = useCallback(
+    (value: string) => {
+      setDraft((prev) => ({
+        ...(prev ?? defaultDraft),
+        content: value,
+      }));
+    },
+    [setDraft],
+  );
 
-    return () => clearTimeout(timeoutId);
-  }, [title, content, tags]);
-
-  const setTitle = useCallback((value: string) => {
-    setTitleState(value.slice(0, MAX_TITLE_LENGTH));
-  }, []);
-
-  const setContent = useCallback((value: string) => {
-    setContentState(value);
-  }, []);
-
-  const setTags = useCallback((value: string[]) => {
-    const sanitized = value
-      .map((tag) => tag.slice(0, MAX_TAG_LENGTH).trim())
-      .filter((tag) => tag.length > 0);
-    const unique = Array.from(new Set(sanitized));
-    setTagsState(unique);
-  }, []);
+  // Wrapper for setTagsState with validation
+  const setTagsState = useCallback(
+    (value: string[]) => {
+      const sanitized = value
+        .map((tag) => tag.slice(0, MAX_TAG_LENGTH).trim())
+        .filter((tag) => tag.length > 0);
+      const unique = Array.from(new Set(sanitized));
+      setDraft((prev) => ({
+        ...(prev ?? defaultDraft),
+        tags: unique,
+      }));
+    },
+    [setDraft],
+  );
 
   const clearAll = useCallback(() => {
-    setTitleState("");
-    setContentState("");
-    setTagsState([]);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (error) {
-      console.error("Failed to clear draft from localStorage:", error);
-    }
-  }, []);
+    removeDraft();
+  }, [removeDraft]);
 
   return {
-    title,
-    content,
-    tags,
-    setTitle,
-    setContent,
-    setTags,
-    clearAll
+    title: draft?.title ?? "",
+    content: draft?.content ?? "",
+    tags: draft?.tags ?? [],
+    setTitleState,
+    setContentState,
+    setTagsState,
+    clearAll,
   };
 }
