@@ -127,18 +127,30 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         return;
       }
 
-      try {
-        // Try to parse as JSON first (seed file format)
-        const json = JSON.parse(content);
-        if (json.seed && typeof json.seed === "string") {
-          setSeedPhrase(json.seed.trim());
-        } else {
-          error(i18next.t("permissions.add-keys.import.error-invalid-file-format"));
-          return;
+      // Try different file formats
+      let extractedSeed: string | null = null;
+
+      // 1. Try Ecency seed file format (Seed: <seed phrase>)
+      const seedMatch = content.match(/^Seed:\s*(.+?)$/m);
+      if (seedMatch && seedMatch[1]) {
+        extractedSeed = seedMatch[1].trim();
+      } else {
+        // 2. Try JSON format
+        try {
+          const json = JSON.parse(content);
+          if (json.seed && typeof json.seed === "string") {
+            extractedSeed = json.seed.trim();
+          }
+        } catch {
+          // 3. Fall back to treating entire content as seed phrase
+          extractedSeed = content.trim();
         }
-      } catch {
-        // If JSON parsing fails, assume it's plain text seed
-        setSeedPhrase(content.trim());
+      }
+
+      if (extractedSeed) {
+        setSeedPhrase(extractedSeed);
+      } else {
+        error(i18next.t("permissions.add-keys.import.error-invalid-file-format"));
       }
     };
     reader.readAsText(file);
