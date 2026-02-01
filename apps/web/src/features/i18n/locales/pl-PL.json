@@ -1318,6 +1318,10 @@
       "account-value-description": "Przybliżona wartość dolara amerykańskiego dla wszystkich aktywów SPK na Twoim koncie",
       "larynx-locked": "LARYNX zablokowany",
       "larynx-locked-description": "Zablokowane tokeny zapewniają płynność sieci, pomagają w określaniu konsensusu i zarabiają nagrody dla runnerów węzłów"
+    },
+    "setup-external": {
+      "login-required": "Logowanie wymagane do konfiguracji zewnętrznych portfeli",
+      "import-login-required": "Logowanie wymagane do zaimportowania portfela"
     }
   },
   "wallet-engine-estimated": {
@@ -2861,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Ładowanie edytora...",
     "gif-picker": "Wybierz obraz GIF",
     "description-hint": "Pomaga systemom wyszukiwarki dowiedzieć się o tym poście",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3173,6 +3178,42 @@
         "success": "Klucze zaktualizowane pomyślnie!",
         "success-description": "Twoje nowe klucze zostały dodane i wybrane stare klucze zostały cofnięte.",
         "error-no-keys": "Brak dostępnych kluczy do dodania"
+      },
+      "import": {
+        "title": "Importuj istniejący frazę seed",
+        "description": "Wprowadź swoją istniejącą frazę seed 12 słów aby zaimportować adresy portfela i opcjonalnie klucze Uli.",
+        "warning": "Nigdy nie udostępniaj nikomu swojej frazy ziaren. Ecencja nigdy nie prosi o to. Wprowadź ją tylko na zaufanych urządzeniach.",
+        "placeholder": "Wprowadź swoją frazę seed 12 słów oddzieloną spacjami",
+        "load-from-file": "Lub załaduj z pliku seed",
+        "error-word-count": "Nasiona muszą mieć dokładnie 12 słów",
+        "error-invalid-seed": "Nieprawidłowa fraza seeda. Proszę sprawdzić i spróbować ponownie.",
+        "error-derive-keys": "Nie udało się odczytać kluczy z frazy seed",
+        "error-invalid-file": "Nieprawidłowy plik. Proszę przesłać prawidłowy plik seed.",
+        "error-invalid-file-format": "Nieprawidłowy format pliku. Plik seed musi zawierać właściwość \"seed\".",
+        "error-no-wallets": "Nie znaleziono adresów portfela. Proszę czekać na ukończenie tworzenia portfela.",
+        "hive-keys-title": "Importuj klucze ulowe",
+        "hive-keys-description": "Znaleźliśmy klucze ulowe w Twojej frazie seedowej. Czy chcesz zaimportować je na swoje konto?",
+        "hive-keys-already-added": "Te klucze są już aktywne na Twoim koncie.",
+        "owner-key": "Klucz właściciela",
+        "active-key": "Aktywny klucz",
+        "posting-key": "Klucz publikowania",
+        "skip-hive-keys": "Pomiń klucze ulowe",
+        "import-hive-keys": "Importuj klucze ulowe",
+        "tokens-title": "Przejrzyj adresy portfela",
+        "tokens-description": "Te adresy portfela zostały wyprowadzone z Twojej frazy seed. Zweryfikuj je przed kontynuowaniem.",
+        "sign-title": "Podpisz aby zakończyć import",
+        "success-title": "Importowanie zakończone pomyślnie!",
+        "success-description": "Twoje adresy i klucze portfela zostały pomyślnie zaimportowane.",
+        "step-import-title": "Importuj frazę seed",
+        "step-import-description": "Wprowadź swoją istniejącą 12-słowną frazę seed",
+        "step-hive-keys-title": "Klucze ulowe",
+        "step-hive-keys-description": "Opcjonalnie zaimportuj klucze ulowe z tej samej frazy seed",
+        "step-tokens-title": "Tokeny",
+        "step-tokens-description": "Przejrzyj adresy portfela pochodnego",
+        "step-sign-title": "Podpisz zmiany",
+        "step-sign-description": "Podpisz zmiany do linków portfeli",
+        "step-link-title": "Połącz portfele",
+        "step-link-description": "Sfinalizuj powiązanie portfela z kontem Ecency"
       }
     }
   }
