@@ -5,8 +5,6 @@ import {
   ensureUserInTeam,
   followMattermostThreadForUser,
   getMattermostCommunityModerationContext,
-  getMattermostUserWithProps,
-  getUserDmPrivacy,
   handleMattermostError,
   MattermostChannel,
   getMattermostTokenFromCookies,
@@ -14,8 +12,6 @@ import {
   isUserChatBanned,
   CHAT_BAN_PROP
 } from "@/server/mattermost";
-import { getRelationshipBetweenAccountsQueryOptions } from "@ecency/sdk";
-import { getQueryClient } from "@/core/react-query";
 
 // Prevent artificial timeout - this route should be fast now
 export const maxDuration = 60; // 60 seconds max
@@ -50,6 +46,7 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
     const before = searchParams.get("before") || "";
     const around = searchParams.get("around") || "";
+    const includeOnline = searchParams.get("include_online") === "1";
     // Reduced from 60 to 40 for better performance on invalidation
     // 40 messages = ~2 screens of chat, good balance between UX and data transfer
     const perPage = searchParams.get("per_page") || "40";
@@ -133,37 +130,68 @@ export async function GET(
         .sort((a, b) => Number(a.create_at) - Number(b.create_at));
     }
 
-    // Fetch channel users first, then parallel fetch their statuses
-    const channelUsers = await mmUserFetch<MattermostUser[]>(
-      `/users?in_channel=${channelId}&per_page=200&page=0`,
-      token
-    );
-
-    // Fetch status for channel members to determine who is online (parallel with other operations)
     let onlineUserIds: string[] = [];
-    const statusPromise = mmUserFetch<{ user_id: string; status: string }[]>(
-      `/users/status/ids`,
-      token,
-      {
-        method: "POST",
-        body: JSON.stringify(channelUsers.map((user) => user.id))
-      }
-    ).then((statuses) => {
-      onlineUserIds = statuses
-        .filter((status) => status.status && status.status !== "offline")
-        .map((status) => status.user_id);
-    }).catch((error) => {
-      // If we cannot fetch statuses, continue without online information
-      console.error("Failed to fetch channel member statuses:", error);
-    });
+    let users: Record<string, MattermostUser> = {};
+    let statusPromise: Promise<void> | null = null;
 
-    const users = channelUsers.reduce<Record<string, MattermostUser>>(
-      (acc, user) => {
-        acc[user.id] = user;
-        return acc;
-      },
-      {}
-    );
+    if (includeOnline) {
+      // Fetch channel users first (paginated), then parallel fetch their statuses
+      const channelUsers: MattermostUser[] = [];
+      const perPage = 200;
+      const maxPages = 5; // Safety cap to avoid oversized status payloads
+      let page = 0;
+
+      while (true) {
+        if (page >= maxPages) {
+          console.warn(
+            `Online status fetch capped at ${maxPages * perPage} users for channel ${channelId}`
+          );
+          break;
+        }
+
+        const pageUsers = await mmUserFetch<MattermostUser[]>(
+          `/users?in_channel=${channelId}&per_page=${perPage}&page=${page}`,
+          token
+        );
+
+        if (pageUsers.length === 0) {
+          break;
+        }
+
+        channelUsers.push(...pageUsers);
+
+        if (pageUsers.length < perPage) {
+          break;
+        }
+
+        page += 1;
+      }
+
+      // Fetch status for channel members to determine who is online (parallel with other operations)
+      statusPromise = mmUserFetch<{ user_id: string; status: string }[]>(
+        `/users/status/ids`,
+        token,
+        {
+          method: "POST",
+          body: JSON.stringify(channelUsers.map((user) => user.id))
+        }
+      ).then((statuses) => {
+        onlineUserIds = statuses
+          .filter((status) => status.status && status.status !== "offline")
+          .map((status) => status.user_id);
+      }).catch((error) => {
+        // If we cannot fetch statuses, continue without online information
+        console.error("Failed to fetch channel member statuses:", error);
+      });
+
+      users = channelUsers.reduce<Record<string, MattermostUser>>(
+        (acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        },
+        {}
+      );
+    }
 
     const userIds = Array.from(
       new Set(orderedPosts.map((post) => post.user_id).filter(Boolean))
@@ -202,7 +230,7 @@ export async function GET(
           console.error("Failed to fetch channel stats:", error);
           return null;
         }),
-      statusPromise // Wait for online status fetch to complete
+      statusPromise ?? Promise.resolve()
     ]);
 
     const memberCount = statsResult?.member_count;
@@ -220,7 +248,7 @@ export async function GET(
       canModerate: moderation.canModerate,
       hasMore,
       memberCount,
-      onlineUserIds
+      onlineUserIds: includeOnline ? onlineUserIds : undefined
     });
   } catch (error) {
     return handleMattermostError(error);
@@ -272,47 +300,8 @@ export async function POST(
       );
     }
 
-    // --- DM Privacy Check (Defense-in-Depth) ---
-    // For DM channels, verify sender is allowed based on recipient's privacy settings
-
-    if (channel.type === "D") {
-      // Get the other user in the DM
-      const members = await mmUserFetch<{ user_id: string }[]>(
-        `/channels/${channelId}/members`,
-        token
-      );
-
-      const otherUserId = members.find((m) => m.user_id !== currentUser.id)?.user_id;
-
-      if (otherUserId) {
-        const otherUser = await getMattermostUserWithProps(otherUserId);
-        const dmPrivacy = getUserDmPrivacy(otherUser);
-
-        if (dmPrivacy === "none") {
-          return NextResponse.json(
-            { error: `@${otherUser.username} has disabled direct messages.` },
-            { status: 403 }
-          );
-        }
-
-        if (dmPrivacy === "followers") {
-          const relationship = await getQueryClient().fetchQuery(
-            getRelationshipBetweenAccountsQueryOptions(otherUser.username, currentUser.username)
-          );
-
-          if (!relationship?.follows) {
-            return NextResponse.json(
-              {
-                error: `@${otherUser.username} only accepts messages from accounts they follow.`
-              },
-              { status: 403 }
-            );
-          }
-        }
-      }
-    }
-
-    // Thread following moved to AFTER response to avoid blocking client
+    // DM privacy is enforced at channel creation time (/api/mattermost/direct)
+    // No need to re-validate on every message send - improves performance significantly
 
     // --- Special mentions & regular @mentions in text ---
     const hasSpecialMention = SPECIAL_MENTION_REGEX.test(message);

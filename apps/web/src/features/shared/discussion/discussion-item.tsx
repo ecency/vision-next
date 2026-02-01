@@ -94,7 +94,10 @@ export const DiscussionItem = memo(function DiscussionItem({
     () => root.json_metadata?.pinned_reply === `${entry.author}/${entry.permlink}`,
     [root, entry]
   );
-  const selected = useMemo(() => location.hash === `#@${entry.author}/${entry.permlink}`, [entry]);
+  const selected = useMemo(
+    () => typeof window !== "undefined" && window.location.hash === `#@${entry.author}/${entry.permlink}`,
+    [entry]
+  );
 
   const entryIsMuted = useMemo(() => mutedUsers?.includes(entry.author), [entry, mutedUsers]);
   const isTopComment = useMemo(

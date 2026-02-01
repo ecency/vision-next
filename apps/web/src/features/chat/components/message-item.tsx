@@ -32,6 +32,7 @@ interface MessageItemProps {
   channelData?: {
     member?: { user_id: string };
     canModerate?: boolean;
+    channel?: { type?: string };
   };
   activeUser?: { username: string };
   postsById: Map<string, MattermostPost>;
@@ -47,7 +48,7 @@ interface MessageItemProps {
   openThread: (post: MattermostPost) => void;
   handleReply: (post: MattermostPost) => void;
   handleEdit: (post: MattermostPost) => void;
-  handleDelete: (postId: string) => void;
+  handleDelete: (post: MattermostPost) => void;
   handlePinToggle: (postId: string, isPinned: boolean) => void;
   toggleReaction: (post: MattermostPost, emojiName: string, closePopover?: boolean) => void;
 
@@ -417,11 +418,13 @@ export function MessageItem({
                   label="Open thread"
                   onClick={() => openThread(post)}
                 />
-                <DropdownItemWithIcon
-                  icon={linkSvg}
-                  label="Copy link"
-                  onClick={handleCopyLink}
-                />
+                {channelData?.channel?.type !== "D" && (
+                  <DropdownItemWithIcon
+                    icon={linkSvg}
+                    label="Copy link"
+                    onClick={handleCopyLink}
+                  />
+                )}
                 <DropdownItemWithIcon
                   icon={earthSvg}
                   label="Translate"
@@ -435,14 +438,14 @@ export function MessageItem({
                     disabled={pinMutationPending}
                   />
                 )}
-                {channelData?.canModerate && (
+                {(channelData?.canModerate || post.user_id === channelData?.member?.user_id) && (
                   <DropdownItemWithIcon
                     icon={deleteForeverSvg}
                     label={
                       deleteMutationPending && deletingPostId === post.id ? "Deleting…" : "Delete"
                     }
-                    onClick={() => handleDelete(post.id)}
-                    disabled={deleteMutationPending}
+                    onClick={() => handleDelete(post)}
+                    disabled={deleteMutationPending && deletingPostId === post.id}
                   />
                 )}
               </DropdownMenu>

@@ -130,8 +130,8 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
             to="/chats"
             onClick={() => setShow(false)}
             icon={<UilCommentDots size={16} />}
-            badgeContent={unread?.totalUnread || undefined}
-            dot={Boolean(unread?.totalMentions || unread?.totalDMs)}
+            badgeContent={unread?.truncated ? undefined : unread?.totalUnread || undefined}
+            dot={unread?.truncated ? false : Boolean(unread?.totalUnread)}
           />
         </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional

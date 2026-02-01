@@ -463,6 +463,8 @@ interface Payload$2 {
     keepCurrent?: boolean;
     currentKey: PrivateKey;
     keys: Keys[];
+    keysToRevoke?: string[];
+    keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>;
 }
 declare function dedupeAndSortKeyAuths(existing: AuthorityType["key_auths"], additions: [string, number][]): AuthorityType["key_auths"];
 type UpdateKeyAuthsOptions = Pick<UseMutationOptions<unknown, Error, Payload$2>, "onSuccess" | "onError">;
@@ -845,6 +847,11 @@ declare const CONFIG: {
     dmcaPatternRegexes: RegExp[];
     _dmcaInitialized: boolean;
 };
+type DmcaListsInput = {
+    accounts?: string[];
+    tags?: string[];
+    posts?: string[];
+};
 declare namespace ConfigManager {
     function setQueryClient(client: QueryClient): void;
     /**
@@ -872,11 +879,9 @@ declare namespace ConfigManager {
     function setImageHost(host: string): void;
     /**
      * Set DMCA filtering lists
-     * @param accounts - List of account usernames to filter (plain strings)
-     * @param tags - List of tag patterns (regex strings) to filter
-     * @param patterns - List of post patterns (plain strings) like "@author/permlink" for exact matching
+     * @param lists - DMCA lists object containing accounts/tags/posts arrays
      */
-    function setDmcaLists(accounts?: string[], tags?: string[], patterns?: string[]): void;
+    function setDmcaLists(lists?: DmcaListsInput): void;
 }
 
 declare function makeQueryClient(): QueryClient;

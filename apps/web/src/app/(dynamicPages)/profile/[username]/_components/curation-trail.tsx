@@ -30,11 +30,25 @@ type VoteHistoryPage = {
 };
 
 export function CurationTrail({ account, section }: Props) {
+    // Create filters with BigInt polyfill fallback for older browsers
+    const filters = useMemo(() => {
+        try {
+            // Try to create the bitmask filter (requires BigInt support)
+            return utils.makeBitMaskFilter([utils.operationOrders.vote]);
+        } catch (error) {
+            // Fallback for browsers without BigInt support (Safari < 14, older browsers)
+            // Using empty array means no filter - will return all operations,
+            // but the query still filters for votes in the result processing
+            console.warn("BigInt not supported, using fallback filter", error);
+            return [];
+        }
+    }, []);
+
     // cast the hook result to an infinite query over VoteHistoryPage
     const result = useInfiniteQuery(
         getAccountVoteHistoryInfiniteQueryOptions(account.name, {
             limit,
-            filters: utils.makeBitMaskFilter([utils.operationOrders.vote]),
+            filters,
             dayLimit: days
         })
     ) as UseInfiniteQueryResult<VoteHistoryPage, Error>;

@@ -84,24 +84,33 @@ export function getTransactionsInfiniteQueryOptions(
       }
 
       let filters: number[] | undefined;
-      switch (group) {
-        case "transfers":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
-          break;
-        case "market-orders":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
-          break;
-        case "interests":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
-          break;
-        case "stake-operations":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
-          break;
-        case "rewards":
-          filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
-          break;
-        default:
-          filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+      try {
+        // Create bitmask filters (requires BigInt support in browser)
+        switch (group) {
+          case "transfers":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
+            break;
+          case "market-orders":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
+            break;
+          case "interests":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
+            break;
+          case "stake-operations":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
+            break;
+          case "rewards":
+            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
+            break;
+          default:
+            filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+        }
+      } catch (error) {
+        // Fallback for browsers without BigInt support (Safari < 14)
+        // Using undefined means no server-side filtering - will get all operations
+        // and filter on client side (less efficient but still works)
+        console.warn("BigInt not supported, using client-side filtering", error);
+        filters = undefined;
       }
 
       const response = (await (filters

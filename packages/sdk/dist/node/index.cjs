@@ -241,18 +241,25 @@ exports.ConfigManager = void 0;
       return null;
     }
   }
-  function setDmcaLists(accounts = [], tags = [], patterns = []) {
-    CONFIG.dmcaAccounts = accounts;
-    CONFIG.dmcaTags = tags;
-    CONFIG.dmcaPatterns = patterns;
-    CONFIG.dmcaTagRegexes = tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
+  function setDmcaLists(lists = {}) {
+    const coerceList = (value) => Array.isArray(value) ? value.filter((item) => typeof item === "string") : [];
+    const input = lists || {};
+    const resolved = {
+      accounts: coerceList(input.accounts),
+      tags: coerceList(input.tags),
+      patterns: coerceList(input.posts)
+    };
+    CONFIG.dmcaAccounts = resolved.accounts;
+    CONFIG.dmcaTags = resolved.tags;
+    CONFIG.dmcaPatterns = resolved.patterns;
+    CONFIG.dmcaTagRegexes = resolved.tags.map((pattern) => safeCompileRegex(pattern)).filter((r) => r !== null);
     CONFIG.dmcaPatternRegexes = [];
-    const rejectedTagCount = tags.length - CONFIG.dmcaTagRegexes.length;
+    const rejectedTagCount = resolved.tags.length - CONFIG.dmcaTagRegexes.length;
     if (!CONFIG._dmcaInitialized && isDevelopment) {
       console.log(`[SDK] DMCA configuration loaded:`);
-      console.log(`  - Accounts: ${accounts.length}`);
-      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${tags.length} compiled (${rejectedTagCount} rejected)`);
-      console.log(`  - Post patterns: ${patterns.length} (using exact string matching)`);
+      console.log(`  - Accounts: ${resolved.accounts.length}`);
+      console.log(`  - Tag patterns: ${CONFIG.dmcaTagRegexes.length}/${resolved.tags.length} compiled (${rejectedTagCount} rejected)`);
+      console.log(`  - Post patterns: ${resolved.patterns.length} (using exact string matching)`);
       if (rejectedTagCount > 0) {
         console.warn(`[SDK] ${rejectedTagCount} DMCA tag patterns were rejected due to security validation. Check warnings above for details.`);
       }
@@ -1131,24 +1138,29 @@ function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
         return [];
       }
       let filters;
-      switch (group) {
-        case "transfers":
-          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
-          break;
-        case "market-orders":
-          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
-          break;
-        case "interests":
-          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
-          break;
-        case "stake-operations":
-          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
-          break;
-        case "rewards":
-          filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
-          break;
-        default:
-          filters = dhive.utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+      try {
+        switch (group) {
+          case "transfers":
+            filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
+            break;
+          case "market-orders":
+            filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
+            break;
+          case "interests":
+            filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
+            break;
+          case "stake-operations":
+            filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
+            break;
+          case "rewards":
+            filters = dhive.utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
+            break;
+          default:
+            filters = dhive.utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
+        }
+      } catch (error) {
+        console.warn("BigInt not supported, using client-side filtering", error);
+        filters = void 0;
       }
       const response = await (filters ? CONFIG.hiveClient.call("condenser_api", "get_account_history", [
         username,
@@ -1862,7 +1874,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
         ...pageParam.permlink ? { start_permlink: pageParam.permlink } : {}
       };
       try {
-        if (CONFIG.dmcaAccounts.includes(username)) return [];
+        if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
         const resp = await CONFIG.hiveClient.call(
           "bridge",
           "get_account_posts",
@@ -2738,6 +2750,11 @@ function useAccountRelationsUpdate(reference, target, auth, onSuccess, onError) 
         ["accounts", "relations", reference, target],
         data
       );
+      if (target) {
+        getQueryClient().invalidateQueries(
+          getAccountFullQueryOptions(target)
+        );
+      }
     }
   });
 }
@@ -2884,7 +2901,18 @@ function useAccountUpdateKeyAuths(username, options) {
   const { data: accountData } = reactQuery.useQuery(getAccountFullQueryOptions(username));
   return reactQuery.useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey }) => {
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] \u2013 no new keys provided"
+        );
+      }
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] \u2013 cannot update keys for anon user"
@@ -2892,8 +2920,14 @@ function useAccountUpdateKeyAuths(username, options) {
       }
       const prepareAuth = (keyName) => {
         const auth = R4__namespace.clone(accountData[keyName]);
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...keysToRevokeByAuthority[keyName] === void 0 ? keysToRevoke : []
+        ];
+        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString())) : [];
         auth.key_auths = dedupeAndSortKeyAuths(
-          keepCurrent ? auth.key_auths : [],
+          existingKeys,
           keys.map(
             (values, i) => [values[keyName].createPublic().toString(), i + 1]
           )
@@ -2907,7 +2941,8 @@ function useAccountUpdateKeyAuths(username, options) {
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: keepCurrent ? accountData.memo_key : keys[0].memo_key.createPublic().toString()
+          // Always use new memo key when adding new keys
+          memo_key: keys[0].memo_key.createPublic().toString()
         },
         currentKey
       );
@@ -3332,9 +3367,22 @@ function useAddFragment(username, code) {
       return response.json();
     },
     onSuccess(response) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => [response, ...data ?? []]
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(
+              (page, index) => index === 0 ? { ...page, data: [response, ...page.data] } : page
+            )
+          };
+        }
       );
     }
   });
@@ -3369,7 +3417,8 @@ function useEditFragment(username, code) {
       return response.json();
     },
     onSuccess(response, variables) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => {
           if (!data) {
@@ -3380,6 +3429,21 @@ function useEditFragment(username, code) {
             data[index] = response;
           }
           return [...data];
+        }
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.map(
+                (fragment) => fragment.id === variables.fragmentId ? response : fragment
+              )
+            }))
+          };
         }
       );
     }
@@ -3405,9 +3469,23 @@ function useRemoveFragment(username, code) {
       });
     },
     onSuccess(_data, variables) {
-      getQueryClient().setQueryData(
+      const queryClient = getQueryClient();
+      queryClient.setQueryData(
         getFragmentsQueryOptions(username, code).queryKey,
         (data) => [...data ?? []].filter(({ id }) => id !== variables.fragmentId)
+      );
+      queryClient.setQueriesData(
+        { queryKey: ["posts", "fragments", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((fragment) => fragment.id !== variables.fragmentId)
+            }))
+          };
+        }
       );
     }
   });

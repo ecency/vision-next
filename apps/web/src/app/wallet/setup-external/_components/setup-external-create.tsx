@@ -73,37 +73,31 @@ const TOKENS = [
   EcencyWalletCurrency.TON
 ];
 
-export function SetupExternalCreate({ onBack }: Props) {
-  const { activeUser } = useActiveAccount();
-
+function SetupExternalCreateInner({ username, onBack }: Props & { username: string }) {
   const [step, setStep] = useState<"seed" | "tokens" | "create" | "success" | "sign">("seed");
 
-  const { data: keys } = useHiveKeysQuery(activeUser?.username!);
-  const { data: tokens } = useWalletsCacheQuery(activeUser?.username);
+  const { data: keys } = useHiveKeysQuery(username);
+  const { data: tokens } = useWalletsCacheQuery(username);
   const authContext = useMemo(
-    () => getSdkAuthContext(getUser(activeUser?.username ?? "")),
-    [activeUser?.username]
+    () => getSdkAuthContext(getUser(username)),
+    [username]
   );
 
-  const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(activeUser?.username!, {
+  const { mutateAsync: saveKeys, isPending } = useAccountUpdateKeyAuths(username, {
     onError: (err) => {
       error(...formatError(err));
       setStep("sign");
     }
   });
-  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(
-    activeUser?.username!,
-    authContext,
-    {
-      onError: (err) => {
-        error(...formatError(err));
-        setStep("sign");
-      }
+  const { mutateAsync: saveTokens } = useSaveWalletInformationToMetadata(username, authContext, {
+    onError: (err) => {
+      error(...formatError(err));
+      setStep("sign");
     }
-  );
+  });
   const { mutateAsync: saveToPrivateApi } = EcencyWalletsPrivateApi.useUpdateAccountWithWallets(
-    activeUser?.username!,
-    getAccessToken(activeUser?.username ?? "")
+    username,
+    getAccessToken(username)
   );
 
   const handleLinkByKey = useCallback(
@@ -149,7 +143,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       });
       setStep("success");
     },
-    [activeUser?.username, authContext, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
+    [username, authContext, keys, saveKeys, saveToPrivateApi, saveTokens, tokens]
   );
 
   return (
@@ -158,7 +152,7 @@ export function SetupExternalCreate({ onBack }: Props) {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="col-span-2 bg-white rounded-2xl p-6 flex flex-col items-start justify-between"
+        className="col-span-2 bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col items-start justify-between"
       >
         <Button
           size="sm"
@@ -184,7 +178,8 @@ export function SetupExternalCreate({ onBack }: Props) {
         {step === "seed" && (
           <WalletSeedPhrase
             showTitle={false}
-            username={activeUser?.username!}
+            showRefreshButton={false}
+            username={username}
             onValidated={() => setStep("tokens")}
           />
         )}
@@ -192,12 +187,7 @@ export function SetupExternalCreate({ onBack }: Props) {
           <div>
             <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-4">
               {TOKENS.map((currency, i) => (
-                <WalletTokenAddressItem
-                  username={activeUser?.username!!}
-                  i={i}
-                  key={i}
-                  currency={currency}
-                />
+                <WalletTokenAddressItem username={username} i={i} key={i} currency={currency} />
               ))}
             </div>
             <div className="flex mt-4 justify-end">
@@ -252,4 +242,19 @@ export function SetupExternalCreate({ onBack }: Props) {
       </motion.div>
     </div>
   );
+}
+
+export function SetupExternalCreate({ onBack }: Props) {
+  const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+
+  if (!username) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        {i18next.t("wallet.setup-external.login-required")}
+      </div>
+    );
+  }
+
+  return <SetupExternalCreateInner username={username} onBack={onBack} />;
 }

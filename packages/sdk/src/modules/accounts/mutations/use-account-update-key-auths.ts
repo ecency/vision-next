@@ -19,6 +19,8 @@ interface Payload {
   keepCurrent?: boolean;
   currentKey: PrivateKey;
   keys: Keys[];
+  keysToRevoke?: string[]; // Deprecated: will be treated as revoking from all authorities
+  keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>; // Authority-specific revocation
 }
 
 export function dedupeAndSortKeyAuths(
@@ -53,7 +55,19 @@ export function useAccountUpdateKeyAuths(
 
   return useMutation({
     mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({ keys, keepCurrent = false, currentKey }: Payload) => {
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }: Payload) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] – no new keys provided"
+        );
+      }
+
       if (!accountData) {
         throw new Error(
           "[SDK][Update password] – cannot update keys for anon user"
@@ -63,8 +77,21 @@ export function useAccountUpdateKeyAuths(
       const prepareAuth = (keyName: keyof Keys) => {
         const auth: AuthorityType = R.clone(accountData[keyName]);
 
+        // Get keys to revoke for this specific authority
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        // Fallback to global keysToRevoke for backwards compatibility
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...(keysToRevokeByAuthority[keyName] === undefined ? keysToRevoke : [])
+        ];
+
+        // Filter out keys to revoke from existing keys (authority-specific)
+        const existingKeys = keepCurrent
+          ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString()))
+          : [];
+
         auth.key_auths = dedupeAndSortKeyAuths(
-          keepCurrent ? auth.key_auths : [],
+          existingKeys,
           keys.map(
             (values, i) =>
               [values[keyName].createPublic().toString(), i + 1] as [
@@ -84,9 +111,8 @@ export function useAccountUpdateKeyAuths(
           owner: prepareAuth("owner"),
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
-          memo_key: keepCurrent
-            ? accountData.memo_key
-            : keys[0].memo_key.createPublic().toString(),
+          // Always use new memo key when adding new keys
+          memo_key: keys[0].memo_key.createPublic().toString(),
         },
         currentKey
       );

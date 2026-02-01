@@ -30,6 +30,8 @@ jobs:
         CI: true
     - name: Run Tests
       run: pnpm -r test
+    - name: Build packages
+      run: pnpm build:packages
     - name: Build web app
       run: pnpm --filter @ecency/web build
       env:

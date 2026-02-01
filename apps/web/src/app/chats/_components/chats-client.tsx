@@ -120,10 +120,11 @@ export function ChatsClient() {
     return unreadSummary.channels.reduce((acc, channel) => {
       acc.set(channel.channelId, {
         mention_count: channel.mention_count,
-        message_count: channel.message_count
+        message_count: channel.message_count,
+        thread_unread: channel.thread_unread
       });
       return acc;
-    }, new Map<string, { mention_count: number; message_count: number }>());
+    }, new Map<string, { mention_count: number; message_count: number; thread_unread: number }>());
   }, [unreadSummary?.channels]);
 
   const getUnreadCount = useCallback(
@@ -131,8 +132,11 @@ export function ChatsClient() {
       const unreadCounts = unreadByChannelId.get(channel.id);
       const mentionCount = channel.mention_count ?? unreadCounts?.mention_count ?? 0;
       const messageCount = channel.message_count ?? unreadCounts?.message_count ?? 0;
+      const threadCount = unreadCounts?.thread_unread ?? 0;
 
-      return channel.type === "D" ? messageCount : Math.max(messageCount, mentionCount);
+      return channel.type === "D"
+        ? messageCount
+        : Math.max(messageCount, mentionCount) + threadCount;
     },
     [unreadByChannelId]
   );
@@ -234,6 +238,16 @@ export function ChatsClient() {
     });
   };
 
+  const leaveChannel = (channelId: string) => {
+    leaveChannelMutation.mutate(channelId, {
+      onSuccess: () => {
+        if (activeChannelId === channelId) {
+          router.push("/chats");
+        }
+      }
+    });
+  };
+
   const handleChannelAction = (e: MouseEvent, action: () => void) => {
     e.preventDefault();
     e.stopPropagation();
@@ -307,6 +321,11 @@ export function ChatsClient() {
 
     return townHallChannel?.id || channels.channels[0]?.id;
   }, [channels?.channels]);
+
+  const isTownHallChannel = useCallback((channel: { name: string; display_name?: string }) => {
+    const displayName = channel.display_name?.toLowerCase() || "";
+    return channel.name.toLowerCase() === TOWN_HALL_CHANNEL_NAME || displayName === "town hall" || displayName === "town-hall";
+  }, []);
 
   const activeChannelId = params?.id || defaultChannelId;
 
@@ -587,12 +606,14 @@ export function ChatsClient() {
                                         )
                                       }
                                     />
-                                    <DropdownItemWithIcon
-                                      label={i18next.t("chat.leave-channel")}
-                                      onClick={(e: MouseEvent) =>
-                                        handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
-                                      }
-                                    />
+                                    {!isTownHallChannel(channel) && (
+                                      <DropdownItemWithIcon
+                                        label={i18next.t("chat.leave-channel")}
+                                        onClick={(e: MouseEvent) =>
+                                          handleChannelAction(e, () => leaveChannel(channel.id))
+                                        }
+                                      />
+                                    )}
                                   </DropdownMenu>
                                 </Dropdown>
                               </div>
@@ -717,7 +738,7 @@ export function ChatsClient() {
                                   <DropdownItemWithIcon
                                     label={i18next.t("chat.leave-conversation")}
                                     onClick={(e: MouseEvent) =>
-                                      handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
+                                      handleChannelAction(e, () => leaveChannel(channel.id))
                                     }
                                   />
                                 </DropdownMenu>
@@ -845,12 +866,14 @@ export function ChatsClient() {
                                       )
                                     }
                                   />
-                                  <DropdownItemWithIcon
-                                    label={i18next.t("chat.leave-channel")}
-                                    onClick={(e: MouseEvent) =>
-                                      handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
-                                    }
-                                  />
+                                  {!isTownHallChannel(channel) && (
+                                    <DropdownItemWithIcon
+                                      label={i18next.t("chat.leave-channel")}
+                                      onClick={(e: MouseEvent) =>
+                                        handleChannelAction(e, () => leaveChannel(channel.id))
+                                      }
+                                    />
+                                  )}
                                 </DropdownMenu>
                               </Dropdown>
                             </div>
@@ -969,24 +992,26 @@ export function ChatsClient() {
                                   )
                                 }
                               />
-                              <DropdownItemWithIcon
-                                label={muteLabel}
-                                onClick={(e: MouseEvent) =>
-                                  handleChannelAction(e, () =>
-                                    muteChannelMutation.mutate({ channelId: channel.id, mute: !isMuted })
-                                  )
-                                }
-                              />
-                              <DropdownItemWithIcon
-                                label={i18next.t("chat.leave-channel")}
-                                onClick={(e: MouseEvent) =>
-                                  handleChannelAction(e, () => leaveChannelMutation.mutate(channel.id))
-                                }
-                              />
-                            </DropdownMenu>
-                          </Dropdown>
-                        </div>
-                      ) : (
+                                    <DropdownItemWithIcon
+                                      label={muteLabel}
+                                      onClick={(e: MouseEvent) =>
+                                        handleChannelAction(e, () =>
+                                          muteChannelMutation.mutate({ channelId: channel.id, mute: !isMuted })
+                                        )
+                                      }
+                                    />
+                                    {!isTownHallChannel(channel) && (
+                                      <DropdownItemWithIcon
+                                        label={i18next.t("chat.leave-channel")}
+                                        onClick={(e: MouseEvent) =>
+                                          handleChannelAction(e, () => leaveChannel(channel.id))
+                                        }
+                                      />
+                                    )}
+                                  </DropdownMenu>
+                                </Dropdown>
+                              </div>
+                            ) : (
                         unread > 0 && (
                           <div className="ml-2" data-chat-channel-actions onClick={(e) => e.stopPropagation()}>
                             <Dropdown>

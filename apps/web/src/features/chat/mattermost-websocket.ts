@@ -1,4 +1,5 @@
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, type InfiniteData } from "@tanstack/react-query";
+import type { MattermostPost, MattermostPostsResponse } from "@/features/chat/mattermost-api";
 
 declare global {
   interface Window {
@@ -450,37 +451,49 @@ export class MattermostWebSocket {
     const channelId = message.broadcast?.channel_id;
     if (!channelId || !this.queryClient) return;
 
-    // Notify callback with the post data (for input clearing)
-    if (this.onPostedCallback && message.data?.post) {
+    let parsedPost: MattermostPost | null = null;
+
+    if (message.data?.post) {
       try {
-        const post = JSON.parse(message.data.post);
-        this.onPostedCallback(post);
+        parsedPost = JSON.parse(message.data.post) as MattermostPost;
+        if (this.onPostedCallback) {
+          this.onPostedCallback(parsedPost);
+        }
       } catch (error) {
         console.error("Failed to parse posted message", error);
       }
     }
 
-    // Invalidate queries to trigger refetch
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-posts-infinite", channelId]
-    });
-
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-unread"]
-    });
-
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-channels"]
-    });
+    if (parsedPost) {
+      this.upsertPostInCaches(channelId, parsedPost);
+      this.updateChannelLastPost(channelId, parsedPost.create_at);
+      this.incrementUnreadCount(channelId);
+    } else {
+      this.queryClient.invalidateQueries({
+        queryKey: ["mattermost-posts-infinite", channelId]
+      });
+    }
   }
 
   private handlePostEdited(message: MattermostWSEvent): void {
     const channelId = message.broadcast?.channel_id;
     if (!channelId || !this.queryClient) return;
 
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-posts-infinite", channelId]
-    });
+    if (message.data?.post) {
+      try {
+        const post = JSON.parse(message.data.post) as MattermostPost;
+        this.updatePostInCaches(channelId, post.id, () => post);
+      } catch (error) {
+        console.error("Failed to parse edited message", error);
+        this.queryClient.invalidateQueries({
+          queryKey: ["mattermost-posts-infinite", channelId]
+        });
+      }
+    } else {
+      this.queryClient.invalidateQueries({
+        queryKey: ["mattermost-posts-infinite", channelId]
+      });
+    }
 
     // Also invalidate pinned posts in case the edit was a pin/unpin action
     this.queryClient.invalidateQueries({
@@ -492,9 +505,14 @@ export class MattermostWebSocket {
     const channelId = message.broadcast?.channel_id;
     if (!channelId || !this.queryClient) return;
 
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-posts-infinite", channelId]
-    });
+    const postId = message.data?.post_id;
+    if (postId) {
+      this.removePostFromCaches(channelId, postId);
+    } else {
+      this.queryClient.invalidateQueries({
+        queryKey: ["mattermost-posts-infinite", channelId]
+      });
+    }
 
     // Also invalidate pinned posts in case a pinned message was deleted
     this.queryClient.invalidateQueries({
@@ -516,9 +534,36 @@ export class MattermostWebSocket {
     const channelId = message.broadcast?.channel_id;
     if (!channelId || !this.queryClient) return;
 
-    // Invalidate queries for optimistic reaction updates
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-posts-infinite", channelId]
+    const postId = message.data?.post_id;
+    const emojiName = message.data?.emoji_name;
+    const userId = message.data?.user_id;
+    if (!postId || !emojiName || !userId) {
+      this.queryClient.invalidateQueries({
+        queryKey: ["mattermost-posts-infinite", channelId]
+      });
+      return;
+    }
+
+    const isAdd = message.event === "reaction_added";
+    this.updatePostInCaches(channelId, postId, (post) => {
+      const reactions = post.metadata?.reactions ? [...post.metadata.reactions] : [];
+      const existingIndex = reactions.findIndex(
+        (reaction) => reaction.user_id === userId && reaction.emoji_name === emojiName
+      );
+
+      if (isAdd && existingIndex === -1) {
+        reactions.push({ user_id: userId, post_id: postId, emoji_name: emojiName });
+      } else if (!isAdd && existingIndex !== -1) {
+        reactions.splice(existingIndex, 1);
+      }
+
+      return {
+        ...post,
+        metadata: {
+          ...post.metadata,
+          reactions
+        }
+      };
     });
   }
 
@@ -526,9 +571,7 @@ export class MattermostWebSocket {
     const channelId = message.data?.channel_id;
     if (!channelId || !this.queryClient) return;
 
-    this.queryClient.invalidateQueries({
-      queryKey: ["mattermost-unread"]
-    });
+    this.resetUnreadCount(channelId);
   }
 
   private handleUserChange(message: MattermostWSEvent): void {
@@ -541,6 +584,203 @@ export class MattermostWebSocket {
 
     this.queryClient.invalidateQueries({
       queryKey: ["mattermost-channels"]
+    });
+  }
+
+  private upsertPostInCaches(channelId: string, post: MattermostPost): void {
+    if (!this.queryClient) return;
+
+    const updatePages = (data?: InfiniteData<MattermostPostsResponse>) => {
+      if (!data || !data.pages.length) return data;
+      const pages = [...data.pages];
+      const firstPage = pages[0];
+      const existingIndex = firstPage.posts.findIndex((item) => item.id === post.id);
+      const nextPosts = [...firstPage.posts];
+
+      if (existingIndex >= 0) {
+        nextPosts[existingIndex] = post;
+      } else {
+        nextPosts.push(post);
+        nextPosts.sort((a, b) => a.create_at - b.create_at);
+      }
+
+      pages[0] = { ...firstPage, posts: nextPosts };
+      return { ...data, pages };
+    };
+
+    this.queryClient.setQueryData<InfiniteData<MattermostPostsResponse>>(
+      ["mattermost-posts-infinite", channelId],
+      updatePages
+    );
+
+    this.queryClient.setQueryData<MattermostPostsResponse>(
+      ["mattermost-posts", channelId],
+      (data) => {
+        if (!data) return data;
+        const existingIndex = data.posts.findIndex((item) => item.id === post.id);
+        const nextPosts = [...data.posts];
+        if (existingIndex >= 0) {
+          nextPosts[existingIndex] = post;
+        } else {
+          nextPosts.push(post);
+          nextPosts.sort((a, b) => a.create_at - b.create_at);
+        }
+        return { ...data, posts: nextPosts };
+      }
+    );
+  }
+
+  private updatePostInCaches(
+    channelId: string,
+    postId: string,
+    updater: (post: MattermostPost) => MattermostPost
+  ): void {
+    if (!this.queryClient) return;
+
+    this.queryClient.setQueryData<InfiniteData<MattermostPostsResponse>>(
+      ["mattermost-posts-infinite", channelId],
+      (data) => {
+        if (!data) return data;
+        let changed = false;
+        const pages = data.pages.map((page) => {
+          const index = page.posts.findIndex((post) => post.id === postId);
+          if (index === -1) return page;
+          const nextPosts = [...page.posts];
+          nextPosts[index] = updater(nextPosts[index]);
+          changed = true;
+          return { ...page, posts: nextPosts };
+        });
+        return changed ? { ...data, pages } : data;
+      }
+    );
+
+    this.queryClient.setQueryData<MattermostPostsResponse>(
+      ["mattermost-posts", channelId],
+      (data) => {
+        if (!data) return data;
+        const index = data.posts.findIndex((post) => post.id === postId);
+        if (index === -1) return data;
+        const nextPosts = [...data.posts];
+        nextPosts[index] = updater(nextPosts[index]);
+        return { ...data, posts: nextPosts };
+      }
+    );
+  }
+
+  private removePostFromCaches(channelId: string, postId: string): void {
+    if (!this.queryClient) return;
+
+    this.queryClient.setQueryData<InfiniteData<MattermostPostsResponse>>(
+      ["mattermost-posts-infinite", channelId],
+      (data) => {
+        if (!data) return data;
+        let changed = false;
+        const pages = data.pages.map((page) => {
+          const nextPosts = page.posts.filter((post) => post.id !== postId);
+          if (nextPosts.length !== page.posts.length) {
+            changed = true;
+            return { ...page, posts: nextPosts };
+          }
+          return page;
+        });
+        return changed ? { ...data, pages } : data;
+      }
+    );
+
+    this.queryClient.setQueryData<MattermostPostsResponse>(
+      ["mattermost-posts", channelId],
+      (data) => {
+        if (!data) return data;
+        const nextPosts = data.posts.filter((post) => post.id !== postId);
+        if (nextPosts.length === data.posts.length) return data;
+        return { ...data, posts: nextPosts };
+      }
+    );
+  }
+
+  private updateChannelLastPost(channelId: string, createdAt: number): void {
+    if (!this.queryClient) return;
+    this.queryClient.setQueriesData<{ channels: Array<{ id: string; last_post_at?: number }> }>(
+      { queryKey: ["mattermost-channels"] },
+      (data) => {
+        if (!data?.channels) return data;
+        let changed = false;
+        const channels = data.channels.map((channel) => {
+          if (channel.id !== channelId) return channel;
+          if ((channel.last_post_at ?? 0) >= createdAt) return channel;
+          changed = true;
+          return { ...channel, last_post_at: createdAt };
+        });
+        return changed ? { ...data, channels } : data;
+      }
+    );
+  }
+
+  private incrementUnreadCount(channelId: string): void {
+    if (!this.queryClient) return;
+    if (channelId === this.channelId) return;
+
+    this.queryClient.setQueriesData<{
+      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number }>;
+      totalMentions: number;
+      totalDMs: number;
+      totalThreads?: number;
+      totalUnread: number;
+      truncated?: boolean;
+    }>({ queryKey: ["mattermost-unread"] }, (data) => {
+      if (!data?.channels) return data;
+      if (data.truncated) return data;
+      const channels = data.channels.map((channel) => {
+        if (channel.channelId !== channelId) return channel;
+        return { ...channel, message_count: channel.message_count + 1 };
+      });
+
+      const target = data.channels.find((channel) => channel.channelId === channelId);
+      if (!target) return data;
+
+      const isDm = target.type === "D";
+      return {
+        ...data,
+        channels,
+        totalUnread: isDm ? data.totalUnread + 1 : data.totalUnread,
+        totalDMs: isDm ? data.totalDMs + 1 : data.totalDMs
+      };
+    });
+  }
+
+  private resetUnreadCount(channelId: string): void {
+    if (!this.queryClient) return;
+
+    this.queryClient.setQueriesData<{
+      channels: Array<{ channelId: string; type: string; mention_count: number; message_count: number; thread_unread?: number }>;
+      totalMentions: number;
+      totalDMs: number;
+      totalThreads?: number;
+      totalUnread: number;
+      truncated?: boolean;
+    }>({ queryKey: ["mattermost-unread"] }, (data) => {
+      if (!data?.channels) return data;
+      if (data.truncated) return data;
+
+      const target = data.channels.find((channel) => channel.channelId === channelId);
+      if (!target) return data;
+
+      const mentionDelta = target.mention_count;
+      const messageDelta = target.message_count;
+      const isDm = target.type === "D";
+
+      const channels = data.channels.map((channel) => {
+        if (channel.channelId !== channelId) return channel;
+        return { ...channel, mention_count: 0, message_count: 0 };
+      });
+
+      return {
+        ...data,
+        channels,
+        totalMentions: Math.max(0, data.totalMentions - mentionDelta),
+        totalDMs: Math.max(0, data.totalDMs - (isDm ? messageDelta : 0)),
+        totalUnread: Math.max(0, data.totalUnread - mentionDelta - (isDm ? messageDelta : 0))
+      };
     });
   }
 

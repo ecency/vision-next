@@ -169,19 +169,25 @@ export async function ensureChannelForCommunity(
 export async function ensureCommunityChannelMembership(
   userId: string,
   community: string,
-  displayName?: string
+  displayName?: string,
+  autoJoin: boolean = false
 ) {
   const channelId = await ensureChannelForCommunity(community, displayName);
-  await ensureUserInChannel(userId, channelId);
+  if (autoJoin) {
+    await ensureUserInChannel(userId, channelId);
+  }
   return channelId;
 }
 
 export async function ensureUserInChannel(userId: string, channelId: string) {
   try {
+    // Check if user is currently a member
     await mmFetch(`/channels/${channelId}/members/${userId}`, {
       headers: getAdminHeaders()
     });
+    // User is already a member, nothing to do
   } catch (error) {
+    // User is not a member - add them to the channel
     await mmFetch(`/channels/${channelId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),

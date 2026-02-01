@@ -59,6 +59,7 @@ import { MessageInput } from "./components/message-input";
 import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
 import { MattermostWebSocket } from "./mattermost-websocket";
+import { DmWarningBanner } from "./components/dm-warning-banner";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -84,7 +85,7 @@ import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
-import { EmojiPicker } from "@ui/emoji-picker";
+import { EmojiPicker } from "@/features/ui/emoji-picker/lazy-emoji-picker";
 import { GifPicker } from "@ui/gif-picker";
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
@@ -95,6 +96,7 @@ import {
   WaveLikePostRenderer,
   isWaveLikePost,
 } from "@/features/post-renderer";
+import * as ls from "@/utils/local-storage";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [
@@ -166,9 +168,11 @@ export function MattermostChannelView({ channelId }: Props) {
   const [isWebSocketActive, setIsWebSocketActive] = useState(true);
   const [reconnectAttempt, setReconnectAttempt] = useState<number | null>(null);
   const [reconnectDelay, setReconnectDelay] = useState<number | null>(null);
+  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useMattermostPostsInfinite(channelId, {
     // Only poll if WebSocket inactive or user scrolled away
-    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false
+    refetchInterval: (!isWebSocketActive || !isNearBottom) ? 60000 : false,
+    includeOnline: showOnlineUsers
   });
   const searchParams = useSearchParams();
   const shareText = searchParams?.get("text")?.trim();
@@ -242,12 +246,22 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [unreadCountBelowScroll, setUnreadCountBelowScroll] = useState(0);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const websocketRef = useRef<MattermostWebSocket | null>(null);
   const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
+  const [showDmWarning, setShowDmWarning] = useState(false);
   const TYPING_TIMEOUT = 5000; // 5 seconds
   const queryClient = useQueryClient();
   const lastSentPendingIdRef = useRef<string | null>(null);
+  const lastSentMessageRef = useRef<string | null>(null);
+  const lastSentRootIdRef = useRef<string | null>(null);
+  const lastSentAtRef = useRef<number>(0);
+  const confirmedPendingPostIdsRef = useRef<Set<string>>(new Set());
+  const pendingAbortControllerRef = useRef<AbortController | null>(null);
+  const sendMutationRef = useRef(sendMutation);
+
+  useEffect(() => {
+    sendMutationRef.current = sendMutation;
+  }, [sendMutation]);
 
     type GifStyle = {
       width: string;
@@ -261,6 +275,11 @@ export function MattermostChannelView({ channelId }: Props) {
 
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
+
+  useEffect(() => {
+    if (!showOnlineUsers) return;
+    queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId] });
+  }, [showOnlineUsers, channelId, queryClient]);
 
   const posts = useMemo(() => {
     const infinitePosts = data?.pages?.flatMap(page => page.posts) || [];
@@ -678,7 +697,24 @@ export function MattermostChannelView({ channelId }: Props) {
           // Clear input when we get confirmation of our own message via WebSocket
           // Read userId dynamically to avoid recreating WebSocket when channelData changes
           const currentUserId = channelData?.member?.user_id;
-          if (post.user_id === currentUserId && post.pending_post_id === lastSentPendingIdRef.current) {
+          const pendingPostId = post.pending_post_id as string | undefined;
+          const pendingMatch =
+            pendingPostId &&
+            pendingPostId === lastSentPendingIdRef.current;
+          const fallbackMatch =
+            !pendingPostId &&
+            (!currentUserId || post.user_id === currentUserId) &&
+            lastSentMessageRef.current !== null &&
+            post.message?.replace(/\r\n/g, "\n") ===
+              lastSentMessageRef.current.replace(/\r\n/g, "\n") &&
+            (post.root_id ?? null) === (lastSentRootIdRef.current ?? null) &&
+            Math.abs(post.create_at - lastSentAtRef.current) < 30000;
+
+          if (pendingMatch || fallbackMatch) {
+            const confirmedId = lastSentPendingIdRef.current;
+            if (confirmedId) {
+              confirmedPendingPostIdsRef.current.add(confirmedId);
+            }
             setMessage("");
             setUploadedImages([]);
             clearDraft(channelId);
@@ -689,6 +725,14 @@ export function MattermostChannelView({ channelId }: Props) {
             setReplyingTo(null);
             setMessageError(null);
             lastSentPendingIdRef.current = null;
+            lastSentMessageRef.current = null;
+            lastSentRootIdRef.current = null;
+            lastSentAtRef.current = 0;
+            if (pendingAbortControllerRef.current) {
+              pendingAbortControllerRef.current.abort();
+              pendingAbortControllerRef.current = null;
+            }
+            sendMutationRef.current.reset();
             // Refocus input after sending
             requestAnimationFrame(() => {
               messageInputRef.current?.focus();
@@ -974,6 +1018,54 @@ export function MattermostChannelView({ channelId }: Props) {
   useEffect(() => {
     handleScroll();
   }, [posts.length, handleScroll]);
+
+  // DM warning logic: show warning for new DM conversations where user hasn't replied yet
+  useEffect(() => {
+    const isDm = channelData?.channel?.type === "D";
+    if (!isDm || !channelId || !channelData?.member?.user_id) {
+      setShowDmWarning(false);
+      return;
+    }
+
+    const currentUserId = channelData.member.user_id;
+    const storageKey = `dm-warning-dismissed-${currentUserId}-${channelId}`;
+
+    // Check if warning was manually dismissed before
+    if (ls.get(storageKey) === true) {
+      setShowDmWarning(false);
+      return;
+    }
+
+    // If older pages exist, we may not have loaded the user's reply yet.
+    if (hasNextPage) {
+      setShowDmWarning(false);
+      return;
+    }
+
+    // Check if the current user has sent any messages in this DM
+    const userHasReplied = posts.some((post) => {
+      const isSystem = typeof post.type === "string" && post.type.startsWith("system");
+      return post.user_id === currentUserId && !isSystem;
+    });
+
+    // Show warning only if user hasn't replied yet
+    setShowDmWarning(!userHasReplied);
+  }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, hasNextPage, posts]);
+
+  // Auto-hide warning when user sends a message
+  useEffect(() => {
+    if (showDmWarning && sendMutation.isSuccess) {
+      setShowDmWarning(false);
+    }
+  }, [showDmWarning, sendMutation.isSuccess]);
+
+  const handleDismissDmWarning = useCallback(() => {
+    const currentUserId = channelData?.member?.user_id;
+    if (channelId && currentUserId) {
+      ls.set(`dm-warning-dismissed-${currentUserId}-${channelId}`, true);
+    }
+    setShowDmWarning(false);
+  }, [channelId, channelData?.member?.user_id]);
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -1432,18 +1524,38 @@ export function MattermostChannelView({ channelId }: Props) {
 
     // Store pending ID for WebSocket confirmation
     lastSentPendingIdRef.current = pendingPostId;
+    lastSentMessageRef.current = finalMessage;
+    lastSentRootIdRef.current = rootId;
+    lastSentAtRef.current = Date.now();
+    pendingAbortControllerRef.current = new AbortController();
 
     sendMutation.mutate(
-      { message: finalMessage, rootId, props: parentProps, pendingPostId },
+      { message: finalMessage, rootId, props: parentProps, pendingPostId, signal: pendingAbortControllerRef.current.signal },
       {
-        onError: (err) => {
+        onError: (err, variables) => {
+          if (pendingAbortControllerRef.current) {
+            pendingAbortControllerRef.current = null;
+          }
+          const pendingId = variables?.pendingPostId;
+          if (pendingId && confirmedPendingPostIdsRef.current.has(pendingId)) {
+            confirmedPendingPostIdsRef.current.delete(pendingId);
+            sendMutationRef.current.reset();
+            return;
+          }
+          if ((err as Error)?.name === "AbortError") {
+            return;
+          }
           setMessageError((err as Error)?.message || "Unable to send message");
           lastSentPendingIdRef.current = null; // Clear on error
         },
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
+          if (pendingAbortControllerRef.current) {
+            pendingAbortControllerRef.current = null;
+          }
+          const pendingId = variables?.pendingPostId;
           // Only clear input via HTTP if WebSocket is NOT connected
           // WebSocket will handle it via onPosted callback for instant feedback
-          if (!isWebSocketActive) {
+          if (!isWebSocketActive || (pendingId && lastSentPendingIdRef.current === pendingId)) {
             setMessage("");
             setUploadedImages([]); // Clear images
             clearDraft(channelId); // Clear draft after successful send
@@ -1453,6 +1565,10 @@ export function MattermostChannelView({ channelId }: Props) {
             setEmojiStart(null);
             setReplyingTo(null);
             lastSentPendingIdRef.current = null;
+            lastSentMessageRef.current = null;
+            lastSentRootIdRef.current = null;
+            lastSentAtRef.current = 0;
+            confirmedPendingPostIdsRef.current.delete(pendingId ?? "");
             requestAnimationFrame(() => {
               messageInputRef.current?.focus();
             });
@@ -1512,13 +1628,15 @@ export function MattermostChannelView({ channelId }: Props) {
     setEmojiStart(null);
   };
 
-  const handleDelete = (postId: string) => {
-    if (!channelData?.canModerate) return;
+  const handleDelete = (post: MattermostPost) => {
+    const currentUserId = channelData?.member?.user_id;
+    const canDelete = channelData?.canModerate || (currentUserId && post.user_id === currentUserId);
+    if (!canDelete) return;
     if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
 
     setModerationError(null);
-    setDeletingPostId(postId);
-    deleteMutation.mutate(postId, {
+    setDeletingPostId(post.id);
+    deleteMutation.mutate(post.id, {
       onError: (err) => {
         setModerationError((err as Error)?.message || "Unable to delete message");
         setDeletingPostId(null);
@@ -2054,6 +2172,14 @@ export function MattermostChannelView({ channelId }: Props) {
             </div>
           </div>
         </div>
+
+        {/* DM safety warning */}
+        {showDmWarning && (
+          <DmWarningBanner
+            onDismiss={handleDismissDmWarning}
+            settingsHref={activeUser?.username ? `/@${activeUser.username}/settings` : undefined}
+          />
+        )}
 
         {/* Reconnection status banner */}
         {reconnectAttempt !== null && reconnectDelay !== null && (

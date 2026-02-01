@@ -40,14 +40,13 @@ export async function prefetchGetPostsFeedQuery(
     observer?: string
 ): Promise<FeedInfinite | undefined> {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
     return prefetchInfiniteQuery(getPromotedEntriesInfiniteQuery()) as Promise<FeedInfinite | undefined>;
   }
 
-  if (isAccountPosts) {
+  if (isUser) {
     return prefetchInfiniteQuery(
       getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
@@ -84,14 +83,13 @@ export function getPostsFeedQueryData(
     observer?: string
 ): FeedInfinite | undefined {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   if (isPromotedSection) {
     return getInfiniteQueryData(getPromotedEntriesInfiniteQuery()) as FeedInfinite | undefined;
   }
 
-  if (isAccountPosts) {
+  if (isUser) {
     return getInfiniteQueryData(
       getAccountPostsInfiniteQueryOptions(
         tag.replace("@", "").replace("%40", ""),
@@ -128,13 +126,12 @@ export function usePostsFeedQuery(
     limit = 20
 ): UseInfiniteQueryResult<Page, Error> {
   const isUser = tag.startsWith("@") || tag.startsWith("%40");
-  const isAccountPosts = isUser;
   const isPromotedSection = what === "promoted";
 
   const queryOptions =
       isPromotedSection
           ? getPromotedEntriesInfiniteQuery()
-          : isAccountPosts
+          : isUser
               ? getAccountPostsInfiniteQueryOptions(
                   tag.replace("@", "").replace("%40", ""),
                   what,
