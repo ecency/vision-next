@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Nieprawidłowy plik. Proszę przesłać prawidłowy plik seed.",
         "error-invalid-file-format": "Nieprawidłowy format pliku. Plik seed musi zawierać właściwość \"seed\".",
         "error-no-wallets": "Nie znaleziono adresów portfela. Proszę czekać na ukończenie tworzenia portfela.",
+        "existing-tokens-warning": "To konto ma już skonfigurowane adresy portfela zewnętrznego. Importowanie nowej frazy seed zastąpi istniejące adresy portfela. Upewnij się, że wykonałeś kopię zapasową poprzedniej frazy seed przed kontynuowaniem.",
         "hive-keys-title": "Importuj klucze ulowe",
         "hive-keys-description": "Znaleźliśmy klucze ulowe w Twojej frazie seedowej. Czy chcesz zaimportować je na swoje konto?",
         "hive-keys-already-added": "Te klucze są już aktywne na Twoim koncie.",
