@@ -229,6 +229,13 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         setStep("sign");
         return;
       }
+
+      if (!hiveKeys) {
+        error("[Wallets] Missing derived Hive keys.");
+        setStep("sign");
+        return;
+      }
+
       setStep("link");
 
       try {
@@ -252,7 +259,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         await saveTokens(entriesWithAddresses.map(([, info]) => info));
 
         // Import Hive keys if user chose to
-        if (importHiveKeys && hiveKeys) {
+        if (importHiveKeys) {
           await saveKeys({
             keepCurrent: true,
             currentKey,
@@ -265,12 +272,6 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
               }
             ]
           });
-        }
-
-        if (!hiveKeys) {
-          error("[Wallets] Missing derived Hive keys.");
-          setStep("sign");
-          return;
         }
 
         await saveToPrivateApi({
