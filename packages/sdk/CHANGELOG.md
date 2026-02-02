@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.24
+
+### Patch Changes
+
+- Improve sdk and bug fixes (#639)
+
 ## 1.5.23
 
 ### Patch Changes
