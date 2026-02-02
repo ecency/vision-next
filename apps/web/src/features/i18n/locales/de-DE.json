@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Ungültige Datei. Bitte laden Sie eine gültige Seed-Datei hoch.",
         "error-invalid-file-format": "Ungültiges Dateiformat. Seed Datei muss eine 'seed' Eigenschaft enthalten.",
         "error-no-wallets": "Keine Wallet-Adressen gefunden. Bitte warten Sie, bis die Wallet-Erstellung abgeschlossen ist.",
+        "existing-tokens-warning": "Dieses Konto hat bereits externe Wallet-Adressen konfiguriert. Das Importieren einer neuen Seed-Phrase ersetzt die vorhandenen Wallet-Adressen. Stellen Sie sicher, dass Sie Ihre vorherige Seed-Phrase gesichert haben, bevor Sie fortfahren.",
         "hive-keys-title": "Hive-Schlüssel importieren",
         "hive-keys-description": "Wir haben Hive-Schlüssel in Ihrer Seed-Phrase gefunden. Möchten Sie sie in Ihr Konto importieren?",
         "hive-keys-already-added": "Diese Schlüssel sind bereits auf Ihrem Konto aktiv.",
