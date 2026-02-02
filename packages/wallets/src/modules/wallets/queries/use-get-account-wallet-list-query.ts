@@ -6,7 +6,7 @@ import {
   getAccountFullQueryOptions,
   getQueryClient,
 } from "@ecency/sdk";
-import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
+import { getVisionPortfolioQueryOptions, VisionPortfolioResponse } from "./get-vision-portfolio-query-options";
 
 type ProfileTokens = AccountProfile["tokens"];
 type ProfileToken = NonNullable<ProfileTokens>[number];
@@ -82,7 +82,7 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
       };
 
       try {
-        const portfolio = await queryClient.fetchQuery(portfolioQuery);
+        const portfolio: VisionPortfolioResponse = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio = portfolio.wallets.map(
           (asset) => asset.symbol
         );
