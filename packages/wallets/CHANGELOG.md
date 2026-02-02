@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 1.5.22
+
+### Patch Changes
+
+- External import fixes (#637)
+
 ## 1.5.21
 
 ### Patch Changes
