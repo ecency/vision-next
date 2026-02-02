@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Invalid file. Please upload a valid seed file.",
         "error-invalid-file-format": "Invalid file format. Seed file must contain a 'seed' property.",
         "error-no-wallets": "No wallet addresses found. Please wait for wallet creation to complete.",
+        "existing-tokens-warning": "This account already has external wallet addresses configured. Importing a new seed phrase will replace the existing wallet addresses. Make sure you have backed up your previous seed phrase before proceeding.",
         "hive-keys-title": "Import Hive Keys",
         "hive-keys-description": "We found Hive keys in your seed phrase. Would you like to import them to your account?",
         "hive-keys-already-added": "These keys are already active on your account.",
