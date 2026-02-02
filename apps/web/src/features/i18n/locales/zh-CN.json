@@ -3191,6 +3191,7 @@
         "error-invalid-file": "无效的文件。请上传有效的种子文件。",
         "error-invalid-file-format": "无效的文件格式。种子文件必须包含 'seed' 属性。",
         "error-no-wallets": "未找到钱包地址。请等待钱包创建完成。",
+        "existing-tokens-warning": "此帐户已配置外部钱包地址。导入新的种子短语将替换现有的钱包地址。 请确保您在继续之前已备份您以前的种子短语。",
         "hive-keys-title": "导入 Hive 密钥",
         "hive-keys-description": "我们在您的种子短语中找到了Hive 密钥。您想要将它们导入到您的帐户吗？",
         "hive-keys-already-added": "这些密钥已经在您的帐户上激活。",
