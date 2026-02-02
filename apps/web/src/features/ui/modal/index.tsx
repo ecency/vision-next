@@ -103,7 +103,8 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
         createPortal(
           <AnimatePresence>
             {show && (
-              <div
+              <motion.div
+                key="modal-content"
                 {...nativeProps}
                 className={classNameObject({
                   "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
@@ -148,7 +149,7 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
                 >
                   {props.children}
                 </motion.div>
-              </div>
+              </motion.div>
             )}
           </AnimatePresence>,
           portalContainer

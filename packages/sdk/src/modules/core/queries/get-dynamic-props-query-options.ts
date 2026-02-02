@@ -18,10 +18,18 @@ export function getDynamicPropsQueryOptions() {
 
       // Calculate derived values for backward compatibility
       // parseAsset handles both string format ("200905388484 HIVE") and NAI format ({ amount, nai, precision })
-      const hivePerMVests =
-        (parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount /
-          parseAsset(rawGlobalDynamic.total_vesting_shares).amount) *
-        1e6;
+      const totalVestingSharesAmount = parseAsset(rawGlobalDynamic.total_vesting_shares).amount;
+      const totalVestingFundAmount = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount;
+
+      // Guard against division by zero/NaN/Infinity
+      let hivePerMVests = 0;
+      if (
+        Number.isFinite(totalVestingSharesAmount) &&
+        totalVestingSharesAmount !== 0 &&
+        Number.isFinite(totalVestingFundAmount)
+      ) {
+        hivePerMVests = (totalVestingFundAmount / totalVestingSharesAmount) * 1e6;
+      }
       const base = parseAsset(rawFeedHistory.current_median_history.base).amount;
       const quote = parseAsset(rawFeedHistory.current_median_history.quote).amount;
       const fundRecentClaims = parseFloat(rawRewardFund.recent_claims);
@@ -29,8 +37,8 @@ export function getDynamicPropsQueryOptions() {
       const hbdPrintRate = rawGlobalDynamic.hbd_print_rate;
       const hbdInterestRate = rawGlobalDynamic.hbd_interest_rate;
       const headBlock = rawGlobalDynamic.head_block_number;
-      const totalVestingFund = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount;
-      const totalVestingShares = parseAsset(rawGlobalDynamic.total_vesting_shares).amount;
+      const totalVestingFund = totalVestingFundAmount;
+      const totalVestingShares = totalVestingSharesAmount;
       const virtualSupply = parseAsset(rawGlobalDynamic.virtual_supply).amount;
       const vestingRewardPercent = rawGlobalDynamic.vesting_reward_percent || 0;
       const accountCreationFee = rawChainProps.account_creation_fee;

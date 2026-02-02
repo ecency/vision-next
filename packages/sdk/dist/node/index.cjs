@@ -451,7 +451,12 @@ function getDynamicPropsQueryOptions() {
       const rawFeedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
       const rawChainProps = await CONFIG.hiveClient.database.call("get_chain_properties");
       const rawRewardFund = await CONFIG.hiveClient.database.call("get_reward_fund", ["post"]);
-      const hivePerMVests = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount / parseAsset(rawGlobalDynamic.total_vesting_shares).amount * 1e6;
+      const totalVestingSharesAmount = parseAsset(rawGlobalDynamic.total_vesting_shares).amount;
+      const totalVestingFundAmount = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount;
+      let hivePerMVests = 0;
+      if (Number.isFinite(totalVestingSharesAmount) && totalVestingSharesAmount !== 0 && Number.isFinite(totalVestingFundAmount)) {
+        hivePerMVests = totalVestingFundAmount / totalVestingSharesAmount * 1e6;
+      }
       const base = parseAsset(rawFeedHistory.current_median_history.base).amount;
       const quote = parseAsset(rawFeedHistory.current_median_history.quote).amount;
       const fundRecentClaims = parseFloat(rawRewardFund.recent_claims);
@@ -459,8 +464,8 @@ function getDynamicPropsQueryOptions() {
       const hbdPrintRate = rawGlobalDynamic.hbd_print_rate;
       const hbdInterestRate = rawGlobalDynamic.hbd_interest_rate;
       const headBlock = rawGlobalDynamic.head_block_number;
-      const totalVestingFund = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount;
-      const totalVestingShares = parseAsset(rawGlobalDynamic.total_vesting_shares).amount;
+      const totalVestingFund = totalVestingFundAmount;
+      const totalVestingShares = totalVestingSharesAmount;
       const virtualSupply = parseAsset(rawGlobalDynamic.virtual_supply).amount;
       const vestingRewardPercent = rawGlobalDynamic.vesting_reward_percent || 0;
       const accountCreationFee = rawChainProps.account_creation_fee;
@@ -1059,7 +1064,18 @@ function checkFavouriteQueryOptions(activeUsername, code, targetUsername) {
           })
         }
       );
-      return await response.json();
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Accounts][Favourites] \u2013 favorites-check failed with status ${response.status}: ${response.statusText}`
+        );
+      }
+      const result = await response.json();
+      if (typeof result !== "boolean") {
+        throw new Error(
+          `[SDK][Accounts][Favourites] \u2013 favorites-check returned invalid type: expected boolean, got ${typeof result}`
+        );
+      }
+      return result;
     }
   });
 }

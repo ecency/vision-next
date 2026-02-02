@@ -37,7 +37,23 @@ export function checkFavouriteQueryOptions(
           }),
         }
       );
-      return (await response.json()) as boolean;
+
+      // Validate HTTP response
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Accounts][Favourites] – favorites-check failed with status ${response.status}: ${response.statusText}`
+        );
+      }
+
+      // Parse and validate JSON payload
+      const result = await response.json();
+      if (typeof result !== "boolean") {
+        throw new Error(
+          `[SDK][Accounts][Favourites] – favorites-check returned invalid type: expected boolean, got ${typeof result}`
+        );
+      }
+
+      return result;
     },
   });
 }
