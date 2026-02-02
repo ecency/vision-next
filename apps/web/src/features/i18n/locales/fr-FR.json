@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Fichier invalide. Veuillez télécharger un fichier de graine valide.",
         "error-invalid-file-format": "Format de fichier invalide. Le fichier de seed doit contenir une propriété 'seed'.",
         "error-no-wallets": "Aucune adresse de portefeuille trouvée. Veuillez patienter pendant la création du portefeuille.",
+        "existing-tokens-warning": "Ce compte a déjà des adresses de portefeuille externes configurées. Importer une nouvelle phrase de graine remplacera les adresses existantes du portefeuille. Assurez-vous d'avoir sauvegardé votre phrase de graine précédente avant de continuer.",
         "hive-keys-title": "Importer des clés Hive",
         "hive-keys-description": "Nous avons trouvé des clés Hive dans votre phrase de graine. Voulez-vous les importer dans votre compte ?",
         "hive-keys-already-added": "Ces clés sont déjà actives sur votre compte.",
