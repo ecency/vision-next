@@ -98,55 +98,59 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
           portalContainer
         )}
 
-      {show &&
+      {isMounted() &&
         portalContainer &&
         createPortal(
-          <div
-            {...nativeProps}
-            className={classNameObject({
-              "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
-                true,
-              [props.className ?? ""]: true,
-              "flex justify-center items-start": props.centered
-            })}
-            onClick={() => setShow(false)}
-          >
-            <motion.div
-              initial={
-                isAnimated && {
-                  opacity: 0,
-                  y: 24
-                }
-              }
-              animate={
-                isAnimated && {
-                  opacity: 1,
-                  y: 0
-                }
-              }
-              exit={
-                isAnimated
-                  ? {
+          <AnimatePresence>
+            {show && (
+              <div
+                {...nativeProps}
+                className={classNameObject({
+                  "z-[1100] fixed top-0 pt-24 sm:py-4 md:py-8 left-0 right-0 bottom-0 overflow-y-auto h-full sm:h-auto":
+                    true,
+                  [props.className ?? ""]: true,
+                  "flex justify-center items-start": props.centered
+                })}
+                onClick={() => setShow(false)}
+              >
+                <motion.div
+                  initial={
+                    isAnimated && {
                       opacity: 0,
-
                       y: 24
                     }
-                  : {}
-              }
-              onClick={(e) => e.stopPropagation()}
-              className={classNameObject({
-                "ecency-modal-content": true,
-                " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
-                  !props.raw,
-                "max-w-[500px]": !props.size || props.size === "md",
-                "max-w-[800px]": props.size === "lg",
-                "w-full sm:max-w-[375px]": props.size === "sm",
-                [props.dialogClassName ?? ""]: true
-              })}
-            >
-              {props.children}
-            </motion.div>
-          </div>,
+                  }
+                  animate={
+                    isAnimated && {
+                      opacity: 1,
+                      y: 0
+                    }
+                  }
+                  exit={
+                    isAnimated
+                      ? {
+                          opacity: 0,
+
+                          y: 24
+                        }
+                      : {}
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                  className={classNameObject({
+                    "ecency-modal-content": true,
+                    " md:my-[3rem] w-full mt-auto mx-0 sm:mt-0 sm:mx-3 bg-white border border-[--border-color] rounded-t-xl sm:rounded-xl sm:w-[calc(100%-2rem)]":
+                      !props.raw,
+                    "max-w-[500px]": !props.size || props.size === "md",
+                    "max-w-[800px]": props.size === "lg",
+                    "w-full sm:max-w-[375px]": props.size === "sm",
+                    [props.dialogClassName ?? ""]: true
+                  })}
+                >
+                  {props.children}
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
           portalContainer
         )}
     </ModalContext.Provider>
