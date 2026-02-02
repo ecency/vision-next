@@ -3191,6 +3191,7 @@
         "error-invalid-file": "File non valido. Carica un file seed valido.",
         "error-invalid-file-format": "Formato file non valido. Il file Seed deve contenere una proprietà 'seed'.",
         "error-no-wallets": "Nessun indirizzo del portafoglio trovato. Attendere che la creazione del portafoglio sia completata.",
+        "existing-tokens-warning": "Questo account ha già gli indirizzi del portafoglio esterni configurati. L'importazione di un nuovo seed phrase sostituirà gli indirizzi del portafoglio esistenti. Assicurati di aver eseguito il backup del tuo seed frase precedente prima di procedere.",
         "hive-keys-title": "Importa Chiavi Hive",
         "hive-keys-description": "Abbiamo trovato le chiavi Hive nella tua frase del seme. Vuoi importarle nel tuo account?",
         "hive-keys-already-added": "Queste chiavi sono già attive sul tuo account.",
