@@ -15,7 +15,7 @@ export function getTokenOperationsQueryOptions(
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
 
-      if (!username) {
+      if (!username || !isForOwner) {
         return [] as AssetOperation[];
       }
 
