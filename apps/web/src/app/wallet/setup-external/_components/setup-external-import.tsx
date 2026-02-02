@@ -21,6 +21,7 @@ import {
   UilArrowUpRight,
   UilBitcoinSign,
   UilCheckCircle,
+  UilExclamationTriangle,
   UilFileImport,
   UilLock,
   UilSpinner,
@@ -102,6 +103,17 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
       return wallet && Boolean(wallet.address);
     });
   }, [tokens]);
+
+  const hasExistingChainTokens = useMemo(() => {
+    const profileTokens = account?.profile?.tokens;
+    if (!profileTokens || !Array.isArray(profileTokens)) return false;
+    return profileTokens.some(
+      (t) =>
+        t.type === "CHAIN" ||
+        Object.values(EcencyWalletCurrency).includes(t.symbol as EcencyWalletCurrency)
+    );
+  }, [account]);
+
   const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
   const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
@@ -307,6 +319,15 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
             <div className="opacity-50 mb-4">
               {i18next.t("permissions.add-keys.import.description")}
             </div>
+
+            {hasExistingChainTokens && (
+              <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4 flex items-start gap-3">
+                <UilExclamationTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                <div className="text-sm text-orange-800 dark:text-orange-200">
+                  {i18next.t("permissions.add-keys.import.existing-tokens-warning")}
+                </div>
+              </div>
+            )}
 
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
               <div className="text-sm text-yellow-800 dark:text-yellow-200">
