@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.23
+
+### Patch Changes
+
+- Version bump (#638)
+
 ## 1.5.22
 
 ### Patch Changes

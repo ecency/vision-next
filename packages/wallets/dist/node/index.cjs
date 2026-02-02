@@ -3642,7 +3642,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
     queryFn: async () => {
       const queryClient = sdk.getQueryClient();
       const normalizedToken = token.toUpperCase();
-      if (!username) {
+      if (!username || !isForOwner) {
         return [];
       }
       try {
