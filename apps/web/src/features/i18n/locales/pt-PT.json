@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Arquivo inválido. Por favor, envie um arquivo de Seed válido.",
         "error-invalid-file-format": "Formato de arquivo inválido. O arquivo Seed deve conter uma propriedade 'seed'.",
         "error-no-wallets": "Nenhum endereço de carteira encontrado. Por favor, aguarde a criação da carteira ser concluída.",
+        "existing-tokens-warning": "Esta conta já tem endereços de carteira externa configurados. Importar uma nova semente irá substituir os endereços da carteira existente. Certifique-se de ter feito o backup de sua frase de semente anterior antes de prosseguir.",
         "hive-keys-title": "Importar chaves do Hive",
         "hive-keys-description": "Encontramos as chaves do Hive em sua frase de sementes. Deseja importá-las para sua conta?",
         "hive-keys-already-added": "Essas chaves já estão ativas em sua conta.",
