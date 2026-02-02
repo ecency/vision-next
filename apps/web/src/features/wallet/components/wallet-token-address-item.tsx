@@ -1,6 +1,6 @@
 import { success } from "@/features/shared";
 import { Button } from "@/features/ui";
-import { UilClipboardAlt } from "@tooni/iconscout-unicons-react";
+import { UilClipboardAlt, UilSpinner } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -72,16 +72,23 @@ export function WalletTokenAddressItem({
         </div>
       </div>
 
-      <div
-        className="grid grid-cols-[1fr_max-content] gap-1 mt-6 cursor-pointer"
-        onClick={(e) => {
-          copy(wallet?.address ?? "");
-          success(i18next.t("signup-wallets.validate-funds.address-copied"));
-        }}
-      >
-        <div className="opacity-75 text-sm truncate">{wallet?.address}</div>
-        <Button icon={<UilClipboardAlt />} noPadding={true} appearance="gray-link" size="xxs" />
-      </div>
+      {createWallet.isPending ? (
+        <div className="flex items-center gap-2 mt-6">
+          <UilSpinner className="animate-spin w-4 h-4 opacity-50" />
+          <span className="text-sm opacity-50">{i18next.t("g.loading")}...</span>
+        </div>
+      ) : (
+        <div
+          className="grid grid-cols-[1fr_max-content] gap-1 mt-6 cursor-pointer"
+          onClick={(e) => {
+            copy(wallet?.address ?? "");
+            success(i18next.t("signup-wallets.validate-funds.address-copied"));
+          }}
+        >
+          <div className="opacity-75 text-sm truncate">{wallet?.address}</div>
+          <Button icon={<UilClipboardAlt />} noPadding={true} appearance="gray-link" size="xxs" />
+        </div>
+      )}
     </motion.div>
   );
 }

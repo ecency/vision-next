@@ -21,14 +21,16 @@ const PATHS = {
  */
 export function useWalletCreate(
   username: string,
-  currency: EcencyWalletCurrency
+  currency: EcencyWalletCurrency,
+  importedSeed?: string
 ) {
-  const { data: mnemonic } = useSeedPhrase(username);
+  const { data: generatedMnemonic } = useSeedPhrase(username);
   const queryClient = useQueryClient();
 
   const createWallet = useMutation({
     mutationKey: ["ecency-wallets", "create-wallet", username, currency],
     mutationFn: async () => {
+      const mnemonic = importedSeed || generatedMnemonic;
       if (!mnemonic) {
         throw new Error("[Ecency][Wallets] - No seed to create a wallet");
       }

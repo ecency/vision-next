@@ -94,6 +94,14 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
   const { data: tokens } = useWalletsCacheQuery(username);
   const { data: account } = useQuery(getAccountFullQueryOptions(username));
+
+  const allWalletsDerived = useMemo(() => {
+    if (!tokens) return false;
+    return TOKENS.every((currency) => {
+      const wallet = tokens.get(currency);
+      return wallet && Boolean(wallet.address);
+    });
+  }, [tokens]);
   const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
   const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
@@ -247,18 +255,20 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
           });
         }
 
+        if (!hiveKeys) {
+          error("[Wallets] Missing derived Hive keys.");
+          setStep("sign");
+          return;
+        }
+
         await saveToPrivateApi({
           tokens: walletAddresses,
-          ...(importHiveKeys && hiveKeys
-            ? {
-                hiveKeys: {
-                  ownerPublicKey: hiveKeys.ownerPubkey,
-                  activePublicKey: hiveKeys.activePubkey,
-                  postingPublicKey: hiveKeys.postingPubkey,
-                  memoPublicKey: hiveKeys.memoPubkey
-                }
-              }
-            : {})
+          hiveKeys: {
+            ownerPublicKey: hiveKeys.ownerPubkey,
+            activePublicKey: hiveKeys.activePubkey,
+            postingPublicKey: hiveKeys.postingPubkey,
+            memoPublicKey: hiveKeys.memoPubkey
+          }
         });
         setStep("success");
       } catch (err) {
@@ -420,7 +430,11 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
               >
                 {i18next.t("g.back")}
               </Button>
-              <Button icon={<UilArrowRight />} onClick={() => setStep("sign")}>
+              <Button
+                icon={<UilArrowRight />}
+                onClick={() => setStep("sign")}
+                disabled={!allWalletsDerived}
+              >
                 {i18next.t("g.continue")}
               </Button>
             </div>
