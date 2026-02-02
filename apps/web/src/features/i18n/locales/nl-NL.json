@@ -3191,6 +3191,7 @@
         "error-invalid-file": "Ongeldig bestand. Upload een geldig herstelbestand.",
         "error-invalid-file-format": "Ongeldig bestandsformaat. Seed bestand moet een 'seed' eigenschap bevatten.",
         "error-no-wallets": "Geen wallet adressen gevonden. Wacht tot de portemonnee is aangemaakt.",
+        "existing-tokens-warning": "Deze account heeft al externe wallet adressen geconfigureerd. Importeren van een nieuwe herstelzin zal de bestaande wallet adressen vervangen. Zorg ervoor dat u een back-up heeft gemaakt van uw vorige herstelzin voordat u verdergaat.",
         "hive-keys-title": "Importeer Hive Sleutels",
         "hive-keys-description": "We vonden Hive sleutels in uw herstelzin. Wilt u ze importeren in uw account?",
         "hive-keys-already-added": "Deze sleutels zijn al actief op uw account.",
