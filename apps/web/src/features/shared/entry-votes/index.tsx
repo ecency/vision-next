@@ -36,10 +36,10 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
   const [visible, setVisible] = useState(false);
 
   const { voted: isVoted } = useMemo(() => {
-    if (!activeUser) {
+    if (!activeUser || !entry) {
       return { voted: false };
     }
-    const { active_votes: votes } = entry!;
+    const { active_votes: votes } = entry;
 
     const voted = votes ? votes.some((v) => v.voter === activeUser.username) : false;
 

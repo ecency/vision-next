@@ -11,6 +11,7 @@ export * from "./get-relationship-between-accounts-query-options";
 export * from "./get-account-subscriptions-query-options";
 export * from "./get-bookmarks-query-options";
 export * from "./get-favourites-query-options";
+export * from "./check-favourite-query-options";
 export * from "./get-account-recoveries-query-options";
 export * from "./get-account-pending-recovery-query-options";
 export * from "./get-account-reputations-query-options";

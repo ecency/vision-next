@@ -447,41 +447,30 @@ function getDynamicPropsQueryOptions() {
     staleTime: 6e4,
     refetchOnMount: true,
     queryFn: async () => {
-      const globalDynamic = await CONFIG.hiveClient.database.getDynamicGlobalProperties().then((r) => ({
-        total_vesting_fund_hive: r.total_vesting_fund_hive || r.total_vesting_fund_steem,
-        total_vesting_shares: r.total_vesting_shares,
-        hbd_print_rate: r.hbd_print_rate || r.sbd_print_rate,
-        hbd_interest_rate: r.hbd_interest_rate,
-        head_block_number: r.head_block_number,
-        vesting_reward_percent: r.vesting_reward_percent,
-        virtual_supply: r.virtual_supply
-      }));
-      const feedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
-      const chainProps = await CONFIG.hiveClient.database.call(
-        "get_chain_properties"
-      );
-      const rewardFund = await CONFIG.hiveClient.database.call(
-        "get_reward_fund",
-        ["post"]
-      );
-      const hivePerMVests = parseAsset(globalDynamic.total_vesting_fund_hive).amount / parseAsset(globalDynamic.total_vesting_shares).amount * 1e6;
-      const base = parseAsset(feedHistory.current_median_history.base).amount;
-      const quote = parseAsset(feedHistory.current_median_history.quote).amount;
-      const fundRecentClaims = parseFloat(rewardFund.recent_claims);
-      const fundRewardBalance = parseAsset(rewardFund.reward_balance).amount;
-      const hbdPrintRate = globalDynamic.hbd_print_rate;
-      const hbdInterestRate = globalDynamic.hbd_interest_rate;
-      const headBlock = globalDynamic.head_block_number;
-      const totalVestingFund = parseAsset(
-        globalDynamic.total_vesting_fund_hive
-      ).amount;
-      const totalVestingShares = parseAsset(
-        globalDynamic.total_vesting_shares
-      ).amount;
-      const virtualSupply = parseAsset(globalDynamic.virtual_supply).amount;
-      const vestingRewardPercent = globalDynamic.vesting_reward_percent;
-      const accountCreationFee = chainProps.account_creation_fee;
+      const rawGlobalDynamic = await CONFIG.hiveClient.database.getDynamicGlobalProperties();
+      const rawFeedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
+      const rawChainProps = await CONFIG.hiveClient.database.call("get_chain_properties");
+      const rawRewardFund = await CONFIG.hiveClient.database.call("get_reward_fund", ["post"]);
+      const totalVestingSharesAmount = parseAsset(rawGlobalDynamic.total_vesting_shares).amount;
+      const totalVestingFundAmount = parseAsset(rawGlobalDynamic.total_vesting_fund_hive).amount;
+      let hivePerMVests = 0;
+      if (Number.isFinite(totalVestingSharesAmount) && totalVestingSharesAmount !== 0 && Number.isFinite(totalVestingFundAmount)) {
+        hivePerMVests = totalVestingFundAmount / totalVestingSharesAmount * 1e6;
+      }
+      const base = parseAsset(rawFeedHistory.current_median_history.base).amount;
+      const quote = parseAsset(rawFeedHistory.current_median_history.quote).amount;
+      const fundRecentClaims = parseFloat(rawRewardFund.recent_claims);
+      const fundRewardBalance = parseAsset(rawRewardFund.reward_balance).amount;
+      const hbdPrintRate = rawGlobalDynamic.hbd_print_rate;
+      const hbdInterestRate = rawGlobalDynamic.hbd_interest_rate;
+      const headBlock = rawGlobalDynamic.head_block_number;
+      const totalVestingFund = totalVestingFundAmount;
+      const totalVestingShares = totalVestingSharesAmount;
+      const virtualSupply = parseAsset(rawGlobalDynamic.virtual_supply).amount;
+      const vestingRewardPercent = rawGlobalDynamic.vesting_reward_percent || 0;
+      const accountCreationFee = rawChainProps.account_creation_fee;
       return {
+        // Backward compatible transformed fields (camelCase, parsed)
         hivePerMVests,
         base,
         quote,
@@ -494,9 +483,25 @@ function getDynamicPropsQueryOptions() {
         totalVestingShares,
         virtualSupply,
         vestingRewardPercent,
-        accountCreationFee
+        accountCreationFee,
+        // Raw blockchain data (snake_case, unparsed) for direct use
+        // Includes ALL fields from the blockchain responses
+        raw: {
+          globalDynamic: rawGlobalDynamic,
+          feedHistory: rawFeedHistory,
+          chainProps: rawChainProps,
+          rewardFund: rawRewardFund
+        }
       };
     }
+  });
+}
+function getRewardFundQueryOptions(fundName = "post") {
+  return reactQuery.queryOptions({
+    queryKey: ["core", "reward-fund", fundName],
+    queryFn: () => CONFIG.hiveClient.database.call("get_reward_fund", [
+      fundName
+    ])
   });
 }
 function getAccountFullQueryOptions(username) {
@@ -1032,6 +1037,46 @@ function getFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
       return void 0;
     },
     enabled: !!activeUsername && !!code
+  });
+}
+function checkFavouriteQueryOptions(activeUsername, code, targetUsername) {
+  return reactQuery.queryOptions({
+    queryKey: ["accounts", "favourites", "check", activeUsername, targetUsername],
+    enabled: !!activeUsername && !!code && !!targetUsername,
+    queryFn: async () => {
+      if (!activeUsername || !code) {
+        throw new Error("[SDK][Accounts][Favourites] \u2013 missing auth");
+      }
+      if (!targetUsername) {
+        throw new Error("[SDK][Accounts][Favourites] \u2013 no target username");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/favorites-check",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code,
+            account: targetUsername
+          })
+        }
+      );
+      if (!response.ok) {
+        throw new Error(
+          `[SDK][Accounts][Favourites] \u2013 favorites-check failed with status ${response.status}: ${response.statusText}`
+        );
+      }
+      const result = await response.json();
+      if (typeof result !== "boolean") {
+        throw new Error(
+          `[SDK][Accounts][Favourites] \u2013 favorites-check returned invalid type: expected boolean, got ${typeof result}`
+        );
+      }
+      return result;
+    }
   });
 }
 function getAccountRecoveriesQueryOptions(username, code) {
@@ -2378,8 +2423,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions89 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions89);
+  const queryOptions93 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions93);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -5210,6 +5255,34 @@ function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
     ])
   });
 }
+function getFeedHistoryQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["market", "feed-history"],
+    queryFn: async () => {
+      try {
+        const feedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
+        return feedHistory;
+      } catch (error) {
+        throw error;
+      }
+    }
+  });
+}
+function getCurrentMedianHistoryPriceQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["market", "current-median-history-price"],
+    queryFn: async () => {
+      try {
+        const price = await CONFIG.hiveClient.database.call(
+          "get_current_median_history_price"
+        );
+        return price;
+      } catch (error) {
+        throw error;
+      }
+    }
+  });
+}
 
 // src/modules/market/requests.ts
 async function parseJsonResponse2(response) {
@@ -6001,6 +6074,7 @@ exports.addSchedule = addSchedule;
 exports.bridgeApiCall = bridgeApiCall;
 exports.broadcastJson = broadcastJson;
 exports.buildProfileMetadata = buildProfileMetadata;
+exports.checkFavouriteQueryOptions = checkFavouriteQueryOptions;
 exports.checkUsernameWalletsPendingQueryOptions = checkUsernameWalletsPendingQueryOptions;
 exports.decodeObj = decodeObj;
 exports.dedupeAndSortKeyAuths = dedupeAndSortKeyAuths;
@@ -6047,6 +6121,7 @@ exports.getConversionRequestsQueryOptions = getConversionRequestsQueryOptions;
 exports.getCurrencyRate = getCurrencyRate;
 exports.getCurrencyRates = getCurrencyRates;
 exports.getCurrencyTokenRate = getCurrencyTokenRate;
+exports.getCurrentMedianHistoryPriceQueryOptions = getCurrentMedianHistoryPriceQueryOptions;
 exports.getDeletedEntryQueryOptions = getDeletedEntryQueryOptions;
 exports.getDiscoverCurationQueryOptions = getDiscoverCurationQueryOptions;
 exports.getDiscoverLeaderboardQueryOptions = getDiscoverLeaderboardQueryOptions;
@@ -6059,6 +6134,7 @@ exports.getDynamicPropsQueryOptions = getDynamicPropsQueryOptions;
 exports.getEntryActiveVotesQueryOptions = getEntryActiveVotesQueryOptions;
 exports.getFavouritesInfiniteQueryOptions = getFavouritesInfiniteQueryOptions;
 exports.getFavouritesQueryOptions = getFavouritesQueryOptions;
+exports.getFeedHistoryQueryOptions = getFeedHistoryQueryOptions;
 exports.getFollowCountQueryOptions = getFollowCountQueryOptions;
 exports.getFollowersQueryOptions = getFollowersQueryOptions;
 exports.getFollowingQueryOptions = getFollowingQueryOptions;
@@ -6125,6 +6201,7 @@ exports.getReferralsInfiniteQueryOptions = getReferralsInfiniteQueryOptions;
 exports.getReferralsStatsQueryOptions = getReferralsStatsQueryOptions;
 exports.getRelationshipBetweenAccounts = getRelationshipBetweenAccounts;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
+exports.getRewardFundQueryOptions = getRewardFundQueryOptions;
 exports.getRewardedCommunitiesQueryOptions = getRewardedCommunitiesQueryOptions;
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
 exports.getSchedulesInfiniteQueryOptions = getSchedulesInfiniteQueryOptions;
