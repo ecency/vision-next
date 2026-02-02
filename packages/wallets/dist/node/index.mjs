@@ -1,4 +1,4 @@
-import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, useAccountUpdate, getCurrencyRate } from '@ecency/sdk';
+import { CONFIG, getAccountFullQueryOptions, getQueryClient, getDynamicPropsQueryOptions, useBroadcastMutation, getSpkMarkets, getSpkWallet, getHiveEngineTokensMarket, getHiveEngineTokensBalances, getHiveEngineTokensMetadata, getHiveEngineTokenTransactions, getHiveEngineTokenMetrics, getHiveEngineUnclaimedRewards, EcencyAnalytics, getPortfolioQueryOptions, useAccountUpdate, getCurrencyRate } from '@ecency/sdk';
 export { getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTradeHistory } from '@ecency/sdk';
 import { useQuery, queryOptions, infiniteQueryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
@@ -2973,162 +2973,8 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
-function normalizeString(value) {
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : void 0;
-  }
-  return void 0;
-}
-function normalizeNumber(value) {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return void 0;
-    }
-    const direct = Number.parseFloat(trimmed);
-    if (Number.isFinite(direct)) {
-      return direct;
-    }
-    const sanitized = trimmed.replace(/,/g, "");
-    const match = sanitized.match(/[-+]?\d+(?:\.\d+)?/);
-    if (match) {
-      const parsed = Number.parseFloat(match[0]);
-      if (Number.isFinite(parsed)) {
-        return parsed;
-      }
-    }
-  }
-  return void 0;
-}
-function parseToken(rawToken) {
-  if (!rawToken || typeof rawToken !== "object") {
-    return void 0;
-  }
-  const token = rawToken;
-  return {
-    name: normalizeString(token.name) ?? "",
-    symbol: normalizeString(token.symbol) ?? "",
-    layer: normalizeString(token.layer) ?? "hive",
-    balance: normalizeNumber(token.balance) ?? 0,
-    fiatRate: normalizeNumber(token.fiatRate) ?? 0,
-    currency: normalizeString(token.currency) ?? "usd",
-    precision: normalizeNumber(token.precision) ?? 3,
-    address: normalizeString(token.address),
-    error: normalizeString(token.error),
-    pendingRewards: normalizeNumber(token.pendingRewards),
-    pendingRewardsFiat: normalizeNumber(token.pendingRewardsFiat),
-    liquid: normalizeNumber(token.liquid),
-    liquidFiat: normalizeNumber(token.liquidFiat),
-    savings: normalizeNumber(token.savings),
-    savingsFiat: normalizeNumber(token.savingsFiat),
-    staked: normalizeNumber(token.staked),
-    stakedFiat: normalizeNumber(token.stakedFiat),
-    iconUrl: normalizeString(token.iconUrl),
-    actions: token.actions ?? [],
-    extraData: token.extraData ?? [],
-    apr: normalizeNumber(token.apr)
-  };
-}
-function extractTokens(payload) {
-  if (!payload || typeof payload !== "object") {
-    return [];
-  }
-  const containers = [payload];
-  const record = payload;
-  if (record.data && typeof record.data === "object") {
-    containers.push(record.data);
-  }
-  if (record.result && typeof record.result === "object") {
-    containers.push(record.result);
-  }
-  if (record.portfolio && typeof record.portfolio === "object") {
-    containers.push(record.portfolio);
-  }
-  for (const container of containers) {
-    if (Array.isArray(container)) {
-      return container;
-    }
-    if (container && typeof container === "object") {
-      for (const key of [
-        "wallets",
-        "tokens",
-        "assets",
-        "items",
-        "portfolio",
-        "balances"
-      ]) {
-        const value = container[key];
-        if (Array.isArray(value)) {
-          return value;
-        }
-      }
-    }
-  }
-  return [];
-}
-function resolveUsername(payload) {
-  if (!payload || typeof payload !== "object") {
-    return void 0;
-  }
-  const record = payload;
-  return normalizeString(record.username) ?? normalizeString(record.name) ?? normalizeString(record.account);
-}
 function getVisionPortfolioQueryOptions(username, currency = "usd") {
-  return queryOptions({
-    queryKey: [
-      "ecency-wallets",
-      "portfolio",
-      "v2",
-      username,
-      "only-enabled",
-      currency
-    ],
-    enabled: Boolean(username),
-    staleTime: 6e4,
-    refetchInterval: 12e4,
-    queryFn: async () => {
-      if (!username) {
-        throw new Error("[SDK][Wallets] \u2013 username is required");
-      }
-      if (CONFIG.privateApiHost === void 0 || CONFIG.privateApiHost === null) {
-        throw new Error(
-          "[SDK][Wallets] \u2013 privateApiHost isn't configured for portfolio"
-        );
-      }
-      const endpoint = `${CONFIG.privateApiHost}/wallet-api/portfolio-v2`;
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, onlyEnabled: true, currency })
-      });
-      if (!response.ok) {
-        throw new Error(
-          `[SDK][Wallets] \u2013 Vision portfolio request failed(${response.status})`
-        );
-      }
-      const payload = await response.json();
-      const tokens = extractTokens(payload).map((item) => parseToken(item)).filter((item) => Boolean(item));
-      if (!tokens.length) {
-        throw new Error(
-          "[SDK][Wallets] \u2013 Vision portfolio payload contained no tokens"
-        );
-      }
-      return {
-        username: resolveUsername(payload) ?? username,
-        currency: normalizeString(
-          payload?.fiatCurrency ?? payload?.currency
-        )?.toUpperCase(),
-        wallets: tokens
-      };
-    }
-  });
+  return getPortfolioQueryOptions(username, currency, true);
 }
 
 // src/modules/wallets/queries/use-get-account-wallet-list-query.ts
@@ -3633,13 +3479,13 @@ function getTronAssetGeneralInfoQueryOptions(username) {
 function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
   const queryClient = getQueryClient();
   const currency = options2.currency ?? "usd";
-  const fetchQuery = async (queryOptions43) => {
+  const fetchQuery = async (queryOptions42) => {
     if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions43);
+      await queryClient.fetchQuery(queryOptions42);
     } else {
-      await queryClient.prefetchQuery(queryOptions43);
+      await queryClient.prefetchQuery(queryOptions42);
     }
-    return queryClient.getQueryData(queryOptions43.queryKey);
+    return queryClient.getQueryData(queryOptions42.queryKey);
   };
   const convertPriceToUserCurrency = async (assetInfo) => {
     if (!assetInfo || currency === "usd") {
@@ -3905,12 +3751,13 @@ var PATHS = {
   ["APT" /* APT */]: "m/44'/637'/0'/0'/0'"
   // Aptos (BIP44)
 };
-function useWalletCreate(username, currency) {
-  const { data: mnemonic } = useSeedPhrase(username);
+function useWalletCreate(username, currency, importedSeed) {
+  const { data: generatedMnemonic } = useSeedPhrase(username);
   const queryClient = useQueryClient();
   const createWallet = useMutation({
     mutationKey: ["ecency-wallets", "create-wallet", username, currency],
     mutationFn: async () => {
+      const mnemonic = importedSeed || generatedMnemonic;
       if (!mnemonic) {
         throw new Error("[Ecency][Wallets] - No seed to create a wallet");
       }

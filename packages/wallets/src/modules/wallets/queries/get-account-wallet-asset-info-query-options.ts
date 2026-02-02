@@ -21,7 +21,7 @@ import {
   getTonAssetGeneralInfoQueryOptions,
   getTronAssetGeneralInfoQueryOptions,
 } from "@/modules/assets/external";
-import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
+import { getVisionPortfolioQueryOptions, VisionPortfolioResponse, VisionPortfolioWalletItem } from "./get-vision-portfolio-query-options";
 
 interface Options {
   refetch: boolean;
@@ -69,9 +69,9 @@ export function getAccountWalletAssetInfoQueryOptions(
   const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
   const getPortfolioAssetInfo = async () => {
     try {
-      const portfolio = await queryClient.fetchQuery(portfolioQuery);
+      const portfolio: VisionPortfolioResponse = await queryClient.fetchQuery(portfolioQuery);
       const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
+        (assetItem: VisionPortfolioWalletItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
       );
 
       // Convert VisionPortfolioWalletItem (PortfolioItem from API) to GeneralAssetInfo

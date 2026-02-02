@@ -1,6 +1,6 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { AuthContext, useBroadcastMutation } from '@ecency/sdk';
+import { AuthContext, useBroadcastMutation, PortfolioWalletItem, PortfolioResponse } from '@ecency/sdk';
 export { getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTradeHistory } from '@ecency/sdk';
 import { BaseWallet, SignTxParams } from '@okxweb3/coin-base';
 import { OperationName, VirtualOperationName, SMTAsset, PrivateKey, Operation, TransactionConfirmation, Client } from '@hiveio/dhive';
@@ -67,7 +67,7 @@ interface AccountPointsResponse {
  *
  * Keep attention: this mutation doesn't save wallet to somewhere in a server
  */
-declare function useWalletCreate(username: string, currency: EcencyWalletCurrency): {
+declare function useWalletCreate(username: string, currency: EcencyWalletCurrency, importedSeed?: string): {
     createWallet: _tanstack_react_query.UseMutationResult<EcencyTokenMetadata, Error, void, unknown>;
     importWallet: () => void;
 };
@@ -1824,47 +1824,17 @@ declare function getTokenOperationsQueryOptions(token: string, username: string,
 
 declare function useWalletsCacheQuery(username?: string): _tanstack_react_query.DefinedUseQueryResult<Map<EcencyWalletCurrency, EcencyTokenMetadata>, Error>;
 
-type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
-interface TokenAction {
-    id: string;
-    [key: string]: unknown;
-}
-interface VisionPortfolioWalletItem {
-    name: string;
-    symbol: string;
-    layer: PortfolioLayer;
-    balance: number;
-    fiatRate: number;
-    currency: string;
-    precision: number;
-    address?: string;
-    error?: string;
-    pendingRewards?: number;
-    pendingRewardsFiat?: number;
-    liquid?: number;
-    liquidFiat?: number;
-    savings?: number;
-    savingsFiat?: number;
-    staked?: number;
-    stakedFiat?: number;
-    iconUrl?: string;
-    actions?: TokenAction[];
-    extraData?: Array<{
-        dataKey: string;
-        value: any;
-    }>;
-    apr?: number;
-}
-interface VisionPortfolioResponse {
-    username: string;
-    currency?: string;
-    wallets: VisionPortfolioWalletItem[];
-}
-declare function getVisionPortfolioQueryOptions(username: string, currency?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<VisionPortfolioResponse, Error, VisionPortfolioResponse, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<VisionPortfolioResponse, string[], never> | undefined;
+type VisionPortfolioWalletItem = PortfolioWalletItem;
+type VisionPortfolioResponse = PortfolioResponse;
+/**
+ * @deprecated Use getPortfolioQueryOptions from @ecency/sdk instead
+ * This wrapper is maintained for backwards compatibility
+ */
+declare function getVisionPortfolioQueryOptions(username: string, currency?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<PortfolioResponse, Error, PortfolioResponse, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<PortfolioResponse, string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: VisionPortfolioResponse;
+        [dataTagSymbol]: PortfolioResponse;
         [dataTagErrorSymbol]: Error;
     };
 };
