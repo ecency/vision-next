@@ -2070,6 +2070,23 @@ function getReblogsQueryOptions(username, activeUsername, limit = 200) {
     enabled: !!username
   });
 }
+function getRebloggedByQueryOptions(author, permlink) {
+  return reactQuery.queryOptions({
+    queryKey: ["posts", "reblogged-by", author ?? "", permlink ?? ""],
+    queryFn: async () => {
+      if (!author || !permlink) {
+        return [];
+      }
+      const response = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_reblogged_by",
+        [author, permlink]
+      );
+      return Array.isArray(response) ? response : [];
+    },
+    enabled: !!author && !!permlink
+  });
+}
 function getSchedulesQueryOptions(activeUsername, code) {
   return reactQuery.queryOptions({
     queryKey: ["posts", "schedules", activeUsername],
@@ -2423,8 +2440,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions93 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions93);
+  const queryOptions94 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions94);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -6194,6 +6211,7 @@ exports.getProposalVotesInfiniteQueryOptions = getProposalVotesInfiniteQueryOpti
 exports.getProposalsQueryOptions = getProposalsQueryOptions;
 exports.getQueryClient = getQueryClient;
 exports.getRcStatsQueryOptions = getRcStatsQueryOptions;
+exports.getRebloggedByQueryOptions = getRebloggedByQueryOptions;
 exports.getReblogsQueryOptions = getReblogsQueryOptions;
 exports.getReceivedVestingSharesQueryOptions = getReceivedVestingSharesQueryOptions;
 exports.getRecurrentTransfersQueryOptions = getRecurrentTransfersQueryOptions;

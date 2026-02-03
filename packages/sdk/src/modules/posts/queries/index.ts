@@ -12,6 +12,7 @@ export * from "./get-discussions-query-options";
 export * from "./get-account-posts-query-options";
 export * from "./get-posts-ranked-query-options";
 export * from "./get-reblogs-query-options";
+export * from "./get-reblogged-by-query-options";
 export * from "./get-schedules-query-options";
 export * from "./get-drafts-query-options";
 export * from "./get-images-query-options";
