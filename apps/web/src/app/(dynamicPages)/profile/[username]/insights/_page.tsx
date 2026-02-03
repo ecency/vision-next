@@ -34,7 +34,7 @@ function InsightsRange({ username, dateRange, label }: InsightsRangeProps) {
       `/@${username}/`,
       ["event:page"],
       ["pageviews", "visitors", "visit_duration"],
-      dateRange ? [dateRange] : undefined
+      dateRange || undefined
     )
   );
 
@@ -211,4 +211,3 @@ export function ProfileInsights({ username }: Props) {
     </div>
   );
 }
-

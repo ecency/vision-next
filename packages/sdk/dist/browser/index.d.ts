@@ -2001,7 +2001,7 @@ declare function getDiscoverCurationQueryOptions(duration: CurationDuration): _t
  * @param metrics - Metrics to query (default: ["visitors", "pageviews", "visit_duration"])
  * @param dateRange - Date range for the query
  */
-declare function getPageStatsQueryOptions(url: string, dimensions?: string[], metrics?: string[], dateRange?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<PageStatsResponse, Error, PageStatsResponse, (string | string[] | undefined)[]>, "queryFn"> & {
+declare function getPageStatsQueryOptions(url: string, dimensions?: string[], metrics?: string[], dateRange?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<PageStatsResponse, Error, PageStatsResponse, (string | string[] | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<PageStatsResponse, (string | string[] | undefined)[], never> | undefined;
 } & {
     queryKey: (string | string[] | undefined)[] & {
