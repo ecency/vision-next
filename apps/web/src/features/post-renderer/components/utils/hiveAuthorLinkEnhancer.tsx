@@ -9,21 +9,35 @@ export function applyAuthorLinks(container: HTMLElement) {
     );
 
     elements.forEach((el) => {
-        if (el.dataset.enhanced === "true") return;
-        el.dataset.enhanced = "true";
+        try {
+            if (el.dataset.enhanced === "true") return;
+            
+            // Verify element is still connected to the DOM
+            if (!el.isConnected || !el.parentElement) {
+                console.warn("Author link element is not connected to DOM, skipping");
+                return;
+            }
+            
+            el.dataset.enhanced = "true";
 
-        const authorHref = el.getAttribute("href");
-        if (!authorHref) return;
+            const authorHref = el.getAttribute("href");
+            if (!authorHref) return;
 
-        const wrapper = document.createElement("a");
-        wrapper.href = authorHref;
-        wrapper.target = "_blank";
-        wrapper.rel = "noopener";
-        wrapper.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link");
+            const wrapper = document.createElement("a");
+            wrapper.href = authorHref;
+            wrapper.target = "_blank";
+            wrapper.rel = "noopener";
+            wrapper.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link");
 
-        const root = createRoot(wrapper);
-        root.render(<AuthorLinkRenderer author={authorHref} />);
+            const root = createRoot(wrapper);
+            root.render(<AuthorLinkRenderer author={authorHref} />);
 
-        el.parentElement?.replaceChild(wrapper, el);
+            // Final safety check before replacing
+            if (el.isConnected && el.parentElement) {
+                el.parentElement.replaceChild(wrapper, el);
+            }
+        } catch (error) {
+            console.warn("Error enhancing author link element:", error);
+        }
     });
 }

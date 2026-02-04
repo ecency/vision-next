@@ -16,21 +16,35 @@ export function applyWaveLikePosts(
     postLinkElements
         .filter((el) => isWaveLikePost(el.getAttribute("href") ?? ""))
         .forEach((el) => {
-            if (el.dataset.enhanced === "true") return;
-            el.dataset.enhanced = "true";
+            try {
+                if (el.dataset.enhanced === "true") return;
+                
+                // Verify element is still connected to the DOM
+                if (!el.isConnected || !el.parentElement) {
+                    console.warn("Wave-like post link element is not connected to DOM, skipping");
+                    return;
+                }
+                
+                el.dataset.enhanced = "true";
 
-            const link = el.getAttribute("href") ?? "";
+                const link = el.getAttribute("href") ?? "";
 
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-wave-like-extension");
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("ecency-renderer-wave-like-extension");
 
-            const root = createRoot(wrapper);
-            root.render(
-                <QueryClientProvider client={queryClient}>
-                    <WaveLikePostRenderer link={link} />
-                </QueryClientProvider>
-            );
+                const root = createRoot(wrapper);
+                root.render(
+                    <QueryClientProvider client={queryClient}>
+                        <WaveLikePostRenderer link={link} />
+                    </QueryClientProvider>
+                );
 
-            el.parentElement?.replaceChild(wrapper, el);
+                // Final safety check before replacing
+                if (el.isConnected && el.parentElement) {
+                    el.parentElement.replaceChild(wrapper, el);
+                }
+            } catch (error) {
+                console.warn("Error enhancing wave-like post link element:", error);
+            }
         });
 }
