@@ -1,16 +1,54 @@
 import { DOMParser } from './consts'
 import type { Document } from '@xmldom/xmldom'
 
+/**
+ * Removes duplicate attributes from HTML tags.
+ * @xmldom/xmldom 0.9+ throws fatalError on duplicate attributes (e.g., <iframe allowfullscreen allowfullscreen>).
+ * This preprocessor keeps only the first occurrence of each attribute.
+ */
+export function removeDuplicateAttributes(html: string): string {
+  // Match opening tags with attributes, capturing optional self-closing slash
+  // The attribute section pattern is quote-aware to handle > inside quoted values (e.g., data-x="a > b")
+  // Pattern breakdown: (?:[^>"']+|"[^"]*"|'[^']*')* matches sequences of:
+  //   - [^>"']+ : characters that aren't >, ", or '
+  //   - "[^"]*" : double-quoted strings
+  //   - '[^']*' : single-quoted strings
+  const tagRegex = /<([a-zA-Z][a-zA-Z0-9]*)\s+((?:[^>"']+|"[^"]*"|'[^']*')*?)\s*(\/?)>/g
+
+  return html.replace(tagRegex, (match, tagName, attrsString, selfClose) => {
+    const seenAttrs = new Set<string>()
+    const cleanedAttrs: string[] = []
+
+    // Match individual attributes (name="value", name='value', name=value, or just name)
+    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s/>]+))?/g
+    let attrMatch
+
+    while ((attrMatch = attrRegex.exec(attrsString)) !== null) {
+      const attrName = attrMatch[1].toLowerCase()
+      if (!seenAttrs.has(attrName)) {
+        seenAttrs.add(attrName)
+        cleanedAttrs.push(attrMatch[0])
+      }
+    }
+
+    const attrsJoined = cleanedAttrs.length > 0 ? ` ${cleanedAttrs.join(' ')}` : ''
+    return `<${tagName}${attrsJoined}${selfClose ? ' /' : ''}>`
+  })
+}
+
 export function createDoc(html: string): Document | null {
   if (html.trim() === '') {
     return null
   }
 
+  // Preprocess to remove duplicate attributes which cause @xmldom/xmldom 0.9+ to throw fatalError
+  const cleanedHtml = removeDuplicateAttributes(html)
+
   // Wrap in body tag to handle multiple root elements
   // This is needed because markdownToHTML can generate multiple top-level elements
   // (e.g., <center>...</center><hr />) which DOMParser doesn't accept without a wrapper
   // Using <body> instead of <div> prevents conflicts with <div> elements in the content
-  const doc = DOMParser.parseFromString(`<body>${html}</body>`, 'text/html')
+  const doc = DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, 'text/html')
 
   return doc
 }
