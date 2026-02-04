@@ -8,7 +8,14 @@ import type { Document } from '@xmldom/xmldom'
  */
 export function removeDuplicateAttributes(html: string): string {
   // Match opening tags with attributes, capturing optional self-closing slash
-  return html.replace(/<([a-zA-Z][a-zA-Z0-9]*)\s+([^>]*?)\s*(\/?)>/g, (match, tagName, attrsString, selfClose) => {
+  // The attribute section pattern is quote-aware to handle > inside quoted values (e.g., data-x="a > b")
+  // Pattern breakdown: (?:[^>"']+|"[^"]*"|'[^']*')* matches sequences of:
+  //   - [^>"']+ : characters that aren't >, ", or '
+  //   - "[^"]*" : double-quoted strings
+  //   - '[^']*' : single-quoted strings
+  const tagRegex = /<([a-zA-Z][a-zA-Z0-9]*)\s+((?:[^>"']+|"[^"]*"|'[^']*')*?)\s*(\/?)>/g
+
+  return html.replace(tagRegex, (match, tagName, attrsString, selfClose) => {
     const seenAttrs = new Set<string>()
     const cleanedAttrs: string[] = []
 
