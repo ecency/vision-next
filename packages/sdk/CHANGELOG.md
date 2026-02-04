@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.27
+
+### Patch Changes
+
+- Insights fix (#644)
+
 ## 1.5.26
 
 ### Patch Changes

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ status: 404 });
   }
 
-  const { url, dateRange = "all", metrics, dimensions } = await request.json();
+  const { url, date_range: dateRange = "all", metrics, dimensions } = await request.json();
 
   if (!url) {
     return Response.json({ status: 400 });

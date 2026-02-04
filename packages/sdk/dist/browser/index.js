@@ -4112,8 +4112,10 @@ function getDiscoverCurationQueryOptions(duration) {
   });
 }
 function getPageStatsQueryOptions(url, dimensions = [], metrics = ["visitors", "pageviews", "visit_duration"], dateRange) {
+  const sortedDimensions = [...dimensions].sort();
+  const sortedMetrics = [...metrics].sort();
   return queryOptions({
-    queryKey: ["analytics", "page-stats", url, dimensions, metrics, dateRange],
+    queryKey: ["analytics", "page-stats", url, sortedDimensions, sortedMetrics, dateRange],
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/api/stats", {
         method: "POST",
@@ -4133,7 +4135,9 @@ function getPageStatsQueryOptions(url, dimensions = [], metrics = ["visitors", "
       }
       return response.json();
     },
-    enabled: !!url
+    enabled: !!url,
+    // Analytics data should always be fresh - users expect current stats when changing range
+    staleTime: 0
   });
 }
 
