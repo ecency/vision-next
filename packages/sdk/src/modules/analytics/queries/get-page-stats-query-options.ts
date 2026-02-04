@@ -16,8 +16,12 @@ export function getPageStatsQueryOptions(
   metrics: string[] = ["visitors", "pageviews", "visit_duration"],
   dateRange?: string
 ) {
+  // Sort arrays to ensure stable query keys regardless of input order
+  const sortedDimensions = [...dimensions].sort();
+  const sortedMetrics = [...metrics].sort();
+
   return queryOptions({
-    queryKey: ["analytics", "page-stats", url, dimensions, metrics, dateRange],
+    queryKey: ["analytics", "page-stats", url, sortedDimensions, sortedMetrics, dateRange],
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/api/stats", {
         method: "POST",
@@ -40,5 +44,7 @@ export function getPageStatsQueryOptions(
       return response.json() as Promise<PageStatsResponse>;
     },
     enabled: !!url,
+    // Analytics data should always be fresh - users expect current stats when changing range
+    staleTime: 0,
   });
 }
