@@ -7,9 +7,10 @@ import { memo } from "react";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
 
-// Matches a Hive post URL and preserves any trailing query parameters
+// Matches a Hive post URL and preserves any trailing query parameters.
+// Supports both /@user/permlink and /category/@user/permlink (and deeper paths).
 export const HIVE_POST_PURE_REGEX =
-  /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/([^?\s]+)(?:\?[^\s]*)?/gi;
+  /^https?:\/\/[^/]+(?:\/[^@\s]+)*\/(@[\w.\d-]+)\/([^?\s]+)(?:\?[^\s]*)?/gi;
 
 function PostViewer({
   node: {
