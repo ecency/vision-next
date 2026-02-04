@@ -7,13 +7,13 @@ import type { Document } from '@xmldom/xmldom'
  * This preprocessor keeps only the first occurrence of each attribute.
  */
 export function removeDuplicateAttributes(html: string): string {
-  // Match opening tags with attributes
-  return html.replace(/<([a-zA-Z][a-zA-Z0-9]*)\s+([^>]*)>/g, (match, tagName, attrsString) => {
+  // Match opening tags with attributes, capturing optional self-closing slash
+  return html.replace(/<([a-zA-Z][a-zA-Z0-9]*)\s+([^>]*?)\s*(\/?)>/g, (match, tagName, attrsString, selfClose) => {
     const seenAttrs = new Set<string>()
     const cleanedAttrs: string[] = []
 
     // Match individual attributes (name="value", name='value', name=value, or just name)
-    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/g
+    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s/>]+))?/g
     let attrMatch
 
     while ((attrMatch = attrRegex.exec(attrsString)) !== null) {
@@ -24,7 +24,8 @@ export function removeDuplicateAttributes(html: string): string {
       }
     }
 
-    return `<${tagName} ${cleanedAttrs.join(' ')}>`
+    const attrsJoined = cleanedAttrs.length > 0 ? ` ${cleanedAttrs.join(' ')}` : ''
+    return `<${tagName}${attrsJoined}${selfClose ? ' /' : ''}>`
   })
 }
 
