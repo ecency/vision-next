@@ -9,16 +9,30 @@ export function applyHivePostLinks(
     postLinkElements
         .filter((el) => !isWaveLikePost(el.getAttribute("href") ?? ""))
         .forEach((el) => {
-            if (el.dataset.enhanced === "true") return;
-            el.dataset.enhanced = "true";
+            try {
+                if (el.dataset.enhanced === "true") return;
+                
+                // Verify element is still connected to the DOM
+                if (!el.isConnected || !el.parentElement) {
+                    console.warn("Hive post link element is not connected to DOM, skipping");
+                    return;
+                }
+                
+                el.dataset.enhanced = "true";
 
-            const link = el.getAttribute("href") ?? "";
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-hive-post-extension");
+                const link = el.getAttribute("href") ?? "";
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("ecency-renderer-hive-post-extension");
 
-            const root = createRoot(wrapper);
-            root.render(<HivePostLinkRenderer link={link} />);
+                const root = createRoot(wrapper);
+                root.render(<HivePostLinkRenderer link={link} />);
 
-            el.parentElement?.replaceChild(wrapper, el);
+                // Final safety check before replacing
+                if (el.isConnected && el.parentElement) {
+                    el.parentElement.replaceChild(wrapper, el);
+                }
+            } catch (error) {
+                console.warn("Error enhancing Hive post link element:", error);
+            }
         });
 }
