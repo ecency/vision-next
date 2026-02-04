@@ -1,5 +1,6 @@
 import { traverse } from './traverse.method'
 import { sanitizeHtml } from './sanitize-html.method'
+import { removeDuplicateAttributes } from '../helper'
 import { DOMParser, ENTITY_REGEX } from '../consts'
 import { XMLSerializer } from '@xmldom/xmldom'
 import { Remarkable } from 'remarkable'
@@ -175,7 +176,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
     // This prevents "Opening and ending tag mismatch" errors from DOMParser
     output = fixBlockLevelTagsInParagraphs(output)
 
-    const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, 'text/html')
+    const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, 'text/html')
 
     traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
 
@@ -204,7 +205,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
       const repairedHtml = domSerializer(dom.children)
 
       // Now parse the well-formed HTML with @xmldom/xmldom
-      const doc = DOMParser.parseFromString(`<body id="root">${repairedHtml}</body>`, 'text/html')
+      const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, 'text/html')
 
       traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
 
