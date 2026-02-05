@@ -46,6 +46,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${lora.variable} ${inter.variable}`}>
       <head>
+        {/*
+          Global CONFIG stub for Twitter/X in-app browser compatibility.
+          Loaded from external file to comply with CSP policies.
+          See /public/scripts/config-stub.js for details.
+        */}
+        <script src="/scripts/config-stub.js" />
         {/* Preload critical fonts for LCP optimization */}
         <link
           rel="preload"

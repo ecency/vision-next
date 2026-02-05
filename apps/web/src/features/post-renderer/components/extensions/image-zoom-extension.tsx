@@ -11,6 +11,8 @@ export function ImageZoomExtension({
   const zoomRef = useRef<Zoom>(undefined);
 
   useEffect(() => {
+    let isMounted = true; // Track mount state to prevent post-unmount zoom attachment
+
     const elements = Array.from(
         containerRef.current?.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) img"
@@ -108,8 +110,56 @@ export function ImageZoomExtension({
       });
 
       if (zoomableImages.length > 0) {
-        zoomRef.current = mediumZoom(zoomableImages);
-        zoomRef.current?.update({ background: "#131111" });
+        // Wait for all images to load before initializing zoom to ensure correct positioning
+        // This fixes the issue where images appear at the bottom of the screen on first click
+        const imageLoadPromises = zoomableImages.map((img) => {
+          return new Promise<void>((resolve) => {
+            if (img.complete && img.naturalHeight !== 0) {
+              // Image already loaded
+              resolve();
+            } else {
+              // Wait for image to load
+              img.addEventListener('load', () => resolve(), { once: true });
+              img.addEventListener('error', () => resolve(), { once: true });
+
+              // Fallback timeout in case load event never fires
+              setTimeout(() => resolve(), 3000);
+            }
+          });
+        });
+
+        Promise.all(imageLoadPromises).then(() => {
+          // Bail if component unmounted while waiting for images
+          if (!isMounted) {
+            return;
+          }
+
+          // Double-check images are still in DOM after loading
+          const connectedImages = zoomableImages.filter((img) => {
+            try {
+              return img.isConnected && img.parentNode !== null;
+            } catch {
+              return false;
+            }
+          });
+
+          if (connectedImages.length > 0) {
+            // Small delay to ensure layout is stable after image load
+            requestAnimationFrame(() => {
+              // Final check before creating zoom instance
+              if (!isMounted) {
+                return;
+              }
+
+              zoomRef.current = mediumZoom(connectedImages, {
+                background: "#131111",
+                margin: 24, // Add margin for better centering
+              });
+            });
+          }
+        }).catch((error) => {
+          console.warn("Failed to wait for images to load:", error);
+        });
       }
     } catch (error) {
       // Gracefully handle any medium-zoom initialization errors
@@ -117,9 +167,10 @@ export function ImageZoomExtension({
     }
 
     return () => {
+      isMounted = false; // Mark as unmounted to prevent async operations
       zoomRef.current?.detach();
     };
-  }, []);
+  }, [containerRef]);
 
   return <></>;
 }

@@ -110,6 +110,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
     }
 
     // Add a small delay to ensure DOM is fully rendered and stable
+    let cleanup: (() => void) | null = null;
     const timer = setTimeout(() => {
       try {
         // Re-verify the element is still safe before proceeding
@@ -118,7 +119,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
           return;
         }
 
-        setupPostEnhancements(el, {
+        cleanup = setupPostEnhancements(el, {
           onHiveOperationClick: (op) => {
             setSigningOperation(op);
           },
@@ -141,7 +142,10 @@ export function EntryPageBodyViewer({ entry }: Props) {
       }
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      cleanup?.();
+    };
   }, [isRawContent, isEdit, editHistory]);
 
   return (
