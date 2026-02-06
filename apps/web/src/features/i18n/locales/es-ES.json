@@ -3191,7 +3191,7 @@
         "error-invalid-file": "Archivo inválido. Por favor, sube un archivo de semilla válido.",
         "error-invalid-file-format": "Formato de archivo inválido. El archivo de la semilla debe contener una propiedad 'seed'.",
         "error-no-wallets": "No se han encontrado direcciones de billetera. Espere a que se complete la creación de la billetera.",
-        "existing-tokens-warning": "Esta cuenta ya tiene direcciones de cartera externas configuradas. Importar una nueva frase de semilla reemplazará las direcciones de cartera existentes. Asegúrese de que ha hecho una copia de seguridad de su frase anterior antes de continuar.",
+        "existing-tokens-warning": "Esta cuenta ya tiene direcciones de cartera externas configuradas. Importar una nueva frase de semilla reemplazará las direcciones de carteras existentes. Asegúrese de que ha hecho una copia de seguridad de su frase de semilla anterior antes de continuar.",
         "hive-keys-title": "Importar claves de Hive",
         "hive-keys-description": "Encontramos claves de Hive en tu frase de semilla. ¿Quieres importarlas a tu cuenta?",
         "hive-keys-already-added": "Estas claves ya están activas en tu cuenta.",
