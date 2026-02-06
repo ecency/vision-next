@@ -14,6 +14,15 @@ export function ChatImage({ src, alt = "Shared image", className }: ChatImagePro
   const zoomRef = useRef<Zoom | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Reset loaded state and detach zoom when src changes
+  useEffect(() => {
+    setIsLoaded(false);
+    if (zoomRef.current) {
+      zoomRef.current.detach();
+      zoomRef.current = null;
+    }
+  }, [src]);
+
   useEffect(() => {
     const img = imgRef.current;
     if (!img || !isLoaded) return;
