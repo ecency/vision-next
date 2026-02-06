@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Prywatność czatu",
+      "title": "Prywatność wiadomości bezpośredniej",
       "who-can-message": "Kto może wysyłać Ci bezpośrednie wiadomości?",
       "description": "Kontroluj, kto może wysyłać Ci bezpośrednie wiadomości, aby zapobiec próbom spamu i phishingu.",
       "allow-all": "Wszyscy",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Klucze i hasła",
       "hint": "Konto Ulowe może trzymać wiele kluczy jednocześnie, wszystkie są wymienione poniżej",
-      "add-key": "Dodaj/Zarządzaj kluczami",
+      "add-key": "Dodaj nowe klucze",
       "key-created": "Klucze zostały utworzone i przypisane pomyślnie.",
       "error-private-key-reveal": "Klucz prywatny można ujawnić tylko z hasłem głównym lub frazą seed"
     },
