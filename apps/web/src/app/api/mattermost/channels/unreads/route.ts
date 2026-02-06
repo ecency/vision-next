@@ -10,7 +10,14 @@ import * as Sentry from "@sentry/nextjs";
 interface MattermostChannel {
   id: string;
   type: string;
+  name?: string;
   total_msg_count?: number;
+}
+
+interface MattermostUser {
+  id: string;
+  username: string;
+  delete_at?: number;
 }
 
 interface MattermostChannelMember {
@@ -129,6 +136,54 @@ export async function GET() {
     const threads = threadsResult.items;
     const truncated = channelsResult.truncated || membersResult.truncated || threadsResult.truncated;
 
+    // Extract user IDs from DM channels to check for deactivated users
+    const dmChannels = allChannels.filter((ch) => ch.type === "D");
+    const dmUserIds = new Set<string>();
+    dmChannels.forEach((channel) => {
+      const parts = channel.name?.split("__") ?? [];
+      if (parts.length === 2) {
+        const otherUserId = parts.find((id) => id !== currentUser.id) || parts[0];
+        if (otherUserId) {
+          dmUserIds.add(otherUserId);
+        }
+      }
+    });
+
+    // Fetch user data to check delete_at status
+    const usersById: Record<string, MattermostUser> = {};
+    if (dmUserIds.size > 0) {
+      try {
+        const users = await mmUserFetch<MattermostUser[]>(`/users/ids`, token, {
+          method: "POST",
+          body: JSON.stringify(Array.from(dmUserIds))
+        });
+        users.forEach((user) => {
+          usersById[user.id] = user;
+        });
+      } catch {
+        // If we can't fetch users, proceed without filtering
+      }
+    }
+
+    // Set of DM channel IDs to exclude (deactivated users)
+    const excludedDmChannelIds = new Set<string>();
+    dmChannels.forEach((channel) => {
+      const parts = channel.name?.split("__") ?? [];
+      if (parts.length === 2) {
+        const otherUserId = parts.find((id) => id !== currentUser.id) || parts[0];
+        if (otherUserId) {
+          const user = usersById[otherUserId];
+          // Exclude if user is deactivated (delete_at > 0)
+          if (user && user.delete_at && user.delete_at > 0) {
+            excludedDmChannelIds.add(channel.id);
+          }
+        }
+      }
+    });
+
+    // Filter out excluded DM channels
+    const filteredChannels = allChannels.filter((ch) => !excludedDmChannelIds.has(ch.id));
+
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
       return acc;
@@ -141,7 +196,7 @@ export async function GET() {
       return acc;
     }, {});
 
-    const channelsWithCounts = allChannels.map((channel) => {
+    const channelsWithCounts = filteredChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
       const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return {

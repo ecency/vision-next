@@ -29,6 +29,7 @@ interface MattermostUser {
   last_name?: string;
   nickname?: string;
   last_picture_update?: number;
+  delete_at?: number;
 }
 
 interface MattermostChannelMemberCounts {
@@ -179,26 +180,35 @@ export async function GET() {
       }
     }
 
-    const channelsWithDirectUsers = filteredChannels.map((channel) => {
-      if (channel.type !== "D") return channel;
+    const channelsWithDirectUsers = filteredChannels
+      .map((channel) => {
+        if (channel.type !== "D") return channel;
 
-      const parts = channel.name?.split("__") ?? [];
-      const otherUserId =
-        parts.length === 2
-          ? parts.find((id) => id !== currentUser.id) || parts[0]
-          : undefined;
-      const directUser = otherUserId ? usersById[otherUserId] : undefined;
-      const member = channelMembersById[channel.id];
+        const parts = channel.name?.split("__") ?? [];
+        const otherUserId =
+          parts.length === 2
+            ? parts.find((id) => id !== currentUser.id) || parts[0]
+            : undefined;
+        const directUser = otherUserId ? usersById[otherUserId] : undefined;
+        const member = channelMembersById[channel.id];
 
-      return {
-        ...channel,
-        mention_count: member?.mention_count || 0,
-        message_count: Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0),
-        display_name: directUser ? `@${directUser.username}` : channel.display_name,
-        directUser: directUser || null,
-        last_viewed_at: member?.last_viewed_at
-      };
-    });
+        return {
+          ...channel,
+          mention_count: member?.mention_count || 0,
+          message_count: Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0),
+          display_name: directUser ? `@${directUser.username}` : channel.display_name,
+          directUser: directUser || null,
+          last_viewed_at: member?.last_viewed_at
+        };
+      })
+      // Filter out DM channels where the other user has been deactivated
+      .filter((channel) => {
+        if (channel.type !== "D") return true;
+        const directUser = (channel as typeof channel & { directUser: MattermostUser | null }).directUser;
+        // Keep channel if directUser doesn't exist (can't determine) or if they're not deactivated
+        if (!directUser) return true;
+        return !directUser.delete_at || directUser.delete_at === 0;
+      });
 
     const channelOrderFromCategories = (() => {
       const order = new Map<string, number>();
