@@ -71,6 +71,7 @@
     "more-results": "Ko'proq",
     "close": "Yopish",
     "loading": "Yuklanmoqda",
+    "validating": "Validating...",
     "stop": "To'xtash",
     "settings": "Settings",
     "confirm": "Confirm",
@@ -296,7 +297,7 @@
     "description": "So‘z erkinligi, Haqiqiy egalik, Moliyaviy erkinlik!",
     "description-2": "Hive ko‘plab ilovalarni quvvatlaydi va butunlay markazlashmagan holda butun dunyo bo‘ylab hamjamiyat a’zolari tomonidan boshqariladi. Hisobingiz orqali siz ekotizimga bevosita kirish imkoniga ega bo‘lasiz.",
     "bottom-description": "Bitta akkaunt, bitta hamyon — blokcheyndagi hamma narsani boshqarish uchun.",
-    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Imtiyozlar haqida batafsil ma'lumotni <a href=\"/faq#how-to-join\">FAQ</a> bo‘limida o‘qing",
     "username": "Foydalanuvchi nomini tanlang",
     "email": "Pochta manzilingizni kiriting",
     "ref": "Taklif qilgan foydalanuvchi (ixtiyoriy)",
@@ -864,6 +865,9 @@
     "muted-warning": "Bu kontent guruh qoidalariga rioya qilmagani uchun {{community}} moderatorlari tomonidan ovozsiz qilingan.",
     "lowrep-warning": "Bu kontent avtoring reputatsiyasi past.",
     "deleted-content-warning": "Bu kontent muallif tomonidan o'chirilgan. Siz uni Blokcheyndan ko'rishingiz mumkin ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "untitled": "Untitled",
     "comments-hidden": "Bu post muallifini ovozsiz qilgansiz.",
     "address-copy": "Linkni nusxalash",
     "address-copied": "Link nusxalandi",
@@ -1077,7 +1081,9 @@
     "go-community": "Guruh sahifasi",
     "com-mod": "Guruh moderatorlari",
     "empty-communities": "No communities here",
-    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own"
+    "empty-communities-hint": "User isn't a member of any community yet. Join one of the communities or create your own",
+    "dm-followers-only": "DMs: followers only",
+    "dm-disabled": "DMs: disabled"
   },
   "profile-info": {
     "joined": "Joined",
@@ -1131,7 +1137,7 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "check-faq": "Learn more about RC in our",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Insufficient resource credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Keys & permissions",
     "permissions-hint": "Manage your keys, control permissions over applications",
     "permissions": "Open permissions"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Chat Privacy",
+      "who-can-message": "Who can send you direct messages?",
+      "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
+      "allow-all": "Everyone",
+      "followers-only": "Only people I follow",
+      "no-one": "No one (disable DMs)"
+    },
+    "dm-privacy-updated": "DM privacy settings updated successfully",
+    "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
     "unclaimed-rewards": "Olinmagan mukofotlar",
@@ -1300,6 +1318,10 @@
       "account-value-description": "Hisobingizdagi barcha SPK aktivlari uchun taxminiy AQSh dollari qiymati",
       "larynx-locked": "LARYNX qulflangan",
       "larynx-locked-description": "Qulflangan tokenlar tarmoqdagi likvidlikni ta'minlaydi, konsensusni aniqlashga yordam beradi va nodlarni boshqaradiganlarni mukofotlaydi"
+    },
+    "setup-external": {
+      "login-required": "Login required to setup external wallets",
+      "import-login-required": "Login required to import wallet"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Mute channel",
     "unmute-channel": "Unmute channel",
     "leave-channel": "Leave channel",
+    "leave-conversation": "Leave conversation",
+    "dm-warning-title": "New conversation - Stay safe",
+    "dm-warning-body": "Be cautious with messages from unknown users. Do not click on suspicious links or share sensitive information like passwords or private keys. Verify the sender's identity before taking any action.",
+    "dm-warning-settings": "You can update your DM privacy in Settings.",
     "no-channels": "No channels assigned yet.",
     "no-channels-search": "No channels match your search.",
     "joinable-channels": "Joinable channels",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "Community chat",
     "public-key": "Public key",
     "private-key": "Private key",
-    "hide-message": "Hide message",
     "enter-private-key-detail": "Enter chat private key to import all chats",
     "message-search-results": "Message search results",
     "no-messages-found": "No messages found.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Target language",
     "pinned-messages": "Pinned messages",
     "pin-message": "Pin message",
-    "unpin-message": "Unpin message"
+    "unpin-message": "Unpin message",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "Only accepts DMs from people they follow",
+    "dm-disabled": "Has disabled direct messages"
   },
   "add-image": {
     "title": "Suratlarni qo‘shish",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Loading editor...",
     "gif-picker": "Pick GIF image",
     "description-hint": "Helps to search engine systems to find out this post",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Power Up",
       "power-down": "Power Down",
       "swap": "Swap",
+      "convert": "Convert",
       "delegate": "Delegate",
       "withdraw-saving": "Withdraw routes",
       "gift": "Gift",
@@ -3086,7 +3116,7 @@
     "keys": {
       "title": "Keys & Passwords",
       "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
-      "add-key": "Add new keys",
+      "add-key": "Add/Manage keys",
       "key-created": "Keys have created and assigned successfully.",
       "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
     },
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Authenticate",
+        "generate-seed": "Generate Seed",
+        "review-keys": "Review Keys",
+        "confirm": "Confirm"
+      },
+      "step1": {
+        "title": "Adding New Key Set",
+        "info1": "A new seed phrase will be generated for your account",
+        "info2": "You can keep multiple key sets active simultaneously",
+        "info3": "You'll have the option to revoke old keys in the next steps",
+        "authenticate": "Authenticate to Continue",
+        "error-not-owner": "The provided key is not an owner key. Please provide your owner key, master password, or seed phrase.",
+        "error-invalid-key": "Invalid private key format",
+        "error-authentication": "Authentication failed. Please check your credentials and try again.",
+        "error-credentials-not-match": "The provided credentials do not match this account. Please verify your master password, seed phrase, or owner key.",
+        "error-account-not-loaded": "Account data is still loading. Please wait a moment and try again."
+      },
+      "step2": {
+        "warning-title": "Important: Save Your New Seed Phrase",
+        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning2": "Save it separately - you'll need it to login with these keys",
+        "warning3": "Download the seed file and store it securely before continuing"
+      },
+      "step3": {
+        "title": "Review Existing Keys",
+        "description": "Select any old keys you want to revoke. You can skip this step to keep all existing keys active.",
+        "cannot-revoke-last": "Cannot revoke - this is the only key of this type",
+        "selected-count": "{{count}} key(s) selected for revocation",
+        "next-with-revoke": "Continue & Revoke Selected",
+        "next-skip": "Continue Without Revoking",
+        "will-be-replaced": "will be replaced with new key",
+        "memo-will-replace": "New memo key will replace this one",
+        "derivation-unknown": "Unknown",
+        "derivation-bip44": "BIP44 Seed",
+        "derivation-master-password": "Master Password"
+      },
+      "step4": {
+        "title": "Ready to Apply Changes",
+        "description": "Review the changes below and confirm to update your account.",
+        "adding": "Adding",
+        "new-bip44-keys": "New BIP44 seed-based keys (owner, active, posting, memo)",
+        "revoking": "Revoking",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "Applying Changes...",
+        "please-wait": "Please wait while we update your account",
+        "success": "Keys Updated Successfully!",
+        "success-description": "Your new keys have been added and selected old keys have been revoked.",
+        "error-no-keys": "No keys available to add"
+      },
+      "import": {
+        "title": "Import Existing Seed Phrase",
+        "description": "Enter your existing 12-word seed phrase to import wallet addresses and optionally Hive keys.",
+        "warning": "Never share your seed phrase with anyone. Ecency will never ask for it. Only enter it on trusted devices.",
+        "placeholder": "Enter your 12-word seed phrase separated by spaces",
+        "load-from-file": "Or load from seed file",
+        "error-word-count": "Seed phrase must be exactly 12 words",
+        "error-invalid-seed": "Invalid seed phrase. Please check and try again.",
+        "error-derive-keys": "Failed to derive keys from seed phrase",
+        "error-invalid-file": "Invalid file. Please upload a valid seed file.",
+        "error-invalid-file-format": "Invalid file format. Seed file must contain a 'seed' property.",
+        "error-no-wallets": "No wallet addresses found. Please wait for wallet creation to complete.",
+        "existing-tokens-warning": "This account already has external wallet addresses configured. Importing a new seed phrase will replace the existing wallet addresses. Make sure you have backed up your previous seed phrase before proceeding.",
+        "hive-keys-title": "Import Hive Keys",
+        "hive-keys-description": "We found Hive keys in your seed phrase. Would you like to import them to your account?",
+        "hive-keys-already-added": "These keys are already active on your account.",
+        "owner-key": "Owner Key",
+        "active-key": "Active Key",
+        "posting-key": "Posting Key",
+        "skip-hive-keys": "Skip Hive Keys",
+        "import-hive-keys": "Import Hive Keys",
+        "tokens-title": "Review Wallet Addresses",
+        "tokens-description": "These wallet addresses were derived from your seed phrase. Verify them before continuing.",
+        "sign-title": "Sign to Complete Import",
+        "success-title": "Import Successful!",
+        "success-description": "Your wallet addresses and keys have been successfully imported.",
+        "step-import-title": "Import seed phrase",
+        "step-import-description": "Enter your existing 12-word seed phrase",
+        "step-hive-keys-title": "Hive keys",
+        "step-hive-keys-description": "Optionally import Hive keys from the same seed phrase",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Review derived wallet addresses",
+        "step-sign-title": "Sign changes",
+        "step-sign-description": "Sign changes to link wallets",
+        "step-link-title": "Link wallets",
+        "step-link-description": "Finalize wallet linking to Ecency account"
+      }
     }
   }
 }
