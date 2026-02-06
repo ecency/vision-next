@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Chat-Privatsphäre",
+      "title": "Direkte Nachrichten Privatsphäre",
       "who-can-message": "Wer kann Ihnen direkte Nachrichten schicken?",
       "description": "Legen Sie fest, wer Ihnen direkte Nachrichten senden kann, um Spam und Phishing-Versuche zu verhindern.",
       "allow-all": "Alle",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Schlüssel & Passwörter",
       "hint": "Ein Hive-Konto kann mehrere Schlüssel gleichzeitig halten, die alle unten aufgelistet sind",
-      "add-key": "Schlüssel hinzufügen/verwalten",
+      "add-key": "Neue Schlüssel hinzufügen",
       "key-created": "Schlüssel wurden erfolgreich erstellt und zugewiesen.",
       "error-private-key-reveal": "Privater Schlüssel kann nur mit Masterpasswort oder Seed-Phrase angezeigt werden"
     },
