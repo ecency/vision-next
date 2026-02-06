@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Chat Privacy",
+      "title": "Direct Message Privacy",
       "who-can-message": "Who can send you direct messages?",
       "description": "Control who can send you direct messages to prevent spam and phishing attempts.",
       "allow-all": "Everyone",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Keys & Passwords",
       "hint": "A Hive account can hold multiple keys simultaneously, all of which are listed below",
-      "add-key": "Add/Manage keys",
+      "add-key": "Add new keys",
       "key-created": "Keys have created and assigned successfully.",
       "error-private-key-reveal": "Private key can be revealed only with master password or seed phrase"
     },

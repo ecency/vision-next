@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "聊天隐私",
+      "title": "直接消息隐私",
       "who-can-message": "谁可以向您发送私信？",
       "description": "控制谁可以向您发送邮件来防止垃圾邮件和钓鱼尝试。",
       "allow-all": "每个人",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "密钥和密码",
       "hint": "Hive 帐户可以同时持有多个键，所有键都列在下面：",
-      "add-key": "添加/管理密钥",
+      "add-key": "添加新密钥",
       "key-created": "密钥已成功创建和分配。",
       "error-private-key-reveal": "私钥只能通过主密码或种子短语暴露。"
     },

@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Privacy chatten",
+      "title": "Privacy directe berichten",
       "who-can-message": "Wie kan je privéberichten sturen?",
       "description": "Bepaal wie u rechtstreeks berichten kan sturen om spam en phishing pogingen te voorkomen.",
       "allow-all": "Iedereen",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Sleutels & wachtwoorden",
       "hint": "Een Hive account kan meerdere sleutels tegelijk vastleggen, die allemaal hieronder worden weergegeven",
-      "add-key": "Toevoegen/beheren van sleutels",
+      "add-key": "Voeg nieuwe sleutels toe",
       "key-created": "Toetsen hebben met succes gemaakt en toegewezen.",
       "error-private-key-reveal": "Privé sleutel kan alleen worden onthuld met hoofdwachtwoord of herstelzin"
     },
