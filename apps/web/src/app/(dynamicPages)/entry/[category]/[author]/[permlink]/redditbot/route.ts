@@ -13,6 +13,15 @@ function isEntry(x: unknown): x is Entry {
   return !!x && typeof x === "object" && "author" in (x as any) && "permlink" in (x as any) && "body" in (x as any);
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function GET(request: NextRequest, { params }: Props) {
   try {
     const { author, permlink } = await params;
@@ -39,19 +48,19 @@ export async function GET(request: NextRequest, { params }: Props) {
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>${entry.title}</title>
-    <meta name="description" content="${summary}">
-    <meta name="article:author" content="https://ecency.com/${author}">
-    <meta name="og:updated_time" content="${entry.updated}">
-    <meta property="og:title" content="${entry.title}">
-    <meta property="og:description" content="${summary}">
-    <meta property="og:url" content="${url}">
-    <meta property="og:image" content="${image}">
-    <meta property="article:published_time" content="${entry.created}">
+    <title>${escapeHtml(entry.title)}</title>
+    <meta name="description" content="${escapeHtml(summary)}">
+    <meta name="article:author" content="https://ecency.com/${escapeHtml(author)}">
+    <meta name="og:updated_time" content="${escapeHtml(entry.updated)}">
+    <meta property="og:title" content="${escapeHtml(entry.title)}">
+    <meta property="og:description" content="${escapeHtml(summary)}">
+    <meta property="og:url" content="${escapeHtml(url)}">
+    <meta property="og:image" content="${escapeHtml(image)}">
+    <meta property="article:published_time" content="${escapeHtml(entry.created)}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${entry.title}">
-    <meta name="twitter:description" content="${summary}">
-    <meta name="twitter:image" content="${image}">
+    <meta name="twitter:title" content="${escapeHtml(entry.title)}">
+    <meta name="twitter:description" content="${escapeHtml(summary)}">
+    <meta name="twitter:image" content="${escapeHtml(image)}">
   </head>
   <body>
     <main>${renderPostBody(entry, true, false, 'ecency.com', { authorReputation: accountReputation(entry.author_reputation), postPayout: entry.payout } as SeoContext)}</main>

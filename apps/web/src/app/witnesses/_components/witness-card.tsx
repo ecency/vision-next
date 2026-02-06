@@ -65,7 +65,7 @@ export const WitnessCard = ({ row, witness }: Props) => {
         </div>
       </div>
       <div className="flex items-center">
-        <b>{i18next.t("witnesses.list-miss")}: </b>
+        <b>{i18next.t("witnesses.list-fee")}: </b>
         <div className="ml-2">{row.fee}</div>
       </div>
       <div className="flex items-center my-2 justify-between">
