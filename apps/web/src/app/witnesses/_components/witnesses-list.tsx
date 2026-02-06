@@ -159,7 +159,7 @@ export function WitnessesList() {
                       <span className="witness-link">{linkSvg}</span>
                     </EntryLink>
                   ) : (
-                    <a target="_external" href={row.url} className="witness-link">
+                    <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link">
                       {openInNewSvg}
                     </a>
                   )}

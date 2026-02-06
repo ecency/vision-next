@@ -3,8 +3,9 @@ import { iframe } from './iframe.method'
 import { img } from './img.method'
 import { p } from './p.method'
 import { text } from './text.method'
+import { SeoContext } from '../types'
 
-export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain: string = 'ecency.com'): void {
+export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!node || !node.childNodes) {
     return
   }
@@ -14,7 +15,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     if (!child) return; // Child might have been removed
 
     if (child.nodeName.toLowerCase() === 'a') {
-      a(<HTMLElement>child, forApp, webp, parentDomain)
+      a(<HTMLElement>child, forApp, webp, parentDomain, seoContext)
     }
     if (child.nodeName.toLowerCase() === 'iframe') {
       iframe(<HTMLElement>child, parentDomain)
@@ -32,7 +33,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     // Recapture child reference in case handler replaced it
     const currentChild = node.childNodes[i];
     if (currentChild) {
-      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain)
+      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain, seoContext)
     }
   })
 }

@@ -1185,7 +1185,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://img.esteem.ws/bbq3ob1idy.png <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4">bar</a> <a href="http://external.com/loromoro">baz</a> #lorem @ipsum <a href=\'https://steemit.com/~witnesses\'>vote me</a>'
       }
-      const expected = '<p dir=\"auto\"><img class="markdown-img-link" src="https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMwgbeMkkd8SVxyfRVjiN.png?format=match&amp;mode=fit" loading="lazy" decoding="async" itemprop="image" /> <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-external-link" target="_blank" rel="noopener">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-post-link" data-is-inline="false">bar</a> <a href="http://external.com/loromoro" class="markdown-external-link" target="_blank" rel="noopener">baz</a><span> <a class="markdown-tag-link" href="/trending/lorem">#lorem</a> <a class="markdown-author-link" href="/@ipsum">@ipsum</a> </span><a href="https://steemit.com/~witnesses" class="markdown-external-link" target="_blank" rel="noopener">vote me</a></p>'
+      const expected = '<p dir=\"auto\"><img class="markdown-img-link" src="https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMwgbeMkkd8SVxyfRVjiN.png?format=match&amp;mode=fit" loading="lazy" decoding="async" itemprop="image" /> <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-post-link" data-is-inline="false">bar</a> <a href="http://external.com/loromoro" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">baz</a><span> <a class="markdown-tag-link" href="/trending/lorem">#lorem</a> <a class="markdown-author-link" href="/@ipsum">@ipsum</a> </span><a href="https://steemit.com/~witnesses" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">vote me</a></p>'
 
       expect(markdown2Html(input, false)).toBe(expected)
     })
@@ -1197,7 +1197,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: '[Voice: the criteria for success or failure](https://app.voice.com/post/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597)'
       }
-      const expected = '<p dir=\"auto\"><a href="https://app.voice.com/post/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597" class="markdown-external-link" target="_blank" rel="noopener">Voice: the criteria for success or failure</a></p>'
+      const expected = '<p dir=\"auto\"><a href="https://app.voice.com/post/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">Voice: the criteria for success or failure</a></p>'
 
       expect(markdown2Html(input, false)).toBe(expected)
     })
@@ -1209,7 +1209,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: '[Voice: the criteria for success or failure](https://app.voice.com/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597)'
       }
-      const expected = '<p dir=\"auto\"><a href="https://app.voice.com/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597" class="markdown-external-link" target="_blank" rel="noopener">Voice: the criteria for success or failure</a></p>'
+      const expected = '<p dir=\"auto\"><a href="https://app.voice.com/@lukestokes/voice-the-criteria-for-success-or-failure-1597453134-597" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">Voice: the criteria for success or failure</a></p>'
 
       expect(markdown2Html(input, false)).toBe(expected)
     })

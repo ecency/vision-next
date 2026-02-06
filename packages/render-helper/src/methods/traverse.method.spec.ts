@@ -21,7 +21,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
         expect(link.getAttribute('target')).toBe('_blank')
-        expect(link.getAttribute('rel')).toBe('noopener')
+        expect(link.getAttribute('rel')).toBe('nofollow ugc noopener')
       })
 
       it('should process anchor elements with forApp=true', () => {

@@ -8,6 +8,7 @@ import { linkify } from 'remarkable/linkify'
 import he from 'he'
 import * as htmlparser2 from 'htmlparser2'
 import * as domSerializerModule from 'dom-serializer'
+import { SeoContext } from '../types'
 
 const domSerializer = (domSerializerModule as any).default || domSerializerModule
 
@@ -99,7 +100,7 @@ function fixBlockLevelTagsInParagraphs(html: string): string {
   return html
 }
 
-export function markdownToHTML(input: string, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): string {
+export function markdownToHTML(input: string, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): string {
   // Internalize leofinance.io links
   input = input.replace(new RegExp("https://leofinance.io/threads/view/","g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/","g"), "/@");
@@ -178,7 +179,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
 
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, 'text/html')
 
-    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
+    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext)
 
     output = serializer.serializeToString(doc)
   } catch (error) {
@@ -207,7 +208,7 @@ export function markdownToHTML(input: string, forApp: boolean, webp: boolean, pa
       // Now parse the well-formed HTML with @xmldom/xmldom
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, 'text/html')
 
-      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain)
+      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext)
 
       output = serializer.serializeToString(doc)
     } catch (fallbackError) {

@@ -76,7 +76,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
           <Link
             href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
             target="_external"
-            rel="noopener"
+            rel="nofollow noopener"
             className="text-sm block border-b border-[--border-color] p-2 md:p-3"
           >
             <UilMapPinAlt className="w-4 h-4 mr-1" />

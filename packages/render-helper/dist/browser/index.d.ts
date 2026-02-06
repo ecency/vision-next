@@ -9,7 +9,20 @@ interface Entry {
     json_metadata?: any;
 }
 
-declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean, parentDomain?: string): string;
+/**
+ * SEO context for controlling rel attributes on external links in user-generated content.
+ *
+ * By default, all external links get rel="nofollow ugc noopener" to prevent link spam.
+ * High-quality content (high author reputation + meaningful post rewards) earns followed links.
+ */
+interface SeoContext {
+    /** Human-readable author reputation score (after accountReputation() conversion) */
+    authorReputation?: number;
+    /** Total post payout in USD */
+    postPayout?: number;
+}
+
+declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean, parentDomain?: string, seoContext?: SeoContext): string;
 
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
@@ -32,4 +45,4 @@ declare const SECTION_LIST: string[];
 
 declare function isValidPermlink(permlink: string): boolean;
 
-export { type Entry, SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+export { type Entry, SECTION_LIST, type SeoContext, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };

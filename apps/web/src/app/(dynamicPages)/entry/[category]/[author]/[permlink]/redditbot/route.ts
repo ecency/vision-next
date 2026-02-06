@@ -1,5 +1,7 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { catchPostImage, postBodySummary, renderPostBody, setProxyBase } from "@ecency/render-helper";
+import type { SeoContext } from "@ecency/render-helper";
+import { accountReputation } from "@/utils";
 import { NextRequest } from "next/server";
 import type { Entry } from "@/entities";
 
@@ -52,7 +54,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     <meta name="twitter:image" content="${image}">
   </head>
   <body>
-    <main>${renderPostBody(entry)}</main>
+    <main>${renderPostBody(entry, true, false, 'ecency.com', { authorReputation: accountReputation(entry.author_reputation), postPayout: entry.payout } as SeoContext)}</main>
   </body>
 </html>
 `,
