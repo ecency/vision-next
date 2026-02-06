@@ -1,6 +1,7 @@
 "use client";
 
 import { EcencyRenderer } from "@/features/post-renderer";
+import type { SeoContext } from "@ecency/render-helper";
 import { HTMLProps, memo, useCallback, useState } from "react";
 import { Tweet } from "react-tweet";
 import TransactionSigner from "./transactions/transaction-signer";
@@ -9,11 +10,13 @@ const MemoizedEcencyRenderer = memo(EcencyRenderer);
 
 interface Props {
   value: string;
+  seoContext?: SeoContext;
   onTagClick?: (tag: string) => void;
 }
 
 export function PostContentRenderer({
   value,
+  seoContext,
   onTagClick,
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
@@ -70,6 +73,7 @@ export function PostContentRenderer({
     <>
       <MemoizedEcencyRenderer
         value={value || ""}
+        seoContext={seoContext}
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}

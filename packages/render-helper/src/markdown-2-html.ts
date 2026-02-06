@@ -1,15 +1,15 @@
 import { makeEntryCacheKey } from './helper'
 import { cleanReply, markdownToHTML } from './methods'
 import { cacheGet, cacheSet } from './cache'
-import { Entry } from './types'
+import { Entry, SeoContext } from './types'
 
-export function markdown2Html(obj: Entry | string, forApp = true, webp = false, parentDomain: string = 'ecency.com'): string {
+export function markdown2Html(obj: Entry | string, forApp = true, webp = false, parentDomain: string = 'ecency.com', seoContext?: SeoContext): string {
   if (typeof obj === 'string') {
     const cleanedStr = cleanReply(obj)
-    return markdownToHTML(cleanedStr, forApp, webp, parentDomain)
+    return markdownToHTML(cleanedStr, forApp, webp, parentDomain, seoContext)
   }
 
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? '-webp' : ''}-${forApp ? 'app' : 'site'}-${parentDomain}`
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? '-webp' : ''}-${forApp ? 'app' : 'site'}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ''}-${seoContext.postPayout ?? ''}` : ''}`
 
   const item = cacheGet<string>(key)
   if (item) {
@@ -18,7 +18,7 @@ export function markdown2Html(obj: Entry | string, forApp = true, webp = false, 
 
   const cleanBody = cleanReply(obj.body)
 
-  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain)
+  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain, seoContext)
   cacheSet(key, res)
 
   return res

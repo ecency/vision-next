@@ -1274,7 +1274,44 @@ describe('a() method - Link Processing', () => {
 
       expect(el.getAttribute('class')).toBe('markdown-external-link')
       expect(el.getAttribute('target')).toBe('_blank')
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
+    })
+
+    it('should allow follow for high-reputation authors with significant payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, false, 'ecency.com', { authorReputation: 60, postPayout: 10 })
+
+      expect(el.getAttribute('class')).toBe('markdown-external-link')
       expect(el.getAttribute('rel')).toBe('noopener')
+    })
+
+    it('should nofollow for high-reputation authors with low payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, false, 'ecency.com', { authorReputation: 60, postPayout: 3 })
+
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
+    })
+
+    it('should nofollow for low-reputation authors with high payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, false, 'ecency.com', { authorReputation: 30, postPayout: 20 })
+
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
     })
 
     it('should prepend https to URLs without protocol', () => {

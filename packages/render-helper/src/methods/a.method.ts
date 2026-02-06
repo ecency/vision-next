@@ -32,6 +32,28 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { removeChildNodes } from './remove-child-nodes.method'
 import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink } from '../helper'
 import { createImageHTML } from "./img.method";
+import { SeoContext } from '../types'
+
+const NOFOLLOW_REPUTATION_THRESHOLD = 40;
+const FOLLOW_PAYOUT_THRESHOLD = 5;
+
+/**
+ * Determines the rel attribute for external links based on SEO context.
+ *
+ * Default: "nofollow ugc noopener" for all user-generated external links.
+ * Exception: "noopener" only (followed) when author reputation >= 40 AND post payout > $5.
+ */
+function getExternalLinkRel(seoContext?: SeoContext): string {
+  if (
+    seoContext?.authorReputation !== undefined &&
+    seoContext?.postPayout !== undefined &&
+    seoContext.authorReputation >= NOFOLLOW_REPUTATION_THRESHOLD &&
+    seoContext.postPayout > FOLLOW_PAYOUT_THRESHOLD
+  ) {
+    return 'noopener';
+  }
+  return 'nofollow ugc noopener';
+}
 
 const normalizeValue = (value?: string | null): string => (value ? value.trim() : '')
 
@@ -109,7 +131,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): void {
+export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -861,7 +883,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       el.setAttribute('class', 'markdown-internal-link');
     } else {
       el.setAttribute('target', '_blank');
-      el.setAttribute('rel', 'noopener');
+      el.setAttribute('rel', getExternalLinkRel(seoContext));
     }
     el.setAttribute('href', href)
   }

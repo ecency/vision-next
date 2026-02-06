@@ -3,6 +3,7 @@ import i18next from "i18next";
 import { accountReputation } from "@/utils";
 import { Entry } from "@/entities";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
+import type { SeoContext } from "@ecency/render-helper";
 import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
@@ -21,8 +22,12 @@ export function EntryPageCrossPostBody({ entry }: Props) {
   }
 
   const reputation = accountReputation(entry.original_entry.author_reputation);
+  const seoContext: SeoContext = {
+    authorReputation: reputation,
+    postPayout: entry.original_entry.payout
+  };
   const renderedBody = {
-    __html: renderPostBody(entry.original_entry.body, false, canUseWebp)
+    __html: renderPostBody(entry.original_entry.body, false, canUseWebp, 'ecency.com', seoContext)
   };
 
   return (

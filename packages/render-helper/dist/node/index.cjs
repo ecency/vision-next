@@ -420,6 +420,14 @@ function createImageHTML(src, isLCP, webp) {
 }
 
 // src/methods/a.method.ts
+var NOFOLLOW_REPUTATION_THRESHOLD = 40;
+var FOLLOW_PAYOUT_THRESHOLD = 5;
+function getExternalLinkRel(seoContext) {
+  if (seoContext?.authorReputation !== void 0 && seoContext?.postPayout !== void 0 && seoContext.authorReputation >= NOFOLLOW_REPUTATION_THRESHOLD && seoContext.postPayout > FOLLOW_PAYOUT_THRESHOLD) {
+    return "noopener";
+  }
+  return "nofollow ugc noopener";
+}
 var normalizeValue = (value) => value ? value.trim() : "";
 var matchesHref = (href, value) => {
   const normalizedHref = normalizeValue(href);
@@ -453,7 +461,7 @@ var addLineBreakBeforePostLink = (el, forApp, isInline) => {
     el.parentNode.insertBefore(br, el);
   }
 };
-function a(el, forApp, webp, parentDomain = "ecency.com") {
+function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -1013,7 +1021,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com") {
       el.setAttribute("class", "markdown-internal-link");
     } else {
       el.setAttribute("target", "_blank");
-      el.setAttribute("rel", "noopener");
+      el.setAttribute("rel", getExternalLinkRel(seoContext));
     }
     el.setAttribute("href", href);
   }
@@ -1302,7 +1310,7 @@ function text(node, forApp, webp) {
 }
 
 // src/methods/traverse.method.ts
-function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain = "ecency.com") {
+function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext) {
   if (!node || !node.childNodes) {
     return;
   }
@@ -1310,7 +1318,7 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
     const child = node.childNodes[i];
     if (!child) return;
     if (child.nodeName.toLowerCase() === "a") {
-      a(child, forApp, webp, parentDomain);
+      a(child, forApp, webp, parentDomain, seoContext);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
       iframe(child, parentDomain);
@@ -1326,7 +1334,7 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
     }
     const currentChild = node.childNodes[i];
     if (currentChild) {
-      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain);
+      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain, seoContext);
     }
   });
 }
@@ -1377,7 +1385,7 @@ function fixBlockLevelTagsInParagraphs(html) {
   html = html.replace(/<p><br>\s*<\/p>/g, "");
   return html;
 }
-function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
+function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com", seoContext) {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
@@ -1437,7 +1445,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
     output = md.render(input);
     output = fixBlockLevelTagsInParagraphs(output);
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, "text/html");
-    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
+    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext);
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
@@ -1450,7 +1458,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
       });
       const repairedHtml = domSerializer(dom.children);
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, "text/html");
-      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
+      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
       const escapedContent = he2__default.default.encode(output || md.render(input));
@@ -1478,18 +1486,18 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.com") {
+function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.com", seoContext) {
   if (typeof obj === "string") {
     const cleanedStr = cleanReply(obj);
-    return markdownToHTML(cleanedStr, forApp, webp, parentDomain);
+    return markdownToHTML(cleanedStr, forApp, webp, parentDomain, seoContext);
   }
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}-${parentDomain}`;
+  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
   const cleanBody = cleanReply(obj.body);
-  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain);
+  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain, seoContext);
   cacheSet(key, res);
   return res;
 }
