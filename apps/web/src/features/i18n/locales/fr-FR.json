@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Confidentialité du chat",
+      "title": "Confidentialité du message direct",
       "who-can-message": "Qui peut vous envoyer des messages directs ?",
       "description": "Contrôlez qui peut vous envoyer des messages directs pour prévenir les tentatives de spam et d'hameçonnage.",
       "allow-all": "Tout le monde",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Clés et mots de passe",
       "hint": "Un compte Hive peut contenir plusieurs clés en même temps, toutes sont listées ci-dessous",
-      "add-key": "Ajouter/Gérer les clés",
+      "add-key": "Ajouter de nouvelles clés",
       "key-created": "Les clés ont été créées et assignées avec succès.",
       "error-private-key-reveal": "La clé privée ne peut être révélée qu'avec un mot de passe maître ou une phrase de graine"
     },
