@@ -1,11 +1,9 @@
 'use client';
 
-import { useAuth } from '../hooks';
+import { loginWithHivesigner } from '../auth-actions';
 import { LoginMethodButton } from './login-method-button';
 
 export function HivesignerLogin() {
-  const { loginWithHivesigner } = useAuth();
-
   return (
     <LoginMethodButton
       icon={<HivesignerIcon />}
