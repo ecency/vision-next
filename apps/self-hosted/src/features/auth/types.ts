@@ -1,4 +1,4 @@
-export type AuthMethod = 'hivesigner' | 'keychain' | 'hiveauth';
+export type AuthMethod = "hivesigner" | "keychain" | "hiveauth";
 
 export interface AuthUser {
   username: string;
@@ -17,7 +17,6 @@ export interface AuthConfig {
 export interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
   isAuthEnabled: boolean;
   availableMethods: AuthMethod[];
   isBlogOwner: boolean;

@@ -23,8 +23,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { user, setUser, session, setSession } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser, setSession } = useAuthStore();
 
   // Get auth config
   const authConfig = InstanceConfigManager.getConfigValue(
@@ -104,20 +103,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       user: user ?? null,
       isAuthenticated: !!user,
-      isLoading,
       isAuthEnabled,
       availableMethods,
       isBlogOwner,
       isSessionExpiringSoon,
     }),
-    [
-      user,
-      isLoading,
-      isAuthEnabled,
-      availableMethods,
-      isBlogOwner,
-      isSessionExpiringSoon,
-    ]
+    [user, isAuthEnabled, availableMethods, isBlogOwner, isSessionExpiringSoon]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -3,9 +3,10 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Operation } from "@hiveio/dhive";
 import { useMutation } from "@tanstack/react-query";
 import { createPermlink } from "../utils/permlink";
+import { broadcast } from "@/features/auth/auth-actions";
 
 export function usePublishPost() {
-  const { broadcast, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   return useMutation({
