@@ -1,74 +1,66 @@
 import { useCallback } from "react";
-import { useLocalStorage } from "react-use";
+import { useSynchronizedLocalStorage } from "@/utils/use-synchronized-local-storage";
 
-const STORAGE_KEY = "publish-draft";
-
-interface PublishDraft {
-  title: string;
-  content: string;
-  tags: string[];
-}
+const STORAGE_KEY_PREFIX = "publish-draft";
+const KEY_TITLE = `${STORAGE_KEY_PREFIX}-title`;
+const KEY_BODY = `${STORAGE_KEY_PREFIX}-body`;
+const KEY_TAGS = `${STORAGE_KEY_PREFIX}-tags`;
 
 const MAX_TITLE_LENGTH = 255;
 const MAX_TAG_LENGTH = 24;
 
-const defaultDraft: PublishDraft = {
-  title: "",
-  content: "",
-  tags: [],
-};
+const defaultTitle = "";
+const defaultBody = "";
+const defaultTags: string[] = [];
 
 export function usePublishState() {
-  const [draft, setDraft, removeDraft] = useLocalStorage<PublishDraft>(
-    STORAGE_KEY,
-    defaultDraft,
+  const [title, setTitle] = useSynchronizedLocalStorage<string>(
+    KEY_TITLE,
+    defaultTitle,
+  );
+  const [content, setContent] = useSynchronizedLocalStorage<string>(
+    KEY_BODY,
+    defaultBody,
+  );
+  const [tags, setTags] = useSynchronizedLocalStorage<string[]>(
+    KEY_TAGS,
+    defaultTags,
   );
 
-  // Wrapper for setTitleState with validation
   const setTitleState = useCallback(
     (value: string) => {
-      setDraft((prev) => ({
-        ...(prev ?? defaultDraft),
-        title: value.slice(0, MAX_TITLE_LENGTH),
-      }));
+      setTitle(value.slice(0, MAX_TITLE_LENGTH));
     },
-    [setDraft],
+    [setTitle]
   );
 
-  // Wrapper for setContentState
   const setContentState = useCallback(
     (value: string) => {
-      setDraft((prev) => ({
-        ...(prev ?? defaultDraft),
-        content: value,
-      }));
+      setContent(value);
     },
-    [setDraft],
+    [setContent]
   );
 
-  // Wrapper for setTagsState with validation
   const setTagsState = useCallback(
     (value: string[]) => {
       const sanitized = value
         .map((tag) => tag.slice(0, MAX_TAG_LENGTH).trim())
         .filter((tag) => tag.length > 0);
-      const unique = Array.from(new Set(sanitized));
-      setDraft((prev) => ({
-        ...(prev ?? defaultDraft),
-        tags: unique,
-      }));
+      setTags(Array.from(new Set(sanitized)));
     },
-    [setDraft],
+    [setTags]
   );
 
   const clearAll = useCallback(() => {
-    removeDraft();
-  }, [removeDraft]);
+    setTitle(defaultTitle);
+    setContent(defaultBody);
+    setTags(defaultTags);
+  }, [setTitle, setContent, setTags]);
 
   return {
-    title: draft?.title ?? "",
-    content: draft?.content ?? "",
-    tags: draft?.tags ?? [],
+    title,
+    content,
+    tags,
     setTitleState,
     setContentState,
     setTagsState,

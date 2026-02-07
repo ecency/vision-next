@@ -17,16 +17,24 @@ export function PublishActionBar({ onSuccess }: Props) {
   } = usePublishPost();
   const navigate = useNavigate();
 
+  const safeTitle = title ?? "";
+  const safeContent = content ?? "";
+  const safeTags = tags ?? [];
+
   const canPublish =
-    title.trim().length > 0 &&
-    content.trim().length > 0 &&
-    tags.length > 0;
+    safeTitle.trim().length > 0 &&
+    safeContent.trim().length > 0 &&
+    safeTags.length > 0;
 
   const handlePublish = async () => {
     if (!canPublish || isPublishing) return;
 
     try {
-      await publishPost({ title, body: content, tags });
+      await publishPost({
+        title: safeTitle,
+        body: safeContent,
+        tags: safeTags,
+      });
       clearAll();
 
       // Redirect to blog page after successful publish

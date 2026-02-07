@@ -116,8 +116,8 @@ importers:
         specifier: ^11.18.2
         version: 11.18.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       hivesigner:
-        specifier: ^3.3.4
-        version: 3.3.4
+        specifier: ^3.3.5
+        version: 3.3.5
       marked:
         specifier: ^12.0.0
         version: 12.0.2
@@ -6315,6 +6315,9 @@ packages:
 
   hivesigner@3.3.4:
     resolution: {integrity: sha512-n+fpsmc3FvkwXwhSTHJgChq97YeL2bEcJz/Awn9o+boFnIxqrxg4Y3i4sMMR8j+kJnwDV9c5JIMF4zQVxPSPJQ==}
+
+  hivesigner@3.3.5:
+    resolution: {integrity: sha512-3WMOfNQHTvs2s06pTAwEvfT9XoOy6CfITvklbxYxP0L+Hp4psugoU/GFNijzsZmf0tQCFvT+PHYJ75PMobp02Q==}
 
   hmac-drbg@1.0.1:
     resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
@@ -16645,6 +16648,14 @@ snapshots:
       url-parse: 1.5.10
 
   hivesigner@3.3.4:
+    dependencies:
+      '@babel/runtime': 7.28.4
+      cross-fetch: 3.2.0
+      hive-uri: 0.2.8
+    transitivePeerDependencies:
+      - encoding
+
+  hivesigner@3.3.5:
     dependencies:
       '@babel/runtime': 7.28.4
       cross-fetch: 3.2.0

@@ -22,7 +22,7 @@ export function PublishEditor({ editor }: Props) {
     >
       <input
         type="text"
-        className="text-3xl w-full px-4 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+        className="text-3xl w-full px-3 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
         placeholder="Post title..."
         value={title}
         onChange={(e) => setTitleState(e.target.value)}
@@ -35,12 +35,12 @@ export function PublishEditor({ editor }: Props) {
         }}
       />
       <PublishTagsSelector tags={tags} onChange={setTagsState} />
-      <div className="border-y border-gray-200 dark:border-gray-700 sticky top-[60px] md:top-[76px] -mx-2 z-10 bg-white dark:bg-gray-800">
+      <div className="border-y border-gray-200 dark:border-gray-700 sticky top-[60px] md:top-[76px] z-10 bg-white dark:bg-gray-800">
         <PublishEditorToolbar editor={editor} />
       </div>
       <EditorContent
         editor={editor}
-        className="markdown-body p-4 md:p-6 xl:p-8 min-h-[400px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:focus:outline-none"
+        className="markdown-body px-3 py-4 md:py-6 xl:py-8 min-h-[400px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:focus:outline-none"
       />
     </motion.div>
   );

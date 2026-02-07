@@ -17,7 +17,7 @@ const specialCharMap: Record<string, string> = {
 
 const specialCharRegex = new RegExp(
   `[${Object.keys(specialCharMap).join("")}]`,
-  "g",
+  "g"
 );
 
 function sanitizeTagInput(input: string): string {
@@ -25,7 +25,7 @@ function sanitizeTagInput(input: string): string {
   const lowerCased = normalized.toLowerCase();
   const transliterated = lowerCased.replace(
     specialCharRegex,
-    (char) => specialCharMap[char] ?? "",
+    (char) => specialCharMap[char] ?? ""
   );
   return transliterated
     .replace(/[,#]/g, " ")
@@ -82,7 +82,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       setValue("");
       return true;
     },
-    [tags, onChange, validateTag],
+    [tags, onChange, validateTag]
   );
 
   const removeTag = useCallback(
@@ -90,7 +90,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       onChange(tags.filter((t) => t !== tag));
       setWarning("");
     },
-    [tags, onChange],
+    [tags, onChange]
   );
 
   const handleKeyDown = useCallback(
@@ -105,7 +105,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
         addTag(value);
       }
     },
-    [value, addTag, tags, removeTag],
+    [value, addTag, tags, removeTag]
   );
 
   const handleChange = useCallback(
@@ -114,7 +114,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       setValue(sanitized);
       if (warning) setWarning("");
     },
-    [warning],
+    [warning]
   );
 
   const handlePaste = useCallback(
@@ -131,7 +131,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       onChange(next.slice(0, MAX_TAGS));
       setValue("");
     },
-    [tags, onChange],
+    [tags, onChange]
   );
 
   return (
@@ -155,6 +155,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
         ))}
         {tags.length < MAX_TAGS && (
           <input
+            tabIndex={0}
             type="text"
             value={value}
             onChange={handleChange}
