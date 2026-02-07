@@ -3,6 +3,7 @@
 import { Link } from '@tanstack/react-router';
 import clsx from 'clsx';
 import { useCallback, useRef, useState, useEffect } from 'react';
+import { logout } from '../auth-actions';
 import { useAuth, useIsAuthenticated, useIsAuthEnabled } from '../hooks';
 import { t } from '@/core';
 
@@ -11,7 +12,7 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ className }: UserMenuProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const isAuthEnabled = useIsAuthEnabled();
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +33,7 @@ export function UserMenu({ className }: UserMenuProps) {
   const handleLogout = useCallback(() => {
     logout();
     setIsOpen(false);
-  }, [logout]);
+  }, []);
 
   // If auth is disabled, don't show anything
   if (!isAuthEnabled) {

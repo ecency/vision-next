@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as PublishRouteImport } from './routes/publish'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BlogRouteRouteImport } from './routes/blog/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as CategoryAuthorPermlinkRouteImport } from './routes/$category.$
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublishRoute = PublishRouteImport.update({
+  id: '/publish',
+  path: '/publish',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
   '/login': typeof LoginRoute
+  '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
   '/login': typeof LoginRoute
+  '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
   '/login': typeof LoginRoute
+  '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/login'
+    | '/publish'
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/login'
+    | '/publish'
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/login'
+    | '/publish'
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BlogRouteRoute: typeof BlogRouteRoute
   LoginRoute: typeof LoginRoute
+  PublishRoute: typeof PublishRoute
   SearchRoute: typeof SearchRoute
   AuthorPermlinkRoute: typeof AuthorPermlinkRoute
   CategoryAuthorPermlinkRoute: typeof CategoryAuthorPermlinkRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publish': {
+      id: '/publish'
+      path: '/publish'
+      fullPath: '/publish'
+      preLoaderRoute: typeof PublishRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BlogRouteRoute: BlogRouteRoute,
   LoginRoute: LoginRoute,
+  PublishRoute: PublishRoute,
   SearchRoute: SearchRoute,
   AuthorPermlinkRoute: AuthorPermlinkRoute,
   CategoryAuthorPermlinkRoute: CategoryAuthorPermlinkRoute,

@@ -2,7 +2,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../hooks';
+import { login } from '../auth-actions';
 import { LoginMethodButton } from './login-method-button';
 
 interface HiveAuthLoginProps {
@@ -11,7 +11,6 @@ interface HiveAuthLoginProps {
 }
 
 export function HiveAuthLogin({ onSuccess, onError }: HiveAuthLoginProps) {
-  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [showInput, setShowInput] = useState(false);
@@ -67,7 +66,7 @@ export function HiveAuthLogin({ onSuccess, onError }: HiveAuthLoginProps) {
     } finally {
       setLoading(false);
     }
-  }, [username, login, onSuccess, onError, status]);
+  }, [username, onSuccess, onError, status]);
 
   const handleCancel = () => {
     setShowInput(false);

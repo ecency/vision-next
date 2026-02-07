@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../hooks';
+import { login } from '../auth-actions';
 import { isKeychainAvailable } from '../utils/keychain';
 import { LoginMethodButton } from './login-method-button';
 
@@ -11,7 +11,6 @@ interface KeychainLoginProps {
 }
 
 export function KeychainLogin({ onSuccess, onError }: KeychainLoginProps) {
-  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [showInput, setShowInput] = useState(false);
