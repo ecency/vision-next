@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { usePublishState } from "../hooks/use-publish-state";
 import { usePublishPost } from "../hooks/use-publish-post";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 
 interface Props {
@@ -15,7 +15,6 @@ export function PublishActionBar({ onSuccess }: Props) {
     isPending: isPublishing,
     error,
   } = usePublishPost();
-  const navigate = useNavigate();
 
   const safeTitle = title ?? "";
   const safeContent = content ?? "";
@@ -36,10 +35,6 @@ export function PublishActionBar({ onSuccess }: Props) {
         tags: safeTags,
       });
       clearAll();
-
-      // Redirect to blog page after successful publish
-      navigate({ to: "/blog", search: { filter: "posts" } });
-
       onSuccess?.();
     } catch (err) {
       // Error is handled by usePublishPost hook

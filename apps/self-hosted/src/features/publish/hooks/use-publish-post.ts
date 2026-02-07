@@ -1,10 +1,12 @@
 import { useAuth } from "@/features/auth/hooks";
+import { useNavigate } from "@tanstack/react-router";
 import type { Operation } from "@hiveio/dhive";
 import { useMutation } from "@tanstack/react-query";
 import { createPermlink } from "../utils/permlink";
 
 export function usePublishPost() {
   const { broadcast, user } = useAuth();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationKey: ["publish-post"],
@@ -62,6 +64,9 @@ export function usePublishPost() {
       await broadcast([postOp]);
 
       return { success: true, permlink };
+    },
+    onSuccess: () => {
+      navigate({ to: "/blog", search: { filter: "posts" } });
     },
   });
 }
