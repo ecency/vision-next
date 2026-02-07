@@ -26,11 +26,14 @@ const TwitterFallback: React.FC<{ id: string }> = ({ id }) => {
     }, `Failed to load tweet. View on Twitter: https://twitter.com/i/status/${id}`);
 };
 
+/**
+ * Setup post enhancements (image zoom, links, embeds, etc.)
+ * Returns a cleanup function that should be called when the container is removed.
+ */
 export function setupPostEnhancements(container: HTMLElement, options?: {
     onHiveOperationClick?: (op: string) => void,
     TwitterComponent?: any
-}) {
-    applyImageZoom(container);
+}): () => void {
     const postLinkElements = findPostLinkElements(container);
 
     applyHivePostLinks(container, postLinkElements);
@@ -40,6 +43,17 @@ export function setupPostEnhancements(container: HTMLElement, options?: {
     applyYoutubeVideos(container);
     applyThreeSpeakVideos(container);
     applyWaveLikePosts(container, postLinkElements);
-
     applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback);
+
+    // Apply image zoom and store the promise for cleanup
+    const zoomPromise = applyImageZoom(container);
+
+    // Return cleanup function
+    return () => {
+        zoomPromise.then((zoom) => {
+            zoom?.detach();
+        }).catch(() => {
+            // Ignore cleanup errors
+        });
+    };
 }

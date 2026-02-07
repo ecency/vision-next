@@ -1,7 +1,7 @@
 import { AssetOperation } from "@/modules/assets";
 import { getQueryClient } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
-import { getVisionPortfolioQueryOptions } from "./get-vision-portfolio-query-options";
+import { getVisionPortfolioQueryOptions, VisionPortfolioResponse, VisionPortfolioWalletItem } from "./get-vision-portfolio-query-options";
 
 export function getTokenOperationsQueryOptions(
   token: string,
@@ -15,16 +15,16 @@ export function getTokenOperationsQueryOptions(
       const queryClient = getQueryClient();
       const normalizedToken = token.toUpperCase();
 
-      if (!username) {
+      if (!username || !isForOwner) {
         return [] as AssetOperation[];
       }
 
       try {
-        const portfolio = await queryClient.fetchQuery(
+        const portfolio: VisionPortfolioResponse = await queryClient.fetchQuery(
           getVisionPortfolioQueryOptions(username, currency)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem) => assetItem.symbol.toUpperCase() === normalizedToken
+          (assetItem: VisionPortfolioWalletItem) => assetItem.symbol.toUpperCase() === normalizedToken
         );
 
         if (!assetEntry) {
@@ -32,9 +32,9 @@ export function getTokenOperationsQueryOptions(
         }
 
         // Extract action IDs and map to AssetOperation enums
-        const rawActions = assetEntry.actions ?? [];
+        const rawActions: Array<{ id: string; [key: string]: unknown }> = assetEntry.actions ?? [];
         const operations: AssetOperation[] = rawActions
-          .map((action) => {
+          .map((action: { id: string; [key: string]: unknown } | string) => {
             // Extract the id field from action object
             if (typeof action === "string") return action;
             if (action && typeof action === "object") {
@@ -43,8 +43,8 @@ export function getTokenOperationsQueryOptions(
             }
             return undefined;
           })
-          .filter((id): id is string => Boolean(id))
-          .map((id) => {
+          .filter((id: string | undefined): id is string => Boolean(id))
+          .map((id: string) => {
             // Normalize: underscores to hyphens, lowercase
             const canonical = id.trim().toLowerCase().replace(/[\s_]+/g, "-");
 
@@ -129,9 +129,9 @@ export function getTokenOperationsQueryOptions(
             );
             return directMatch;
           })
-          .filter((op): op is AssetOperation => Boolean(op))
+          .filter((op: AssetOperation | undefined): op is AssetOperation => Boolean(op))
           // Remove duplicates - API may return multiple actions that map to same operation
-          .filter((op, index, self) => self.indexOf(op) === index);
+          .filter((op: AssetOperation, index: number, self: AssetOperation[]) => self.indexOf(op) === index);
 
         const isHiveOrHbd = ["HIVE", "HBD"].includes(normalizedToken);
         // Check if there's a non-zero savings balance

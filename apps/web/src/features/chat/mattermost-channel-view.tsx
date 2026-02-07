@@ -60,6 +60,7 @@ import { MessageItem } from "./components/message-item";
 import { MessageList, type PostItem } from "./components/message-list";
 import { MattermostWebSocket } from "./mattermost-websocket";
 import { DmWarningBanner } from "./components/dm-warning-banner";
+import { ChatImage } from "./components/chat-image";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import {
@@ -1217,10 +1218,9 @@ export function MattermostChannelView({ channelId }: Props) {
             if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
               const proxied = getProxiedImageUrl(trimmedText);
               return (
-                <img
+                <ChatImage
                   src={proxied}
                   alt="Shared image"
-                  className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
                 />
               );
             }
@@ -1242,10 +1242,9 @@ export function MattermostChannelView({ channelId }: Props) {
               const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
 
               return (
-                <img
+                <ChatImage
                   src={proxied}
                   alt={alt}
-                  className="max-h-80 rounded border border-[--border-color] object-contain"
                 />
               );
             }
@@ -1276,13 +1275,10 @@ export function MattermostChannelView({ channelId }: Props) {
                 const proxied = getProxiedImageUrl(href);
 
                 return (
-                  <a href={href} target="_blank" rel="noreferrer" className="inline-block max-w-full">
-                    <img
-                      src={proxied}
-                      alt={childText || "Shared image"}
-                      className="max-h-80 max-w-full rounded border border-[--border-color] object-contain"
-                    />
-                  </a>
+                  <ChatImage
+                    src={proxied}
+                    alt={childText || "Shared image"}
+                  />
                 );
               }
 

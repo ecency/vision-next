@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.5.27
+
+### Patch Changes
+
+- Insights fix (#644)
+
+## 1.5.26
+
+### Patch Changes
+
+- Fix insights (#642)
+
+## 1.5.25
+
+### Patch Changes
+
+- Missing methods on SDK (#641)
+
+## 1.5.24
+
+### Patch Changes
+
+- Improve sdk and bug fixes (#639)
+
+## 1.5.23
+
+### Patch Changes
+
+- Version bump (#638)
+
 ## 1.5.22
 
 ### Patch Changes

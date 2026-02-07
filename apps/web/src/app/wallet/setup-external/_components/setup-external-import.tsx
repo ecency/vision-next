@@ -21,6 +21,7 @@ import {
   UilArrowUpRight,
   UilBitcoinSign,
   UilCheckCircle,
+  UilExclamationTriangle,
   UilFileImport,
   UilLock,
   UilSpinner,
@@ -94,6 +95,25 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
   const { data: tokens } = useWalletsCacheQuery(username);
   const { data: account } = useQuery(getAccountFullQueryOptions(username));
+
+  const allWalletsDerived = useMemo(() => {
+    if (!tokens) return false;
+    return TOKENS.every((currency) => {
+      const wallet = tokens.get(currency);
+      return wallet && Boolean(wallet.address);
+    });
+  }, [tokens]);
+
+  const hasExistingChainTokens = useMemo(() => {
+    const profileTokens = account?.profile?.tokens;
+    if (!profileTokens || !Array.isArray(profileTokens)) return false;
+    return profileTokens.some(
+      (t) =>
+        t.type === "CHAIN" ||
+        Object.values(EcencyWalletCurrency).includes(t.symbol as EcencyWalletCurrency)
+    );
+  }, [account]);
+
   const authContext = useMemo(() => getSdkAuthContext(getUser(username)), [username]);
 
   const { mutateAsync: saveKeys, isPending: isSavingKeys } = useAccountUpdateKeyAuths(username, {
@@ -127,18 +147,30 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         return;
       }
 
-      try {
-        // Try to parse as JSON first (seed file format)
-        const json = JSON.parse(content);
-        if (json.seed && typeof json.seed === "string") {
-          setSeedPhrase(json.seed.trim());
-        } else {
-          error(i18next.t("permissions.add-keys.import.error-invalid-file-format"));
-          return;
+      // Try different file formats
+      let extractedSeed: string | null = null;
+
+      // 1. Try Ecency seed file format (Seed: <seed phrase>)
+      const seedMatch = content.match(/^Seed:\s*(.+?)$/m);
+      if (seedMatch && seedMatch[1]) {
+        extractedSeed = seedMatch[1].trim();
+      } else {
+        // 2. Try JSON format
+        try {
+          const json = JSON.parse(content);
+          if (json.seed && typeof json.seed === "string") {
+            extractedSeed = json.seed.trim();
+          }
+        } catch {
+          // 3. Fall back to treating entire content as seed phrase
+          extractedSeed = content.trim();
         }
-      } catch {
-        // If JSON parsing fails, assume it's plain text seed
-        setSeedPhrase(content.trim());
+      }
+
+      if (extractedSeed) {
+        setSeedPhrase(extractedSeed);
+      } else {
+        error(i18next.t("permissions.add-keys.import.error-invalid-file-format"));
       }
     };
     reader.readAsText(file);
@@ -197,6 +229,13 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         setStep("sign");
         return;
       }
+
+      if (!hiveKeys) {
+        error("[Wallets] Missing derived Hive keys.");
+        setStep("sign");
+        return;
+      }
+
       setStep("link");
 
       try {
@@ -220,7 +259,7 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
         await saveTokens(entriesWithAddresses.map(([, info]) => info));
 
         // Import Hive keys if user chose to
-        if (importHiveKeys && hiveKeys) {
+        if (importHiveKeys) {
           await saveKeys({
             keepCurrent: true,
             currentKey,
@@ -237,16 +276,12 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
 
         await saveToPrivateApi({
           tokens: walletAddresses,
-          ...(importHiveKeys && hiveKeys
-            ? {
-                hiveKeys: {
-                  ownerPublicKey: hiveKeys.ownerPubkey,
-                  activePublicKey: hiveKeys.activePubkey,
-                  postingPublicKey: hiveKeys.postingPubkey,
-                  memoPublicKey: hiveKeys.memoPubkey
-                }
-              }
-            : {})
+          hiveKeys: {
+            ownerPublicKey: hiveKeys.ownerPubkey,
+            activePublicKey: hiveKeys.activePubkey,
+            postingPublicKey: hiveKeys.postingPubkey,
+            memoPublicKey: hiveKeys.memoPubkey
+          }
         });
         setStep("success");
       } catch (err) {
@@ -285,6 +320,15 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
             <div className="opacity-50 mb-4">
               {i18next.t("permissions.add-keys.import.description")}
             </div>
+
+            {hasExistingChainTokens && (
+              <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4 flex items-start gap-3">
+                <UilExclamationTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
+                <div className="text-sm text-orange-800 dark:text-orange-200">
+                  {i18next.t("permissions.add-keys.import.existing-tokens-warning")}
+                </div>
+              </div>
+            )}
 
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
               <div className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -408,7 +452,11 @@ function SetupExternalImportInner({ username, onBack }: Props & { username: stri
               >
                 {i18next.t("g.back")}
               </Button>
-              <Button icon={<UilArrowRight />} onClick={() => setStep("sign")}>
+              <Button
+                icon={<UilArrowRight />}
+                onClick={() => setStep("sign")}
+                disabled={!allWalletsDerived}
+              >
                 {i18next.t("g.continue")}
               </Button>
             </div>

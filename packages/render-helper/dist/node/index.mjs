@@ -164,10 +164,11 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var lenientErrorHandler = (level, msg) => {
-  if (process.env.NODE_ENV === "development" && level === "fatalError") {
+var lenientErrorHandler = (level, msg, context) => {
+  if (process.env.NODE_ENV === "development") {
     console.warn("[DOMParser]", level, msg);
   }
+  return void 0;
 };
 var DOMParser = new DOMParser$1({
   // Use onError instead of deprecated errorHandler
@@ -176,11 +177,30 @@ var DOMParser = new DOMParser$1({
 });
 
 // src/helper.ts
+function removeDuplicateAttributes(html) {
+  const tagRegex = /<([a-zA-Z][a-zA-Z0-9]*)\s+((?:[^>"']+|"[^"]*"|'[^']*')*?)\s*(\/?)>/g;
+  return html.replace(tagRegex, (match, tagName, attrsString, selfClose) => {
+    const seenAttrs = /* @__PURE__ */ new Set();
+    const cleanedAttrs = [];
+    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s/>]+))?/g;
+    let attrMatch;
+    while ((attrMatch = attrRegex.exec(attrsString)) !== null) {
+      const attrName = attrMatch[1].toLowerCase();
+      if (!seenAttrs.has(attrName)) {
+        seenAttrs.add(attrName);
+        cleanedAttrs.push(attrMatch[0]);
+      }
+    }
+    const attrsJoined = cleanedAttrs.length > 0 ? ` ${cleanedAttrs.join(" ")}` : "";
+    return `<${tagName}${attrsJoined}${selfClose ? " /" : ""}>`;
+  });
+}
 function createDoc(html) {
   if (html.trim() === "") {
     return null;
   }
-  const doc = DOMParser.parseFromString(`<body>${html}</body>`, "text/html");
+  const cleanedHtml = removeDuplicateAttributes(html);
+  const doc = DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, "text/html");
   return doc;
 }
 function makeEntryCacheKey(entry) {
@@ -1387,7 +1407,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
   try {
     output = md.render(input);
     output = fixBlockLevelTagsInParagraphs(output);
-    const doc = DOMParser.parseFromString(`<body id="root">${output}</body>`, "text/html");
+    const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, "text/html");
     traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
     output = serializer.serializeToString(doc);
   } catch (error) {
@@ -1400,7 +1420,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com") {
         lowerCaseAttributeNames: false
       });
       const repairedHtml = domSerializer(dom.children);
-      const doc = DOMParser.parseFromString(`<body id="root">${repairedHtml}</body>`, "text/html");
+      const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, "text/html");
       traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {

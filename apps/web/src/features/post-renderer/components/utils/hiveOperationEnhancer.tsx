@@ -12,18 +12,32 @@ export function applyHiveOperations(
     )
         .filter((el) => el.innerText.startsWith("hive://sign/op/"))
         .forEach((el) => {
-            if (el.dataset.enhanced === "true") return;
-            el.dataset.enhanced = "true";
+            try {
+                if (el.dataset.enhanced === "true") return;
+                
+                // Verify element is still connected to the DOM
+                if (!el.isConnected || !el.parentElement) {
+                    console.warn("Hive operation element is not connected to DOM, skipping");
+                    return;
+                }
+                
+                el.dataset.enhanced = "true";
 
-            const op = el.innerText.replace("hive://sign/op/", "");
+                const op = el.innerText.replace("hive://sign/op/", "");
 
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-hive-operation-extension");
-            wrapper.addEventListener("click", () => onClick?.(op));
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("ecency-renderer-hive-operation-extension");
+                wrapper.addEventListener("click", () => onClick?.(op));
 
-            const root = createRoot(wrapper);
-            root.render(<HiveOperationRenderer op={op} />);
+                const root = createRoot(wrapper);
+                root.render(<HiveOperationRenderer op={op} />);
 
-            el.parentElement?.replaceChild(wrapper, el);
+                // Final safety check before replacing
+                if (el.isConnected && el.parentElement) {
+                    el.parentElement.replaceChild(wrapper, el);
+                }
+            } catch (error) {
+                console.warn("Error enhancing Hive operation element:", error);
+            }
         });
 }

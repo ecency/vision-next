@@ -3,8 +3,9 @@ import { AssetOperation } from "@ecency/wallets";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";
-import { HTMLProps, PropsWithChildren, useEffect, useMemo, useState } from "react";
+import { HTMLProps, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Modal, ModalHeader } from "../ui";
+import { DropdownContext } from "../ui/dropdown/dropdown-context";
 import {
   WalletOperationError,
   WalletOperationLock,
@@ -35,6 +36,7 @@ export function WalletOperationsDialog({
   ...divProps
 }: PropsWithChildren<Props> & HTMLProps<HTMLDivElement>) {
   const { activeUser } = useActiveAccount();
+  const { setShow: setDropdownShow } = useContext(DropdownContext);
   const [show, setShow] = useState(false);
   const [step, setStep] = useState<"form" | "sign" | "success" | "error">("form");
   const initialData = useMemo(() => initialDataProp ?? {}, [initialDataProp]);
@@ -65,11 +67,17 @@ export function WalletOperationsDialog({
     <>
       <div
         {...divProps}
-        onClick={() => {
+        onClickCapture={(e) => {
+          // Stop propagation in capture phase to prevent DropdownItem from closing
+          // the dropdown before we can open the modal
+          e.stopPropagation();
+          // Open the modal
           setData(initialData);
           setStep("form");
           setSignError(undefined);
           setShow(true);
+          // Close the dropdown after modal state is set
+          setDropdownShow(false);
         }}
       >
         {children}

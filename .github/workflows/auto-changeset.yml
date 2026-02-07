@@ -139,6 +139,41 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm changeset version
 
+      - name: Rebuild affected packages
+        run: |
+          set -e
+
+          CHANGED_PACKAGES=""
+
+          # Detect which packages were version-bumped by checking git diff on package.json versions
+          if git diff --name-only | grep -q "^packages/sdk/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES sdk"; fi
+          if git diff --name-only | grep -q "^packages/wallets/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES wallets"; fi
+          if git diff --name-only | grep -q "^packages/render-helper/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES render-helper"; fi
+
+          if [ -z "$CHANGED_PACKAGES" ]; then
+            echo "No packages to rebuild"
+            exit 0
+          fi
+
+          echo "Rebuilding packages:$CHANGED_PACKAGES"
+
+          # Build SDK first since wallets depends on it
+          if echo "$CHANGED_PACKAGES" | grep -q "sdk"; then
+            echo "Building @ecency/sdk..."
+            pnpm --filter @ecency/sdk build
+          fi
+
+          # Build wallets and render-helper (can be parallel but sequential is safer in CI)
+          if echo "$CHANGED_PACKAGES" | grep -q "wallets"; then
+            echo "Building @ecency/wallets..."
+            pnpm --filter @ecency/wallets build
+          fi
+
+          if echo "$CHANGED_PACKAGES" | grep -q "render-helper"; then
+            echo "Building @ecency/render-helper..."
+            pnpm --filter @ecency/render-helper build
+          fi
+
       - name: Commit & push changes (same PR)
         if: github.event.pull_request.head.repo.full_name == github.repository
         env:
