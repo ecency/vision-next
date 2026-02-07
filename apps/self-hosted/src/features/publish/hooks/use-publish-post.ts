@@ -49,7 +49,7 @@ export function usePublishPost() {
         "comment",
         {
           parent_author: "",
-          parent_permlink: tags[0],
+          parent_permlink: tags[0].toLowerCase().trim(),
           author: user.username,
           permlink,
           title: title.trim(),
