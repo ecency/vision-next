@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useRef, type ReactNode } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { MessageItem } from "./message-item";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
@@ -31,7 +31,7 @@ interface VirtualizedMessageListProps {
   getDisplayName: (post: MattermostPost) => string;
   getUsername: (post: MattermostPost) => string | undefined;
   getDecodedDisplayMessage: (post: MattermostPost) => string;
-  renderMessageContent: (content: string) => React.ReactNode;
+  renderMessageContent: (content: string) => ReactNode;
   normalizeUsername: (username?: string | null) => string | undefined;
   startDirectMessage: (username: string) => void;
   openThread: (post: MattermostPost) => void;

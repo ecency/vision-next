@@ -12,10 +12,14 @@ interface UploadButtonProps {
   onBegin: () => void;
   onEnd: (url: string) => void;
   size?: ButtonProps["size"];
+  appearance?: ButtonProps["appearance"];
   className?: string;
+  "aria-label"?: string;
+  title?: string;
+  disabled?: boolean;
 }
 
-export function ImageUploadButton({ onBegin, onEnd, size = "sm", className }: UploadButtonProps) {
+export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, className, disabled, ...restProps }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { activeUser } = useActiveAccount();
@@ -57,10 +61,13 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", className }: Up
     <>
       <Button
         size={size}
-        disabled={inProgress}
+        appearance={appearance}
+        disabled={inProgress || disabled}
         onClick={() => inputRef.current?.click()}
         icon={inProgress ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
         className={className}
+        aria-label={restProps["aria-label"]}
+        title={restProps.title}
       />
       <input
         type="file"

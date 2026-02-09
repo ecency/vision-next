@@ -30,6 +30,7 @@ import {
 import { usePendingPosts } from "./hooks/use-pending-posts";
 import { useChannelAdmin } from "./hooks/use-channel-admin";
 import { useDmWarning } from "./hooks/use-dm-warning";
+import { useDeepLinking } from "./hooks/use-deep-linking";
 import { AdminPanel } from "./components/admin-panel";
 import { KeyboardShortcutsModal } from "./components/keyboard-shortcuts-modal";
 import { MentionToken } from "./components/mention-token";
@@ -226,7 +227,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
   const hasAutoScrolledRef = useRef(false);
-  const hasFocusedPostRef = useRef(false);
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
   const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
@@ -257,10 +257,10 @@ export function MattermostChannelView({ channelId }: Props) {
     sendMutationRef
   } = usePendingPosts(sendMutation);
 
-    type GifStyle = {
+    type GifPickerStyle = {
       width: string;
       bottom: string;
-      left: number;
+      left: string | number;
       marginLeft: string;
       borderTopLeftRadius: string;
       borderTopRightRadius: string;
@@ -268,7 +268,7 @@ export function MattermostChannelView({ channelId }: Props) {
     };
 
     const [showGifPicker, setShowGifPicker] = useState(false);
-    const [gifPickerStyle, setGifPickerStyle] = useState<GifStyle | undefined>(undefined);
+    const [gifPickerStyle, setGifPickerStyle] = useState<GifPickerStyle | null>(null);
 
   useEffect(() => {
     if (!showOnlineUsers) return;
@@ -383,9 +383,7 @@ export function MattermostChannelView({ channelId }: Props) {
   const markdownParser = useMemo(() => {
     marked.setOptions({
       gfm: true,
-      breaks: true,
-      headerIds: false,
-      mangle: false
+      breaks: true
     });
 
     return (content: string) => (marked.parse(content) as string) || "";
@@ -589,7 +587,6 @@ export function MattermostChannelView({ channelId }: Props) {
     lastViewUpdateRef.current = 0;
     setOptimisticLastViewedAt(null);
     hasAutoScrolledRef.current = false;
-    hasFocusedPostRef.current = false;
     setThreadRootId(null);
     setReplyingTo(null);
     setEditingPost(null);
@@ -614,10 +611,6 @@ export function MattermostChannelView({ channelId }: Props) {
       }
     };
   }, [channelId, shareText]);
-
-  useEffect(() => {
-    hasFocusedPostRef.current = false;
-  }, [focusedPostId]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -751,12 +744,12 @@ export function MattermostChannelView({ channelId }: Props) {
         const updated = new Map(prev);
         let changed = false;
 
-        for (const [userId, timestamp] of updated.entries()) {
+        updated.forEach((timestamp, userId) => {
           if (now - timestamp > TYPING_TIMEOUT) {
             updated.delete(userId);
             changed = true;
           }
-        }
+        });
 
         return changed ? updated : prev;
       });
@@ -810,60 +803,17 @@ export function MattermostChannelView({ channelId }: Props) {
     }, 500);
   }, [markChannelRead]);
 
-  // Enhanced deep linking with around-based loading
-  useEffect(() => {
-    if (!focusedPostId || hasFocusedPostRef.current) return;
-
-    // Wait for initial data to load before checking membership
-    if (isLoading) return;
-
-    // Check if post is already loaded
-    const allPosts = data?.pages?.flatMap(page => page?.posts || []) || [];
-    const postInView = allPosts.some(post => post.id === focusedPostId);
-
-    if (postInView) {
-      // Post already loaded, scroll to it
-      hasFocusedPostRef.current = true;
-      requestAnimationFrame(() =>
-        scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
-      );
-    } else if (!aroundQuery.data && !aroundQuery.isLoading && !needsAroundFetch) {
-      // Post not loaded, trigger around fetch
-      // Try to fetch regardless of membership - API will handle authorization
-      setNeedsAroundFetch(true);
-    }
-  }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
-
-  // Handle around query results
-  useEffect(() => {
-    if (!aroundQuery.data || !focusedPostId) return;
-
-    // Scroll to target post after around data loads
-    setTimeout(() => {
-      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" });
-      hasFocusedPostRef.current = true;
-      setNeedsAroundFetch(false);
-    }, 100);
-  }, [aroundQuery.data, focusedPostId, scrollToPost]);
-
-  // Handle around query errors (e.g., not a member)
-  useEffect(() => {
-    if (!aroundQuery.error || !focusedPostId) return;
-
-    // Check if error is due to lack of membership
-    const errorMessage = (aroundQuery.error as Error)?.message || '';
-    const isMembershipError =
-      errorMessage.includes('unauthorized') ||
-      errorMessage.includes('forbidden') ||
-      errorMessage.includes('not found') ||
-      errorMessage.includes('403') ||
-      errorMessage.includes('404');
-
-    if (isMembershipError) {
-      setShowJoinPrompt(true);
-      setNeedsAroundFetch(false);
-    }
-  }, [aroundQuery.error, focusedPostId]);
+  // Deep linking: scroll to focused post, fetch around if needed, handle join prompts
+  useDeepLinking({
+    channelId,
+    focusedPostId: focusedPostId ?? null,
+    data,
+    isLoading,
+    aroundQuery,
+    scrollToPost,
+    setNeedsAroundFetch,
+    setShowJoinPrompt
+  });
 
   // Initial scroll handled by Virtuoso's initialTopMostItemIndex
   useEffect(() => {
@@ -893,20 +843,20 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   const directChannelUser = useMemo(() => {
-    const isDirect = data?.channel?.type === "D" || directChannelFromList?.type === "D";
+    const isDirect = channelData?.channel?.type === "D" || directChannelFromList?.type === "D";
     if (!isDirect) return null;
 
-    const participantIds = (data?.channel?.name || directChannelFromList?.name || "").split(
+    const participantIds = (channelData?.channel?.name || directChannelFromList?.name || "").split(
       "__"
     );
     const participants = participantIds
-      .map((id) => usersById[id])
-      .filter(Boolean);
+      .map((id: string) => usersById[id])
+      .filter((u): u is MattermostUser => Boolean(u));
 
     const participantFromList = directChannelFromList?.directUser;
 
     return (
-      participants.find((user) => user.username !== activeUser?.username) ||
+      participants.find((user: MattermostUser) => user.username !== activeUser?.username) ||
       participantFromList ||
       participants[0] ||
       null
@@ -1025,6 +975,17 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
 
+  const startDirectMessage = useCallback(
+    (username: string) => {
+      directChannelMutation.mutate(username, {
+        onSuccess: (result) => {
+          router.push(`/chats/${result.channelId}`);
+        }
+      });
+    },
+    [directChannelMutation, router]
+  );
+
   const ECENCY_POST_LINK_REGEX = useMemo(
     () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
     []
@@ -1134,7 +1095,7 @@ export function MattermostChannelView({ channelId }: Props) {
               if (domNode.name === "p") {
                 return (
                   <div className="leading-relaxed">
-                    {domToReact(domNode.children ?? [], createParseOptions(inLink))}
+                    {domToReact((domNode.children ?? []) as any, createParseOptions(inLink))}
                   </div>
                 );
               }
@@ -1154,7 +1115,7 @@ export function MattermostChannelView({ channelId }: Props) {
 
               if (domNode.name === "a") {
                 const href = domNode.attribs?.href || "";
-                const children = domToReact(domNode.children ?? [], createParseOptions(true));
+                const children = domToReact((domNode.children ?? []) as any, createParseOptions(true));
                 const containsImage = (domNode.children || []).some(
                   (child) => child instanceof Element && child.name === "img"
                 );
@@ -1209,19 +1170,6 @@ export function MattermostChannelView({ channelId }: Props) {
       }
     };
   }, [markdownParser, getProxiedImageUrl, usersByUsername, activeUser?.username, startDirectMessage, ECENCY_POST_LINK_REGEX]);
-
-  // Note: getAvatarUrl now imported from format-utils.ts
-
-  const startDirectMessage = useCallback(
-    (username: string) => {
-      directChannelMutation.mutate(username, {
-        onSuccess: (result) => {
-          router.push(`/chats/${result.channelId}`);
-        }
-      });
-    },
-    [directChannelMutation, router]
-  );
 
   // auto-resize for textarea
   const autoResize = useCallback(() => {
@@ -1942,7 +1890,7 @@ export function MattermostChannelView({ channelId }: Props) {
                 channelId={channelId}
                 usersById={usersById}
                 channelData={channelData}
-                activeUser={activeUser}
+                activeUser={activeUser ?? undefined}
                 postsById={postsById}
                 parentPostById={parentPostById}
                 getDisplayName={getDisplayName}

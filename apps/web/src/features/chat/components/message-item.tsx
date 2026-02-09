@@ -14,7 +14,7 @@ import { formatRelativeTime, getAvatarUrl } from "../format-utils";
 import { getNativeEmojiFromShortcode, decodeMessageEmojis } from "../emoji-utils";
 import { MessageTranslate } from "./message-translate";
 import clsx from "clsx";
-import { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
@@ -296,7 +296,7 @@ function MessageItemInner({
                   >
                     {formatRelativeTime(post.create_at)}
                   </span>
-                  {post.edit_at > post.create_at && (
+                  {post.edit_at && post.edit_at > post.create_at && (
                     <span
                       className="text-[11px] text-[--text-muted] cursor-help"
                       title={`Edited ${new Date(post.edit_at).toLocaleString()}`}
@@ -421,7 +421,7 @@ function MessageItemInner({
                       icon={emojiIconSvg}
                       aria-label="Add reaction"
                       disabled={reactMutationPending}
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setOpenReactionPostId((current) =>

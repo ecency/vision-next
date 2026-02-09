@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { MattermostPostsResponse } from "../mattermost-api";
 import type { InfiniteData } from "@tanstack/react-query";
 
@@ -13,6 +13,8 @@ interface UseDeepLinkingParams {
     error: Error | null;
   };
   scrollToPost: (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => void;
+  setNeedsAroundFetch: (v: boolean) => void;
+  setShowJoinPrompt: (v: boolean) => void;
 }
 
 export function useDeepLinking({
@@ -21,11 +23,21 @@ export function useDeepLinking({
   data,
   isLoading,
   aroundQuery,
-  scrollToPost
+  scrollToPost,
+  setNeedsAroundFetch,
+  setShowJoinPrompt
 }: UseDeepLinkingParams) {
-  const [needsAroundFetch, setNeedsAroundFetch] = useState(false);
-  const [showJoinPrompt, setShowJoinPrompt] = useState(false);
   const hasFocusedPostRef = useRef(false);
+
+  // Ref bridge: always points to the latest scrollToPost without changing identity
+  const scrollToPostRef = useRef(scrollToPost);
+  scrollToPostRef.current = scrollToPost;
+
+  // Ref bridge for setters
+  const setNeedsAroundFetchRef = useRef(setNeedsAroundFetch);
+  setNeedsAroundFetchRef.current = setNeedsAroundFetch;
+  const setShowJoinPromptRef = useRef(setShowJoinPrompt);
+  setShowJoinPromptRef.current = setShowJoinPrompt;
 
   // Reset on channel change
   useEffect(() => {
@@ -48,23 +60,23 @@ export function useDeepLinking({
     if (postInView) {
       hasFocusedPostRef.current = true;
       requestAnimationFrame(() =>
-        scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" })
+        scrollToPostRef.current(focusedPostId, { highlight: true, behavior: "smooth" })
       );
-    } else if (!aroundQuery.data && !aroundQuery.isLoading && !needsAroundFetch) {
-      setNeedsAroundFetch(true);
+    } else if (!aroundQuery.data && !aroundQuery.isLoading) {
+      setNeedsAroundFetchRef.current(true);
     }
-  }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading, needsAroundFetch, scrollToPost]);
+  }, [focusedPostId, data, isLoading, aroundQuery.data, aroundQuery.isLoading]);
 
   // Handle around query results
   useEffect(() => {
     if (!aroundQuery.data || !focusedPostId) return;
 
     setTimeout(() => {
-      scrollToPost(focusedPostId, { highlight: true, behavior: "smooth" });
+      scrollToPostRef.current(focusedPostId, { highlight: true, behavior: "smooth" });
       hasFocusedPostRef.current = true;
-      setNeedsAroundFetch(false);
+      setNeedsAroundFetchRef.current(false);
     }, 100);
-  }, [aroundQuery.data, focusedPostId, scrollToPost]);
+  }, [aroundQuery.data, focusedPostId]);
 
   // Handle around query errors (e.g., not a member)
   useEffect(() => {
@@ -79,16 +91,10 @@ export function useDeepLinking({
       errorMessage.includes('404');
 
     if (isMembershipError) {
-      setShowJoinPrompt(true);
-      setNeedsAroundFetch(false);
+      setShowJoinPromptRef.current(true);
+      setNeedsAroundFetchRef.current(false);
     }
   }, [aroundQuery.error, focusedPostId]);
 
-  return {
-    needsAroundFetch,
-    setNeedsAroundFetch,
-    showJoinPrompt,
-    setShowJoinPrompt,
-    hasFocusedPostRef
-  };
+  return { hasFocusedPostRef };
 }
