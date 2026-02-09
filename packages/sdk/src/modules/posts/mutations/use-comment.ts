@@ -147,10 +147,15 @@ export function useComment(
 
         // Add beneficiaries extension if provided
         if (beneficiaries.length > 0) {
+          // Sort beneficiaries alphabetically by account name (required by blockchain)
+          const sortedBeneficiaries = [...beneficiaries].sort((a, b) =>
+            a.account.localeCompare(b.account)
+          );
+
           extensions.push([
             0,
             {
-              beneficiaries: beneficiaries.map(b => ({
+              beneficiaries: sortedBeneficiaries.map(b => ({
                 account: b.account,
                 weight: b.weight
               }))

@@ -453,6 +453,16 @@ describe("chain-errors", () => {
       expect(result.message).toContain("Invalid parameter");
     });
 
+    it("should truncate long validation error messages to 150 characters", () => {
+      const longValidationMessage = "Invalid parameter: " + "A".repeat(200);
+      const error = new Error(longValidationMessage);
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.VALIDATION);
+      expect(result.message.length).toBe(150);
+      expect(result.message).toBe(longValidationMessage.substring(0, 150));
+    });
+
     it("should not misclassify 'invalidate cache' as validation error", () => {
       const error = new Error("Need to invalidate cache");
       const result = parseChainError(error);

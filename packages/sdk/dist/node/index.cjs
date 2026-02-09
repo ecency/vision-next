@@ -189,7 +189,7 @@ function parseChainError(error) {
     };
   }
   if (/\b(invalid|validation)\b/i.test(errorString)) {
-    const message2 = error?.message || errorString.substring(0, 150) || "Validation error occurred";
+    const message2 = (error?.message || errorString).substring(0, 150) || "Validation error occurred";
     return {
       message: message2,
       type: "validation" /* VALIDATION */,
@@ -250,7 +250,7 @@ function isNetworkError(error) {
   const { type } = parseChainError(error);
   return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
 }
-async function broadcastWithFallback(username, ops2, auth) {
+async function broadcastWithFallback(username, ops2, auth, authority = "posting") {
   const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain", "custom"];
   const errors = /* @__PURE__ */ new Map();
   const adapter = auth?.adapter;
@@ -262,9 +262,14 @@ async function broadcastWithFallback(username, ops2, auth) {
             errors.set(method, new Error("Skipped: No adapter provided"));
             break;
           }
-          const key = await adapter.getPostingKey(username);
+          let key;
+          if (authority === "active" && adapter.getActiveKey) {
+            key = await adapter.getActiveKey(username);
+          } else if (authority === "posting") {
+            key = await adapter.getPostingKey(username);
+          }
           if (!key) {
-            errors.set(method, new Error("Skipped: No posting key available"));
+            errors.set(method, new Error(`Skipped: No ${authority} key available`));
             break;
           }
           const privateKey = dhive.PrivateKey.fromString(key);
@@ -275,7 +280,7 @@ async function broadcastWithFallback(username, ops2, auth) {
             errors.set(method, new Error("Skipped: HiveAuth not supported by adapter"));
             break;
           }
-          return await adapter.broadcastWithHiveAuth(username, ops2, "posting");
+          return await adapter.broadcastWithHiveAuth(username, ops2, authority);
         }
         case "hivesigner": {
           if (!adapter) {
@@ -296,14 +301,14 @@ async function broadcastWithFallback(username, ops2, auth) {
             errors.set(method, new Error("Skipped: Keychain not supported by adapter"));
             break;
           }
-          return await adapter.broadcastWithKeychain(username, ops2, "posting");
+          return await adapter.broadcastWithKeychain(username, ops2, authority);
         }
         case "custom": {
           if (!auth?.broadcast) {
             errors.set(method, new Error("Skipped: No custom broadcast function provided"));
             break;
           }
-          return await auth.broadcast(ops2, "posting");
+          return await auth.broadcast(ops2, authority);
         }
       }
     } catch (error) {
@@ -328,7 +333,7 @@ async function broadcastWithFallback(username, ops2, auth) {
   );
 }
 function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
-}, auth) {
+}, auth, authority = "posting") {
   return reactQuery.useMutation({
     onSuccess,
     mutationKey: [...mutationKey, username],
@@ -340,10 +345,10 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       const ops2 = operations(payload);
       if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastWithFallback(username, ops2, auth);
+        return broadcastWithFallback(username, ops2, auth, authority);
       }
       if (auth?.broadcast) {
-        return auth.broadcast(ops2, "posting");
+        return auth.broadcast(ops2, authority);
       }
       const postingKey = auth?.postingKey;
       if (postingKey) {
@@ -4268,8 +4273,8 @@ function formatNumber(value, decimals = 3) {
   return value.toFixed(decimals);
 }
 function buildLimitOrderCreateOpWithType(owner, amountToSell, minToReceive, orderType, idPrefix = "" /* EMPTY */) {
-  if (!owner || amountToSell === void 0 || minToReceive === void 0 || !orderType) {
-    throw new Error("[SDK][buildLimitOrderCreateOpWithType] Missing required parameters");
+  if (!owner || orderType === void 0 || !Number.isFinite(amountToSell) || amountToSell <= 0 || !Number.isFinite(minToReceive) || minToReceive <= 0) {
+    throw new Error("[SDK][buildLimitOrderCreateOpWithType] Missing or invalid parameters");
   }
   const expiration = new Date(Date.now());
   expiration.setDate(expiration.getDate() + 27);
@@ -4603,6 +4608,9 @@ function buildMultiPointTransferOps(sender, destinations, amount, memo) {
     throw new Error("[SDK][buildMultiPointTransferOps] Missing required parameters");
   }
   const destArray = destinations.trim().split(/[\s,]+/).filter(Boolean);
+  if (destArray.length === 0) {
+    throw new Error("[SDK][buildMultiPointTransferOps] Missing valid destinations");
+  }
   return destArray.map(
     (dest) => buildPointTransferOp(sender, dest.trim(), amount, memo)
   );
@@ -5402,10 +5410,13 @@ function useComment(username, auth) {
         } = payload.options;
         const extensions = [];
         if (beneficiaries.length > 0) {
+          const sortedBeneficiaries = [...beneficiaries].sort(
+            (a, b) => a.account.localeCompare(b.account)
+          );
           extensions.push([
             0,
             {
-              beneficiaries: beneficiaries.map((b) => ({
+              beneficiaries: sortedBeneficiaries.map((b) => ({
                 account: b.account,
                 weight: b.weight
               }))
@@ -6322,17 +6333,23 @@ function useProposalVote(username, auth) {
       buildProposalVoteOp(username, proposalIds, approve)
     ],
     async (result) => {
-      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(150, result.block_num, result.id);
-      }
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          ["proposals", "list"],
-          ["proposals", "votes", username]
-        ]);
+      try {
+        if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+          await auth.adapter.recordActivity(150, result.block_num, result.id);
+        }
+        if (auth?.adapter?.invalidateQueries) {
+          await auth.adapter.invalidateQueries([
+            ["proposals", "list"],
+            ["proposals", "votes", username]
+          ]);
+        }
+      } catch (error) {
+        console.warn("[useProposalVote] Post-broadcast side-effect failed:", error);
       }
     },
-    auth
+    auth,
+    "active"
+    // Use active authority for proposal votes (required by blockchain)
   );
 }
 function getVestingDelegationsQueryOptions(username, limit = 50) {

@@ -352,18 +352,23 @@ interface AuthContextV2 extends AuthContext {
      */
     enableFallback?: boolean;
     /**
-     * Order of auth methods to try when primary method fails.
+     * Order of authentication methods to try during fallback.
      *
-     * Only used when enableFallback is true.
+     * Available methods:
+     * - 'key': Direct private key (adapter.getPostingKey or getActiveKey)
+     * - 'hiveauth': HiveAuth protocol (adapter.broadcastWithHiveAuth)
+     * - 'hivesigner': HiveSigner OAuth (adapter.getAccessToken)
+     * - 'keychain': Keychain extension (adapter.broadcastWithKeychain)
+     * - 'custom': Use AuthContext.broadcast()
      *
-     * @default ['key', 'hiveauth', 'hivesigner', 'keychain']
+     * @default ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom']
      *
      * @remarks
-     * - 'key': Use posting key from adapter.getPostingKey()
-     * - 'hiveauth': Use adapter.broadcastWithHiveAuth()
-     * - 'hivesigner': Use access token from adapter.getAccessToken()
-     * - 'keychain': Use adapter.broadcastWithKeychain()
-     * - 'custom': Use AuthContext.broadcast() function
+     * Set this to customize the order or exclude methods. For example:
+     * - Mobile priority: ['hiveauth', 'hivesigner', 'key']
+     * - Web priority: ['keychain', 'key', 'hivesigner']
+     *
+     * @see broadcastWithFallback for the runtime implementation
      */
     fallbackChain?: AuthMethod[];
 }
@@ -1178,6 +1183,7 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
  * @param operations - Function that converts payload to Hive operations
  * @param onSuccess - Success callback after broadcast completes
  * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
  *
  * @returns React Query mutation result
  *
@@ -1212,7 +1218,8 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
  *     adapter: myAdapter,
  *     enableFallback: true,
  *     fallbackChain: ['keychain', 'key', 'hivesigner']
- *   }
+ *   },
+ *   'posting'
  * );
  *
  * // Legacy pattern (still works)
@@ -1225,7 +1232,7 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
  * );
  * ```
  */
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: 'posting' | 'active' | 'owner' | 'memo'): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
 
 declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
 

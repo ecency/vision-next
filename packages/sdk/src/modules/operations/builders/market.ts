@@ -89,8 +89,16 @@ export function buildLimitOrderCreateOpWithType(
   orderType: BuySellTransactionType,
   idPrefix: OrderIdPrefix = OrderIdPrefix.EMPTY
 ): Operation {
-  if (!owner || amountToSell === undefined || minToReceive === undefined || !orderType) {
-    throw new Error("[SDK][buildLimitOrderCreateOpWithType] Missing required parameters");
+  // Validate numeric inputs
+  if (
+    !owner ||
+    orderType === undefined ||
+    !Number.isFinite(amountToSell) ||
+    amountToSell <= 0 ||
+    !Number.isFinite(minToReceive) ||
+    minToReceive <= 0
+  ) {
+    throw new Error("[SDK][buildLimitOrderCreateOpWithType] Missing or invalid parameters");
   }
 
   // Calculate expiration (27 days from now)

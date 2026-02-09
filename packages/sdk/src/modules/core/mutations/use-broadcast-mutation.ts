@@ -16,6 +16,7 @@ import hs from "hivesigner";
  * @param username - Hive username to broadcast for
  * @param ops - Operations to broadcast
  * @param auth - AuthContextV2 with adapter and fallback configuration
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
  * @returns Transaction confirmation from the blockchain
  * @throws Error if all auth methods fail or if a non-auth error occurs
  *
@@ -36,7 +37,7 @@ import hs from "hivesigner";
  * };
  *
  * try {
- *   const result = await broadcastWithFallback(username, ops, auth);
+ *   const result = await broadcastWithFallback(username, ops, auth, 'active');
  *   console.log('Transaction ID:', result.id);
  * } catch (error) {
  *   console.error('All methods failed:', error);
@@ -46,7 +47,8 @@ import hs from "hivesigner";
 async function broadcastWithFallback(
   username: string,
   ops: Operation[],
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
 ): Promise<TransactionConfirmation> {
   // FIX #1: Include 'custom' in default fallback chain so auth.broadcast is not bypassed
   const chain = auth?.fallbackChain ?? ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom'];
@@ -62,10 +64,18 @@ async function broadcastWithFallback(
             errors.set(method, new Error('Skipped: No adapter provided'));
             break;
           }
-          const key = await adapter.getPostingKey(username);
-          // Track skip reason: No posting key available
+
+          // Choose key based on authority
+          let key: string | null | undefined;
+          if (authority === 'active' && adapter.getActiveKey) {
+            key = await adapter.getActiveKey(username);
+          } else if (authority === 'posting') {
+            key = await adapter.getPostingKey(username);
+          }
+
+          // Track skip reason: No key available
           if (!key) {
-            errors.set(method, new Error('Skipped: No posting key available'));
+            errors.set(method, new Error(`Skipped: No ${authority} key available`));
             break;
           }
           // Attempt broadcast with key
@@ -80,7 +90,7 @@ async function broadcastWithFallback(
             break;
           }
           // Attempt broadcast with HiveAuth
-          return await adapter.broadcastWithHiveAuth(username, ops, 'posting');
+          return await adapter.broadcastWithHiveAuth(username, ops, authority);
         }
 
         case 'hivesigner': {
@@ -108,7 +118,7 @@ async function broadcastWithFallback(
             break;
           }
           // Attempt broadcast with Keychain
-          return await adapter.broadcastWithKeychain(username, ops, 'posting');
+          return await adapter.broadcastWithKeychain(username, ops, authority);
         }
 
         case 'custom': {
@@ -118,7 +128,7 @@ async function broadcastWithFallback(
             break;
           }
           // Attempt broadcast with custom function
-          return (await auth.broadcast(ops, 'posting')) as TransactionConfirmation;
+          return (await auth.broadcast(ops, authority)) as TransactionConfirmation;
         }
       }
     } catch (error) {
@@ -168,6 +178,7 @@ async function broadcastWithFallback(
  * @param operations - Function that converts payload to Hive operations
  * @param onSuccess - Success callback after broadcast completes
  * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
  *
  * @returns React Query mutation result
  *
@@ -202,7 +213,8 @@ async function broadcastWithFallback(
  *     adapter: myAdapter,
  *     enableFallback: true,
  *     fallbackChain: ['keychain', 'key', 'hivesigner']
- *   }
+ *   },
+ *   'posting'
  * );
  *
  * // Legacy pattern (still works)
@@ -220,7 +232,8 @@ export function useBroadcastMutation<T>(
   username: string | undefined,
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
 ) {
   return useMutation({
     onSuccess,
@@ -236,12 +249,12 @@ export function useBroadcastMutation<T>(
 
       // New: Try auth methods in fallback chain (if enabled)
       if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastWithFallback(username, ops, auth);
+        return broadcastWithFallback(username, ops, auth, authority);
       }
 
       // Legacy behavior: try methods in fixed order (backward compatible)
       if (auth?.broadcast) {
-        return auth.broadcast(ops, "posting");
+        return auth.broadcast(ops, authority);
       }
 
       const postingKey = auth?.postingKey;

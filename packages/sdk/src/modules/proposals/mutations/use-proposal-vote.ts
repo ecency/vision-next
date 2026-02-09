@@ -76,19 +76,26 @@ export function useProposalVote(
       buildProposalVoteOp(username!, proposalIds, approve)
     ],
     async (result: any) => {
-      // Activity tracking
-      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(150, result.block_num, result.id);
-      }
+      // Wrap post-broadcast side-effects in try-catch to prevent propagating errors
+      try {
+        // Activity tracking
+        if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+          await auth.adapter.recordActivity(150, result.block_num, result.id);
+        }
 
-      // Cache invalidation
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          ["proposals", "list"],
-          ["proposals", "votes", username]
-        ]);
+        // Cache invalidation
+        if (auth?.adapter?.invalidateQueries) {
+          await auth.adapter.invalidateQueries([
+            ["proposals", "list"],
+            ["proposals", "votes", username]
+          ]);
+        }
+      } catch (error) {
+        // Log but don't rethrow - don't fail mutation due to side-effect errors
+        console.warn('[useProposalVote] Post-broadcast side-effect failed:', error);
       }
     },
-    auth
+    auth,
+    'active' // Use active authority for proposal votes (required by blockchain)
   );
 }

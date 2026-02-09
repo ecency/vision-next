@@ -233,7 +233,8 @@ export function parseChainError(error: any): ParsedChainError {
 
   // Generic validation errors (use word boundaries to be more specific)
   if (/\b(invalid|validation)\b/i.test(errorString)) {
-    const message = error?.message || errorString.substring(0, 150) || "Validation error occurred";
+    // Truncate to 150 chars like other branches
+    const message = (error?.message || errorString).substring(0, 150) || "Validation error occurred";
     return {
       message,
       type: ErrorType.VALIDATION,

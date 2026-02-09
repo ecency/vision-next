@@ -126,18 +126,23 @@ export interface AuthContextV2 extends AuthContext {
   enableFallback?: boolean;
 
   /**
-   * Order of auth methods to try when primary method fails.
+   * Order of authentication methods to try during fallback.
    *
-   * Only used when enableFallback is true.
+   * Available methods:
+   * - 'key': Direct private key (adapter.getPostingKey or getActiveKey)
+   * - 'hiveauth': HiveAuth protocol (adapter.broadcastWithHiveAuth)
+   * - 'hivesigner': HiveSigner OAuth (adapter.getAccessToken)
+   * - 'keychain': Keychain extension (adapter.broadcastWithKeychain)
+   * - 'custom': Use AuthContext.broadcast()
    *
-   * @default ['key', 'hiveauth', 'hivesigner', 'keychain']
+   * @default ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom']
    *
    * @remarks
-   * - 'key': Use posting key from adapter.getPostingKey()
-   * - 'hiveauth': Use adapter.broadcastWithHiveAuth()
-   * - 'hivesigner': Use access token from adapter.getAccessToken()
-   * - 'keychain': Use adapter.broadcastWithKeychain()
-   * - 'custom': Use AuthContext.broadcast() function
+   * Set this to customize the order or exclude methods. For example:
+   * - Mobile priority: ['hiveauth', 'hivesigner', 'key']
+   * - Web priority: ['keychain', 'key', 'hivesigner']
+   *
+   * @see broadcastWithFallback for the runtime implementation
    */
   fallbackChain?: AuthMethod[];
 }

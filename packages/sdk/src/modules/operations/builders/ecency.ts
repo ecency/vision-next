@@ -186,6 +186,11 @@ export function buildMultiPointTransferOps(
     .split(/[\s,]+/)
     .filter(Boolean);
 
+  // Validate parsed destinations
+  if (destArray.length === 0) {
+    throw new Error("[SDK][buildMultiPointTransferOps] Missing valid destinations");
+  }
+
   // Create a point transfer operation for each destination
   return destArray.map((dest) =>
     buildPointTransferOp(sender, dest.trim(), amount, memo)
