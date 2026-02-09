@@ -205,6 +205,28 @@ describe("chain-errors", () => {
       expect(result.type).toBe(ErrorType.COMMON);
     });
 
+    it("should match patterns in error_description when both message and error_description exist", () => {
+      const error = {
+        message: "Request failed",
+        error_description: "Missing Active Authority alice"
+      };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.MISSING_AUTHORITY);
+      expect(result.message).toContain("active");
+    });
+
+    it("should match patterns in message when error_description doesn't match", () => {
+      const error = {
+        message: "Missing Active Authority bob",
+        error_description: "Some generic error"
+      };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.MISSING_AUTHORITY);
+      expect(result.message).toContain("active");
+    });
+
     it("should truncate long error messages", () => {
       const longMessage = "A".repeat(200);
       const error = new Error(longMessage);

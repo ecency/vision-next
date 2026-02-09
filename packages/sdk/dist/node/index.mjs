@@ -22,148 +22,155 @@ var ErrorType = /* @__PURE__ */ ((ErrorType2) => {
   return ErrorType2;
 })(ErrorType || {});
 function parseChainError(error) {
-  const errorString = String(error?.message || error?.error_description || error || "");
-  if (/please wait to transact/i.test(errorString) || /insufficient rc/i.test(errorString) || /rc mana|rc account|resource credits/i.test(errorString)) {
+  const errorDescription = error?.error_description ? String(error.error_description) : "";
+  const errorMessage = error?.message ? String(error.message) : "";
+  const errorString = errorDescription || errorMessage || String(error || "");
+  const testPattern = (pattern) => {
+    if (errorDescription && pattern.test(errorDescription)) return true;
+    if (errorMessage && pattern.test(errorMessage)) return true;
+    return false;
+  };
+  if (testPattern(/please wait to transact/i) || testPattern(/insufficient rc/i) || testPattern(/rc mana|rc account|resource credits/i)) {
     return {
       message: "Insufficient Resource Credits. Please wait or power up.",
       type: "insufficient_resource_credits" /* INSUFFICIENT_RESOURCE_CREDITS */,
       originalError: error
     };
   }
-  if (/you may only post once every/i.test(errorString)) {
+  if (testPattern(/you may only post once every/i)) {
     return {
       message: "Please wait before posting again (minimum 3 second interval between comments).",
       type: "common" /* COMMON */,
       originalError: error
     };
   }
-  if (/your current vote on this comment is identical/i.test(errorString)) {
+  if (testPattern(/your current vote on this comment is identical/i)) {
     return {
       message: "You have already voted with the same weight.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/must claim something/i.test(errorString)) {
+  if (testPattern(/must claim something/i)) {
     return {
       message: "You must claim rewards before performing this action.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/cannot claim that much vests/i.test(errorString)) {
+  if (testPattern(/cannot claim that much vests/i)) {
     return {
       message: "Cannot claim that amount. Please check your pending rewards.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/cannot delete a comment with net positive/i.test(errorString)) {
+  if (testPattern(/cannot delete a comment with net positive/i)) {
     return {
       message: "Cannot delete a comment with positive votes.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/children == 0/i.test(errorString)) {
+  if (testPattern(/children == 0/i)) {
     return {
       message: "Cannot delete a comment with replies.",
       type: "common" /* COMMON */,
       originalError: error
     };
   }
-  if (/comment_cashout/i.test(errorString)) {
+  if (testPattern(/comment_cashout/i)) {
     return {
       message: "Cannot modify a comment that has already been paid out.",
       type: "common" /* COMMON */,
       originalError: error
     };
   }
-  if (/votes evaluating for comment that is paid out is forbidden/i.test(errorString)) {
+  if (testPattern(/votes evaluating for comment that is paid out is forbidden/i)) {
     return {
       message: "Cannot vote on posts that have already been paid out.",
       type: "common" /* COMMON */,
       originalError: error
     };
   }
-  if (/missing active authority/i.test(errorString)) {
+  if (testPattern(/missing active authority/i)) {
     return {
       message: "Missing active authority. This operation requires your active key.",
       type: "missing_authority" /* MISSING_AUTHORITY */,
       originalError: error
     };
   }
-  if (/missing owner authority/i.test(errorString)) {
+  if (testPattern(/missing owner authority/i)) {
     return {
       message: "Missing owner authority. This operation requires your owner key.",
       type: "missing_authority" /* MISSING_AUTHORITY */,
       originalError: error
     };
   }
-  if (/missing (required )?posting authority/i.test(errorString)) {
+  if (testPattern(/missing (required )?posting authority/i)) {
     return {
       message: "Missing posting authority. Please check your login method.",
       type: "missing_authority" /* MISSING_AUTHORITY */,
       originalError: error
     };
   }
-  if (/token expired/i.test(errorString) || /invalid token/i.test(errorString)) {
+  if (testPattern(/token expired/i) || testPattern(/invalid token/i)) {
     return {
       message: "Authentication token expired. Please log in again.",
       type: "token_expired" /* TOKEN_EXPIRED */,
       originalError: error
     };
   }
-  if (/has already reblogged/i.test(errorString) || /already reblogged this post/i.test(errorString)) {
+  if (testPattern(/has already reblogged/i) || testPattern(/already reblogged this post/i)) {
     return {
       message: "You have already reblogged this post.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/duplicate transaction/i.test(errorString)) {
+  if (testPattern(/duplicate transaction/i)) {
     return {
       message: "This transaction has already been processed.",
       type: "info" /* INFO */,
       originalError: error
     };
   }
-  if (/econnrefused/i.test(errorString) || /connection refused/i.test(errorString) || /failed to fetch/i.test(errorString) || /\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i.test(errorString)) {
+  if (testPattern(/econnrefused/i) || testPattern(/connection refused/i) || testPattern(/failed to fetch/i) || testPattern(/\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i)) {
     return {
       message: "Network error. Please check your connection and try again.",
       type: "network" /* NETWORK */,
       originalError: error
     };
   }
-  if (/timeout/i.test(errorString) || /timed out/i.test(errorString)) {
+  if (testPattern(/timeout/i) || testPattern(/timed out/i)) {
     return {
       message: "Request timed out. Please try again.",
       type: "timeout" /* TIMEOUT */,
       originalError: error
     };
   }
-  if (/account.*does not exist/i.test(errorString) || /account not found/i.test(errorString)) {
+  if (testPattern(/account.*does not exist/i) || testPattern(/account not found/i)) {
     return {
       message: "Account not found. Please check the username.",
       type: "validation" /* VALIDATION */,
       originalError: error
     };
   }
-  if (/invalid memo key/i.test(errorString)) {
+  if (testPattern(/invalid memo key/i)) {
     return {
       message: "Invalid memo key. Cannot encrypt message.",
       type: "validation" /* VALIDATION */,
       originalError: error
     };
   }
-  if (/insufficient/i.test(errorString) && /funds|balance/i.test(errorString)) {
+  if (testPattern(/insufficient/i) && testPattern(/funds|balance/i)) {
     return {
       message: "Insufficient funds for this transaction.",
       type: "validation" /* VALIDATION */,
       originalError: error
     };
   }
-  if (/\b(invalid|validation)\b/i.test(errorString)) {
+  if (testPattern(/\b(invalid|validation)\b/i)) {
     const message2 = (error?.message || errorString).substring(0, 150) || "Validation error occurred";
     return {
       message: message2,
@@ -5416,7 +5423,11 @@ function useComment(username, auth) {
       const isPost = !variables.parentAuthor;
       const activityType = isPost ? 100 : 110;
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(activityType, result.block_num, result.id);
+        try {
+          await auth.adapter.recordActivity(activityType, result.block_num, result.id);
+        } catch (err) {
+          console.warn("[useComment] Failed to record activity:", err);
+        }
       }
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate = [

@@ -39,14 +39,24 @@ export interface ParsedChainError {
  * ```
  */
 export function parseChainError(error: any): ParsedChainError {
-  // Extract error string from various error formats
-  const errorString = String(error?.message || error?.error_description || error || '');
+  // Extract error strings from various error formats
+  // Check both error_description and message independently for pattern matching
+  const errorDescription = error?.error_description ? String(error.error_description) : '';
+  const errorMessage = error?.message ? String(error.message) : '';
+  const errorString = errorDescription || errorMessage || String(error || '');
+
+  // Helper function to test patterns against both fields
+  const testPattern = (pattern: RegExp): boolean => {
+    if (errorDescription && pattern.test(errorDescription)) return true;
+    if (errorMessage && pattern.test(errorMessage)) return true;
+    return false;
+  };
 
   // Resource credits (from both web and mobile patterns)
   if (
-    /please wait to transact/i.test(errorString) ||
-    /insufficient rc/i.test(errorString) ||
-    /rc mana|rc account|resource credits/i.test(errorString)
+    testPattern(/please wait to transact/i) ||
+    testPattern(/insufficient rc/i) ||
+    testPattern(/rc mana|rc account|resource credits/i)
   ) {
     return {
       message: "Insufficient Resource Credits. Please wait or power up.",
@@ -56,7 +66,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Min comment interval (from web operations.ts line 29)
-  if (/you may only post once every/i.test(errorString)) {
+  if (testPattern(/you may only post once every/i)) {
     return {
       message: "Please wait before posting again (minimum 3 second interval between comments).",
       type: ErrorType.COMMON,
@@ -65,7 +75,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Identical vote (from web operations.ts line 31)
-  if (/your current vote on this comment is identical/i.test(errorString)) {
+  if (testPattern(/your current vote on this comment is identical/i)) {
     return {
       message: "You have already voted with the same weight.",
       type: ErrorType.INFO,
@@ -74,7 +84,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Must claim something (from web operations.ts line 33)
-  if (/must claim something/i.test(errorString)) {
+  if (testPattern(/must claim something/i)) {
     return {
       message: "You must claim rewards before performing this action.",
       type: ErrorType.INFO,
@@ -83,7 +93,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Cannot claim that much VESTS (from web operations.ts line 35)
-  if (/cannot claim that much vests/i.test(errorString)) {
+  if (testPattern(/cannot claim that much vests/i)) {
     return {
       message: "Cannot claim that amount. Please check your pending rewards.",
       type: ErrorType.INFO,
@@ -92,7 +102,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Cannot delete comment with positive votes (from web operations.ts line 42)
-  if (/cannot delete a comment with net positive/i.test(errorString)) {
+  if (testPattern(/cannot delete a comment with net positive/i)) {
     return {
       message: "Cannot delete a comment with positive votes.",
       type: ErrorType.INFO,
@@ -101,7 +111,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Comment has children (from web operations.ts line 44)
-  if (/children == 0/i.test(errorString)) {
+  if (testPattern(/children == 0/i)) {
     return {
       message: "Cannot delete a comment with replies.",
       type: ErrorType.COMMON,
@@ -110,7 +120,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Comment already paid out (from web operations.ts line 46)
-  if (/comment_cashout/i.test(errorString)) {
+  if (testPattern(/comment_cashout/i)) {
     return {
       message: "Cannot modify a comment that has already been paid out.",
       type: ErrorType.COMMON,
@@ -119,7 +129,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Voting on paid out post (from web operations.ts line 48)
-  if (/votes evaluating for comment that is paid out is forbidden/i.test(errorString)) {
+  if (testPattern(/votes evaluating for comment that is paid out is forbidden/i)) {
     return {
       message: "Cannot vote on posts that have already been paid out.",
       type: ErrorType.COMMON,
@@ -128,7 +138,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Missing active authority (from web operations.ts line 50)
-  if (/missing active authority/i.test(errorString)) {
+  if (testPattern(/missing active authority/i)) {
     return {
       message: "Missing active authority. This operation requires your active key.",
       type: ErrorType.MISSING_AUTHORITY,
@@ -137,7 +147,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Missing owner authority (from web operations.ts line 52)
-  if (/missing owner authority/i.test(errorString)) {
+  if (testPattern(/missing owner authority/i)) {
     return {
       message: "Missing owner authority. This operation requires your owner key.",
       type: ErrorType.MISSING_AUTHORITY,
@@ -146,7 +156,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Missing posting authority (general pattern)
-  if (/missing (required )?posting authority/i.test(errorString)) {
+  if (testPattern(/missing (required )?posting authority/i)) {
     return {
       message: "Missing posting authority. Please check your login method.",
       type: ErrorType.MISSING_AUTHORITY,
@@ -155,7 +165,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Token expired (general pattern)
-  if (/token expired/i.test(errorString) || /invalid token/i.test(errorString)) {
+  if (testPattern(/token expired/i) || testPattern(/invalid token/i)) {
     return {
       message: "Authentication token expired. Please log in again.",
       type: ErrorType.TOKEN_EXPIRED,
@@ -164,7 +174,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Already reblogged
-  if (/has already reblogged/i.test(errorString) || /already reblogged this post/i.test(errorString)) {
+  if (testPattern(/has already reblogged/i) || testPattern(/already reblogged this post/i)) {
     return {
       message: "You have already reblogged this post.",
       type: ErrorType.INFO,
@@ -173,7 +183,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Duplicate transaction
-  if (/duplicate transaction/i.test(errorString)) {
+  if (testPattern(/duplicate transaction/i)) {
     return {
       message: "This transaction has already been processed.",
       type: ErrorType.INFO,
@@ -183,10 +193,10 @@ export function parseChainError(error: any): ParsedChainError {
 
   // Network errors (more specific patterns to avoid false positives)
   if (
-    /econnrefused/i.test(errorString) ||
-    /connection refused/i.test(errorString) ||
-    /failed to fetch/i.test(errorString) ||
-    /\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i.test(errorString)
+    testPattern(/econnrefused/i) ||
+    testPattern(/connection refused/i) ||
+    testPattern(/failed to fetch/i) ||
+    testPattern(/\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i)
   ) {
     return {
       message: "Network error. Please check your connection and try again.",
@@ -196,7 +206,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Timeout errors
-  if (/timeout/i.test(errorString) || /timed out/i.test(errorString)) {
+  if (testPattern(/timeout/i) || testPattern(/timed out/i)) {
     return {
       message: "Request timed out. Please try again.",
       type: ErrorType.TIMEOUT,
@@ -205,7 +215,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Account doesn't exist
-  if (/account.*does not exist/i.test(errorString) || /account not found/i.test(errorString)) {
+  if (testPattern(/account.*does not exist/i) || testPattern(/account not found/i)) {
     return {
       message: "Account not found. Please check the username.",
       type: ErrorType.VALIDATION,
@@ -214,7 +224,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Invalid memo key
-  if (/invalid memo key/i.test(errorString)) {
+  if (testPattern(/invalid memo key/i)) {
     return {
       message: "Invalid memo key. Cannot encrypt message.",
       type: ErrorType.VALIDATION,
@@ -223,7 +233,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Insufficient funds
-  if (/insufficient/i.test(errorString) && /funds|balance/i.test(errorString)) {
+  if (testPattern(/insufficient/i) && testPattern(/funds|balance/i)) {
     return {
       message: "Insufficient funds for this transaction.",
       type: ErrorType.VALIDATION,
@@ -232,7 +242,7 @@ export function parseChainError(error: any): ParsedChainError {
   }
 
   // Generic validation errors (use word boundaries to be more specific)
-  if (/\b(invalid|validation)\b/i.test(errorString)) {
+  if (testPattern(/\b(invalid|validation)\b/i)) {
     // Truncate to 150 chars like other branches
     const message = (error?.message || errorString).substring(0, 150) || "Validation error occurred";
     return {
