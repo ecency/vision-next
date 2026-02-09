@@ -243,6 +243,22 @@ describe("chain-errors", () => {
       expect(result.type).toBe(ErrorType.COMMON);
     });
 
+    it("should match patterns in plain string inputs", () => {
+      const error = "Missing Active Authority alice";
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.MISSING_AUTHORITY);
+      expect(result.message).toContain("active");
+    });
+
+    it("should match RC patterns in plain string inputs", () => {
+      const error = "Please wait to transact, or power up HIVE.";
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.INSUFFICIENT_RESOURCE_CREDITS);
+      expect(result.message).toContain("Resource Credits");
+    });
+
     it("should handle empty/null errors", () => {
       const result1 = parseChainError(null);
       expect(result1.message).toBe("Unknown error occurred");

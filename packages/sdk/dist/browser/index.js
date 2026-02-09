@@ -28,6 +28,7 @@ function parseChainError(error) {
   const testPattern = (pattern) => {
     if (errorDescription && pattern.test(errorDescription)) return true;
     if (errorMessage && pattern.test(errorMessage)) return true;
+    if (errorString && pattern.test(errorString)) return true;
     return false;
   };
   if (testPattern(/please wait to transact/i) || testPattern(/insufficient rc/i) || testPattern(/rc mana|rc account|resource credits/i)) {

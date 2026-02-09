@@ -45,10 +45,14 @@ export function parseChainError(error: any): ParsedChainError {
   const errorMessage = error?.message ? String(error.message) : '';
   const errorString = errorDescription || errorMessage || String(error || '');
 
-  // Helper function to test patterns against both fields
+  // Helper function to test patterns against both fields and fallback errorString
   const testPattern = (pattern: RegExp): boolean => {
+    // Check error_description first (priority)
     if (errorDescription && pattern.test(errorDescription)) return true;
+    // Then check message
     if (errorMessage && pattern.test(errorMessage)) return true;
+    // Finally check fallback errorString (handles plain string inputs)
+    if (errorString && pattern.test(errorString)) return true;
     return false;
   };
 
