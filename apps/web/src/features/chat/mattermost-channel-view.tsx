@@ -21,23 +21,23 @@ import {
   useMattermostMarkChannelViewed,
   useMattermostReactToPost,
   useMattermostUpdatePost,
-  useMattermostAdminBanUser,
-  useMattermostAdminDeleteUserPosts,
-  useMattermostAdminDeleteUserDmPosts,
-  useMattermostAdminDeleteUserAccount,
-  useMattermostAdminNukeUser,
   useMattermostPostsAround,
   useMattermostJoinChannel,
   useMattermostPinnedPosts,
   useMattermostPinPost,
   useMattermostUnpinPost
 } from "./mattermost-api";
+import { usePendingPosts } from "./hooks/use-pending-posts";
+import { useChannelAdmin } from "./hooks/use-channel-admin";
+import { useDmWarning } from "./hooks/use-dm-warning";
+import { AdminPanel } from "./components/admin-panel";
+import { KeyboardShortcutsModal } from "./components/keyboard-shortcuts-modal";
+import { MentionToken } from "./components/mention-token";
 import { useChatAdminStore } from "./chat-admin-store";
 import {
   ensureEmojiDataReady,
   searchEmojis,
   toMattermostEmojiName,
-  getNativeEmojiFromShortcode,
   normalizeMessageEmojis,
   decodeMessageEmojis,
   EMOJI_TRIGGER_REGEX,
@@ -45,40 +45,25 @@ import {
 } from "./emoji-utils";
 import {
   formatTimestamp,
-  formatRelativeTime,
   getUserDisplayName,
   getPostDisplayName,
   getPostUsername,
   getAddedUserDisplayName,
   getDisplayMessage,
-  getAvatarUrl
 } from "./format-utils";
 import { saveDraft, loadDraft, clearDraft } from "./draft-utils";
 import { ThreadPanel } from "./components/thread-panel";
 import { MessageInput } from "./components/message-input";
-import { MessageItem } from "./components/message-item";
-import { MessageList, type PostItem } from "./components/message-list";
+import { type PostItem } from "./components/message-list";
+import { VirtualizedMessageList } from "./components/virtualized-message-list";
+import type { VirtuosoHandle } from "react-virtuoso";
 import { MattermostWebSocket } from "./mattermost-websocket";
 import { DmWarningBanner } from "./components/dm-warning-banner";
 import { ChatImage } from "./components/chat-image";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
-import {
-  Dropdown,
-  DropdownItemWithIcon,
-  DropdownMenu,
-  DropdownToggle
-} from "@ui/dropdown";
-import {
-  blogSvg,
-  deleteForeverSvg,
-  dotsHorizontal,
-  eyeOffSvg,
-  mailSvg
-} from "@ui/svg";
-import { emojiIconSvg } from "@ui/icons";
 import { Modal, ModalBody } from "@ui/modal";
-import { ImageUploadButton, ProfileLink, UserAvatar } from "@/features/shared";
+import { ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQueryClient } from "@tanstack/react-query";
@@ -86,18 +71,13 @@ import defaults from "@/defaults";
 import { useRouter, useSearchParams } from "next/navigation";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import clsx from "clsx";
-import { EmojiPicker } from "@/features/ui/emoji-picker/lazy-emoji-picker";
-import { GifPicker } from "@ui/gif-picker";
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
 import { Element, Text } from "domhandler";
 import { marked } from "marked";
 import {
   HivePostLinkRenderer,
-  WaveLikePostRenderer,
-  isWaveLikePost,
 } from "@/features/post-renderer";
-import * as ls from "@/utils/local-storage";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
 const CHANNEL_WIDE_MENTIONS = [
@@ -121,6 +101,30 @@ const ECENCY_HOSTNAMES = new Set([
   "hive.blog",
   "www.hive.blog"
 ]);
+
+function isImageUrl(url: string) {
+  const normalizedUrl = url.toLowerCase().trim();
+  return (
+    /^https?:\/\/images\.ecency\.com\//.test(normalizedUrl) ||
+    /\.(png|jpe?g|gif|webp|svg)(\?[^#]*)?(\#.*)?$/i.test(normalizedUrl) ||
+    /^https?:\/\/.*\.(gif|giphy)/.test(normalizedUrl) ||
+    /tenor\.com\/.*\.gif/.test(normalizedUrl) ||
+    /giphy\.com\//.test(normalizedUrl)
+  );
+}
+
+function isPartOfEcencyPostLink(before: string, mention: string, after: string) {
+  const combined = `${before}${mention}${after}`;
+  return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
+}
+
+function trimTrailingLinkPunctuation(link: string) {
+  let trimmed = link;
+  while (trimmed.length && /[\).,!?:]$/.test(trimmed)) {
+    trimmed = trimmed.slice(0, -1);
+  }
+  return trimmed;
+}
 
 function isEnhanceableEcencyPostLink(href: string) {
   try {
@@ -212,27 +216,19 @@ export function MattermostChannelView({ channelId }: Props) {
   const isMobile = useGlobalStore((state) => state.isMobile);
   const { activeUser } = useActiveAccount();
   const isEcencyAdmin = activeUser?.username?.toLowerCase() === "ecency";
-  const [adminUsername, setAdminUsername] = useState("");
-  const [banHours, setBanHours] = useState("24");
-  const [adminMessage, setAdminMessage] = useState<string | null>(null);
-  const [adminError, setAdminError] = useState<string | null>(null);
+  const channelAdmin = useChannelAdmin(isEcencyAdmin);
   const { data: channels } = useMattermostChannels(Boolean(channelId));
   const directChannelMutation = useMattermostDirectChannel();
   const joinChannelMutation = useMattermostJoinChannel();
   const router = useRouter();
   const markViewedMutation = useMattermostMarkChannelViewed();
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const virtuosoRef = useRef<VirtuosoHandle | null>(null);
   const lastViewUpdateRef = useRef(0);
   const [optimisticLastViewedAt, setOptimisticLastViewedAt] = useState<number | null>(null);
   const hasAutoScrolledRef = useRef(false);
   const hasFocusedPostRef = useRef(false);
   const reactMutation = useMattermostReactToPost(channelId);
   const updateMutation = useMattermostUpdatePost(channelId);
-  const banUserMutation = useMattermostAdminBanUser();
-  const deleteUserPostsMutation = useMattermostAdminDeleteUserPosts();
-  const deleteUserDmPostsMutation = useMattermostAdminDeleteUserDmPosts();
-  const deleteUserAccountMutation = useMattermostAdminDeleteUserAccount();
-  const nukeUserMutation = useMattermostAdminNukeUser();
   const pinnedPostsQuery = useMattermostPinnedPosts(channelId);
   const pinPostMutation = useMattermostPinPost(channelId);
   const unpinPostMutation = useMattermostUnpinPost(channelId);
@@ -249,20 +245,17 @@ export function MattermostChannelView({ channelId }: Props) {
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const websocketRef = useRef<MattermostWebSocket | null>(null);
   const [typingUsers, setTypingUsers] = useState<Map<string, number>>(new Map());
-  const [showDmWarning, setShowDmWarning] = useState(false);
   const TYPING_TIMEOUT = 5000; // 5 seconds
   const queryClient = useQueryClient();
-  const lastSentPendingIdRef = useRef<string | null>(null);
-  const lastSentMessageRef = useRef<string | null>(null);
-  const lastSentRootIdRef = useRef<string | null>(null);
-  const lastSentAtRef = useRef<number>(0);
-  const confirmedPendingPostIdsRef = useRef<Set<string>>(new Set());
-  const pendingAbortControllerRef = useRef<AbortController | null>(null);
-  const sendMutationRef = useRef(sendMutation);
-
-  useEffect(() => {
-    sendMutationRef.current = sendMutation;
-  }, [sendMutation]);
+  const {
+    lastSentPendingIdRef,
+    lastSentMessageRef,
+    lastSentRootIdRef,
+    lastSentAtRef,
+    confirmedPendingPostIdsRef,
+    pendingAbortControllerRef,
+    sendMutationRef
+  } = usePendingPosts(sendMutation);
 
     type GifStyle = {
       width: string;
@@ -519,16 +512,26 @@ export function MattermostChannelView({ channelId }: Props) {
     mentionQuery,
     Boolean(isPublicChannel && mentionQuery.length >= 2)
   );
-  const adminUserSearch = useMattermostUserSearch(
-    adminUsername,
-    Boolean(isEcencyAdmin && adminUsername.trim().length >= 2)
-  );
   const effectiveLastViewedAt = optimisticLastViewedAt ?? channelData?.member?.last_viewed_at ?? 0;
   const firstUnreadIndex = useMemo(() => {
     if (!posts.length) return -1;
     return posts.findIndex((post) => post.create_at > effectiveLastViewedAt);
   }, [effectiveLastViewedAt, posts]);
   const showUnreadDivider = firstUnreadIndex !== -1;
+
+  // Compute initial scroll index for virtualized list (map posts index -> groupedPosts index)
+  const initialScrollIndex = useMemo(() => {
+    if (firstUnreadIndex === -1) return undefined; // Will default to last item
+    const targetPostIndex = Math.max(0, firstUnreadIndex - 1);
+    const targetPostId = posts[targetPostIndex]?.id;
+    if (!targetPostId) return undefined;
+    const groupedIdx = groupedPosts.findIndex((item) =>
+      item.type === "message" ? item.post.id === targetPostId :
+      item.type === "join-group" ? item.posts.some((p) => p.id === targetPostId) :
+      false
+    );
+    return groupedIdx !== -1 ? groupedIdx : undefined;
+  }, [firstUnreadIndex, posts, groupedPosts]);
 
   const markChannelRead = useCallback(() => {
     const id = channelData?.channel?.id || channelId;
@@ -562,40 +565,25 @@ export function MattermostChannelView({ channelId }: Props) {
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [showGifPicker]);
 
-  const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const distanceFromBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight;
-    const distanceFromTop = container.scrollTop;
-
-    // Auto-load older messages when scrolled near the top
-    if (distanceFromTop < 300 && hasNextPage && !isFetchingNextPage) {
+  const onStartReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    // Show scroll-to-bottom button if scrolled up more than 200px
-    setShowScrollToBottom(distanceFromBottom > 200);
-
-    // Track if user is near bottom for auto-refresh
-    setIsNearBottom(distanceFromBottom <= 200);
-
-    // Calculate unread messages when scrolled up
-    if (distanceFromBottom > 200 && firstUnreadIndex !== -1) {
-      // Count all unread messages (created after last viewed time)
+  const onAtBottomStateChange = useCallback((atBottom: boolean) => {
+    setIsNearBottom(atBottom);
+    setShowScrollToBottom(!atBottom);
+    if (atBottom) {
+      setUnreadCountBelowScroll(0);
+      markChannelRead();
+    } else if (firstUnreadIndex !== -1) {
       const unreadCount = posts.filter(
         (post) => post.create_at > effectiveLastViewedAt
       ).length;
       setUnreadCountBelowScroll(unreadCount);
-    } else {
-      setUnreadCountBelowScroll(0);
     }
-
-    if (distanceFromBottom < 120) {
-      markChannelRead();
-    }
-  }, [markChannelRead, firstUnreadIndex, posts, effectiveLastViewedAt, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [markChannelRead, firstUnreadIndex, posts, effectiveLastViewedAt]);
 
   useEffect(() => {
     lastViewUpdateRef.current = 0;
@@ -779,37 +767,40 @@ export function MattermostChannelView({ channelId }: Props) {
 
   const scrollToPost = useCallback(
     (postId: string, options?: { highlight?: boolean; behavior?: ScrollBehavior }) => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-
-      const target = container.querySelector<HTMLDivElement>(
-        `[data-post-id="${postId}"]`
+      // Find the index in groupedPosts
+      const idx = groupedPosts.findIndex((item) =>
+        item.type === "message" ? item.post.id === postId :
+        item.type === "join-group" ? item.posts.some((p) => p.id === postId) :
+        false
       );
-      if (!target) return;
+      if (idx === -1) return;
 
-      const containerRect = container.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const offset =
-        targetRect.top - containerRect.top + container.scrollTop - 12;
-      const behavior = options?.behavior ?? "smooth";
-
-      container.scrollTo({ top: offset, behavior });
+      const behavior = options?.behavior === "auto" ? "auto" : "smooth";
+      virtuosoRef.current?.scrollToIndex({
+        index: idx,
+        align: "center",
+        behavior: behavior as "auto" | "smooth"
+      });
 
       if (options?.highlight ?? true) {
-        target.classList.remove("chat-post-highlight");
-        void target.offsetWidth;
-        target.classList.add("chat-post-highlight");
+        setTimeout(() => {
+          const target = document.querySelector<HTMLDivElement>(
+            `[data-post-id="${postId}"]`
+          );
+          if (target) {
+            target.classList.remove("chat-post-highlight");
+            void target.offsetWidth;
+            target.classList.add("chat-post-highlight");
+          }
+        }, 100);
       }
     },
-    []
+    [groupedPosts]
   );
 
   const scrollToBottom = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    container.scrollTo({
-      top: container.scrollHeight,
+    virtuosoRef.current?.scrollToIndex({
+      index: "LAST",
       behavior: "smooth"
     });
 
@@ -874,37 +865,14 @@ export function MattermostChannelView({ channelId }: Props) {
     }
   }, [aroundQuery.error, focusedPostId]);
 
+  // Initial scroll handled by Virtuoso's initialTopMostItemIndex
   useEffect(() => {
-    if (hasFocusedPostRef.current || hasAutoScrolledRef.current) return;
-    if (!posts.length) return;
-
-    const targetIndex =
-      firstUnreadIndex !== -1 ? Math.max(0, firstUnreadIndex - 1) : posts.length - 1;
-    const targetId = posts[targetIndex]?.id;
-    if (!targetId) return;
-
-    hasAutoScrolledRef.current = true;
-    requestAnimationFrame(() =>
-      scrollToPost(targetId, { highlight: false, behavior: "auto" })
-    );
-  }, [firstUnreadIndex, posts, scrollToPost]);
-
-  // Auto-scroll to bottom when new messages arrive and user is near bottom
-  const prevPostsLengthRef = useRef(posts.length);
-  useEffect(() => {
-    const hasNewMessages = posts.length > prevPostsLengthRef.current;
-    prevPostsLengthRef.current = posts.length;
-
-    if (hasNewMessages && isNearBottom && hasAutoScrolledRef.current) {
-      // Auto-scroll to show new messages
-      requestAnimationFrame(() => {
-        const container = scrollContainerRef.current;
-        if (container) {
-          container.scrollTop = container.scrollHeight;
-        }
-      });
+    if (posts.length && !hasAutoScrolledRef.current) {
+      hasAutoScrolledRef.current = true;
     }
-  }, [posts.length, isNearBottom]);
+  }, [posts.length]);
+
+  // Auto-scroll handled by Virtuoso's followOutput
 
   const timestampFormatter = useMemo(
     () =>
@@ -1016,57 +984,13 @@ export function MattermostChannelView({ channelId }: Props) {
     }
   }, [onlineCount, showOnlineUsers]);
 
-  useEffect(() => {
-    handleScroll();
-  }, [posts.length, handleScroll]);
-
-  // DM warning logic: show warning for new DM conversations where user hasn't replied yet
-  useEffect(() => {
-    const isDm = channelData?.channel?.type === "D";
-    if (!isDm || !channelId || !channelData?.member?.user_id) {
-      setShowDmWarning(false);
-      return;
-    }
-
-    const currentUserId = channelData.member.user_id;
-    const storageKey = `dm-warning-dismissed-${currentUserId}-${channelId}`;
-
-    // Check if warning was manually dismissed before
-    if (ls.get(storageKey) === true) {
-      setShowDmWarning(false);
-      return;
-    }
-
-    // If older pages exist, we may not have loaded the user's reply yet.
-    if (hasNextPage) {
-      setShowDmWarning(false);
-      return;
-    }
-
-    // Check if the current user has sent any messages in this DM
-    const userHasReplied = posts.some((post) => {
-      const isSystem = typeof post.type === "string" && post.type.startsWith("system");
-      return post.user_id === currentUserId && !isSystem;
-    });
-
-    // Show warning only if user hasn't replied yet
-    setShowDmWarning(!userHasReplied);
-  }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, hasNextPage, posts]);
-
-  // Auto-hide warning when user sends a message
-  useEffect(() => {
-    if (showDmWarning && sendMutation.isSuccess) {
-      setShowDmWarning(false);
-    }
-  }, [showDmWarning, sendMutation.isSuccess]);
-
-  const handleDismissDmWarning = useCallback(() => {
-    const currentUserId = channelData?.member?.user_id;
-    if (channelId && currentUserId) {
-      ls.set(`dm-warning-dismissed-${currentUserId}-${channelId}`, true);
-    }
-    setShowDmWarning(false);
-  }, [channelId, channelData?.member?.user_id]);
+  const { showDmWarning, handleDismissDmWarning } = useDmWarning({
+    channelId,
+    channelData,
+    posts,
+    hasNextPage: hasNextPage ?? false,
+    sendMutationSuccess: sendMutation.isSuccess
+  });
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
@@ -1077,248 +1001,227 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 
   // Wrapper functions using extracted utilities with local context
-  const getDisplayName = (post: MattermostPost) =>
-    getPostDisplayName(post, usersById, normalizeUsername);
+  const getDisplayName = useCallback(
+    (post: MattermostPost) => getPostDisplayName(post, usersById, normalizeUsername),
+    [usersById, normalizeUsername]
+  );
 
-  const getUsername = (post: MattermostPost) =>
-    getPostUsername(post, usersById, normalizeUsername);
-
-  const getAddedUserName = (post: MattermostPost) =>
-    getAddedUserDisplayName(post, usersById);
+  const getUsername = useCallback(
+    (post: MattermostPost) => getPostUsername(post, usersById, normalizeUsername),
+    [usersById, normalizeUsername]
+  );
 
   // Wrapper to decode emojis in display messages
-  const getDecodedDisplayMessage = (post: MattermostPost) => {
-    const baseMessage =
-      post.type === "system_add_to_channel"
-        ? `${getAddedUserDisplayName(post, usersById)} joined the channel`
-        : getDisplayMessage(post);
+  const getDecodedDisplayMessage = useCallback(
+    (post: MattermostPost) => {
+      const baseMessage =
+        post.type === "system_add_to_channel"
+          ? `${getAddedUserDisplayName(post, usersById)} joined the channel`
+          : getDisplayMessage(post);
 
-    return decodeMessageEmojis(baseMessage);
-  };
+      return decodeMessageEmojis(baseMessage);
+    },
+    [usersById]
+  );
 
-  const isImageUrl = (url: string) => {
-    const normalizedUrl = url.toLowerCase().trim();
-    return (
-      /^https?:\/\/images\.ecency\.com\//.test(normalizedUrl) ||
-      /\.(png|jpe?g|gif|webp|svg)(\?[^#]*)?(\#.*)?$/i.test(normalizedUrl) ||
-      /^https?:\/\/.*\.(gif|giphy)/.test(normalizedUrl) ||
-      /tenor\.com\/.*\.gif/.test(normalizedUrl) ||
-      /giphy\.com\//.test(normalizedUrl)
-    );
-  };
-
-  const isPartOfEcencyPostLink = (before: string, mention: string, after: string) => {
-    const combined = `${before}${mention}${after}`;
-
-    return /https?:\/\/(?:www\.)?ecency\.com\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})/i.test(combined);
-  };
 
   const ECENCY_POST_LINK_REGEX = useMemo(
     () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
     []
   );
 
-  const renderTextWithMentions = (content: string, keyPrefix = "mention") => {
-    const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
-    const parts = content.split(
-      /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+)/
-    );
+  const renderMessageContent = useMemo(() => {
+    const renderTextWithMentions = (content: string, keyPrefix = "mention") => {
+      const mentionMatcher = new RegExp(USER_MENTION_PURE_REGEX.source, "i");
+      const parts = content.split(
+        /(@(?=[a-zA-Z][a-zA-Z0-9.-]{1,15}\b)[a-zA-Z0-9.-]+)/
+      );
 
-    return parts
-      .filter((part) => part !== "")
-      .map((part, idx) => {
-        if (mentionMatcher.test(part)) {
-          const prevPart = parts[idx - 1] || "";
-          const nextPart = parts[idx + 1] || "";
+      return parts
+        .filter((part) => part !== "")
+        .map((part, idx) => {
+          if (mentionMatcher.test(part)) {
+            const prevPart = parts[idx - 1] || "";
+            const nextPart = parts[idx + 1] || "";
 
-          if (isPartOfEcencyPostLink(prevPart, part, nextPart)) {
-            return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
+            if (isPartOfEcencyPostLink(prevPart, part, nextPart)) {
+              return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
+            }
+
+            const username = part.slice(1);
+            return (
+              <MentionToken
+                key={`${keyPrefix}-${part}-${idx}`}
+                username={username}
+                user={usersByUsername[username.toLowerCase()]}
+                currentUsername={activeUser?.username}
+                onStartDm={startDirectMessage}
+              />
+            );
           }
 
-          const username = part.slice(1);
-          return (
-            <MentionToken
-              key={`${keyPrefix}-${part}-${idx}`}
-              username={username}
-              user={usersByUsername[username.toLowerCase()]}
-              currentUsername={activeUser?.username}
-              onStartDm={startDirectMessage}
-            />
-          );
+          return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
+        });
+    };
+
+    const renderTextWithEnhancements = (content: string) => {
+      const matches = Array.from(content.matchAll(ECENCY_POST_LINK_REGEX));
+
+      if (!matches.length) {
+        return renderTextWithMentions(content);
+      }
+
+      const nodes: ReactNode[] = [];
+      let cursor = 0;
+
+      matches.forEach((match, index) => {
+        const matchIndex = match.index ?? 0;
+        const matchedText = match[0];
+
+        if (matchIndex > cursor) {
+          nodes.push(...renderTextWithMentions(content.slice(cursor, matchIndex), `mention-${index}-before`));
         }
 
-        return <span key={`${keyPrefix}-${part}-${idx}`}>{part}</span>;
-      });
-  };
+        const cleanedLink = trimTrailingLinkPunctuation(matchedText);
+        const trailing = matchedText.slice(cleanedLink.length);
 
-  const trimTrailingLinkPunctuation = (link: string) => {
-    let trimmed = link;
-    while (trimmed.length && /[\).,!?:]$/.test(trimmed)) {
-      trimmed = trimmed.slice(0, -1);
-    }
-    return trimmed;
-  };
+        if (isEnhanceableEcencyPostLink(cleanedLink)) {
+          const linkHash = cleanedLink.split('/').pop() || index;
+          nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}-${linkHash}`} link={cleanedLink} />);
+        } else {
+          nodes.push(...renderTextWithMentions(cleanedLink, `mention-${index}-link`));
+        }
 
-  const renderTextWithEnhancements = (content: string) => {
-    const matches = Array.from(content.matchAll(ECENCY_POST_LINK_REGEX));
+        if (trailing) {
+          nodes.push(...renderTextWithMentions(trailing, `mention-${index}-trail`));
+        }
 
-    if (!matches.length) {
-      return renderTextWithMentions(content);
-    }
-
-    const nodes: ReactNode[] = [];
-    let cursor = 0;
-
-    matches.forEach((match, index) => {
-      const matchIndex = match.index ?? 0;
-      const matchedText = match[0];
-
-      if (matchIndex > cursor) {
-        nodes.push(...renderTextWithMentions(content.slice(cursor, matchIndex), `mention-${index}-before`));
-      }
-
-      const cleanedLink = trimTrailingLinkPunctuation(matchedText);
-      const trailing = matchedText.slice(cleanedLink.length);
-
-      if (isEnhanceableEcencyPostLink(cleanedLink)) {
-        // Use link hash in key to ensure uniqueness even for duplicate links in same message
-        const linkHash = cleanedLink.split('/').pop() || index;
-        nodes.push(<HivePostLinkRenderer key={`ecency-link-${index}-${linkHash}`} link={cleanedLink} />);
-      } else {
-        nodes.push(...renderTextWithMentions(cleanedLink, `mention-${index}-link`));
-      }
-
-      if (trailing) {
-        nodes.push(...renderTextWithMentions(trailing, `mention-${index}-trail`));
-      }
-
-      cursor = matchIndex + matchedText.length;
-    });
-
-    if (cursor < content.length) {
-      nodes.push(...renderTextWithMentions(content.slice(cursor), "mention-tail"));
-    }
-
-    return nodes;
-  };
-
-  const renderMessageContent = (text: string) => {
-    try {
-      const normalized = text.trimEnd();
-      const sanitized = DOMPurify.sanitize(markdownParser(normalized), {
-        ADD_ATTR: ["target", "rel"]
+        cursor = matchIndex + matchedText.length;
       });
 
-      const createParseOptions = (inLink = false): HTMLReactParserOptions => ({
-        replace(domNode) {
-          if (domNode.type === "text") {
-            const textContent = (domNode as Text).data || "";
-            // Check if the text is a bare image URL
-            const trimmedText = textContent.trim();
-            if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
-              const proxied = getProxiedImageUrl(trimmedText);
-              return (
-                <ChatImage
-                  src={proxied}
-                  alt="Shared image"
-                />
-              );
-            }
-            return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
-          }
+      if (cursor < content.length) {
+        nodes.push(...renderTextWithMentions(content.slice(cursor), "mention-tail"));
+      }
 
-          if (domNode instanceof Element) {
-            if (domNode.name === "p") {
-              return (
-                <div className="leading-relaxed">
-                  {domToReact(domNode.children ?? [], createParseOptions(inLink))}
-                </div>
-              );
-            }
+      return nodes;
+    };
 
-            if (domNode.name === "img") {
-              const src = domNode.attribs?.src || "";
-              const alt = domNode.attribs?.alt || "Shared image";
-              const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
+    return (text: string) => {
+      try {
+        const normalized = text.trimEnd();
+        const sanitized = DOMPurify.sanitize(markdownParser(normalized), {
+          ADD_ATTR: ["target", "rel"]
+        });
 
-              return (
-                <ChatImage
-                  src={proxied}
-                  alt={alt}
-                />
-              );
+        const createParseOptions = (inLink = false): HTMLReactParserOptions => ({
+          replace(domNode) {
+            if (domNode.type === "text") {
+              const textContent = (domNode as Text).data || "";
+              const trimmedText = textContent.trim();
+              if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
+                const proxied = getProxiedImageUrl(trimmedText);
+                return (
+                  <ChatImage
+                    src={proxied}
+                    alt="Shared image"
+                  />
+                );
+              }
+              return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
             }
 
-            if (domNode.name === "a") {
-              const href = domNode.attribs?.href || "";
-              const children = domToReact(domNode.children ?? [], createParseOptions(true));
-              const containsImage = (domNode.children || []).some(
-                (child) => child instanceof Element && child.name === "img"
-              );
+            if (domNode instanceof Element) {
+              if (domNode.name === "p") {
+                return (
+                  <div className="leading-relaxed">
+                    {domToReact(domNode.children ?? [], createParseOptions(inLink))}
+                  </div>
+                );
+              }
 
-              const isEcencyPostLink = isEnhanceableEcencyPostLink(href);
-
-              const childText = (domNode.children || [])
-                .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
-                .join("")
-                .trim();
-              // More lenient check: if the link href is an image and text is similar or empty, render as image
-              const isPlainImageLink = !containsImage && isImageUrl(href) && (
-                childText === href ||
-                childText === href.trim() ||
-                !childText ||
-                childText === href.replace(/^https?:\/\//, '').trim() ||
-                isImageUrl(childText)
-              );
-
-              if (isPlainImageLink) {
-                const proxied = getProxiedImageUrl(href);
+              if (domNode.name === "img") {
+                const src = domNode.attribs?.src || "";
+                const alt = domNode.attribs?.alt || "Shared image";
+                const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
 
                 return (
                   <ChatImage
                     src={proxied}
-                    alt={childText || "Shared image"}
+                    alt={alt}
                   />
                 );
               }
 
-              // Don't use HivePostLinkRenderer/WaveLikePostRenderer for markdown links
-              // to avoid nested <a> tags. These renderers should only be used for bare
-              // URLs detected in plain text (via renderTextWithEnhancements).
-              return (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={containsImage ? "inline-block" : "text-blue-500 underline break-all"}
-                >
-                  {children}
-                </a>
-              );
+              if (domNode.name === "a") {
+                const href = domNode.attribs?.href || "";
+                const children = domToReact(domNode.children ?? [], createParseOptions(true));
+                const containsImage = (domNode.children || []).some(
+                  (child) => child instanceof Element && child.name === "img"
+                );
+
+                const isEcencyPostLink = isEnhanceableEcencyPostLink(href);
+
+                const childText = (domNode.children || [])
+                  .map((child) => (child.type === "text" ? (child as Text).data?.trim() ?? "" : ""))
+                  .join("")
+                  .trim();
+                const isPlainImageLink = !containsImage && isImageUrl(href) && (
+                  childText === href ||
+                  childText === href.trim() ||
+                  !childText ||
+                  childText === href.replace(/^https?:\/\//, '').trim() ||
+                  isImageUrl(childText)
+                );
+
+                if (isPlainImageLink) {
+                  const proxied = getProxiedImageUrl(href);
+
+                  return (
+                    <ChatImage
+                      src={proxied}
+                      alt={childText || "Shared image"}
+                    />
+                  );
+                }
+
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={containsImage ? "inline-block" : "text-blue-500 underline break-all"}
+                  >
+                    {children}
+                  </a>
+                );
+              }
             }
+
+            return undefined;
           }
+        });
 
-          return undefined;
-        }
-      });
-
-      return htmlParse(sanitized, createParseOptions());
-    } catch (error) {
-      console.error("Failed to render chat message", error);
-      const fallback = DOMPurify.sanitize(text || "", { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
-      return <span className="whitespace-pre-wrap break-words">{fallback}</span>;
-    }
-  };
+        return htmlParse(sanitized, createParseOptions());
+      } catch (error) {
+        console.error("Failed to render chat message", error);
+        const fallback = DOMPurify.sanitize(text || "", { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+        return <span className="whitespace-pre-wrap break-words">{fallback}</span>;
+      }
+    };
+  }, [markdownParser, getProxiedImageUrl, usersByUsername, activeUser?.username, startDirectMessage, ECENCY_POST_LINK_REGEX]);
 
   // Note: getAvatarUrl now imported from format-utils.ts
 
-  const startDirectMessage = (username: string) => {
-    directChannelMutation.mutate(username, {
-      onSuccess: (result) => {
-        router.push(`/chats/${result.channelId}`);
-      }
-    });
-  };
+  const startDirectMessage = useCallback(
+    (username: string) => {
+      directChannelMutation.mutate(username, {
+        onSuccess: (result) => {
+          router.push(`/chats/${result.channelId}`);
+        }
+      });
+    },
+    [directChannelMutation, router]
+  );
 
   // auto-resize for textarea
   const autoResize = useCallback(() => {
@@ -1489,10 +1392,7 @@ export function MattermostChannelView({ channelId }: Props) {
             setEmojiStart(null);
             setEditingPost(null);
             requestAnimationFrame(() => {
-              const container = scrollContainerRef.current;
-              if (container) {
-                container.scrollTop = container.scrollHeight;
-              }
+              virtuosoRef.current?.scrollToIndex({ index: "LAST", behavior: "smooth" });
               // Refocus input after editing
               messageInputRef.current?.focus();
             });
@@ -1624,238 +1524,27 @@ export function MattermostChannelView({ channelId }: Props) {
     setEmojiStart(null);
   };
 
-  const handleDelete = (post: MattermostPost) => {
-    const currentUserId = channelData?.member?.user_id;
-    const canDelete = channelData?.canModerate || (currentUserId && post.user_id === currentUserId);
-    if (!canDelete) return;
-    if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
+  const handleDelete = useCallback(
+    (post: MattermostPost) => {
+      const currentUserId = channelData?.member?.user_id;
+      const canDelete = channelData?.canModerate || (currentUserId && post.user_id === currentUserId);
+      if (!canDelete) return;
+      if (typeof window !== "undefined" && !window.confirm("Delete this message?")) return;
 
-    setModerationError(null);
-    setDeletingPostId(post.id);
-    deleteMutation.mutate(post.id, {
-      onError: (err) => {
-        setModerationError((err as Error)?.message || "Unable to delete message");
-        setDeletingPostId(null);
-      },
-      onSuccess: () => {
-        setDeletingPostId(null);
-      }
-    });
-  };
-
-  const handleBanUser = (hoursOverride?: number | null) => {
-    if (!isEcencyAdmin) return;
-
-    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-    const hoursValue = hoursOverride ?? Number(banHours);
-
-    if (!normalizedUsername) {
-      setAdminError("Enter a username to manage");
-      setAdminMessage(null);
-      return;
-    }
-
-    if (Number.isNaN(hoursValue) || hoursValue < 0) {
-      setAdminError("Ban hours must be zero or a positive number");
-      setAdminMessage(null);
-      return;
-    }
-
-    setAdminError(null);
-    setAdminMessage(null);
-
-    banUserMutation.mutate(
-      { username: normalizedUsername, hours: hoursValue },
-      {
-        onSuccess: ({ bannedUntil }) => {
-          if (hoursValue === 0 || bannedUntil === null) {
-            setAdminMessage(`Lifted chat ban for @${normalizedUsername}`);
-          } else {
-            setAdminMessage(
-              `@${normalizedUsername} banned until ${new Date(Number(bannedUntil)).toLocaleString()}`
-            );
-          }
-        },
+      setModerationError(null);
+      setDeletingPostId(post.id);
+      deleteMutation.mutate(post.id, {
         onError: (err) => {
-          setAdminError((err as Error)?.message || "Unable to update ban");
+          setModerationError((err as Error)?.message || "Unable to delete message");
+          setDeletingPostId(null);
+        },
+        onSuccess: () => {
+          setDeletingPostId(null);
         }
-      }
-    );
-  };
-
-  const handleDeleteAllPosts = () => {
-    if (!isEcencyAdmin) return;
-
-    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-    if (!normalizedUsername) {
-      setAdminError("Enter a username to manage");
-      setAdminMessage(null);
-      return;
-    }
-
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Delete all posts by @${normalizedUsername} across all chat channels?`)
-    ) {
-      return;
-    }
-
-    setAdminError(null);
-    setAdminMessage(null);
-
-    deleteUserPostsMutation.mutate(normalizedUsername, {
-      onSuccess: ({ deleted }) => {
-        setAdminMessage(`Deleted ${deleted} post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
-      },
-      onError: (err) => {
-        const errorMessage = (err as Error)?.message || "Unable to delete posts";
-        setAdminError(`Error: ${errorMessage}. Note: This feature may require Mattermost Enterprise Edition.`);
-        console.error("Delete posts error:", err);
-      }
-    });
-  };
-
-  const handleDeleteAllDmPosts = () => {
-    if (!isEcencyAdmin) return;
-
-    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-    if (!normalizedUsername) {
-      setAdminError("Enter a username to manage");
-      setAdminMessage(null);
-      return;
-    }
-
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(`Delete all DM posts by @${normalizedUsername}? This will remove all their direct messages across all DM conversations.`)
-    ) {
-      return;
-    }
-
-    setAdminError(null);
-    setAdminMessage(null);
-
-    deleteUserDmPostsMutation.mutate(normalizedUsername, {
-      onSuccess: ({ deleted, timedOut }) => {
-        if (timedOut) {
-          setAdminMessage(
-            `⏱️ Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}.\n` +
-            `Operation timed out - there may be more posts. Click the button again to continue deleting.`
-          );
-        } else {
-          setAdminMessage(`✓ Deleted ${deleted} DM post${deleted === 1 ? "" : "s"} from @${normalizedUsername}`);
-        }
-      },
-      onError: (err) => {
-        setAdminError((err as Error)?.message || "Unable to delete DM posts");
-      }
-    });
-  };
-
-  const handleDeleteUserAccount = () => {
-    if (!isEcencyAdmin) return;
-
-    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-    if (!normalizedUsername) {
-      setAdminError("Enter a username to manage");
-      setAdminMessage(null);
-      return;
-    }
-
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `⚠️ PERMANENTLY DELETE account @${normalizedUsername}?\n\n` +
-        `This will:\n` +
-        `• Delete the user profile\n` +
-        `• Remove all memberships\n` +
-        `• Delete all posts (handled by Mattermost)\n` +
-        `• Delete uploaded files\n\n` +
-        `THIS CANNOT BE UNDONE!`
-      )
-    ) {
-      return;
-    }
-
-    setAdminError(null);
-    setAdminMessage(null);
-
-    deleteUserAccountMutation.mutate(normalizedUsername, {
-      onSuccess: ({ deleted, deactivated, username }) => {
-        if (deleted) {
-          setAdminMessage(`✓ Account @${username} permanently deleted (Enterprise Edition)`);
-        } else if (deactivated) {
-          setAdminMessage(
-            `⚠️ Account @${username} deactivated (Team Edition fallback).\n` +
-            `Permanent deletion requires Enterprise Edition. User is now inactive and cannot log in.`
-          );
-        } else {
-          setAdminMessage(`✓ Account @${username} removed`);
-        }
-        setAdminUsername("");
-      },
-      onError: (err) => {
-        const errorMessage = (err as Error)?.message || "Unable to delete account";
-        setAdminError(
-          `Error: ${errorMessage}\n\n` +
-          `Common causes:\n` +
-          `• @ecency user needs System Admin role in Mattermost\n` +
-          `• MATTERMOST_ADMIN_TOKEN not configured\n` +
-          `• Check browser console for details`
-        );
-        console.error("Delete account error:", err);
-      }
-    });
-  };
-
-  const handleNukeUser = () => {
-    if (!isEcencyAdmin) return;
-
-    const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-    if (!normalizedUsername) {
-      setAdminError("Enter a username to manage");
-      setAdminMessage(null);
-      return;
-    }
-
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `💣 NUCLEAR OPTION: Completely remove @${normalizedUsername}?\n\n` +
-        `This will:\n` +
-        `1. Delete ALL public/community posts\n` +
-        `2. Delete ALL DM and group messages\n` +
-        `3. PERMANENTLY delete the account\n\n` +
-        `⚠️ THIS IS IRREVERSIBLE AND CANNOT BE UNDONE!\n\n` +
-        `Only use this for severe violations (spam bots, abuse, etc.)`
-      )
-    ) {
-      return;
-    }
-
-    setAdminError(null);
-    setAdminMessage("🔄 Nuking user... (this may take a while)");
-
-    nukeUserMutation.mutate(normalizedUsername, {
-      onSuccess: ({ username, deletedPublicPosts, deletedDmPosts, accountDeleted }) => {
-        setAdminMessage(
-          `✓ User @${username} completely removed:\n` +
-          `• ${deletedPublicPosts} public posts deleted\n` +
-          `• ${deletedDmPosts} DM/group posts deleted\n` +
-          `• Account ${accountDeleted ? "deleted" : "deletion failed (may require Enterprise Edition)"}`
-        );
-        setAdminUsername("");
-      },
-      onError: (err) => {
-        const errorMessage = (err as Error)?.message || "Unable to nuke user";
-        setAdminError(
-          `Error: ${errorMessage}. ` +
-          `This operation may require Mattermost Enterprise Edition.`
-        );
-        console.error("Nuke user error:", err);
-      }
-    });
-  };
+      });
+    },
+    [channelData?.member?.user_id, channelData?.canModerate, deleteMutation]
+  );
 
   const toggleReaction = useCallback(
     (post: MattermostPost, emoji: string, closePicker = false) => {
@@ -2190,184 +1879,25 @@ export function MattermostChannelView({ channelId }: Props) {
         )}
 
         {isEcencyAdmin && showAdminTools && (
-          <div className="mt-3 space-y-3 rounded border border-[--border-color] bg-[--surface-color] p-4">
-            <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
-              <div>
-                <div className="text-sm font-semibold">Chat admin tools</div>
-                <div className="text-xs text-[--text-muted]">
-                  Ban users or delete their posts across channels as @ecency.
-                </div>
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch("/api/mattermost/admin/check-permissions");
-                      const data = await res.json();
-                      if (data.error) {
-                        setAdminError(`Permission check failed: ${data.error}`);
-                      } else {
-                        setAdminMessage(data.message);
-                        console.log("Admin permissions:", data);
-                      }
-                    } catch (err) {
-                      setAdminError("Failed to check permissions");
-                    }
-                  }}
-                  className="mt-1 text-xs text-blue-500 hover:underline"
-                >
-                  Check admin permissions
-                </button>
-              </div>
-              <div className="flex flex-col gap-1 text-xs md:items-end">
-                {adminMessage && <div className="text-green-600 whitespace-pre-wrap">{adminMessage}</div>}
-                {adminError && <div className="text-red-500 whitespace-pre-wrap">{adminError}</div>}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 md:flex-row md:items-end">
-              <div className="flex w-full flex-col gap-1 md:w-1/3">
-                <label className="text-xs font-semibold text-[--text-muted]" htmlFor="admin-username">
-                  Target username
-                </label>
-                <input
-                  id="admin-username"
-                  className="w-full rounded-lg border border-[--border-color] bg-white px-3 py-2 text-sm focus:border-blue-dark-sky focus:outline-none"
-                  placeholder="exampleuser"
-                  value={adminUsername}
-                  onChange={(e) => setAdminUsername(e.target.value)}
-                />
-                {adminUserSearch.data?.users?.length ? (
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-[--text-muted]">
-                    <span>Suggestions:</span>
-                    {adminUserSearch.data.users.slice(0, 5).map((user) => (
-                      <button
-                        key={user.id}
-                        type="button"
-                        className="rounded-full border border-[--border-color] px-2 py-1 hover:border-blue-dark-sky hover:text-blue-dark-sky"
-                        onClick={() => setAdminUsername(user.username || "")}
-                      >
-                        @{user.username}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex flex-col gap-1 md:w-48">
-                <label className="text-xs font-semibold text-[--text-muted]" htmlFor="ban-hours">
-                  Ban duration (hours)
-                </label>
-                <input
-                  id="ban-hours"
-                  type="number"
-                  min={0}
-                  className="w-full rounded-lg border border-[--border-color] bg-white px-3 py-2 text-sm focus:border-blue-dark-sky focus:outline-none"
-                  value={banHours}
-                  onChange={(e) => setBanHours(e.target.value)}
-                />
-                <div className="text-[11px] text-[--text-muted]">Use 0 to lift a ban</div>
-              </div>
-
-              <div className="flex flex-wrap gap-2 md:ml-auto">
-                <Button
-                  appearance="primary"
-                  onClick={() => handleBanUser()}
-                  isLoading={banUserMutation.isPending}
-                  disabled={banUserMutation.isPending}
-                >
-                  Apply ban
-                </Button>
-                <Button
-                  appearance="secondary"
-                  outline
-                  onClick={() => handleBanUser(0)}
-                  isLoading={banUserMutation.isPending}
-                  disabled={banUserMutation.isPending}
-                >
-                  Lift ban
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                appearance="danger"
-                onClick={handleDeleteAllPosts}
-                isLoading={deleteUserPostsMutation.isPending}
-                disabled={deleteUserPostsMutation.isPending}
-              >
-                Delete all posts by user
-              </Button>
-              <div className="text-[11px] text-[--text-muted]">
-                Removes every chat message from the user across all channels.
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                appearance="danger"
-                onClick={handleDeleteAllDmPosts}
-                isLoading={deleteUserDmPostsMutation.isPending}
-                disabled={deleteUserDmPostsMutation.isPending}
-              >
-                Delete all DM posts by user
-              </Button>
-              <div className="text-[11px] text-[--text-muted]">
-                Removes all direct messages from the user across all DM conversations. For users with many DMs, this may time out - just click again to continue deleting in chunks.
-              </div>
-            </div>
-
-            <div className="border-t border-[--border-color] my-3" />
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                appearance="danger"
-                outline
-                onClick={handleDeleteUserAccount}
-                isLoading={deleteUserAccountMutation.isPending}
-                disabled={deleteUserAccountMutation.isPending}
-              >
-                🔴 Delete Account Permanently
-              </Button>
-              <div className="text-[11px] text-[--text-muted]">
-                Permanently removes the user account. IRREVERSIBLE.
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                appearance="danger"
-                onClick={handleNukeUser}
-                isLoading={nukeUserMutation.isPending}
-                disabled={nukeUserMutation.isPending}
-              >
-                💣 Nuclear Option: Delete Everything
-              </Button>
-              <div className="text-[11px] text-red-600 font-semibold">
-                Deletes ALL posts (public + DMs) AND permanently removes account. Use only for severe violations.
-              </div>
-            </div>
-          </div>
+          <AdminPanel admin={channelAdmin} />
         )}
 
         <div className="flex flex-1 min-h-0 flex-col gap-3">
           {/* Messages list */}
-          <div
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="relative rounded border border-[--border-color] bg-[--background-color] p-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:pb-4 flex-1 min-h-0 md:min-h-[340px] overflow-y-auto"
-          >
+          <div className="relative rounded border border-[--border-color] bg-[--background-color] flex-1 min-h-0 md:min-h-[340px]">
             {isLoading && (
-              <div className="text-sm text-[--text-muted]">Loading messages…</div>
+              <div className="p-4 text-sm text-[--text-muted]">Loading messages…</div>
             )}
             {error && (
-              <div className="text-sm text-red-500">
+              <div className="p-4 text-sm text-red-500">
                 {(error as Error).message || "Failed to load"}
               </div>
             )}
             {moderationError && (
-              <div className="text-sm text-red-500">{moderationError}</div>
+              <div className="p-4 text-sm text-red-500">{moderationError}</div>
             )}
-            {!isLoading && !posts.length && (
-              <div className="text-sm text-[--text-muted]">
+            {!isLoading && !posts.length && !showJoinPrompt && (
+              <div className="p-4 text-sm text-[--text-muted]">
                 No messages yet. Say hello!
               </div>
             )}
@@ -2402,53 +1932,53 @@ export function MattermostChannelView({ channelId }: Props) {
                 {(aroundQuery.error as Error)?.message || "Unable to load message"}
               </div>
             )}
-            {isFetchingNextPage && (
-              <div className="flex justify-center mb-4">
-                <div className="text-sm text-[--text-muted]">
-                  Loading older messages...
-                </div>
-              </div>
+            {!showJoinPrompt && !isLoading && posts.length > 0 && (
+              <VirtualizedMessageList
+                groupedPosts={groupedPosts}
+                showUnreadDivider={showUnreadDivider}
+                firstUnreadIndex={firstUnreadIndex}
+                expandedJoinGroups={expandedJoinGroups}
+                setExpandedJoinGroups={setExpandedJoinGroups}
+                channelId={channelId}
+                usersById={usersById}
+                channelData={channelData}
+                activeUser={activeUser}
+                postsById={postsById}
+                parentPostById={parentPostById}
+                getDisplayName={getDisplayName}
+                getUsername={getUsername}
+                getDecodedDisplayMessage={getDecodedDisplayMessage}
+                renderMessageContent={renderMessageContent}
+                normalizeUsername={normalizeUsername}
+                startDirectMessage={startDirectMessage}
+                openThread={openThread}
+                handleReply={handleReply}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                handlePinToggle={handlePinToggle}
+                toggleReaction={toggleReaction}
+                openReactionPostId={openReactionPostId}
+                setOpenReactionPostId={setOpenReactionPostId}
+                deletingPostId={deletingPostId}
+                reactMutationPending={reactMutation.isPending}
+                deleteMutationPending={deleteMutation.isPending}
+                canPin={canPin}
+                pinMutationPending={pinPostMutation.isPending || unpinPostMutation.isPending}
+                onStartReached={onStartReached}
+                onAtBottomStateChange={onAtBottomStateChange}
+                isFetchingNextPage={isFetchingNextPage ?? false}
+                virtuosoRef={virtuosoRef}
+                initialScrollIndex={initialScrollIndex}
+              />
             )}
-            {!showJoinPrompt && <MessageList
-              groupedPosts={groupedPosts}
-              showUnreadDivider={showUnreadDivider}
-              firstUnreadIndex={firstUnreadIndex}
-              expandedJoinGroups={expandedJoinGroups}
-              setExpandedJoinGroups={setExpandedJoinGroups}
-              channelId={channelId}
-              usersById={usersById}
-              channelData={channelData}
-              activeUser={activeUser}
-              postsById={postsById}
-              parentPostById={parentPostById}
-              getDisplayName={getDisplayName}
-              getUsername={getUsername}
-              getDecodedDisplayMessage={getDecodedDisplayMessage}
-              renderMessageContent={renderMessageContent}
-              normalizeUsername={normalizeUsername}
-              startDirectMessage={startDirectMessage}
-              openThread={openThread}
-              handleReply={handleReply}
-              handleEdit={handleEdit}
-              handleDelete={handleDelete}
-              handlePinToggle={handlePinToggle}
-              toggleReaction={toggleReaction}
-              openReactionPostId={openReactionPostId}
-              setOpenReactionPostId={setOpenReactionPostId}
-              deletingPostId={deletingPostId}
-              reactMutationPending={reactMutation.isPending}
-              deleteMutationPending={deleteMutation.isPending}
-              canPin={canPin}
-              pinMutationPending={pinPostMutation.isPending || unpinPostMutation.isPending}
-            />}
 
-            {/* Scroll to bottom button - sticky FAB */}
+            {/* Scroll to bottom button - absolute positioned FAB */}
             {showScrollToBottom && (
-              <div className="sticky bottom-4 flex justify-end z-20 pointer-events-none mt-4">
+              <div className="absolute bottom-4 right-4 z-20">
                 <button
                   type="button"
                   onClick={scrollToBottom}
-                  className="pointer-events-auto flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-4 py-2.5 text-sm font-semibold text-[--text-color] shadow-lg shadow-[rgba(0,0,0,0.12)] transition-all hover:bg-[--hover-color] hover:shadow-xl active:scale-95 dark:border-transparent dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600"
+                  className="flex items-center gap-2 rounded-full border border-[--border-color] bg-[--surface-color] px-4 py-2.5 text-sm font-semibold text-[--text-color] shadow-lg shadow-[rgba(0,0,0,0.12)] transition-all hover:bg-[--hover-color] hover:shadow-xl active:scale-95 dark:border-transparent dark:bg-blue-500 dark:text-white dark:hover:bg-blue-600"
                   aria-label="Scroll to bottom"
                 >
                   <span className="text-[--text-color] dark:!text-white">↓</span>
@@ -2540,83 +2070,10 @@ export function MattermostChannelView({ channelId }: Props) {
         typingUsernames={typingUsernames}
       />
 
-      {/* Keyboard Shortcuts Modal */}
-      <Modal
+      <KeyboardShortcutsModal
         show={showKeyboardShortcuts}
         onHide={() => setShowKeyboardShortcuts(false)}
-        title="Keyboard Shortcuts"
-        centered
-      >
-        <ModalBody>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-[--text-color]">Message Composition</h3>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Send message</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    Enter
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">New line</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    Shift + Enter
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">New line (alt)</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    Ctrl/⌘ + Enter
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Edit last message</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    ↑ (when input empty)
-                  </kbd>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-[--text-color]">Navigation</h3>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Focus search</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    Ctrl/⌘ + K
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Cancel edit/reply</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    Esc
-                  </kbd>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-[--text-color]">Formatting</h3>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Mention user</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    @username
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-[--text-muted]">Insert emoji</span>
-                  <kbd className="rounded bg-[--background-color] px-2 py-1 text-xs font-mono border border-[--border-color]">
-                    :emoji_name:
-                  </kbd>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ModalBody>
-      </Modal>
+      />
 
       {/* highlight animation */}
       <style>{`
@@ -2641,60 +2098,3 @@ export function MattermostChannelView({ channelId }: Props) {
   );
 }
 
-function MentionToken({
-  username,
-  user,
-  currentUsername,
-  onStartDm
-}: {
-  username: string;
-  user?: MattermostUser;
-  currentUsername?: string;
-  onStartDm: (username: string) => void;
-}) {
-  const secondary =
-    [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.nickname;
-  const isSelf = currentUsername
-    ? username.toLowerCase() === currentUsername.toLowerCase()
-    : false;
-  const isSpecialMention = ["here", "everyone"].includes(username.toLowerCase());
-
-  if (isSpecialMention) {
-    return (
-      <span
-        className={clsx(
-          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
-          "cursor-default bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200"
-        )}
-      >
-        @{username}
-      </span>
-    );
-  }
-
-  return (
-    <Dropdown className="inline-block">
-      <DropdownToggle as="span">
-        <span
-          className={clsx(
-            "inline-flex cursor-pointer items-center gap-1 rounded-full px-2 py-0.5 text-sm font-semibold",
-            "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-200"
-          )}
-          title={secondary || `@${username}`}
-        >
-          @{username}
-        </span>
-      </DropdownToggle>
-      <DropdownMenu align="left" size="small">
-        <DropdownItemWithIcon icon={blogSvg} label="View blog" href={`/@${username}`} />
-        {!isSelf && (
-          <DropdownItemWithIcon
-            icon={mailSvg}
-            label="Start DM"
-            onClick={() => onStartDm(username)}
-          />
-        )}
-      </DropdownMenu>
-    </Dropdown>
-  );
-}

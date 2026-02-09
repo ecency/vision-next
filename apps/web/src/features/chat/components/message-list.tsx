@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { MessageItem } from "./message-item";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
@@ -58,7 +59,7 @@ interface MessageListProps {
   pinMutationPending: boolean;
 }
 
-export function MessageList({
+export const MessageList = memo(function MessageList({
   groupedPosts,
   showUnreadDivider,
   firstUnreadIndex,
@@ -181,4 +182,4 @@ export function MessageList({
       })}
     </div>
   );
-}
+});

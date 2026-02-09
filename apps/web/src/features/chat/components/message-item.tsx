@@ -1,7 +1,7 @@
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, earthSvg, eyeOffSvg, linkSvg, mailSvg, pinSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, earthSvg, linkSvg, mailSvg, pinSvg } from "@ui/svg";
 import { clipboard } from "@/utils/clipboard";
 import {
   Dropdown,
@@ -14,7 +14,7 @@ import { formatRelativeTime, getAvatarUrl } from "../format-utils";
 import { getNativeEmojiFromShortcode, decodeMessageEmojis } from "../emoji-utils";
 import { MessageTranslate } from "./message-translate";
 import clsx from "clsx";
-import { useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
@@ -30,7 +30,7 @@ interface MessageItemProps {
   // User and channel data
   usersById: Record<string, MattermostUser>;
   channelData?: {
-    member?: { user_id: string };
+    member?: { user_id?: string };
     canModerate?: boolean;
     channel?: { type?: string };
   };
@@ -62,7 +62,7 @@ interface MessageItemProps {
   pinMutationPending: boolean;
 }
 
-function UsernameActions({
+const UsernameActions = memo(function UsernameActions({
   username,
   displayName,
   currentUsername,
@@ -99,9 +99,63 @@ function UsernameActions({
       </DropdownMenu>
     </Dropdown>
   );
+});
+
+function messageItemPropsAreEqual(prev: MessageItemProps, next: MessageItemProps): boolean {
+  // Post identity & content
+  if (prev.post.id !== next.post.id) return false;
+  if (prev.post.message !== next.post.message) return false;
+  if (prev.post.edit_at !== next.post.edit_at) return false;
+  if (prev.post.is_pinned !== next.post.is_pinned) return false;
+  if (prev.post.metadata !== next.post.metadata) return false;
+
+  // Layout
+  if (prev.isGroupStart !== next.isGroupStart) return false;
+  if (prev.index !== next.index) return false;
+  if (prev.channelId !== next.channelId) return false;
+
+  // Unread divider — only the boundary item needs to re-render
+  const prevShowsDivider = prev.showUnreadDivider && prev.index === prev.firstUnreadIndex;
+  const nextShowsDivider = next.showUnreadDivider && next.index === next.firstUnreadIndex;
+  if (prevShowsDivider !== nextShowsDivider) return false;
+
+  // Reaction picker — only the affected item re-renders
+  const prevPickerOpen = prev.openReactionPostId === prev.post.id;
+  const nextPickerOpen = next.openReactionPostId === next.post.id;
+  if (prevPickerOpen !== nextPickerOpen) return false;
+
+  // Deleting state — only the affected item re-renders
+  const prevDeleting = prev.deletingPostId === prev.post.id && prev.deleteMutationPending;
+  const nextDeleting = next.deletingPostId === next.post.id && next.deleteMutationPending;
+  if (prevDeleting !== nextDeleting) return false;
+
+  // User data — only compare this post's author
+  if (prev.usersById[prev.post.user_id] !== next.usersById[next.post.user_id]) return false;
+
+  // Parent post (for threaded replies)
+  if (prev.post.root_id) {
+    if (prev.parentPostById.get(prev.post.id) !== next.parentPostById.get(next.post.id)) return false;
+  }
+
+  // Channel data — compare individual fields
+  if (prev.channelData?.member?.user_id !== next.channelData?.member?.user_id) return false;
+  if (prev.channelData?.canModerate !== next.channelData?.canModerate) return false;
+  if (prev.channelData?.channel?.type !== next.channelData?.channel?.type) return false;
+
+  // Mutation pending states that affect all items
+  if (prev.reactMutationPending !== next.reactMutationPending) return false;
+  if (prev.canPin !== next.canPin) return false;
+  if (prev.pinMutationPending !== next.pinMutationPending) return false;
+
+  // Active user
+  if (prev.activeUser?.username !== next.activeUser?.username) return false;
+
+  // Skip callback comparison — trust useCallback stability from PR 1
+
+  return true;
 }
 
-export function MessageItem({
+function MessageItemInner({
   post,
   index,
   isGroupStart,
@@ -134,6 +188,15 @@ export function MessageItem({
   pinMutationPending
 }: MessageItemProps) {
   const [showTranslateModal, setShowTranslateModal] = useState(false);
+
+  // Close reaction picker when this item unmounts (e.g., due to virtualization)
+  useEffect(() => {
+    return () => {
+      setOpenReactionPostId((current: string | null) =>
+        current === post.id ? null : current
+      );
+    };
+  }, [post.id, setOpenReactionPostId]);
 
   const handleCopyLink = () => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -462,3 +525,5 @@ export function MessageItem({
     </div>
   );
 }
+
+export const MessageItem = memo(MessageItemInner, messageItemPropsAreEqual);
