@@ -236,8 +236,8 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Insufficient funds
-  if (testPattern(/insufficient/i) && testPattern(/funds|balance/i)) {
+  // Insufficient funds (require both words in same string to avoid cross-field false positives)
+  if (testPattern(/(?:insufficient.*(?:funds|balance)|(?:funds|balance).*insufficient)/i)) {
     return {
       message: "Insufficient funds for this transaction.",
       type: ErrorType.VALIDATION,

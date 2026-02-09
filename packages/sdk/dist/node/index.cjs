@@ -189,7 +189,7 @@ function parseChainError(error) {
       originalError: error
     };
   }
-  if (testPattern(/insufficient/i) && testPattern(/funds|balance/i)) {
+  if (testPattern(/(?:insufficient.*(?:funds|balance)|(?:funds|balance).*insufficient)/i)) {
     return {
       message: "Insufficient funds for this transaction.",
       type: "validation" /* VALIDATION */,
