@@ -48,7 +48,8 @@ async function broadcastWithFallback(
   ops: Operation[],
   auth?: AuthContextV2
 ): Promise<TransactionConfirmation> {
-  const chain = auth?.fallbackChain ?? ['key', 'hiveauth', 'hivesigner', 'keychain'];
+  // FIX #1: Include 'custom' in default fallback chain so auth.broadcast is not bypassed
+  const chain = auth?.fallbackChain ?? ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom'];
   const errors: Map<string, Error> = new Map();
   const adapter = auth?.adapter;
 
@@ -56,48 +57,72 @@ async function broadcastWithFallback(
     try {
       switch (method) {
         case 'key': {
-          if (!adapter) break;
-          const key = await adapter.getPostingKey(username);
-          if (key) {
-            const privateKey = PrivateKey.fromString(key);
-            return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
+          // Track skip reason: No adapter provided
+          if (!adapter) {
+            errors.set(method, new Error('Skipped: No adapter provided'));
+            break;
           }
-          break;
+          const key = await adapter.getPostingKey(username);
+          // Track skip reason: No posting key available
+          if (!key) {
+            errors.set(method, new Error('Skipped: No posting key available'));
+            break;
+          }
+          // Attempt broadcast with key
+          const privateKey = PrivateKey.fromString(key);
+          return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
         }
 
         case 'hiveauth': {
-          if (adapter?.broadcastWithHiveAuth) {
-            return await adapter.broadcastWithHiveAuth(username, ops, 'posting');
+          // Track skip reason: HiveAuth not supported by adapter
+          if (!adapter?.broadcastWithHiveAuth) {
+            errors.set(method, new Error('Skipped: HiveAuth not supported by adapter'));
+            break;
           }
-          break;
+          // Attempt broadcast with HiveAuth
+          return await adapter.broadcastWithHiveAuth(username, ops, 'posting');
         }
 
         case 'hivesigner': {
-          if (!adapter) break;
-          const token = await adapter.getAccessToken(username);
-          if (token) {
-            const client = new hs.Client({ accessToken: token });
-            const response = await client.broadcast(ops);
-            return response.result;
+          // Track skip reason: No adapter provided
+          if (!adapter) {
+            errors.set(method, new Error('Skipped: No adapter provided'));
+            break;
           }
-          break;
+          const token = await adapter.getAccessToken(username);
+          // Track skip reason: No access token available
+          if (!token) {
+            errors.set(method, new Error('Skipped: No access token available'));
+            break;
+          }
+          // Attempt broadcast with HiveSigner
+          const client = new hs.Client({ accessToken: token });
+          const response = await client.broadcast(ops);
+          return response.result;
         }
 
         case 'keychain': {
-          if (adapter?.broadcastWithKeychain) {
-            return await adapter.broadcastWithKeychain(username, ops, 'Posting');
+          // Track skip reason: Keychain not supported by adapter
+          if (!adapter?.broadcastWithKeychain) {
+            errors.set(method, new Error('Skipped: Keychain not supported by adapter'));
+            break;
           }
-          break;
+          // Attempt broadcast with Keychain
+          return await adapter.broadcastWithKeychain(username, ops, 'posting');
         }
 
         case 'custom': {
-          if (auth?.broadcast) {
-            return (await auth.broadcast(ops, 'posting')) as TransactionConfirmation;
+          // Track skip reason: No custom broadcast function provided
+          if (!auth?.broadcast) {
+            errors.set(method, new Error('Skipped: No custom broadcast function provided'));
+            break;
           }
-          break;
+          // Attempt broadcast with custom function
+          return (await auth.broadcast(ops, 'posting')) as TransactionConfirmation;
         }
       }
     } catch (error) {
+      // Record actual error from failed broadcast attempt
       errors.set(method, error as Error);
 
       // Only continue fallback if error suggests trying another method
@@ -108,7 +133,22 @@ async function broadcastWithFallback(
     }
   }
 
-  // All methods failed with auth errors
+  // FIX #2: Improved error message distinguishes between skips and real failures
+  const hasRealAttempts = Array.from(errors.values()).some(
+    error => !error.message.startsWith('Skipped:')
+  );
+
+  if (!hasRealAttempts) {
+    // All methods were skipped (none attempted)
+    const skipReasons = Array.from(errors.entries())
+      .map(([method, error]) => `${method}: ${error.message}`)
+      .join(', ');
+    throw new Error(
+      `[SDK][Broadcast] No auth methods attempted for ${username}. ${skipReasons}`
+    );
+  }
+
+  // At least one method was attempted but all failed
   const errorMessages = Array.from(errors.entries())
     .map(([method, error]) => `${method}: ${error.message}`)
     .join(', ');

@@ -66,6 +66,15 @@ function formatNumber(value: number, decimals: number = 3): string {
 /**
  * Builds a limit order create operation with automatic formatting.
  * This is a convenience method that handles buy/sell logic and formatting.
+ *
+ * For Buy orders: You're buying HIVE with HBD
+ *   - amountToSell: HBD amount you're spending
+ *   - minToReceive: HIVE amount you want to receive
+ *
+ * For Sell orders: You're selling HIVE for HBD
+ *   - amountToSell: HIVE amount you're selling
+ *   - minToReceive: HBD amount you want to receive
+ *
  * @param owner - Account creating the order
  * @param amountToSell - Amount to sell (number)
  * @param minToReceive - Minimum to receive (number)
@@ -97,15 +106,17 @@ export function buildLimitOrderCreateOpWithType(
   );
 
   // Format amounts based on order type
+  // Buy: Sell HBD to buy HIVE
+  // Sell: Sell HIVE to buy HBD
   const formattedAmountToSell =
     orderType === BuySellTransactionType.Buy
       ? `${formatNumber(amountToSell, 3)} HBD`
-      : `${formatNumber(minToReceive, 3)} HIVE`;
+      : `${formatNumber(amountToSell, 3)} HIVE`;
 
   const formattedMinToReceive =
     orderType === BuySellTransactionType.Buy
       ? `${formatNumber(minToReceive, 3)} HIVE`
-      : `${formatNumber(amountToSell, 3)} HBD`;
+      : `${formatNumber(minToReceive, 3)} HBD`;
 
   return buildLimitOrderCreateOp(
     owner,

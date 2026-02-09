@@ -44,7 +44,7 @@ export function buildBoostOp(
  * @param user - User account
  * @param author - Post author
  * @param permlink - Post permlink
- * @param points - Points to spend (will be formatted as "X.XXX POINT")
+ * @param points - Points to spend (will be formatted as "X.XXX POINT", must be a valid finite number)
  * @returns Custom JSON operation for boost
  */
 export function buildBoostOpWithPoints(
@@ -53,7 +53,8 @@ export function buildBoostOpWithPoints(
   permlink: string,
   points: number
 ): Operation {
-  if (!user || !author || !permlink || points === undefined) {
+  // Validate required parameters and ensure points is a finite number (reject NaN, Infinity)
+  if (!user || !author || !permlink || !Number.isFinite(points)) {
     throw new Error("[SDK][buildBoostOpWithPoints] Missing required parameters");
   }
 
@@ -64,7 +65,7 @@ export function buildBoostOpWithPoints(
  * Builds an Ecency Boost Plus subscription operation (custom_json).
  * @param user - User account
  * @param account - Account to subscribe
- * @param duration - Subscription duration in days
+ * @param duration - Subscription duration in days (must be a valid finite number)
  * @returns Custom JSON operation for boost plus
  */
 export function buildBoostPlusOp(
@@ -72,7 +73,8 @@ export function buildBoostPlusOp(
   account: string,
   duration: number
 ): Operation {
-  if (!user || !account || duration === undefined) {
+  // Validate required parameters and ensure duration is a finite number (reject NaN, Infinity)
+  if (!user || !account || !Number.isFinite(duration)) {
     throw new Error("[SDK][buildBoostPlusOp] Missing required parameters");
   }
 
@@ -96,7 +98,7 @@ export function buildBoostPlusOp(
  * @param user - User account
  * @param author - Post author
  * @param permlink - Post permlink
- * @param duration - Promotion duration in days
+ * @param duration - Promotion duration in days (must be a valid finite number)
  * @returns Custom JSON operation for promote
  */
 export function buildPromoteOp(
@@ -105,7 +107,8 @@ export function buildPromoteOp(
   permlink: string,
   duration: number
 ): Operation {
-  if (!user || !author || !permlink || duration === undefined) {
+  // Validate required parameters and ensure duration is a finite number (reject NaN, Infinity)
+  if (!user || !author || !permlink || !Number.isFinite(duration)) {
     throw new Error("[SDK][buildPromoteOp] Missing required parameters");
   }
 

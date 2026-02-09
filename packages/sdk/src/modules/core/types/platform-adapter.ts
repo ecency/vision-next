@@ -58,6 +58,20 @@ export interface PlatformAdapter {
   getPostingKey: (username: string) => Promise<string | null | undefined>;
 
   /**
+   * Retrieve active key from secure storage (for transfers and other active operations).
+   *
+   * @param username - The username to get key for
+   * @returns Active key (WIF format), null if Keychain/HiveAuth, undefined if not found
+   *
+   * @remarks
+   * - Returns null for Keychain/HiveAuth users (use broadcastWithKeychain instead)
+   * - Mobile: Decrypts key using PIN
+   * - Web: Retrieves from localStorage
+   * - Required for transfer, power down, and other active authority operations
+   */
+  getActiveKey?: (username: string) => Promise<string | null | undefined>;
+
+  /**
    * Retrieve HiveSigner access token from storage.
    *
    * @param username - The username to get token for
@@ -117,21 +131,30 @@ export interface PlatformAdapter {
   // ============================================================================
 
   /**
-   * Broadcast operations using Keychain extension (web only).
+   * Broadcast operations using Keychain browser extension.
    *
-   * @param username - Username to broadcast for
+   * @param username - Account broadcasting the operations
    * @param ops - Operations to broadcast
-   * @param keyType - Key authority required
+   * @param keyType - Authority level (lowercase: "posting", "active", "owner", "memo")
    * @returns Transaction confirmation
    *
    * @remarks
-   * - Only available on web with Keychain extension installed
-   * - Prompts user for approval via browser extension
+   * Web platform only. Implementations should map lowercase keyType to
+   * Keychain's expected PascalCase format internally if needed.
+   *
+   * @example
+   * ```typescript
+   * async broadcastWithKeychain(username, ops, keyType) {
+   *   // Map to Keychain's expected format
+   *   const keychainKeyType = keyType.charAt(0).toUpperCase() + keyType.slice(1);
+   *   return await window.hive_keychain.requestBroadcast(username, ops, keychainKeyType);
+   * }
+   * ```
    */
   broadcastWithKeychain?: (
     username: string,
     ops: Operation[],
-    keyType: "Posting" | "Active" | "Owner" | "Memo"
+    keyType: "posting" | "active" | "owner" | "memo"
   ) => Promise<TransactionConfirmation>;
 
   /**

@@ -44,7 +44,7 @@ export function buildVoteOp(
  * @param parentAuthor - Parent author (empty string for top-level posts)
  * @param parentPermlink - Parent permlink (category/tag for top-level posts)
  * @param title - Title of the post (empty for comments)
- * @param body - Content body
+ * @param body - Content body (required - cannot be empty)
  * @param jsonMetadata - JSON metadata object
  * @returns Comment operation
  */
@@ -57,7 +57,8 @@ export function buildCommentOp(
   body: string,
   jsonMetadata: Record<string, any>
 ): Operation {
-  if (!author || !permlink || parentPermlink === undefined) {
+  // Validate all required parameters including body
+  if (!author || !permlink || parentPermlink === undefined || !body) {
     throw new Error("[SDK][buildCommentOp] Missing required parameters");
   }
 

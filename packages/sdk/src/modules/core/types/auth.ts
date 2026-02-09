@@ -53,7 +53,9 @@ export interface AuthContext {
  *     showError: (msg) => toast.error(msg),
  *     showSuccess: (msg) => toast.success(msg),
  *     broadcastWithKeychain: async (username, ops, keyType) => {
- *       return window.hive_keychain.requestBroadcast(username, ops, keyType);
+ *       // Map lowercase to Keychain's PascalCase format
+ *       const keychainKeyType = keyType.charAt(0).toUpperCase() + keyType.slice(1);
+ *       return window.hive_keychain.requestBroadcast(username, ops, keychainKeyType);
  *     },
  *   },
  *   enableFallback: true,
@@ -98,11 +100,18 @@ export interface AuthContextV2 extends AuthContext {
   adapter?: PlatformAdapter;
 
   /**
-   * Enable automatic fallback to alternative auth methods.
+   * Whether to enable automatic fallback between auth methods.
    *
-   * When true, SDK will try methods in fallbackChain order if primary method fails.
+   * @remarks
+   * The actual behavior is:
+   * - When adapter is provided: defaults to true (fallback enabled)
+   * - When no adapter: defaults to false (legacy behavior)
    *
-   * @default true
+   * This is evaluated at runtime as: `auth?.enableFallback !== false && auth?.adapter`
+   *
+   * Set to `false` explicitly to disable fallback even with an adapter.
+   *
+   * @default undefined (evaluated as true when adapter exists, false otherwise)
    *
    * @example
    * ```typescript

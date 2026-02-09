@@ -66,15 +66,33 @@ export interface ProposalCreatePayload {
 /**
  * Builds a create proposal operation.
  * @param creator - Account creating the proposal
- * @param payload - Proposal details
+ * @param payload - Proposal details (must include start, end, and dailyPay)
  * @returns Create proposal operation
  */
 export function buildProposalCreateOp(
   creator: string,
   payload: ProposalCreatePayload
 ): Operation {
-  if (!creator || !payload.receiver || !payload.subject || !payload.permlink) {
+  // Validate required fields including start, end, and dailyPay
+  if (
+    !creator ||
+    !payload.receiver ||
+    !payload.subject ||
+    !payload.permlink ||
+    !payload.start ||
+    !payload.end ||
+    !payload.dailyPay
+  ) {
     throw new Error("[SDK][buildProposalCreateOp] Missing required parameters");
+  }
+
+  // Validate date format by attempting to parse them
+  const startDate = new Date(payload.start);
+  const endDate = new Date(payload.end);
+  if (startDate.toString() === 'Invalid Date' || endDate.toString() === 'Invalid Date') {
+    throw new Error(
+      "[SDK][buildProposalCreateOp] Invalid date format: start and end must be valid ISO date strings"
+    );
   }
 
   return [
@@ -145,7 +163,7 @@ export function buildRemoveProposalOp(
 
 /**
  * Builds an update proposal operation.
- * @param proposalId - Proposal ID to update
+ * @param proposalId - Proposal ID to update (must be a valid number, including 0)
  * @param creator - Account that created the proposal
  * @param dailyPay - New daily pay amount
  * @param subject - New subject
@@ -159,7 +177,17 @@ export function buildUpdateProposalOp(
   subject: string,
   permlink: string
 ): Operation {
-  if (!proposalId || !creator || !dailyPay || !subject || !permlink) {
+  // Validate proposalId properly - check for undefined/null instead of falsy
+  // This allows proposalId of 0 which is a valid proposal ID
+  if (
+    proposalId === undefined ||
+    proposalId === null ||
+    typeof proposalId !== 'number' ||
+    !creator ||
+    !dailyPay ||
+    !subject ||
+    !permlink
+  ) {
     throw new Error("[SDK][buildUpdateProposalOp] Missing required parameters");
   }
 

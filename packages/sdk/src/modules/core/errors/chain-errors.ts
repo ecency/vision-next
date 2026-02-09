@@ -181,12 +181,12 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Network errors
+  // Network errors (more specific patterns to avoid false positives)
   if (
-    /network/i.test(errorString) ||
     /econnrefused/i.test(errorString) ||
     /connection refused/i.test(errorString) ||
-    /failed to fetch/i.test(errorString)
+    /failed to fetch/i.test(errorString) ||
+    /\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i.test(errorString)
   ) {
     return {
       message: "Network error. Please check your connection and try again.",
@@ -231,10 +231,11 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Generic validation errors
-  if (/invalid|validation/i.test(errorString)) {
+  // Generic validation errors (use word boundaries to be more specific)
+  if (/\b(invalid|validation)\b/i.test(errorString)) {
+    const message = error?.message || errorString.substring(0, 150) || "Validation error occurred";
     return {
-      message: errorString.substring(0, 150) || "Validation error occurred.",
+      message,
       type: ErrorType.VALIDATION,
       originalError: error,
     };
@@ -259,9 +260,25 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Fallback to string representation
+  // Handle plain objects without message property (avoid "[object Object]")
+  let message: string;
+  if (typeof error === 'object' && error !== null) {
+    // Check for common error properties
+    if (error.error_description) {
+      message = String(error.error_description);
+    } else if (error.code) {
+      message = `Error code: ${error.code}`;
+    } else if (errorString && errorString !== '[object Object]') {
+      message = errorString.substring(0, 150);
+    } else {
+      message = "Unknown error occurred";
+    }
+  } else {
+    message = errorString.substring(0, 150) || "Unknown error occurred";
+  }
+
   return {
-    message: errorString.substring(0, 150) || "Unknown error occurred",
+    message,
     type: ErrorType.COMMON,
     originalError: error,
   };

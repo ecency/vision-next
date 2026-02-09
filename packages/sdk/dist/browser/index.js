@@ -128,7 +128,7 @@ function parseChainError(error) {
       originalError: error
     };
   }
-  if (/network/i.test(errorString) || /econnrefused/i.test(errorString) || /connection refused/i.test(errorString) || /failed to fetch/i.test(errorString)) {
+  if (/econnrefused/i.test(errorString) || /connection refused/i.test(errorString) || /failed to fetch/i.test(errorString) || /\bnetwork[-\s]?(request|error|timeout|unreachable|down|failed)\b/i.test(errorString)) {
     return {
       message: "Network error. Please check your connection and try again.",
       type: "network" /* NETWORK */,
@@ -163,9 +163,10 @@ function parseChainError(error) {
       originalError: error
     };
   }
-  if (/invalid|validation/i.test(errorString)) {
+  if (/\b(invalid|validation)\b/i.test(errorString)) {
+    const message2 = error?.message || errorString.substring(0, 150) || "Validation error occurred";
     return {
-      message: errorString.substring(0, 150) || "Validation error occurred.",
+      message: message2,
       type: "validation" /* VALIDATION */,
       originalError: error
     };
@@ -184,8 +185,22 @@ function parseChainError(error) {
       originalError: error
     };
   }
+  let message;
+  if (typeof error === "object" && error !== null) {
+    if (error.error_description) {
+      message = String(error.error_description);
+    } else if (error.code) {
+      message = `Error code: ${error.code}`;
+    } else if (errorString && errorString !== "[object Object]") {
+      message = errorString.substring(0, 150);
+    } else {
+      message = "Unknown error occurred";
+    }
+  } else {
+    message = errorString.substring(0, 150) || "Unknown error occurred";
+  }
   return {
-    message: errorString.substring(0, 150) || "Unknown error occurred",
+    message,
     type: "common" /* COMMON */,
     originalError: error
   };
@@ -211,48 +226,59 @@ function isNetworkError(error) {
   return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
 }
 async function broadcastWithFallback(username, ops2, auth) {
-  const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain"];
+  const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain", "custom"];
   const errors = /* @__PURE__ */ new Map();
   const adapter = auth?.adapter;
   for (const method of chain) {
     try {
       switch (method) {
         case "key": {
-          if (!adapter) break;
-          const key = await adapter.getPostingKey(username);
-          if (key) {
-            const privateKey = PrivateKey.fromString(key);
-            return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+          if (!adapter) {
+            errors.set(method, new Error("Skipped: No adapter provided"));
+            break;
           }
-          break;
+          const key = await adapter.getPostingKey(username);
+          if (!key) {
+            errors.set(method, new Error("Skipped: No posting key available"));
+            break;
+          }
+          const privateKey = PrivateKey.fromString(key);
+          return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
         }
         case "hiveauth": {
-          if (adapter?.broadcastWithHiveAuth) {
-            return await adapter.broadcastWithHiveAuth(username, ops2, "posting");
+          if (!adapter?.broadcastWithHiveAuth) {
+            errors.set(method, new Error("Skipped: HiveAuth not supported by adapter"));
+            break;
           }
-          break;
+          return await adapter.broadcastWithHiveAuth(username, ops2, "posting");
         }
         case "hivesigner": {
-          if (!adapter) break;
-          const token = await adapter.getAccessToken(username);
-          if (token) {
-            const client = new hs.Client({ accessToken: token });
-            const response = await client.broadcast(ops2);
-            return response.result;
+          if (!adapter) {
+            errors.set(method, new Error("Skipped: No adapter provided"));
+            break;
           }
-          break;
+          const token = await adapter.getAccessToken(username);
+          if (!token) {
+            errors.set(method, new Error("Skipped: No access token available"));
+            break;
+          }
+          const client = new hs.Client({ accessToken: token });
+          const response = await client.broadcast(ops2);
+          return response.result;
         }
         case "keychain": {
-          if (adapter?.broadcastWithKeychain) {
-            return await adapter.broadcastWithKeychain(username, ops2, "Posting");
+          if (!adapter?.broadcastWithKeychain) {
+            errors.set(method, new Error("Skipped: Keychain not supported by adapter"));
+            break;
           }
-          break;
+          return await adapter.broadcastWithKeychain(username, ops2, "posting");
         }
         case "custom": {
-          if (auth?.broadcast) {
-            return await auth.broadcast(ops2, "posting");
+          if (!auth?.broadcast) {
+            errors.set(method, new Error("Skipped: No custom broadcast function provided"));
+            break;
           }
-          break;
+          return await auth.broadcast(ops2, "posting");
         }
       }
     } catch (error) {
@@ -261,6 +287,15 @@ async function broadcastWithFallback(username, ops2, auth) {
         throw error;
       }
     }
+  }
+  const hasRealAttempts = Array.from(errors.values()).some(
+    (error) => !error.message.startsWith("Skipped:")
+  );
+  if (!hasRealAttempts) {
+    const skipReasons = Array.from(errors.entries()).map(([method, error]) => `${method}: ${error.message}`).join(", ");
+    throw new Error(
+      `[SDK][Broadcast] No auth methods attempted for ${username}. ${skipReasons}`
+    );
   }
   const errorMessages = Array.from(errors.entries()).map(([method, error]) => `${method}: ${error.message}`).join(", ");
   throw new Error(
@@ -3603,7 +3638,7 @@ function buildVoteOp(voter, author, permlink, weight) {
   ];
 }
 function buildCommentOp(author, permlink, parentAuthor, parentPermlink, title, body, jsonMetadata) {
-  if (!author || !permlink || parentPermlink === void 0) {
+  if (!author || !permlink || parentPermlink === void 0 || !body) {
     throw new Error("[SDK][buildCommentOp] Missing required parameters");
   }
   return [
@@ -3992,8 +4027,15 @@ function buildWitnessProxyOp(account, proxy) {
   ];
 }
 function buildProposalCreateOp(creator, payload) {
-  if (!creator || !payload.receiver || !payload.subject || !payload.permlink) {
+  if (!creator || !payload.receiver || !payload.subject || !payload.permlink || !payload.start || !payload.end || !payload.dailyPay) {
     throw new Error("[SDK][buildProposalCreateOp] Missing required parameters");
+  }
+  const startDate = new Date(payload.start);
+  const endDate = new Date(payload.end);
+  if (startDate.toString() === "Invalid Date" || endDate.toString() === "Invalid Date") {
+    throw new Error(
+      "[SDK][buildProposalCreateOp] Invalid date format: start and end must be valid ISO date strings"
+    );
   }
   return [
     "create_proposal",
@@ -4037,7 +4079,7 @@ function buildRemoveProposalOp(proposalOwner, proposalIds) {
   ];
 }
 function buildUpdateProposalOp(proposalId, creator, dailyPay, subject, permlink) {
-  if (!proposalId || !creator || !dailyPay || !subject || !permlink) {
+  if (proposalId === void 0 || proposalId === null || typeof proposalId !== "number" || !creator || !dailyPay || !subject || !permlink) {
     throw new Error("[SDK][buildUpdateProposalOp] Missing required parameters");
   }
   return [
@@ -4210,8 +4252,8 @@ function buildLimitOrderCreateOpWithType(owner, amountToSell, minToReceive, orde
   const orderId = Number(
     `${idPrefix}${Math.floor(Date.now() / 1e3).toString().slice(2)}`
   );
-  const formattedAmountToSell = orderType === "buy" /* Buy */ ? `${formatNumber(amountToSell, 3)} HBD` : `${formatNumber(minToReceive, 3)} HIVE`;
-  const formattedMinToReceive = orderType === "buy" /* Buy */ ? `${formatNumber(minToReceive, 3)} HIVE` : `${formatNumber(amountToSell, 3)} HBD`;
+  const formattedAmountToSell = orderType === "buy" /* Buy */ ? `${formatNumber(amountToSell, 3)} HBD` : `${formatNumber(amountToSell, 3)} HIVE`;
+  const formattedMinToReceive = orderType === "buy" /* Buy */ ? `${formatNumber(minToReceive, 3)} HIVE` : `${formatNumber(minToReceive, 3)} HBD`;
   return buildLimitOrderCreateOp(
     owner,
     formattedAmountToSell,
@@ -4359,16 +4401,22 @@ function buildClaimAccountOp(creator, fee) {
     }
   ];
 }
-function buildGrantPostingPermissionOp(account, currentPosting, grantedAccount, weightThreshold) {
-  if (!account || !currentPosting || !grantedAccount) {
+function buildGrantPostingPermissionOp(account, currentPosting, grantedAccount, weightThreshold, memoKey, jsonMetadata) {
+  if (!account || !currentPosting || !grantedAccount || !memoKey) {
     throw new Error("[SDK][buildGrantPostingPermissionOp] Missing required parameters");
+  }
+  const existingIndex = currentPosting.account_auths.findIndex(
+    ([acc]) => acc === grantedAccount
+  );
+  const newAccountAuths = [...currentPosting.account_auths];
+  if (existingIndex >= 0) {
+    newAccountAuths[existingIndex] = [grantedAccount, weightThreshold];
+  } else {
+    newAccountAuths.push([grantedAccount, weightThreshold]);
   }
   const newPosting = {
     ...currentPosting,
-    account_auths: [
-      ...currentPosting.account_auths,
-      [grantedAccount, weightThreshold]
-    ]
+    account_auths: newAccountAuths
   };
   newPosting.account_auths.sort((a, b) => a[0] > b[0] ? 1 : -1);
   return [
@@ -4376,13 +4424,13 @@ function buildGrantPostingPermissionOp(account, currentPosting, grantedAccount, 
     {
       account,
       posting: newPosting,
-      memo_key: void 0,
-      json_metadata: void 0
+      memo_key: memoKey,
+      json_metadata: jsonMetadata
     }
   ];
 }
-function buildRevokePostingPermissionOp(account, currentPosting, revokedAccount) {
-  if (!account || !currentPosting || !revokedAccount) {
+function buildRevokePostingPermissionOp(account, currentPosting, revokedAccount, memoKey, jsonMetadata) {
+  if (!account || !currentPosting || !revokedAccount || !memoKey) {
     throw new Error("[SDK][buildRevokePostingPermissionOp] Missing required parameters");
   }
   const newPosting = {
@@ -4396,8 +4444,8 @@ function buildRevokePostingPermissionOp(account, currentPosting, revokedAccount)
     {
       account,
       posting: newPosting,
-      memo_key: void 0,
-      json_metadata: void 0
+      memo_key: memoKey,
+      json_metadata: jsonMetadata
     }
   ];
 }
@@ -4464,13 +4512,13 @@ function buildBoostOp(user, author, permlink, amount) {
   ];
 }
 function buildBoostOpWithPoints(user, author, permlink, points) {
-  if (!user || !author || !permlink || points === void 0) {
+  if (!user || !author || !permlink || !Number.isFinite(points)) {
     throw new Error("[SDK][buildBoostOpWithPoints] Missing required parameters");
   }
   return buildBoostOp(user, author, permlink, `${points.toFixed(3)} POINT`);
 }
 function buildBoostPlusOp(user, account, duration) {
-  if (!user || !account || duration === void 0) {
+  if (!user || !account || !Number.isFinite(duration)) {
     throw new Error("[SDK][buildBoostPlusOp] Missing required parameters");
   }
   return [
@@ -4488,7 +4536,7 @@ function buildBoostPlusOp(user, account, duration) {
   ];
 }
 function buildPromoteOp(user, author, permlink, duration) {
-  if (!user || !author || !permlink || duration === void 0) {
+  if (!user || !author || !permlink || !Number.isFinite(duration)) {
     throw new Error("[SDK][buildPromoteOp] Missing required parameters");
   }
   return [
@@ -5253,6 +5301,129 @@ function useUploadImage(onSuccess, onError) {
     onSuccess,
     onError
   });
+}
+
+// src/modules/posts/mutations/use-vote.ts
+function useVote(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "vote"],
+    username,
+    ({ author, permlink, weight }) => [
+      buildVoteOp(username, author, permlink, weight)
+    ],
+    async (result, variables) => {
+      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+        await auth.adapter.recordActivity(120, result.block_num, result.id);
+      }
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          ["account", username, "votingPower"]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/posts/mutations/use-reblog.ts
+function useReblog(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "reblog"],
+    username,
+    ({ author, permlink, deleteReblog }) => [
+      buildReblogOp(username, author, permlink, deleteReblog ?? false)
+    ],
+    async (result, variables) => {
+      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+        await auth.adapter.recordActivity(130, result.block_num, result.id);
+      }
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["posts", "blog", username],
+          ["posts", "entry", `/@${variables.author}/${variables.permlink}`]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/posts/mutations/use-comment.ts
+function useComment(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "comment"],
+    username,
+    (payload) => {
+      const operations = [];
+      operations.push(
+        buildCommentOp(
+          payload.author,
+          payload.permlink,
+          payload.parentAuthor,
+          payload.parentPermlink,
+          payload.title,
+          payload.body,
+          payload.jsonMetadata
+        )
+      );
+      if (payload.options) {
+        const {
+          maxAcceptedPayout = "1000000.000 HBD",
+          percentHbd = 1e4,
+          allowVotes = true,
+          allowCurationRewards = true,
+          beneficiaries = []
+        } = payload.options;
+        const extensions = [];
+        if (beneficiaries.length > 0) {
+          extensions.push([
+            0,
+            {
+              beneficiaries: beneficiaries.map((b) => ({
+                account: b.account,
+                weight: b.weight
+              }))
+            }
+          ]);
+        }
+        operations.push(
+          buildCommentOptionsOp(
+            payload.author,
+            payload.permlink,
+            maxAcceptedPayout,
+            percentHbd,
+            allowVotes,
+            allowCurationRewards,
+            extensions
+          )
+        );
+      }
+      return operations;
+    },
+    async (result, variables) => {
+      const isPost = !variables.parentAuthor;
+      const activityType = isPost ? 100 : 110;
+      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+        await auth.adapter.recordActivity(activityType, result.block_num, result.id);
+      }
+      if (auth?.adapter?.invalidateQueries) {
+        const queriesToInvalidate = [
+          ["posts", "feed", username],
+          ["posts", "blog", username]
+        ];
+        if (!isPost) {
+          queriesToInvalidate.push([
+            "posts",
+            "entry",
+            `/@${variables.parentAuthor}/${variables.parentPermlink}`
+          ]);
+        }
+        await auth.adapter.invalidateQueries(queriesToInvalidate);
+      }
+    },
+    auth
+  );
 }
 
 // src/modules/posts/utils/validate-post-creating.ts
@@ -6116,6 +6287,29 @@ function getUserProposalVotesQueryOptions(voter) {
     }
   });
 }
+
+// src/modules/proposals/mutations/use-proposal-vote.ts
+function useProposalVote(username, auth) {
+  return useBroadcastMutation(
+    ["proposals", "vote"],
+    username,
+    ({ proposalIds, approve }) => [
+      buildProposalVoteOp(username, proposalIds, approve)
+    ],
+    async (result) => {
+      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+        await auth.adapter.recordActivity(150, result.block_num, result.id);
+      }
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["proposals", "list"],
+          ["proposals", "votes", username]
+        ]);
+      }
+    },
+    auth
+  );
+}
 function getVestingDelegationsQueryOptions(username, limit = 50) {
   return infiniteQueryOptions({
     queryKey: ["wallet", "vesting-delegations", username, limit],
@@ -6403,6 +6597,110 @@ function getPortfolioQueryOptions(username, currency = "usd", onlyEnabled = true
         )?.toUpperCase(),
         wallets: tokens
       };
+    }
+  });
+}
+async function broadcastTransferWithFallback(username, ops2, auth) {
+  const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain"];
+  const errors = /* @__PURE__ */ new Map();
+  const adapter = auth?.adapter;
+  for (const method of chain) {
+    try {
+      switch (method) {
+        case "key": {
+          if (!adapter) break;
+          const key = await adapter.getActiveKey?.(username);
+          if (key) {
+            const privateKey = PrivateKey.fromString(key);
+            return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+          }
+          break;
+        }
+        case "hiveauth": {
+          if (adapter?.broadcastWithHiveAuth) {
+            return await adapter.broadcastWithHiveAuth(username, ops2, "active");
+          }
+          break;
+        }
+        case "hivesigner": {
+          if (!adapter) break;
+          const token = await adapter.getAccessToken(username);
+          if (token) {
+            const client = new hs.Client({ accessToken: token });
+            const response = await client.broadcast(ops2);
+            return response.result;
+          }
+          break;
+        }
+        case "keychain": {
+          if (adapter?.broadcastWithKeychain) {
+            return await adapter.broadcastWithKeychain(username, ops2, "active");
+          }
+          break;
+        }
+        case "custom": {
+          if (auth?.broadcast) {
+            return await auth.broadcast(ops2, "active");
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      errors.set(method, error);
+      if (!shouldTriggerAuthFallback(error)) {
+        throw error;
+      }
+    }
+  }
+  const errorMessages = Array.from(errors.entries()).map(([method, error]) => `${method}: ${error.message}`).join(", ");
+  throw new Error(
+    `[SDK][Transfer] All auth methods failed for ${username}. Errors: ${errorMessages}`
+  );
+}
+function useTransfer(username, auth) {
+  return useMutation({
+    mutationKey: ["wallet", "transfer", username],
+    mutationFn: async (payload) => {
+      if (!username) {
+        throw new Error(
+          "[SDK][Transfer] Attempted to call transfer API with anon user"
+        );
+      }
+      const ops2 = [buildTransferOp(username, payload.to, payload.amount, payload.memo)];
+      if (auth?.enableFallback !== false && auth?.adapter) {
+        return broadcastTransferWithFallback(username, ops2, auth);
+      }
+      if (auth?.broadcast) {
+        return auth.broadcast(ops2, "active");
+      }
+      if (auth?.adapter?.getActiveKey) {
+        const activeKey = await auth.adapter.getActiveKey(username);
+        if (activeKey) {
+          const privateKey = PrivateKey.fromString(activeKey);
+          return CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+        }
+      }
+      const accessToken = auth?.accessToken;
+      if (accessToken) {
+        const client = new hs.Client({ accessToken });
+        const response = await client.broadcast(ops2);
+        return response.result;
+      }
+      throw new Error(
+        "[SDK][Transfer] \u2013 cannot broadcast transfer w/o active key or token"
+      );
+    },
+    onSuccess: async (result, variables) => {
+      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
+        await auth.adapter.recordActivity(140, result.block_num, result.id);
+      }
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
     }
   });
 }
@@ -7307,6 +7605,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useUpdateDraft, useUploadImage, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

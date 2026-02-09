@@ -217,27 +217,42 @@ export function buildClaimAccountOp(creator: string, fee: string): Operation {
  * @param currentPosting - Current posting authority
  * @param grantedAccount - Account to grant permission to
  * @param weightThreshold - Weight threshold of the granted account
+ * @param memoKey - Memo public key (required by Hive blockchain)
+ * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
  * @returns Account update operation with modified posting authority
  */
 export function buildGrantPostingPermissionOp(
   account: string,
   currentPosting: Authority,
   grantedAccount: string,
-  weightThreshold: number
+  weightThreshold: number,
+  memoKey: string,
+  jsonMetadata: string
 ): Operation {
-  if (!account || !currentPosting || !grantedAccount) {
+  if (!account || !currentPosting || !grantedAccount || !memoKey) {
     throw new Error("[SDK][buildGrantPostingPermissionOp] Missing required parameters");
+  }
+
+  // Find existing account or create new entry to prevent duplicates
+  const existingIndex = currentPosting.account_auths.findIndex(
+    ([acc]) => acc === grantedAccount
+  );
+
+  const newAccountAuths = [...currentPosting.account_auths];
+  if (existingIndex >= 0) {
+    // Update existing entry with new weight
+    newAccountAuths[existingIndex] = [grantedAccount, weightThreshold];
+  } else {
+    // Add new entry
+    newAccountAuths.push([grantedAccount, weightThreshold]);
   }
 
   const newPosting: Authority = {
     ...currentPosting,
-    account_auths: [
-      ...currentPosting.account_auths,
-      [grantedAccount, weightThreshold],
-    ],
+    account_auths: newAccountAuths,
   };
 
-  // Sort account_auths alphabetically
+  // Sort account_auths alphabetically for consistency
   newPosting.account_auths.sort((a, b) => (a[0] > b[0] ? 1 : -1));
 
   return [
@@ -245,8 +260,8 @@ export function buildGrantPostingPermissionOp(
     {
       account,
       posting: newPosting,
-      memo_key: undefined,
-      json_metadata: undefined,
+      memo_key: memoKey,
+      json_metadata: jsonMetadata,
     },
   ];
 }
@@ -257,14 +272,18 @@ export function buildGrantPostingPermissionOp(
  * @param account - Account revoking permission
  * @param currentPosting - Current posting authority
  * @param revokedAccount - Account to revoke permission from
+ * @param memoKey - Memo public key (required by Hive blockchain)
+ * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
  * @returns Account update operation with modified posting authority
  */
 export function buildRevokePostingPermissionOp(
   account: string,
   currentPosting: Authority,
-  revokedAccount: string
+  revokedAccount: string,
+  memoKey: string,
+  jsonMetadata: string
 ): Operation {
-  if (!account || !currentPosting || !revokedAccount) {
+  if (!account || !currentPosting || !revokedAccount || !memoKey) {
     throw new Error("[SDK][buildRevokePostingPermissionOp] Missing required parameters");
   }
 
@@ -280,8 +299,8 @@ export function buildRevokePostingPermissionOp(
     {
       account,
       posting: newPosting,
-      memo_key: undefined,
-      json_metadata: undefined,
+      memo_key: memoKey,
+      json_metadata: jsonMetadata,
     },
   ];
 }

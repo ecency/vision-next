@@ -238,6 +238,32 @@ describe("chain-errors", () => {
 
       expect(result.type).toBe(ErrorType.COMMON);
     });
+
+    it('should handle plain objects without message property (avoid "[object Object]")', () => {
+      const plainObject = { code: 500, data: { foo: 'bar' } };
+      const result = parseChainError(plainObject);
+
+      expect(result.type).toBe(ErrorType.COMMON);
+      expect(result.message).not.toBe('[object Object]');
+      expect(result.message).toBe('Error code: 500');
+    });
+
+    it('should handle objects with error_description in fallback path', () => {
+      const errorObj = { error_description: 'Something went wrong', otherField: 123 };
+      const result = parseChainError(errorObj);
+
+      expect(result.type).toBe(ErrorType.COMMON);
+      expect(result.message).toBe('Something went wrong');
+    });
+
+    it('should handle plain objects with no recognizable error properties', () => {
+      const plainObject = { foo: 'bar', baz: 123 };
+      const result = parseChainError(plainObject);
+
+      expect(result.type).toBe(ErrorType.COMMON);
+      expect(result.message).toBe('Unknown error occurred');
+      expect(result.message).not.toBe('[object Object]');
+    });
   });
 
   describe("formatError", () => {
@@ -392,6 +418,65 @@ describe("chain-errors", () => {
       const result = parseChainError(originalError);
 
       expect(result.originalError).toBe(originalError);
+    });
+
+    it("should not misclassify 'social network' as network error", () => {
+      const error = new Error("Welcome to our social network platform");
+      const result = parseChainError(error);
+
+      // Should not be classified as network error due to strict regex
+      expect(result.type).not.toBe(ErrorType.NETWORK);
+      expect(result.type).toBe(ErrorType.COMMON);
+    });
+
+    it("should detect network-down as network error", () => {
+      const error = new Error("Network down, please try again");
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.NETWORK);
+      expect(result.message).toContain("Network error");
+    });
+
+    it("should detect network-unreachable as network error", () => {
+      const error = new Error("Network unreachable");
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.NETWORK);
+      expect(result.message).toContain("Network error");
+    });
+
+    it("should handle validation errors with word boundaries", () => {
+      const error = new Error("Invalid parameter provided");
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.VALIDATION);
+      expect(result.message).toContain("Invalid parameter");
+    });
+
+    it("should not misclassify 'invalidate cache' as validation error", () => {
+      const error = new Error("Need to invalidate cache");
+      const result = parseChainError(error);
+
+      // Should not match because 'invalidate' doesn't have word boundary on 'invalid'
+      expect(result.type).toBe(ErrorType.COMMON);
+    });
+
+    it("should handle plain object with code property only", () => {
+      const error = { code: 404 };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.COMMON);
+      expect(result.message).toBe("Error code: 404");
+      expect(result.message).not.toBe("[object Object]");
+    });
+
+    it("should handle plain object with only custom properties", () => {
+      const error = { customField: "value", anotherField: 123 };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.COMMON);
+      expect(result.message).toBe("Unknown error occurred");
+      expect(result.message).not.toBe("[object Object]");
     });
   });
 });
