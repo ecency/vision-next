@@ -1,11 +1,134 @@
 import type { Operation } from "@hiveio/dhive";
+import type { PlatformAdapter, AuthMethod } from "./platform-adapter";
 
+/**
+ * Original AuthContext for backward compatibility.
+ *
+ * This interface is maintained for existing SDK consumers who pass
+ * auth context directly to mutations.
+ *
+ * @deprecated Use AuthContextV2 for new implementations to enable platform adapters.
+ *
+ * @example
+ * ```typescript
+ * // Legacy usage (still supported)
+ * const authContext: AuthContext = {
+ *   postingKey: 'wif-key',
+ *   accessToken: 'hs-token',
+ *   loginType: 'hivesigner'
+ * };
+ * ```
+ */
 export interface AuthContext {
+  /** HiveSigner OAuth access token */
   accessToken?: string;
+  /** Posting key in WIF format (null for Keychain/HiveAuth users) */
   postingKey?: string | null;
+  /** Login method used ('key', 'hivesigner', 'keychain', 'hiveauth') */
   loginType?: string | null;
+  /**
+   * Custom broadcast function for platform-specific signing.
+   * @deprecated Use platform adapter's broadcastWithKeychain/broadcastWithHiveAuth instead.
+   */
   broadcast?: (
     operations: Operation[],
     authority?: "active" | "posting" | "owner" | "memo"
   ) => Promise<unknown>;
+}
+
+/**
+ * Enhanced AuthContext with platform adapter support.
+ * Backward compatible with AuthContext.
+ *
+ * This is the recommended interface for new SDK integrations. It enables
+ * platform-specific features while keeping the SDK agnostic of implementation details.
+ *
+ * @example
+ * ```typescript
+ * // Web usage with platform adapter
+ * const authContext: AuthContextV2 = {
+ *   adapter: {
+ *     getUser: async (username) => getUserFromZustand(username),
+ *     getPostingKey: async (username) => localStorage.getItem(`key-${username}`),
+ *     showError: (msg) => toast.error(msg),
+ *     showSuccess: (msg) => toast.success(msg),
+ *     broadcastWithKeychain: async (username, ops, keyType) => {
+ *       return window.hive_keychain.requestBroadcast(username, ops, keyType);
+ *     },
+ *   },
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner'],
+ * };
+ *
+ * // Mobile usage with platform adapter
+ * const authContext: AuthContextV2 = {
+ *   adapter: {
+ *     getUser: async (username) => store.getState().users[username],
+ *     getPostingKey: async (username) => decryptKey(username, pin),
+ *     showError: (msg) => Alert.alert('Error', msg),
+ *     showSuccess: (msg) => Alert.alert('Success', msg),
+ *     broadcastWithHiveAuth: async (username, ops, keyType) => {
+ *       return showHiveAuthModal(username, ops, keyType);
+ *     },
+ *   },
+ *   enableFallback: true,
+ *   fallbackChain: ['hiveauth', 'key'],
+ * };
+ *
+ * // Legacy usage (still works)
+ * const authContext: AuthContextV2 = {
+ *   postingKey: 'wif-key',
+ *   loginType: 'key',
+ * };
+ * ```
+ */
+export interface AuthContextV2 extends AuthContext {
+  /**
+   * Platform-specific adapter for storage, UI, and broadcasting.
+   *
+   * When provided, the SDK will use the adapter to:
+   * - Retrieve user credentials from platform storage
+   * - Show error/success messages in platform UI
+   * - Broadcast operations using platform-specific methods (Keychain, HiveAuth)
+   * - Invalidate React Query caches after mutations
+   *
+   * @remarks
+   * If not provided, SDK falls back to using postingKey/accessToken directly.
+   */
+  adapter?: PlatformAdapter;
+
+  /**
+   * Enable automatic fallback to alternative auth methods.
+   *
+   * When true, SDK will try methods in fallbackChain order if primary method fails.
+   *
+   * @default true
+   *
+   * @example
+   * ```typescript
+   * // User has Keychain but it fails -> try posting key -> try HiveSigner
+   * const authContext: AuthContextV2 = {
+   *   adapter: myAdapter,
+   *   enableFallback: true,
+   *   fallbackChain: ['keychain', 'key', 'hivesigner'],
+   * };
+   * ```
+   */
+  enableFallback?: boolean;
+
+  /**
+   * Order of auth methods to try when primary method fails.
+   *
+   * Only used when enableFallback is true.
+   *
+   * @default ['key', 'hiveauth', 'hivesigner', 'keychain']
+   *
+   * @remarks
+   * - 'key': Use posting key from adapter.getPostingKey()
+   * - 'hiveauth': Use adapter.broadcastWithHiveAuth()
+   * - 'hivesigner': Use access token from adapter.getAccessToken()
+   * - 'keychain': Use adapter.broadcastWithKeychain()
+   * - 'custom': Use AuthContext.broadcast() function
+   */
+  fallbackChain?: AuthMethod[];
 }

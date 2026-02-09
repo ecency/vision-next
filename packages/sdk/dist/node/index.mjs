@@ -8,6 +8,265 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
+
+// src/modules/core/errors/chain-errors.ts
+var ErrorType = /* @__PURE__ */ ((ErrorType2) => {
+  ErrorType2["COMMON"] = "common";
+  ErrorType2["INFO"] = "info";
+  ErrorType2["INSUFFICIENT_RESOURCE_CREDITS"] = "insufficient_resource_credits";
+  ErrorType2["MISSING_AUTHORITY"] = "missing_authority";
+  ErrorType2["TOKEN_EXPIRED"] = "token_expired";
+  ErrorType2["NETWORK"] = "network";
+  ErrorType2["TIMEOUT"] = "timeout";
+  ErrorType2["VALIDATION"] = "validation";
+  return ErrorType2;
+})(ErrorType || {});
+function parseChainError(error) {
+  const errorString = String(error?.message || error?.error_description || error || "");
+  if (/please wait to transact/i.test(errorString) || /insufficient rc/i.test(errorString) || /rc mana|rc account|resource credits/i.test(errorString)) {
+    return {
+      message: "Insufficient Resource Credits. Please wait or power up.",
+      type: "insufficient_resource_credits" /* INSUFFICIENT_RESOURCE_CREDITS */,
+      originalError: error
+    };
+  }
+  if (/you may only post once every/i.test(errorString)) {
+    return {
+      message: "Please wait before posting again (minimum 3 second interval between comments).",
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  if (/your current vote on this comment is identical/i.test(errorString)) {
+    return {
+      message: "You have already voted with the same weight.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/must claim something/i.test(errorString)) {
+    return {
+      message: "You must claim rewards before performing this action.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/cannot claim that much vests/i.test(errorString)) {
+    return {
+      message: "Cannot claim that amount. Please check your pending rewards.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/cannot delete a comment with net positive/i.test(errorString)) {
+    return {
+      message: "Cannot delete a comment with positive votes.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/children == 0/i.test(errorString)) {
+    return {
+      message: "Cannot delete a comment with replies.",
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  if (/comment_cashout/i.test(errorString)) {
+    return {
+      message: "Cannot modify a comment that has already been paid out.",
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  if (/votes evaluating for comment that is paid out is forbidden/i.test(errorString)) {
+    return {
+      message: "Cannot vote on posts that have already been paid out.",
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  if (/missing active authority/i.test(errorString)) {
+    return {
+      message: "Missing active authority. This operation requires your active key.",
+      type: "missing_authority" /* MISSING_AUTHORITY */,
+      originalError: error
+    };
+  }
+  if (/missing owner authority/i.test(errorString)) {
+    return {
+      message: "Missing owner authority. This operation requires your owner key.",
+      type: "missing_authority" /* MISSING_AUTHORITY */,
+      originalError: error
+    };
+  }
+  if (/missing (required )?posting authority/i.test(errorString)) {
+    return {
+      message: "Missing posting authority. Please check your login method.",
+      type: "missing_authority" /* MISSING_AUTHORITY */,
+      originalError: error
+    };
+  }
+  if (/token expired/i.test(errorString) || /invalid token/i.test(errorString)) {
+    return {
+      message: "Authentication token expired. Please log in again.",
+      type: "token_expired" /* TOKEN_EXPIRED */,
+      originalError: error
+    };
+  }
+  if (/has already reblogged/i.test(errorString) || /already reblogged this post/i.test(errorString)) {
+    return {
+      message: "You have already reblogged this post.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/duplicate transaction/i.test(errorString)) {
+    return {
+      message: "This transaction has already been processed.",
+      type: "info" /* INFO */,
+      originalError: error
+    };
+  }
+  if (/network/i.test(errorString) || /econnrefused/i.test(errorString) || /connection refused/i.test(errorString) || /failed to fetch/i.test(errorString)) {
+    return {
+      message: "Network error. Please check your connection and try again.",
+      type: "network" /* NETWORK */,
+      originalError: error
+    };
+  }
+  if (/timeout/i.test(errorString) || /timed out/i.test(errorString)) {
+    return {
+      message: "Request timed out. Please try again.",
+      type: "timeout" /* TIMEOUT */,
+      originalError: error
+    };
+  }
+  if (/account.*does not exist/i.test(errorString) || /account not found/i.test(errorString)) {
+    return {
+      message: "Account not found. Please check the username.",
+      type: "validation" /* VALIDATION */,
+      originalError: error
+    };
+  }
+  if (/invalid memo key/i.test(errorString)) {
+    return {
+      message: "Invalid memo key. Cannot encrypt message.",
+      type: "validation" /* VALIDATION */,
+      originalError: error
+    };
+  }
+  if (/insufficient/i.test(errorString) && /funds|balance/i.test(errorString)) {
+    return {
+      message: "Insufficient funds for this transaction.",
+      type: "validation" /* VALIDATION */,
+      originalError: error
+    };
+  }
+  if (/invalid|validation/i.test(errorString)) {
+    return {
+      message: errorString.substring(0, 150) || "Validation error occurred.",
+      type: "validation" /* VALIDATION */,
+      originalError: error
+    };
+  }
+  if (error?.error_description && typeof error.error_description === "string") {
+    return {
+      message: error.error_description.substring(0, 150),
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  if (error?.message && typeof error.message === "string") {
+    return {
+      message: error.message.substring(0, 150),
+      type: "common" /* COMMON */,
+      originalError: error
+    };
+  }
+  return {
+    message: errorString.substring(0, 150) || "Unknown error occurred",
+    type: "common" /* COMMON */,
+    originalError: error
+  };
+}
+function formatError(error) {
+  const parsed = parseChainError(error);
+  return [parsed.message, parsed.type];
+}
+function shouldTriggerAuthFallback(error) {
+  const { type } = parseChainError(error);
+  return type === "missing_authority" /* MISSING_AUTHORITY */ || type === "token_expired" /* TOKEN_EXPIRED */;
+}
+function isResourceCreditsError(error) {
+  const { type } = parseChainError(error);
+  return type === "insufficient_resource_credits" /* INSUFFICIENT_RESOURCE_CREDITS */;
+}
+function isInfoError(error) {
+  const { type } = parseChainError(error);
+  return type === "info" /* INFO */;
+}
+function isNetworkError(error) {
+  const { type } = parseChainError(error);
+  return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
+}
+async function broadcastWithFallback(username, ops2, auth) {
+  const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain"];
+  const errors = /* @__PURE__ */ new Map();
+  const adapter = auth?.adapter;
+  for (const method of chain) {
+    try {
+      switch (method) {
+        case "key": {
+          if (!adapter) break;
+          const key = await adapter.getPostingKey(username);
+          if (key) {
+            const privateKey = PrivateKey.fromString(key);
+            return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+          }
+          break;
+        }
+        case "hiveauth": {
+          if (adapter?.broadcastWithHiveAuth) {
+            return await adapter.broadcastWithHiveAuth(username, ops2, "posting");
+          }
+          break;
+        }
+        case "hivesigner": {
+          if (!adapter) break;
+          const token = await adapter.getAccessToken(username);
+          if (token) {
+            const client = new hs.Client({ accessToken: token });
+            const response = await client.broadcast(ops2);
+            return response.result;
+          }
+          break;
+        }
+        case "keychain": {
+          if (adapter?.broadcastWithKeychain) {
+            return await adapter.broadcastWithKeychain(username, ops2, "Posting");
+          }
+          break;
+        }
+        case "custom": {
+          if (auth?.broadcast) {
+            return await auth.broadcast(ops2, "posting");
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      errors.set(method, error);
+      if (!shouldTriggerAuthFallback(error)) {
+        throw error;
+      }
+    }
+  }
+  const errorMessages = Array.from(errors.entries()).map(([method, error]) => `${method}: ${error.message}`).join(", ");
+  throw new Error(
+    `[SDK][Broadcast] All auth methods failed for ${username}. Errors: ${errorMessages}`
+  );
+}
 function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
 }, auth) {
   return useMutation({
@@ -19,20 +278,23 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           "[Core][Broadcast] Attempted to call broadcast API with anon user"
         );
       }
+      const ops2 = operations(payload);
+      if (auth?.enableFallback !== false && auth?.adapter) {
+        return broadcastWithFallback(username, ops2, auth);
+      }
       if (auth?.broadcast) {
-        return auth.broadcast(operations(payload), "posting");
+        return auth.broadcast(ops2, "posting");
       }
       const postingKey = auth?.postingKey;
       if (postingKey) {
         const privateKey = PrivateKey.fromString(postingKey);
         return CONFIG.hiveClient.broadcast.sendOperations(
-          operations(payload),
+          ops2,
           privateKey
         );
       }
       const accessToken = auth?.accessToken;
       if (accessToken) {
-        const ops2 = operations(payload);
         const client = new hs.Client({ accessToken });
         const response = await client.broadcast(ops2);
         return response.result;
@@ -3321,6 +3583,1001 @@ function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
   }
   return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
 }
+
+// src/modules/operations/builders/content.ts
+function buildVoteOp(voter, author, permlink, weight) {
+  if (!voter || !author || !permlink) {
+    throw new Error("[SDK][buildVoteOp] Missing required parameters");
+  }
+  if (weight < -1e4 || weight > 1e4) {
+    throw new Error("[SDK][buildVoteOp] Weight must be between -10000 and 10000");
+  }
+  return [
+    "vote",
+    {
+      voter,
+      author,
+      permlink,
+      weight
+    }
+  ];
+}
+function buildCommentOp(author, permlink, parentAuthor, parentPermlink, title, body, jsonMetadata) {
+  if (!author || !permlink || parentPermlink === void 0) {
+    throw new Error("[SDK][buildCommentOp] Missing required parameters");
+  }
+  return [
+    "comment",
+    {
+      parent_author: parentAuthor,
+      parent_permlink: parentPermlink,
+      author,
+      permlink,
+      title,
+      body,
+      json_metadata: JSON.stringify(jsonMetadata)
+    }
+  ];
+}
+function buildCommentOptionsOp(author, permlink, maxAcceptedPayout, percentHbd, allowVotes, allowCurationRewards, extensions) {
+  if (!author || !permlink) {
+    throw new Error("[SDK][buildCommentOptionsOp] Missing required parameters");
+  }
+  return [
+    "comment_options",
+    {
+      author,
+      permlink,
+      max_accepted_payout: maxAcceptedPayout,
+      percent_hbd: percentHbd,
+      allow_votes: allowVotes,
+      allow_curation_rewards: allowCurationRewards,
+      extensions
+    }
+  ];
+}
+function buildDeleteCommentOp(author, permlink) {
+  if (!author || !permlink) {
+    throw new Error("[SDK][buildDeleteCommentOp] Missing required parameters");
+  }
+  return [
+    "delete_comment",
+    {
+      author,
+      permlink
+    }
+  ];
+}
+function buildReblogOp(account, author, permlink, deleteReblog = false) {
+  if (!account || !author || !permlink) {
+    throw new Error("[SDK][buildReblogOp] Missing required parameters");
+  }
+  const json = {
+    account,
+    author,
+    permlink
+  };
+  if (deleteReblog) {
+    json.delete = "delete";
+  }
+  return [
+    "custom_json",
+    {
+      id: "follow",
+      json: JSON.stringify(["reblog", json]),
+      required_auths: [],
+      required_posting_auths: [account]
+    }
+  ];
+}
+
+// src/modules/operations/builders/wallet.ts
+function buildTransferOp(from, to, amount, memo) {
+  if (!from || !to || !amount) {
+    throw new Error("[SDK][buildTransferOp] Missing required parameters");
+  }
+  return [
+    "transfer",
+    {
+      from,
+      to,
+      amount,
+      memo: memo || ""
+    }
+  ];
+}
+function buildMultiTransferOps(from, destinations, amount, memo) {
+  if (!from || !destinations || !amount) {
+    throw new Error("[SDK][buildMultiTransferOps] Missing required parameters");
+  }
+  const destArray = destinations.trim().split(/[\s,]+/).filter(Boolean);
+  return destArray.map(
+    (dest) => buildTransferOp(from, dest.trim(), amount, memo)
+  );
+}
+function buildRecurrentTransferOp(from, to, amount, memo, recurrence, executions) {
+  if (!from || !to || !amount) {
+    throw new Error("[SDK][buildRecurrentTransferOp] Missing required parameters");
+  }
+  if (recurrence < 24) {
+    throw new Error("[SDK][buildRecurrentTransferOp] Recurrence must be at least 24 hours");
+  }
+  return [
+    "recurrent_transfer",
+    {
+      from,
+      to,
+      amount,
+      memo: memo || "",
+      recurrence,
+      executions,
+      extensions: []
+    }
+  ];
+}
+function buildTransferToSavingsOp(from, to, amount, memo) {
+  if (!from || !to || !amount) {
+    throw new Error("[SDK][buildTransferToSavingsOp] Missing required parameters");
+  }
+  return [
+    "transfer_to_savings",
+    {
+      from,
+      to,
+      amount,
+      memo: memo || ""
+    }
+  ];
+}
+function buildTransferFromSavingsOp(from, to, amount, memo, requestId) {
+  if (!from || !to || !amount || requestId === void 0) {
+    throw new Error("[SDK][buildTransferFromSavingsOp] Missing required parameters");
+  }
+  return [
+    "transfer_from_savings",
+    {
+      from,
+      to,
+      amount,
+      memo: memo || "",
+      request_id: requestId
+    }
+  ];
+}
+function buildCancelTransferFromSavingsOp(from, requestId) {
+  if (!from || requestId === void 0) {
+    throw new Error("[SDK][buildCancelTransferFromSavingsOp] Missing required parameters");
+  }
+  return [
+    "cancel_transfer_from_savings",
+    {
+      from,
+      request_id: requestId
+    }
+  ];
+}
+function buildClaimInterestOps(from, to, amount, memo, requestId) {
+  if (!from || !to || !amount || requestId === void 0) {
+    throw new Error("[SDK][buildClaimInterestOps] Missing required parameters");
+  }
+  return [
+    buildTransferFromSavingsOp(from, to, amount, memo, requestId),
+    buildCancelTransferFromSavingsOp(from, requestId)
+  ];
+}
+function buildTransferToVestingOp(from, to, amount) {
+  if (!from || !to || !amount) {
+    throw new Error("[SDK][buildTransferToVestingOp] Missing required parameters");
+  }
+  return [
+    "transfer_to_vesting",
+    {
+      from,
+      to,
+      amount
+    }
+  ];
+}
+function buildWithdrawVestingOp(account, vestingShares) {
+  if (!account || !vestingShares) {
+    throw new Error("[SDK][buildWithdrawVestingOp] Missing required parameters");
+  }
+  return [
+    "withdraw_vesting",
+    {
+      account,
+      vesting_shares: vestingShares
+    }
+  ];
+}
+function buildDelegateVestingSharesOp(delegator, delegatee, vestingShares) {
+  if (!delegator || !delegatee || !vestingShares) {
+    throw new Error("[SDK][buildDelegateVestingSharesOp] Missing required parameters");
+  }
+  return [
+    "delegate_vesting_shares",
+    {
+      delegator,
+      delegatee,
+      vesting_shares: vestingShares
+    }
+  ];
+}
+function buildSetWithdrawVestingRouteOp(fromAccount, toAccount, percent, autoVest) {
+  if (!fromAccount || !toAccount || percent === void 0) {
+    throw new Error("[SDK][buildSetWithdrawVestingRouteOp] Missing required parameters");
+  }
+  if (percent < 0 || percent > 1e4) {
+    throw new Error("[SDK][buildSetWithdrawVestingRouteOp] Percent must be between 0 and 10000");
+  }
+  return [
+    "set_withdraw_vesting_route",
+    {
+      from_account: fromAccount,
+      to_account: toAccount,
+      percent,
+      auto_vest: autoVest
+    }
+  ];
+}
+function buildConvertOp(owner, amount, requestId) {
+  if (!owner || !amount || requestId === void 0) {
+    throw new Error("[SDK][buildConvertOp] Missing required parameters");
+  }
+  return [
+    "convert",
+    {
+      owner,
+      amount,
+      requestid: requestId
+    }
+  ];
+}
+function buildCollateralizedConvertOp(owner, amount, requestId) {
+  if (!owner || !amount || requestId === void 0) {
+    throw new Error("[SDK][buildCollateralizedConvertOp] Missing required parameters");
+  }
+  return [
+    "collateralized_convert",
+    {
+      owner,
+      amount,
+      requestid: requestId
+    }
+  ];
+}
+function buildDelegateRcOp(from, delegatees, maxRc) {
+  if (!from || !delegatees || maxRc === void 0) {
+    throw new Error("[SDK][buildDelegateRcOp] Missing required parameters");
+  }
+  const delegateeArray = delegatees.includes(",") ? delegatees.split(",").map((d) => d.trim()) : [delegatees];
+  return [
+    "custom_json",
+    {
+      id: "rc",
+      json: JSON.stringify([
+        "delegate_rc",
+        {
+          from,
+          delegatees: delegateeArray,
+          max_rc: maxRc
+        }
+      ]),
+      required_auths: [],
+      required_posting_auths: [from]
+    }
+  ];
+}
+
+// src/modules/operations/builders/social.ts
+function buildFollowOp(follower, following) {
+  if (!follower || !following) {
+    throw new Error("[SDK][buildFollowOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "follow",
+      json: JSON.stringify([
+        "follow",
+        {
+          follower,
+          following,
+          what: ["blog"]
+        }
+      ]),
+      required_auths: [],
+      required_posting_auths: [follower]
+    }
+  ];
+}
+function buildUnfollowOp(follower, following) {
+  if (!follower || !following) {
+    throw new Error("[SDK][buildUnfollowOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "follow",
+      json: JSON.stringify([
+        "follow",
+        {
+          follower,
+          following,
+          what: []
+        }
+      ]),
+      required_auths: [],
+      required_posting_auths: [follower]
+    }
+  ];
+}
+function buildIgnoreOp(follower, following) {
+  if (!follower || !following) {
+    throw new Error("[SDK][buildIgnoreOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "follow",
+      json: JSON.stringify([
+        "follow",
+        {
+          follower,
+          following,
+          what: ["ignore"]
+        }
+      ]),
+      required_auths: [],
+      required_posting_auths: [follower]
+    }
+  ];
+}
+function buildUnignoreOp(follower, following) {
+  if (!follower || !following) {
+    throw new Error("[SDK][buildUnignoreOp] Missing required parameters");
+  }
+  return buildUnfollowOp(follower, following);
+}
+function buildSetLastReadOps(username, date) {
+  if (!username) {
+    throw new Error("[SDK][buildSetLastReadOps] Missing required parameters");
+  }
+  const lastReadDate = date || (/* @__PURE__ */ new Date()).toISOString().split(".")[0];
+  const notifyOp = [
+    "custom_json",
+    {
+      id: "notify",
+      json: JSON.stringify(["setLastRead", { date: lastReadDate }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+  const ecencyNotifyOp = [
+    "custom_json",
+    {
+      id: "ecency_notify",
+      json: JSON.stringify(["setLastRead", { date: lastReadDate }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+  return [notifyOp, ecencyNotifyOp];
+}
+
+// src/modules/operations/builders/governance.ts
+function buildWitnessVoteOp(account, witness, approve) {
+  if (!account || !witness || approve === void 0) {
+    throw new Error("[SDK][buildWitnessVoteOp] Missing required parameters");
+  }
+  return [
+    "account_witness_vote",
+    {
+      account,
+      witness,
+      approve
+    }
+  ];
+}
+function buildWitnessProxyOp(account, proxy) {
+  if (!account || proxy === void 0) {
+    throw new Error("[SDK][buildWitnessProxyOp] Missing required parameters");
+  }
+  return [
+    "account_witness_proxy",
+    {
+      account,
+      proxy
+    }
+  ];
+}
+function buildProposalCreateOp(creator, payload) {
+  if (!creator || !payload.receiver || !payload.subject || !payload.permlink) {
+    throw new Error("[SDK][buildProposalCreateOp] Missing required parameters");
+  }
+  return [
+    "create_proposal",
+    {
+      creator,
+      receiver: payload.receiver,
+      start_date: payload.start,
+      end_date: payload.end,
+      daily_pay: payload.dailyPay,
+      subject: payload.subject,
+      permlink: payload.permlink,
+      extensions: []
+    }
+  ];
+}
+function buildProposalVoteOp(voter, proposalIds, approve) {
+  if (!voter || !proposalIds || proposalIds.length === 0 || approve === void 0) {
+    throw new Error("[SDK][buildProposalVoteOp] Missing required parameters");
+  }
+  return [
+    "update_proposal_votes",
+    {
+      voter,
+      proposal_ids: proposalIds,
+      approve,
+      extensions: []
+    }
+  ];
+}
+function buildRemoveProposalOp(proposalOwner, proposalIds) {
+  if (!proposalOwner || !proposalIds || proposalIds.length === 0) {
+    throw new Error("[SDK][buildRemoveProposalOp] Missing required parameters");
+  }
+  return [
+    "remove_proposal",
+    {
+      proposal_owner: proposalOwner,
+      proposal_ids: proposalIds,
+      extensions: []
+    }
+  ];
+}
+function buildUpdateProposalOp(proposalId, creator, dailyPay, subject, permlink) {
+  if (!proposalId || !creator || !dailyPay || !subject || !permlink) {
+    throw new Error("[SDK][buildUpdateProposalOp] Missing required parameters");
+  }
+  return [
+    "update_proposal",
+    {
+      proposal_id: proposalId,
+      creator,
+      daily_pay: dailyPay,
+      subject,
+      permlink,
+      extensions: []
+    }
+  ];
+}
+
+// src/modules/operations/builders/community.ts
+function buildSubscribeOp(username, community) {
+  if (!username || !community) {
+    throw new Error("[SDK][buildSubscribeOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify(["subscribe", { community }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildUnsubscribeOp(username, community) {
+  if (!username || !community) {
+    throw new Error("[SDK][buildUnsubscribeOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify(["unsubscribe", { community }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildSetRoleOp(username, community, account, role) {
+  if (!username || !community || !account || !role) {
+    throw new Error("[SDK][buildSetRoleOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify(["setRole", { community, account, role }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildUpdateCommunityOp(username, community, props) {
+  if (!username || !community || !props) {
+    throw new Error("[SDK][buildUpdateCommunityOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify(["updateProps", { community, props }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildPinPostOp(username, community, account, permlink, pin) {
+  if (!username || !community || !account || !permlink || pin === void 0) {
+    throw new Error("[SDK][buildPinPostOp] Missing required parameters");
+  }
+  const action = pin ? "pinPost" : "unpinPost";
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify([action, { community, account, permlink }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildMutePostOp(username, community, account, permlink, notes, mute) {
+  if (!username || !community || !account || !permlink || mute === void 0) {
+    throw new Error("[SDK][buildMutePostOp] Missing required parameters");
+  }
+  const action = mute ? "mutePost" : "unmutePost";
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify([action, { community, account, permlink, notes }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildMuteUserOp(username, community, account, notes, mute) {
+  if (!username || !community || !account || mute === void 0) {
+    throw new Error("[SDK][buildMuteUserOp] Missing required parameters");
+  }
+  const action = mute ? "muteUser" : "unmuteUser";
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify([action, { community, account, notes }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+function buildFlagPostOp(username, community, account, permlink, notes) {
+  if (!username || !community || !account || !permlink) {
+    throw new Error("[SDK][buildFlagPostOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "community",
+      json: JSON.stringify(["flagPost", { community, account, permlink, notes }]),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
+
+// src/modules/operations/builders/market.ts
+var BuySellTransactionType = /* @__PURE__ */ ((BuySellTransactionType2) => {
+  BuySellTransactionType2["Buy"] = "buy";
+  BuySellTransactionType2["Sell"] = "sell";
+  return BuySellTransactionType2;
+})(BuySellTransactionType || {});
+var OrderIdPrefix = /* @__PURE__ */ ((OrderIdPrefix2) => {
+  OrderIdPrefix2["EMPTY"] = "";
+  OrderIdPrefix2["SWAP"] = "9";
+  return OrderIdPrefix2;
+})(OrderIdPrefix || {});
+function buildLimitOrderCreateOp(owner, amountToSell, minToReceive, fillOrKill, expiration, orderId) {
+  if (!owner || !amountToSell || !minToReceive || !expiration || orderId === void 0) {
+    throw new Error("[SDK][buildLimitOrderCreateOp] Missing required parameters");
+  }
+  return [
+    "limit_order_create",
+    {
+      owner,
+      orderid: orderId,
+      amount_to_sell: amountToSell,
+      min_to_receive: minToReceive,
+      fill_or_kill: fillOrKill,
+      expiration
+    }
+  ];
+}
+function formatNumber(value, decimals = 3) {
+  return value.toFixed(decimals);
+}
+function buildLimitOrderCreateOpWithType(owner, amountToSell, minToReceive, orderType, idPrefix = "" /* EMPTY */) {
+  if (!owner || amountToSell === void 0 || minToReceive === void 0 || !orderType) {
+    throw new Error("[SDK][buildLimitOrderCreateOpWithType] Missing required parameters");
+  }
+  const expiration = new Date(Date.now());
+  expiration.setDate(expiration.getDate() + 27);
+  const expirationStr = expiration.toISOString().split(".")[0];
+  const orderId = Number(
+    `${idPrefix}${Math.floor(Date.now() / 1e3).toString().slice(2)}`
+  );
+  const formattedAmountToSell = orderType === "buy" /* Buy */ ? `${formatNumber(amountToSell, 3)} HBD` : `${formatNumber(minToReceive, 3)} HIVE`;
+  const formattedMinToReceive = orderType === "buy" /* Buy */ ? `${formatNumber(minToReceive, 3)} HIVE` : `${formatNumber(amountToSell, 3)} HBD`;
+  return buildLimitOrderCreateOp(
+    owner,
+    formattedAmountToSell,
+    formattedMinToReceive,
+    false,
+    expirationStr,
+    orderId
+  );
+}
+function buildLimitOrderCancelOp(owner, orderId) {
+  if (!owner || orderId === void 0) {
+    throw new Error("[SDK][buildLimitOrderCancelOp] Missing required parameters");
+  }
+  return [
+    "limit_order_cancel",
+    {
+      owner,
+      orderid: orderId
+    }
+  ];
+}
+function buildClaimRewardBalanceOp(account, rewardHive, rewardHbd, rewardVests) {
+  if (!account || !rewardHive || !rewardHbd || !rewardVests) {
+    throw new Error("[SDK][buildClaimRewardBalanceOp] Missing required parameters");
+  }
+  return [
+    "claim_reward_balance",
+    {
+      account,
+      reward_hive: rewardHive,
+      reward_hbd: rewardHbd,
+      reward_vests: rewardVests
+    }
+  ];
+}
+
+// src/modules/operations/builders/account.ts
+function buildAccountUpdateOp(account, owner, active, posting, memoKey, jsonMetadata) {
+  if (!account || !memoKey) {
+    throw new Error("[SDK][buildAccountUpdateOp] Missing required parameters");
+  }
+  return [
+    "account_update",
+    {
+      account,
+      owner,
+      active,
+      posting,
+      memo_key: memoKey,
+      json_metadata: jsonMetadata
+    }
+  ];
+}
+function buildAccountUpdate2Op(account, jsonMetadata, postingJsonMetadata, extensions) {
+  if (!account || postingJsonMetadata === void 0) {
+    throw new Error("[SDK][buildAccountUpdate2Op] Missing required parameters");
+  }
+  return [
+    "account_update2",
+    {
+      account,
+      json_metadata: jsonMetadata || "",
+      posting_json_metadata: postingJsonMetadata,
+      extensions: extensions || []
+    }
+  ];
+}
+function buildAccountCreateOp(creator, newAccountName, keys, fee) {
+  if (!creator || !newAccountName || !keys || !fee) {
+    throw new Error("[SDK][buildAccountCreateOp] Missing required parameters");
+  }
+  const owner = {
+    weight_threshold: 1,
+    account_auths: [],
+    key_auths: [[keys.ownerPublicKey, 1]]
+  };
+  const active = {
+    weight_threshold: 1,
+    account_auths: [],
+    key_auths: [[keys.activePublicKey, 1]]
+  };
+  const posting = {
+    weight_threshold: 1,
+    account_auths: [["ecency.app", 1]],
+    key_auths: [[keys.postingPublicKey, 1]]
+  };
+  return [
+    "account_create",
+    {
+      creator,
+      new_account_name: newAccountName,
+      owner,
+      active,
+      posting,
+      memo_key: keys.memoPublicKey,
+      json_metadata: "",
+      extensions: [],
+      fee
+    }
+  ];
+}
+function buildCreateClaimedAccountOp(creator, newAccountName, keys) {
+  if (!creator || !newAccountName || !keys) {
+    throw new Error("[SDK][buildCreateClaimedAccountOp] Missing required parameters");
+  }
+  const owner = {
+    weight_threshold: 1,
+    account_auths: [],
+    key_auths: [[keys.ownerPublicKey, 1]]
+  };
+  const active = {
+    weight_threshold: 1,
+    account_auths: [],
+    key_auths: [[keys.activePublicKey, 1]]
+  };
+  const posting = {
+    weight_threshold: 1,
+    account_auths: [["ecency.app", 1]],
+    key_auths: [[keys.postingPublicKey, 1]]
+  };
+  return [
+    "create_claimed_account",
+    {
+      creator,
+      new_account_name: newAccountName,
+      owner,
+      active,
+      posting,
+      memo_key: keys.memoPublicKey,
+      json_metadata: "",
+      extensions: []
+    }
+  ];
+}
+function buildClaimAccountOp(creator, fee) {
+  if (!creator || !fee) {
+    throw new Error("[SDK][buildClaimAccountOp] Missing required parameters");
+  }
+  return [
+    "claim_account",
+    {
+      creator,
+      fee,
+      extensions: []
+    }
+  ];
+}
+function buildGrantPostingPermissionOp(account, currentPosting, grantedAccount, weightThreshold) {
+  if (!account || !currentPosting || !grantedAccount) {
+    throw new Error("[SDK][buildGrantPostingPermissionOp] Missing required parameters");
+  }
+  const newPosting = {
+    ...currentPosting,
+    account_auths: [
+      ...currentPosting.account_auths,
+      [grantedAccount, weightThreshold]
+    ]
+  };
+  newPosting.account_auths.sort((a, b) => a[0] > b[0] ? 1 : -1);
+  return [
+    "account_update",
+    {
+      account,
+      posting: newPosting,
+      memo_key: void 0,
+      json_metadata: void 0
+    }
+  ];
+}
+function buildRevokePostingPermissionOp(account, currentPosting, revokedAccount) {
+  if (!account || !currentPosting || !revokedAccount) {
+    throw new Error("[SDK][buildRevokePostingPermissionOp] Missing required parameters");
+  }
+  const newPosting = {
+    ...currentPosting,
+    account_auths: currentPosting.account_auths.filter(
+      ([acc]) => acc !== revokedAccount
+    )
+  };
+  return [
+    "account_update",
+    {
+      account,
+      posting: newPosting,
+      memo_key: void 0,
+      json_metadata: void 0
+    }
+  ];
+}
+function buildChangeRecoveryAccountOp(accountToRecover, newRecoveryAccount, extensions = []) {
+  if (!accountToRecover || !newRecoveryAccount) {
+    throw new Error("[SDK][buildChangeRecoveryAccountOp] Missing required parameters");
+  }
+  return [
+    "change_recovery_account",
+    {
+      account_to_recover: accountToRecover,
+      new_recovery_account: newRecoveryAccount,
+      extensions
+    }
+  ];
+}
+function buildRequestAccountRecoveryOp(recoveryAccount, accountToRecover, newOwnerAuthority, extensions = []) {
+  if (!recoveryAccount || !accountToRecover || !newOwnerAuthority) {
+    throw new Error("[SDK][buildRequestAccountRecoveryOp] Missing required parameters");
+  }
+  return [
+    "request_account_recovery",
+    {
+      recovery_account: recoveryAccount,
+      account_to_recover: accountToRecover,
+      new_owner_authority: newOwnerAuthority,
+      extensions
+    }
+  ];
+}
+function buildRecoverAccountOp(accountToRecover, newOwnerAuthority, recentOwnerAuthority, extensions = []) {
+  if (!accountToRecover || !newOwnerAuthority || !recentOwnerAuthority) {
+    throw new Error("[SDK][buildRecoverAccountOp] Missing required parameters");
+  }
+  return [
+    "recover_account",
+    {
+      account_to_recover: accountToRecover,
+      new_owner_authority: newOwnerAuthority,
+      recent_owner_authority: recentOwnerAuthority,
+      extensions
+    }
+  ];
+}
+
+// src/modules/operations/builders/ecency.ts
+function buildBoostOp(user, author, permlink, amount) {
+  if (!user || !author || !permlink || !amount) {
+    throw new Error("[SDK][buildBoostOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "ecency_boost",
+      json: JSON.stringify({
+        user,
+        author,
+        permlink,
+        amount
+      }),
+      required_auths: [user],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildBoostOpWithPoints(user, author, permlink, points) {
+  if (!user || !author || !permlink || points === void 0) {
+    throw new Error("[SDK][buildBoostOpWithPoints] Missing required parameters");
+  }
+  return buildBoostOp(user, author, permlink, `${points.toFixed(3)} POINT`);
+}
+function buildBoostPlusOp(user, account, duration) {
+  if (!user || !account || duration === void 0) {
+    throw new Error("[SDK][buildBoostPlusOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "ecency_boost_plus",
+      json: JSON.stringify({
+        user,
+        account,
+        duration
+      }),
+      required_auths: [user],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildPromoteOp(user, author, permlink, duration) {
+  if (!user || !author || !permlink || duration === void 0) {
+    throw new Error("[SDK][buildPromoteOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "ecency_promote",
+      json: JSON.stringify({
+        user,
+        author,
+        permlink,
+        duration
+      }),
+      required_auths: [user],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildPointTransferOp(sender, receiver, amount, memo) {
+  if (!sender || !receiver || !amount) {
+    throw new Error("[SDK][buildPointTransferOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "ecency_point_transfer",
+      json: JSON.stringify({
+        sender,
+        receiver,
+        amount,
+        memo: memo || ""
+      }),
+      required_auths: [sender],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildMultiPointTransferOps(sender, destinations, amount, memo) {
+  if (!sender || !destinations || !amount) {
+    throw new Error("[SDK][buildMultiPointTransferOps] Missing required parameters");
+  }
+  const destArray = destinations.trim().split(/[\s,]+/).filter(Boolean);
+  return destArray.map(
+    (dest) => buildPointTransferOp(sender, dest.trim(), amount, memo)
+  );
+}
+function buildCommunityRegistrationOp(name) {
+  if (!name) {
+    throw new Error("[SDK][buildCommunityRegistrationOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: "ecency_registration",
+      json: JSON.stringify({
+        name
+      }),
+      required_auths: [name],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildActiveCustomJsonOp(username, operationId, json) {
+  if (!username || !operationId || !json) {
+    throw new Error("[SDK][buildActiveCustomJsonOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: operationId,
+      json: JSON.stringify(json),
+      required_auths: [username],
+      required_posting_auths: []
+    }
+  ];
+}
+function buildPostingCustomJsonOp(username, operationId, json) {
+  if (!username || !operationId || !json) {
+    throw new Error("[SDK][buildPostingCustomJsonOp] Missing required parameters");
+  }
+  return [
+    "custom_json",
+    {
+      id: operationId,
+      json: JSON.stringify(json),
+      required_auths: [],
+      required_posting_auths: [username]
+    }
+  ];
+}
 function useSignOperationByKey(username) {
   return useMutation({
     mutationKey: ["operations", "sign", username],
@@ -6050,6 +7307,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildProfileMetadata, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useUpdateDraft, useUploadImage, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useUpdateDraft, useUploadImage, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
