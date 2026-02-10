@@ -136,17 +136,78 @@ async function broadcastWithFallback(
 ): Promise<TransactionConfirmation> {
   const adapter = auth?.adapter;
 
-  // PREFERRED APPROACH: If adapter provides getLoginType, use ONLY that auth method
+  // PREFERRED APPROACH: If adapter provides getLoginType, use smart auth strategy
   // This avoids unnecessary fallback attempts and is more predictable
   if (adapter?.getLoginType) {
     const loginType = await adapter.getLoginType(username);
 
     if (loginType) {
-      // Use ONLY the user's actual login method - no fallbacks
+      // SMART AUTH STRATEGY: Optimize based on login type + authority + credentials
+
+      // Check if user has granted ecency.app posting authority
+      const hasPostingAuth = adapter.hasPostingAuthorization
+        ? await adapter.hasPostingAuthorization(username)
+        : false;
+
+      // OPTIMIZATION: Use HiveSigner token for posting ops when posting auth is granted
+      // This is faster than direct key signing or HiveAuth for key-based logins
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'key'
+      ) {
+        try {
+          // Try HiveSigner API first (faster)
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          // Fallback to direct key signing if token method fails
+          console.warn('[SDK] HiveSigner token failed, falling back to key:', error);
+        }
+      }
+
+      // OPTIMIZATION: Use HiveSigner token for HiveAuth users with posting auth (faster)
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'hiveauth'
+      ) {
+        try {
+          // Try HiveSigner API first (faster)
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          // Fallback to HiveAuth if token method fails
+          console.warn('[SDK] HiveSigner token failed, falling back to HiveAuth:', error);
+        }
+      }
+
+      // Use user's actual login method
       try {
         return await broadcastWithMethod(loginType, username, ops, auth, authority);
       } catch (error) {
-        // Don't fallback - if their auth method fails, that's a real error
+        // Check if error is due to missing authority (e.g., posting key trying active op)
+        if (shouldTriggerAuthFallback(error)) {
+          // Show auth upgrade UI if available (only for posting/active operations)
+          if (
+            adapter.showAuthUpgradeUI &&
+            (authority === 'posting' || authority === 'active')
+          ) {
+            const userApproved = await adapter.showAuthUpgradeUI(authority, ops[0][0]);
+            if (!userApproved) {
+              throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
+            }
+            // User approved - they should have selected HiveAuth or HiveSigner in the UI
+            // Try those methods now
+            if (adapter.broadcastWithHiveAuth) {
+              return await adapter.broadcastWithHiveAuth(username, ops, authority);
+            }
+            const token = await adapter.getAccessToken(username);
+            if (token) {
+              return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+            }
+          }
+        }
+
+        // Not an auth error, or no upgrade UI available - throw original error
         throw error;
       }
     }

@@ -291,9 +291,39 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
   if (adapter?.getLoginType) {
     const loginType = await adapter.getLoginType(username);
     if (loginType) {
+      const hasPostingAuth = adapter.hasPostingAuthorization ? await adapter.hasPostingAuthorization(username) : false;
+      if (authority === "posting" && hasPostingAuth && loginType === "key") {
+        try {
+          return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+        } catch (error) {
+          console.warn("[SDK] HiveSigner token failed, falling back to key:", error);
+        }
+      }
+      if (authority === "posting" && hasPostingAuth && loginType === "hiveauth") {
+        try {
+          return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+        } catch (error) {
+          console.warn("[SDK] HiveSigner token failed, falling back to HiveAuth:", error);
+        }
+      }
       try {
         return await broadcastWithMethod(loginType, username, ops2, auth, authority);
       } catch (error) {
+        if (shouldTriggerAuthFallback(error)) {
+          if (adapter.showAuthUpgradeUI && (authority === "posting" || authority === "active")) {
+            const userApproved = await adapter.showAuthUpgradeUI(authority, ops2[0][0]);
+            if (!userApproved) {
+              throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
+            }
+            if (adapter.broadcastWithHiveAuth) {
+              return await adapter.broadcastWithHiveAuth(username, ops2, authority);
+            }
+            const token = await adapter.getAccessToken(username);
+            if (token) {
+              return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+            }
+          }
+        }
         throw error;
       }
     }
