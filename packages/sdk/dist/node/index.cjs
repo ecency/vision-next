@@ -258,42 +258,44 @@ function isNetworkError(error) {
   const { type } = parseChainError(error);
   return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
 }
-async function broadcastWithMethod(method, username, ops2, auth, authority = "posting") {
+async function broadcastWithMethod(method, username, ops2, auth, authority = "posting", fetchedKey, fetchedToken) {
   const adapter = auth?.adapter;
   switch (method) {
     case "key": {
       if (!adapter) {
         throw new Error("No adapter provided for key-based auth");
       }
-      let key;
-      switch (authority) {
-        case "owner":
-          if (adapter.getOwnerKey) {
-            key = await adapter.getOwnerKey(username);
-          } else {
-            throw new Error(
-              `Owner key not supported by adapter. Owner operations (like account recovery) require master password login or manual key entry.`
-            );
-          }
-          break;
-        case "active":
-          if (adapter.getActiveKey) {
-            key = await adapter.getActiveKey(username);
-          }
-          break;
-        case "memo":
-          if (adapter.getMemoKey) {
-            key = await adapter.getMemoKey(username);
-          } else {
-            throw new Error(
-              `Memo key not supported by adapter. Use memo encryption methods instead.`
-            );
-          }
-          break;
-        case "posting":
-        default:
-          key = await adapter.getPostingKey(username);
-          break;
+      let key = fetchedKey;
+      if (key === void 0) {
+        switch (authority) {
+          case "owner":
+            if (adapter.getOwnerKey) {
+              key = await adapter.getOwnerKey(username);
+            } else {
+              throw new Error(
+                `Owner key not supported by adapter. Owner operations (like account recovery) require master password login or manual key entry.`
+              );
+            }
+            break;
+          case "active":
+            if (adapter.getActiveKey) {
+              key = await adapter.getActiveKey(username);
+            }
+            break;
+          case "memo":
+            if (adapter.getMemoKey) {
+              key = await adapter.getMemoKey(username);
+            } else {
+              throw new Error(
+                `Memo key not supported by adapter. Use memo encryption methods instead.`
+              );
+            }
+            break;
+          case "posting":
+          default:
+            key = await adapter.getPostingKey(username);
+            break;
+        }
       }
       if (!key) {
         throw new Error(`No ${authority} key available for ${username}`);
@@ -311,7 +313,7 @@ async function broadcastWithMethod(method, username, ops2, auth, authority = "po
       if (!adapter) {
         throw new Error("No adapter provided for HiveSigner auth");
       }
-      const token = await adapter.getAccessToken(username);
+      const token = fetchedToken !== void 0 ? fetchedToken : await adapter.getAccessToken(username);
       if (!token) {
         throw new Error(`No access token available for ${username}`);
       }
@@ -360,7 +362,8 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
       } catch (error) {
         if (shouldTriggerAuthFallback(error)) {
           if (adapter.showAuthUpgradeUI && (authority === "posting" || authority === "active")) {
-            const selectedMethod = await adapter.showAuthUpgradeUI(authority, ops2[0][0]);
+            const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+            const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
             if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
@@ -374,7 +377,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
               if (!token) {
                 throw new Error("HiveSigner token not available. Please log in again.");
               }
-              return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+              return await broadcastWithMethod("hivesigner", username, ops2, auth, authority, void 0, token);
             } else if (selectedMethod === "key") {
               return await broadcastWithMethod("key", username, ops2, auth, authority);
             }
@@ -391,6 +394,8 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
     try {
       let shouldSkip = false;
       let skipReason = "";
+      let prefetchedKey;
+      let prefetchedToken;
       switch (method) {
         case "key":
           if (!adapter) {
@@ -422,6 +427,8 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
             if (!key) {
               shouldSkip = true;
               skipReason = `No ${authority} key available`;
+            } else {
+              prefetchedKey = key;
             }
           }
           break;
@@ -440,6 +447,8 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
             if (!token) {
               shouldSkip = true;
               skipReason = "No access token available";
+            } else {
+              prefetchedToken = token;
             }
           }
           break;
@@ -460,7 +469,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
         errors.set(method, new Error(`Skipped: ${skipReason}`));
         continue;
       }
-      return await broadcastWithMethod(method, username, ops2, auth, authority);
+      return await broadcastWithMethod(method, username, ops2, auth, authority, prefetchedKey, prefetchedToken);
     } catch (error) {
       errors.set(method, error);
       if (!shouldTriggerAuthFallback(error)) {

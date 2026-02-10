@@ -18,6 +18,8 @@ import hs from "hivesigner";
  * @param ops - Operations to broadcast
  * @param auth - AuthContextV2 with adapter and configuration
  * @param authority - Key authority to use (posting, active, owner, or memo)
+ * @param fetchedKey - Optional pre-fetched key to avoid duplicate fetches
+ * @param fetchedToken - Optional pre-fetched access token to avoid duplicate fetches
  * @returns Transaction confirmation from the blockchain
  * @throws Error if method is not available or broadcast fails
  */
@@ -26,7 +28,9 @@ async function broadcastWithMethod(
   username: string,
   ops: Operation[],
   auth?: AuthContextV2,
-  authority: AuthorityLevel = 'posting'
+  authority: AuthorityLevel = 'posting',
+  fetchedKey?: string | null,
+  fetchedToken?: string | null
 ): Promise<TransactionConfirmation> {
   const adapter = auth?.adapter;
 
@@ -36,41 +40,44 @@ async function broadcastWithMethod(
         throw new Error('No adapter provided for key-based auth');
       }
 
-      // Choose key based on authority
-      let key: string | null | undefined;
+      // Use pre-fetched key if provided, otherwise fetch it
+      let key: string | null | undefined = fetchedKey;
 
-      switch (authority) {
-        case 'owner':
-          if (adapter.getOwnerKey) {
-            key = await adapter.getOwnerKey(username);
-          } else {
-            throw new Error(
-              `Owner key not supported by adapter. Owner operations (like account recovery) ` +
-              `require master password login or manual key entry.`
-            );
-          }
-          break;
+      if (key === undefined) {
+        // Key not pre-fetched, fetch it now based on authority
+        switch (authority) {
+          case 'owner':
+            if (adapter.getOwnerKey) {
+              key = await adapter.getOwnerKey(username);
+            } else {
+              throw new Error(
+                `Owner key not supported by adapter. Owner operations (like account recovery) ` +
+                `require master password login or manual key entry.`
+              );
+            }
+            break;
 
-        case 'active':
-          if (adapter.getActiveKey) {
-            key = await adapter.getActiveKey(username);
-          }
-          break;
+          case 'active':
+            if (adapter.getActiveKey) {
+              key = await adapter.getActiveKey(username);
+            }
+            break;
 
-        case 'memo':
-          if (adapter.getMemoKey) {
-            key = await adapter.getMemoKey(username);
-          } else {
-            throw new Error(
-              `Memo key not supported by adapter. Use memo encryption methods instead.`
-            );
-          }
-          break;
+          case 'memo':
+            if (adapter.getMemoKey) {
+              key = await adapter.getMemoKey(username);
+            } else {
+              throw new Error(
+                `Memo key not supported by adapter. Use memo encryption methods instead.`
+              );
+            }
+            break;
 
-        case 'posting':
-        default:
-          key = await adapter.getPostingKey(username);
-          break;
+          case 'posting':
+          default:
+            key = await adapter.getPostingKey(username);
+            break;
+        }
       }
 
       if (!key) {
@@ -93,7 +100,12 @@ async function broadcastWithMethod(
       if (!adapter) {
         throw new Error('No adapter provided for HiveSigner auth');
       }
-      const token = await adapter.getAccessToken(username);
+
+      // Use pre-fetched token if provided, otherwise fetch it
+      const token = fetchedToken !== undefined
+        ? fetchedToken
+        : await adapter.getAccessToken(username);
+
       if (!token) {
         throw new Error(`No access token available for ${username}`);
       }
@@ -221,7 +233,9 @@ async function broadcastWithFallback(
             adapter.showAuthUpgradeUI &&
             (authority === 'posting' || authority === 'active')
           ) {
-            const selectedMethod = await adapter.showAuthUpgradeUI(authority, ops[0][0]);
+            // Guard against empty operations array
+            const operationName = ops.length > 0 ? ops[0][0] : 'unknown';
+            const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
             if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
@@ -237,7 +251,8 @@ async function broadcastWithFallback(
               if (!token) {
                 throw new Error('HiveSigner token not available. Please log in again.');
               }
-              return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+              // Pass pre-fetched token to avoid duplicate fetch
+              return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, token);
             } else if (selectedMethod === 'key') {
               // User wants to enter key manually
               // Platform should have shown key entry modal and stored key temporarily
@@ -266,6 +281,8 @@ async function broadcastWithFallback(
       // Check if method is available before attempting
       let shouldSkip = false;
       let skipReason = '';
+      let prefetchedKey: string | null | undefined;
+      let prefetchedToken: string | null | undefined;
 
       switch (method) {
         case 'key':
@@ -273,7 +290,7 @@ async function broadcastWithFallback(
             shouldSkip = true;
             skipReason = 'No adapter provided';
           } else {
-            // Check if key is available based on authority
+            // Pre-fetch key to check availability (will be reused in broadcast)
             let key: string | null | undefined;
 
             switch (authority) {
@@ -301,6 +318,8 @@ async function broadcastWithFallback(
             if (!key) {
               shouldSkip = true;
               skipReason = `No ${authority} key available`;
+            } else {
+              prefetchedKey = key; // Store for reuse
             }
           }
           break;
@@ -315,10 +334,13 @@ async function broadcastWithFallback(
             shouldSkip = true;
             skipReason = 'No adapter provided';
           } else {
+            // Pre-fetch token to check availability (will be reused in broadcast)
             const token = await adapter.getAccessToken(username);
             if (!token) {
               shouldSkip = true;
               skipReason = 'No access token available';
+            } else {
+              prefetchedToken = token; // Store for reuse
             }
           }
           break;
@@ -341,8 +363,8 @@ async function broadcastWithFallback(
         continue;
       }
 
-      // Method is available, attempt broadcast
-      return await broadcastWithMethod(method, username, ops, auth, authority);
+      // Method is available, attempt broadcast with pre-fetched credentials
+      return await broadcastWithMethod(method, username, ops, auth, authority, prefetchedKey, prefetchedToken);
     } catch (error) {
       // Record actual error from failed broadcast attempt
       errors.set(method, error as Error);
