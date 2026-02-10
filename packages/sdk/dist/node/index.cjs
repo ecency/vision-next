@@ -360,17 +360,23 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
       } catch (error) {
         if (shouldTriggerAuthFallback(error)) {
           if (adapter.showAuthUpgradeUI && (authority === "posting" || authority === "active")) {
-            const userApproved = await adapter.showAuthUpgradeUI(authority, ops2[0][0]);
-            if (!userApproved) {
+            const selectedMethod = await adapter.showAuthUpgradeUI(authority, ops2[0][0]);
+            if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
-            if (adapter.broadcastWithHiveAuth) {
+            if (selectedMethod === "hiveauth") {
+              if (!adapter.broadcastWithHiveAuth) {
+                throw new Error("HiveAuth not available. Please try another method.");
+              }
               return await adapter.broadcastWithHiveAuth(username, ops2, authority);
-            }
-            const token = await adapter.getAccessToken(username);
-            if (token) {
+            } else if (selectedMethod === "hivesigner") {
+              const token = await adapter.getAccessToken(username);
+              if (!token) {
+                throw new Error("HiveSigner token not available. Please log in again.");
+              }
               return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
             }
+            throw new Error(`Unknown auth method selected: ${selectedMethod}`);
           }
         }
         throw error;
@@ -390,10 +396,26 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
             skipReason = "No adapter provided";
           } else {
             let key;
-            if (authority === "active" && adapter.getActiveKey) {
-              key = await adapter.getActiveKey(username);
-            } else if (authority === "posting") {
-              key = await adapter.getPostingKey(username);
+            switch (authority) {
+              case "owner":
+                if (adapter.getOwnerKey) {
+                  key = await adapter.getOwnerKey(username);
+                }
+                break;
+              case "active":
+                if (adapter.getActiveKey) {
+                  key = await adapter.getActiveKey(username);
+                }
+                break;
+              case "memo":
+                if (adapter.getMemoKey) {
+                  key = await adapter.getMemoKey(username);
+                }
+                break;
+              case "posting":
+              default:
+                key = await adapter.getPostingKey(username);
+                break;
             }
             if (!key) {
               shouldSkip = true;
@@ -3784,23 +3806,28 @@ var OPERATION_AUTHORITY_MAP = {
   comment_options: "posting",
   claim_reward_balance: "posting",
   // Active authority operations - Financial
+  cancel_transfer_from_savings: "active",
+  collateralized_convert: "active",
+  convert: "active",
+  delegate_vesting_shares: "active",
+  recurrent_transfer: "active",
+  set_withdraw_vesting_route: "active",
   transfer: "active",
-  transfer_to_savings: "active",
   transfer_from_savings: "active",
+  transfer_to_savings: "active",
   transfer_to_vesting: "active",
   withdraw_vesting: "active",
-  delegate_vesting_shares: "active",
-  set_withdraw_vesting_route: "active",
-  convert: "active",
-  recurrent_transfer: "active",
   // Active authority operations - Market
   limit_order_create: "active",
   limit_order_cancel: "active",
   // Active authority operations - Account Management
   account_update: "active",
   account_update2: "active",
+  create_claimed_account: "active",
   // Active authority operations - Governance
   account_witness_proxy: "active",
+  account_witness_vote: "active",
+  remove_proposal: "active",
   update_proposal_votes: "active",
   // Owner authority operations - Security & Account Recovery
   change_recovery_account: "owner",
@@ -3808,8 +3835,9 @@ var OPERATION_AUTHORITY_MAP = {
   recover_account: "owner",
   reset_account: "owner",
   set_reset_account: "owner"
-  // Note: custom_json is handled separately via getCustomJsonAuthority()
-  // It can be either posting or active depending on the operation content
+  // Note: Some operations are handled separately via content inspection:
+  // - custom_json: via getCustomJsonAuthority() - posting or active based on required_auths
+  // - create_proposal/update_proposal: via getProposalAuthority() - typically active
 };
 function getCustomJsonAuthority(customJsonOp) {
   const opType = customJsonOp[0];
@@ -3826,10 +3854,20 @@ function getCustomJsonAuthority(customJsonOp) {
   }
   return "posting";
 }
+function getProposalAuthority(proposalOp) {
+  const opType = proposalOp[0];
+  if (opType !== "create_proposal" && opType !== "update_proposal") {
+    throw new Error("Operation is not a proposal operation");
+  }
+  return "active";
+}
 function getOperationAuthority(op) {
   const opType = op[0];
   if (opType === "custom_json") {
     return getCustomJsonAuthority(op);
+  }
+  if (opType === "create_proposal" || opType === "update_proposal") {
+    return getProposalAuthority(op);
   }
   return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
 }
@@ -8052,6 +8090,7 @@ exports.getProfilesQueryOptions = getProfilesQueryOptions;
 exports.getPromotePriceQueryOptions = getPromotePriceQueryOptions;
 exports.getPromotedPost = getPromotedPost;
 exports.getPromotedPostsQuery = getPromotedPostsQuery;
+exports.getProposalAuthority = getProposalAuthority;
 exports.getProposalQueryOptions = getProposalQueryOptions;
 exports.getProposalVotesInfiniteQueryOptions = getProposalVotesInfiniteQueryOptions;
 exports.getProposalsQueryOptions = getProposalsQueryOptions;

@@ -221,19 +221,27 @@ async function broadcastWithFallback(
             adapter.showAuthUpgradeUI &&
             (authority === 'posting' || authority === 'active')
           ) {
-            const userApproved = await adapter.showAuthUpgradeUI(authority, ops[0][0]);
-            if (!userApproved) {
+            const selectedMethod = await adapter.showAuthUpgradeUI(authority, ops[0][0]);
+            if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
-            // User approved - they should have selected HiveAuth or HiveSigner in the UI
-            // Try those methods now
-            if (adapter.broadcastWithHiveAuth) {
+
+            // User selected a specific method - try only that method
+            if (selectedMethod === 'hiveauth') {
+              if (!adapter.broadcastWithHiveAuth) {
+                throw new Error('HiveAuth not available. Please try another method.');
+              }
               return await adapter.broadcastWithHiveAuth(username, ops, authority);
-            }
-            const token = await adapter.getAccessToken(username);
-            if (token) {
+            } else if (selectedMethod === 'hivesigner') {
+              const token = await adapter.getAccessToken(username);
+              if (!token) {
+                throw new Error('HiveSigner token not available. Please log in again.');
+              }
               return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
             }
+
+            // Should never reach here
+            throw new Error(`Unknown auth method selected: ${selectedMethod}`);
           }
         }
 
@@ -260,13 +268,31 @@ async function broadcastWithFallback(
             shouldSkip = true;
             skipReason = 'No adapter provided';
           } else {
-            // Check if key is available
+            // Check if key is available based on authority
             let key: string | null | undefined;
-            if (authority === 'active' && adapter.getActiveKey) {
-              key = await adapter.getActiveKey(username);
-            } else if (authority === 'posting') {
-              key = await adapter.getPostingKey(username);
+
+            switch (authority) {
+              case 'owner':
+                if (adapter.getOwnerKey) {
+                  key = await adapter.getOwnerKey(username);
+                }
+                break;
+              case 'active':
+                if (adapter.getActiveKey) {
+                  key = await adapter.getActiveKey(username);
+                }
+                break;
+              case 'memo':
+                if (adapter.getMemoKey) {
+                  key = await adapter.getMemoKey(username);
+                }
+                break;
+              case 'posting':
+              default:
+                key = await adapter.getPostingKey(username);
+                break;
             }
+
             if (!key) {
               shouldSkip = true;
               skipReason = `No ${authority} key available`;

@@ -190,7 +190,10 @@ export interface PlatformAdapter {
    *
    * @param requiredAuthority - The authority level needed ('posting' or 'active')
    * @param operation - Description of the operation requiring upgrade
-   * @returns Promise that resolves to true if user approved, false if declined
+   * @returns Promise that resolves to:
+   *   - 'hiveauth' if user selected HiveAuth
+   *   - 'hivesigner' if user selected HiveSigner
+   *   - false if user cancelled/declined
    *
    * @remarks
    * Called when user's login method doesn't support the required operation:
@@ -201,14 +204,19 @@ export interface PlatformAdapter {
    * 1. Sign with HiveAuth (if available)
    * 2. Sign with HiveSigner (if available)
    * 3. Enter active/posting key manually (temporary use)
+   * 4. Cancel button
+   *
+   * Return the method user explicitly selected, allowing SDK to skip
+   * unavailable methods and provide better error messages.
    *
    * @example
    * ```typescript
    * // User logged in with posting key tries to transfer
-   * const approved = await adapter.showAuthUpgradeUI('active', 'Transfer');
-   * if (approved) {
-   *   // User selected alternate auth method (HiveAuth, HiveSigner, manual key)
-   *   await broadcastWithAlternateAuth(ops);
+   * const method = await adapter.showAuthUpgradeUI('active', 'Transfer');
+   * if (method === 'hiveauth') {
+   *   await broadcastWithHiveAuth(ops);
+   * } else if (method === 'hivesigner') {
+   *   await broadcastWithHiveSigner(ops);
    * } else {
    *   // User cancelled
    *   throw new Error('Operation requires active authority');
@@ -218,7 +226,7 @@ export interface PlatformAdapter {
   showAuthUpgradeUI?: (
     requiredAuthority: 'posting' | 'active',
     operation: string
-  ) => Promise<boolean>;
+  ) => Promise<'hiveauth' | 'hivesigner' | false>;
 
   // ============================================================================
   // Platform-Specific Broadcasting

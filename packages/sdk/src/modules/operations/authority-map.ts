@@ -31,15 +31,17 @@ export const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel> = {
   claim_reward_balance: 'posting',
 
   // Active authority operations - Financial
+  cancel_transfer_from_savings: 'active',
+  collateralized_convert: 'active',
+  convert: 'active',
+  delegate_vesting_shares: 'active',
+  recurrent_transfer: 'active',
+  set_withdraw_vesting_route: 'active',
   transfer: 'active',
-  transfer_to_savings: 'active',
   transfer_from_savings: 'active',
+  transfer_to_savings: 'active',
   transfer_to_vesting: 'active',
   withdraw_vesting: 'active',
-  delegate_vesting_shares: 'active',
-  set_withdraw_vesting_route: 'active',
-  convert: 'active',
-  recurrent_transfer: 'active',
 
   // Active authority operations - Market
   limit_order_create: 'active',
@@ -48,9 +50,12 @@ export const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel> = {
   // Active authority operations - Account Management
   account_update: 'active',
   account_update2: 'active',
+  create_claimed_account: 'active',
 
   // Active authority operations - Governance
   account_witness_proxy: 'active',
+  account_witness_vote: 'active',
+  remove_proposal: 'active',
   update_proposal_votes: 'active',
 
   // Owner authority operations - Security & Account Recovery
@@ -60,8 +65,9 @@ export const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel> = {
   reset_account: 'owner',
   set_reset_account: 'owner',
 
-  // Note: custom_json is handled separately via getCustomJsonAuthority()
-  // It can be either posting or active depending on the operation content
+  // Note: Some operations are handled separately via content inspection:
+  // - custom_json: via getCustomJsonAuthority() - posting or active based on required_auths
+  // - create_proposal/update_proposal: via getProposalAuthority() - typically active
 };
 
 /**
@@ -127,6 +133,46 @@ export function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel 
 }
 
 /**
+ * Determines authority required for a proposal operation.
+ *
+ * Proposal operations (create_proposal, update_proposal) typically require
+ * active authority as they involve financial commitments and funding allocations.
+ *
+ * @param proposalOp - The proposal operation to inspect
+ * @returns 'active' authority requirement
+ *
+ * @remarks
+ * Unlike custom_json, proposal operations don't have explicit required_auths fields.
+ * They always use the creator's authority, which defaults to active for financial
+ * operations involving the DAO treasury.
+ *
+ * @example
+ * ```typescript
+ * const proposalOp: Operation = ['create_proposal', {
+ *   creator: 'alice',
+ *   receiver: 'bob',
+ *   subject: 'My Proposal',
+ *   permlink: 'my-proposal',
+ *   start: '2026-03-01T00:00:00',
+ *   end: '2026-04-01T00:00:00',
+ *   daily_pay: '100.000 HBD',
+ *   extensions: []
+ * }];
+ * getProposalAuthority(proposalOp); // Returns 'active'
+ * ```
+ */
+export function getProposalAuthority(proposalOp: Operation): AuthorityLevel {
+  const opType = proposalOp[0];
+
+  if (opType !== 'create_proposal' && opType !== 'update_proposal') {
+    throw new Error('Operation is not a proposal operation');
+  }
+
+  // Proposal operations require active authority for financial operations
+  return 'active';
+}
+
+/**
  * Determines the required authority level for any operation.
  *
  * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
@@ -150,6 +196,11 @@ export function getOperationAuthority(op: Operation): AuthorityLevel {
   // Special handling for custom_json - requires content inspection
   if (opType === 'custom_json') {
     return getCustomJsonAuthority(op);
+  }
+
+  // Special handling for proposal operations - requires content inspection
+  if (opType === 'create_proposal' || opType === 'update_proposal') {
+    return getProposalAuthority(op);
   }
 
   // Use mapping for standard operations, default to posting if unknown
