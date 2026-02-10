@@ -115,7 +115,7 @@ export function ChatsClient() {
   }, [channels?.channels, getDirectUserDisplayName, searchTerm]);
 
   const unreadByChannelId = useMemo(() => {
-    if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
+    if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number; thread_unread: number }>();
 
     return unreadSummary.channels.reduce((acc, channel) => {
       acc.set(channel.channelId, {
@@ -1040,7 +1040,7 @@ export function ChatsClient() {
                           </div>
                         </div>
                         <span className="text-sm font-semibold text-blue-500">
-                          {directChannelMutation.isLoading
+                          {directChannelMutation.isPending
                             ? i18next.t("chat.starting-dm")
                             : i18next.t("chat.start-dm-button")}
                         </span>
