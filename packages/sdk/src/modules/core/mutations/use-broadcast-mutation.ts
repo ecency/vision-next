@@ -238,6 +238,11 @@ async function broadcastWithFallback(
                 throw new Error('HiveSigner token not available. Please log in again.');
               }
               return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+            } else if (selectedMethod === 'key') {
+              // User wants to enter key manually
+              // Platform should have shown key entry modal and stored key temporarily
+              // Try to broadcast with the manually entered key
+              return await broadcastWithMethod('key', username, ops, auth, authority);
             }
 
             // Should never reach here
@@ -466,6 +471,14 @@ export function useBroadcastMutation<T>(
 
       const postingKey = auth?.postingKey;
       if (postingKey) {
+        // Legacy auth only supports posting authority
+        if (authority !== 'posting') {
+          throw new Error(
+            `[SDK][Broadcast] Legacy auth only supports posting authority, but '${authority}' was requested. ` +
+            `Use AuthContextV2 with an adapter for ${authority} operations.`
+          );
+        }
+
         const privateKey = PrivateKey.fromString(postingKey);
 
         return CONFIG.hiveClient.broadcast.sendOperations(

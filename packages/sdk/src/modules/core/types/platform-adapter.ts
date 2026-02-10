@@ -193,6 +193,7 @@ export interface PlatformAdapter {
    * @returns Promise that resolves to:
    *   - 'hiveauth' if user selected HiveAuth
    *   - 'hivesigner' if user selected HiveSigner
+   *   - 'key' if user wants to enter key manually (temporary use)
    *   - false if user cancelled/declined
    *
    * @remarks
@@ -209,6 +210,10 @@ export interface PlatformAdapter {
    * Return the method user explicitly selected, allowing SDK to skip
    * unavailable methods and provide better error messages.
    *
+   * When 'key' is returned, platform should show a key entry modal,
+   * then call broadcastWithMethod('key', ...) with the entered key
+   * stored temporarily in the adapter.
+   *
    * @example
    * ```typescript
    * // User logged in with posting key tries to transfer
@@ -217,6 +222,9 @@ export interface PlatformAdapter {
    *   await broadcastWithHiveAuth(ops);
    * } else if (method === 'hivesigner') {
    *   await broadcastWithHiveSigner(ops);
+   * } else if (method === 'key') {
+   *   // Platform will show key entry modal and temporarily store the key
+   *   await broadcastWithKey(ops);
    * } else {
    *   // User cancelled
    *   throw new Error('Operation requires active authority');
@@ -226,7 +234,7 @@ export interface PlatformAdapter {
   showAuthUpgradeUI?: (
     requiredAuthority: 'posting' | 'active',
     operation: string
-  ) => Promise<'hiveauth' | 'hivesigner' | false>;
+  ) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
 
   // ============================================================================
   // Platform-Specific Broadcasting

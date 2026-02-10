@@ -375,6 +375,8 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
                 throw new Error("HiveSigner token not available. Please log in again.");
               }
               return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+            } else if (selectedMethod === "key") {
+              return await broadcastWithMethod("key", username, ops2, auth, authority);
             }
             throw new Error(`Unknown auth method selected: ${selectedMethod}`);
           }
@@ -500,6 +502,11 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
       }
       const postingKey = auth?.postingKey;
       if (postingKey) {
+        if (authority !== "posting") {
+          throw new Error(
+            `[SDK][Broadcast] Legacy auth only supports posting authority, but '${authority}' was requested. Use AuthContextV2 with an adapter for ${authority} operations.`
+          );
+        }
         const privateKey = dhive.PrivateKey.fromString(postingKey);
         return CONFIG.hiveClient.broadcast.sendOperations(
           ops2,
