@@ -71,24 +71,24 @@ export function useDeepLinking({
   useEffect(() => {
     if (!aroundQuery.data || !focusedPostId) return;
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       scrollToPostRef.current(focusedPostId, { highlight: true, behavior: "smooth" });
       hasFocusedPostRef.current = true;
       setNeedsAroundFetchRef.current(false);
     }, 100);
+
+    return () => clearTimeout(timer);
   }, [aroundQuery.data, focusedPostId]);
 
   // Handle around query errors (e.g., not a member)
   useEffect(() => {
     if (!aroundQuery.error || !focusedPostId) return;
 
-    const errorMessage = (aroundQuery.error as Error)?.message || '';
+    const errorMessage = (aroundQuery.error as Error)?.message?.toLowerCase() || '';
     const isMembershipError =
       errorMessage.includes('unauthorized') ||
       errorMessage.includes('forbidden') ||
-      errorMessage.includes('not found') ||
-      errorMessage.includes('403') ||
-      errorMessage.includes('404');
+      errorMessage.includes('403');
 
     if (isMembershipError) {
       setShowJoinPromptRef.current(true);

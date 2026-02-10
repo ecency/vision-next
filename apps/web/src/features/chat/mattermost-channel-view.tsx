@@ -997,7 +997,7 @@ export function MattermostChannelView({ channelId }: Props) {
   // --- Render ---
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex flex-1 flex-col gap-0 md:pb-0 min-h-0">
         <ChannelHeader
           channelTitle={channelTitle}
@@ -1025,21 +1025,16 @@ export function MattermostChannelView({ channelId }: Props) {
           <DmWarningBanner onDismiss={handleDismissDmWarning} settingsHref={activeUser?.username ? `/@${activeUser.username}/settings` : undefined} />
         )}
 
-        {reconnectAttempt !== null && reconnectDelay !== null && (
-          <div className="mt-3 flex items-center justify-between gap-3 rounded border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-3">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-lg leading-none" aria-hidden>⚠️</span>
-              <span className="font-medium text-yellow-800 dark:text-yellow-200">
-                Reconnecting to chat (attempt {reconnectAttempt} in {Math.round(reconnectDelay / 1000)}s)...
-              </span>
-            </div>
+        {reconnectAttempt !== null && reconnectAttempt > 2 && (
+          <div className="mt-1 text-center text-[11px] text-[--text-muted]">
+            Reconnecting…
           </div>
         )}
 
         {isEcencyAdmin && showAdminTools && <AdminPanel admin={channelAdmin} />}
 
-        <div className="flex flex-1 min-h-0 flex-col gap-3">
-          <div className="relative rounded border border-[--border-color] bg-[--background-color] flex-1 min-h-0 md:min-h-[340px]">
+        <div className="flex flex-1 min-h-0 flex-col">
+          <div className="relative flex-1 min-h-0 overflow-hidden md:min-h-[340px]">
             {isLoading && <div className="p-4 text-sm text-[--text-muted]">Loading messages…</div>}
             {error && <div className="p-4 text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>}
             {moderationError && <div className="p-4 text-sm text-red-500">{moderationError}</div>}

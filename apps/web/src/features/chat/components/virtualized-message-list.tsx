@@ -193,7 +193,7 @@ export const VirtualizedMessageList = memo(function VirtualizedMessageList({
       const isGroupStart = item.isGroupStart;
 
       return (
-        <div className="pb-2.5">
+        <div className="px-4">
           <MessageItem
             post={post}
             index={index}

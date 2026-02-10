@@ -52,6 +52,7 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
           .finally(() => setInProgress(false));
       } else {
         error(i18next.t("editor-toolbar.image-error-cache"));
+        setInProgress(false);
       }
     },
     [activeUser, onBegin, onEnd]

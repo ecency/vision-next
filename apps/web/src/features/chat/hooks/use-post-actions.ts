@@ -62,7 +62,7 @@ export function usePostActions({ channelId, channelData }: UsePostActionsParams)
         }
       });
     },
-    [channelData?.member?.user_id, channelData?.canModerate, deleteMutation]
+    [channelData?.member?.user_id, channelData?.canModerate, deleteMutation.mutate]
   );
 
   const toggleReaction = useCallback(
@@ -87,7 +87,7 @@ export function usePostActions({ channelId, channelData }: UsePostActionsParams)
         setOpenReactionPostId((current) => (current === post.id ? null : current));
       }
     },
-    [channelData?.member?.user_id, reactMutation]
+    [channelData?.member?.user_id, reactMutation.mutate]
   );
 
   const handlePinToggle = useCallback((postId: string, isPinned: boolean) => {
@@ -97,15 +97,22 @@ export function usePostActions({ channelId, channelData }: UsePostActionsParams)
       return "Cannot pin more than 5 messages per channel";
     }
 
-    const mutation = isPinned ? unpinPostMutation : pinPostMutation;
-    mutation.mutate(postId, {
-      onError: (err) => {
-        setModerationError((err as Error)?.message || "Unable to update pin");
-      }
-    });
+    if (isPinned) {
+      unpinPostMutation.mutate(postId, {
+        onError: (err) => {
+          setModerationError((err as Error)?.message || "Unable to update pin");
+        }
+      });
+    } else {
+      pinPostMutation.mutate(postId, {
+        onError: (err) => {
+          setModerationError((err as Error)?.message || "Unable to update pin");
+        }
+      });
+    }
 
     return null;
-  }, [canPin, pinnedPostsQuery.data?.posts.length, pinPostMutation, unpinPostMutation]);
+  }, [canPin, pinnedPostsQuery.data?.posts.length, pinPostMutation.mutate, unpinPostMutation.mutate]);
 
   return {
     deletingPostId,

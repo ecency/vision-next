@@ -40,6 +40,11 @@ export function AdminPanel({ admin }: AdminPanelProps) {
             onClick={async () => {
               try {
                 const res = await fetch("/api/mattermost/admin/check-permissions");
+                if (!res.ok) {
+                  const body = await res.text().catch(() => "");
+                  setAdminError(`Permission check failed (${res.status}): ${body || res.statusText}`);
+                  return;
+                }
                 const data = await res.json();
                 if (data.error) {
                   setAdminError(`Permission check failed: ${data.error}`);

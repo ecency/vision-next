@@ -31,9 +31,8 @@ function isImageUrl(url: string) {
   return (
     /^https?:\/\/images\.ecency\.com\//.test(normalizedUrl) ||
     /\.(png|jpe?g|gif|webp|svg)(\?[^#]*)?(\#.*)?$/i.test(normalizedUrl) ||
-    /^https?:\/\/.*\.(gif|giphy)/.test(normalizedUrl) ||
     /tenor\.com\/.*\.gif/.test(normalizedUrl) ||
-    /giphy\.com\//.test(normalizedUrl)
+    /^https?:\/\/(?:media\d*\.)?giphy\.com\//.test(normalizedUrl)
   );
 }
 

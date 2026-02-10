@@ -29,12 +29,23 @@ export function useChannelAdmin(isEcencyAdmin: boolean) {
       if (!isEcencyAdmin) return;
 
       const normalizedUsername = adminUsername.trim().replace(/^@/, "");
-      const hoursValue = hoursOverride ?? Number(banHours);
 
       if (!normalizedUsername) {
         setAdminError("Enter a username to manage");
         setAdminMessage(null);
         return;
+      }
+
+      let hoursValue: number;
+      if (hoursOverride !== undefined && hoursOverride !== null) {
+        hoursValue = hoursOverride;
+      } else {
+        if (!banHours.trim()) {
+          setAdminError("Enter ban hours");
+          setAdminMessage(null);
+          return;
+        }
+        hoursValue = Number(banHours);
       }
 
       if (Number.isNaN(hoursValue) || hoursValue < 0) {

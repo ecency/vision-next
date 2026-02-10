@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as ls from "@/utils/local-storage";
 import type { MattermostPost } from "../mattermost-api";
 
@@ -21,6 +21,19 @@ export function useDmWarning({
   sendMutationSuccess
 }: UseDmWarningParams) {
   const [showDmWarning, setShowDmWarning] = useState(false);
+  const successChannelRef = useRef<string | null>(null);
+
+  // Track which channel the send success belongs to
+  useEffect(() => {
+    if (sendMutationSuccess) {
+      successChannelRef.current = channelId;
+    }
+  }, [sendMutationSuccess, channelId]);
+
+  // Reset tracked success on channel change
+  useEffect(() => {
+    successChannelRef.current = null;
+  }, [channelId]);
 
   useEffect(() => {
     const isDm = channelData?.channel?.type === "D";
@@ -51,10 +64,10 @@ export function useDmWarning({
   }, [channelId, channelData?.channel?.type, channelData?.member?.user_id, hasNextPage, posts]);
 
   useEffect(() => {
-    if (showDmWarning && sendMutationSuccess) {
+    if (showDmWarning && sendMutationSuccess && successChannelRef.current === channelId) {
       setShowDmWarning(false);
     }
-  }, [showDmWarning, sendMutationSuccess]);
+  }, [showDmWarning, sendMutationSuccess, channelId]);
 
   const handleDismissDmWarning = useCallback(() => {
     const currentUserId = channelData?.member?.user_id;

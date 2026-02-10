@@ -47,10 +47,10 @@ export function ChannelHeader({
   onClose
 }: ChannelHeaderProps) {
   return (
-    <div className="rounded border border-[--border-color] bg-[--surface-color] p-4">
+    <div className="border-b border-[--border-color] px-4 py-2.5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-col min-w-0">
-          <div className="truncate text-lg font-semibold">{channelTitle}</div>
+          <div className="truncate text-base font-semibold">{channelTitle}</div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-[--text-muted]">
             <span className="truncate">{channelSubtitle}</span>
 
@@ -66,57 +66,55 @@ export function ChannelHeader({
             )}
 
             {onlineCount > 0 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setShowOnlineUsers(true)}
-                  className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
-                >
-                  <span className="text-sm leading-none" aria-hidden>🟢</span>
-                  <span>{onlineCount} online</span>
-                </button>
-
-                <Modal show={showOnlineUsers} onHide={() => setShowOnlineUsers(false)} centered size="sm">
-                  <ModalBody>
-                    <div className="flex items-center justify-between gap-2 pb-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold">
-                        <span className="text-sm leading-none" aria-hidden>🟢</span>
-                        <span>Online now</span>
-                      </div>
-                      <button type="button" onClick={() => setShowOnlineUsers(false)} className="text-[--text-muted] hover:text-[--text-color]" aria-label="Close online users">×</button>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {onlineUsers.length ? (
-                        <div className="space-y-1">
-                          {onlineUsers.map((user) => {
-                            const displayName = getUserDisplayName(user) || user.username;
-                            if (!user.username) {
-                              return (
-                                <div key={user.id} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]">
-                                  <div className="h-7 w-7 rounded-full bg-[--background-color]" />
-                                  <div className="min-w-0"><div className="truncate text-sm">{displayName}</div></div>
-                                </div>
-                              );
-                            }
-                            return (
-                              <ProfileLink key={user.id} username={user.username} afterClick={() => setShowOnlineUsers(false)} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky">
-                                <UserAvatar username={user.username} size="small" />
-                                <div className="min-w-0">
-                                  <div className="truncate text-sm">{displayName}</div>
-                                  <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
-                                </div>
-                              </ProfileLink>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="px-2 py-1 text-[11px] text-[--text-muted]">No one is online right now.</div>
-                      )}
-                    </div>
-                  </ModalBody>
-                </Modal>
-              </>
+              <button
+                type="button"
+                onClick={() => setShowOnlineUsers(true)}
+                className="flex items-center gap-1 rounded-full border border-[--border-color] px-2 py-1 text-[11px] text-[--text-muted] transition hover:border-blue-dark-sky hover:text-[--text-color]"
+              >
+                <span className="text-sm leading-none" aria-hidden>🟢</span>
+                <span>{onlineCount} online</span>
+              </button>
             )}
+
+            <Modal show={showOnlineUsers} onHide={() => setShowOnlineUsers(false)} centered size="sm">
+              <ModalBody>
+                <div className="flex items-center justify-between gap-2 pb-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-sm leading-none" aria-hidden>🟢</span>
+                    <span>Online now</span>
+                  </div>
+                  <button type="button" onClick={() => setShowOnlineUsers(false)} className="text-[--text-muted] hover:text-[--text-color]" aria-label="Close online users">×</button>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {onlineUsers.length ? (
+                    <div className="space-y-1">
+                      {onlineUsers.map((user) => {
+                        const displayName = getUserDisplayName(user) || user.username;
+                        if (!user.username) {
+                          return (
+                            <div key={user.id} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color]">
+                              <div className="h-7 w-7 rounded-full bg-[--background-color]" />
+                              <div className="min-w-0"><div className="truncate text-sm">{displayName}</div></div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <ProfileLink key={user.id} username={user.username} afterClick={() => setShowOnlineUsers(false)} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-[--background-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-dark-sky">
+                            <UserAvatar username={user.username} size="small" />
+                            <div className="min-w-0">
+                              <div className="truncate text-sm">{displayName}</div>
+                              <div className="truncate text-[11px] text-[--text-muted]">@{user.username}</div>
+                            </div>
+                          </ProfileLink>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="px-2 py-1 text-[11px] text-[--text-muted]">No one is online right now.</div>
+                  )}
+                </div>
+              </ModalBody>
+            </Modal>
           </div>
         </div>
 
@@ -167,12 +165,7 @@ export function ChannelHeader({
 
         {/* Right side */}
         <div className="flex items-center gap-3 shrink-0">
-          {effectiveLastViewedAt > 0 && (
-            <div className="hidden md:block text-[11px] text-[--text-muted]" title={new Date(effectiveLastViewedAt).toLocaleString()}>
-              Last viewed {formatTimestamp(effectiveLastViewedAt)}
-            </div>
-          )}
-          <button type="button" onClick={() => setShowKeyboardShortcuts(true)} className="text-[--text-muted] hover:text-[--text-color] p-1 text-sm" aria-label="Keyboard shortcuts" title="Keyboard shortcuts">⌨️</button>
+          <button type="button" onClick={() => setShowKeyboardShortcuts(true)} className="text-[--text-muted] hover:text-[--text-color] p-1 text-sm" aria-label="Keyboard shortcuts" title={effectiveLastViewedAt > 0 ? `Keyboard shortcuts • Last viewed ${formatTimestamp(effectiveLastViewedAt)}` : "Keyboard shortcuts"}>⌨️</button>
           <button type="button" onClick={onClose} className="md:hidden text-[--text-muted] hover:text-[--text-color] p-1" aria-label="Close chat" title="Back to chats">✕</button>
         </div>
       </div>

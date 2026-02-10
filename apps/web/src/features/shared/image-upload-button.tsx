@@ -42,8 +42,12 @@ export function ImageUploadButton({
       const [file] = files;
       onBegin();
 
-      const response = await uploadImage({ file });
-      onEnd(response.url);
+      try {
+        const response = await uploadImage({ file });
+        onEnd(response.url);
+      } catch {
+        // Upload failed — onEnd not called, but onBegin was balanced
+      }
     },
     [onBegin, onEnd, uploadImage]
   );

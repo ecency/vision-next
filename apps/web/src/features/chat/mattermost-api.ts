@@ -801,6 +801,7 @@ export interface MattermostPost {
   edit_at?: number;
   type?: string;
   root_id?: string | null;
+  pending_post_id?: string;
   is_pinned?: boolean;
   metadata?: {
     reactions?: MattermostReaction[];

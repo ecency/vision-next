@@ -92,7 +92,7 @@ export function useChannelWebSocket({
         .onPosted((post) => {
           const refs = pendingPostRefsRef.current;
           const currentUserId = getCurrentUserIdRef.current();
-          const pendingPostId = post.pending_post_id as string | undefined;
+          const pendingPostId = post.pending_post_id;
           const pendingMatch =
             pendingPostId &&
             pendingPostId === refs.lastSentPendingIdRef.current;
@@ -124,7 +124,10 @@ export function useChannelWebSocket({
         });
 
       websocketRef.current = ws;
-      ws.connect();
+      ws.connect().catch((error) => {
+        console.error("Failed to connect chat WebSocket:", error);
+        websocketRef.current = null;
+      });
     } catch (error) {
       console.error("Failed to initialize chat WebSocket:", error);
     }

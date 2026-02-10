@@ -104,7 +104,7 @@ export function ThreadPanel({
                     >
                       {formatRelativeTime(post.create_at)}
                     </span>
-                    {post.edit_at && post.edit_at > post.create_at && (
+                    {!!post.edit_at && post.edit_at > post.create_at && (
                       <span
                         className="text-[11px] text-[--text-muted] cursor-help"
                         title={`Edited ${new Date(post.edit_at).toLocaleString()}`}

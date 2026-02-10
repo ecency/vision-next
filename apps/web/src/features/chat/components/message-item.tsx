@@ -206,7 +206,7 @@ function MessageItemInner({
 
   return (
     <div
-      className={clsx("space-y-1.5", !isGroupStart && "-mt-1")}
+      className={clsx(isGroupStart ? "mt-3 first:mt-0" : "mt-0.5")}
       data-post-id={post.id}
     >
       {showUnreadDivider && index === firstUnreadIndex && (
@@ -216,7 +216,7 @@ function MessageItemInner({
           <div className="flex-1 border-t border-[--border-color]" />
         </div>
       )}
-      <div className="flex gap-2 group relative">
+      <div className="flex gap-2.5 group relative rounded px-2 py-0.5 -mx-2 hover:bg-[--surface-color] transition-colors">
         {post.type === "system_add_to_channel" ? (
           <div className="w-full flex justify-center">
             <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
@@ -226,7 +226,7 @@ function MessageItemInner({
         ) : (
           <>
             {/* Avatar - show only for group start or hide with placeholder */}
-            <div className="h-10 w-10 flex-shrink-0">
+            <div className="w-8 flex-shrink-0 pt-0.5">
               {isGroupStart ? (
                 (() => {
                   const user = usersById[post.user_id];
@@ -236,7 +236,7 @@ function MessageItemInner({
 
                   if (username) {
                     return (
-                      <UserAvatar username={username} size="medium" className="h-10 w-10" />
+                      <UserAvatar username={username} size="small" className="h-8 w-8" />
                     );
                   }
 
@@ -245,20 +245,19 @@ function MessageItemInner({
                       <img
                         src={avatarUrl}
                         alt={`${displayName} avatar`}
-                        className="h-10 w-10 rounded-full object-cover"
+                        className="h-8 w-8 rounded-full object-cover"
                       />
                     );
                   }
 
                   return (
-                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
                       {displayName.charAt(0).toUpperCase()}
                     </div>
                   );
                 })()
               ) : (
-                // Invisible placeholder for grouped messages, shows timestamp on hover
-                <div className="h-10 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-[10px] text-[--text-muted]">
                     {new Date(post.create_at).toLocaleTimeString([], {
                       hour: "numeric",
@@ -269,7 +268,7 @@ function MessageItemInner({
               )}
             </div>
 
-            <div className="flex flex-col gap-1 w-full">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
               {/* Header with name and timestamp - show only for group start */}
               {isGroupStart && (
                 <div className="flex items-center gap-2 text-xs text-[--text-muted]">
@@ -296,7 +295,7 @@ function MessageItemInner({
                   >
                     {formatRelativeTime(post.create_at)}
                   </span>
-                  {post.edit_at && post.edit_at > post.create_at && (
+                  {!!post.edit_at && post.edit_at > post.create_at && (
                     <span
                       className="text-[11px] text-[--text-muted] cursor-help"
                       title={`Edited ${new Date(post.edit_at).toLocaleString()}`}
@@ -332,22 +331,17 @@ function MessageItemInner({
                         e.stopPropagation();
                         openThread(rootPost);
                       }}
-                      className="text-left rounded border-l-4 border-l-blue-500 border-y border-r border-dashed border-[--border-color] bg-blue-50/30 dark:bg-blue-900/10 p-2 text-xs text-[--text-muted] hover:border-[--text-muted] hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors"
+                      className="text-left border-l-2 border-l-blue-dark-sky pl-2.5 py-0.5 text-xs text-[--text-muted] hover:text-[--text-color] transition-colors"
                     >
-                      <div className="font-semibold flex items-center gap-1.5">
-                        <span className="text-blue-500">↪</span>
-                        Replying to {parentUsername || "conversation"}
-                      </div>
+                      <span className="font-medium">{parentUsername || "conversation"}</span>
                       {parentMessage && (
-                        <div className="line-clamp-2 text-[--text-muted]">
-                          {renderMessageContent(parentMessage)}
-                        </div>
+                        <span className="line-clamp-1 opacity-70"> {getDecodedDisplayMessage(postsById.get(post.root_id!) ?? post)}</span>
                       )}
                     </button>
                   );
                 })()}
               <div
-                className="rounded bg-[--surface-color] p-2.5 text-sm break-words space-y-1 [&>*]:m-0"
+                className="text-sm break-words space-y-1 [&>*]:m-0"
               >
                 {renderMessageContent(getDecodedDisplayMessage(post))}
               </div>
