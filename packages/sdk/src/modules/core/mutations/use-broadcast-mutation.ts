@@ -10,6 +10,88 @@ import { shouldTriggerAuthFallback } from "@/modules/core/errors";
 import hs from "hivesigner";
 
 /**
+ * Broadcasts operations using a specific auth method.
+ *
+ * @param method - Auth method to use ('key', 'hiveauth', 'hivesigner', 'keychain', 'custom')
+ * @param username - Hive username to broadcast for
+ * @param ops - Operations to broadcast
+ * @param auth - AuthContextV2 with adapter and configuration
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo')
+ * @returns Transaction confirmation from the blockchain
+ * @throws Error if method is not available or broadcast fails
+ */
+async function broadcastWithMethod(
+  method: string,
+  username: string,
+  ops: Operation[],
+  auth?: AuthContextV2,
+  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+): Promise<TransactionConfirmation> {
+  const adapter = auth?.adapter;
+
+  switch (method) {
+    case 'key': {
+      if (!adapter) {
+        throw new Error('No adapter provided for key-based auth');
+      }
+
+      // Choose key based on authority
+      let key: string | null | undefined;
+      if (authority === 'active' && adapter.getActiveKey) {
+        key = await adapter.getActiveKey(username);
+      } else if (authority === 'posting') {
+        key = await adapter.getPostingKey(username);
+      }
+
+      if (!key) {
+        throw new Error(`No ${authority} key available for ${username}`);
+      }
+
+      // Attempt broadcast with key
+      const privateKey = PrivateKey.fromString(key);
+      return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
+    }
+
+    case 'hiveauth': {
+      if (!adapter?.broadcastWithHiveAuth) {
+        throw new Error('HiveAuth not supported by adapter');
+      }
+      return await adapter.broadcastWithHiveAuth(username, ops, authority);
+    }
+
+    case 'hivesigner': {
+      if (!adapter) {
+        throw new Error('No adapter provided for HiveSigner auth');
+      }
+      const token = await adapter.getAccessToken(username);
+      if (!token) {
+        throw new Error(`No access token available for ${username}`);
+      }
+      const client = new hs.Client({ accessToken: token });
+      const response = await client.broadcast(ops);
+      return response.result;
+    }
+
+    case 'keychain': {
+      if (!adapter?.broadcastWithKeychain) {
+        throw new Error('Keychain not supported by adapter');
+      }
+      return await adapter.broadcastWithKeychain(username, ops, authority);
+    }
+
+    case 'custom': {
+      if (!auth?.broadcast) {
+        throw new Error('No custom broadcast function provided');
+      }
+      return (await auth.broadcast(ops, authority)) as TransactionConfirmation;
+    }
+
+    default:
+      throw new Error(`Unknown auth method: ${method}`);
+  }
+}
+
+/**
  * Attempts to broadcast operations using multiple auth methods in fallback chain.
  * Implements sophisticated fallback pattern from mobile app.
  *
@@ -21,7 +103,12 @@ import hs from "hivesigner";
  * @throws Error if all auth methods fail or if a non-auth error occurs
  *
  * @remarks
- * This function implements smart fallback logic:
+ * **Preferred Behavior (when adapter.getLoginType exists):**
+ * - Calls adapter.getLoginType() to determine user's actual auth method
+ * - Uses ONLY that method (no fallbacks) - more predictable and faster
+ * - If it fails, throws the error immediately
+ *
+ * **Fallback Behavior (for backward compatibility):**
  * - Tries each auth method in the fallback chain order
  * - Only continues to next method if error is auth-related (missing authority, token expired)
  * - Stops immediately for non-auth errors (RC exhaustion, network errors, validation errors)
@@ -29,19 +116,16 @@ import hs from "hivesigner";
  *
  * @example
  * ```typescript
- * // Typical usage in useBroadcastMutation
+ * // Preferred: Adapter with getLoginType (single method, no fallbacks)
  * const auth: AuthContextV2 = {
- *   adapter: myAdapter,
- *   fallbackChain: ['keychain', 'key', 'hivesigner'],
- *   enableFallback: true
+ *   adapter: myAdapter, // includes getLoginType()
  * };
  *
- * try {
- *   const result = await broadcastWithFallback(username, ops, auth, 'active');
- *   console.log('Transaction ID:', result.id);
- * } catch (error) {
- *   console.error('All methods failed:', error);
- * }
+ * // Legacy: Explicit fallback chain (tries multiple methods)
+ * const auth: AuthContextV2 = {
+ *   adapter: myAdapter,
+ *   fallbackChain: ['key', 'hiveauth', 'hivesigner'],
+ * };
  * ```
  */
 async function broadcastWithFallback(
@@ -50,87 +134,93 @@ async function broadcastWithFallback(
   auth?: AuthContextV2,
   authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
 ): Promise<TransactionConfirmation> {
-  // FIX #1: Include 'custom' in default fallback chain so auth.broadcast is not bypassed
+  const adapter = auth?.adapter;
+
+  // PREFERRED APPROACH: If adapter provides getLoginType, use ONLY that auth method
+  // This avoids unnecessary fallback attempts and is more predictable
+  if (adapter?.getLoginType) {
+    const loginType = await adapter.getLoginType(username);
+
+    if (loginType) {
+      // Use ONLY the user's actual login method - no fallbacks
+      try {
+        return await broadcastWithMethod(loginType, username, ops, auth, authority);
+      } catch (error) {
+        // Don't fallback - if their auth method fails, that's a real error
+        throw error;
+      }
+    }
+  }
+
+  // FALLBACK APPROACH: For backward compatibility, use fallback chain
+  // This is only used if adapter doesn't provide getLoginType
   const chain = auth?.fallbackChain ?? ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom'];
   const errors: Map<string, Error> = new Map();
-  const adapter = auth?.adapter;
 
   for (const method of chain) {
     try {
+      // Check if method is available before attempting
+      let shouldSkip = false;
+      let skipReason = '';
+
       switch (method) {
-        case 'key': {
-          // Track skip reason: No adapter provided
+        case 'key':
           if (!adapter) {
-            errors.set(method, new Error('Skipped: No adapter provided'));
-            break;
+            shouldSkip = true;
+            skipReason = 'No adapter provided';
+          } else {
+            // Check if key is available
+            let key: string | null | undefined;
+            if (authority === 'active' && adapter.getActiveKey) {
+              key = await adapter.getActiveKey(username);
+            } else if (authority === 'posting') {
+              key = await adapter.getPostingKey(username);
+            }
+            if (!key) {
+              shouldSkip = true;
+              skipReason = `No ${authority} key available`;
+            }
           }
-
-          // Choose key based on authority
-          let key: string | null | undefined;
-          if (authority === 'active' && adapter.getActiveKey) {
-            key = await adapter.getActiveKey(username);
-          } else if (authority === 'posting') {
-            key = await adapter.getPostingKey(username);
-          }
-
-          // Track skip reason: No key available
-          if (!key) {
-            errors.set(method, new Error(`Skipped: No ${authority} key available`));
-            break;
-          }
-          // Attempt broadcast with key
-          const privateKey = PrivateKey.fromString(key);
-          return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
-        }
-
-        case 'hiveauth': {
-          // Track skip reason: HiveAuth not supported by adapter
+          break;
+        case 'hiveauth':
           if (!adapter?.broadcastWithHiveAuth) {
-            errors.set(method, new Error('Skipped: HiveAuth not supported by adapter'));
-            break;
+            shouldSkip = true;
+            skipReason = 'HiveAuth not supported by adapter';
           }
-          // Attempt broadcast with HiveAuth
-          return await adapter.broadcastWithHiveAuth(username, ops, authority);
-        }
-
-        case 'hivesigner': {
-          // Track skip reason: No adapter provided
+          break;
+        case 'hivesigner':
           if (!adapter) {
-            errors.set(method, new Error('Skipped: No adapter provided'));
-            break;
+            shouldSkip = true;
+            skipReason = 'No adapter provided';
+          } else {
+            const token = await adapter.getAccessToken(username);
+            if (!token) {
+              shouldSkip = true;
+              skipReason = 'No access token available';
+            }
           }
-          const token = await adapter.getAccessToken(username);
-          // Track skip reason: No access token available
-          if (!token) {
-            errors.set(method, new Error('Skipped: No access token available'));
-            break;
-          }
-          // Attempt broadcast with HiveSigner
-          const client = new hs.Client({ accessToken: token });
-          const response = await client.broadcast(ops);
-          return response.result;
-        }
-
-        case 'keychain': {
-          // Track skip reason: Keychain not supported by adapter
+          break;
+        case 'keychain':
           if (!adapter?.broadcastWithKeychain) {
-            errors.set(method, new Error('Skipped: Keychain not supported by adapter'));
-            break;
+            shouldSkip = true;
+            skipReason = 'Keychain not supported by adapter';
           }
-          // Attempt broadcast with Keychain
-          return await adapter.broadcastWithKeychain(username, ops, authority);
-        }
-
-        case 'custom': {
-          // Track skip reason: No custom broadcast function provided
+          break;
+        case 'custom':
           if (!auth?.broadcast) {
-            errors.set(method, new Error('Skipped: No custom broadcast function provided'));
-            break;
+            shouldSkip = true;
+            skipReason = 'No custom broadcast function provided';
           }
-          // Attempt broadcast with custom function
-          return (await auth.broadcast(ops, authority)) as TransactionConfirmation;
-        }
+          break;
       }
+
+      if (shouldSkip) {
+        errors.set(method, new Error(`Skipped: ${skipReason}`));
+        continue;
+      }
+
+      // Method is available, attempt broadcast
+      return await broadcastWithMethod(method, username, ops, auth, authority);
     } catch (error) {
       // Record actual error from failed broadcast attempt
       errors.set(method, error as Error);

@@ -258,67 +258,131 @@ function isNetworkError(error) {
   const { type } = parseChainError(error);
   return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
 }
+async function broadcastWithMethod(method, username, ops2, auth, authority = "posting") {
+  const adapter = auth?.adapter;
+  switch (method) {
+    case "key": {
+      if (!adapter) {
+        throw new Error("No adapter provided for key-based auth");
+      }
+      let key;
+      if (authority === "active" && adapter.getActiveKey) {
+        key = await adapter.getActiveKey(username);
+      } else if (authority === "posting") {
+        key = await adapter.getPostingKey(username);
+      }
+      if (!key) {
+        throw new Error(`No ${authority} key available for ${username}`);
+      }
+      const privateKey = dhive.PrivateKey.fromString(key);
+      return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+    }
+    case "hiveauth": {
+      if (!adapter?.broadcastWithHiveAuth) {
+        throw new Error("HiveAuth not supported by adapter");
+      }
+      return await adapter.broadcastWithHiveAuth(username, ops2, authority);
+    }
+    case "hivesigner": {
+      if (!adapter) {
+        throw new Error("No adapter provided for HiveSigner auth");
+      }
+      const token = await adapter.getAccessToken(username);
+      if (!token) {
+        throw new Error(`No access token available for ${username}`);
+      }
+      const client = new hs__default.default.Client({ accessToken: token });
+      const response = await client.broadcast(ops2);
+      return response.result;
+    }
+    case "keychain": {
+      if (!adapter?.broadcastWithKeychain) {
+        throw new Error("Keychain not supported by adapter");
+      }
+      return await adapter.broadcastWithKeychain(username, ops2, authority);
+    }
+    case "custom": {
+      if (!auth?.broadcast) {
+        throw new Error("No custom broadcast function provided");
+      }
+      return await auth.broadcast(ops2, authority);
+    }
+    default:
+      throw new Error(`Unknown auth method: ${method}`);
+  }
+}
 async function broadcastWithFallback(username, ops2, auth, authority = "posting") {
+  const adapter = auth?.adapter;
+  if (adapter?.getLoginType) {
+    const loginType = await adapter.getLoginType(username);
+    if (loginType) {
+      try {
+        return await broadcastWithMethod(loginType, username, ops2, auth, authority);
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
   const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain", "custom"];
   const errors = /* @__PURE__ */ new Map();
-  const adapter = auth?.adapter;
   for (const method of chain) {
     try {
+      let shouldSkip = false;
+      let skipReason = "";
       switch (method) {
-        case "key": {
+        case "key":
           if (!adapter) {
-            errors.set(method, new Error("Skipped: No adapter provided"));
-            break;
+            shouldSkip = true;
+            skipReason = "No adapter provided";
+          } else {
+            let key;
+            if (authority === "active" && adapter.getActiveKey) {
+              key = await adapter.getActiveKey(username);
+            } else if (authority === "posting") {
+              key = await adapter.getPostingKey(username);
+            }
+            if (!key) {
+              shouldSkip = true;
+              skipReason = `No ${authority} key available`;
+            }
           }
-          let key;
-          if (authority === "active" && adapter.getActiveKey) {
-            key = await adapter.getActiveKey(username);
-          } else if (authority === "posting") {
-            key = await adapter.getPostingKey(username);
-          }
-          if (!key) {
-            errors.set(method, new Error(`Skipped: No ${authority} key available`));
-            break;
-          }
-          const privateKey = dhive.PrivateKey.fromString(key);
-          return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
-        }
-        case "hiveauth": {
+          break;
+        case "hiveauth":
           if (!adapter?.broadcastWithHiveAuth) {
-            errors.set(method, new Error("Skipped: HiveAuth not supported by adapter"));
-            break;
+            shouldSkip = true;
+            skipReason = "HiveAuth not supported by adapter";
           }
-          return await adapter.broadcastWithHiveAuth(username, ops2, authority);
-        }
-        case "hivesigner": {
+          break;
+        case "hivesigner":
           if (!adapter) {
-            errors.set(method, new Error("Skipped: No adapter provided"));
-            break;
+            shouldSkip = true;
+            skipReason = "No adapter provided";
+          } else {
+            const token = await adapter.getAccessToken(username);
+            if (!token) {
+              shouldSkip = true;
+              skipReason = "No access token available";
+            }
           }
-          const token = await adapter.getAccessToken(username);
-          if (!token) {
-            errors.set(method, new Error("Skipped: No access token available"));
-            break;
-          }
-          const client = new hs__default.default.Client({ accessToken: token });
-          const response = await client.broadcast(ops2);
-          return response.result;
-        }
-        case "keychain": {
+          break;
+        case "keychain":
           if (!adapter?.broadcastWithKeychain) {
-            errors.set(method, new Error("Skipped: Keychain not supported by adapter"));
-            break;
+            shouldSkip = true;
+            skipReason = "Keychain not supported by adapter";
           }
-          return await adapter.broadcastWithKeychain(username, ops2, authority);
-        }
-        case "custom": {
+          break;
+        case "custom":
           if (!auth?.broadcast) {
-            errors.set(method, new Error("Skipped: No custom broadcast function provided"));
-            break;
+            shouldSkip = true;
+            skipReason = "No custom broadcast function provided";
           }
-          return await auth.broadcast(ops2, authority);
-        }
+          break;
       }
+      if (shouldSkip) {
+        errors.set(method, new Error(`Skipped: ${skipReason}`));
+        continue;
+      }
+      return await broadcastWithMethod(method, username, ops2, auth, authority);
     } catch (error) {
       errors.set(method, error);
       if (!shouldTriggerAuthFallback(error)) {
@@ -3655,6 +3719,68 @@ function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
     return 0;
   }
   return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
+}
+
+// src/modules/operations/authority-map.ts
+var OPERATION_AUTHORITY_MAP = {
+  // Posting authority operations
+  vote: "posting",
+  comment: "posting",
+  delete_comment: "posting",
+  comment_options: "posting",
+  claim_reward_balance: "posting",
+  // Active authority operations - Financial
+  transfer: "active",
+  transfer_to_savings: "active",
+  transfer_from_savings: "active",
+  transfer_to_vesting: "active",
+  withdraw_vesting: "active",
+  delegate_vesting_shares: "active",
+  set_withdraw_vesting_route: "active",
+  convert: "active",
+  recurrent_transfer: "active",
+  // Active authority operations - Market
+  limit_order_create: "active",
+  limit_order_cancel: "active",
+  // Active authority operations - Account Management
+  account_update: "active",
+  account_update2: "active",
+  change_recovery_account: "active",
+  // Active authority operations - Governance
+  account_witness_proxy: "active",
+  update_proposal_votes: "active"
+  // Note: custom_json is handled separately via getCustomJsonAuthority()
+  // It can be either posting or active depending on the operation content
+};
+function getCustomJsonAuthority(customJsonOp) {
+  const opType = customJsonOp[0];
+  const payload = customJsonOp[1];
+  if (opType !== "custom_json") {
+    throw new Error("Operation is not a custom_json operation");
+  }
+  const customJson = payload;
+  if (customJson.required_auths && customJson.required_auths.length > 0) {
+    return "active";
+  }
+  if (customJson.required_posting_auths && customJson.required_posting_auths.length > 0) {
+    return "posting";
+  }
+  return "posting";
+}
+function getOperationAuthority(op) {
+  const opType = op[0];
+  if (opType === "custom_json") {
+    return getCustomJsonAuthority(op);
+  }
+  return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
+}
+function getRequiredAuthority(ops2) {
+  for (const op of ops2) {
+    if (getOperationAuthority(op) === "active") {
+      return "active";
+    }
+  }
+  return "posting";
 }
 
 // src/modules/operations/builders/content.ts
@@ -7671,6 +7797,7 @@ exports.NaiMap = NaiMap;
 exports.NotificationFilter = NotificationFilter;
 exports.NotificationViewType = NotificationViewType;
 exports.NotifyTypes = NotifyTypes;
+exports.OPERATION_AUTHORITY_MAP = OPERATION_AUTHORITY_MAP;
 exports.OrderIdPrefix = OrderIdPrefix;
 exports.ROLES = ROLES;
 exports.SortOrder = SortOrder;
@@ -7792,6 +7919,7 @@ exports.getCurrencyRate = getCurrencyRate;
 exports.getCurrencyRates = getCurrencyRates;
 exports.getCurrencyTokenRate = getCurrencyTokenRate;
 exports.getCurrentMedianHistoryPriceQueryOptions = getCurrentMedianHistoryPriceQueryOptions;
+exports.getCustomJsonAuthority = getCustomJsonAuthority;
 exports.getDeletedEntryQueryOptions = getDeletedEntryQueryOptions;
 exports.getDiscoverCurationQueryOptions = getDiscoverCurationQueryOptions;
 exports.getDiscoverLeaderboardQueryOptions = getDiscoverLeaderboardQueryOptions;
@@ -7841,6 +7969,7 @@ exports.getNotificationsInfiniteQueryOptions = getNotificationsInfiniteQueryOpti
 exports.getNotificationsSettingsQueryOptions = getNotificationsSettingsQueryOptions;
 exports.getNotificationsUnreadCountQueryOptions = getNotificationsUnreadCountQueryOptions;
 exports.getOpenOrdersQueryOptions = getOpenOrdersQueryOptions;
+exports.getOperationAuthority = getOperationAuthority;
 exports.getOrderBookQueryOptions = getOrderBookQueryOptions;
 exports.getOutgoingRcDelegationsInfiniteQueryOptions = getOutgoingRcDelegationsInfiniteQueryOptions;
 exports.getPageStatsQueryOptions = getPageStatsQueryOptions;
@@ -7872,6 +8001,7 @@ exports.getReferralsInfiniteQueryOptions = getReferralsInfiniteQueryOptions;
 exports.getReferralsStatsQueryOptions = getReferralsStatsQueryOptions;
 exports.getRelationshipBetweenAccounts = getRelationshipBetweenAccounts;
 exports.getRelationshipBetweenAccountsQueryOptions = getRelationshipBetweenAccountsQueryOptions;
+exports.getRequiredAuthority = getRequiredAuthority;
 exports.getRewardFundQueryOptions = getRewardFundQueryOptions;
 exports.getRewardedCommunitiesQueryOptions = getRewardedCommunitiesQueryOptions;
 exports.getSavingsWithdrawFromQueryOptions = getSavingsWithdrawFromQueryOptions;
