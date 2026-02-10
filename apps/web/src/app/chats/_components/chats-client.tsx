@@ -115,7 +115,7 @@ export function ChatsClient() {
   }, [channels?.channels, getDirectUserDisplayName, searchTerm]);
 
   const unreadByChannelId = useMemo(() => {
-    if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number }>();
+    if (!unreadSummary?.channels) return new Map<string, { mention_count: number; message_count: number; thread_unread: number }>();
 
     return unreadSummary.channels.reduce((acc, channel) => {
       acc.set(channel.channelId, {
@@ -191,23 +191,6 @@ export function ChatsClient() {
     return { favorites, directMessages, regularChannels };
   }, [sortedChannels]);
 
-  // Format relative time for channel list
-  const formatChannelTimestamp = useCallback((timestamp?: number): string => {
-    if (!timestamp) return "";
-
-    const now = Date.now();
-    const diff = now - timestamp;
-    const minutes = Math.floor(diff / 1000 / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (minutes < 1) return "now";
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    if (days < 7) return `${days}d`;
-
-    return new Date(timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' });
-  }, []);
 
   const joinableChannelResults = useMemo(() => {
     const existingIds = new Set((channels?.channels || []).map((channel) => channel.id));
@@ -461,7 +444,7 @@ export function ChatsClient() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
         <div className="space-y-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -550,12 +533,7 @@ export function ChatsClient() {
                                     </span>
                                   )}
                                 </div>
-                                {(channel.last_post_at || channel.last_viewed_at) && (
-                                  <span className="text-[10px] text-[--text-muted] flex-shrink-0 whitespace-nowrap">
-                                    {formatChannelTimestamp(channel.last_post_at || channel.last_viewed_at)}
-                                  </span>
-                                )}
-                              </div>
+                                </div>
                               <div className="text-xs text-[--text-muted] truncate">{getChannelSubtitle(channel)}</div>
                             </div>
 
@@ -699,11 +677,6 @@ export function ChatsClient() {
                                 <div className="flex items-center font-semibold min-w-0 flex-1">
                                   <span className="truncate">{getChannelTitle(channel)}</span>
                                 </div>
-                                {(channel.last_post_at || channel.last_viewed_at) && (
-                                  <span className="text-[10px] text-[--text-muted] flex-shrink-0 whitespace-nowrap">
-                                    {formatChannelTimestamp(channel.last_post_at || channel.last_viewed_at)}
-                                  </span>
-                                )}
                               </div>
                               <div className="text-xs text-[--text-muted] truncate">{getChannelSubtitle(channel)}</div>
                             </div>
@@ -811,11 +784,6 @@ export function ChatsClient() {
                                     </span>
                                   )}
                                 </div>
-                                {(channel.last_post_at || channel.last_viewed_at) && (
-                                  <span className="text-[10px] text-[--text-muted] flex-shrink-0 whitespace-nowrap">
-                                    {formatChannelTimestamp(channel.last_post_at || channel.last_viewed_at)}
-                                  </span>
-                                )}
                               </div>
                               <div className="text-xs text-[--text-muted] truncate">{getChannelSubtitle(channel)}</div>
                             </div>
@@ -944,11 +912,6 @@ export function ChatsClient() {
                               </span>
                             )}
                           </div>
-                          {(channel.last_post_at || channel.last_viewed_at) && (
-                            <span className="text-[10px] text-[--text-muted] flex-shrink-0">
-                              {formatChannelTimestamp(channel.last_post_at || channel.last_viewed_at)}
-                            </span>
-                          )}
                         </div>
                         <div className="text-xs text-[--text-muted] truncate">{getChannelSubtitle(channel)}</div>
                       </div>
@@ -1077,7 +1040,7 @@ export function ChatsClient() {
                           </div>
                         </div>
                         <span className="text-sm font-semibold text-blue-500">
-                          {directChannelMutation.isLoading
+                          {directChannelMutation.isPending
                             ? i18next.t("chat.starting-dm")
                             : i18next.t("chat.start-dm-button")}
                         </span>
