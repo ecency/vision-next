@@ -72,6 +72,36 @@ export interface PlatformAdapter {
   getActiveKey?: (username: string) => Promise<string | null | undefined>;
 
   /**
+   * Retrieve owner key from secure storage (for account recovery and password changes).
+   *
+   * @param username - The username to get key for
+   * @returns Owner key (WIF format), null if Keychain/HiveAuth, undefined if not found
+   *
+   * @remarks
+   * - Returns null for Keychain/HiveAuth users (use broadcastWithKeychain instead)
+   * - Mobile: Decrypts key using PIN (only available for master password logins)
+   * - Web: Retrieves from localStorage (only available for master password logins)
+   * - Required for account recovery, password changes, and key rotation
+   * - Most users won't have owner key stored - only master password logins
+   */
+  getOwnerKey?: (username: string) => Promise<string | null | undefined>;
+
+  /**
+   * Retrieve memo key from secure storage (for memo encryption/decryption).
+   *
+   * @param username - The username to get key for
+   * @returns Memo key (WIF format), null if Keychain/HiveAuth, undefined if not found
+   *
+   * @remarks
+   * - Returns null for Keychain/HiveAuth users
+   * - Mobile: Decrypts key using PIN
+   * - Web: Retrieves from localStorage
+   * - Used for encrypting/decrypting transfer memos
+   * - Rarely used for signing operations (mostly for encryption)
+   */
+  getMemoKey?: (username: string) => Promise<string | null | undefined>;
+
+  /**
    * Retrieve HiveSigner access token from storage.
    *
    * @param username - The username to get token for

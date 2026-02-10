@@ -241,10 +241,34 @@ async function broadcastWithMethod(method, username, ops2, auth, authority = "po
         throw new Error("No adapter provided for key-based auth");
       }
       let key;
-      if (authority === "active" && adapter.getActiveKey) {
-        key = await adapter.getActiveKey(username);
-      } else if (authority === "posting") {
-        key = await adapter.getPostingKey(username);
+      switch (authority) {
+        case "owner":
+          if (adapter.getOwnerKey) {
+            key = await adapter.getOwnerKey(username);
+          } else {
+            throw new Error(
+              `Owner key not supported by adapter. Owner operations (like account recovery) require master password login or manual key entry.`
+            );
+          }
+          break;
+        case "active":
+          if (adapter.getActiveKey) {
+            key = await adapter.getActiveKey(username);
+          }
+          break;
+        case "memo":
+          if (adapter.getMemoKey) {
+            key = await adapter.getMemoKey(username);
+          } else {
+            throw new Error(
+              `Memo key not supported by adapter. Use memo encryption methods instead.`
+            );
+          }
+          break;
+        case "posting":
+        default:
+          key = await adapter.getPostingKey(username);
+          break;
       }
       if (!key) {
         throw new Error(`No ${authority} key available for ${username}`);
@@ -3750,10 +3774,15 @@ var OPERATION_AUTHORITY_MAP = {
   // Active authority operations - Account Management
   account_update: "active",
   account_update2: "active",
-  change_recovery_account: "active",
   // Active authority operations - Governance
   account_witness_proxy: "active",
-  update_proposal_votes: "active"
+  update_proposal_votes: "active",
+  // Owner authority operations - Security & Account Recovery
+  change_recovery_account: "owner",
+  request_account_recovery: "owner",
+  recover_account: "owner",
+  reset_account: "owner",
+  set_reset_account: "owner"
   // Note: custom_json is handled separately via getCustomJsonAuthority()
   // It can be either posting or active depending on the operation content
 };
@@ -3780,12 +3809,17 @@ function getOperationAuthority(op) {
   return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
 }
 function getRequiredAuthority(ops2) {
+  let highestAuthority = "posting";
   for (const op of ops2) {
-    if (getOperationAuthority(op) === "active") {
-      return "active";
+    const authority = getOperationAuthority(op);
+    if (authority === "owner") {
+      return "owner";
+    }
+    if (authority === "active" && highestAuthority === "posting") {
+      highestAuthority = "active";
     }
   }
-  return "posting";
+  return highestAuthority;
 }
 
 // src/modules/operations/builders/content.ts

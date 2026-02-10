@@ -1,18 +1,28 @@
 import type { Operation } from "@hiveio/dhive";
 
 /**
+ * Authority levels for Hive blockchain operations.
+ * - posting: Social operations (voting, commenting, reblogging)
+ * - active: Financial and account management operations
+ * - owner: Critical security operations (key changes, account recovery)
+ * - memo: Memo encryption/decryption (rarely used for signing)
+ */
+export type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
+
+/**
  * Maps operation types to their required authority level.
  *
- * This mapping is used to determine which key (posting vs active) is needed
- * to sign a transaction, enabling smart auth fallback and auth upgrade UI.
+ * This mapping is used to determine which key is needed to sign a transaction,
+ * enabling smart auth fallback and auth upgrade UI.
  *
  * @remarks
  * - Most social operations (vote, comment, reblog) require posting authority
  * - Financial operations (transfer, withdraw) require active authority
  * - Account management operations require active authority
+ * - Security operations (password change, account recovery) require owner authority
  * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
  */
-export const OPERATION_AUTHORITY_MAP: Record<string, 'posting' | 'active'> = {
+export const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel> = {
   // Posting authority operations
   vote: 'posting',
   comment: 'posting',
@@ -38,11 +48,17 @@ export const OPERATION_AUTHORITY_MAP: Record<string, 'posting' | 'active'> = {
   // Active authority operations - Account Management
   account_update: 'active',
   account_update2: 'active',
-  change_recovery_account: 'active',
 
   // Active authority operations - Governance
   account_witness_proxy: 'active',
   update_proposal_votes: 'active',
+
+  // Owner authority operations - Security & Account Recovery
+  change_recovery_account: 'owner',
+  request_account_recovery: 'owner',
+  recover_account: 'owner',
+  reset_account: 'owner',
+  set_reset_account: 'owner',
 
   // Note: custom_json is handled separately via getCustomJsonAuthority()
   // It can be either posting or active depending on the operation content
@@ -80,7 +96,7 @@ export const OPERATION_AUTHORITY_MAP: Record<string, 'posting' | 'active'> = {
  * getCustomJsonAuthority(activeOp); // Returns 'active'
  * ```
  */
-export function getCustomJsonAuthority(customJsonOp: Operation): 'posting' | 'active' {
+export function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel {
   const opType = customJsonOp[0];
   const payload = customJsonOp[1];
 
@@ -128,7 +144,7 @@ export function getCustomJsonAuthority(customJsonOp: Operation): 'posting' | 'ac
  * getOperationAuthority(transferOp); // Returns 'active'
  * ```
  */
-export function getOperationAuthority(op: Operation): 'posting' | 'active' {
+export function getOperationAuthority(op: Operation): AuthorityLevel {
   const opType = op[0];
 
   // Special handling for custom_json - requires content inspection
@@ -143,11 +159,13 @@ export function getOperationAuthority(op: Operation): 'posting' | 'active' {
 /**
  * Determines the highest authority level required for a list of operations.
  *
- * Useful when broadcasting multiple operations together - if any require
- * active authority, the entire batch needs active authority.
+ * Useful when broadcasting multiple operations together - the highest authority
+ * level required by any operation determines what key is needed for the batch.
+ *
+ * Authority hierarchy: owner > active > posting > memo
  *
  * @param ops - Array of operations
- * @returns 'active' if any operation requires active, 'posting' otherwise
+ * @returns Highest authority level required ('owner', 'active', or 'posting')
  *
  * @example
  * ```typescript
@@ -162,16 +180,33 @@ export function getOperationAuthority(op: Operation): 'posting' | 'active' {
  *   ['transfer', { ... }],    // active
  * ];
  * getRequiredAuthority(mixedOps); // Returns 'active'
+ *
+ * const securityOps: Operation[] = [
+ *   ['transfer', { ... }],               // active
+ *   ['change_recovery_account', { ... }], // owner
+ * ];
+ * getRequiredAuthority(securityOps); // Returns 'owner'
  * ```
  */
-export function getRequiredAuthority(ops: Operation[]): 'posting' | 'active' {
-  // If any operation requires active authority, return 'active'
+export function getRequiredAuthority(ops: Operation[]): AuthorityLevel {
+  let highestAuthority: AuthorityLevel = 'posting';
+
   for (const op of ops) {
-    if (getOperationAuthority(op) === 'active') {
-      return 'active';
+    const authority = getOperationAuthority(op);
+
+    // Owner is highest - return immediately
+    if (authority === 'owner') {
+      return 'owner';
     }
+
+    // Active is higher than posting
+    if (authority === 'active' && highestAuthority === 'posting') {
+      highestAuthority = 'active';
+    }
+
+    // Memo is lowest (same level as posting)
+    // If we see memo but only have posting, stick with posting
   }
 
-  // All operations can be done with posting authority
-  return 'posting';
+  return highestAuthority;
 }

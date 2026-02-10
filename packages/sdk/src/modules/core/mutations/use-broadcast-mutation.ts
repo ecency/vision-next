@@ -7,6 +7,7 @@ import { Operation, PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";
+import type { AuthorityLevel } from "@/modules/operations/authority-map";
 import hs from "hivesigner";
 
 /**
@@ -16,7 +17,7 @@ import hs from "hivesigner";
  * @param username - Hive username to broadcast for
  * @param ops - Operations to broadcast
  * @param auth - AuthContextV2 with adapter and configuration
- * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo')
+ * @param authority - Key authority to use (posting, active, owner, or memo)
  * @returns Transaction confirmation from the blockchain
  * @throws Error if method is not available or broadcast fails
  */
@@ -25,7 +26,7 @@ async function broadcastWithMethod(
   username: string,
   ops: Operation[],
   auth?: AuthContextV2,
-  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+  authority: AuthorityLevel = 'posting'
 ): Promise<TransactionConfirmation> {
   const adapter = auth?.adapter;
 
@@ -37,10 +38,39 @@ async function broadcastWithMethod(
 
       // Choose key based on authority
       let key: string | null | undefined;
-      if (authority === 'active' && adapter.getActiveKey) {
-        key = await adapter.getActiveKey(username);
-      } else if (authority === 'posting') {
-        key = await adapter.getPostingKey(username);
+
+      switch (authority) {
+        case 'owner':
+          if (adapter.getOwnerKey) {
+            key = await adapter.getOwnerKey(username);
+          } else {
+            throw new Error(
+              `Owner key not supported by adapter. Owner operations (like account recovery) ` +
+              `require master password login or manual key entry.`
+            );
+          }
+          break;
+
+        case 'active':
+          if (adapter.getActiveKey) {
+            key = await adapter.getActiveKey(username);
+          }
+          break;
+
+        case 'memo':
+          if (adapter.getMemoKey) {
+            key = await adapter.getMemoKey(username);
+          } else {
+            throw new Error(
+              `Memo key not supported by adapter. Use memo encryption methods instead.`
+            );
+          }
+          break;
+
+        case 'posting':
+        default:
+          key = await adapter.getPostingKey(username);
+          break;
       }
 
       if (!key) {
@@ -132,7 +162,7 @@ async function broadcastWithFallback(
   username: string,
   ops: Operation[],
   auth?: AuthContextV2,
-  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+  authority: AuthorityLevel = 'posting'
 ): Promise<TransactionConfirmation> {
   const adapter = auth?.adapter;
 
@@ -384,7 +414,7 @@ export function useBroadcastMutation<T>(
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
   auth?: AuthContextV2,
-  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+  authority: AuthorityLevel = 'posting'
 ) {
   return useMutation({
     onSuccess,
