@@ -116,7 +116,7 @@ export function useCreateReply(
           );
 
           updateEntryQueryData([optimisticEntry]);
-          addReply(optimisticEntry);
+          // Note: onMutate already added reply to discussions cache, .then() just flips is_optimistic flag
           // Only remove draft after blockchain confirms
           ss.remove(draftKey);
           // Note: SDK already invalidates RC query - no need to refetch here

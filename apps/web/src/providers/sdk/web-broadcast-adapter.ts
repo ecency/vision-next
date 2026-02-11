@@ -70,7 +70,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       return {
         name: user.username,
         authType: user.loginType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
-      } as any;
+      };
     },
 
     async getPostingKey(username: string) {
