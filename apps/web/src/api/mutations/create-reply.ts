@@ -68,6 +68,9 @@ export function useCreateReply(
         title: "",
         body: text,
         jsonMetadata: jsonMeta,
+        // Pass root post info for discussions cache invalidation (nested replies)
+        rootAuthor: root.author,
+        rootPermlink: root.permlink,
       };
 
       // Add options if provided
@@ -99,14 +102,29 @@ export function useCreateReply(
       // Use SDK mutation for blockchain broadcast (fire-and-forget)
       sdkComment(commentPayload)
         .then((transactionResult) => {
-          // Blockchain confirmed - SDK automatically invalidates discussions cache
-          // which will refetch and replace optimistic entry with real entry
+          // Blockchain confirmed - manually flip is_optimistic flag in discussions cache
+          // This provides immediate feedback while SDK invalidation refetches
+          queryClient.setQueryData<Entry[]>(
+            [
+              "posts",
+              "discussions",
+              root.author,
+              root.permlink,
+              SortOrder.created,
+              activeUser.username
+            ],
+            (prev) =>
+              prev?.map((r) =>
+                r.permlink === permlink ? { ...r, is_optimistic: false } : r
+              ) ?? []
+          );
+
           updateEntryQueryData([optimisticEntry]);
 
           // Only remove draft after blockchain confirms
           ss.remove(draftKey);
 
-          // Note: SDK handles all cache invalidations (RC, discussions, entry)
+          // Note: SDK handles cache invalidations (RC, discussions, entry)
           success(i18next.t("comment.success"));
         })
         .catch((err) => {

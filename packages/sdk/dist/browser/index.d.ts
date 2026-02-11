@@ -3564,6 +3564,10 @@ interface CommentPayload {
     body: string;
     /** JSON metadata object */
     jsonMetadata: Record<string, any>;
+    /** Optional: Root post author (for nested replies, used for discussions cache invalidation) */
+    rootAuthor?: string;
+    /** Optional: Root post permlink (for nested replies, used for discussions cache invalidation) */
+    rootPermlink?: string;
     /** Optional: Comment options (beneficiaries, rewards) */
     options?: {
         /** Maximum accepted payout (e.g., "1000000.000 HBD") */

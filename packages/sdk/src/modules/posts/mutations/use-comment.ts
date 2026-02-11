@@ -31,6 +31,10 @@ export interface CommentPayload {
   body: string;
   /** JSON metadata object */
   jsonMetadata: Record<string, any>;
+  /** Optional: Root post author (for nested replies, used for discussions cache invalidation) */
+  rootAuthor?: string;
+  /** Optional: Root post permlink (for nested replies, used for discussions cache invalidation) */
+  rootPermlink?: string;
   /** Optional: Comment options (beneficiaries, rewards) */
   options?: {
     /** Maximum accepted payout (e.g., "1000000.000 HBD") */
@@ -212,6 +216,11 @@ export function useComment(
 
           // Invalidate discussions (matches all sort orders)
           // Use partial key to match all sort order variants
+          // For nested replies, use rootAuthor/rootPermlink to match the root post's discussions
+          // Fall back to parentAuthor/parentPermlink for direct replies to posts
+          const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
+          const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
+
           queriesToInvalidate.push({
             predicate: (query: any) => {
               const key = query.queryKey;
@@ -219,8 +228,8 @@ export function useComment(
                 Array.isArray(key) &&
                 key[0] === "posts" &&
                 key[1] === "discussions" &&
-                key[2] === variables.parentAuthor &&
-                key[3] === variables.parentPermlink
+                key[2] === discussionsAuthor &&
+                key[3] === discussionsPermlink
               );
             }
           });
