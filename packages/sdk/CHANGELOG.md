@@ -12,8 +12,16 @@ This is a major release that introduces the Smart Auth Strategy system, signific
   - **Before:** `Promise<'hiveauth' | 'hivesigner' | false>`
   - **After:** `Promise<'hiveauth' | 'hivesigner' | 'key' | false>`
   - **Reason:** Added support for manual key entry option in auth upgrade flow
-  - **Migration:** Update adapter implementations to handle `'key'` return value
-  - **Note:** The type is intentionally limited to common fallback auth methods. If extending to support 'keychain' or 'custom', update the type definition in `platform-adapter.ts` and the handler in `use-broadcast-mutation.ts` will automatically support it (already delegates to `broadcastWithMethod`).
+  - **Migration:** Update `showAuthUpgradeUI` implementations to handle `'key'` return value
+  - **Important:** The return type is intentionally limited to the **most common fallback methods**:
+    - `'hiveauth'` - QR code + mobile app authentication
+    - `'hivesigner'` - OAuth-based authentication
+    - `'key'` - Manual key entry (temporary use)
+    - `false` - User cancelled
+  - **Note:** While `broadcastWithMethod()` supports all auth methods (`'key' | 'hiveauth' | 'hivesigner' | 'keychain' | 'custom'`), the auth upgrade UI intentionally only offers the above subset for better UX. If you need to support additional methods like `'keychain'` or `'custom'` in the upgrade flow:
+    1. Update the return type in `PlatformAdapter.showAuthUpgradeUI` (packages/sdk/src/modules/core/types/platform-adapter.ts)
+    2. The handler in `broadcastWithMethod()` (packages/sdk/src/modules/core/mutations/use-broadcast-mutation.ts) will automatically support it - no code changes needed there
+  - **See:** `showAuthUpgradeUI` in platform-adapter.ts and `broadcastWithMethod()` in use-broadcast-mutation.ts for implementation details
 
 #### New Features
 

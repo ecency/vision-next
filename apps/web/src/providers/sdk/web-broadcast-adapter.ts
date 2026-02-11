@@ -8,6 +8,7 @@ import {
   type Authority,
 } from '@ecency/sdk';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
+import { broadcastWithHiveAuth } from '@/utils/hive-auth';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -147,7 +148,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         case 'keychain':
           return 'keychain';
         case 'hiveauth':
-          return 'keychain'; // HiveAuth uses same broadcast method as Keychain
+          return 'hiveauth'; // HiveAuth has its own broadcast method (QR code + mobile app flow)
         case 'privateKey':
           return 'key';
         default:
@@ -201,6 +202,21 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
           }
         );
       });
+    },
+
+    async broadcastWithHiveAuth(
+      username: string,
+      ops: Operation[],
+      keyType: 'posting' | 'active' | 'owner' | 'memo',
+    ): Promise<TransactionConfirmation> {
+      // HiveAuth only supports posting and active keys
+      if (keyType !== 'posting' && keyType !== 'active') {
+        throw new Error(`HiveAuth does not support ${keyType} authority. Use posting or active only.`);
+      }
+
+      // Use existing HiveAuth utility from web app
+      // This handles QR code generation, mobile app communication, and session management
+      return await broadcastWithHiveAuth(username, ops, keyType);
     },
 
     // ============================================================================
