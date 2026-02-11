@@ -1,6 +1,6 @@
 // src/api/mutations/create-reply.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { comment, formatError } from "../operations";
+import { formatError } from "../operations";
 import { Entry, FullAccount, MetaData, CommentOptions } from "@/entities";
 import { tempEntry } from "@/utils";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -11,6 +11,8 @@ import i18next from "i18next";
 import { getAccountRcQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useCommentMutation } from "@/api/sdk-mutations";
+import type { CommentPayload } from "@ecency/sdk";
 
 export function useCreateReply(
   entry: Entry,
@@ -22,6 +24,9 @@ export function useCreateReply(
   const queryClient = useQueryClient();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const { addReply } = EcencyEntriesCacheManagement.useAddReply(entry);
+
+  // Get SDK mutation (will be called in fire-and-forget mode)
+  const { mutateAsync: sdkComment } = useCommentMutation();
 
   return useMutation({
     mutationKey: ["reply-create", activeUser?.username, entry.author, entry.permlink],
@@ -53,40 +58,59 @@ export function useCreateReply(
 
       // Fire blockchain broadcast in background without blocking
       const draftKey = `reply_draft_${entry.author}_${entry.permlink}`;
-      comment(
-          activeUser.username,
-          entry.author,
-          entry.permlink,
-          permlink,
-          "",
-          text,
-          jsonMeta,
-          options ?? null,
-          point
-      ).then((transactionResult) => {
-        // Blockchain confirmed - replace optimistic entry with real one
-        queryClient.setQueryData<Entry[]>(
-          [
-            "posts",
-            "discussions",
-            root.author,
-            root.permlink,
-            SortOrder.created,
-            activeUser.username
-          ],
-          (prev) =>
-            prev?.map((r) =>
-              r.permlink === permlink ? { ...optimisticEntry, is_optimistic: false } : r
-            ) ?? []
-        );
 
-        updateEntryQueryData([optimisticEntry]);
-        addReply(optimisticEntry);
-        // Only remove draft after blockchain confirms
-        ss.remove(draftKey);
-        queryClient.refetchQueries(getAccountRcQueryOptions(optimisticEntry.author));
-        success(i18next.t("comment.success"));
-      }).catch((err) => {
+      // Build SDK comment payload
+      const commentPayload: CommentPayload = {
+        author: activeUser.username,
+        permlink,
+        parentAuthor: entry.author,
+        parentPermlink: entry.permlink,
+        title: "",
+        body: text,
+        jsonMetadata: jsonMeta,
+      };
+
+      // Add options if provided
+      if (options) {
+        commentPayload.options = {
+          maxAcceptedPayout: options.max_accepted_payout,
+          percentHbd: options.percent_hbd,
+          allowVotes: options.allow_votes,
+          allowCurationRewards: options.allow_curation_rewards,
+          beneficiaries: options.extensions[0]?.[1]?.beneficiaries?.map((b) => ({
+            account: b.account,
+            weight: b.weight,
+          })) ?? [],
+        };
+      }
+
+      // Use SDK mutation for blockchain broadcast
+      sdkComment(commentPayload)
+        .then((transactionResult) => {
+          // Blockchain confirmed - replace optimistic entry with real one
+          queryClient.setQueryData<Entry[]>(
+            [
+              "posts",
+              "discussions",
+              root.author,
+              root.permlink,
+              SortOrder.created,
+              activeUser.username
+            ],
+            (prev) =>
+              prev?.map((r) =>
+                r.permlink === permlink ? { ...optimisticEntry, is_optimistic: false } : r
+              ) ?? []
+          );
+
+          updateEntryQueryData([optimisticEntry]);
+          addReply(optimisticEntry);
+          // Only remove draft after blockchain confirms
+          ss.remove(draftKey);
+          queryClient.refetchQueries(getAccountRcQueryOptions(optimisticEntry.author));
+          success(i18next.t("comment.success"));
+        })
+        .catch((err) => {
         // Blockchain failed - remove optimistic entry
         queryClient.setQueryData<Entry[]>(
           [

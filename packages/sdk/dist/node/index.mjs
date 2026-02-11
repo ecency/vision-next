@@ -3253,620 +3253,6 @@ function useAccountRelationsUpdate(reference, target, auth, onSuccess, onError) 
     }
   });
 }
-function useBookmarkAdd(username, code, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "bookmarks", "add", username],
-    mutationFn: async ({ author, permlink }) => {
-      if (!username || !code) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/bookmarks-add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            author,
-            permlink,
-            code
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
-      });
-    },
-    onError
-  });
-}
-function useBookmarkDelete(username, code, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "bookmarks", "delete", username],
-    mutationFn: async (bookmarkId) => {
-      if (!username || !code) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/bookmarks-delete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            id: bookmarkId,
-            code
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "bookmarks", username]
-      });
-    },
-    onError
-  });
-}
-function useAccountFavouriteAdd(username, code, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
-    mutationFn: async (account) => {
-      if (!username || !code) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites-add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            account,
-            code
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
-      });
-    },
-    onError
-  });
-}
-function useAccountFavouriteDelete(username, code, onSuccess, onError) {
-  return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
-    mutationFn: async (account) => {
-      if (!username || !code) {
-        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
-      }
-      const fetchApi = getBoundFetch();
-      const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites-delete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            account,
-            code
-          })
-        }
-      );
-      return response.json();
-    },
-    onSuccess: () => {
-      onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username]
-      });
-    },
-    onError
-  });
-}
-function dedupeAndSortKeyAuths(existing, additions) {
-  const merged = /* @__PURE__ */ new Map();
-  existing.forEach(([key, weight]) => {
-    merged.set(key.toString(), weight);
-  });
-  additions.forEach(([key, weight]) => {
-    merged.set(key.toString(), weight);
-  });
-  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
-}
-function useAccountUpdateKeyAuths(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "keys-update", username],
-    mutationFn: async ({
-      keys,
-      keepCurrent = false,
-      currentKey,
-      keysToRevoke = [],
-      keysToRevokeByAuthority = {}
-    }) => {
-      if (keys.length === 0) {
-        throw new Error(
-          "[SDK][Update password] \u2013 no new keys provided"
-        );
-      }
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update keys for anon user"
-        );
-      }
-      const prepareAuth = (keyName) => {
-        const auth = R4.clone(accountData[keyName]);
-        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
-        const allKeysToRevoke = [
-          ...keysToRevokeForAuthority,
-          ...keysToRevokeByAuthority[keyName] === void 0 ? keysToRevoke : []
-        ];
-        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString())) : [];
-        auth.key_auths = dedupeAndSortKeyAuths(
-          existingKeys,
-          keys.map(
-            (values, i) => [values[keyName].createPublic().toString(), i + 1]
-          )
-        );
-        return auth;
-      };
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
-          account: username,
-          json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          // Always use new memo key when adding new keys
-          memo_key: keys[0].memo_key.createPublic().toString()
-        },
-        currentKey
-      );
-    },
-    ...options
-  });
-}
-function useAccountUpdatePassword(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  const { mutateAsync: updateKeys } = useAccountUpdateKeyAuths(username);
-  return useMutation({
-    mutationKey: ["accounts", "password-update", username],
-    mutationFn: async ({
-      newPassword,
-      currentPassword,
-      keepCurrent
-    }) => {
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update password for anon user"
-        );
-      }
-      const currentKey = PrivateKey.fromLogin(
-        username,
-        currentPassword,
-        "owner"
-      );
-      return updateKeys({
-        currentKey,
-        keepCurrent,
-        keys: [
-          {
-            owner: PrivateKey.fromLogin(username, newPassword, "owner"),
-            active: PrivateKey.fromLogin(username, newPassword, "active"),
-            posting: PrivateKey.fromLogin(username, newPassword, "posting"),
-            memo_key: PrivateKey.fromLogin(username, newPassword, "memo")
-          }
-        ]
-      });
-    },
-    ...options
-  });
-}
-function useAccountRevokePosting(username, options, auth) {
-  const queryClient = useQueryClient();
-  const { data } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "revoke-posting", data?.name],
-    mutationFn: async ({ accountName, type, key }) => {
-      if (!data) {
-        throw new Error(
-          "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
-        );
-      }
-      const posting = R4.pipe(
-        {},
-        R4.mergeDeep(data.posting)
-      );
-      posting.account_auths = posting.account_auths.filter(
-        ([account]) => account !== accountName
-      );
-      const operationBody = {
-        account: data.name,
-        posting,
-        memo_key: data.memo_key,
-        json_metadata: data.json_metadata
-      };
-      if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
-      } else if (type === "keychain") {
-        if (!auth?.broadcast) {
-          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
-        }
-        return auth.broadcast([["account_update", operationBody]], "active");
-      } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
-        };
-        return hs.sendOperation(
-          ["account_update", operationBody],
-          params,
-          () => {
-          }
-        );
-      }
-    },
-    onError: options.onError,
-    onSuccess: (resp, payload, ctx) => {
-      options.onSuccess?.(resp, payload, ctx);
-      queryClient.setQueryData(
-        getAccountFullQueryOptions(username).queryKey,
-        (data2) => ({
-          ...data2,
-          posting: {
-            ...data2?.posting,
-            account_auths: data2?.posting?.account_auths?.filter(
-              ([account]) => account !== payload.accountName
-            ) ?? []
-          }
-        })
-      );
-    }
-  });
-}
-function useAccountUpdateRecovery(username, code, options, auth) {
-  const { data } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "recovery", data?.name],
-    mutationFn: async ({ accountName, type, key, email }) => {
-      if (!data) {
-        throw new Error(
-          "[SDK][Accounts] \u2013\xA0cannot change recovery for anonymous user"
-        );
-      }
-      const operationBody = {
-        account_to_recover: data.name,
-        new_recovery_account: accountName,
-        extensions: []
-      };
-      if (type === "ecency") {
-        if (!code) {
-          throw new Error("[SDK][Accounts] \u2013 missing access token");
-        }
-        const fetchApi = getBoundFetch();
-        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
-          method: "POST",
-          body: JSON.stringify({
-            code,
-            email,
-            publicKeys: [
-              ...data.owner.key_auths,
-              ...data.active.key_auths,
-              ...data.posting.key_auths,
-              data.memo_key
-            ]
-          })
-        });
-      } else if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.sendOperations(
-          [["change_recovery_account", operationBody]],
-          key
-        );
-      } else if (type === "keychain") {
-        if (!auth?.broadcast) {
-          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
-        }
-        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
-      } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`
-        };
-        return hs.sendOperation(
-          ["change_recovery_account", operationBody],
-          params,
-          () => {
-          }
-        );
-      }
-    },
-    onError: options.onError,
-    onSuccess: options.onSuccess
-  });
-}
-function useAccountRevokeKey(username, options) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-  return useMutation({
-    mutationKey: ["accounts", "revoke-key", accountData?.name],
-    mutationFn: async ({ currentKey, revokingKey }) => {
-      if (!accountData) {
-        throw new Error(
-          "[SDK][Update password] \u2013 cannot update keys for anon user"
-        );
-      }
-      const prepareAuth = (keyName) => {
-        const auth = R4.clone(accountData[keyName]);
-        auth.key_auths = auth.key_auths.filter(
-          ([key]) => key !== revokingKey.toString()
-        );
-        return auth;
-      };
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
-          account: accountData.name,
-          json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          memo_key: accountData.memo_key
-        },
-        currentKey
-      );
-    },
-    ...options
-  });
-}
-
-// src/modules/accounts/utils/account-power.ts
-var HIVE_VOTING_MANA_REGENERATION_SECONDS = 5 * 60 * 60 * 24;
-function vestsToRshares(vests, votingPowerValue, votePerc) {
-  const vestingShares = vests * 1e6;
-  const power = votingPowerValue * votePerc / 1e4 / 50 + 1;
-  return power * vestingShares / 1e4;
-}
-function toDhiveAccountForVotingMana(account) {
-  return {
-    id: 0,
-    name: account.name,
-    owner: account.owner,
-    active: account.active,
-    posting: account.posting,
-    memo_key: account.memo_key,
-    json_metadata: account.json_metadata,
-    posting_json_metadata: account.posting_json_metadata,
-    proxy: account.proxy ?? "",
-    last_owner_update: "",
-    last_account_update: "",
-    created: account.created,
-    mined: false,
-    owner_challenged: false,
-    active_challenged: false,
-    last_owner_proved: "",
-    last_active_proved: "",
-    recovery_account: account.recovery_account ?? "",
-    reset_account: "",
-    last_account_recovery: "",
-    comment_count: 0,
-    lifetime_vote_count: 0,
-    post_count: account.post_count,
-    can_vote: true,
-    voting_power: account.voting_power,
-    last_vote_time: account.last_vote_time,
-    voting_manabar: account.voting_manabar,
-    balance: account.balance,
-    savings_balance: account.savings_balance,
-    hbd_balance: account.hbd_balance,
-    hbd_seconds: "0",
-    hbd_seconds_last_update: "",
-    hbd_last_interest_payment: "",
-    savings_hbd_balance: account.savings_hbd_balance,
-    savings_hbd_seconds: account.savings_hbd_seconds,
-    savings_hbd_seconds_last_update: account.savings_hbd_seconds_last_update,
-    savings_hbd_last_interest_payment: account.savings_hbd_last_interest_payment,
-    savings_withdraw_requests: 0,
-    reward_hbd_balance: account.reward_hbd_balance,
-    reward_hive_balance: account.reward_hive_balance,
-    reward_vesting_balance: account.reward_vesting_balance,
-    reward_vesting_hive: account.reward_vesting_hive,
-    curation_rewards: 0,
-    posting_rewards: 0,
-    vesting_shares: account.vesting_shares,
-    delegated_vesting_shares: account.delegated_vesting_shares,
-    received_vesting_shares: account.received_vesting_shares,
-    vesting_withdraw_rate: account.vesting_withdraw_rate,
-    next_vesting_withdrawal: account.next_vesting_withdrawal,
-    withdrawn: account.withdrawn,
-    to_withdraw: account.to_withdraw,
-    withdraw_routes: 0,
-    proxied_vsf_votes: account.proxied_vsf_votes ?? [],
-    witnesses_voted_for: 0,
-    average_bandwidth: 0,
-    lifetime_bandwidth: 0,
-    last_bandwidth_update: "",
-    average_market_bandwidth: 0,
-    lifetime_market_bandwidth: 0,
-    last_market_bandwidth_update: "",
-    last_post: account.last_post,
-    last_root_post: ""
-  };
-}
-function votingPower(account) {
-  const calc = CONFIG.hiveClient.rc.calculateVPMana(
-    toDhiveAccountForVotingMana(account)
-  );
-  return calc.percentage / 100;
-}
-function powerRechargeTime(power) {
-  if (!Number.isFinite(power)) {
-    throw new TypeError("Voting power must be a finite number");
-  }
-  if (power < 0 || power > 100) {
-    throw new RangeError("Voting power must be between 0 and 100");
-  }
-  const missingPower = 100 - power;
-  return missingPower * 100 * HIVE_VOTING_MANA_REGENERATION_SECONDS / 1e4;
-}
-function downVotingPower(account) {
-  const totalShares = parseFloat(account.vesting_shares) + parseFloat(account.received_vesting_shares) - parseFloat(account.delegated_vesting_shares);
-  const elapsed = Math.floor(Date.now() / 1e3) - account.downvote_manabar.last_update_time;
-  const maxMana = totalShares * 1e6 / 4;
-  if (maxMana <= 0) {
-    return 0;
-  }
-  let currentMana = parseFloat(account.downvote_manabar.current_mana.toString()) + elapsed * maxMana / HIVE_VOTING_MANA_REGENERATION_SECONDS;
-  if (currentMana > maxMana) {
-    currentMana = maxMana;
-  }
-  const currentManaPerc = currentMana * 100 / maxMana;
-  if (isNaN(currentManaPerc)) {
-    return 0;
-  }
-  if (currentManaPerc > 100) {
-    return 100;
-  }
-  return currentManaPerc;
-}
-function rcPower(account) {
-  const calc = CONFIG.hiveClient.rc.calculateRCMana(account);
-  return calc.percentage / 100;
-}
-function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
-  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
-    return 0;
-  }
-  const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps;
-  if (!Number.isFinite(fundRecentClaims) || !Number.isFinite(fundRewardBalance) || !Number.isFinite(base) || !Number.isFinite(quote)) {
-    return 0;
-  }
-  if (fundRecentClaims === 0 || quote === 0) {
-    return 0;
-  }
-  let totalVests = 0;
-  try {
-    const vesting = parseAsset(account.vesting_shares).amount;
-    const received = parseAsset(account.received_vesting_shares).amount;
-    const delegated = parseAsset(account.delegated_vesting_shares).amount;
-    if (![vesting, received, delegated].every(Number.isFinite)) {
-      return 0;
-    }
-    totalVests = vesting + received - delegated;
-  } catch {
-    return 0;
-  }
-  if (!Number.isFinite(totalVests)) {
-    return 0;
-  }
-  const rShares = vestsToRshares(totalVests, votingPowerValue, weight);
-  if (!Number.isFinite(rShares)) {
-    return 0;
-  }
-  return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
-}
-
-// src/modules/operations/authority-map.ts
-var OPERATION_AUTHORITY_MAP = {
-  // Posting authority operations
-  vote: "posting",
-  comment: "posting",
-  delete_comment: "posting",
-  comment_options: "posting",
-  claim_reward_balance: "posting",
-  // Active authority operations - Financial
-  cancel_transfer_from_savings: "active",
-  collateralized_convert: "active",
-  convert: "active",
-  delegate_vesting_shares: "active",
-  recurrent_transfer: "active",
-  set_withdraw_vesting_route: "active",
-  transfer: "active",
-  transfer_from_savings: "active",
-  transfer_to_savings: "active",
-  transfer_to_vesting: "active",
-  withdraw_vesting: "active",
-  // Active authority operations - Market
-  limit_order_create: "active",
-  limit_order_cancel: "active",
-  // Active authority operations - Account Management
-  account_update: "active",
-  account_update2: "active",
-  create_claimed_account: "active",
-  // Active authority operations - Governance
-  account_witness_proxy: "active",
-  account_witness_vote: "active",
-  remove_proposal: "active",
-  update_proposal_votes: "active",
-  // Owner authority operations - Security & Account Recovery
-  change_recovery_account: "owner",
-  request_account_recovery: "owner",
-  recover_account: "owner",
-  reset_account: "owner",
-  set_reset_account: "owner"
-  // Note: Some operations are handled separately via content inspection:
-  // - custom_json: via getCustomJsonAuthority() - posting or active based on required_auths
-  // - create_proposal/update_proposal: via getProposalAuthority() - typically active
-};
-function getCustomJsonAuthority(customJsonOp) {
-  const opType = customJsonOp[0];
-  const payload = customJsonOp[1];
-  if (opType !== "custom_json") {
-    throw new Error("Operation is not a custom_json operation");
-  }
-  const customJson = payload;
-  if (customJson.required_auths && customJson.required_auths.length > 0) {
-    return "active";
-  }
-  if (customJson.required_posting_auths && customJson.required_posting_auths.length > 0) {
-    return "posting";
-  }
-  return "posting";
-}
-function getProposalAuthority(proposalOp) {
-  const opType = proposalOp[0];
-  if (opType !== "create_proposal" && opType !== "update_proposal") {
-    throw new Error("Operation is not a proposal operation");
-  }
-  return "active";
-}
-function getOperationAuthority(op) {
-  const opType = op[0];
-  if (opType === "custom_json") {
-    return getCustomJsonAuthority(op);
-  }
-  if (opType === "create_proposal" || opType === "update_proposal") {
-    return getProposalAuthority(op);
-  }
-  return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
-}
-function getRequiredAuthority(ops2) {
-  let highestAuthority = "posting";
-  for (const op of ops2) {
-    const authority = getOperationAuthority(op);
-    if (authority === "owner") {
-      return "owner";
-    }
-    if (authority === "active" && highestAuthority === "posting") {
-      highestAuthority = "active";
-    }
-  }
-  return highestAuthority;
-}
 
 // src/modules/operations/builders/content.ts
 function buildVoteOp(voter, author, permlink, weight) {
@@ -4877,6 +4263,660 @@ function buildPostingCustomJsonOp(username, operationId, json) {
       required_posting_auths: [username]
     }
   ];
+}
+
+// src/modules/accounts/mutations/use-follow.ts
+function useFollow(username, auth) {
+  return useBroadcastMutation(
+    ["accounts", "follow"],
+    username,
+    ({ following }) => [
+      buildFollowOp(username, following)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", "relations", username, variables.following],
+          ["accounts", "full", variables.following]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/accounts/mutations/use-unfollow.ts
+function useUnfollow(username, auth) {
+  return useBroadcastMutation(
+    ["accounts", "unfollow"],
+    username,
+    ({ following }) => [
+      buildUnfollowOp(username, following)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", "relations", username, variables.following],
+          ["accounts", "full", variables.following]
+        ]);
+      }
+    },
+    auth
+  );
+}
+function useBookmarkAdd(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "bookmarks", "add", username],
+    mutationFn: async ({ author, permlink }) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/bookmarks-add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            author,
+            permlink,
+            code
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "bookmarks", username]
+      });
+    },
+    onError
+  });
+}
+function useBookmarkDelete(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "bookmarks", "delete", username],
+    mutationFn: async (bookmarkId) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/bookmarks-delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: bookmarkId,
+            code
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "bookmarks", username]
+      });
+    },
+    onError
+  });
+}
+function useAccountFavouriteAdd(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "favourites", "add", username],
+    mutationFn: async (account) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/favorites-add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            account,
+            code
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "favourites", username]
+      });
+    },
+    onError
+  });
+}
+function useAccountFavouriteDelete(username, code, onSuccess, onError) {
+  return useMutation({
+    mutationKey: ["accounts", "favourites", "add", username],
+    mutationFn: async (account) => {
+      if (!username || !code) {
+        throw new Error("[SDK][Account][Bookmarks] \u2013 missing auth");
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/favorites-delete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            account,
+            code
+          })
+        }
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      onSuccess();
+      getQueryClient().invalidateQueries({
+        queryKey: ["accounts", "favourites", username]
+      });
+    },
+    onError
+  });
+}
+function dedupeAndSortKeyAuths(existing, additions) {
+  const merged = /* @__PURE__ */ new Map();
+  existing.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  additions.forEach(([key, weight]) => {
+    merged.set(key.toString(), weight);
+  });
+  return Array.from(merged.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, weight]) => [key, weight]);
+}
+function useAccountUpdateKeyAuths(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "keys-update", username],
+    mutationFn: async ({
+      keys,
+      keepCurrent = false,
+      currentKey,
+      keysToRevoke = [],
+      keysToRevokeByAuthority = {}
+    }) => {
+      if (keys.length === 0) {
+        throw new Error(
+          "[SDK][Update password] \u2013 no new keys provided"
+        );
+      }
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update keys for anon user"
+        );
+      }
+      const prepareAuth = (keyName) => {
+        const auth = R4.clone(accountData[keyName]);
+        const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
+        const allKeysToRevoke = [
+          ...keysToRevokeForAuthority,
+          ...keysToRevokeByAuthority[keyName] === void 0 ? keysToRevoke : []
+        ];
+        const existingKeys = keepCurrent ? auth.key_auths.filter(([key]) => !allKeysToRevoke.includes(key.toString())) : [];
+        auth.key_auths = dedupeAndSortKeyAuths(
+          existingKeys,
+          keys.map(
+            (values, i) => [values[keyName].createPublic().toString(), i + 1]
+          )
+        );
+        return auth;
+      };
+      return CONFIG.hiveClient.broadcast.updateAccount(
+        {
+          account: username,
+          json_metadata: accountData.json_metadata,
+          owner: prepareAuth("owner"),
+          active: prepareAuth("active"),
+          posting: prepareAuth("posting"),
+          // Always use new memo key when adding new keys
+          memo_key: keys[0].memo_key.createPublic().toString()
+        },
+        currentKey
+      );
+    },
+    ...options
+  });
+}
+function useAccountUpdatePassword(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  const { mutateAsync: updateKeys } = useAccountUpdateKeyAuths(username);
+  return useMutation({
+    mutationKey: ["accounts", "password-update", username],
+    mutationFn: async ({
+      newPassword,
+      currentPassword,
+      keepCurrent
+    }) => {
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update password for anon user"
+        );
+      }
+      const currentKey = PrivateKey.fromLogin(
+        username,
+        currentPassword,
+        "owner"
+      );
+      return updateKeys({
+        currentKey,
+        keepCurrent,
+        keys: [
+          {
+            owner: PrivateKey.fromLogin(username, newPassword, "owner"),
+            active: PrivateKey.fromLogin(username, newPassword, "active"),
+            posting: PrivateKey.fromLogin(username, newPassword, "posting"),
+            memo_key: PrivateKey.fromLogin(username, newPassword, "memo")
+          }
+        ]
+      });
+    },
+    ...options
+  });
+}
+function useAccountRevokePosting(username, options, auth) {
+  const queryClient = useQueryClient();
+  const { data } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "revoke-posting", data?.name],
+    mutationFn: async ({ accountName, type, key }) => {
+      if (!data) {
+        throw new Error(
+          "[SDK][Accounts] \u2013\xA0cannot revoke posting for anonymous user"
+        );
+      }
+      const posting = R4.pipe(
+        {},
+        R4.mergeDeep(data.posting)
+      );
+      posting.account_auths = posting.account_auths.filter(
+        ([account]) => account !== accountName
+      );
+      const operationBody = {
+        account: data.name,
+        posting,
+        memo_key: data.memo_key,
+        json_metadata: data.json_metadata
+      };
+      if (type === "key" && key) {
+        return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
+      } else if (type === "keychain") {
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
+        }
+        return auth.broadcast([["account_update", operationBody]], "active");
+      } else {
+        const params = {
+          callback: `https://ecency.com/@${data.name}/permissions`
+        };
+        return hs.sendOperation(
+          ["account_update", operationBody],
+          params,
+          () => {
+          }
+        );
+      }
+    },
+    onError: options.onError,
+    onSuccess: (resp, payload, ctx) => {
+      options.onSuccess?.(resp, payload, ctx);
+      queryClient.setQueryData(
+        getAccountFullQueryOptions(username).queryKey,
+        (data2) => ({
+          ...data2,
+          posting: {
+            ...data2?.posting,
+            account_auths: data2?.posting?.account_auths?.filter(
+              ([account]) => account !== payload.accountName
+            ) ?? []
+          }
+        })
+      );
+    }
+  });
+}
+function useAccountUpdateRecovery(username, code, options, auth) {
+  const { data } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "recovery", data?.name],
+    mutationFn: async ({ accountName, type, key, email }) => {
+      if (!data) {
+        throw new Error(
+          "[SDK][Accounts] \u2013\xA0cannot change recovery for anonymous user"
+        );
+      }
+      const operationBody = {
+        account_to_recover: data.name,
+        new_recovery_account: accountName,
+        extensions: []
+      };
+      if (type === "ecency") {
+        if (!code) {
+          throw new Error("[SDK][Accounts] \u2013 missing access token");
+        }
+        const fetchApi = getBoundFetch();
+        return fetchApi(CONFIG.privateApiHost + "/private-api/recoveries-add", {
+          method: "POST",
+          body: JSON.stringify({
+            code,
+            email,
+            publicKeys: [
+              ...data.owner.key_auths,
+              ...data.active.key_auths,
+              ...data.posting.key_auths,
+              data.memo_key
+            ]
+          })
+        });
+      } else if (type === "key" && key) {
+        return CONFIG.hiveClient.broadcast.sendOperations(
+          [["change_recovery_account", operationBody]],
+          key
+        );
+      } else if (type === "keychain") {
+        if (!auth?.broadcast) {
+          throw new Error("[SDK][Accounts] \u2013 missing keychain broadcaster");
+        }
+        return auth.broadcast([["change_recovery_account", operationBody]], "owner");
+      } else {
+        const params = {
+          callback: `https://ecency.com/@${data.name}/permissions`
+        };
+        return hs.sendOperation(
+          ["change_recovery_account", operationBody],
+          params,
+          () => {
+          }
+        );
+      }
+    },
+    onError: options.onError,
+    onSuccess: options.onSuccess
+  });
+}
+function useAccountRevokeKey(username, options) {
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+  return useMutation({
+    mutationKey: ["accounts", "revoke-key", accountData?.name],
+    mutationFn: async ({ currentKey, revokingKey }) => {
+      if (!accountData) {
+        throw new Error(
+          "[SDK][Update password] \u2013 cannot update keys for anon user"
+        );
+      }
+      const prepareAuth = (keyName) => {
+        const auth = R4.clone(accountData[keyName]);
+        auth.key_auths = auth.key_auths.filter(
+          ([key]) => key !== revokingKey.toString()
+        );
+        return auth;
+      };
+      return CONFIG.hiveClient.broadcast.updateAccount(
+        {
+          account: accountData.name,
+          json_metadata: accountData.json_metadata,
+          owner: prepareAuth("owner"),
+          active: prepareAuth("active"),
+          posting: prepareAuth("posting"),
+          memo_key: accountData.memo_key
+        },
+        currentKey
+      );
+    },
+    ...options
+  });
+}
+
+// src/modules/accounts/utils/account-power.ts
+var HIVE_VOTING_MANA_REGENERATION_SECONDS = 5 * 60 * 60 * 24;
+function vestsToRshares(vests, votingPowerValue, votePerc) {
+  const vestingShares = vests * 1e6;
+  const power = votingPowerValue * votePerc / 1e4 / 50 + 1;
+  return power * vestingShares / 1e4;
+}
+function toDhiveAccountForVotingMana(account) {
+  return {
+    id: 0,
+    name: account.name,
+    owner: account.owner,
+    active: account.active,
+    posting: account.posting,
+    memo_key: account.memo_key,
+    json_metadata: account.json_metadata,
+    posting_json_metadata: account.posting_json_metadata,
+    proxy: account.proxy ?? "",
+    last_owner_update: "",
+    last_account_update: "",
+    created: account.created,
+    mined: false,
+    owner_challenged: false,
+    active_challenged: false,
+    last_owner_proved: "",
+    last_active_proved: "",
+    recovery_account: account.recovery_account ?? "",
+    reset_account: "",
+    last_account_recovery: "",
+    comment_count: 0,
+    lifetime_vote_count: 0,
+    post_count: account.post_count,
+    can_vote: true,
+    voting_power: account.voting_power,
+    last_vote_time: account.last_vote_time,
+    voting_manabar: account.voting_manabar,
+    balance: account.balance,
+    savings_balance: account.savings_balance,
+    hbd_balance: account.hbd_balance,
+    hbd_seconds: "0",
+    hbd_seconds_last_update: "",
+    hbd_last_interest_payment: "",
+    savings_hbd_balance: account.savings_hbd_balance,
+    savings_hbd_seconds: account.savings_hbd_seconds,
+    savings_hbd_seconds_last_update: account.savings_hbd_seconds_last_update,
+    savings_hbd_last_interest_payment: account.savings_hbd_last_interest_payment,
+    savings_withdraw_requests: 0,
+    reward_hbd_balance: account.reward_hbd_balance,
+    reward_hive_balance: account.reward_hive_balance,
+    reward_vesting_balance: account.reward_vesting_balance,
+    reward_vesting_hive: account.reward_vesting_hive,
+    curation_rewards: 0,
+    posting_rewards: 0,
+    vesting_shares: account.vesting_shares,
+    delegated_vesting_shares: account.delegated_vesting_shares,
+    received_vesting_shares: account.received_vesting_shares,
+    vesting_withdraw_rate: account.vesting_withdraw_rate,
+    next_vesting_withdrawal: account.next_vesting_withdrawal,
+    withdrawn: account.withdrawn,
+    to_withdraw: account.to_withdraw,
+    withdraw_routes: 0,
+    proxied_vsf_votes: account.proxied_vsf_votes ?? [],
+    witnesses_voted_for: 0,
+    average_bandwidth: 0,
+    lifetime_bandwidth: 0,
+    last_bandwidth_update: "",
+    average_market_bandwidth: 0,
+    lifetime_market_bandwidth: 0,
+    last_market_bandwidth_update: "",
+    last_post: account.last_post,
+    last_root_post: ""
+  };
+}
+function votingPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateVPMana(
+    toDhiveAccountForVotingMana(account)
+  );
+  return calc.percentage / 100;
+}
+function powerRechargeTime(power) {
+  if (!Number.isFinite(power)) {
+    throw new TypeError("Voting power must be a finite number");
+  }
+  if (power < 0 || power > 100) {
+    throw new RangeError("Voting power must be between 0 and 100");
+  }
+  const missingPower = 100 - power;
+  return missingPower * 100 * HIVE_VOTING_MANA_REGENERATION_SECONDS / 1e4;
+}
+function downVotingPower(account) {
+  const totalShares = parseFloat(account.vesting_shares) + parseFloat(account.received_vesting_shares) - parseFloat(account.delegated_vesting_shares);
+  const elapsed = Math.floor(Date.now() / 1e3) - account.downvote_manabar.last_update_time;
+  const maxMana = totalShares * 1e6 / 4;
+  if (maxMana <= 0) {
+    return 0;
+  }
+  let currentMana = parseFloat(account.downvote_manabar.current_mana.toString()) + elapsed * maxMana / HIVE_VOTING_MANA_REGENERATION_SECONDS;
+  if (currentMana > maxMana) {
+    currentMana = maxMana;
+  }
+  const currentManaPerc = currentMana * 100 / maxMana;
+  if (isNaN(currentManaPerc)) {
+    return 0;
+  }
+  if (currentManaPerc > 100) {
+    return 100;
+  }
+  return currentManaPerc;
+}
+function rcPower(account) {
+  const calc = CONFIG.hiveClient.rc.calculateRCMana(account);
+  return calc.percentage / 100;
+}
+function votingValue(account, dynamicProps, votingPowerValue, weight = 1e4) {
+  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
+    return 0;
+  }
+  const { fundRecentClaims, fundRewardBalance, base, quote } = dynamicProps;
+  if (!Number.isFinite(fundRecentClaims) || !Number.isFinite(fundRewardBalance) || !Number.isFinite(base) || !Number.isFinite(quote)) {
+    return 0;
+  }
+  if (fundRecentClaims === 0 || quote === 0) {
+    return 0;
+  }
+  let totalVests = 0;
+  try {
+    const vesting = parseAsset(account.vesting_shares).amount;
+    const received = parseAsset(account.received_vesting_shares).amount;
+    const delegated = parseAsset(account.delegated_vesting_shares).amount;
+    if (![vesting, received, delegated].every(Number.isFinite)) {
+      return 0;
+    }
+    totalVests = vesting + received - delegated;
+  } catch {
+    return 0;
+  }
+  if (!Number.isFinite(totalVests)) {
+    return 0;
+  }
+  const rShares = vestsToRshares(totalVests, votingPowerValue, weight);
+  if (!Number.isFinite(rShares)) {
+    return 0;
+  }
+  return rShares / fundRecentClaims * fundRewardBalance * (base / quote);
+}
+
+// src/modules/operations/authority-map.ts
+var OPERATION_AUTHORITY_MAP = {
+  // Posting authority operations
+  vote: "posting",
+  comment: "posting",
+  delete_comment: "posting",
+  comment_options: "posting",
+  claim_reward_balance: "posting",
+  // Active authority operations - Financial
+  cancel_transfer_from_savings: "active",
+  collateralized_convert: "active",
+  convert: "active",
+  delegate_vesting_shares: "active",
+  recurrent_transfer: "active",
+  set_withdraw_vesting_route: "active",
+  transfer: "active",
+  transfer_from_savings: "active",
+  transfer_to_savings: "active",
+  transfer_to_vesting: "active",
+  withdraw_vesting: "active",
+  // Active authority operations - Market
+  limit_order_create: "active",
+  limit_order_cancel: "active",
+  // Active authority operations - Account Management
+  account_update: "active",
+  account_update2: "active",
+  create_claimed_account: "active",
+  // Active authority operations - Governance
+  account_witness_proxy: "active",
+  account_witness_vote: "active",
+  remove_proposal: "active",
+  update_proposal_votes: "active",
+  // Owner authority operations - Security & Account Recovery
+  change_recovery_account: "owner",
+  request_account_recovery: "owner",
+  recover_account: "owner",
+  reset_account: "owner",
+  set_reset_account: "owner"
+  // Note: Some operations are handled separately via content inspection:
+  // - custom_json: via getCustomJsonAuthority() - posting or active based on required_auths
+  // - create_proposal/update_proposal: via getProposalAuthority() - typically active
+};
+function getCustomJsonAuthority(customJsonOp) {
+  const opType = customJsonOp[0];
+  const payload = customJsonOp[1];
+  if (opType !== "custom_json") {
+    throw new Error("Operation is not a custom_json operation");
+  }
+  const customJson = payload;
+  if (customJson.required_auths && customJson.required_auths.length > 0) {
+    return "active";
+  }
+  if (customJson.required_posting_auths && customJson.required_posting_auths.length > 0) {
+    return "posting";
+  }
+  return "posting";
+}
+function getProposalAuthority(proposalOp) {
+  const opType = proposalOp[0];
+  if (opType !== "create_proposal" && opType !== "update_proposal") {
+    throw new Error("Operation is not a proposal operation");
+  }
+  return "active";
+}
+function getOperationAuthority(op) {
+  const opType = op[0];
+  if (opType === "custom_json") {
+    return getCustomJsonAuthority(op);
+  }
+  if (opType === "create_proposal" || opType === "update_proposal") {
+    return getProposalAuthority(op);
+  }
+  return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
+}
+function getRequiredAuthority(ops2) {
+  let highestAuthority = "posting";
+  for (const op of ops2) {
+    const authority = getOperationAuthority(op);
+    if (authority === "owner") {
+      return "owner";
+    }
+    if (authority === "active" && highestAuthority === "posting") {
+      highestAuthority = "active";
+    }
+  }
+  return highestAuthority;
 }
 function useSignOperationByKey(username) {
   return useMutation({
@@ -7870,6 +7910,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useFollow, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUnfollow, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

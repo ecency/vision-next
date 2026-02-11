@@ -6,3 +6,7 @@
  */
 
 export { useVoteMutation } from "./use-vote-mutation";
+export { useReblogMutation } from "./use-reblog-mutation";
+export { useCommentMutation } from "./use-comment-mutation";
+export { useFollowMutation } from "./use-follow-mutation";
+export { useUnfollowMutation } from "./use-unfollow-mutation";

@@ -21,7 +21,7 @@ export * from "./pin-to-blog";
 export * from "./sign-transfer";
 export * from "./entry-vote";
 export * from "./record-user-activity";
-export * from "./entry-reblog";
+export * from "./entry-reblog-sdk";
 export * from "./upload-post-image";
 export * from "./withdraw-routes";
 export * from "./delegate-vesting-shares";
