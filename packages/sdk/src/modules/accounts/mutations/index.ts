@@ -1,5 +1,7 @@
 export * from "./use-account-update";
 export * from "./use-account-relations-update";
+export * from "./use-follow";
+export * from "./use-unfollow";
 export * from "./bookmarks";
 export * from "./favourites";
 export * from "./use-account-update-key-auths";

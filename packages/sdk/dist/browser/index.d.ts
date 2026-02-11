@@ -92,6 +92,34 @@ interface PlatformAdapter {
      */
     getActiveKey?: (username: string) => Promise<string | null | undefined>;
     /**
+     * Retrieve owner key from secure storage (for account recovery and password changes).
+     *
+     * @param username - The username to get key for
+     * @returns Owner key (WIF format), null if Keychain/HiveAuth, undefined if not found
+     *
+     * @remarks
+     * - Returns null for Keychain/HiveAuth users (use broadcastWithKeychain instead)
+     * - Mobile: Decrypts key using PIN (only available for master password logins)
+     * - Web: Retrieves from localStorage (only available for master password logins)
+     * - Required for account recovery, password changes, and key rotation
+     * - Most users won't have owner key stored - only master password logins
+     */
+    getOwnerKey?: (username: string) => Promise<string | null | undefined>;
+    /**
+     * Retrieve memo key from secure storage (for memo encryption/decryption).
+     *
+     * @param username - The username to get key for
+     * @returns Memo key (WIF format), null if Keychain/HiveAuth, undefined if not found
+     *
+     * @remarks
+     * - Returns null for Keychain/HiveAuth users
+     * - Mobile: Decrypts key using PIN
+     * - Web: Retrieves from localStorage
+     * - Used for encrypting/decrypting transfer memos
+     * - Rarely used for signing operations (mostly for encryption)
+     */
+    getMemoKey?: (username: string) => Promise<string | null | undefined>;
+    /**
      * Retrieve HiveSigner access token from storage.
      *
      * @param username - The username to get token for
@@ -105,6 +133,34 @@ interface PlatformAdapter {
      * @returns Login type ('key', 'hivesigner', 'keychain', 'hiveauth') or null
      */
     getLoginType: (username: string) => Promise<string | null | undefined>;
+    /**
+     * Check if user has granted ecency.app posting authority.
+     *
+     * @param username - The username to check
+     * @returns true if ecency.app is in posting.account_auths, false otherwise
+     *
+     * @remarks
+     * Used to determine if posting operations can use HiveSigner access token
+     * instead of requiring direct key signing or HiveAuth/Keychain.
+     *
+     * When posting authority is granted:
+     * - Master password users: Can use token for faster posting ops
+     * - Active key users: Can use token for posting ops (key for active ops)
+     * - HiveAuth users: Can use token for faster posting ops (optional optimization)
+     *
+     * @example
+     * ```typescript
+     * const hasAuth = await adapter.hasPostingAuthorization('alice');
+     * if (hasAuth) {
+     *   // Use HiveSigner API with access token (faster)
+     *   await broadcastWithToken(ops);
+     * } else {
+     *   // Use direct key signing or show grant prompt
+     *   await broadcastWithKey(ops);
+     * }
+     * ```
+     */
+    hasPostingAuthorization?: (username: string) => Promise<boolean>;
     /**
      * Display error message to user.
      *
@@ -136,6 +192,53 @@ interface PlatformAdapter {
      * Hide loading indicator (optional).
      */
     hideLoading?: () => void;
+    /**
+     * Show UI to prompt user to upgrade their auth method for an operation.
+     *
+     * @param requiredAuthority - The authority level needed ('posting' or 'active')
+     * @param operation - Description of the operation requiring upgrade
+     * @returns Promise that resolves to:
+     *   - 'hiveauth' if user selected HiveAuth
+     *   - 'hivesigner' if user selected HiveSigner
+     *   - 'key' if user wants to enter key manually (temporary use)
+     *   - false if user cancelled/declined
+     *
+     * @remarks
+     * Called when user's login method doesn't support the required operation:
+     * - Posting key user trying active operation → needs active key
+     * - No-key user trying any operation → needs auth method
+     *
+     * Platform should show modal/sheet offering:
+     * 1. Sign with HiveAuth (if available)
+     * 2. Sign with HiveSigner (if available)
+     * 3. Enter active/posting key manually (temporary use)
+     * 4. Cancel button
+     *
+     * Return the method user explicitly selected, allowing SDK to skip
+     * unavailable methods and provide better error messages.
+     *
+     * When 'key' is returned, platform should show a key entry modal,
+     * then call broadcastWithMethod('key', ...) with the entered key
+     * stored temporarily in the adapter.
+     *
+     * @example
+     * ```typescript
+     * // User logged in with posting key tries to transfer
+     * const method = await adapter.showAuthUpgradeUI('active', 'Transfer');
+     * if (method === 'hiveauth') {
+     *   await broadcastWithHiveAuth(ops);
+     * } else if (method === 'hivesigner') {
+     *   await broadcastWithHiveSigner(ops);
+     * } else if (method === 'key') {
+     *   // Platform will show key entry modal and temporarily store the key
+     *   await broadcastWithKey(ops);
+     * } else {
+     *   // User cancelled
+     *   throw new Error('Operation requires active authority');
+     * }
+     * ```
+     */
+    showAuthUpgradeUI?: (requiredAuthority: 'posting' | 'active', operation: string) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
     /**
      * Broadcast operations using Keychain browser extension.
      *
@@ -195,6 +298,41 @@ interface PlatformAdapter {
      * - Example: [['posts', author, permlink], ['accountFull', username]]
      */
     invalidateQueries?: (keys: any[][]) => Promise<void>;
+    /**
+     * Grant ecency.app posting authority for the user (optional).
+     *
+     * @param username - The username to grant authority for
+     * @returns Promise that resolves when authority is granted
+     * @throws Error if grant fails or user doesn't have active key
+     *
+     * @remarks
+     * Adds 'ecency.app' to the user's posting.account_auths with appropriate weight.
+     * Requires active authority to broadcast the account_update operation.
+     *
+     * Called automatically during login for:
+     * - Master password logins (has active key)
+     * - Active key logins (has active key)
+     * - BIP44 seed logins (has active key)
+     *
+     * Can be called manually for HiveAuth users as an optimization.
+     *
+     * After granting, posting operations can use HiveSigner API with access token
+     * instead of requiring HiveAuth/Keychain each time (faster UX).
+     *
+     * @example
+     * ```typescript
+     * // Auto-grant on master password login
+     * if (authType === 'master' && !hasPostingAuth) {
+     *   await adapter.grantPostingAuthority(username);
+     * }
+     *
+     * // Manual grant for HiveAuth optimization
+     * if (authType === 'hiveauth' && userWantsOptimization) {
+     *   await adapter.grantPostingAuthority(username);
+     * }
+     * ```
+     */
+    grantPostingAuthority?: (username: string) => Promise<void>;
 }
 /**
  * Authentication method types supported by the SDK.
@@ -786,6 +924,84 @@ declare function useAccountRelationsUpdate(reference: string | undefined, target
     follows_blacklists?: boolean | undefined;
 }, Error, Kind, unknown>;
 
+/**
+ * Payload for following an account.
+ */
+interface FollowPayload {
+    /** Account to follow */
+    following: string;
+}
+/**
+ * React Query mutation hook for following an account.
+ *
+ * This mutation broadcasts a follow operation to the Hive blockchain,
+ * adding the target account to the follower's "blog" follow list.
+ *
+ * @param username - The username of the follower (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates relationship cache to show updated follow status
+ * - Invalidates account cache to refetch updated follower/following counts
+ *
+ * @example
+ * ```typescript
+ * const followMutation = useFollow(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Follow an account
+ * followMutation.mutate({
+ *   following: 'alice'
+ * });
+ * ```
+ */
+declare function useFollow(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, FollowPayload, unknown>;
+
+/**
+ * Payload for unfollowing an account.
+ */
+interface UnfollowPayload {
+    /** Account to unfollow */
+    following: string;
+}
+/**
+ * React Query mutation hook for unfollowing an account.
+ *
+ * This mutation broadcasts an unfollow operation to the Hive blockchain,
+ * removing the target account from the follower's follow list.
+ *
+ * @param username - The username of the follower (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates relationship cache to show updated follow status
+ * - Invalidates account cache to refetch updated follower/following counts
+ *
+ * @example
+ * ```typescript
+ * const unfollowMutation = useUnfollow(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Unfollow an account
+ * unfollowMutation.mutate({
+ *   following: 'alice'
+ * });
+ * ```
+ */
+declare function useUnfollow(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnfollowPayload, unknown>;
+
 interface Payload$3 {
     author: string;
     permlink: string;
@@ -1174,6 +1390,144 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
 };
 
 /**
+ * Authority levels for Hive blockchain operations.
+ * - posting: Social operations (voting, commenting, reblogging)
+ * - active: Financial and account management operations
+ * - owner: Critical security operations (key changes, account recovery)
+ * - memo: Memo encryption/decryption (rarely used for signing)
+ */
+type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
+/**
+ * Maps operation types to their required authority level.
+ *
+ * This mapping is used to determine which key is needed to sign a transaction,
+ * enabling smart auth fallback and auth upgrade UI.
+ *
+ * @remarks
+ * - Most social operations (vote, comment, reblog) require posting authority
+ * - Financial operations (transfer, withdraw) require active authority
+ * - Account management operations require active authority
+ * - Security operations (password change, account recovery) require owner authority
+ * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
+ */
+declare const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel>;
+/**
+ * Determines authority required for a custom_json operation.
+ *
+ * Custom JSON operations can require either posting or active authority
+ * depending on which field is populated:
+ * - required_auths (active authority)
+ * - required_posting_auths (posting authority)
+ *
+ * @param customJsonOp - The custom_json operation to inspect
+ * @returns 'active' if requires active authority, 'posting' if requires posting authority
+ *
+ * @example
+ * ```typescript
+ * // Reblog operation (posting authority)
+ * const reblogOp: Operation = ['custom_json', {
+ *   required_auths: [],
+ *   required_posting_auths: ['alice'],
+ *   id: 'reblog',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(reblogOp); // Returns 'posting'
+ *
+ * // Some active authority custom_json
+ * const activeOp: Operation = ['custom_json', {
+ *   required_auths: ['alice'],
+ *   required_posting_auths: [],
+ *   id: 'some_active_op',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(activeOp); // Returns 'active'
+ * ```
+ */
+declare function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel;
+/**
+ * Determines authority required for a proposal operation.
+ *
+ * Proposal operations (create_proposal, update_proposal) typically require
+ * active authority as they involve financial commitments and funding allocations.
+ *
+ * @param proposalOp - The proposal operation to inspect
+ * @returns 'active' authority requirement
+ *
+ * @remarks
+ * Unlike custom_json, proposal operations don't have explicit required_auths fields.
+ * They always use the creator's authority, which defaults to active for financial
+ * operations involving the DAO treasury.
+ *
+ * @example
+ * ```typescript
+ * const proposalOp: Operation = ['create_proposal', {
+ *   creator: 'alice',
+ *   receiver: 'bob',
+ *   subject: 'My Proposal',
+ *   permlink: 'my-proposal',
+ *   start: '2026-03-01T00:00:00',
+ *   end: '2026-04-01T00:00:00',
+ *   daily_pay: '100.000 HBD',
+ *   extensions: []
+ * }];
+ * getProposalAuthority(proposalOp); // Returns 'active'
+ * ```
+ */
+declare function getProposalAuthority(proposalOp: Operation): AuthorityLevel;
+/**
+ * Determines the required authority level for any operation.
+ *
+ * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
+ * detection for custom_json operations.
+ *
+ * @param op - The operation to check
+ * @returns 'posting' or 'active' authority requirement
+ *
+ * @example
+ * ```typescript
+ * const voteOp: Operation = ['vote', { voter: 'alice', author: 'bob', permlink: 'post', weight: 10000 }];
+ * getOperationAuthority(voteOp); // Returns 'posting'
+ *
+ * const transferOp: Operation = ['transfer', { from: 'alice', to: 'bob', amount: '1.000 HIVE', memo: '' }];
+ * getOperationAuthority(transferOp); // Returns 'active'
+ * ```
+ */
+declare function getOperationAuthority(op: Operation): AuthorityLevel;
+/**
+ * Determines the highest authority level required for a list of operations.
+ *
+ * Useful when broadcasting multiple operations together - the highest authority
+ * level required by any operation determines what key is needed for the batch.
+ *
+ * Authority hierarchy: owner > active > posting > memo
+ *
+ * @param ops - Array of operations
+ * @returns Highest authority level required ('owner', 'active', or 'posting')
+ *
+ * @example
+ * ```typescript
+ * const ops: Operation[] = [
+ *   ['vote', { ... }],        // posting
+ *   ['comment', { ... }],     // posting
+ * ];
+ * getRequiredAuthority(ops); // Returns 'posting'
+ *
+ * const mixedOps: Operation[] = [
+ *   ['comment', { ... }],     // posting
+ *   ['transfer', { ... }],    // active
+ * ];
+ * getRequiredAuthority(mixedOps); // Returns 'active'
+ *
+ * const securityOps: Operation[] = [
+ *   ['transfer', { ... }],               // active
+ *   ['change_recovery_account', { ... }], // owner
+ * ];
+ * getRequiredAuthority(securityOps); // Returns 'owner'
+ * ```
+ */
+declare function getRequiredAuthority(ops: Operation[]): AuthorityLevel;
+
+/**
  * React Query mutation hook for broadcasting Hive operations.
  * Supports multiple authentication methods with automatic fallback.
  *
@@ -1232,7 +1586,7 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
  * );
  * ```
  */
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: 'posting' | 'active' | 'owner' | 'memo'): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: AuthorityLevel): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
 
 declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
 
@@ -5134,4 +5488,4 @@ declare function getHiveEngineUnclaimedRewards<T = Record<string, unknown>>(user
 declare function getSpkWallet<T = Record<string, unknown>>(username: string): Promise<T>;
 declare function getSpkMarkets<T = Record<string, unknown>>(): Promise<T>;
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveEngineOpenOrder, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, type Points, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferPayload, type TransferToSavings, type TransferToVesting, type TrendingTag, type UpdateProposalVotes, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveEngineOpenOrder, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, type Points, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferPayload, type TransferToSavings, type TransferToVesting, type TrendingTag, type UnfollowPayload, type UpdateProposalVotes, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useFollow, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUnfollow, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };

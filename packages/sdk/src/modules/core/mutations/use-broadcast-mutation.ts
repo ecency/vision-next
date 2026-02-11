@@ -7,7 +7,132 @@ import { Operation, PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";
+import type { AuthorityLevel } from "@/modules/operations/authority-map";
 import hs from "hivesigner";
+
+/**
+ * Broadcasts operations using a specific auth method.
+ *
+ * @param method - Auth method to use ('key', 'hiveauth', 'hivesigner', 'keychain', 'custom')
+ * @param username - Hive username to broadcast for
+ * @param ops - Operations to broadcast
+ * @param auth - AuthContextV2 with adapter and configuration
+ * @param authority - Key authority to use (posting, active, owner, or memo)
+ * @param fetchedKey - Optional pre-fetched key to avoid duplicate fetches
+ * @param fetchedToken - Optional pre-fetched access token to avoid duplicate fetches
+ * @returns Transaction confirmation from the blockchain
+ * @throws Error if method is not available or broadcast fails
+ */
+async function broadcastWithMethod(
+  method: string,
+  username: string,
+  ops: Operation[],
+  auth?: AuthContextV2,
+  authority: AuthorityLevel = 'posting',
+  fetchedKey?: string | null,
+  fetchedToken?: string | null
+): Promise<TransactionConfirmation> {
+  const adapter = auth?.adapter;
+
+  switch (method) {
+    case 'key': {
+      if (!adapter) {
+        throw new Error('No adapter provided for key-based auth');
+      }
+
+      // Use pre-fetched key if provided, otherwise fetch it
+      let key: string | null | undefined = fetchedKey;
+
+      if (key === undefined) {
+        // Key not pre-fetched, fetch it now based on authority
+        switch (authority) {
+          case 'owner':
+            if (adapter.getOwnerKey) {
+              key = await adapter.getOwnerKey(username);
+            } else {
+              throw new Error(
+                `Owner key not supported by adapter. Owner operations (like account recovery) ` +
+                `require master password login or manual key entry.`
+              );
+            }
+            break;
+
+          case 'active':
+            if (adapter.getActiveKey) {
+              key = await adapter.getActiveKey(username);
+            }
+            break;
+
+          case 'memo':
+            if (adapter.getMemoKey) {
+              key = await adapter.getMemoKey(username);
+            } else {
+              throw new Error(
+                `Memo key not supported by adapter. Use memo encryption methods instead.`
+              );
+            }
+            break;
+
+          case 'posting':
+          default:
+            key = await adapter.getPostingKey(username);
+            break;
+        }
+      }
+
+      if (!key) {
+        throw new Error(`No ${authority} key available for ${username}`);
+      }
+
+      // Attempt broadcast with key
+      const privateKey = PrivateKey.fromString(key);
+      return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
+    }
+
+    case 'hiveauth': {
+      if (!adapter?.broadcastWithHiveAuth) {
+        throw new Error('HiveAuth not supported by adapter');
+      }
+      return await adapter.broadcastWithHiveAuth(username, ops, authority);
+    }
+
+    case 'hivesigner': {
+      if (!adapter) {
+        throw new Error('No adapter provided for HiveSigner auth');
+      }
+
+      // Use pre-fetched token if provided, otherwise fetch it
+      const token = fetchedToken !== undefined
+        ? fetchedToken
+        : await adapter.getAccessToken(username);
+
+      if (!token) {
+        throw new Error(`No access token available for ${username}`);
+      }
+
+      const client = new hs.Client({ accessToken: token });
+      const response = await client.broadcast(ops);
+      return response.result;
+    }
+
+    case 'keychain': {
+      if (!adapter?.broadcastWithKeychain) {
+        throw new Error('Keychain not supported by adapter');
+      }
+      return await adapter.broadcastWithKeychain(username, ops, authority);
+    }
+
+    case 'custom': {
+      if (!auth?.broadcast) {
+        throw new Error('No custom broadcast function provided');
+      }
+      return (await auth.broadcast(ops, authority)) as TransactionConfirmation;
+    }
+
+    default:
+      throw new Error(`Unknown auth method: ${method}`);
+  }
+}
 
 /**
  * Attempts to broadcast operations using multiple auth methods in fallback chain.
@@ -21,7 +146,12 @@ import hs from "hivesigner";
  * @throws Error if all auth methods fail or if a non-auth error occurs
  *
  * @remarks
- * This function implements smart fallback logic:
+ * **Preferred Behavior (when adapter.getLoginType exists):**
+ * - Calls adapter.getLoginType() to determine user's actual auth method
+ * - Uses ONLY that method (no fallbacks) - more predictable and faster
+ * - If it fails, throws the error immediately
+ *
+ * **Fallback Behavior (for backward compatibility):**
  * - Tries each auth method in the fallback chain order
  * - Only continues to next method if error is auth-related (missing authority, token expired)
  * - Stops immediately for non-auth errors (RC exhaustion, network errors, validation errors)
@@ -29,108 +159,205 @@ import hs from "hivesigner";
  *
  * @example
  * ```typescript
- * // Typical usage in useBroadcastMutation
+ * // Preferred: Adapter with getLoginType (single method, no fallbacks)
  * const auth: AuthContextV2 = {
- *   adapter: myAdapter,
- *   fallbackChain: ['keychain', 'key', 'hivesigner'],
- *   enableFallback: true
+ *   adapter: myAdapter, // includes getLoginType()
  * };
  *
- * try {
- *   const result = await broadcastWithFallback(username, ops, auth, 'active');
- *   console.log('Transaction ID:', result.id);
- * } catch (error) {
- *   console.error('All methods failed:', error);
- * }
+ * // Legacy: Explicit fallback chain (tries multiple methods)
+ * const auth: AuthContextV2 = {
+ *   adapter: myAdapter,
+ *   fallbackChain: ['key', 'hiveauth', 'hivesigner'],
+ * };
  * ```
  */
 async function broadcastWithFallback(
   username: string,
   ops: Operation[],
   auth?: AuthContextV2,
-  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+  authority: AuthorityLevel = 'posting'
 ): Promise<TransactionConfirmation> {
-  // FIX #1: Include 'custom' in default fallback chain so auth.broadcast is not bypassed
+  const adapter = auth?.adapter;
+
+  // PREFERRED APPROACH: If adapter provides getLoginType, use smart auth strategy
+  // This avoids unnecessary fallback attempts and is more predictable
+  if (adapter?.getLoginType) {
+    const loginType = await adapter.getLoginType(username);
+
+    if (loginType) {
+      // SMART AUTH STRATEGY: Optimize based on login type + authority + credentials
+
+      // Check if user has granted ecency.app posting authority
+      const hasPostingAuth = adapter.hasPostingAuthorization
+        ? await adapter.hasPostingAuthorization(username)
+        : false;
+
+      // OPTIMIZATION: Use HiveSigner token for posting ops when posting auth is granted
+      // This is faster than direct key signing or HiveAuth for key-based logins
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'key'
+      ) {
+        try {
+          // Try HiveSigner API first (faster)
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          // Only fallback if this is an auth-related error
+          // Otherwise, rethrow the original error (e.g., network errors, validation errors)
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          // Fallback to direct key signing if token auth method fails
+          console.warn('[SDK] HiveSigner token auth failed, falling back to key:', error);
+        }
+      }
+
+      // OPTIMIZATION: Use HiveSigner token for HiveAuth users with posting auth (faster)
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'hiveauth'
+      ) {
+        try {
+          // Try HiveSigner API first (faster)
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          // Only fallback if this is an auth-related error
+          // Otherwise, rethrow the original error (e.g., network errors, validation errors)
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          // Fallback to HiveAuth if token auth method fails
+          console.warn('[SDK] HiveSigner token auth failed, falling back to HiveAuth:', error);
+        }
+      }
+
+      // Use user's actual login method
+      try {
+        return await broadcastWithMethod(loginType, username, ops, auth, authority);
+      } catch (error) {
+        // Check if error is due to missing authority (e.g., posting key trying active op)
+        if (shouldTriggerAuthFallback(error)) {
+          // Show auth upgrade UI if available (only for posting/active operations)
+          if (
+            adapter.showAuthUpgradeUI &&
+            (authority === 'posting' || authority === 'active')
+          ) {
+            // Guard against empty operations array
+            const operationName = ops.length > 0 ? ops[0][0] : 'unknown';
+            const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
+            if (!selectedMethod) {
+              throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
+            }
+
+            // User selected a specific method - delegate to broadcastWithMethod
+            // This handles all auth methods (hiveauth, hivesigner, key, keychain, custom, etc.)
+            // broadcastWithMethod already contains all necessary validation and method-specific logic
+            return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+          }
+        }
+
+        // Not an auth error, or no upgrade UI available - throw original error
+        throw error;
+      }
+    }
+  }
+
+  // FALLBACK APPROACH: For backward compatibility, use fallback chain
+  // This is only used if adapter doesn't provide getLoginType
   const chain = auth?.fallbackChain ?? ['key', 'hiveauth', 'hivesigner', 'keychain', 'custom'];
   const errors: Map<string, Error> = new Map();
-  const adapter = auth?.adapter;
 
   for (const method of chain) {
     try {
+      // Check if method is available before attempting
+      let shouldSkip = false;
+      let skipReason = '';
+      let prefetchedKey: string | null | undefined;
+      let prefetchedToken: string | null | undefined;
+
       switch (method) {
-        case 'key': {
-          // Track skip reason: No adapter provided
+        case 'key':
           if (!adapter) {
-            errors.set(method, new Error('Skipped: No adapter provided'));
-            break;
-          }
+            shouldSkip = true;
+            skipReason = 'No adapter provided';
+          } else {
+            // Pre-fetch key to check availability (will be reused in broadcast)
+            let key: string | null | undefined;
 
-          // Choose key based on authority
-          let key: string | null | undefined;
-          if (authority === 'active' && adapter.getActiveKey) {
-            key = await adapter.getActiveKey(username);
-          } else if (authority === 'posting') {
-            key = await adapter.getPostingKey(username);
-          }
+            switch (authority) {
+              case 'owner':
+                if (adapter.getOwnerKey) {
+                  key = await adapter.getOwnerKey(username);
+                }
+                break;
+              case 'active':
+                if (adapter.getActiveKey) {
+                  key = await adapter.getActiveKey(username);
+                }
+                break;
+              case 'memo':
+                if (adapter.getMemoKey) {
+                  key = await adapter.getMemoKey(username);
+                }
+                break;
+              case 'posting':
+              default:
+                key = await adapter.getPostingKey(username);
+                break;
+            }
 
-          // Track skip reason: No key available
-          if (!key) {
-            errors.set(method, new Error(`Skipped: No ${authority} key available`));
-            break;
+            if (!key) {
+              shouldSkip = true;
+              skipReason = `No ${authority} key available`;
+            } else {
+              prefetchedKey = key; // Store for reuse
+            }
           }
-          // Attempt broadcast with key
-          const privateKey = PrivateKey.fromString(key);
-          return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
-        }
-
-        case 'hiveauth': {
-          // Track skip reason: HiveAuth not supported by adapter
+          break;
+        case 'hiveauth':
           if (!adapter?.broadcastWithHiveAuth) {
-            errors.set(method, new Error('Skipped: HiveAuth not supported by adapter'));
-            break;
+            shouldSkip = true;
+            skipReason = 'HiveAuth not supported by adapter';
           }
-          // Attempt broadcast with HiveAuth
-          return await adapter.broadcastWithHiveAuth(username, ops, authority);
-        }
-
-        case 'hivesigner': {
-          // Track skip reason: No adapter provided
+          break;
+        case 'hivesigner':
           if (!adapter) {
-            errors.set(method, new Error('Skipped: No adapter provided'));
-            break;
+            shouldSkip = true;
+            skipReason = 'No adapter provided';
+          } else {
+            // Pre-fetch token to check availability (will be reused in broadcast)
+            const token = await adapter.getAccessToken(username);
+            if (!token) {
+              shouldSkip = true;
+              skipReason = 'No access token available';
+            } else {
+              prefetchedToken = token; // Store for reuse
+            }
           }
-          const token = await adapter.getAccessToken(username);
-          // Track skip reason: No access token available
-          if (!token) {
-            errors.set(method, new Error('Skipped: No access token available'));
-            break;
-          }
-          // Attempt broadcast with HiveSigner
-          const client = new hs.Client({ accessToken: token });
-          const response = await client.broadcast(ops);
-          return response.result;
-        }
-
-        case 'keychain': {
-          // Track skip reason: Keychain not supported by adapter
+          break;
+        case 'keychain':
           if (!adapter?.broadcastWithKeychain) {
-            errors.set(method, new Error('Skipped: Keychain not supported by adapter'));
-            break;
+            shouldSkip = true;
+            skipReason = 'Keychain not supported by adapter';
           }
-          // Attempt broadcast with Keychain
-          return await adapter.broadcastWithKeychain(username, ops, authority);
-        }
-
-        case 'custom': {
-          // Track skip reason: No custom broadcast function provided
+          break;
+        case 'custom':
           if (!auth?.broadcast) {
-            errors.set(method, new Error('Skipped: No custom broadcast function provided'));
-            break;
+            shouldSkip = true;
+            skipReason = 'No custom broadcast function provided';
           }
-          // Attempt broadcast with custom function
-          return (await auth.broadcast(ops, authority)) as TransactionConfirmation;
-        }
+          break;
       }
+
+      if (shouldSkip) {
+        errors.set(method, new Error(`Skipped: ${skipReason}`));
+        continue;
+      }
+
+      // Method is available, attempt broadcast with pre-fetched credentials
+      return await broadcastWithMethod(method, username, ops, auth, authority, prefetchedKey, prefetchedToken);
     } catch (error) {
       // Record actual error from failed broadcast attempt
       errors.set(method, error as Error);
@@ -233,7 +460,7 @@ export function useBroadcastMutation<T>(
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
   auth?: AuthContextV2,
-  authority: 'posting' | 'active' | 'owner' | 'memo' = 'posting'
+  authority: AuthorityLevel = 'posting'
 ) {
   return useMutation({
     onSuccess,
@@ -259,6 +486,14 @@ export function useBroadcastMutation<T>(
 
       const postingKey = auth?.postingKey;
       if (postingKey) {
+        // Legacy auth only supports posting authority
+        if (authority !== 'posting') {
+          throw new Error(
+            `[SDK][Broadcast] Legacy auth only supports posting authority, but '${authority}' was requested. ` +
+            `Use AuthContextV2 with an adapter for ${authority} operations.`
+          );
+        }
+
         const privateKey = PrivateKey.fromString(postingKey);
 
         return CONFIG.hiveClient.broadcast.sendOperations(

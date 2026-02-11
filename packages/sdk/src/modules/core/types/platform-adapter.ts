@@ -72,6 +72,36 @@ export interface PlatformAdapter {
   getActiveKey?: (username: string) => Promise<string | null | undefined>;
 
   /**
+   * Retrieve owner key from secure storage (for account recovery and password changes).
+   *
+   * @param username - The username to get key for
+   * @returns Owner key (WIF format), null if Keychain/HiveAuth, undefined if not found
+   *
+   * @remarks
+   * - Returns null for Keychain/HiveAuth users (use broadcastWithKeychain instead)
+   * - Mobile: Decrypts key using PIN (only available for master password logins)
+   * - Web: Retrieves from localStorage (only available for master password logins)
+   * - Required for account recovery, password changes, and key rotation
+   * - Most users won't have owner key stored - only master password logins
+   */
+  getOwnerKey?: (username: string) => Promise<string | null | undefined>;
+
+  /**
+   * Retrieve memo key from secure storage (for memo encryption/decryption).
+   *
+   * @param username - The username to get key for
+   * @returns Memo key (WIF format), null if Keychain/HiveAuth, undefined if not found
+   *
+   * @remarks
+   * - Returns null for Keychain/HiveAuth users
+   * - Mobile: Decrypts key using PIN
+   * - Web: Retrieves from localStorage
+   * - Used for encrypting/decrypting transfer memos
+   * - Rarely used for signing operations (mostly for encryption)
+   */
+  getMemoKey?: (username: string) => Promise<string | null | undefined>;
+
+  /**
    * Retrieve HiveSigner access token from storage.
    *
    * @param username - The username to get token for
@@ -86,6 +116,35 @@ export interface PlatformAdapter {
    * @returns Login type ('key', 'hivesigner', 'keychain', 'hiveauth') or null
    */
   getLoginType: (username: string) => Promise<string | null | undefined>;
+
+  /**
+   * Check if user has granted ecency.app posting authority.
+   *
+   * @param username - The username to check
+   * @returns true if ecency.app is in posting.account_auths, false otherwise
+   *
+   * @remarks
+   * Used to determine if posting operations can use HiveSigner access token
+   * instead of requiring direct key signing or HiveAuth/Keychain.
+   *
+   * When posting authority is granted:
+   * - Master password users: Can use token for faster posting ops
+   * - Active key users: Can use token for posting ops (key for active ops)
+   * - HiveAuth users: Can use token for faster posting ops (optional optimization)
+   *
+   * @example
+   * ```typescript
+   * const hasAuth = await adapter.hasPostingAuthorization('alice');
+   * if (hasAuth) {
+   *   // Use HiveSigner API with access token (faster)
+   *   await broadcastWithToken(ops);
+   * } else {
+   *   // Use direct key signing or show grant prompt
+   *   await broadcastWithKey(ops);
+   * }
+   * ```
+   */
+  hasPostingAuthorization?: (username: string) => Promise<boolean>;
 
   // ============================================================================
   // UI Feedback
@@ -125,6 +184,57 @@ export interface PlatformAdapter {
    * Hide loading indicator (optional).
    */
   hideLoading?: () => void;
+
+  /**
+   * Show UI to prompt user to upgrade their auth method for an operation.
+   *
+   * @param requiredAuthority - The authority level needed ('posting' or 'active')
+   * @param operation - Description of the operation requiring upgrade
+   * @returns Promise that resolves to:
+   *   - 'hiveauth' if user selected HiveAuth
+   *   - 'hivesigner' if user selected HiveSigner
+   *   - 'key' if user wants to enter key manually (temporary use)
+   *   - false if user cancelled/declined
+   *
+   * @remarks
+   * Called when user's login method doesn't support the required operation:
+   * - Posting key user trying active operation → needs active key
+   * - No-key user trying any operation → needs auth method
+   *
+   * Platform should show modal/sheet offering:
+   * 1. Sign with HiveAuth (if available)
+   * 2. Sign with HiveSigner (if available)
+   * 3. Enter active/posting key manually (temporary use)
+   * 4. Cancel button
+   *
+   * Return the method user explicitly selected, allowing SDK to skip
+   * unavailable methods and provide better error messages.
+   *
+   * When 'key' is returned, platform should show a key entry modal,
+   * then call broadcastWithMethod('key', ...) with the entered key
+   * stored temporarily in the adapter.
+   *
+   * @example
+   * ```typescript
+   * // User logged in with posting key tries to transfer
+   * const method = await adapter.showAuthUpgradeUI('active', 'Transfer');
+   * if (method === 'hiveauth') {
+   *   await broadcastWithHiveAuth(ops);
+   * } else if (method === 'hivesigner') {
+   *   await broadcastWithHiveSigner(ops);
+   * } else if (method === 'key') {
+   *   // Platform will show key entry modal and temporarily store the key
+   *   await broadcastWithKey(ops);
+   * } else {
+   *   // User cancelled
+   *   throw new Error('Operation requires active authority');
+   * }
+   * ```
+   */
+  showAuthUpgradeUI?: (
+    requiredAuthority: 'posting' | 'active',
+    operation: string
+  ) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
 
   // ============================================================================
   // Platform-Specific Broadcasting
@@ -208,6 +318,42 @@ export interface PlatformAdapter {
    * - Example: [['posts', author, permlink], ['accountFull', username]]
    */
   invalidateQueries?: (keys: any[][]) => Promise<void>;
+
+  /**
+   * Grant ecency.app posting authority for the user (optional).
+   *
+   * @param username - The username to grant authority for
+   * @returns Promise that resolves when authority is granted
+   * @throws Error if grant fails or user doesn't have active key
+   *
+   * @remarks
+   * Adds 'ecency.app' to the user's posting.account_auths with appropriate weight.
+   * Requires active authority to broadcast the account_update operation.
+   *
+   * Called automatically during login for:
+   * - Master password logins (has active key)
+   * - Active key logins (has active key)
+   * - BIP44 seed logins (has active key)
+   *
+   * Can be called manually for HiveAuth users as an optimization.
+   *
+   * After granting, posting operations can use HiveSigner API with access token
+   * instead of requiring HiveAuth/Keychain each time (faster UX).
+   *
+   * @example
+   * ```typescript
+   * // Auto-grant on master password login
+   * if (authType === 'master' && !hasPostingAuth) {
+   *   await adapter.grantPostingAuthority(username);
+   * }
+   *
+   * // Manual grant for HiveAuth optimization
+   * if (authType === 'hiveauth' && userWantsOptimization) {
+   *   await adapter.grantPostingAuthority(username);
+   * }
+   * ```
+   */
+  grantPostingAuthority?: (username: string) => Promise<void>;
 }
 
 /**
