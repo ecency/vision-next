@@ -322,14 +322,20 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
         try {
           return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
         } catch (error) {
-          console.warn("[SDK] HiveSigner token failed, falling back to key:", error);
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          console.warn("[SDK] HiveSigner token auth failed, falling back to key:", error);
         }
       }
       if (authority === "posting" && hasPostingAuth && loginType === "hiveauth") {
         try {
           return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
         } catch (error) {
-          console.warn("[SDK] HiveSigner token failed, falling back to HiveAuth:", error);
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          console.warn("[SDK] HiveSigner token auth failed, falling back to HiveAuth:", error);
         }
       }
       try {

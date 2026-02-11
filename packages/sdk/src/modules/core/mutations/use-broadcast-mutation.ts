@@ -109,6 +109,7 @@ async function broadcastWithMethod(
       if (!token) {
         throw new Error(`No access token available for ${username}`);
       }
+
       const client = new hs.Client({ accessToken: token });
       const response = await client.broadcast(ops);
       return response.result;
