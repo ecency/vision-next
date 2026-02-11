@@ -1,3 +1,4 @@
+import { memo, type ReactNode } from "react";
 import { MessageItem } from "./message-item";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
@@ -26,7 +27,7 @@ interface MessageListProps {
   // User and channel data
   usersById: Record<string, MattermostUser>;
   channelData?: {
-    member?: { user_id: string };
+    member?: { user_id?: string };
     canModerate?: boolean;
     channel?: { type?: string };
   };
@@ -38,7 +39,7 @@ interface MessageListProps {
   getDisplayName: (post: MattermostPost) => string;
   getUsername: (post: MattermostPost) => string | undefined;
   getDecodedDisplayMessage: (post: MattermostPost) => string;
-  renderMessageContent: (content: string) => React.ReactNode;
+  renderMessageContent: (content: string) => ReactNode;
   normalizeUsername: (username?: string | null) => string | undefined;
   startDirectMessage: (username: string) => void;
   openThread: (post: MattermostPost) => void;
@@ -58,7 +59,7 @@ interface MessageListProps {
   pinMutationPending: boolean;
 }
 
-export function MessageList({
+export const MessageList = memo(function MessageList({
   groupedPosts,
   showUnreadDivider,
   firstUnreadIndex,
@@ -181,4 +182,4 @@ export function MessageList({
       })}
     </div>
   );
-}
+});

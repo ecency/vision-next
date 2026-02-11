@@ -1,4 +1,4 @@
-import { type ChangeEvent, type CSSProperties, useState } from "react";
+import React, { type ChangeEvent, useState } from "react";
 import { Button } from "@ui/button";
 import { ImageUploadButton, UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
@@ -7,6 +7,16 @@ import { GifPicker } from "@ui/gif-picker";
 import clsx from "clsx";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 import type { EmojiSuggestion } from "../emoji-utils";
+
+type GifPickerStyle = {
+  width: string;
+  bottom: string;
+  left: string | number;
+  marginLeft: string;
+  borderTopLeftRadius: string;
+  borderTopRightRadius: string;
+  borderBottomLeftRadius: string;
+};
 
 interface MentionSearchResult {
   users?: MattermostUser[];
@@ -58,7 +68,7 @@ interface MessageInputProps {
   // Channel info
   isPublicChannel: boolean;
   channelData?: {
-    member?: { user_id: string };
+    member?: { user_id?: string };
     canModerate?: boolean;
   };
 
@@ -68,16 +78,16 @@ interface MessageInputProps {
   handleEdit: (post: MattermostPost) => void;
 
   // Refs
-  messageInputRef: React.RefObject<HTMLTextAreaElement>;
-  emojiButtonRef: React.RefObject<HTMLButtonElement>;
-  gifButtonRef: React.RefObject<HTMLButtonElement>;
-  gifPickerRef: React.RefObject<HTMLDivElement>;
+  messageInputRef: React.MutableRefObject<HTMLTextAreaElement | null>;
+  emojiButtonRef: React.MutableRefObject<HTMLButtonElement | null>;
+  gifButtonRef: React.MutableRefObject<HTMLButtonElement | null>;
+  gifPickerRef: React.MutableRefObject<HTMLDivElement | null>;
 
   // GIF picker
   showGifPicker: boolean;
   setShowGifPicker: (show: boolean | ((prev: boolean) => boolean)) => void;
-  gifPickerStyle: CSSProperties | null;
-  setGifPickerStyle: (style: CSSProperties | null) => void;
+  gifPickerStyle: GifPickerStyle | null;
+  setGifPickerStyle: (style: GifPickerStyle | null) => void;
 
   // Helper functions
   getDisplayName: (post: MattermostPost) => string;
@@ -395,7 +405,7 @@ export function MessageInput({
                   aria-label="Add emoji"
                   title="Add emoji"
                   disabled={isSubmitting}
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowEmojiPicker((prev) => !prev);
@@ -411,7 +421,7 @@ export function MessageInput({
                   aria-label="Add GIF"
                   title="Add GIF"
                   disabled={isSubmitting}
-                  onClick={(e) => {
+                  onClick={(e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -529,6 +539,7 @@ export function MessageInput({
         </div>
       </form>
       {showEmojiPicker && (
+        // @ts-expect-error next/dynamic loses component type
         <EmojiPicker
           show={showEmojiPicker}
           changeState={(state) => setShowEmojiPicker(state)}

@@ -805,11 +805,11 @@ export class MattermostWebSocket {
 
     // Clean up old entries from map to prevent memory leak
     // Keep entries less than 10 seconds old
-    for (const [key, timestamp] of this.typingThrottle.entries()) {
+    this.typingThrottle.forEach((timestamp, key) => {
       if (now - timestamp > 10000) {
         this.typingThrottle.delete(key);
       }
-    }
+    });
 
     // Record activity
     this.recordActivity();

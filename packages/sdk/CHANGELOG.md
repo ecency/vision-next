@@ -98,6 +98,11 @@ export function useVoteMutation() {
 ```
 
 ---
+## 1.5.28
+
+### Patch Changes
+
+- SDK mutation hooks and adapters (#648)
 
 ## 1.5.27
 
