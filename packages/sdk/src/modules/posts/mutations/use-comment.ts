@@ -201,13 +201,29 @@ export function useComment(
           ["account", username, "rc"] // RC decreases after posting/commenting
         ];
 
-        // If this is a reply, invalidate parent post
+        // If this is a reply, invalidate parent post and discussions
         if (!isPost) {
+          // Invalidate parent entry
           queriesToInvalidate.push([
             "posts",
             "entry",
             `/@${variables.parentAuthor}/${variables.parentPermlink}`
           ]);
+
+          // Invalidate discussions (matches all sort orders)
+          // Use partial key to match all sort order variants
+          queriesToInvalidate.push({
+            predicate: (query: any) => {
+              const key = query.queryKey;
+              return (
+                Array.isArray(key) &&
+                key[0] === "posts" &&
+                key[1] === "discussions" &&
+                key[2] === variables.parentAuthor &&
+                key[3] === variables.parentPermlink
+              );
+            }
+          });
         }
 
         await auth.adapter.invalidateQueries(queriesToInvalidate);

@@ -67,9 +67,12 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return undefined;
       }
 
+      // Map loginType to SDK auth method (same mapping as getLoginType)
+      const authType = user.loginType === 'privateKey' ? 'key' : user.loginType;
+
       return {
         name: user.username,
-        authType: user.loginType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+        authType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'key'
       };
     },
 

@@ -96,30 +96,17 @@ export function useCreateReply(
         };
       }
 
-      // Use SDK mutation for blockchain broadcast
+      // Use SDK mutation for blockchain broadcast (fire-and-forget)
       sdkComment(commentPayload)
         .then((transactionResult) => {
-          // Blockchain confirmed - replace optimistic entry with real one
-          queryClient.setQueryData<Entry[]>(
-            [
-              "posts",
-              "discussions",
-              root.author,
-              root.permlink,
-              SortOrder.created,
-              activeUser.username
-            ],
-            (prev) =>
-              prev?.map((r) =>
-                r.permlink === permlink ? { ...optimisticEntry, is_optimistic: false } : r
-              ) ?? []
-          );
-
+          // Blockchain confirmed - SDK automatically invalidates discussions cache
+          // which will refetch and replace optimistic entry with real entry
           updateEntryQueryData([optimisticEntry]);
-          // Note: onMutate already added reply to discussions cache, .then() just flips is_optimistic flag
+
           // Only remove draft after blockchain confirms
           ss.remove(draftKey);
-          // Note: SDK already invalidates RC query - no need to refetch here
+
+          // Note: SDK handles all cache invalidations (RC, discussions, entry)
           success(i18next.t("comment.success"));
         })
         .catch((err) => {
