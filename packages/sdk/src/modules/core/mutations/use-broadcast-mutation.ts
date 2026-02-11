@@ -202,8 +202,13 @@ async function broadcastWithFallback(
           // Try HiveSigner API first (faster)
           return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
         } catch (error) {
-          // Fallback to direct key signing if token method fails
-          console.warn('[SDK] HiveSigner token failed, falling back to key:', error);
+          // Only fallback if this is an auth-related error
+          // Otherwise, rethrow the original error (e.g., network errors, validation errors)
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          // Fallback to direct key signing if token auth method fails
+          console.warn('[SDK] HiveSigner token auth failed, falling back to key:', error);
         }
       }
 
@@ -217,8 +222,13 @@ async function broadcastWithFallback(
           // Try HiveSigner API first (faster)
           return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
         } catch (error) {
-          // Fallback to HiveAuth if token method fails
-          console.warn('[SDK] HiveSigner token failed, falling back to HiveAuth:', error);
+          // Only fallback if this is an auth-related error
+          // Otherwise, rethrow the original error (e.g., network errors, validation errors)
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          // Fallback to HiveAuth if token auth method fails
+          console.warn('[SDK] HiveSigner token auth failed, falling back to HiveAuth:', error);
         }
       }
 

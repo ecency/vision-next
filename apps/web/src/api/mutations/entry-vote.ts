@@ -6,11 +6,11 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useVoteMutation } from "@/api/sdk-mutations";
 
 /**
- * Entry vote mutation hook with optimistic updates.
+ * Entry vote mutation hook with post-success cache updates.
  *
  * Wraps SDK's useVoteMutation with entry-specific cache management:
- * - Optimistically updates vote UI before confirmation
- * - Updates entry payout estimate
+ * - Updates vote UI after successful broadcast
+ * - Updates entry payout estimate after confirmation
  * - Invalidates entry cache on success
  *
  * SDK already handles:
@@ -34,6 +34,7 @@ export function useEntryVote(entry?: Entry | null) {
   // Wrap SDK mutation to add entry-specific logic
   return {
     ...sdkMutation,
+    mutate: undefined, // Disable mutate - use mutateAsync only (ensures preconditions run)
     mutateAsync: async ({ weight, estimated }: { weight: number; estimated: number }) => {
       if (!entry) {
         throw new Error("Entry not provided");
@@ -50,7 +51,7 @@ export function useEntryVote(entry?: Entry | null) {
         weight,
       });
 
-      // Optimistically update votes in cache
+      // Update votes in cache after successful broadcast
       const newVotes = [
         ...(entry.active_votes
           ? entry.active_votes.filter((x) => x.voter !== activeUser?.username)

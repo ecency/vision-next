@@ -7,6 +7,7 @@ import {
   buildAccountUpdateOp,
   type Authority,
 } from '@ecency/sdk';
+import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -24,14 +25,14 @@ import {
  * ```typescript
  * import { createWebBroadcastAdapter } from '@/providers/sdk';
  * import { useVote } from '@ecency/sdk';
- * import { useGlobalStore } from '@/core/global-store';
+ * import { useActiveAccount } from '@/core/hooks';
  *
  * // Create a web-specific mutation hook wrapper
  * export function useVoteMutation() {
- *   const currentUser = useGlobalStore(state => state.activeUser);
+ *   const { username } = useActiveAccount();
  *   const adapter = createWebBroadcastAdapter();
  *
- *   return useVote(currentUser?.username, { adapter });
+ *   return useVote(username, { adapter });
  * }
  *
  * // Now use the wrapper in components
@@ -59,74 +60,37 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     // ============================================================================
 
     async getUser(username: string) {
-      // Web stores active user in 'active_user' key
-      const activeUsername = localStorage.getItem('active_user');
-
-      // Check if requested user is the active user
-      if (activeUsername !== username) {
+      // Use existing user-token helper for consistent localStorage access
+      const user = getUser(username);
+      if (!user) {
         return undefined;
       }
 
-      // Fetch user data from user_${username} key
-      const userDataStr = localStorage.getItem(`user_${username}`);
-      if (!userDataStr) {
-        return undefined;
-      }
-
-      try {
-        const userData = JSON.parse(userDataStr);
-        return {
-          name: userData.username,
-          authType: userData.loginType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
-        } as any;
-      } catch (error) {
-        console.error('[WebAdapter] Failed to parse user data:', error);
-        return undefined;
-      }
+      return {
+        name: user.username,
+        authType: user.loginType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+      } as any;
     },
 
     async getPostingKey(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
-        return undefined;
-      }
+      // Use existing helper - it handles localStorage access and decoding
+      const postingKey = getPostingKey(username);
 
-      const authType = user.authType;
-
-      // Return null for HiveSigner/Keychain/HiveAuth (use their broadcast methods)
-      if (authType === 'hivesigner' || authType === 'keychain' || authType === 'hiveauth') {
+      // Return null for non-key auth methods (HiveSigner/Keychain/HiveAuth)
+      // This signals to SDK that it should use those platform-specific broadcast methods
+      const loginType = getLoginType(username);
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
         return null;
       }
 
-      // For privateKey auth type, retrieve from user object
-      if (authType === 'privateKey') {
-        const userDataStr = localStorage.getItem(`user_${username}`);
-        if (userDataStr) {
-          try {
-            const userData = JSON.parse(userDataStr);
-            if (userData.postingKey) {
-              // TODO: Decrypt key if encrypted
-              return userData.postingKey;
-            }
-          } catch (error) {
-            console.error('[WebAdapter] Failed to parse user data for posting key:', error);
-          }
-        }
-      }
-
-      return undefined;
+      // For privateKey auth, return the key (may be undefined if not stored)
+      return postingKey;
     },
 
     async getActiveKey(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
-        return undefined;
-      }
-
-      const authType = user.authType;
-
-      // Return null for HiveSigner/Keychain/HiveAuth (use their broadcast methods)
-      if (authType === 'hivesigner' || authType === 'keychain' || authType === 'hiveauth') {
+      // Return null for non-key auth methods (they handle active operations via their own methods)
+      const loginType = getLoginType(username);
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
         return null;
       }
 
@@ -136,15 +100,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getOwnerKey(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
-        return undefined;
-      }
-
-      const authType = user.authType;
-
-      // Return null for HiveSigner/Keychain/HiveAuth (use their broadcast methods)
-      if (authType === 'hivesigner' || authType === 'keychain' || authType === 'hiveauth') {
+      // Return null for non-key auth methods (they handle owner operations via their own methods)
+      const loginType = getLoginType(username);
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
         return null;
       }
 
@@ -154,15 +112,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getMemoKey(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
-        return undefined;
-      }
-
-      const authType = user.authType;
-
-      // Return null for HiveSigner/Keychain/HiveAuth (use their broadcast methods)
-      if (authType === 'hivesigner' || authType === 'keychain' || authType === 'hiveauth') {
+      // Return null for non-key auth methods (they handle memo operations via their own methods)
+      const loginType = getLoginType(username);
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
         return null;
       }
 
@@ -172,41 +124,24 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getAccessToken(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
-        return undefined;
-      }
-
+      // Use existing helper - it handles localStorage access and decoding
       // Access tokens are used for:
       // 1. HiveSigner OAuth
       // 2. Private API access (drafts, bookmarks) for all login types
       // 3. Optimized posting broadcasts when posting authority granted
-      const userDataStr = localStorage.getItem(`user_${username}`);
-      if (userDataStr) {
-        try {
-          const userData = JSON.parse(userDataStr);
-          if (userData.accessToken) {
-            // Tokens are not encrypted in web app
-            return userData.accessToken;
-          }
-        } catch (error) {
-          console.error('[WebAdapter] Failed to parse user data for access token:', error);
-        }
-      }
-
-      return undefined;
+      return getAccessToken(username);
     },
 
     async getLoginType(username: string) {
-      const user = await this.getUser(username);
-      if (!user) {
+      // Use existing helper - it handles localStorage access and decoding
+      const loginType = getLoginType(username);
+      if (!loginType) {
         return null;
       }
 
-      const authType = user.authType; // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
-
       // Map web login types to SDK auth methods
-      switch (authType) {
+      // LoginType = 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+      switch (loginType) {
         case 'hivesigner':
           return 'hivesigner';
         case 'keychain':

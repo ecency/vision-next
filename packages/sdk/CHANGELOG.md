@@ -13,6 +13,7 @@ This is a major release that introduces the Smart Auth Strategy system, signific
   - **After:** `Promise<'hiveauth' | 'hivesigner' | 'key' | false>`
   - **Reason:** Added support for manual key entry option in auth upgrade flow
   - **Migration:** Update adapter implementations to handle `'key'` return value
+  - **Note:** The type is intentionally limited to common fallback auth methods. If extending to support 'keychain' or 'custom', update the type definition in `platform-adapter.ts` and the handler in `use-broadcast-mutation.ts` will automatically support it (already delegates to `broadcastWithMethod`).
 
 #### New Features
 
