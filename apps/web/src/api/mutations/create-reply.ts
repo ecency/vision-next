@@ -72,15 +72,27 @@ export function useCreateReply(
 
       // Add options if provided
       if (options) {
+        // Extract beneficiaries defensively from extensions array
+        const extractBeneficiaries = (extensions: any[]): Array<{ account: string; weight: number }> => {
+          if (!Array.isArray(extensions)) return [];
+
+          for (const ext of extensions) {
+            if (Array.isArray(ext) && ext[1]?.beneficiaries) {
+              return ext[1].beneficiaries.map((b: any) => ({
+                account: b.account,
+                weight: b.weight,
+              }));
+            }
+          }
+          return [];
+        };
+
         commentPayload.options = {
           maxAcceptedPayout: options.max_accepted_payout,
           percentHbd: options.percent_hbd,
           allowVotes: options.allow_votes,
           allowCurationRewards: options.allow_curation_rewards,
-          beneficiaries: options.extensions[0]?.[1]?.beneficiaries?.map((b) => ({
-            account: b.account,
-            weight: b.weight,
-          })) ?? [],
+          beneficiaries: extractBeneficiaries(options.extensions),
         };
       }
 
@@ -107,7 +119,7 @@ export function useCreateReply(
           addReply(optimisticEntry);
           // Only remove draft after blockchain confirms
           ss.remove(draftKey);
-          queryClient.refetchQueries(getAccountRcQueryOptions(optimisticEntry.author));
+          // Note: SDK already invalidates RC query - no need to refetch here
           success(i18next.t("comment.success"));
         })
         .catch((err) => {

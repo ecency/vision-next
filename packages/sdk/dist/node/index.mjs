@@ -5709,7 +5709,9 @@ function useComment(username, auth) {
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate = [
           ["posts", "feed", username],
-          ["posts", "blog", username]
+          ["posts", "blog", username],
+          ["account", username, "rc"]
+          // RC decreases after posting/commenting
         ];
         if (!isPost) {
           queriesToInvalidate.push([

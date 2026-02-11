@@ -51,8 +51,9 @@ export function useEntryReblog(entry: Entry) {
         ? info(i18next.t("entry-reblog.delete-success"))
         : success(i18next.t("entry-reblog.success"));
 
-      // Update reblogs count in entry cache
-      updateReblogsCount((entry.reblogs ?? 0) + (isDelete ? -1 : 1));
+      // Update reblogs count in entry cache (clamped to prevent negative values)
+      const newReblogsCount = Math.max(0, (entry.reblogs ?? 0) + (isDelete ? -1 : 1));
+      updateReblogsCount(newReblogsCount);
 
       // Update reblogs list cache (optimistic UI)
       queryClient.setQueryData<BlogEntry[]>(

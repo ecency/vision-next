@@ -197,7 +197,8 @@ export function useComment(
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
           ["posts", "feed", username],
-          ["posts", "blog", username]
+          ["posts", "blog", username],
+          ["account", username, "rc"] // RC decreases after posting/commenting
         ];
 
         // If this is a reply, invalidate parent post

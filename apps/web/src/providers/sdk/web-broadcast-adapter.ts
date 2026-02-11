@@ -189,16 +189,45 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       const keychain = (window as any).hive_keychain;
 
       return new Promise((resolve, reject) => {
+        let settled = false;
+        let timeoutId: NodeJS.Timeout | undefined;
+
+        // Cleanup function to prevent memory leaks
+        const cleanup = () => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = undefined;
+          }
+        };
+
+        // Set timeout (60 seconds for user interaction)
+        timeoutId = setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            reject(new Error(
+              'Keychain request timed out. Please try again or check if Keychain extension is responding.'
+            ));
+          }
+        }, 60000);
+
+        // Request broadcast from Keychain
         keychain.requestBroadcast(
           username,
           ops,
           keyType,
           (response: any) => {
-            if (response.success) {
-              resolve(response.result);
-            } else {
-              reject(new Error(response.message || 'Keychain broadcast failed'));
+            if (!settled) {
+              settled = true;
+              cleanup();
+
+              if (response.success) {
+                resolve(response.result);
+              } else {
+                reject(new Error(response.message || 'Keychain broadcast failed'));
+              }
             }
+            // Ignore callback if already settled (timeout fired first)
           }
         );
       });
@@ -277,7 +306,8 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async grantPostingAuthority(username: string): Promise<void> {
-      const user = await this.getUser(username);
+      // Use closure-captured helper instead of this.getUser to avoid fragile this binding
+      const user = getUser(username);
       if (!user) {
         throw new Error('User not authenticated');
       }
