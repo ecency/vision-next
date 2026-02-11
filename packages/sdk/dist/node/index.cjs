@@ -367,21 +367,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
             if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
-            if (selectedMethod === "hiveauth") {
-              if (!adapter.broadcastWithHiveAuth) {
-                throw new Error("HiveAuth not available. Please try another method.");
-              }
-              return await adapter.broadcastWithHiveAuth(username, ops2, authority);
-            } else if (selectedMethod === "hivesigner") {
-              const token = await adapter.getAccessToken(username);
-              if (!token) {
-                throw new Error("HiveSigner token not available. Please log in again.");
-              }
-              return await broadcastWithMethod("hivesigner", username, ops2, auth, authority, void 0, token);
-            } else if (selectedMethod === "key") {
-              return await broadcastWithMethod("key", username, ops2, auth, authority);
-            }
-            throw new Error(`Unknown auth method selected: ${selectedMethod}`);
+            return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
           }
         }
         throw error;

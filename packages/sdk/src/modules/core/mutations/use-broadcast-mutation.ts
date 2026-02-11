@@ -240,28 +240,10 @@ async function broadcastWithFallback(
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
 
-            // User selected a specific method - try only that method
-            if (selectedMethod === 'hiveauth') {
-              if (!adapter.broadcastWithHiveAuth) {
-                throw new Error('HiveAuth not available. Please try another method.');
-              }
-              return await adapter.broadcastWithHiveAuth(username, ops, authority);
-            } else if (selectedMethod === 'hivesigner') {
-              const token = await adapter.getAccessToken(username);
-              if (!token) {
-                throw new Error('HiveSigner token not available. Please log in again.');
-              }
-              // Pass pre-fetched token to avoid duplicate fetch
-              return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, token);
-            } else if (selectedMethod === 'key') {
-              // User wants to enter key manually
-              // Platform should have shown key entry modal and stored key temporarily
-              // Try to broadcast with the manually entered key
-              return await broadcastWithMethod('key', username, ops, auth, authority);
-            }
-
-            // Should never reach here
-            throw new Error(`Unknown auth method selected: ${selectedMethod}`);
+            // User selected a specific method - delegate to broadcastWithMethod
+            // This handles all auth methods (hiveauth, hivesigner, key, keychain, custom, etc.)
+            // broadcastWithMethod already contains all necessary validation and method-specific logic
+            return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
           }
         }
 
