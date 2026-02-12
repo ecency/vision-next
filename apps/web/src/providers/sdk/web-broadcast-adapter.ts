@@ -271,12 +271,14 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Invalidate all queries in parallel to avoid await-in-loop
       // Support both array query keys and predicate-based invalidation
       await Promise.all(
-        queryKeys.map((entry) =>
-          // Check if this is a predicate object (has predicate property)
-          entry && typeof entry === 'object' && 'predicate' in entry
-            ? queryClient.invalidateQueries({ predicate: entry.predicate })
-            : queryClient.invalidateQueries({ queryKey: entry })
-        )
+        queryKeys
+          .filter(Boolean) // Guard against null/undefined to prevent invalidating ALL queries
+          .map((entry) =>
+            // Check if this is a predicate object (has predicate property)
+            entry && typeof entry === 'object' && 'predicate' in entry
+              ? queryClient.invalidateQueries({ predicate: entry.predicate })
+              : queryClient.invalidateQueries({ queryKey: entry })
+          )
       );
     },
 

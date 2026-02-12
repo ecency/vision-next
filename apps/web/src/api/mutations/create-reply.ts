@@ -28,6 +28,19 @@ export function useCreateReply(
   // Get SDK mutation (will be called in fire-and-forget mode)
   const { mutateAsync: sdkComment } = useCommentMutation();
 
+  // Helper to generate discussions cache key (used in 4 places: onMutate, .then(), .catch(), onError)
+  // Only handles SortOrder.created for fast-path optimistic updates
+  // SDK's predicate-based invalidation handles ALL sort orders via partial key matching
+  const getDiscussionsCacheKey = () =>
+    [
+      "posts",
+      "discussions",
+      root.author,
+      root.permlink,
+      SortOrder.created,
+      activeUser?.username,
+    ] as const;
+
   return useMutation({
     mutationKey: ["reply-create", activeUser?.username, entry.author, entry.permlink],
     mutationFn: async ({
@@ -105,14 +118,7 @@ export function useCreateReply(
           // Blockchain confirmed - manually flip is_optimistic flag in discussions cache
           // This provides immediate feedback while SDK invalidation refetches
           queryClient.setQueryData<Entry[]>(
-            [
-              "posts",
-              "discussions",
-              root.author,
-              root.permlink,
-              SortOrder.created,
-              activeUser.username
-            ],
+            getDiscussionsCacheKey(),
             (prev) =>
               prev?.map((r) =>
                 r.permlink === permlink ? { ...r, is_optimistic: false } : r
@@ -130,14 +136,7 @@ export function useCreateReply(
         .catch((err) => {
         // Blockchain failed - remove optimistic entry
         queryClient.setQueryData<Entry[]>(
-          [
-            "posts",
-            "discussions",
-            root.author,
-            root.permlink,
-            SortOrder.created,
-            activeUser.username
-          ],
+          getDiscussionsCacheKey(),
           (prev) =>
             prev?.filter((r) => r.permlink !== permlink) ?? []
         );
@@ -171,6 +170,9 @@ export function useCreateReply(
     onMutate: async ({ permlink, text }) => {
       if (!activeUser || !account) return;
 
+      // Note: This creates a separate tempEntry from mutationFn (intentional)
+      // This entry gets is_optimistic = true for discussions cache
+      // mutationFn's entry is used for entry cache after blockchain confirms
       const optimistic = tempEntry({
         author: account,
         permlink,
@@ -185,14 +187,7 @@ export function useCreateReply(
 
       // Add optimistic entry to cache immediately
       queryClient.setQueryData<Entry[]>(
-          [
-            "posts",
-            "discussions",
-            root.author,
-            root.permlink,
-            SortOrder.created,
-            activeUser.username
-          ],
+          getDiscussionsCacheKey(),
           (prev = []) => [optimistic, ...prev]
       );
 
@@ -211,14 +206,7 @@ export function useCreateReply(
 
       if (optimistic) {
         queryClient.setQueryData<Entry[]>(
-            [
-              "posts",
-              "discussions",
-              root.author,
-              root.permlink,
-              SortOrder.created,
-              activeUser?.username
-            ],
+            getDiscussionsCacheKey(),
             (prev) =>
                 prev?.filter((r) => r.permlink !== optimistic?.permlink) ?? []
         );
