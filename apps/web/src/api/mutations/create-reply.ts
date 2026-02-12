@@ -115,17 +115,9 @@ export function useCreateReply(
       // Use SDK mutation for blockchain broadcast (fire-and-forget)
       sdkComment(commentPayload)
         .then((transactionResult) => {
-          // Blockchain confirmed - manually flip is_optimistic flag in discussions cache
-          // This provides immediate feedback while SDK invalidation refetches
-          queryClient.setQueryData<Entry[]>(
-            getDiscussionsCacheKey(),
-            (prev) =>
-              prev?.map((r) =>
-                r.permlink === permlink && r.author === activeUser?.username
-                ? { ...r, is_optimistic: false }
-                : r
-              ) ?? []
-          );
+          // Blockchain confirmed successfully
+          // DO NOT manually update cache here - SDK invalidation will handle it
+          // Optimistic entry will be preserved until blockchain indexes the comment
 
           updateEntryQueryData([optimisticEntry]);
 
@@ -133,6 +125,10 @@ export function useCreateReply(
           ss.remove(draftKey);
 
           // Note: SDK handles cache invalidations (RC, discussions, entry)
+          // IMPORTANT: We rely on SDK's invalidation which marks queries as stale
+          // The discussions query will refetch in background but preserve optimistic entries
+          // via custom merge logic in the query options
+
           success(i18next.t("comment.success"));
         })
         .catch((err) => {

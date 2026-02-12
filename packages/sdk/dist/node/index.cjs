@@ -2347,7 +2347,26 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
       return filterDmcaEntry(results);
     },
     enabled: enabled && !!entry,
-    select: (data) => sortDiscussions(entry, data, order)
+    select: (data) => sortDiscussions(entry, data, order),
+    // Preserve optimistic entries during refetch by using structural sharing
+    // This ensures newly added comments (is_optimistic: true) aren't wiped out
+    // when blockchain hasn't indexed them yet
+    structuralSharing: (oldData, newData) => {
+      if (!oldData || !newData) return newData;
+      const optimisticEntries = oldData.filter(
+        (entry2) => entry2.is_optimistic === true
+      );
+      const fetchedPermlinks = new Set(
+        newData.map((e) => `${e.author}/${e.permlink}`)
+      );
+      const missingOptimistic = optimisticEntries.filter(
+        (opt) => !fetchedPermlinks.has(`${opt.author}/${opt.permlink}`)
+      );
+      if (missingOptimistic.length > 0) {
+        return [...newData, ...missingOptimistic];
+      }
+      return newData;
+    }
   });
 }
 function getDiscussionQueryOptions(author, permlink, observer, enabled = true) {
