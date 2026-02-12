@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+### Patch Changes
+
+- Fix optimistic replies (#652)
+
 ## 2.0.0
 
 ### Major Changes
@@ -26,18 +32,21 @@ This is a major release that introduces the Smart Auth Strategy system, signific
 #### New Features
 
 **Smart Auth Strategy**
+
 - Added `getLoginType()` to PlatformAdapter for determining user's actual auth method
 - Eliminated blind fallback chains - now uses user's specific auth method directly
 - 2-4x performance improvement (no unnecessary auth attempts)
 - Predictable behavior with better error messages
 
 **Authority Detection System**
+
 - New `OPERATION_AUTHORITY_MAP` with 61 operations mapped to authority levels
 - Automatic detection of `posting` | `active` | `owner` | `memo` requirements
 - `getRequiredAuthority(operation)` helper for authority lookup
 - `getProposalAuthority(operation)` for content-dependent operations
 
 **Enhanced Platform Adapter**
+
 - Added `hasPostingAuthorization(username)` - Check if ecency.app has posting authority
 - Added `showAuthUpgradeUI(authority, operation)` - Prompt user for auth upgrade
 - Added `grantPostingAuthority(username)` - Automatically grant posting authority
@@ -45,6 +54,7 @@ This is a major release that introduces the Smart Auth Strategy system, signific
 - Added `getMemoKey(username)` - Optional memo key retrieval
 
 **Operation Builders**
+
 - New `buildAccountUpdateOp()` - Construct account_update operations
 - Type-safe operation construction with Authority types
 
@@ -74,6 +84,7 @@ This is a major release that introduces the Smart Auth Strategy system, signific
 ### Migration Guide
 
 **For Mobile Apps:**
+
 ```typescript
 // Update your mobile adapter to implement new methods
 export function createMobileBroadcastAdapter(): PlatformAdapter {
@@ -81,21 +92,30 @@ export function createMobileBroadcastAdapter(): PlatformAdapter {
     // ... existing methods ...
 
     // NEW: Add these methods
-    getOwnerKey: async (username) => { /* implementation */ },
-    getMemoKey: async (username) => { /* implementation */ },
-    hasPostingAuthorization: async (username) => { /* implementation */ },
+    getOwnerKey: async (username) => {
+      /* implementation */
+    },
+    getMemoKey: async (username) => {
+      /* implementation */
+    },
+    hasPostingAuthorization: async (username) => {
+      /* implementation */
+    },
     showAuthUpgradeUI: async (authority, operation) => {
       // Must now return 'hiveauth' | 'hivesigner' | 'key' | false
     },
-    grantPostingAuthority: async (username) => { /* implementation */ },
+    grantPostingAuthority: async (username) => {
+      /* implementation */
+    },
   };
 }
 ```
 
 **For Web Apps:**
+
 ```typescript
 // Create web adapter following established pattern
-import { createWebBroadcastAdapter } from '@/providers/sdk';
+import { createWebBroadcastAdapter } from "@/providers/sdk";
 
 // In your mutation hooks
 export function useVoteMutation() {
@@ -107,6 +127,7 @@ export function useVoteMutation() {
 ```
 
 ---
+
 ## 1.5.28
 
 ### Patch Changes
