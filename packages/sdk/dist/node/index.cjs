@@ -5744,6 +5744,14 @@ function useComment(username, auth) {
             "entry",
             `/@${variables.parentAuthor}/${variables.parentPermlink}`
           ]);
+          const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
+          const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
+          queriesToInvalidate.push({
+            predicate: (query) => {
+              const key = query.queryKey;
+              return Array.isArray(key) && key[0] === "posts" && key[1] === "discussions" && key[2] === discussionsAuthor && key[3] === discussionsPermlink;
+            }
+          });
         }
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }

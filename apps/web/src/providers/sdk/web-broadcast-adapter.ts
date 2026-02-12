@@ -67,9 +67,12 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return undefined;
       }
 
+      // Map loginType to SDK auth method (same mapping as getLoginType)
+      const authType = user.loginType === 'privateKey' ? 'key' : user.loginType;
+
       return {
         name: user.username,
-        authType: user.loginType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+        authType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'key'
       };
     },
 
@@ -266,7 +269,17 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       const queryClient = getQueryClient();
 
       // Invalidate all queries in parallel to avoid await-in-loop
-      await Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
+      // Support both array query keys and predicate-based invalidation
+      await Promise.all(
+        queryKeys
+          .filter(Boolean) // Guard against null/undefined to prevent invalidating ALL queries
+          .map((entry) =>
+            // Check if this is a predicate object (has predicate property)
+            entry && typeof entry === 'object' && 'predicate' in entry
+              ? queryClient.invalidateQueries({ predicate: entry.predicate })
+              : queryClient.invalidateQueries({ queryKey: entry })
+          )
+      );
     },
 
     // ============================================================================
