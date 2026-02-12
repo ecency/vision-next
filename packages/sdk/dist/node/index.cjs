@@ -3230,21 +3230,28 @@ function useAccountUpdate(username, auth) {
         ]
       ];
     },
-    (_data, variables) => queryClient.setQueryData(
-      getAccountFullQueryOptions(username).queryKey,
-      (data2) => {
-        if (!data2) {
-          return data2;
+    async (_data, variables) => {
+      queryClient.setQueryData(
+        getAccountFullQueryOptions(username).queryKey,
+        (data2) => {
+          if (!data2) {
+            return data2;
+          }
+          const obj = R4__namespace.clone(data2);
+          obj.profile = buildProfileMetadata({
+            existingProfile: extractAccountProfile(data2),
+            profile: variables.profile,
+            tokens: variables.tokens
+          });
+          return obj;
         }
-        const obj = R4__namespace.clone(data2);
-        obj.profile = buildProfileMetadata({
-          existingProfile: extractAccountProfile(data2),
-          profile: variables.profile,
-          tokens: variables.tokens
-        });
-        return obj;
+      );
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", "full", username]
+        ]);
       }
-    ),
+    },
     auth
   );
 }
@@ -5779,6 +5786,42 @@ function useComment(username, auth) {
   );
 }
 
+// src/modules/posts/mutations/use-delete-comment.ts
+function useDeleteComment(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "deleteComment"],
+    username,
+    ({ author, permlink }) => [
+      buildDeleteCommentOp(author, permlink)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        const queriesToInvalidate = [
+          ["posts", "feed", username],
+          ["posts", "blog", username]
+        ];
+        if (variables.parentAuthor && variables.parentPermlink) {
+          queriesToInvalidate.push([
+            "posts",
+            "entry",
+            `/@${variables.parentAuthor}/${variables.parentPermlink}`
+          ]);
+          const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
+          const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
+          queriesToInvalidate.push({
+            predicate: (query) => {
+              const key = query.queryKey;
+              return Array.isArray(key) && key[0] === "posts" && key[1] === "discussions" && key[2] === discussionsAuthor && key[3] === discussionsPermlink;
+            }
+          });
+        }
+        await auth.adapter.invalidateQueries(queriesToInvalidate);
+      }
+    },
+    auth
+  );
+}
+
 // src/modules/posts/utils/validate-post-creating.ts
 var DEFAULT_VALIDATE_POST_DELAYS = [3e3, 3e3, 3e3];
 var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -6169,6 +6212,70 @@ function useGameClaim(username, code, gameType, key) {
       recordActivity();
     }
   });
+}
+
+// src/modules/communities/mutations/use-subscribe-community.ts
+function useSubscribeCommunity(username, auth) {
+  return useBroadcastMutation(
+    ["communities", "subscribe"],
+    username,
+    ({ community }) => [
+      buildSubscribeOp(username, community)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", "subscriptions", username],
+          ["communities", variables.community]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/communities/mutations/use-unsubscribe-community.ts
+function useUnsubscribeCommunity(username, auth) {
+  return useBroadcastMutation(
+    ["communities", "unsubscribe"],
+    username,
+    ({ community }) => [
+      buildUnsubscribeOp(username, community)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", "subscriptions", username],
+          ["communities", variables.community]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/communities/mutations/use-mute-post.ts
+function useMutePost(username, auth) {
+  return useBroadcastMutation(
+    ["communities", "mutePost"],
+    username,
+    ({ community, author, permlink, notes, mute }) => [
+      buildMutePostOp(username, community, author, permlink, notes, mute)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          // Invalidate community posts to hide/show muted content
+          ["communities", variables.community, "posts"],
+          // Invalidate specific post cache to update mute status
+          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          // Invalidate feed caches to remove/restore muted posts
+          ["posts", "feed", variables.community]
+        ]);
+      }
+    },
+    auth
+  );
 }
 function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0, enabled = true) {
   return reactQuery.queryOptions({
@@ -8266,6 +8373,7 @@ exports.useBookmarkAdd = useBookmarkAdd;
 exports.useBookmarkDelete = useBookmarkDelete;
 exports.useBroadcastMutation = useBroadcastMutation;
 exports.useComment = useComment;
+exports.useDeleteComment = useDeleteComment;
 exports.useDeleteDraft = useDeleteDraft;
 exports.useDeleteImage = useDeleteImage;
 exports.useDeleteSchedule = useDeleteSchedule;
@@ -8274,6 +8382,7 @@ exports.useFollow = useFollow;
 exports.useGameClaim = useGameClaim;
 exports.useMarkNotificationsRead = useMarkNotificationsRead;
 exports.useMoveSchedule = useMoveSchedule;
+exports.useMutePost = useMutePost;
 exports.useProposalVote = useProposalVote;
 exports.useReblog = useReblog;
 exports.useRecordActivity = useRecordActivity;
@@ -8281,8 +8390,10 @@ exports.useRemoveFragment = useRemoveFragment;
 exports.useSignOperationByHivesigner = useSignOperationByHivesigner;
 exports.useSignOperationByKey = useSignOperationByKey;
 exports.useSignOperationByKeychain = useSignOperationByKeychain;
+exports.useSubscribeCommunity = useSubscribeCommunity;
 exports.useTransfer = useTransfer;
 exports.useUnfollow = useUnfollow;
+exports.useUnsubscribeCommunity = useUnsubscribeCommunity;
 exports.useUpdateDraft = useUpdateDraft;
 exports.useUploadImage = useUploadImage;
 exports.useVote = useVote;

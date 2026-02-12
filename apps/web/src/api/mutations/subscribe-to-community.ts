@@ -1,60 +1,47 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Community, Subscription } from "@/entities";
-import { broadcastPostingJSON, formatError } from "@/api/operations";
-import { error } from "@/features/shared";
-import { QueryIdentifiers } from "@/core/react-query";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useMutation } from "@tanstack/react-query";
+import { Community } from "@/entities";
+import {
+  useSubscribeCommunityMutation,
+  useUnsubscribeCommunityMutation
+} from "@/api/sdk-mutations";
 
+/**
+ * Combined subscribe/unsubscribe to community mutation hook.
+ *
+ * This hook wraps the SDK mutations (useSubscribeCommunityMutation and useUnsubscribeCommunityMutation)
+ * to provide a single interface that handles both subscribe and unsubscribe actions.
+ *
+ * @param community - The community to subscribe/unsubscribe to/from
+ * @returns Mutation result with combined subscribe/unsubscribe function
+ *
+ * @deprecated This combined hook is kept for backward compatibility.
+ * New code should use useSubscribeCommunityMutation or useUnsubscribeCommunityMutation directly.
+ *
+ * @example
+ * ```typescript
+ * const { mutateAsync: subscribe, isPending } = useSubscribeToCommunity(community);
+ *
+ * // Subscribe
+ * await subscribe({ isSubscribe: true });
+ *
+ * // Unsubscribe
+ * await subscribe({ isSubscribe: false });
+ * ```
+ */
 export function useSubscribeToCommunity(community: Community) {
-  const { activeUser } = useActiveAccount();
-  const queryClient = useQueryClient();
+  const subscribeMutation = useSubscribeCommunityMutation();
+  const unsubscribeMutation = useUnsubscribeCommunityMutation();
 
   return useMutation({
-    mutationKey: ["subscribeToCommunity", activeUser?.username, community?.name],
+    mutationKey: ["subscribeToCommunity", community?.name],
     mutationFn: async ({ isSubscribe }: { isSubscribe: boolean }) => {
-      if (!activeUser) {
-        throw new Error("Can`t subscribe w/o active user");
-      }
-
       if (isSubscribe) {
-        return [
-          isSubscribe,
-          await broadcastPostingJSON(activeUser?.username, "community", [
-            "subscribe",
-            { community: community.name }
-          ])
-        ] as const;
+        await subscribeMutation.mutateAsync({ community: community.name });
       } else {
-        return [
-          isSubscribe,
-          await broadcastPostingJSON(activeUser?.username, "community", [
-            "unsubscribe",
-            { community: community.name }
-          ])
-        ] as const;
+        await unsubscribeMutation.mutateAsync({ community: community.name });
       }
-    },
-    onSuccess: ([isSubscribe]) => {
-      queryClient.setQueryData<Subscription[] | undefined>(
-        ["accounts", "subscriptions", activeUser?.username],
-        (data) => {
-          if (!data) {
-            return isSubscribe
-              ? [[community.name, community.title, "guest", ""]]
-              : data;
-          }
-
-          return isSubscribe
-            ? [...data, [community.name, community.title, "guest", ""]]
-            : data.filter(([u]) => u !== community.name);
-        }
-      );
-      queryClient.invalidateQueries({
-        queryKey: [QueryIdentifiers.COMMUNITY, community.name]
-      });
-    },
-    onError: (err) => error(...formatError(err))
+    }
   });
 }

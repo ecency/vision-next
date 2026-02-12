@@ -10,3 +10,8 @@ export { useReblogMutation } from "./use-reblog-mutation";
 export { useCommentMutation } from "./use-comment-mutation";
 export { useFollowMutation } from "./use-follow-mutation";
 export { useUnfollowMutation } from "./use-unfollow-mutation";
+export { useDeleteCommentMutation } from "./use-delete-comment-mutation";
+export { useMutePostMutation } from "./use-mute-post-mutation";
+export { useSubscribeCommunityMutation } from "./use-subscribe-community-mutation";
+export { useUnsubscribeCommunityMutation } from "./use-unsubscribe-community-mutation";
+export { useUpdateProfileMutation } from "./use-update-profile-mutation";
