@@ -5,6 +5,7 @@
 ### Patch Changes
 
 - Fix optimistic replies (#652)
+- Optimistic updates (#651)
 
 ## 2.0.0
 
