@@ -121,7 +121,9 @@ export function useCreateReply(
             getDiscussionsCacheKey(),
             (prev) =>
               prev?.map((r) =>
-                r.permlink === permlink ? { ...r, is_optimistic: false } : r
+                r.permlink === permlink && r.author === activeUser?.username
+                ? { ...r, is_optimistic: false }
+                : r
               ) ?? []
           );
 
@@ -138,7 +140,9 @@ export function useCreateReply(
         queryClient.setQueryData<Entry[]>(
           getDiscussionsCacheKey(),
           (prev) =>
-            prev?.filter((r) => r.permlink !== permlink) ?? []
+            prev?.filter(
+              (r) => !(r.permlink === permlink && r.author === activeUser?.username)
+              ) ?? []
         );
 
         // Notify parent component to restore text to input
@@ -208,7 +212,10 @@ export function useCreateReply(
         queryClient.setQueryData<Entry[]>(
             getDiscussionsCacheKey(),
             (prev) =>
-                prev?.filter((r) => r.permlink !== optimistic?.permlink) ?? []
+                prev?.filter(
+                (r) =>
+                  !(r.permlink === optimistic?.permlink && r.author === optimistic?.author)
+                ) ?? []
         );
       }
 
