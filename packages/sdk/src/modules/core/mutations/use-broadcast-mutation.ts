@@ -262,6 +262,32 @@ async function broadcastWithFallback(
         throw error;
       }
     }
+
+    // loginType is null — user's auth method is unknown (e.g., incomplete login data)
+    if (authority === 'posting') {
+      // For posting ops, try HiveSigner — access token is usually available for all logins
+      try {
+        return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+      } catch (hsError) {
+        if (shouldTriggerAuthFallback(hsError) && adapter.showAuthUpgradeUI) {
+          const operationName = ops.length > 0 ? ops[0][0] : 'unknown';
+          const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
+          if (!selectedMethod) {
+            throw new Error(`No login type available for ${username}. Please log in again.`);
+          }
+          return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+        }
+        throw hsError;
+      }
+    } else if (authority === 'active' && adapter.showAuthUpgradeUI) {
+      // For active ops, show auth upgrade dialog — no silent fallback possible
+      const operationName = ops.length > 0 ? ops[0][0] : 'unknown';
+      const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
+      if (!selectedMethod) {
+        throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
+      }
+      return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+    }
   }
 
   // FALLBACK APPROACH: For backward compatibility, use fallback chain

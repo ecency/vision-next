@@ -119,6 +119,13 @@ function parseChainError(error) {
       originalError: error
     };
   }
+  if (testPattern(/no (active|owner|posting|memo) key available/i)) {
+    return {
+      message: "Key not available. Please provide your key to sign this operation.",
+      type: "missing_authority" /* MISSING_AUTHORITY */,
+      originalError: error
+    };
+  }
   if (testPattern(/missing active authority/i)) {
     return {
       message: "Missing active authority. This operation requires your active key.",
@@ -378,6 +385,28 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
         }
         throw error;
       }
+    }
+    if (authority === "posting") {
+      try {
+        return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+      } catch (hsError) {
+        if (shouldTriggerAuthFallback(hsError) && adapter.showAuthUpgradeUI) {
+          const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+          const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
+          if (!selectedMethod) {
+            throw new Error(`No login type available for ${username}. Please log in again.`);
+          }
+          return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
+        }
+        throw hsError;
+      }
+    } else if (authority === "active" && adapter.showAuthUpgradeUI) {
+      const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+      const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
+      if (!selectedMethod) {
+        throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
+      }
+      return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
     }
   }
   const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain", "custom"];

@@ -1,7 +1,6 @@
-import { useDelegateVestingSharesByKey, useDelegateVestingSharesByKeychain } from "@/api/mutations";
-import { delegateVestingSharesHot } from "@/api/operations";
+import { useDelegateVestingSharesMutation } from "@/api/sdk-mutations";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { KeyOrHotDialog, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
+import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { List, ListItem } from "@/features/ui/list";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
@@ -30,7 +29,6 @@ export function DelegatedVesting({ username, show, setShow, totalDelegated }: Pr
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
-  const [hideList, setHideList] = useState(false);
 
   const { data: delegations, isLoading } = useQuery({
     ...getHivePowerDelegatesInfiniteQueryOptions(username, 1000),
@@ -40,8 +38,7 @@ export function DelegatedVesting({ username, show, setShow, totalDelegated }: Pr
       )
   });
 
-  const { mutateAsync: delegateByKey } = useDelegateVestingSharesByKey();
-  const { mutateAsync: delegateByKeychain } = useDelegateVestingSharesByKeychain();
+  const { mutateAsync: delegate, isPending: isDelegating } = useDelegateVestingSharesMutation();
 
   const data = useMemo(
     () =>
@@ -94,9 +91,7 @@ export function DelegatedVesting({ username, show, setShow, totalDelegated }: Pr
         {isLoading && <LinearProgress />}
         {!isLoading && (
           <div
-            className={`delegated-vesting-content ${isLoading ? "in-progress" : ""} ${
-              hideList ? "hidden" : ""
-            }`}
+            className={`delegated-vesting-content ${isLoading ? "in-progress" : ""}`}
           >
             <div className="user-list">
               <List defer={true} grid={true} inline={true} className="list-body">
@@ -128,34 +123,21 @@ export function DelegatedVesting({ username, show, setShow, totalDelegated }: Pr
                         </span>
                       </Tooltip>
                       {activeUser && activeUser.username === x.delegatee && (
-                        <KeyOrHotDialog
-                          popOver={true}
-                          onToggle={() => setHideList(!hideList)}
-                          onKey={(key) =>
-                            delegateByKey({
-                              key,
-                              value: "0.000000 VESTS",
-                              delegatee: x.delegatee
-                            })
-                          }
-                          onHot={() =>
-                            delegateVestingSharesHot(
-                              activeUser.username,
-                              x.delegatee,
-                              "0.000000 VESTS"
-                            )
-                          }
-                          onKc={() =>
-                            delegateByKeychain({
-                              value: "0.000000 VESTS",
-                              delegatee: x.delegatee
-                            })
-                          }
+                        <a
+                          href="#"
+                          className="undelegate"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            delegate({
+                              delegatee: x.delegatee,
+                              vestingShares: "0.000000 VESTS"
+                            });
+                          }}
                         >
-                          <a href="#" className="undelegate">
-                            {i18next.t("delegated-vesting.undelegate")}
-                          </a>
-                        </KeyOrHotDialog>
+                          {isDelegating
+                            ? "..."
+                            : i18next.t("delegated-vesting.undelegate")}
+                        </a>
                       )}
                     </div>
                   </ListItem>

@@ -9,6 +9,7 @@ import {
 } from '@ecency/sdk';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import { broadcastWithHiveAuth } from '@/utils/hive-auth';
+import { requestAuthUpgrade, consumeTempActiveKey } from '@/features/shared/auth-upgrade';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -92,6 +93,10 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getActiveKey(username: string) {
+      // Check temp storage first (key entered via auth upgrade dialog)
+      const tempKey = consumeTempActiveKey();
+      if (tempKey) return tempKey;
+
       // Return null for non-key auth methods (they handle active operations via their own methods)
       const loginType = getLoginType(username);
       if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
@@ -99,7 +104,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       }
 
       // Web app does NOT store active keys in localStorage for security
-      // Active key operations will fall back to manual key entry or auth upgrade
+      // Active key operations will fall back to auth upgrade dialog
       return undefined;
     },
 
@@ -309,13 +314,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       requiredAuthority: 'posting' | 'active',
       operation: string,
     ): Promise<'hiveauth' | 'hivesigner' | 'key' | false> {
-      // TODO: Implement auth upgrade modal component
-      // For now, return false (user declined)
-      console.warn(
-        '[WebAdapter] Auth upgrade UI not implemented yet.',
-        `Operation "${operation}" requires ${requiredAuthority} authority.`
-      );
-      return false;
+      return requestAuthUpgrade(requiredAuthority, operation);
     },
 
     async grantPostingAuthority(username: string): Promise<void> {

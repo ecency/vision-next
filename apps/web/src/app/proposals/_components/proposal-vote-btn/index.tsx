@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import "./_index.scss";
-import { KeyOrHotDialog, LoginRequired } from "@/features/shared";
-import { useProposalVoteByKey, useProposalVoteByKeychain } from "@/api/mutations/proposal-vote";
-import { proposalVoteHot } from "@/api/operations";
+import { LoginRequired } from "@/features/shared";
+import { useProposalVoteMutation } from "@/api/sdk-mutations";
 import { getProposalVotesInfiniteQueryOptions } from "@ecency/sdk";
 import { UilArrowUp } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -28,9 +27,7 @@ export function ProposalVoteBtn({ proposal }: Props) {
     [activeUser?.username, votes]
   );
 
-  const { mutateAsync: voteByKey, isPending: isVotingByKey } = useProposalVoteByKey(proposal);
-  const { mutateAsync: voteByKeychain, isPending: isVotingByKeychain } =
-    useProposalVoteByKeychain(proposal);
+  const { mutateAsync: vote, isPending } = useProposalVoteMutation(proposal);
 
   if (!activeUser) {
     return (
@@ -41,19 +38,14 @@ export function ProposalVoteBtn({ proposal }: Props) {
   }
 
   return (
-    <KeyOrHotDialog
-      onKey={(key) => voteByKey({ key, approve: !voted })}
-      onKc={() => voteByKeychain({ approve: !voted })}
-      onHot={() => proposalVoteHot(activeUser?.username, proposal, !voted)}
-    >
-      <Button
-        disabled={isVotingByKey || isVotingByKeychain || isLoading}
-        icon={<UilArrowUp />}
-        outline={!voted}
-        noPadding={true}
-        className="w-[34px]"
-        isLoading={isVotingByKey || isVotingByKeychain}
-      />
-    </KeyOrHotDialog>
+    <Button
+      disabled={isPending || isLoading}
+      icon={<UilArrowUp />}
+      outline={!voted}
+      noPadding={true}
+      className="w-[34px]"
+      isLoading={isPending}
+      onClick={() => vote({ approve: !voted })}
+    />
   );
 }
