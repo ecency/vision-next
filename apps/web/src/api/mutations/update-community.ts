@@ -1,19 +1,22 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatError, updateCommunity } from "@/api/operations";
+import { formatError } from "@/api/operations";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
 import { getCommunityCache } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-
-type UpdateCommunityPayload = NonNullable<Parameters<typeof updateCommunity>[2]>;
+import { useUpdateCommunityMutation } from "@/api/sdk-mutations";
+import type { UpdateCommunityPayload } from "@ecency/sdk";
 
 export function useUpdateCommunity(communityName: string) {
   const queryClient = useQueryClient();
   const { activeUser } = useActiveAccount();
   // we don't need `community` here anymore
   useQuery(getCommunityCache(communityName));
+
+  // Use SDK mutation for broadcasting
+  const { mutateAsync: updateCommunitySdk } = useUpdateCommunityMutation(communityName);
 
   return useMutation({
     mutationKey: ["updateCommunity"],
@@ -24,7 +27,7 @@ export function useUpdateCommunity(communityName: string) {
       payload: UpdateCommunityPayload;
       username?: string;
     }) => {
-      await updateCommunity(username ?? activeUser!.username, communityName, payload);
+      await updateCommunitySdk(payload);
       return payload;
     },
     onSuccess: (payload) => {

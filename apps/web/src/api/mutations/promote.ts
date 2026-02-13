@@ -1,52 +1,42 @@
 import { useMutation } from "@tanstack/react-query";
-import * as keychain from "@/utils/keychain";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { CONFIG } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { usePromoteMutation } from "@/api/sdk-mutations";
 
+/**
+ * Legacy hook for promoting posts via Keychain.
+ * Now delegates to SDK mutation for unified auth handling.
+ *
+ * @deprecated Use usePromoteMutation() from sdk-mutations instead
+ */
 export function usePromoteByKeychain() {
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: promote } = usePromoteMutation();
 
   return useMutation({
     mutationKey: ["promote-by-keychain"],
     mutationFn: ({ path, duration }: { path: string; duration: number }) => {
       const [author, permlink] = path.replace("@", "").split("/");
-      const json = JSON.stringify({
-        user: activeUser?.username,
-        author,
-        permlink,
-        duration
-      });
-      return keychain.customJson(activeUser!.username, "ecency_promote", "Active", json, "Promote");
+      return promote({ author, permlink, duration });
     },
     onError: (err) => error(...formatError(err))
   });
 }
 
+/**
+ * Legacy hook for promoting posts via API/private key.
+ * Now delegates to SDK mutation for unified auth handling.
+ *
+ * @deprecated Use usePromoteMutation() from sdk-mutations instead
+ */
 export function usePromoteByApi() {
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: promote } = usePromoteMutation();
 
   return useMutation({
     mutationKey: ["promote-by-api"],
     mutationFn: ({ path, duration, key }: { path: string; duration: number; key: PrivateKey }) => {
       const [author, permlink] = path.replace("@", "").split("/");
-      const json = JSON.stringify({
-        user: activeUser!.username,
-        author,
-        permlink,
-        duration
-      });
-
-      const op = {
-        id: "ecency_promote",
-        json,
-        required_auths: [activeUser!.username],
-        required_posting_auths: []
-      };
-
-      return CONFIG.hiveClient.broadcast.json(op, key);
+      return promote({ author, permlink, duration });
     },
     onError: (err) => error(...formatError(err))
   });

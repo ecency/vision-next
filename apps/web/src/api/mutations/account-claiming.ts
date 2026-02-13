@@ -1,25 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PrivateKey } from "@hiveio/dhive";
-import { claimAccount, claimAccountByKeychain } from "../operations";
 import { FullAccount } from "@/entities";
 import { QueryIdentifiers } from "@/core/react-query";
+import { useClaimAccountMutation } from "@/api/sdk-mutations";
 
+/**
+ * Legacy hook for claiming account tokens.
+ * Now delegates to SDK mutation for unified auth handling.
+ *
+ * @deprecated Use useClaimAccountMutation() from sdk-mutations instead
+ */
 export function useAccountClaiming(account: FullAccount) {
   const queryClient = useQueryClient();
+  const { mutateAsync: claimAccount } = useClaimAccountMutation();
 
   return useMutation({
     mutationKey: ["account-claiming", account.name],
     mutationFn: async ({ isKeychain, key }: { key?: PrivateKey; isKeychain?: boolean }) => {
       try {
-        if (isKeychain) {
-          return await claimAccountByKeychain(account);
-        }
-
-        if (key) {
-          return await claimAccount(account, key);
-        }
-
-        throw new Error();
+        return await claimAccount({
+          creator: account.name,
+          fee: "0.000 HIVE"
+        });
       } catch (error) {
         throw new Error("Failed RC claiming. Please, try again or contact with support.");
       }

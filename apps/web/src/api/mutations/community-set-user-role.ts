@@ -2,12 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { Community, CommunityTeam } from "@/entities";
-import { formatError, setUserRole } from "@/api/operations";
+import { formatError } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
 import { getCommunityCache } from "@/core/caches";
+import { useSetCommunityRoleMutation } from "@/api/sdk-mutations";
 
 type TeamRow = [string, string, string]; // one member entry
 
@@ -19,10 +20,13 @@ export function useCommunitySetUserRole(communityName: string, onSuccess?: () =>
     const { data: community } =
         (useQuery(getCommunityCache(communityName)) as UseQueryResult<Community, Error>);
 
+    // Use SDK mutation for broadcasting
+    const { mutateAsync: setRoleSdk } = useSetCommunityRoleMutation(communityName);
+
     return useMutation({
         mutationKey: ["community-set-user-role", communityName],
         mutationFn: async ({ user, role }: { user: string; role: string }) => {
-            await setUserRole(activeUser!.username, communityName, user, role);
+            await setRoleSdk({ account: user, role });
             return { user, role };
         },
         onSuccess: ({ user, role }) => {

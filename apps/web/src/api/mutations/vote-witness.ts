@@ -1,11 +1,19 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { witnessVote, witnessVoteHot, witnessVoteKc } from "@/api/operations";
+/**
+ * Legacy witness vote mutation (migrated to SDK).
+ *
+ * This file maintains backwards compatibility with KeyOrHotDialog.
+ * The payload format is converted to SDK format internally.
+ *
+ * Migration: vote-witness -> SDK useWitnessVote
+ * - SDK mutation: packages/sdk/src/modules/witnesses/mutations/use-witness-vote.ts
+ * - Web wrapper: apps/web/src/api/sdk-mutations/use-witness-vote-mutation.ts
+ */
+
+import { useMutation } from "@tanstack/react-query";
+import { useWitnessVoteMutation } from "@/api/sdk-mutations";
 import { PrivateKey } from "@hiveio/dhive";
-import { QueryIdentifiers } from "@/core/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 interface KindOfPayload<T extends string> {
   kind: T;
@@ -18,74 +26,31 @@ interface PayloadApp extends KindOfPayload<"app"> {
 
 type Payload = KindOfPayload<"hot"> | KindOfPayload<"kc"> | PayloadApp;
 
+/**
+ * Legacy hook that accepts old payload format for backwards compatibility.
+ * Converts old format to SDK format and delegates to SDK mutation.
+ *
+ * Old usage (still supported):
+ * ```ts
+ * const { mutateAsync: vote } = useVoteWitness(witness);
+ * await vote({ kind: "app", key, voted });
+ * await vote({ kind: "hot", voted });
+ * await vote({ kind: "kc", voted });
+ * ```
+ */
 export function useVoteWitness(witness: string) {
-  const { activeUser } = useActiveAccount();
-  const queryClient = useQueryClient();
+  const { mutateAsync: voteWitness, isPending } = useWitnessVoteMutation(witness);
 
   return useMutation({
-    mutationKey: ["vote-witness", activeUser?.username, witness],
+    mutationKey: ["vote-witness-legacy", witness],
     mutationFn: async (payload: Payload) => {
       const approve = !payload.voted;
 
-      if (!activeUser) {
-        throw new Error("[VoteWitness] – no active user");
-      }
-
-      // Broadcast transaction
-      switch (payload.kind) {
-        case "app":
-          await witnessVote(activeUser.username, payload.key, witness, approve);
-          break;
-        case "hot":
-          await witnessVoteHot(activeUser.username, witness, approve);
-          break;
-        case "kc":
-          await witnessVoteKc(activeUser.username, witness, approve);
-          break;
-        default:
-          throw new Error("[VoteWitness] – not known vote kind");
-      }
-
-      // Poll for blockchain confirmation to keep loading state active
-      const pollForConfirmation = async (attempts = 0): Promise<void> => {
-        if (attempts >= 5) {
-          // After 5 attempts (~15 seconds), give up
-          return;
-        }
-
-        // Wait 3 seconds between polls (Hive block time)
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        // Fetch fresh account data from blockchain
-        const account = await queryClient.fetchQuery(
-          getAccountFullQueryOptions(activeUser.username)
-        );
-
-        const witnessVotes = account?.witness_votes ?? [];
-        const hasVote = witnessVotes.includes(witness);
-
-        // Check if vote state matches what we expect
-        if ((approve && hasVote) || (!approve && !hasVote)) {
-          // Vote confirmed!
-          return;
-        } else {
-          // Not confirmed yet, poll again
-          await pollForConfirmation(attempts + 1);
-        }
-      };
-
-      await pollForConfirmation();
-
-      return approve;
+      // Note: The SDK mutation wrapper handles all auth methods via adapter
+      // The "kind" field is ignored - auth method is determined by adapter's fallback chain
+      return voteWitness({ approve });
     },
-    onSuccess: async (approve) => {
-      // Invalidate to refresh UI with confirmed data
-      await queryClient.invalidateQueries({
-        queryKey: ["accounts", activeUser?.username]
-      });
-      await queryClient.invalidateQueries({
-        queryKey: [QueryIdentifiers.WITNESSES_VOTES, activeUser?.username, "votes"]
-      });
-    }
+    // isPending state is already tracked by inner mutation
+    meta: { isPending }
   });
 }

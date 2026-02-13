@@ -4,11 +4,12 @@ import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentOptions, Entry, MetaData } from "@/entities";
-import { comment, formatError } from "@/api/operations";
+import { formatError } from "@/api/operations";
 import { error, success } from "@/features/shared";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import i18next from "i18next";
+import { useUpdateReplyMutation } from "@/api/sdk-mutations";
 
 export function useUpdateReply(
   entry?: Entry | null,
@@ -16,6 +17,7 @@ export function useUpdateReply(
   onBlockchainError?: (text: string, error: any) => void
 ) {
   const { activeUser } = useActiveAccount();
+  const sdkUpdateReply = useUpdateReplyMutation();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -46,19 +48,34 @@ export function useUpdateReply(
       // Update cache immediately for instant feedback
       updateEntryQueryData([updatedEntry]);
 
-      // Fire blockchain broadcast in background
+      // Fire blockchain broadcast in background using SDK mutation
       const draftKey = `reply_draft_${entry.author}_${entry.permlink}`;
-      comment(
-        activeUser.username,
-        entry.parent_author ?? "",
-        entry.parent_permlink ?? entry.category,
-        entry.permlink,
-        "",
-        text,
-        jsonMeta,
-        options ?? null,
-        point
-      ).then(async (transactionResult) => {
+
+      // Convert web CommentOptions to SDK format
+      const sdkOptions = options ? {
+        maxAcceptedPayout: options.max_accepted_payout,
+        percentHbd: options.percent_hbd,
+        allowVotes: options.allow_votes,
+        allowCurationRewards: options.allow_curation_rewards,
+        beneficiaries: options.extensions?.[0]?.[1]?.beneficiaries
+      } : undefined;
+
+      sdkUpdateReply.mutateAsync({
+        author: activeUser.username,
+        permlink: entry.permlink,
+        parentAuthor: entry.parent_author ?? "",
+        parentPermlink: entry.parent_permlink ?? entry.category,
+        title: "",
+        body: text,
+        jsonMetadata: jsonMeta,
+        // For discussions cache invalidation:
+        // - For nested replies (depth > 1), we'd need the root post info
+        // - Since Entry doesn't have root_author/root_permlink, use parent info
+        // - This will correctly invalidate the parent post's discussions
+        rootAuthor: entry.parent_author,
+        rootPermlink: entry.parent_permlink,
+        options: sdkOptions
+      }).then(async (transactionResult) => {
         // Blockchain confirmed
         try {
           await validatePostUpdating({ entry, text });

@@ -1,16 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
-import { Operation, PrivateKey } from "@hiveio/dhive";
-import { CONFIG } from "@ecency/sdk";
+import { PrivateKey } from "@hiveio/dhive";
 import { error } from "@/features/shared";
-import * as keychain from "@/utils/keychain";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useDelegateVestingSharesMutation } from "@/api/sdk-mutations";
 
+/**
+ * Legacy hook for delegating vesting shares with private key.
+ * Now delegates to SDK mutation for unified auth handling.
+ *
+ * @deprecated Use useDelegateVestingSharesMutation() instead
+ */
 export function useDelegateVestingSharesByKey(username?: string) {
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: delegate } = useDelegateVestingSharesMutation();
 
   return useMutation({
-    mutationKey: ["delegateVestingSharesByKey", activeUser?.username, username],
+    mutationKey: ["delegateVestingSharesByKey", username],
     mutationFn: ({
       key,
       value = "0.000000 VESTS",
@@ -20,26 +24,27 @@ export function useDelegateVestingSharesByKey(username?: string) {
       value: string;
       delegatee?: string;
     }) => {
-      const op: Operation = [
-        "delegate_vesting_shares",
-        {
-          delegator: activeUser?.username,
-          delegatee,
-          vesting_shares: value
-        }
-      ];
-
-      return CONFIG.hiveClient.broadcast.sendOperations([op], key);
+      // SDK mutation handles auth internally via adapter
+      return delegate({
+        delegatee: delegatee ?? username ?? "",
+        vestingShares: value
+      });
     },
     onError: (err) => error(...formatError(err))
   });
 }
 
+/**
+ * Legacy hook for delegating vesting shares with Keychain.
+ * Now delegates to SDK mutation for unified auth handling.
+ *
+ * @deprecated Use useDelegateVestingSharesMutation() instead
+ */
 export function useDelegateVestingSharesByKeychain(username?: string) {
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: delegate } = useDelegateVestingSharesMutation();
 
   return useMutation({
-    mutationKey: ["delegateVestingSharesByKC", activeUser?.username, username],
+    mutationKey: ["delegateVestingSharesByKC", username],
     mutationFn: ({
       value = "0.000000 VESTS",
       delegatee = username
@@ -47,16 +52,11 @@ export function useDelegateVestingSharesByKeychain(username?: string) {
       value: string;
       delegatee?: string;
     }) => {
-      const op: Operation = [
-        "delegate_vesting_shares",
-        {
-          delegator: activeUser?.username,
-          delegatee,
-          vesting_shares: value
-        }
-      ];
-
-      return keychain.broadcast(activeUser!.username, [op], "Active");
+      // SDK mutation handles auth internally via adapter
+      return delegate({
+        delegatee: delegatee ?? username ?? "",
+        vestingShares: value
+      });
     },
     onError: (err) => error(...formatError(err))
   });

@@ -4711,6 +4711,26 @@ function useAccountRevokeKey(username, options) {
   });
 }
 
+// src/modules/accounts/mutations/use-claim-account.ts
+function useClaimAccount(username, auth) {
+  return useBroadcastMutation(
+    ["accounts", "claimAccount"],
+    username,
+    ({ creator, fee = "0.000 HIVE" }) => [
+      buildClaimAccountOp(creator, fee)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["accounts", variables.creator]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
 // src/modules/accounts/utils/account-power.ts
 var HIVE_VOTING_MANA_REGENERATION_SECONDS = 5 * 60 * 60 * 24;
 function vestsToRshares(vests, votingPowerValue, votePerc) {
@@ -4883,6 +4903,7 @@ var OPERATION_AUTHORITY_MAP = {
   // Active authority operations - Account Management
   account_update: "active",
   account_update2: "active",
+  claim_account: "active",
   create_claimed_account: "active",
   // Active authority operations - Governance
   account_witness_proxy: "active",
@@ -5797,6 +5818,167 @@ function useDeleteComment(username, auth) {
   );
 }
 
+// src/modules/posts/mutations/use-cross-post.ts
+function useCrossPost(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "cross-post"],
+    username,
+    (payload) => {
+      const operations = [];
+      operations.push(
+        buildCommentOp(
+          payload.author,
+          payload.permlink,
+          "",
+          // empty parent_author for top-level post
+          payload.parentPermlink,
+          // community ID
+          payload.title,
+          payload.body,
+          payload.jsonMetadata
+        )
+      );
+      if (payload.options) {
+        const {
+          maxAcceptedPayout = "1000000.000 HBD",
+          percentHbd = 1e4,
+          allowVotes = true,
+          allowCurationRewards = true
+        } = payload.options;
+        operations.push(
+          buildCommentOptionsOp(
+            payload.author,
+            payload.permlink,
+            maxAcceptedPayout,
+            percentHbd,
+            allowVotes,
+            allowCurationRewards,
+            []
+            // No beneficiaries for cross-posts
+          )
+        );
+      }
+      return operations;
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        const queriesToInvalidate = [
+          ["posts", "feed", username],
+          ["posts", "blog", username]
+        ];
+        await auth.adapter.invalidateQueries(queriesToInvalidate);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/posts/mutations/use-update-reply.ts
+function useUpdateReply(username, auth) {
+  return useBroadcastMutation(
+    ["posts", "update-reply"],
+    username,
+    (payload) => {
+      const operations = [];
+      operations.push(
+        buildCommentOp(
+          payload.author,
+          payload.permlink,
+          payload.parentAuthor,
+          payload.parentPermlink,
+          payload.title,
+          payload.body,
+          payload.jsonMetadata
+        )
+      );
+      if (payload.options) {
+        const {
+          maxAcceptedPayout = "1000000.000 HBD",
+          percentHbd = 1e4,
+          allowVotes = true,
+          allowCurationRewards = true,
+          beneficiaries = []
+        } = payload.options;
+        const extensions = [];
+        if (beneficiaries.length > 0) {
+          const sortedBeneficiaries = [...beneficiaries].sort(
+            (a, b) => a.account.localeCompare(b.account)
+          );
+          extensions.push([
+            0,
+            {
+              beneficiaries: sortedBeneficiaries.map((b) => ({
+                account: b.account,
+                weight: b.weight
+              }))
+            }
+          ]);
+        }
+        operations.push(
+          buildCommentOptionsOp(
+            payload.author,
+            payload.permlink,
+            maxAcceptedPayout,
+            percentHbd,
+            allowVotes,
+            allowCurationRewards,
+            extensions
+          )
+        );
+      }
+      return operations;
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        const queriesToInvalidate = [
+          ["account", username, "rc"]
+          // RC decreases after updating
+        ];
+        queriesToInvalidate.push([
+          "posts",
+          "entry",
+          `/@${variables.parentAuthor}/${variables.parentPermlink}`
+        ]);
+        const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
+        const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
+        queriesToInvalidate.push({
+          predicate: (query) => {
+            const key = query.queryKey;
+            return Array.isArray(key) && key[0] === "posts" && key[1] === "discussions" && key[2] === discussionsAuthor && key[3] === discussionsPermlink;
+          }
+        });
+        await auth.adapter.invalidateQueries(queriesToInvalidate);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/posts/mutations/use-promote.ts
+function usePromote(username, auth) {
+  return useBroadcastMutation(
+    ["ecency", "promote"],
+    username,
+    ({ author, permlink, duration }) => [
+      buildPromoteOp(username, author, permlink, duration)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          // Invalidate promoted posts feed
+          ["posts", "promoted"],
+          // Invalidate user points balance
+          ["points", username],
+          // Invalidate specific post cache to update promotion status
+          ["posts", "entry", `/@${variables.author}/${variables.permlink}`]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
 // src/modules/posts/utils/validate-post-creating.ts
 var DEFAULT_VALIDATE_POST_DELAYS = [3e3, 3e3, 3e3];
 var delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -6250,6 +6432,67 @@ function useMutePost(username, auth) {
       }
     },
     auth
+  );
+}
+
+// src/modules/communities/mutations/use-set-community-role.ts
+function useSetCommunityRole(community, username, auth) {
+  return useBroadcastMutation(
+    ["communities", "set-role", community],
+    username,
+    ({ account, role }) => [
+      buildSetRoleOp(username, community, account, role)
+    ],
+    async (_result, _variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["community", community]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/communities/mutations/use-update-community.ts
+function useUpdateCommunity(community, username, auth) {
+  return useBroadcastMutation(
+    ["communities", "update", community],
+    username,
+    (props) => [
+      buildUpdateCommunityOp(username, community, props)
+    ],
+    async (_result, _variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["community", community]
+        ]);
+      }
+    },
+    auth
+  );
+}
+
+// src/modules/communities/mutations/use-register-community-rewards.ts
+function useRegisterCommunityRewards(username, auth) {
+  return useBroadcastMutation(
+    ["communities", "registerRewards"],
+    username,
+    ({ name }) => [
+      buildCommunityRegistrationOp(name)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          // Invalidate community cache to update registration status
+          ["communities", variables.name],
+          // Invalidate points balance
+          ["points", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
   );
 }
 function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0, enabled = true) {
@@ -7144,6 +7387,87 @@ function useTransfer(username, auth) {
       }
     }
   });
+}
+
+// src/modules/wallet/mutations/use-delegate-vesting-shares.ts
+function useDelegateVestingShares(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "delegate-vesting-shares"],
+    username,
+    (payload) => [
+      buildDelegateVestingSharesOp(
+        username,
+        payload.delegatee,
+        payload.vestingShares
+      )
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "delegations", username],
+          ["accounts", username],
+          ["accounts", variables.delegatee]
+        ]);
+      }
+    },
+    auth,
+    "active"
+    // IMPORTANT: Active authority required
+  );
+}
+
+// src/modules/wallet/mutations/use-set-withdraw-vesting-route.ts
+function useSetWithdrawVestingRoute(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "set-withdraw-vesting-route"],
+    username,
+    (payload) => [
+      buildSetWithdrawVestingRouteOp(
+        username,
+        payload.toAccount,
+        payload.percent,
+        payload.autoVest
+      )
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "withdraw-routes", username],
+          ["accounts", username],
+          ["accounts", variables.toAccount]
+        ]);
+      }
+    },
+    auth,
+    "active"
+    // IMPORTANT: Active authority required
+  );
+}
+
+// src/modules/witnesses/mutations/use-witness-vote.ts
+function useWitnessVote(username, auth) {
+  return useBroadcastMutation(
+    ["witnesses", "vote"],
+    username,
+    ({ witness, approve }) => [
+      buildWitnessVoteOp(username, witness, approve)
+    ],
+    async () => {
+      try {
+        if (auth?.adapter?.invalidateQueries) {
+          await auth.adapter.invalidateQueries([
+            ["accounts", username],
+            ["witnesses", "votes", username]
+          ]);
+        }
+      } catch (error) {
+        console.warn("[useWitnessVote] Post-broadcast side-effect failed:", error);
+      }
+    },
+    auth,
+    "active"
+    // Use active authority for witness votes (required by blockchain)
+  );
 }
 function getWitnessesInfiniteQueryOptions(limit) {
   return infiniteQueryOptions({
@@ -8046,6 +8370,6 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useFollow, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useMutePost, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useSubscribeCommunity, useTransfer, useUnfollow, useUnsubscribeCommunity, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, ErrorType, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useComment, useCrossPost, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useFollow, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useSubscribeCommunity, useTransfer, useUnfollow, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWitnessVote, usrActivity, validatePostCreating, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
