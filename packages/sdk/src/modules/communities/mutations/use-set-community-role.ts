@@ -1,6 +1,7 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, getQueryClient } from "@/modules/core";
 import { buildSetRoleOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import type { Community, CommunityTeam } from "../types";
 
 /**
  * Payload for setting a user's role in a community.
@@ -73,7 +74,24 @@ export function useSetCommunityRole(
     ({ account, role }) => [
       buildSetRoleOp(username!, community, account, role)
     ],
-    async (_result: any, _variables) => {
+    async (_result: any, variables) => {
+      // Optimistic team update in community cache
+      const qc = getQueryClient();
+      qc.setQueryData<Community>(
+        ["community", "single", community],
+        (prev) => {
+          if (!prev) return prev;
+          const team: CommunityTeam = [...(prev.team ?? [])];
+          const idx = team.findIndex(([name]) => name === variables.account);
+          if (idx >= 0) {
+            team[idx] = [team[idx][0], variables.role, team[idx][2] ?? ""];
+          } else {
+            team.push([variables.account, variables.role, ""]);
+          }
+          return { ...prev, team };
+        }
+      );
+
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([

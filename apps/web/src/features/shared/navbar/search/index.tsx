@@ -10,10 +10,11 @@ import i18next from "i18next";
 import { Transfer, TransferAsset, TransferMode } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { getPointsQueryOptions, useClaimPoints, useClaimRewards } from "@ecency/wallets";
+import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
+import { useClaimRewardsMutation } from "@/api/sdk-mutations";
 import { success, error } from "@/features/shared";
 import { formatError } from "@/api/operations";
-import { formatNumber, getAccessToken, getSdkAuthContext, getUser } from "@/utils";
+import { formatNumber, getAccessToken } from "@/utils";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";
 import { GalleryDialog } from "@/features/shared/gallery";
@@ -69,11 +70,7 @@ export function Search({ containerClassName }: Props) {
     enabled: Boolean(username)
   });
 
-  const { mutateAsync: claimHiveRewards, isPending: isClaimingHiveRewards } = useClaimRewards(
-    username ?? "",
-    getSdkAuthContext(getUser(activeUser?.username ?? "")),
-    () => success(i18next.t("wallet.claim-reward-balance-ok"))
-  );
+  const { mutateAsync: claimHiveRewards, isPending: isClaimingHiveRewards } = useClaimRewardsMutation();
 
   const { mutateAsync: claimPoints, isPending: isClaimingPoints } = useClaimPoints(
     username,
@@ -168,11 +165,20 @@ export function Search({ containerClassName }: Props) {
     }
 
     try {
-      await claimHiveRewards();
+      if (!accountData) {
+        return;
+      }
+      await claimHiveRewards({
+        rewardHive: accountData.reward_hive_balance,
+        rewardHbd: accountData.reward_hbd_balance,
+        rewardVests: accountData.reward_vesting_balance,
+      });
+      success(i18next.t("wallet.claim-reward-balance-ok"));
     } catch (e) {
       error(...formatError(e));
     }
   }, [
+    accountData,
     claimHiveRewards,
     ensureAuthenticated,
     isClaimingHiveRewards,

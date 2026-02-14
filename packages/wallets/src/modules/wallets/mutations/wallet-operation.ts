@@ -2,63 +2,144 @@ import {
   AssetOperation,
   claimHiveEngineRewards,
   delegateEngineToken,
-  delegateHive,
   getHiveEngineTokensBalancesQueryOptions,
   HiveEngineTokenBalance,
   lockLarynx,
-  powerDownHive,
-  powerUpHive,
   stakeEngineToken,
   transferEngineToken,
-  transferHive,
-  transferPoint,
-  transferSpk,
-  transferToSavingsHive,
-  transferFromSavingsHive,
   undelegateEngineToken,
   unstakeEngineToken,
-  withdrawVestingRouteHive,
   powerUpLarynx,
-  transferLarynx,
-  claimInterestHive,
-  convertHbd,
 } from "@/modules/assets";
-import { EcencyAnalytics, getQueryClient } from "@ecency/sdk";
+import {
+  EcencyAnalytics,
+  getQueryClient,
+  buildTransferOp,
+  buildTransferToSavingsOp,
+  buildTransferFromSavingsOp,
+  buildTransferToVestingOp,
+  buildWithdrawVestingOp,
+  buildDelegateVestingSharesOp,
+  buildSetWithdrawVestingRouteOp,
+  buildConvertOp,
+  buildClaimInterestOps,
+  buildPointTransferOp,
+} from "@ecency/sdk";
 import type { AuthContext } from "@ecency/sdk";
+import type { Operation } from "@hiveio/dhive";
 import { useMutation } from "@tanstack/react-query";
 import { getAccountWalletAssetInfoQueryOptions } from "../queries";
+import { broadcastActiveOperation } from "@/modules/assets/utils/broadcast-active-operation";
 
-const operationToFunctionMap: Record<
+// SPK/LARYNX transfer operation builders
+function buildSpkTransferOp(from: string, to: string, amount: number): Operation {
+  return ["custom_json", {
+    id: "spkcc_spk_send",
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ to, amount, token: "SPK" }),
+  }];
+}
+
+function buildLarynxTransferOp(from: string, to: string, amount: number): Operation {
+  return ["custom_json", {
+    id: "spkcc_send",
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ to, amount }),
+  }];
+}
+
+// Build operations for known asset/operation combinations using SDK builders
+function buildHiveOperation(
+  asset: string,
+  operation: AssetOperation,
+  payload: Record<string, any>
+): Operation[] | null {
+  const { from, to, amount, memo } = payload;
+  const requestId = Date.now() >>> 0;
+
+  switch (asset) {
+    case "HIVE":
+      switch (operation) {
+        case AssetOperation.Transfer:
+          return [buildTransferOp(from, to, amount, memo)];
+        case AssetOperation.TransferToSavings:
+          return [buildTransferToSavingsOp(from, to, amount, memo)];
+        case AssetOperation.WithdrawFromSavings:
+          return [buildTransferFromSavingsOp(from, to, amount, memo, payload.request_id ?? requestId)];
+        case AssetOperation.PowerUp:
+          return [buildTransferToVestingOp(from, to, amount)];
+      }
+      break;
+
+    case "HBD":
+      switch (operation) {
+        case AssetOperation.Transfer:
+          return [buildTransferOp(from, to, amount, memo)];
+        case AssetOperation.TransferToSavings:
+          return [buildTransferToSavingsOp(from, to, amount, memo)];
+        case AssetOperation.WithdrawFromSavings:
+          return [buildTransferFromSavingsOp(from, to, amount, memo, payload.request_id ?? requestId)];
+        case AssetOperation.ClaimInterest:
+          return buildClaimInterestOps(from, to, amount, memo, payload.request_id ?? requestId);
+        case AssetOperation.Convert:
+          return [buildConvertOp(from, amount, Math.floor(Date.now() / 1000))];
+      }
+      break;
+
+    case "HP":
+      switch (operation) {
+        case AssetOperation.PowerDown:
+          return [buildWithdrawVestingOp(from, amount)];
+        case AssetOperation.Delegate:
+          return [buildDelegateVestingSharesOp(from, to, amount)];
+        case AssetOperation.WithdrawRoutes:
+          return [buildSetWithdrawVestingRouteOp(
+            payload.from_account ?? from,
+            payload.to_account ?? to,
+            payload.percent ?? 0,
+            payload.auto_vest ?? false
+          )];
+      }
+      break;
+
+    case "POINTS":
+      if (operation === AssetOperation.Transfer || operation === AssetOperation.Gift) {
+        return [buildPointTransferOp(from, to, amount, memo)];
+      }
+      break;
+
+    case "SPK":
+      if (operation === AssetOperation.Transfer) {
+        const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1000;
+        return [buildSpkTransferOp(from, to, numAmount)];
+      }
+      break;
+
+    case "LARYNX":
+      switch (operation) {
+        case AssetOperation.Transfer: {
+          const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1000;
+          return [buildLarynxTransferOp(from, to, numAmount)];
+        }
+        case AssetOperation.LockLiquidity:
+          return null; // Handled by lockLarynx function
+        case AssetOperation.PowerUp:
+          return null; // Handled by powerUpLarynx function
+      }
+      break;
+  }
+
+  return null;
+}
+
+// Non-SDK operations that stay in wallets package
+const specialOperationMap: Record<
   string,
   Partial<Record<AssetOperation, any>>
 > = {
-  HIVE: {
-    [AssetOperation.Transfer]: transferHive,
-    [AssetOperation.TransferToSavings]: transferToSavingsHive,
-    [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
-    [AssetOperation.PowerUp]: powerUpHive,
-  },
-  HBD: {
-    [AssetOperation.Transfer]: transferHive,
-    [AssetOperation.TransferToSavings]: transferToSavingsHive,
-    [AssetOperation.WithdrawFromSavings]: transferFromSavingsHive,
-    [AssetOperation.ClaimInterest]: claimInterestHive,
-    [AssetOperation.Convert]: convertHbd,
-  },
-  HP: {
-    [AssetOperation.PowerDown]: powerDownHive,
-    [AssetOperation.Delegate]: delegateHive,
-    [AssetOperation.WithdrawRoutes]: withdrawVestingRouteHive,
-  },
-  POINTS: {
-    [AssetOperation.Transfer]: transferPoint,
-    [AssetOperation.Gift]: transferPoint,
-  },
-  SPK: {
-    [AssetOperation.Transfer]: transferSpk,
-  },
   LARYNX: {
-    [AssetOperation.Transfer]: transferLarynx,
     [AssetOperation.LockLiquidity]: lockLarynx,
     [AssetOperation.PowerUp]: powerUpLarynx,
   },
@@ -71,7 +152,6 @@ const engineOperationToFunctionMap: Partial<Record<AssetOperation, any>> = {
   [AssetOperation.Delegate]: delegateEngineToken,
   [AssetOperation.Undelegate]: undelegateEngineToken,
   [AssetOperation.Claim]: (payload: any, auth?: any) => {
-    // Claim expects account and tokens array
     return claimHiveEngineRewards(
       {
         account: payload.from,
@@ -98,9 +178,20 @@ export function useWalletOperation(
   return useMutation({
     mutationKey: ["ecency-wallets", asset, operation],
     mutationFn: async (payload: Record<string, unknown>) => {
-      const operationFn = operationToFunctionMap[asset]?.[operation];
-      if (operationFn) {
-        return operationFn(payload, auth);
+      // Try to build operations using SDK builders
+      const ops = buildHiveOperation(asset, operation, payload);
+      if (ops) {
+        return broadcastActiveOperation(
+          payload as any,
+          ops,
+          auth
+        );
+      }
+
+      // Check special (non-SDK) operations
+      const specialFn = specialOperationMap[asset]?.[operation];
+      if (specialFn) {
+        return specialFn(payload, auth);
       }
 
       // Handle Hive engine ops
@@ -144,7 +235,6 @@ export function useWalletOperation(
           refetch: true,
         });
 
-        // Give some time to blockchain
         setTimeout(
           () =>
             getQueryClient().invalidateQueries({

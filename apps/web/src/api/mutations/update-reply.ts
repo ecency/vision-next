@@ -7,6 +7,7 @@ import { CommentOptions, Entry, MetaData } from "@/entities";
 import { formatError } from "@/api/operations";
 import { error, success } from "@/features/shared";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { updateEntryInCache, restoreEntryInCache } from "@ecency/sdk";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import i18next from "i18next";
 import { useUpdateReplyMutation } from "@/api/sdk-mutations";
@@ -45,8 +46,9 @@ export function useUpdateReply(
         body: text
       };
 
-      // Update cache immediately for instant feedback
+      // Update cache immediately for instant feedback (web + SDK cache keys)
       updateEntryQueryData([updatedEntry]);
+      updateEntryInCache(entry.author, entry.permlink, { body: text, json_metadata: jsonMeta });
 
       // Fire blockchain broadcast in background using SDK mutation
       const draftKey = `reply_draft_${entry.author}_${entry.permlink}`;
@@ -86,8 +88,9 @@ export function useUpdateReply(
         ss.remove(draftKey);
         success(i18next.t("g.updated"));
       }).catch((err) => {
-        // Blockchain failed - revert to original entry
+        // Blockchain failed - revert to original entry (web + SDK cache keys)
         updateEntryQueryData([entry]);
+        restoreEntryInCache(entry.author, entry.permlink, entry as any);
 
         // Notify parent component to restore text
         if (onBlockchainError) {
@@ -97,17 +100,7 @@ export function useUpdateReply(
         // Keep draft for retry
         const errorMessage = formatError(err);
 
-        // Check if it's an RC error
-        const errorString = JSON.stringify(err).toLowerCase();
-        const isRCError = errorString.includes("rc") ||
-                         errorString.includes("resource credit") ||
-                         errorString.includes("bandwidth");
-
-        if (isRCError) {
-          error(errorMessage[0], i18next.t("comment.rc-error-hint"));
-        } else {
-          error(errorMessage[0], errorMessage[1] || i18next.t("comment.retry-hint"));
-        }
+        error(...errorMessage);
       });
 
       // Return immediately for instant UI feedback
@@ -117,9 +110,10 @@ export function useUpdateReply(
       // Already handled in mutationFn
     },
     onError: (e) => {
-      // Revert to original entry if sync error
+      // Revert to original entry if sync error (web + SDK cache keys)
       if (entry) {
         updateEntryQueryData([entry]);
+        restoreEntryInCache(entry.author, entry.permlink, entry as any);
       }
       error(...formatError(e));
     }

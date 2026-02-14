@@ -1,4 +1,5 @@
-import { useMarkNotifications, useUpdateNotificationsSettings } from "@/api/mutations";
+import { useUpdateNotificationsSettings } from "@/api/mutations";
+import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
 import { hiveNotifySetLastRead } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
@@ -70,7 +71,7 @@ export function NotificationsActions({ filter }: Props) {
     )
   );
 
-  const markNotifications = useMarkNotifications();
+  const markNotifications = useMarkNotificationsMutation();
   const updateSettings = useUpdateNotificationsSettings();
 
   useMount(() => refetchData());

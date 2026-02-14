@@ -8,7 +8,7 @@ import { SortOrder } from "@/enums";
 import { error, success } from "@/features/shared";
 import * as ss from "@/utils/session-storage";
 import i18next from "i18next";
-import { getAccountRcQueryOptions } from "@ecency/sdk";
+import { getAccountRcQueryOptions, addOptimisticDiscussionEntry, removeOptimisticDiscussionEntry } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCommentMutation } from "@/api/sdk-mutations";
@@ -132,13 +132,16 @@ export function useCreateReply(
           success(i18next.t("comment.success"));
         })
         .catch((err) => {
-        // Blockchain failed - remove optimistic entry
+        // Blockchain failed - remove optimistic entry from web + SDK caches
         queryClient.setQueryData<Entry[]>(
           getDiscussionsCacheKey(),
           (prev) =>
             prev?.filter(
               (r) => !(r.permlink === permlink && r.author === activeUser?.username)
               ) ?? []
+        );
+        removeOptimisticDiscussionEntry(
+          activeUser?.username ?? "", permlink, root.author, root.permlink, queryClient
         );
 
         // Notify parent component to restore text to input
@@ -150,17 +153,7 @@ export function useCreateReply(
         // Draft is still available from before, just don't delete it
         const errorMessage = formatError(err);
 
-        // Check if it's an RC error
-        const errorString = JSON.stringify(err).toLowerCase();
-        const isRCError = errorString.includes("rc") ||
-                         errorString.includes("resource credit") ||
-                         errorString.includes("bandwidth");
-
-        if (isRCError) {
-          error(errorMessage[0], i18next.t("comment.rc-error-hint"));
-        } else {
-          error(errorMessage[0], errorMessage[1] || i18next.t("comment.retry-hint"));
-        }
+        error(...errorMessage);
       });
 
       // Return immediately for instant UI feedback
@@ -170,9 +163,6 @@ export function useCreateReply(
     onMutate: async ({ permlink, text }) => {
       if (!activeUser || !account) return;
 
-      // Note: This creates a separate tempEntry from mutationFn (intentional)
-      // This entry gets is_optimistic = true for discussions cache
-      // mutationFn's entry is used for entry cache after blockchain confirms
       const optimistic = tempEntry({
         author: account,
         permlink,
@@ -185,11 +175,13 @@ export function useCreateReply(
       });
       optimistic.is_optimistic = true;
 
-      // Add optimistic entry to cache immediately
+      // Add optimistic entry to web-specific discussions cache
       queryClient.setQueryData<Entry[]>(
           getDiscussionsCacheKey(),
           (prev = []) => [optimistic, ...prev]
       );
+      // Also add to SDK discussions cache (all sort orders)
+      addOptimisticDiscussionEntry(optimistic, root.author, root.permlink, queryClient);
 
       return { optimistic, text };
     },
@@ -212,6 +204,9 @@ export function useCreateReply(
                 (r) =>
                   !(r.permlink === optimistic?.permlink && r.author === optimistic?.author)
                 ) ?? []
+        );
+        removeOptimisticDiscussionEntry(
+          optimistic.author, optimistic.permlink, root.author, root.permlink, queryClient
         );
       }
 

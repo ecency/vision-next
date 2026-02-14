@@ -16,14 +16,17 @@ export function useMoveSchedule(
       }
       return moveSchedule(code, id);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username],
-      });
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username],
-      });
+      const qc = getQueryClient();
+      // Set the full schedules list from the response (API returns complete list)
+      if (data) {
+        qc.setQueryData(["posts", "schedules", username], data);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+      }
+      // Also invalidate drafts since moving a schedule creates a draft
+      qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
     },
     onError,
   });

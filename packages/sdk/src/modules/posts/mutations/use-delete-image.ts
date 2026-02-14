@@ -1,6 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, type InfiniteData } from "@tanstack/react-query";
 import { getQueryClient } from "@/modules/core";
 import { deleteImage } from "@/modules/private-api/requests";
+import type { UserImage } from "../types";
+import type { WrappedResponse } from "@/modules/core/types";
 
 /**
  * Hook to delete an image from the user's Ecency gallery
@@ -28,11 +30,31 @@ export function useDeleteImage(
       }
       return deleteImage(code, imageId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "images", username],
-      });
+      const qc = getQueryClient();
+      const { imageId } = variables;
+
+      // Optimistic removal from regular cache
+      qc.setQueryData<UserImage[]>(
+        ["posts", "images", username],
+        (prev) => prev?.filter((img) => img._id !== imageId)
+      );
+
+      // Optimistic removal from infinite cache pages
+      qc.setQueriesData<InfiniteData<WrappedResponse<UserImage>>>(
+        { queryKey: ["posts", "images", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((img) => img._id !== imageId),
+            })),
+          };
+        }
+      );
     },
     onError,
   });

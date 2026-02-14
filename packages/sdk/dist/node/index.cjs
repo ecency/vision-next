@@ -513,9 +513,12 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
   );
 }
 function useBroadcastMutation(mutationKey = [], username, operations, onSuccess = () => {
-}, auth, authority = "posting") {
+}, auth, authority = "posting", options) {
   return reactQuery.useMutation({
     onSuccess,
+    onMutate: options?.onMutate,
+    onError: options?.onError,
+    onSettled: options?.onSettled,
     mutationKey: [...mutationKey, username],
     mutationFn: async (payload) => {
       if (!username) {
@@ -5529,11 +5532,14 @@ function useAddDraft(username, code, onSuccess, onError) {
       }
       return addDraft(code, title, body, tags, meta);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username]
-      });
+      const qc = getQueryClient();
+      if (data?.drafts) {
+        qc.setQueryData(["posts", "drafts", username], data.drafts);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+      }
     },
     onError
   });
@@ -5571,11 +5577,13 @@ function useDeleteDraft(username, code, onSuccess, onError) {
       }
       return deleteDraft(code, draftId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username]
-      });
+      const qc = getQueryClient();
+      qc.setQueryData(
+        ["posts", "drafts", username],
+        (prev) => prev?.filter((d) => d._id !== variables.draftId)
+      );
     },
     onError
   });
@@ -5615,11 +5623,14 @@ function useDeleteSchedule(username, code, onSuccess, onError) {
       }
       return deleteSchedule(code, id);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username]
-      });
+      const qc = getQueryClient();
+      if (data) {
+        qc.setQueryData(["posts", "schedules", username], data);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+      }
     },
     onError
   });
@@ -5633,14 +5644,15 @@ function useMoveSchedule(username, code, onSuccess, onError) {
       }
       return moveSchedule(code, id);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username]
-      });
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username]
-      });
+      const qc = getQueryClient();
+      if (data) {
+        qc.setQueryData(["posts", "schedules", username], data);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+      }
+      qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
     },
     onError
   });
@@ -5672,11 +5684,27 @@ function useDeleteImage(username, code, onSuccess, onError) {
       }
       return deleteImage(code, imageId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "images", username]
-      });
+      const qc = getQueryClient();
+      const { imageId } = variables;
+      qc.setQueryData(
+        ["posts", "images", username],
+        (prev) => prev?.filter((img) => img._id !== imageId)
+      );
+      qc.setQueriesData(
+        { queryKey: ["posts", "images", "infinite", username] },
+        (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((img) => img._id !== imageId)
+            }))
+          };
+        }
+      );
     },
     onError
   });
@@ -5696,6 +5724,115 @@ function useUploadImage(onSuccess, onError) {
   });
 }
 
+// src/modules/posts/cache/entries-cache-management.ts
+function makeEntryPath3(author, permlink) {
+  return `/@${author}/${permlink}`;
+}
+function getEntryFromCache(author, permlink, qc) {
+  const queryClient = qc ?? getQueryClient();
+  return queryClient.getQueryData([
+    "posts",
+    "entry",
+    makeEntryPath3(author, permlink)
+  ]);
+}
+function setEntryInCache(entry, qc) {
+  const queryClient = qc ?? getQueryClient();
+  queryClient.setQueryData(
+    ["posts", "entry", makeEntryPath3(entry.author, entry.permlink)],
+    entry
+  );
+}
+function mutateEntry(author, permlink, updater, qc) {
+  const queryClient = qc ?? getQueryClient();
+  const path = makeEntryPath3(author, permlink);
+  const existing = queryClient.getQueryData(["posts", "entry", path]);
+  if (!existing) return void 0;
+  const updated = updater(existing);
+  queryClient.setQueryData(["posts", "entry", path], updated);
+  return existing;
+}
+exports.EntriesCacheManagement = void 0;
+((EntriesCacheManagement2) => {
+  function updateVotes(author, permlink, votes, payout, qc) {
+    mutateEntry(
+      author,
+      permlink,
+      (entry) => ({
+        ...entry,
+        active_votes: votes,
+        stats: {
+          ...entry.stats || {
+            gray: false,
+            hide: false,
+            flag_weight: 0,
+            total_votes: 0
+          },
+          total_votes: votes.length,
+          flag_weight: entry.stats?.flag_weight || 0
+        },
+        total_votes: votes.length,
+        payout,
+        pending_payout_value: String(payout)
+      }),
+      qc
+    );
+  }
+  EntriesCacheManagement2.updateVotes = updateVotes;
+  function updateReblogsCount(author, permlink, count, qc) {
+    mutateEntry(
+      author,
+      permlink,
+      (entry) => ({
+        ...entry,
+        reblogs: count
+      }),
+      qc
+    );
+  }
+  EntriesCacheManagement2.updateReblogsCount = updateReblogsCount;
+  function updateRepliesCount(author, permlink, count, qc) {
+    mutateEntry(
+      author,
+      permlink,
+      (entry) => ({
+        ...entry,
+        children: count
+      }),
+      qc
+    );
+  }
+  EntriesCacheManagement2.updateRepliesCount = updateRepliesCount;
+  function addReply(reply, parentAuthor, parentPermlink, qc) {
+    mutateEntry(
+      parentAuthor,
+      parentPermlink,
+      (entry) => ({
+        ...entry,
+        children: entry.children + 1,
+        replies: [reply, ...entry.replies]
+      }),
+      qc
+    );
+  }
+  EntriesCacheManagement2.addReply = addReply;
+  function updateEntries(entries, qc) {
+    entries.forEach((entry) => setEntryInCache(entry, qc));
+  }
+  EntriesCacheManagement2.updateEntries = updateEntries;
+  function invalidateEntry(author, permlink, qc) {
+    const queryClient = qc ?? getQueryClient();
+    queryClient.invalidateQueries({
+      queryKey: ["posts", "entry", makeEntryPath3(author, permlink)]
+    });
+  }
+  EntriesCacheManagement2.invalidateEntry = invalidateEntry;
+  function getEntry(author, permlink, qc) {
+    return getEntryFromCache(author, permlink, qc);
+  }
+  EntriesCacheManagement2.getEntry = getEntry;
+})(exports.EntriesCacheManagement || (exports.EntriesCacheManagement = {}));
+
 // src/modules/posts/mutations/use-vote.ts
 function useVote(username, auth) {
   return useBroadcastMutation(
@@ -5705,6 +5842,20 @@ function useVote(username, auth) {
       buildVoteOp(username, author, permlink, weight)
     ],
     async (result, variables) => {
+      const entry = exports.EntriesCacheManagement.getEntry(variables.author, variables.permlink);
+      if (entry?.active_votes) {
+        const newVotes = [
+          ...entry.active_votes.filter((v) => v.voter !== username),
+          ...variables.weight !== 0 ? [{ rshares: variables.weight, voter: username }] : []
+        ];
+        const newPayout = entry.payout + (variables.estimated ?? 0);
+        exports.EntriesCacheManagement.updateVotes(
+          variables.author,
+          variables.permlink,
+          newVotes,
+          newPayout
+        );
+      }
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
         await auth.adapter.recordActivity(120, result.block_num, result.id);
       }
@@ -5728,6 +5879,11 @@ function useReblog(username, auth) {
       buildReblogOp(username, author, permlink, deleteReblog ?? false)
     ],
     async (result, variables) => {
+      const entry = exports.EntriesCacheManagement.getEntry(variables.author, variables.permlink);
+      if (entry) {
+        const newCount = Math.max(0, (entry.reblogs ?? 0) + (variables.deleteReblog ? -1 : 1));
+        exports.EntriesCacheManagement.updateReblogsCount(variables.author, variables.permlink, newCount);
+      }
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
         await auth.adapter.recordActivity(130, result.block_num, result.id);
       }
@@ -5836,6 +5992,67 @@ function useComment(username, auth) {
   );
 }
 
+// src/modules/posts/cache/discussions-cache-utils.ts
+function addOptimisticDiscussionEntry(entry, rootAuthor, rootPermlink, qc) {
+  const queryClient = qc ?? getQueryClient();
+  const queries = queryClient.getQueriesData({
+    predicate: (query) => {
+      const key = query.queryKey;
+      return Array.isArray(key) && key[0] === "posts" && key[1] === "discussions" && key[2] === rootAuthor && key[3] === rootPermlink;
+    }
+  });
+  for (const [queryKey, data] of queries) {
+    if (data) {
+      queryClient.setQueryData(queryKey, [entry, ...data]);
+    }
+  }
+}
+function removeOptimisticDiscussionEntry(author, permlink, rootAuthor, rootPermlink, qc) {
+  const queryClient = qc ?? getQueryClient();
+  const snapshots = /* @__PURE__ */ new Map();
+  const queries = queryClient.getQueriesData({
+    predicate: (query) => {
+      const key = query.queryKey;
+      return Array.isArray(key) && key[0] === "posts" && key[1] === "discussions" && key[2] === rootAuthor && key[3] === rootPermlink;
+    }
+  });
+  for (const [queryKey, data] of queries) {
+    if (data) {
+      snapshots.set(queryKey, data);
+      queryClient.setQueryData(
+        queryKey,
+        data.filter(
+          (e) => e.author !== author || e.permlink !== permlink
+        )
+      );
+    }
+  }
+  return snapshots;
+}
+function restoreDiscussionSnapshots(snapshots, qc) {
+  const queryClient = qc ?? getQueryClient();
+  for (const [queryKey, data] of snapshots) {
+    queryClient.setQueryData(queryKey, data);
+  }
+}
+function updateEntryInCache(author, permlink, updates, qc) {
+  const queryClient = qc ?? getQueryClient();
+  const path = `/@${author}/${permlink}`;
+  const previous = queryClient.getQueryData(["posts", "entry", path]);
+  if (previous) {
+    queryClient.setQueryData(["posts", "entry", path], {
+      ...previous,
+      ...updates
+    });
+  }
+  return previous;
+}
+function restoreEntryInCache(author, permlink, entry, qc) {
+  const queryClient = qc ?? getQueryClient();
+  const path = `/@${author}/${permlink}`;
+  queryClient.setQueryData(["posts", "entry", path], entry);
+}
+
 // src/modules/posts/mutations/use-delete-comment.ts
 function useDeleteComment(username, auth) {
   return useBroadcastMutation(
@@ -5868,7 +6085,32 @@ function useDeleteComment(username, auth) {
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
-    auth
+    auth,
+    "posting",
+    {
+      // Optimistic removal: remove from discussions cache before broadcast
+      onMutate: async (variables) => {
+        const rootAuthor = variables.rootAuthor || variables.parentAuthor;
+        const rootPermlink = variables.rootPermlink || variables.parentPermlink;
+        if (rootAuthor && rootPermlink) {
+          const snapshots = removeOptimisticDiscussionEntry(
+            variables.author,
+            variables.permlink,
+            rootAuthor,
+            rootPermlink
+          );
+          return { snapshots };
+        }
+        return {};
+      },
+      // Rollback on error: restore discussions cache
+      onError: (_error, _variables, context) => {
+        const { snapshots } = context ?? {};
+        if (snapshots) {
+          restoreDiscussionSnapshots(snapshots);
+        }
+      }
+    }
   );
 }
 
@@ -6497,7 +6739,22 @@ function useSetCommunityRole(community, username, auth) {
     ({ account, role }) => [
       buildSetRoleOp(username, community, account, role)
     ],
-    async (_result, _variables) => {
+    async (_result, variables) => {
+      const qc = getQueryClient();
+      qc.setQueryData(
+        ["community", "single", community],
+        (prev) => {
+          if (!prev) return prev;
+          const team = [...prev.team ?? []];
+          const idx = team.findIndex(([name]) => name === variables.account);
+          if (idx >= 0) {
+            team[idx] = [team[idx][0], variables.role, team[idx][2] ?? ""];
+          } else {
+            team.push([variables.account, variables.role, ""]);
+          }
+          return { ...prev, team };
+        }
+      );
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           ["community", community]
@@ -6516,7 +6773,15 @@ function useUpdateCommunity(community, username, auth) {
     (props) => [
       buildUpdateCommunityOp(username, community, props)
     ],
-    async (_result, _variables) => {
+    async (_result, variables) => {
+      const qc = getQueryClient();
+      qc.setQueryData(
+        ["community", "single", community],
+        (prev) => {
+          if (!prev) return prev;
+          return { ...prev, ...variables };
+        }
+      );
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           ["community", community]
@@ -7338,100 +7603,16 @@ function getPortfolioQueryOptions(username, currency = "usd", onlyEnabled = true
     }
   });
 }
-async function broadcastTransferWithFallback(username, ops2, auth) {
-  const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain"];
-  const errors = /* @__PURE__ */ new Map();
-  const adapter = auth?.adapter;
-  for (const method of chain) {
-    try {
-      switch (method) {
-        case "key": {
-          if (!adapter) break;
-          const key = await adapter.getActiveKey?.(username);
-          if (key) {
-            const privateKey = dhive.PrivateKey.fromString(key);
-            return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
-          }
-          break;
-        }
-        case "hiveauth": {
-          if (adapter?.broadcastWithHiveAuth) {
-            return await adapter.broadcastWithHiveAuth(username, ops2, "active");
-          }
-          break;
-        }
-        case "hivesigner": {
-          if (!adapter) break;
-          const token = await adapter.getAccessToken(username);
-          if (token) {
-            const client = new hs__default.default.Client({ accessToken: token });
-            const response = await client.broadcast(ops2);
-            return response.result;
-          }
-          break;
-        }
-        case "keychain": {
-          if (adapter?.broadcastWithKeychain) {
-            return await adapter.broadcastWithKeychain(username, ops2, "active");
-          }
-          break;
-        }
-        case "custom": {
-          if (auth?.broadcast) {
-            return await auth.broadcast(ops2, "active");
-          }
-          break;
-        }
-      }
-    } catch (error) {
-      errors.set(method, error);
-      if (!shouldTriggerAuthFallback(error)) {
-        throw error;
-      }
-    }
-  }
-  const errorMessages = Array.from(errors.entries()).map(([method, error]) => `${method}: ${error.message}`).join(", ");
-  throw new Error(
-    `[SDK][Transfer] All auth methods failed for ${username}. Errors: ${errorMessages}`
-  );
-}
+
+// src/modules/wallet/mutations/use-transfer.ts
 function useTransfer(username, auth) {
-  return reactQuery.useMutation({
-    mutationKey: ["wallet", "transfer", username],
-    mutationFn: async (payload) => {
-      if (!username) {
-        throw new Error(
-          "[SDK][Transfer] Attempted to call transfer API with anon user"
-        );
-      }
-      const ops2 = [buildTransferOp(username, payload.to, payload.amount, payload.memo)];
-      if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastTransferWithFallback(username, ops2, auth);
-      }
-      if (auth?.broadcast) {
-        return auth.broadcast(ops2, "active");
-      }
-      if (auth?.adapter?.getActiveKey) {
-        const activeKey = await auth.adapter.getActiveKey(username);
-        if (activeKey) {
-          const privateKey = dhive.PrivateKey.fromString(activeKey);
-          return CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
-        }
-      }
-      const accessToken = auth?.accessToken;
-      if (accessToken) {
-        const client = new hs__default.default.Client({ accessToken });
-        const response = await client.broadcast(ops2);
-        return response.result;
-      }
-      throw new Error(
-        "[SDK][Transfer] \u2013 cannot broadcast transfer w/o active key or token"
-      );
-    },
-    onSuccess: async (result, variables) => {
-      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(140, result.block_num, result.id);
-      }
+  return useBroadcastMutation(
+    ["wallet", "transfer"],
+    username,
+    (payload) => [
+      buildTransferOp(username, payload.to, payload.amount, payload.memo)
+    ],
+    async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           ["wallet", "balances", username],
@@ -7439,8 +7620,32 @@ function useTransfer(username, auth) {
           ["wallet", "transactions", username]
         ]);
       }
-    }
-  });
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-point.ts
+function useTransferPoint(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-point"],
+    username,
+    (payload) => [
+      buildPointTransferOp(username, payload.to, payload.amount, payload.memo)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
 }
 
 // src/modules/wallet/mutations/use-delegate-vesting-shares.ts
@@ -7495,6 +7700,518 @@ function useSetWithdrawVestingRoute(username, auth) {
     auth,
     "active"
     // IMPORTANT: Active authority required
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-spk.ts
+function useTransferSpk(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-spk"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        to: payload.to,
+        amount: payload.amount,
+        token: "SPK"
+      });
+      return [["custom_json", {
+        required_auths: [username],
+        required_posting_auths: [],
+        id: "spkcc_spk_send",
+        json
+      }]];
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-larynx.ts
+function useTransferLarynx(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-larynx"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        to: payload.to,
+        amount: payload.amount,
+        token: payload.token ?? "LARYNX"
+      });
+      return [["custom_json", {
+        required_auths: [username],
+        required_posting_auths: [],
+        id: "spkcc_send",
+        json
+      }]];
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-engine-token.ts
+function useTransferEngineToken(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-engine-token"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        contractName: "tokens",
+        contractAction: "transfer",
+        contractPayload: {
+          symbol: payload.symbol,
+          to: payload.to,
+          quantity: payload.quantity,
+          memo: payload.memo
+        }
+      });
+      return [["custom_json", {
+        required_auths: [username],
+        required_posting_auths: [],
+        id: "ssc-mainnet-hive",
+        json
+      }]];
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-to-savings.ts
+function useTransferToSavings(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-to-savings"],
+    username,
+    (payload) => [
+      buildTransferToSavingsOp(username, payload.to, payload.amount, payload.memo)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-from-savings.ts
+function useTransferFromSavings(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-from-savings"],
+    username,
+    (payload) => [
+      buildTransferFromSavingsOp(username, payload.to, payload.amount, payload.memo, payload.requestId)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username],
+          ["wallet", "savings-withdrawals", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-transfer-to-vesting.ts
+function useTransferToVesting(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "transfer-to-vesting"],
+    username,
+    (payload) => [
+      buildTransferToVestingOp(username, payload.to, payload.amount)
+    ],
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-withdraw-vesting.ts
+function useWithdrawVesting(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "withdraw-vesting"],
+    username,
+    (payload) => [
+      buildWithdrawVestingOp(username, payload.vestingShares)
+    ],
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-convert.ts
+function useConvert(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "convert"],
+    username,
+    (payload) => [
+      payload.collateralized ? buildCollateralizedConvertOp(username, payload.amount, payload.requestId) : buildConvertOp(username, payload.amount, payload.requestId)
+    ],
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-claim-interest.ts
+function useClaimInterest(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "claim-interest"],
+    username,
+    (payload) => buildClaimInterestOps(username, payload.to, payload.amount, payload.memo, payload.requestId),
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "transactions", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-claim-rewards.ts
+function useClaimRewards(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "claim-rewards"],
+    username,
+    (payload) => [
+      buildClaimRewardBalanceOp(username, payload.rewardHive, payload.rewardHbd, payload.rewardVests)
+    ],
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["get-account-full", username],
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "posting"
+  );
+}
+
+// src/modules/wallet/mutations/use-lock-larynx.ts
+function useLockLarynx(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "lock-larynx"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({ amount: payload.amount * 1e3 });
+      return [["custom_json", {
+        id: payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-power-larynx.ts
+function usePowerLarynx(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "power-larynx"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({ amount: payload.amount * 1e3 });
+      return [["custom_json", {
+        id: `spkcc_power_${payload.mode}`,
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-delegate-engine-token.ts
+function useDelegateEngineToken(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "delegate-engine-token"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        contractName: "tokens",
+        contractAction: "delegate",
+        contractPayload: {
+          symbol: payload.symbol,
+          to: payload.to,
+          quantity: payload.quantity
+        }
+      });
+      return [["custom_json", {
+        id: "ssc-mainnet-hive",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-undelegate-engine-token.ts
+function useUndelegateEngineToken(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "undelegate-engine-token"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        contractName: "tokens",
+        contractAction: "undelegate",
+        contractPayload: {
+          symbol: payload.symbol,
+          from: payload.from,
+          quantity: payload.quantity
+        }
+      });
+      return [["custom_json", {
+        id: "ssc-mainnet-hive",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-stake-engine-token.ts
+function useStakeEngineToken(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "stake-engine-token"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        contractName: "tokens",
+        contractAction: "stake",
+        contractPayload: {
+          symbol: payload.symbol,
+          to: payload.to,
+          quantity: payload.quantity
+        }
+      });
+      return [["custom_json", {
+        id: "ssc-mainnet-hive",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async (_result, variables) => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username],
+          ["wallet", "balances", variables.to]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-unstake-engine-token.ts
+function useUnstakeEngineToken(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "unstake-engine-token"],
+    username,
+    (payload) => {
+      const json = JSON.stringify({
+        contractName: "tokens",
+        contractAction: "unstake",
+        contractPayload: {
+          symbol: payload.symbol,
+          to: payload.to,
+          quantity: payload.quantity
+        }
+      });
+      return [["custom_json", {
+        id: "ssc-mainnet-hive",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
+  );
+}
+
+// src/modules/wallet/mutations/use-claim-engine-rewards.ts
+function useClaimEngineRewards(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "claim-engine-rewards"],
+    username,
+    (payload) => {
+      const json = JSON.stringify(payload.tokens.map((symbol) => ({ symbol })));
+      return [["custom_json", {
+        id: "scot_claim_token",
+        required_auths: [],
+        required_posting_auths: [username],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "posting"
+  );
+}
+
+// src/modules/wallet/mutations/use-engine-market-order.ts
+function useEngineMarketOrder(username, auth) {
+  return useBroadcastMutation(
+    ["wallet", "engine-market-order"],
+    username,
+    (payload) => {
+      let contractPayload;
+      let contractAction;
+      if (payload.action === "cancel") {
+        contractAction = "cancel";
+        contractPayload = {
+          type: payload.orderType,
+          id: payload.orderId
+        };
+      } else {
+        contractAction = payload.action;
+        contractPayload = {
+          symbol: payload.symbol,
+          quantity: payload.quantity,
+          price: payload.price
+        };
+      }
+      const json = JSON.stringify({
+        contractName: "market",
+        contractAction,
+        contractPayload
+      });
+      return [["custom_json", {
+        id: "ssc-mainnet-hive",
+        required_auths: [username],
+        required_posting_auths: [],
+        json
+      }]];
+    },
+    async () => {
+      if (auth?.adapter?.invalidateQueries) {
+        await auth.adapter.invalidateQueries([
+          ["wallet", "balances", username]
+        ]);
+      }
+    },
+    auth,
+    "active"
   );
 }
 
@@ -8444,6 +9161,7 @@ exports.Symbol = Symbol2;
 exports.ThreeSpeakIntegration = ThreeSpeakIntegration;
 exports.addDraft = addDraft;
 exports.addImage = addImage;
+exports.addOptimisticDiscussionEntry = addOptimisticDiscussionEntry;
 exports.addSchedule = addSchedule;
 exports.bridgeApiCall = bridgeApiCall;
 exports.broadcastJson = broadcastJson;
@@ -8694,7 +9412,10 @@ exports.parseChainError = parseChainError;
 exports.parseProfileMetadata = parseProfileMetadata;
 exports.powerRechargeTime = powerRechargeTime;
 exports.rcPower = rcPower;
+exports.removeOptimisticDiscussionEntry = removeOptimisticDiscussionEntry;
 exports.resolvePost = resolvePost;
+exports.restoreDiscussionSnapshots = restoreDiscussionSnapshots;
+exports.restoreEntryInCache = restoreEntryInCache;
 exports.roleMap = roleMap;
 exports.saveNotificationSetting = saveNotificationSetting;
 exports.search = search;
@@ -8708,6 +9429,7 @@ exports.sortDiscussions = sortDiscussions;
 exports.subscribeEmail = subscribeEmail;
 exports.toEntryArray = toEntryArray;
 exports.updateDraft = updateDraft;
+exports.updateEntryInCache = updateEntryInCache;
 exports.uploadImage = uploadImage;
 exports.useAccountFavouriteAdd = useAccountFavouriteAdd;
 exports.useAccountFavouriteDelete = useAccountFavouriteDelete;
@@ -8726,19 +9448,27 @@ exports.useBookmarkAdd = useBookmarkAdd;
 exports.useBookmarkDelete = useBookmarkDelete;
 exports.useBroadcastMutation = useBroadcastMutation;
 exports.useClaimAccount = useClaimAccount;
+exports.useClaimEngineRewards = useClaimEngineRewards;
+exports.useClaimInterest = useClaimInterest;
+exports.useClaimRewards = useClaimRewards;
 exports.useComment = useComment;
+exports.useConvert = useConvert;
 exports.useCrossPost = useCrossPost;
+exports.useDelegateEngineToken = useDelegateEngineToken;
 exports.useDelegateVestingShares = useDelegateVestingShares;
 exports.useDeleteComment = useDeleteComment;
 exports.useDeleteDraft = useDeleteDraft;
 exports.useDeleteImage = useDeleteImage;
 exports.useDeleteSchedule = useDeleteSchedule;
 exports.useEditFragment = useEditFragment;
+exports.useEngineMarketOrder = useEngineMarketOrder;
 exports.useFollow = useFollow;
 exports.useGameClaim = useGameClaim;
+exports.useLockLarynx = useLockLarynx;
 exports.useMarkNotificationsRead = useMarkNotificationsRead;
 exports.useMoveSchedule = useMoveSchedule;
 exports.useMutePost = useMutePost;
+exports.usePowerLarynx = usePowerLarynx;
 exports.usePromote = usePromote;
 exports.useProposalVote = useProposalVote;
 exports.useReblog = useReblog;
@@ -8750,15 +9480,26 @@ exports.useSetWithdrawVestingRoute = useSetWithdrawVestingRoute;
 exports.useSignOperationByHivesigner = useSignOperationByHivesigner;
 exports.useSignOperationByKey = useSignOperationByKey;
 exports.useSignOperationByKeychain = useSignOperationByKeychain;
+exports.useStakeEngineToken = useStakeEngineToken;
 exports.useSubscribeCommunity = useSubscribeCommunity;
 exports.useTransfer = useTransfer;
+exports.useTransferEngineToken = useTransferEngineToken;
+exports.useTransferFromSavings = useTransferFromSavings;
+exports.useTransferLarynx = useTransferLarynx;
+exports.useTransferPoint = useTransferPoint;
+exports.useTransferSpk = useTransferSpk;
+exports.useTransferToSavings = useTransferToSavings;
+exports.useTransferToVesting = useTransferToVesting;
+exports.useUndelegateEngineToken = useUndelegateEngineToken;
 exports.useUnfollow = useUnfollow;
+exports.useUnstakeEngineToken = useUnstakeEngineToken;
 exports.useUnsubscribeCommunity = useUnsubscribeCommunity;
 exports.useUpdateCommunity = useUpdateCommunity;
 exports.useUpdateDraft = useUpdateDraft;
 exports.useUpdateReply = useUpdateReply;
 exports.useUploadImage = useUploadImage;
 exports.useVote = useVote;
+exports.useWithdrawVesting = useWithdrawVesting;
 exports.useWitnessVote = useWitnessVote;
 exports.usrActivity = usrActivity;
 exports.validatePostCreating = validatePostCreating;

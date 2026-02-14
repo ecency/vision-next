@@ -1,6 +1,11 @@
 import { useBroadcastMutation } from "@/modules/core";
 import { buildDeleteCommentOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import {
+  removeOptimisticDiscussionEntry,
+  restoreDiscussionSnapshots,
+} from "../cache/discussions-cache-utils";
+import type { Entry } from "../types";
 
 /**
  * Payload for deleting a comment or post.
@@ -24,47 +29,12 @@ export interface DeleteCommentPayload {
  * React Query mutation hook for deleting posts and comments.
  *
  * This mutation broadcasts a delete_comment operation to the Hive blockchain.
+ * Includes optimistic removal from discussions cache with rollback on error.
  *
  * @param username - The username deleting the comment/post (required for broadcast)
  * @param auth - Authentication context with platform adapter and fallback configuration
  *
  * @returns React Query mutation result
- *
- * @remarks
- * **Post-Broadcast Actions:**
- * - Invalidates parent post cache if this is a reply
- * - Invalidates discussions cache (all sort orders) for the parent/root post
- * - Invalidates feed/blog caches to reflect the deletion
- *
- * **Important:**
- * - Only the author can delete their own content
- * - Content can only be deleted if it has no replies and no votes
- * - After 7 days (payout), content cannot be deleted
- *
- * @example
- * ```typescript
- * const deleteCommentMutation = useDeleteComment(username, {
- *   adapter: myAdapter,
- *   enableFallback: true,
- *   fallbackChain: ['keychain', 'key', 'hivesigner']
- * });
- *
- * // Delete a comment
- * deleteCommentMutation.mutate({
- *   author: 'alice',
- *   permlink: 're-bob-great-post-20260209',
- *   parentAuthor: 'bob',
- *   parentPermlink: 'great-post-20260209',
- *   rootAuthor: 'bob',
- *   rootPermlink: 'great-post-20260209'
- * });
- *
- * // Delete a top-level post
- * deleteCommentMutation.mutate({
- *   author: 'alice',
- *   permlink: 'my-post-20260209'
- * });
- * ```
  */
 export function useDeleteComment(
   username: string | undefined,
@@ -86,17 +56,12 @@ export function useDeleteComment(
 
         // If this is a reply, invalidate parent post and discussions
         if (variables.parentAuthor && variables.parentPermlink) {
-          // Invalidate parent entry
           queriesToInvalidate.push([
             "posts",
             "entry",
             `/@${variables.parentAuthor}/${variables.parentPermlink}`
           ]);
 
-          // Invalidate discussions (matches all sort orders)
-          // Use partial key to match all sort order variants
-          // For nested replies, use rootAuthor/rootPermlink to match the root post's discussions
-          // Fall back to parentAuthor/parentPermlink for direct replies to posts
           const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
           const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
 
@@ -117,6 +82,32 @@ export function useDeleteComment(
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
-    auth
+    auth,
+    'posting',
+    {
+      // Optimistic removal: remove from discussions cache before broadcast
+      onMutate: async (variables) => {
+        const rootAuthor = variables.rootAuthor || variables.parentAuthor;
+        const rootPermlink = variables.rootPermlink || variables.parentPermlink;
+
+        if (rootAuthor && rootPermlink) {
+          const snapshots = removeOptimisticDiscussionEntry(
+            variables.author,
+            variables.permlink,
+            rootAuthor,
+            rootPermlink
+          );
+          return { snapshots };
+        }
+        return {};
+      },
+      // Rollback on error: restore discussions cache
+      onError: (_error, _variables, context) => {
+        const { snapshots } = (context as { snapshots?: Map<readonly unknown[], Entry[]> }) ?? {};
+        if (snapshots) {
+          restoreDiscussionSnapshots(snapshots);
+        }
+      },
+    }
   );
 }

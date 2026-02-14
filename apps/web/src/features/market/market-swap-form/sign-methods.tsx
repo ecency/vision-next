@@ -1,4 +1,5 @@
 import {
+  buildEngineSwapPayload,
   getMarketSwappingMethods,
   swapByHs,
   swapByKc,
@@ -19,6 +20,7 @@ import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useEngineMarketOrderMutation } from "@/api/sdk-mutations";
 
 export interface Props {
   disabled: boolean;
@@ -52,26 +54,38 @@ export const SignMethods = ({
   const [isSignByKeyLoading, setIsSignByKeyLoading] = useState(false);
   const [isSignByHsLoading, setIsSignByHsLoading] = useState(false);
 
-  const onSwapByHs = async () => {
-    if (isEnginePair(asset, toAsset)) {
-      setIsSignByHsLoading(true);
-      try {
-        await swapAction((updatedToAmount) =>
-          swapByHs({
-            activeUser,
-            fromAsset: asset,
-            toAsset,
-            fromAmount,
-            toAmount: updatedToAmount,
-            engineTokenPrecision
-          })
-        );
-      } finally {
-        setIsSignByHsLoading(false);
-      }
-      return;
-    }
+  const { mutateAsync: placeEngineOrder, isPending: isEngineOrderPending } = useEngineMarketOrderMutation();
 
+  // Engine pairs: single button using SDK mutation (handles auth automatically)
+  const onEngineSwap = async () => {
+    setLoading(true);
+    try {
+      const amount = await EngineMarket.getNewAmount(toAmount, fromAmount, asset, toAsset, engineTokenPrecision);
+      const payload = buildEngineSwapPayload({
+        activeUser,
+        fromAsset: asset,
+        toAsset,
+        fromAmount,
+        toAmount: amount,
+        engineTokenPrecision
+      });
+
+      if (!payload) {
+        throw new Error("Invalid engine swap configuration");
+      }
+
+      await placeEngineOrder(payload);
+      invalidateWalletQueries(queryClient, activeUsername);
+      onSuccess();
+    } catch (e) {
+      error(...formatError(e));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // HIVE/HBD pairs: existing Key/HS/KC methods
+  const onSwapByHs = async () => {
     swapByHs({
       activeUser,
       fromAsset: asset,
@@ -123,9 +137,7 @@ export const SignMethods = ({
     try {
       let amount = toAmount;
 
-      if (isEnginePair(asset, toAsset)) {
-        amount = await EngineMarket.getNewAmount(toAmount, fromAmount, asset, toAsset, engineTokenPrecision);
-      } else if (isHiveMarketAsset(asset)) {
+      if (isHiveMarketAsset(asset)) {
         amount = await HiveMarket.getNewAmount(toAmount, fromAmount, asset as HiveMarketAsset);
       }
 
@@ -139,8 +151,24 @@ export const SignMethods = ({
     }
   };
 
+  const methods = getMarketSwappingMethods(asset, toAsset);
+
   return (
     <div>
+      {/* Engine pairs: single unified button */}
+      {methods.includes(SwappingMethod.CUSTOM) && (
+        <Button
+          disabled={disabled || isEngineOrderPending}
+          className="w-full mt-4"
+          onClick={onEngineSwap}
+        >
+          {loading || isEngineOrderPending
+            ? i18next.t("market.signing")
+            : i18next.t("market.swap-title")}
+        </Button>
+      )}
+
+      {/* HIVE/HBD pairs: Key/HS/KC buttons */}
       {showSignByKey ? (
         <SignByKey
           isLoading={isSignByKeyLoading}
@@ -149,7 +177,7 @@ export const SignMethods = ({
         />
       ) : (
         <>
-          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.KEY) ? (
+          {methods.includes(SwappingMethod.KEY) ? (
             <Button
               disabled={disabled}
               outline={true}
@@ -161,7 +189,7 @@ export const SignMethods = ({
           ) : (
             <></>
           )}
-          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.HS) ? (
+          {methods.includes(SwappingMethod.HS) ? (
             <Button disabled={disabled} className="w-full mt-4 hs-button" onClick={onSwapByHs}>
               <i className="sign-logo mr-3">{hsLogoSvg}</i>
               {i18next.t("market.swap-by", { method: "Hivesigner" })}
@@ -169,7 +197,7 @@ export const SignMethods = ({
           ) : (
             <></>
           )}
-          {getMarketSwappingMethods(asset, toAsset).includes(SwappingMethod.KC) ? (
+          {methods.includes(SwappingMethod.KC) ? (
             <Button disabled={disabled} className="w-full mt-4 kc-button" onClick={onSwapByKc}>
               <i className="sign-logo mr-3">{kcLogoSvg}</i>
               {isSignByHsLoading

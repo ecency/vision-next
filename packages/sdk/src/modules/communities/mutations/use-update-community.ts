@@ -1,6 +1,7 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, getQueryClient } from "@/modules/core";
 import { buildUpdateCommunityOp, type CommunityProps } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import type { Community } from "../types";
 
 /**
  * Payload for updating community properties.
@@ -68,7 +69,17 @@ export function useUpdateCommunity(
     (props) => [
       buildUpdateCommunityOp(username!, community, props)
     ],
-    async (_result: any, _variables) => {
+    async (_result: any, variables) => {
+      // Optimistic property merge in community cache
+      const qc = getQueryClient();
+      qc.setQueryData<Community>(
+        ["community", "single", community],
+        (prev) => {
+          if (!prev) return prev;
+          return { ...prev, ...(variables as unknown as Partial<Community>) };
+        }
+      );
+
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([

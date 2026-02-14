@@ -1,6 +1,7 @@
 import { useBroadcastMutation } from "@/modules/core";
 import { buildVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import { EntriesCacheManagement } from "../cache/entries-cache-management";
 
 /**
  * Payload for voting on a post or comment.
@@ -12,6 +13,8 @@ export interface VotePayload {
   permlink: string;
   /** Vote weight (-10000 to 10000, where 10000 = 100% upvote, -10000 = 100% downvote) */
   weight: number;
+  /** Optional estimated payout change for optimistic UI */
+  estimated?: number;
 }
 
 /**
@@ -77,6 +80,22 @@ export function useVote(
       buildVoteOp(username!, author, permlink, weight)
     ],
     async (result: any, variables) => {
+      // Optimistic vote list + payout update
+      const entry = EntriesCacheManagement.getEntry(variables.author, variables.permlink);
+      if (entry?.active_votes) {
+        const newVotes = [
+          ...entry.active_votes.filter((v) => v.voter !== username),
+          ...(variables.weight !== 0 ? [{ rshares: variables.weight, voter: username! }] : [])
+        ];
+        const newPayout = entry.payout + (variables.estimated ?? 0);
+        EntriesCacheManagement.updateVotes(
+          variables.author,
+          variables.permlink,
+          newVotes,
+          newPayout
+        );
+      }
+
       // Activity tracking
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
         await auth.adapter.recordActivity(120, result.block_num, result.id);

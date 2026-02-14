@@ -1,6 +1,7 @@
 import { useBroadcastMutation } from "@/modules/core";
 import { buildReblogOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
+import { EntriesCacheManagement } from "../cache/entries-cache-management";
 
 /**
  * Payload for reblogging a post.
@@ -68,6 +69,13 @@ export function useReblog(
       buildReblogOp(username!, author, permlink, deleteReblog ?? false)
     ],
     async (result: any, variables) => {
+      // Optimistic reblog count update
+      const entry = EntriesCacheManagement.getEntry(variables.author, variables.permlink);
+      if (entry) {
+        const newCount = Math.max(0, (entry.reblogs ?? 0) + (variables.deleteReblog ? -1 : 1));
+        EntriesCacheManagement.updateReblogsCount(variables.author, variables.permlink, newCount);
+      }
+
       // Activity tracking
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
         await auth.adapter.recordActivity(130, result.block_num, result.id);

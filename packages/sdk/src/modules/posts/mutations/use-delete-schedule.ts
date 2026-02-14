@@ -16,11 +16,15 @@ export function useDeleteSchedule(
       }
       return deleteSchedule(code, id);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username],
-      });
+      const qc = getQueryClient();
+      // Set the full schedules list from the response (API returns complete list)
+      if (data) {
+        qc.setQueryData(["posts", "schedules", username], data);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+      }
     },
     onError,
   });

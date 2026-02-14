@@ -27,11 +27,15 @@ export function useAddDraft(
       }
       return addDraft(code, title, body, tags, meta);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username],
-      });
+      const qc = getQueryClient();
+      // Set the full drafts list from the response (API returns complete list)
+      if (data?.drafts) {
+        qc.setQueryData(["posts", "drafts", username], data.drafts);
+      } else {
+        qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+      }
     },
     onError,
   });

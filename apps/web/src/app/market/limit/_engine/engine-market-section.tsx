@@ -6,14 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/button";
 import {
   AssetOperation,
-  EngineOrderBroadcastOptions,
-  EngineOrderSignMethod,
-  cancelHiveEngineOrder,
   getHiveEngineTokensBalancesQueryOptions,
   getHiveEngineTokensMetadataQueryOptions,
   HiveEngineTokenMetadataResponse,
-  placeHiveEngineBuyOrder,
-  placeHiveEngineSellOrder
 } from "@ecency/wallets";
 import {
   getHiveEngineOpenOrders,
@@ -21,7 +16,7 @@ import {
   getHiveEngineTradeHistory
 } from "@ecency/sdk";
 import { HiveEngineOpenOrder, HiveEngineTokenInfo } from "@/entities";
-import { success, error, KeyOrHot } from "@/features/shared";
+import { success, error } from "@/features/shared";
 import { WalletOperationsDialog } from "@/features/wallet";
 import i18next from "i18next";
 import {
@@ -31,12 +26,9 @@ import {
   EngineOpenOrders,
   EngineTradeHistory
 } from "./";
-import { Modal, ModalBody, ModalHeader } from "@ui/modal";
-import { PrivateKey } from "@hiveio/dhive";
-import { shouldUseHiveAuth } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks";
-import { getUser } from "@/utils/user-token";
-import { getSdkAuthContext } from "@/utils/sdk-auth";
+import { useEngineMarketOrderMutation } from "@/api/sdk-mutations";
+import { formatError } from "@/api/operations";
 
 interface Props {
   symbol: string;
@@ -47,21 +39,6 @@ interface Props {
 
 const QUOTE_SYMBOL = "SWAP.HIVE";
 
-type EngineOrderRequest =
-  | {
-      kind: "buy" | "sell";
-      price: string;
-      quantity: string;
-      resolve: () => void;
-      reject: (error: Error) => void;
-    }
-  | {
-      kind: "cancel";
-      order: HiveEngineOpenOrder;
-      resolve: () => void;
-      reject: (error: Error) => void;
-    };
-
 export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, className }: Props) {
   const { username: activeUsername } = useActiveAccount();
   const username = activeUsername ?? undefined;
@@ -70,12 +47,8 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
   const [prefillSellPrice, setPrefillSellPrice] = useState<string | undefined>();
   const [prefillBuyKey, setPrefillBuyKey] = useState(0);
   const [prefillSellKey, setPrefillSellKey] = useState(0);
-  const [signRequest, setSignRequest] = useState<EngineOrderRequest | null>(null);
-  const [isSigning, setIsSigning] = useState(false);
-  const auth = useMemo(
-    () => (username ? getSdkAuthContext(getUser(username)) : undefined),
-    [username]
-  );
+
+  const { mutateAsync: executeMarketOrder, isPending: isSigning } = useEngineMarketOrderMutation();
 
   useEffect(() => {
     setPrefillBuyPrice(undefined);
@@ -212,24 +185,34 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
     ]);
   };
 
-  const handleBuy = ({ price, quantity }: { price: string; quantity: string }) => {
+  const handleBuy = async ({ price, quantity }: { price: string; quantity: string }) => {
     if (!requireAuth()) {
       throw new Error(i18next.t("market.engine.login-required"));
     }
 
-    return new Promise<void>((resolve, reject) => {
-      setSignRequest({ kind: "buy", price, quantity, resolve, reject });
-    });
+    try {
+      await executeMarketOrder({ action: "buy", symbol, quantity, price });
+      success(i18next.t("market.engine.order-placed"));
+      await refreshData();
+    } catch (err) {
+      error(...formatError(err));
+      throw err;
+    }
   };
 
-  const handleSell = ({ price, quantity }: { price: string; quantity: string }) => {
+  const handleSell = async ({ price, quantity }: { price: string; quantity: string }) => {
     if (!requireAuth()) {
       throw new Error(i18next.t("market.engine.login-required"));
     }
 
-    return new Promise<void>((resolve, reject) => {
-      setSignRequest({ kind: "sell", price, quantity, resolve, reject });
-    });
+    try {
+      await executeMarketOrder({ action: "sell", symbol, quantity, price });
+      success(i18next.t("market.engine.order-placed"));
+      await refreshData();
+    } catch (err) {
+      error(...formatError(err));
+      throw err;
+    }
   };
 
   const handleCancel = async (order: HiveEngineOpenOrder) => {
@@ -237,93 +220,18 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
       return;
     }
 
-    setSignRequest({
-      kind: "cancel",
-      order,
-      resolve: () => undefined,
-      reject: () => undefined
-    });
-  };
-
-  const executeOrder = async (method: EngineOrderSignMethod, key?: PrivateKey) => {
-    if (!signRequest || !username) {
-      return;
-    }
-
-    const request = signRequest;
-    const options: EngineOrderBroadcastOptions = { method, auth };
-
-    if (method === "key") {
-      if (!key) {
-        return;
-      }
-
-      options.key = key;
-    }
-
-    setIsSigning(true);
-
     try {
-      if (request.kind === "buy") {
-        await placeHiveEngineBuyOrder(username, symbol, request.quantity, request.price, options);
-        success(i18next.t("market.engine.order-placed"));
-        await refreshData();
-        request.resolve();
-      } else if (request.kind === "sell") {
-        await placeHiveEngineSellOrder(username, symbol, request.quantity, request.price, options);
-        success(i18next.t("market.engine.order-placed"));
-        await refreshData();
-        request.resolve();
-      } else {
-        await cancelHiveEngineOrder(username, request.order.type, request.order.id, options);
-        success(i18next.t("market.engine.order-cancelled"));
-        await refreshData();
-        request.resolve();
-      }
-
-      setSignRequest(null);
+      await executeMarketOrder({
+        action: "cancel",
+        symbol,
+        orderId: order.id,
+        orderType: order.type
+      });
+      success(i18next.t("market.engine.order-cancelled"));
+      await refreshData();
     } catch (err) {
-      const normalizedError =
-        err instanceof Error
-          ? err
-          : new Error((err as any)?.message ?? i18next.t("g.error"));
-
-      if (request.kind === "buy" || request.kind === "sell") {
-        request.reject(normalizedError);
-      } else {
-        if (normalizedError.message) {
-          error(normalizedError.message);
-        } else {
-          error(i18next.t("g.error"));
-        }
-      }
-
-      setSignRequest(null);
-    } finally {
-      setIsSigning(false);
+      error(...formatError(err));
     }
-  };
-
-  const signWithKey = (privateKey: PrivateKey) => executeOrder("key", privateKey);
-
-  const signWithHot = () => executeOrder("hivesigner");
-
-  const signWithKeychainOrHiveAuth = () =>
-    executeOrder(shouldUseHiveAuth(username) ? "hiveauth" : "keychain");
-
-  const handleSignerClose = () => {
-    if (!signRequest) {
-      return;
-    }
-
-    if (signRequest.kind === "buy" || signRequest.kind === "sell") {
-      const cancellationError = new Error(i18next.t("g.cancelled"));
-      (cancellationError as any).code = "USER_CANCELLED";
-      signRequest.reject(cancellationError);
-    }
-
-    setSignRequest(null);
-    setIsSigning(false);
   };
 
   const handleSelectPrice = (price: string, type: "buy" | "sell") => {
@@ -337,87 +245,65 @@ export function EngineMarketSection({ symbol, tokenInfo, tokensLoading, classNam
   };
 
   return (
-    <>
-      <div className={className}>
-        <EngineMarketSummary token={tokenInfo} loading={tokensLoading} symbol={symbol} />
+    <div className={className}>
+      <EngineMarketSummary token={tokenInfo} loading={tokensLoading} symbol={symbol} />
 
-        <div className="mt-6 flex flex-col gap-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <EngineOrderForm
-              type="buy"
-              symbol={symbol}
-              quoteSymbol={QUOTE_SYMBOL}
-              available={quoteBalance}
-              precision={tokenPrecision}
-              bestPrice={bestAsk}
-              prefillPrice={prefillBuyPrice}
-              prefillKey={prefillBuyKey}
-              disabled={!username || balancesQuery.isLoading}
-              onSubmit={handleBuy}
-              balanceAction={depositAction}
-            />
-            <EngineOrderForm
-              type="sell"
-              symbol={symbol}
-              quoteSymbol={QUOTE_SYMBOL}
-              available={tokenBalance}
-              precision={tokenPrecision}
-              bestPrice={bestBid}
-              prefillPrice={prefillSellPrice}
-              prefillKey={prefillSellKey}
-              disabled={!username || balancesQuery.isLoading}
-              onSubmit={handleSell}
-            />
-          </div>
-
-          {username ? (
-            <EngineOpenOrders
-              orders={openOrders}
-              loading={openOrdersQuery.isLoading}
-              symbol={symbol}
-              onCancel={handleCancel}
-            />
-          ) : (
-            <div className="rounded border border-border-default p-4 text-center text-sm text-text-muted">
-              {i18next.t("market.engine.login-to-trade")}
-            </div>
-          )}
-
-          <EngineOrderBook
-            buy={sortedOrderBook.buy}
-            sell={sortedOrderBook.sell}
-            loading={orderBookQuery.isLoading}
+      <div className="mt-6 flex flex-col gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          <EngineOrderForm
+            type="buy"
             symbol={symbol}
-            onSelectPrice={handleSelectPrice}
+            quoteSymbol={QUOTE_SYMBOL}
+            available={quoteBalance}
+            precision={tokenPrecision}
+            bestPrice={bestAsk}
+            prefillPrice={prefillBuyPrice}
+            prefillKey={prefillBuyKey}
+            disabled={!username || balancesQuery.isLoading || isSigning}
+            onSubmit={handleBuy}
+            balanceAction={depositAction}
           />
-
-          <EngineTradeHistory
-            trades={tradeHistory}
-            loading={tradeHistoryQuery.isLoading}
+          <EngineOrderForm
+            type="sell"
             symbol={symbol}
+            quoteSymbol={QUOTE_SYMBOL}
+            available={tokenBalance}
+            precision={tokenPrecision}
+            bestPrice={bestBid}
+            prefillPrice={prefillSellPrice}
+            prefillKey={prefillSellKey}
+            disabled={!username || balancesQuery.isLoading || isSigning}
+            onSubmit={handleSell}
           />
         </div>
-      </div>
 
-      {signRequest && (
-        <Modal
-          show={true}
-          centered={true}
-          size="lg"
-          onHide={isSigning ? undefined : handleSignerClose}
-        >
-          <ModalHeader closeButton={!isSigning} onHide={isSigning ? undefined : handleSignerClose} />
-          <ModalBody>
-            <KeyOrHot
-              authority="active"
-              inProgress={isSigning}
-              onKey={signWithKey}
-              onHot={signWithHot}
-              onKc={signWithKeychainOrHiveAuth}
-            />
-          </ModalBody>
-        </Modal>
-      )}
-    </>
+        {username ? (
+          <EngineOpenOrders
+            orders={openOrders}
+            loading={openOrdersQuery.isLoading}
+            symbol={symbol}
+            onCancel={handleCancel}
+          />
+        ) : (
+          <div className="rounded border border-border-default p-4 text-center text-sm text-text-muted">
+            {i18next.t("market.engine.login-to-trade")}
+          </div>
+        )}
+
+        <EngineOrderBook
+          buy={sortedOrderBook.buy}
+          sell={sortedOrderBook.sell}
+          loading={orderBookQuery.isLoading}
+          symbol={symbol}
+          onSelectPrice={handleSelectPrice}
+        />
+
+        <EngineTradeHistory
+          trades={tradeHistory}
+          loading={tradeHistoryQuery.isLoading}
+          symbol={symbol}
+        />
+      </div>
+    </div>
   );
 }

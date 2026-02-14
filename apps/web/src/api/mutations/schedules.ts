@@ -19,15 +19,8 @@ export function useMoveSchedule() {
       return sdkMoveSchedule({ id });
     },
     onSuccess: (schedules) => {
-      // Update web-specific cache key
+      // Bridge: update web-specific cache key (SDK already updated its key)
       queryClient.setQueryData([QueryIdentifiers.SCHEDULES, activeUser?.username], schedules);
-      // Also invalidate SDK cache keys for consistency
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "schedules", activeUser?.username]
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "drafts", activeUser?.username]
-      });
     }
   });
 }
@@ -43,12 +36,8 @@ export function useDeleteSchedule() {
       return sdkDeleteSchedule({ id });
     },
     onSuccess: (schedules) => {
-      // Update web-specific cache key
+      // Bridge: update web-specific cache key (SDK already updated its key)
       queryClient.setQueryData([QueryIdentifiers.SCHEDULES, activeUser?.username], schedules);
-      // Also invalidate SDK cache key for consistency
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "schedules", activeUser?.username]
-      });
     }
   });
 }

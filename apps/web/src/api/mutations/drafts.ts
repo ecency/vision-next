@@ -27,15 +27,11 @@ export function useCloneDraft(onSuccess: () => void) {
     onSuccess: ({ drafts }) => {
       success(i18next.t("g.clone-success"));
       onSuccess();
-      // Update web-specific cache key
-      queryClient.setQueryData<Draft[]>(
+      // Bridge: update web-specific cache key (SDK already updated its key)
+      queryClient.setQueryData(
         [QueryIdentifiers.DRAFTS, activeUser?.username],
-        [...drafts]
+        drafts as unknown as Draft[]
       );
-      // Also invalidate SDK cache key for consistency
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "drafts", activeUser?.username]
-      });
     }
   });
 }
@@ -54,17 +50,11 @@ export function useDeleteDraft(onSuccess: (id: string) => void) {
     onSuccess: (id) => {
       success(i18next.t("g.delete-success"));
       onSuccess(id);
-      // Update web-specific cache key
+      // Bridge: update web-specific cache key (SDK already updated its key)
       queryClient.setQueryData<Draft[]>(
         [QueryIdentifiers.DRAFTS, activeUser?.username],
-        (
-          queryClient.getQueryData<Draft[]>([QueryIdentifiers.DRAFTS, activeUser?.username]) ?? []
-        ).filter((draft) => draft._id !== id)
+        (prev) => (prev ?? []).filter((draft) => draft._id !== id)
       );
-      // Also invalidate SDK cache key for consistency
-      queryClient.invalidateQueries({
-        queryKey: ["posts", "drafts", activeUser?.username]
-      });
     }
   });
 }

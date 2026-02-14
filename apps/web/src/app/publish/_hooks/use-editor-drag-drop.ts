@@ -1,4 +1,4 @@
-import { useImageUpload } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { error, info } from "@/features/shared";
 import { Editor } from "@tiptap/core";
 import i18next from "i18next";
@@ -6,7 +6,7 @@ import { useCallback, useEffect } from "react";
 import { useOptionalUploadTracker } from "./use-upload-tracker";
 
 export function useEditorDragDrop(editor: Editor | null) {
-  const { mutateAsync: upload } = useImageUpload();
+  const { mutateAsync: upload } = useUploadImageMutation();
   const uploadTracker = useOptionalUploadTracker();
 
   const handleDrop = useCallback(

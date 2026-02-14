@@ -4,7 +4,7 @@ import React, { useCallback, useRef } from "react";
 import { Spinner } from "@ui/spinner";
 import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
-import { useImageUpload } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 
 interface UploadButtonProps {
   onBegin: () => void;
@@ -28,7 +28,7 @@ export function ImageUploadButton({
 }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { mutateAsync: uploadImage, isPending } = useImageUpload();
+  const { mutateAsync: uploadImage, isPending } = useUploadImageMutation();
 
   const handleFileInput = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {

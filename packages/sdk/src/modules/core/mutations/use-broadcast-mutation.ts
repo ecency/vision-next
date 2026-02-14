@@ -486,10 +486,18 @@ export function useBroadcastMutation<T>(
   operations: (payload: T) => Operation[],
   onSuccess: UseMutationOptions<unknown, Error, T>["onSuccess"] = () => {},
   auth?: AuthContextV2,
-  authority: AuthorityLevel = 'posting'
+  authority: AuthorityLevel = 'posting',
+  options?: {
+    onMutate?: UseMutationOptions<unknown, Error, T>["onMutate"];
+    onError?: UseMutationOptions<unknown, Error, T>["onError"];
+    onSettled?: UseMutationOptions<unknown, Error, T>["onSettled"];
+  }
 ) {
   return useMutation({
     onSuccess,
+    onMutate: options?.onMutate,
+    onError: options?.onError,
+    onSettled: options?.onSettled,
     mutationKey: [...mutationKey, username],
     mutationFn: async (payload: T) => {
       if (!username) {

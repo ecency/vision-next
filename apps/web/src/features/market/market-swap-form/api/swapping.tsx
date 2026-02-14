@@ -2,17 +2,10 @@ import Decimal from "decimal.js";
 
 import { PrivateKey } from "@hiveio/dhive";
 
-import {
-  EngineOrderBroadcastOptions,
-  placeHiveEngineBuyOrder,
-  placeHiveEngineSellOrder
-} from "@ecency/wallets";
+import type { EngineMarketOrderPayload } from "@ecency/sdk";
 import { limitOrderCreate, limitOrderCreateHot, limitOrderCreateKc } from "@/api/operations";
 import { ActiveUser } from "@/entities";
 import { BuySellHiveTransactionType, OrderIdPrefix } from "@/enums";
-import { shouldUseHiveAuth } from "@/utils/client";
-import { getUser } from "@/utils/user-token";
-import { getSdkAuthContext } from "@/utils/sdk-auth";
 
 import { HiveMarketAsset, MarketAsset, isEnginePair, isEngineToken, isHiveMarketAsset, isSwapHiveAsset } from "../market-pair";
 import { getEngineSymbolFromPair } from "./engine";
@@ -40,7 +33,7 @@ export const getMarketSwappingMethods = (fromAsset: MarketAsset, toAsset: Market
   }
 
   if (isEnginePair(fromAsset, toAsset)) {
-    return [SwappingMethod.KC, SwappingMethod.HS, SwappingMethod.KEY];
+    return [SwappingMethod.CUSTOM]; // Engine pairs use SDK mutation
   }
 
   return [];
@@ -79,18 +72,12 @@ export const swapByKey = (key: PrivateKey, options: SwapOptions) => {
     );
   }
 
-  if (isEnginePair(options.fromAsset, options.toAsset)) {
-    return swapEngine("key", options, key);
-  }
-
   return Promise.reject();
 };
 
 export const swapByKc = (options: SwapOptions) => {
   const fromAmount = +options.fromAmount.replace(/,/gm, "");
   const toAmount = +options.toAmount.replace(/,/gm, "");
-  const user = options.activeUser?.username ? getUser(options.activeUser.username) : undefined;
-  const auth = user ? getSdkAuthContext(user) : undefined;
 
   if (options.fromAsset === HiveMarketAsset.HIVE) {
     return limitOrderCreateKc(
@@ -107,17 +94,6 @@ export const swapByKc = (options: SwapOptions) => {
       toAmount,
       BuySellHiveTransactionType.Buy,
       OrderIdPrefix.SWAP
-    );
-  }
-
-  if (isEnginePair(options.fromAsset, options.toAsset)) {
-    // Use actual loginType instead of shouldUseHiveAuth to avoid method/auth mismatch
-    const method = user?.loginType === "hiveauth" ? "hiveauth" : "keychain";
-    return swapEngine(
-      method,
-      options,
-      undefined,
-      auth
     );
   }
 
@@ -146,70 +122,42 @@ export const swapByHs = (options: SwapOptions) => {
     );
   }
 
-  if (isEnginePair(options.fromAsset, options.toAsset)) {
-    return swapEngine("hivesigner", options);
-  }
+  return Promise.resolve();
 };
 
-const swapEngine = (
-  method: EngineOrderBroadcastOptions["method"],
-  options: SwapOptions,
-  key?: PrivateKey,
-  auth?: EngineOrderBroadcastOptions["auth"]
-) => {
-  if (!options.activeUser) {
-    return Promise.reject(new Error("User is not authenticated"));
-  }
-
+/**
+ * Build engine swap payload for SDK mutation.
+ * Used by sign-methods.tsx with useEngineMarketOrderMutation.
+ */
+export function buildEngineSwapPayload(
+  options: SwapOptions
+): EngineMarketOrderPayload | null {
   const symbol = getEngineSymbolFromPair(options.fromAsset, options.toAsset);
-
-  if (!symbol) {
-    return Promise.reject(new Error("Invalid engine market pair"));
-  }
+  if (!symbol) return null;
 
   const fromAmount = parseAmount(options.fromAmount);
   const toAmount = parseAmount(options.toAmount);
-
-  if (fromAmount.lte(0) || toAmount.lte(0)) {
-    return Promise.reject(new Error("Invalid amount"));
-  }
+  if (fromAmount.lte(0) || toAmount.lte(0)) return null;
 
   const tokenPrecision = options.engineTokenPrecision ?? ENGINE_PRICE_PRECISION;
-  const broadcastOptions: EngineOrderBroadcastOptions = { method, auth };
-
-  if (method === "key") {
-    if (!key) {
-      return Promise.reject(new Error("Active key is required"));
-    }
-
-    broadcastOptions.key = key;
-  }
 
   if (isEngineToken(options.fromAsset) && isSwapHiveAsset(options.toAsset)) {
-    const quantity = fromAmount.toFixed(tokenPrecision, Decimal.ROUND_DOWN);
-    const price = toAmount.dividedBy(fromAmount).toFixed(ENGINE_PRICE_PRECISION, Decimal.ROUND_DOWN);
-
-    return placeHiveEngineSellOrder(
-      options.activeUser.username,
+    return {
+      action: "sell",
       symbol,
-      quantity,
-      price,
-      broadcastOptions
-    );
+      quantity: fromAmount.toFixed(tokenPrecision, Decimal.ROUND_DOWN),
+      price: toAmount.dividedBy(fromAmount).toFixed(ENGINE_PRICE_PRECISION, Decimal.ROUND_DOWN),
+    };
   }
 
   if (isSwapHiveAsset(options.fromAsset) && isEngineToken(options.toAsset)) {
-    const quantity = toAmount.toFixed(tokenPrecision, Decimal.ROUND_DOWN);
-    const price = fromAmount.dividedBy(toAmount).toFixed(ENGINE_PRICE_PRECISION, Decimal.ROUND_DOWN);
-
-    return placeHiveEngineBuyOrder(
-      options.activeUser.username,
+    return {
+      action: "buy",
       symbol,
-      quantity,
-      price,
-      broadcastOptions
-    );
+      quantity: toAmount.toFixed(tokenPrecision, Decimal.ROUND_DOWN),
+      price: fromAmount.dividedBy(toAmount).toFixed(ENGINE_PRICE_PRECISION, Decimal.ROUND_DOWN),
+    };
   }
 
-  return Promise.reject(new Error("Unsupported engine swap"));
-};
+  return null;
+}

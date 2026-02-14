@@ -1,7 +1,8 @@
 import { getQueryClient, QueryIdentifiers } from "../react-query";
 import {
   getNormalizePostQueryOptions,
-  getPostQueryOptions
+  getPostQueryOptions,
+  EntriesCacheManagement as SdkEntriesCacheManagement
 } from "@ecency/sdk";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
@@ -47,7 +48,8 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
 
     return {
-      addReply: (reply: Entry, entry = initialEntry) =>
+      addReply: (reply: Entry, entry = initialEntry) => {
+        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -56,7 +58,12 @@ export namespace EcencyEntriesCacheManagement {
             replies: [reply, ...value.replies]
           }),
           qc
-        )
+        );
+        // Also update SDK cache key
+        if (entry) {
+          SdkEntriesCacheManagement.addReply(reply, entry.author, entry.permlink, qc);
+        }
+      }
     };
   }
 
@@ -64,7 +71,7 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
 
     return {
-      updateRepliesCount: (count: number, entry = initialEntry) =>
+      updateRepliesCount: (count: number, entry = initialEntry) => {
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -72,28 +79,39 @@ export namespace EcencyEntriesCacheManagement {
             children: count
           }),
           qc
-        )
+        );
+        if (entry) {
+          SdkEntriesCacheManagement.updateRepliesCount(entry.author, entry.permlink, count, qc);
+        }
+      }
     };
   }
 
-  export function useInvalidation(entry?: Entry) {
+  export function useInvalidation(entry?: Entry | null) {
     const qc = useQueryClient();
     return {
-      invalidate: () =>
+      invalidate: () => {
+        // Invalidate web cache key
         qc.invalidateQueries({
           queryKey: [
             QueryIdentifiers.ENTRY,
             makeEntryPath("", entry?.author ?? "", entry?.permlink ?? "")
           ]
-        })
+        });
+        // Also invalidate SDK cache key
+        if (entry) {
+          SdkEntriesCacheManagement.invalidateEntry(entry.author, entry.permlink, qc);
+        }
+      }
     };
   }
 
-  export function useUpdateVotes(entry?: Entry) {
+  export function useUpdateVotes(entry?: Entry | null) {
     const qc = useQueryClient();
     return {
-      update: (votes: EntryVote[], payout: number) =>
-        entry &&
+      update: (votes: EntryVote[], payout: number) => {
+        if (!entry) return;
+        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -109,7 +127,10 @@ export namespace EcencyEntriesCacheManagement {
             pending_payout_value: String(payout)
           }),
           qc
-        )
+        );
+        // Also update SDK cache key
+        SdkEntriesCacheManagement.updateVotes(entry.author, entry.permlink, votes, payout, qc);
+      }
     };
   }
 
@@ -129,7 +150,8 @@ export namespace EcencyEntriesCacheManagement {
   export function useUpdateReblogsCount(entry: Entry) {
     const qc = useQueryClient();
     return {
-      update: (count: number) =>
+      update: (count: number) => {
+        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -137,17 +159,23 @@ export namespace EcencyEntriesCacheManagement {
             reblogs: count
           }),
           qc
-        )
+        );
+        // Also update SDK cache key
+        SdkEntriesCacheManagement.updateReblogsCount(entry.author, entry.permlink, count, qc);
+      }
     };
   }
 
   export function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
     entries.forEach((entry) => {
+      // Update web cache key
       qc.setQueryData<Entry>(
         [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
         () => entry
       );
     });
+    // Also update SDK cache keys
+    SdkEntriesCacheManagement.updateEntries(entries, qc);
   }
 
   function mutateEntryInstance(

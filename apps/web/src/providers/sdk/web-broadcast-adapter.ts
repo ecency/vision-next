@@ -10,6 +10,7 @@ import {
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import { broadcastWithHiveAuth } from '@/utils/hive-auth';
 import { requestAuthUpgrade, consumeTempActiveKey } from '@/features/shared/auth-upgrade';
+import { error, success } from '@/features/shared/feedback/feedback-events';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -169,15 +170,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     // ============================================================================
 
     showError(message: string, _type?: string) {
-      // TODO: Integrate with web toast/notification system
-      console.error('[WebAdapter]', message);
-      // Example: showToast({ type: 'error', message });
+      error(message);
     },
 
     showSuccess(message: string) {
-      // TODO: Integrate with web toast/notification system
-      console.log('[WebAdapter]', message);
-      // Example: showToast({ type: 'success', message });
+      success(message);
     },
 
     // ============================================================================

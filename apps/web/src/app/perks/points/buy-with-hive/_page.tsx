@@ -10,10 +10,9 @@ import { BuyWithHiveForm, BuyWithHiveSuccess } from "./_components";
 import "./_page.scss";
 import { useCallback, useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
-import { KeyOrHot, TransferAsset } from "@/features/shared";
-import { EcencyAnalytics, useSignOperationByHivesigner } from "@ecency/sdk";
-import { useSignTransferByKey, useSignTransferByKeychain } from "@/api/mutations";
-import { PrivateKey } from "@hiveio/dhive";
+import { TransferAsset } from "@/features/shared";
+import { EcencyAnalytics } from "@ecency/sdk";
+import { useSignTransfer } from "@/api/mutations";
 
 export function BuyPointsPage() {
   const { activeUser } = useActiveAccount();
@@ -23,53 +22,26 @@ export function BuyPointsPage() {
   const [asset, setAsset] = useState<string>(MarketAsset.HIVE);
   const [pointsAmount, setPointsAmount] = useState("0");
 
-  const { mutateAsync: transfer, isPending: isApiPending } = useSignTransferByKey(
+  const { mutateAsync: sign, isPending } = useSignTransfer(
     "transfer",
     asset as TransferAsset
   );
-  const { mutateAsync: transferByKeychain, isPending: isKeychainPending } =
-    useSignTransferByKeychain("transfer", asset as TransferAsset);
-  const { mutateAsync: transferByHivesigner } = useSignOperationByHivesigner("/perks/points");
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-points-by-hive" as any
   );
 
-  const onKey = useCallback(
-    async (key: PrivateKey) => {
-      if (!activeUser) {
-        return;
-      }
+  const handleSign = useCallback(async () => {
+    if (!activeUser) return;
 
-      await transfer({
-        username: activeUser.username,
-        key,
-        to: "esteem.app",
-        fullAmount: `${(+amount).toFixed(3)} ${asset}`,
-        memo: "points",
-        amount
-      });
-      recordActivity();
-      setStep("success");
-    },
-    [activeUser, amount, asset]
-  );
-
-  const onKeychain = useCallback(async () => {
-    if (!activeUser) {
-      return;
-    }
-
-    await transferByKeychain({
-      username: activeUser.username,
+    await sign({
       to: "esteem.app",
-      fullAmount: `${(+amount).toFixed(3)} ${asset}`,
+      amount,
       memo: "points",
-      amount
     });
     recordActivity();
     setStep("success");
-  }, [activeUser, amount, asset]);
+  }, [activeUser, amount, recordActivity, sign]);
 
   return (
     <div className="buy-points-page grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
@@ -101,25 +73,14 @@ export function BuyPointsPage() {
           />
         )}
         {step === "sign" && (
-          <div>
-            <KeyOrHot
-              inProgress={isKeychainPending || isApiPending}
-              onKey={onKey}
-              onHot={() =>
-                transferByHivesigner({
-                  operation: [
-                    "transfer",
-                    {
-                      from: activeUser?.username,
-                      to: "esteem.app",
-                      amount: `${amount} ${asset}`,
-                      memo: "points"
-                    }
-                  ]
-                })
-              }
-              onKc={onKeychain}
-            />
+          <div className="flex justify-center py-4">
+            <Button
+              onClick={handleSign}
+              disabled={isPending}
+              appearance="primary"
+            >
+              {i18next.t("trx-common.sign-title")}
+            </Button>
           </div>
         )}
         {step === "success" && <BuyWithHiveSuccess pointsAmount={pointsAmount} />}

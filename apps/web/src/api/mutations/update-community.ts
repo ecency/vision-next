@@ -39,7 +39,7 @@ export function useUpdateCommunity(communityName: string) {
                 prev && typeof prev === "object" ? (prev as Record<string, unknown>) : {};
             return {
               ...base,
-              ...(payload as Record<string, unknown>)
+              ...(payload as unknown as Record<string, unknown>)
             };
           }
       );
