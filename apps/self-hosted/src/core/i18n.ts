@@ -59,7 +59,14 @@ type TranslationKey =
   | 'already_reblogged'
   | 'reblog_to_followers'
   | 'error_loading'
-  | 'retry';
+  | 'retry'
+  | 'tip_amount'
+  | 'tip_custom'
+  | 'tip_currency'
+  | 'tip_private_key'
+  | 'tip_send'
+  | 'tip_sending'
+  | 'cancel';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -123,6 +130,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Reblog to your followers',
     error_loading: 'Something went wrong. Please try again.',
     retry: 'Retry',
+    tip_amount: 'Amount',
+    tip_custom: 'Custom',
+    tip_currency: 'Currency',
+    tip_private_key: 'Active key',
+    tip_send: 'Tip',
+    tip_sending: 'Sending...',
+    cancel: 'Cancel',
   },
   es: {
     loading: 'Cargando...',
@@ -183,6 +197,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Rebloguear a tus seguidores',
     error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
     retry: 'Reintentar',
+    tip_amount: 'Monto',
+    tip_custom: 'Personalizado',
+    tip_currency: 'Moneda',
+    tip_private_key: 'Clave activa',
+    tip_send: 'Propina',
+    tip_sending: 'Enviando...',
+    cancel: 'Cancelar',
   },
   de: {
     loading: 'Lädt...',
@@ -243,6 +264,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'An Ihre Follower rebloggen',
     error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
     retry: 'Erneut versuchen',
+    tip_amount: 'Betrag',
+    tip_custom: 'Benutzerdefiniert',
+    tip_currency: 'Währung',
+    tip_private_key: 'Aktiver Schlüssel',
+    tip_send: 'Trinkgeld',
+    tip_sending: 'Wird gesendet...',
+    cancel: 'Abbrechen',
   },
   fr: {
     loading: 'Chargement...',
@@ -303,6 +331,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Repartager à vos abonnés',
     error_loading: "Une erreur s'est produite. Veuillez réessayer.",
     retry: 'Réessayer',
+    tip_amount: 'Montant',
+    tip_custom: 'Personnalisé',
+    tip_currency: 'Devise',
+    tip_private_key: 'Clé active',
+    tip_send: 'Pourboire',
+    tip_sending: 'Envoi...',
+    cancel: 'Annuler',
   },
   ko: {
     loading: '로딩 중...',
@@ -363,6 +398,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: '팔로워에게 리블로그',
     error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
     retry: '다시 시도',
+    tip_amount: '금액',
+    tip_custom: '사용자 지정',
+    tip_currency: '통화',
+    tip_private_key: '액티브 키',
+    tip_send: '팁',
+    tip_sending: '전송 중...',
+    cancel: '취소',
   },
   ru: {
     loading: 'Загрузка...',
@@ -423,6 +465,13 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Сделать реблог для подписчиков',
     error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
     retry: 'Повторить',
+    tip_amount: 'Сумма',
+    tip_custom: 'Своя',
+    tip_currency: 'Валюта',
+    tip_private_key: 'Активный ключ',
+    tip_send: 'Отправить',
+    tip_sending: 'Отправка...',
+    cancel: 'Отмена',
   },
 };
 

@@ -1,5 +1,6 @@
 import { formatMonthYear, InstanceConfigManager, t } from "@/core";
 import { UserAvatar } from "@/features/shared/user-avatar";
+import { TipButton } from "@/features/tipping";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -23,6 +24,11 @@ function BlogSidebarContent({ username }: { username: string }) {
     ...getAccountFullQueryOptions(username),
     enabled: !!username,
   });
+
+  const showTippingGeneral = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.tipping?.general?.enabled ?? false
+  );
 
   const joinDate = useMemo(() => {
     if (!data?.created) return null;
@@ -80,6 +86,15 @@ function BlogSidebarContent({ username }: { username: string }) {
               {data.post_count}
             </div>
           )}
+        </div>
+      )}
+      {showTippingGeneral && (
+        <div className="border-t border-theme pt-4 mt-4">
+          <TipButton
+            recipientUsername={username}
+            variant="general"
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-theme bg-theme-bg text-theme-primary hover:bg-theme-tertiary text-sm"
+          />
         </div>
       )}
       {data?.profile?.location && (
