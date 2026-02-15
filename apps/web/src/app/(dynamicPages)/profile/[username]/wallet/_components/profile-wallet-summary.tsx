@@ -2,8 +2,8 @@
 
 import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
+import { type GeneralAssetInfo } from "@ecency/sdk";
 import {
-  GeneralAssetInfo,
   getAccountWalletAssetInfoQueryOptions,
   getAccountWalletListQueryOptions
 } from "@ecency/wallets";

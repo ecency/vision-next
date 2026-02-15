@@ -265,7 +265,7 @@ function isNetworkError(error) {
   const { type } = parseChainError(error);
   return type === "network" /* NETWORK */ || type === "timeout" /* TIMEOUT */;
 }
-async function broadcastWithMethod(method, username, ops2, auth, authority = "posting", fetchedKey, fetchedToken) {
+async function broadcastWithMethod(method, username, ops3, auth, authority = "posting", fetchedKey, fetchedToken) {
   const adapter = auth?.adapter;
   switch (method) {
     case "key": {
@@ -308,13 +308,13 @@ async function broadcastWithMethod(method, username, ops2, auth, authority = "po
         throw new Error(`No ${authority} key available for ${username}`);
       }
       const privateKey = dhive.PrivateKey.fromString(key);
-      return await CONFIG.hiveClient.broadcast.sendOperations(ops2, privateKey);
+      return await CONFIG.hiveClient.broadcast.sendOperations(ops3, privateKey);
     }
     case "hiveauth": {
       if (!adapter?.broadcastWithHiveAuth) {
         throw new Error("HiveAuth not supported by adapter");
       }
-      return await adapter.broadcastWithHiveAuth(username, ops2, authority);
+      return await adapter.broadcastWithHiveAuth(username, ops3, authority);
     }
     case "hivesigner": {
       if (!adapter) {
@@ -325,26 +325,26 @@ async function broadcastWithMethod(method, username, ops2, auth, authority = "po
         throw new Error(`No access token available for ${username}`);
       }
       const client = new hs__default.default.Client({ accessToken: token });
-      const response = await client.broadcast(ops2);
+      const response = await client.broadcast(ops3);
       return response.result;
     }
     case "keychain": {
       if (!adapter?.broadcastWithKeychain) {
         throw new Error("Keychain not supported by adapter");
       }
-      return await adapter.broadcastWithKeychain(username, ops2, authority);
+      return await adapter.broadcastWithKeychain(username, ops3, authority);
     }
     case "custom": {
       if (!auth?.broadcast) {
         throw new Error("No custom broadcast function provided");
       }
-      return await auth.broadcast(ops2, authority);
+      return await auth.broadcast(ops3, authority);
     }
     default:
       throw new Error(`Unknown auth method: ${method}`);
   }
 }
-async function broadcastWithFallback(username, ops2, auth, authority = "posting") {
+async function broadcastWithFallback(username, ops3, auth, authority = "posting") {
   const adapter = auth?.adapter;
   if (adapter?.getLoginType) {
     const loginType = await adapter.getLoginType(username);
@@ -352,7 +352,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
       const hasPostingAuth = adapter.hasPostingAuthorization ? await adapter.hasPostingAuthorization(username) : false;
       if (authority === "posting" && hasPostingAuth && loginType === "key") {
         try {
-          return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+          return await broadcastWithMethod("hivesigner", username, ops3, auth, authority);
         } catch (error) {
           if (!shouldTriggerAuthFallback(error)) {
             throw error;
@@ -362,7 +362,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
       }
       if (authority === "posting" && hasPostingAuth && loginType === "hiveauth") {
         try {
-          return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+          return await broadcastWithMethod("hivesigner", username, ops3, auth, authority);
         } catch (error) {
           if (!shouldTriggerAuthFallback(error)) {
             throw error;
@@ -371,16 +371,16 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
         }
       }
       try {
-        return await broadcastWithMethod(loginType, username, ops2, auth, authority);
+        return await broadcastWithMethod(loginType, username, ops3, auth, authority);
       } catch (error) {
         if (shouldTriggerAuthFallback(error)) {
           if (adapter.showAuthUpgradeUI && (authority === "posting" || authority === "active")) {
-            const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+            const operationName = ops3.length > 0 ? ops3[0][0] : "unknown";
             const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
             if (!selectedMethod) {
               throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
             }
-            return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
+            return await broadcastWithMethod(selectedMethod, username, ops3, auth, authority);
           }
         }
         throw error;
@@ -388,25 +388,25 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
     }
     if (authority === "posting") {
       try {
-        return await broadcastWithMethod("hivesigner", username, ops2, auth, authority);
+        return await broadcastWithMethod("hivesigner", username, ops3, auth, authority);
       } catch (hsError) {
         if (shouldTriggerAuthFallback(hsError) && adapter.showAuthUpgradeUI) {
-          const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+          const operationName = ops3.length > 0 ? ops3[0][0] : "unknown";
           const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
           if (!selectedMethod) {
             throw new Error(`No login type available for ${username}. Please log in again.`);
           }
-          return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
+          return await broadcastWithMethod(selectedMethod, username, ops3, auth, authority);
         }
         throw hsError;
       }
     } else if (authority === "active" && adapter.showAuthUpgradeUI) {
-      const operationName = ops2.length > 0 ? ops2[0][0] : "unknown";
+      const operationName = ops3.length > 0 ? ops3[0][0] : "unknown";
       const selectedMethod = await adapter.showAuthUpgradeUI(authority, operationName);
       if (!selectedMethod) {
         throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
       }
-      return await broadcastWithMethod(selectedMethod, username, ops2, auth, authority);
+      return await broadcastWithMethod(selectedMethod, username, ops3, auth, authority);
     }
   }
   const chain = auth?.fallbackChain ?? ["key", "hiveauth", "hivesigner", "keychain", "custom"];
@@ -490,7 +490,7 @@ async function broadcastWithFallback(username, ops2, auth, authority = "posting"
         errors.set(method, new Error(`Skipped: ${skipReason}`));
         continue;
       }
-      return await broadcastWithMethod(method, username, ops2, auth, authority, prefetchedKey, prefetchedToken);
+      return await broadcastWithMethod(method, username, ops3, auth, authority, prefetchedKey, prefetchedToken);
     } catch (error) {
       errors.set(method, error);
       if (!shouldTriggerAuthFallback(error)) {
@@ -526,12 +526,12 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
           "[Core][Broadcast] Attempted to call broadcast API with anon user"
         );
       }
-      const ops2 = operations(payload);
+      const ops3 = operations(payload);
       if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastWithFallback(username, ops2, auth, authority);
+        return broadcastWithFallback(username, ops3, auth, authority);
       }
       if (auth?.broadcast) {
-        return auth.broadcast(ops2, authority);
+        return auth.broadcast(ops3, authority);
       }
       const postingKey = auth?.postingKey;
       if (postingKey) {
@@ -542,14 +542,14 @@ function useBroadcastMutation(mutationKey = [], username, operations, onSuccess 
         }
         const privateKey = dhive.PrivateKey.fromString(postingKey);
         return CONFIG.hiveClient.broadcast.sendOperations(
-          ops2,
+          ops3,
           privateKey
         );
       }
       const accessToken = auth?.accessToken;
       if (accessToken) {
         const client = new hs__default.default.Client({ accessToken });
-        const response = await client.broadcast(ops2);
+        const response = await client.broadcast(ops3);
         return response.result;
       }
       throw new Error(
@@ -927,6 +927,19 @@ function normalizeToWrappedResponse(response, limit) {
       has_next: false
     }
   };
+}
+
+// src/modules/core/utils/vests-to-hp.ts
+function vestsToHp(vests, hivePerMVests) {
+  return vests / 1e6 * hivePerMVests;
+}
+
+// src/modules/core/utils/is-empty-date.ts
+function isEmptyDate(s) {
+  if (s === void 0) {
+    return true;
+  }
+  return parseInt(s.split("-")[0], 10) < 1980;
 }
 
 // src/modules/core/queries/get-dynamic-props-query-options.ts
@@ -2949,8 +2962,8 @@ function toEntryArray(x) {
   return Array.isArray(x) ? x : [];
 }
 async function getVisibleFirstLevelThreadItems(container) {
-  const queryOptions94 = getDiscussionsQueryOptions(container, "created" /* created */, true);
-  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions94);
+  const queryOptions115 = getDiscussionsQueryOptions(container, "created" /* created */, true);
+  const discussionItemsRaw = await CONFIG.queryClient.fetchQuery(queryOptions115);
   const discussionItems = toEntryArray(discussionItemsRaw);
   if (discussionItems.length <= 1) {
     return [];
@@ -3598,6 +3611,30 @@ function buildCollateralizedConvertOp(owner, amount, requestId) {
       requestid: requestId
     }
   ];
+}
+function buildSpkCustomJsonOp(from, id, amount) {
+  return ["custom_json", {
+    id,
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ amount: amount * 1e3 })
+  }];
+}
+function buildEngineOp(from, contractAction, contractPayload, contractName = "tokens") {
+  return ["custom_json", {
+    id: "ssc-mainnet-hive",
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ contractName, contractAction, contractPayload })
+  }];
+}
+function buildEngineClaimOp(account, tokens) {
+  return ["custom_json", {
+    id: "scot_claim_token",
+    required_auths: [],
+    required_posting_auths: [account],
+    json: JSON.stringify(tokens.map((symbol) => ({ symbol })))
+  }];
 }
 function buildDelegateRcOp(from, delegatees, maxRc) {
   if (!from || !delegatees || maxRc === void 0) {
@@ -5009,9 +5046,9 @@ function getOperationAuthority(op) {
   }
   return OPERATION_AUTHORITY_MAP[opType] ?? "posting";
 }
-function getRequiredAuthority(ops2) {
+function getRequiredAuthority(ops3) {
   let highestAuthority = "posting";
-  for (const op of ops2) {
+  for (const op of ops3) {
     const authority = getOperationAuthority(op);
     if (authority === "owner") {
       return "owner";
@@ -7603,6 +7640,595 @@ function getPortfolioQueryOptions(username, currency = "usd", onlyEnabled = true
     }
   });
 }
+function getHiveAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getDynamicPropsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getAccountFullQueryOptions(username)
+      );
+      const dynamicProps = getQueryClient().getQueryData(
+        getDynamicPropsQueryOptions().queryKey
+      );
+      const accountData = getQueryClient().getQueryData(
+        getAccountFullQueryOptions(username).queryKey
+      );
+      const marketTicker = await CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      if (!accountData) {
+        return {
+          name: "HIVE",
+          title: "Hive",
+          price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+          accountBalance: 0
+        };
+      }
+      const liquidBalance = parseAsset(accountData.balance).amount;
+      const savingsBalance = parseAsset(accountData.savings_balance).amount;
+      return {
+        name: "HIVE",
+        title: "Hive",
+        price: Number.isFinite(marketPrice) ? marketPrice : dynamicProps ? dynamicProps.base / dynamicProps.quote : 0,
+        accountBalance: liquidBalance + savingsBalance,
+        parts: [
+          {
+            name: "current",
+            balance: liquidBalance
+          },
+          {
+            name: "savings",
+            balance: savingsBalance
+          }
+        ]
+      };
+    }
+  });
+}
+function getHbdAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hbd", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getDynamicPropsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getAccountFullQueryOptions(username)
+      );
+      const accountData = getQueryClient().getQueryData(
+        getAccountFullQueryOptions(username).queryKey
+      );
+      const dynamicProps = getQueryClient().getQueryData(
+        getDynamicPropsQueryOptions().queryKey
+      );
+      const price = 1;
+      if (!accountData) {
+        return {
+          name: "HBD",
+          title: "Hive Dollar",
+          price,
+          accountBalance: 0
+        };
+      }
+      return {
+        name: "HBD",
+        title: "Hive Dollar",
+        price,
+        accountBalance: parseAsset(accountData.hbd_balance).amount + parseAsset(accountData?.savings_hbd_balance).amount,
+        apr: ((dynamicProps?.hbdInterestRate ?? 0) / 100).toFixed(3),
+        parts: [
+          {
+            name: "current",
+            balance: parseAsset(accountData.hbd_balance).amount
+          },
+          {
+            name: "savings",
+            balance: parseAsset(accountData.savings_hbd_balance).amount
+          }
+        ]
+      };
+    }
+  });
+}
+function getAPR(dynamicProps) {
+  const initialInflationRate = 9.5;
+  const initialBlock = 7e6;
+  const decreaseRate = 25e4;
+  const decreasePercentPerIncrement = 0.01;
+  const headBlock = dynamicProps.headBlock;
+  const deltaBlocks = headBlock - initialBlock;
+  const decreaseIncrements = deltaBlocks / decreaseRate;
+  let currentInflationRate = initialInflationRate - decreaseIncrements * decreasePercentPerIncrement;
+  if (currentInflationRate < 0.95) {
+    currentInflationRate = 0.95;
+  }
+  const vestingRewardPercent = dynamicProps.vestingRewardPercent / 1e4;
+  const virtualSupply = dynamicProps.virtualSupply;
+  const totalVestingFunds = dynamicProps.totalVestingFund;
+  return (virtualSupply * currentInflationRate * vestingRewardPercent / totalVestingFunds).toFixed(3);
+}
+function getHivePowerAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-power", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getDynamicPropsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getAccountFullQueryOptions(username)
+      );
+      const dynamicProps = getQueryClient().getQueryData(
+        getDynamicPropsQueryOptions().queryKey
+      );
+      const accountData = getQueryClient().getQueryData(
+        getAccountFullQueryOptions(username).queryKey
+      );
+      if (!dynamicProps || !accountData) {
+        return {
+          name: "HP",
+          title: "Hive Power",
+          price: 0,
+          accountBalance: 0
+        };
+      }
+      const marketTicker = await CONFIG.hiveClient.call("condenser_api", "get_ticker", []).catch(() => void 0);
+      const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");
+      const price = Number.isFinite(marketPrice) ? marketPrice : dynamicProps.base / dynamicProps.quote;
+      const vestingShares = parseAsset(accountData.vesting_shares).amount;
+      const delegatedVests = parseAsset(
+        accountData.delegated_vesting_shares
+      ).amount;
+      const receivedVests = parseAsset(
+        accountData.received_vesting_shares
+      ).amount;
+      const withdrawRateVests = parseAsset(
+        accountData.vesting_withdraw_rate
+      ).amount;
+      const remainingToWithdrawVests = Math.max(
+        (Number(accountData.to_withdraw) - Number(accountData.withdrawn)) / 1e6,
+        0
+      );
+      const nextWithdrawalVests = !isEmptyDate(
+        accountData.next_vesting_withdrawal
+      ) ? Math.min(withdrawRateVests, remainingToWithdrawVests) : 0;
+      const hpBalance = +vestsToHp(
+        vestingShares,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const outgoingDelegationsHp = +vestsToHp(
+        delegatedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const incomingDelegationsHp = +vestsToHp(
+        receivedVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const pendingPowerDownHp = +vestsToHp(
+        remainingToWithdrawVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const nextPowerDownHp = +vestsToHp(
+        nextWithdrawalVests,
+        dynamicProps.hivePerMVests
+      ).toFixed(3);
+      const totalBalance = Math.max(hpBalance - pendingPowerDownHp, 0);
+      const availableHp = Math.max(hpBalance - outgoingDelegationsHp, 0);
+      return {
+        name: "HP",
+        title: "Hive Power",
+        price,
+        accountBalance: +totalBalance.toFixed(3),
+        apr: getAPR(dynamicProps),
+        parts: [
+          {
+            name: "hp_balance",
+            balance: hpBalance
+          },
+          {
+            name: "available",
+            balance: +availableHp.toFixed(3)
+          },
+          {
+            name: "outgoing_delegations",
+            balance: outgoingDelegationsHp
+          },
+          {
+            name: "incoming_delegations",
+            balance: incomingDelegationsHp
+          },
+          ...pendingPowerDownHp > 0 ? [
+            {
+              name: "pending_power_down",
+              balance: +pendingPowerDownHp.toFixed(3)
+            }
+          ] : [],
+          ...nextPowerDownHp > 0 && nextPowerDownHp !== pendingPowerDownHp ? [
+            {
+              name: "next_power_down",
+              balance: +nextPowerDownHp.toFixed(3)
+            }
+          ] : []
+        ]
+      };
+    }
+  });
+}
+var ops2 = dhive.utils.operationOrders;
+var HIVE_ACCOUNT_OPERATION_GROUPS = {
+  transfers: [
+    ops2.transfer,
+    ops2.transfer_to_savings,
+    ops2.transfer_from_savings,
+    ops2.cancel_transfer_from_savings,
+    ops2.recurrent_transfer,
+    ops2.fill_recurrent_transfer,
+    ops2.escrow_transfer,
+    ops2.fill_recurrent_transfer
+  ],
+  "market-orders": [
+    ops2.fill_convert_request,
+    ops2.fill_order,
+    ops2.fill_collateralized_convert_request,
+    ops2.limit_order_create2,
+    ops2.limit_order_create,
+    ops2.limit_order_cancel
+  ],
+  interests: [ops2.interest],
+  "stake-operations": [
+    ops2.return_vesting_delegation,
+    ops2.withdraw_vesting,
+    ops2.transfer_to_vesting,
+    ops2.set_withdraw_vesting_route,
+    ops2.update_proposal_votes,
+    ops2.fill_vesting_withdraw,
+    ops2.account_witness_proxy,
+    ops2.delegate_vesting_shares
+  ],
+  rewards: [
+    ops2.author_reward,
+    ops2.curation_reward,
+    ops2.producer_reward,
+    ops2.claim_reward_balance,
+    ops2.comment_benefactor_reward,
+    ops2.liquidity_reward,
+    ops2.proposal_pay
+  ],
+  "": []
+};
+var HIVE_OPERATION_LIST = Object.keys(
+  dhive.utils.operationOrders
+);
+var operationOrders = dhive.utils.operationOrders;
+var HIVE_OPERATION_ORDERS = operationOrders;
+var HIVE_OPERATION_NAME_BY_ID = Object.entries(operationOrders).reduce((acc, [name, id]) => {
+  acc[id] = name;
+  return acc;
+}, {});
+
+// src/modules/wallet/queries/get-hive-asset-transactions-query-options.ts
+var operationOrders2 = dhive.utils.operationOrders;
+function isHiveOperationName(value) {
+  return Object.prototype.hasOwnProperty.call(operationOrders2, value);
+}
+function resolveHiveOperationFilters(filters) {
+  const rawValues = Array.isArray(filters) ? filters : [filters];
+  const hasAll = rawValues.includes("");
+  const uniqueValues = Array.from(
+    new Set(
+      rawValues.filter(
+        (value) => value !== void 0 && value !== null && value !== ""
+      )
+    )
+  );
+  const filterKey = hasAll || uniqueValues.length === 0 ? "all" : uniqueValues.map((value) => value.toString()).sort().join("|");
+  const operationIds = /* @__PURE__ */ new Set();
+  if (!hasAll) {
+    uniqueValues.forEach((value) => {
+      if (value in HIVE_ACCOUNT_OPERATION_GROUPS) {
+        HIVE_ACCOUNT_OPERATION_GROUPS[value].forEach(
+          (id) => operationIds.add(id)
+        );
+        return;
+      }
+      if (isHiveOperationName(value)) {
+        operationIds.add(operationOrders2[value]);
+      }
+    });
+  }
+  const filterArgs = makeBitMaskFilter(Array.from(operationIds));
+  return {
+    filterKey,
+    filterArgs
+  };
+}
+function makeBitMaskFilter(allowedOperations) {
+  let low = 0n;
+  let high = 0n;
+  allowedOperations.forEach((operation) => {
+    if (operation < 64) {
+      low |= 1n << BigInt(operation);
+    } else {
+      high |= 1n << BigInt(operation - 64);
+    }
+  });
+  return [
+    low !== 0n ? low.toString() : null,
+    high !== 0n ? high.toString() : null
+  ];
+}
+function getHiveAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterArgs, filterKey } = resolveHiveOperationFilters(filters);
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["assets", "hive", "transactions", username, limit, filterKey],
+    initialData: { pages: [], pageParams: [] },
+    initialPageParam: -1,
+    getNextPageParam: (lastPage, __) => lastPage ? +(lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
+    queryFn: async ({ pageParam }) => {
+      const response = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_account_history",
+        [username, pageParam, limit, ...filterArgs]
+      );
+      return response.map(
+        (x) => ({
+          num: x[0],
+          type: x[1].op[0],
+          timestamp: x[1].timestamp,
+          trx_id: x[1].trx_id,
+          ...x[1].op[1]
+        })
+      );
+    },
+    select: ({ pages, pageParams }) => ({
+      pageParams,
+      pages: pages.map(
+        (page) => page.filter((item) => {
+          switch (item.type) {
+            case "author_reward":
+            case "comment_benefactor_reward":
+              const hivePayout = parseAsset(
+                item.hive_payout
+              );
+              return hivePayout.amount > 0;
+            case "transfer":
+            case "transfer_to_savings":
+            case "transfer_to_vesting":
+            case "recurrent_transfer":
+              return parseAsset(item.amount).symbol === "HIVE";
+            case "transfer_from_savings":
+              return parseAsset(item.amount).symbol === "HIVE";
+            case "fill_recurrent_transfer":
+              const asset = parseAsset(item.amount);
+              return ["HIVE"].includes(asset.symbol);
+            case "claim_reward_balance":
+              const rewardHive = parseAsset(
+                item.reward_hive
+              );
+              return rewardHive.amount > 0;
+            case "curation_reward":
+            case "cancel_transfer_from_savings":
+            case "fill_order":
+            case "limit_order_create":
+            case "limit_order_cancel":
+            case "fill_convert_request":
+            case "fill_collateralized_convert_request":
+              return true;
+            case "limit_order_create2":
+              return true;
+            default:
+              return false;
+          }
+        })
+      )
+    })
+  });
+}
+function getHbdAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
+  return reactQuery.infiniteQueryOptions({
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: ["assets", "hbd", "transactions", username, limit, filterKey],
+    select: ({ pages, pageParams }) => ({
+      pageParams,
+      pages: pages.map(
+        (page) => page.filter((item) => {
+          switch (item.type) {
+            case "author_reward":
+            case "comment_benefactor_reward":
+              const hbdPayout = parseAsset(
+                item.hbd_payout
+              );
+              return hbdPayout.amount > 0;
+            case "claim_reward_balance":
+              const rewardHbd = parseAsset(
+                item.reward_hbd
+              );
+              return rewardHbd.amount > 0;
+            case "transfer":
+            case "transfer_to_savings":
+            case "transfer_to_vesting":
+            case "recurrent_transfer":
+              return parseAsset(item.amount).symbol === "HBD";
+            case "transfer_from_savings":
+              return parseAsset(item.amount).symbol === "HBD";
+            case "fill_recurrent_transfer":
+              const asset = parseAsset(item.amount);
+              return ["HBD"].includes(asset.symbol);
+            case "cancel_transfer_from_savings":
+            case "fill_order":
+            case "limit_order_create":
+            case "limit_order_cancel":
+            case "fill_convert_request":
+            case "fill_collateralized_convert_request":
+            case "proposal_pay":
+            case "interest":
+              return true;
+            case "limit_order_create2":
+              return true;
+            default:
+              return false;
+          }
+        })
+      )
+    })
+  });
+}
+function getHivePowerAssetTransactionsQueryOptions(username, limit = 20, filters = []) {
+  const { filterKey } = resolveHiveOperationFilters(filters);
+  const userSelectedOperations = new Set(
+    Array.isArray(filters) ? filters : [filters]
+  );
+  const hasAllFilter = userSelectedOperations.has("") || userSelectedOperations.size === 0;
+  return reactQuery.infiniteQueryOptions({
+    ...getHiveAssetTransactionsQueryOptions(username, limit, filters),
+    queryKey: [
+      "assets",
+      "hive-power",
+      "transactions",
+      username,
+      limit,
+      filterKey
+    ],
+    select: ({ pages, pageParams }) => ({
+      pageParams,
+      pages: pages.map(
+        (page) => page.filter((item) => {
+          switch (item.type) {
+            case "author_reward":
+            case "comment_benefactor_reward":
+              const vestingPayout = parseAsset(
+                item.vesting_payout
+              );
+              return vestingPayout.amount > 0;
+            case "claim_reward_balance":
+              const rewardVests = parseAsset(
+                item.reward_vests
+              );
+              return rewardVests.amount > 0;
+            case "transfer_to_vesting":
+              return true;
+            case "transfer":
+            case "transfer_to_savings":
+            case "recurrent_transfer":
+              return ["VESTS", "HP"].includes(parseAsset(item.amount).symbol);
+            case "fill_recurrent_transfer":
+              const asset = parseAsset(item.amount);
+              return ["VESTS", "HP"].includes(asset.symbol);
+            case "curation_reward":
+            case "withdraw_vesting":
+            case "delegate_vesting_shares":
+            case "fill_vesting_withdraw":
+            case "return_vesting_delegation":
+            case "producer_reward":
+            case "set_withdraw_vesting_route":
+              return true;
+            default:
+              return hasAllFilter || userSelectedOperations.has(item.type);
+          }
+        })
+      )
+    })
+  });
+}
+function formatDate(date) {
+  const pad = (n) => n.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+function subtractSeconds(date, seconds) {
+  return new Date(date.getTime() - seconds * 1e3);
+}
+function getHiveAssetMetricQueryOptions(bucketSeconds = 86400) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["assets", "hive", "metrics", bucketSeconds],
+    queryFn: async ({ pageParam: [startDate, endDate] }) => {
+      const apiData = await CONFIG.hiveClient.call(
+        "condenser_api",
+        "get_market_history",
+        [bucketSeconds, formatDate(startDate), formatDate(endDate)]
+      );
+      return apiData.map(({ hive, non_hive, open }) => ({
+        close: non_hive.close / hive.close,
+        open: non_hive.open / hive.open,
+        low: non_hive.low / hive.low,
+        high: non_hive.high / hive.high,
+        volume: hive.volume,
+        time: new Date(open)
+      }));
+    },
+    initialPageParam: [
+      subtractSeconds(/* @__PURE__ */ new Date(), Math.max(100 * bucketSeconds, 28800)),
+      /* @__PURE__ */ new Date()
+    ],
+    getNextPageParam: (_, __, [prevStartDate]) => [
+      subtractSeconds(prevStartDate, Math.max(100 * bucketSeconds, 28800)),
+      subtractSeconds(prevStartDate, bucketSeconds)
+    ]
+  });
+}
+function getHiveAssetWithdrawalRoutesQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive", "withdrawal-routes", username],
+    queryFn: () => CONFIG.hiveClient.database.call("get_withdraw_routes", [
+      username,
+      "outgoing"
+    ])
+  });
+}
+function getHivePowerDelegatesInfiniteQueryOptions(username, limit = 50) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-power", "delegates", username],
+    enabled: !!username,
+    queryFn: () => CONFIG.hiveClient.database.call("get_vesting_delegations", [
+      username,
+      "",
+      limit
+    ])
+  });
+}
+function getHivePowerDelegatingsQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-power", "delegatings", username],
+    queryFn: async () => {
+      const response = await fetch(
+        CONFIG.privateApiHost + `/private-api/received-vesting/${username}`,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      return (await response.json()).list;
+    },
+    select: (data) => data.sort(
+      (a, b) => parseAsset(b.vesting_shares).amount - parseAsset(a.vesting_shares).amount
+    )
+  });
+}
+
+// src/modules/wallet/types/asset-operation.ts
+var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
+  AssetOperation2["Transfer"] = "transfer";
+  AssetOperation2["TransferToSavings"] = "transfer-saving";
+  AssetOperation2["WithdrawFromSavings"] = "withdraw-saving";
+  AssetOperation2["Delegate"] = "delegate";
+  AssetOperation2["PowerUp"] = "power-up";
+  AssetOperation2["PowerDown"] = "power-down";
+  AssetOperation2["WithdrawRoutes"] = "withdraw-routes";
+  AssetOperation2["ClaimInterest"] = "claim-interest";
+  AssetOperation2["Swap"] = "swap";
+  AssetOperation2["Convert"] = "convert";
+  AssetOperation2["Gift"] = "gift";
+  AssetOperation2["Promote"] = "promote";
+  AssetOperation2["Claim"] = "claim";
+  AssetOperation2["Buy"] = "buy";
+  AssetOperation2["LockLiquidity"] = "lock";
+  AssetOperation2["Stake"] = "stake";
+  AssetOperation2["Unstake"] = "unstake";
+  AssetOperation2["Undelegate"] = "undelegate";
+  return AssetOperation2;
+})(AssetOperation || {});
 
 // src/modules/wallet/mutations/use-transfer.ts
 function useTransfer(username, auth) {
@@ -8215,6 +8841,156 @@ function useEngineMarketOrder(username, auth) {
   );
 }
 
+// src/modules/wallet/mutations/use-wallet-operation.ts
+function buildHiveOperations(asset, operation, payload) {
+  const { from, to = "", amount = "", memo = "" } = payload;
+  const requestId = payload.request_id ?? Date.now() >>> 0;
+  switch (asset) {
+    case "HIVE":
+      switch (operation) {
+        case "transfer" /* Transfer */:
+          return [buildTransferOp(from, to, amount, memo)];
+        case "transfer-saving" /* TransferToSavings */:
+          return [buildTransferToSavingsOp(from, to, amount, memo)];
+        case "withdraw-saving" /* WithdrawFromSavings */:
+          return [buildTransferFromSavingsOp(from, to, amount, memo, requestId)];
+        case "power-up" /* PowerUp */:
+          return [buildTransferToVestingOp(from, to, amount)];
+      }
+      break;
+    case "HBD":
+      switch (operation) {
+        case "transfer" /* Transfer */:
+          return [buildTransferOp(from, to, amount, memo)];
+        case "transfer-saving" /* TransferToSavings */:
+          return [buildTransferToSavingsOp(from, to, amount, memo)];
+        case "withdraw-saving" /* WithdrawFromSavings */:
+          return [buildTransferFromSavingsOp(from, to, amount, memo, requestId)];
+        case "claim-interest" /* ClaimInterest */:
+          return buildClaimInterestOps(from, to, amount, memo, requestId);
+        case "convert" /* Convert */:
+          return [buildConvertOp(from, amount, Math.floor(Date.now() / 1e3))];
+      }
+      break;
+    case "HP":
+      switch (operation) {
+        case "power-down" /* PowerDown */:
+          return [buildWithdrawVestingOp(from, amount)];
+        case "delegate" /* Delegate */:
+          return [buildDelegateVestingSharesOp(from, to, amount)];
+        case "withdraw-routes" /* WithdrawRoutes */:
+          return [buildSetWithdrawVestingRouteOp(
+            payload.from_account ?? from,
+            payload.to_account ?? to,
+            payload.percent ?? 0,
+            payload.auto_vest ?? false
+          )];
+      }
+      break;
+    case "POINTS":
+      if (operation === "transfer" /* Transfer */ || operation === "gift" /* Gift */) {
+        return [buildPointTransferOp(from, to, amount, memo)];
+      }
+      break;
+    case "SPK":
+      if (operation === "transfer" /* Transfer */) {
+        const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
+        return [["custom_json", {
+          id: "spkcc_spk_send",
+          required_auths: [from],
+          required_posting_auths: [],
+          json: JSON.stringify({ to, amount: numAmount, token: "SPK" })
+        }]];
+      }
+      break;
+    case "LARYNX":
+      switch (operation) {
+        case "transfer" /* Transfer */: {
+          const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
+          return [["custom_json", {
+            id: "spkcc_send",
+            required_auths: [from],
+            required_posting_auths: [],
+            json: JSON.stringify({ to, amount: numAmount })
+          }]];
+        }
+        case "lock" /* LockLiquidity */: {
+          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : Number(payload.amount ?? 0);
+          const id = payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down";
+          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
+        }
+        case "power-up" /* PowerUp */: {
+          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : Number(payload.amount ?? 0);
+          const id = `spkcc_power_${payload.mode ?? "up"}`;
+          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
+        }
+      }
+      break;
+  }
+  return null;
+}
+function buildEngineOperations(asset, operation, payload) {
+  const { from, to = "", amount = "" } = payload;
+  const quantity = typeof amount === "string" && amount.includes(" ") ? amount.split(" ")[0] : String(amount);
+  switch (operation) {
+    case "transfer" /* Transfer */:
+      return [buildEngineOp(from, "transfer", {
+        symbol: asset,
+        to,
+        quantity,
+        memo: payload.memo ?? ""
+      })];
+    case "stake" /* Stake */:
+      return [buildEngineOp(from, "stake", { symbol: asset, to, quantity })];
+    case "unstake" /* Unstake */:
+      return [buildEngineOp(from, "unstake", { symbol: asset, to, quantity })];
+    case "delegate" /* Delegate */:
+      return [buildEngineOp(from, "delegate", { symbol: asset, to, quantity })];
+    case "undelegate" /* Undelegate */:
+      return [buildEngineOp(from, "undelegate", { symbol: asset, from: to, quantity })];
+    case "claim" /* Claim */:
+      return [buildEngineClaimOp(from, [asset])];
+  }
+  return null;
+}
+function useWalletOperation(username, asset, operation, auth) {
+  const { mutateAsync: recordActivity } = mutations_exports.useRecordActivity(
+    username,
+    operation
+  );
+  return useBroadcastMutation(
+    ["ecency-wallets", asset, operation],
+    username,
+    (payload) => {
+      const hiveOps = buildHiveOperations(asset, operation, payload);
+      if (hiveOps) return hiveOps;
+      const engineOps = buildEngineOperations(asset, operation, payload);
+      if (engineOps) return engineOps;
+      throw new Error(`[SDK][Wallet] \u2013 no operation builder for asset="${asset}" operation="${operation}"`);
+    },
+    () => {
+      recordActivity();
+      const keysToInvalidate = [];
+      keysToInvalidate.push(["assets", asset]);
+      if (asset === "HIVE") {
+        keysToInvalidate.push(["assets", "HP"]);
+      }
+      if (asset === "LARYNX" && operation === "power-up" /* PowerUp */) {
+        keysToInvalidate.push(["assets", "LP"]);
+        keysToInvalidate.push(["assets", "LARYNX"]);
+      }
+      keysToInvalidate.push(["ecency-wallets", "portfolio", "v2"]);
+      setTimeout(() => {
+        keysToInvalidate.forEach((key) => {
+          getQueryClient().invalidateQueries({ queryKey: key });
+        });
+      }, 5e3);
+    },
+    auth,
+    "active"
+  );
+}
+
 // src/modules/witnesses/mutations/use-witness-vote.ts
 function useWitnessVote(username, auth) {
   return useBroadcastMutation(
@@ -8269,15 +9045,15 @@ function getMarketStatisticsQueryOptions() {
   });
 }
 function getMarketHistoryQueryOptions(seconds, startDate, endDate) {
-  const formatDate2 = (date) => {
+  const formatDate3 = (date) => {
     return date.toISOString().replace(/\.\d{3}Z$/, "");
   };
   return reactQuery.queryOptions({
     queryKey: ["market", "history", seconds, startDate.getTime(), endDate.getTime()],
     queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_market_history", [
       seconds,
-      formatDate2(startDate),
-      formatDate2(endDate)
+      formatDate3(startDate),
+      formatDate3(endDate)
     ])
   });
 }
@@ -8292,13 +9068,13 @@ function getHiveHbdStatsQueryOptions() {
       );
       const now = /* @__PURE__ */ new Date();
       const oneDayAgo = new Date(now.getTime() - 864e5);
-      const formatDate2 = (date) => {
+      const formatDate3 = (date) => {
         return date.toISOString().replace(/\.\d{3}Z$/, "");
       };
       const dayChange = await CONFIG.hiveClient.call(
         "condenser_api",
         "get_market_history",
-        [86400, formatDate2(oneDayAgo), formatDate2(now)]
+        [86400, formatDate3(oneDayAgo), formatDate3(now)]
       );
       const result = {
         price: +stats.latest,
@@ -8327,7 +9103,7 @@ function getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs) {
     }
   });
 }
-function formatDate(date) {
+function formatDate2(date) {
   return date.toISOString().replace(/\.\d{3}Z$/, "");
 }
 function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
@@ -8336,8 +9112,8 @@ function getTradeHistoryQueryOptions(limit = 1e3, startDate, endDate) {
   return reactQuery.queryOptions({
     queryKey: ["market", "trade-history", limit, start.getTime(), end.getTime()],
     queryFn: () => CONFIG.hiveClient.call("condenser_api", "get_trade_history", [
-      formatDate(start),
-      formatDate(end),
+      formatDate2(start),
+      formatDate2(end),
       limit
     ])
   });
@@ -8417,6 +9193,24 @@ async function getHivePrice() {
   );
   return parseJsonResponse2(response);
 }
+
+// src/modules/points/types/point-transaction-type.ts
+var PointTransactionType = /* @__PURE__ */ ((PointTransactionType2) => {
+  PointTransactionType2[PointTransactionType2["CHECKIN"] = 10] = "CHECKIN";
+  PointTransactionType2[PointTransactionType2["LOGIN"] = 20] = "LOGIN";
+  PointTransactionType2[PointTransactionType2["CHECKIN_EXTRA"] = 30] = "CHECKIN_EXTRA";
+  PointTransactionType2[PointTransactionType2["POST"] = 100] = "POST";
+  PointTransactionType2[PointTransactionType2["COMMENT"] = 110] = "COMMENT";
+  PointTransactionType2[PointTransactionType2["VOTE"] = 120] = "VOTE";
+  PointTransactionType2[PointTransactionType2["REBLOG"] = 130] = "REBLOG";
+  PointTransactionType2[PointTransactionType2["DELEGATION"] = 150] = "DELEGATION";
+  PointTransactionType2[PointTransactionType2["REFERRAL"] = 160] = "REFERRAL";
+  PointTransactionType2[PointTransactionType2["COMMUNITY"] = 170] = "COMMUNITY";
+  PointTransactionType2[PointTransactionType2["TRANSFER_SENT"] = 998] = "TRANSFER_SENT";
+  PointTransactionType2[PointTransactionType2["TRANSFER_INCOMING"] = 999] = "TRANSFER_INCOMING";
+  PointTransactionType2[PointTransactionType2["MINTED"] = 991] = "MINTED";
+  return PointTransactionType2;
+})(PointTransactionType || {});
 function getPointsQueryOptions(username, filter = 0) {
   return reactQuery.queryOptions({
     queryKey: ["points", username, filter],
@@ -8459,6 +9253,123 @@ function getPointsQueryOptions(username, filter = 0) {
     staleTime: 3e4,
     refetchOnMount: true,
     enabled: !!username
+  });
+}
+function getPointsAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "points", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getPointsQueryOptions(username));
+      const data = getQueryClient().getQueryData(
+        getPointsQueryOptions(username).queryKey
+      );
+      return {
+        name: "POINTS",
+        title: "Ecency Points",
+        price: 2e-3,
+        accountBalance: +(data?.points ?? 0)
+      };
+    }
+  });
+}
+function getPointsAssetTransactionsQueryOptions(username, type) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "points", "transactions", username, type],
+    queryFn: async () => {
+      const response = await fetch(
+        `${CONFIG.privateApiHost}/private-api/point-list`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username,
+            type: type ?? 0
+          })
+        }
+      );
+      const data = await response.json();
+      return data.map(({ created, type: type2, amount, id, sender, receiver, memo }) => ({
+        created: new Date(created),
+        type: type2,
+        results: [
+          {
+            amount: parseFloat(amount),
+            asset: "POINTS"
+          }
+        ],
+        id,
+        from: sender ?? void 0,
+        to: receiver ?? void 0,
+        memo: memo ?? void 0
+      }));
+    }
+  });
+}
+function useClaimPoints(username, accessToken, onSuccess, onError) {
+  const { mutateAsync: recordActivity } = mutations_exports.useRecordActivity(
+    username,
+    "points-claimed"
+  );
+  return reactQuery.useMutation({
+    mutationFn: async () => {
+      if (!username) {
+        throw new Error(
+          "[SDK][Points][Claim] \u2013 username wasn't provided"
+        );
+      }
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Points][Claim] \u2013 access token wasn't found"
+        );
+      }
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(
+        CONFIG.privateApiHost + "/private-api/points-claim",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code: accessToken })
+        }
+      );
+      if (!response.ok) {
+        const body = await response.text();
+        if (response.status === 406) {
+          try {
+            return JSON.parse(body);
+          } catch {
+            return { message: body, code: response.status };
+          }
+        }
+        throw new Error(
+          `[SDK][Points][Claim] \u2013 failed with status ${response.status}${body ? `: ${body}` : ""}`
+        );
+      }
+      return response.json();
+    },
+    onError,
+    onSuccess: () => {
+      recordActivity();
+      getQueryClient().setQueryData(
+        getPointsQueryOptions(username).queryKey,
+        (data) => {
+          if (!data) {
+            return data;
+          }
+          return {
+            ...data,
+            points: (parseFloat(data.points) + parseFloat(data.uPoints)).toFixed(3),
+            uPoints: "0"
+          };
+        }
+      );
+      onSuccess?.();
+    }
   });
 }
 function searchQueryOptions(q, sort, hideLow, since, scroll_id, votes) {
@@ -9123,6 +10034,292 @@ async function getHiveEngineUnclaimedRewards(username) {
   return await response.json();
 }
 
+// src/modules/hive-engine/utils/formatted-number.ts
+function formattedNumber(value, options = void 0) {
+  let opts = {
+    fractionDigits: 3,
+    prefix: "",
+    suffix: ""
+  };
+  if (options) {
+    opts = { ...opts, ...options };
+  }
+  const { fractionDigits, prefix, suffix } = opts;
+  let out = "";
+  if (prefix) out += prefix + " ";
+  const av = Math.abs(parseFloat(value.toString())) < 1e-4 ? 0 : value;
+  const num = typeof av === "string" ? parseFloat(av) : av;
+  out += num.toLocaleString("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+    useGrouping: true
+  });
+  if (suffix) out += " " + suffix;
+  return out;
+}
+
+// src/modules/hive-engine/utils/hive-engine-token.ts
+var HiveEngineToken = class {
+  symbol;
+  name;
+  icon;
+  precision;
+  stakingEnabled;
+  delegationEnabled;
+  balance;
+  stake;
+  stakedBalance;
+  delegationsIn;
+  delegationsOut;
+  usdValue;
+  constructor(props) {
+    this.symbol = props.symbol;
+    this.name = props.name || "";
+    this.icon = props.icon || "";
+    this.precision = props.precision || 0;
+    this.stakingEnabled = props.stakingEnabled || false;
+    this.delegationEnabled = props.delegationEnabled || false;
+    this.balance = parseFloat(props.balance) || 0;
+    this.stake = parseFloat(props.stake) || 0;
+    this.delegationsIn = parseFloat(props.delegationsIn) || 0;
+    this.delegationsOut = parseFloat(props.delegationsOut) || 0;
+    this.stakedBalance = this.stake + this.delegationsIn - this.delegationsOut;
+    this.usdValue = props.usdValue;
+  }
+  hasDelegations = () => {
+    if (!this.delegationEnabled) {
+      return false;
+    }
+    return this.delegationsIn > 0 && this.delegationsOut > 0;
+  };
+  delegations = () => {
+    if (!this.hasDelegations()) {
+      return "";
+    }
+    return `(${formattedNumber(this.stake, {
+      fractionDigits: this.precision
+    })} + ${formattedNumber(this.delegationsIn, {
+      fractionDigits: this.precision
+    })} - ${formattedNumber(this.delegationsOut, {
+      fractionDigits: this.precision
+    })})`;
+  };
+  staked = () => {
+    if (!this.stakingEnabled) {
+      return "-";
+    }
+    if (this.stakedBalance < 1e-4) {
+      return this.stakedBalance.toString();
+    }
+    return formattedNumber(this.stakedBalance, {
+      fractionDigits: this.precision
+    });
+  };
+  balanced = () => {
+    if (this.balance < 1e-4) {
+      return this.balance.toString();
+    }
+    return formattedNumber(this.balance, { fractionDigits: this.precision });
+  };
+};
+function getHiveEngineTokensBalancesQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "balances", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      return getHiveEngineTokensBalances(username);
+    }
+  });
+}
+function getHiveEngineTokensMarketQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "markets"],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      return getHiveEngineTokensMarket();
+    }
+  });
+}
+function getHiveEngineTokensMetadataQueryOptions(tokens) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "metadata-list", tokens],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      return getHiveEngineTokensMetadata(tokens);
+    }
+  });
+}
+function getHiveEngineTokenTransactionsQueryOptions(username, symbol, limit = 20) {
+  return reactQuery.infiniteQueryOptions({
+    queryKey: ["assets", "hive-engine", symbol, "transactions", username],
+    enabled: !!symbol && !!username,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => (lastPage?.length ?? 0) + limit,
+    queryFn: async ({ pageParam }) => {
+      if (!symbol || !username) {
+        throw new Error(
+          "[SDK][HiveEngine] \u2013 token or username missed"
+        );
+      }
+      return getHiveEngineTokenTransactions(
+        username,
+        symbol,
+        limit,
+        pageParam
+      );
+    }
+  });
+}
+function getHiveEngineTokensMetricsQueryOptions(symbol, interval = "daily") {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", symbol],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      return getHiveEngineTokenMetrics(symbol, interval);
+    }
+  });
+}
+function getHiveEngineUnclaimedRewardsQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "unclaimed", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    enabled: !!username,
+    queryFn: async () => {
+      try {
+        const data = await getHiveEngineUnclaimedRewards(
+          username
+        );
+        return Object.values(data).filter(
+          ({ pending_token }) => pending_token > 0
+        );
+      } catch (e) {
+        return [];
+      }
+    }
+  });
+}
+function getAllHiveEngineTokensQueryOptions(account, symbol) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", "all-tokens", account, symbol],
+    queryFn: async () => {
+      return getHiveEngineTokensMarket(account, symbol);
+    }
+  });
+}
+function getHiveEngineBalancesWithUsdQueryOptions(account, dynamicProps, allTokens) {
+  return reactQuery.queryOptions({
+    queryKey: [
+      "assets",
+      "hive-engine",
+      "balances-with-usd",
+      account,
+      dynamicProps,
+      allTokens
+    ],
+    queryFn: async () => {
+      if (!account) {
+        throw new Error("[HiveEngine] No account in a balances query");
+      }
+      const balances = await getHiveEngineTokensBalances(account);
+      const tokens = await getHiveEngineTokensMetadata(
+        balances.map((t) => t.symbol)
+      );
+      const pricePerHive = dynamicProps ? dynamicProps.base / dynamicProps.quote : 0;
+      const metrics = Array.isArray(
+        allTokens
+      ) ? allTokens : [];
+      return balances.map((balance) => {
+        const token = tokens.find((t) => t.symbol === balance.symbol);
+        let tokenMetadata;
+        if (token?.metadata) {
+          try {
+            tokenMetadata = JSON.parse(token.metadata);
+          } catch {
+            tokenMetadata = void 0;
+          }
+        }
+        const metric = metrics.find((m) => m.symbol === balance.symbol);
+        const lastPrice = Number(metric?.lastPrice ?? "0");
+        const balanceAmount = Number(balance.balance);
+        const usdValue = balance.symbol === "SWAP.HIVE" ? pricePerHive * balanceAmount : lastPrice === 0 ? 0 : Number(
+          (lastPrice * pricePerHive * balanceAmount).toFixed(10)
+        );
+        return new HiveEngineToken({
+          symbol: balance.symbol,
+          name: token?.name ?? balance.symbol,
+          icon: tokenMetadata?.icon ?? "",
+          precision: token?.precision ?? 0,
+          stakingEnabled: token?.stakingEnabled ?? false,
+          delegationEnabled: token?.delegationEnabled ?? false,
+          balance: balance.balance,
+          stake: balance.stake,
+          delegationsIn: balance.delegationsIn,
+          delegationsOut: balance.delegationsOut,
+          usdValue
+        });
+      });
+    },
+    enabled: !!account
+  });
+}
+function getHiveEngineTokenGeneralInfoQueryOptions(username, symbol) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "hive-engine", symbol, "general-info", username],
+    enabled: !!symbol && !!username,
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      if (!symbol || !username) {
+        throw new Error(
+          "[SDK][HiveEngine] \u2013 token or username missed"
+        );
+      }
+      const queryClient = getQueryClient();
+      const hiveQuery = getHiveAssetGeneralInfoQueryOptions(username);
+      await queryClient.prefetchQuery(hiveQuery);
+      const hiveData = queryClient.getQueryData(
+        hiveQuery.queryKey
+      );
+      const metadataList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMetadataQueryOptions([symbol])
+      );
+      const balanceList = await queryClient.ensureQueryData(
+        getHiveEngineTokensBalancesQueryOptions(username)
+      );
+      const marketList = await queryClient.ensureQueryData(
+        getHiveEngineTokensMarketQueryOptions()
+      );
+      const metadata = metadataList?.find((i) => i.symbol === symbol);
+      const balance = balanceList?.find((i) => i.symbol === symbol);
+      const market = marketList?.find((i) => i.symbol === symbol);
+      const lastPrice = +(market?.lastPrice ?? "0");
+      const liquidBalance = parseFloat(balance?.balance ?? "0");
+      const stakedBalance = parseFloat(balance?.stake ?? "0");
+      const unstakingBalance = parseFloat(balance?.pendingUnstake ?? "0");
+      const parts = [
+        { name: "liquid", balance: liquidBalance },
+        { name: "staked", balance: stakedBalance }
+      ];
+      if (unstakingBalance > 0) {
+        parts.push({ name: "unstaking", balance: unstakingBalance });
+      }
+      return {
+        name: symbol,
+        title: metadata?.name ?? "",
+        price: lastPrice === 0 ? 0 : Number(lastPrice * (hiveData?.price ?? 0)),
+        accountBalance: liquidBalance + stakedBalance,
+        layer: "ENGINE",
+        parts
+      };
+    }
+  });
+}
+
 // src/modules/spk/requests.ts
 async function getSpkWallet(username) {
   const fetchApi = getBoundFetch();
@@ -9141,13 +10338,239 @@ async function getSpkMarkets() {
   return await response.json();
 }
 
+// src/modules/spk/utils/reward-spk.ts
+function rewardSpk(data, sstats) {
+  let a = 0, b = 0, c = 0, t = 0, diff = data.head_block - data.spk_block;
+  if (!data.spk_block) {
+    return 0;
+  } else if (diff < 28800) {
+    return 0;
+  } else {
+    t = diff / 28800;
+    a = data.gov ? simpleInterest(data.gov, t, sstats.spk_rate_lgov) : 0;
+    b = data.pow ? simpleInterest(data.pow, t, sstats.spk_rate_lpow) : 0;
+    c = simpleInterest(
+      (data.granted.t > 0 ? data.granted.t : 0) + (data.granting.t && data.granting.t > 0 ? data.granting.t : 0),
+      t,
+      sstats.spk_rate_ldel
+    );
+    const i = a + b + c;
+    if (i) {
+      return i;
+    } else {
+      return 0;
+    }
+  }
+  function simpleInterest(p, t2, r) {
+    const amount = p * (1 + r / 365);
+    const interest = amount - p;
+    return interest * t2;
+  }
+}
+function getSpkWalletQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "spk", "wallet", username],
+    queryFn: async () => {
+      if (!username) {
+        throw new Error("[SDK][SPK] \u2013 username wasn't provided");
+      }
+      return getSpkWallet(username);
+    },
+    enabled: !!username,
+    staleTime: 6e4,
+    refetchInterval: 9e4
+  });
+}
+function getSpkMarketsQueryOptions() {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "spk", "markets"],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      const data = await getSpkMarkets();
+      return {
+        list: Object.entries(data.markets.node).map(([name, node]) => ({
+          name,
+          status: node.lastGood >= data.head_block - 1200 ? "\u{1F7E9}" : node.lastGood > data.head_block - 28800 ? "\u{1F7E8}" : "\u{1F7E5}"
+        })),
+        raw: data
+      };
+    }
+  });
+}
+function format(value) {
+  return value.toFixed(3);
+}
+function getSpkAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "spk", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getSpkWalletQueryOptions(username));
+      await getQueryClient().prefetchQuery(getSpkMarketsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getHiveAssetGeneralInfoQueryOptions(username)
+      );
+      const wallet = getQueryClient().getQueryData(
+        getSpkWalletQueryOptions(username).queryKey
+      );
+      const market = getQueryClient().getQueryData(
+        getSpkMarketsQueryOptions().queryKey
+      );
+      const hiveAsset = getQueryClient().getQueryData(
+        getHiveAssetGeneralInfoQueryOptions(username).queryKey
+      );
+      if (!wallet || !market) {
+        return {
+          name: "SPK",
+          layer: "SPK",
+          title: "SPK Network",
+          price: 1,
+          accountBalance: 0
+        };
+      }
+      const price = +format(
+        (wallet.gov + wallet.spk) / 1e3 * +wallet.tick * (hiveAsset?.price ?? 0)
+      );
+      const accountBalance = +format(
+        (wallet.spk + rewardSpk(
+          wallet,
+          market.raw.stats || {
+            spk_rate_lgov: "0.001",
+            spk_rate_lpow: format(
+              parseFloat(market.raw.stats.spk_rate_lpow) * 100
+            ),
+            spk_rate_ldel: format(
+              parseFloat(market.raw.stats.spk_rate_ldel) * 100
+            )
+          }
+        )) / 1e3
+      );
+      return {
+        name: "SPK",
+        layer: "SPK",
+        title: "SPK Network",
+        price: price / accountBalance,
+        accountBalance
+      };
+    }
+  });
+}
+function format2(value) {
+  return value.toFixed(3);
+}
+function getLarynxAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "larynx", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getSpkWalletQueryOptions(username));
+      await getQueryClient().prefetchQuery(getSpkMarketsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getHiveAssetGeneralInfoQueryOptions(username)
+      );
+      const wallet = getQueryClient().getQueryData(
+        getSpkWalletQueryOptions(username).queryKey
+      );
+      const market = getQueryClient().getQueryData(
+        getSpkMarketsQueryOptions().queryKey
+      );
+      const hiveAsset = getQueryClient().getQueryData(
+        getHiveAssetGeneralInfoQueryOptions(username).queryKey
+      );
+      if (!wallet || !market) {
+        return {
+          name: "LARYNX",
+          title: "SPK Network / LARYNX",
+          price: 1,
+          accountBalance: 0
+        };
+      }
+      const price = +format2(
+        wallet.balance / 1e3 * +wallet.tick * (hiveAsset?.price ?? 0)
+      );
+      const accountBalance = +format2(wallet.balance / 1e3);
+      return {
+        name: "LARYNX",
+        layer: "SPK",
+        title: "LARYNX",
+        price: price / accountBalance,
+        accountBalance
+      };
+    }
+  });
+}
+function format3(value) {
+  return value.toFixed(3);
+}
+function getLarynxPowerAssetGeneralInfoQueryOptions(username) {
+  return reactQuery.queryOptions({
+    queryKey: ["assets", "larynx-power", "general-info", username],
+    staleTime: 6e4,
+    refetchInterval: 9e4,
+    queryFn: async () => {
+      await getQueryClient().prefetchQuery(getSpkWalletQueryOptions(username));
+      await getQueryClient().prefetchQuery(getSpkMarketsQueryOptions());
+      await getQueryClient().prefetchQuery(
+        getHiveAssetGeneralInfoQueryOptions(username)
+      );
+      const wallet = getQueryClient().getQueryData(
+        getSpkWalletQueryOptions(username).queryKey
+      );
+      const market = getQueryClient().getQueryData(
+        getSpkMarketsQueryOptions().queryKey
+      );
+      const hiveAsset = getQueryClient().getQueryData(
+        getHiveAssetGeneralInfoQueryOptions(username).queryKey
+      );
+      if (!wallet || !market) {
+        return {
+          name: "LP",
+          title: "SPK Network / LARYNX Power",
+          price: 1,
+          accountBalance: 0
+        };
+      }
+      const price = +format3(
+        wallet.poweredUp / 1e3 * +wallet.tick * (hiveAsset?.price ?? 0)
+      );
+      const accountBalance = +format3(wallet.poweredUp / 1e3);
+      return {
+        name: "LP",
+        title: "LARYNX Power",
+        layer: "SPK",
+        price: price / accountBalance,
+        accountBalance,
+        parts: [
+          {
+            name: "delegating",
+            balance: wallet.granting?.t ? +format3(wallet.granting.t / 1e3) : 0
+          },
+          {
+            name: "recieved",
+            balance: wallet.granted?.t ? +format3(wallet.granted.t / 1e3) : 0
+          }
+        ]
+      };
+    }
+  });
+}
+
 exports.ACCOUNT_OPERATION_GROUPS = ACCOUNT_OPERATION_GROUPS;
 exports.ALL_ACCOUNT_OPERATIONS = ALL_ACCOUNT_OPERATIONS;
 exports.ALL_NOTIFY_TYPES = ALL_NOTIFY_TYPES;
+exports.AssetOperation = AssetOperation;
 exports.BuySellTransactionType = BuySellTransactionType;
 exports.CONFIG = CONFIG;
 exports.EcencyAnalytics = mutations_exports;
 exports.ErrorType = ErrorType;
+exports.HIVE_ACCOUNT_OPERATION_GROUPS = HIVE_ACCOUNT_OPERATION_GROUPS;
+exports.HIVE_OPERATION_LIST = HIVE_OPERATION_LIST;
+exports.HIVE_OPERATION_NAME_BY_ID = HIVE_OPERATION_NAME_BY_ID;
+exports.HIVE_OPERATION_ORDERS = HIVE_OPERATION_ORDERS;
+exports.HiveEngineToken = HiveEngineToken;
 exports.HiveSignerIntegration = HiveSignerIntegration;
 exports.NaiMap = NaiMap;
 exports.NotificationFilter = NotificationFilter;
@@ -9155,6 +10578,7 @@ exports.NotificationViewType = NotificationViewType;
 exports.NotifyTypes = NotifyTypes;
 exports.OPERATION_AUTHORITY_MAP = OPERATION_AUTHORITY_MAP;
 exports.OrderIdPrefix = OrderIdPrefix;
+exports.PointTransactionType = PointTransactionType;
 exports.ROLES = ROLES;
 exports.SortOrder = SortOrder;
 exports.Symbol = Symbol2;
@@ -9186,6 +10610,8 @@ exports.buildCreateClaimedAccountOp = buildCreateClaimedAccountOp;
 exports.buildDelegateRcOp = buildDelegateRcOp;
 exports.buildDelegateVestingSharesOp = buildDelegateVestingSharesOp;
 exports.buildDeleteCommentOp = buildDeleteCommentOp;
+exports.buildEngineClaimOp = buildEngineClaimOp;
+exports.buildEngineOp = buildEngineOp;
 exports.buildFlagPostOp = buildFlagPostOp;
 exports.buildFollowOp = buildFollowOp;
 exports.buildGrantPostingPermissionOp = buildGrantPostingPermissionOp;
@@ -9213,6 +10639,7 @@ exports.buildRevokePostingPermissionOp = buildRevokePostingPermissionOp;
 exports.buildSetLastReadOps = buildSetLastReadOps;
 exports.buildSetRoleOp = buildSetRoleOp;
 exports.buildSetWithdrawVestingRouteOp = buildSetWithdrawVestingRouteOp;
+exports.buildSpkCustomJsonOp = buildSpkCustomJsonOp;
 exports.buildSubscribeOp = buildSubscribeOp;
 exports.buildTransferFromSavingsOp = buildTransferFromSavingsOp;
 exports.buildTransferOp = buildTransferOp;
@@ -9238,6 +10665,7 @@ exports.downVotingPower = downVotingPower;
 exports.encodeObj = encodeObj;
 exports.extractAccountProfile = extractAccountProfile;
 exports.formatError = formatError;
+exports.formattedNumber = formattedNumber;
 exports.getAccountFullQueryOptions = getAccountFullQueryOptions;
 exports.getAccountNotificationsInfiniteQueryOptions = getAccountNotificationsInfiniteQueryOptions;
 exports.getAccountPendingRecoveryQueryOptions = getAccountPendingRecoveryQueryOptions;
@@ -9250,6 +10678,7 @@ exports.getAccountReputationsQueryOptions = getAccountReputationsQueryOptions;
 exports.getAccountSubscriptionsQueryOptions = getAccountSubscriptionsQueryOptions;
 exports.getAccountVoteHistoryInfiniteQueryOptions = getAccountVoteHistoryInfiniteQueryOptions;
 exports.getAccountsQueryOptions = getAccountsQueryOptions;
+exports.getAllHiveEngineTokensQueryOptions = getAllHiveEngineTokensQueryOptions;
 exports.getAnnouncementsQueryOptions = getAnnouncementsQueryOptions;
 exports.getBookmarksInfiniteQueryOptions = getBookmarksInfiniteQueryOptions;
 exports.getBookmarksQueryOptions = getBookmarksQueryOptions;
@@ -9298,22 +10727,42 @@ exports.getFragmentsQueryOptions = getFragmentsQueryOptions;
 exports.getFriendsInfiniteQueryOptions = getFriendsInfiniteQueryOptions;
 exports.getGalleryImagesQueryOptions = getGalleryImagesQueryOptions;
 exports.getGameStatusCheckQueryOptions = getGameStatusCheckQueryOptions;
+exports.getHbdAssetGeneralInfoQueryOptions = getHbdAssetGeneralInfoQueryOptions;
+exports.getHbdAssetTransactionsQueryOptions = getHbdAssetTransactionsQueryOptions;
+exports.getHiveAssetGeneralInfoQueryOptions = getHiveAssetGeneralInfoQueryOptions;
+exports.getHiveAssetMetricQueryOptions = getHiveAssetMetricQueryOptions;
+exports.getHiveAssetTransactionsQueryOptions = getHiveAssetTransactionsQueryOptions;
+exports.getHiveAssetWithdrawalRoutesQueryOptions = getHiveAssetWithdrawalRoutesQueryOptions;
+exports.getHiveEngineBalancesWithUsdQueryOptions = getHiveEngineBalancesWithUsdQueryOptions;
 exports.getHiveEngineMetrics = getHiveEngineMetrics;
 exports.getHiveEngineOpenOrders = getHiveEngineOpenOrders;
 exports.getHiveEngineOrderBook = getHiveEngineOrderBook;
+exports.getHiveEngineTokenGeneralInfoQueryOptions = getHiveEngineTokenGeneralInfoQueryOptions;
 exports.getHiveEngineTokenMetrics = getHiveEngineTokenMetrics;
 exports.getHiveEngineTokenTransactions = getHiveEngineTokenTransactions;
+exports.getHiveEngineTokenTransactionsQueryOptions = getHiveEngineTokenTransactionsQueryOptions;
 exports.getHiveEngineTokensBalances = getHiveEngineTokensBalances;
+exports.getHiveEngineTokensBalancesQueryOptions = getHiveEngineTokensBalancesQueryOptions;
 exports.getHiveEngineTokensMarket = getHiveEngineTokensMarket;
+exports.getHiveEngineTokensMarketQueryOptions = getHiveEngineTokensMarketQueryOptions;
 exports.getHiveEngineTokensMetadata = getHiveEngineTokensMetadata;
+exports.getHiveEngineTokensMetadataQueryOptions = getHiveEngineTokensMetadataQueryOptions;
+exports.getHiveEngineTokensMetricsQueryOptions = getHiveEngineTokensMetricsQueryOptions;
 exports.getHiveEngineTradeHistory = getHiveEngineTradeHistory;
 exports.getHiveEngineUnclaimedRewards = getHiveEngineUnclaimedRewards;
+exports.getHiveEngineUnclaimedRewardsQueryOptions = getHiveEngineUnclaimedRewardsQueryOptions;
 exports.getHiveHbdStatsQueryOptions = getHiveHbdStatsQueryOptions;
 exports.getHivePoshLinksQueryOptions = getHivePoshLinksQueryOptions;
+exports.getHivePowerAssetGeneralInfoQueryOptions = getHivePowerAssetGeneralInfoQueryOptions;
+exports.getHivePowerAssetTransactionsQueryOptions = getHivePowerAssetTransactionsQueryOptions;
+exports.getHivePowerDelegatesInfiniteQueryOptions = getHivePowerDelegatesInfiniteQueryOptions;
+exports.getHivePowerDelegatingsQueryOptions = getHivePowerDelegatingsQueryOptions;
 exports.getHivePrice = getHivePrice;
 exports.getImagesInfiniteQueryOptions = getImagesInfiniteQueryOptions;
 exports.getImagesQueryOptions = getImagesQueryOptions;
 exports.getIncomingRcQueryOptions = getIncomingRcQueryOptions;
+exports.getLarynxAssetGeneralInfoQueryOptions = getLarynxAssetGeneralInfoQueryOptions;
+exports.getLarynxPowerAssetGeneralInfoQueryOptions = getLarynxPowerAssetGeneralInfoQueryOptions;
 exports.getMarketData = getMarketData;
 exports.getMarketDataQueryOptions = getMarketDataQueryOptions;
 exports.getMarketHistoryQueryOptions = getMarketHistoryQueryOptions;
@@ -9330,6 +10779,8 @@ exports.getOperationAuthority = getOperationAuthority;
 exports.getOrderBookQueryOptions = getOrderBookQueryOptions;
 exports.getOutgoingRcDelegationsInfiniteQueryOptions = getOutgoingRcDelegationsInfiniteQueryOptions;
 exports.getPageStatsQueryOptions = getPageStatsQueryOptions;
+exports.getPointsAssetGeneralInfoQueryOptions = getPointsAssetGeneralInfoQueryOptions;
+exports.getPointsAssetTransactionsQueryOptions = getPointsAssetTransactionsQueryOptions;
 exports.getPointsQueryOptions = getPointsQueryOptions;
 exports.getPortfolioQueryOptions = getPortfolioQueryOptions;
 exports.getPost = getPost;
@@ -9372,8 +10823,11 @@ exports.getSearchFriendsQueryOptions = getSearchFriendsQueryOptions;
 exports.getSearchPathQueryOptions = getSearchPathQueryOptions;
 exports.getSearchTopicsQueryOptions = getSearchTopicsQueryOptions;
 exports.getSimilarEntriesQueryOptions = getSimilarEntriesQueryOptions;
+exports.getSpkAssetGeneralInfoQueryOptions = getSpkAssetGeneralInfoQueryOptions;
 exports.getSpkMarkets = getSpkMarkets;
+exports.getSpkMarketsQueryOptions = getSpkMarketsQueryOptions;
 exports.getSpkWallet = getSpkWallet;
+exports.getSpkWalletQueryOptions = getSpkWalletQueryOptions;
 exports.getStatsQueryOptions = getStatsQueryOptions;
 exports.getSubscribers = getSubscribers;
 exports.getSubscriptions = getSubscriptions;
@@ -9393,6 +10847,7 @@ exports.getWithdrawRoutesQueryOptions = getWithdrawRoutesQueryOptions;
 exports.getWitnessesInfiniteQueryOptions = getWitnessesInfiniteQueryOptions;
 exports.hsTokenRenew = hsTokenRenew;
 exports.isCommunity = isCommunity;
+exports.isEmptyDate = isEmptyDate;
 exports.isInfoError = isInfoError;
 exports.isNetworkError = isNetworkError;
 exports.isResourceCreditsError = isResourceCreditsError;
@@ -9413,9 +10868,11 @@ exports.parseProfileMetadata = parseProfileMetadata;
 exports.powerRechargeTime = powerRechargeTime;
 exports.rcPower = rcPower;
 exports.removeOptimisticDiscussionEntry = removeOptimisticDiscussionEntry;
+exports.resolveHiveOperationFilters = resolveHiveOperationFilters;
 exports.resolvePost = resolvePost;
 exports.restoreDiscussionSnapshots = restoreDiscussionSnapshots;
 exports.restoreEntryInCache = restoreEntryInCache;
+exports.rewardSpk = rewardSpk;
 exports.roleMap = roleMap;
 exports.saveNotificationSetting = saveNotificationSetting;
 exports.search = search;
@@ -9450,6 +10907,7 @@ exports.useBroadcastMutation = useBroadcastMutation;
 exports.useClaimAccount = useClaimAccount;
 exports.useClaimEngineRewards = useClaimEngineRewards;
 exports.useClaimInterest = useClaimInterest;
+exports.useClaimPoints = useClaimPoints;
 exports.useClaimRewards = useClaimRewards;
 exports.useComment = useComment;
 exports.useConvert = useConvert;
@@ -9499,10 +10957,12 @@ exports.useUpdateDraft = useUpdateDraft;
 exports.useUpdateReply = useUpdateReply;
 exports.useUploadImage = useUploadImage;
 exports.useVote = useVote;
+exports.useWalletOperation = useWalletOperation;
 exports.useWithdrawVesting = useWithdrawVesting;
 exports.useWitnessVote = useWitnessVote;
 exports.usrActivity = usrActivity;
 exports.validatePostCreating = validatePostCreating;
+exports.vestsToHp = vestsToHp;
 exports.votingPower = votingPower;
 exports.votingValue = votingValue;
 //# sourceMappingURL=index.cjs.map

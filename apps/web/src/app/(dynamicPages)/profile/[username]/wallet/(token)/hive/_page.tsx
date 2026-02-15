@@ -1,9 +1,9 @@
 "use client";
 
 import { useInfiniteDataFlow } from "@/utils";
+import { type HiveOperationFilterValue } from "@ecency/sdk";
 import {
   getHiveAssetTransactionsQueryOptions,
-  type HiveOperationFilterValue,
 } from "@ecency/wallets";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";

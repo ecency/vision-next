@@ -10,7 +10,7 @@ import i18next from "i18next";
 import { Transfer, TransferAsset, TransferMode } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
+import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useClaimRewardsMutation } from "@/api/sdk-mutations";
 import { success, error } from "@/features/shared";
 import { formatError } from "@/api/operations";

@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button, FormControl } from "@/features/ui";
-import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@ecency/wallets";
+import { getPointsAssetTransactionsQueryOptions, PointTransactionType } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowUpRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";

@@ -68,6 +68,7 @@ export function useClaimPoints(
           }
 
           return {
+            ...data,
             points: (
               parseFloat(data.points) + parseFloat(data.uPoints)
             ).toFixed(3),

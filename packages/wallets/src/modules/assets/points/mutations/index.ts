@@ -1,1 +1,1 @@
-export * from "./claim-points";
+export { useClaimPoints } from "@ecency/sdk";
