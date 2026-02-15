@@ -1321,82 +1321,6 @@ function getHivePowerDelegatingsQueryOptions(username) {
     )
   });
 }
-function useClaimRewards(username, auth, onSuccess) {
-  const { data } = reactQuery.useQuery(sdk.getAccountFullQueryOptions(username));
-  const queryClient = reactQuery.useQueryClient();
-  return sdk.useBroadcastMutation(
-    ["assets", "hive", "claim-rewards", data?.name],
-    username,
-    () => {
-      if (!data) {
-        throw new Error("Failed to fetch account while claiming balance");
-      }
-      const {
-        reward_hive_balance: hiveBalance,
-        reward_hbd_balance: hbdBalance,
-        reward_vesting_balance: vestingBalance
-      } = data;
-      return [
-        [
-          "claim_reward_balance",
-          {
-            account: username,
-            reward_hive: hiveBalance,
-            reward_hbd: hbdBalance,
-            reward_vests: vestingBalance
-          }
-        ]
-      ];
-    },
-    async () => {
-      onSuccess();
-      await delay(1e3);
-      queryClient.invalidateQueries({
-        queryKey: sdk.getAccountFullQueryOptions(username).queryKey
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["ecency-wallets", "portfolio", "v2", username]
-      });
-      queryClient.invalidateQueries({
-        queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
-      });
-      queryClient.invalidateQueries({
-        queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
-      });
-      queryClient.invalidateQueries({
-        queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
-      });
-      ["HIVE", "HBD", "HP"].forEach((asset) => {
-        queryClient.invalidateQueries({
-          queryKey: ["ecency-wallets", "asset-info", username, asset]
-        });
-      });
-      setTimeout(() => {
-        queryClient.invalidateQueries({
-          queryKey: sdk.getAccountFullQueryOptions(username).queryKey
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["ecency-wallets", "portfolio", "v2", username]
-        });
-        queryClient.invalidateQueries({
-          queryKey: getHiveAssetGeneralInfoQueryOptions(username).queryKey
-        });
-        queryClient.invalidateQueries({
-          queryKey: getHbdAssetGeneralInfoQueryOptions(username).queryKey
-        });
-        queryClient.invalidateQueries({
-          queryKey: getHivePowerAssetGeneralInfoQueryOptions(username).queryKey
-        });
-        ["HIVE", "HBD", "HP"].forEach((asset) => {
-          queryClient.invalidateQueries({
-            queryKey: ["ecency-wallets", "asset-info", username, asset]
-          });
-        });
-      }, 5e3);
-    },
-    auth
-  );
-}
 
 // src/modules/assets/types/asset-operation.ts
 var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
@@ -1420,96 +1344,6 @@ var AssetOperation = /* @__PURE__ */ ((AssetOperation2) => {
   AssetOperation2["Undelegate"] = "undelegate";
   return AssetOperation2;
 })(AssetOperation || {});
-var lockLarynx = async (payload, auth) => {
-  const json = JSON.stringify({ amount: +payload.amount * 1e3 });
-  const op = {
-    id: payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down",
-    json,
-    required_auths: [payload.from],
-    required_posting_auths: []
-  };
-  const operation = [
-    "custom_json",
-    {
-      id: op.id,
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key } = payload;
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-  } else {
-    const { amount } = parseAsset(payload.amount);
-    return hs__default.default.sign(
-      "custom_json",
-      {
-        authority: "active",
-        required_auths: `["${payload.from}"]`,
-        required_posting_auths: "[]",
-        id: op.id,
-        json: JSON.stringify({ amount: +amount * 1e3 })
-      },
-      `https://ecency.com/@${payload.from}/wallet`
-    );
-  }
-};
-async function powerUpLarynx(payload, auth) {
-  const json = JSON.stringify({ amount: +payload.amount * 1e3 });
-  const op = {
-    id: `spkcc_power_${payload.mode}`,
-    json,
-    required_auths: [payload.from],
-    required_posting_auths: []
-  };
-  const operation = [
-    "custom_json",
-    {
-      id: `spkcc_power_${payload.mode}`,
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key } = payload;
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
-  } else if (payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-  } else {
-    const { amount } = parseAsset(payload.amount);
-    return hs__default.default.sign(
-      "custom_json",
-      {
-        authority: "active",
-        required_auths: `["${payload.from}"]`,
-        required_posting_auths: "[]",
-        id: `spkcc_power_${payload.mode}`,
-        json: JSON.stringify({ amount: +amount * 1e3 })
-      },
-      `https://ecency.com/@${payload.from}/wallet`
-    );
-  }
-}
 function getSpkMarketsQueryOptions() {
   return reactQuery.queryOptions({
     queryKey: ["assets", "spk", "markets"],
@@ -1988,368 +1822,6 @@ function getHiveEngineUnclaimedRewardsQueryOptions(username) {
       }
     }
   });
-}
-
-// src/modules/assets/hive-engine/mutations/broadcast-hive-engine-operation.ts
-async function broadcastHiveEngineOperation(payload, operation, auth) {
-  if (payload.type === "keychain") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithKeychainFallback(payload.from, [operation], "Active");
-  }
-  if (payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast([operation], "active");
-    }
-    return broadcastWithWalletHiveAuth(payload.from, [operation], "active");
-  }
-  throw new Error("[SDK][Wallets] \u2013 missing broadcaster");
-}
-
-// src/modules/assets/hive-engine/mutations/delegate.ts
-async function delegateEngineToken(payload, auth) {
-  const parsedAsset = parseAsset(payload.amount);
-  const quantity = parsedAsset.amount.toString();
-  const operation = [
-    "custom_json",
-    {
-      id: "ssc-mainnet-hive",
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "delegate",
-        contractPayload: {
-          symbol: payload.asset,
-          to: payload.to,
-          quantity
-        }
-      })
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
-    const op = {
-      id: "ssc-mainnet-hive",
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "delegate",
-        contractPayload: {
-          symbol: params.asset,
-          to: params.to,
-          quantity
-        }
-      }),
-      required_auths: [params.from],
-      required_posting_auths: []
-    };
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    return broadcastHiveEngineOperation(payload, operation, auth);
-  } else {
-    return hs__default.default.sendOperation(
-      operation,
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
-async function undelegateEngineToken(payload, auth) {
-  const parsedAsset = parseAsset(payload.amount);
-  const quantity = parsedAsset.amount.toString();
-  const operation = [
-    "custom_json",
-    {
-      id: "ssc-mainnet-hive",
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "undelegate",
-        contractPayload: {
-          symbol: payload.asset,
-          from: payload.to,
-          quantity
-        }
-      })
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
-    const op = {
-      id: "ssc-mainnet-hive",
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "undelegate",
-        contractPayload: {
-          symbol: params.asset,
-          from: params.to,
-          quantity
-        }
-      }),
-      required_auths: [params.from],
-      required_posting_auths: []
-    };
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    return broadcastHiveEngineOperation(payload, operation, auth);
-  } else {
-    return hs__default.default.sendOperation(
-      operation,
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
-async function stakeEngineToken(payload, auth) {
-  const parsedAsset = parseAsset(payload.amount);
-  const quantity = parsedAsset.amount.toString();
-  const operation = [
-    "custom_json",
-    {
-      id: "ssc-mainnet-hive",
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "stake",
-        contractPayload: {
-          symbol: payload.asset,
-          to: payload.to,
-          quantity
-        }
-      })
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
-    const op = {
-      id: "ssc-mainnet-hive",
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "stake",
-        contractPayload: {
-          symbol: params.asset,
-          to: params.to,
-          quantity
-        }
-      }),
-      required_auths: [params.from],
-      required_posting_auths: []
-    };
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    return broadcastHiveEngineOperation(payload, operation, auth);
-  } else {
-    return hs__default.default.sendOperation(
-      operation,
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
-async function unstakeEngineToken(payload, auth) {
-  const parsedAsset = parseAsset(payload.amount);
-  const quantity = parsedAsset.amount.toString();
-  const operation = [
-    "custom_json",
-    {
-      id: "ssc-mainnet-hive",
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "unstake",
-        contractPayload: {
-          symbol: payload.asset,
-          to: payload.to,
-          quantity
-        }
-      })
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
-    const op = {
-      id: "ssc-mainnet-hive",
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "unstake",
-        contractPayload: {
-          symbol: params.asset,
-          to: params.to,
-          quantity
-        }
-      }),
-      required_auths: [params.from],
-      required_posting_auths: []
-    };
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    return broadcastHiveEngineOperation(payload, operation, auth);
-  } else {
-    return hs__default.default.sendOperation(
-      operation,
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
-async function transferEngineToken(payload, auth) {
-  const parsedAsset = parseAsset(payload.amount);
-  const quantity = parsedAsset.amount.toString();
-  const operation = [
-    "custom_json",
-    {
-      id: "ssc-mainnet-hive",
-      required_auths: [payload.from],
-      required_posting_auths: [],
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "transfer",
-        contractPayload: {
-          symbol: payload.asset,
-          to: payload.to,
-          quantity,
-          memo: payload.memo
-        }
-      })
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    const { key, type, ...params } = payload;
-    const op = {
-      id: "ssc-mainnet-hive",
-      json: JSON.stringify({
-        contractName: "tokens",
-        contractAction: "transfer",
-        contractPayload: {
-          symbol: params.asset,
-          to: params.to,
-          quantity,
-          memo: params.memo
-        }
-      }),
-      required_auths: [params.from],
-      required_posting_auths: []
-    };
-    return sdk.CONFIG.hiveClient.broadcast.json(op, key);
-  } else if (payload.type === "keychain" || payload.type === "hiveauth") {
-    return broadcastHiveEngineOperation(payload, operation, auth);
-  } else {
-    return hs__default.default.sendOperation(
-      operation,
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
-var ENGINE_CONTRACT_ID = "ssc-mainnet-hive";
-function buildEngineOrderPayload(action, symbol, quantity, price) {
-  return {
-    contractName: "market",
-    contractAction: action,
-    contractPayload: { symbol, quantity, price }
-  };
-}
-function buildEngineCancelPayload(type, orderId) {
-  return {
-    contractName: "market",
-    contractAction: "cancel",
-    contractPayload: { type, id: orderId }
-  };
-}
-function buildEngineOperation(account, payload) {
-  return {
-    id: ENGINE_CONTRACT_ID,
-    required_auths: [account],
-    required_posting_auths: [],
-    json: JSON.stringify(payload)
-  };
-}
-async function broadcastEngineOperation(account, payload, options2) {
-  const operation = buildEngineOperation(account, payload);
-  const opTuple = ["custom_json", operation];
-  switch (options2?.method) {
-    case "key": {
-      if (!options2.key) {
-        throw new Error("[SDK][Wallets] \u2013 active key is required");
-      }
-      return sdk.CONFIG.hiveClient.broadcast.json(operation, options2.key);
-    }
-    case "keychain": {
-      if (options2.auth?.broadcast) {
-        return options2.auth.broadcast([opTuple], "active");
-      }
-      return broadcastWithKeychainFallback(account, [opTuple], "Active");
-    }
-    case "hiveauth": {
-      if (options2.auth?.broadcast) {
-        return options2.auth.broadcast([opTuple], "active");
-      }
-      return broadcastWithWalletHiveAuth(account, [opTuple], "active");
-    }
-    case "hivesigner":
-      return hs__default.default.sendOperation(
-        opTuple,
-        { callback: `https://ecency.com/@${account}/wallet/engine` },
-        () => {
-        }
-      );
-    default:
-      throw new Error("[SDK][Wallets] \u2013 broadcast method is required");
-  }
-}
-var placeHiveEngineBuyOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
-  account,
-  buildEngineOrderPayload("buy", symbol, quantity, price),
-  options2
-);
-var placeHiveEngineSellOrder = async (account, symbol, quantity, price, options2) => broadcastEngineOperation(
-  account,
-  buildEngineOrderPayload("sell", symbol, quantity, price),
-  options2
-);
-var cancelHiveEngineOrder = async (account, type, orderId, options2) => broadcastEngineOperation(
-  account,
-  buildEngineCancelPayload(type, orderId),
-  options2
-);
-async function claimHiveEngineRewards(payload, auth) {
-  const json = JSON.stringify(payload.tokens.map((symbol) => ({ symbol })));
-  const operation = [
-    "custom_json",
-    {
-      id: "scot_claim_token",
-      required_auths: [],
-      required_posting_auths: [payload.account],
-      json
-    }
-  ];
-  if (payload.type === "key" && "key" in payload) {
-    return sdk.CONFIG.hiveClient.broadcast.sendOperations([operation], payload.key);
-  }
-  if (auth?.broadcast) {
-    return auth.broadcast([operation], "posting");
-  }
-  if (auth?.postingKey) {
-    const key = dhive.PrivateKey.fromString(auth.postingKey);
-    return sdk.CONFIG.hiveClient.broadcast.sendOperations([operation], key);
-  }
-  if (auth?.accessToken) {
-    const client = new hs__default.default.Client({ accessToken: auth.accessToken });
-    return client.broadcast([operation]);
-  }
-  if (payload.type === "hiveauth") {
-    return broadcastWithWalletHiveAuth(payload.account, [operation], "posting");
-  }
-  throw new Error("[SDK][Wallets] \u2013 cannot broadcast without auth context");
 }
 function getPointsQueryOptions(username) {
   return reactQuery.queryOptions({
@@ -3676,20 +3148,28 @@ function useSaveWalletInformationToMetadata(username, auth, options2) {
     }
   });
 }
-function buildSpkTransferOp(from, to, amount) {
+function buildSpkCustomJsonOp(from, id, amount) {
   return ["custom_json", {
-    id: "spkcc_spk_send",
+    id,
     required_auths: [from],
     required_posting_auths: [],
-    json: JSON.stringify({ to, amount, token: "SPK" })
+    json: JSON.stringify({ amount: amount * 1e3 })
   }];
 }
-function buildLarynxTransferOp(from, to, amount) {
+function buildEngineOp(from, contractAction, contractPayload, contractName = "tokens") {
   return ["custom_json", {
-    id: "spkcc_send",
+    id: "ssc-mainnet-hive",
     required_auths: [from],
     required_posting_auths: [],
-    json: JSON.stringify({ to, amount })
+    json: JSON.stringify({ contractName, contractAction, contractPayload })
+  }];
+}
+function buildEngineClaimOp(account, tokens) {
+  return ["custom_json", {
+    id: "scot_claim_token",
+    required_auths: [],
+    required_posting_auths: [account],
+    json: JSON.stringify(tokens.map((symbol) => ({ symbol })))
   }];
 }
 function buildHiveOperation(asset, operation, payload) {
@@ -3745,49 +3225,64 @@ function buildHiveOperation(asset, operation, payload) {
     case "SPK":
       if (operation === "transfer" /* Transfer */) {
         const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
-        return [buildSpkTransferOp(from, to, numAmount)];
+        return [["custom_json", {
+          id: "spkcc_spk_send",
+          required_auths: [from],
+          required_posting_auths: [],
+          json: JSON.stringify({ to, amount: numAmount, token: "SPK" })
+        }]];
       }
       break;
     case "LARYNX":
       switch (operation) {
         case "transfer" /* Transfer */: {
           const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
-          return [buildLarynxTransferOp(from, to, numAmount)];
+          return [["custom_json", {
+            id: "spkcc_send",
+            required_auths: [from],
+            required_posting_auths: [],
+            json: JSON.stringify({ to, amount: numAmount })
+          }]];
         }
-        case "lock" /* LockLiquidity */:
-          return null;
-        // Handled by lockLarynx function
-        case "power-up" /* PowerUp */:
-          return null;
+        case "lock" /* LockLiquidity */: {
+          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : payload.amount;
+          const id = payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down";
+          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
+        }
+        case "power-up" /* PowerUp */: {
+          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : payload.amount;
+          const id = `spkcc_power_${payload.mode ?? "up"}`;
+          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
+        }
       }
       break;
   }
   return null;
 }
-var specialOperationMap = {
-  LARYNX: {
-    ["lock" /* LockLiquidity */]: lockLarynx,
-    ["power-up" /* PowerUp */]: powerUpLarynx
+function buildEngineOperation(asset, operation, payload) {
+  const { from, to, amount } = payload;
+  const quantity = typeof amount === "string" && amount.includes(" ") ? amount.split(" ")[0] : String(amount);
+  switch (operation) {
+    case "transfer" /* Transfer */:
+      return [buildEngineOp(from, "transfer", {
+        symbol: asset,
+        to,
+        quantity,
+        memo: payload.memo ?? ""
+      })];
+    case "stake" /* Stake */:
+      return [buildEngineOp(from, "stake", { symbol: asset, to, quantity })];
+    case "unstake" /* Unstake */:
+      return [buildEngineOp(from, "unstake", { symbol: asset, to, quantity })];
+    case "delegate" /* Delegate */:
+      return [buildEngineOp(from, "delegate", { symbol: asset, to, quantity })];
+    case "undelegate" /* Undelegate */:
+      return [buildEngineOp(from, "undelegate", { symbol: asset, from: to, quantity })];
+    case "claim" /* Claim */:
+      return [buildEngineClaimOp(from, [asset])];
   }
-};
-var engineOperationToFunctionMap = {
-  ["transfer" /* Transfer */]: transferEngineToken,
-  ["stake" /* Stake */]: stakeEngineToken,
-  ["unstake" /* Unstake */]: unstakeEngineToken,
-  ["delegate" /* Delegate */]: delegateEngineToken,
-  ["undelegate" /* Undelegate */]: undelegateEngineToken,
-  ["claim" /* Claim */]: (payload, auth) => {
-    return claimHiveEngineRewards(
-      {
-        account: payload.from,
-        tokens: [payload.asset],
-        type: payload.type,
-        ...payload.type === "key" && payload.key ? { key: payload.key } : {}
-      },
-      auth
-    );
-  }
-};
+  return null;
+}
 function useWalletOperation(username, asset, operation, auth) {
   const { mutateAsync: recordActivity } = sdk.EcencyAnalytics.useRecordActivity(
     username,
@@ -3804,10 +3299,6 @@ function useWalletOperation(username, asset, operation, auth) {
           auth
         );
       }
-      const specialFn = specialOperationMap[asset]?.[operation];
-      if (specialFn) {
-        return specialFn(payload, auth);
-      }
       const balancesListQuery = getHiveEngineTokensBalancesQueryOptions(username);
       await sdk.getQueryClient().prefetchQuery(balancesListQuery);
       const balances = sdk.getQueryClient().getQueryData(
@@ -3815,9 +3306,20 @@ function useWalletOperation(username, asset, operation, auth) {
       );
       const engineBalances = balances ?? [];
       if (engineBalances.some((balance) => balance.symbol === asset)) {
-        const operationFn = engineOperationToFunctionMap[operation];
-        if (operationFn) {
-          return operationFn({ ...payload, asset }, auth);
+        const engineOps = buildEngineOperation(asset, operation, payload);
+        if (engineOps) {
+          if (operation === "claim" /* Claim */) {
+            return broadcastActiveOperation(
+              payload,
+              engineOps,
+              auth
+            );
+          }
+          return broadcastActiveOperation(
+            payload,
+            engineOps,
+            auth
+          );
         }
       }
       throw new Error("[SDK][Wallets] \u2013 no operation for given asset");
@@ -3897,12 +3399,9 @@ exports.buildPsbt = buildPsbt;
 exports.buildSolTx = buildSolTx;
 exports.buildTonTx = buildTonTx;
 exports.buildTronTx = buildTronTx;
-exports.cancelHiveEngineOrder = cancelHiveEngineOrder;
-exports.claimHiveEngineRewards = claimHiveEngineRewards;
 exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
 exports.decryptMemoWithKeys = decryptMemoWithKeys;
 exports.delay = delay;
-exports.delegateEngineToken = delegateEngineToken;
 exports.deriveHiveKey = deriveHiveKey;
 exports.deriveHiveKeys = deriveHiveKeys;
 exports.deriveHiveMasterPasswordKey = deriveHiveMasterPasswordKey;
@@ -3948,12 +3447,8 @@ exports.getVisionPortfolioQueryOptions = getVisionPortfolioQueryOptions;
 exports.getWallet = getWallet;
 exports.hasWalletHiveAuthBroadcast = hasWalletHiveAuthBroadcast;
 exports.isEmptyDate = isEmptyDate;
-exports.lockLarynx = lockLarynx;
 exports.mnemonicToSeedBip39 = mnemonicToSeedBip39;
 exports.parseAsset = parseAsset;
-exports.placeHiveEngineBuyOrder = placeHiveEngineBuyOrder;
-exports.placeHiveEngineSellOrder = placeHiveEngineSellOrder;
-exports.powerUpLarynx = powerUpLarynx;
 exports.registerWalletHiveAuthBroadcast = registerWalletHiveAuthBroadcast;
 exports.resolveHiveOperationFilters = resolveHiveOperationFilters;
 exports.rewardSpk = rewardSpk;
@@ -3962,12 +3457,7 @@ exports.signExternalTx = signExternalTx;
 exports.signExternalTxAndBroadcast = signExternalTxAndBroadcast;
 exports.signTx = signTx;
 exports.signTxAndBroadcast = signTxAndBroadcast;
-exports.stakeEngineToken = stakeEngineToken;
-exports.transferEngineToken = transferEngineToken;
-exports.undelegateEngineToken = undelegateEngineToken;
-exports.unstakeEngineToken = unstakeEngineToken;
 exports.useClaimPoints = useClaimPoints;
-exports.useClaimRewards = useClaimRewards;
 exports.useGetExternalWalletBalanceQuery = useGetExternalWalletBalanceQuery;
 exports.useHiveKeysQuery = useHiveKeysQuery;
 exports.useImportWallet = useImportWallet;
