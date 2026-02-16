@@ -19,3 +19,4 @@ export * from "./get-hive-asset-metric-query-options";
 export * from "./get-hive-asset-withdrawal-routes-query-options";
 export * from "./get-hive-power-delegates-query-options";
 export * from "./get-hive-power-delegatings-query-options";
+export * from "./get-account-wallet-asset-info-query-options";

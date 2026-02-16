@@ -3,8 +3,8 @@ import {
   AssetOperation,
   parseAsset,
   vestsToHp,
+  getAccountWalletAssetInfoQueryOptions,
 } from "@ecency/sdk";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";

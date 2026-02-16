@@ -1,7 +1,11 @@
 import { AssetOperation } from "@/modules/assets";
-import { getQueryClient } from "@ecency/sdk";
+import {
+  getQueryClient,
+  getPortfolioQueryOptions,
+  type PortfolioResponse,
+  type PortfolioWalletItem,
+} from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
-import { getVisionPortfolioQueryOptions, VisionPortfolioResponse, VisionPortfolioWalletItem } from "./get-vision-portfolio-query-options";
 
 export function getTokenOperationsQueryOptions(
   token: string,
@@ -20,11 +24,11 @@ export function getTokenOperationsQueryOptions(
       }
 
       try {
-        const portfolio: VisionPortfolioResponse = await queryClient.fetchQuery(
-          getVisionPortfolioQueryOptions(username, currency)
+        const portfolio: PortfolioResponse = await queryClient.fetchQuery(
+          getPortfolioQueryOptions(username, currency, true)
         );
         const assetEntry = portfolio.wallets.find(
-          (assetItem: VisionPortfolioWalletItem) => assetItem.symbol.toUpperCase() === normalizedToken
+          (assetItem: PortfolioWalletItem) => assetItem.symbol.toUpperCase() === normalizedToken
         );
 
         if (!assetEntry) {

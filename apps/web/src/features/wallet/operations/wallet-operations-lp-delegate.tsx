@@ -1,6 +1,5 @@
 import { Button, FormControl } from "@/features/ui";
-import { getSpkMarketsQueryOptions } from "@ecency/sdk";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getSpkMarketsQueryOptions, getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";

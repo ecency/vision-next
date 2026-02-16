@@ -1,5 +1,5 @@
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import {
-  getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";

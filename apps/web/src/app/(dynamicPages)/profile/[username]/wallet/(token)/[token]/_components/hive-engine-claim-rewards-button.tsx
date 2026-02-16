@@ -10,7 +10,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 import { useClaimEngineRewardsMutation } from "@/api/sdk-mutations";
 

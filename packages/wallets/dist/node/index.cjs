@@ -14,7 +14,6 @@ var cryptoLib = require('@okxweb3/crypto-lib');
 var dhive = require('@hiveio/dhive');
 var crypto = require('@hiveio/dhive/lib/crypto');
 var memo = require('@hiveio/dhive/lib/memo');
-var hs = require('hivesigner');
 var R = require('remeda');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
@@ -38,7 +37,6 @@ function _interopNamespace(e) {
 }
 
 var bip39__default = /*#__PURE__*/_interopDefault(bip39);
-var hs__default = /*#__PURE__*/_interopDefault(hs);
 var R__namespace = /*#__PURE__*/_interopNamespace(R);
 
 var __defProp = Object.defineProperty;
@@ -605,75 +603,6 @@ function useHiveKeysQuery(username) {
     }
   });
 }
-
-// src/internal/hive-auth.ts
-var broadcastHandler = null;
-function registerHiveAuthBroadcastHandler(handler) {
-  broadcastHandler = handler;
-}
-function getHiveAuthBroadcastHandler() {
-  return broadcastHandler;
-}
-
-// src/modules/assets/utils/hive-auth.ts
-function registerWalletHiveAuthBroadcast(handler) {
-  registerHiveAuthBroadcastHandler(handler);
-}
-function broadcastWithWalletHiveAuth(username, operations, keyType) {
-  const handler = getHiveAuthBroadcastHandler();
-  if (!handler) {
-    throw new Error("HiveAuth broadcast handler is not registered");
-  }
-  return handler(username, operations, keyType);
-}
-function hasWalletHiveAuthBroadcast() {
-  return typeof getHiveAuthBroadcastHandler() === "function";
-}
-
-// src/modules/assets/utils/keychain-fallback.ts
-async function broadcastWithKeychainFallback(account, operations, authority = "Active") {
-  if (typeof window === "undefined" || !window.hive_keychain) {
-    throw new Error("[SDK][Wallets] \u2013 Keychain extension not found");
-  }
-  return new Promise((resolve, reject) => {
-    window.hive_keychain.requestBroadcast(
-      account,
-      operations,
-      authority,
-      (response) => {
-        if (!response.success) {
-          reject(new Error(response.message || "Keychain operation cancelled"));
-          return;
-        }
-        resolve(response.result);
-      }
-    );
-  });
-}
-
-// src/modules/assets/utils/broadcast-active-operation.ts
-async function broadcastActiveOperation(payload, operations, auth) {
-  if (payload.type === "key" && payload.key) {
-    return sdk.CONFIG.hiveClient.broadcast.sendOperations(operations, payload.key);
-  } else if (payload.type === "keychain") {
-    if (auth?.broadcast) {
-      return auth.broadcast(operations, "active");
-    }
-    return broadcastWithKeychainFallback(payload.from, operations, "Active");
-  } else if (payload.type === "hiveauth") {
-    if (auth?.broadcast) {
-      return auth.broadcast(operations, "active");
-    }
-    return broadcastWithWalletHiveAuth(payload.from, operations, "active");
-  } else {
-    return hs__default.default.sendOperation(
-      operations[0],
-      { callback: `https://ecency.com/@${payload.from}/wallet` },
-      () => {
-      }
-    );
-  }
-}
 function createFallbackTokenMetadata(symbol) {
   return {
     issuer: "",
@@ -745,11 +674,6 @@ function getAllTokensListQueryOptions(username) {
     }
   });
 }
-function getVisionPortfolioQueryOptions(username, currency = "usd") {
-  return sdk.getPortfolioQueryOptions(username, currency, true);
-}
-
-// src/modules/wallets/queries/use-get-account-wallet-list-query.ts
 function normalizeAccountTokens(tokens) {
   if (Array.isArray(tokens)) {
     return tokens.filter(Boolean);
@@ -772,7 +696,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
     queryKey: ["ecency-wallets", "list", username, currency],
     enabled: !!username,
     queryFn: async () => {
-      const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
+      const portfolioQuery = sdk.getPortfolioQueryOptions(username, currency, true);
       const queryClient = sdk.getQueryClient();
       const accountQuery = sdk.getAccountFullQueryOptions(username);
       let account;
@@ -826,561 +750,6 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
     }
   });
 }
-
-// src/modules/assets/external/common/parse-private-api-balance.ts
-function normalizeBalance2(balance) {
-  if (typeof balance === "number") {
-    if (!Number.isFinite(balance)) {
-      throw new Error("Private API returned a non-finite numeric balance");
-    }
-    return Math.trunc(balance).toString();
-  }
-  if (typeof balance === "string") {
-    const trimmed = balance.trim();
-    if (trimmed === "") {
-      throw new Error("Private API returned an empty balance string");
-    }
-    return trimmed;
-  }
-  throw new Error("Private API returned balance in an unexpected format");
-}
-function parsePrivateApiBalance2(result, expectedChain) {
-  if (!result || typeof result !== "object") {
-    throw new Error("Private API returned an unexpected response");
-  }
-  const { chain, balance, unit, raw, nodeId } = result;
-  if (typeof chain !== "string" || chain !== expectedChain) {
-    throw new Error("Private API response chain did not match request");
-  }
-  if (typeof unit !== "string" || unit.length === 0) {
-    throw new Error("Private API response is missing unit information");
-  }
-  if (balance === void 0 || balance === null) {
-    throw new Error("Private API response is missing balance information");
-  }
-  const balanceString = normalizeBalance2(balance);
-  let balanceBigInt;
-  try {
-    balanceBigInt = BigInt(balanceString);
-  } catch (error) {
-    throw new Error("Private API returned a balance that is not an integer");
-  }
-  return {
-    chain,
-    unit,
-    raw,
-    nodeId: typeof nodeId === "string" && nodeId.length > 0 ? nodeId : void 0,
-    balanceBigInt,
-    balanceString
-  };
-}
-
-// src/modules/assets/external/apt/get-apt-asset-balance-query-options.ts
-function getAptAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "apt", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/apt/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "apt").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "apt").balanceString;
-      }
-    }
-  });
-}
-async function getAddressFromAccount(username, tokenName) {
-  await sdk.CONFIG.queryClient.prefetchQuery(sdk.getAccountFullQueryOptions(username));
-  const account = sdk.CONFIG.queryClient.getQueryData(
-    sdk.getAccountFullQueryOptions(username).queryKey
-  );
-  const address = account?.profile?.tokens?.find((t) => t.symbol === tokenName)?.meta?.address;
-  if (!address) {
-    throw new Error(
-      "[SDK][Wallets] \u2013\xA0cannot fetch APT balance with empty adrress"
-    );
-  }
-  return address;
-}
-
-// src/modules/assets/external/apt/get-apt-asset-general-info-query-options.ts
-function getAptAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "apt", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "APT");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getAptAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getAptAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e8;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("APT")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("APT").queryKey
-      ) ?? 0;
-      return {
-        name: "APT",
-        title: "Aptos",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getBnbAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "bnb", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/bnb/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "bnb").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "bnb").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/bnb/get-bnb-asset-general-info-query-options.ts
-function getBnbAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "bnb", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "BNB");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getBnbAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getBnbAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e18;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("BNB")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("BNB").queryKey
-      ) ?? 0;
-      return {
-        name: "BNB",
-        title: "Binance coin",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getBtcAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "btc", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/btc/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "btc").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "btc").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/btc/get-btc-asset-general-info-query-options.ts
-function getBtcAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "btc", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "BTC");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getBtcAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getBtcAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e8;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("BTC")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("BTC").queryKey
-      ) ?? 0;
-      return {
-        name: "BTC",
-        title: "Bitcoin",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getEthAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "eth", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/eth/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "eth").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "eth").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/eth/get-eth-asset-general-info-query-options.ts
-function getEthAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "eth", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "ETH");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getEthAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getEthAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e18;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("ETH")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("ETH").queryKey
-      ) ?? 0;
-      return {
-        name: "ETH",
-        title: "Ethereum",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getSolAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "sol", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/sol/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "sol").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "sol").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/sol/get-sol-asset-general-info-query-options.ts
-function getSolAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "sol", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "SOL");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getSolAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getSolAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e9;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("SOL")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("SOL").queryKey
-      ) ?? 0;
-      return {
-        name: "SOL",
-        title: "Solana",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getTonAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "ton", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/ton/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "ton").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "ton").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/ton/get-ton-asset-general-info-query-options.ts
-function getTonAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "ton", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "TON");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getTonAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getTonAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e9;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("TON")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("TON").queryKey
-      ) ?? 0;
-      return {
-        name: "TON",
-        title: "The open network",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-function getTronAssetBalanceQueryOptions(address) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "tron", "balance", address],
-    queryFn: async () => {
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/tron/${encodeURIComponent(
-        address
-      )}`;
-      try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] \u2013 request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance2(await response.json(), "tron").balanceString;
-      } catch (error) {
-        console.error(error);
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance2(await response.json(), "tron").balanceString;
-      }
-    }
-  });
-}
-
-// src/modules/assets/external/tron/get-tron-asset-general-info-query-options.ts
-function getTronAssetGeneralInfoQueryOptions(username) {
-  return reactQuery.queryOptions({
-    queryKey: ["assets", "tron", "general-info", username],
-    staleTime: 6e4,
-    refetchInterval: 9e4,
-    queryFn: async () => {
-      const address = await getAddressFromAccount(username, "TRX");
-      await sdk.CONFIG.queryClient.fetchQuery(
-        getTronAssetBalanceQueryOptions(address)
-      );
-      const accountBalance = (sdk.CONFIG.queryClient.getQueryData(
-        getTronAssetBalanceQueryOptions(address).queryKey
-      ) ?? 0) / 1e6;
-      await sdk.CONFIG.queryClient.prefetchQuery(
-        getTokenPriceQueryOptions("TRX")
-      );
-      const price = sdk.CONFIG.queryClient.getQueryData(
-        getTokenPriceQueryOptions("TRX").queryKey
-      ) ?? 0;
-      return {
-        name: "TRX",
-        title: "Tron",
-        price,
-        accountBalance
-      };
-    }
-  });
-}
-
-// src/modules/wallets/queries/get-account-wallet-asset-info-query-options.ts
-function getAccountWalletAssetInfoQueryOptions(username, asset, options2 = { refetch: false }) {
-  const queryClient = sdk.getQueryClient();
-  const currency = options2.currency ?? "usd";
-  const fetchQuery = async (queryOptions20) => {
-    if (options2.refetch) {
-      await queryClient.fetchQuery(queryOptions20);
-    } else {
-      await queryClient.prefetchQuery(queryOptions20);
-    }
-    return queryClient.getQueryData(queryOptions20.queryKey);
-  };
-  const convertPriceToUserCurrency = async (assetInfo) => {
-    if (!assetInfo || currency === "usd") {
-      return assetInfo;
-    }
-    try {
-      const conversionRate = await sdk.getCurrencyRate(currency);
-      return {
-        ...assetInfo,
-        price: assetInfo.price * conversionRate
-      };
-    } catch (error) {
-      console.warn(`Failed to convert price from USD to ${currency}:`, error);
-      return assetInfo;
-    }
-  };
-  const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
-  const getPortfolioAssetInfo = async () => {
-    try {
-      const portfolio = await queryClient.fetchQuery(portfolioQuery);
-      const assetInfo = portfolio.wallets.find(
-        (assetItem) => assetItem.symbol.toUpperCase() === asset.toUpperCase()
-      );
-      if (!assetInfo) return void 0;
-      const parts = [];
-      if (assetInfo.liquid !== void 0 && assetInfo.liquid !== null) {
-        parts.push({ name: "liquid", balance: assetInfo.liquid });
-      }
-      if (assetInfo.staked !== void 0 && assetInfo.staked !== null && assetInfo.staked > 0) {
-        parts.push({ name: "staked", balance: assetInfo.staked });
-      }
-      if (assetInfo.savings !== void 0 && assetInfo.savings !== null && assetInfo.savings > 0) {
-        parts.push({ name: "savings", balance: assetInfo.savings });
-      }
-      if (assetInfo.extraData && Array.isArray(assetInfo.extraData)) {
-        for (const extraItem of assetInfo.extraData) {
-          if (!extraItem || typeof extraItem !== "object") continue;
-          const dataKey = extraItem.dataKey;
-          const value = extraItem.value;
-          if (typeof value === "string") {
-            const cleanValue = value.replace(/,/g, "");
-            const match = cleanValue.match(/[+-]?\s*(\d+(?:\.\d+)?)/);
-            if (match) {
-              const numValue = Math.abs(Number.parseFloat(match[1]));
-              if (dataKey === "delegated_hive_power") {
-                parts.push({ name: "outgoing_delegations", balance: numValue });
-              } else if (dataKey === "received_hive_power") {
-                parts.push({ name: "incoming_delegations", balance: numValue });
-              } else if (dataKey === "powering_down_hive_power") {
-                parts.push({ name: "pending_power_down", balance: numValue });
-              }
-            }
-          }
-        }
-      }
-      return {
-        name: assetInfo.symbol,
-        title: assetInfo.name,
-        price: assetInfo.fiatRate,
-        accountBalance: assetInfo.balance,
-        apr: assetInfo.apr?.toString(),
-        layer: assetInfo.layer,
-        pendingRewards: assetInfo.pendingRewards,
-        parts
-      };
-    } catch (e) {
-      return void 0;
-    }
-  };
-  return reactQuery.queryOptions({
-    queryKey: ["ecency-wallets", "asset-info", username, asset, currency],
-    queryFn: async () => {
-      const portfolioAssetInfo = await getPortfolioAssetInfo();
-      if (portfolioAssetInfo && portfolioAssetInfo.price > 0) {
-        return portfolioAssetInfo;
-      }
-      let assetInfo;
-      if (asset === "HIVE") {
-        assetInfo = await fetchQuery(sdk.getHiveAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "HP") {
-        assetInfo = await fetchQuery(sdk.getHivePowerAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "HBD") {
-        assetInfo = await fetchQuery(sdk.getHbdAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "SPK") {
-        assetInfo = await fetchQuery(sdk.getSpkAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "LARYNX") {
-        assetInfo = await fetchQuery(sdk.getLarynxAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "LP") {
-        assetInfo = await fetchQuery(sdk.getLarynxPowerAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "POINTS") {
-        assetInfo = await fetchQuery(sdk.getPointsAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "APT") {
-        assetInfo = await fetchQuery(getAptAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "BNB") {
-        assetInfo = await fetchQuery(getBnbAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "BTC") {
-        assetInfo = await fetchQuery(getBtcAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "ETH") {
-        assetInfo = await fetchQuery(getEthAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "SOL") {
-        assetInfo = await fetchQuery(getSolAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "TON") {
-        assetInfo = await fetchQuery(getTonAssetGeneralInfoQueryOptions(username));
-      } else if (asset === "TRX") {
-        assetInfo = await fetchQuery(getTronAssetGeneralInfoQueryOptions(username));
-      } else {
-        const balances = await queryClient.ensureQueryData(
-          sdk.getHiveEngineTokensBalancesQueryOptions(username)
-        );
-        if (balances.some((balance) => balance.symbol === asset)) {
-          assetInfo = await fetchQuery(
-            sdk.getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
-          );
-        } else {
-          throw new Error(
-            "[SDK][Wallets] \u2013 has requested unrecognized asset info"
-          );
-        }
-      }
-      return await convertPriceToUserCurrency(assetInfo);
-    }
-  });
-}
 function getTokenOperationsQueryOptions(token, username, isForOwner = false, currency = "usd") {
   return reactQuery.queryOptions({
     queryKey: ["wallets", "token-operations", token, username, isForOwner, currency],
@@ -1392,7 +761,7 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
       }
       try {
         const portfolio = await queryClient.fetchQuery(
-          getVisionPortfolioQueryOptions(username, currency)
+          sdk.getPortfolioQueryOptions(username, currency, true)
         );
         const assetEntry = portfolio.wallets.find(
           (assetItem) => assetItem.symbol.toUpperCase() === normalizedToken
@@ -1832,216 +1201,6 @@ function useSaveWalletInformationToMetadata(username, auth, options2) {
     }
   });
 }
-function buildSpkCustomJsonOp(from, id, amount) {
-  return ["custom_json", {
-    id,
-    required_auths: [from],
-    required_posting_auths: [],
-    json: JSON.stringify({ amount: amount * 1e3 })
-  }];
-}
-function buildEngineOp(from, contractAction, contractPayload, contractName = "tokens") {
-  return ["custom_json", {
-    id: "ssc-mainnet-hive",
-    required_auths: [from],
-    required_posting_auths: [],
-    json: JSON.stringify({ contractName, contractAction, contractPayload })
-  }];
-}
-function buildEngineClaimOp(account, tokens) {
-  return ["custom_json", {
-    id: "scot_claim_token",
-    required_auths: [],
-    required_posting_auths: [account],
-    json: JSON.stringify(tokens.map((symbol) => ({ symbol })))
-  }];
-}
-function buildHiveOperation(asset, operation, payload) {
-  const { from, to, amount, memo } = payload;
-  const requestId = Date.now() >>> 0;
-  switch (asset) {
-    case "HIVE":
-      switch (operation) {
-        case sdk.AssetOperation.Transfer:
-          return [sdk.buildTransferOp(from, to, amount, memo)];
-        case sdk.AssetOperation.TransferToSavings:
-          return [sdk.buildTransferToSavingsOp(from, to, amount, memo)];
-        case sdk.AssetOperation.WithdrawFromSavings:
-          return [sdk.buildTransferFromSavingsOp(from, to, amount, memo, payload.request_id ?? requestId)];
-        case sdk.AssetOperation.PowerUp:
-          return [sdk.buildTransferToVestingOp(from, to, amount)];
-      }
-      break;
-    case "HBD":
-      switch (operation) {
-        case sdk.AssetOperation.Transfer:
-          return [sdk.buildTransferOp(from, to, amount, memo)];
-        case sdk.AssetOperation.TransferToSavings:
-          return [sdk.buildTransferToSavingsOp(from, to, amount, memo)];
-        case sdk.AssetOperation.WithdrawFromSavings:
-          return [sdk.buildTransferFromSavingsOp(from, to, amount, memo, payload.request_id ?? requestId)];
-        case sdk.AssetOperation.ClaimInterest:
-          return sdk.buildClaimInterestOps(from, to, amount, memo, payload.request_id ?? requestId);
-        case sdk.AssetOperation.Convert:
-          return [sdk.buildConvertOp(from, amount, Math.floor(Date.now() / 1e3))];
-      }
-      break;
-    case "HP":
-      switch (operation) {
-        case sdk.AssetOperation.PowerDown:
-          return [sdk.buildWithdrawVestingOp(from, amount)];
-        case sdk.AssetOperation.Delegate:
-          return [sdk.buildDelegateVestingSharesOp(from, to, amount)];
-        case sdk.AssetOperation.WithdrawRoutes:
-          return [sdk.buildSetWithdrawVestingRouteOp(
-            payload.from_account ?? from,
-            payload.to_account ?? to,
-            payload.percent ?? 0,
-            payload.auto_vest ?? false
-          )];
-      }
-      break;
-    case "POINTS":
-      if (operation === sdk.AssetOperation.Transfer || operation === sdk.AssetOperation.Gift) {
-        return [sdk.buildPointTransferOp(from, to, amount, memo)];
-      }
-      break;
-    case "SPK":
-      if (operation === sdk.AssetOperation.Transfer) {
-        const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
-        return [["custom_json", {
-          id: "spkcc_spk_send",
-          required_auths: [from],
-          required_posting_auths: [],
-          json: JSON.stringify({ to, amount: numAmount, token: "SPK" })
-        }]];
-      }
-      break;
-    case "LARYNX":
-      switch (operation) {
-        case sdk.AssetOperation.Transfer: {
-          const numAmount = typeof amount === "number" ? amount : parseFloat(amount) * 1e3;
-          return [["custom_json", {
-            id: "spkcc_send",
-            required_auths: [from],
-            required_posting_auths: [],
-            json: JSON.stringify({ to, amount: numAmount })
-          }]];
-        }
-        case sdk.AssetOperation.LockLiquidity: {
-          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : payload.amount;
-          const id = payload.mode === "lock" ? "spkcc_gov_up" : "spkcc_gov_down";
-          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
-        }
-        case sdk.AssetOperation.PowerUp: {
-          const parsedAmount = typeof payload.amount === "string" ? parseFloat(payload.amount) : payload.amount;
-          const id = `spkcc_power_${payload.mode ?? "up"}`;
-          return [buildSpkCustomJsonOp(from, id, parsedAmount)];
-        }
-      }
-      break;
-  }
-  return null;
-}
-function buildEngineOperation(asset, operation, payload) {
-  const { from, to, amount } = payload;
-  const quantity = typeof amount === "string" && amount.includes(" ") ? amount.split(" ")[0] : String(amount);
-  switch (operation) {
-    case sdk.AssetOperation.Transfer:
-      return [buildEngineOp(from, "transfer", {
-        symbol: asset,
-        to,
-        quantity,
-        memo: payload.memo ?? ""
-      })];
-    case sdk.AssetOperation.Stake:
-      return [buildEngineOp(from, "stake", { symbol: asset, to, quantity })];
-    case sdk.AssetOperation.Unstake:
-      return [buildEngineOp(from, "unstake", { symbol: asset, to, quantity })];
-    case sdk.AssetOperation.Delegate:
-      return [buildEngineOp(from, "delegate", { symbol: asset, to, quantity })];
-    case sdk.AssetOperation.Undelegate:
-      return [buildEngineOp(from, "undelegate", { symbol: asset, from: to, quantity })];
-    case sdk.AssetOperation.Claim:
-      return [buildEngineClaimOp(from, [asset])];
-  }
-  return null;
-}
-function useWalletOperation(username, asset, operation, auth) {
-  const { mutateAsync: recordActivity } = sdk.EcencyAnalytics.useRecordActivity(
-    username,
-    operation
-  );
-  return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", asset, operation],
-    mutationFn: async (payload) => {
-      const ops = buildHiveOperation(asset, operation, payload);
-      if (ops) {
-        return broadcastActiveOperation(
-          payload,
-          ops,
-          auth
-        );
-      }
-      const balancesListQuery = sdk.getHiveEngineTokensBalancesQueryOptions(username);
-      await sdk.getQueryClient().prefetchQuery(balancesListQuery);
-      const balances = sdk.getQueryClient().getQueryData(
-        balancesListQuery.queryKey
-      );
-      const engineBalances = balances ?? [];
-      if (engineBalances.some((balance) => balance.symbol === asset)) {
-        const engineOps = buildEngineOperation(asset, operation, payload);
-        if (engineOps) {
-          if (operation === sdk.AssetOperation.Claim) {
-            return broadcastActiveOperation(
-              payload,
-              engineOps,
-              auth
-            );
-          }
-          return broadcastActiveOperation(
-            payload,
-            engineOps,
-            auth
-          );
-        }
-      }
-      throw new Error("[SDK][Wallets] \u2013 no operation for given asset");
-    },
-    onSuccess: () => {
-      recordActivity();
-      const assetsToRefresh = /* @__PURE__ */ new Set([asset]);
-      if (asset === "HIVE") {
-        assetsToRefresh.add("HP");
-        assetsToRefresh.add("HIVE");
-      }
-      if (asset === "HBD") {
-        assetsToRefresh.add("HBD");
-      }
-      if (asset === "LARYNX" && operation === sdk.AssetOperation.PowerUp) {
-        assetsToRefresh.add("LP");
-        assetsToRefresh.add("LARYNX");
-      }
-      assetsToRefresh.forEach((symbol) => {
-        const query = getAccountWalletAssetInfoQueryOptions(username, symbol, {
-          refetch: true
-        });
-        setTimeout(
-          () => sdk.getQueryClient().invalidateQueries({
-            queryKey: query.queryKey
-          }),
-          5e3
-        );
-      });
-      setTimeout(
-        () => sdk.getQueryClient().invalidateQueries({
-          queryKey: ["ecency-wallets", "portfolio", "v2", username]
-        }),
-        4e3
-      );
-    }
-  });
-}
 
 // src/index.ts
 rememberScryptBsvVersion();
@@ -2086,6 +1245,10 @@ Object.defineProperty(exports, "formattedNumber", {
   enumerable: true,
   get: function () { return sdk.formattedNumber; }
 });
+Object.defineProperty(exports, "getAccountWalletAssetInfoQueryOptions", {
+  enumerable: true,
+  get: function () { return sdk.getAccountWalletAssetInfoQueryOptions; }
+});
 Object.defineProperty(exports, "getAllHiveEngineTokensQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getAllHiveEngineTokensQueryOptions; }
@@ -2118,18 +1281,6 @@ Object.defineProperty(exports, "getHiveEngineBalancesWithUsdQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getHiveEngineBalancesWithUsdQueryOptions; }
 });
-Object.defineProperty(exports, "getHiveEngineMetrics", {
-  enumerable: true,
-  get: function () { return sdk.getHiveEngineMetrics; }
-});
-Object.defineProperty(exports, "getHiveEngineOpenOrders", {
-  enumerable: true,
-  get: function () { return sdk.getHiveEngineOpenOrders; }
-});
-Object.defineProperty(exports, "getHiveEngineOrderBook", {
-  enumerable: true,
-  get: function () { return sdk.getHiveEngineOrderBook; }
-});
 Object.defineProperty(exports, "getHiveEngineTokenGeneralInfoQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getHiveEngineTokenGeneralInfoQueryOptions; }
@@ -2153,10 +1304,6 @@ Object.defineProperty(exports, "getHiveEngineTokensMetadataQueryOptions", {
 Object.defineProperty(exports, "getHiveEngineTokensMetricsQueryOptions", {
   enumerable: true,
   get: function () { return sdk.getHiveEngineTokensMetricsQueryOptions; }
-});
-Object.defineProperty(exports, "getHiveEngineTradeHistory", {
-  enumerable: true,
-  get: function () { return sdk.getHiveEngineTradeHistory; }
 });
 Object.defineProperty(exports, "getHiveEngineUnclaimedRewardsQueryOptions", {
   enumerable: true,
@@ -2230,6 +1377,10 @@ Object.defineProperty(exports, "useClaimPoints", {
   enumerable: true,
   get: function () { return sdk.useClaimPoints; }
 });
+Object.defineProperty(exports, "useWalletOperation", {
+  enumerable: true,
+  get: function () { return sdk.useWalletOperation; }
+});
 Object.defineProperty(exports, "vestsToHp", {
   enumerable: true,
   get: function () { return sdk.vestsToHp; }
@@ -2237,8 +1388,6 @@ Object.defineProperty(exports, "vestsToHp", {
 exports.EcencyWalletBasicTokens = EcencyWalletBasicTokens;
 exports.EcencyWalletCurrency = EcencyWalletCurrency;
 exports.EcencyWalletsPrivateApi = private_api_exports;
-exports.broadcastActiveOperation = broadcastActiveOperation;
-exports.broadcastWithWalletHiveAuth = broadcastWithWalletHiveAuth;
 exports.buildAptTx = buildAptTx;
 exports.buildEthTx = buildEthTx;
 exports.buildExternalTx = buildExternalTx;
@@ -2256,17 +1405,13 @@ exports.deriveHiveMasterPasswordKeys = deriveHiveMasterPasswordKeys;
 exports.detectHiveKeyDerivation = detectHiveKeyDerivation;
 exports.encryptMemoWithAccounts = encryptMemoWithAccounts;
 exports.encryptMemoWithKeys = encryptMemoWithKeys;
-exports.getAccountWalletAssetInfoQueryOptions = getAccountWalletAssetInfoQueryOptions;
 exports.getAccountWalletListQueryOptions = getAccountWalletListQueryOptions;
 exports.getAllTokensListQueryOptions = getAllTokensListQueryOptions;
 exports.getBoundFetch = getBoundFetch;
 exports.getTokenOperationsQueryOptions = getTokenOperationsQueryOptions;
 exports.getTokenPriceQueryOptions = getTokenPriceQueryOptions;
-exports.getVisionPortfolioQueryOptions = getVisionPortfolioQueryOptions;
 exports.getWallet = getWallet;
-exports.hasWalletHiveAuthBroadcast = hasWalletHiveAuthBroadcast;
 exports.mnemonicToSeedBip39 = mnemonicToSeedBip39;
-exports.registerWalletHiveAuthBroadcast = registerWalletHiveAuthBroadcast;
 exports.signDigest = signDigest;
 exports.signExternalTx = signExternalTx;
 exports.signExternalTxAndBroadcast = signExternalTxAndBroadcast;
@@ -2278,7 +1423,6 @@ exports.useImportWallet = useImportWallet;
 exports.useSaveWalletInformationToMetadata = useSaveWalletInformationToMetadata;
 exports.useSeedPhrase = useSeedPhrase;
 exports.useWalletCreate = useWalletCreate;
-exports.useWalletOperation = useWalletOperation;
 exports.useWalletsCacheQuery = useWalletsCacheQuery;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

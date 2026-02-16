@@ -1,5 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";

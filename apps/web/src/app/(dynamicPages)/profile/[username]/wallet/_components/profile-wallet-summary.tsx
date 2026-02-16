@@ -2,9 +2,8 @@
 
 import { useGlobalStore } from "@/core/global-store";
 import { FormattedCurrency } from "@/features/shared";
-import { type GeneralAssetInfo } from "@ecency/sdk";
+import { type GeneralAssetInfo, getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import {
-  getAccountWalletAssetInfoQueryOptions,
   getAccountWalletListQueryOptions
 } from "@ecency/wallets";
 import { useQueries, useQuery } from "@tanstack/react-query";

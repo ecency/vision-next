@@ -1,19 +1,19 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
-import { AssetOperation } from "@ecency/sdk";
-import { useWalletOperation } from "@ecency/wallets";
+import { AssetOperation, CONFIG, useWalletOperation } from "@ecency/sdk";
+import type { AuthContextV2 } from "@ecency/sdk";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
+import hs from "hivesigner";
 import Image from "next/image";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
 import { shouldUseHiveAuth, broadcastWithHiveAuth } from "@/utils/client";
-import { getSdkAuthContext, getUser } from "@/utils";
+import { getUser } from "@/utils";
 import * as keychain from "@/utils/keychain";
-import type { AuthContext } from "@ecency/sdk";
 
 interface Props {
   asset: string;
@@ -39,34 +39,40 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
-  const user = activeUser?.username ? getUser(activeUser.username) : undefined;
+  // Track which auth method the user chose (set before calling sign)
+  const signMethodRef = useRef<{ method: string; key?: PrivateKey }>({ method: "" });
 
-  // Create auth context with broadcast methods for keychain/hiveauth
-  // This allows using these methods even when not logged in with them
-  const authContext = useMemo<AuthContext | undefined>(() => {
+  // Create auth context with broadcast that dispatches based on chosen sign method
+  const authContext = useMemo<AuthContextV2 | undefined>(() => {
     if (!activeUser?.username) return undefined;
 
-    const baseAuth = getSdkAuthContext(user);
-    if (!baseAuth) return undefined;
-
-    // If already has broadcast (logged in with keychain/hiveauth), use it
-    if (baseAuth.broadcast) return baseAuth;
-
-    // Otherwise, add broadcast methods for keychain and hiveauth
     return {
-      ...baseAuth,
       broadcast: (operations, authority = "posting") => {
-        // Try HiveAuth first if available
-        if (useHiveAuth) {
+        const { method, key } = signMethodRef.current;
+
+        if (method === "key" && key) {
+          return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
+        }
+
+        if (method === "hivesigner") {
+          // Redirect to HiveSigner — page navigates away, promise never resolves
+          return new Promise(() => {
+            hs.sendOperation(
+              operations[0],
+              { callback: `https://ecency.com/@${activeUser.username}/wallet` },
+              () => {}
+            );
+          });
+        }
+
+        if (method === "hiveauth" || useHiveAuth) {
           if (authority === "active" || authority === "posting") {
             return broadcastWithHiveAuth(activeUser.username, operations, authority);
           }
           throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
         }
 
-        // Fall back to keychain if available
-        if (hasKeyChain) {
-          // Validate authority explicitly and map to keychain format
+        if (method === "keychain" || hasKeyChain) {
           let keychainAuthority: "Active" | "Posting" | "Owner" | "Memo";
           if (authority === "active") {
             keychainAuthority = "Active";
@@ -87,7 +93,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         throw new Error("[SDK][Wallets] – missing broadcaster");
       }
     };
-  }, [user, activeUser, useHiveAuth, hasKeyChain]);
+  }, [activeUser, useHiveAuth, hasKeyChain]);
 
   const {
     mutateAsync: sign,
@@ -123,11 +129,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
     } else {
       key = PrivateKey.fromLogin(activeUser.username, signingKey);
     }
-    sign({
-      ...(data as any),
-      type: "key",
-      key
-    });
+    signMethodRef.current = { method: "key", key };
+    sign(data as any);
     setStep("signing");
   }, [signingKey, activeUser, sign, data]);
 
@@ -165,10 +168,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             outline={true}
             appearance="hivesigner"
             onClick={() => {
-              sign({
-                ...(data as any),
-                type: "hivesigner"
-              });
+              signMethodRef.current = { method: "hivesigner" };
+              sign(data as any);
               setStep("signing");
             }}
             icon={
@@ -190,10 +191,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
             size="lg"
             disabled={!canUseKeychain}
             onClick={() => {
-              sign({
-                ...(data as any),
-                type: useHiveAuth ? "hiveauth" : "keychain"
-              });
+              signMethodRef.current = { method: useHiveAuth ? "hiveauth" : "keychain" };
+              sign(data as any);
               setStep("signing");
             }}
             icon={

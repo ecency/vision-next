@@ -7,12 +7,8 @@ import { Button } from "@ui/button";
 import {
   AssetOperation,
   getHiveEngineTokensBalancesQueryOptions,
-} from "@ecency/sdk";
-import {
   getHiveEngineTokensMetadataQueryOptions,
-  HiveEngineTokenMetadataResponse,
-} from "@ecency/wallets";
-import {
+  type HiveEngineTokenMetadataResponse,
   getHiveEngineOpenOrders,
   getHiveEngineOrderBook,
   getHiveEngineTradeHistory
