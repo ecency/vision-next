@@ -23,7 +23,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     )
     const replaceNode = doc.body?.firstChild || doc.firstChild
 
-    if (replaceNode) {
+    if (replaceNode && node.parentNode) {
       node.parentNode.insertBefore(replaceNode, node)
       node.parentNode.removeChild(node)
     }
@@ -35,7 +35,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     const imageHTML = createImageHTML(nodeValue, isLCP, webp);
     const doc = DOMParser.parseFromString(imageHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
-    if (replaceNode) {
+    if (replaceNode && node.parentNode) {
       node.parentNode.replaceChild(replaceNode, node);
     }
     return; // Early return after replacing node
@@ -74,7 +74,9 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
 
       // Assemble and replace
       container.appendChild(anchor)
-      node.parentNode.replaceChild(container, node)
+      if (node.parentNode) {
+        node.parentNode.replaceChild(container, node)
+      }
       return; // Early return after replacing node
     }
   }
@@ -97,7 +99,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
         'text/html'
       )
       const replaceNode = doc.body?.firstChild || doc.firstChild
-      if (replaceNode) {
+      if (replaceNode && node.parentNode) {
         node.parentNode.replaceChild(replaceNode, node)
       }
     }
