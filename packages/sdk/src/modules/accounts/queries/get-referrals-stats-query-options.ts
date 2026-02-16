@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { ReferralStat } from "../types/referral";
 
 interface ReferralStatsResponse {
@@ -9,7 +9,7 @@ interface ReferralStatsResponse {
 
 export function getReferralsStatsQueryOptions(username: string) {
   return queryOptions({
-    queryKey: ["accounts", "referrals-stats", username],
+    queryKey: QueryKeys.accounts.referralsStats(username),
     queryFn: async () => {
       const response = await fetch(
         CONFIG.privateApiHost + `/private-api/referrals/${username}/stats`,

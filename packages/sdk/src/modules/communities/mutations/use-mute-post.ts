@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildMutePostOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -93,7 +93,7 @@ export function useMutePost(
           // Invalidate community posts to hide/show muted content
           ["communities", variables.community, "posts"],
           // Invalidate specific post cache to update mute status
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
           // Invalidate feed caches to remove/restore muted posts
           ["posts", "feed", variables.community],
         ]);

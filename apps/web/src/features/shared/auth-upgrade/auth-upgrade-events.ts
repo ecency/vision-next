@@ -8,7 +8,7 @@
  * Pattern follows the existing feedback system (CustomEvent-based imperative UI).
  */
 
-type AuthMethod = "hiveauth" | "hivesigner" | "key" | false;
+type AuthMethod = "hiveauth" | "hivesigner" | "keychain" | "key" | false;
 
 let pendingResolve: ((method: AuthMethod) => void) | null = null;
 let tempActiveKey: string | null = null;

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { addSchedule } from "@/modules/private-api/requests";
 
 export function useAddSchedule(
@@ -35,7 +35,7 @@ export function useAddSchedule(
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username],
+        queryKey: QueryKeys.posts.schedules(username),
       });
     },
     onError,

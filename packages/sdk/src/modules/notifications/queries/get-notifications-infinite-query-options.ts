@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { NotificationFilter } from "../enums";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { ApiNotification } from "../types";
 
 export function getNotificationsInfiniteQueryOptions(
@@ -9,7 +9,7 @@ export function getNotificationsInfiniteQueryOptions(
   filter: NotificationFilter | undefined = undefined
 ) {
   return infiniteQueryOptions({
-    queryKey: ["notifications", activeUsername, filter],
+    queryKey: QueryKeys.notifications.list(activeUsername, filter),
     queryFn: async ({ pageParam }) => {
       if (!code) {
         return [];

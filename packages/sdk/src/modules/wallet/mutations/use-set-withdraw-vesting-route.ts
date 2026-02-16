@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildSetWithdrawVestingRouteOp } from "@/modules/operations/builders";
 
@@ -87,7 +88,7 @@ export function useSetWithdrawVestingRoute(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["wallet", "withdraw-routes", username],
+          QueryKeys.wallet.withdrawRoutes(username!),
           ["accounts", username],
           ["accounts", variables.toAccount]
         ]);

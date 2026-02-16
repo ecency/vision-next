@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildFollowOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -54,7 +54,7 @@ export function useFollow(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "relations", username, variables.following],
+          QueryKeys.accounts.relations(username!, variables.following),
           ["accounts", "full", variables.following]
         ]);
       }

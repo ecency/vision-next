@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildSubscribeOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -59,7 +59,7 @@ export function useSubscribeCommunity(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "subscriptions", username],
+          QueryKeys.accounts.subscriptions(username!),
           ["communities", variables.community]
         ]);
       }

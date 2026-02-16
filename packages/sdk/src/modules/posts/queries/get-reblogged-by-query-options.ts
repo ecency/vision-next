@@ -1,12 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 
 /**
  * Get list of usernames who reblogged a specific post
  */
 export function getRebloggedByQueryOptions(author?: string, permlink?: string) {
   return queryOptions({
-    queryKey: ["posts", "reblogged-by", author ?? "", permlink ?? ""],
+    queryKey: QueryKeys.posts.rebloggedBy(author ?? "", permlink ?? ""),
     queryFn: async () => {
       if (!author || !permlink) {
         return [];

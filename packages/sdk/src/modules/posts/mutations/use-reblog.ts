@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildReblogOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
@@ -85,7 +85,7 @@ export function useReblog(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           ["posts", "blog", username],
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`]
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`)
         ]);
       }
     },

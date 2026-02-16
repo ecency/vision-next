@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildProposalVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -86,8 +86,8 @@ export function useProposalVote(
         // Cache invalidation
         if (auth?.adapter?.invalidateQueries) {
           await auth.adapter.invalidateQueries([
-            ["proposals", "list"],
-            ["proposals", "votes", username]
+            QueryKeys.proposals.list(),
+            QueryKeys.proposals.votesByUser(username!)
           ]);
         }
       } catch (error) {

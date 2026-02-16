@@ -920,7 +920,7 @@ function isEmptyDate(s) {
 // src/modules/core/queries/get-dynamic-props-query-options.ts
 function getDynamicPropsQueryOptions() {
   return queryOptions({
-    queryKey: ["core", "dynamic-props"],
+    queryKey: QueryKeys.core.dynamicProps(),
     refetchInterval: 6e4,
     staleTime: 6e4,
     refetchOnMount: true,
@@ -976,15 +976,282 @@ function getDynamicPropsQueryOptions() {
 }
 function getRewardFundQueryOptions(fundName = "post") {
   return queryOptions({
-    queryKey: ["core", "reward-fund", fundName],
+    queryKey: QueryKeys.core.rewardFund(fundName),
     queryFn: () => CONFIG.hiveClient.database.call("get_reward_fund", [
       fundName
     ])
   });
 }
+
+// src/modules/core/query-keys.ts
+var QueryKeys = {
+  // ===========================================================================
+  // Posts
+  // ===========================================================================
+  posts: {
+    entry: (entryPath) => ["posts", "entry", entryPath],
+    postHeader: (author, permlink) => ["posts", "post-header", author, permlink],
+    content: (author, permlink) => ["posts", "content", author, permlink],
+    contentReplies: (author, permlink) => ["posts", "content-replies", author, permlink],
+    accountPosts: (username, filter, limit, observer) => ["posts", "account-posts", username, filter, limit, observer],
+    accountPostsPage: (username, filter, startAuthor, startPermlink, limit, observer) => [
+      "posts",
+      "account-posts-page",
+      username,
+      filter,
+      startAuthor,
+      startPermlink,
+      limit,
+      observer
+    ],
+    userPostVote: (username, author, permlink) => ["posts", "user-vote", username, author, permlink],
+    reblogs: (username, limit) => ["posts", "reblogs", username, limit],
+    entryActiveVotes: (author, permlink) => ["posts", "entry-active-votes", author, permlink],
+    rebloggedBy: (author, permlink) => ["posts", "reblogged-by", author, permlink],
+    tips: (author, permlink) => ["posts", "tips", author, permlink],
+    normalize: (author, permlink) => ["posts", "normalize", author, permlink],
+    drafts: (activeUsername) => ["posts", "drafts", activeUsername],
+    draftsInfinite: (activeUsername, limit) => ["posts", "drafts", "infinite", activeUsername, limit],
+    schedules: (activeUsername) => ["posts", "schedules", activeUsername],
+    schedulesInfinite: (activeUsername, limit) => ["posts", "schedules", "infinite", activeUsername, limit],
+    fragments: (username) => ["posts", "fragments", username],
+    fragmentsInfinite: (username, limit) => ["posts", "fragments", "infinite", username, limit],
+    images: (username) => ["posts", "images", username],
+    galleryImages: (activeUsername) => ["posts", "gallery-images", activeUsername],
+    imagesInfinite: (username, limit) => ["posts", "images", "infinite", username, limit],
+    promoted: (type) => ["posts", "promoted", type],
+    postsRanked: (sort, tag, limit, observer) => ["posts", "posts-ranked", sort, tag, limit, observer],
+    postsRankedPage: (sort, startAuthor, startPermlink, limit, tag, observer) => [
+      "posts",
+      "posts-ranked-page",
+      sort,
+      startAuthor,
+      startPermlink,
+      limit,
+      tag,
+      observer
+    ],
+    discussions: (author, permlink, order, observer) => ["posts", "discussions", author, permlink, order, observer],
+    discussion: (author, permlink, observer) => ["posts", "discussion", author, permlink, observer],
+    deletedEntry: (entryPath) => ["posts", "deleted-entry", entryPath],
+    commentHistory: (author, permlink, onlyMeta) => ["posts", "comment-history", author, permlink, onlyMeta],
+    trendingTags: () => ["posts", "trending-tags"],
+    trendingTagsWithStats: (limit) => ["posts", "trending-tags", "stats", limit],
+    wavesByHost: (host) => ["posts", "waves", "by-host", host],
+    wavesByTag: (host, tag) => ["posts", "waves", "by-tag", host, tag],
+    wavesFollowing: (host, username) => ["posts", "waves", "following", host, username],
+    wavesTrendingTags: (host, hours) => ["posts", "waves", "trending-tags", host, hours],
+    _prefix: ["posts"]
+  },
+  // ===========================================================================
+  // Accounts
+  // ===========================================================================
+  accounts: {
+    full: (username) => ["get-account-full", username],
+    list: (...usernames) => ["accounts", "list", ...usernames],
+    friends: (following, mode, followType, limit) => ["accounts", "friends", following, mode, followType, limit],
+    searchFriends: (username, mode, query) => ["accounts", "friends", "search", username, mode, query],
+    subscriptions: (username) => ["accounts", "subscriptions", username],
+    followCount: (username) => ["accounts", "follow-count", username],
+    recoveries: (username) => ["accounts", "recoveries", username],
+    pendingRecovery: (username) => ["accounts", "recoveries", username, "pending-request"],
+    checkWalletPending: (username, code) => ["accounts", "check-wallet-pending", username, code],
+    mutedUsers: (username) => ["accounts", "muted-users", username],
+    following: (follower, startFollowing, followType, limit) => [
+      "accounts",
+      "following",
+      follower,
+      startFollowing,
+      followType,
+      limit
+    ],
+    followers: (following, startFollower, followType, limit) => [
+      "accounts",
+      "followers",
+      following,
+      startFollower,
+      followType,
+      limit
+    ],
+    search: (query, excludeList) => ["accounts", "search", query, excludeList],
+    profiles: (accounts, observer) => ["accounts", "profiles", accounts, observer],
+    lookup: (query, limit) => ["accounts", "lookup", query, limit],
+    transactions: (username, group, limit) => ["accounts", "transactions", username, group, limit],
+    favourites: (activeUsername) => ["accounts", "favourites", activeUsername],
+    favouritesInfinite: (activeUsername, limit) => ["accounts", "favourites", "infinite", activeUsername, limit],
+    checkFavourite: (activeUsername, targetUsername) => [
+      "accounts",
+      "favourites",
+      "check",
+      activeUsername,
+      targetUsername
+    ],
+    relations: (reference, target) => ["accounts", "relations", reference, target],
+    bots: () => ["accounts", "bots"],
+    voteHistory: (username, limit) => ["accounts", "vote-history", username, limit],
+    reputations: (query, limit) => ["accounts", "reputations", query, limit],
+    bookmarks: (activeUsername) => ["accounts", "bookmarks", activeUsername],
+    bookmarksInfinite: (activeUsername, limit) => ["accounts", "bookmarks", "infinite", activeUsername, limit],
+    referrals: (username) => ["accounts", "referrals", username],
+    referralsStats: (username) => ["accounts", "referrals-stats", username],
+    _prefix: ["accounts"]
+  },
+  // ===========================================================================
+  // Notifications
+  // ===========================================================================
+  notifications: {
+    announcements: () => ["notifications", "announcements"],
+    list: (activeUsername, filter) => ["notifications", activeUsername, filter],
+    unreadCount: (activeUsername) => ["notifications", "unread", activeUsername],
+    settings: (activeUsername) => ["notifications", "settings", activeUsername],
+    _prefix: ["notifications"]
+  },
+  // ===========================================================================
+  // Core
+  // ===========================================================================
+  core: {
+    rewardFund: (fundName) => ["core", "reward-fund", fundName],
+    dynamicProps: () => ["core", "dynamic-props"],
+    chainProperties: () => ["core", "chain-properties"],
+    _prefix: ["core"]
+  },
+  // ===========================================================================
+  // Communities
+  // ===========================================================================
+  communities: {
+    single: (name, observer) => ["community", "single", name, observer],
+    context: (username, communityName) => ["community", "context", username, communityName],
+    rewarded: () => ["communities", "rewarded"],
+    list: (sort, query, limit) => ["communities", "list", sort, query, limit],
+    subscribers: (communityName) => ["communities", "subscribers", communityName],
+    accountNotifications: (account, limit) => ["communities", "account-notifications", account, limit]
+  },
+  // ===========================================================================
+  // Proposals
+  // ===========================================================================
+  proposals: {
+    list: () => ["proposals", "list"],
+    proposal: (id) => ["proposals", "proposal", id],
+    votes: (proposalId, voter, limit) => ["proposals", "votes", proposalId, voter, limit],
+    votesByUser: (voter) => ["proposals", "votes", "by-user", voter]
+  },
+  // ===========================================================================
+  // Search
+  // ===========================================================================
+  search: {
+    topics: (q) => ["search", "topics", q],
+    path: (q) => ["search", "path", q],
+    account: (q, limit) => ["search", "account", q, limit],
+    results: (q, sort, hideLow, since, scrollId, votes) => ["search", q, sort, hideLow, since, scrollId, votes],
+    controversialRising: (what, tag) => ["search", "controversial-rising", what, tag],
+    similarEntries: (author, permlink, query) => ["search", "similar-entries", author, permlink, query],
+    api: (q, sort, hideLow, since, votes) => ["search", "api", q, sort, hideLow, since, votes]
+  },
+  // ===========================================================================
+  // Witnesses
+  // ===========================================================================
+  witnesses: {
+    list: (limit) => ["witnesses", "list", limit]
+  },
+  // ===========================================================================
+  // Wallet
+  // ===========================================================================
+  wallet: {
+    outgoingRcDelegations: (username, limit) => ["wallet", "outgoing-rc-delegations", username, limit],
+    vestingDelegations: (username, limit) => ["wallet", "vesting-delegations", username, limit],
+    withdrawRoutes: (account) => ["wallet", "withdraw-routes", account],
+    incomingRc: (username) => ["wallet", "incoming-rc", username],
+    conversionRequests: (account) => ["wallet", "conversion-requests", account],
+    receivedVestingShares: (username) => ["wallet", "received-vesting-shares", username],
+    savingsWithdraw: (account) => ["wallet", "savings-withdraw", account],
+    openOrders: (user) => ["wallet", "open-orders", user],
+    collateralizedConversionRequests: (account) => ["wallet", "collateralized-conversion-requests", account],
+    recurrentTransfers: (username) => ["wallet", "recurrent-transfers", username],
+    portfolio: (username, onlyEnabled, currency) => ["wallet", "portfolio", "v2", username, onlyEnabled, currency]
+  },
+  // ===========================================================================
+  // Assets
+  // ===========================================================================
+  assets: {
+    hiveGeneralInfo: (username) => ["assets", "hive", "general-info", username],
+    hiveTransactions: (username, limit, filterKey) => ["assets", "hive", "transactions", username, limit, filterKey],
+    hiveWithdrawalRoutes: (username) => ["assets", "hive", "withdrawal-routes", username],
+    hiveMetrics: (bucketSeconds) => ["assets", "hive", "metrics", bucketSeconds],
+    hbdGeneralInfo: (username) => ["assets", "hbd", "general-info", username],
+    hbdTransactions: (username, limit, filterKey) => ["assets", "hbd", "transactions", username, limit, filterKey],
+    hivePowerGeneralInfo: (username) => ["assets", "hive-power", "general-info", username],
+    hivePowerDelegates: (username) => ["assets", "hive-power", "delegates", username],
+    hivePowerDelegatings: (username) => ["assets", "hive-power", "delegatings", username],
+    hivePowerTransactions: (username, limit, filterKey) => [
+      "assets",
+      "hive-power",
+      "transactions",
+      username,
+      limit,
+      filterKey
+    ],
+    pointsGeneralInfo: (username) => ["assets", "points", "general-info", username],
+    pointsTransactions: (username, type) => ["assets", "points", "transactions", username, type],
+    ecencyAssetInfo: (username, asset, currency) => ["ecency-wallets", "asset-info", username, asset, currency]
+  },
+  // ===========================================================================
+  // Market
+  // ===========================================================================
+  market: {
+    statistics: () => ["market", "statistics"],
+    orderBook: (limit) => ["market", "order-book", limit],
+    history: (seconds, startDate, endDate) => ["market", "history", seconds, startDate, endDate],
+    feedHistory: () => ["market", "feed-history"],
+    hiveHbdStats: () => ["market", "hive-hbd-stats"],
+    data: (coin, vsCurrency, fromTs, toTs) => ["market", "data", coin, vsCurrency, fromTs, toTs],
+    tradeHistory: (limit, start, end) => ["market", "trade-history", limit, start, end],
+    currentMedianHistoryPrice: () => ["market", "current-median-history-price"]
+  },
+  // ===========================================================================
+  // Analytics
+  // ===========================================================================
+  analytics: {
+    discoverCuration: (duration) => ["analytics", "discover-curation", duration],
+    pageStats: (url, dimensions, metrics, dateRange) => ["analytics", "page-stats", url, dimensions, metrics, dateRange],
+    discoverLeaderboard: (duration) => ["analytics", "discover-leaderboard", duration]
+  },
+  // ===========================================================================
+  // Promotions
+  // ===========================================================================
+  promotions: {
+    promotePrice: () => ["promotions", "promote-price"],
+    boostPlusPrices: () => ["promotions", "boost-plus-prices"],
+    boostPlusAccounts: (account) => ["promotions", "boost-plus-accounts", account]
+  },
+  // ===========================================================================
+  // Resource Credits
+  // ===========================================================================
+  resourceCredits: {
+    account: (username) => ["resource-credits", "account", username],
+    stats: () => ["resource-credits", "stats"]
+  },
+  // ===========================================================================
+  // Points
+  // ===========================================================================
+  points: {
+    points: (username, filter) => ["points", username, filter]
+  },
+  // ===========================================================================
+  // Operations
+  // ===========================================================================
+  operations: {
+    chainProperties: () => ["operations", "chain-properties"]
+  },
+  // ===========================================================================
+  // Games
+  // ===========================================================================
+  games: {
+    statusCheck: (gameType, username) => ["games", "status-check", gameType, username]
+  }
+};
 function getAccountFullQueryOptions(username) {
   return queryOptions({
-    queryKey: ["get-account-full", username],
+    queryKey: QueryKeys.accounts.full(username),
     queryFn: async () => {
       if (!username) {
         throw new Error("[SDK] Username is empty");
@@ -1177,7 +1444,7 @@ function parseAccounts(rawAccounts) {
 // src/modules/accounts/queries/get-accounts-query-options.ts
 function getAccountsQueryOptions(usernames) {
   return queryOptions({
-    queryKey: ["accounts", "list", ...usernames],
+    queryKey: QueryKeys.accounts.list(...usernames),
     enabled: usernames.length > 0,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.database.getAccounts(
@@ -1189,7 +1456,7 @@ function getAccountsQueryOptions(usernames) {
 }
 function getFollowCountQueryOptions(username) {
   return queryOptions({
-    queryKey: ["accounts", "follow-count", username],
+    queryKey: QueryKeys.accounts.followCount(username),
     queryFn: () => CONFIG.hiveClient.database.call("get_follow_count", [
       username
     ])
@@ -1197,7 +1464,7 @@ function getFollowCountQueryOptions(username) {
 }
 function getFollowersQueryOptions(following, startFollower, followType = "blog", limit = 100) {
   return queryOptions({
-    queryKey: ["accounts", "followers", following, startFollower, followType, limit],
+    queryKey: QueryKeys.accounts.followers(following, startFollower, followType, limit),
     queryFn: () => CONFIG.hiveClient.database.call("get_followers", [
       following,
       startFollower,
@@ -1209,7 +1476,7 @@ function getFollowersQueryOptions(following, startFollower, followType = "blog",
 }
 function getFollowingQueryOptions(follower, startFollowing, followType = "blog", limit = 100) {
   return queryOptions({
-    queryKey: ["accounts", "following", follower, startFollowing, followType, limit],
+    queryKey: QueryKeys.accounts.following(follower, startFollowing, followType, limit),
     queryFn: () => CONFIG.hiveClient.database.call("get_following", [
       follower,
       startFollowing,
@@ -1221,7 +1488,7 @@ function getFollowingQueryOptions(follower, startFollowing, followType = "blog",
 }
 function getMutedUsersQueryOptions(username, limit = 100) {
   return queryOptions({
-    queryKey: ["accounts", "muted-users", username],
+    queryKey: QueryKeys.accounts.mutedUsers(username),
     queryFn: async () => {
       const response = await CONFIG.hiveClient.database.call("get_following", [
         username,
@@ -1236,7 +1503,7 @@ function getMutedUsersQueryOptions(username, limit = 100) {
 }
 function lookupAccountsQueryOptions(query, limit = 50) {
   return queryOptions({
-    queryKey: ["accounts", "lookup", query, limit],
+    queryKey: QueryKeys.accounts.lookup(query, limit),
     queryFn: () => CONFIG.hiveClient.database.call("lookup_accounts", [
       query,
       limit
@@ -1247,7 +1514,7 @@ function lookupAccountsQueryOptions(query, limit = 50) {
 }
 function getSearchAccountsByUsernameQueryOptions(query, limit = 5, excludeList = []) {
   return queryOptions({
-    queryKey: ["accounts", "search", query, excludeList],
+    queryKey: QueryKeys.accounts.search(query, excludeList),
     enabled: !!query,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.database.call(
@@ -1268,12 +1535,7 @@ var RESERVED_META_KEYS = /* @__PURE__ */ new Set([
 ]);
 function checkUsernameWalletsPendingQueryOptions(username, code) {
   return queryOptions({
-    queryKey: [
-      "accounts",
-      "check-wallet-pending",
-      username,
-      code ?? null
-    ],
+    queryKey: QueryKeys.accounts.checkWalletPending(username, code ?? null),
     queryFn: async () => {
       if (!username || !code) {
         return { exist: false };
@@ -1358,7 +1620,7 @@ function checkUsernameWalletsPendingQueryOptions(username, code) {
 }
 function getRelationshipBetweenAccountsQueryOptions(reference, target) {
   return queryOptions({
-    queryKey: ["accounts", "relations", reference, target],
+    queryKey: QueryKeys.accounts.relations(reference, target),
     enabled: !!reference && !!target,
     refetchOnMount: false,
     refetchInterval: 36e5,
@@ -1373,7 +1635,7 @@ function getRelationshipBetweenAccountsQueryOptions(reference, target) {
 }
 function getAccountSubscriptionsQueryOptions(username) {
   return queryOptions({
-    queryKey: ["accounts", "subscriptions", username],
+    queryKey: QueryKeys.accounts.subscriptions(username),
     enabled: !!username,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(
@@ -1389,7 +1651,7 @@ function getAccountSubscriptionsQueryOptions(username) {
 }
 function getBookmarksQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["accounts", "bookmarks", activeUsername],
+    queryKey: QueryKeys.accounts.bookmarks(activeUsername),
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
@@ -1412,7 +1674,7 @@ function getBookmarksQueryOptions(activeUsername, code) {
 }
 function getBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.accounts.bookmarksInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {
@@ -1454,7 +1716,7 @@ function getBookmarksInfiniteQueryOptions(activeUsername, code, limit = 10) {
 }
 function getFavouritesQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["accounts", "favourites", activeUsername],
+    queryKey: QueryKeys.accounts.favourites(activeUsername),
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
@@ -1477,7 +1739,7 @@ function getFavouritesQueryOptions(activeUsername, code) {
 }
 function getFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.accounts.favouritesInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {
@@ -1519,7 +1781,7 @@ function getFavouritesInfiniteQueryOptions(activeUsername, code, limit = 10) {
 }
 function checkFavouriteQueryOptions(activeUsername, code, targetUsername) {
   return queryOptions({
-    queryKey: ["accounts", "favourites", "check", activeUsername, targetUsername],
+    queryKey: QueryKeys.accounts.checkFavourite(activeUsername, targetUsername),
     enabled: !!activeUsername && !!code && !!targetUsername,
     queryFn: async () => {
       if (!activeUsername || !code) {
@@ -1560,7 +1822,7 @@ function checkFavouriteQueryOptions(activeUsername, code, targetUsername) {
 function getAccountRecoveriesQueryOptions(username, code) {
   return queryOptions({
     enabled: !!username && !!code,
-    queryKey: ["accounts", "recoveries", username],
+    queryKey: QueryKeys.accounts.recoveries(username),
     queryFn: async () => {
       if (!username || !code) {
         throw new Error("[SDK][Accounts] Missing username or access token");
@@ -1583,7 +1845,7 @@ function getAccountRecoveriesQueryOptions(username, code) {
 function getAccountPendingRecoveryQueryOptions(username) {
   return queryOptions({
     enabled: !!username,
-    queryKey: ["accounts", "recoveries", username, "pending-request"],
+    queryKey: QueryKeys.accounts.pendingRecovery(username),
     queryFn: () => CONFIG.hiveClient.call(
       "database_api",
       "find_change_recovery_account_requests",
@@ -1593,7 +1855,7 @@ function getAccountPendingRecoveryQueryOptions(username) {
 }
 function getAccountReputationsQueryOptions(query, limit = 50) {
   return queryOptions({
-    queryKey: ["accounts", "reputations", query, limit],
+    queryKey: QueryKeys.accounts.reputations(query, limit),
     enabled: !!query,
     queryFn: async () => {
       if (!query) {
@@ -1654,7 +1916,7 @@ var ALL_ACCOUNT_OPERATIONS = [...Object.values(ACCOUNT_OPERATION_GROUPS)].reduce
 );
 function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "transactions", username ?? "", group, limit],
+    queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
     initialPageParam: -1,
     queryFn: async ({ pageParam }) => {
       if (!username) {
@@ -1712,7 +1974,7 @@ function getTransactionsInfiniteQueryOptions(username, limit = 20, group = "") {
 }
 function getBotsQueryOptions() {
   return queryOptions({
-    queryKey: ["accounts", "bots"],
+    queryKey: QueryKeys.accounts.bots(),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/public/bots", {
         method: "GET",
@@ -1731,7 +1993,7 @@ function getBotsQueryOptions() {
 }
 function getReferralsInfiniteQueryOptions(username) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "referrals", username],
+    queryKey: QueryKeys.accounts.referrals(username),
     initialPageParam: { maxId: void 0 },
     queryFn: async ({ pageParam }) => {
       const { maxId } = pageParam ?? {};
@@ -1759,7 +2021,7 @@ function getReferralsInfiniteQueryOptions(username) {
 }
 function getReferralsStatsQueryOptions(username) {
   return queryOptions({
-    queryKey: ["accounts", "referrals-stats", username],
+    queryKey: QueryKeys.accounts.referralsStats(username),
     queryFn: async () => {
       const response = await fetch(
         CONFIG.privateApiHost + `/private-api/referrals/${username}/stats`,
@@ -1787,7 +2049,7 @@ function getReferralsStatsQueryOptions(username) {
 function getFriendsInfiniteQueryOptions(following, mode, options) {
   const { followType = "blog", limit = 100, enabled = true } = options ?? {};
   return infiniteQueryOptions({
-    queryKey: ["accounts", "friends", following, mode, followType, limit],
+    queryKey: QueryKeys.accounts.friends(following, mode, followType, limit),
     initialPageParam: { startFollowing: "" },
     enabled,
     refetchOnMount: true,
@@ -1818,7 +2080,7 @@ function getFriendsInfiniteQueryOptions(following, mode, options) {
 var SEARCH_LIMIT = 30;
 function getSearchFriendsQueryOptions(username, mode, query) {
   return queryOptions({
-    queryKey: ["accounts", "friends", "search", username, mode, query],
+    queryKey: QueryKeys.accounts.searchFriends(username, mode, query),
     refetchOnMount: false,
     enabled: false,
     // Manual query via refetch
@@ -1846,7 +2108,7 @@ function getSearchFriendsQueryOptions(username, mode, query) {
 }
 function getTrendingTagsQueryOptions(limit = 20) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "trending-tags"],
+    queryKey: QueryKeys.posts.trendingTags(),
     queryFn: async ({ pageParam: { afterTag } }) => CONFIG.hiveClient.database.call("get_trending_tags", [afterTag, limit]).then(
       (tags) => tags.filter((x) => x.name !== "").filter((x) => !x.name.startsWith("hive-")).map((x) => x.name)
     ),
@@ -1860,7 +2122,7 @@ function getTrendingTagsQueryOptions(limit = 20) {
 }
 function getTrendingTagsWithStatsQueryOptions(limit = 250) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "trending-tags", "stats", limit],
+    queryKey: QueryKeys.posts.trendingTagsWithStats(limit),
     queryFn: async ({ pageParam: { afterTag } }) => CONFIG.hiveClient.database.call("get_trending_tags", [afterTag, limit]).then(
       (tags) => tags.filter((tag) => tag.name !== "").filter((tag) => !isCommunity(tag.name))
     ),
@@ -1872,7 +2134,7 @@ function getTrendingTagsWithStatsQueryOptions(limit = 250) {
 }
 function getFragmentsQueryOptions(username, code) {
   return queryOptions({
-    queryKey: ["posts", "fragments", username],
+    queryKey: QueryKeys.posts.fragments(username),
     queryFn: async () => {
       if (!code) {
         return [];
@@ -1897,7 +2159,7 @@ function getFragmentsQueryOptions(username, code) {
 }
 function getFragmentsInfiniteQueryOptions(username, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "fragments", "infinite", username, limit],
+    queryKey: QueryKeys.posts.fragmentsInfinite(username, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!username || !code) {
         return {
@@ -1941,7 +2203,7 @@ function getFragmentsInfiniteQueryOptions(username, code, limit = 10) {
 }
 function getPromotedPostsQuery(type = "feed") {
   return queryOptions({
-    queryKey: ["posts", "promoted", type],
+    queryKey: QueryKeys.posts.promoted(type),
     queryFn: async () => {
       const baseUrl = ConfigManager.getValidatedBaseUrl();
       const url = new URL("/private-api/promoted-entries", baseUrl);
@@ -1962,7 +2224,7 @@ function getPromotedPostsQuery(type = "feed") {
 }
 function getEntryActiveVotesQueryOptions(entry) {
   return queryOptions({
-    queryKey: ["posts", "entry-active-votes", entry?.author, entry?.permlink],
+    queryKey: QueryKeys.posts.entryActiveVotes(entry?.author, entry?.permlink),
     queryFn: async () => {
       return CONFIG.hiveClient.database.call("get_active_votes", [
         entry?.author,
@@ -1974,7 +2236,7 @@ function getEntryActiveVotesQueryOptions(entry) {
 }
 function getUserPostVoteQueryOptions(username, author, permlink) {
   return queryOptions({
-    queryKey: ["posts", "user-vote", username, author, permlink],
+    queryKey: QueryKeys.posts.userPostVote(username, author, permlink),
     queryFn: async () => {
       const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
         start: [username, author, permlink],
@@ -1988,7 +2250,7 @@ function getUserPostVoteQueryOptions(username, author, permlink) {
 }
 function getContentQueryOptions(author, permlink) {
   return queryOptions({
-    queryKey: ["posts", "content", author, permlink],
+    queryKey: QueryKeys.posts.content(author, permlink),
     enabled: !!author && !!permlink,
     queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content", [
       author,
@@ -1998,7 +2260,7 @@ function getContentQueryOptions(author, permlink) {
 }
 function getContentRepliesQueryOptions(author, permlink) {
   return queryOptions({
-    queryKey: ["posts", "content-replies", author, permlink],
+    queryKey: QueryKeys.posts.contentReplies(author, permlink),
     enabled: !!author && !!permlink,
     queryFn: async () => CONFIG.hiveClient.call("condenser_api", "get_content_replies", {
       author,
@@ -2008,7 +2270,7 @@ function getContentRepliesQueryOptions(author, permlink) {
 }
 function getPostHeaderQueryOptions(author, permlink) {
   return queryOptions({
-    queryKey: ["posts", "post-header", author, permlink],
+    queryKey: QueryKeys.posts.postHeader(author, permlink),
     queryFn: async () => {
       return CONFIG.hiveClient.call("bridge", "get_post_header", {
         author,
@@ -2048,7 +2310,7 @@ function getPostQueryOptions(author, permlink, observer = "", num) {
   const cleanPermlink = permlink?.trim();
   const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
   return queryOptions({
-    queryKey: ["posts", "entry", entryPath],
+    queryKey: QueryKeys.posts.entry(entryPath),
     queryFn: async () => {
       if (!cleanPermlink || cleanPermlink === "undefined") {
         return null;
@@ -2346,14 +2608,7 @@ function sortDiscussions(entry, discussion, order) {
 }
 function getDiscussionsQueryOptions(entry, order = "created" /* created */, enabled = true, observer) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "discussions",
-      entry?.author,
-      entry?.permlink,
-      order,
-      observer || entry?.author
-    ],
+    queryKey: QueryKeys.posts.discussions(entry?.author, entry?.permlink, order, observer || entry?.author),
     queryFn: async () => {
       if (!entry) {
         return [];
@@ -2391,14 +2646,14 @@ function getDiscussionsQueryOptions(entry, order = "created" /* created */, enab
 }
 function getDiscussionQueryOptions(author, permlink, observer, enabled = true) {
   return queryOptions({
-    queryKey: ["posts", "discussion", author, permlink, observer || author],
+    queryKey: QueryKeys.posts.discussion(author, permlink, observer || author),
     enabled: enabled && !!author && !!permlink,
     queryFn: async () => getDiscussion(author, permlink, observer)
   });
 }
 function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit = 20, observer = "", enabled = true) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "account-posts", username ?? "", filter, limit, observer],
+    queryKey: QueryKeys.posts.accountPosts(username ?? "", filter, limit, observer),
     enabled: !!username && enabled,
     initialPageParam: {
       author: void 0,
@@ -2447,16 +2702,7 @@ function getAccountPostsInfiniteQueryOptions(username, filter = "posts", limit =
 }
 function getAccountPostsQueryOptions(username, filter = "posts", start_author = "", start_permlink = "", limit = 20, observer = "", enabled = true) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "account-posts-page",
-      username ?? "",
-      filter,
-      start_author,
-      start_permlink,
-      limit,
-      observer
-    ],
+    queryKey: QueryKeys.posts.accountPostsPage(username ?? "", filter, start_author, start_permlink, limit, observer),
     enabled: !!username && enabled,
     queryFn: async () => {
       if (!username) {
@@ -2476,7 +2722,7 @@ function getAccountPostsQueryOptions(username, filter = "posts", start_author = 
 }
 function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = "", enabled = true, _options = {}) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
+    queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
     queryFn: async ({ pageParam }) => {
       if (!pageParam.hasNextPage) {
         return [];
@@ -2523,16 +2769,7 @@ function getPostsRankedInfiniteQueryOptions(sort, tag, limit = 20, observer = ""
 }
 function getPostsRankedQueryOptions(sort, start_author = "", start_permlink = "", limit = 20, tag = "", observer = "", enabled = true) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "posts-ranked-page",
-      sort,
-      start_author,
-      start_permlink,
-      limit,
-      tag,
-      observer
-    ],
+    queryKey: QueryKeys.posts.postsRankedPage(sort, start_author, start_permlink, limit, tag, observer),
     enabled,
     queryFn: async () => {
       let sanitizedTag = tag;
@@ -2553,7 +2790,7 @@ function getPostsRankedQueryOptions(sort, start_author = "", start_permlink = ""
 }
 function getReblogsQueryOptions(username, activeUsername, limit = 200) {
   return queryOptions({
-    queryKey: ["posts", "reblogs", username ?? "", limit],
+    queryKey: QueryKeys.posts.reblogs(username ?? "", limit),
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call("condenser_api", "get_blog_entries", [
         username ?? activeUsername,
@@ -2569,7 +2806,7 @@ function getReblogsQueryOptions(username, activeUsername, limit = 200) {
 }
 function getRebloggedByQueryOptions(author, permlink) {
   return queryOptions({
-    queryKey: ["posts", "reblogged-by", author ?? "", permlink ?? ""],
+    queryKey: QueryKeys.posts.rebloggedBy(author ?? "", permlink ?? ""),
     queryFn: async () => {
       if (!author || !permlink) {
         return [];
@@ -2586,7 +2823,7 @@ function getRebloggedByQueryOptions(author, permlink) {
 }
 function getSchedulesQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["posts", "schedules", activeUsername],
+    queryKey: QueryKeys.posts.schedules(activeUsername),
     queryFn: async () => {
       if (!activeUsername || !code) {
         return [];
@@ -2611,7 +2848,7 @@ function getSchedulesQueryOptions(activeUsername, code) {
 }
 function getSchedulesInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "schedules", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.posts.schedulesInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {
@@ -2655,7 +2892,7 @@ function getSchedulesInfiniteQueryOptions(activeUsername, code, limit = 10) {
 }
 function getDraftsQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["posts", "drafts", activeUsername],
+    queryKey: QueryKeys.posts.drafts(activeUsername),
     queryFn: async () => {
       if (!activeUsername || !code) {
         return [];
@@ -2680,7 +2917,7 @@ function getDraftsQueryOptions(activeUsername, code) {
 }
 function getDraftsInfiniteQueryOptions(activeUsername, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "drafts", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.posts.draftsInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {
@@ -2740,7 +2977,7 @@ async function fetchUserImages(code) {
 }
 function getImagesQueryOptions(username, code) {
   return queryOptions({
-    queryKey: ["posts", "images", username],
+    queryKey: QueryKeys.posts.images(username),
     queryFn: async () => {
       if (!username || !code) {
         return [];
@@ -2752,7 +2989,7 @@ function getImagesQueryOptions(username, code) {
 }
 function getGalleryImagesQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["posts", "gallery-images", activeUsername],
+    queryKey: QueryKeys.posts.galleryImages(activeUsername),
     queryFn: async () => {
       if (!activeUsername || !code) {
         return [];
@@ -2764,7 +3001,7 @@ function getGalleryImagesQueryOptions(activeUsername, code) {
 }
 function getImagesInfiniteQueryOptions(username, code, limit = 10) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "images", "infinite", username, limit],
+    queryKey: QueryKeys.posts.imagesInfinite(username, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!username || !code) {
         return {
@@ -2808,7 +3045,7 @@ function getImagesInfiniteQueryOptions(username, code, limit = 10) {
 }
 function getCommentHistoryQueryOptions(author, permlink, onlyMeta = false) {
   return queryOptions({
-    queryKey: ["posts", "comment-history", author, permlink, onlyMeta],
+    queryKey: QueryKeys.posts.commentHistory(author, permlink, onlyMeta),
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
@@ -2849,7 +3086,7 @@ function getDeletedEntryQueryOptions(author, permlink) {
   const isValid = !!cleanAuthor && !!cleanPermlink && cleanPermlink !== "undefined";
   const entryPath = isValid ? makeEntryPath2(cleanAuthor, cleanPermlink) : "";
   return queryOptions({
-    queryKey: ["posts", "deleted-entry", entryPath],
+    queryKey: QueryKeys.posts.deletedEntry(entryPath),
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",
@@ -2883,7 +3120,7 @@ function getDeletedEntryQueryOptions(author, permlink) {
 }
 function getPostTipsQueryOptions(author, permlink, isEnabled = true) {
   return queryOptions({
-    queryKey: ["posts", "tips", author, permlink],
+    queryKey: QueryKeys.posts.tips(author, permlink),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/post-tips", {
         method: "POST",
@@ -3034,7 +3271,7 @@ async function getThreads(host, pageParam) {
 }
 function getWavesByHostQueryOptions(host) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "waves", "by-host", host],
+    queryKey: QueryKeys.posts.wavesByHost(host),
     initialPageParam: void 0,
     queryFn: async ({ pageParam }) => {
       const result = await getThreads(host, pageParam);
@@ -3047,7 +3284,7 @@ function getWavesByHostQueryOptions(host) {
 var DEFAULT_TAG_FEED_LIMIT = 40;
 function getWavesByTagQueryOptions(host, tag, limit = DEFAULT_TAG_FEED_LIMIT) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "waves", "by-tag", host, tag],
+    queryKey: QueryKeys.posts.wavesByTag(host, tag),
     initialPageParam: void 0,
     queryFn: async ({ signal }) => {
       try {
@@ -3081,7 +3318,7 @@ function getWavesByTagQueryOptions(host, tag, limit = DEFAULT_TAG_FEED_LIMIT) {
 function getWavesFollowingQueryOptions(host, username) {
   const normalizedUsername = username?.trim().toLowerCase();
   return infiniteQueryOptions({
-    queryKey: ["posts", "waves", "following", host, normalizedUsername ?? ""],
+    queryKey: QueryKeys.posts.wavesFollowing(host, normalizedUsername ?? ""),
     enabled: Boolean(normalizedUsername),
     initialPageParam: void 0,
     queryFn: async ({ signal }) => {
@@ -3124,7 +3361,7 @@ function getWavesFollowingQueryOptions(host, username) {
 }
 function getWavesTrendingTagsQueryOptions(host, hours = 24) {
   return queryOptions({
-    queryKey: ["posts", "waves", "trending-tags", host, hours],
+    queryKey: QueryKeys.posts.wavesTrendingTags(host, hours),
     queryFn: async ({ signal }) => {
       try {
         const baseUrl = ConfigManager.getValidatedBaseUrl();
@@ -3152,12 +3389,7 @@ function getWavesTrendingTagsQueryOptions(host, hours = 24) {
 }
 function getNormalizePostQueryOptions(post, enabled = true) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "normalize",
-      post?.author ?? "",
-      post?.permlink ?? ""
-    ],
+    queryKey: QueryKeys.posts.normalize(post?.author ?? "", post?.permlink ?? ""),
     enabled: enabled && !!post,
     queryFn: async () => normalizePost(post)
   });
@@ -3176,7 +3408,7 @@ function getDays(createdDate) {
 function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
   const { limit = 20, filters = [], dayLimit = 7 } = options ?? {};
   return infiniteQueryOptions({
-    queryKey: ["accounts", "vote-history", username, limit],
+    queryKey: QueryKeys.accounts.voteHistory(username, limit),
     initialPageParam: { start: -1 },
     queryFn: async ({ pageParam }) => {
       const { start } = pageParam;
@@ -3214,7 +3446,7 @@ function getAccountVoteHistoryInfiniteQueryOptions(username, options) {
 }
 function getProfilesQueryOptions(accounts, observer, enabled = true) {
   return queryOptions({
-    queryKey: ["accounts", "profiles", accounts, observer ?? ""],
+    queryKey: QueryKeys.accounts.profiles(accounts, observer ?? ""),
     enabled: enabled && accounts.length > 0,
     queryFn: async () => getProfiles(accounts, observer)
   });
@@ -4371,7 +4603,7 @@ function useFollow(username, auth) {
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "relations", username, variables.following],
+          QueryKeys.accounts.relations(username, variables.following),
           ["accounts", "full", variables.following]
         ]);
       }
@@ -4391,7 +4623,7 @@ function useUnfollow(username, auth) {
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "relations", username, variables.following],
+          QueryKeys.accounts.relations(username, variables.following),
           ["accounts", "full", variables.following]
         ]);
       }
@@ -5548,9 +5780,9 @@ function useAddDraft(username, code, onSuccess, onError) {
       onSuccess?.();
       const qc = getQueryClient();
       if (data?.drafts) {
-        qc.setQueryData(["posts", "drafts", username], data.drafts);
+        qc.setQueryData(QueryKeys.posts.drafts(username), data.drafts);
       } else {
-        qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
       }
     },
     onError
@@ -5574,7 +5806,7 @@ function useUpdateDraft(username, code, onSuccess, onError) {
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username]
+        queryKey: QueryKeys.posts.drafts(username)
       });
     },
     onError
@@ -5620,7 +5852,7 @@ function useAddSchedule(username, code, onSuccess, onError) {
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username]
+        queryKey: QueryKeys.posts.schedules(username)
       });
     },
     onError
@@ -5639,9 +5871,9 @@ function useDeleteSchedule(username, code, onSuccess, onError) {
       onSuccess?.();
       const qc = getQueryClient();
       if (data) {
-        qc.setQueryData(["posts", "schedules", username], data);
+        qc.setQueryData(QueryKeys.posts.schedules(username), data);
       } else {
-        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.schedules(username) });
       }
     },
     onError
@@ -5660,11 +5892,11 @@ function useMoveSchedule(username, code, onSuccess, onError) {
       onSuccess?.();
       const qc = getQueryClient();
       if (data) {
-        qc.setQueryData(["posts", "schedules", username], data);
+        qc.setQueryData(QueryKeys.posts.schedules(username), data);
       } else {
-        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.schedules(username) });
       }
-      qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
     },
     onError
   });
@@ -5681,7 +5913,7 @@ function useAddImage(username, code, onSuccess, onError) {
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "images", username]
+        queryKey: QueryKeys.posts.images(username)
       });
     },
     onError
@@ -5742,26 +5974,24 @@ function makeEntryPath3(author, permlink) {
 }
 function getEntryFromCache(author, permlink, qc) {
   const queryClient = qc ?? getQueryClient();
-  return queryClient.getQueryData([
-    "posts",
-    "entry",
-    makeEntryPath3(author, permlink)
-  ]);
+  return queryClient.getQueryData(
+    QueryKeys.posts.entry(makeEntryPath3(author, permlink))
+  );
 }
 function setEntryInCache(entry, qc) {
   const queryClient = qc ?? getQueryClient();
   queryClient.setQueryData(
-    ["posts", "entry", makeEntryPath3(entry.author, entry.permlink)],
+    QueryKeys.posts.entry(makeEntryPath3(entry.author, entry.permlink)),
     entry
   );
 }
 function mutateEntry(author, permlink, updater, qc) {
   const queryClient = qc ?? getQueryClient();
   const path = makeEntryPath3(author, permlink);
-  const existing = queryClient.getQueryData(["posts", "entry", path]);
+  const existing = queryClient.getQueryData(QueryKeys.posts.entry(path));
   if (!existing) return void 0;
   const updated = updater(existing);
-  queryClient.setQueryData(["posts", "entry", path], updated);
+  queryClient.setQueryData(QueryKeys.posts.entry(path), updated);
   return existing;
 }
 var EntriesCacheManagement;
@@ -5835,7 +6065,7 @@ var EntriesCacheManagement;
   function invalidateEntry(author, permlink, qc) {
     const queryClient = qc ?? getQueryClient();
     queryClient.invalidateQueries({
-      queryKey: ["posts", "entry", makeEntryPath3(author, permlink)]
+      queryKey: QueryKeys.posts.entry(makeEntryPath3(author, permlink))
     });
   }
   EntriesCacheManagement2.invalidateEntry = invalidateEntry;
@@ -5873,7 +6103,7 @@ function useVote(username, auth) {
       }
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
           ["account", username, "votingPower"]
         ]);
       }
@@ -5902,7 +6132,7 @@ function useReblog(username, auth) {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           ["posts", "blog", username],
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`]
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`)
         ]);
       }
     },
@@ -5983,11 +6213,9 @@ function useComment(username, auth) {
           // RC decreases after posting/commenting
         ];
         if (!isPost) {
-          queriesToInvalidate.push([
-            "posts",
-            "entry",
-            `/@${variables.parentAuthor}/${variables.parentPermlink}`
-          ]);
+          queriesToInvalidate.push(
+            QueryKeys.posts.entry(`/@${variables.parentAuthor}/${variables.parentPermlink}`)
+          );
           const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
           const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
           queriesToInvalidate.push({
@@ -6050,9 +6278,9 @@ function restoreDiscussionSnapshots(snapshots, qc) {
 function updateEntryInCache(author, permlink, updates, qc) {
   const queryClient = qc ?? getQueryClient();
   const path = `/@${author}/${permlink}`;
-  const previous = queryClient.getQueryData(["posts", "entry", path]);
+  const previous = queryClient.getQueryData(QueryKeys.posts.entry(path));
   if (previous) {
-    queryClient.setQueryData(["posts", "entry", path], {
+    queryClient.setQueryData(QueryKeys.posts.entry(path), {
       ...previous,
       ...updates
     });
@@ -6062,7 +6290,7 @@ function updateEntryInCache(author, permlink, updates, qc) {
 function restoreEntryInCache(author, permlink, entry, qc) {
   const queryClient = qc ?? getQueryClient();
   const path = `/@${author}/${permlink}`;
-  queryClient.setQueryData(["posts", "entry", path], entry);
+  queryClient.setQueryData(QueryKeys.posts.entry(path), entry);
 }
 
 // src/modules/posts/mutations/use-delete-comment.ts
@@ -6080,11 +6308,9 @@ function useDeleteComment(username, auth) {
           ["posts", "blog", username]
         ];
         if (variables.parentAuthor && variables.parentPermlink) {
-          queriesToInvalidate.push([
-            "posts",
-            "entry",
-            `/@${variables.parentAuthor}/${variables.parentPermlink}`
-          ]);
+          queriesToInvalidate.push(
+            QueryKeys.posts.entry(`/@${variables.parentAuthor}/${variables.parentPermlink}`)
+          );
           const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
           const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
           queriesToInvalidate.push({
@@ -6242,11 +6468,9 @@ function useUpdateReply(username, auth) {
           ["account", username, "rc"]
           // RC decreases after updating
         ];
-        queriesToInvalidate.push([
-          "posts",
-          "entry",
-          `/@${variables.parentAuthor}/${variables.parentPermlink}`
-        ]);
+        queriesToInvalidate.push(
+          QueryKeys.posts.entry(`/@${variables.parentAuthor}/${variables.parentPermlink}`)
+        );
         const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
         const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;
         queriesToInvalidate.push({
@@ -6278,7 +6502,7 @@ function usePromote(username, auth) {
           // Invalidate user points balance
           ["points", username],
           // Invalidate specific post cache to update promotion status
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`]
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`)
         ]);
       }
     },
@@ -6690,7 +6914,7 @@ function useSubscribeCommunity(username, auth) {
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "subscriptions", username],
+          QueryKeys.accounts.subscriptions(username),
           ["communities", variables.community]
         ]);
       }
@@ -6710,7 +6934,7 @@ function useUnsubscribeCommunity(username, auth) {
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "subscriptions", username],
+          QueryKeys.accounts.subscriptions(username),
           ["communities", variables.community]
         ]);
       }
@@ -6733,7 +6957,7 @@ function useMutePost(username, auth) {
           // Invalidate community posts to hide/show muted content
           ["communities", variables.community, "posts"],
           // Invalidate specific post cache to update mute status
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
           // Invalidate feed caches to remove/restore muted posts
           ["posts", "feed", variables.community]
         ]);
@@ -6828,7 +7052,7 @@ function useRegisterCommunityRewards(username, auth) {
 }
 function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0, enabled = true) {
   return queryOptions({
-    queryKey: ["communities", "list", sort, query, limit],
+    queryKey: QueryKeys.communities.list(sort, query ?? "", limit),
     enabled,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(
@@ -6848,7 +7072,7 @@ function getCommunitiesQueryOptions(sort, query, limit = 100, observer = void 0,
 }
 function getCommunityContextQueryOptions(username, communityName) {
   return queryOptions({
-    queryKey: ["community", "context", username, communityName],
+    queryKey: QueryKeys.communities.context(username, communityName),
     enabled: !!username && !!communityName,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(
@@ -6868,14 +7092,14 @@ function getCommunityContextQueryOptions(username, communityName) {
 }
 function getCommunityQueryOptions(name, observer = "", enabled = true) {
   return queryOptions({
-    queryKey: ["community", "single", name, observer],
+    queryKey: QueryKeys.communities.single(name, observer),
     enabled: enabled && !!name,
     queryFn: async () => getCommunity(name ?? "", observer)
   });
 }
 function getCommunitySubscribersQueryOptions(communityName) {
   return queryOptions({
-    queryKey: ["communities", "subscribers", communityName],
+    queryKey: QueryKeys.communities.subscribers(communityName),
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call("bridge", "list_subscribers", {
         community: communityName
@@ -6887,7 +7111,7 @@ function getCommunitySubscribersQueryOptions(communityName) {
 }
 function getAccountNotificationsInfiniteQueryOptions(account, limit) {
   return infiniteQueryOptions({
-    queryKey: ["communities", "account-notifications", account, limit],
+    queryKey: QueryKeys.communities.accountNotifications(account, limit),
     initialPageParam: null,
     queryFn: async ({ pageParam }) => {
       try {
@@ -6906,7 +7130,7 @@ function getAccountNotificationsInfiniteQueryOptions(account, limit) {
 }
 function getRewardedCommunitiesQueryOptions() {
   return queryOptions({
-    queryKey: ["communities", "rewarded"],
+    queryKey: QueryKeys.communities.rewarded(),
     queryFn: async () => {
       const response = await fetch(
         CONFIG.privateApiHost + "/private-api/rewarded-communities",
@@ -6985,7 +7209,7 @@ function getCommunityPermissions({
 }
 function getNotificationsUnreadCountQueryOptions(activeUsername, code) {
   return queryOptions({
-    queryKey: ["notifications", "unread", activeUsername],
+    queryKey: QueryKeys.notifications.unreadCount(activeUsername),
     queryFn: async () => {
       if (!code) {
         return 0;
@@ -7010,7 +7234,7 @@ function getNotificationsUnreadCountQueryOptions(activeUsername, code) {
 }
 function getNotificationsInfiniteQueryOptions(activeUsername, code, filter = void 0) {
   return infiniteQueryOptions({
-    queryKey: ["notifications", activeUsername, filter],
+    queryKey: QueryKeys.notifications.list(activeUsername, filter),
     queryFn: async ({ pageParam }) => {
       if (!code) {
         return [];
@@ -7088,7 +7312,7 @@ var NotificationViewType = /* @__PURE__ */ ((NotificationViewType2) => {
 // src/modules/notifications/queries/get-notifications-settings-query-options.ts
 function getNotificationsSettingsQueryOptions(activeUsername, code, initialMuted) {
   return queryOptions({
-    queryKey: ["notifications", "settings", activeUsername],
+    queryKey: QueryKeys.notifications.settings(activeUsername),
     queryFn: async () => {
       let token = activeUsername + "-web";
       if (!code) {
@@ -7136,7 +7360,7 @@ function getNotificationsSettingsQueryOptions(activeUsername, code, initialMuted
 }
 function getAnnouncementsQueryOptions() {
   return queryOptions({
-    queryKey: ["notifications", "announcements"],
+    queryKey: QueryKeys.notifications.announcements(),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/announcements", {
         method: "GET",
@@ -7312,8 +7536,8 @@ function useProposalVote(username, auth) {
         }
         if (auth?.adapter?.invalidateQueries) {
           await auth.adapter.invalidateQueries([
-            ["proposals", "list"],
-            ["proposals", "votes", username]
+            QueryKeys.proposals.list(),
+            QueryKeys.proposals.votesByUser(username)
           ]);
         }
       } catch (error) {
@@ -9459,7 +9683,7 @@ function useSetWithdrawVestingRoute(username, auth) {
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["wallet", "withdraw-routes", username],
+          QueryKeys.wallet.withdrawRoutes(username),
           ["accounts", username],
           ["accounts", variables.toAccount]
         ]);
@@ -9711,7 +9935,7 @@ function useClaimRewards(username, auth) {
     async () => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["get-account-full", username],
+          QueryKeys.accounts.full(username),
           ["wallet", "balances", username]
         ]);
       }
@@ -10113,15 +10337,15 @@ function useWalletOperation(username, asset, operation, auth) {
     () => {
       recordActivity();
       const keysToInvalidate = [];
-      keysToInvalidate.push(["assets", asset]);
+      keysToInvalidate.push(["ecency-wallets", "asset-info", username, asset]);
       if (asset === "HIVE") {
-        keysToInvalidate.push(["assets", "HP"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "HP"]);
       }
       if (asset === "LARYNX" && operation === "power-up" /* PowerUp */) {
-        keysToInvalidate.push(["assets", "LP"]);
-        keysToInvalidate.push(["assets", "LARYNX"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LP"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LARYNX"]);
       }
-      keysToInvalidate.push(["ecency-wallets", "portfolio", "v2"]);
+      keysToInvalidate.push(["wallet", "portfolio", "v2", username]);
       setTimeout(() => {
         keysToInvalidate.forEach((key) => {
           getQueryClient().invalidateQueries({ queryKey: key });
@@ -10658,6 +10882,6 @@ async function hsTokenRenew(code) {
   return data;
 }
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, AssetOperation, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, EntriesCacheManagement, ErrorType, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, PointTransactionType, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCrossPost, useDelegateEngineToken, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePowerLarynx, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, AssetOperation, BuySellTransactionType, CONFIG, ConfigManager, mutations_exports as EcencyAnalytics, EcencyQueriesManager, EntriesCacheManagement, ErrorType, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, HiveSignerIntegration, NaiMap, NotificationFilter, NotificationViewType, NotifyTypes, OPERATION_AUTHORITY_MAP, OrderIdPrefix, PointTransactionType, QueryKeys, ROLES, SortOrder, Symbol2 as Symbol, ThreeSpeakIntegration, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCrossPost, useDelegateEngineToken, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePowerLarynx, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

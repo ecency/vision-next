@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { AccountProfile } from "../types";
 
@@ -39,12 +39,7 @@ export function checkUsernameWalletsPendingQueryOptions(
   code: string | undefined
 ) {
   return queryOptions<CheckUsernameWalletsPendingResponse>({
-    queryKey: [
-      "accounts",
-      "check-wallet-pending",
-      username,
-      code ?? null,
-    ],
+    queryKey: QueryKeys.accounts.checkWalletPending(username, code ?? null),
     queryFn: async () => {
       if (!username || !code) {
         return { exist: false } satisfies CheckUsernameWalletsPendingResponse;

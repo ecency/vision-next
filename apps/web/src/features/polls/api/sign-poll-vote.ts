@@ -3,9 +3,10 @@ import { useGetPollDetailsQuery } from "./get-poll-details-query";
 import { PollsVotesManagement } from "./polls-votes-management";
 import { error } from "@/features/shared";
 import i18next from "i18next";
-import { broadcastPostingJSON } from "@/api/operations";
+import { broadcastJson } from "@ecency/sdk";
 import { QueryIdentifiers } from "@/core/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getSdkAuthContext, getUser } from "@/utils";
 
 export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQuery>["data"]) {
   const { activeUser } = useActiveAccount();
@@ -27,11 +28,11 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
         return;
       }
 
-      await broadcastPostingJSON(activeUser.username, "polls", {
+      await broadcastJson(activeUser.username, "polls", {
         poll: poll.poll_trx_id,
         action: "vote",
         choices: choiceNums
-      });
+      }, getSdkAuthContext(getUser(activeUser.username)));
 
       return { choiceNums: choiceNums };
     },

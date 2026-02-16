@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AccountProfile, FullAccount } from "@/entities";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useUpdateProfileMutation } from "@/api/sdk-mutations";
+import { QueryKeys } from "@ecency/sdk";
 
 /**
  * Web app-specific profile update mutation hook that wraps SDK mutation with app cache management.
@@ -54,7 +54,7 @@ export function useUpdateProfile(account: FullAccount) {
       // SDK already updates the cache, but we also manually update here
       // for immediate UI feedback (optimistic update)
       queryClient.setQueryData<FullAccount>(
-        [QueryIdentifiers.GET_ACCOUNT_FULL, account.name],
+        QueryKeys.accounts.full(account.name),
         (data) => {
           if (!data) {
             return data;

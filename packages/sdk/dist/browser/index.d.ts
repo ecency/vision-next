@@ -238,7 +238,7 @@ interface PlatformAdapter {
      * }
      * ```
      */
-    showAuthUpgradeUI?: (requiredAuthority: 'posting' | 'active', operation: string) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
+    showAuthUpgradeUI?: (requiredAuthority: 'posting' | 'active', operation: string) => Promise<'hiveauth' | 'hivesigner' | 'keychain' | 'key' | false>;
     /**
      * Broadcast operations using Keychain browser extension.
      *
@@ -1387,10 +1387,10 @@ declare function getFollowCountQueryOptions(username: string): _tanstack_react_q
  * @param followType - Type of follow relationship (default: "blog")
  * @param limit - Maximum number of results (default: 100)
  */
-declare function getFollowersQueryOptions(following: string | undefined, startFollower: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number | undefined)[], never> | undefined;
+declare function getFollowersQueryOptions(following: string | undefined, startFollower: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number)[], never> | undefined;
 } & {
-    queryKey: (string | number | undefined)[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: Follow[];
         [dataTagErrorSymbol]: Error;
     };
@@ -1404,10 +1404,10 @@ declare function getFollowersQueryOptions(following: string | undefined, startFo
  * @param followType - Type of follow relationship (default: "blog")
  * @param limit - Maximum number of results (default: 100)
  */
-declare function getFollowingQueryOptions(follower: string | undefined, startFollowing: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number | undefined)[], never> | undefined;
+declare function getFollowingQueryOptions(follower: string, startFollowing: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number)[], never> | undefined;
 } & {
-    queryKey: (string | number | undefined)[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: Follow[];
         [dataTagErrorSymbol]: Error;
     };
@@ -1419,10 +1419,10 @@ declare function getFollowingQueryOptions(follower: string | undefined, startFol
  * @param username - The account username
  * @param limit - Maximum number of results (default: 100)
  */
-declare function getMutedUsersQueryOptions(username: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | undefined)[], never> | undefined;
+declare function getMutedUsersQueryOptions(username: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: string[];
         [dataTagErrorSymbol]: Error;
     };
@@ -1443,10 +1443,10 @@ declare function lookupAccountsQueryOptions(query: string, limit?: number): _tan
     };
 };
 
-declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: number, excludeList?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | string[])[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | string[])[], never> | undefined;
+declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: number, excludeList?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | string[] | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | string[] | undefined)[], never> | undefined;
 } & {
-    queryKey: (string | string[])[] & {
+    queryKey: (string | string[] | undefined)[] & {
         [dataTagSymbol]: string[];
         [dataTagErrorSymbol]: Error;
     };
@@ -1475,20 +1475,20 @@ declare function checkUsernameWalletsPendingQueryOptions(username: string, code:
     };
 };
 
-declare function getRelationshipBetweenAccountsQueryOptions(reference: string | undefined, target: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, (string | undefined)[], never> | undefined;
+declare function getRelationshipBetweenAccountsQueryOptions(reference: string, target: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: AccountRelationship;
         [dataTagErrorSymbol]: Error;
     };
 };
 
 type Subscriptions = string[];
-declare function getAccountSubscriptionsQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Subscriptions, Error, Subscriptions, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Subscriptions, (string | undefined)[], never> | undefined;
+declare function getAccountSubscriptionsQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Subscriptions, Error, Subscriptions, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Subscriptions, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: Subscriptions;
         [dataTagErrorSymbol]: Error;
     };
@@ -1921,6 +1921,194 @@ declare function getRewardFundQueryOptions(fundName?: string): _tanstack_react_q
     };
 };
 
+/**
+ * Centralized query key definitions for all SDK queries.
+ *
+ * These key builders are the single source of truth for React Query cache keys.
+ * Both SDK query options and web app consumers should reference these
+ * instead of using inline string arrays.
+ *
+ * @example
+ * ```typescript
+ * import { QueryKeys } from "@ecency/sdk";
+ *
+ * // In query options
+ * queryKey: QueryKeys.posts.entry(`/@${author}/${permlink}`)
+ *
+ * // In cache invalidation
+ * queryClient.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) })
+ * ```
+ */
+declare const QueryKeys: {
+    readonly posts: {
+        readonly entry: (entryPath: string) => string[];
+        readonly postHeader: (author: string, permlink?: string) => (string | undefined)[];
+        readonly content: (author: string, permlink: string) => string[];
+        readonly contentReplies: (author: string, permlink: string) => string[];
+        readonly accountPosts: (username: string, filter: string, limit: number, observer: string) => (string | number)[];
+        readonly accountPostsPage: (username: string, filter: string, startAuthor: string, startPermlink: string, limit: number, observer: string) => (string | number)[];
+        readonly userPostVote: (username: string, author: string, permlink: string) => string[];
+        readonly reblogs: (username: string, limit: number) => (string | number)[];
+        readonly entryActiveVotes: (author?: string, permlink?: string) => (string | undefined)[];
+        readonly rebloggedBy: (author: string, permlink: string) => string[];
+        readonly tips: (author: string, permlink: string) => string[];
+        readonly normalize: (author: string, permlink: string) => string[];
+        readonly drafts: (activeUsername?: string) => (string | undefined)[];
+        readonly draftsInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly schedules: (activeUsername?: string) => (string | undefined)[];
+        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly fragments: (username?: string) => (string | undefined)[];
+        readonly fragmentsInfinite: (username?: string, limit?: number) => (string | number | undefined)[];
+        readonly images: (username?: string) => (string | undefined)[];
+        readonly galleryImages: (activeUsername?: string) => (string | undefined)[];
+        readonly imagesInfinite: (username?: string, limit?: number) => (string | number | undefined)[];
+        readonly promoted: (type: string) => string[];
+        readonly postsRanked: (sort: string, tag: string, limit: number, observer: string) => (string | number)[];
+        readonly postsRankedPage: (sort: string, startAuthor: string, startPermlink: string, limit: number, tag: string, observer: string) => (string | number)[];
+        readonly discussions: (author: string, permlink: string, order: string, observer: string) => string[];
+        readonly discussion: (author: string, permlink: string, observer: string) => string[];
+        readonly deletedEntry: (entryPath: string) => string[];
+        readonly commentHistory: (author: string, permlink: string, onlyMeta: boolean) => (string | boolean)[];
+        readonly trendingTags: () => string[];
+        readonly trendingTagsWithStats: (limit: number) => (string | number)[];
+        readonly wavesByHost: (host: string) => string[];
+        readonly wavesByTag: (host: string, tag: string) => string[];
+        readonly wavesFollowing: (host: string, username: string) => string[];
+        readonly wavesTrendingTags: (host: string, hours: number) => (string | number)[];
+        readonly _prefix: readonly ["posts"];
+    };
+    readonly accounts: {
+        readonly full: (username?: string) => (string | undefined)[];
+        readonly list: (...usernames: string[]) => string[];
+        readonly friends: (following: string, mode: string, followType: string, limit: number) => (string | number)[];
+        readonly searchFriends: (username: string, mode: string, query: string) => string[];
+        readonly subscriptions: (username: string) => string[];
+        readonly followCount: (username: string) => string[];
+        readonly recoveries: (username: string) => string[];
+        readonly pendingRecovery: (username: string) => string[];
+        readonly checkWalletPending: (username: string, code: string | null) => (string | null)[];
+        readonly mutedUsers: (username: string) => string[];
+        readonly following: (follower: string, startFollowing: string, followType: string, limit: number) => (string | number)[];
+        readonly followers: (following: string, startFollower: string, followType: string, limit: number) => (string | number)[];
+        readonly search: (query: string, excludeList?: string[]) => (string | string[] | undefined)[];
+        readonly profiles: (accounts: string[], observer: string) => (string | string[])[];
+        readonly lookup: (query: string, limit: number) => (string | number)[];
+        readonly transactions: (username: string, group: string, limit: number) => (string | number)[];
+        readonly favourites: (activeUsername?: string) => (string | undefined)[];
+        readonly favouritesInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly checkFavourite: (activeUsername: string, targetUsername: string) => string[];
+        readonly relations: (reference: string, target: string) => string[];
+        readonly bots: () => string[];
+        readonly voteHistory: (username: string, limit: number) => (string | number)[];
+        readonly reputations: (query: string, limit: number) => (string | number)[];
+        readonly bookmarks: (activeUsername?: string) => (string | undefined)[];
+        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly referrals: (username: string) => string[];
+        readonly referralsStats: (username: string) => string[];
+        readonly _prefix: readonly ["accounts"];
+    };
+    readonly notifications: {
+        readonly announcements: () => string[];
+        readonly list: (activeUsername?: string, filter?: string) => (string | undefined)[];
+        readonly unreadCount: (activeUsername?: string) => (string | undefined)[];
+        readonly settings: (activeUsername?: string) => (string | undefined)[];
+        readonly _prefix: readonly ["notifications"];
+    };
+    readonly core: {
+        readonly rewardFund: (fundName: string) => string[];
+        readonly dynamicProps: () => string[];
+        readonly chainProperties: () => string[];
+        readonly _prefix: readonly ["core"];
+    };
+    readonly communities: {
+        readonly single: (name?: string, observer?: string) => (string | undefined)[];
+        readonly context: (username: string, communityName: string) => string[];
+        readonly rewarded: () => string[];
+        readonly list: (sort: string, query: string, limit: number) => (string | number)[];
+        readonly subscribers: (communityName: string) => string[];
+        readonly accountNotifications: (account: string, limit: number) => (string | number)[];
+    };
+    readonly proposals: {
+        readonly list: () => string[];
+        readonly proposal: (id: number) => (string | number)[];
+        readonly votes: (proposalId: number, voter: string, limit: number) => (string | number)[];
+        readonly votesByUser: (voter: string) => string[];
+    };
+    readonly search: {
+        readonly topics: (q: string) => string[];
+        readonly path: (q: string) => string[];
+        readonly account: (q: string, limit: number) => (string | number)[];
+        readonly results: (q: string, sort: string, hideLow: boolean, since?: string, scrollId?: string, votes?: number) => (string | number | boolean | undefined)[];
+        readonly controversialRising: (what: string, tag: string) => string[];
+        readonly similarEntries: (author: string, permlink: string, query: string) => string[];
+        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number) => (string | number | boolean | undefined)[];
+    };
+    readonly witnesses: {
+        readonly list: (limit: number) => (string | number)[];
+    };
+    readonly wallet: {
+        readonly outgoingRcDelegations: (username: string, limit: number) => (string | number)[];
+        readonly vestingDelegations: (username: string, limit: number) => (string | number)[];
+        readonly withdrawRoutes: (account: string) => string[];
+        readonly incomingRc: (username: string) => string[];
+        readonly conversionRequests: (account: string) => string[];
+        readonly receivedVestingShares: (username: string) => string[];
+        readonly savingsWithdraw: (account: string) => string[];
+        readonly openOrders: (user: string) => string[];
+        readonly collateralizedConversionRequests: (account: string) => string[];
+        readonly recurrentTransfers: (username: string) => string[];
+        readonly portfolio: (username: string, onlyEnabled: string, currency: string) => string[];
+    };
+    readonly assets: {
+        readonly hiveGeneralInfo: (username: string) => string[];
+        readonly hiveTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hiveWithdrawalRoutes: (username: string) => string[];
+        readonly hiveMetrics: (bucketSeconds: number) => (string | number)[];
+        readonly hbdGeneralInfo: (username: string) => string[];
+        readonly hbdTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hivePowerGeneralInfo: (username: string) => string[];
+        readonly hivePowerDelegates: (username: string) => string[];
+        readonly hivePowerDelegatings: (username: string) => string[];
+        readonly hivePowerTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly pointsGeneralInfo: (username: string) => string[];
+        readonly pointsTransactions: (username: string, type: string) => string[];
+        readonly ecencyAssetInfo: (username: string, asset: string, currency: string) => string[];
+    };
+    readonly market: {
+        readonly statistics: () => string[];
+        readonly orderBook: (limit: number) => (string | number)[];
+        readonly history: (seconds: number, startDate: number, endDate: number) => (string | number)[];
+        readonly feedHistory: () => string[];
+        readonly hiveHbdStats: () => string[];
+        readonly data: (coin: string, vsCurrency: string, fromTs: number, toTs: number) => (string | number)[];
+        readonly tradeHistory: (limit: number, start: number, end: number) => (string | number)[];
+        readonly currentMedianHistoryPrice: () => string[];
+    };
+    readonly analytics: {
+        readonly discoverCuration: (duration: string) => string[];
+        readonly pageStats: (url: string, dimensions: string, metrics: string, dateRange: string) => string[];
+        readonly discoverLeaderboard: (duration: string) => string[];
+    };
+    readonly promotions: {
+        readonly promotePrice: () => string[];
+        readonly boostPlusPrices: () => string[];
+        readonly boostPlusAccounts: (account: string) => string[];
+    };
+    readonly resourceCredits: {
+        readonly account: (username: string) => string[];
+        readonly stats: () => string[];
+    };
+    readonly points: {
+        readonly points: (username: string, filter: number) => (string | number)[];
+    };
+    readonly operations: {
+        readonly chainProperties: () => string[];
+    };
+    readonly games: {
+        readonly statusCheck: (gameType: string, username: string) => string[];
+    };
+};
+
 declare function encodeObj(o: any): string;
 declare function decodeObj(o: any): any;
 
@@ -2000,28 +2188,28 @@ declare function getFavouritesInfiniteQueryOptions(activeUsername: string | unde
  * @param targetUsername - The username to check if favorited
  * @returns Query options for checking if target is favorited
  */
-declare function checkFavouriteQueryOptions(activeUsername: string | undefined, code: string | undefined, targetUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<boolean, Error, boolean, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<boolean, (string | undefined)[], never> | undefined;
+declare function checkFavouriteQueryOptions(activeUsername: string | undefined, code: string | undefined, targetUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<boolean, Error, boolean, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<boolean, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: boolean;
         [dataTagErrorSymbol]: Error;
     };
 };
 
-declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], (string | undefined)[], never> | undefined;
+declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: GetRecoveriesEmailResponse[];
         [dataTagErrorSymbol]: Error;
     };
 };
 
-declare function getAccountPendingRecoveryQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<any, (string | undefined)[], never> | undefined;
+declare function getAccountPendingRecoveryQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: any;
         [dataTagErrorSymbol]: Error;
     };
@@ -3091,10 +3279,10 @@ declare function getTrendingTagsWithStatsQueryOptions(limit?: number): _tanstack
     };
 };
 
-declare function getFragmentsQueryOptions(username: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Fragment[], string[], never> | undefined;
+declare function getFragmentsQueryOptions(username: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Fragment[], (string | undefined)[], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | undefined)[] & {
         [dataTagSymbol]: Fragment[];
         [dataTagErrorSymbol]: Error;
     };
@@ -3134,10 +3322,10 @@ declare function getEntryActiveVotesQueryOptions(entry?: Entry$1): _tanstack_rea
  * @param author - The post author
  * @param permlink - The post permlink
  */
-declare function getUserPostVoteQueryOptions(username: string | undefined, author: string | undefined, permlink: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote | null, Error, Vote | null, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Vote | null, (string | undefined)[], never> | undefined;
+declare function getUserPostVoteQueryOptions(username: string | undefined, author: string | undefined, permlink: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote | null, Error, Vote | null, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Vote | null, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: Vote | null;
         [dataTagErrorSymbol]: Error;
     };
@@ -3161,11 +3349,11 @@ declare function getContentRepliesQueryOptions(author: string, permlink: string)
     };
 };
 
-declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, string[]>, "queryFn"> & {
+declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, (string | undefined)[]>, "queryFn"> & {
     initialData: Entry$1 | (() => Entry$1 | null) | null;
-    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, string[]> | undefined;
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, (string | undefined)[]> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | undefined)[] & {
         [dataTagSymbol]: Entry$1 | null;
         [dataTagErrorSymbol]: Error;
     };
@@ -4845,10 +5033,10 @@ interface RewardedCommunity {
     name: string;
 }
 
-declare function getCommunitiesQueryOptions(sort: string, query?: string, limit?: number, observer?: string | undefined, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Communities, Error, Communities, (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Communities, (string | number | undefined)[], never> | undefined;
+declare function getCommunitiesQueryOptions(sort: string, query?: string, limit?: number, observer?: string | undefined, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Communities, Error, Communities, (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Communities, (string | number)[], never> | undefined;
 } & {
-    queryKey: (string | number | undefined)[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: Communities;
         [dataTagErrorSymbol]: Error;
     };
@@ -4860,13 +5048,13 @@ declare function getCommunityContextQueryOptions(username: string | undefined, c
 }, Error, {
     role: any;
     subscribed: any;
-}, (string | undefined)[]>, "queryFn"> & {
+}, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         role: any;
         subscribed: any;
-    }, (string | undefined)[], never> | undefined;
+    }, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: {
             role: any;
             subscribed: any;
@@ -7651,4 +7839,4 @@ declare function getLarynxPowerAssetGeneralInfoQueryOptions(username: string): _
     };
 };
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GetGameStatus, type GetRecoveriesEmailResponse, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCrossPost, useDelegateEngineToken, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePowerLarynx, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GetGameStatus, type GetRecoveriesEmailResponse, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCrossPost, useDelegateEngineToken, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePowerLarynx, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };

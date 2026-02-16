@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
@@ -104,7 +104,7 @@ export function useVote(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
           ["account", username, "votingPower"]
         ]);
       }

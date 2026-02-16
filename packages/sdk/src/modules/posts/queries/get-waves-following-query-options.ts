@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { ConfigManager } from "@/modules/core";
+import { ConfigManager, QueryKeys } from "@/modules/core";
 import { Entry, WaveEntry } from "../types";
 import { normalizeWaveEntryFromApi } from "../utils/waves-helpers";
 
@@ -13,7 +13,7 @@ export function getWavesFollowingQueryOptions(host: string, username?: string) {
   const normalizedUsername = username?.trim().toLowerCase();
 
   return infiniteQueryOptions({
-    queryKey: ["posts", "waves", "following", host, normalizedUsername ?? ""],
+    queryKey: QueryKeys.posts.wavesFollowing(host, normalizedUsername ?? ""),
     enabled: Boolean(normalizedUsername),
     initialPageParam: undefined,
 

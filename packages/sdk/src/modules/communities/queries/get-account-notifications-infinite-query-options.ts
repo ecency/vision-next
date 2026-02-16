@@ -1,5 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { AccountNotification } from "../types";
 
 type NotifPage = AccountNotification[];
@@ -16,7 +17,7 @@ export function getAccountNotificationsInfiniteQueryOptions(
   limit: number
 ) {
   return infiniteQueryOptions<NotifPage, Error, NotifPage, (string | number)[], NotifCursor>({
-    queryKey: ["communities", "account-notifications", account, limit],
+    queryKey: QueryKeys.communities.accountNotifications(account, limit),
     initialPageParam: null as NotifCursor,
 
     queryFn: async ({ pageParam }: { pageParam: NotifCursor }) => {

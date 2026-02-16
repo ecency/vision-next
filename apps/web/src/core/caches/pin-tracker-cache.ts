@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "../react-query";
-import { getPostsRankedQueryOptions } from "@ecency/sdk";
+import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useDataLimit } from "@/utils/data-limit";
 import { formatError, pinPost } from "@/api/operations";
 import { Community, Entry } from "@/entities";
@@ -54,7 +54,7 @@ export function useCommunityPin(entry: Entry, community: Community | null | unde
       queryClient.setQueryData([QueryIdentifiers.ENTRY_PIN_TRACK, entry.post_id], pin);
 
       queryClient.setQueryData<Entry>(
-        [QueryIdentifiers.ENTRY, entry.author, entry.permlink],
+        QueryKeys.posts.entry(`/@${entry.author}/${entry.permlink}`),
         (data) => {
           if (!data) {
             return data;

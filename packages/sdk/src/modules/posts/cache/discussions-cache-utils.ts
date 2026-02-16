@@ -1,4 +1,4 @@
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import type { Entry } from "../types";
 import type { QueryClient } from "@tanstack/react-query";
 
@@ -100,10 +100,10 @@ export function updateEntryInCache(
 ): Entry | undefined {
   const queryClient = qc ?? getQueryClient();
   const path = `/@${author}/${permlink}`;
-  const previous = queryClient.getQueryData<Entry>(["posts", "entry", path]);
+  const previous = queryClient.getQueryData<Entry>(QueryKeys.posts.entry(path));
 
   if (previous) {
-    queryClient.setQueryData<Entry>(["posts", "entry", path], {
+    queryClient.setQueryData<Entry>(QueryKeys.posts.entry(path), {
       ...previous,
       ...updates,
     });
@@ -123,5 +123,5 @@ export function restoreEntryInCache(
 ) {
   const queryClient = qc ?? getQueryClient();
   const path = `/@${author}/${permlink}`;
-  queryClient.setQueryData<Entry>(["posts", "entry", path], entry);
+  queryClient.setQueryData<Entry>(QueryKeys.posts.entry(path), entry);
 }

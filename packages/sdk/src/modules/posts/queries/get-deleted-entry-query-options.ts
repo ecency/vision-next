@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { CommentHistory } from "../types/comment-history";
 
 function makeEntryPath(author: string, permlink: string): string {
@@ -36,7 +36,7 @@ export function getDeletedEntryQueryOptions(author: string, permlink: string) {
   const entryPath = isValid ? makeEntryPath(cleanAuthor, cleanPermlink) : "";
 
   return queryOptions({
-    queryKey: ["posts", "deleted-entry", entryPath],
+    queryKey: QueryKeys.posts.deletedEntry(entryPath),
     queryFn: async ({ signal }) => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/comment-history", {
         method: "POST",

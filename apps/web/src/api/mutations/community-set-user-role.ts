@@ -5,8 +5,8 @@ import { Community, CommunityTeam } from "@/entities";
 import { formatError } from "@/api/operations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
-import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
+import { QueryKeys } from "@ecency/sdk";
 import { getCommunityCache } from "@/core/caches";
 import { useSetCommunityRoleMutation } from "@/api/sdk-mutations";
 
@@ -33,7 +33,7 @@ export function useCommunitySetUserRole(communityName: string, onSuccess?: () =>
             onSuccess?.();
 
             queryClient.setQueryData<Community | undefined>(
-                [QueryIdentifiers.COMMUNITY, communityName],
+                QueryKeys.communities.single(communityName, ""),
                 (prev) => {
                     const base = (prev ?? community);
                     if (!base) return prev; // nothing cached yet

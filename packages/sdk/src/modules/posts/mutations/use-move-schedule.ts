@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { moveSchedule } from "@/modules/private-api/requests";
 
 export function useMoveSchedule(
@@ -21,12 +21,12 @@ export function useMoveSchedule(
       const qc = getQueryClient();
       // Set the full schedules list from the response (API returns complete list)
       if (data) {
-        qc.setQueryData(["posts", "schedules", username], data);
+        qc.setQueryData(QueryKeys.posts.schedules(username), data);
       } else {
-        qc.invalidateQueries({ queryKey: ["posts", "schedules", username] });
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.schedules(username) });
       }
       // Also invalidate drafts since moving a schedule creates a draft
-      qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
     },
     onError,
   });

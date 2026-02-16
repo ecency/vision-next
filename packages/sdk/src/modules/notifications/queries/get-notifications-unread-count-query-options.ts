@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 export function getNotificationsUnreadCountQueryOptions(
@@ -6,7 +6,7 @@ export function getNotificationsUnreadCountQueryOptions(
   code: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["notifications", "unread", activeUsername],
+    queryKey: QueryKeys.notifications.unreadCount(activeUsername),
     queryFn: async () => {
       if (!code) {
         return 0;

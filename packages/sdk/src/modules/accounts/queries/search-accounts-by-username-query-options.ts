@@ -1,4 +1,5 @@
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 export function getSearchAccountsByUsernameQueryOptions(
@@ -7,7 +8,7 @@ export function getSearchAccountsByUsernameQueryOptions(
   excludeList: string[] = []
 ) {
   return queryOptions({
-    queryKey: ["accounts", "search", query, excludeList],
+    queryKey: QueryKeys.accounts.search(query, excludeList),
     enabled: !!query,
     queryFn: async () => {
       const response = (await CONFIG.hiveClient.database.call(

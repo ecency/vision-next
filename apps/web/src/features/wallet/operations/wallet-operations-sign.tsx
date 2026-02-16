@@ -57,8 +57,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         if (method === "hivesigner") {
           // Redirect to HiveSigner — page navigates away, promise never resolves
           return new Promise(() => {
-            hs.sendOperation(
-              operations[0],
+            hs.sendOperations(
+              operations,
               { callback: `https://ecency.com/@${activeUser.username}/wallet` },
               () => {}
             );

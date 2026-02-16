@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { AccountFavorite } from "../types";
 
@@ -7,7 +7,7 @@ export function getFavouritesQueryOptions(
   code: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["accounts", "favourites", activeUsername],
+    queryKey: QueryKeys.accounts.favourites(activeUsername),
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
@@ -35,7 +35,7 @@ export function getFavouritesInfiniteQueryOptions(
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "favourites", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.accounts.favouritesInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {

@@ -1,4 +1,4 @@
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import type { Entry, EntryVote } from "../types";
 import type { QueryClient } from "@tanstack/react-query";
 
@@ -12,17 +12,15 @@ function getEntryFromCache(
   qc?: QueryClient
 ): Entry | undefined {
   const queryClient = qc ?? getQueryClient();
-  return queryClient.getQueryData<Entry>([
-    "posts",
-    "entry",
-    makeEntryPath(author, permlink),
-  ]);
+  return queryClient.getQueryData<Entry>(
+    QueryKeys.posts.entry(makeEntryPath(author, permlink))
+  );
 }
 
 function setEntryInCache(entry: Entry, qc?: QueryClient) {
   const queryClient = qc ?? getQueryClient();
   queryClient.setQueryData<Entry>(
-    ["posts", "entry", makeEntryPath(entry.author, entry.permlink)],
+    QueryKeys.posts.entry(makeEntryPath(entry.author, entry.permlink)),
     entry
   );
 }
@@ -35,11 +33,11 @@ function mutateEntry(
 ): Entry | undefined {
   const queryClient = qc ?? getQueryClient();
   const path = makeEntryPath(author, permlink);
-  const existing = queryClient.getQueryData<Entry>(["posts", "entry", path]);
+  const existing = queryClient.getQueryData<Entry>(QueryKeys.posts.entry(path));
   if (!existing) return undefined;
 
   const updated = updater(existing);
-  queryClient.setQueryData<Entry>(["posts", "entry", path], updated);
+  queryClient.setQueryData<Entry>(QueryKeys.posts.entry(path), updated);
   return existing;
 }
 
@@ -145,7 +143,7 @@ export namespace EntriesCacheManagement {
   ) {
     const queryClient = qc ?? getQueryClient();
     queryClient.invalidateQueries({
-      queryKey: ["posts", "entry", makeEntryPath(author, permlink)],
+      queryKey: QueryKeys.posts.entry(makeEntryPath(author, permlink)),
     });
   }
 

@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
@@ -17,7 +17,7 @@ export function getPostQueryOptions(
   const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
 
   return queryOptions({
-    queryKey: ["posts", "entry", entryPath],
+    queryKey: QueryKeys.posts.entry(entryPath),
     queryFn: async () => {
       if (!cleanPermlink || cleanPermlink === "undefined") {
         return null;

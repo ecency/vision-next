@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildPromoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -76,7 +76,7 @@ export function usePromote(
           // Invalidate user points balance
           ["points", username],
           // Invalidate specific post cache to update promotion status
-          ["posts", "entry", `/@${variables.author}/${variables.permlink}`],
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
         ]);
       }
     },

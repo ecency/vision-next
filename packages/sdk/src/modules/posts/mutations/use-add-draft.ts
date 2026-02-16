@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { addDraft } from "@/modules/private-api/requests";
 import { DraftMetadata } from "../types";
 
@@ -32,9 +32,9 @@ export function useAddDraft(
       const qc = getQueryClient();
       // Set the full drafts list from the response (API returns complete list)
       if (data?.drafts) {
-        qc.setQueryData(["posts", "drafts", username], data.drafts);
+        qc.setQueryData(QueryKeys.posts.drafts(username), data.drafts);
       } else {
-        qc.invalidateQueries({ queryKey: ["posts", "drafts", username] });
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
       }
     },
     onError,

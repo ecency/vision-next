@@ -1,22 +1,23 @@
-import { getQueryClient, QueryIdentifiers } from "../react-query";
+import { getQueryClient } from "../react-query";
 import {
   getNormalizePostQueryOptions,
   getPostQueryOptions,
-  EntriesCacheManagement as SdkEntriesCacheManagement
+  QueryKeys
 } from "@ecency/sdk";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
+function entryKey(author: string, permlink: string) {
+  return QueryKeys.posts.entry(makeEntryPath("", author, permlink));
+}
+
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
     return {
       ...getPostQueryOptions(author ?? "", permlink),
-      queryKey: [
-        QueryIdentifiers.ENTRY,
-        author && permlink ? makeEntryPath("", author, permlink) : "EMPTY"
-      ],
+      queryKey: entryKey(author ?? "", permlink ?? ""),
       enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
     };
   }
@@ -24,10 +25,7 @@ export namespace EcencyEntriesCacheManagement {
   export function getEntryQuery<T extends Entry>(initialEntry?: T) {
     return {
       ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
-      queryKey: [
-        QueryIdentifiers.ENTRY,
-        initialEntry ? makeEntryPath("", initialEntry.author, initialEntry.permlink) : "EMPTY"
-      ],
+      queryKey: entryKey(initialEntry?.author ?? "", initialEntry?.permlink ?? ""),
       initialData: initialEntry,
       enabled: !!initialEntry
     };
@@ -36,10 +34,7 @@ export namespace EcencyEntriesCacheManagement {
   export function getNormalizedPostQuery<T extends Entry>(entry?: T) {
     return {
       ...getNormalizePostQueryOptions(entry),
-      queryKey: [
-        QueryIdentifiers.NORMALIZED_ENTRY,
-        entry ? makeEntryPath("", entry.author, entry.permlink) : "EMPTY"
-      ],
+      queryKey: QueryKeys.posts.normalize(entry?.author ?? "", entry?.permlink ?? ""),
       enabled: !!entry
     };
   }
@@ -49,7 +44,6 @@ export namespace EcencyEntriesCacheManagement {
 
     return {
       addReply: (reply: Entry, entry = initialEntry) => {
-        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -59,10 +53,6 @@ export namespace EcencyEntriesCacheManagement {
           }),
           qc
         );
-        // Also update SDK cache key
-        if (entry) {
-          SdkEntriesCacheManagement.addReply(reply, entry.author, entry.permlink, qc);
-        }
       }
     };
   }
@@ -80,9 +70,6 @@ export namespace EcencyEntriesCacheManagement {
           }),
           qc
         );
-        if (entry) {
-          SdkEntriesCacheManagement.updateRepliesCount(entry.author, entry.permlink, count, qc);
-        }
       }
     };
   }
@@ -91,16 +78,10 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
     return {
       invalidate: () => {
-        // Invalidate web cache key
-        qc.invalidateQueries({
-          queryKey: [
-            QueryIdentifiers.ENTRY,
-            makeEntryPath("", entry?.author ?? "", entry?.permlink ?? "")
-          ]
-        });
-        // Also invalidate SDK cache key
         if (entry) {
-          SdkEntriesCacheManagement.invalidateEntry(entry.author, entry.permlink, qc);
+          qc.invalidateQueries({
+            queryKey: entryKey(entry.author, entry.permlink)
+          });
         }
       }
     };
@@ -111,7 +92,6 @@ export namespace EcencyEntriesCacheManagement {
     return {
       update: (votes: EntryVote[], payout: number) => {
         if (!entry) return;
-        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -128,8 +108,6 @@ export namespace EcencyEntriesCacheManagement {
           }),
           qc
         );
-        // Also update SDK cache key
-        SdkEntriesCacheManagement.updateVotes(entry.author, entry.permlink, votes, payout, qc);
       }
     };
   }
@@ -151,7 +129,6 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
     return {
       update: (count: number) => {
-        // Update web cache key
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -160,22 +137,17 @@ export namespace EcencyEntriesCacheManagement {
           }),
           qc
         );
-        // Also update SDK cache key
-        SdkEntriesCacheManagement.updateReblogsCount(entry.author, entry.permlink, count, qc);
       }
     };
   }
 
   export function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
     entries.forEach((entry) => {
-      // Update web cache key
       qc.setQueryData<Entry>(
-        [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
+        entryKey(entry.author, entry.permlink),
         () => entry
       );
     });
-    // Also update SDK cache keys
-    SdkEntriesCacheManagement.updateEntries(entries, qc);
   }
 
   function mutateEntryInstance(
@@ -187,10 +159,9 @@ export namespace EcencyEntriesCacheManagement {
       throw new Error("Mutate entry instance – entry not provided");
     }
 
-    const actualEntryValue = qc.getQueryData<Entry>([
-      QueryIdentifiers.ENTRY,
-      makeEntryPath("", entry.author, entry.permlink)
-    ]);
+    const actualEntryValue = qc.getQueryData<Entry>(
+      entryKey(entry.author, entry.permlink)
+    );
     const value = callback(actualEntryValue ?? entry);
     return updateEntryQueryData([value], qc);
   }

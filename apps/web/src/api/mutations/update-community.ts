@@ -2,8 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "@/api/operations";
-import { QueryIdentifiers } from "@/core/react-query";
 import { error } from "@/features/shared";
+import { QueryKeys } from "@ecency/sdk";
 import { getCommunityCache } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useUpdateCommunityMutation } from "@/api/sdk-mutations";
@@ -32,7 +32,7 @@ export function useUpdateCommunity(communityName: string) {
     },
     onSuccess: (payload) => {
       queryClient.setQueryData(
-          [QueryIdentifiers.COMMUNITY, communityName],
+          QueryKeys.communities.single(communityName, ""),
           (prev) => {
             // ensure we're only spreading objects
             const base =

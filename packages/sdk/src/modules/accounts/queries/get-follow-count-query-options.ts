@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { AccountFollowStats } from "../types";
 
 /**
@@ -7,7 +8,7 @@ import { AccountFollowStats } from "../types";
  */
 export function getFollowCountQueryOptions(username: string) {
   return queryOptions({
-    queryKey: ["accounts", "follow-count", username],
+    queryKey: QueryKeys.accounts.followCount(username),
     queryFn: () =>
       CONFIG.hiveClient.database.call("get_follow_count", [
         username,

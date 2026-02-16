@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildDeleteCommentOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import {
@@ -56,11 +56,9 @@ export function useDeleteComment(
 
         // If this is a reply, invalidate parent post and discussions
         if (variables.parentAuthor && variables.parentPermlink) {
-          queriesToInvalidate.push([
-            "posts",
-            "entry",
-            `/@${variables.parentAuthor}/${variables.parentPermlink}`
-          ]);
+          queriesToInvalidate.push(
+            QueryKeys.posts.entry(`/@${variables.parentAuthor}/${variables.parentPermlink}`)
+          );
 
           const discussionsAuthor = variables.rootAuthor || variables.parentAuthor;
           const discussionsPermlink = variables.rootPermlink || variables.parentPermlink;

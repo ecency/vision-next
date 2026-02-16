@@ -206,21 +206,21 @@ export function useWalletOperation(
     () => {
       recordActivity();
 
-      const keysToInvalidate: string[][] = [];
+      const keysToInvalidate: (string | undefined)[][] = [];
 
-      // Invalidate asset-specific queries
-      keysToInvalidate.push(["assets", asset]);
+      // Invalidate asset-specific queries (prefix-matches all currency variants)
+      keysToInvalidate.push(["ecency-wallets", "asset-info", username, asset]);
 
       if (asset === "HIVE") {
-        keysToInvalidate.push(["assets", "HP"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "HP"]);
       }
       if (asset === "LARYNX" && operation === AssetOperation.PowerUp) {
-        keysToInvalidate.push(["assets", "LP"]);
-        keysToInvalidate.push(["assets", "LARYNX"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LP"]);
+        keysToInvalidate.push(["ecency-wallets", "asset-info", username, "LARYNX"]);
       }
 
-      // Invalidate portfolio
-      keysToInvalidate.push(["ecency-wallets", "portfolio", "v2"]);
+      // Invalidate portfolio (prefix-matches all currency/filter variants)
+      keysToInvalidate.push(["wallet", "portfolio", "v2", username]);
 
       // Delay invalidation to allow blockchain to process
       setTimeout(() => {

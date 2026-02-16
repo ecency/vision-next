@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
@@ -106,14 +106,7 @@ export function getDiscussionsQueryOptions(
   observer?: string
 ) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "discussions",
-      entry?.author,
-      entry?.permlink,
-      order,
-      observer || entry?.author,
-    ],
+    queryKey: QueryKeys.posts.discussions(entry?.author, entry?.permlink, order, observer || entry?.author),
     queryFn: async () => {
       if (!entry) {
         return [];
@@ -168,7 +161,7 @@ export function getDiscussionQueryOptions(
   enabled = true
 ) {
   return queryOptions({
-    queryKey: ["posts", "discussion", author, permlink, observer || author],
+    queryKey: QueryKeys.posts.discussion(author, permlink, observer || author),
     enabled: enabled && !!author && !!permlink,
     queryFn: async () =>
       getDiscussion(author, permlink, observer) as Promise<Record<string, Entry> | null>,
