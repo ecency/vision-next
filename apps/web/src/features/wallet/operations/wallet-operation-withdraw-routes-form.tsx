@@ -18,6 +18,7 @@ const schema = yup.object({
 export type WithdrawRoutesFormData = InferType<typeof schema>;
 
 interface WithdrawRouteParams {
+  from: string;
   from_account: string;
   to_account: string;
   percent: number;
@@ -46,10 +47,11 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
         className="border-b border-[--border-color] p-4 items-end grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         onSubmit={methods.handleSubmit((data) =>
           onSubmit({
+            from: activeUser!.username,
             from_account: activeUser!.username,
             to_account: data.account,
             auto_vest: data.auto === "yes",
-            percent: data.percent
+            percent: data.percent * 100
           })
         )}
       >

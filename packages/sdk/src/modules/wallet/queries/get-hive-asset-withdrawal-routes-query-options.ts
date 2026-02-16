@@ -12,5 +12,6 @@ export function getHiveAssetWithdrawalRoutesQueryOptions(
         username,
         "outgoing",
       ]) as Promise<WithdrawRoute[]>,
+    enabled: !!username,
   });
 }

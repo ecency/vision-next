@@ -6465,6 +6465,13 @@ function useUpdateReply(username, auth) {
       return operations;
     },
     async (_result, variables) => {
+      if (auth?.adapter?.recordActivity && _result?.block_num && _result?.id) {
+        try {
+          await auth.adapter.recordActivity(110, _result.block_num, _result.id);
+        } catch (err) {
+          console.warn("[useUpdateReply] Failed to record activity:", err);
+        }
+      }
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate = [
           ["account", username, "rc"]
@@ -8374,7 +8381,8 @@ function getHiveAssetWithdrawalRoutesQueryOptions(username) {
     queryFn: () => CONFIG.hiveClient.database.call("get_withdraw_routes", [
       username,
       "outgoing"
-    ])
+    ]),
+    enabled: !!username
   });
 }
 function getHivePowerDelegatesInfiniteQueryOptions(username, limit = 50) {
