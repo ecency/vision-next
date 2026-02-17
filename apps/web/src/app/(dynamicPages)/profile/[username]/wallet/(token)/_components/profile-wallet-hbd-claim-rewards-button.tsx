@@ -10,7 +10,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 
 type Props = {
   username: string;

@@ -13,7 +13,7 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useClaimRewardsMutation } from "@/api/sdk-mutations";
 import { success, error } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { formatNumber, getAccessToken } from "@/utils";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { DraftsDialog } from "@/features/shared/drafts";

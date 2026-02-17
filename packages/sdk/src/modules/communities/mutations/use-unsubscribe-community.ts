@@ -60,7 +60,8 @@ export function useUnsubscribeCommunity(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.accounts.subscriptions(username!),
-          ["communities", variables.community]
+          [...QueryKeys.communities.singlePrefix(variables.community)],
+          QueryKeys.communities.context(username!, variables.community)
         ]);
       }
     },

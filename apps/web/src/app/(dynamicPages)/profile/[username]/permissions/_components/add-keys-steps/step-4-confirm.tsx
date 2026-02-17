@@ -1,4 +1,4 @@
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";

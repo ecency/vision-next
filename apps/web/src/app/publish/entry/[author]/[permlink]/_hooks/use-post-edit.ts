@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { comment, formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
+import { comment } from "@/api/operations";
 import dayjs from "@/utils/dayjs";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { Entry } from "@/entities";

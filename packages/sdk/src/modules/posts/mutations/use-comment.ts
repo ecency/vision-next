@@ -200,9 +200,8 @@ export function useComment(
       // Cache invalidation (always runs regardless of recordActivity outcome)
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
-          ["posts", "feed", username],
-          ["posts", "blog", username],
-          ["account", username, "rc"] // RC decreases after posting/commenting
+          QueryKeys.accounts.full(username),
+          QueryKeys.resourceCredits.account(username!)
         ];
 
         // If this is a reply, invalidate parent post and discussions

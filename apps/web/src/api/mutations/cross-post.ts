@@ -7,7 +7,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { makeCrossPostMessage } from "@/utils/cross-post";
 import { makeApp } from "@/utils";
 import pack from "../../../package.json";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import i18next from "i18next";
 import { useCrossPostMutation } from "@/api/sdk-mutations";
 

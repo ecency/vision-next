@@ -26,7 +26,7 @@ import {
 } from "./";
 import { useActiveAccount } from "@/core/hooks";
 import { useEngineMarketOrderMutation } from "@/api/sdk-mutations";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 
 interface Props {
   symbol: string;

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
-import { comment, formatError, reblog } from "@/api/operations";
+import { formatError } from "@/api/format-error";
+import { comment, reblog } from "@/api/operations";
 import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";

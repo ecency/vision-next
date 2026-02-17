@@ -1,5 +1,5 @@
 import { TransferFormHeader } from "@/features/shared/transfer/transfer-form-header";
-import { LinearProgress } from "@/features/shared";
+import { LinearProgress, error } from "@/features/shared";
 import { Button } from "@/features/ui";
 import i18next from "i18next";
 import React, { useCallback } from "react";
@@ -9,6 +9,7 @@ import { useSignTransfer } from "@/api/mutations";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { formatError } from "@/api/format-error";
 
 interface Props {
   onHide: () => void;
@@ -25,10 +26,14 @@ export function TransferStep3({ onHide }: Props) {
   const { mutateAsync: sign, isPending } = useSignTransfer(mode, asset);
 
   const handleSign = useCallback(async () => {
-    await sign({ to, amount, memo });
-    await refetch();
-    invalidateWalletQueries(queryClient, activeUser?.username);
-    setStep(4);
+    try {
+      await sign({ to, amount, memo });
+      await refetch();
+      invalidateWalletQueries(queryClient, activeUser?.username);
+      setStep(4);
+    } catch (e) {
+      error(...formatError(e));
+    }
   }, [activeUser?.username, amount, memo, queryClient, refetch, setStep, sign, to]);
 
   return (

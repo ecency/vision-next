@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { Community, CommunityTeam } from "@/entities";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { error } from "@/features/shared";

@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "@hiveio/dhive";
@@ -133,14 +133,24 @@ export function useCrossPost(
 
       return operations;
     },
-    async () => {
+    async (_result: any, variables) => {
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
-          ["posts", "feed", username],
-          ["posts", "blog", username],
+          QueryKeys.accounts.full(username),
+          // Invalidate target community feed so cross-post appears
+          {
+            predicate: (query: any) => {
+              const key = query.queryKey;
+              return (
+                Array.isArray(key) &&
+                key[0] === "posts" &&
+                key[1] === "posts-ranked" &&
+                key[3] === variables.parentPermlink
+              );
+            }
+          }
         ];
-
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },

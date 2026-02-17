@@ -3,10 +3,6 @@ import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 
-function makeEntryPath(category: string, author: string, permlink: string) {
-  return `${category}/@${author}/${permlink}`;
-}
-
 export function getPostQueryOptions(
   author: string,
   permlink?: string,
@@ -14,7 +10,7 @@ export function getPostQueryOptions(
   num?: number
 ) {
   const cleanPermlink = permlink?.trim();
-  const entryPath = makeEntryPath("", author, cleanPermlink ?? "");
+  const entryPath = `/@${author}/${cleanPermlink ?? ""}`;
 
   return queryOptions({
     queryKey: QueryKeys.posts.entry(entryPath),

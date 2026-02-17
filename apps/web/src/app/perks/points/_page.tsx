@@ -9,7 +9,7 @@ import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { getAccessToken } from "@/utils";
 
 export function PointsPage() {

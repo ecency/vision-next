@@ -1,6 +1,5 @@
 import { useUpdateNotificationsSettings } from "@/api/mutations";
-import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
-import { hiveNotifySetLastRead } from "@/api/operations";
+import { useMarkNotificationsMutation, useSetLastReadMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { NotificationFilter, NotifyTypes } from "@/enums";
@@ -72,6 +71,7 @@ export function NotificationsActions({ filter }: Props) {
   );
 
   const markNotifications = useMarkNotificationsMutation();
+  const setLastRead = useSetLastReadMutation();
   const updateSettings = useUpdateNotificationsSettings();
 
   useMount(() => refetchData());
@@ -118,7 +118,7 @@ export function NotificationsActions({ filter }: Props) {
 
   const markAsRead = () => {
     markNotifications.mutateAsync({ id: undefined });
-    hiveNotifySetLastRead(activeUser!.username).then();
+    setLastRead.mutate({});
   };
 
   const refresh = () => {

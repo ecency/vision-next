@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
 import { error, success } from "@/features/shared";

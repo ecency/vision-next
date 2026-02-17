@@ -1,4 +1,4 @@
-import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys, getQueryClient } from "@/modules/core";
 import { buildReblogOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
@@ -81,11 +81,26 @@ export function useReblog(
         await auth.adapter.recordActivity(130, result.block_num, result.id);
       }
 
+      // Invalidate user's blog feed so reblogged post appears/disappears
+      const qc = getQueryClient();
+      qc.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          return (
+            Array.isArray(key) &&
+            key[0] === "posts" &&
+            key[1] === "account-posts" &&
+            key[2] === username &&
+            key[3] === "blog"
+          );
+        }
+      });
+
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["posts", "blog", username],
-          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`)
+          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
+          QueryKeys.posts.rebloggedBy(variables.author, variables.permlink),
         ]);
       }
     },

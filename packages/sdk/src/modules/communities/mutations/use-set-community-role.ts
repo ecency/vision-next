@@ -1,4 +1,4 @@
-import { useBroadcastMutation, getQueryClient } from "@/modules/core";
+import { useBroadcastMutation, getQueryClient, QueryKeys } from "@/modules/core";
 import { buildSetRoleOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Community, CommunityTeam } from "../types";
@@ -76,9 +76,10 @@ export function useSetCommunityRole(
     ],
     async (_result: any, variables) => {
       // Optimistic team update in community cache
+      // Query key is ["community","single",name,observer] — observer varies, so use predicate
       const qc = getQueryClient();
-      qc.setQueryData<Community>(
-        ["community", "single", community],
+      qc.setQueriesData<Community>(
+        { queryKey: QueryKeys.communities.singlePrefix(community) },
         (prev) => {
           if (!prev) return prev;
           const team: CommunityTeam = [...(prev.team ?? [])];
@@ -92,10 +93,11 @@ export function useSetCommunityRole(
         }
       );
 
-      // Cache invalidation
+      // Cache invalidation — prefix-match all community single queries + context for affected user
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["community", community]
+          [...QueryKeys.communities.singlePrefix(community)],
+          QueryKeys.communities.context(variables.account, community)
         ]);
       }
     },

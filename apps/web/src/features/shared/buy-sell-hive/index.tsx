@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { error } from "../feedback";
+import { formatError } from "@/api/format-error";
 import {
-  formatError,
   limitOrderCancel,
   limitOrderCancelHot,
   limitOrderCancelKc,

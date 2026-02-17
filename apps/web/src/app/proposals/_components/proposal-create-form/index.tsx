@@ -18,8 +18,8 @@ import clsx from "clsx";
 import dayjs from "@/utils/dayjs";
 import { useGlobalStore } from "@/core/global-store";
 import { QueryIdentifiers } from "@/core/react-query";
+import { formatError } from "@/api/format-error";
 import {
-  formatError,
   proposalCreate,
   proposalCreateHot,
   proposalCreateKc

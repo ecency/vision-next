@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { error } from "@/features/shared";
 import { QueryKeys } from "@ecency/sdk";
 import { getCommunityCache } from "@/core/caches";

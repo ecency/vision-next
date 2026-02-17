@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "@hiveio/dhive";
 
@@ -32,8 +33,10 @@ export function useStakeEngineToken(username: string | undefined, auth?: AuthCon
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["wallet", "balances", username],
-          ["wallet", "balances", variables.to],
+          QueryKeys.accounts.full(username),
+          QueryKeys.accounts.full(variables.to),
+          ["ecency-wallets", "asset-info", username],
+          ["wallet", "portfolio", "v2", username]
         ]);
       }
     },

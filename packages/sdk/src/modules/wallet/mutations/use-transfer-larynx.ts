@@ -1,11 +1,12 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "@hiveio/dhive";
 
 export interface TransferLarynxPayload {
   to: string;
   amount: number;
-  token?: string;
+  memo?: string;
 }
 
 export function useTransferLarynx(username: string | undefined, auth?: AuthContextV2) {
@@ -16,7 +17,7 @@ export function useTransferLarynx(username: string | undefined, auth?: AuthConte
       const json = JSON.stringify({
         to: payload.to,
         amount: payload.amount,
-        token: payload.token ?? "LARYNX"
+        ...(typeof payload.memo === "string" ? { memo: payload.memo } : {}),
       });
       return [["custom_json", {
         required_auths: [username!],
@@ -28,9 +29,10 @@ export function useTransferLarynx(username: string | undefined, auth?: AuthConte
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["wallet", "balances", username],
-          ["wallet", "balances", variables.to],
-          ["wallet", "transactions", username]
+          QueryKeys.accounts.full(username),
+          QueryKeys.accounts.full(variables.to),
+          ["ecency-wallets", "asset-info", username],
+          ["wallet", "portfolio", "v2", username]
         ]);
       }
     },

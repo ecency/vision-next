@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommunityRegistrationOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -65,7 +65,7 @@ export function useRegisterCommunityRewards(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           // Invalidate community cache to update registration status
-          ["communities", variables.name],
+          [...QueryKeys.communities.singlePrefix(variables.name)],
           // Invalidate points balance
           ["points", username],
         ]);

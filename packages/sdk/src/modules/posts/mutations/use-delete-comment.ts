@@ -50,8 +50,7 @@ export function useDeleteComment(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
-          ["posts", "feed", username],
-          ["posts", "blog", username],
+          QueryKeys.accounts.full(username)
         ];
 
         // If this is a reply, invalidate parent post and discussions

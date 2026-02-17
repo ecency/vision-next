@@ -1,4 +1,4 @@
-import { useBroadcastMutation, getQueryClient } from "@/modules/core";
+import { useBroadcastMutation, getQueryClient, QueryKeys } from "@/modules/core";
 import { buildUpdateCommunityOp, type CommunityProps } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Community } from "../types";
@@ -71,19 +71,20 @@ export function useUpdateCommunity(
     ],
     async (_result: any, variables) => {
       // Optimistic property merge in community cache
+      // Query key is ["community","single",name,observer] — observer varies, so use predicate
       const qc = getQueryClient();
-      qc.setQueryData<Community>(
-        ["community", "single", community],
+      qc.setQueriesData<Community>(
+        { queryKey: QueryKeys.communities.singlePrefix(community) },
         (prev) => {
           if (!prev) return prev;
           return { ...prev, ...(variables as unknown as Partial<Community>) };
         }
       );
 
-      // Cache invalidation
+      // Cache invalidation — prefix-match all community single queries
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["community", community]
+          [...QueryKeys.communities.singlePrefix(community)]
         ]);
       }
     },

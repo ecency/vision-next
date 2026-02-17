@@ -259,6 +259,9 @@ export const QueryKeys = {
   communities: {
     single: (name?: string, observer?: string) =>
       ["community", "single", name, observer],
+    /** Prefix key for matching all observer variants of a community */
+    singlePrefix: (name: string) =>
+      ["community", "single", name] as const,
     context: (username: string, communityName: string) =>
       ["community", "context", username, communityName],
     rewarded: () => ["communities", "rewarded"],

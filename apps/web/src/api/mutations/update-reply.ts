@@ -4,8 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentOptions, Entry, MetaData } from "@/entities";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { error, success } from "@/features/shared";
+import { ErrorTypes } from "@/enums";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { updateEntryInCache, restoreEntryInCache } from "@ecency/sdk";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
@@ -98,9 +99,13 @@ export function useUpdateReply(
         }
 
         // Keep draft for retry
-        const errorMessage = formatError(err);
+        const [errorMsg, errorType] = formatError(err);
 
-        error(...errorMessage);
+        if (errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS) {
+          error(i18next.t("comment.rc-error-hint"), ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS);
+        } else {
+          error(errorMsg || i18next.t("comment.retry-hint"), errorType);
+        }
       });
 
       // Return immediately for instant UI feedback

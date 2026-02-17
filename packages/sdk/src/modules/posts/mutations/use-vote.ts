@@ -105,7 +105,7 @@ export function useVote(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
-          ["account", username, "votingPower"]
+          QueryKeys.accounts.full(username)
         ]);
       }
     },

@@ -1,10 +1,9 @@
 "use client";
 
-import { useWitnessVote } from "@ecency/sdk";
+import { useWitnessVote, getAccountFullQueryOptions, QueryKeys } from "@ecency/sdk";
 import { createWebBroadcastAdapter } from "@/providers/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { QueryIdentifiers } from "@/core/react-query";
 
 export function useWitnessVoteMutation(witness: string) {
@@ -33,7 +32,7 @@ export function useWitnessVoteMutation(witness: string) {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         // Invalidate account cache to force fresh fetch
-        await queryClient.invalidateQueries({ queryKey: ["accounts", username] });
+        await queryClient.invalidateQueries({ queryKey: QueryKeys.accounts.full(username) });
 
         const account = await queryClient.fetchQuery(
           getAccountFullQueryOptions(username)
@@ -81,7 +80,7 @@ export function useWitnessVoteMutation(witness: string) {
     onSettled: async () => {
       // Always invalidate to ensure consistency
       await queryClient.invalidateQueries({ queryKey: witnessVotesKey });
-      await queryClient.invalidateQueries({ queryKey: ["accounts", username] });
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.accounts.full(username) });
     }
   });
 }

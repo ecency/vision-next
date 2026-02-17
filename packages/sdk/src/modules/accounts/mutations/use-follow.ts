@@ -55,7 +55,7 @@ export function useFollow(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.accounts.relations(username!, variables.following),
-          ["accounts", "full", variables.following]
+          QueryKeys.accounts.full(variables.following)
         ]);
       }
     },

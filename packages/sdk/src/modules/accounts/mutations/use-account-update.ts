@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as R from "remeda";
@@ -61,7 +61,7 @@ interface Payload {
  * ```
  */
 export function useAccountUpdate(
-  username: string,
+  username: string | undefined,
   auth?: AuthContextV2
 ) {
   const queryClient = useQueryClient();
@@ -119,7 +119,7 @@ export function useAccountUpdate(
       // Invalidate cache to refetch from blockchain
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["accounts", "full", username]
+          QueryKeys.accounts.full(username)
         ]);
       }
     },

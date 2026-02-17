@@ -2,6 +2,7 @@ import { useBroadcastMutation } from "@/modules/core/mutations";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EcencyAnalytics } from "@/modules/analytics";
 import { getQueryClient } from "@/modules/core";
+import type { AuthorityLevel } from "@/modules/operations/authority-map";
 import { AssetOperation } from "../types";
 import {
   buildTransferOp,
@@ -100,7 +101,7 @@ function buildHiveOperations(
           id: "spkcc_spk_send",
           required_auths: [from],
           required_posting_auths: [],
-          json: JSON.stringify({ to, amount: numAmount, token: "SPK" }),
+          json: JSON.stringify({ to, amount: numAmount, ...(typeof memo === "string" && memo ? { memo } : {}) }),
         }]];
       }
       break;
@@ -113,7 +114,7 @@ function buildHiveOperations(
             id: "spkcc_send",
             required_auths: [from],
             required_posting_auths: [],
-            json: JSON.stringify({ to, amount: numAmount }),
+            json: JSON.stringify({ to, amount: numAmount, ...(typeof memo === "string" && memo ? { memo } : {}) }),
           }]];
         }
         case AssetOperation.LockLiquidity: {
@@ -165,6 +166,17 @@ function buildEngineOperations(
   }
 
   return null;
+}
+
+/**
+ * Determines authority level for a wallet operation.
+ * Engine token claims use posting authority; everything else uses active.
+ */
+function getWalletOperationAuthority(operation: AssetOperation): AuthorityLevel {
+  if (operation === AssetOperation.Claim) {
+    return 'posting';
+  }
+  return 'active';
 }
 
 /**
@@ -230,6 +242,6 @@ export function useWalletOperation(
       }, 5000);
     },
     auth,
-    'active'
+    getWalletOperationAuthority(operation)
   );
 }

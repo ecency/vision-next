@@ -14,7 +14,7 @@ import { HiveMarket } from "./api/hive";
 import { EngineMarket } from "./api/engine";
 import { Button } from "@ui/button";
 import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import i18next from "i18next";
 import { hsLogoSvg, kcLogoSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";

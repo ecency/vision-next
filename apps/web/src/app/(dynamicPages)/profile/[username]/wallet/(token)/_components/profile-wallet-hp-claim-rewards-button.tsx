@@ -13,7 +13,7 @@ import i18next from "i18next";
 import { useMemo } from "react";
 import { formatNumber, parseAsset, vestsToHp } from "@/utils";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 
 type Props = {
   username: string;

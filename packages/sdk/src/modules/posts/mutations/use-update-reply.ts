@@ -174,7 +174,7 @@ export function useUpdateReply(
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
-          ["account", username, "rc"] // RC decreases after updating
+          QueryKeys.resourceCredits.account(username!)
         ];
 
         // Invalidate parent entry

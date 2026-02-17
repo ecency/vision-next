@@ -89,14 +89,25 @@ export function useMutePost(
     async (_result: any, variables) => {
       // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          // Invalidate community posts to hide/show muted content
-          ["communities", variables.community, "posts"],
+        const queriesToInvalidate: any[] = [
           // Invalidate specific post cache to update mute status
           QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
-          // Invalidate feed caches to remove/restore muted posts
-          ["posts", "feed", variables.community],
-        ]);
+          // Invalidate community data
+          ["community", "single", variables.community],
+          // Invalidate community feed/posts (matches all sort orders, limits, observers)
+          {
+            predicate: (query: any) => {
+              const key = query.queryKey;
+              return (
+                Array.isArray(key) &&
+                key[0] === "posts" &&
+                key[1] === "posts-ranked" &&
+                key[3] === variables.community
+              );
+            }
+          }
+        ];
+        await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
     auth

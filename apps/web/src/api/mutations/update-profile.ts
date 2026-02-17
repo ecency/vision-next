@@ -1,11 +1,10 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AccountProfile, FullAccount } from "@/entities";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
 import { useUpdateProfileMutation } from "@/api/sdk-mutations";
-import { QueryKeys } from "@ecency/sdk";
 
 /**
  * Web app-specific profile update mutation hook that wraps SDK mutation with app cache management.
@@ -36,39 +35,19 @@ import { QueryKeys } from "@ecency/sdk";
  */
 export function useUpdateProfile(account: FullAccount) {
   const { mutateAsync: sdkUpdateProfile } = useUpdateProfileMutation();
-  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["update-profile", account.name],
     mutationFn: async ({ nextProfile }: { nextProfile: AccountProfile }) => {
-      // Use SDK mutation
+      // Use SDK mutation — handles cache update via buildProfileMetadata (proper deep merge)
       await sdkUpdateProfile({
         profile: nextProfile,
       });
 
       return nextProfile;
     },
-    onSuccess: (profile) => {
+    onSuccess: () => {
       success(i18next.t("g.success"));
-
-      // SDK already updates the cache, but we also manually update here
-      // for immediate UI feedback (optimistic update)
-      queryClient.setQueryData<FullAccount>(
-        QueryKeys.accounts.full(account.name),
-        (data) => {
-          if (!data) {
-            return data;
-          }
-
-          return {
-            ...data,
-            profile: {
-              ...data.profile,
-              ...profile,
-            },
-          };
-        }
-      );
     },
     onError: () => {
       error(i18next.t("g.server-error"));

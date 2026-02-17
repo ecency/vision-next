@@ -12,7 +12,7 @@ import hs from 'hivesigner';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import * as ls from '@/utils/local-storage';
 import { broadcastWithHiveAuth } from '@/utils/hive-auth';
-import { requestAuthUpgrade, consumeTempActiveKey } from '@/features/shared/auth-upgrade';
+import { requestAuthUpgrade, getTempActiveKey, clearTempActiveKey } from '@/features/shared/auth-upgrade';
 import { error, success } from '@/features/shared/feedback/feedback-events';
 
 /**
@@ -98,7 +98,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
     async getActiveKey(username: string) {
       // Check temp storage first (key entered via auth upgrade dialog)
-      const tempKey = consumeTempActiveKey();
+      const tempKey = getTempActiveKey();
       if (tempKey) return tempKey;
 
       // Return null for non-key auth methods (they handle active operations via their own methods)
@@ -363,12 +363,13 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Broadcast based on selected method
       switch (method) {
         case 'key': {
-          const activeKey = consumeTempActiveKey();
+          const activeKey = getTempActiveKey();
           if (!activeKey) {
             throw new Error('Active key not provided');
           }
           const privateKey = PrivateKey.fromString(activeKey);
           await CONFIG.hiveClient.broadcast.sendOperations([op], privateKey);
+          clearTempActiveKey();
           break;
         }
         case 'keychain': {

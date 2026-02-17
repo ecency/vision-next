@@ -1,5 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
-import { QueryKeys } from "@/modules/core";
+import { QueryKeys, getQueryClient } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildClaimRewardBalanceOp } from "@/modules/operations/builders";
 
@@ -17,12 +17,26 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
       buildClaimRewardBalanceOp(username!, payload.rewardHive, payload.rewardHbd, payload.rewardVests)
     ],
     async () => {
+      const keysToInvalidate = [
+        QueryKeys.accounts.full(username),
+        ["ecency-wallets", "asset-info", username],
+        ["wallet", "portfolio", "v2", username],
+        QueryKeys.assets.hiveGeneralInfo(username!),
+        QueryKeys.assets.hbdGeneralInfo(username!),
+        QueryKeys.assets.hivePowerGeneralInfo(username!),
+      ];
+
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.accounts.full(username),
-          ["wallet", "balances", username],
-        ]);
+        await auth.adapter.invalidateQueries(keysToInvalidate);
       }
+
+      // Delayed re-invalidation for blockchain propagation
+      setTimeout(() => {
+        const qc = getQueryClient();
+        keysToInvalidate.forEach((key) => {
+          qc.invalidateQueries({ queryKey: key });
+        });
+      }, 5000);
     },
     auth,
     'posting'

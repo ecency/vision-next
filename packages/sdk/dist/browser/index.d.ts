@@ -960,7 +960,7 @@ interface Payload$4 {
  * });
  * ```
  */
-declare function useAccountUpdate(username: string, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+declare function useAccountUpdate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
 
 type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, auth: AuthContext | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
@@ -1184,6 +1184,683 @@ interface ClaimAccountPayload {
  * ```
  */
 declare function useClaimAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimAccountPayload, unknown>;
+
+/**
+ * Content Operations
+ * Operations for creating, voting, and managing content on Hive blockchain
+ */
+/**
+ * Builds a vote operation.
+ * @param voter - Account casting the vote
+ * @param author - Author of the post/comment
+ * @param permlink - Permlink of the post/comment
+ * @param weight - Vote weight (-10000 to 10000, where 10000 = 100% upvote, -10000 = 100% downvote)
+ * @returns Vote operation
+ */
+declare function buildVoteOp(voter: string, author: string, permlink: string, weight: number): Operation;
+/**
+ * Builds a comment operation (for posts or replies).
+ * @param author - Author of the comment/post
+ * @param permlink - Permlink of the comment/post
+ * @param parentAuthor - Parent author (empty string for top-level posts)
+ * @param parentPermlink - Parent permlink (category/tag for top-level posts)
+ * @param title - Title of the post (empty for comments)
+ * @param body - Content body (required - cannot be empty)
+ * @param jsonMetadata - JSON metadata object
+ * @returns Comment operation
+ */
+declare function buildCommentOp(author: string, permlink: string, parentAuthor: string, parentPermlink: string, title: string, body: string, jsonMetadata: Record<string, any>): Operation;
+/**
+ * Builds a comment options operation (for setting beneficiaries, rewards, etc.).
+ * @param author - Author of the comment/post
+ * @param permlink - Permlink of the comment/post
+ * @param maxAcceptedPayout - Maximum accepted payout (e.g., "1000000.000 HBD")
+ * @param percentHbd - Percent of payout in HBD (10000 = 100%)
+ * @param allowVotes - Allow votes on this content
+ * @param allowCurationRewards - Allow curation rewards
+ * @param extensions - Extensions array (for beneficiaries, etc.)
+ * @returns Comment options operation
+ */
+declare function buildCommentOptionsOp(author: string, permlink: string, maxAcceptedPayout: string, percentHbd: number, allowVotes: boolean, allowCurationRewards: boolean, extensions: any[]): Operation;
+/**
+ * Builds a delete comment operation.
+ * @param author - Author of the comment/post to delete
+ * @param permlink - Permlink of the comment/post to delete
+ * @returns Delete comment operation
+ */
+declare function buildDeleteCommentOp(author: string, permlink: string): Operation;
+/**
+ * Builds a reblog operation (custom_json).
+ * @param account - Account performing the reblog
+ * @param author - Original post author
+ * @param permlink - Original post permlink
+ * @param deleteReblog - If true, removes the reblog
+ * @returns Custom JSON operation for reblog
+ */
+declare function buildReblogOp(account: string, author: string, permlink: string, deleteReblog?: boolean): Operation;
+
+/**
+ * Wallet Operations
+ * Operations for managing tokens, savings, vesting, and conversions
+ */
+/**
+ * Builds a transfer operation.
+ * @param from - Sender account
+ * @param to - Receiver account
+ * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
+ * @param memo - Transfer memo
+ * @returns Transfer operation
+ */
+declare function buildTransferOp(from: string, to: string, amount: string, memo: string): Operation;
+/**
+ * Builds multiple transfer operations for multiple recipients.
+ * @param from - Sender account
+ * @param destinations - Comma or space separated list of recipient accounts
+ * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
+ * @param memo - Transfer memo
+ * @returns Array of transfer operations
+ */
+declare function buildMultiTransferOps(from: string, destinations: string, amount: string, memo: string): Operation[];
+/**
+ * Builds a recurrent transfer operation.
+ * @param from - Sender account
+ * @param to - Receiver account
+ * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
+ * @param memo - Transfer memo
+ * @param recurrence - Recurrence in hours
+ * @param executions - Number of executions (2 = executes twice)
+ * @returns Recurrent transfer operation
+ */
+declare function buildRecurrentTransferOp(from: string, to: string, amount: string, memo: string, recurrence: number, executions: number): Operation;
+/**
+ * Builds a transfer to savings operation.
+ * @param from - Sender account
+ * @param to - Receiver account
+ * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
+ * @param memo - Transfer memo
+ * @returns Transfer to savings operation
+ */
+declare function buildTransferToSavingsOp(from: string, to: string, amount: string, memo: string): Operation;
+/**
+ * Builds a transfer from savings operation.
+ * @param from - Sender account
+ * @param to - Receiver account
+ * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
+ * @param memo - Transfer memo
+ * @param requestId - Unique request ID (use timestamp)
+ * @returns Transfer from savings operation
+ */
+declare function buildTransferFromSavingsOp(from: string, to: string, amount: string, memo: string, requestId: number): Operation;
+/**
+ * Builds a cancel transfer from savings operation.
+ * @param from - Account that initiated the savings withdrawal
+ * @param requestId - Request ID to cancel
+ * @returns Cancel transfer from savings operation
+ */
+declare function buildCancelTransferFromSavingsOp(from: string, requestId: number): Operation;
+/**
+ * Builds operations to claim savings interest.
+ * Creates a transfer_from_savings and immediately cancels it to claim interest.
+ * @param from - Account claiming interest
+ * @param to - Receiver account
+ * @param amount - Amount with asset symbol (e.g., "0.001 HIVE")
+ * @param memo - Transfer memo
+ * @param requestId - Unique request ID
+ * @returns Array of operations [transfer_from_savings, cancel_transfer_from_savings]
+ */
+declare function buildClaimInterestOps(from: string, to: string, amount: string, memo: string, requestId: number): Operation[];
+/**
+ * Builds a transfer to vesting operation (power up).
+ * @param from - Account sending HIVE
+ * @param to - Account receiving Hive Power
+ * @param amount - Amount with HIVE symbol (e.g., "1.000 HIVE")
+ * @returns Transfer to vesting operation
+ */
+declare function buildTransferToVestingOp(from: string, to: string, amount: string): Operation;
+/**
+ * Builds a withdraw vesting operation (power down).
+ * @param account - Account withdrawing vesting
+ * @param vestingShares - Amount of VESTS to withdraw (e.g., "1.000000 VESTS")
+ * @returns Withdraw vesting operation
+ */
+declare function buildWithdrawVestingOp(account: string, vestingShares: string): Operation;
+/**
+ * Builds a delegate vesting shares operation (HP delegation).
+ * @param delegator - Account delegating HP
+ * @param delegatee - Account receiving HP delegation
+ * @param vestingShares - Amount of VESTS to delegate (e.g., "1000.000000 VESTS")
+ * @returns Delegate vesting shares operation
+ */
+declare function buildDelegateVestingSharesOp(delegator: string, delegatee: string, vestingShares: string): Operation;
+/**
+ * Builds a set withdraw vesting route operation.
+ * @param fromAccount - Account withdrawing vesting
+ * @param toAccount - Account receiving withdrawn vesting
+ * @param percent - Percentage to route (0-10000, where 10000 = 100%)
+ * @param autoVest - Auto convert to vesting
+ * @returns Set withdraw vesting route operation
+ */
+declare function buildSetWithdrawVestingRouteOp(fromAccount: string, toAccount: string, percent: number, autoVest: boolean): Operation;
+/**
+ * Builds a convert operation (HBD to HIVE).
+ * @param owner - Account converting HBD
+ * @param amount - Amount of HBD to convert (e.g., "1.000 HBD")
+ * @param requestId - Unique request ID (use timestamp)
+ * @returns Convert operation
+ */
+declare function buildConvertOp(owner: string, amount: string, requestId: number): Operation;
+/**
+ * Builds a collateralized convert operation (HIVE to HBD via collateral).
+ * @param owner - Account converting HIVE
+ * @param amount - Amount of HIVE to convert (e.g., "1.000 HIVE")
+ * @param requestId - Unique request ID (use timestamp)
+ * @returns Collateralized convert operation
+ */
+declare function buildCollateralizedConvertOp(owner: string, amount: string, requestId: number): Operation;
+/**
+ * Builds a delegate RC operation (custom_json).
+ * @param from - Account delegating RC
+ * @param delegatees - Single delegatee or comma-separated list
+ * @param maxRc - Maximum RC to delegate (in mana units)
+ * @returns Custom JSON operation for RC delegation
+ */
+/**
+ * Builds a SPK Network custom_json operation.
+ * @param from - Account performing the operation
+ * @param id - SPK operation ID (e.g., "spkcc_spk_send", "spkcc_gov_up")
+ * @param amount - Amount (multiplied by 1000 internally)
+ * @returns Custom JSON operation
+ */
+declare function buildSpkCustomJsonOp(from: string, id: string, amount: number): Operation;
+/**
+ * Builds a Hive Engine custom_json operation.
+ * @param from - Account performing the operation
+ * @param contractAction - Engine contract action (e.g., "transfer", "stake")
+ * @param contractPayload - Payload for the contract action
+ * @param contractName - Engine contract name (defaults to "tokens")
+ * @returns Custom JSON operation
+ */
+declare function buildEngineOp(from: string, contractAction: string, contractPayload: Record<string, string>, contractName?: string): Operation;
+/**
+ * Builds a scot_claim_token operation (posting authority).
+ * @param account - Account claiming rewards
+ * @param tokens - Array of token symbols to claim
+ * @returns Custom JSON operation
+ */
+declare function buildEngineClaimOp(account: string, tokens: string[]): Operation;
+declare function buildDelegateRcOp(from: string, delegatees: string, maxRc: string | number): Operation;
+
+/**
+ * Social Operations
+ * Operations for following, muting, and managing social relationships
+ */
+/**
+ * Builds a follow operation (custom_json).
+ * @param follower - Account following
+ * @param following - Account to follow
+ * @returns Custom JSON operation for follow
+ */
+declare function buildFollowOp(follower: string, following: string): Operation;
+/**
+ * Builds an unfollow operation (custom_json).
+ * @param follower - Account unfollowing
+ * @param following - Account to unfollow
+ * @returns Custom JSON operation for unfollow
+ */
+declare function buildUnfollowOp(follower: string, following: string): Operation;
+/**
+ * Builds an ignore/mute operation (custom_json).
+ * @param follower - Account ignoring
+ * @param following - Account to ignore
+ * @returns Custom JSON operation for ignore
+ */
+declare function buildIgnoreOp(follower: string, following: string): Operation;
+/**
+ * Builds an unignore/unmute operation (custom_json).
+ * @param follower - Account unignoring
+ * @param following - Account to unignore
+ * @returns Custom JSON operation for unignore
+ */
+declare function buildUnignoreOp(follower: string, following: string): Operation;
+/**
+ * Builds a Hive Notify set last read operation (custom_json).
+ * @param username - Account setting last read
+ * @param date - ISO date string (defaults to now)
+ * @returns Array of custom JSON operations for setting last read
+ */
+declare function buildSetLastReadOps(username: string, date?: string): Operation[];
+
+/**
+ * Governance Operations
+ * Operations for witness voting, proposals, and proxy management
+ */
+/**
+ * Builds an account witness vote operation.
+ * @param account - Account voting
+ * @param witness - Witness account name
+ * @param approve - True to approve, false to disapprove
+ * @returns Account witness vote operation
+ */
+declare function buildWitnessVoteOp(account: string, witness: string, approve: boolean): Operation;
+/**
+ * Builds an account witness proxy operation.
+ * @param account - Account setting proxy
+ * @param proxy - Proxy account name (empty string to remove proxy)
+ * @returns Account witness proxy operation
+ */
+declare function buildWitnessProxyOp(account: string, proxy: string): Operation;
+/**
+ * Payload for proposal creation
+ */
+interface ProposalCreatePayload {
+    receiver: string;
+    subject: string;
+    permlink: string;
+    start: string;
+    end: string;
+    dailyPay: string;
+}
+/**
+ * Builds a create proposal operation.
+ * @param creator - Account creating the proposal
+ * @param payload - Proposal details (must include start, end, and dailyPay)
+ * @returns Create proposal operation
+ */
+declare function buildProposalCreateOp(creator: string, payload: ProposalCreatePayload): Operation;
+/**
+ * Builds an update proposal votes operation.
+ * @param voter - Account voting
+ * @param proposalIds - Array of proposal IDs
+ * @param approve - True to approve, false to disapprove
+ * @returns Update proposal votes operation
+ */
+declare function buildProposalVoteOp(voter: string, proposalIds: number[], approve: boolean): Operation;
+/**
+ * Builds a remove proposal operation.
+ * @param proposalOwner - Owner of the proposal
+ * @param proposalIds - Array of proposal IDs to remove
+ * @returns Remove proposal operation
+ */
+declare function buildRemoveProposalOp(proposalOwner: string, proposalIds: number[]): Operation;
+/**
+ * Builds an update proposal operation.
+ * @param proposalId - Proposal ID to update (must be a valid number, including 0)
+ * @param creator - Account that created the proposal
+ * @param dailyPay - New daily pay amount
+ * @param subject - New subject
+ * @param permlink - New permlink
+ * @returns Update proposal operation
+ */
+declare function buildUpdateProposalOp(proposalId: number, creator: string, dailyPay: string, subject: string, permlink: string): Operation;
+
+/**
+ * Community Operations
+ * Operations for managing Hive communities
+ */
+/**
+ * Builds a subscribe to community operation (custom_json).
+ * @param username - Account subscribing
+ * @param community - Community name (e.g., "hive-123456")
+ * @returns Custom JSON operation for subscribe
+ */
+declare function buildSubscribeOp(username: string, community: string): Operation;
+/**
+ * Builds an unsubscribe from community operation (custom_json).
+ * @param username - Account unsubscribing
+ * @param community - Community name (e.g., "hive-123456")
+ * @returns Custom JSON operation for unsubscribe
+ */
+declare function buildUnsubscribeOp(username: string, community: string): Operation;
+/**
+ * Builds a set user role in community operation (custom_json).
+ * @param username - Account setting the role (must have permission)
+ * @param community - Community name (e.g., "hive-123456")
+ * @param account - Account to set role for
+ * @param role - Role name (e.g., "admin", "mod", "member", "guest")
+ * @returns Custom JSON operation for setRole
+ */
+declare function buildSetRoleOp(username: string, community: string, account: string, role: string): Operation;
+/**
+ * Community properties for update
+ */
+interface CommunityProps {
+    title: string;
+    about: string;
+    lang: string;
+    description: string;
+    flag_text: string;
+    is_nsfw: boolean;
+}
+/**
+ * Builds an update community properties operation (custom_json).
+ * @param username - Account updating (must be community admin)
+ * @param community - Community name (e.g., "hive-123456")
+ * @param props - Properties to update
+ * @returns Custom JSON operation for updateProps
+ */
+declare function buildUpdateCommunityOp(username: string, community: string, props: CommunityProps): Operation;
+/**
+ * Builds a pin/unpin post in community operation (custom_json).
+ * @param username - Account pinning (must have permission)
+ * @param community - Community name (e.g., "hive-123456")
+ * @param account - Post author
+ * @param permlink - Post permlink
+ * @param pin - True to pin, false to unpin
+ * @returns Custom JSON operation for pinPost/unpinPost
+ */
+declare function buildPinPostOp(username: string, community: string, account: string, permlink: string, pin: boolean): Operation;
+/**
+ * Builds a mute/unmute post in community operation (custom_json).
+ * @param username - Account muting (must have permission)
+ * @param community - Community name (e.g., "hive-123456")
+ * @param account - Post author
+ * @param permlink - Post permlink
+ * @param notes - Mute reason/notes
+ * @param mute - True to mute, false to unmute
+ * @returns Custom JSON operation for mutePost/unmutePost
+ */
+declare function buildMutePostOp(username: string, community: string, account: string, permlink: string, notes: string, mute: boolean): Operation;
+/**
+ * Builds a mute/unmute user in community operation (custom_json).
+ * @param username - Account performing mute (must have permission)
+ * @param community - Community name (e.g., "hive-123456")
+ * @param account - Account to mute/unmute
+ * @param notes - Mute reason/notes
+ * @param mute - True to mute, false to unmute
+ * @returns Custom JSON operation for muteUser/unmuteUser
+ */
+declare function buildMuteUserOp(username: string, community: string, account: string, notes: string, mute: boolean): Operation;
+/**
+ * Builds a flag post in community operation (custom_json).
+ * @param username - Account flagging
+ * @param community - Community name (e.g., "hive-123456")
+ * @param account - Post author
+ * @param permlink - Post permlink
+ * @param notes - Flag reason/notes
+ * @returns Custom JSON operation for flagPost
+ */
+declare function buildFlagPostOp(username: string, community: string, account: string, permlink: string, notes: string): Operation;
+
+/**
+ * Market Operations
+ * Operations for trading on the internal Hive market
+ */
+/**
+ * Transaction type for buy/sell operations
+ */
+declare enum BuySellTransactionType {
+    Buy = "buy",
+    Sell = "sell"
+}
+/**
+ * Order ID prefix for different order types
+ */
+declare enum OrderIdPrefix {
+    EMPTY = "",
+    SWAP = "9"
+}
+/**
+ * Builds a limit order create operation.
+ * @param owner - Account creating the order
+ * @param amountToSell - Amount and asset to sell
+ * @param minToReceive - Minimum amount and asset to receive
+ * @param fillOrKill - If true, order must be filled immediately or cancelled
+ * @param expiration - Expiration date (ISO string)
+ * @param orderId - Unique order ID
+ * @returns Limit order create operation
+ */
+declare function buildLimitOrderCreateOp(owner: string, amountToSell: string, minToReceive: string, fillOrKill: boolean, expiration: string, orderId: number): Operation;
+/**
+ * Builds a limit order create operation with automatic formatting.
+ * This is a convenience method that handles buy/sell logic and formatting.
+ *
+ * For Buy orders: You're buying HIVE with HBD
+ *   - amountToSell: HBD amount you're spending
+ *   - minToReceive: HIVE amount you want to receive
+ *
+ * For Sell orders: You're selling HIVE for HBD
+ *   - amountToSell: HIVE amount you're selling
+ *   - minToReceive: HBD amount you want to receive
+ *
+ * @param owner - Account creating the order
+ * @param amountToSell - Amount to sell (number)
+ * @param minToReceive - Minimum to receive (number)
+ * @param orderType - Buy or Sell
+ * @param idPrefix - Order ID prefix
+ * @returns Limit order create operation
+ */
+declare function buildLimitOrderCreateOpWithType(owner: string, amountToSell: number, minToReceive: number, orderType: BuySellTransactionType, idPrefix?: OrderIdPrefix): Operation;
+/**
+ * Builds a limit order cancel operation.
+ * @param owner - Account cancelling the order
+ * @param orderId - Order ID to cancel
+ * @returns Limit order cancel operation
+ */
+declare function buildLimitOrderCancelOp(owner: string, orderId: number): Operation;
+/**
+ * Builds a claim reward balance operation.
+ * @param account - Account claiming rewards
+ * @param rewardHive - HIVE reward to claim (e.g., "0.000 HIVE")
+ * @param rewardHbd - HBD reward to claim (e.g., "0.000 HBD")
+ * @param rewardVests - VESTS reward to claim (e.g., "0.000000 VESTS")
+ * @returns Claim reward balance operation
+ */
+declare function buildClaimRewardBalanceOp(account: string, rewardHive: string, rewardHbd: string, rewardVests: string): Operation;
+
+/**
+ * Account Operations
+ * Operations for managing accounts, keys, and permissions
+ */
+/**
+ * Authority structure for account operations
+ */
+interface Authority {
+    weight_threshold: number;
+    account_auths: [string, number][];
+    key_auths: [string, number][];
+}
+/**
+ * Builds an account update operation.
+ * @param account - Account name
+ * @param owner - Owner authority (optional)
+ * @param active - Active authority (optional)
+ * @param posting - Posting authority (optional)
+ * @param memoKey - Memo public key
+ * @param jsonMetadata - Account JSON metadata
+ * @returns Account update operation
+ */
+declare function buildAccountUpdateOp(account: string, owner: Authority | undefined, active: Authority | undefined, posting: Authority | undefined, memoKey: string, jsonMetadata: string): Operation;
+/**
+ * Builds an account update2 operation (for posting_json_metadata).
+ * @param account - Account name
+ * @param jsonMetadata - Account JSON metadata (legacy, usually empty)
+ * @param postingJsonMetadata - Posting JSON metadata string
+ * @param extensions - Extensions array
+ * @returns Account update2 operation
+ */
+declare function buildAccountUpdate2Op(account: string, jsonMetadata: string, postingJsonMetadata: string, extensions: any[]): Operation;
+/**
+ * Public keys for account creation
+ */
+interface AccountKeys {
+    ownerPublicKey: string;
+    activePublicKey: string;
+    postingPublicKey: string;
+    memoPublicKey: string;
+}
+/**
+ * Builds an account create operation.
+ * @param creator - Creator account name
+ * @param newAccountName - New account name
+ * @param keys - Public keys for the new account
+ * @param fee - Creation fee (e.g., "3.000 HIVE")
+ * @returns Account create operation
+ */
+declare function buildAccountCreateOp(creator: string, newAccountName: string, keys: AccountKeys, fee: string): Operation;
+/**
+ * Builds a create claimed account operation (using account creation tokens).
+ * @param creator - Creator account name
+ * @param newAccountName - New account name
+ * @param keys - Public keys for the new account
+ * @returns Create claimed account operation
+ */
+declare function buildCreateClaimedAccountOp(creator: string, newAccountName: string, keys: AccountKeys): Operation;
+/**
+ * Builds a claim account operation.
+ * @param creator - Account claiming the token
+ * @param fee - Fee for claiming (usually "0.000 HIVE" for RC-based claims)
+ * @returns Claim account operation
+ */
+declare function buildClaimAccountOp(creator: string, fee: string): Operation;
+/**
+ * Builds an operation to grant posting permission to another account.
+ * Helper that modifies posting authority to add an account.
+ * @param account - Account granting permission
+ * @param currentPosting - Current posting authority
+ * @param grantedAccount - Account to grant permission to
+ * @param weightThreshold - Weight threshold of the granted account
+ * @param memoKey - Memo public key (required by Hive blockchain)
+ * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
+ * @returns Account update operation with modified posting authority
+ */
+declare function buildGrantPostingPermissionOp(account: string, currentPosting: Authority, grantedAccount: string, weightThreshold: number, memoKey: string, jsonMetadata: string): Operation;
+/**
+ * Builds an operation to revoke posting permission from an account.
+ * Helper that modifies posting authority to remove an account.
+ * @param account - Account revoking permission
+ * @param currentPosting - Current posting authority
+ * @param revokedAccount - Account to revoke permission from
+ * @param memoKey - Memo public key (required by Hive blockchain)
+ * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
+ * @returns Account update operation with modified posting authority
+ */
+declare function buildRevokePostingPermissionOp(account: string, currentPosting: Authority, revokedAccount: string, memoKey: string, jsonMetadata: string): Operation;
+/**
+ * Builds a change recovery account operation.
+ * @param accountToRecover - Account to change recovery account for
+ * @param newRecoveryAccount - New recovery account name
+ * @param extensions - Extensions array
+ * @returns Change recovery account operation
+ */
+declare function buildChangeRecoveryAccountOp(accountToRecover: string, newRecoveryAccount: string, extensions?: any[]): Operation;
+/**
+ * Builds a request account recovery operation.
+ * @param recoveryAccount - Recovery account performing the recovery
+ * @param accountToRecover - Account to recover
+ * @param newOwnerAuthority - New owner authority
+ * @param extensions - Extensions array
+ * @returns Request account recovery operation
+ */
+declare function buildRequestAccountRecoveryOp(recoveryAccount: string, accountToRecover: string, newOwnerAuthority: Authority, extensions?: any[]): Operation;
+/**
+ * Builds a recover account operation.
+ * @param accountToRecover - Account to recover
+ * @param newOwnerAuthority - New owner authority
+ * @param recentOwnerAuthority - Recent owner authority (for proof)
+ * @param extensions - Extensions array
+ * @returns Recover account operation
+ */
+declare function buildRecoverAccountOp(accountToRecover: string, newOwnerAuthority: Authority, recentOwnerAuthority: Authority, extensions?: any[]): Operation;
+
+/**
+ * Ecency-Specific Operations
+ * Custom operations for Ecency platform features (Points, Boost, Promote, etc.)
+ */
+/**
+ * Builds an Ecency boost operation (custom_json with active authority).
+ * @param user - User account
+ * @param author - Post author
+ * @param permlink - Post permlink
+ * @param amount - Amount to boost (e.g., "1.000 POINT")
+ * @returns Custom JSON operation for boost
+ */
+declare function buildBoostOp(user: string, author: string, permlink: string, amount: string): Operation;
+/**
+ * Builds an Ecency boost operation with numeric point value.
+ * @param user - User account
+ * @param author - Post author
+ * @param permlink - Post permlink
+ * @param points - Points to spend (will be formatted as "X.XXX POINT", must be a valid finite number)
+ * @returns Custom JSON operation for boost
+ */
+declare function buildBoostOpWithPoints(user: string, author: string, permlink: string, points: number): Operation;
+/**
+ * Builds an Ecency Boost Plus subscription operation (custom_json).
+ * @param user - User account
+ * @param account - Account to subscribe
+ * @param duration - Subscription duration in days (must be a valid finite number)
+ * @returns Custom JSON operation for boost plus
+ */
+declare function buildBoostPlusOp(user: string, account: string, duration: number): Operation;
+/**
+ * Builds an Ecency promote operation (custom_json).
+ * @param user - User account
+ * @param author - Post author
+ * @param permlink - Post permlink
+ * @param duration - Promotion duration in days (must be a valid finite number)
+ * @returns Custom JSON operation for promote
+ */
+declare function buildPromoteOp(user: string, author: string, permlink: string, duration: number): Operation;
+/**
+ * Builds an Ecency point transfer operation (custom_json).
+ * @param sender - Sender account
+ * @param receiver - Receiver account
+ * @param amount - Amount to transfer
+ * @param memo - Transfer memo
+ * @returns Custom JSON operation for point transfer
+ */
+declare function buildPointTransferOp(sender: string, receiver: string, amount: string, memo: string): Operation;
+/**
+ * Builds multiple Ecency point transfer operations for multiple recipients.
+ * @param sender - Sender account
+ * @param destinations - Comma or space separated list of recipients
+ * @param amount - Amount to transfer
+ * @param memo - Transfer memo
+ * @returns Array of custom JSON operations for point transfers
+ */
+declare function buildMultiPointTransferOps(sender: string, destinations: string, amount: string, memo: string): Operation[];
+/**
+ * Builds an Ecency community rewards registration operation (custom_json).
+ * @param name - Account name to register
+ * @returns Custom JSON operation for community registration
+ */
+declare function buildCommunityRegistrationOp(name: string): Operation;
+/**
+ * Builds a generic active authority custom_json operation.
+ * Used for various Ecency operations that require active authority.
+ * @param username - Account performing the operation
+ * @param operationId - Custom JSON operation ID
+ * @param json - JSON payload
+ * @returns Custom JSON operation with active authority
+ */
+declare function buildActiveCustomJsonOp(username: string, operationId: string, json: Record<string, any>): Operation;
+/**
+ * Builds a generic posting authority custom_json operation.
+ * Used for various operations that require posting authority.
+ * @param username - Account performing the operation
+ * @param operationId - Custom JSON operation ID
+ * @param json - JSON payload
+ * @returns Custom JSON operation with posting authority
+ */
+declare function buildPostingCustomJsonOp(username: string, operationId: string, json: Record<string, any> | any[]): Operation;
+
+interface GrantPostingPermissionPayload {
+    currentPosting: Authority;
+    grantedAccount: string;
+    weightThreshold: number;
+    memoKey: string;
+    jsonMetadata: string;
+}
+declare function useGrantPostingPermission(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, GrantPostingPermissionPayload, unknown>;
+
+interface CreateAccountPayload {
+    newAccountName: string;
+    keys: AccountKeys;
+    fee: string;
+    /** If true, uses a claimed account token instead of paying the fee */
+    useClaimed?: boolean;
+}
+declare function useCreateAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CreateAccountPayload, unknown>;
 
 declare function getAccountFullQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: any;
@@ -2022,6 +2699,8 @@ declare const QueryKeys: {
     };
     readonly communities: {
         readonly single: (name?: string, observer?: string) => (string | undefined)[];
+        /** Prefix key for matching all observer variants of a community */
+        readonly singlePrefix: (name: string) => readonly ["community", "single", string];
         readonly context: (username: string, communityName: string) => string[];
         readonly rewarded: () => string[];
         readonly list: (sort: string, query: string, limit: number) => (string | number)[];
@@ -2571,665 +3250,6 @@ declare function powerRechargeTime(power: number): number;
 declare function downVotingPower(account: FullAccount): number;
 declare function rcPower(account: RCAccount): number;
 declare function votingValue(account: FullAccount, dynamicProps: DynamicProps$1, votingPowerValue: number, weight?: number): number;
-
-/**
- * Content Operations
- * Operations for creating, voting, and managing content on Hive blockchain
- */
-/**
- * Builds a vote operation.
- * @param voter - Account casting the vote
- * @param author - Author of the post/comment
- * @param permlink - Permlink of the post/comment
- * @param weight - Vote weight (-10000 to 10000, where 10000 = 100% upvote, -10000 = 100% downvote)
- * @returns Vote operation
- */
-declare function buildVoteOp(voter: string, author: string, permlink: string, weight: number): Operation;
-/**
- * Builds a comment operation (for posts or replies).
- * @param author - Author of the comment/post
- * @param permlink - Permlink of the comment/post
- * @param parentAuthor - Parent author (empty string for top-level posts)
- * @param parentPermlink - Parent permlink (category/tag for top-level posts)
- * @param title - Title of the post (empty for comments)
- * @param body - Content body (required - cannot be empty)
- * @param jsonMetadata - JSON metadata object
- * @returns Comment operation
- */
-declare function buildCommentOp(author: string, permlink: string, parentAuthor: string, parentPermlink: string, title: string, body: string, jsonMetadata: Record<string, any>): Operation;
-/**
- * Builds a comment options operation (for setting beneficiaries, rewards, etc.).
- * @param author - Author of the comment/post
- * @param permlink - Permlink of the comment/post
- * @param maxAcceptedPayout - Maximum accepted payout (e.g., "1000000.000 HBD")
- * @param percentHbd - Percent of payout in HBD (10000 = 100%)
- * @param allowVotes - Allow votes on this content
- * @param allowCurationRewards - Allow curation rewards
- * @param extensions - Extensions array (for beneficiaries, etc.)
- * @returns Comment options operation
- */
-declare function buildCommentOptionsOp(author: string, permlink: string, maxAcceptedPayout: string, percentHbd: number, allowVotes: boolean, allowCurationRewards: boolean, extensions: any[]): Operation;
-/**
- * Builds a delete comment operation.
- * @param author - Author of the comment/post to delete
- * @param permlink - Permlink of the comment/post to delete
- * @returns Delete comment operation
- */
-declare function buildDeleteCommentOp(author: string, permlink: string): Operation;
-/**
- * Builds a reblog operation (custom_json).
- * @param account - Account performing the reblog
- * @param author - Original post author
- * @param permlink - Original post permlink
- * @param deleteReblog - If true, removes the reblog
- * @returns Custom JSON operation for reblog
- */
-declare function buildReblogOp(account: string, author: string, permlink: string, deleteReblog?: boolean): Operation;
-
-/**
- * Wallet Operations
- * Operations for managing tokens, savings, vesting, and conversions
- */
-/**
- * Builds a transfer operation.
- * @param from - Sender account
- * @param to - Receiver account
- * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
- * @param memo - Transfer memo
- * @returns Transfer operation
- */
-declare function buildTransferOp(from: string, to: string, amount: string, memo: string): Operation;
-/**
- * Builds multiple transfer operations for multiple recipients.
- * @param from - Sender account
- * @param destinations - Comma or space separated list of recipient accounts
- * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
- * @param memo - Transfer memo
- * @returns Array of transfer operations
- */
-declare function buildMultiTransferOps(from: string, destinations: string, amount: string, memo: string): Operation[];
-/**
- * Builds a recurrent transfer operation.
- * @param from - Sender account
- * @param to - Receiver account
- * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
- * @param memo - Transfer memo
- * @param recurrence - Recurrence in hours
- * @param executions - Number of executions (2 = executes twice)
- * @returns Recurrent transfer operation
- */
-declare function buildRecurrentTransferOp(from: string, to: string, amount: string, memo: string, recurrence: number, executions: number): Operation;
-/**
- * Builds a transfer to savings operation.
- * @param from - Sender account
- * @param to - Receiver account
- * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
- * @param memo - Transfer memo
- * @returns Transfer to savings operation
- */
-declare function buildTransferToSavingsOp(from: string, to: string, amount: string, memo: string): Operation;
-/**
- * Builds a transfer from savings operation.
- * @param from - Sender account
- * @param to - Receiver account
- * @param amount - Amount with asset symbol (e.g., "1.000 HIVE")
- * @param memo - Transfer memo
- * @param requestId - Unique request ID (use timestamp)
- * @returns Transfer from savings operation
- */
-declare function buildTransferFromSavingsOp(from: string, to: string, amount: string, memo: string, requestId: number): Operation;
-/**
- * Builds a cancel transfer from savings operation.
- * @param from - Account that initiated the savings withdrawal
- * @param requestId - Request ID to cancel
- * @returns Cancel transfer from savings operation
- */
-declare function buildCancelTransferFromSavingsOp(from: string, requestId: number): Operation;
-/**
- * Builds operations to claim savings interest.
- * Creates a transfer_from_savings and immediately cancels it to claim interest.
- * @param from - Account claiming interest
- * @param to - Receiver account
- * @param amount - Amount with asset symbol (e.g., "0.001 HIVE")
- * @param memo - Transfer memo
- * @param requestId - Unique request ID
- * @returns Array of operations [transfer_from_savings, cancel_transfer_from_savings]
- */
-declare function buildClaimInterestOps(from: string, to: string, amount: string, memo: string, requestId: number): Operation[];
-/**
- * Builds a transfer to vesting operation (power up).
- * @param from - Account sending HIVE
- * @param to - Account receiving Hive Power
- * @param amount - Amount with HIVE symbol (e.g., "1.000 HIVE")
- * @returns Transfer to vesting operation
- */
-declare function buildTransferToVestingOp(from: string, to: string, amount: string): Operation;
-/**
- * Builds a withdraw vesting operation (power down).
- * @param account - Account withdrawing vesting
- * @param vestingShares - Amount of VESTS to withdraw (e.g., "1.000000 VESTS")
- * @returns Withdraw vesting operation
- */
-declare function buildWithdrawVestingOp(account: string, vestingShares: string): Operation;
-/**
- * Builds a delegate vesting shares operation (HP delegation).
- * @param delegator - Account delegating HP
- * @param delegatee - Account receiving HP delegation
- * @param vestingShares - Amount of VESTS to delegate (e.g., "1000.000000 VESTS")
- * @returns Delegate vesting shares operation
- */
-declare function buildDelegateVestingSharesOp(delegator: string, delegatee: string, vestingShares: string): Operation;
-/**
- * Builds a set withdraw vesting route operation.
- * @param fromAccount - Account withdrawing vesting
- * @param toAccount - Account receiving withdrawn vesting
- * @param percent - Percentage to route (0-10000, where 10000 = 100%)
- * @param autoVest - Auto convert to vesting
- * @returns Set withdraw vesting route operation
- */
-declare function buildSetWithdrawVestingRouteOp(fromAccount: string, toAccount: string, percent: number, autoVest: boolean): Operation;
-/**
- * Builds a convert operation (HBD to HIVE).
- * @param owner - Account converting HBD
- * @param amount - Amount of HBD to convert (e.g., "1.000 HBD")
- * @param requestId - Unique request ID (use timestamp)
- * @returns Convert operation
- */
-declare function buildConvertOp(owner: string, amount: string, requestId: number): Operation;
-/**
- * Builds a collateralized convert operation (HIVE to HBD via collateral).
- * @param owner - Account converting HIVE
- * @param amount - Amount of HIVE to convert (e.g., "1.000 HIVE")
- * @param requestId - Unique request ID (use timestamp)
- * @returns Collateralized convert operation
- */
-declare function buildCollateralizedConvertOp(owner: string, amount: string, requestId: number): Operation;
-/**
- * Builds a delegate RC operation (custom_json).
- * @param from - Account delegating RC
- * @param delegatees - Single delegatee or comma-separated list
- * @param maxRc - Maximum RC to delegate (in mana units)
- * @returns Custom JSON operation for RC delegation
- */
-/**
- * Builds a SPK Network custom_json operation.
- * @param from - Account performing the operation
- * @param id - SPK operation ID (e.g., "spkcc_spk_send", "spkcc_gov_up")
- * @param amount - Amount (multiplied by 1000 internally)
- * @returns Custom JSON operation
- */
-declare function buildSpkCustomJsonOp(from: string, id: string, amount: number): Operation;
-/**
- * Builds a Hive Engine custom_json operation.
- * @param from - Account performing the operation
- * @param contractAction - Engine contract action (e.g., "transfer", "stake")
- * @param contractPayload - Payload for the contract action
- * @param contractName - Engine contract name (defaults to "tokens")
- * @returns Custom JSON operation
- */
-declare function buildEngineOp(from: string, contractAction: string, contractPayload: Record<string, string>, contractName?: string): Operation;
-/**
- * Builds a scot_claim_token operation (posting authority).
- * @param account - Account claiming rewards
- * @param tokens - Array of token symbols to claim
- * @returns Custom JSON operation
- */
-declare function buildEngineClaimOp(account: string, tokens: string[]): Operation;
-declare function buildDelegateRcOp(from: string, delegatees: string, maxRc: string | number): Operation;
-
-/**
- * Social Operations
- * Operations for following, muting, and managing social relationships
- */
-/**
- * Builds a follow operation (custom_json).
- * @param follower - Account following
- * @param following - Account to follow
- * @returns Custom JSON operation for follow
- */
-declare function buildFollowOp(follower: string, following: string): Operation;
-/**
- * Builds an unfollow operation (custom_json).
- * @param follower - Account unfollowing
- * @param following - Account to unfollow
- * @returns Custom JSON operation for unfollow
- */
-declare function buildUnfollowOp(follower: string, following: string): Operation;
-/**
- * Builds an ignore/mute operation (custom_json).
- * @param follower - Account ignoring
- * @param following - Account to ignore
- * @returns Custom JSON operation for ignore
- */
-declare function buildIgnoreOp(follower: string, following: string): Operation;
-/**
- * Builds an unignore/unmute operation (custom_json).
- * @param follower - Account unignoring
- * @param following - Account to unignore
- * @returns Custom JSON operation for unignore
- */
-declare function buildUnignoreOp(follower: string, following: string): Operation;
-/**
- * Builds a Hive Notify set last read operation (custom_json).
- * @param username - Account setting last read
- * @param date - ISO date string (defaults to now)
- * @returns Array of custom JSON operations for setting last read
- */
-declare function buildSetLastReadOps(username: string, date?: string): Operation[];
-
-/**
- * Governance Operations
- * Operations for witness voting, proposals, and proxy management
- */
-/**
- * Builds an account witness vote operation.
- * @param account - Account voting
- * @param witness - Witness account name
- * @param approve - True to approve, false to disapprove
- * @returns Account witness vote operation
- */
-declare function buildWitnessVoteOp(account: string, witness: string, approve: boolean): Operation;
-/**
- * Builds an account witness proxy operation.
- * @param account - Account setting proxy
- * @param proxy - Proxy account name (empty string to remove proxy)
- * @returns Account witness proxy operation
- */
-declare function buildWitnessProxyOp(account: string, proxy: string): Operation;
-/**
- * Payload for proposal creation
- */
-interface ProposalCreatePayload {
-    receiver: string;
-    subject: string;
-    permlink: string;
-    start: string;
-    end: string;
-    dailyPay: string;
-}
-/**
- * Builds a create proposal operation.
- * @param creator - Account creating the proposal
- * @param payload - Proposal details (must include start, end, and dailyPay)
- * @returns Create proposal operation
- */
-declare function buildProposalCreateOp(creator: string, payload: ProposalCreatePayload): Operation;
-/**
- * Builds an update proposal votes operation.
- * @param voter - Account voting
- * @param proposalIds - Array of proposal IDs
- * @param approve - True to approve, false to disapprove
- * @returns Update proposal votes operation
- */
-declare function buildProposalVoteOp(voter: string, proposalIds: number[], approve: boolean): Operation;
-/**
- * Builds a remove proposal operation.
- * @param proposalOwner - Owner of the proposal
- * @param proposalIds - Array of proposal IDs to remove
- * @returns Remove proposal operation
- */
-declare function buildRemoveProposalOp(proposalOwner: string, proposalIds: number[]): Operation;
-/**
- * Builds an update proposal operation.
- * @param proposalId - Proposal ID to update (must be a valid number, including 0)
- * @param creator - Account that created the proposal
- * @param dailyPay - New daily pay amount
- * @param subject - New subject
- * @param permlink - New permlink
- * @returns Update proposal operation
- */
-declare function buildUpdateProposalOp(proposalId: number, creator: string, dailyPay: string, subject: string, permlink: string): Operation;
-
-/**
- * Community Operations
- * Operations for managing Hive communities
- */
-/**
- * Builds a subscribe to community operation (custom_json).
- * @param username - Account subscribing
- * @param community - Community name (e.g., "hive-123456")
- * @returns Custom JSON operation for subscribe
- */
-declare function buildSubscribeOp(username: string, community: string): Operation;
-/**
- * Builds an unsubscribe from community operation (custom_json).
- * @param username - Account unsubscribing
- * @param community - Community name (e.g., "hive-123456")
- * @returns Custom JSON operation for unsubscribe
- */
-declare function buildUnsubscribeOp(username: string, community: string): Operation;
-/**
- * Builds a set user role in community operation (custom_json).
- * @param username - Account setting the role (must have permission)
- * @param community - Community name (e.g., "hive-123456")
- * @param account - Account to set role for
- * @param role - Role name (e.g., "admin", "mod", "member", "guest")
- * @returns Custom JSON operation for setRole
- */
-declare function buildSetRoleOp(username: string, community: string, account: string, role: string): Operation;
-/**
- * Community properties for update
- */
-interface CommunityProps {
-    title: string;
-    about: string;
-    lang: string;
-    description: string;
-    flag_text: string;
-    is_nsfw: boolean;
-}
-/**
- * Builds an update community properties operation (custom_json).
- * @param username - Account updating (must be community admin)
- * @param community - Community name (e.g., "hive-123456")
- * @param props - Properties to update
- * @returns Custom JSON operation for updateProps
- */
-declare function buildUpdateCommunityOp(username: string, community: string, props: CommunityProps): Operation;
-/**
- * Builds a pin/unpin post in community operation (custom_json).
- * @param username - Account pinning (must have permission)
- * @param community - Community name (e.g., "hive-123456")
- * @param account - Post author
- * @param permlink - Post permlink
- * @param pin - True to pin, false to unpin
- * @returns Custom JSON operation for pinPost/unpinPost
- */
-declare function buildPinPostOp(username: string, community: string, account: string, permlink: string, pin: boolean): Operation;
-/**
- * Builds a mute/unmute post in community operation (custom_json).
- * @param username - Account muting (must have permission)
- * @param community - Community name (e.g., "hive-123456")
- * @param account - Post author
- * @param permlink - Post permlink
- * @param notes - Mute reason/notes
- * @param mute - True to mute, false to unmute
- * @returns Custom JSON operation for mutePost/unmutePost
- */
-declare function buildMutePostOp(username: string, community: string, account: string, permlink: string, notes: string, mute: boolean): Operation;
-/**
- * Builds a mute/unmute user in community operation (custom_json).
- * @param username - Account performing mute (must have permission)
- * @param community - Community name (e.g., "hive-123456")
- * @param account - Account to mute/unmute
- * @param notes - Mute reason/notes
- * @param mute - True to mute, false to unmute
- * @returns Custom JSON operation for muteUser/unmuteUser
- */
-declare function buildMuteUserOp(username: string, community: string, account: string, notes: string, mute: boolean): Operation;
-/**
- * Builds a flag post in community operation (custom_json).
- * @param username - Account flagging
- * @param community - Community name (e.g., "hive-123456")
- * @param account - Post author
- * @param permlink - Post permlink
- * @param notes - Flag reason/notes
- * @returns Custom JSON operation for flagPost
- */
-declare function buildFlagPostOp(username: string, community: string, account: string, permlink: string, notes: string): Operation;
-
-/**
- * Market Operations
- * Operations for trading on the internal Hive market
- */
-/**
- * Transaction type for buy/sell operations
- */
-declare enum BuySellTransactionType {
-    Buy = "buy",
-    Sell = "sell"
-}
-/**
- * Order ID prefix for different order types
- */
-declare enum OrderIdPrefix {
-    EMPTY = "",
-    SWAP = "9"
-}
-/**
- * Builds a limit order create operation.
- * @param owner - Account creating the order
- * @param amountToSell - Amount and asset to sell
- * @param minToReceive - Minimum amount and asset to receive
- * @param fillOrKill - If true, order must be filled immediately or cancelled
- * @param expiration - Expiration date (ISO string)
- * @param orderId - Unique order ID
- * @returns Limit order create operation
- */
-declare function buildLimitOrderCreateOp(owner: string, amountToSell: string, minToReceive: string, fillOrKill: boolean, expiration: string, orderId: number): Operation;
-/**
- * Builds a limit order create operation with automatic formatting.
- * This is a convenience method that handles buy/sell logic and formatting.
- *
- * For Buy orders: You're buying HIVE with HBD
- *   - amountToSell: HBD amount you're spending
- *   - minToReceive: HIVE amount you want to receive
- *
- * For Sell orders: You're selling HIVE for HBD
- *   - amountToSell: HIVE amount you're selling
- *   - minToReceive: HBD amount you want to receive
- *
- * @param owner - Account creating the order
- * @param amountToSell - Amount to sell (number)
- * @param minToReceive - Minimum to receive (number)
- * @param orderType - Buy or Sell
- * @param idPrefix - Order ID prefix
- * @returns Limit order create operation
- */
-declare function buildLimitOrderCreateOpWithType(owner: string, amountToSell: number, minToReceive: number, orderType: BuySellTransactionType, idPrefix?: OrderIdPrefix): Operation;
-/**
- * Builds a limit order cancel operation.
- * @param owner - Account cancelling the order
- * @param orderId - Order ID to cancel
- * @returns Limit order cancel operation
- */
-declare function buildLimitOrderCancelOp(owner: string, orderId: number): Operation;
-/**
- * Builds a claim reward balance operation.
- * @param account - Account claiming rewards
- * @param rewardHive - HIVE reward to claim (e.g., "0.000 HIVE")
- * @param rewardHbd - HBD reward to claim (e.g., "0.000 HBD")
- * @param rewardVests - VESTS reward to claim (e.g., "0.000000 VESTS")
- * @returns Claim reward balance operation
- */
-declare function buildClaimRewardBalanceOp(account: string, rewardHive: string, rewardHbd: string, rewardVests: string): Operation;
-
-/**
- * Account Operations
- * Operations for managing accounts, keys, and permissions
- */
-/**
- * Authority structure for account operations
- */
-interface Authority {
-    weight_threshold: number;
-    account_auths: [string, number][];
-    key_auths: [string, number][];
-}
-/**
- * Builds an account update operation.
- * @param account - Account name
- * @param owner - Owner authority (optional)
- * @param active - Active authority (optional)
- * @param posting - Posting authority (optional)
- * @param memoKey - Memo public key
- * @param jsonMetadata - Account JSON metadata
- * @returns Account update operation
- */
-declare function buildAccountUpdateOp(account: string, owner: Authority | undefined, active: Authority | undefined, posting: Authority | undefined, memoKey: string, jsonMetadata: string): Operation;
-/**
- * Builds an account update2 operation (for posting_json_metadata).
- * @param account - Account name
- * @param jsonMetadata - Account JSON metadata (legacy, usually empty)
- * @param postingJsonMetadata - Posting JSON metadata string
- * @param extensions - Extensions array
- * @returns Account update2 operation
- */
-declare function buildAccountUpdate2Op(account: string, jsonMetadata: string, postingJsonMetadata: string, extensions: any[]): Operation;
-/**
- * Public keys for account creation
- */
-interface AccountKeys {
-    ownerPublicKey: string;
-    activePublicKey: string;
-    postingPublicKey: string;
-    memoPublicKey: string;
-}
-/**
- * Builds an account create operation.
- * @param creator - Creator account name
- * @param newAccountName - New account name
- * @param keys - Public keys for the new account
- * @param fee - Creation fee (e.g., "3.000 HIVE")
- * @returns Account create operation
- */
-declare function buildAccountCreateOp(creator: string, newAccountName: string, keys: AccountKeys, fee: string): Operation;
-/**
- * Builds a create claimed account operation (using account creation tokens).
- * @param creator - Creator account name
- * @param newAccountName - New account name
- * @param keys - Public keys for the new account
- * @returns Create claimed account operation
- */
-declare function buildCreateClaimedAccountOp(creator: string, newAccountName: string, keys: AccountKeys): Operation;
-/**
- * Builds a claim account operation.
- * @param creator - Account claiming the token
- * @param fee - Fee for claiming (usually "0.000 HIVE" for RC-based claims)
- * @returns Claim account operation
- */
-declare function buildClaimAccountOp(creator: string, fee: string): Operation;
-/**
- * Builds an operation to grant posting permission to another account.
- * Helper that modifies posting authority to add an account.
- * @param account - Account granting permission
- * @param currentPosting - Current posting authority
- * @param grantedAccount - Account to grant permission to
- * @param weightThreshold - Weight threshold of the granted account
- * @param memoKey - Memo public key (required by Hive blockchain)
- * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
- * @returns Account update operation with modified posting authority
- */
-declare function buildGrantPostingPermissionOp(account: string, currentPosting: Authority, grantedAccount: string, weightThreshold: number, memoKey: string, jsonMetadata: string): Operation;
-/**
- * Builds an operation to revoke posting permission from an account.
- * Helper that modifies posting authority to remove an account.
- * @param account - Account revoking permission
- * @param currentPosting - Current posting authority
- * @param revokedAccount - Account to revoke permission from
- * @param memoKey - Memo public key (required by Hive blockchain)
- * @param jsonMetadata - Account JSON metadata (required by Hive blockchain)
- * @returns Account update operation with modified posting authority
- */
-declare function buildRevokePostingPermissionOp(account: string, currentPosting: Authority, revokedAccount: string, memoKey: string, jsonMetadata: string): Operation;
-/**
- * Builds a change recovery account operation.
- * @param accountToRecover - Account to change recovery account for
- * @param newRecoveryAccount - New recovery account name
- * @param extensions - Extensions array
- * @returns Change recovery account operation
- */
-declare function buildChangeRecoveryAccountOp(accountToRecover: string, newRecoveryAccount: string, extensions?: any[]): Operation;
-/**
- * Builds a request account recovery operation.
- * @param recoveryAccount - Recovery account performing the recovery
- * @param accountToRecover - Account to recover
- * @param newOwnerAuthority - New owner authority
- * @param extensions - Extensions array
- * @returns Request account recovery operation
- */
-declare function buildRequestAccountRecoveryOp(recoveryAccount: string, accountToRecover: string, newOwnerAuthority: Authority, extensions?: any[]): Operation;
-/**
- * Builds a recover account operation.
- * @param accountToRecover - Account to recover
- * @param newOwnerAuthority - New owner authority
- * @param recentOwnerAuthority - Recent owner authority (for proof)
- * @param extensions - Extensions array
- * @returns Recover account operation
- */
-declare function buildRecoverAccountOp(accountToRecover: string, newOwnerAuthority: Authority, recentOwnerAuthority: Authority, extensions?: any[]): Operation;
-
-/**
- * Ecency-Specific Operations
- * Custom operations for Ecency platform features (Points, Boost, Promote, etc.)
- */
-/**
- * Builds an Ecency boost operation (custom_json with active authority).
- * @param user - User account
- * @param author - Post author
- * @param permlink - Post permlink
- * @param amount - Amount to boost (e.g., "1.000 POINT")
- * @returns Custom JSON operation for boost
- */
-declare function buildBoostOp(user: string, author: string, permlink: string, amount: string): Operation;
-/**
- * Builds an Ecency boost operation with numeric point value.
- * @param user - User account
- * @param author - Post author
- * @param permlink - Post permlink
- * @param points - Points to spend (will be formatted as "X.XXX POINT", must be a valid finite number)
- * @returns Custom JSON operation for boost
- */
-declare function buildBoostOpWithPoints(user: string, author: string, permlink: string, points: number): Operation;
-/**
- * Builds an Ecency Boost Plus subscription operation (custom_json).
- * @param user - User account
- * @param account - Account to subscribe
- * @param duration - Subscription duration in days (must be a valid finite number)
- * @returns Custom JSON operation for boost plus
- */
-declare function buildBoostPlusOp(user: string, account: string, duration: number): Operation;
-/**
- * Builds an Ecency promote operation (custom_json).
- * @param user - User account
- * @param author - Post author
- * @param permlink - Post permlink
- * @param duration - Promotion duration in days (must be a valid finite number)
- * @returns Custom JSON operation for promote
- */
-declare function buildPromoteOp(user: string, author: string, permlink: string, duration: number): Operation;
-/**
- * Builds an Ecency point transfer operation (custom_json).
- * @param sender - Sender account
- * @param receiver - Receiver account
- * @param amount - Amount to transfer
- * @param memo - Transfer memo
- * @returns Custom JSON operation for point transfer
- */
-declare function buildPointTransferOp(sender: string, receiver: string, amount: string, memo: string): Operation;
-/**
- * Builds multiple Ecency point transfer operations for multiple recipients.
- * @param sender - Sender account
- * @param destinations - Comma or space separated list of recipients
- * @param amount - Amount to transfer
- * @param memo - Transfer memo
- * @returns Array of custom JSON operations for point transfers
- */
-declare function buildMultiPointTransferOps(sender: string, destinations: string, amount: string, memo: string): Operation[];
-/**
- * Builds an Ecency community rewards registration operation (custom_json).
- * @param name - Account name to register
- * @returns Custom JSON operation for community registration
- */
-declare function buildCommunityRegistrationOp(name: string): Operation;
-/**
- * Builds a generic active authority custom_json operation.
- * Used for various Ecency operations that require active authority.
- * @param username - Account performing the operation
- * @param operationId - Custom JSON operation ID
- * @param json - JSON payload
- * @returns Custom JSON operation with active authority
- */
-declare function buildActiveCustomJsonOp(username: string, operationId: string, json: Record<string, any>): Operation;
-/**
- * Builds a generic posting authority custom_json operation.
- * Used for various operations that require posting authority.
- * @param username - Account performing the operation
- * @param operationId - Custom JSON operation ID
- * @param json - JSON payload
- * @returns Custom JSON operation with posting authority
- */
-declare function buildPostingCustomJsonOp(username: string, operationId: string, json: Record<string, any> | any[]): Operation;
 
 declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, {
     operation: Operation;
@@ -4982,6 +5002,14 @@ interface CommunityRewardsRegisterPayload {
  */
 declare function useRegisterCommunityRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityRewardsRegisterPayload, unknown>;
 
+interface PinPostPayload {
+    community: string;
+    account: string;
+    permlink: string;
+    pin: boolean;
+}
+declare function usePinPost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PinPostPayload, unknown>;
+
 declare enum ROLES {
     OWNER = "owner",
     ADMIN = "admin",
@@ -5426,6 +5454,11 @@ declare function useMarkNotificationsRead(username: string | undefined, code: st
     previousNotifications: [readonly unknown[], ApiNotification[] | undefined][];
 }>;
 
+interface SetLastReadPayload {
+    date?: string;
+}
+declare function useSetLastRead(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetLastReadPayload, unknown>;
+
 interface Proposal {
     creator: string;
     daily_pay: {
@@ -5572,6 +5605,8 @@ interface ProposalVotePayload {
  * ```
  */
 declare function useProposalVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalVotePayload, unknown>;
+
+declare function useProposalCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalCreatePayload, unknown>;
 
 interface DelegatedVestingShare {
     id: number;
@@ -6436,13 +6471,14 @@ declare function useSetWithdrawVestingRoute(username: string | undefined, auth?:
 interface TransferSpkPayload {
     to: string;
     amount: number;
+    memo?: string;
 }
 declare function useTransferSpk(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferSpkPayload, unknown>;
 
 interface TransferLarynxPayload {
     to: string;
     amount: number;
-    token?: string;
+    memo?: string;
 }
 declare function useTransferLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferLarynxPayload, unknown>;
 
@@ -6583,6 +6619,12 @@ interface WalletOperationPayload {
  */
 declare function useWalletOperation(username: string | undefined, asset: string, operation: AssetOperation, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WalletOperationPayload, unknown>;
 
+interface DelegateRcPayload {
+    to: string;
+    maxRc: string | number;
+}
+declare function useDelegateRc(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateRcPayload, unknown>;
+
 declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
 
 declare const HIVE_OPERATION_LIST: HiveOperationName[];
@@ -6644,6 +6686,11 @@ interface WitnessVotePayload {
  * ```
  */
 declare function useWitnessVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessVotePayload, unknown>;
+
+interface WitnessProxyPayload {
+    proxy: string;
+}
+declare function useWitnessProxy(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessProxyPayload, unknown>;
 
 interface Witness {
     total_missed: number;
@@ -6870,6 +6917,20 @@ declare function getCurrentMedianHistoryPriceQueryOptions(): _tanstack_react_que
         [dataTagErrorSymbol]: Error;
     };
 };
+
+interface LimitOrderCreatePayload {
+    amountToSell: string;
+    minToReceive: string;
+    fillOrKill: boolean;
+    expiration: string;
+    orderId: number;
+}
+declare function useLimitOrderCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCreatePayload, unknown>;
+
+interface LimitOrderCancelPayload {
+    orderId: number;
+}
+declare function useLimitOrderCancel(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCancelPayload, unknown>;
 
 interface ApiResponse<T> {
     status: number;
@@ -7190,6 +7251,12 @@ declare function getBoostPlusAccountPricesQueryOptions(account: string, accessTo
         [dataTagErrorSymbol]: Error;
     };
 };
+
+interface BoostPlusPayload {
+    account: string;
+    duration: number;
+}
+declare function useBoostPlus(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, BoostPlusPayload, unknown>;
 
 type BridgeParams = Record<string, unknown> | unknown[];
 declare function bridgeApiCall<T>(endpoint: string, params: BridgeParams): Promise<T>;
@@ -7839,4 +7906,4 @@ declare function getLarynxPowerAssetGeneralInfoQueryOptions(username: string): _
     };
 };
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GetGameStatus, type GetRecoveriesEmailResponse, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCrossPost, useDelegateEngineToken, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePowerLarynx, usePromote, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BoostPlusPayload, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CreateAccountPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateRcPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GetGameStatus, type GetRecoveriesEmailResponse, type GrantPostingPermissionPayload, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCancelPayload, type LimitOrderCreate, type LimitOrderCreatePayload, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PinPostPayload, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetLastReadPayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessProxyPayload, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBoostPlus, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCreateAccount, useCrossPost, useDelegateEngineToken, useDelegateRc, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useGrantPostingPermission, useLimitOrderCancel, useLimitOrderCreate, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePinPost, usePowerLarynx, usePromote, useProposalCreate, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetLastRead, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessProxy, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };

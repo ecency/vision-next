@@ -103,7 +103,7 @@ export function useProposalVoteMutation(proposalId: number) {
           getUserProposalVotesQueryOptions(username)
         );
 
-        const hasVote = userVotes.some(vote => vote.proposal.proposal_id === proposalId);
+        const hasVote = userVotes.some(vote => vote.proposal?.proposal_id === proposalId);
 
         // Check if vote state matches what we expect
         if ((approve && hasVote) || (!approve && !hasVote)) {

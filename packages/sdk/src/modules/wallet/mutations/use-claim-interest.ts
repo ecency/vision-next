@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildClaimInterestOps } from "@/modules/operations/builders";
 
@@ -17,8 +18,9 @@ export function useClaimInterest(username: string | undefined, auth?: AuthContex
     async () => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
-          ["wallet", "balances", username],
-          ["wallet", "transactions", username]
+          QueryKeys.accounts.full(username),
+          ["ecency-wallets", "asset-info", username],
+          ["wallet", "portfolio", "v2", username]
         ]);
       }
     },

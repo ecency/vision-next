@@ -1,11 +1,12 @@
 // src/api/mutations/create-reply.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { formatError } from "../operations";
+import { formatError } from "../format-error";
 import { Entry, FullAccount, MetaData, CommentOptions } from "@/entities";
 import { tempEntry } from "@/utils";
 import { QueryIdentifiers } from "@/core/react-query";
 import { SortOrder } from "@/enums";
 import { error, success } from "@/features/shared";
+import { ErrorTypes } from "@/enums";
 import * as ss from "@/utils/session-storage";
 import i18next from "i18next";
 import { getAccountRcQueryOptions, addOptimisticDiscussionEntry, removeOptimisticDiscussionEntry } from "@ecency/sdk";
@@ -151,9 +152,13 @@ export function useCreateReply(
 
         // Keep draft in storage so user can retry by clicking Reply again
         // Draft is still available from before, just don't delete it
-        const errorMessage = formatError(err);
+        const [errorMsg, errorType] = formatError(err);
 
-        error(...errorMessage);
+        if (errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS) {
+          error(i18next.t("comment.rc-error-hint"), ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS);
+        } else {
+          error(errorMsg || i18next.t("comment.retry-hint"), errorType);
+        }
       });
 
       // Return immediately for instant UI feedback

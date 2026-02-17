@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { EcencyAnalytics } from "@ecency/sdk";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";

@@ -89,8 +89,8 @@ export function useSetWithdrawVestingRoute(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.wallet.withdrawRoutes(username!),
-          ["accounts", username],
-          ["accounts", variables.toAccount]
+          QueryKeys.accounts.full(username),
+          QueryKeys.accounts.full(variables.toAccount)
         ]);
       }
     },

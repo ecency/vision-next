@@ -68,7 +68,7 @@ export function useUpdateProfileMutation() {
   const adapter = createWebBroadcastAdapter();
 
   // Use SDK's useAccountUpdate mutation with web adapter
-  return useAccountUpdate(username ?? "", {
+  return useAccountUpdate(username, {
     adapter,
   });
 }

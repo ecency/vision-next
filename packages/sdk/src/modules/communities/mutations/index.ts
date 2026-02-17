@@ -4,3 +4,4 @@ export * from "./use-mute-post";
 export * from "./use-set-community-role";
 export * from "./use-update-community";
 export * from "./use-register-community-rewards";
+export * from "./use-pin-post";
