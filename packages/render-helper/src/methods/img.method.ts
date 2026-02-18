@@ -12,15 +12,16 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
   // ❌ Remove if javascript or empty/invalid
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
-    src = ""
+    el.setAttribute("src", "");
+    return;
   }
 
   // ❌ Skip relative paths (e.g., `photo.jpg`, `./photo.png`, `assets/pic.jpeg`)
   // Use trimmed decodedSrc for protocol check to handle leading/trailing whitespace
   const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
-    //console.warn("Skipped relative image:", src);
-    src = ""
+    el.setAttribute("src", "");
+    return;
   }
 
   // Sanitize any dynamic or low-res src-like attributes

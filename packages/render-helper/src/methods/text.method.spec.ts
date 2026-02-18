@@ -428,17 +428,6 @@ describe('text() method - Text Node Processing', () => {
       expect(images.length).toBeGreaterThan(0)
     })
 
-    it('should use webp parameter when creating images', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-    })
   })
 
   describe('YouTube video detection', () => {

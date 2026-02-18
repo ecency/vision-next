@@ -361,21 +361,18 @@ describe('markdownToHTML() method', () => {
 
     it('should handle malformed markdown gracefully', () => {
       const input = '**unclosed bold\n\n> unclosed quote\n\n[incomplete link'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toBeTruthy()
     })
 
     it('should handle very large input', () => {
       const largeInput = 'a'.repeat(50000)
-      expect(() => markdownToHTML(largeInput, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(largeInput, false, 'ecency.com')
       expect(result).toBeTruthy()
     })
 
     it('should handle invalid HTML in markdown', () => {
       const input = '<div>Unclosed div\n\n<script>alert("xss")</script>'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       // XSS should be sanitized
       expect(result).not.toContain('<script>')
@@ -383,7 +380,6 @@ describe('markdownToHTML() method', () => {
 
     it('should handle deeply nested structures', () => {
       const input = '> > > > > > Deeply nested quote'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('blockquote')
     })
@@ -391,21 +387,18 @@ describe('markdownToHTML() method', () => {
     it('should handle malformed HTML that triggers fallback recovery', () => {
       // Create HTML that will fail initial parsing
       const input = '<div><p>Unclosed tags\n\n**bold**'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toBeTruthy()
     })
 
     it('should handle special characters', () => {
       const input = 'Special chars: <>&"\'©®™'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toBeTruthy()
     })
 
     it('should handle unicode characters', () => {
       const input = 'Unicode: 你好 мир 🌍 emoji'
-      expect(() => markdownToHTML(input, false, 'ecency.com')).not.toThrow()
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('你好')
       expect(result).toContain('мир')
