@@ -5,7 +5,6 @@ import { WitnessVoteBtn } from "@/app/witnesses/_components/witness-vote-btn";
 import { openInNewSvg } from "@ui/svg";
 import { dateToRelative } from "@/utils";
 import { WitnessTransformed } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import Image from "next/image";
 
 interface Props {
@@ -14,8 +13,6 @@ interface Props {
 }
 
 export const WitnessCard = ({ row, witness }: Props) => {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   return (
     <div className="witnesses-card p-3 mb-3 border border-[--border-color] rounded">
       <div className="flex items-center justify-between">
@@ -35,7 +32,7 @@ export const WitnessCard = ({ row, witness }: Props) => {
           <Image
             width={1000}
             height={1000}
-            src={`https://images.ecency.com/${canUseWebp ? "webp/" : ""}u/${
+            src={`https://images.ecency.com/u/${
               row.name
             }/avatar/medium`}
             alt=""

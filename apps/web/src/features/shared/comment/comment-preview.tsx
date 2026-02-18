@@ -1,7 +1,6 @@
 import React from "react";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults";
 
 interface Props {
@@ -9,8 +8,6 @@ interface Props {
 }
 setProxyBase(defaults.imageServer);
 export function CommentPreview({ text }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   if (text === "") {
     return <></>;
   }
@@ -22,7 +19,7 @@ export function CommentPreview({ text }: Props) {
       </div>
       <div
         className="preview-body markdown-view"
-        dangerouslySetInnerHTML={{ __html: renderPostBody(text, false, canUseWebp) }}
+        dangerouslySetInnerHTML={{ __html: renderPostBody(text, false) }}
       />
     </div>
   );

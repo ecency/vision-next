@@ -80,7 +80,7 @@ export function BlogDiscussionItem({
               <div
                 className="markdown-body text-sm! max-w-none entry-body"
                 dangerouslySetInnerHTML={{
-                  __html: renderPostBody(entry.body, false, true),
+                  __html: renderPostBody(entry.body, false),
                 }}
               />
             )}

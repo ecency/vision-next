@@ -4,7 +4,6 @@ import { proxifyImageSrc } from "@ecency/render-helper";
 import useCopyToClipboard from "react-use/lib/useCopyToClipboard";
 import { ThreeSpeakVideo, useThreeSpeakVideo } from "@/api/threespeak";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { copyOutlinSvg, informationSvg } from "@ui/svg";
 import { dateToFullRelative } from "@/utils";
 import Image from "next/image";
@@ -34,7 +33,6 @@ export function VideoGalleryItem({
   setShowGallery,
   setVideoMetadata
 }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const { data } = useThreeSpeakVideo("all");
   const [_, copyToClipboard] = useCopyToClipboard();
 
@@ -112,7 +110,7 @@ export function VideoGalleryItem({
         <Image
           width={600}
           height={500}
-          src={proxifyImageSrc(item.thumbUrl, 600, 500, canUseWebp ? "webp" : "match")}
+          src={proxifyImageSrc(item.thumbUrl, 600, 500)}
           alt=""
         />
       </div>

@@ -16,7 +16,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('This is plain text')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         expect(parent.textContent).toBe('This is plain text')
       })
@@ -27,7 +27,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Check out https://example.com for more info')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         // Plain URLs are not linkified by text() - only special patterns
         expect(parent.textContent).toContain('https://example.com')
@@ -39,7 +39,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Visit http://example.com today')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         expect(parent.textContent).toContain('http://example.com')
       })
@@ -52,7 +52,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('I love #bitcoin and #cryptocurrency')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const links = parent.getElementsByTagName('a')
         expect(links.length).toBeGreaterThan(0)
@@ -68,7 +68,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Item #123 is not a tag')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -82,7 +82,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('#hive is awesome')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -96,7 +96,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Check out #hive-engine tokens')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -110,7 +110,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('#crypto #blockchain #hive')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -124,7 +124,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('I love #bitcoin')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -138,7 +138,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('I love #bitcoin')
         parent.appendChild(textNode)
 
-        text(textNode as any, true, false)
+        text(textNode as any, true)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-tag-link'
@@ -154,7 +154,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Thanks @alice and @bob for the help')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -168,7 +168,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('@alice great post!')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -182,7 +182,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Hello @user.name')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -196,7 +196,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Thanks @user-name')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -210,7 +210,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Hello @alice')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -224,7 +224,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Hello @alice')
         parent.appendChild(textNode)
 
-        text(textNode as any, true, false)
+        text(textNode as any, true)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -238,7 +238,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Email @ab is too short')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -254,7 +254,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/my-post for details')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -268,7 +268,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Check /@alice/my-post')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -282,7 +282,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/my-post')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -296,7 +296,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/my-post')
         parent.appendChild(textNode)
 
-        text(textNode as any, true, false)
+        text(textNode as any, true)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -311,7 +311,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/my-post?foo=bar')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -325,7 +325,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/image.jpg')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
@@ -341,7 +341,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('Check out site by @alice about #blockchain')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const allLinks = parent.getElementsByTagName('a')
         expect(allLinks.length).toBeGreaterThanOrEqual(2)
@@ -353,7 +353,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('@alice wrote about #hive and #crypto')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-author-link'
@@ -371,7 +371,7 @@ describe('text() method - Text Node Processing', () => {
         const textNode = doc.createTextNode('See @alice/my-post by @alice')
         parent.appendChild(textNode)
 
-        text(textNode as any, false, false)
+        text(textNode as any, false)
 
         const allLinks = parent.getElementsByTagName('a')
         expect(allLinks.length).toBeGreaterThanOrEqual(2)
@@ -386,7 +386,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://example.com/image.jpg')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const images = parent.getElementsByTagName('img')
       expect(images.length).toBeGreaterThan(0)
@@ -398,7 +398,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://example.com/photo.png')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const images = parent.getElementsByTagName('img')
       expect(images.length).toBeGreaterThan(0)
@@ -410,7 +410,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://example.com/animation.gif')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const images = parent.getElementsByTagName('img')
       expect(images.length).toBeGreaterThan(0)
@@ -422,23 +422,12 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://example.com/image.webp')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const images = parent.getElementsByTagName('img')
       expect(images.length).toBeGreaterThan(0)
     })
 
-    it('should use webp parameter when creating images', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false, true)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-    })
   })
 
   describe('YouTube video detection', () => {
@@ -448,7 +437,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const videoLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class')?.includes('markdown-video-link-youtube')
@@ -462,7 +451,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://youtu.be/dQw4w9WgXcQ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const videoLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class')?.includes('markdown-video-link-youtube')
@@ -476,7 +465,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/shorts/dQw4w9WgXcQ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const videoLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class')?.includes('markdown-video-link-youtube')
@@ -490,7 +479,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=123')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const videoLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class')?.includes('markdown-video-link-youtube')
@@ -504,7 +493,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ&start=456')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const videoLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class')?.includes('markdown-video-link-youtube')
@@ -518,7 +507,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const images = parent.getElementsByTagName('img')
       expect(images.length).toBeGreaterThan(0)
@@ -531,7 +520,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const playButtons = Array.from(parent.getElementsByTagName('span')).filter(span =>
         span.getAttribute('class') === 'markdown-video-play'
@@ -547,7 +536,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -561,7 +550,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://peakd.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -575,7 +564,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://hive.blog/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -589,7 +578,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://www.ecency.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -603,7 +592,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/valid-tag/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -617,7 +606,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/invalid<tag>/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Should not create a post link due to invalid tag
       expect(parent.textContent).toContain('https://ecency.com')
@@ -629,7 +618,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -643,7 +632,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@ab/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Should not create a post link due to invalid username
       expect(parent.textContent).toContain('https://ecency.com')
@@ -655,7 +644,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/valid-permlink-2024')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -669,7 +658,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/image.jpg')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -683,7 +672,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -697,7 +686,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/my-post')
       parent.appendChild(textNode)
 
-      text(textNode as any, true, false)
+      text(textNode as any, true)
 
       const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-post-link'
@@ -715,7 +704,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('<script>alert("XSS")</script>')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Text content should be safe - scripts won't execute
       expect(parent.textContent).toContain('<script>')
@@ -729,7 +718,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('#<script>alert(1)</script>')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const scripts = parent.getElementsByTagName('script')
       expect(scripts.length).toBe(0)
@@ -741,7 +730,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('@<script>alert(1)</script>')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const scripts = parent.getElementsByTagName('script')
       expect(scripts.length).toBe(0)
@@ -753,7 +742,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/"><script>alert(1)</script>/@alice/post')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const scripts = parent.getElementsByTagName('script')
       expect(scripts.length).toBe(0)
@@ -765,7 +754,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('https://ecency.com/hive/@alice/post?"><script>alert(1)</script>')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const scripts = parent.getElementsByTagName('script')
       expect(scripts.length).toBe(0)
@@ -777,7 +766,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('javascript:alert(1)')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const links = parent.getElementsByTagName('a')
       const hasJavascriptHref = Array.from(links).some(link =>
@@ -789,12 +778,12 @@ describe('text() method - Text Node Processing', () => {
 
   describe('edge cases', () => {
     it('should handle null node', () => {
-      expect(() => text(null, false, false)).not.toThrow()
+      expect(() => text(null, false)).not.toThrow()
     })
 
     it('should handle node without parent', () => {
       const textNode = doc.createTextNode('Hello world')
-      expect(() => text(textNode as any, false, false)).not.toThrow()
+      expect(() => text(textNode as any, false)).not.toThrow()
     })
 
     it('should skip processing when parent is <a> tag', () => {
@@ -804,7 +793,7 @@ describe('text() method - Text Node Processing', () => {
       parent.appendChild(textNode)
 
       const originalText = parent.textContent
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Should not process because parent is <a>
       expect(parent.textContent).toBe(originalText)
@@ -817,7 +806,7 @@ describe('text() method - Text Node Processing', () => {
       parent.appendChild(textNode)
 
       const originalText = parent.textContent
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Should not process because parent is <code>
       expect(parent.textContent).toBe(originalText)
@@ -829,7 +818,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('')
       parent.appendChild(textNode)
 
-      expect(() => text(textNode as any, false, false)).not.toThrow()
+      expect(() => text(textNode as any, false)).not.toThrow()
     })
 
     it('should handle whitespace-only text nodes', () => {
@@ -838,7 +827,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('   \n\t  ')
       parent.appendChild(textNode)
 
-      expect(() => text(textNode as any, false, false)).not.toThrow()
+      expect(() => text(textNode as any, false)).not.toThrow()
     })
 
     it('should handle very long text nodes', () => {
@@ -848,7 +837,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode(longText)
       parent.appendChild(textNode)
 
-      expect(() => text(textNode as any, false, false)).not.toThrow()
+      expect(() => text(textNode as any, false)).not.toThrow()
     })
 
     it('should handle text with only spaces between content', () => {
@@ -857,7 +846,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('   #crypto   @alice   ')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const links = parent.getElementsByTagName('a')
       expect(links.length).toBeGreaterThan(0)
@@ -869,7 +858,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('Line 1\n#hashtag\n@mention\nLine 4')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const links = parent.getElementsByTagName('a')
       expect(links.length).toBeGreaterThan(0)
@@ -881,7 +870,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('Text\t#hashtag\t@mention')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const links = parent.getElementsByTagName('a')
       expect(links.length).toBeGreaterThan(0)
@@ -893,7 +882,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('Hello 🌍 #crypto @alice')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const links = parent.getElementsByTagName('a')
       expect(links.length).toBeGreaterThan(0)
@@ -905,7 +894,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('HTTPS://EXAMPLE.COM/PATH')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       // Plain URLs are not linkified
       expect(parent.textContent).toContain('HTTPS://EXAMPLE.COM/PATH')
@@ -917,7 +906,7 @@ describe('text() method - Text Node Processing', () => {
       const element = doc.createElement('span')
       parent.appendChild(element)
 
-      expect(() => text(element as any, false, false)).not.toThrow()
+      expect(() => text(element as any, false)).not.toThrow()
     })
 
     it('should handle text node with only punctuation', () => {
@@ -926,46 +915,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('.,!?;:')
       parent.appendChild(textNode)
 
-      expect(() => text(textNode as any, false, false)).not.toThrow()
-    })
-  })
-
-  describe('webp parameter', () => {
-    it('should pass webp=true to image creation', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false, true)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-      // The webp parameter is passed to createImageHTML
-    })
-
-    it('should pass webp=false to image creation', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false, false)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-    })
-
-    it('should use webp parameter for YouTube thumbnails', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false, true)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
+      expect(() => text(textNode as any, false)).not.toThrow()
     })
   })
 
@@ -976,7 +926,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('#crypto @alice')
       parent.appendChild(textNode)
 
-      text(textNode as any, true, false)
+      text(textNode as any, true)
 
       const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-tag-link'
@@ -995,7 +945,7 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('#crypto @alice')
       parent.appendChild(textNode)
 
-      text(textNode as any, false, false)
+      text(textNode as any, false)
 
       const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
         link.getAttribute('class') === 'markdown-tag-link'

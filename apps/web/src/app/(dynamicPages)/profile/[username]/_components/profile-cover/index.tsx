@@ -6,7 +6,6 @@ import {proxifyImageSrc, setProxyBase} from "@ecency/render-helper";
 import "./_index.scss";
 import {Account} from "@/entities";
 import {FollowControls} from "@/features/shared";
-import {useGlobalStore} from "@/core/global-store";
 import {useActiveAccount} from "@/core/hooks/use-active-account";
 import {FavouriteBtn} from "@/features/shared/favorite-btn";
 import {ProfileInfo} from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
@@ -24,7 +23,6 @@ interface Props {
 export function ProfileCover({ account }: Props) {
   const [theme] = useClientTheme();
 
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const {activeUser} = useActiveAccount();
 
   const pathname = usePathname();
@@ -37,7 +35,7 @@ export function ProfileCover({ account }: Props) {
   if (account) {
     bgImage = theme === Theme.day ? coverFallbackDay : coverFallbackNight;
     if (account.profile?.cover_image) {
-      bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0, canUseWebp ? "webp" : "match");
+      bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0);
     }
   }
 

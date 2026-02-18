@@ -17,7 +17,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Example'
         container.appendChild(link)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
         expect(link.getAttribute('target')).toBe('_blank')
@@ -31,7 +31,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Example'
         container.appendChild(link)
 
-        traverse(container, true, 0, false)
+        traverse(container, true, 0)
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
         expect(link.getAttribute('data-href')).toBe('https://example.com')
@@ -49,7 +49,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link1)
         container.appendChild(link2)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link1.getAttribute('class')).toBe('markdown-external-link')
         expect(link2.getAttribute('class')).toBe('markdown-external-link')
@@ -63,7 +63,7 @@ describe('traverse() method - DOM Traversal', () => {
         iframe.setAttribute('src', 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1')
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // YouTube iframe should have query string stripped
         expect(iframe.getAttribute('src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ')
@@ -74,7 +74,7 @@ describe('traverse() method - DOM Traversal', () => {
         const iframe = doc.createElement('iframe')
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(container.getElementsByTagName('iframe').length).toBe(0)
       })
@@ -85,7 +85,7 @@ describe('traverse() method - DOM Traversal', () => {
         iframe.setAttribute('src', 'https://player.twitch.tv/?channel=test')
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false, { firstImageFound: false }, 'example.com')
+        traverse(container, false, 0, { firstImageFound: false }, 'example.com')
 
         expect(iframe.getAttribute('src')).toContain('parent=example.com')
       })
@@ -97,7 +97,7 @@ describe('traverse() method - DOM Traversal', () => {
         const textNode = doc.createTextNode('https://example.com')
         container.appendChild(textNode)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Text node with URL should be linkified
         // Note: linkify may wrap in span, so check for transformed content
@@ -109,7 +109,7 @@ describe('traverse() method - DOM Traversal', () => {
         const textNode = doc.createTextNode('https://example.com/image.jpg')
         container.appendChild(textNode)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Text node with image URL should become img element
         const imgs = container.getElementsByTagName('img')
@@ -121,7 +121,7 @@ describe('traverse() method - DOM Traversal', () => {
         const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
         container.appendChild(textNode)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Text node with YouTube URL should become video link
         // Use getElementsByTagName as xmldom doesn't support querySelectorAll
@@ -141,17 +141,16 @@ describe('traverse() method - DOM Traversal', () => {
         expect(found).toBe(true)
       })
 
-      it('should pass webp parameter to text handler', () => {
+      it('should use format=match for text handler image URLs', () => {
         const container = doc.createElement('div')
         const textNode = doc.createTextNode('https://example.com/image.jpg')
         container.appendChild(textNode)
 
-        traverse(container, false, 0, true)
+        traverse(container, false, 0)
 
         const imgs = container.getElementsByTagName('img')
-        if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
-        }
+        expect(imgs.length).toBeGreaterThan(0)
+        expect(imgs[0]?.getAttribute('src')).toContain('format=match')
       })
     })
 
@@ -162,7 +161,7 @@ describe('traverse() method - DOM Traversal', () => {
         img.setAttribute('src', 'https://example.com/image.jpg')
         container.appendChild(img)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(img.getAttribute('itemprop')).toBe('image')
         expect(img.getAttribute('loading')).toBeTruthy()
@@ -178,7 +177,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img2)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(img1.getAttribute('loading')).toBe('eager')
         expect(img1.getAttribute('fetchpriority')).toBe('high')
@@ -186,15 +185,15 @@ describe('traverse() method - DOM Traversal', () => {
         expect(state.firstImageFound).toBe(true)
       })
 
-      it('should pass webp parameter to img handler', () => {
+      it('should use format=match for img handler', () => {
         const container = doc.createElement('div')
         const img = doc.createElement('img')
         img.setAttribute('src', 'https://example.com/image.jpg')
         container.appendChild(img)
 
-        traverse(container, false, 0, true)
+        traverse(container, false, 0)
 
-        expect(img.getAttribute('src')).toContain('format=webp')
+        expect(img.getAttribute('src')).toContain('format=match')
       })
 
       it('should proxify image sources', () => {
@@ -203,7 +202,7 @@ describe('traverse() method - DOM Traversal', () => {
         img.setAttribute('src', 'https://example.com/image.jpg')
         container.appendChild(img)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(img.getAttribute('src')).toContain('https://images.ecency.com')
       })
@@ -216,7 +215,7 @@ describe('traverse() method - DOM Traversal', () => {
         p.textContent = 'Test paragraph'
         container.appendChild(p)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p.getAttribute('dir')).toBe('auto')
       })
@@ -228,7 +227,7 @@ describe('traverse() method - DOM Traversal', () => {
         p.textContent = 'Test paragraph'
         container.appendChild(p)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p.getAttribute('dir')).toBe('rtl')
       })
@@ -242,7 +241,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(p1)
         container.appendChild(p2)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p1.getAttribute('dir')).toBe('auto')
         expect(p2.getAttribute('dir')).toBe('auto')
@@ -270,7 +269,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img)
         container.appendChild(textNode)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p.getAttribute('dir')).toBe('auto')
         expect(link.getAttribute('class')).toBe('markdown-external-link')
@@ -290,7 +289,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link)
         container.appendChild(img)
 
-        traverse(container, true, 0, false)
+        traverse(container, true, 0)
 
         expect(link.getAttribute('data-href')).toBe('https://example.com')
         expect(img.getAttribute('itemprop')).toBe('image')
@@ -304,7 +303,7 @@ describe('traverse() method - DOM Traversal', () => {
         innerDiv.setAttribute('data-test', 'value')
         container.appendChild(innerDiv)
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
 
         // Div should still exist and be traversed recursively
         // Use getElementsByTagName as xmldom doesn't support querySelector
@@ -325,7 +324,7 @@ describe('traverse() method - DOM Traversal', () => {
         span.textContent = 'Test span'
         container.appendChild(span)
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
       })
 
       it('should skip comment nodes', () => {
@@ -333,7 +332,7 @@ describe('traverse() method - DOM Traversal', () => {
         const comment = doc.createComment('This is a comment')
         container.appendChild(comment)
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
       })
     })
 
@@ -341,14 +340,14 @@ describe('traverse() method - DOM Traversal', () => {
       it('should handle empty container', () => {
         const container = doc.createElement('div')
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
       })
 
       it('should handle container with only whitespace', () => {
         const container = doc.createElement('div')
         container.textContent = '   '
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
       })
     })
   })
@@ -367,7 +366,7 @@ describe('traverse() method - DOM Traversal', () => {
         level1.appendChild(level2)
         container.appendChild(level1)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
       })
@@ -388,7 +387,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(level1a)
         container.appendChild(level1b)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link1.getAttribute('class')).toBe('markdown-external-link')
         expect(link2.getAttribute('class')).toBe('markdown-external-link')
@@ -405,7 +404,7 @@ describe('traverse() method - DOM Traversal', () => {
         div1.appendChild(p)
         container.appendChild(div1)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p.getAttribute('dir')).toBe('auto')
         expect(img.getAttribute('itemprop')).toBe('image')
@@ -430,7 +429,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Deep link'
         current.appendChild(link)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
       })
@@ -454,7 +453,7 @@ describe('traverse() method - DOM Traversal', () => {
         current.appendChild(p)
         current.appendChild(img)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(p.getAttribute('dir')).toBe('auto')
         expect(img.getAttribute('itemprop')).toBe('image')
@@ -469,7 +468,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Link'
         container.appendChild(link)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link.getAttribute('class')).toBe('markdown-external-link')
       })
@@ -485,7 +484,7 @@ describe('traverse() method - DOM Traversal', () => {
           container.appendChild(p)
         }
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         elements.forEach(el => {
           expect(el.getAttribute('dir')).toBe('auto')
@@ -510,7 +509,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link2)
         container.appendChild(link3)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link1.getAttribute('class')).toBe('markdown-external-link')
         expect(link2.getAttribute('class')).toBe('markdown-external-link')
@@ -531,7 +530,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img3)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         // Only first image should be LCP
         expect(img1.getAttribute('loading')).toBe('eager')
@@ -554,7 +553,7 @@ describe('traverse() method - DOM Traversal', () => {
         parent.appendChild(child)
         container.appendChild(parent)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(child.getAttribute('dir')).toBe('auto')
         expect(grandchild.getAttribute('class')).toBe('markdown-external-link')
@@ -579,7 +578,7 @@ describe('traverse() method - DOM Traversal', () => {
         parent.appendChild(child2)
         container.appendChild(parent)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(child1.getAttribute('dir')).toBe('auto')
         expect(grandchild1.getAttribute('itemprop')).toBe('image')
@@ -597,7 +596,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Example'
         container.appendChild(link)
 
-        traverse(container, true, 0, false)
+        traverse(container, true, 0)
 
         expect(link.getAttribute('data-href')).toBe('https://example.com')
         expect(link.getAttribute('href')).toBeNull()
@@ -610,7 +609,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'Example'
         container.appendChild(link)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(link.getAttribute('href')).toBe('https://example.com')
         expect(link.getAttribute('data-href')).toBeNull()
@@ -621,7 +620,7 @@ describe('traverse() method - DOM Traversal', () => {
         const textNode = doc.createTextNode('https://ecency.com/@username/post')
         container.appendChild(textNode)
 
-        traverse(container, true, 0, false)
+        traverse(container, true, 0)
 
         const links = container.getElementsByTagName('a')
         if (links.length > 0) {
@@ -638,61 +637,23 @@ describe('traverse() method - DOM Traversal', () => {
         div.appendChild(link)
         container.appendChild(div)
 
-        traverse(container, true, 0, false)
+        traverse(container, true, 0)
 
         expect(link.getAttribute('data-href')).toBe('https://example.com')
       })
     })
 
-    describe('webp parameter', () => {
-      it('should pass webp=true to img handler', () => {
+    describe('image format', () => {
+      it('should always use format=match for proxified images', () => {
         const container = doc.createElement('div')
         const img = doc.createElement('img')
         img.setAttribute('src', 'https://example.com/image.jpg')
         container.appendChild(img)
 
-        traverse(container, false, 0, true)
-
-        expect(img.getAttribute('src')).toContain('format=webp')
-      })
-
-      it('should pass webp=false to img handler', () => {
-        const container = doc.createElement('div')
-        const img = doc.createElement('img')
-        img.setAttribute('src', 'https://example.com/image.jpg')
-        container.appendChild(img)
-
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(img.getAttribute('src')).toContain('format=match')
-      })
-
-      it('should pass webp to text handler', () => {
-        const container = doc.createElement('div')
-        const textNode = doc.createTextNode('https://example.com/image.jpg')
-        container.appendChild(textNode)
-
-        traverse(container, false, 0, true)
-
-        const imgs = container.getElementsByTagName('img')
-        if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
-        }
-      })
-
-      it('should pass webp to anchor handler for image links', () => {
-        const container = doc.createElement('div')
-        const link = doc.createElement('a')
-        link.setAttribute('href', 'https://example.com/image.jpg')
-        link.textContent = 'https://example.com/image.jpg'
-        container.appendChild(link)
-
-        traverse(container, false, 0, true)
-
-        const imgs = container.getElementsByTagName('img')
-        if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
-        }
+        expect(img.getAttribute('src')).not.toContain('format=webp')
       })
     })
 
@@ -704,7 +665,7 @@ describe('traverse() method - DOM Traversal', () => {
         link.textContent = 'https://www.twitch.tv/channel'
         container.appendChild(link)
 
-        traverse(container, false, 0, false, { firstImageFound: false }, 'custom.com')
+        traverse(container, false, 0, { firstImageFound: false }, 'custom.com')
 
         const iframes = link.getElementsByTagName('iframe')
         if (iframes.length > 0) {
@@ -718,7 +679,7 @@ describe('traverse() method - DOM Traversal', () => {
         iframe.setAttribute('src', 'https://player.twitch.tv/?channel=test')
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false, { firstImageFound: false }, 'custom.com')
+        traverse(container, false, 0, { firstImageFound: false }, 'custom.com')
 
         expect(iframe.getAttribute('src')).toContain('parent=custom.com')
       })
@@ -729,7 +690,7 @@ describe('traverse() method - DOM Traversal', () => {
         iframe.setAttribute('src', 'https://player.twitch.tv/?channel=test')
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         expect(iframe.getAttribute('src')).toContain('parent=ecency.com')
       })
@@ -743,7 +704,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(state.firstImageFound).toBe(true)
       })
@@ -758,7 +719,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img2)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(img1.getAttribute('loading')).toBe('eager')
         expect(img2.getAttribute('loading')).toBe('lazy')
@@ -780,7 +741,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(div2)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(img1.getAttribute('loading')).toBe('eager')
         expect(img2.getAttribute('loading')).toBe('lazy')
@@ -793,7 +754,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img)
 
         const state = { firstImageFound: true }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(img.getAttribute('loading')).toBe('lazy')
       })
@@ -809,7 +770,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(level1)
 
         // Depth tracking is internal, but we can verify recursion works
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
       })
 
       it('should handle starting depth parameter', () => {
@@ -820,7 +781,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link)
 
         // Starting at depth 5
-        expect(() => traverse(container, false, 5, false)).not.toThrow()
+        expect(() => traverse(container, false, 5)).not.toThrow()
         expect(link.getAttribute('class')).toBe('markdown-external-link')
       })
 
@@ -832,7 +793,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link)
 
         // Starting at depth 100
-        expect(() => traverse(container, false, 100, false)).not.toThrow()
+        expect(() => traverse(container, false, 100)).not.toThrow()
         expect(link.getAttribute('class')).toBe('markdown-external-link')
       })
     })
@@ -857,7 +818,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img)
         container.appendChild(iframe)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Verify all handlers were called
         expect(p.getAttribute('dir')).toBe('auto')
@@ -887,7 +848,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(img3)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         // First image should be eager, others lazy
         expect(img1.getAttribute('loading')).toBe('eager')
@@ -906,7 +867,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         const originalChildCount = container.childNodes.length
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Link should be replaced with img
         const imgs = container.getElementsByTagName('img')
@@ -918,7 +879,7 @@ describe('traverse() method - DOM Traversal', () => {
         const textNode = doc.createTextNode('https://example.com/image.jpg')
         container.appendChild(textNode)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Text node should be replaced with img
         const imgs = container.getElementsByTagName('img')
@@ -936,7 +897,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link)
         container.appendChild(p)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         // Both should be processed
         const imgs = container.getElementsByTagName('img')
@@ -956,7 +917,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(link1)
         container.appendChild(link2)
 
-        traverse(container, false, 0, false)
+        traverse(container, false, 0)
 
         const imgs = container.getElementsByTagName('img')
         expect(imgs.length).toBeGreaterThan(1)
@@ -979,7 +940,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(div2)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         // State should be mutated
         expect(state.firstImageFound).toBe(true)
@@ -1003,7 +964,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(parent)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(state.firstImageFound).toBe(true)
         expect(img1.getAttribute('loading')).toBe('eager')
@@ -1026,7 +987,7 @@ describe('traverse() method - DOM Traversal', () => {
         current.appendChild(img)
 
         const state = { firstImageFound: false }
-        traverse(container, false, 0, false, state)
+        traverse(container, false, 0, state)
 
         expect(state.firstImageFound).toBe(true)
         expect(img.getAttribute('loading')).toBe('eager')
@@ -1035,12 +996,12 @@ describe('traverse() method - DOM Traversal', () => {
 
     describe('edge cases', () => {
       it('should handle null node', () => {
-        expect(() => traverse(null as any, false, 0, false)).not.toThrow()
+        expect(() => traverse(null as any, false, 0)).not.toThrow()
       })
 
       it('should handle node without childNodes', () => {
         const textNode = doc.createTextNode('text')
-        expect(() => traverse(textNode as any, false, 0, false)).not.toThrow()
+        expect(() => traverse(textNode as any, false, 0)).not.toThrow()
       })
 
       it('should handle removed child during iteration', () => {
@@ -1053,7 +1014,7 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(p)
         container.appendChild(iframe)
 
-        expect(() => traverse(container, false, 0, false)).not.toThrow()
+        expect(() => traverse(container, false, 0)).not.toThrow()
 
         // iframe should be removed
         expect(container.getElementsByTagName('iframe').length).toBe(0)
@@ -1082,11 +1043,11 @@ describe('traverse() method - DOM Traversal', () => {
         container.appendChild(div)
 
         const state = { firstImageFound: false }
-        traverse(container, true, 0, true, state, 'custom.com')
+        traverse(container, true, 0, state, 'custom.com')
 
         expect(p.getAttribute('dir')).toBe('auto')
         expect(link.getAttribute('data-href')).toBe('https://example.com')
-        expect(img.getAttribute('src')).toContain('format=webp')
+        expect(img.getAttribute('src')).toContain('format=match')
         expect(state.firstImageFound).toBe(true)
       })
     })

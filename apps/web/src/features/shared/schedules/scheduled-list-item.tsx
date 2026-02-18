@@ -4,7 +4,6 @@ import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { Schedule } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { accountReputation, dateToFormatted, dateToFullRelative } from "@/utils";
 import { UserAvatar } from "@/features/shared";
 import { classNameObject } from "@ui/util";
@@ -23,13 +22,11 @@ interface Props {
 
 export function ScheduledListItem({ post }: Props) {
   const { account } = useActiveAccount();
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   const author = account?.name;
   const reputation = account?.reputation;
 
   const tag = post.tags_arr[0] || "";
-  const img = catchPostImage(post.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
+  const img = catchPostImage(post.body, 600, 500) || noImage.src;
   const summary = postBodySummary(post.body, 200);
 
   const dateRelative = useMemo(() => dateToFullRelative(post.schedule), [post]);

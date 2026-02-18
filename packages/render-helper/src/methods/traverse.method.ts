@@ -5,7 +5,7 @@ import { p } from './p.method'
 import { text } from './text.method'
 import { SeoContext } from '../types'
 
-export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function traverse(node: Node, forApp: boolean, depth = 0, state = { firstImageFound: false }, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!node || !node.childNodes) {
     return
   }
@@ -15,16 +15,16 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     if (!child) return; // Child might have been removed
 
     if (child.nodeName.toLowerCase() === 'a') {
-      a(<HTMLElement>child, forApp, webp, parentDomain, seoContext)
+      a(<HTMLElement>child, forApp, parentDomain, seoContext)
     }
     if (child.nodeName.toLowerCase() === 'iframe') {
       iframe(<HTMLElement>child, parentDomain)
     }
     if (child.nodeName === '#text') {
-      text(<HTMLElement>child, forApp, webp)
+      text(<HTMLElement>child, forApp)
     }
     if (child.nodeName.toLowerCase() === 'img') {
-      img(<HTMLElement>child, webp, state)
+      img(<HTMLElement>child, state)
     }
     if (child.nodeName.toLowerCase() === 'p') {
       p(<HTMLElement>child)
@@ -33,7 +33,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, webp = false, s
     // Recapture child reference in case handler replaced it
     const currentChild = node.childNodes[i];
     if (currentChild) {
-      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain, seoContext)
+      traverse(currentChild, forApp, depth + 1, state, parentDomain, seoContext)
     }
   })
 }

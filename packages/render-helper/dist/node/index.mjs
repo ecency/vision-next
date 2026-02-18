@@ -78,8 +78,8 @@ var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
 var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
-var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
-var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak.([a-z]+)\/embed\?[^/]+$/i;
+var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i;
+var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak\.([a-z]+)\/(?:embed|watch)\?.+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
 var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
@@ -287,15 +287,13 @@ function sanitizeHtml(html) {
   });
 }
 var proxyBase = "https://images.ecency.com";
-var fileExtension = true;
 function setProxyBase(p2) {
   proxyBase = p2;
-  fileExtension = proxyBase == "https://images.ecency.com";
 }
 function extractPHash(url) {
   if (url.startsWith(`${proxyBase}/p/`)) {
     const [hash] = url.split("/p/")[1].split("?");
-    return hash.replace(/.webp/, "").replace(/.png/, "");
+    return hash.replace(/\.(webp|png)$/, "");
   }
   return null;
 }
@@ -310,7 +308,7 @@ function getLatestUrl(str) {
   const [last] = [...str.replace(/https?:\/\//g, "\n$&").trim().split("\n")].reverse();
   return last;
 }
-function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
+function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
   if (!url || typeof url !== "string" || !isValidUrl(url)) {
     return "";
   }
@@ -323,7 +321,7 @@ function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
   const realUrl = getLatestUrl(url);
   const pHash = extractPHash(realUrl);
   const options = {
-    format,
+    format: "match",
     mode: "fit"
   };
   if (width > 0) {
@@ -334,31 +332,29 @@ function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
   }
   const qs = querystring.stringify(options);
   if (pHash) {
-    if (fileExtension) {
-      return `${proxyBase}/p/${pHash}${format === "webp" ? ".webp" : ".png"}?${qs}`;
-    } else {
-      return `${proxyBase}/p/${pHash}?${qs}`;
-    }
+    return `${proxyBase}/p/${pHash}?${qs}`;
   }
   const b58url = multihash.toB58String(Buffer.from(realUrl.toString()));
-  return `${proxyBase}/p/${b58url}${fileExtension ? format === "webp" ? ".webp" : ".png" : ""}?${qs}`;
+  return `${proxyBase}/p/${b58url}?${qs}`;
 }
 
 // src/methods/img.method.ts
-function img(el, webp, state) {
-  let src = el.getAttribute("src") || "";
+function img(el, state) {
+  const src = el.getAttribute("src") || "";
   const decodedSrc = decodeURIComponent(
     src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
   ).trim();
+  ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
-    src = "";
+    el.removeAttribute("src");
+    return;
   }
   const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
-    src = "";
+    el.removeAttribute("src");
+    return;
   }
-  ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   el.setAttribute("itemprop", "image");
   const isLCP = state && !state.firstImageFound;
   if (isLCP) {
@@ -373,14 +369,17 @@ function img(el, webp, state) {
   const shouldReplace = !cls.includes("no-replace");
   const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
-    el.setAttribute("src", proxified);
+    const proxified = proxifyImageSrc(decodedSrc);
+    if (proxified) {
+      el.setAttribute("src", proxified);
+    }
   }
 }
-function createImageHTML(src, isLCP, webp) {
+function createImageHTML(src, isLCP) {
+  const proxified = proxifyImageSrc(src);
+  if (!proxified) return "";
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
-  const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
   return `<img
     class="markdown-img-link"
     src="${proxified}"
@@ -432,7 +431,7 @@ var addLineBreakBeforePostLink = (el, forApp, isInline) => {
     el.parentNode.insertBefore(br, el);
   }
 };
-function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
+function a(el, forApp, parentDomain = "ecency.com", seoContext) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -450,7 +449,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
   }
   if (href.match(IMG_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&")) {
     const isLCP = false;
-    const imgHTML = createImageHTML(href, isLCP, webp);
+    const imgHTML = createImageHTML(href, isLCP);
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
@@ -772,7 +771,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
     el.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
     el.removeAttribute("href");
     const vid = match[1];
-    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, "match");
     const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
     el.textContent = "";
     el.setAttribute("data-embed-src", embedSrc);
@@ -868,7 +867,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
       if (imgEls.length === 1) {
         const src = imgEls[0].getAttribute("src");
         if (src) {
-          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
           const thumbImg = el.ownerDocument.createElement("img");
           thumbImg.setAttribute("class", "no-replace video-thumbnail");
           thumbImg.setAttribute("itemprop", "thumbnailUrl");
@@ -903,7 +902,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`;
+        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -913,7 +912,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
         if (imgEls2.length === 1) {
           const src = imgEls2[0].getAttribute("src");
           if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
             const thumbImg = el.ownerDocument.createElement("img");
             thumbImg.setAttribute("class", "no-replace video-thumbnail");
             thumbImg.setAttribute("itemprop", "thumbnailUrl");
@@ -1036,7 +1035,8 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
-    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "play.3speak.tv");
+    let normalizedSrc = src.replace(/(?:play\.)?3speak\.[a-z]+/i, "play.3speak.tv");
+    normalizedSrc = normalizedSrc.replace(/\/watch\?/, "/embed?");
     const hasMode = /[?&]mode=/.test(normalizedSrc);
     if (!hasMode) {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
@@ -1044,6 +1044,7 @@ function iframe(el, parentDomain = "ecency.com") {
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
     const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);
+    el.setAttribute("class", "speak-iframe");
     return;
   }
   if (src.match(SPOTIFY_EMBED_REGEX)) {
@@ -1152,7 +1153,7 @@ function p(el) {
 }
 
 // src/methods/linkify.method.ts
-function linkify(content, forApp, webp) {
+function linkify(content, forApp) {
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
     if (/#[\d]+$/.test(tag)) return tag;
     const preceding = /^\s|>/.test(tag) ? tag[0] : "";
@@ -1194,21 +1195,21 @@ function linkify(content, forApp, webp) {
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
-    return createImageHTML(imglink, isLCP, webp);
+    return createImageHTML(imglink, isLCP);
   });
   return content;
 }
 
 // src/methods/text.method.ts
-function text(node, forApp, webp) {
+function text(node, forApp) {
   if (!node || !node.parentNode) {
     return;
   }
-  if (node.parentNode && ["a", "code"].includes(node.parentNode.nodeName.toLowerCase())) {
+  if (["a", "code"].includes(node.parentNode.nodeName.toLowerCase())) {
     return;
   }
   const nodeValue = node.nodeValue || "";
-  const linkified = linkify(nodeValue, forApp, webp);
+  const linkified = linkify(nodeValue, forApp);
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,
@@ -1223,7 +1224,7 @@ function text(node, forApp, webp) {
   }
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false;
-    const imageHTML = createImageHTML(nodeValue, isLCP, webp);
+    const imageHTML = createImageHTML(nodeValue, isLCP);
     const doc = DOMParser.parseFromString(imageHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
@@ -1235,7 +1236,7 @@ function text(node, forApp, webp) {
     const e = YOUTUBE_REGEX.exec(nodeValue);
     if (e && e[1]) {
       const vid = e[1];
-      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, "match");
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
       const startTime = extractYtStartTime(nodeValue);
       const container = node.ownerDocument.createElement("p");
@@ -1281,7 +1282,7 @@ function text(node, forApp, webp) {
 }
 
 // src/methods/traverse.method.ts
-function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext) {
+function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext) {
   if (!node || !node.childNodes) {
     return;
   }
@@ -1289,23 +1290,23 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
     const child = node.childNodes[i];
     if (!child) return;
     if (child.nodeName.toLowerCase() === "a") {
-      a(child, forApp, webp, parentDomain, seoContext);
+      a(child, forApp, parentDomain, seoContext);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
       iframe(child, parentDomain);
     }
     if (child.nodeName === "#text") {
-      text(child, forApp, webp);
+      text(child, forApp);
     }
     if (child.nodeName.toLowerCase() === "img") {
-      img(child, webp, state);
+      img(child, state);
     }
     if (child.nodeName.toLowerCase() === "p") {
       p(child);
     }
     const currentChild = node.childNodes[i];
     if (currentChild) {
-      traverse(currentChild, forApp, depth + 1, webp, state, parentDomain, seoContext);
+      traverse(currentChild, forApp, depth + 1, state, parentDomain, seoContext);
     }
   });
 }
@@ -1356,7 +1357,7 @@ function fixBlockLevelTagsInParagraphs(html) {
   html = html.replace(/<p><br>\s*<\/p>/g, "");
   return html;
 }
-function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com", seoContext) {
+function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
@@ -1416,7 +1417,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com", seoCon
     output = md.render(input);
     output = fixBlockLevelTagsInParagraphs(output);
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, "text/html");
-    traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext);
+    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
@@ -1429,7 +1430,7 @@ function markdownToHTML(input, forApp, webp, parentDomain = "ecency.com", seoCon
       });
       const repairedHtml = domSerializer(dom.children);
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, "text/html");
-      traverse(doc, forApp, 0, webp, { firstImageFound: false }, parentDomain, seoContext);
+      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
       const escapedContent = he2.encode(output || md.render(input));
@@ -1457,18 +1458,18 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.com", seoContext) {
+function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency.com", seoContext) {
   if (typeof obj === "string") {
     const cleanedStr = cleanReply(obj);
-    return markdownToHTML(cleanedStr, forApp, webp, parentDomain, seoContext);
+    return markdownToHTML(cleanedStr, forApp, parentDomain, seoContext);
   }
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
+  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
   const cleanBody = cleanReply(obj.body);
-  const res = markdownToHTML(cleanBody, forApp, webp, parentDomain, seoContext);
+  const res = markdownToHTML(cleanBody, forApp, parentDomain, seoContext);
   cacheSet(key, res);
   return res;
 }

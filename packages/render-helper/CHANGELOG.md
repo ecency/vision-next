@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.16
+
+### Patch Changes
+
+- Improve webp, 3speak render-helper (#658)
+
 ## 2.4.15
 
 ### Patch Changes
