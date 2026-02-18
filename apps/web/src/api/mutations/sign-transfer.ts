@@ -1,312 +1,144 @@
-import { useMutation, UseQueryResult } from "@tanstack/react-query";
-import {
-  claimInterest,
-  claimInterestHot,
-  claimInterestKc,
-  convert,
-  convertHot,
-  convertKc,
-  delegateVestingShares,
-  delegateVestingSharesHot,
-  delegateVestingSharesKc,
-  formatError,
-  transfer,
-  transferFromSavings,
-  transferFromSavingsHot,
-  transferFromSavingsKc,
-  transferHot,
-  transferKc,
-  transferPoint,
-  transferPointHot,
-  transferPointKc,
-  transferToSavings,
-  transferToSavingsHot,
-  transferToSavingsKc,
-  transferToVesting,
-  transferToVestingHot,
-  transferToVestingKc,
-  withdrawVesting,
-  withdrawVestingHot,
-  withdrawVestingKc
-} from "@/api/operations";
-import { transferEngineToken, transferLarynx, transferSpk } from "@ecency/wallets";
+"use client";
+
+import { UseQueryResult } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
-import { error, TransferAsset, TransferMode } from "@/features/shared";
-import { PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
+import { TransferAsset, TransferMode } from "@/features/shared";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
-import { getSdkAuthContext } from "@/utils/sdk-auth";
-import { getUser } from "@/utils/user-token";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import {
+  useTransferMutation,
+  useTransferPointMutation,
+  useTransferToSavingsMutation,
+  useTransferFromSavingsMutation,
+  useTransferToVestingMutation,
+  useWithdrawVestingMutation,
+  useConvertMutation,
+  useClaimInterestMutation,
+  useDelegateVestingSharesMutation,
+  useTransferSpkMutation,
+  useTransferLarynxMutation,
+  useTransferEngineTokenMutation,
+} from "@/api/sdk-mutations";
 
 // Helper to safely read hivePerMVests with a typed fallback
 const useHivePerMVests = () => {
-  const { data } = (useQuery(getDynamicPropsQueryOptions()) as UseQueryResult<
-      typeof DEFAULT_DYNAMIC_PROPS,
-      Error
-  >);
+  const { data } = useQuery(getDynamicPropsQueryOptions()) as UseQueryResult<
+    typeof DEFAULT_DYNAMIC_PROPS,
+    Error
+  >;
   return (data ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests;
 };
 
-export function useSignTransferByKey(mode: TransferMode, asset: TransferAsset) {
-  const hivePerMVests = useHivePerMVests();
-
-  return useMutation({
-    mutationKey: ["signTransfer", mode, asset],
-    mutationFn: async ({
-                         username,
-                         key,
-                         to,
-                         fullAmount,
-                         memo,
-                         amount
-                       }: {
-      username: string;
-      key: PrivateKey;
-      to: string;
-      fullAmount: string;
-      memo: string;
-      amount: string;
-    }) => {
-      let promise: Promise<TransactionConfirmation>;
-
-      switch (mode) {
-        case "transfer":
-          if (asset === "POINT") {
-            promise = transferPoint(username, key, to, fullAmount, memo);
-          } else if (asset === "SPK") {
-            promise = transferSpk({ from: username, to, amount, memo, type: "key", key });
-          } else if (asset === "LARYNX") {
-            promise = transferLarynx({ from: username, to, amount, memo, type: "key", key });
-          } else if (asset !== "HIVE" && asset !== "HBD") {
-            promise = transferEngineToken({
-              from: username,
-              to,
-              amount,
-              memo,
-              asset,
-              type: "key",
-              key
-            });
-          } else {
-            promise = transfer(username, key, to, fullAmount, memo);
-          }
-          break;
-
-        case "transfer-saving":
-          promise = transferToSavings(username, key, to, fullAmount, memo);
-          break;
-
-        case "convert":
-          promise = convert(username, key, fullAmount);
-          break;
-
-        case "withdraw-saving":
-          promise = transferFromSavings(username, key, to, fullAmount, memo);
-          break;
-
-        case "claim-interest":
-          promise = claimInterest(username, key, to, fullAmount, memo);
-          break;
-
-        case "power-up":
-          promise = transferToVesting(username, key, to, fullAmount);
-          break;
-
-        case "power-down": {
-          const vests = hpToVests(Number(amount), hivePerMVests);
-          promise = withdrawVesting(username, key, vests);
-          break;
-        }
-
-        case "delegate": {
-          const vests = hpToVests(Number(amount), hivePerMVests);
-          promise = delegateVestingShares(username, key, to, vests);
-          break;
-        }
-
-        default:
-          return undefined;
-      }
-
-      return promise;
-    },
-    onError: (err) => error(...formatError(err))
-  });
+export interface SignTransferPayload {
+  to: string;
+  amount: string;
+  memo: string;
 }
 
-export function useSignTransferByKeychain(mode: TransferMode, asset: TransferAsset) {
+/**
+ * Unified sign-transfer hook.
+ *
+ * Dispatches to the appropriate SDK mutation based on `mode` and `asset`.
+ * Auth is handled entirely by the SDK adapter (showAuthUpgradeUI for web,
+ * stored keys for mobile). No more KeyOrHot — single "Sign" button.
+ */
+export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
+  const { activeUser } = useActiveAccount();
   const hivePerMVests = useHivePerMVests();
+  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationKey: ["signTransferByKeychain", mode, asset],
-    mutationFn: async ({
-                         username,
-                         to,
-                         fullAmount,
-                         memo,
-                         amount
-      }: {
-      username: string;
-      to: string;
-      fullAmount: string;
-      memo: string;
-      amount: string;
-    }) => {
-      let promise: Promise<unknown>;
-      const user = getUser(username);
-      if (!user) {
-        throw new Error("[Transfers] Missing user data for signing.");
-      }
-      const auth = getSdkAuthContext(user);
-      const signType = shouldUseHiveAuth(username) ? "hiveauth" : "keychain";
-      if (!auth) {
-        throw new Error("[Transfers] Missing auth context for signing.");
-      }
+  // All SDK mutation hooks (lightweight — just useMutation wrappers)
+  const transfer = useTransferMutation();
+  const transferPoint = useTransferPointMutation();
+  const toSavings = useTransferToSavingsMutation();
+  const fromSavings = useTransferFromSavingsMutation();
+  const toVesting = useTransferToVestingMutation();
+  const withdrawVesting = useWithdrawVestingMutation();
+  const convert = useConvertMutation();
+  const claimInterest = useClaimInterestMutation();
+  const delegate = useDelegateVestingSharesMutation();
+  const transferSpk = useTransferSpkMutation();
+  const transferLarynx = useTransferLarynxMutation();
+  const transferEngine = useTransferEngineTokenMutation();
+
+  const isPending =
+    transfer.isPending ||
+    transferPoint.isPending ||
+    toSavings.isPending ||
+    fromSavings.isPending ||
+    toVesting.isPending ||
+    withdrawVesting.isPending ||
+    convert.isPending ||
+    claimInterest.isPending ||
+    delegate.isPending ||
+    transferSpk.isPending ||
+    transferLarynx.isPending ||
+    transferEngine.isPending;
+
+  return {
+    isPending,
+    mutateAsync: async ({ to, amount, memo }: SignTransferPayload) => {
+      const fullAmount = `${(+amount).toFixed(3)} ${asset}`;
+      const requestId = Date.now() >>> 0;
 
       switch (mode) {
         case "transfer":
           if (asset === "POINT") {
-            promise = transferPointKc(username, to, fullAmount, memo);
+            await transferPoint.mutateAsync({ to, amount: fullAmount, memo });
           } else if (asset === "SPK") {
-            promise = transferSpk(
-              { from: username, to, amount, memo, type: signType },
-              auth
-            );
+            await transferSpk.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (asset === "LARYNX") {
-            promise = transferLarynx(
-              { from: username, to, amount, memo, type: signType },
-              auth
-            );
+            await transferLarynx.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (asset !== "HIVE" && asset !== "HBD") {
-            promise = transferEngineToken(
-              { from: username, to, amount, memo, asset, type: signType },
-              auth
-            );
+            // Hive Engine token
+            await transferEngine.mutateAsync({ to, quantity: amount, symbol: asset, memo });
           } else {
-            promise = transferKc(username, to, fullAmount, memo);
+            await transfer.mutateAsync({ to, amount: fullAmount, memo });
           }
           break;
 
         case "transfer-saving":
-          promise = transferToSavingsKc(username, to, fullAmount, memo);
-          break;
-
-        case "convert":
-          promise = convertKc(username, fullAmount);
+          await toSavings.mutateAsync({ to, amount: fullAmount, memo });
           break;
 
         case "withdraw-saving":
-          promise = transferFromSavingsKc(username, to, fullAmount, memo);
+          await fromSavings.mutateAsync({ to, amount: fullAmount, memo, requestId });
+          break;
+
+        case "convert":
+          await convert.mutateAsync({
+            amount: fullAmount,
+            requestId,
+            collateralized: asset === "HIVE",
+          });
           break;
 
         case "claim-interest":
-          promise = claimInterestKc(username, to, fullAmount, memo);
+          await claimInterest.mutateAsync({ to, amount: fullAmount, memo, requestId });
           break;
 
         case "power-up":
-          promise = transferToVestingKc(username, to, fullAmount);
+          await toVesting.mutateAsync({ to, amount: fullAmount });
           break;
 
         case "power-down": {
           const vests = hpToVests(Number(amount), hivePerMVests);
-          promise = withdrawVestingKc(username, vests);
+          await withdrawVesting.mutateAsync({ vestingShares: vests });
           break;
         }
 
         case "delegate": {
           const vests = hpToVests(Number(amount), hivePerMVests);
-          promise = delegateVestingSharesKc(username, to, vests);
+          await delegate.mutateAsync({ delegatee: to, vestingShares: vests });
           break;
         }
-
-        default:
-          return undefined;
       }
 
-      return promise;
+      // Invalidate wallet caches after successful transaction
+      invalidateWalletQueries(queryClient, activeUser?.username);
     },
-    onError: (err) => error(...formatError(err))
-  });
-}
-
-export function useSignTransferByHiveSigner(mode: TransferMode, asset: TransferAsset) {
-  const hivePerMVests = useHivePerMVests();
-
-  return useMutation({
-    mutationKey: ["signTransferByHiveSigner", mode, asset],
-    mutationFn: async ({
-                         username,
-                         to,
-                         fullAmount,
-                         memo,
-                         amount
-                       }: {
-      username: string;
-      to: string;
-      fullAmount: string;
-      memo: string;
-      amount: string;
-    }) => {
-      switch (mode) {
-        case "transfer":
-          if (asset === "POINT") {
-            transferPointHot(username, to, fullAmount, memo);
-          } else if (asset === "SPK") {
-            transferSpk({ from: username, to, amount, memo, type: "hivesigner" });
-          } else if (asset === "LARYNX") {
-            transferLarynx({ from: username, to, amount, memo, type: "hivesigner" });
-          } else if (asset !== "HIVE" && asset !== "HBD") {
-            transferEngineToken({
-              from: username,
-              to,
-              amount,
-              memo,
-              asset,
-              type: "hivesigner"
-            });
-          } else {
-            transferHot(username, to, fullAmount, memo);
-          }
-          break;
-
-        case "transfer-saving":
-          transferToSavingsHot(username, to, fullAmount, memo);
-          break;
-
-        case "convert":
-          convertHot(username, fullAmount);
-          break;
-
-        case "withdraw-saving":
-          transferFromSavingsHot(username, to, fullAmount, memo);
-          break;
-
-        case "claim-interest":
-          claimInterestHot(username, to, fullAmount, memo);
-          break;
-
-        case "power-up":
-          transferToVestingHot(username, to, fullAmount);
-          break;
-
-        case "power-down": {
-          const vests = hpToVests(Number(amount), hivePerMVests);
-          withdrawVestingHot(username, vests);
-          break;
-        }
-
-        case "delegate": {
-          const vests = hpToVests(Number(amount), hivePerMVests);
-          delegateVestingSharesHot(username, to, vests);
-          break;
-        }
-
-        default:
-          return;
-      }
-    },
-    onError: (err) => error(...formatError(err))
-  });
+  };
 }

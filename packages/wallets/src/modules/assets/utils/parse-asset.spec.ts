@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseAsset, Symbol, NaiMap, type Asset } from './parse-asset'
+import { parseAsset, Symbol, NaiMap, type Asset } from '.'
 
 describe('parseAsset', () => {
   describe('string input', () => {

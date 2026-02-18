@@ -3,7 +3,8 @@ import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount } from "@/entities";
 import { createPermlink, makeCommentOptions, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { comment } from "@/api/operations";
+import { useCommentMutation } from "@/api/sdk-mutations";
+import type { CommentPayload } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation } from "@tanstack/react-query";
 import { WaveHosts } from "@/features/waves/enums";
@@ -23,6 +24,7 @@ export function useCommunityApi() {
   const { activePoll } = useContext(PollsContext);
 
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
+  const { mutateAsync: sdkComment } = useCommentMutation();
 
   return useMutation({
     mutationKey: ["wave-community-api"],
@@ -68,7 +70,42 @@ export function useCommunityApi() {
         .withPoll(activePoll)
         .build();
 
-      await comment(author, "", hostTag, permlink, "", cleanedRaw, jsonMeta, options, true);
+      // Build SDK comment payload
+      const commentPayload: CommentPayload = {
+        author,
+        permlink,
+        parentAuthor: "",
+        parentPermlink: hostTag,
+        title: "",
+        body: cleanedRaw,
+        jsonMetadata: jsonMeta
+      };
+
+      // Convert legacy CommentOptions to SDK format
+      if (options) {
+        const extractBeneficiaries = (extensions: any[]): Array<{ account: string; weight: number }> => {
+          if (!Array.isArray(extensions)) return [];
+          for (const ext of extensions) {
+            if (Array.isArray(ext) && ext[1]?.beneficiaries) {
+              return ext[1].beneficiaries.map((b: any) => ({
+                account: b.account,
+                weight: b.weight
+              }));
+            }
+          }
+          return [];
+        };
+
+        commentPayload.options = {
+          maxAcceptedPayout: options.max_accepted_payout,
+          percentHbd: options.percent_hbd,
+          allowVotes: options.allow_votes,
+          allowCurationRewards: options.allow_curation_rewards,
+          beneficiaries: extractBeneficiaries(options.extensions)
+        };
+      }
+
+      await sdkComment(commentPayload);
 
       const entry = {
         ...tempEntry({

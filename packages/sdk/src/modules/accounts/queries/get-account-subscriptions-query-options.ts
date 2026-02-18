@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 type Subscriptions = string[];
@@ -7,7 +7,7 @@ export function getAccountSubscriptionsQueryOptions(
   username: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["accounts", "subscriptions", username],
+    queryKey: QueryKeys.accounts.subscriptions(username!),
     enabled: !!username,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(

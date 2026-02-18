@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { getQueryClient } from "@/modules/core";
 import { deleteDraft } from "@/modules/private-api/requests";
+import type { Draft } from "../types";
 
 export function useDeleteDraft(
   username: string | undefined,
@@ -16,11 +17,14 @@ export function useDeleteDraft(
       }
       return deleteDraft(code, draftId);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username],
-      });
+      const qc = getQueryClient();
+      // Optimistic removal from drafts cache
+      qc.setQueryData<Draft[]>(
+        ["posts", "drafts", username],
+        (prev) => prev?.filter((d) => d._id !== variables.draftId)
+      );
     },
     onError,
   });

@@ -17,8 +17,8 @@ export function useAccountRelationsUpdate(
     mutationKey: ["accounts", "relation", "update", reference, target],
     mutationFn: async (kind: Kind) => {
       const relationsQuery = getRelationshipBetweenAccountsQueryOptions(
-        reference,
-        target
+        reference!,
+        target!
       );
       await getQueryClient().prefetchQuery(relationsQuery);
       const actualRelation = getQueryClient().getQueryData(

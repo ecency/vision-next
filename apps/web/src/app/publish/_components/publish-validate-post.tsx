@@ -3,7 +3,7 @@
 import { SUBMIT_TAG_MAX_LENGTH } from "@/app/submit/_consts";
 import { TagSelector, sanitizeTagInput } from "@/app/submit/_components";
 import { Alert, Button, FormControl } from "@/features/ui";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { handleAndReportError, error as feedbackError } from "@/features/shared";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";

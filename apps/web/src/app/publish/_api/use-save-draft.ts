@@ -1,5 +1,4 @@
-import { addDraft, updateDraft } from "@ecency/sdk";
-import { QueryIdentifiers } from "@/core/react-query";
+import { addDraft, updateDraft, QueryKeys } from "@ecency/sdk";
 import { DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { error, success, info } from "@/features/shared";
@@ -10,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { usePublishState } from "../_hooks";
 import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { EcencyAnalytics } from "@ecency/sdk";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
@@ -93,7 +92,7 @@ export function useSaveDraftApi(draftId?: string) {
           success(i18next.t("submit.draft-updated"));
         }
 
-        queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], resp.drafts);
+        queryClient.setQueryData(QueryKeys.posts.drafts(username), resp.drafts);
       } else {
         const resp = await addDraft(
           getAccessToken(username),
@@ -109,7 +108,7 @@ export function useSaveDraftApi(draftId?: string) {
         const { drafts } = resp;
         const draft = drafts[drafts?.length - 1];
 
-        queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
+        queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
 
         if (redirect) {
           // Wait for any pending uploads before redirecting

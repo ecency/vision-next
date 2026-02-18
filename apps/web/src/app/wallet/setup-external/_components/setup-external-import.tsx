@@ -1,6 +1,6 @@
 "use client";
 
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, KeyOrHot, Stepper } from "@/features/shared";
 import { Button } from "@/features/ui";

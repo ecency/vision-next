@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 export function getAccountPendingRecoveryQueryOptions(
@@ -6,7 +6,7 @@ export function getAccountPendingRecoveryQueryOptions(
 ) {
   return queryOptions({
     enabled: !!username,
-    queryKey: ["accounts", "recoveries", username, "pending-request"],
+    queryKey: QueryKeys.accounts.pendingRecovery(username!),
     queryFn: () =>
       CONFIG.hiveClient.call(
         "database_api",

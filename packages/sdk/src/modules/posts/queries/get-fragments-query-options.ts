@@ -1,10 +1,10 @@
-import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Fragment } from "../types";
 
 export function getFragmentsQueryOptions(username: string, code?: string) {
   return queryOptions({
-    queryKey: ["posts", "fragments", username],
+    queryKey: QueryKeys.posts.fragments(username),
     queryFn: async () => {
       if (!code) {
         return [];
@@ -35,7 +35,7 @@ export function getFragmentsInfiniteQueryOptions(
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "fragments", "infinite", username, limit],
+    queryKey: QueryKeys.posts.fragmentsInfinite(username, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!username || !code) {
         return {

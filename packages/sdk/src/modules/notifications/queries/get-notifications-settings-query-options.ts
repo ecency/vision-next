@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { ApiNotificationSetting } from "../types";
 import { NotifyTypes } from "../enums";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 
 export function getNotificationsSettingsQueryOptions(
   activeUsername: string | undefined,
@@ -9,7 +9,7 @@ export function getNotificationsSettingsQueryOptions(
   initialMuted?: boolean
 ) {
   return queryOptions({
-    queryKey: ["notifications", "settings", activeUsername],
+    queryKey: QueryKeys.notifications.settings(activeUsername),
     queryFn: async () => {
       let token = activeUsername + "-web";
       if (!code) {

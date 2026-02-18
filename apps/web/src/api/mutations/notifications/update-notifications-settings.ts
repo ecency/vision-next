@@ -3,11 +3,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { NotifyTypes } from "@/enums";
-import { QueryIdentifiers } from "@/core/react-query";
 import * as ls from "@/utils/local-storage";
 import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
-import { getNotificationSetting, saveNotificationSetting } from "@ecency/sdk";
+import { formatError } from "@/api/format-error";
+import { getNotificationSetting, saveNotificationSetting, QueryKeys } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
 
 export function useUpdateNotificationsSettings() {
@@ -69,7 +68,7 @@ export function useUpdateNotificationsSettings() {
       }
 
       queryClient.setQueryData(
-        [QueryIdentifiers.NOTIFICATIONS_SETTINGS, activeUser.username],
+        QueryKeys.notifications.settings(activeUser.username),
         settings
       );
     }

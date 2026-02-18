@@ -2,9 +2,12 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import { useSubscribeToCommunity } from "@/api/mutations";
 import { Community } from "@/entities";
 import { LoginRequired } from "@/features/shared";
+import {
+  useSubscribeCommunityMutation,
+  useUnsubscribeCommunityMutation
+} from "@/api/sdk-mutations";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { Button, ButtonProps } from "@ui/button";
@@ -23,7 +26,9 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
   const { data: subscriptions } = useQuery(
     getAccountSubscriptionsQueryOptions(activeUser?.username)
   );
-  const { mutateAsync: subscribe, isPending } = useSubscribeToCommunity(community);
+  const subscribeMutation = useSubscribeCommunityMutation();
+  const unsubscribeMutation = useUnsubscribeCommunityMutation();
+  const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending;
 
   const subscribed = useMemo(
     () => subscriptions?.find((x) => x[0] === community.name) !== undefined,
@@ -38,7 +43,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           disabled={isPending}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={() => subscribe({ isSubscribe: false })}
+          onClick={() => unsubscribeMutation.mutateAsync({ community: community.name })}
           outline={true}
           appearance={hover ? "danger" : "primary"}
           {...buttonProps}
@@ -48,7 +53,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
       )}
       {!isPending && !subscribed && (
         <LoginRequired>
-          <Button onClick={() => subscribe({ isSubscribe: true })} {...buttonProps}>
+          <Button onClick={() => subscribeMutation.mutateAsync({ community: community.name })} {...buttonProps}>
             {i18next.t("community.subscribe")}
           </Button>
         </LoginRequired>

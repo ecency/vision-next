@@ -3,13 +3,13 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import { error, LoginRequired, PurchaseQrDialog, PurchaseTypes, success } from "@/features/shared";
-import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
+import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PointsActionCard, PointsBasicInfo } from "./_components";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { getAccessToken } from "@/utils";
 
 export function PointsPage() {

@@ -4,7 +4,7 @@ import { EcencyImagesUploadForm } from "./ecency-images-upload-form";
 import { useState, useRef, useEffect } from "react";
 import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
-import { useUploadPostImage } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useOptionalUploadTracker } from "@/app/publish/_hooks";
 
 interface Props {
@@ -23,7 +23,7 @@ interface UploadItem {
 
 export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
   const [items, setItems] = useState<UploadItem[]>([]);
-  const { mutateAsync: upload } = useUploadPostImage();
+  const { mutateAsync: upload } = useUploadImageMutation();
   const uploadTracker = useOptionalUploadTracker();
   const cancelRef = useRef(false);
   const [isCancelling, setIsCancelling] = useState(false);

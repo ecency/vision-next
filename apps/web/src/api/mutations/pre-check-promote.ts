@@ -5,7 +5,7 @@ import { Entry } from "@/entities";
 import { getPostHeaderQueryOptions, getPromotedPost } from "@ecency/sdk";
 import i18next from "i18next";
 import { error } from "@/features/shared";
-import { formatError } from "../operations";
+import { formatError } from "../format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 

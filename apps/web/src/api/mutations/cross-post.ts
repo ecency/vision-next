@@ -5,13 +5,15 @@ import { error, success } from "@/features/shared";
 import { Entry } from "@/entities";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { makeCrossPostMessage } from "@/utils/cross-post";
-import { makeApp, makeCommentOptions } from "@/utils";
+import { makeApp } from "@/utils";
 import pack from "../../../package.json";
-import { comment, formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import i18next from "i18next";
+import { useCrossPostMutation } from "@/api/sdk-mutations";
 
 export function useCrossPost(entry: Entry, onSuccess: () => void) {
   const { activeUser } = useActiveAccount();
+  const sdkCrossPost = useCrossPostMutation();
 
   return useMutation({
     mutationKey: ["crossPost"],
@@ -38,10 +40,21 @@ export function useCrossPost(entry: Entry, onSuccess: () => void) {
         original_permlink: entry.permlink
       };
 
-      const options = makeCommentOptions(author, permlink, "dp")!;
-      options.allow_curation_rewards = false;
-
-      return comment(author, "", community.id, permlink, title, body, jsonMeta, options);
+      // Use SDK mutation with declined payout options
+      return sdkCrossPost.mutateAsync({
+        author,
+        permlink,
+        parentPermlink: community.id,
+        title,
+        body,
+        jsonMetadata: jsonMeta,
+        options: {
+          maxAcceptedPayout: "0.000 HBD",
+          percentHbd: 10000,
+          allowVotes: true,
+          allowCurationRewards: false
+        }
+      });
     },
     onSuccess: () => {
       success(i18next.t("cross-post.published"));

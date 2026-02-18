@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 1.5.30
+
+### Patch Changes
+
+- Wallets simplified, SDK Mutations unified (#653)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.2
+
 ## 1.5.29
 
 ### Patch Changes

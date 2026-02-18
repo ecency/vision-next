@@ -1,6 +1,8 @@
+import { PointTransactionType } from "./point-transaction-type";
+
 export interface PointTransaction {
   id: number;
-  type: number;
+  type: PointTransactionType;
   created: string;
   memo: string | null;
   amount: string;

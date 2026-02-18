@@ -1,4 +1,4 @@
-import { GeneralAssetTransaction, PointTransactionType } from "@ecency/wallets";
+import { GeneralAssetTransaction, PointTransactionType } from "@ecency/sdk";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { TRANSACTIONS_ICONS, TRANSACTIONS_LABELS } from "../_consts";

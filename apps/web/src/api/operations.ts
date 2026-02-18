@@ -1,13 +1,12 @@
 import * as keychain from "@/utils/keychain";
 import {
-  AccountUpdateOperation,
   CustomJsonOperation,
   Operation,
   OperationName,
   PrivateKey,
   TransactionConfirmation
 } from "@hiveio/dhive";
-import { encodeOp, Parameters } from "hive-uri";
+import { Parameters } from "hive-uri";
 import { CONFIG, usrActivity } from "@ecency/sdk";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
@@ -16,8 +15,7 @@ import {
   getAccessToken,
   getLoginType,
   getPostingKey,
-  hotSign,
-  parseAsset
+  hotSign
 } from "@/utils";
 import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
@@ -211,19 +209,11 @@ const broadcastCustomJSON = (
   });
 };
 
-export const broadcastPostingJSON = (
+const broadcastPostingJSON = (
   username: string,
   id: string,
   json: {}
 ): Promise<TransactionConfirmation> => broadcastCustomJSON(username, id, json, "posting");
-
-export const broadcastActiveJSON = (
-  username: string,
-  id: string,
-  json: {},
-  keychainLabel: string = "Custom json"
-): Promise<TransactionConfirmation> =>
-  broadcastCustomJSON(username, id, json, "active", keychainLabel);
 
 export const broadcastPostingOperations = (
   username: string,
@@ -427,28 +417,6 @@ export const transfer = (
   return hiveClient.broadcast.transfer(args, key);
 };
 
-export const transferHot = (from: string, to: string, amount: string, memo: string) => {
-  const op: Operation = [
-    "transfer",
-    {
-      from,
-      to,
-      amount,
-      memo
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const transferKc = (from: string, to: string, amount: string, memo: string) => {
-  const asset = parseAsset(amount);
-  return keychain.transfer(from, to, asset.amount.toFixed(3).toString(), memo, asset.symbol, true);
-};
-
 export const transferPoint = (
   from: string,
   key: PrivateKey,
@@ -471,85 +439,6 @@ export const transferPoint = (
   };
 
   return hiveClient.broadcast.json(op, key);
-};
-
-export const transferPointHot = (from: string, to: string, amount: string, memo: string) => {
-  const params = {
-    authority: "active",
-    required_auths: `["${from}"]`,
-    required_posting_auths: "[]",
-    id: "ecency_point_transfer",
-    json: JSON.stringify({
-      sender: from,
-      receiver: to,
-      amount,
-      memo
-    })
-  };
-
-  hotSign("custom-json", params, `@${from}/points`);
-};
-
-export const transferPointKc = (from: string, to: string, amount: string, memo: string) => {
-  const json = JSON.stringify({
-    sender: from,
-    receiver: to,
-    amount,
-    memo
-  });
-
-  return keychain.customJson(from, "ecency_point_transfer", "Active", json, "Point Transfer");
-};
-
-export const transferToSavings = (
-  from: string,
-  key: PrivateKey,
-  to: string,
-  amount: string,
-  memo: string
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "transfer_to_savings",
-    {
-      from,
-      to,
-      amount,
-      memo
-    }
-  ];
-
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const transferToSavingsHot = (from: string, to: string, amount: string, memo: string) => {
-  const op: Operation = [
-    "transfer_to_savings",
-    {
-      from,
-      to,
-      amount,
-      memo
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const transferToSavingsKc = (from: string, to: string, amount: string, memo: string) => {
-  const op: Operation = [
-    "transfer_to_savings",
-    {
-      from,
-      to,
-      amount,
-      memo
-    }
-  ];
-
-  return keychain.broadcast(from, [op], "Active");
 };
 
 export const limitOrderCreate = (
@@ -730,89 +619,6 @@ export const convert = (
   return hiveClient.broadcast.sendOperations([op], key);
 };
 
-export const convertHot = (owner: string, amount: string) => {
-  const op: Operation = [
-    "convert",
-    {
-      owner,
-      amount,
-      requestid: new Date().getTime() >>> 0
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${owner}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const convertKc = (owner: string, amount: string) => {
-  const op: Operation = [
-    "convert",
-    {
-      owner,
-      amount,
-      requestid: new Date().getTime() >>> 0
-    }
-  ];
-
-  return keychain.broadcast(owner, [op], "Active");
-};
-
-export const transferFromSavings = (
-  from: string,
-  key: PrivateKey,
-  to: string,
-  amount: string,
-  memo: string
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "transfer_from_savings",
-    {
-      from,
-      to,
-      amount,
-      memo,
-      request_id: new Date().getTime() >>> 0
-    }
-  ];
-
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const transferFromSavingsHot = (from: string, to: string, amount: string, memo: string) => {
-  const op: Operation = [
-    "transfer_from_savings",
-    {
-      from,
-      to,
-      amount,
-      memo,
-      request_id: new Date().getTime() >>> 0
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const transferFromSavingsKc = (from: string, to: string, amount: string, memo: string) => {
-  const op: Operation = [
-    "transfer_from_savings",
-    {
-      from,
-      to,
-      amount,
-      memo,
-      request_id: new Date().getTime() >>> 0
-    }
-  ];
-
-  return keychain.broadcast(from, [op], "Active");
-};
-
 export const claimInterest = (
   from: string,
   key: PrivateKey,
@@ -840,157 +646,6 @@ export const claimInterest = (
   ];
 
   return hiveClient.broadcast.sendOperations([op, cop], key);
-};
-
-export const claimInterestHot = (from: string, to: string, amount: string, memo: string) => {
-  const rid = new Date().getTime() >>> 0;
-  const op: Operation = [
-    "transfer_from_savings",
-    {
-      from,
-      to,
-      amount,
-      memo,
-      request_id: rid
-    }
-  ];
-  const cop: Operation = [
-    "cancel_transfer_from_savings",
-    {
-      from,
-      request_id: rid
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op, cop], "active", () =>
-    withHiveSigner((hs) => hs.sendOperations([op, cop], params, () => {}))
-  );
-};
-
-export const claimInterestKc = (from: string, to: string, amount: string, memo: string) => {
-  const rid = new Date().getTime() >>> 0;
-  const op: Operation = [
-    "transfer_from_savings",
-    {
-      from,
-      to,
-      amount,
-      memo,
-      request_id: rid
-    }
-  ];
-  const cop: Operation = [
-    "cancel_transfer_from_savings",
-    {
-      from,
-      request_id: rid
-    }
-  ];
-
-  return keychain.broadcast(from, [op, cop], "Active");
-};
-
-export const transferToVesting = (
-  from: string,
-  key: PrivateKey,
-  to: string,
-  amount: string
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "transfer_to_vesting",
-    {
-      from,
-      to,
-      amount
-    }
-  ];
-
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const transferToVestingHot = (from: string, to: string, amount: string) => {
-  const op: Operation = [
-    "transfer_to_vesting",
-    {
-      from,
-      to,
-      amount
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const transferToVestingKc = (from: string, to: string, amount: string) => {
-  const op: Operation = [
-    "transfer_to_vesting",
-    {
-      from,
-      to,
-      amount
-    }
-  ];
-
-  return keychain.broadcast(from, [op], "Active");
-};
-
-export const delegateVestingShares = (
-  delegator: string,
-  key: PrivateKey,
-  delegatee: string,
-  vestingShares: string
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "delegate_vesting_shares",
-    {
-      delegator,
-      delegatee,
-      vesting_shares: vestingShares
-    }
-  ];
-
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const delegateVestingSharesHot = (
-  delegator: string,
-  delegatee: string,
-  vestingShares: string
-) => {
-  const op: Operation = [
-    "delegate_vesting_shares",
-    {
-      delegator,
-      delegatee,
-      vesting_shares: vestingShares
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${delegator}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(delegator, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const delegateVestingSharesKc = (
-  delegator: string,
-  delegatee: string,
-  vestingShares: string
-) => {
-  const op: Operation = [
-    "delegate_vesting_shares",
-    {
-      delegator,
-      delegatee,
-      vesting_shares: vestingShares
-    }
-  ];
-
-  return keychain.broadcast(delegator, [op], "Active");
 };
 
 export const delegateRC = (
@@ -1026,94 +681,6 @@ export const withdrawVesting = (
   return hiveClient.broadcast.sendOperations([op], key);
 };
 
-export const withdrawVestingHot = (account: string, vestingShares: string) => {
-  const op: Operation = [
-    "withdraw_vesting",
-    {
-      account,
-      vesting_shares: vestingShares
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${account}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(account, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const withdrawVestingKc = (account: string, vestingShares: string) => {
-  const op: Operation = [
-    "withdraw_vesting",
-    {
-      account,
-      vesting_shares: vestingShares
-    }
-  ];
-
-  return keychain.broadcast(account, [op], "Active");
-};
-
-export const setWithdrawVestingRoute = (
-  from: string,
-  key: PrivateKey,
-  to: string,
-  percent: number,
-  autoVest: boolean
-): Promise<TransactionConfirmation> => {
-  const op: Operation = [
-    "set_withdraw_vesting_route",
-    {
-      from_account: from,
-      to_account: to,
-      percent,
-      auto_vest: autoVest
-    }
-  ];
-
-  return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const setWithdrawVestingRouteHot = (
-  from: string,
-  to: string,
-  percent: number,
-  autoVest: boolean
-) => {
-  const op: Operation = [
-    "set_withdraw_vesting_route",
-    {
-      from_account: from,
-      to_account: to,
-      percent,
-      auto_vest: autoVest
-    }
-  ];
-
-  const params: Parameters = { callback: `https://ecency.com/@${from}/wallet` };
-  return sendWithHiveAuthOrHiveSigner(from, [op], "active", () =>
-    withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
-  );
-};
-
-export const setWithdrawVestingRouteKc = (
-  from: string,
-  to: string,
-  percent: number,
-  autoVest: boolean
-) => {
-  const op: Operation = [
-    "set_withdraw_vesting_route",
-    {
-      from_account: from,
-      to_account: to,
-      percent,
-      auto_vest: autoVest
-    }
-  ];
-
-  return keychain.broadcast(from, [op], "Active");
-};
-
 export const witnessVote = (
   account: string,
   key: PrivateKey,
@@ -1130,20 +697,6 @@ export const witnessVote = (
   ];
 
   return hiveClient.broadcast.sendOperations([op], key);
-};
-
-export const witnessVoteHot = (account: string, witness: string, approve: boolean) => {
-  const params = {
-    account,
-    witness,
-    approve
-  };
-
-  hotSign("account-witness-vote", params, "witnesses");
-};
-
-export const witnessVoteKc = (account: string, witness: string, approve: boolean) => {
-  return keychain.witnessVote(account, witness, approve);
 };
 
 export const witnessProxy = (
@@ -1257,44 +810,11 @@ export const proposalVote = (
   return hiveClient.broadcast.sendOperations([op], key);
 };
 
-export const proposalVoteHot = (account: string, proposal: number, approve: boolean) => {
-  const params = {
-    account,
-    proposal_ids: JSON.stringify([proposal]),
-    approve
-  };
-
-  hotSign("update-proposal-votes", params, "proposals");
-};
-
-export const proposalVoteKc = (account: string, proposal: number, approve: boolean) => {
-  const op: Operation = [
-    "update_proposal_votes",
-    {
-      voter: account,
-      proposal_ids: [proposal],
-      approve,
-      extensions: []
-    }
-  ];
-
-  return keychain.broadcast(account, [op], "Active");
-};
-
 export const subscribe = (
   username: string,
   community: string
 ): Promise<TransactionConfirmation> => {
   const json = ["subscribe", { community }];
-
-  return broadcastPostingJSON(username, "community", json);
-};
-
-export const unSubscribe = (
-  username: string,
-  community: string
-): Promise<TransactionConfirmation> => {
-  const json = ["unsubscribe", { community }];
 
   return broadcastPostingJSON(username, "community", json);
 };
@@ -1323,23 +843,6 @@ export const promote = (
   return hiveClient.broadcast.json(op, key);
 };
 
-export const promoteHot = (user: string, author: string, permlink: string, duration: number) => {
-  const params = {
-    authority: "active",
-    required_auths: `["${user}"]`,
-    required_posting_auths: "[]",
-    id: "ecency_promote",
-    json: JSON.stringify({
-      user,
-      author,
-      permlink,
-      duration
-    })
-  };
-
-  hotSign("custom-json", params, `@${user}/points`);
-};
-
 export const boost = (
   key: PrivateKey,
   user: string,
@@ -1362,74 +865,6 @@ export const boost = (
   };
 
   return hiveClient.broadcast.json(op, key);
-};
-
-export const boostHot = (user: string, author: string, permlink: string, amount: string) => {
-  const params = {
-    authority: "active",
-    required_auths: `["${user}"]`,
-    required_posting_auths: "[]",
-    id: "ecency_boost",
-    json: JSON.stringify({
-      user,
-      author,
-      permlink,
-      amount
-    })
-  };
-
-  hotSign("custom-json", params, `@${user}/points`);
-};
-
-export const boostKc = (user: string, author: string, permlink: string, amount: string) => {
-  const json = JSON.stringify({
-    user,
-    author,
-    permlink,
-    amount
-  });
-
-  return keychain.customJson(user, "ecency_boost", "Active", json, "Boost");
-};
-
-export const communityRewardsRegister = (
-  key: PrivateKey,
-  name: string
-): Promise<TransactionConfirmation> => {
-  const json = JSON.stringify({
-    name
-  });
-
-  const op = {
-    id: "ecency_registration",
-    json,
-    required_auths: [name],
-    required_posting_auths: []
-  };
-
-  return hiveClient.broadcast.json(op, key);
-};
-
-export const communityRewardsRegisterHot = (name: string) => {
-  const params = {
-    authority: "active",
-    required_auths: `["${name}"]`,
-    required_posting_auths: "[]",
-    id: "ecency_registration",
-    json: JSON.stringify({
-      name
-    })
-  };
-
-  hotSign("custom-json", params, `created/${name}`);
-};
-
-export const communityRewardsRegisterKc = (name: string) => {
-  const json = JSON.stringify({
-    name
-  });
-
-  return keychain.customJson(name, "ecency_registration", "Active", json, "Community Registration");
 };
 
 export const updateProfile = (
@@ -1483,54 +918,6 @@ export const grantPostingPermission = (key: PrivateKey, account: FullAccount, pA
     },
     key
   );
-};
-
-export const revokePostingPermission = (key: PrivateKey, account: FullAccount, pAccount: string) => {
-  const newPosting = Object.assign(
-    {},
-    { ...account.posting },
-    {
-      account_auths: account.posting.account_auths.filter((x) => x[0] !== pAccount)
-    }
-  );
-
-  return hiveClient.broadcast.updateAccount(
-    {
-      account: account.name,
-      posting: newPosting,
-      memo_key: account.memo_key,
-      json_metadata: account.json_metadata
-    },
-    key
-  );
-};
-
-export const setUserRole = (
-  username: string,
-  community: string,
-  account: string,
-  role: string
-): Promise<TransactionConfirmation> => {
-  const json = ["setRole", { community, account, role }];
-
-  return broadcastPostingJSON(username, "community", json);
-};
-
-export const updateCommunity = (
-  username: string,
-  community: string,
-  props: {
-    title: string;
-    about: string;
-    lang: string;
-    description: string;
-    flag_text: string;
-    is_nsfw: boolean;
-  }
-): Promise<TransactionConfirmation> => {
-  const json = ["updateProps", { community, props }];
-
-  return broadcastPostingJSON(username, "community", json);
 };
 
 export const pinPost = (
@@ -1977,43 +1364,6 @@ export const claimAccount = async (account: FullAccount, key: PrivateKey) => {
   );
 };
 
-export const claimAccountByHiveSigner = (account: FullAccount) =>
-  hotSign(
-    encodeOp(
-      [
-        "claim_account",
-        {
-          fee: "0.000 HIVE",
-          creator: account.name,
-          extensions: []
-        }
-      ],
-      {}
-    ).replace("hive://sign/", ""),
-    {
-      authority: "active",
-      required_auths: `["${account.name}"]`,
-      required_posting_auths: "[]"
-    },
-    `@${account.name}/wallet`
-  );
-
-export const claimAccountByKeychain = (account: FullAccount) =>
-  keychain.broadcast(
-    account.name,
-    [
-      [
-        "claim_account",
-        {
-          creator: account.name,
-          extensions: [],
-          fee: "0.000 HIVE"
-        }
-      ]
-    ],
-    "Active"
-  );
-
 export const boostPlus = (key: PrivateKey, user: string, account: string, duration: number) =>
   hiveClient.broadcast.json(
     {
@@ -2043,17 +1393,6 @@ export const boostPlusHot = (user: string, account: string, duration: number) =>
   };
 
   hotSign("custom-json", params, `@${user}/points`);
-};
-
-export const promoteKc = (user: string, author: string, permlink: string, duration: number) => {
-  const json = JSON.stringify({
-    user,
-    author,
-    permlink,
-    duration
-  });
-
-  return keychain.customJson(user, "ecency_promote", "Active", json, "Promote");
 };
 
 export const boostPlusKc = (user: string, account: string, duration: number) => {

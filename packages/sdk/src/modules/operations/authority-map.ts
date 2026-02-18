@@ -50,6 +50,7 @@ export const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel> = {
   // Active authority operations - Account Management
   account_update: 'active',
   account_update2: 'active',
+  claim_account: 'active',
   create_claimed_account: 'active',
 
   // Active authority operations - Governance

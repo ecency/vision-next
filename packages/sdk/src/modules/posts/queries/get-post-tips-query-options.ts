@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { PostTipsResponse } from "../types/post-tip";
 
 export function getPostTipsQueryOptions(author: string, permlink: string, isEnabled = true) {
   return queryOptions({
-    queryKey: ["posts", "tips", author, permlink],
+    queryKey: QueryKeys.posts.tips(author, permlink),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/post-tips", {
         method: "POST",

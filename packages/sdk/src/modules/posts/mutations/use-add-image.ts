@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { addImage } from "@/modules/private-api/requests";
 
 /**
@@ -31,7 +31,7 @@ export function useAddImage(
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "images", username],
+        queryKey: QueryKeys.posts.images(username),
       });
     },
     onError,

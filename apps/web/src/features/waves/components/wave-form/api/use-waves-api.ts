@@ -4,7 +4,8 @@ import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount, WaveEntry } from "@/entities";
 import { createReplyPermlink, createWavePermlink, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { comment } from "@/api/operations";
+import { useCommentMutation } from "@/api/sdk-mutations";
+import type { CommentPayload } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { validatePostCreating } from "@ecency/sdk";
@@ -20,6 +21,7 @@ export function useWavesApi() {
   const { activePoll } = useContext(PollsContext);
 
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount();
+  const { mutateAsync: sdkComment } = useCommentMutation();
 
   return useMutation({
     mutationKey: ["wave-threads-api"],
@@ -69,17 +71,20 @@ export function useWavesApi() {
         .withPoll(activePoll)
         .build();
 
-      await comment(
-        username,
+      // Build SDK comment payload
+      const commentPayload: CommentPayload = {
+        author: username,
+        permlink,
         parentAuthor,
         parentPermlink,
-        permlink,
-        "",
-        raw,
-        jsonMeta,
-        null,
-        true
-      );
+        title: "",
+        body: raw,
+        jsonMetadata: jsonMeta,
+        rootAuthor: entry.author,
+        rootPermlink: entry.permlink
+      };
+
+      await sdkComment(commentPayload);
       if (!editingEntry) {
         // For newly created waves we still confirm blockchain propagation but
         // with shorter retry delays so the UI is not blocked for several

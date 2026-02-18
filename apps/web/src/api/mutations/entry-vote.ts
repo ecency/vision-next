@@ -6,21 +6,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useVoteMutation } from "@/api/sdk-mutations";
 
 /**
- * Entry vote mutation hook with post-success cache updates.
+ * Entry vote mutation hook.
  *
- * Wraps SDK's useVoteMutation with entry-specific cache management:
- * - Updates vote UI after successful broadcast
- * - Updates entry payout estimate after confirmation
- * - Invalidates entry cache on success
- *
- * SDK already handles:
- * - Broadcasting vote operation
- * - Invalidating account query (voting power)
- * - Recording user activity
- * - Error notifications via adapter
- *
- * @param entry - Entry to vote on
- * @returns Mutation with custom mutateAsync that accepts weight and estimated payout
+ * SDK handles: broadcast, optimistic SDK cache update, activity tracking, invalidation.
+ * Web wrapper handles: web-specific cache key bridging.
  */
 export function useEntryVote(entry?: Entry | null) {
   const { activeUser } = useActiveAccount();
@@ -28,47 +17,33 @@ export function useEntryVote(entry?: Entry | null) {
   const { invalidate } = EcencyEntriesCacheManagement.useInvalidation(entry);
   const { update: updateVotes } = EcencyEntriesCacheManagement.useUpdateVotes(entry);
 
-  // Use SDK mutation for broadcasting
   const sdkMutation = useVoteMutation();
 
-  // Wrap SDK mutation to add entry-specific logic
   return {
     ...sdkMutation,
-    mutate: undefined, // Disable mutate - use mutateAsync only (ensures preconditions run)
+    mutate: undefined,
     mutateAsync: async ({ weight, estimated }: { weight: number; estimated: number }) => {
-      if (!entry) {
-        throw new Error("Entry not provided");
-      }
+      if (!entry) throw new Error("Entry not provided");
+      if (!activeUser) throw new Error("Active user not provided");
 
-      if (!activeUser) {
-        throw new Error("Active user not provided");
-      }
-
-      // Broadcast vote via SDK
+      // Broadcast vote via SDK (SDK updates its own cache optimistically)
       await sdkMutation.mutateAsync({
         author: entry.author,
         permlink: entry.permlink,
         weight,
+        estimated,
       });
 
-      // Update votes in cache after successful broadcast
-      const newVotes = [
-        ...(entry.active_votes
-          ? entry.active_votes.filter((x) => x.voter !== activeUser?.username)
-          : []),
-        { rshares: weight, voter: activeUser?.username }
-      ];
-
-      const newPayout = entry.payout + estimated;
-
+      // Bridge: update web-specific cache key
       if (entry.active_votes) {
-        updateVotes(newVotes, newPayout);
+        const newVotes = [
+          ...entry.active_votes.filter((x) => x.voter !== activeUser.username),
+          ...(weight !== 0 ? [{ rshares: weight, voter: activeUser.username }] : [])
+        ];
+        updateVotes(newVotes, entry.payout + estimated);
       } else {
         invalidate();
       }
-
-      // Note: SDK already invalidates account query and entry active votes
-      // No need to manually invalidate those queries here
     },
   };
 }

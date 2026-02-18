@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Entry, WaveEntry } from "@/entities";
 import { error, success } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useWavesApi } from "./use-waves-api";
 import i18next from "i18next";
 

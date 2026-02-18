@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { vestsToHp } from './vests-to-hp'
-import { isEmptyDate } from './is-empty-date'
+import { vestsToHp, isEmptyDate } from '.'
 
 describe('vestsToHp', () => {
   describe('basic conversions', () => {

@@ -1,13 +1,11 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button } from "@ui/button";
 import { Community } from "@/entities";
-import { KeyOrHot } from "@/features/shared/key-or-hot";
 import i18next from "i18next";
 import { LinearProgress } from "@/features/shared";
-import { useCommunityRewardsRegister, useCommunityRewardsRegisterKc } from "@/api/mutations";
-import { communityRewardsRegisterHot } from "@/api/operations";
+import { useCommunityRewardsRegisterMutation } from "@/api/sdk-mutations";
 import { getRewardedCommunitiesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
@@ -17,32 +15,20 @@ interface Props {
 }
 
 export function CommunityRewardsRegistrationDialog({ onHide, community }: Props) {
-  const [form, setForm] = useState(false);
   const [done, setDone] = useState(false);
 
   const { data: rewardedCommunities, isLoading: isRewardingFetching } = useQuery(getRewardedCommunitiesQueryOptions());
 
-  const { mutateAsync: signKs, isPending: isSignKcPending } = useCommunityRewardsRegisterKc(
-    community,
-    () => setDone(true)
-  );
-  const { mutateAsync: sign, isPending: isSigning } = useCommunityRewardsRegister(community, () =>
-    setDone(true)
-  );
+  const { mutateAsync: register, isPending } = useCommunityRewardsRegisterMutation();
 
   const registered = useMemo(
     () => rewardedCommunities?.find((x) => x.name === community.name),
     [community.name, rewardedCommunities]
   );
   const loading = useMemo(
-    () => isSignKcPending || isSigning || isRewardingFetching,
-    [isSignKcPending, isSigning, isRewardingFetching]
+    () => isPending || isRewardingFetching,
+    [isPending, isRewardingFetching]
   );
-
-  const hotSign = useCallback(() => {
-    communityRewardsRegisterHot(community.name);
-    onHide();
-  }, [community.name, onHide]);
 
   return (
     <Modal
@@ -63,15 +49,6 @@ export function CommunityRewardsRegistrationDialog({ onHide, community }: Props)
             <Button size="sm" onClick={onHide}>
               {i18next.t("g.close")}
             </Button>
-          </div>
-        ) : form ? (
-          <div className="dialog-content">
-            <KeyOrHot
-              inProgress={loading}
-              onKey={(key) => sign({ key })}
-              onHot={hotSign}
-              onKc={signKs}
-            />
           </div>
         ) : registered ? (
           <div className="dialog-content">
@@ -94,7 +71,13 @@ export function CommunityRewardsRegistrationDialog({ onHide, community }: Props)
         ) : (
           <div className="dialog-content">
             <p>{i18next.t("community-rewards-registration.body-text")}</p>
-            <Button size="sm" onClick={() => setForm(true)}>
+            <Button
+              size="sm"
+              onClick={async () => {
+                await register({ name: community.name });
+                setDone(true);
+              }}
+            >
               {i18next.t("community-rewards-registration.btn-next-label")}
             </Button>
           </div>

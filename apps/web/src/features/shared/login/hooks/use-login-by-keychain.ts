@@ -8,7 +8,7 @@ import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
 import { shouldUseHiveAuth, signWithHiveAuth } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { LoginType } from "@/entities";
 
 const MAX_ATTEMPTS = 3;

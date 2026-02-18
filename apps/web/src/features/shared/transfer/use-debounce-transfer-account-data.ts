@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";

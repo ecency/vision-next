@@ -1,35 +1,29 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteSchedule, moveSchedule } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { QueryIdentifiers } from "@/core/react-query";
-import { getAccessToken } from "@/utils";
+import { useMutation } from "@tanstack/react-query";
+import {
+  useDeleteScheduleMutation,
+  useMoveScheduleMutation
+} from "@/api/sdk-mutations";
 
 export function useMoveSchedule() {
-  const queryClient = useQueryClient();
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: sdkMoveSchedule } = useMoveScheduleMutation();
 
   return useMutation({
-    mutationKey: ["schedules", "move", activeUser?.username],
-    mutationFn: ({ id }: { id: string }) =>
-      moveSchedule(getAccessToken(activeUser!.username), id),
-    onSuccess: (schedules) => {
-      queryClient.setQueryData([QueryIdentifiers.SCHEDULES, activeUser?.username], schedules);
+    mutationKey: ["schedules", "move"],
+    mutationFn: async ({ id }: { id: string }) => {
+      return sdkMoveSchedule({ id });
     }
   });
 }
 
 export function useDeleteSchedule() {
-  const queryClient = useQueryClient();
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: sdkDeleteSchedule } = useDeleteScheduleMutation();
 
   return useMutation({
-    mutationKey: ["schedules", "delete", activeUser?.username],
-    mutationFn: ({ id }: { id: string }) =>
-      deleteSchedule(getAccessToken(activeUser!.username), id),
-    onSuccess: (schedules) => {
-      queryClient.setQueryData([QueryIdentifiers.SCHEDULES, activeUser?.username], schedules);
+    mutationKey: ["schedules", "delete"],
+    mutationFn: async ({ id }: { id: string }) => {
+      return sdkDeleteSchedule({ id });
     }
   });
 }

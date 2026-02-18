@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/modules/core";
 import { UserImage } from "../types/user-image";
 
 async function fetchUserImages(code: string | undefined): Promise<UserImage[]> {
@@ -23,7 +23,7 @@ async function fetchUserImages(code: string | undefined): Promise<UserImage[]> {
 
 export function getImagesQueryOptions(username?: string, code?: string) {
   return queryOptions({
-    queryKey: ["posts", "images", username],
+    queryKey: QueryKeys.posts.images(username),
     queryFn: async () => {
       if (!username || !code) {
         return [];
@@ -36,7 +36,7 @@ export function getImagesQueryOptions(username?: string, code?: string) {
 
 export function getGalleryImagesQueryOptions(activeUsername: string | undefined, code?: string) {
   return queryOptions({
-    queryKey: ["posts", "gallery-images", activeUsername],
+    queryKey: QueryKeys.posts.galleryImages(activeUsername),
     queryFn: async () => {
       if (!activeUsername || !code) {
         return [];
@@ -53,7 +53,7 @@ export function getImagesInfiniteQueryOptions(
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "images", "infinite", username, limit],
+    queryKey: QueryKeys.posts.imagesInfinite(username, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!username || !code) {
         return {
