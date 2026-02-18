@@ -33,7 +33,7 @@ export const getUser = (
 const REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
 // Prevent concurrent refresh requests for the same user
-const pendingRefreshes = new Map<string, Promise<string>>();
+const pendingRefreshes = new Map<string, Promise<string | undefined>>();
 
 function isTokenExpired(user: User): boolean {
   if (!user.tokenObtainedAt || !user.expiresIn) {
@@ -151,7 +151,7 @@ export async function ensureValidToken(username: string): Promise<string | undef
       return refreshed.access_token;
     } catch (err) {
       console.error("Token refresh failed:", err);
-      return user.accessToken;
+      return undefined;
     } finally {
       pendingRefreshes.delete(username);
     }
