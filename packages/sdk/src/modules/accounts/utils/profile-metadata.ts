@@ -13,7 +13,12 @@ export interface BuildProfileMetadataArgs {
 function sanitizeTokens(
   tokens?: ProfileTokens | null
 ): ProfileTokens | undefined {
-  return tokens?.map(({ meta, ...rest }) => {
+  // Guard against corrupted data from blockchain where tokens is not an array
+  if (!tokens || !Array.isArray(tokens)) {
+    return undefined;
+  }
+
+  return tokens.map(({ meta, ...rest }) => {
     if (!meta || typeof meta !== "object") {
       return { ...rest, meta };
     }
@@ -63,6 +68,11 @@ export function buildProfileMetadata({
     existingProfile ?? ({} as AccountProfile),
     profileRest
   );
+
+  // Clean up corrupted tokens data from blockchain before processing
+  if (metadata.tokens && !Array.isArray(metadata.tokens)) {
+    metadata.tokens = undefined;
+  }
 
   const nextTokens = tokens ?? profileTokens;
 
