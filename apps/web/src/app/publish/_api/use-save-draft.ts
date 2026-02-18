@@ -12,7 +12,7 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { formatError } from "@/api/format-error";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -79,9 +79,11 @@ export function useSaveDraftApi(draftId?: string) {
         poll
       };
 
+      const token = await ensureValidToken(username);
+
       if (draftId) {
         const resp = await updateDraft(
-          getAccessToken(username),
+          token,
           draftId,
           title!,
           content!,
@@ -95,7 +97,7 @@ export function useSaveDraftApi(draftId?: string) {
         queryClient.setQueryData(QueryKeys.posts.drafts(username), resp.drafts);
       } else {
         const resp = await addDraft(
-          getAccessToken(username),
+          token,
           title!,
           content!,
           tagJ!,
