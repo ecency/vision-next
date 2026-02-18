@@ -181,9 +181,12 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Token expired / unauthorized (general pattern)
-  // HiveSigner returns { error: "unauthorized" } or { error: "forbidden" } on 401/403
+  // Token expired / unauthorized (HiveSigner OAuth2 errors + general patterns)
+  // HiveSigner returns: { error: "invalid_grant" } for invalid/expired tokens,
+  //                     { error: "unauthorized_access" } for IP-based access denial
   if (
+    errorCode === 'invalid_grant' ||
+    errorCode === 'unauthorized_access' ||
     testPattern(/token expired/i) ||
     testPattern(/invalid token/i) ||
     testPattern(/\bunauthorized\b/i) ||
