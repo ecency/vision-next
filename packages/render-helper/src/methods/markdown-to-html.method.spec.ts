@@ -172,7 +172,7 @@ describe('markdownToHTML() method', () => {
       expect(result).toContain('href="https://example.com"')
     })
 
-    it('should always use match format regardless of webp flag (server handles via Accept header)', () => {
+    it('should always proxify images with format=match (server handles format via Accept header)', () => {
       const input = '![Image](https://example.com/image.jpg)'
       const result = markdownToHTML(input, false, 'ecency.com')
       expect(result).toContain('format=match')

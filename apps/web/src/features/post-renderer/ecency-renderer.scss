@@ -473,8 +473,10 @@ $xxxl-break: "1600px";
     display: block;
   }
 
-  // Fallback for any other iframes not caught by specific classes
-  iframe:not(.youtube-shorts-iframe):not(.speak-iframe):not(.portrait-embed) {
+  // Fallback for standalone iframes not inside video containers.
+  // Use :where() to keep specificity at (0,0,1) so video container rules
+  // (.markdown-video-link-* iframe) win by specificity and aren't shadowed.
+  iframe:where(:not(.youtube-shorts-iframe):not(.speak-iframe):not(.portrait-embed)) {
     max-width: 100% !important;
     display: block;
     aspect-ratio: 16 / 9;

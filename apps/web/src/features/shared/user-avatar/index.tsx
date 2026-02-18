@@ -37,12 +37,14 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
     }
   }, [size]);
 
+  const proxySize = imgSize === "large" ? 256 : imgSize === "medium" ? 128 : 64;
+
   const imageSrc = useMemo(() => {
     return (
-        proxifyImageSrc(src) ||
+        proxifyImageSrc(src, proxySize, proxySize) ||
         `${defaults.imageServer}/u/${username}/avatar/${imgSize}`
     );
-  }, [src, imgSize, username]);
+  }, [src, imgSize, username, proxySize]);
 
   return (
       <span

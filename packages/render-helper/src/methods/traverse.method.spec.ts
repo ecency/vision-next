@@ -149,9 +149,8 @@ describe('traverse() method - DOM Traversal', () => {
         traverse(container, false, 0)
 
         const imgs = container.getElementsByTagName('img')
-        if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=match')
-        }
+        expect(imgs.length).toBeGreaterThan(0)
+        expect(imgs[0]?.getAttribute('src')).toContain('format=match')
       })
     })
 

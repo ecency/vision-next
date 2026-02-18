@@ -930,45 +930,6 @@ describe('text() method - Text Node Processing', () => {
     })
   })
 
-  describe('webp parameter', () => {
-    it('should pass webp=true to image creation', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-      // The webp parameter is passed to createImageHTML
-    })
-
-    it('should pass webp=false to image creation', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://example.com/image.jpg')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-    })
-
-    it('should use webp parameter for YouTube thumbnails', () => {
-      const parent = doc.createElement('p')
-      doc.body?.appendChild(parent)
-      const textNode = doc.createTextNode('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-      parent.appendChild(textNode)
-
-      text(textNode as any, false)
-
-      const images = parent.getElementsByTagName('img')
-      expect(images.length).toBeGreaterThan(0)
-    })
-  })
-
   describe('forApp parameter', () => {
     it('should use data attributes when forApp is true', () => {
       const parent = doc.createElement('p')

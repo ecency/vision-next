@@ -108,18 +108,6 @@ describe('img() method - Image Processing', () => {
       expect(src).toContain('format=match')
     })
 
-    it('should use match format when webp=false', () => {
-      const parent = doc.createElement('div')
-      const image = doc.createElement('img')
-      image.setAttribute('src', 'https://example.com/image.jpg')
-      parent.appendChild(image)
-
-      img(image)
-
-      const src = image.getAttribute('src')
-      expect(src).toContain('format=match')
-    })
-
     it('should not re-proxify already proxied images', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
