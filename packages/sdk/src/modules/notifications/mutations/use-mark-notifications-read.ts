@@ -57,7 +57,8 @@ export function useMarkNotificationsRead(
 
       // Update each cached notification query
       queriesData.forEach(([queryKey, data]) => {
-        if (data) {
+        // Only process if data exists and is an array (skip non-array data like unread count or settings)
+        if (data && Array.isArray(data)) {
           // Save previous state
           previousNotifications.push([queryKey, data]);
 
