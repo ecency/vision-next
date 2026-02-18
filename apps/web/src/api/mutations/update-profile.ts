@@ -33,12 +33,15 @@ import { useUpdateProfileMutation } from "@/api/sdk-mutations";
  * This is a compatibility wrapper that maintains the old API while using SDK underneath.
  * For new code, consider using `useUpdateProfileMutation` directly from SDK mutations.
  */
-export function useUpdateProfile(account: FullAccount) {
+export function useUpdateProfile(account: FullAccount | null) {
   const { mutateAsync: sdkUpdateProfile } = useUpdateProfileMutation();
 
   return useMutation({
-    mutationKey: ["update-profile", account.name],
+    mutationKey: ["update-profile", account?.name],
     mutationFn: async ({ nextProfile }: { nextProfile: AccountProfile }) => {
+      if (!account) {
+        throw new Error("Account is not available");
+      }
       // Use SDK mutation — handles cache update via buildProfileMetadata (proper deep merge)
       await sdkUpdateProfile({
         profile: nextProfile,

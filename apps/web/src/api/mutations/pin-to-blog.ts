@@ -12,7 +12,7 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
   const { activeUser, account } = useActiveAccount();
   const qc = useQueryClient();
 
-  const { mutateAsync: updateProfile } = useUpdateProfile(account!);
+  const { mutateAsync: updateProfile } = useUpdateProfile(account);
 
   return useMutation({
     mutationKey: ["pinToBlog"],
