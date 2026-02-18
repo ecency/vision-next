@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 
 export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();
@@ -76,9 +76,11 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           return;
         }
 
+        const token = await ensureValidToken(username);
+
         if (editingDraft) {
           await updateDraft(
-            getAccessToken(username),
+            token,
             editingDraft._id,
             title,
             body,
@@ -127,7 +129,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           clearActivePoll();
           return { draft: updatedDraft, isNew: false };
         } else {
-          const resp = await addDraft(getAccessToken(username), title, body, tagJ, draftMeta);
+          const resp = await addDraft(token, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
 
           recordActivity();

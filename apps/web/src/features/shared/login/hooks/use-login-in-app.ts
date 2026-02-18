@@ -47,6 +47,7 @@ export function useLoginInApp(username: string) {
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
         expiresIn: token.expires_in,
+        tokenObtainedAt: Date.now(),
         postingKey,
         loginType
       };

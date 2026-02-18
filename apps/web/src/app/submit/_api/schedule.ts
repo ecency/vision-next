@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { usePollsCreationManagement } from "@/features/polls";
-import { createPermlink, getAccessToken, isCommunity, makeCommentOptions } from "@/utils";
+import { createPermlink, ensureValidToken, isCommunity, makeCommentOptions } from "@/utils";
 import { error } from "@/features/shared";
 import { AxiosError } from "axios";
 import i18next from "i18next";
@@ -101,8 +101,9 @@ export function useScheduleApi(onClear: () => void) {
       const reblog = isCommunity(tags[0]) && reblogSwitch;
 
       try {
+        const token = await ensureValidToken(author);
         await addSchedule(
-          getAccessToken(author),
+          token,
           permlink,
           title,
           buildBody(body),

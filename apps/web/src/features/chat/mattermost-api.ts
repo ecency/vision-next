@@ -91,6 +91,7 @@ export function useMattermostBootstrap(community?: string) {
             accessToken: refreshedTokens.access_token,
             refreshToken: refreshedTokens.refresh_token,
             expiresIn: refreshedTokens.expires_in,
+            tokenObtainedAt: Date.now(),
             postingKey: currentUser?.postingKey,
             loginType: currentUser?.loginType
           });
