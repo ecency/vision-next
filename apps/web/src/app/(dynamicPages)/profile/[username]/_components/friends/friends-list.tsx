@@ -29,7 +29,8 @@ export const FriendsList = ({ account, mode }: Props) => {
   const {
     data,
     isFetching: isFriendsFetching,
-    fetchNextPage
+    fetchNextPage,
+    hasNextPage
   } = useInfiniteQuery(
     getFriendsInfiniteQueryOptions(account.name, mode, {
       limit: loadLimit
@@ -59,18 +60,19 @@ export const FriendsList = ({ account, mode }: Props) => {
       const lastSeenTime = dayjs(item.active).toDate();
       const timeDifference = new Date().getTime() - lastSeenTime.getTime();
       const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
-      const yearsDifference = Math.ceil(daysDifference / 365);
 
       return (
-        (type === FilterFriendsType.Recently && daysDifference < 7) ||
+        (type === FilterFriendsType.Recently && daysDifference <= 7) ||
         (type === FilterFriendsType.ThisMonth &&
           daysDifference > 7 &&
-          daysDifference < 30) ||
+          daysDifference <= 30) ||
         (type === FilterFriendsType.ThisYear &&
-          daysDifference >= 30 &&
-          daysDifference < 360) ||
-        (type === FilterFriendsType.OneYear && daysDifference === 365) ||
-        (type === FilterFriendsType.MoreThanOneYear && yearsDifference > 1)
+          daysDifference > 30 &&
+          daysDifference < 365) ||
+        (type === FilterFriendsType.OneYear &&
+          daysDifference >= 365 &&
+          daysDifference < 730) ||
+        (type === FilterFriendsType.MoreThanOneYear && daysDifference >= 730)
       );
     });
 
@@ -81,10 +83,6 @@ export const FriendsList = ({ account, mode }: Props) => {
     }));
   }, [data?.pages, query, searchData, type]);
 
-  const hasMore = useMemo(
-    () => (data?.pages?.[data.pages.length - 1]?.length ?? 0) >= loadLimit,
-    [data?.pages]
-  );
 
   useDebounce(
     () => {
@@ -146,7 +144,7 @@ export const FriendsList = ({ account, mode }: Props) => {
 
       {!query && dataFlow.length > 1 && (
         <div className="load-more">
-          <Button disabled={isFetching || !hasMore} onClick={() => fetchNextPage()}>
+          <Button disabled={isFetching || !hasNextPage} onClick={() => fetchNextPage()}>
             {i18next.t("g.load-more")}
           </Button>
         </div>
