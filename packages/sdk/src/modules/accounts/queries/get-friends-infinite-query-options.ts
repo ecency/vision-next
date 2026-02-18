@@ -1,4 +1,4 @@
-import { infiniteQueryOptions } from "@tanstack/react-query";
+import { type InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
 import { Follow, Profile, FriendsRow } from "../types";
 
@@ -28,7 +28,7 @@ export function getFriendsInfiniteQueryOptions(
 ) {
   const { followType = "blog", limit = 100, enabled = true } = options ?? {};
 
-  return infiniteQueryOptions<FriendsPage, Error, FriendsPage, (string | number)[], FriendsPageParam>({
+  return infiniteQueryOptions<FriendsPage, Error, InfiniteData<FriendsPage>, (string | number)[], FriendsPageParam>({
     queryKey: ["accounts", "friends", following, mode, followType, limit],
     initialPageParam: { startFollowing: "" } as FriendsPageParam,
     enabled,

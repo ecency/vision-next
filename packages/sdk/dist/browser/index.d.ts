@@ -1989,11 +1989,11 @@ declare function getFriendsInfiniteQueryOptions(following: string, mode: "follow
     followType?: string;
     limit?: number;
     enabled?: boolean;
-}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, FriendsPage, (string | number)[], FriendsPageParam>, "queryFn"> & {
+}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, InfiniteData<FriendsPage, unknown>, (string | number)[], FriendsPageParam>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<FriendsPage, (string | number)[], FriendsPageParam> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<FriendsPage, unknown>;
+        [dataTagSymbol]: InfiniteData<FriendsPage, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };

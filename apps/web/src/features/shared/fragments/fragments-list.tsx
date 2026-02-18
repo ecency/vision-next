@@ -44,7 +44,7 @@ export function Fragments({ onPick, onAdd, onEdit }: Props) {
   const items = useMemo(
     () =>
       allFragments
-        .filter((x) => x.title.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
+        .filter((x) => (x.title ?? "").toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1)
         .sort((a, b) => (new Date(b.created).getTime() > new Date(a.created).getTime() ? 1 : -1)),
     [allFragments, searchQuery]
   );
