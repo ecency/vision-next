@@ -340,19 +340,21 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
 
 // src/methods/img.method.ts
 function img(el, state) {
-  let src = el.getAttribute("src") || "";
+  const src = el.getAttribute("src") || "";
   const decodedSrc = decodeURIComponent(
     src.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec)).replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
   ).trim();
+  ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
-    src = "";
+    el.removeAttribute("src");
+    return;
   }
   const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
-    src = "";
+    el.removeAttribute("src");
+    return;
   }
-  ["onerror", "dynsrc", "lowsrc", "width", "height"].forEach((attr) => el.removeAttribute(attr));
   el.setAttribute("itemprop", "image");
   const isLCP = state && !state.firstImageFound;
   if (isLCP) {
@@ -367,14 +369,17 @@ function img(el, state) {
   const shouldReplace = !cls.includes("no-replace");
   const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(src);
-    el.setAttribute("src", proxified);
+    const proxified = proxifyImageSrc(decodedSrc);
+    if (proxified) {
+      el.setAttribute("src", proxified);
+    }
   }
 }
 function createImageHTML(src, isLCP) {
+  const proxified = proxifyImageSrc(src);
+  if (!proxified) return "";
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
-  const proxified = proxifyImageSrc(src);
   return `<img
     class="markdown-img-link"
     src="${proxified}"
