@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4
+
+### Patch Changes
+
+- Test and edge case fixes (#659)
+
 ## 2.0.3
 
 ### Patch Changes

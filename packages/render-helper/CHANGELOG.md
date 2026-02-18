@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.17
+
+### Patch Changes
+
+- Test and edge case fixes (#659)
+
 ## 2.4.16
 
 ### Patch Changes

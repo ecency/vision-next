@@ -452,7 +452,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
     const imgHTML = createImageHTML(href, isLCP);
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
-    if (replaceNode) {
+    if (replaceNode && el.parentNode) {
       const importedNode = el.ownerDocument.importNode(replaceNode, true);
       el.parentNode.replaceChild(importedNode, el);
     }
@@ -946,7 +946,9 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
       blockquote.appendChild(p2);
       blockquote.appendChild(textNode);
       blockquote.appendChild(a2);
-      el.parentNode.replaceChild(blockquote, el);
+      if (el.parentNode) {
+        el.parentNode.replaceChild(blockquote, el);
+      }
       return;
     }
   }
