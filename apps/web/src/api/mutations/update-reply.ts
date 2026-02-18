@@ -16,7 +16,8 @@ import { useUpdateReplyMutation } from "@/api/sdk-mutations";
 export function useUpdateReply(
   entry?: Entry | null,
   onSuccess?: () => Promise<void>,
-  onBlockchainError?: (text: string, error: any) => void
+  onBlockchainError?: (text: string, error: any) => void,
+  root?: Entry | null
 ) {
   const { activeUser } = useActiveAccount();
   const sdkUpdateReply = useUpdateReplyMutation();
@@ -71,12 +72,9 @@ export function useUpdateReply(
         title: "",
         body: text,
         jsonMetadata: jsonMeta,
-        // For discussions cache invalidation:
-        // - For nested replies (depth > 1), we'd need the root post info
-        // - Since Entry doesn't have root_author/root_permlink, use parent info
-        // - This will correctly invalidate the parent post's discussions
-        rootAuthor: entry.parent_author,
-        rootPermlink: entry.parent_permlink,
+        // For discussions cache invalidation, use root post info when available
+        rootAuthor: root?.author ?? entry.parent_author,
+        rootPermlink: root?.permlink ?? entry.parent_permlink,
         options: sdkOptions
       }).then(async (transactionResult) => {
         // Blockchain confirmed

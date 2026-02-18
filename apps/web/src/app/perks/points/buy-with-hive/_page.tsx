@@ -13,6 +13,8 @@ import { MarketAsset } from "@/api/market-pair";
 import { TransferAsset } from "@/features/shared";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useSignTransfer } from "@/api/mutations";
+import { error } from "@/features/shared";
+import { formatError } from "@/api/format-error";
 
 export function BuyPointsPage() {
   const { activeUser } = useActiveAccount();
@@ -34,13 +36,17 @@ export function BuyPointsPage() {
   const handleSign = useCallback(async () => {
     if (!activeUser) return;
 
-    await sign({
-      to: "esteem.app",
-      amount,
-      memo: "points",
-    });
-    recordActivity();
-    setStep("success");
+    try {
+      await sign({
+        to: "esteem.app",
+        amount,
+        memo: "points",
+      });
+      recordActivity();
+      setStep("success");
+    } catch (e) {
+      error(...formatError(e));
+    }
   }, [activeUser, amount, recordActivity, sign]);
 
   return (

@@ -15,7 +15,7 @@ import { FormControl } from "@ui/input";
 import { usePrevious } from "react-use";
 import { useProxyVotesQuery, useWitnessProxyQuery } from "@/app/witnesses/_queries";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import { WitnessesControls } from "@/app/witnesses/_components/witnesses-controls";
 import WitnessesActiveProxy from "./witnesses-active-proxy";
 import { useSearchParams } from "next/navigation";
@@ -91,7 +91,7 @@ export function WitnessesList() {
           isProxy={isActiveUserProxy}
           username={highlightedUsername}
           onDone={() =>
-            queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] })
+            queryClient.invalidateQueries({ queryKey: QueryKeys.witnesses.proxy() })
           }
         />
       )}

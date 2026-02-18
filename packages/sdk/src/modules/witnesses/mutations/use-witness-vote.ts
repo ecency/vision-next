@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildWitnessVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -72,8 +72,8 @@ export function useWitnessVote(
         // Cache invalidation
         if (auth?.adapter?.invalidateQueries) {
           await auth.adapter.invalidateQueries([
-            ["accounts", username],
-            ["witnesses", "votes", username]
+            QueryKeys.accounts.full(username),
+            QueryKeys.witnesses.votes(username)
           ]);
         }
       } catch (error) {

@@ -20,6 +20,7 @@ export function useWitnessProxy(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.accounts.full(username),
+          QueryKeys.witnesses.proxy(),
         ]);
       }
     },

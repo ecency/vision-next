@@ -2724,6 +2724,8 @@ declare const QueryKeys: {
     };
     readonly witnesses: {
         readonly list: (limit: number) => (string | number)[];
+        readonly votes: (username: string | undefined) => (string | undefined)[];
+        readonly proxy: () => string[];
     };
     readonly wallet: {
         readonly outgoingRcDelegations: (username: string, limit: number) => (string | number)[];

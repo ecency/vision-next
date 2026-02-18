@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, QueryKeys } from "@ecency/sdk";
 
 export function useWitnessVotesQuery() {
   const searchParams = useSearchParams();
@@ -13,12 +12,10 @@ export function useWitnessVotesQuery() {
     getAccountFullQueryOptions(searchParams?.get("username") ?? searchParams?.get("account") ?? "")
   );
 
+  const resolvedUsername = urlParamAccount?.name ?? activeUserAccount?.name;
+
   return useQuery({
-    queryKey: [
-      QueryIdentifiers.WITNESSES_VOTES,
-      urlParamAccount?.name ?? activeUserAccount?.name,
-      "votes"
-    ],
+    queryKey: QueryKeys.witnesses.votes(resolvedUsername),
     queryFn: () => urlParamAccount?.witness_votes ?? activeUserAccount?.witness_votes ?? []
   });
 }

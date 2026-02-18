@@ -319,6 +319,8 @@ export const QueryKeys = {
   // ===========================================================================
   witnesses: {
     list: (limit: number) => ["witnesses", "list", limit],
+    votes: (username: string | undefined) => ["witnesses", "votes", username],
+    proxy: () => ["witnesses", "proxy"],
   },
 
   // ===========================================================================

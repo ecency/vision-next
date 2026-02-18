@@ -4,7 +4,6 @@ import { useWitnessVote, getAccountFullQueryOptions, QueryKeys } from "@ecency/s
 import { createWebBroadcastAdapter } from "@/providers/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
 
 export function useWitnessVoteMutation(witness: string) {
   const { activeUser } = useActiveAccount();
@@ -14,7 +13,7 @@ export function useWitnessVoteMutation(witness: string) {
   const adapter = createWebBroadcastAdapter();
   const { mutateAsync: witnessVote } = useWitnessVote(username, { adapter });
 
-  const witnessVotesKey = [QueryIdentifiers.WITNESSES_VOTES, username, "votes"];
+  const witnessVotesKey = QueryKeys.witnesses.votes(username);
 
   return useMutation({
     mutationKey: ["vote-witness", username, witness],
