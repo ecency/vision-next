@@ -145,7 +145,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       return getAccessToken(username);
     },
 
-    async getLoginType(username: string) {
+    async getLoginType(username: string, authority?: string) {
       // Use existing helper - it handles localStorage access and decoding
       const loginType = getLoginType(username);
       if (!loginType) {
@@ -162,6 +162,14 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         case 'hiveauth':
           return 'hiveauth'; // HiveAuth has its own broadcast method (QR code + mobile app flow)
         case 'privateKey':
+          // For key-based logins, verify the required key is actually available.
+          // An active-key-only user shouldn't return 'key' for posting ops —
+          // returning null lets broadcastWithFallback use HiveSigner token
+          // or show auth upgrade UI instead of failing on a missing key.
+          if (authority === 'posting') {
+            const postingKey = getPostingKey(username);
+            if (!postingKey) return null;
+          }
           return 'key';
         default:
           return null;

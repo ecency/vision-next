@@ -132,6 +132,22 @@ describe("chain-errors", () => {
       expect(result.type).toBe(ErrorType.TOKEN_EXPIRED);
     });
 
+    it("should parse HiveSigner invalid_grant error", () => {
+      const error = { error: "invalid_grant", error_description: "The token has invalid role" };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.TOKEN_EXPIRED);
+      expect(result.message).toContain("expired");
+    });
+
+    it("should parse HiveSigner unauthorized_access error", () => {
+      const error = { error: "unauthorized_access", error_description: "The IP 1.2.3.4 is not authorized" };
+      const result = parseChainError(error);
+
+      expect(result.type).toBe(ErrorType.TOKEN_EXPIRED);
+      expect(result.message).toContain("expired");
+    });
+
     it("should parse already reblogged error", () => {
       const error = { message: "alice has already reblogged this post" };
       const result = parseChainError(error);
@@ -332,6 +348,16 @@ describe("chain-errors", () => {
 
     it("should return true for token expired errors", () => {
       const error = { message: "Token expired" };
+      expect(shouldTriggerAuthFallback(error)).toBe(true);
+    });
+
+    it("should return true for HiveSigner invalid_grant errors", () => {
+      const error = { error: "invalid_grant", error_description: "The token has invalid role" };
+      expect(shouldTriggerAuthFallback(error)).toBe(true);
+    });
+
+    it("should return true for HiveSigner unauthorized_access errors", () => {
+      const error = { error: "unauthorized_access", error_description: "The IP 1.2.3.4 is not authorized" };
       expect(shouldTriggerAuthFallback(error)).toBe(true);
     });
 

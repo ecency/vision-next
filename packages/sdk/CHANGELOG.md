@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.5
+
+### Patch Changes
+
+- SDK error catching (#660)
+
 ## 2.0.4
 
 ### Patch Changes

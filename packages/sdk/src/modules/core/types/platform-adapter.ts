@@ -113,9 +113,12 @@ export interface PlatformAdapter {
    * Get the login method used for this user.
    *
    * @param username - The username to check
+   * @param authority - The authority level needed for the operation ('posting' | 'active' | 'owner' | 'memo').
+   *   Adapters can use this to return a different method depending on what key the operation requires.
+   *   For example, an active-key user might return 'key' for active ops but 'hivesigner' for posting ops.
    * @returns Login type ('key', 'hivesigner', 'keychain', 'hiveauth') or null
    */
-  getLoginType: (username: string) => Promise<string | null | undefined>;
+  getLoginType: (username: string, authority?: string) => Promise<string | null | undefined>;
 
   /**
    * Check if user has granted ecency.app posting authority.

@@ -182,7 +182,7 @@ async function broadcastWithFallback(
   // PREFERRED APPROACH: If adapter provides getLoginType, use smart auth strategy
   // This avoids unnecessary fallback attempts and is more predictable
   if (adapter?.getLoginType) {
-    const loginType = await adapter.getLoginType(username);
+    const loginType = await adapter.getLoginType(username, authority);
 
     if (loginType) {
       // SMART AUTH STRATEGY: Optimize based on login type + authority + credentials

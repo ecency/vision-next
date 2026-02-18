@@ -43,11 +43,15 @@ export function parseChainError(error: any): ParsedChainError {
   // Check both error_description and message independently for pattern matching
   const errorDescription = error?.error_description ? String(error.error_description) : '';
   const errorMessage = error?.message ? String(error.message) : '';
+  // HiveSigner throws plain objects like { error: "unauthorized", error_description: "..." }
+  const errorCode = error?.error ? String(error.error) : '';
   const errorString = errorDescription || errorMessage || String(error || '');
 
-  // Helper function to test patterns against both fields and fallback errorString
+  // Helper function to test patterns against all error fields
   const testPattern = (pattern: RegExp): boolean => {
-    // Check error_description first (priority)
+    // Check error code first (e.g. HiveSigner's { error: "unauthorized" })
+    if (errorCode && pattern.test(errorCode)) return true;
+    // Check error_description (priority)
     if (errorDescription && pattern.test(errorDescription)) return true;
     // Then check message
     if (errorMessage && pattern.test(errorMessage)) return true;
@@ -177,8 +181,17 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
-  // Token expired (general pattern)
-  if (testPattern(/token expired/i) || testPattern(/invalid token/i)) {
+  // Token expired / unauthorized (HiveSigner OAuth2 errors + general patterns)
+  // HiveSigner returns: { error: "invalid_grant" } for invalid/expired tokens,
+  //                     { error: "unauthorized_access" } for IP-based access denial
+  if (
+    errorCode === 'invalid_grant' ||
+    errorCode === 'unauthorized_access' ||
+    testPattern(/token expired/i) ||
+    testPattern(/invalid token/i) ||
+    testPattern(/\bunauthorized\b/i) ||
+    testPattern(/\bforbidden\b/i)
+  ) {
     return {
       message: "Authentication token expired. Please log in again.",
       type: ErrorType.TOKEN_EXPIRED,
