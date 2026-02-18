@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.18
+
+### Patch Changes
+
+- Fix speak (#661)
+
 ## 2.4.17
 
 ### Patch Changes
