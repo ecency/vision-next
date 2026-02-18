@@ -3,7 +3,7 @@ import {
   ProfileWalletHpDelegationPromo,
   ProfileWalletTokenHistoryCard,
 } from "../../_components";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { ReceivedVesting } from "./received-vesting-dialog";
 import { useEffect, useMemo, useState } from "react";

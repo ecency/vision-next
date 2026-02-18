@@ -380,6 +380,66 @@ export function buildCollateralizedConvertOp(
  * @param maxRc - Maximum RC to delegate (in mana units)
  * @returns Custom JSON operation for RC delegation
  */
+/**
+ * Builds a SPK Network custom_json operation.
+ * @param from - Account performing the operation
+ * @param id - SPK operation ID (e.g., "spkcc_spk_send", "spkcc_gov_up")
+ * @param amount - Amount (multiplied by 1000 internally)
+ * @returns Custom JSON operation
+ */
+export function buildSpkCustomJsonOp(
+  from: string,
+  id: string,
+  amount: number
+): Operation {
+  return ["custom_json", {
+    id,
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ amount: amount * 1000 }),
+  }];
+}
+
+/**
+ * Builds a Hive Engine custom_json operation.
+ * @param from - Account performing the operation
+ * @param contractAction - Engine contract action (e.g., "transfer", "stake")
+ * @param contractPayload - Payload for the contract action
+ * @param contractName - Engine contract name (defaults to "tokens")
+ * @returns Custom JSON operation
+ */
+export function buildEngineOp(
+  from: string,
+  contractAction: string,
+  contractPayload: Record<string, string>,
+  contractName = "tokens"
+): Operation {
+  return ["custom_json", {
+    id: "ssc-mainnet-hive",
+    required_auths: [from],
+    required_posting_auths: [],
+    json: JSON.stringify({ contractName, contractAction, contractPayload }),
+  }];
+}
+
+/**
+ * Builds a scot_claim_token operation (posting authority).
+ * @param account - Account claiming rewards
+ * @param tokens - Array of token symbols to claim
+ * @returns Custom JSON operation
+ */
+export function buildEngineClaimOp(
+  account: string,
+  tokens: string[]
+): Operation {
+  return ["custom_json", {
+    id: "scot_claim_token",
+    required_auths: [],
+    required_posting_auths: [account],
+    json: JSON.stringify(tokens.map((symbol) => ({ symbol }))),
+  }];
+}
+
 export function buildDelegateRcOp(
   from: string,
   delegatees: string,

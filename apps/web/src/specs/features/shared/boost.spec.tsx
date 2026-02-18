@@ -3,7 +3,6 @@ import React from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { boostPlus } from "@/api/operations";
 import { BoostDialog } from "../../../features/shared/boost";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -19,21 +18,16 @@ vi.mock("@/config", () => ({
   }
 }));
 
-vi.mock("@/api/operations", () => ({
-  boostPlus: vi.fn(),
-  boostPlusHot: vi.fn(),
-  boostPlusKc: vi.fn(),
-  formatError: vi.fn((e) => [e.message])
+const mockBoostPlus = vi.fn();
+
+vi.mock("@/api/sdk-mutations", () => ({
+  useBoostPlusMutation: () => ({
+    mutateAsync: mockBoostPlus,
+    isPending: false
+  })
 }));
 
 vi.mock("@/features/shared", () => ({
-  KeyOrHot: vi.fn(({ onKey, onHot, onKc }) => (
-    <div>
-      <button onClick={() => onKey()}>KeyOrHot Component</button>
-      <button onClick={() => onHot()}>Hot Component</button>
-      <button onClick={() => onKc()}>Kc Component</button>
-    </div>
-  )),
   LinearProgress: vi.fn(() => <div />)
 }));
 
@@ -146,8 +140,9 @@ describe("BoostDialog", () => {
     // Click the next button
     fireEvent.click(screen.getByText("g.next"));
 
-    // Check if it progresses to step 2
-    expect(screen.getByText("trx-common.sign-title")).toBeInTheDocument();
+    // Check if it progresses to step 2 (sign-title appears in both header and button)
+    const signTitles = screen.getAllByText("trx-common.sign-title");
+    expect(signTitles.length).toBe(2);
     expect(screen.getByText("trx-common.sign-sub-title")).toBeInTheDocument();
   });
 
@@ -162,11 +157,11 @@ describe("BoostDialog", () => {
     });
     fireEvent.click(screen.getByText("g.next"));
 
-    // Mock sign functions
-    boostPlus.mockResolvedValueOnce(true);
+    // Mock the SDK mutation to resolve successfully
+    mockBoostPlus.mockResolvedValueOnce(true);
 
-    // Simulate signing via KeyOrHot component
-    fireEvent.click(screen.getByText("KeyOrHot Component")); // Simplified click for mock component
+    // Click the Sign button (sign-title appears in both header and button, target the button)
+    fireEvent.click(screen.getByRole("button", { name: "trx-common.sign-title" }));
     await screen.findByText("trx-common.success-title");
 
     // Check if it transitions to step 3
@@ -188,10 +183,10 @@ describe("BoostDialog", () => {
       fireEvent.click(screen.getByText("g.next"));
     });
 
-    boostPlus.mockResolvedValueOnce(true);
+    mockBoostPlus.mockResolvedValueOnce(true);
 
     act(() => {
-      fireEvent.click(screen.getByText("KeyOrHot Component"));
+      fireEvent.click(screen.getByRole("button", { name: "trx-common.sign-title" }));
     });
 
     // Ensure step 3 is visible

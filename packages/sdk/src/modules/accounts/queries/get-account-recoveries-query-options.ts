@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { GetRecoveriesEmailResponse } from "../types";
 
@@ -8,7 +8,7 @@ export function getAccountRecoveriesQueryOptions(
 ) {
   return queryOptions({
     enabled: !!username && !!code,
-    queryKey: ["accounts", "recoveries", username],
+    queryKey: QueryKeys.accounts.recoveries(username!),
     queryFn: async () => {
       if (!username || !code) {
         throw new Error("[SDK][Accounts] Missing username or access token");

@@ -1,4 +1,4 @@
-import { isEmptyDate, parseAsset, vestsToHp } from "@ecency/wallets";
+import { isEmptyDate, parseAsset, vestsToHp } from "@ecency/sdk";
 
 export interface PowerDownSchedule {
   nextWithdrawal: string;

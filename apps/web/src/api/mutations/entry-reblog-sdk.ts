@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BlogEntry, Entry } from "@/entities";
 import { error, info, success } from "@/features/shared";
 import i18next from "i18next";
-import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { QueryKeys } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useReblogMutation } from "@/api/sdk-mutations";
 
@@ -57,7 +57,7 @@ export function useEntryReblog(entry: Entry) {
 
       // Update reblogs list cache (optimistic UI)
       queryClient.setQueryData<BlogEntry[]>(
-        [QueryIdentifiers.REBLOGS, activeUser?.username, 200],
+        QueryKeys.posts.reblogs(activeUser?.username ?? "", 200),
         (data) => {
           if (!data) {
             return data;

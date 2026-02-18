@@ -1,7 +1,7 @@
 import { Button, Table, Td, Th, Tooltip, Tr } from "@/features/ui";
 import i18next from "i18next";
 import { useQuery } from "@tanstack/react-query";
-import { getHiveAssetWithdrawalRoutesQueryOptions } from "@ecency/wallets";
+import { getHiveAssetWithdrawalRoutesQueryOptions } from "@ecency/sdk";
 import { UilTrashAlt } from "@tooni/iconscout-unicons-react";
 import React from "react";
 import { WithdrawRoutesFormData } from "./wallet-operation-withdraw-routes-form";

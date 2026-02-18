@@ -1,5 +1,5 @@
 import { Button } from "@/features/ui";
-import { getPointsQueryOptions } from "@ecency/wallets";
+import { getPointsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowLeft, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";

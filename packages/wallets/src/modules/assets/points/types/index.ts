@@ -1,4 +1,6 @@
-export * from "./points-response";
-export * from "./points";
-export * from "./point-transaction-type";
-export * from "./point-transaction";
+export {
+  type PointsResponse,
+  type Points,
+  type PointTransaction,
+  PointTransactionType,
+} from "@ecency/sdk";

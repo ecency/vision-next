@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { useMarkNotifications } from "@/api/mutations";
+import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
 
 export function useMarkNotificationsList(onSuccess: () => void) {
-  const { mutateAsync: markAsRead } = useMarkNotifications();
+  const { mutateAsync: markAsRead } = useMarkNotificationsMutation();
 
   return useMutation({
     mutationKey: ["markNotifications"],

@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import "./index.scss";
 import { Button } from "@ui/button";
 import { FullAccount } from "@/entities";
-import { useAccountClaiming } from "@/api/mutations";
-import { KeyOrHot } from "@/features/shared";
-import { claimAccountByHiveSigner } from "@/api/operations";
+import { useClaimAccountMutation } from "@/api/sdk-mutations";
 import i18next from "i18next";
-import { arrowLeftSvg } from "@ui/svg";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
@@ -21,30 +18,14 @@ export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
     mutateAsync: claimAccount,
     isPending,
     error,
-    isSuccess,
-    reset
-  } = useAccountClaiming(account);
+    isSuccess
+  } = useClaimAccountMutation();
 
-  const [key, setKey] = useState("");
-  const [isKeySetting, setIsKeySetting] = useState(false);
   const claimedAccountCredits = account?.pending_claimed_accounts ?? 0;
 
   return (
     <div className="claim-credit">
       <div className="claim-credit-title">
-        {isKeySetting ? (
-          <div
-            className="claim-credit-title-back"
-            onClick={() => {
-              setIsKeySetting(false);
-              reset();
-            }}
-          >
-            {arrowLeftSvg}
-          </div>
-        ) : (
-          <></>
-        )}
         {i18next.t("rc-info.claim-accounts")}
         <span className="text-primary">{claimAccountAmount}</span>
       </div>
@@ -53,10 +34,16 @@ export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
         <span className="text-primary">{claimedAccountCredits}</span>
       </div>
       {!isSuccess &&
-      !isKeySetting &&
       claimAccountAmount > 0 &&
       activeUser?.username === account.name ? (
-        <Button size="sm" onClick={() => setIsKeySetting(true)}>
+        <Button
+          size="sm"
+          isLoading={isPending}
+          disabled={isPending}
+          onClick={() =>
+            claimAccount({ creator: account.name, fee: "0.000 HIVE" })
+          }
+        >
           {i18next.t("rc-info.claim")}
         </Button>
       ) : (
@@ -71,20 +58,6 @@ export const ClaimAccountCredit = ({ account, claimAccountAmount }: Props) => {
       )}
       {error ? (
         <small className="d-block text-danger my-3">{(error as Error)?.message}</small>
-      ) : (
-        <></>
-      )}
-      {isKeySetting && !isSuccess ? (
-        <KeyOrHot
-          inProgress={isPending}
-          onKey={(key) => claimAccount({ key })}
-          onHot={() => claimAccountByHiveSigner(account)}
-          onKc={() =>
-            claimAccount({
-              isKeychain: true
-            })
-          }
-        />
       ) : (
         <></>
       )}

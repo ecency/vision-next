@@ -4,11 +4,16 @@ import {
   getQueryClient,
   getAccountFullQueryOptions,
   CONFIG,
-  buildAccountUpdateOp,
+  buildGrantPostingPermissionOp,
+  usrActivity,
   type Authority,
 } from '@ecency/sdk';
+import hs from 'hivesigner';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
+import * as ls from '@/utils/local-storage';
 import { broadcastWithHiveAuth } from '@/utils/hive-auth';
+import { requestAuthUpgrade, getTempActiveKey, clearTempActiveKey } from '@/features/shared/auth-upgrade';
+import { error, success } from '@/features/shared/feedback/feedback-events';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -92,6 +97,10 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     },
 
     async getActiveKey(username: string) {
+      // Check temp storage first (key entered via auth upgrade dialog)
+      const tempKey = getTempActiveKey();
+      if (tempKey) return tempKey;
+
       // Return null for non-key auth methods (they handle active operations via their own methods)
       const loginType = getLoginType(username);
       if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
@@ -99,7 +108,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       }
 
       // Web app does NOT store active keys in localStorage for security
-      // Active key operations will fall back to manual key entry or auth upgrade
+      // Active key operations will fall back to auth upgrade dialog
       return undefined;
     },
 
@@ -164,15 +173,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     // ============================================================================
 
     showError(message: string, _type?: string) {
-      // TODO: Integrate with web toast/notification system
-      console.error('[WebAdapter]', message);
-      // Example: showToast({ type: 'error', message });
+      error(message);
     },
 
     showSuccess(message: string) {
-      // TODO: Integrate with web toast/notification system
-      console.log('[WebAdapter]', message);
-      // Example: showToast({ type: 'success', message });
+      success(message);
     },
 
     // ============================================================================
@@ -257,11 +262,14 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
     async recordActivity(activityType: number, blockNum: number, txId: string) {
       try {
-        // TODO: Integrate with Ecency private API for user activity tracking
-        console.log('[WebAdapter] Activity recorded:', { activityType, blockNum, txId });
-      } catch (error) {
+        const activeUsername = ls.get("active_user");
+        if (!activeUsername) return;
+        const token = getAccessToken(activeUsername);
+        if (!token) return;
+        await usrActivity(token, activityType, blockNum, txId);
+      } catch (e) {
         // Don't throw on activity recording errors - it's not critical
-        console.warn('[WebAdapter] Failed to record user activity:', error);
+        console.warn('[WebAdapter] Failed to record user activity:', e);
       }
     },
 
@@ -308,18 +316,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async showAuthUpgradeUI(
       requiredAuthority: 'posting' | 'active',
       operation: string,
-    ): Promise<'hiveauth' | 'hivesigner' | 'key' | false> {
-      // TODO: Implement auth upgrade modal component
-      // For now, return false (user declined)
-      console.warn(
-        '[WebAdapter] Auth upgrade UI not implemented yet.',
-        `Operation "${operation}" requires ${requiredAuthority} authority.`
-      );
-      return false;
+    ): Promise<'hiveauth' | 'hivesigner' | 'keychain' | 'key' | false> {
+      return requestAuthUpgrade(requiredAuthority, operation);
     },
 
     async grantPostingAuthority(username: string): Promise<void> {
-      // Use closure-captured helper instead of this.getUser to avoid fragile this binding
       const user = getUser(username);
       if (!user) {
         throw new Error('User not authenticated');
@@ -339,23 +340,73 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       );
 
       if (alreadyGranted) {
-        console.log('[WebAdapter] Posting authority already granted');
         return;
       }
 
-      // NOTE: Web app does not store active keys in localStorage for security.
-      // Granting posting authority requires active key, which is only available:
-      // 1. During login flow (handled by existing grantPostingPermission function)
-      // 2. Via manual key entry (would need auth upgrade UI)
-      //
-      // This method cannot grant posting authority on web unless the user
-      // goes through the auth upgrade flow to provide their active key.
-      //
-      // For now, we throw an error. Future enhancement: integrate with auth upgrade UI.
-      throw new Error(
-        'Cannot grant posting authority: Active key required but not stored. ' +
-        'Please use master password or active key login to grant posting authority.'
+      // Show auth upgrade dialog to get active authority
+      const method = await requestAuthUpgrade('active', 'Grant posting authority');
+      if (method === false) {
+        // User cancelled - granting is optional, return silently
+        return;
+      }
+
+      // Build the grant posting permission operation
+      const op = buildGrantPostingPermissionOp(
+        username,
+        accountData.posting,
+        'ecency.app',
+        1,
+        accountData.memo_key,
+        accountData.json_metadata || '',
       );
+
+      // Broadcast based on selected method
+      switch (method) {
+        case 'key': {
+          const activeKey = getTempActiveKey();
+          if (!activeKey) {
+            throw new Error('Active key not provided');
+          }
+          const privateKey = PrivateKey.fromString(activeKey);
+          await CONFIG.hiveClient.broadcast.sendOperations([op], privateKey);
+          clearTempActiveKey();
+          break;
+        }
+        case 'keychain': {
+          if (typeof window === 'undefined' || !(window as any).hive_keychain) {
+            throw new Error('Hive Keychain extension not found');
+          }
+          const keychain = (window as any).hive_keychain;
+          await new Promise<void>((resolve, reject) => {
+            keychain.requestBroadcast(username, [op], 'active', (response: any) => {
+              if (response.success) {
+                resolve();
+              } else {
+                reject(new Error(response.message || 'Keychain broadcast failed'));
+              }
+            });
+          });
+          break;
+        }
+        case 'hiveauth': {
+          await broadcastWithHiveAuth(username, [op], 'active');
+          break;
+        }
+        case 'hivesigner': {
+          const token = getAccessToken(username);
+          if (!token) {
+            throw new Error('HiveSigner access token not found');
+          }
+          const client = new hs.Client({ accessToken: token });
+          await client.broadcast([op]);
+          break;
+        }
+      }
+
+      // Invalidate account query cache after success
+      await queryClient.invalidateQueries({
+        queryKey: getAccountFullQueryOptions(username).queryKey,
+      });
     },
   };
 }

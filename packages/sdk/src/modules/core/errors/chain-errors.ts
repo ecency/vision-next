@@ -141,6 +141,15 @@ export function parseChainError(error: any): ParsedChainError {
     };
   }
 
+  // No key available (SDK internal - from broadcastWithMethod when key not stored)
+  if (testPattern(/no (active|owner|posting|memo) key available/i)) {
+    return {
+      message: "Key not available. Please provide your key to sign this operation.",
+      type: ErrorType.MISSING_AUTHORITY,
+      originalError: error,
+    };
+  }
+
   // Missing active authority (from web operations.ts line 50)
   if (testPattern(/missing active authority/i)) {
     return {

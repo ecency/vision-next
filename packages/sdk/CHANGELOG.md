@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+### Patch Changes
+
+- Wallets simplified, SDK Mutations unified (#653)
+
 ## 2.0.1
 
 ### Patch Changes

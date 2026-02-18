@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Follow } from "../types";
 
 /**
@@ -17,7 +18,7 @@ export function getFollowersQueryOptions(
   limit = 100
 ) {
   return queryOptions({
-    queryKey: ["accounts", "followers", following, startFollower, followType, limit],
+    queryKey: QueryKeys.accounts.followers(following!, startFollower, followType, limit),
     queryFn: () =>
       CONFIG.hiveClient.database.call("get_followers", [
         following,

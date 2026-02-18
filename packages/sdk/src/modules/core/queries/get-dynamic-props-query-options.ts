@@ -2,10 +2,11 @@ import { queryOptions } from "@tanstack/react-query";
 import { DynamicProps } from "../types";
 import { CONFIG } from "../config";
 import { parseAsset } from "../utils";
+import { QueryKeys } from "@/modules/core";
 
 export function getDynamicPropsQueryOptions() {
   return queryOptions({
-    queryKey: ["core", "dynamic-props"],
+    queryKey: QueryKeys.core.dynamicProps(),
     refetchInterval: 60000,
     staleTime: 60000,
     refetchOnMount: true,

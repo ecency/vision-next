@@ -24,7 +24,7 @@ import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
 import { ThreeSpeakVideo } from "@/api/threespeak";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
-import { useUploadPostImage } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
@@ -99,7 +99,7 @@ export function EditorToolbar({
   const toolbarId = useMemo(() => v4(), []);
   const headers = useMemo(() => Array.from(new Array(3).keys()), []);
 
-  const uploadImage = useUploadPostImage();
+  const uploadImage = useUploadImageMutation();
   const uploadTracker = useOptionalUploadTracker();
   const uploadQueueRef = useRef<Promise<void | undefined>>(Promise.resolve());
   const isMounted = useMountedState();

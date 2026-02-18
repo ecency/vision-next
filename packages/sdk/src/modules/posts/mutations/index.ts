@@ -13,3 +13,7 @@ export * from "./use-upload-image";
 export * from "./use-vote";
 export * from "./use-reblog";
 export * from "./use-comment";
+export * from "./use-delete-comment";
+export * from "./use-cross-post";
+export * from "./use-update-reply";
+export * from "./use-promote";

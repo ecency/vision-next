@@ -20,7 +20,7 @@ import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
-import { useMarkNotifications } from "@/api/mutations";
+import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
 import { useDebounce, usePrevious } from "react-use";
 import useMount from "react-use/lib/useMount";
 import { useInViewport } from "react-in-viewport";
@@ -60,7 +60,7 @@ export function NotificationListItem({
 
   const notification = useMemo(() => primaryNotification || entry, [primaryNotification, entry]);
 
-  const markNotifications = useMarkNotifications();
+  const markNotifications = useMarkNotificationsMutation();
 
   useMount(() => {
     onMounted?.();

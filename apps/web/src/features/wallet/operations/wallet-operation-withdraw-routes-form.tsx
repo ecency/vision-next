@@ -6,7 +6,6 @@ import { InferType } from "yup";
 import i18next from "i18next";
 import { Button, FormControl } from "@/features/ui";
 import { motion } from "framer-motion";
-import { withdrawVestingRouteHive } from "@ecency/wallets";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 // Define schema outside the component to prevent recreation on each render
@@ -18,8 +17,16 @@ const schema = yup.object({
 
 export type WithdrawRoutesFormData = InferType<typeof schema>;
 
+interface WithdrawRouteParams {
+  from: string;
+  from_account: string;
+  to_account: string;
+  percent: number;
+  auto_vest: boolean;
+}
+
 interface Props {
-  onSubmit: (data: Omit<Parameters<typeof withdrawVestingRouteHive>[0], "type">) => void;
+  onSubmit: (data: WithdrawRouteParams) => void;
   initialValues?: Partial<WithdrawRoutesFormData>;
 }
 
@@ -40,10 +47,11 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
         className="border-b border-[--border-color] p-4 items-end grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         onSubmit={methods.handleSubmit((data) =>
           onSubmit({
+            from: activeUser!.username,
             from_account: activeUser!.username,
             to_account: data.account,
             auto_vest: data.auto === "yes",
-            percent: data.percent
+            percent: data.percent * 100
           })
         )}
       >

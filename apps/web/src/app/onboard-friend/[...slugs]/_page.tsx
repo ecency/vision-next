@@ -1,42 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PrivateKey } from "@hiveio/dhive";
 import "./_page.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import { FormControl, InputGroup } from "@ui/input";
 import { Alert } from "@ui/alert";
 import { b64uDec, b64uEnc } from "@/utils";
-import { FullAccount } from "@/entities";
 import useMount from "react-use/lib/useMount";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { copyContent, downloadSvg, regenerateSvg } from "@ui/svg";
-import {
-  error,
-  Feedback,
-  KeyOrHot,
-  LinearProgress,
-  Navbar,
-  success,
-  Theme
-} from "@/features/shared";
+import { error, Feedback, LinearProgress, Navbar, success, Theme } from "@/features/shared";
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
+import { Spinner } from "@ui/spinner";
 import Head from "next/head";
 import { getRcStatsQueryOptions } from "@ecency/sdk";
-import {
-  createAccountHs,
-  createAccountKc,
-  createAccountKey,
-  createAccountWithCreditHs,
-  createAccountWithCreditKc,
-  createAccountWithCreditKey,
-  delegateRC
-} from "@/api/operations";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { onboardEmail } from "@ecency/sdk";
@@ -44,6 +26,8 @@ import { getKeysFromSeed } from "@/utils/onBoard-helper";
 import { useSeedPhrase } from "@ecency/wallets";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDownloadSeed } from "@/features/wallet";
+import { useCreateAccountMutation, useDelegateRcMutation } from "@/api/sdk-mutations";
+import { formatError } from "@/api/format-error";
 
 export interface AccountInfo {
   email: string;
@@ -95,6 +79,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const queryParams = useSearchParams();
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const queryClient = useQueryClient();
+  const { mutateAsync: createAccount, isPending: isCreatePending } = useCreateAccountMutation();
+  const { mutateAsync: delegateRc } = useDelegateRcMutation();
 
   const [secret, setSecret] = useState("");
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
@@ -111,7 +97,6 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const [confirmDetails, setConfirmDetails] = useState<ConfirmDetails[]>();
   const [onboardUrl, setOnboardUrl] = useState("");
   const [step, setStep] = useState<string | number>(0);
-  const [inProgress, setInprogress] = useState(false);
   const [rcAmount, setRcAmount] = useState(0);
   const [isChecked, setChecked] = useState(false);
   const [rcError, setRcError] = useState("");
@@ -248,183 +233,37 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     return username?.replace(/\+/g, "-").replace(/=/g, ".").replace(/\//g, "_");
   };
 
-  const onKc = async (type: string) => {
-    if (activeUser) {
-      try {
-        if (type === createOptions.HIVE) {
-          const resp = await createAccountKc(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys,
-              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
-            },
-            activeUser?.username
-          );
-          if (resp.success == true) {
-            setInprogress(false);
-            setStep("success");
-            sendMail();
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-          } else {
-            setStep("failed");
-          }
-        } else {
-          const resp = await createAccountWithCreditKc(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys
-            },
-            activeUser?.username
-          );
-          if (resp.success == true) {
-            setInprogress(false);
-            setStep("success");
-            sendMail();
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-          } else {
-            setStep("failed");
-          }
-        }
-      } catch (err: any) {
-        if (err) {
-          setStep("failed");
-        }
-        error(err.message);
-      }
-    }
-  };
+  const onCreateAccount = async (type: string) => {
+    if (!activeUser || !decodedInfo?.pubkeys) return;
 
-  const onKey = async (type: string, key: PrivateKey) => {
-    if (activeUser) {
-      try {
-        if (type === createOptions.HIVE) {
-          const resp = await createAccountKey(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys,
-              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
-            },
-            activeUser?.username,
-            key
-          );
-          if (resp.id) {
-            setInprogress(false);
-            setStep("success");
-            sendMail();
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-          } else {
-            setStep("failed");
-          }
-        } else {
-          const resp = await createAccountWithCreditKey(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys
-            },
-            activeUser?.username,
-            key
-          );
-          if (resp.id) {
-            setInprogress(false);
-            setStep("success");
-            sendMail();
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-          } else {
-            setStep("failed");
-          }
-        }
-      } catch (err: any) {
-        if (err) {
-          setStep("failed");
-        }
-        error(err.message);
-      }
-    }
-  };
+    const useClaimed = type === createOptions.CREDIT;
+    const newAccountName = formatUsername(decodedInfo.username);
 
-  const onHot = async (type: string) => {
-    const dataToEncode = {
-      username: formatUsername(decodedInfo!.username),
-      email: formatEmail(decodedInfo!.email)
-    };
-    const stringifiedData = JSON.stringify(dataToEncode);
-    const hashedInfo = b64uEnc(stringifiedData);
-    if (activeUser) {
-      try {
-        if (type === createOptions.HIVE) {
-          const resp = await createAccountHs(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys,
-              fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee
-            },
-            activeUser?.username,
-            hashedInfo
-          );
-          if (resp) {
-            setInprogress(false);
-            setShowModal(false);
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-            // sendMail();
-          }
-        } else {
-          const resp = await createAccountWithCreditHs(
-            {
-              username: formatUsername(decodedInfo!.username),
-              pub_keys: decodedInfo?.pubkeys
-            },
-            activeUser?.username,
-            hashedInfo
-          );
-          if (resp) {
-            setInprogress(false);
-            setShowModal(false);
-            if (isChecked) {
-              await delegateRC(
-                activeUser?.username,
-                formatUsername(decodedInfo!.username),
-                rcAmount * 1e9
-              );
-            }
-            // sendMail();
-          }
-        }
-      } catch (err: any) {
-        if (err) {
-          setShowModal(false);
-        }
-        error(err.message);
+    try {
+      await createAccount({
+        newAccountName,
+        keys: {
+          ownerPublicKey: decodedInfo.pubkeys.ownerPublicKey,
+          activePublicKey: decodedInfo.pubkeys.activePublicKey,
+          postingPublicKey: decodedInfo.pubkeys.postingPublicKey,
+          memoPublicKey: decodedInfo.pubkeys.memoPublicKey
+        },
+        fee: (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).accountCreationFee,
+        useClaimed
+      });
+
+      setStep("success");
+      sendMail();
+
+      if (isChecked) {
+        await delegateRc({
+          to: newAccountName,
+          maxRc: rcAmount * 1e9
+        });
       }
+    } catch (err: any) {
+      setStep("failed");
+      error(...formatError(err));
     }
   };
 
@@ -438,13 +277,17 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
             <div>{i18next.t("onboard.sign-sub-title")}</div>
           </div>
         </div>
-        {inProgress && <LinearProgress />}
-        <KeyOrHot
-          inProgress={inProgress}
-          onKey={(value) => onKey(type, value)}
-          onHot={() => onHot(type)}
-          onKc={() => onKc(type)}
-        />
+        {isCreatePending && <LinearProgress />}
+        <div className="flex justify-center p-4">
+          <Button
+            disabled={isCreatePending}
+            icon={isCreatePending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+            iconPlacement="left"
+            onClick={() => onCreateAccount(type)}
+          >
+            {i18next.t("onboard.sign-header-title")}
+          </Button>
+        </div>
         <p className="text-center">
           <a
             href="#"

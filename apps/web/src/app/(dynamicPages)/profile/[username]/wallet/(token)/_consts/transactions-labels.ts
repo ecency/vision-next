@@ -1,4 +1,4 @@
-import { PointTransactionType } from "@ecency/wallets";
+import { PointTransactionType } from "@ecency/sdk";
 import i18next from "i18next";
 import { ReactNode } from "react";
 

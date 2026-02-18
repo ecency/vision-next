@@ -41,6 +41,9 @@ export {
   buildConvertOp,
   buildCollateralizedConvertOp,
   buildDelegateRcOp,
+  buildSpkCustomJsonOp,
+  buildEngineOp,
+  buildEngineClaimOp,
 } from "./wallet";
 
 // Social Operations

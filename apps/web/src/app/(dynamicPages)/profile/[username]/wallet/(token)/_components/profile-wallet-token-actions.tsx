@@ -1,8 +1,8 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { WalletOperationsDialog } from "@/features/wallet";
+import { AssetOperation } from "@ecency/sdk";
 import {
-  AssetOperation,
   EcencyWalletCurrency,
   getTokenOperationsQueryOptions,
 } from "@ecency/wallets";

@@ -3,8 +3,8 @@
 import React, { RefObject, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { useQuery, QueryClientProvider } from "@tanstack/react-query";
-import { getPostQueryOptions } from "@ecency/sdk";
-import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
+import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
 import { makeEntryPath } from "@/utils";
 import { findPostLinkElements, isWaveLikePost } from "../functions";
 import "./wave-like-post-extension.scss";
@@ -50,7 +50,7 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
 
   const { data: post } = useQuery({
     ...getPostQueryOptions(author ?? "", permlink ?? ""),
-    queryKey: [QueryIdentifiers.ENTRY, makeEntryPath("", author ?? "", permlink ?? "")],
+    queryKey: QueryKeys.posts.entry(makeEntryPath("", author ?? "", permlink ?? "")),
     enabled: !!author && !!permlink,
   });
 

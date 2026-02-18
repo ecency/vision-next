@@ -8,7 +8,7 @@ import { EntryMetadataManagement } from "@/features/entry-management";
 import { addDraft, updateDraft } from "@ecency/sdk";
 import i18next from "i18next";
 import { success, error } from "@/features/shared";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import { useRouter } from "next/navigation";
 import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -117,7 +117,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
 
           // Also update the regular query cache
           queryClient.setQueryData(
-            [QueryIdentifiers.DRAFTS, username],
+            QueryKeys.posts.drafts(username),
             (oldDrafts: Draft[] | undefined) => {
               if (!oldDrafts) return oldDrafts;
               return oldDrafts.map((d) => (d._id === editingDraft._id ? updatedDraft : d));
@@ -136,7 +136,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           const draft = drafts[drafts?.length - 1];
 
           // Update both regular and infinite query caches
-          queryClient.setQueryData([QueryIdentifiers.DRAFTS, username], drafts);
+          queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
 
           // Update infinite query cache to include the new draft in the first page
           queryClient.setQueryData(

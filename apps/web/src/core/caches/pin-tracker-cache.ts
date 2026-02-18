@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QueryIdentifiers } from "../react-query";
-import { getPostsRankedQueryOptions } from "@ecency/sdk";
+import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useDataLimit } from "@/utils/data-limit";
-import { formatError, pinPost } from "@/api/operations";
+import { formatError } from "@/api/format-error";
+import { usePinPostMutation } from "@/api/sdk-mutations";
 import { Community, Entry } from "@/entities";
 import { isCommunity } from "@/utils";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { clone } from "remeda";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
@@ -36,15 +36,20 @@ export function useCommunityPinCache(entry: Entry) {
 }
 
 export function useCommunityPin(entry: Entry, community: Community | null | undefined) {
-  const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
+  const pinPostMutation = usePinPostMutation();
 
   return useMutation({
     mutationKey: ["PIN_COMMUNITY"],
     mutationFn: (pin: boolean) =>
-      pinPost(activeUser!.username, community!.name, entry.author, entry.permlink, pin),
+      pinPostMutation.mutateAsync({
+        community: community!.name,
+        account: entry.author,
+        permlink: entry.permlink,
+        pin
+      }),
     onError: (e) => error(...formatError(e)),
-    onSuccess: (data, pin) => {
+    onSuccess: (_data, pin) => {
       if (pin) {
         success(i18next.t("entry-menu.pin-success"));
       } else {
@@ -54,7 +59,7 @@ export function useCommunityPin(entry: Entry, community: Community | null | unde
       queryClient.setQueryData([QueryIdentifiers.ENTRY_PIN_TRACK, entry.post_id], pin);
 
       queryClient.setQueryData<Entry>(
-        [QueryIdentifiers.ENTRY, entry.author, entry.permlink],
+        QueryKeys.posts.entry(`/@${entry.author}/${entry.permlink}`),
         (data) => {
           if (!data) {
             return data;

@@ -6,7 +6,7 @@ import { Badge } from "@/features/ui";
 import { useGetTokenLogoImage } from "@/features/wallet";
 import { formatApr } from "@/utils";
 import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, usePathname } from "next/navigation";
 import { HiveEngineClaimRewardsButton } from "../[token]/_components/hive-engine-claim-rewards-button";

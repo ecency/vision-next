@@ -24,7 +24,7 @@ import {
   vestsToHp
 } from "@/utils";
 import { getHiveEngineMetrics } from "@ecency/sdk";
-import { getHiveEngineTokensBalancesQueryOptions, getSpkWalletQueryOptions } from "@ecency/wallets";
+import { getHiveEngineTokensBalancesQueryOptions, getSpkWalletQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { FormattedCurrency } from "@/features/shared";
 import useMount from "react-use/lib/useMount";
