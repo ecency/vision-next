@@ -1,4 +1,4 @@
-import { type InfiniteData, infiniteQueryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Follow, Profile, FriendsRow } from "../types";
