@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3
+
+### Patch Changes
+
+- Fix: Friends active data (#656)
+
 ## 2.0.2
 
 ### Patch Changes
