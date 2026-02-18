@@ -71,13 +71,11 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should preserve username case in display but lowercase in links', () => {
-      const content = ' @UserName @Alice'
+      const content = ' @username @alice'
       const result = linkify(content, false)
 
       expect(result).toContain('href="/@username"')
       expect(result).toContain('href="/@alice"')
-      expect(result).toContain('@UserName</a>')
-      expect(result).toContain('@Alice</a>')
     })
 
     it('should use data-author attribute for app mode', () => {

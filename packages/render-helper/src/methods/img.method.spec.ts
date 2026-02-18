@@ -189,7 +189,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should handle missing src attribute', () => {
@@ -199,7 +199,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject javascript: URLs', () => {
@@ -210,7 +210,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject vbscript: URLs', () => {
@@ -221,7 +221,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject placeholder x value', () => {
@@ -232,7 +232,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject relative paths without protocol', () => {
@@ -243,7 +243,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject relative paths with ./', () => {
@@ -254,7 +254,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should reject relative paths with subdirectories', () => {
@@ -265,7 +265,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should accept absolute URLs with https', () => {
@@ -292,7 +292,7 @@ describe('img() method - Image Processing', () => {
       expect(src).toContain('https://images.ecency.com')
     })
 
-    it('should not reject URLs starting with / but proxifyImageSrc returns empty', () => {
+    it('should preserve original src when proxifyImageSrc returns empty for / paths', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
       image.setAttribute('src', '/images/photo.jpg')
@@ -301,9 +301,9 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       // URLs starting with / pass the relative check but fail proxifyImageSrc validation
-      // because they're not valid absolute URLs (missing protocol and domain)
+      // because they're not valid absolute URLs. Original src is preserved.
       const src = image.getAttribute('src')
-      expect(src).toBe('')
+      expect(src).toBe('/images/photo.jpg')
     })
   })
 
@@ -317,7 +317,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should decode hexadecimal HTML entities', () => {
@@ -329,7 +329,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should decode mixed decimal and hex entities', () => {
@@ -340,7 +340,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should handle case-insensitive hex entities', () => {
@@ -351,7 +351,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should decode URL-encoded characters', () => {
@@ -442,7 +442,7 @@ describe('img() method - Image Processing', () => {
 
       img(image)
 
-      expect(image.getAttribute('src')).toBe('')
+      expect(image.getAttribute('src')).toBeNull()
     })
 
     it('should handle URL with query parameters', () => {
