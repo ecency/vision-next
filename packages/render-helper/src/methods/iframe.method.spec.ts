@@ -431,17 +431,17 @@ describe('iframe() method - Iframe Sanitization', () => {
       expect(src).not.toContain('play.play.3speak.tv')
     })
 
-    it('should normalize /watch? to /embed? in 3speak URLs', () => {
+    it('should normalize /embed? to /watch? in 3speak URLs', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('iframe')
-      el.setAttribute('src', 'https://3speak.tv/watch?v=user/video123&mode=iframe')
+      el.setAttribute('src', 'https://3speak.tv/embed?v=user/video123&mode=iframe')
       parent.appendChild(el)
 
       iframe(el)
 
       const src = el.getAttribute('src')!
-      expect(src).toContain('/embed?v=')
-      expect(src).not.toContain('/watch?')
+      expect(src).toContain('/watch?v=')
+      expect(src).not.toContain('/embed?')
       expect(src).toContain('play.3speak.tv')
     })
 

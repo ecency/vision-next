@@ -773,7 +773,7 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     if (imgEls.length === 1 || el.textContent.trim() === href) {
       // match[1] / match[2] = tld , match[3] = embed address
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`
+        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`
         el.setAttribute('class', 'markdown-video-link markdown-video-link-speak')
         el.removeAttribute('href')
         el.setAttribute('data-embed-src', videoHref)
