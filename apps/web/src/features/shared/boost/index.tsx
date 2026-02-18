@@ -2,24 +2,21 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
-import { PrivateKey } from "@hiveio/dhive";
-import { error } from "../feedback";
 import { SearchByUsername } from "../search-by-username";
 import dayjs from "@/utils/dayjs";
 import { getBoostPlusPricesQueryOptions, getPointsQueryOptions, getBoostPlusAccountPricesQueryOptions } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
 import i18next from "i18next";
-import { formatError } from "@/api/format-error";
-import { boostPlus, boostPlusHot, boostPlusKc } from "@/api/operations";
-import { KeyOrHot, LinearProgress } from "@/features/shared";
+import { LinearProgress } from "@/features/shared";
 import { checkAllSvg } from "@ui/svg";
 import { useQuery } from "@tanstack/react-query";
 import { withFeatureFlag } from "@/core/react-query";
+import { useBoostPlusMutation } from "@/api/sdk-mutations";
 
 interface Props {
   onHide: () => void;
@@ -38,7 +35,8 @@ export function BoostDialog({ onHide }: Props) {
   const [step, setStep] = useState(1);
   const [duration, setDuration] = useState(0);
   const [account, setAccount] = useState("");
-  const [inProgress, setInProgress] = useState(false);
+
+  const { mutateAsync: boostPlus, isPending: isBoostPending } = useBoostPlusMutation();
 
   const { data: activeUserPoints } = useQuery(
     withFeatureFlag(
@@ -47,7 +45,7 @@ export function BoostDialog({ onHide }: Props) {
     )
   );
   const { data: alreadyBoostAccount } = useQuery(
-    getBoostPlusAccountPricesQueryOptions(accessToken, account)
+    getBoostPlusAccountPricesQueryOptions(account, accessToken)
   );
 
   const price = useMemo(
@@ -73,6 +71,8 @@ export function BoostDialog({ onHide }: Props) {
     [balanceError, isAlreadyBoosted]
   );
 
+  const inProgress = isBoostPending;
+
   useEffect(() => {
     if (prices && prices.length > 0) {
       setDuration(prices![0].duration);
@@ -81,35 +81,10 @@ export function BoostDialog({ onHide }: Props) {
 
   const next = () => setStep(step + 1);
 
-  const sign = async (key: PrivateKey) => {
-    setInProgress(true);
-    try {
-      await boostPlus(key, activeUser!.username, account, duration);
-      setStep(3);
-    } catch (e) {
-      error(...formatError(e));
-    } finally {
-      setInProgress(false);
-    }
-  };
-
-  const signKc = async () => {
-    setInProgress(true);
-
-    try {
-      await boostPlusKc(activeUser!.username, account, duration);
-      setStep(3);
-    } catch (e) {
-      error(...formatError(e));
-    } finally {
-      setInProgress(false);
-    }
-  };
-
-  const hotSign = () => {
-    boostPlusHot(activeUser!.username, account, duration);
-    onHide();
-  };
+  const sign = useCallback(async () => {
+    await boostPlus({ account, duration });
+    setStep(3);
+  }, [account, duration, boostPlus]);
 
   const finish = () => onHide();
 
@@ -203,7 +178,9 @@ export function BoostDialog({ onHide }: Props) {
               </div>
               {inProgress && <LinearProgress />}
               <div className="transaction-form-body">
-                <KeyOrHot inProgress={inProgress} onKey={sign} onHot={hotSign} onKc={signKc} />
+                <Button onClick={sign} disabled={inProgress}>
+                  {i18next.t("trx-common.sign-title")}
+                </Button>
               </div>
             </div>
           )}

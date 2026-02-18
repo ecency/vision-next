@@ -1,24 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { error } from "../feedback";
 import { formatError } from "@/api/format-error";
-import {
-  limitOrderCancel,
-  limitOrderCancelHot,
-  limitOrderCancelKc,
-  limitOrderCreate,
-  limitOrderCreateHot,
-  limitOrderCreateKc
-} from "@/api/operations";
-import { PrivateKey } from "@hiveio/dhive";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { BuySellHiveTransactionType } from "@/enums";
+import { useLimitOrderCreateMutation, useLimitOrderCancelMutation } from "@/api/sdk-mutations";
+import { formatNumber } from "@/utils/format-number";
+import { LinearProgress } from "@/features/shared";
 
 interface Props {
   type: BuySellHiveTransactionType;
@@ -43,51 +36,54 @@ export function BuySellHiveDialog({
   const { activeUser } = useActiveAccount();
 
   const [step, setStep] = useState(1);
-  const [inProgress, setInProgress] = useState(false);
 
-  const updateAll = () => {
-    setInProgress(false);
-    setStep(3);
-    onTransactionSuccess();
-  };
+  const { mutateAsync: limitOrderCreate, isPending: isCreatePending } =
+    useLimitOrderCreateMutation();
+  const { mutateAsync: limitOrderCancel, isPending: isCancelPending } =
+    useLimitOrderCancelMutation();
 
-  const promiseCheck = (p: any) => {
-    p &&
-      p
-        .then(() => updateAll())
-        .catch((err: any) => {
-          error(...formatError(err));
-          setInProgress(false);
-          onHide();
+  const inProgress = isCreatePending || isCancelPending;
+
+  const sign = useCallback(async () => {
+    try {
+      if (type === BuySellHiveTransactionType.Cancel && orderid) {
+        await limitOrderCancel({ orderId: orderid });
+      } else {
+        const expiration = new Date(Date.now());
+        expiration.setDate(expiration.getDate() + 27);
+        const expirationStr = expiration.toISOString().split(".")[0];
+
+        const orderId = Number(
+          `${Math.floor(Date.now() / 1000)
+            .toString()
+            .slice(2)}`
+        );
+
+        const amountToSell =
+          type === BuySellHiveTransactionType.Buy
+            ? `${formatNumber(total, 3)} HBD`
+            : `${formatNumber(amount, 3)} HIVE`;
+
+        const minToReceive =
+          type === BuySellHiveTransactionType.Buy
+            ? `${formatNumber(amount, 3)} HIVE`
+            : `${formatNumber(total, 3)} HBD`;
+
+        await limitOrderCreate({
+          amountToSell,
+          minToReceive,
+          fillOrKill: false,
+          expiration: expirationStr,
+          orderId
         });
-  };
-
-  const sign = (key: PrivateKey) => {
-    setInProgress(true);
-    if (type === BuySellHiveTransactionType.Cancel && orderid) {
-      promiseCheck(limitOrderCancel(activeUser!.username, key, orderid));
-    } else {
-      promiseCheck(limitOrderCreate(activeUser!.username, key, total, amount, type));
+      }
+      setStep(3);
+      onTransactionSuccess();
+    } catch (err) {
+      error(...formatError(err));
+      onHide();
     }
-  };
-
-  const signHs = () => {
-    setInProgress(true);
-    if (type === BuySellHiveTransactionType.Cancel && orderid) {
-      promiseCheck(limitOrderCancelHot(activeUser!.username, orderid));
-    } else {
-      promiseCheck(limitOrderCreateHot(activeUser!.username, total, amount, type));
-    }
-  };
-
-  const signKc = () => {
-    setInProgress(true);
-    if (type === BuySellHiveTransactionType.Cancel && orderid) {
-      promiseCheck(limitOrderCancelKc(activeUser!.username, orderid));
-    } else {
-      promiseCheck(limitOrderCreateKc(activeUser!.username, total, amount, type));
-    }
-  };
+  }, [type, orderid, total, amount, limitOrderCreate, limitOrderCancel, onTransactionSuccess, onHide]);
 
   const finish = () => {
     onTransactionSuccess();
@@ -160,16 +156,22 @@ export function BuySellHiveDialog({
         )}
 
         {step === 2 && (
-          <div className="transaction-form">
+          <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
             {formHeader1}
-            <div className="transaction-form">
-              <KeyOrHot inProgress={inProgress} onKey={sign} onHot={signHs} onKc={signKc} />
+            {inProgress && <LinearProgress />}
+            <div className="transaction-form-body flex flex-col items-center">
+              <div className="my-5">
+                <Button onClick={sign} disabled={inProgress}>
+                  {inProgress
+                    ? i18next.t("market.signing")
+                    : i18next.t("trx-common.sign-title")}
+                </Button>
+              </div>
               <p className="text-center">
                 <a
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-
                     setStep(1);
                   }}
                 >

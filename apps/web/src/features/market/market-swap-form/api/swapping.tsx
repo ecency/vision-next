@@ -1,23 +1,20 @@
 import Decimal from "decimal.js";
 
-import { PrivateKey } from "@hiveio/dhive";
-
-import type { EngineMarketOrderPayload } from "@ecency/sdk";
-import { limitOrderCreate, limitOrderCreateHot, limitOrderCreateKc } from "@/api/operations";
-import { ActiveUser } from "@/entities";
-import { BuySellHiveTransactionType, OrderIdPrefix } from "@/enums";
+import type { EngineMarketOrderPayload, LimitOrderCreatePayload } from "@ecency/sdk";
+import { OrderIdPrefix } from "@/enums";
 
 import { HiveMarketAsset, MarketAsset, isEnginePair, isEngineToken, isHiveMarketAsset, isSwapHiveAsset } from "../market-pair";
 import { getEngineSymbolFromPair } from "./engine";
 
 export enum SwappingMethod {
-  KEY = "key",
-  HS = "hs",
-  KC = "kc",
+  HIVE = "hive",
   CUSTOM = "custom"
 }
 
 const ENGINE_PRICE_PRECISION = 8;
+const SWAP_ORDER_ID_PREFIX = OrderIdPrefix.SWAP;
+const HIVE_AMOUNT_PRECISION = 3;
+const ORDER_EXPIRY_DAYS = 27;
 
 const parseAmount = (value: string) => {
   try {
@@ -29,7 +26,7 @@ const parseAmount = (value: string) => {
 
 export const getMarketSwappingMethods = (fromAsset: MarketAsset, toAsset: MarketAsset) => {
   if (isHiveMarketAsset(fromAsset) && isHiveMarketAsset(toAsset)) {
-    return [SwappingMethod.HS, SwappingMethod.KC, SwappingMethod.KEY];
+    return [SwappingMethod.HIVE];
   }
 
   if (isEnginePair(fromAsset, toAsset)) {
@@ -40,7 +37,6 @@ export const getMarketSwappingMethods = (fromAsset: MarketAsset, toAsset: Market
 };
 
 export interface SwapOptions {
-  activeUser: ActiveUser | null;
   fromAsset: MarketAsset;
   fromAmount: string;
   toAsset: MarketAsset;
@@ -48,82 +44,51 @@ export interface SwapOptions {
   engineTokenPrecision?: number;
 }
 
-export const swapByKey = (key: PrivateKey, options: SwapOptions) => {
+/**
+ * Build a LimitOrderCreatePayload for use with useLimitOrderCreateMutation.
+ *
+ * Handles the HIVE/HBD swap logic:
+ * - Selling HIVE for HBD: amountToSell is HIVE, minToReceive is HBD
+ * - Selling HBD for HIVE (buying HIVE): amountToSell is HBD, minToReceive is HIVE
+ */
+export function buildHiveSwapPayload(options: SwapOptions): LimitOrderCreatePayload | null {
   const fromAmount = +options.fromAmount.replace(/,/gm, "");
   const toAmount = +options.toAmount.replace(/,/gm, "");
 
-  if (options.fromAsset === HiveMarketAsset.HIVE) {
-    return limitOrderCreate(
-      options.activeUser!.username,
-      key,
-      toAmount,
-      fromAmount,
-      BuySellHiveTransactionType.Sell,
-      OrderIdPrefix.SWAP
-    );
-  } else if (options.fromAsset === HiveMarketAsset.HBD) {
-    return limitOrderCreate(
-      options.activeUser!.username,
-      key,
-      fromAmount,
-      toAmount,
-      BuySellHiveTransactionType.Buy,
-      OrderIdPrefix.SWAP
-    );
-  }
+  // Calculate expiration (27 days from now)
+  const expiration = new Date(Date.now());
+  expiration.setDate(expiration.getDate() + ORDER_EXPIRY_DAYS);
+  const expirationStr = expiration.toISOString().split(".")[0];
 
-  return Promise.reject();
-};
-
-export const swapByKc = (options: SwapOptions) => {
-  const fromAmount = +options.fromAmount.replace(/,/gm, "");
-  const toAmount = +options.toAmount.replace(/,/gm, "");
+  // Generate order ID with swap prefix
+  const orderId = Number(
+    `${SWAP_ORDER_ID_PREFIX}${Math.floor(Date.now() / 1000)
+      .toString()
+      .slice(2)}`
+  );
 
   if (options.fromAsset === HiveMarketAsset.HIVE) {
-    return limitOrderCreateKc(
-      options.activeUser!.username,
-      toAmount,
-      fromAmount,
-      BuySellHiveTransactionType.Sell,
-      OrderIdPrefix.SWAP
-    );
+    // Selling HIVE for HBD
+    return {
+      amountToSell: `${fromAmount.toFixed(HIVE_AMOUNT_PRECISION)} HIVE`,
+      minToReceive: `${toAmount.toFixed(HIVE_AMOUNT_PRECISION)} HBD`,
+      fillOrKill: false,
+      expiration: expirationStr,
+      orderId
+    };
   } else if (options.fromAsset === HiveMarketAsset.HBD) {
-    return limitOrderCreateKc(
-      options.activeUser!.username,
-      fromAmount,
-      toAmount,
-      BuySellHiveTransactionType.Buy,
-      OrderIdPrefix.SWAP
-    );
+    // Selling HBD for HIVE (buying HIVE)
+    return {
+      amountToSell: `${fromAmount.toFixed(HIVE_AMOUNT_PRECISION)} HBD`,
+      minToReceive: `${toAmount.toFixed(HIVE_AMOUNT_PRECISION)} HIVE`,
+      fillOrKill: false,
+      expiration: expirationStr,
+      orderId
+    };
   }
 
-  return Promise.reject();
-};
-
-export const swapByHs = (options: SwapOptions) => {
-  const fromAmount = +options.fromAmount.replace(/,/gm, "");
-  const toAmount = +options.toAmount.replace(/,/gm, "");
-
-  if (options.fromAsset === HiveMarketAsset.HIVE) {
-    return limitOrderCreateHot(
-      options.activeUser!.username,
-      toAmount,
-      fromAmount,
-      BuySellHiveTransactionType.Sell,
-      OrderIdPrefix.SWAP
-    );
-  } else if (options.fromAsset === HiveMarketAsset.HBD) {
-    return limitOrderCreateHot(
-      options.activeUser!.username,
-      fromAmount,
-      toAmount,
-      BuySellHiveTransactionType.Buy,
-      OrderIdPrefix.SWAP
-    );
-  }
-
-  return Promise.resolve();
-};
+  return null;
+}
 
 /**
  * Build engine swap payload for SDK mutation.

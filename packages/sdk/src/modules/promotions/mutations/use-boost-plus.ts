@@ -17,11 +17,11 @@ export function useBoostPlus(
     ({ account, duration }) => [
       buildBoostPlusOp(username!, account, duration)
     ],
-    async () => {
+    async (_data, { account }) => {
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           QueryKeys.accounts.full(username),
-          QueryKeys.promotions.boostPlusAccounts(username!),
+          QueryKeys.promotions.boostPlusAccounts(account),
         ]);
       }
     },

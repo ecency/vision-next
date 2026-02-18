@@ -4,13 +4,13 @@ import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { CONFIG, getAccountFullQueryOptions, useGrantPostingPermission } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { formatError } from "@/api/format-error";
-import { grantPostingPermission } from "@/api/operations";
 import { makeHsCode } from "@/utils";
 import { useLoginInApp } from "./use-login-in-app";
 import { useGlobalStore } from "@/core/global-store";
+import { useRef } from "react";
 
 async function signer(message: string, privateKey: PrivateKey) {
   const hash = cryptoUtils.sha256(message);
@@ -25,6 +25,20 @@ export function useLoginByKey(
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const loginInApp = useLoginInApp(username);
   const queryClient = useQueryClient();
+
+  // Ref to hold the active private key for broadcasting during login.
+  // The key is set during the login mutation before calling grantPostingPermission,
+  // since the user is not yet logged in and the standard adapter cannot resolve keys.
+  const activeKeyRef = useRef<PrivateKey | null>(null);
+  const grantPostingPermission = useGrantPostingPermission(username, {
+    broadcast: async (ops) => {
+      const key = activeKeyRef.current;
+      if (!key) {
+        throw new Error("No active key available for granting posting permission");
+      }
+      return CONFIG.hiveClient.broadcast.sendOperations(ops, key);
+    }
+  });
 
   return useMutation({
     mutationKey: ["login-by-key", username, keyOrSeed, isVerified],
@@ -175,13 +189,18 @@ export function useLoginByKey(
 
         if (!hasPostingPerm && !withPostingKey) {
           try {
-            await grantPostingPermission(
-              privateKey,
-              account,
-              EcencyConfigManager.CONFIG.service.hsClientId
-            );
+            activeKeyRef.current = privateKey;
+            await grantPostingPermission.mutateAsync({
+              currentPosting: account.posting,
+              grantedAccount: EcencyConfigManager.CONFIG.service.hsClientId,
+              weightThreshold: account.posting.weight_threshold,
+              memoKey: account.memo_key,
+              jsonMetadata: account.json_metadata
+            });
           } catch (err) {
             throw new Error(i18next.t("login.error-permission"));
+          } finally {
+            activeKeyRef.current = null;
           }
         }
       }

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { formatError } from "@/api/format-error";
-import { comment } from "@/api/operations";
+import { useCommentMutation } from "@/api/sdk-mutations";
 import dayjs from "@/utils/dayjs";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { Entry } from "@/entities";
@@ -26,6 +26,7 @@ export function usePostEdit(entry: Entry | undefined) {
     activeUser?.username,
     "post-updated"
   );
+  const { mutateAsync: commentMutation } = useCommentMutation();
 
   return useMutation({
     mutationKey: ["update-entry", entry?.author, entry?.permlink],
@@ -61,7 +62,15 @@ export function usePostEdit(entry: Entry | undefined) {
 
       const jsonMeta = metaBuilder.build();
 
-      await comment(activeUser?.username!, "", category, permlink, title, newBody, jsonMeta, null);
+      await commentMutation({
+        author: activeUser?.username!,
+        permlink,
+        parentAuthor: "",
+        parentPermlink: category,
+        title,
+        body: newBody,
+        jsonMetadata: jsonMeta
+      });
 
       try {
         await validatePostUpdating({ entry, title, text: newBody });

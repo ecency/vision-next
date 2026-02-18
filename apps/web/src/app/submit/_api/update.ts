@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { formatError } from "@/api/format-error";
-import { comment } from "@/api/operations";
+import { useCommentMutation } from "@/api/sdk-mutations";
 import dayjs from "@/utils/dayjs";
 import { useThreeSpeakManager } from "../_hooks";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
@@ -26,6 +26,7 @@ export function useUpdateApi(onClear: () => void) {
     username,
     "legacy-post-updated"
   );
+  const { mutateAsync: commentMutation } = useCommentMutation();
 
   return useMutation({
     mutationKey: ["update"],
@@ -68,16 +69,15 @@ export function useUpdateApi(onClear: () => void) {
       const jsonMeta = metaBuilder.build();
 
       try {
-        await comment(
-          username,
-          "",
-          category,
+        await commentMutation({
+          author: username,
           permlink,
+          parentAuthor: "",
+          parentPermlink: category,
           title,
-          buildBody(newBody),
-          jsonMeta,
-          null
-        );
+          body: buildBody(newBody),
+          jsonMetadata: jsonMeta
+        });
 
         try {
           await validatePostUpdating({ entry: editingEntry, title, text: buildBody(newBody) });

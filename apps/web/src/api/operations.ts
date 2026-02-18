@@ -920,34 +920,6 @@ export const grantPostingPermission = (key: PrivateKey, account: FullAccount, pA
   );
 };
 
-export const setUserRole = (
-  username: string,
-  community: string,
-  account: string,
-  role: string
-): Promise<TransactionConfirmation> => {
-  const json = ["setRole", { community, account, role }];
-
-  return broadcastPostingJSON(username, "community", json);
-};
-
-export const updateCommunity = (
-  username: string,
-  community: string,
-  props: {
-    title: string;
-    about: string;
-    lang: string;
-    description: string;
-    flag_text: string;
-    is_nsfw: boolean;
-  }
-): Promise<TransactionConfirmation> => {
-  const json = ["updateProps", { community, props }];
-
-  return broadcastPostingJSON(username, "community", json);
-};
-
 export const pinPost = (
   username: string,
   community: string,
