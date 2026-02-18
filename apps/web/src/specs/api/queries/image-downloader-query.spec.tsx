@@ -281,13 +281,14 @@ describe('useImageDownloader', () => {
 
     it('should handle entry with no image', async () => {
       (catchPostImage as any).mockReturnValue('');
-      (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
-      renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
+      const { result } = renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
 
       await waitFor(() => {
-        expect(appAxios.get).toHaveBeenCalled();
+        expect(result.current.data).toBe(noImage);
       });
+
+      expect(appAxios.get).not.toHaveBeenCalled();
     });
 
     it('should handle blob conversion error', async () => {
