@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Subscription } from "../types";
 
 /**
@@ -9,7 +10,7 @@ import { Subscription } from "../types";
  */
 export function getCommunitySubscribersQueryOptions(communityName: string) {
   return queryOptions({
-    queryKey: ["communities", "subscribers", communityName],
+    queryKey: QueryKeys.communities.subscribers(communityName),
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call("bridge", "list_subscribers", {
         community: communityName,

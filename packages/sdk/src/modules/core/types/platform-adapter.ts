@@ -234,7 +234,7 @@ export interface PlatformAdapter {
   showAuthUpgradeUI?: (
     requiredAuthority: 'posting' | 'active',
     operation: string
-  ) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
+  ) => Promise<'hiveauth' | 'hivesigner' | 'keychain' | 'key' | false>;
 
   // ============================================================================
   // Platform-Specific Broadcasting

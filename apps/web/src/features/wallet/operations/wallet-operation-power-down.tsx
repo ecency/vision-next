@@ -1,10 +1,9 @@
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions } from "@ecency/sdk";
+import { getDynamicPropsQueryOptions, getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { dateToFullRelative, formatNumber } from "@/utils";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowRight } from "@tooni/iconscout-unicons-react";

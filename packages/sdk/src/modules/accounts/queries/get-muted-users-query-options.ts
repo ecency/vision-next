@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Follow } from "../types";
 
 /**
@@ -10,7 +11,7 @@ import { Follow } from "../types";
  */
 export function getMutedUsersQueryOptions(username: string | undefined, limit = 100) {
   return queryOptions({
-    queryKey: ["accounts", "muted-users", username],
+    queryKey: QueryKeys.accounts.mutedUsers(username!),
     queryFn: async () => {
       const response = (await CONFIG.hiveClient.database.call("get_following", [
         username,

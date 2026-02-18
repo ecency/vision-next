@@ -217,7 +217,9 @@ export const DiscussionItem = memo(function DiscussionItem({
     async () => {
       toggleEdit();
       return;
-    }
+    },
+    undefined,
+    root
   );
   const { mutateAsync: pinReply } = usePinReply(entry, root);
 

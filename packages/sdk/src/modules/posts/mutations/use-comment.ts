@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "@hiveio/dhive";
@@ -200,19 +200,16 @@ export function useComment(
       // Cache invalidation (always runs regardless of recordActivity outcome)
       if (auth?.adapter?.invalidateQueries) {
         const queriesToInvalidate: any[] = [
-          ["posts", "feed", username],
-          ["posts", "blog", username],
-          ["account", username, "rc"] // RC decreases after posting/commenting
+          QueryKeys.accounts.full(username),
+          QueryKeys.resourceCredits.account(username!)
         ];
 
         // If this is a reply, invalidate parent post and discussions
         if (!isPost) {
           // Invalidate parent entry
-          queriesToInvalidate.push([
-            "posts",
-            "entry",
-            `/@${variables.parentAuthor}/${variables.parentPermlink}`
-          ]);
+          queriesToInvalidate.push(
+            QueryKeys.posts.entry(`/@${variables.parentAuthor}/${variables.parentPermlink}`)
+          );
 
           // Invalidate discussions (matches all sort orders)
           // Use partial key to match all sort order variants

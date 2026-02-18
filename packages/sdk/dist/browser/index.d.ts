@@ -1,11 +1,11 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
-import { UseMutationOptions, MutationKey, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions } from '@tanstack/react-query';
+import { UseMutationOptions, MutationKey, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
 import * as _hiveio_dhive from '@hiveio/dhive';
-import { Operation, TransactionConfirmation, Authority as Authority$1, SMTAsset, PrivateKey, AuthorityType, PublicKey, Client } from '@hiveio/dhive';
+import { Operation, TransactionConfirmation, Authority as Authority$1, SMTAsset, PrivateKey, AuthorityType, PublicKey, Client, OperationName, VirtualOperationName } from '@hiveio/dhive';
 import * as _hiveio_dhive_lib_chain_rc from '@hiveio/dhive/lib/chain/rc';
 import { RCAccount } from '@hiveio/dhive/lib/chain/rc';
 
-interface DynamicProps {
+interface DynamicProps$1 {
     hivePerMVests: number;
     base: number;
     quote: number;
@@ -238,7 +238,7 @@ interface PlatformAdapter {
      * }
      * ```
      */
-    showAuthUpgradeUI?: (requiredAuthority: 'posting' | 'active', operation: string) => Promise<'hiveauth' | 'hivesigner' | 'key' | false>;
+    showAuthUpgradeUI?: (requiredAuthority: 'posting' | 'active', operation: string) => Promise<'hiveauth' | 'hivesigner' | 'keychain' | 'key' | false>;
     /**
      * Broadcast operations using Keychain browser extension.
      *
@@ -914,7 +914,53 @@ interface Payload$4 {
     profile: Partial<AccountProfile>;
     tokens: AccountProfile["tokens"];
 }
-declare function useAccountUpdate(username: string, auth?: AuthContext): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+/**
+ * React Query mutation hook for updating account profile metadata.
+ *
+ * This mutation broadcasts an account_update2 operation to update the user's
+ * profile information (name, about, location, avatar, cover image, etc.).
+ *
+ * @param username - The username to update (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Profile Fields:**
+ * - name: Display name
+ * - about: Bio/description
+ * - location: Location
+ * - website: Website URL
+ * - profile_image: Avatar URL
+ * - cover_image: Cover/banner URL
+ * - tokens: Social tokens (Twitter, Facebook, etc.)
+ * - version: Profile metadata version (auto-set to 2)
+ *
+ * **Authentication:**
+ * - Uses posting authority (account_update2 operation)
+ * - Supports all auth methods via platform adapter
+ *
+ * **Post-Broadcast Actions:**
+ * - Optimistically updates account cache with new profile data
+ * - Invalidates account cache to refetch from blockchain
+ *
+ * @example
+ * ```typescript
+ * const updateProfile = useAccountUpdate(username, {
+ *   adapter: myAdapter,
+ * });
+ *
+ * // Update profile
+ * updateProfile.mutate({
+ *   profile: {
+ *     name: "John Doe",
+ *     about: "Hive enthusiast",
+ *     profile_image: "https://...",
+ *   }
+ * });
+ * ```
+ */
+declare function useAccountUpdate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
 
 type Kind = "toggle-ignore" | "toggle-follow";
 declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, auth: AuthContext | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
@@ -1080,1196 +1126,64 @@ interface Payload {
 type RevokeKeyOptions = Pick<UseMutationOptions<unknown, Error, Payload>, "onSuccess" | "onError">;
 declare function useAccountRevokeKey(username: string | undefined, options?: RevokeKeyOptions): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, Payload, unknown>;
 
-declare function getAccountFullQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
-    name: any;
-    owner: any;
-    active: any;
-    posting: any;
-    memo_key: any;
-    post_count: any;
-    created: any;
-    posting_json_metadata: any;
-    last_vote_time: any;
-    last_post: any;
-    json_metadata: any;
-    reward_hive_balance: any;
-    reward_hbd_balance: any;
-    reward_vesting_hive: any;
-    reward_vesting_balance: any;
-    balance: any;
-    hbd_balance: any;
-    savings_balance: any;
-    savings_hbd_balance: any;
-    savings_hbd_last_interest_payment: any;
-    savings_hbd_seconds_last_update: any;
-    savings_hbd_seconds: any;
-    next_vesting_withdrawal: any;
-    pending_claimed_accounts: any;
-    vesting_shares: any;
-    delegated_vesting_shares: any;
-    received_vesting_shares: any;
-    vesting_withdraw_rate: any;
-    to_withdraw: any;
-    withdrawn: any;
-    witness_votes: any;
-    proxy: any;
-    recovery_account: any;
-    proxied_vsf_votes: any;
-    voting_manabar: any;
-    voting_power: any;
-    downvote_manabar: any;
-    follow_stats: AccountFollowStats | undefined;
-    reputation: number;
-    profile: AccountProfile;
-}, Error, {
-    name: any;
-    owner: any;
-    active: any;
-    posting: any;
-    memo_key: any;
-    post_count: any;
-    created: any;
-    posting_json_metadata: any;
-    last_vote_time: any;
-    last_post: any;
-    json_metadata: any;
-    reward_hive_balance: any;
-    reward_hbd_balance: any;
-    reward_vesting_hive: any;
-    reward_vesting_balance: any;
-    balance: any;
-    hbd_balance: any;
-    savings_balance: any;
-    savings_hbd_balance: any;
-    savings_hbd_last_interest_payment: any;
-    savings_hbd_seconds_last_update: any;
-    savings_hbd_seconds: any;
-    next_vesting_withdrawal: any;
-    pending_claimed_accounts: any;
-    vesting_shares: any;
-    delegated_vesting_shares: any;
-    received_vesting_shares: any;
-    vesting_withdraw_rate: any;
-    to_withdraw: any;
-    withdrawn: any;
-    witness_votes: any;
-    proxy: any;
-    recovery_account: any;
-    proxied_vsf_votes: any;
-    voting_manabar: any;
-    voting_power: any;
-    downvote_manabar: any;
-    follow_stats: AccountFollowStats | undefined;
-    reputation: number;
-    profile: AccountProfile;
-}, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<{
-        name: any;
-        owner: any;
-        active: any;
-        posting: any;
-        memo_key: any;
-        post_count: any;
-        created: any;
-        posting_json_metadata: any;
-        last_vote_time: any;
-        last_post: any;
-        json_metadata: any;
-        reward_hive_balance: any;
-        reward_hbd_balance: any;
-        reward_vesting_hive: any;
-        reward_vesting_balance: any;
-        balance: any;
-        hbd_balance: any;
-        savings_balance: any;
-        savings_hbd_balance: any;
-        savings_hbd_last_interest_payment: any;
-        savings_hbd_seconds_last_update: any;
-        savings_hbd_seconds: any;
-        next_vesting_withdrawal: any;
-        pending_claimed_accounts: any;
-        vesting_shares: any;
-        delegated_vesting_shares: any;
-        received_vesting_shares: any;
-        vesting_withdraw_rate: any;
-        to_withdraw: any;
-        withdrawn: any;
-        witness_votes: any;
-        proxy: any;
-        recovery_account: any;
-        proxied_vsf_votes: any;
-        voting_manabar: any;
-        voting_power: any;
-        downvote_manabar: any;
-        follow_stats: AccountFollowStats | undefined;
-        reputation: number;
-        profile: AccountProfile;
-    }, (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: {
-            name: any;
-            owner: any;
-            active: any;
-            posting: any;
-            memo_key: any;
-            post_count: any;
-            created: any;
-            posting_json_metadata: any;
-            last_vote_time: any;
-            last_post: any;
-            json_metadata: any;
-            reward_hive_balance: any;
-            reward_hbd_balance: any;
-            reward_vesting_hive: any;
-            reward_vesting_balance: any;
-            balance: any;
-            hbd_balance: any;
-            savings_balance: any;
-            savings_hbd_balance: any;
-            savings_hbd_last_interest_payment: any;
-            savings_hbd_seconds_last_update: any;
-            savings_hbd_seconds: any;
-            next_vesting_withdrawal: any;
-            pending_claimed_accounts: any;
-            vesting_shares: any;
-            delegated_vesting_shares: any;
-            received_vesting_shares: any;
-            vesting_withdraw_rate: any;
-            to_withdraw: any;
-            withdrawn: any;
-            witness_votes: any;
-            proxy: any;
-            recovery_account: any;
-            proxied_vsf_votes: any;
-            voting_manabar: any;
-            voting_power: any;
-            downvote_manabar: any;
-            follow_stats: AccountFollowStats | undefined;
-            reputation: number;
-            profile: AccountProfile;
-        };
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getAccountsQueryOptions(usernames: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<FullAccount[], Error, FullAccount[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<FullAccount[], string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: FullAccount[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
 /**
- * Get follow count (followers and following) for an account
+ * Payload for claiming account creation tokens.
  */
-declare function getFollowCountQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFollowStats, Error, AccountFollowStats, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountFollowStats, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: AccountFollowStats;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Get list of accounts following a user
- *
- * @param following - The account being followed
- * @param startFollower - Pagination start point (account name)
- * @param followType - Type of follow relationship (default: "blog")
- * @param limit - Maximum number of results (default: 100)
- */
-declare function getFollowersQueryOptions(following: string | undefined, startFollower: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | number | undefined)[] & {
-        [dataTagSymbol]: Follow[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Get list of accounts that a user is following
- *
- * @param follower - The account doing the following
- * @param startFollowing - Pagination start point (account name)
- * @param followType - Type of follow relationship (default: "blog")
- * @param limit - Maximum number of results (default: 100)
- */
-declare function getFollowingQueryOptions(follower: string | undefined, startFollowing: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | number | undefined)[] & {
-        [dataTagSymbol]: Follow[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Get list of users that an account has muted
- *
- * @param username - The account username
- * @param limit - Maximum number of results (default: 100)
- */
-declare function getMutedUsersQueryOptions(username: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: string[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Lookup accounts by username prefix
- *
- * @param query - Username prefix to search for
- * @param limit - Maximum number of results (default: 50)
- */
-declare function lookupAccountsQueryOptions(query: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | number)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | number)[], never> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: string[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: number, excludeList?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | string[])[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | string[])[], never> | undefined;
-} & {
-    queryKey: (string | string[])[] & {
-        [dataTagSymbol]: string[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-type AccountProfileToken = NonNullable<AccountProfile["tokens"]>[number];
-type WalletMetadataCandidate = Partial<AccountProfileToken> & {
-    currency?: string;
-    show?: boolean;
-    address?: string;
-    publicKey?: string;
-    privateKey?: string;
-    username?: string;
-};
-interface CheckUsernameWalletsPendingResponse {
-    exist: boolean;
-    tokens?: WalletMetadataCandidate[];
-    wallets?: WalletMetadataCandidate[];
+interface ClaimAccountPayload {
+    /** Creator account claiming the token */
+    creator: string;
+    /** Fee for claiming (usually "0.000 HIVE" for RC-based claims) */
+    fee?: string;
 }
-declare function checkUsernameWalletsPendingQueryOptions(username: string, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<CheckUsernameWalletsPendingResponse, Error, CheckUsernameWalletsPendingResponse, readonly unknown[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<CheckUsernameWalletsPendingResponse, readonly unknown[], never> | undefined;
-} & {
-    queryKey: readonly unknown[] & {
-        [dataTagSymbol]: CheckUsernameWalletsPendingResponse;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getRelationshipBetweenAccountsQueryOptions(reference: string | undefined, target: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: AccountRelationship;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-type Subscriptions = string[];
-declare function getAccountSubscriptionsQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Subscriptions, Error, Subscriptions, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Subscriptions, (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: Subscriptions;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
 /**
- * Authority levels for Hive blockchain operations.
- * - posting: Social operations (voting, commenting, reblogging)
- * - active: Financial and account management operations
- * - owner: Critical security operations (key changes, account recovery)
- * - memo: Memo encryption/decryption (rarely used for signing)
- */
-type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
-/**
- * Maps operation types to their required authority level.
+ * React Query mutation hook for claiming account creation tokens.
  *
- * This mapping is used to determine which key is needed to sign a transaction,
- * enabling smart auth fallback and auth upgrade UI.
+ * This mutation broadcasts a claim_account operation to claim an account
+ * creation token using Resource Credits (RC). The claimed token can later
+ * be used to create a new account for free using the create_claimed_account
+ * operation.
  *
- * @remarks
- * - Most social operations (vote, comment, reblog) require posting authority
- * - Financial operations (transfer, withdraw) require active authority
- * - Account management operations require active authority
- * - Security operations (password change, account recovery) require owner authority
- * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
- */
-declare const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel>;
-/**
- * Determines authority required for a custom_json operation.
- *
- * Custom JSON operations can require either posting or active authority
- * depending on which field is populated:
- * - required_auths (active authority)
- * - required_posting_auths (posting authority)
- *
- * @param customJsonOp - The custom_json operation to inspect
- * @returns 'active' if requires active authority, 'posting' if requires posting authority
- *
- * @example
- * ```typescript
- * // Reblog operation (posting authority)
- * const reblogOp: Operation = ['custom_json', {
- *   required_auths: [],
- *   required_posting_auths: ['alice'],
- *   id: 'reblog',
- *   json: '...'
- * }];
- * getCustomJsonAuthority(reblogOp); // Returns 'posting'
- *
- * // Some active authority custom_json
- * const activeOp: Operation = ['custom_json', {
- *   required_auths: ['alice'],
- *   required_posting_auths: [],
- *   id: 'some_active_op',
- *   json: '...'
- * }];
- * getCustomJsonAuthority(activeOp); // Returns 'active'
- * ```
- */
-declare function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel;
-/**
- * Determines authority required for a proposal operation.
- *
- * Proposal operations (create_proposal, update_proposal) typically require
- * active authority as they involve financial commitments and funding allocations.
- *
- * @param proposalOp - The proposal operation to inspect
- * @returns 'active' authority requirement
- *
- * @remarks
- * Unlike custom_json, proposal operations don't have explicit required_auths fields.
- * They always use the creator's authority, which defaults to active for financial
- * operations involving the DAO treasury.
- *
- * @example
- * ```typescript
- * const proposalOp: Operation = ['create_proposal', {
- *   creator: 'alice',
- *   receiver: 'bob',
- *   subject: 'My Proposal',
- *   permlink: 'my-proposal',
- *   start: '2026-03-01T00:00:00',
- *   end: '2026-04-01T00:00:00',
- *   daily_pay: '100.000 HBD',
- *   extensions: []
- * }];
- * getProposalAuthority(proposalOp); // Returns 'active'
- * ```
- */
-declare function getProposalAuthority(proposalOp: Operation): AuthorityLevel;
-/**
- * Determines the required authority level for any operation.
- *
- * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
- * detection for custom_json operations.
- *
- * @param op - The operation to check
- * @returns 'posting' or 'active' authority requirement
- *
- * @example
- * ```typescript
- * const voteOp: Operation = ['vote', { voter: 'alice', author: 'bob', permlink: 'post', weight: 10000 }];
- * getOperationAuthority(voteOp); // Returns 'posting'
- *
- * const transferOp: Operation = ['transfer', { from: 'alice', to: 'bob', amount: '1.000 HIVE', memo: '' }];
- * getOperationAuthority(transferOp); // Returns 'active'
- * ```
- */
-declare function getOperationAuthority(op: Operation): AuthorityLevel;
-/**
- * Determines the highest authority level required for a list of operations.
- *
- * Useful when broadcasting multiple operations together - the highest authority
- * level required by any operation determines what key is needed for the batch.
- *
- * Authority hierarchy: owner > active > posting > memo
- *
- * @param ops - Array of operations
- * @returns Highest authority level required ('owner', 'active', or 'posting')
- *
- * @example
- * ```typescript
- * const ops: Operation[] = [
- *   ['vote', { ... }],        // posting
- *   ['comment', { ... }],     // posting
- * ];
- * getRequiredAuthority(ops); // Returns 'posting'
- *
- * const mixedOps: Operation[] = [
- *   ['comment', { ... }],     // posting
- *   ['transfer', { ... }],    // active
- * ];
- * getRequiredAuthority(mixedOps); // Returns 'active'
- *
- * const securityOps: Operation[] = [
- *   ['transfer', { ... }],               // active
- *   ['change_recovery_account', { ... }], // owner
- * ];
- * getRequiredAuthority(securityOps); // Returns 'owner'
- * ```
- */
-declare function getRequiredAuthority(ops: Operation[]): AuthorityLevel;
-
-/**
- * React Query mutation hook for broadcasting Hive operations.
- * Supports multiple authentication methods with automatic fallback.
- *
- * @template T - Type of the mutation payload
- * @param mutationKey - React Query mutation key for cache management
- * @param username - Hive username (required for broadcast)
- * @param operations - Function that converts payload to Hive operations
- * @param onSuccess - Success callback after broadcast completes
- * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
- * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
+ * @param username - The username claiming the account token (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
  *
  * @returns React Query mutation result
  *
  * @remarks
- * **Authentication Flow:**
+ * **Post-Broadcast Actions:**
+ * - Invalidates account cache to update pending_claimed_accounts count
+ * - Updates account query data to set pending_claimed_accounts = 0 optimistically
  *
- * 1. **With AuthContextV2 + adapter + enableFallback** (recommended for new code):
- *    - Tries auth methods in fallbackChain order
- *    - Smart fallback: only retries on auth errors, not RC/network errors
- *    - Uses platform adapter for storage, UI, and broadcasting
+ * **Operation Details:**
+ * - Uses native claim_account operation
+ * - Fee: "0.000 HIVE" (uses RC instead of HIVE)
+ * - Authority: Active key (required for claiming)
  *
- * 2. **With legacy AuthContext** (backward compatible):
- *    - Tries auth.broadcast() first (custom implementation)
- *    - Falls back to postingKey if available
- *    - Falls back to accessToken (HiveSigner) if available
- *    - Throws if no auth method available
+ * **RC Requirements:**
+ * - Requires sufficient Resource Credits (RC)
+ * - RC amount varies based on network conditions
+ * - Claiming without sufficient RC will fail
  *
- * **Backward Compatibility:**
- * - All existing code using AuthContext will continue to work
- * - AuthContextV2 extends AuthContext, so it's a drop-in replacement
- * - enableFallback defaults to false if no adapter provided
- *
- * @example
- * ```typescript
- * // New pattern with platform adapter and fallback
- * const mutation = useBroadcastMutation(
- *   ['vote'],
- *   username,
- *   (payload) => [voteOperation(payload)],
- *   () => console.log('Success!'),
- *   {
- *     adapter: myAdapter,
- *     enableFallback: true,
- *     fallbackChain: ['keychain', 'key', 'hivesigner']
- *   },
- *   'posting'
- * );
- *
- * // Legacy pattern (still works)
- * const mutation = useBroadcastMutation(
- *   ['vote'],
- *   username,
- *   (payload) => [voteOperation(payload)],
- *   () => console.log('Success!'),
- *   { postingKey: 'wif-key' }
- * );
- * ```
- */
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: AuthorityLevel): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
-
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
-
-declare const CONFIG: {
-    privateApiHost: string;
-    imageHost: string;
-    hiveClient: Client;
-    heliusApiKey: string | undefined;
-    queryClient: QueryClient;
-    plausibleHost: string;
-    spkNode: string;
-    dmcaAccounts: string[];
-    dmcaTags: string[];
-    dmcaPatterns: string[];
-    dmcaTagRegexes: RegExp[];
-    dmcaPatternRegexes: RegExp[];
-    _dmcaInitialized: boolean;
-};
-type DmcaListsInput = {
-    accounts?: string[];
-    tags?: string[];
-    posts?: string[];
-};
-declare namespace ConfigManager {
-    function setQueryClient(client: QueryClient): void;
-    /**
-     * Set the private API host
-     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
-     */
-    function setPrivateApiHost(host: string): void;
-    /**
-     * Get a validated base URL for API requests
-     * Returns a valid base URL that can be used with new URL(path, baseUrl)
-     *
-     * Priority:
-     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
-     * 2. window.location.origin if in browser (production with relative URLs)
-     * 3. 'https://ecency.com' as fallback for SSR (production default)
-     *
-     * @returns A valid base URL string
-     * @throws Never throws - always returns a valid URL
-     */
-    function getValidatedBaseUrl(): string;
-    /**
-     * Set the image host
-     * @param host - The image host URL (e.g., "https://images.ecency.com")
-     */
-    function setImageHost(host: string): void;
-    /**
-     * Set DMCA filtering lists
-     * @param lists - DMCA lists object containing accounts/tags/posts arrays
-     */
-    function setDmcaLists(lists?: DmcaListsInput): void;
-}
-
-/**
- * Chain error handling utilities
- * Extracted from web's operations.ts and mobile's dhive.ts error handling patterns
- */
-declare enum ErrorType {
-    COMMON = "common",
-    INFO = "info",
-    INSUFFICIENT_RESOURCE_CREDITS = "insufficient_resource_credits",
-    MISSING_AUTHORITY = "missing_authority",
-    TOKEN_EXPIRED = "token_expired",
-    NETWORK = "network",
-    TIMEOUT = "timeout",
-    VALIDATION = "validation"
-}
-interface ParsedChainError {
-    message: string;
-    type: ErrorType;
-    originalError?: any;
-}
-/**
- * Parses Hive blockchain errors into standardized format.
- * Extracted from web's operations.ts and mobile's dhive.ts error handling.
- *
- * @param error - The error object or string from a blockchain operation
- * @returns Parsed error with user-friendly message and categorized type
+ * **Use Case:**
+ * - Claim tokens in advance when RC is available
+ * - Create accounts later without paying HIVE fee
+ * - Useful for onboarding services and apps
  *
  * @example
  * ```typescript
- * try {
- *   await vote(...);
- * } catch (error) {
- *   const parsed = parseChainError(error);
- *   console.log(parsed.message); // "Insufficient Resource Credits. Please wait or power up."
- *   console.log(parsed.type); // ErrorType.INSUFFICIENT_RESOURCE_CREDITS
- * }
+ * const claimMutation = useClaimAccount(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Claim account token using RC
+ * claimMutation.mutate({
+ *   creator: 'alice',
+ *   fee: '0.000 HIVE'
+ * });
  * ```
  */
-declare function parseChainError(error: any): ParsedChainError;
-/**
- * Formats error for display to user.
- * Returns tuple of [message, type] for backward compatibility with existing code.
- *
- * This function maintains compatibility with the old formatError signature from
- * web's operations.ts (line 59-84) and mobile's dhive.ts error handling.
- *
- * @param error - The error object or string
- * @returns Tuple of [user-friendly message, error type]
- *
- * @example
- * ```typescript
- * try {
- *   await transfer(...);
- * } catch (error) {
- *   const [message, type] = formatError(error);
- *   showToast(message, type);
- * }
- * ```
- */
-declare function formatError(error: any): [string, ErrorType];
-/**
- * Checks if error indicates missing authority and should trigger auth fallback.
- * Used by the SDK's useBroadcastMutation to determine if it should retry with
- * an alternate authentication method.
- *
- * @param error - The error object or string
- * @returns true if auth fallback should be attempted
- *
- * @example
- * ```typescript
- * try {
- *   await broadcast(operations);
- * } catch (error) {
- *   if (shouldTriggerAuthFallback(error)) {
- *     // Try with alternate auth method
- *     await broadcastWithHiveAuth(operations);
- *   }
- * }
- * ```
- */
-declare function shouldTriggerAuthFallback(error: any): boolean;
-/**
- * Checks if error is a resource credits (RC) error.
- * Useful for showing specific UI feedback about RC issues.
- *
- * @param error - The error object or string
- * @returns true if the error is related to insufficient RC
- *
- * @example
- * ```typescript
- * try {
- *   await vote(...);
- * } catch (error) {
- *   if (isResourceCreditsError(error)) {
- *     showRCWarning(); // Show specific RC education/power up UI
- *   }
- * }
- * ```
- */
-declare function isResourceCreditsError(error: any): boolean;
-/**
- * Checks if error is informational (not critical).
- * Informational errors typically don't need retry logic.
- *
- * @param error - The error object or string
- * @returns true if the error is informational
- */
-declare function isInfoError(error: any): boolean;
-/**
- * Checks if error is network-related and should be retried.
- *
- * @param error - The error object or string
- * @returns true if the error is network-related
- */
-declare function isNetworkError(error: any): boolean;
-
-declare function makeQueryClient(): QueryClient;
-declare const getQueryClient: () => QueryClient;
-declare namespace EcencyQueriesManager {
-    function getQueryData<T>(queryKey: QueryKey): T | undefined;
-    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
-    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
-    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
-    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
-        prefetch: () => Promise<T | undefined>;
-        getData: () => T | undefined;
-        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
-        fetchAndGet: () => Promise<T>;
-    };
-    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
-        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
-        getData: () => InfiniteData<T, unknown> | undefined;
-        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
-        fetchAndGet: () => Promise<InfiniteData<T, P>>;
-    };
-}
-
-declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps, Error, DynamicProps, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: DynamicProps;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-interface RewardFund {
-    id: number;
-    name: string;
-    reward_balance: string;
-    recent_claims: string;
-    last_update: string;
-    content_constant: string;
-    percent_curation_rewards: number;
-    percent_content_rewards: number;
-    author_reward_curve: string;
-    curation_reward_curve: string;
-}
-/**
- * Get reward fund information from the blockchain
- * @param fundName - Name of the reward fund (default: 'post')
- */
-declare function getRewardFundQueryOptions(fundName?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<RewardFund, Error, RewardFund, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<RewardFund, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: RewardFund;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function encodeObj(o: any): string;
-declare function decodeObj(o: any): any;
-
-declare enum Symbol {
-    HIVE = "HIVE",
-    HBD = "HBD",
-    VESTS = "VESTS",
-    SPK = "SPK"
-}
-declare enum NaiMap {
-    "@@000000021" = "HIVE",
-    "@@000000013" = "HBD",
-    "@@000000037" = "VESTS"
-}
-interface Asset {
-    amount: number;
-    symbol: Symbol;
-}
-declare function parseAsset(sval: string | SMTAsset): Asset;
-
-declare function getBoundFetch(): typeof fetch;
-
-declare function isCommunity(value: unknown): boolean;
-
-/**
- * Type guard to check if response is wrapped with pagination metadata
- */
-declare function isWrappedResponse<T>(response: any): response is WrappedResponse<T>;
-/**
- * Normalize response to wrapped format for backwards compatibility
- * If the backend returns old format (array), convert it to wrapped format
- */
-declare function normalizeToWrappedResponse<T>(response: T[] | WrappedResponse<T>, limit: number): WrappedResponse<T>;
-
-declare function getBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountBookmark[], (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: AccountBookmark[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-declare function getBookmarksInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountBookmark>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountBookmark>, (string | number | undefined)[], number> | undefined;
-} & {
-    queryKey: (string | number | undefined)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getFavouritesQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountFavorite[], (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: AccountFavorite[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-declare function getFavouritesInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountFavorite>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountFavorite>, (string | number | undefined)[], number> | undefined;
-} & {
-    queryKey: (string | number | undefined)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Query options to check if a specific account is in the active user's favourites
- * @param activeUsername - The logged-in user's username
- * @param code - Access token for authentication
- * @param targetUsername - The username to check if favorited
- * @returns Query options for checking if target is favorited
- */
-declare function checkFavouriteQueryOptions(activeUsername: string | undefined, code: string | undefined, targetUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<boolean, Error, boolean, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<boolean, (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: boolean;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: GetRecoveriesEmailResponse[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getAccountPendingRecoveryQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<any, (string | undefined)[], never> | undefined;
-} & {
-    queryKey: (string | undefined)[] & {
-        [dataTagSymbol]: any;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getAccountReputationsQueryOptions(query: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountReputation[], Error, AccountReputation[], (string | number)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AccountReputation[], (string | number)[], never> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: AccountReputation[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]>;
-declare const ALL_ACCOUNT_OPERATIONS: number[];
-type TxPage = Transaction[];
-/**
- * Get account transaction history with pagination and filtering
- *
- * @param username - Account name to get transactions for
- * @param limit - Number of transactions per page
- * @param group - Filter by operation group (transfers, market-orders, etc.)
- */
-declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<TxPage, (string | number)[], number> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPage, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getBotsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<string[], string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: string[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-type PageParam$3 = {
-    maxId?: number;
-};
-declare function getReferralsInfiniteQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<ReferralItem[], Error, _tanstack_react_query.InfiniteData<ReferralItem[], unknown>, string[], PageParam$3>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<ReferralItem[], string[], PageParam$3> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<ReferralItem[], unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getReferralsStatsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ReferralStat, Error, ReferralStat, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<ReferralStat, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: ReferralStat;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-interface FriendsPageParam {
-    startFollowing: string;
-}
-type FriendsPage = FriendsRow[];
-/**
- * Get list of friends (following/followers) with profile information
- *
- * @param following - The account whose friends to get
- * @param mode - "following" or "followers"
- * @param followType - Type of follow relationship (default: "blog")
- * @param limit - Number of results per page (default: 100)
- * @param enabled - Whether query is enabled (default: true)
- */
-declare function getFriendsInfiniteQueryOptions(following: string, mode: "following" | "followers", options?: {
-    followType?: string;
-    limit?: number;
-    enabled?: boolean;
-}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, FriendsPage, (string | number)[], FriendsPageParam>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<FriendsPage, (string | number)[], FriendsPageParam> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<FriendsPage, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-/**
- * Search friends (following/followers) by query string
- *
- * @param username - The account whose friends to search
- * @param mode - "following" or "followers"
- * @param query - Search query string
- */
-declare function getSearchFriendsQueryOptions(username: string, mode: "following" | "followers", query: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<FriendSearchResult[], Error, FriendSearchResult[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<FriendSearchResult[], string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: FriendSearchResult[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-interface TrendingTag {
-    comments: number;
-    name: string;
-    top_posts: number;
-    total_payouts: string;
-}
-
-interface Fragment {
-    id: string;
-    title: string;
-    body: string;
-    created: string;
-    modified: string;
-}
-
-interface EntryBeneficiaryRoute {
-    account: string;
-    weight: number;
-}
-interface EntryVote {
-    voter: string;
-    rshares: number;
-}
-interface EntryStat {
-    flag_weight: number;
-    gray: boolean;
-    hide: boolean;
-    total_votes: number;
-    is_pinned?: boolean;
-}
-interface JsonMetadata {
-    tags?: string[];
-    description?: string | null;
-    app?: any;
-    canonical_url?: string;
-    format?: string;
-    original_author?: string;
-    original_permlink?: string;
-    image?: string[];
-    pinned_reply?: string;
-    location?: {
-        coordinates: {
-            lat: number;
-            lng: number;
-        };
-        address?: string;
-    };
-}
-interface JsonPollMetadata {
-    content_type: "poll";
-    version: number;
-    question: string;
-    choices: string[];
-    preferred_interpretation: string;
-    token: string;
-    vote_change: boolean;
-    hide_votes: boolean;
-    filters: {
-        account_age: number;
-    };
-    end_time: number;
-    max_choices_voted?: number;
-}
-interface Entry$1 {
-    last_update?: string;
-    active_votes: EntryVote[];
-    author: string;
-    author_payout_value: string;
-    author_reputation: number;
-    author_role?: string;
-    author_title?: string;
-    beneficiaries: EntryBeneficiaryRoute[];
-    blacklists: string[];
-    body: string;
-    category: string;
-    children: number;
-    community?: string;
-    community_title?: string;
-    created: string;
-    total_votes?: number;
-    curator_payout_value: string;
-    depth: number;
-    is_paidout: boolean;
-    json_metadata: JsonMetadata | null;
-    max_accepted_payout: string;
-    net_rshares: number;
-    parent_author?: string;
-    parent_permlink?: string;
-    payout: number;
-    payout_at: string;
-    pending_payout_value: string;
-    percent_hbd: number;
-    permlink: string;
-    post_id: any;
-    id?: number;
-    num?: number;
-    promoted: string;
-    reblogs?: number;
-    reblogged_by?: string[] | any;
-    replies: any[];
-    stats: EntryStat | null;
-    title: string;
-    updated: string;
-    url: string;
-    original_entry?: Entry$1;
-    is_optimistic?: boolean;
-}
-interface EntryHeader {
-    author: string;
-    category: string;
-    permlink: string;
-    depth: number;
-}
-interface Vote {
-    percent: number;
-    reputation: number;
-    rshares: string;
-    time: string;
-    timestamp?: number;
-    voter: string;
-    weight: number;
-}
-
-interface PostTip {
-    sender: string;
-    receiver: string;
-    amount: number;
-    currency: string;
-    memo: string;
-    source: string;
-    timestamp: string;
-}
-interface PostTipsResponse {
-    meta: {
-        count: number;
-        totals: Record<string, number>;
-    };
-    list: PostTip[];
-}
-
-interface ThreadItemEntry extends Entry$1 {
-    host: string;
-    container: WaveEntry;
-    parent?: Entry$1;
-}
-type WaveEntry = ThreadItemEntry & Required<Pick<Entry$1, "id">>;
-interface WaveTrendingTag {
-    tag: string;
-    posts: number;
-}
-
-interface DraftMetadata {
-    beneficiaries?: Array<{
-        account: string;
-        weight: number;
-    }>;
-    rewardType?: string;
-    videos?: Record<string, any>;
-    poll?: any;
-    [key: string]: any;
-}
-interface Draft {
-    body: string;
-    created: string;
-    modified: string;
-    post_type: string;
-    tags_arr: string[];
-    tags: string;
-    timestamp: number;
-    title: string;
-    _id: string;
-    meta?: DraftMetadata;
-}
-type DraftsWrappedResponse = WrappedResponse<Draft>;
-
-interface Schedule {
-    _id: string;
-    username: string;
-    permlink: string;
-    title: string;
-    body: string;
-    tags: string[];
-    tags_arr: string;
-    schedule: string;
-    original_schedule: string;
-    reblog: boolean;
-    status: 1 | 2 | 3 | 4;
-    message: string | null;
-}
-
-interface UserImage {
-    created: string;
-    timestamp: number;
-    url: string;
-    _id: string;
-}
-
-interface VoteHistoryPageParam {
-    start: number;
-}
-interface VoteHistoryPage {
-    lastDate: number;
-    lastItemFetched: number;
-    entries: Entry$1[];
-}
-/**
- * Get account vote history with entries
- *
- * @param username - Account name to get vote history for
- * @param limit - Number of history items per page (default: 20)
- * @param filters - Additional filters to pass to get_account_history
- * @param dayLimit - Only include votes from last N days (default: 7)
- */
-declare function getAccountVoteHistoryInfiniteQueryOptions<F>(username: string, options?: {
-    limit?: number;
-    filters?: F[];
-    dayLimit?: number;
-}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<VoteHistoryPage, Error, VoteHistoryPage, (string | number)[], VoteHistoryPageParam>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<VoteHistoryPage, (string | number)[], VoteHistoryPageParam> | undefined;
-} & {
-    queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<VoteHistoryPage, unknown>;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare function getProfilesQueryOptions(accounts: string[], observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Profile[], Error, Profile[], (string | string[])[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Profile[], (string | string[])[], never> | undefined;
-} & {
-    queryKey: (string | string[])[] & {
-        [dataTagSymbol]: Profile[];
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-type ProfileTokens = AccountProfile["tokens"];
-interface BuildProfileMetadataArgs {
-    existingProfile?: AccountProfile;
-    profile?: Partial<AccountProfile> | null;
-    tokens?: ProfileTokens | null;
-}
-declare function parseProfileMetadata(postingJsonMetadata?: string | null): AccountProfile;
-declare function extractAccountProfile(data?: Pick<FullAccount, "posting_json_metadata"> | null): AccountProfile;
-declare function buildProfileMetadata({ existingProfile, profile, tokens, }: BuildProfileMetadataArgs): AccountProfile;
-
-/**
- * Parses raw account data from Hive API into FullAccount type
- * Handles profile metadata extraction from posting_json_metadata or json_metadata
- */
-declare function parseAccounts(rawAccounts: any[]): FullAccount[];
-
-declare function votingPower(account: FullAccount): number;
-declare function powerRechargeTime(power: number): number;
-declare function downVotingPower(account: FullAccount): number;
-declare function rcPower(account: RCAccount): number;
-declare function votingValue(account: FullAccount, dynamicProps: DynamicProps, votingPowerValue: number, weight?: number): number;
+declare function useClaimAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimAccountPayload, unknown>;
 
 /**
  * Content Operations
@@ -2450,6 +1364,30 @@ declare function buildCollateralizedConvertOp(owner: string, amount: string, req
  * @param maxRc - Maximum RC to delegate (in mana units)
  * @returns Custom JSON operation for RC delegation
  */
+/**
+ * Builds a SPK Network custom_json operation.
+ * @param from - Account performing the operation
+ * @param id - SPK operation ID (e.g., "spkcc_spk_send", "spkcc_gov_up")
+ * @param amount - Amount (multiplied by 1000 internally)
+ * @returns Custom JSON operation
+ */
+declare function buildSpkCustomJsonOp(from: string, id: string, amount: number): Operation;
+/**
+ * Builds a Hive Engine custom_json operation.
+ * @param from - Account performing the operation
+ * @param contractAction - Engine contract action (e.g., "transfer", "stake")
+ * @param contractPayload - Payload for the contract action
+ * @param contractName - Engine contract name (defaults to "tokens")
+ * @returns Custom JSON operation
+ */
+declare function buildEngineOp(from: string, contractAction: string, contractPayload: Record<string, string>, contractName?: string): Operation;
+/**
+ * Builds a scot_claim_token operation (posting authority).
+ * @param account - Account claiming rewards
+ * @param tokens - Array of token symbols to claim
+ * @returns Custom JSON operation
+ */
+declare function buildEngineClaimOp(account: string, tokens: string[]): Operation;
 declare function buildDelegateRcOp(from: string, delegatees: string, maxRc: string | number): Operation;
 
 /**
@@ -2906,6 +1844,1415 @@ declare function buildActiveCustomJsonOp(username: string, operationId: string, 
  */
 declare function buildPostingCustomJsonOp(username: string, operationId: string, json: Record<string, any> | any[]): Operation;
 
+interface GrantPostingPermissionPayload {
+    currentPosting: Authority;
+    grantedAccount: string;
+    weightThreshold: number;
+    memoKey: string;
+    jsonMetadata: string;
+}
+declare function useGrantPostingPermission(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, GrantPostingPermissionPayload, unknown>;
+
+interface CreateAccountPayload {
+    newAccountName: string;
+    keys: AccountKeys;
+    fee: string;
+    /** If true, uses a claimed account token instead of paying the fee */
+    useClaimed?: boolean;
+}
+declare function useCreateAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CreateAccountPayload, unknown>;
+
+declare function getAccountFullQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: any;
+    owner: any;
+    active: any;
+    posting: any;
+    memo_key: any;
+    post_count: any;
+    created: any;
+    posting_json_metadata: any;
+    last_vote_time: any;
+    last_post: any;
+    json_metadata: any;
+    reward_hive_balance: any;
+    reward_hbd_balance: any;
+    reward_vesting_hive: any;
+    reward_vesting_balance: any;
+    balance: any;
+    hbd_balance: any;
+    savings_balance: any;
+    savings_hbd_balance: any;
+    savings_hbd_last_interest_payment: any;
+    savings_hbd_seconds_last_update: any;
+    savings_hbd_seconds: any;
+    next_vesting_withdrawal: any;
+    pending_claimed_accounts: any;
+    vesting_shares: any;
+    delegated_vesting_shares: any;
+    received_vesting_shares: any;
+    vesting_withdraw_rate: any;
+    to_withdraw: any;
+    withdrawn: any;
+    witness_votes: any;
+    proxy: any;
+    recovery_account: any;
+    proxied_vsf_votes: any;
+    voting_manabar: any;
+    voting_power: any;
+    downvote_manabar: any;
+    follow_stats: AccountFollowStats | undefined;
+    reputation: number;
+    profile: AccountProfile;
+}, Error, {
+    name: any;
+    owner: any;
+    active: any;
+    posting: any;
+    memo_key: any;
+    post_count: any;
+    created: any;
+    posting_json_metadata: any;
+    last_vote_time: any;
+    last_post: any;
+    json_metadata: any;
+    reward_hive_balance: any;
+    reward_hbd_balance: any;
+    reward_vesting_hive: any;
+    reward_vesting_balance: any;
+    balance: any;
+    hbd_balance: any;
+    savings_balance: any;
+    savings_hbd_balance: any;
+    savings_hbd_last_interest_payment: any;
+    savings_hbd_seconds_last_update: any;
+    savings_hbd_seconds: any;
+    next_vesting_withdrawal: any;
+    pending_claimed_accounts: any;
+    vesting_shares: any;
+    delegated_vesting_shares: any;
+    received_vesting_shares: any;
+    vesting_withdraw_rate: any;
+    to_withdraw: any;
+    withdrawn: any;
+    witness_votes: any;
+    proxy: any;
+    recovery_account: any;
+    proxied_vsf_votes: any;
+    voting_manabar: any;
+    voting_power: any;
+    downvote_manabar: any;
+    follow_stats: AccountFollowStats | undefined;
+    reputation: number;
+    profile: AccountProfile;
+}, (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: any;
+        owner: any;
+        active: any;
+        posting: any;
+        memo_key: any;
+        post_count: any;
+        created: any;
+        posting_json_metadata: any;
+        last_vote_time: any;
+        last_post: any;
+        json_metadata: any;
+        reward_hive_balance: any;
+        reward_hbd_balance: any;
+        reward_vesting_hive: any;
+        reward_vesting_balance: any;
+        balance: any;
+        hbd_balance: any;
+        savings_balance: any;
+        savings_hbd_balance: any;
+        savings_hbd_last_interest_payment: any;
+        savings_hbd_seconds_last_update: any;
+        savings_hbd_seconds: any;
+        next_vesting_withdrawal: any;
+        pending_claimed_accounts: any;
+        vesting_shares: any;
+        delegated_vesting_shares: any;
+        received_vesting_shares: any;
+        vesting_withdraw_rate: any;
+        to_withdraw: any;
+        withdrawn: any;
+        witness_votes: any;
+        proxy: any;
+        recovery_account: any;
+        proxied_vsf_votes: any;
+        voting_manabar: any;
+        voting_power: any;
+        downvote_manabar: any;
+        follow_stats: AccountFollowStats | undefined;
+        reputation: number;
+        profile: AccountProfile;
+    }, (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: {
+            name: any;
+            owner: any;
+            active: any;
+            posting: any;
+            memo_key: any;
+            post_count: any;
+            created: any;
+            posting_json_metadata: any;
+            last_vote_time: any;
+            last_post: any;
+            json_metadata: any;
+            reward_hive_balance: any;
+            reward_hbd_balance: any;
+            reward_vesting_hive: any;
+            reward_vesting_balance: any;
+            balance: any;
+            hbd_balance: any;
+            savings_balance: any;
+            savings_hbd_balance: any;
+            savings_hbd_last_interest_payment: any;
+            savings_hbd_seconds_last_update: any;
+            savings_hbd_seconds: any;
+            next_vesting_withdrawal: any;
+            pending_claimed_accounts: any;
+            vesting_shares: any;
+            delegated_vesting_shares: any;
+            received_vesting_shares: any;
+            vesting_withdraw_rate: any;
+            to_withdraw: any;
+            withdrawn: any;
+            witness_votes: any;
+            proxy: any;
+            recovery_account: any;
+            proxied_vsf_votes: any;
+            voting_manabar: any;
+            voting_power: any;
+            downvote_manabar: any;
+            follow_stats: AccountFollowStats | undefined;
+            reputation: number;
+            profile: AccountProfile;
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getAccountsQueryOptions(usernames: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<FullAccount[], Error, FullAccount[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<FullAccount[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: FullAccount[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get follow count (followers and following) for an account
+ */
+declare function getFollowCountQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFollowStats, Error, AccountFollowStats, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountFollowStats, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: AccountFollowStats;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get list of accounts following a user
+ *
+ * @param following - The account being followed
+ * @param startFollower - Pagination start point (account name)
+ * @param followType - Type of follow relationship (default: "blog")
+ * @param limit - Maximum number of results (default: 100)
+ */
+declare function getFollowersQueryOptions(following: string | undefined, startFollower: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: Follow[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get list of accounts that a user is following
+ *
+ * @param follower - The account doing the following
+ * @param startFollowing - Pagination start point (account name)
+ * @param followType - Type of follow relationship (default: "blog")
+ * @param limit - Maximum number of results (default: 100)
+ */
+declare function getFollowingQueryOptions(follower: string, startFollowing: string, followType?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Follow[], Error, Follow[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Follow[], (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: Follow[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Get list of users that an account has muted
+ *
+ * @param username - The account username
+ * @param limit - Maximum number of results (default: 100)
+ */
+declare function getMutedUsersQueryOptions(username: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: string[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Lookup accounts by username prefix
+ *
+ * @param query - Username prefix to search for
+ * @param limit - Maximum number of results (default: 50)
+ */
+declare function lookupAccountsQueryOptions(query: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: string[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getSearchAccountsByUsernameQueryOptions(query: string, limit?: number, excludeList?: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], (string | string[] | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], (string | string[] | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | string[] | undefined)[] & {
+        [dataTagSymbol]: string[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type AccountProfileToken = NonNullable<AccountProfile["tokens"]>[number];
+type WalletMetadataCandidate = Partial<AccountProfileToken> & {
+    currency?: string;
+    show?: boolean;
+    address?: string;
+    publicKey?: string;
+    privateKey?: string;
+    username?: string;
+};
+interface CheckUsernameWalletsPendingResponse {
+    exist: boolean;
+    tokens?: WalletMetadataCandidate[];
+    wallets?: WalletMetadataCandidate[];
+}
+declare function checkUsernameWalletsPendingQueryOptions(username: string, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<CheckUsernameWalletsPendingResponse, Error, CheckUsernameWalletsPendingResponse, readonly unknown[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<CheckUsernameWalletsPendingResponse, readonly unknown[], never> | undefined;
+} & {
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: CheckUsernameWalletsPendingResponse;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getRelationshipBetweenAccountsQueryOptions(reference: string, target: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountRelationship, Error, AccountRelationship, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountRelationship, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: AccountRelationship;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type Subscriptions = string[];
+declare function getAccountSubscriptionsQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Subscriptions, Error, Subscriptions, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Subscriptions, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: Subscriptions;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Authority levels for Hive blockchain operations.
+ * - posting: Social operations (voting, commenting, reblogging)
+ * - active: Financial and account management operations
+ * - owner: Critical security operations (key changes, account recovery)
+ * - memo: Memo encryption/decryption (rarely used for signing)
+ */
+type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
+/**
+ * Maps operation types to their required authority level.
+ *
+ * This mapping is used to determine which key is needed to sign a transaction,
+ * enabling smart auth fallback and auth upgrade UI.
+ *
+ * @remarks
+ * - Most social operations (vote, comment, reblog) require posting authority
+ * - Financial operations (transfer, withdraw) require active authority
+ * - Account management operations require active authority
+ * - Security operations (password change, account recovery) require owner authority
+ * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
+ */
+declare const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel>;
+/**
+ * Determines authority required for a custom_json operation.
+ *
+ * Custom JSON operations can require either posting or active authority
+ * depending on which field is populated:
+ * - required_auths (active authority)
+ * - required_posting_auths (posting authority)
+ *
+ * @param customJsonOp - The custom_json operation to inspect
+ * @returns 'active' if requires active authority, 'posting' if requires posting authority
+ *
+ * @example
+ * ```typescript
+ * // Reblog operation (posting authority)
+ * const reblogOp: Operation = ['custom_json', {
+ *   required_auths: [],
+ *   required_posting_auths: ['alice'],
+ *   id: 'reblog',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(reblogOp); // Returns 'posting'
+ *
+ * // Some active authority custom_json
+ * const activeOp: Operation = ['custom_json', {
+ *   required_auths: ['alice'],
+ *   required_posting_auths: [],
+ *   id: 'some_active_op',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(activeOp); // Returns 'active'
+ * ```
+ */
+declare function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel;
+/**
+ * Determines authority required for a proposal operation.
+ *
+ * Proposal operations (create_proposal, update_proposal) typically require
+ * active authority as they involve financial commitments and funding allocations.
+ *
+ * @param proposalOp - The proposal operation to inspect
+ * @returns 'active' authority requirement
+ *
+ * @remarks
+ * Unlike custom_json, proposal operations don't have explicit required_auths fields.
+ * They always use the creator's authority, which defaults to active for financial
+ * operations involving the DAO treasury.
+ *
+ * @example
+ * ```typescript
+ * const proposalOp: Operation = ['create_proposal', {
+ *   creator: 'alice',
+ *   receiver: 'bob',
+ *   subject: 'My Proposal',
+ *   permlink: 'my-proposal',
+ *   start: '2026-03-01T00:00:00',
+ *   end: '2026-04-01T00:00:00',
+ *   daily_pay: '100.000 HBD',
+ *   extensions: []
+ * }];
+ * getProposalAuthority(proposalOp); // Returns 'active'
+ * ```
+ */
+declare function getProposalAuthority(proposalOp: Operation): AuthorityLevel;
+/**
+ * Determines the required authority level for any operation.
+ *
+ * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
+ * detection for custom_json operations.
+ *
+ * @param op - The operation to check
+ * @returns 'posting' or 'active' authority requirement
+ *
+ * @example
+ * ```typescript
+ * const voteOp: Operation = ['vote', { voter: 'alice', author: 'bob', permlink: 'post', weight: 10000 }];
+ * getOperationAuthority(voteOp); // Returns 'posting'
+ *
+ * const transferOp: Operation = ['transfer', { from: 'alice', to: 'bob', amount: '1.000 HIVE', memo: '' }];
+ * getOperationAuthority(transferOp); // Returns 'active'
+ * ```
+ */
+declare function getOperationAuthority(op: Operation): AuthorityLevel;
+/**
+ * Determines the highest authority level required for a list of operations.
+ *
+ * Useful when broadcasting multiple operations together - the highest authority
+ * level required by any operation determines what key is needed for the batch.
+ *
+ * Authority hierarchy: owner > active > posting > memo
+ *
+ * @param ops - Array of operations
+ * @returns Highest authority level required ('owner', 'active', or 'posting')
+ *
+ * @example
+ * ```typescript
+ * const ops: Operation[] = [
+ *   ['vote', { ... }],        // posting
+ *   ['comment', { ... }],     // posting
+ * ];
+ * getRequiredAuthority(ops); // Returns 'posting'
+ *
+ * const mixedOps: Operation[] = [
+ *   ['comment', { ... }],     // posting
+ *   ['transfer', { ... }],    // active
+ * ];
+ * getRequiredAuthority(mixedOps); // Returns 'active'
+ *
+ * const securityOps: Operation[] = [
+ *   ['transfer', { ... }],               // active
+ *   ['change_recovery_account', { ... }], // owner
+ * ];
+ * getRequiredAuthority(securityOps); // Returns 'owner'
+ * ```
+ */
+declare function getRequiredAuthority(ops: Operation[]): AuthorityLevel;
+
+/**
+ * React Query mutation hook for broadcasting Hive operations.
+ * Supports multiple authentication methods with automatic fallback.
+ *
+ * @template T - Type of the mutation payload
+ * @param mutationKey - React Query mutation key for cache management
+ * @param username - Hive username (required for broadcast)
+ * @param operations - Function that converts payload to Hive operations
+ * @param onSuccess - Success callback after broadcast completes
+ * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Authentication Flow:**
+ *
+ * 1. **With AuthContextV2 + adapter + enableFallback** (recommended for new code):
+ *    - Tries auth methods in fallbackChain order
+ *    - Smart fallback: only retries on auth errors, not RC/network errors
+ *    - Uses platform adapter for storage, UI, and broadcasting
+ *
+ * 2. **With legacy AuthContext** (backward compatible):
+ *    - Tries auth.broadcast() first (custom implementation)
+ *    - Falls back to postingKey if available
+ *    - Falls back to accessToken (HiveSigner) if available
+ *    - Throws if no auth method available
+ *
+ * **Backward Compatibility:**
+ * - All existing code using AuthContext will continue to work
+ * - AuthContextV2 extends AuthContext, so it's a drop-in replacement
+ * - enableFallback defaults to false if no adapter provided
+ *
+ * @example
+ * ```typescript
+ * // New pattern with platform adapter and fallback
+ * const mutation = useBroadcastMutation(
+ *   ['vote'],
+ *   username,
+ *   (payload) => [voteOperation(payload)],
+ *   () => console.log('Success!'),
+ *   {
+ *     adapter: myAdapter,
+ *     enableFallback: true,
+ *     fallbackChain: ['keychain', 'key', 'hivesigner']
+ *   },
+ *   'posting'
+ * );
+ *
+ * // Legacy pattern (still works)
+ * const mutation = useBroadcastMutation(
+ *   ['vote'],
+ *   username,
+ *   (payload) => [voteOperation(payload)],
+ *   () => console.log('Success!'),
+ *   { postingKey: 'wif-key' }
+ * );
+ * ```
+ */
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: AuthorityLevel, options?: {
+    onMutate?: UseMutationOptions<unknown, Error, T>["onMutate"];
+    onError?: UseMutationOptions<unknown, Error, T>["onError"];
+    onSettled?: UseMutationOptions<unknown, Error, T>["onSettled"];
+}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
+
+declare const CONFIG: {
+    privateApiHost: string;
+    imageHost: string;
+    hiveClient: Client;
+    heliusApiKey: string | undefined;
+    queryClient: QueryClient;
+    plausibleHost: string;
+    spkNode: string;
+    dmcaAccounts: string[];
+    dmcaTags: string[];
+    dmcaPatterns: string[];
+    dmcaTagRegexes: RegExp[];
+    dmcaPatternRegexes: RegExp[];
+    _dmcaInitialized: boolean;
+};
+type DmcaListsInput = {
+    accounts?: string[];
+    tags?: string[];
+    posts?: string[];
+};
+declare namespace ConfigManager {
+    function setQueryClient(client: QueryClient): void;
+    /**
+     * Set the private API host
+     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
+     */
+    function setPrivateApiHost(host: string): void;
+    /**
+     * Get a validated base URL for API requests
+     * Returns a valid base URL that can be used with new URL(path, baseUrl)
+     *
+     * Priority:
+     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
+     * 2. window.location.origin if in browser (production with relative URLs)
+     * 3. 'https://ecency.com' as fallback for SSR (production default)
+     *
+     * @returns A valid base URL string
+     * @throws Never throws - always returns a valid URL
+     */
+    function getValidatedBaseUrl(): string;
+    /**
+     * Set the image host
+     * @param host - The image host URL (e.g., "https://images.ecency.com")
+     */
+    function setImageHost(host: string): void;
+    /**
+     * Set DMCA filtering lists
+     * @param lists - DMCA lists object containing accounts/tags/posts arrays
+     */
+    function setDmcaLists(lists?: DmcaListsInput): void;
+}
+
+/**
+ * Chain error handling utilities
+ * Extracted from web's operations.ts and mobile's dhive.ts error handling patterns
+ */
+declare enum ErrorType {
+    COMMON = "common",
+    INFO = "info",
+    INSUFFICIENT_RESOURCE_CREDITS = "insufficient_resource_credits",
+    MISSING_AUTHORITY = "missing_authority",
+    TOKEN_EXPIRED = "token_expired",
+    NETWORK = "network",
+    TIMEOUT = "timeout",
+    VALIDATION = "validation"
+}
+interface ParsedChainError {
+    message: string;
+    type: ErrorType;
+    originalError?: any;
+}
+/**
+ * Parses Hive blockchain errors into standardized format.
+ * Extracted from web's operations.ts and mobile's dhive.ts error handling.
+ *
+ * @param error - The error object or string from a blockchain operation
+ * @returns Parsed error with user-friendly message and categorized type
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await vote(...);
+ * } catch (error) {
+ *   const parsed = parseChainError(error);
+ *   console.log(parsed.message); // "Insufficient Resource Credits. Please wait or power up."
+ *   console.log(parsed.type); // ErrorType.INSUFFICIENT_RESOURCE_CREDITS
+ * }
+ * ```
+ */
+declare function parseChainError(error: any): ParsedChainError;
+/**
+ * Formats error for display to user.
+ * Returns tuple of [message, type] for backward compatibility with existing code.
+ *
+ * This function maintains compatibility with the old formatError signature from
+ * web's operations.ts (line 59-84) and mobile's dhive.ts error handling.
+ *
+ * @param error - The error object or string
+ * @returns Tuple of [user-friendly message, error type]
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await transfer(...);
+ * } catch (error) {
+ *   const [message, type] = formatError(error);
+ *   showToast(message, type);
+ * }
+ * ```
+ */
+declare function formatError(error: any): [string, ErrorType];
+/**
+ * Checks if error indicates missing authority and should trigger auth fallback.
+ * Used by the SDK's useBroadcastMutation to determine if it should retry with
+ * an alternate authentication method.
+ *
+ * @param error - The error object or string
+ * @returns true if auth fallback should be attempted
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await broadcast(operations);
+ * } catch (error) {
+ *   if (shouldTriggerAuthFallback(error)) {
+ *     // Try with alternate auth method
+ *     await broadcastWithHiveAuth(operations);
+ *   }
+ * }
+ * ```
+ */
+declare function shouldTriggerAuthFallback(error: any): boolean;
+/**
+ * Checks if error is a resource credits (RC) error.
+ * Useful for showing specific UI feedback about RC issues.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is related to insufficient RC
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await vote(...);
+ * } catch (error) {
+ *   if (isResourceCreditsError(error)) {
+ *     showRCWarning(); // Show specific RC education/power up UI
+ *   }
+ * }
+ * ```
+ */
+declare function isResourceCreditsError(error: any): boolean;
+/**
+ * Checks if error is informational (not critical).
+ * Informational errors typically don't need retry logic.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is informational
+ */
+declare function isInfoError(error: any): boolean;
+/**
+ * Checks if error is network-related and should be retried.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is network-related
+ */
+declare function isNetworkError(error: any): boolean;
+
+declare function makeQueryClient(): QueryClient;
+declare const getQueryClient: () => QueryClient;
+declare namespace EcencyQueriesManager {
+    function getQueryData<T>(queryKey: QueryKey): T | undefined;
+    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
+    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
+    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
+    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
+        prefetch: () => Promise<T | undefined>;
+        getData: () => T | undefined;
+        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
+        fetchAndGet: () => Promise<T>;
+    };
+    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
+        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
+        getData: () => InfiniteData<T, unknown> | undefined;
+        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
+        fetchAndGet: () => Promise<InfiniteData<T, P>>;
+    };
+}
+
+declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps$1, Error, DynamicProps$1, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps$1, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: DynamicProps$1;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface RewardFund {
+    id: number;
+    name: string;
+    reward_balance: string;
+    recent_claims: string;
+    last_update: string;
+    content_constant: string;
+    percent_curation_rewards: number;
+    percent_content_rewards: number;
+    author_reward_curve: string;
+    curation_reward_curve: string;
+}
+/**
+ * Get reward fund information from the blockchain
+ * @param fundName - Name of the reward fund (default: 'post')
+ */
+declare function getRewardFundQueryOptions(fundName?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<RewardFund, Error, RewardFund, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<RewardFund, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: RewardFund;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Centralized query key definitions for all SDK queries.
+ *
+ * These key builders are the single source of truth for React Query cache keys.
+ * Both SDK query options and web app consumers should reference these
+ * instead of using inline string arrays.
+ *
+ * @example
+ * ```typescript
+ * import { QueryKeys } from "@ecency/sdk";
+ *
+ * // In query options
+ * queryKey: QueryKeys.posts.entry(`/@${author}/${permlink}`)
+ *
+ * // In cache invalidation
+ * queryClient.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) })
+ * ```
+ */
+declare const QueryKeys: {
+    readonly posts: {
+        readonly entry: (entryPath: string) => string[];
+        readonly postHeader: (author: string, permlink?: string) => (string | undefined)[];
+        readonly content: (author: string, permlink: string) => string[];
+        readonly contentReplies: (author: string, permlink: string) => string[];
+        readonly accountPosts: (username: string, filter: string, limit: number, observer: string) => (string | number)[];
+        readonly accountPostsPage: (username: string, filter: string, startAuthor: string, startPermlink: string, limit: number, observer: string) => (string | number)[];
+        readonly userPostVote: (username: string, author: string, permlink: string) => string[];
+        readonly reblogs: (username: string, limit: number) => (string | number)[];
+        readonly entryActiveVotes: (author?: string, permlink?: string) => (string | undefined)[];
+        readonly rebloggedBy: (author: string, permlink: string) => string[];
+        readonly tips: (author: string, permlink: string) => string[];
+        readonly normalize: (author: string, permlink: string) => string[];
+        readonly drafts: (activeUsername?: string) => (string | undefined)[];
+        readonly draftsInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly schedules: (activeUsername?: string) => (string | undefined)[];
+        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly fragments: (username?: string) => (string | undefined)[];
+        readonly fragmentsInfinite: (username?: string, limit?: number) => (string | number | undefined)[];
+        readonly images: (username?: string) => (string | undefined)[];
+        readonly galleryImages: (activeUsername?: string) => (string | undefined)[];
+        readonly imagesInfinite: (username?: string, limit?: number) => (string | number | undefined)[];
+        readonly promoted: (type: string) => string[];
+        readonly postsRanked: (sort: string, tag: string, limit: number, observer: string) => (string | number)[];
+        readonly postsRankedPage: (sort: string, startAuthor: string, startPermlink: string, limit: number, tag: string, observer: string) => (string | number)[];
+        readonly discussions: (author: string, permlink: string, order: string, observer: string) => string[];
+        readonly discussion: (author: string, permlink: string, observer: string) => string[];
+        readonly deletedEntry: (entryPath: string) => string[];
+        readonly commentHistory: (author: string, permlink: string, onlyMeta: boolean) => (string | boolean)[];
+        readonly trendingTags: () => string[];
+        readonly trendingTagsWithStats: (limit: number) => (string | number)[];
+        readonly wavesByHost: (host: string) => string[];
+        readonly wavesByTag: (host: string, tag: string) => string[];
+        readonly wavesFollowing: (host: string, username: string) => string[];
+        readonly wavesTrendingTags: (host: string, hours: number) => (string | number)[];
+        readonly _prefix: readonly ["posts"];
+    };
+    readonly accounts: {
+        readonly full: (username?: string) => (string | undefined)[];
+        readonly list: (...usernames: string[]) => string[];
+        readonly friends: (following: string, mode: string, followType: string, limit: number) => (string | number)[];
+        readonly searchFriends: (username: string, mode: string, query: string) => string[];
+        readonly subscriptions: (username: string) => string[];
+        readonly followCount: (username: string) => string[];
+        readonly recoveries: (username: string) => string[];
+        readonly pendingRecovery: (username: string) => string[];
+        readonly checkWalletPending: (username: string, code: string | null) => (string | null)[];
+        readonly mutedUsers: (username: string) => string[];
+        readonly following: (follower: string, startFollowing: string, followType: string, limit: number) => (string | number)[];
+        readonly followers: (following: string, startFollower: string, followType: string, limit: number) => (string | number)[];
+        readonly search: (query: string, excludeList?: string[]) => (string | string[] | undefined)[];
+        readonly profiles: (accounts: string[], observer: string) => (string | string[])[];
+        readonly lookup: (query: string, limit: number) => (string | number)[];
+        readonly transactions: (username: string, group: string, limit: number) => (string | number)[];
+        readonly favourites: (activeUsername?: string) => (string | undefined)[];
+        readonly favouritesInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly checkFavourite: (activeUsername: string, targetUsername: string) => string[];
+        readonly relations: (reference: string, target: string) => string[];
+        readonly bots: () => string[];
+        readonly voteHistory: (username: string, limit: number) => (string | number)[];
+        readonly reputations: (query: string, limit: number) => (string | number)[];
+        readonly bookmarks: (activeUsername?: string) => (string | undefined)[];
+        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => (string | number | undefined)[];
+        readonly referrals: (username: string) => string[];
+        readonly referralsStats: (username: string) => string[];
+        readonly _prefix: readonly ["accounts"];
+    };
+    readonly notifications: {
+        readonly announcements: () => string[];
+        readonly list: (activeUsername?: string, filter?: string) => (string | undefined)[];
+        readonly unreadCount: (activeUsername?: string) => (string | undefined)[];
+        readonly settings: (activeUsername?: string) => (string | undefined)[];
+        readonly _prefix: readonly ["notifications"];
+    };
+    readonly core: {
+        readonly rewardFund: (fundName: string) => string[];
+        readonly dynamicProps: () => string[];
+        readonly chainProperties: () => string[];
+        readonly _prefix: readonly ["core"];
+    };
+    readonly communities: {
+        readonly single: (name?: string, observer?: string) => (string | undefined)[];
+        /** Prefix key for matching all observer variants of a community */
+        readonly singlePrefix: (name: string) => readonly ["community", "single", string];
+        readonly context: (username: string, communityName: string) => string[];
+        readonly rewarded: () => string[];
+        readonly list: (sort: string, query: string, limit: number) => (string | number)[];
+        readonly subscribers: (communityName: string) => string[];
+        readonly accountNotifications: (account: string, limit: number) => (string | number)[];
+    };
+    readonly proposals: {
+        readonly list: () => string[];
+        readonly proposal: (id: number) => (string | number)[];
+        readonly votes: (proposalId: number, voter: string, limit: number) => (string | number)[];
+        readonly votesByUser: (voter: string) => string[];
+    };
+    readonly search: {
+        readonly topics: (q: string) => string[];
+        readonly path: (q: string) => string[];
+        readonly account: (q: string, limit: number) => (string | number)[];
+        readonly results: (q: string, sort: string, hideLow: boolean, since?: string, scrollId?: string, votes?: number) => (string | number | boolean | undefined)[];
+        readonly controversialRising: (what: string, tag: string) => string[];
+        readonly similarEntries: (author: string, permlink: string, query: string) => string[];
+        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number) => (string | number | boolean | undefined)[];
+    };
+    readonly witnesses: {
+        readonly list: (limit: number) => (string | number)[];
+        readonly votes: (username: string | undefined) => (string | undefined)[];
+        readonly proxy: () => string[];
+    };
+    readonly wallet: {
+        readonly outgoingRcDelegations: (username: string, limit: number) => (string | number)[];
+        readonly vestingDelegations: (username: string, limit: number) => (string | number)[];
+        readonly withdrawRoutes: (account: string) => string[];
+        readonly incomingRc: (username: string) => string[];
+        readonly conversionRequests: (account: string) => string[];
+        readonly receivedVestingShares: (username: string) => string[];
+        readonly savingsWithdraw: (account: string) => string[];
+        readonly openOrders: (user: string) => string[];
+        readonly collateralizedConversionRequests: (account: string) => string[];
+        readonly recurrentTransfers: (username: string) => string[];
+        readonly portfolio: (username: string, onlyEnabled: string, currency: string) => string[];
+    };
+    readonly assets: {
+        readonly hiveGeneralInfo: (username: string) => string[];
+        readonly hiveTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hiveWithdrawalRoutes: (username: string) => string[];
+        readonly hiveMetrics: (bucketSeconds: number) => (string | number)[];
+        readonly hbdGeneralInfo: (username: string) => string[];
+        readonly hbdTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hivePowerGeneralInfo: (username: string) => string[];
+        readonly hivePowerDelegates: (username: string) => string[];
+        readonly hivePowerDelegatings: (username: string) => string[];
+        readonly hivePowerTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly pointsGeneralInfo: (username: string) => string[];
+        readonly pointsTransactions: (username: string, type: string) => string[];
+        readonly ecencyAssetInfo: (username: string, asset: string, currency: string) => string[];
+    };
+    readonly market: {
+        readonly statistics: () => string[];
+        readonly orderBook: (limit: number) => (string | number)[];
+        readonly history: (seconds: number, startDate: number, endDate: number) => (string | number)[];
+        readonly feedHistory: () => string[];
+        readonly hiveHbdStats: () => string[];
+        readonly data: (coin: string, vsCurrency: string, fromTs: number, toTs: number) => (string | number)[];
+        readonly tradeHistory: (limit: number, start: number, end: number) => (string | number)[];
+        readonly currentMedianHistoryPrice: () => string[];
+    };
+    readonly analytics: {
+        readonly discoverCuration: (duration: string) => string[];
+        readonly pageStats: (url: string, dimensions: string, metrics: string, dateRange: string) => string[];
+        readonly discoverLeaderboard: (duration: string) => string[];
+    };
+    readonly promotions: {
+        readonly promotePrice: () => string[];
+        readonly boostPlusPrices: () => string[];
+        readonly boostPlusAccounts: (account: string) => string[];
+    };
+    readonly resourceCredits: {
+        readonly account: (username: string) => string[];
+        readonly stats: () => string[];
+    };
+    readonly points: {
+        readonly points: (username: string, filter: number) => (string | number)[];
+    };
+    readonly operations: {
+        readonly chainProperties: () => string[];
+    };
+    readonly games: {
+        readonly statusCheck: (gameType: string, username: string) => string[];
+    };
+};
+
+declare function encodeObj(o: any): string;
+declare function decodeObj(o: any): any;
+
+declare enum Symbol {
+    HIVE = "HIVE",
+    HBD = "HBD",
+    VESTS = "VESTS",
+    SPK = "SPK"
+}
+declare enum NaiMap {
+    "@@000000021" = "HIVE",
+    "@@000000013" = "HBD",
+    "@@000000037" = "VESTS"
+}
+interface Asset {
+    amount: number;
+    symbol: Symbol;
+}
+declare function parseAsset(sval: string | SMTAsset): Asset;
+
+declare function getBoundFetch(): typeof fetch;
+
+declare function isCommunity(value: unknown): boolean;
+
+/**
+ * Type guard to check if response is wrapped with pagination metadata
+ */
+declare function isWrappedResponse<T>(response: any): response is WrappedResponse<T>;
+/**
+ * Normalize response to wrapped format for backwards compatibility
+ * If the backend returns old format (array), convert it to wrapped format
+ */
+declare function normalizeToWrappedResponse<T>(response: T[] | WrappedResponse<T>, limit: number): WrappedResponse<T>;
+
+declare function vestsToHp(vests: number, hivePerMVests: number): number;
+
+declare function isEmptyDate(s: string | undefined): boolean;
+
+declare function getBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountBookmark[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: AccountBookmark[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getBookmarksInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountBookmark>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountBookmark>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getFavouritesQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountFavorite[], Error, AccountFavorite[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountFavorite[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: AccountFavorite[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+declare function getFavouritesInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountFavorite>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>, (string | number | undefined)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountFavorite>, (string | number | undefined)[], number> | undefined;
+} & {
+    queryKey: (string | number | undefined)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Query options to check if a specific account is in the active user's favourites
+ * @param activeUsername - The logged-in user's username
+ * @param code - Access token for authentication
+ * @param targetUsername - The username to check if favorited
+ * @returns Query options for checking if target is favorited
+ */
+declare function checkFavouriteQueryOptions(activeUsername: string | undefined, code: string | undefined, targetUsername: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<boolean, Error, boolean, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<boolean, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: boolean;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getAccountRecoveriesQueryOptions(username: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GetRecoveriesEmailResponse[], Error, GetRecoveriesEmailResponse[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<GetRecoveriesEmailResponse[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: GetRecoveriesEmailResponse[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getAccountPendingRecoveryQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: any;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getAccountReputationsQueryOptions(query: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountReputation[], Error, AccountReputation[], (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AccountReputation[], (string | number)[], never> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: AccountReputation[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]>;
+declare const ALL_ACCOUNT_OPERATIONS: number[];
+type TxPage = Transaction[];
+/**
+ * Get account transaction history with pagination and filtering
+ *
+ * @param username - Account name to get transactions for
+ * @param limit - Number of transactions per page
+ * @param group - Filter by operation group (transfers, market-orders, etc.)
+ */
+declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<TxPage, (string | number)[], number> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPage, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getBotsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<string[], Error, string[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<string[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: string[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type PageParam$3 = {
+    maxId?: number;
+};
+declare function getReferralsInfiniteQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<ReferralItem[], Error, _tanstack_react_query.InfiniteData<ReferralItem[], unknown>, string[], PageParam$3>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ReferralItem[], string[], PageParam$3> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<ReferralItem[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getReferralsStatsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ReferralStat, Error, ReferralStat, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ReferralStat, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: ReferralStat;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface FriendsPageParam {
+    startFollowing: string;
+}
+type FriendsPage = FriendsRow[];
+/**
+ * Get list of friends (following/followers) with profile information
+ *
+ * @param following - The account whose friends to get
+ * @param mode - "following" or "followers"
+ * @param followType - Type of follow relationship (default: "blog")
+ * @param limit - Number of results per page (default: 100)
+ * @param enabled - Whether query is enabled (default: true)
+ */
+declare function getFriendsInfiniteQueryOptions(following: string, mode: "following" | "followers", options?: {
+    followType?: string;
+    limit?: number;
+    enabled?: boolean;
+}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<FriendsPage, Error, FriendsPage, (string | number)[], FriendsPageParam>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<FriendsPage, (string | number)[], FriendsPageParam> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<FriendsPage, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+/**
+ * Search friends (following/followers) by query string
+ *
+ * @param username - The account whose friends to search
+ * @param mode - "following" or "followers"
+ * @param query - Search query string
+ */
+declare function getSearchFriendsQueryOptions(username: string, mode: "following" | "followers", query: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<FriendSearchResult[], Error, FriendSearchResult[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<FriendSearchResult[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: FriendSearchResult[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface TrendingTag {
+    comments: number;
+    name: string;
+    top_posts: number;
+    total_payouts: string;
+}
+
+interface Fragment {
+    id: string;
+    title: string;
+    body: string;
+    created: string;
+    modified: string;
+}
+
+interface EntryBeneficiaryRoute {
+    account: string;
+    weight: number;
+}
+interface EntryVote {
+    voter: string;
+    rshares: number;
+}
+interface EntryStat {
+    flag_weight: number;
+    gray: boolean;
+    hide: boolean;
+    total_votes: number;
+    is_pinned?: boolean;
+}
+interface JsonMetadata {
+    tags?: string[];
+    description?: string | null;
+    app?: any;
+    canonical_url?: string;
+    format?: string;
+    original_author?: string;
+    original_permlink?: string;
+    image?: string[];
+    pinned_reply?: string;
+    location?: {
+        coordinates: {
+            lat: number;
+            lng: number;
+        };
+        address?: string;
+    };
+}
+interface JsonPollMetadata {
+    content_type: "poll";
+    version: number;
+    question: string;
+    choices: string[];
+    preferred_interpretation: string;
+    token: string;
+    vote_change: boolean;
+    hide_votes: boolean;
+    filters: {
+        account_age: number;
+    };
+    end_time: number;
+    max_choices_voted?: number;
+}
+interface Entry$1 {
+    last_update?: string;
+    active_votes: EntryVote[];
+    author: string;
+    author_payout_value: string;
+    author_reputation: number;
+    author_role?: string;
+    author_title?: string;
+    beneficiaries: EntryBeneficiaryRoute[];
+    blacklists: string[];
+    body: string;
+    category: string;
+    children: number;
+    community?: string;
+    community_title?: string;
+    created: string;
+    total_votes?: number;
+    curator_payout_value: string;
+    depth: number;
+    is_paidout: boolean;
+    json_metadata: JsonMetadata | null;
+    max_accepted_payout: string;
+    net_rshares: number;
+    parent_author?: string;
+    parent_permlink?: string;
+    payout: number;
+    payout_at: string;
+    pending_payout_value: string;
+    percent_hbd: number;
+    permlink: string;
+    post_id: any;
+    id?: number;
+    num?: number;
+    promoted: string;
+    reblogs?: number;
+    reblogged_by?: string[] | any;
+    replies: any[];
+    stats: EntryStat | null;
+    title: string;
+    updated: string;
+    url: string;
+    original_entry?: Entry$1;
+    is_optimistic?: boolean;
+}
+interface EntryHeader {
+    author: string;
+    category: string;
+    permlink: string;
+    depth: number;
+}
+interface Vote {
+    percent: number;
+    reputation: number;
+    rshares: string;
+    time: string;
+    timestamp?: number;
+    voter: string;
+    weight: number;
+}
+
+interface PostTip {
+    sender: string;
+    receiver: string;
+    amount: number;
+    currency: string;
+    memo: string;
+    source: string;
+    timestamp: string;
+}
+interface PostTipsResponse {
+    meta: {
+        count: number;
+        totals: Record<string, number>;
+    };
+    list: PostTip[];
+}
+
+interface ThreadItemEntry extends Entry$1 {
+    host: string;
+    container: WaveEntry;
+    parent?: Entry$1;
+}
+type WaveEntry = ThreadItemEntry & Required<Pick<Entry$1, "id">>;
+interface WaveTrendingTag {
+    tag: string;
+    posts: number;
+}
+
+interface DraftMetadata {
+    beneficiaries?: Array<{
+        account: string;
+        weight: number;
+    }>;
+    rewardType?: string;
+    videos?: Record<string, any>;
+    poll?: any;
+    [key: string]: any;
+}
+interface Draft {
+    body: string;
+    created: string;
+    modified: string;
+    post_type: string;
+    tags_arr: string[];
+    tags: string;
+    timestamp: number;
+    title: string;
+    _id: string;
+    meta?: DraftMetadata;
+}
+type DraftsWrappedResponse = WrappedResponse<Draft>;
+
+interface Schedule {
+    _id: string;
+    username: string;
+    permlink: string;
+    title: string;
+    body: string;
+    tags: string[];
+    tags_arr: string;
+    schedule: string;
+    original_schedule: string;
+    reblog: boolean;
+    status: 1 | 2 | 3 | 4;
+    message: string | null;
+}
+
+interface UserImage {
+    created: string;
+    timestamp: number;
+    url: string;
+    _id: string;
+}
+
+interface VoteHistoryPageParam {
+    start: number;
+}
+interface VoteHistoryPage {
+    lastDate: number;
+    lastItemFetched: number;
+    entries: Entry$1[];
+}
+/**
+ * Get account vote history with entries
+ *
+ * @param username - Account name to get vote history for
+ * @param limit - Number of history items per page (default: 20)
+ * @param filters - Additional filters to pass to get_account_history
+ * @param dayLimit - Only include votes from last N days (default: 7)
+ */
+declare function getAccountVoteHistoryInfiniteQueryOptions<F>(username: string, options?: {
+    limit?: number;
+    filters?: F[];
+    dayLimit?: number;
+}): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<VoteHistoryPage, Error, VoteHistoryPage, (string | number)[], VoteHistoryPageParam>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<VoteHistoryPage, (string | number)[], VoteHistoryPageParam> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<VoteHistoryPage, unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getProfilesQueryOptions(accounts: string[], observer?: string, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Profile[], Error, Profile[], (string | string[])[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Profile[], (string | string[])[], never> | undefined;
+} & {
+    queryKey: (string | string[])[] & {
+        [dataTagSymbol]: Profile[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+type ProfileTokens = AccountProfile["tokens"];
+interface BuildProfileMetadataArgs {
+    existingProfile?: AccountProfile;
+    profile?: Partial<AccountProfile> | null;
+    tokens?: ProfileTokens | null;
+}
+declare function parseProfileMetadata(postingJsonMetadata?: string | null): AccountProfile;
+declare function extractAccountProfile(data?: Pick<FullAccount, "posting_json_metadata"> | null): AccountProfile;
+declare function buildProfileMetadata({ existingProfile, profile, tokens, }: BuildProfileMetadataArgs): AccountProfile;
+
+/**
+ * Parses raw account data from Hive API into FullAccount type
+ * Handles profile metadata extraction from posting_json_metadata or json_metadata
+ */
+declare function parseAccounts(rawAccounts: any[]): FullAccount[];
+
+declare function votingPower(account: FullAccount): number;
+declare function powerRechargeTime(power: number): number;
+declare function downVotingPower(account: FullAccount): number;
+declare function rcPower(account: RCAccount): number;
+declare function votingValue(account: FullAccount, dynamicProps: DynamicProps$1, votingPowerValue: number, weight?: number): number;
+
 declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, {
     operation: Operation;
     keyOrSeed: string;
@@ -2954,10 +3301,10 @@ declare function getTrendingTagsWithStatsQueryOptions(limit?: number): _tanstack
     };
 };
 
-declare function getFragmentsQueryOptions(username: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Fragment[], string[], never> | undefined;
+declare function getFragmentsQueryOptions(username: string, code?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Fragment[], Error, Fragment[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Fragment[], (string | undefined)[], never> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | undefined)[] & {
         [dataTagSymbol]: Fragment[];
         [dataTagErrorSymbol]: Error;
     };
@@ -2997,10 +3344,10 @@ declare function getEntryActiveVotesQueryOptions(entry?: Entry$1): _tanstack_rea
  * @param author - The post author
  * @param permlink - The post permlink
  */
-declare function getUserPostVoteQueryOptions(username: string | undefined, author: string | undefined, permlink: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote | null, Error, Vote | null, (string | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Vote | null, (string | undefined)[], never> | undefined;
+declare function getUserPostVoteQueryOptions(username: string | undefined, author: string | undefined, permlink: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Vote | null, Error, Vote | null, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Vote | null, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: Vote | null;
         [dataTagErrorSymbol]: Error;
     };
@@ -3024,11 +3371,11 @@ declare function getContentRepliesQueryOptions(author: string, permlink: string)
     };
 };
 
-declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, string[]>, "queryFn"> & {
+declare function getPostHeaderQueryOptions(author: string, permlink: string): Omit<_tanstack_react_query.UseQueryOptions<Entry$1 | null, Error, Entry$1 | null, (string | undefined)[]>, "queryFn"> & {
     initialData: Entry$1 | (() => Entry$1 | null) | null;
-    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, string[]> | undefined;
+    queryFn?: _tanstack_react_query.QueryFunction<Entry$1 | null, (string | undefined)[]> | undefined;
 } & {
-    queryKey: string[] & {
+    queryKey: (string | undefined)[] & {
         [dataTagSymbol]: Entry$1 | null;
         [dataTagErrorSymbol]: Error;
     };
@@ -3426,6 +3773,8 @@ interface VotePayload {
     permlink: string;
     /** Vote weight (-10000 to 10000, where 10000 = 100% upvote, -10000 = 100% downvote) */
     weight: number;
+    /** Optional estimated payout change for optimistic UI */
+    estimated?: number;
 }
 /**
  * React Query mutation hook for voting on posts and comments.
@@ -3647,6 +3996,307 @@ interface CommentPayload {
  * ```
  */
 declare function useComment(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommentPayload, unknown>;
+
+/**
+ * Payload for deleting a comment or post.
+ */
+interface DeleteCommentPayload {
+    /** Author of the comment/post to delete */
+    author: string;
+    /** Permlink of the comment/post to delete */
+    permlink: string;
+    /** Optional: Parent author (for cache invalidation of discussions) */
+    parentAuthor?: string;
+    /** Optional: Parent permlink (for cache invalidation of discussions) */
+    parentPermlink?: string;
+    /** Optional: Root post author (for nested replies, used for discussions cache invalidation) */
+    rootAuthor?: string;
+    /** Optional: Root post permlink (for nested replies, used for discussions cache invalidation) */
+    rootPermlink?: string;
+}
+/**
+ * React Query mutation hook for deleting posts and comments.
+ *
+ * This mutation broadcasts a delete_comment operation to the Hive blockchain.
+ * Includes optimistic removal from discussions cache with rollback on error.
+ *
+ * @param username - The username deleting the comment/post (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ */
+declare function useDeleteComment(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DeleteCommentPayload, unknown>;
+
+/**
+ * Payload for creating a cross-post.
+ */
+interface CrossPostPayload {
+    /** Author of the cross-post (current user) */
+    author: string;
+    /** Permlink of the cross-post (usually: original-permlink-community-id) */
+    permlink: string;
+    /** Community ID to cross-post to (used as parent_permlink) */
+    parentPermlink: string;
+    /** Title of the cross-post (same as original) */
+    title: string;
+    /** Body of the cross-post (includes reference to original) */
+    body: string;
+    /** JSON metadata (must include original_author, original_permlink, tags, app) */
+    jsonMetadata: Record<string, any>;
+    /** Optional: Comment options (beneficiaries, rewards) */
+    options?: {
+        /** Maximum accepted payout (e.g., "0.000 HBD" for declined payout) */
+        maxAcceptedPayout?: string;
+        /** Percent of payout in HBD (10000 = 100%) */
+        percentHbd?: number;
+        /** Allow votes on this content */
+        allowVotes?: boolean;
+        /** Allow curation rewards */
+        allowCurationRewards?: boolean;
+    };
+}
+/**
+ * React Query mutation hook for creating cross-posts.
+ *
+ * A cross-post is a special type of post that references an original post
+ * and publishes it to a different community.
+ *
+ * @param username - The username creating the cross-post (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates feed/blog caches to show the new cross-post
+ *
+ * **Operations:**
+ * - Always includes a comment operation (with empty parent_author for top-level post)
+ * - Optionally includes comment_options operation for rewards/beneficiaries
+ *
+ * **Metadata Requirements:**
+ * The jsonMetadata must include:
+ * - `original_author`: Author of the original post
+ * - `original_permlink`: Permlink of the original post
+ * - `tags`: Tags for the cross-post (typically ["cross-post"])
+ * - `app`: Application identifier (e.g., "ecency/3.0.0-vision")
+ *
+ * @example
+ * ```typescript
+ * const crossPostMutation = useCrossPost(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Create a cross-post
+ * crossPostMutation.mutate({
+ *   author: 'alice',
+ *   permlink: 'great-post-hive-123456',
+ *   parentPermlink: 'hive-123456', // community ID
+ *   title: 'Great Post',
+ *   body: 'This is a cross post of [@bob/great-post](/technology/@bob/great-post) by @alice.<br><br>Check this out!',
+ *   jsonMetadata: {
+ *     app: 'ecency/3.0.0-vision',
+ *     tags: ['cross-post'],
+ *     original_author: 'bob',
+ *     original_permlink: 'great-post'
+ *   },
+ *   options: {
+ *     maxAcceptedPayout: '0.000 HBD',
+ *     allowCurationRewards: false
+ *   }
+ * });
+ * ```
+ */
+declare function useCrossPost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CrossPostPayload, unknown>;
+
+/**
+ * Payload for updating a reply/comment.
+ */
+interface UpdateReplyPayload {
+    /** Author of the comment/post */
+    author: string;
+    /** Permlink of the comment/post being updated */
+    permlink: string;
+    /** Parent author */
+    parentAuthor: string;
+    /** Parent permlink */
+    parentPermlink: string;
+    /** Title (empty for comments) */
+    title: string;
+    /** Updated content body */
+    body: string;
+    /** Updated JSON metadata object */
+    jsonMetadata: Record<string, any>;
+    /** Optional: Root post author (for nested replies, used for discussions cache invalidation) */
+    rootAuthor?: string;
+    /** Optional: Root post permlink (for nested replies, used for discussions cache invalidation) */
+    rootPermlink?: string;
+    /** Optional: Comment options (beneficiaries, rewards) */
+    options?: {
+        /** Maximum accepted payout (e.g., "1000000.000 HBD") */
+        maxAcceptedPayout?: string;
+        /** Percent of payout in HBD (10000 = 100%) */
+        percentHbd?: number;
+        /** Allow votes on this content */
+        allowVotes?: boolean;
+        /** Allow curation rewards */
+        allowCurationRewards?: boolean;
+        /** Beneficiaries array */
+        beneficiaries?: Beneficiary[];
+    };
+}
+/**
+ * React Query mutation hook for updating existing replies/comments.
+ *
+ * This mutation broadcasts a comment operation (and optionally comment_options)
+ * to update an existing reply/comment on the Hive blockchain.
+ *
+ * @param username - The username updating the comment (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates parent post cache to reflect the updated comment
+ * - Invalidates discussions cache (all sort orders)
+ * - Invalidates RC cache (RC decreases after updating)
+ *
+ * **Operations:**
+ * - Always includes a comment operation
+ * - Optionally includes comment_options operation for beneficiaries/rewards
+ *
+ * **Important:**
+ * - Updates use the same comment operation as creating new comments
+ * - The blockchain identifies this as an update based on matching author/permlink
+ * - Only the author can update their own content
+ * - Content can only be updated before payout (within 7 days)
+ *
+ * @example
+ * ```typescript
+ * const updateReplyMutation = useUpdateReply(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Update a reply
+ * updateReplyMutation.mutate({
+ *   author: 'alice',
+ *   permlink: 're-bob-my-post-20260209',
+ *   parentAuthor: 'bob',
+ *   parentPermlink: 'my-post-20260209',
+ *   title: '',
+ *   body: 'Updated comment content!',
+ *   jsonMetadata: {
+ *     tags: ['comment'],
+ *     app: 'ecency/3.0.0-vision'
+ *   },
+ *   rootAuthor: 'bob',
+ *   rootPermlink: 'my-post-20260209'
+ * });
+ * ```
+ */
+declare function useUpdateReply(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UpdateReplyPayload, unknown>;
+
+/**
+ * Payload for promoting a post using Ecency Points.
+ */
+interface PromotePayload {
+    /** Post author */
+    author: string;
+    /** Post permlink */
+    permlink: string;
+    /** Promotion duration in days */
+    duration: number;
+}
+/**
+ * React Query mutation hook for promoting posts.
+ *
+ * This mutation broadcasts a custom_json operation to promote a post
+ * using Ecency Points. The post will appear in promoted feeds for the
+ * specified duration.
+ *
+ * @param username - The username promoting the post (required for broadcast, deducts points from this user)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates promoted posts cache to show newly promoted content
+ * - Invalidates user points balance
+ * - Invalidates post cache to update promotion status
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "ecency_promote"
+ * - JSON: {"user": "username", "author": "postauthor", "permlink": "postpermlink", "duration": 7}
+ * - Authority: Active key (required for point spending)
+ *
+ * **Cost:**
+ * - Costs Ecency Points based on duration
+ * - User must have sufficient points balance
+ *
+ * @example
+ * ```typescript
+ * const promoteMutation = usePromote(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Promote a post for 7 days
+ * promoteMutation.mutate({
+ *   author: 'alice',
+ *   permlink: 'my-great-post',
+ *   duration: 7
+ * });
+ * ```
+ */
+declare function usePromote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PromotePayload, unknown>;
+
+/**
+ * SDK-level entry cache utilities. These operate on SDK cache keys
+ * (["posts", "entry", "/@author/permlink"]).
+ *
+ * Web layer can bridge these to its own QueryIdentifiers.ENTRY keys
+ * during the migration period.
+ */
+declare namespace EntriesCacheManagement {
+    function updateVotes(author: string, permlink: string, votes: EntryVote[], payout: number, qc?: QueryClient): void;
+    function updateReblogsCount(author: string, permlink: string, count: number, qc?: QueryClient): void;
+    function updateRepliesCount(author: string, permlink: string, count: number, qc?: QueryClient): void;
+    function addReply(reply: Entry$1, parentAuthor: string, parentPermlink: string, qc?: QueryClient): void;
+    function updateEntries(entries: Entry$1[], qc?: QueryClient): void;
+    function invalidateEntry(author: string, permlink: string, qc?: QueryClient): void;
+    function getEntry(author: string, permlink: string, qc?: QueryClient): Entry$1 | undefined;
+}
+
+/**
+ * Adds an optimistic entry to all discussions caches for the given root post.
+ * Uses predicate matching to find all sort order variants.
+ */
+declare function addOptimisticDiscussionEntry(entry: Entry$1, rootAuthor: string, rootPermlink: string, qc?: QueryClient): void;
+/**
+ * Removes an entry from all discussions caches for the given root post.
+ * Returns the previous state for rollback.
+ */
+declare function removeOptimisticDiscussionEntry(author: string, permlink: string, rootAuthor: string, rootPermlink: string, qc?: QueryClient): Map<readonly unknown[], Entry$1[]>;
+/**
+ * Restores discussion cache snapshots (for rollback on error).
+ */
+declare function restoreDiscussionSnapshots(snapshots: Map<readonly unknown[], Entry$1[]>, qc?: QueryClient): void;
+/**
+ * Updates a specific entry in the SDK entry cache.
+ * Returns the previous entry for rollback.
+ */
+declare function updateEntryInCache(author: string, permlink: string, updates: Partial<Entry$1>, qc?: QueryClient): Entry$1 | undefined;
+/**
+ * Restores an entry in cache (for rollback on error).
+ */
+declare function restoreEntryInCache(author: string, permlink: string, entry: Entry$1, qc?: QueryClient): void;
 
 type EntryWithPostId = Entry$1 & {
     post_id: number;
@@ -4025,6 +4675,343 @@ declare function getGameStatusCheckQueryOptions(username: string | undefined, co
 
 declare function useGameClaim(username: string | undefined, code: string | undefined, gameType: "spin", key: string): _tanstack_react_query.UseMutationResult<GameClaim, Error, void, unknown>;
 
+/**
+ * Payload for subscribing to a community.
+ */
+interface SubscribeCommunityPayload {
+    /** Community name (e.g., "hive-123456") */
+    community: string;
+}
+/**
+ * React Query mutation hook for subscribing to a community.
+ *
+ * This mutation broadcasts a subscribe operation to the Hive blockchain,
+ * adding the community to the user's subscription list.
+ *
+ * @param username - The username subscribing (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates subscriptions cache to show updated subscription list
+ * - Invalidates community cache to refetch updated subscriber count
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "community"
+ * - Action: ["subscribe", {"community": "hive-123456"}]
+ * - Authority: Posting key
+ *
+ * @example
+ * ```typescript
+ * const subscribeMutation = useSubscribeCommunity(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Subscribe to a community
+ * subscribeMutation.mutate({
+ *   community: 'hive-123456'
+ * });
+ * ```
+ */
+declare function useSubscribeCommunity(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SubscribeCommunityPayload, unknown>;
+
+/**
+ * Payload for unsubscribing from a community.
+ */
+interface UnsubscribeCommunityPayload {
+    /** Community name (e.g., "hive-123456") */
+    community: string;
+}
+/**
+ * React Query mutation hook for unsubscribing from a community.
+ *
+ * This mutation broadcasts an unsubscribe operation to the Hive blockchain,
+ * removing the community from the user's subscription list.
+ *
+ * @param username - The username unsubscribing (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates subscriptions cache to show updated subscription list
+ * - Invalidates community cache to refetch updated subscriber count
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "community"
+ * - Action: ["unsubscribe", {"community": "hive-123456"}]
+ * - Authority: Posting key
+ *
+ * @example
+ * ```typescript
+ * const unsubscribeMutation = useUnsubscribeCommunity(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Unsubscribe from a community
+ * unsubscribeMutation.mutate({
+ *   community: 'hive-123456'
+ * });
+ * ```
+ */
+declare function useUnsubscribeCommunity(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnsubscribeCommunityPayload, unknown>;
+
+/**
+ * Payload for muting/unmuting a post in a community.
+ */
+interface MutePostPayload {
+    /** Community name (e.g., "hive-123456") */
+    community: string;
+    /** Post author */
+    author: string;
+    /** Post permlink */
+    permlink: string;
+    /** Mute reason/notes (required even for unmute) */
+    notes: string;
+    /** True to mute, false to unmute */
+    mute: boolean;
+}
+/**
+ * React Query mutation hook for muting/unmuting posts in a community.
+ *
+ * This mutation broadcasts a custom_json operation to mute (or unmute)
+ * a post within a community. Only community moderators/admins can mute posts.
+ *
+ * @param username - The username performing the mute (required for broadcast, must have permission)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates community posts cache to hide muted content
+ * - Invalidates post cache to update mute status
+ * - Invalidates feed cache to remove muted posts from feeds
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "community"
+ * - Action: ["mutePost", {"community": "hive-123456", "account": "author", "permlink": "post", "notes": "reason"}]
+ * - Action (unmute): ["unmutePost", {"community": "hive-123456", "account": "author", "permlink": "post", "notes": "reason"}]
+ * - Authority: Posting key
+ *
+ * **Mute vs Unmute:**
+ * - mute: true - Mutes the post (hides from community feed)
+ * - mute: false - Unmutes the post (restores to community feed)
+ *
+ * **Permission:**
+ * - Only community moderators and admins can mute/unmute posts
+ * - Attempting to mute without permission will fail with an error
+ *
+ * @example
+ * ```typescript
+ * const mutePostMutation = useMutePost(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Mute a post
+ * mutePostMutation.mutate({
+ *   community: 'hive-123456',
+ *   author: 'alice',
+ *   permlink: 'my-post',
+ *   notes: 'Violates community guidelines',
+ *   mute: true
+ * });
+ *
+ * // Unmute a post
+ * mutePostMutation.mutate({
+ *   community: 'hive-123456',
+ *   author: 'alice',
+ *   permlink: 'my-post',
+ *   notes: 'Resolved after editing',
+ *   mute: false
+ * });
+ * ```
+ */
+declare function useMutePost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, MutePostPayload, unknown>;
+
+/**
+ * Payload for setting a user's role in a community.
+ */
+interface SetCommunityRolePayload {
+    /** Account to set role for */
+    account: string;
+    /** Role name (e.g., "admin", "mod", "member", "guest") */
+    role: string;
+}
+/**
+ * React Query mutation hook for setting a user's role in a community.
+ *
+ * This mutation broadcasts a setRole operation to the Hive blockchain,
+ * updating the role of a community member. Only users with appropriate
+ * permissions (community owner/admin) can set roles.
+ *
+ * @param community - Community name (e.g., "hive-123456")
+ * @param username - The username setting the role (required for broadcast, must have permission)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates community cache to refetch updated team member list
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "community"
+ * - Action: ["setRole", {"community": "hive-123456", "account": "user", "role": "mod"}]
+ * - Authority: Posting key
+ *
+ * **Role Types:**
+ * - "owner" - Community owner (full permissions)
+ * - "admin" - Administrator (can manage settings and team)
+ * - "mod" - Moderator (can mute posts/users)
+ * - "member" - Regular member (no special permissions)
+ * - "guest" - Remove user from team (empty string also works)
+ *
+ * @example
+ * ```typescript
+ * const setRoleMutation = useSetCommunityRole('hive-123456', username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Set a user as moderator
+ * setRoleMutation.mutate({
+ *   account: 'alice',
+ *   role: 'mod'
+ * });
+ *
+ * // Remove a user from the team
+ * setRoleMutation.mutate({
+ *   account: 'bob',
+ *   role: 'guest'
+ * });
+ * ```
+ */
+declare function useSetCommunityRole(community: string, username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetCommunityRolePayload, unknown>;
+
+/**
+ * Payload for updating community properties.
+ * Matches the CommunityProps interface from builders.
+ */
+type UpdateCommunityPayload = CommunityProps;
+/**
+ * React Query mutation hook for updating community properties.
+ *
+ * This mutation broadcasts an updateProps operation to the Hive blockchain,
+ * modifying the community's metadata and settings. Only community admins
+ * can update community properties.
+ *
+ * @param community - Community name (e.g., "hive-123456")
+ * @param username - The username updating the community (required for broadcast, must be admin)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates community cache to refetch updated properties
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "community"
+ * - Action: ["updateProps", {"community": "hive-123456", "props": {...}}]
+ * - Authority: Posting key
+ *
+ * **Properties:**
+ * - title - Community display title
+ * - about - Short description/tagline
+ * - lang - Primary language code (e.g., "en")
+ * - description - Full community description (markdown supported)
+ * - flag_text - Custom text shown when flagging posts
+ * - is_nsfw - Whether community contains NSFW content
+ *
+ * @example
+ * ```typescript
+ * const updateMutation = useUpdateCommunity('hive-123456', username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Update community properties
+ * updateMutation.mutate({
+ *   title: 'My Awesome Community',
+ *   about: 'A place for awesome people',
+ *   lang: 'en',
+ *   description: '# Welcome\nThis is our community description',
+ *   flag_text: 'Please explain why this content violates our rules',
+ *   is_nsfw: false
+ * });
+ * ```
+ */
+declare function useUpdateCommunity(community: string, username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityProps, unknown>;
+
+/**
+ * Payload for community rewards registration.
+ */
+interface CommunityRewardsRegisterPayload {
+    /** Community account name (usually the community creator's account) */
+    name: string;
+}
+/**
+ * React Query mutation hook for registering to receive community rewards.
+ *
+ * This mutation broadcasts a custom_json operation to register a community
+ * account to receive Ecency Points rewards for community activity.
+ *
+ * @param username - The username registering for community rewards (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates community cache to update registration status
+ * - Invalidates points balance to reflect potential initial rewards
+ *
+ * **Operation Details:**
+ * - Uses custom_json operation with id "ecency_registration"
+ * - JSON: {"name": "communityname"}
+ * - Authority: Active key (required for registration)
+ *
+ * **Purpose:**
+ * - Enables communities to receive Ecency Points for activity
+ * - One-time registration per community
+ * - Can only be done by the community owner/creator
+ *
+ * @example
+ * ```typescript
+ * const registerMutation = useRegisterCommunityRewards(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Register community for rewards
+ * registerMutation.mutate({
+ *   name: 'hive-123456'
+ * });
+ * ```
+ */
+declare function useRegisterCommunityRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityRewardsRegisterPayload, unknown>;
+
+interface PinPostPayload {
+    community: string;
+    account: string;
+    permlink: string;
+    pin: boolean;
+}
+declare function usePinPost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PinPostPayload, unknown>;
+
 declare enum ROLES {
     OWNER = "owner",
     ADMIN = "admin",
@@ -4076,10 +5063,10 @@ interface RewardedCommunity {
     name: string;
 }
 
-declare function getCommunitiesQueryOptions(sort: string, query?: string, limit?: number, observer?: string | undefined, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Communities, Error, Communities, (string | number | undefined)[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<Communities, (string | number | undefined)[], never> | undefined;
+declare function getCommunitiesQueryOptions(sort: string, query?: string, limit?: number, observer?: string | undefined, enabled?: boolean): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<Communities, Error, Communities, (string | number)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<Communities, (string | number)[], never> | undefined;
 } & {
-    queryKey: (string | number | undefined)[] & {
+    queryKey: (string | number)[] & {
         [dataTagSymbol]: Communities;
         [dataTagErrorSymbol]: Error;
     };
@@ -4091,13 +5078,13 @@ declare function getCommunityContextQueryOptions(username: string | undefined, c
 }, Error, {
     role: any;
     subscribed: any;
-}, (string | undefined)[]>, "queryFn"> & {
+}, string[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<{
         role: any;
         subscribed: any;
-    }, (string | undefined)[], never> | undefined;
+    }, string[], never> | undefined;
 } & {
-    queryKey: (string | undefined)[] & {
+    queryKey: string[] & {
         [dataTagSymbol]: {
             role: any;
             subscribed: any;
@@ -4469,6 +5456,11 @@ declare function useMarkNotificationsRead(username: string | undefined, code: st
     previousNotifications: [readonly unknown[], ApiNotification[] | undefined][];
 }>;
 
+interface SetLastReadPayload {
+    date?: string;
+}
+declare function useSetLastRead(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetLastReadPayload, unknown>;
+
 interface Proposal {
     creator: string;
     daily_pay: {
@@ -4616,6 +5608,8 @@ interface ProposalVotePayload {
  */
 declare function useProposalVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalVotePayload, unknown>;
 
+declare function useProposalCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalCreatePayload, unknown>;
+
 interface DelegatedVestingShare {
     id: number;
     delegatee: string;
@@ -4708,6 +5702,85 @@ interface RecurrentTransfer {
     remaining_executions: number;
     consecutive_failures: number;
     pair_id: number;
+}
+
+declare enum AssetOperation {
+    Transfer = "transfer",
+    TransferToSavings = "transfer-saving",
+    WithdrawFromSavings = "withdraw-saving",
+    Delegate = "delegate",
+    PowerUp = "power-up",
+    PowerDown = "power-down",
+    WithdrawRoutes = "withdraw-routes",
+    ClaimInterest = "claim-interest",
+    Swap = "swap",
+    Convert = "convert",
+    Gift = "gift",
+    Promote = "promote",
+    Claim = "claim",
+    Buy = "buy",
+    LockLiquidity = "lock",
+    Stake = "stake",
+    Unstake = "unstake",
+    Undelegate = "undelegate"
+}
+
+interface GeneralAssetInfo {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr?: string;
+    layer?: string;
+    pendingRewards?: number;
+    parts?: {
+        name: string;
+        balance: number;
+    }[];
+}
+
+interface GeneralAssetTransaction {
+    id: number | string;
+    type: OperationName | number | string;
+    created: Date;
+    results: {
+        amount: string | number;
+        asset: string;
+    }[];
+    from?: string;
+    to?: string;
+    memo?: string;
+}
+
+type HiveBasedAssetSignType = "key" | "keychain" | "hivesigner" | "hiveauth";
+
+type HiveTransaction = Transaction;
+
+type HiveOperationGroup = "" | "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
+
+type HiveOperationName = OperationName | VirtualOperationName;
+type HiveOperationFilterValue = HiveOperationGroup | HiveOperationName;
+type HiveOperationFilter = HiveOperationFilterValue | HiveOperationFilterValue[];
+type HiveOperationFilterKey = string;
+
+interface HiveMarketMetric {
+    hive: {
+        high: number;
+        low: number;
+        open: number;
+        close: number;
+        volume: number;
+    };
+    id: number;
+    non_hive: {
+        high: number;
+        low: number;
+        open: number;
+        close: number;
+        volume: number;
+    };
+    open: string;
+    seconds: number;
 }
 
 /**
@@ -4896,6 +5969,337 @@ declare function getPortfolioQueryOptions(username: string, currency?: string, o
     };
 };
 
+declare function getHiveAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        parts?: undefined;
+    } | {
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            parts?: undefined;
+        } | {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHbdAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        apr?: undefined;
+        parts?: undefined;
+    } | {
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        apr: string;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            apr?: undefined;
+            parts?: undefined;
+        } | {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            apr: string;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHivePowerAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    apr: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        apr?: undefined;
+        parts?: undefined;
+    } | {
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        apr: string;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            apr?: undefined;
+            parts?: undefined;
+        } | {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            apr: string;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function resolveHiveOperationFilters(filters: HiveOperationFilter): {
+    filterKey: HiveOperationFilterKey;
+    filterArgs: any[];
+};
+declare function getHiveAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<Transaction[], Error, _tanstack_react_query.InfiniteData<Transaction[], unknown>, readonly unknown[], unknown> & {
+    initialData: _tanstack_react_query.InfiniteData<Transaction[], unknown> | (() => _tanstack_react_query.InfiniteData<Transaction[], unknown>) | undefined;
+} & {
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Transaction[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHbdAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<Transaction[], Error, _tanstack_react_query.InfiniteData<Transaction[], unknown>, readonly unknown[], unknown> & {
+    initialData: _tanstack_react_query.InfiniteData<Transaction[], unknown> | (() => _tanstack_react_query.InfiniteData<Transaction[], unknown>) | undefined;
+} & {
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Transaction[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHivePowerAssetTransactionsQueryOptions(username: string | undefined, limit?: number, filters?: HiveOperationFilter): _tanstack_react_query.UseInfiniteQueryOptions<Transaction[], Error, _tanstack_react_query.InfiniteData<Transaction[], unknown>, readonly unknown[], unknown> & {
+    initialData: _tanstack_react_query.InfiniteData<Transaction[], unknown> | (() => _tanstack_react_query.InfiniteData<Transaction[], unknown>) | undefined;
+} & {
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<Transaction[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveAssetMetricQueryOptions(bucketSeconds?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<{
+    close: number;
+    open: number;
+    low: number;
+    high: number;
+    volume: number;
+    time: Date;
+}[], Error, _tanstack_react_query.InfiniteData<{
+    close: number;
+    open: number;
+    low: number;
+    high: number;
+    volume: number;
+    time: Date;
+}[], unknown>, (string | number)[], Date[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        close: number;
+        open: number;
+        low: number;
+        high: number;
+        volume: number;
+        time: Date;
+    }[], (string | number)[], Date[]> | undefined;
+} & {
+    queryKey: (string | number)[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<{
+            close: number;
+            open: number;
+            low: number;
+            high: number;
+            volume: number;
+            time: Date;
+        }[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveAssetWithdrawalRoutesQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<WithdrawRoute[], Error, WithdrawRoute[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WithdrawRoute[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: WithdrawRoute[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHivePowerDelegatesInfiniteQueryOptions(username: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DelegatedVestingShare[], Error, DelegatedVestingShare[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DelegatedVestingShare[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: DelegatedVestingShare[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHivePowerDelegatingsQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<ReceivedVestingShare[], Error, ReceivedVestingShare[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<ReceivedVestingShare[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: ReceivedVestingShare[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface Options$1 {
+    refetch?: boolean;
+    currency?: string;
+}
+declare function getAccountWalletAssetInfoQueryOptions(username: string, asset: string, options?: Options$1): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<GeneralAssetInfo | undefined, Error, GeneralAssetInfo | undefined, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<GeneralAssetInfo | undefined, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: GeneralAssetInfo | undefined;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 /**
  * Payload for transferring tokens.
  */
@@ -4910,33 +6314,72 @@ interface TransferPayload {
 /**
  * React Query mutation hook for transferring tokens.
  *
- * This mutation broadcasts a transfer operation to send HIVE, HBD, or other
- * Hive-based tokens to another account. **Requires ACTIVE authority**, not posting.
+ * This mutation broadcasts a transfer operation to send HIVE or HBD
+ * to another account. **Requires ACTIVE authority**.
+ *
+ * Uses `useBroadcastMutation` with the smart auth strategy:
+ * - Adapter determines login type and dispatches to appropriate method
+ * - If active key not available (common on web), triggers `showAuthUpgradeUI`
+ * - Supports keychain, hivesigner, hiveauth, and direct key signing
  *
  * @param username - The username sending the transfer (required for broadcast)
+ * @param auth - Authentication context with platform adapter
+ *
+ * @returns React Query mutation result
+ */
+declare function useTransfer(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPayload, unknown>;
+
+interface TransferPointPayload {
+    to: string;
+    amount: string;
+    memo: string;
+}
+/**
+ * React Query mutation hook for transferring Ecency points.
+ *
+ * Uses `ecency_point_transfer` custom_json operation with ACTIVE authority.
+ */
+declare function useTransferPoint(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPointPayload, unknown>;
+
+/**
+ * Payload for delegating Hive Power (vesting shares).
+ */
+interface DelegateVestingSharesPayload {
+    /** Account receiving HP delegation */
+    delegatee: string;
+    /** Amount of VESTS to delegate (e.g., "1000.000000 VESTS"). Use "0.000000 VESTS" to remove delegation. */
+    vestingShares: string;
+}
+/**
+ * React Query mutation hook for delegating Hive Power (HP).
+ *
+ * This mutation broadcasts a delegate_vesting_shares operation to delegate HP
+ * to another account. **Requires ACTIVE authority**, not posting.
+ *
+ * @param username - The username delegating HP (required for broadcast)
  * @param auth - Authentication context with platform adapter and fallback configuration
  *
  * @returns React Query mutation result
  *
  * @remarks
  * **IMPORTANT: Active Authority Required**
- * - Transfer operations require ACTIVE key, not posting key
+ * - Delegation operations require ACTIVE key, not posting key
  * - Make sure your auth adapter provides getActiveKey() method
  * - Keychain/HiveAuth will prompt for Active authority
  *
- * **Post-Broadcast Actions:**
- * - Records activity (type 140) if adapter.recordActivity is available
- * - Invalidates wallet balance caches to show updated balances
- * - Invalidates transaction history
+ * **Delegation Mechanics:**
+ * - Delegated HP can be used by the delegatee for resource credits
+ * - Delegatee CANNOT power down or transfer the delegated HP
+ * - Delegation can be removed by setting vestingShares to "0.000000 VESTS"
+ * - Removing delegation has a 5-day cooldown before HP returns to delegator
  *
- * **Supported Assets:**
- * - HIVE: "1.000 HIVE"
- * - HBD: "5.000 HBD"
- * - Amount must include exactly 3 decimal places
+ * **Post-Broadcast Actions:**
+ * - Invalidates delegations list cache to show updated delegation
+ * - Invalidates account data for both delegator and delegatee
  *
  * @example
  * ```typescript
- * const transferMutation = useTransfer(username, {
+ * const delegateMutation = useDelegateVestingShares(username, {
  *   adapter: {
  *     ...myAdapter,
  *     getActiveKey: async (username) => getActiveKeyFromStorage(username)
@@ -4945,22 +6388,311 @@ interface TransferPayload {
  *   fallbackChain: ['keychain', 'key', 'hivesigner']
  * });
  *
- * // Transfer HIVE
- * transferMutation.mutate({
- *   to: 'alice',
- *   amount: '10.000 HIVE',
- *   memo: 'Thanks for the post!'
+ * // Delegate HP
+ * delegateMutation.mutate({
+ *   delegatee: 'alice',
+ *   vestingShares: '1000.000000 VESTS'
  * });
  *
- * // Transfer HBD
- * transferMutation.mutate({
- *   to: 'bob',
- *   amount: '5.000 HBD',
- *   memo: ''
+ * // Remove delegation
+ * delegateMutation.mutate({
+ *   delegatee: 'alice',
+ *   vestingShares: '0.000000 VESTS'
  * });
  * ```
  */
-declare function useTransfer(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<any, Error, TransferPayload, unknown>;
+declare function useDelegateVestingShares(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateVestingSharesPayload, unknown>;
+
+/**
+ * Payload for setting withdraw vesting route.
+ */
+interface SetWithdrawVestingRoutePayload {
+    /** Account receiving withdrawn vesting */
+    toAccount: string;
+    /** Percentage to route (0-10000, where 10000 = 100%). Already scaled. */
+    percent: number;
+    /** Auto convert to vesting (power up) */
+    autoVest: boolean;
+}
+/**
+ * React Query mutation hook for setting withdraw vesting route.
+ *
+ * This mutation broadcasts a set_withdraw_vesting_route operation to configure
+ * where withdrawn VESTS (power down) are sent. **Requires ACTIVE authority**, not posting.
+ *
+ * @param username - The username setting withdraw route (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **IMPORTANT: Active Authority Required**
+ * - Withdraw route operations require ACTIVE key, not posting key
+ * - Make sure your auth adapter provides getActiveKey() method
+ * - Keychain/HiveAuth will prompt for Active authority
+ *
+ * **Withdraw Route Mechanics:**
+ * - Routes a percentage of power down (withdraw_vesting) to another account
+ * - Percent must be between 0-10000 (where 10000 = 100%)
+ * - Multiple routes can be set, total cannot exceed 100%
+ * - autoVest=true converts withdrawn VESTS to HP in destination account
+ * - autoVest=false converts withdrawn VESTS to liquid HIVE
+ *
+ * **Post-Broadcast Actions:**
+ * - Invalidates withdraw routes cache to show updated routes
+ * - Invalidates account data for both accounts
+ *
+ * @example
+ * ```typescript
+ * const setRouteMutation = useSetWithdrawVestingRoute(username, {
+ *   adapter: {
+ *     ...myAdapter,
+ *     getActiveKey: async (username) => getActiveKeyFromStorage(username)
+ *   },
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Route 50% of power down to another account (auto vest)
+ * setRouteMutation.mutate({
+ *   toAccount: 'alice',
+ *   percent: 5000, // 50% (already scaled)
+ *   autoVest: true
+ * });
+ *
+ * // Route 100% of power down to another account (liquid HIVE)
+ * setRouteMutation.mutate({
+ *   toAccount: 'bob',
+ *   percent: 10000, // 100% (already scaled)
+ *   autoVest: false
+ * });
+ * ```
+ */
+declare function useSetWithdrawVestingRoute(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetWithdrawVestingRoutePayload, unknown>;
+
+interface TransferSpkPayload {
+    to: string;
+    amount: number;
+    memo?: string;
+}
+declare function useTransferSpk(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferSpkPayload, unknown>;
+
+interface TransferLarynxPayload {
+    to: string;
+    amount: number;
+    memo?: string;
+}
+declare function useTransferLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferLarynxPayload, unknown>;
+
+interface TransferEngineTokenPayload {
+    to: string;
+    symbol: string;
+    quantity: string;
+    memo: string;
+}
+declare function useTransferEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferEngineTokenPayload, unknown>;
+
+interface TransferToSavingsPayload {
+    to: string;
+    amount: string;
+    memo: string;
+}
+declare function useTransferToSavings(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToSavingsPayload, unknown>;
+
+interface TransferFromSavingsPayload {
+    to: string;
+    amount: string;
+    memo: string;
+    requestId: number;
+}
+declare function useTransferFromSavings(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferFromSavingsPayload, unknown>;
+
+interface TransferToVestingPayload {
+    to: string;
+    amount: string;
+}
+declare function useTransferToVesting(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToVestingPayload, unknown>;
+
+interface WithdrawVestingPayload {
+    vestingShares: string;
+}
+declare function useWithdrawVesting(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WithdrawVestingPayload, unknown>;
+
+interface ConvertPayload {
+    amount: string;
+    requestId: number;
+    collateralized?: boolean;
+}
+declare function useConvert(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ConvertPayload, unknown>;
+
+interface ClaimInterestPayload {
+    to: string;
+    amount: string;
+    memo: string;
+    requestId: number;
+}
+declare function useClaimInterest(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimInterestPayload, unknown>;
+
+interface ClaimRewardsPayload {
+    rewardHive: string;
+    rewardHbd: string;
+    rewardVests: string;
+}
+declare function useClaimRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimRewardsPayload, unknown>;
+
+interface LockLarynxPayload {
+    mode: "lock" | "unlock";
+    amount: number;
+}
+declare function useLockLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LockLarynxPayload, unknown>;
+
+interface PowerLarynxPayload {
+    mode: "up" | "down";
+    amount: number;
+}
+declare function usePowerLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PowerLarynxPayload, unknown>;
+
+interface DelegateEngineTokenPayload {
+    to: string;
+    symbol: string;
+    quantity: string;
+}
+declare function useDelegateEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateEngineTokenPayload, unknown>;
+
+interface UndelegateEngineTokenPayload {
+    from: string;
+    symbol: string;
+    quantity: string;
+}
+declare function useUndelegateEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UndelegateEngineTokenPayload, unknown>;
+
+interface StakeEngineTokenPayload {
+    to: string;
+    symbol: string;
+    quantity: string;
+}
+declare function useStakeEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, StakeEngineTokenPayload, unknown>;
+
+interface UnstakeEngineTokenPayload {
+    to: string;
+    symbol: string;
+    quantity: string;
+}
+declare function useUnstakeEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnstakeEngineTokenPayload, unknown>;
+
+interface ClaimEngineRewardsPayload {
+    tokens: string[];
+}
+declare function useClaimEngineRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimEngineRewardsPayload, unknown>;
+
+interface EngineMarketOrderPayload {
+    action: "buy" | "sell" | "cancel";
+    symbol: string;
+    quantity?: string;
+    price?: string;
+    orderId?: string;
+    orderType?: "buy" | "sell";
+}
+declare function useEngineMarketOrder(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, EngineMarketOrderPayload, unknown>;
+
+interface WalletOperationPayload {
+    from: string;
+    to?: string;
+    amount?: string;
+    memo?: string;
+    request_id?: number;
+    from_account?: string;
+    to_account?: string;
+    percent?: number;
+    auto_vest?: boolean;
+    mode?: string;
+    [key: string]: unknown;
+}
+/**
+ * Meta-mutation hook that dispatches wallet operations based on asset and operation type.
+ *
+ * Supports HIVE, HBD, HP, POINTS, SPK, LARYNX, and Hive Engine tokens.
+ * Uses `useBroadcastMutation` for unified auth handling via `AuthContextV2`.
+ *
+ * @param username - The Hive account performing the operation
+ * @param asset - The asset symbol (e.g., "HIVE", "HBD", "HP", "POINTS", "SPK", "LARYNX", or engine token)
+ * @param operation - The operation type from AssetOperation enum
+ * @param auth - Auth context for broadcasting
+ */
+declare function useWalletOperation(username: string | undefined, asset: string, operation: AssetOperation, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WalletOperationPayload, unknown>;
+
+interface DelegateRcPayload {
+    to: string;
+    maxRc: string | number;
+}
+declare function useDelegateRc(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateRcPayload, unknown>;
+
+declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
+
+declare const HIVE_OPERATION_LIST: HiveOperationName[];
+
+declare const HIVE_OPERATION_ORDERS: Record<HiveOperationName, number>;
+declare const HIVE_OPERATION_NAME_BY_ID: Record<number, HiveOperationName>;
+
+/**
+ * Payload for voting for a witness.
+ */
+interface WitnessVotePayload {
+    /** Witness account name to vote for/against */
+    witness: string;
+    /** True to approve, false to disapprove */
+    approve: boolean;
+}
+/**
+ * React Query mutation hook for voting for a Hive witness.
+ *
+ * This mutation broadcasts an account_witness_vote operation to vote for
+ * or remove a vote from a witness.
+ *
+ * @param username - The username voting for the witness (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates account data cache to show updated witness votes
+ * - Invalidates witness votes cache
+ *
+ * **Vote Types:**
+ * - approve: true - Vote for the witness
+ * - approve: false - Remove your vote from the witness
+ *
+ * **Authority Required:**
+ * - Active authority is required for witness voting
+ *
+ * @example
+ * ```typescript
+ * const witnessVoteMutation = useWitnessVote(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Vote for a witness
+ * witnessVoteMutation.mutate({
+ *   witness: 'good-karma',
+ *   approve: true
+ * });
+ *
+ * // Remove vote from a witness
+ * witnessVoteMutation.mutate({
+ *   witness: 'good-karma',
+ *   approve: false
+ * });
+ * ```
+ */
+declare function useWitnessVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessVotePayload, unknown>;
+
+interface WitnessProxyPayload {
+    proxy: string;
+}
+declare function useWitnessProxy(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessProxyPayload, unknown>;
 
 interface Witness {
     total_missed: number;
@@ -5188,6 +6920,20 @@ declare function getCurrentMedianHistoryPriceQueryOptions(): _tanstack_react_que
     };
 };
 
+interface LimitOrderCreatePayload {
+    amountToSell: string;
+    minToReceive: string;
+    fillOrKill: boolean;
+    expiration: string;
+    orderId: number;
+}
+declare function useLimitOrderCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCreatePayload, unknown>;
+
+interface LimitOrderCancelPayload {
+    orderId: number;
+}
+declare function useLimitOrderCancel(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCancelPayload, unknown>;
+
 interface ApiResponse<T> {
     status: number;
     data: T;
@@ -5214,9 +6960,25 @@ declare function getHivePrice(): Promise<{
     };
 }>;
 
+declare enum PointTransactionType {
+    CHECKIN = 10,
+    LOGIN = 20,
+    CHECKIN_EXTRA = 30,
+    POST = 100,
+    COMMENT = 110,
+    VOTE = 120,
+    REBLOG = 130,
+    DELEGATION = 150,
+    REFERRAL = 160,
+    COMMUNITY = 170,
+    TRANSFER_SENT = 998,
+    TRANSFER_INCOMING = 999,
+    MINTED = 991
+}
+
 interface PointTransaction {
     id: number;
-    type: number;
+    type: PointTransactionType;
     created: string;
     memo: string | null;
     amount: string;
@@ -5227,6 +6989,11 @@ interface Points {
     points: string;
     uPoints: string;
     transactions: PointTransaction[];
+}
+
+interface PointsResponse {
+    points: string;
+    unclaimed_points: string;
 }
 
 declare function getPointsQueryOptions(username?: string, filter?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
@@ -5253,6 +7020,90 @@ declare function getPointsQueryOptions(username?: string, filter?: number): _tan
         [dataTagErrorSymbol]: Error;
     };
 };
+
+declare function getPointsAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getPointsAssetTransactionsQueryOptions(username: string | undefined, type?: PointTransactionType): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    created: Date;
+    type: PointTransactionType;
+    results: {
+        amount: number;
+        asset: string;
+    }[];
+    id: number;
+    from: string | undefined;
+    to: string | undefined;
+    memo: string | undefined;
+}[], Error, {
+    created: Date;
+    type: PointTransactionType;
+    results: {
+        amount: number;
+        asset: string;
+    }[];
+    id: number;
+    from: string | undefined;
+    to: string | undefined;
+    memo: string | undefined;
+}[], (string | PointTransactionType | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        created: Date;
+        type: PointTransactionType;
+        results: {
+            amount: number;
+            asset: string;
+        }[];
+        id: number;
+        from: string | undefined;
+        to: string | undefined;
+        memo: string | undefined;
+    }[], (string | PointTransactionType | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | PointTransactionType | undefined)[] & {
+        [dataTagSymbol]: {
+            created: Date;
+            type: PointTransactionType;
+            results: {
+                amount: number;
+                asset: string;
+            }[];
+            id: number;
+            from: string | undefined;
+            to: string | undefined;
+            memo: string | undefined;
+        }[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function useClaimPoints(username: string | undefined, accessToken: string | undefined, onSuccess?: () => void, onError?: Parameters<typeof useMutation>["0"]["onError"]): _tanstack_react_query.UseMutationResult<any, unknown, unknown, unknown>;
 
 interface SearchResult {
     id: number;
@@ -5403,6 +7254,12 @@ declare function getBoostPlusAccountPricesQueryOptions(account: string, accessTo
     };
 };
 
+interface BoostPlusPayload {
+    account: string;
+    duration: number;
+}
+declare function useBoostPlus(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, BoostPlusPayload, unknown>;
+
 type BridgeParams = Record<string, unknown> | unknown[];
 declare function bridgeApiCall<T>(endpoint: string, params: BridgeParams): Promise<T>;
 declare function resolvePost(post: Entry$1, observer: string, num?: number): Promise<Entry$1>;
@@ -5456,15 +7313,104 @@ interface HsTokenRenewResponse {
 
 declare function hsTokenRenew(code: string): Promise<HsTokenRenewResponse>;
 
-type EngineOrderBookEntry = {
+interface HiveEngineMarketResponse {
+    _id: number;
+    symbol: string;
+    volume: string;
+    volumeExpiration: number;
+    lastPrice: string;
+    lowestAsk: string;
+    highestBid: string;
+    lastDayPrice: string;
+    lastDayPriceExpiration: number;
+    priceChangeHive: string;
+    priceChangePercent: string;
+}
+
+interface HiveEngineTokenMetadataResponse {
+    issuer: string;
+    symbol: string;
+    name: string;
+    metadata: string;
+    precision: number;
+    maxSupply: string;
+    supply: string;
+    circulatingSupply: string;
+    stakingEnabled: boolean;
+    unstakingCooldown: number;
+    delegationEnabled: boolean;
+    undelegationCooldown: number;
+    numberTransactions: number;
+    totalStaked: string;
+}
+
+interface HiveEngineTokenBalance {
+    account: string;
+    balance: string;
+    delegationsIn: string;
+    delegationsOut: string;
+    pendingUndelegations: string;
+    pendingUnstake: string;
+    stake: string;
+    symbol: string;
+}
+
+interface HiveEngineTransaction {
+    _id: string;
+    blockNumber: number;
+    transactionId: string;
+    timestamp: number;
+    operation: string;
+    from: string;
+    to: string;
+    symbol: string;
+    quantity: string;
+    memo: any;
+    account: string;
+    authorperm?: string;
+}
+
+interface HiveEngineMetric {
+    baseVolume: string;
+    close: string;
+    high: string;
+    low: string;
+    open: string;
+    quoteVolume: string;
+    timestamp: number;
+}
+
+interface HiveEngineTokenStatus {
+    symbol: string;
+    pending_token: number;
+    precision: number;
+}
+
+interface HiveEngineTokenInfo {
+    highestBid: string;
+    lastDayPrice: string;
+    lastDayPriceExpiration: number;
+    lastPrice: string;
+    lowestAsk: string;
+    priceChangeHive: string;
+    priceChangePercent: string;
+    symbol: string;
+    volume: string;
+    volumeExpiration: number;
+}
+
+interface HiveEngineOrderBookEntry {
+    _id: number;
     txId: string;
     timestamp: number;
     account: string;
     symbol: string;
     quantity: string;
     price: string;
+    expiration: number;
     tokensLocked?: string;
-};
+}
+
 interface HiveEngineOpenOrder {
     id: string;
     type: "buy" | "sell";
@@ -5475,6 +7421,39 @@ interface HiveEngineOpenOrder {
     total: string;
     timestamp: number;
 }
+
+interface Token {
+    issuer: string;
+    symbol: string;
+    name: string;
+    metadata: string;
+    precision: number;
+    maxSupply: string;
+    supply: string;
+    circulatingSupply: string;
+    stakingEnabled: boolean;
+    unstakingCooldown: number;
+    delegationEnabled: boolean;
+    undelegationCooldown: number;
+    numberTransactions: number;
+    totalStaked: string;
+}
+
+interface TokenMetadata {
+    desc: string;
+    url: string;
+    icon: string;
+}
+
+type EngineOrderBookEntry = {
+    txId: string;
+    timestamp: number;
+    account: string;
+    symbol: string;
+    quantity: string;
+    price: string;
+    tokensLocked?: string;
+};
 declare function getHiveEngineOrderBook<T = EngineOrderBookEntry>(symbol: string, limit?: number): Promise<{
     buy: T[];
     sell: T[];
@@ -5489,7 +7468,444 @@ declare function getHiveEngineTokenTransactions<T = Record<string, unknown>>(use
 declare function getHiveEngineTokenMetrics<T = Record<string, unknown>>(symbol: string, interval?: string): Promise<T[]>;
 declare function getHiveEngineUnclaimedRewards<T = Record<string, unknown>>(username: string): Promise<Record<string, T>>;
 
+interface Options {
+    fractionDigits?: number;
+    prefix?: string;
+    suffix?: string;
+}
+declare function formattedNumber(value: number | string, options?: Options | undefined): string;
+
+interface HiveEngineTokenProps {
+    symbol: string;
+    name: string;
+    icon: string;
+    precision: number;
+    stakingEnabled: boolean;
+    delegationEnabled: boolean;
+    balance: string;
+    stake: string;
+    delegationsIn: string;
+    delegationsOut: string;
+    usdValue: number;
+}
+declare class HiveEngineToken {
+    symbol: string;
+    name?: string;
+    icon?: string;
+    precision?: number;
+    stakingEnabled?: boolean;
+    delegationEnabled?: boolean;
+    balance: number;
+    stake: number;
+    stakedBalance: number;
+    delegationsIn: number;
+    delegationsOut: number;
+    usdValue: number;
+    constructor(props: HiveEngineTokenProps);
+    hasDelegations: () => boolean;
+    delegations: () => string;
+    staked: () => string;
+    balanced: () => string;
+}
+
+declare function getHiveEngineTokensBalancesQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenBalance[], Error, HiveEngineTokenBalance[], readonly ["assets", "hive-engine", "balances", string]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenBalance[], readonly ["assets", "hive-engine", "balances", string], never> | undefined;
+} & {
+    queryKey: readonly ["assets", "hive-engine", "balances", string] & {
+        [dataTagSymbol]: HiveEngineTokenBalance[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineTokensMarketQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineMarketResponse[], Error, HiveEngineMarketResponse[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineMarketResponse[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: HiveEngineMarketResponse[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineTokensMetadataQueryOptions(tokens: string[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenMetadataResponse[], Error, HiveEngineTokenMetadataResponse[], readonly ["assets", "hive-engine", "metadata-list", string[]]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenMetadataResponse[], readonly ["assets", "hive-engine", "metadata-list", string[]], never> | undefined;
+} & {
+    queryKey: readonly ["assets", "hive-engine", "metadata-list", string[]] & {
+        [dataTagSymbol]: HiveEngineTokenMetadataResponse[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineTokenTransactionsQueryOptions(username: string | undefined, symbol: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<HiveEngineTransaction[], Error, _tanstack_react_query.InfiniteData<HiveEngineTransaction[], unknown>, readonly unknown[], unknown>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTransaction[], readonly unknown[], unknown> | undefined;
+} & {
+    queryKey: readonly unknown[] & {
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<HiveEngineTransaction[], unknown>;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineTokensMetricsQueryOptions(symbol: string, interval?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineMetric[], Error, HiveEngineMetric[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineMetric[], string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: HiveEngineMetric[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineUnclaimedRewardsQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenStatus[], Error, HiveEngineTokenStatus[], (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenStatus[], (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: HiveEngineTokenStatus[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getAllHiveEngineTokensQueryOptions(account?: string, symbol?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineTokenInfo[], Error, HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineTokenInfo[], readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined], never> | undefined;
+} & {
+    queryKey: readonly ["assets", "hive-engine", "all-tokens", string | undefined, string | undefined] & {
+        [dataTagSymbol]: HiveEngineTokenInfo[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface DynamicProps {
+    base: number;
+    quote: number;
+}
+declare function getHiveEngineBalancesWithUsdQueryOptions(account: string, dynamicProps?: DynamicProps, allTokens?: HiveEngineTokenInfo[]): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<HiveEngineToken[], Error, HiveEngineToken[], readonly ["assets", "hive-engine", "balances-with-usd", string, DynamicProps | undefined, HiveEngineTokenInfo[] | undefined]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<HiveEngineToken[], readonly ["assets", "hive-engine", "balances-with-usd", string, DynamicProps | undefined, HiveEngineTokenInfo[] | undefined], never> | undefined;
+} & {
+    queryKey: readonly ["assets", "hive-engine", "balances-with-usd", string, DynamicProps | undefined, HiveEngineTokenInfo[] | undefined] & {
+        [dataTagSymbol]: HiveEngineToken[];
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getHiveEngineTokenGeneralInfoQueryOptions(username?: string, symbol?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer: string;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        layer: string;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
+    }, (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            layer: string;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
 declare function getSpkWallet<T = Record<string, unknown>>(username: string): Promise<T>;
 declare function getSpkMarkets<T = Record<string, unknown>>(): Promise<T>;
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimRewardBalance, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateVestingShares, type DelegatedVestingShare, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GetGameStatus, type GetRecoveriesEmailResponse, type HiveEngineOpenOrder, type HiveHbdStats, HiveSignerIntegration, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCreate, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PlatformAdapter, type PointTransaction, type Points, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type ProducerReward, type Profile, type ProfileTokens, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetWithdrawRoute, SortOrder, type StatsResponse, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Transaction, type Transfer, type TransferPayload, type TransferToSavings, type TransferToVesting, type TrendingTag, type UnfollowPayload, type UpdateProposalVotes, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type Witness, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountsQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokensBalances, getHiveEngineTokensMarket, getHiveEngineTokensMetadata, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkMarkets, getSpkWallet, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, resolvePost, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBroadcastMutation, useComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useFollow, useGameClaim, useMarkNotificationsRead, useMoveSchedule, useProposalVote, useReblog, useRecordActivity, useRemoveFragment, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useTransfer, useUnfollow, useUpdateDraft, useUploadImage, useVote, usrActivity, validatePostCreating, votingPower, votingValue };
+interface SpkApiWallet {
+    balance: number;
+    claim: number;
+    drop: {
+        availible: {
+            amount: number;
+            precision: number;
+            token: string;
+        };
+        last_claim: number;
+        total_claims: number;
+    };
+    poweredUp: number;
+    granted: {
+        t: number;
+        [key: string]: number;
+    };
+    granting: {
+        t: number;
+        [key: string]: number;
+    };
+    heldCollateral: number;
+    contracts: unknown[];
+    up: unknown;
+    down: unknown;
+    power_downs: {
+        [key: string]: string;
+    };
+    gov_downs: unknown;
+    gov: number;
+    spk: number;
+    spk_block: number;
+    tick: string;
+    node: string;
+    head_block: number;
+    behind: number;
+    VERSION: string;
+    pow: number;
+}
+interface SpkMarkets {
+    head_block: number;
+    markets: {
+        node: {
+            [key: string]: {
+                lastGood: number;
+                report: {
+                    block: number;
+                };
+            };
+        };
+    };
+    stats: any;
+}
+interface TransformedSpkMarkets {
+    list: {
+        name: string;
+        status: string;
+    }[];
+    raw: SpkMarkets;
+}
+
+declare function rewardSpk(data: SpkApiWallet, sstats: any): number;
+
+declare function getSpkWalletQueryOptions(username?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<SpkApiWallet, Error, SpkApiWallet, (string | undefined)[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<SpkApiWallet, (string | undefined)[], never> | undefined;
+} & {
+    queryKey: (string | undefined)[] & {
+        [dataTagSymbol]: SpkApiWallet;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getSpkMarketsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    list: {
+        name: string;
+        status: string;
+    }[];
+    raw: SpkMarkets;
+}, Error, {
+    list: {
+        name: string;
+        status: string;
+    }[];
+    raw: SpkMarkets;
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        list: {
+            name: string;
+            status: string;
+        }[];
+        raw: SpkMarkets;
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            list: {
+                name: string;
+                status: string;
+            }[];
+            raw: SpkMarkets;
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getSpkAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    layer: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, Error, {
+    name: string;
+    layer: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        layer: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            layer: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getLarynxAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer?: undefined;
+} | {
+    name: string;
+    layer: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer?: undefined;
+} | {
+    name: string;
+    layer: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        layer?: undefined;
+    } | {
+        name: string;
+        layer: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            layer?: undefined;
+        } | {
+            name: string;
+            layer: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare function getLarynxPowerAssetGeneralInfoQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    layer: string;
+    price: number;
+    accountBalance: number;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, Error, {
+    name: string;
+    title: string;
+    price: number;
+    accountBalance: number;
+    layer?: undefined;
+    parts?: undefined;
+} | {
+    name: string;
+    title: string;
+    layer: string;
+    price: number;
+    accountBalance: number;
+    parts: {
+        name: string;
+        balance: number;
+    }[];
+}, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<{
+        name: string;
+        title: string;
+        price: number;
+        accountBalance: number;
+        layer?: undefined;
+        parts?: undefined;
+    } | {
+        name: string;
+        title: string;
+        layer: string;
+        price: number;
+        accountBalance: number;
+        parts: {
+            name: string;
+            balance: number;
+        }[];
+    }, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: {
+            name: string;
+            title: string;
+            price: number;
+            accountBalance: number;
+            layer?: undefined;
+            parts?: undefined;
+        } | {
+            name: string;
+            title: string;
+            layer: string;
+            price: number;
+            accountBalance: number;
+            parts: {
+                name: string;
+                balance: number;
+            }[];
+        };
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AccountSearchResult, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BoostPlusPayload, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CreateAccountPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateRcPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GetGameStatus, type GetRecoveriesEmailResponse, type GrantPostingPermissionPayload, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCancelPayload, type LimitOrderCreate, type LimitOrderCreatePayload, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PinPostPayload, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetLastReadPayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type TagSearchResult, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessProxyPayload, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, checkFavouriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavouritesInfiniteQueryOptions, getFavouritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchAccount, searchPath, searchQueryOptions, searchTag, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, useAccountFavouriteAdd, useAccountFavouriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useBookmarkAdd, useBookmarkDelete, useBoostPlus, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCreateAccount, useCrossPost, useDelegateEngineToken, useDelegateRc, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useGrantPostingPermission, useLimitOrderCancel, useLimitOrderCreate, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePinPost, usePowerLarynx, usePromote, useProposalCreate, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetLastRead, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessProxy, useWitnessVote, usrActivity, validatePostCreating, vestsToHp, votingPower, votingValue };

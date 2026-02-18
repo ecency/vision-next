@@ -1,5 +1,5 @@
 import { validatePostCreating } from "@ecency/sdk";
-import { comment, reblog } from "@/api/operations";
+import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
@@ -53,6 +53,8 @@ export function usePublishApi() {
     username ?? undefined,
     "video-published"
   );
+  const { mutateAsync: commentMutation } = useCommentMutation();
+  const { mutateAsync: reblogMutation } = useReblogMutation();
 
   return useMutation({
     mutationKey: ["publish-2.0"],
@@ -168,18 +170,26 @@ export function usePublishApi() {
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
 
-      await comment(
+      await commentMutation({
         author,
-        "",
-        parentPermlink,
         permlink,
-        title!,
-        //   buildBody(cleanBody),
-        cleanBody,
-        jsonMeta,
-        options,
-        true
-      );
+        parentAuthor: "",
+        parentPermlink,
+        title: title!,
+        body: cleanBody,
+        jsonMetadata: jsonMeta,
+        ...(options
+          ? {
+              options: {
+                maxAcceptedPayout: options.max_accepted_payout,
+                percentHbd: options.percent_hbd,
+                allowVotes: options.allow_votes,
+                allowCurationRewards: options.allow_curation_rewards,
+                beneficiaries: options.extensions?.[0]?.[1]?.beneficiaries
+              }
+            }
+          : {})
+      });
 
       // Create an entry object in store and cache
       const entry = {
@@ -218,7 +228,7 @@ export function usePublishApi() {
 
       success(i18next.t("submit.published"));
       if (isCommunity(tags?.[0]) && isReblogToCommunity) {
-        await reblog(author, author, permlink);
+        await reblogMutation({ author, permlink });
       }
 
       // return [entry as Entry, activePoll] as const;

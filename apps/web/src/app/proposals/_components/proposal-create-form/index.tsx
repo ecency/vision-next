@@ -3,7 +3,6 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PrivateKey } from "@hiveio/dhive";
 import { useQueryClient } from "@tanstack/react-query";
 import numeral from "numeral";
 import { Button } from "@ui/button";
@@ -11,19 +10,13 @@ import { Popover, PopoverContent } from "@/features/ui";
 import { Form } from "@ui/form";
 import { FormControl } from "@ui/input";
 import { Datepicker } from "@/features/ui";
-import { KeyOrHot, LinearProgress, error, success } from "@/features/shared";
+import { LinearProgress, error, success } from "@/features/shared";
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
 import clsx from "clsx";
 import dayjs from "@/utils/dayjs";
 import { useGlobalStore } from "@/core/global-store";
-import { QueryIdentifiers } from "@/core/react-query";
-import {
-  formatError,
-  proposalCreate,
-  proposalCreateHot,
-  proposalCreateKc
-} from "@/api/operations";
+import { useProposalCreateMutation } from "@/api/sdk-mutations";
 import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { checkAllSvg } from "@ui/svg";
 import { ProfileFilter } from "@/enums";
@@ -63,8 +56,8 @@ export function ProposalCreateForm() {
   const [permlinkSuggestionsLoaded, setPermlinkSuggestionsLoaded] = useState(false);
   const [permlinkSuggestionsError, setPermlinkSuggestionsError] = useState(false);
   const [dailyPay, setDailyPay] = useState("50");
-  const [inProgress, setInProgress] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { mutateAsync, isPending } = useProposalCreateMutation();
   const permlinkInputRef = useRef<HTMLInputElement | null>(null);
   const permlinkBlurTimeout = useRef<number | null>(null);
   const isAuthenticated = !!activeUser;
@@ -127,10 +120,10 @@ export function ProposalCreateForm() {
   }, [activeUser?.username]);
 
   useEffect(() => {
-    if (!isAuthenticated || inProgress || step !== 1) {
+    if (!isAuthenticated || isPending || step !== 1) {
       setShowPermlinkSuggestions(false);
     }
-  }, [inProgress, isAuthenticated, step]);
+  }, [isPending, isAuthenticated, step]);
 
   useEffect(() => () => {
     if (permlinkBlurTimeout.current) {
@@ -192,7 +185,6 @@ export function ProposalCreateForm() {
     setShowEndPicker(false);
     setDailyPay("50");
     setErrors({});
-    setInProgress(false);
   }, [activeUser?.username]);
 
   const buildPayload = useCallback(() => {
@@ -262,34 +254,7 @@ export function ProposalCreateForm() {
     [activeUser, toggleUiProp, validateStep]
   );
 
-  const handleSignByKey = useCallback(
-    async (key: PrivateKey) => {
-      if (!activeUser) {
-        toggleUiProp("login");
-        return;
-      }
-
-      const payload = buildPayload();
-      if (!payload) {
-        return;
-      }
-
-      try {
-        setInProgress(true);
-        await proposalCreate(activeUser.username, key, payload);
-        success(i18next.t("proposals.create.success-toast"));
-        await queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.PROPOSALS] });
-        setStep(3);
-      } catch (err) {
-        error(...formatError(err));
-      } finally {
-        setInProgress(false);
-      }
-    },
-    [activeUser, buildPayload, queryClient, toggleUiProp]
-  );
-
-  const handleSignByKeychain = useCallback(async () => {
+  const handleSign = useCallback(async () => {
     if (!activeUser) {
       toggleUiProp("login");
       return;
@@ -301,33 +266,13 @@ export function ProposalCreateForm() {
     }
 
     try {
-      setInProgress(true);
-      await proposalCreateKc(activeUser.username, payload);
+      await mutateAsync(payload);
       success(i18next.t("proposals.create.success-toast"));
-      await queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.PROPOSALS] });
       setStep(3);
     } catch (err) {
-      error(...formatError(err));
-    } finally {
-      setInProgress(false);
+      error(i18next.t("g.server-error"));
     }
-  }, [activeUser, buildPayload, queryClient, toggleUiProp]);
-
-  const handleHotSign = useCallback(() => {
-    if (!activeUser) {
-      toggleUiProp("login");
-      return;
-    }
-
-    const payload = buildPayload();
-    if (!payload) {
-      return;
-    }
-
-    proposalCreateHot(activeUser.username, payload);
-    success(i18next.t("proposals.create.external-sign"));
-    setStep(3);
-  }, [activeUser, buildPayload, toggleUiProp]);
+  }, [activeUser, buildPayload, mutateAsync, toggleUiProp]);
 
   const summaryItems = useMemo(
     () => [
@@ -365,7 +310,7 @@ export function ProposalCreateForm() {
         <div
           className={clsx(
             "transaction-form rounded-2xl border border-[--border-color] bg-white dark:bg-dark-default shadow-sm",
-            inProgress && "in-progress"
+            isPending && "in-progress"
           )}
         >
           <div className="transaction-form-header px-6 py-5">
@@ -377,7 +322,7 @@ export function ProposalCreateForm() {
               </div>
             </div>
           </div>
-          {inProgress && <LinearProgress />}
+          {isPending && <LinearProgress />}
           <div className="transaction-form-body px-6 py-6">
             <div className="mb-6 text-sm text-gray-600 dark:text-gray-400">
               <Tsx k="proposals.create.description">
@@ -394,7 +339,7 @@ export function ProposalCreateForm() {
                   maxLength={80}
                   value={subject}
                   onChange={(e) => setSubject((e.target as HTMLInputElement).value)}
-                  disabled={!isAuthenticated || inProgress}
+                  disabled={!isAuthenticated || isPending}
                   className={clsx(errors.subject && "is-invalid")}
                   placeholder={i18next.t("proposals.create.subject-placeholder")}
                 />
@@ -414,9 +359,9 @@ export function ProposalCreateForm() {
                   <Popover
                     className="w-full"
                     placement="bottom-start"
-                    show={showPermlinkSuggestions && isAuthenticated && !inProgress}
+                    show={showPermlinkSuggestions && isAuthenticated && !isPending}
                     setShow={(next) => {
-                      setShowPermlinkSuggestions(next && isAuthenticated && !inProgress);
+                      setShowPermlinkSuggestions(next && isAuthenticated && !isPending);
                     }}
                     customClassName="bg-white dark:bg-dark-default border border-[--border-color] rounded-xl shadow-lg"
                     behavior="click"
@@ -426,7 +371,7 @@ export function ProposalCreateForm() {
                         type="text"
                         value={permlink}
                         onFocus={() => {
-                          if (!isAuthenticated || inProgress) {
+                          if (!isAuthenticated || isPending) {
                             return;
                           }
 
@@ -450,7 +395,7 @@ export function ProposalCreateForm() {
                           const value = (e.target as HTMLInputElement).value.toLowerCase();
                           setPermlink(value);
                         }}
-                        disabled={!isAuthenticated || inProgress}
+                        disabled={!isAuthenticated || isPending}
                         className={clsx("w-full", errors.permlink && "is-invalid")}
                         placeholder={i18next.t("proposals.create.permlink-placeholder")}
                       />
@@ -524,7 +469,7 @@ export function ProposalCreateForm() {
                   type="text"
                   value={receiver}
                   onChange={(e) => setReceiver((e.target as HTMLInputElement).value.toLowerCase())}
-                  disabled={!isAuthenticated || inProgress}
+                  disabled={!isAuthenticated || isPending}
                   className={clsx(errors.receiver && "is-invalid")}
                   placeholder={i18next.t("proposals.create.receiver-placeholder")}
                 />
@@ -552,7 +497,7 @@ export function ProposalCreateForm() {
                         appearance="secondary"
                         outline={true}
                         onClick={() => setShowStartPicker((val) => !val)}
-                        disabled={!isAuthenticated || inProgress}
+                        disabled={!isAuthenticated || isPending}
                       >
                         {startDateDisplay}
                       </Button>
@@ -589,7 +534,7 @@ export function ProposalCreateForm() {
                         appearance="secondary"
                         outline={true}
                         onClick={() => setShowEndPicker((val) => !val)}
-                        disabled={!isAuthenticated || inProgress}
+                        disabled={!isAuthenticated || isPending}
                       >
                         {endDateDisplay}
                       </Button>
@@ -622,7 +567,7 @@ export function ProposalCreateForm() {
                   step="0.001"
                   value={dailyPay}
                   onChange={(e) => setDailyPay((e.target as HTMLInputElement).value)}
-                  disabled={!isAuthenticated || inProgress}
+                  disabled={!isAuthenticated || isPending}
                   className={clsx("max-w-xs", errors.dailyPay && "is-invalid")}
                   placeholder="10.000"
                 />
@@ -646,7 +591,7 @@ export function ProposalCreateForm() {
               </div>
 
               <div className="flex flex-wrap items-center gap-4">
-                <Button type="submit" disabled={!isAuthenticated || inProgress}>
+                <Button type="submit" disabled={!isAuthenticated || isPending}>
                   {i18next.t("g.continue")}
                 </Button>
                 {!isAuthenticated && (
@@ -668,7 +613,7 @@ export function ProposalCreateForm() {
         <div
           className={clsx(
             "transaction-form rounded-2xl border border-[--border-color] bg-white dark:bg-dark-default shadow-sm",
-            inProgress && "in-progress"
+            isPending && "in-progress"
           )}
         >
           <div className="transaction-form-header px-6 py-5">
@@ -680,7 +625,7 @@ export function ProposalCreateForm() {
               </div>
             </div>
           </div>
-          {inProgress && <LinearProgress />}
+          {isPending && <LinearProgress />}
           <div className="transaction-form-body px-6 py-6 flex flex-col gap-6">
             <div className="bg-gray-100 dark:bg-dark-200 rounded-xl p-4 text-sm space-y-2">
               <div>
@@ -729,17 +674,15 @@ export function ProposalCreateForm() {
                 </div>
               </div>
             </div>
-            <KeyOrHot
-              inProgress={inProgress}
-              onKey={handleSignByKey}
-              onHot={handleHotSign}
-              onKc={handleSignByKeychain}
-            />
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {i18next.t("proposals.create.sign-hint")}
-            </div>
             <div className="flex gap-3">
-              <Button appearance="gray" onClick={() => setStep(1)}>
+              <Button
+                disabled={isPending}
+                isLoading={isPending}
+                onClick={handleSign}
+              >
+                {i18next.t("trx-common.sign-title")}
+              </Button>
+              <Button appearance="gray" onClick={() => setStep(1)} disabled={isPending}>
                 {i18next.t("g.back")}
               </Button>
             </div>

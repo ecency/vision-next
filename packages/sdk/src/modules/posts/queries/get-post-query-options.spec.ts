@@ -3,13 +3,17 @@ import { getPostQueryOptions } from './get-post-query-options'
 import { CONFIG } from '@/modules/core'
 
 // Mock CONFIG
-vi.mock('@/modules/core', () => ({
-  CONFIG: {
-    hiveClient: {
-      call: vi.fn()
+vi.mock('@/modules/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/modules/core')>()
+  return {
+    ...actual,
+    CONFIG: {
+      hiveClient: {
+        call: vi.fn()
+      }
     }
   }
-}))
+})
 
 // Mock filterDmcaEntry
 vi.mock('../utils/filter-dmca-entries', () => ({

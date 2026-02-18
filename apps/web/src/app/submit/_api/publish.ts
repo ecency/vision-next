@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
-import { comment, formatError, reblog } from "@/api/operations";
+import { formatError } from "@/api/format-error";
+import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
@@ -37,6 +38,8 @@ export function usePublishApi(onClear: () => void) {
     username,
     "legacy-post-created"
   );
+  const { mutateAsync: commentMutation } = useCommentMutation();
+  const { mutateAsync: reblogMutation } = useReblogMutation();
 
   return useMutation({
     mutationKey: ["publish"],
@@ -156,17 +159,26 @@ export function usePublishApi(onClear: () => void) {
       const options = makeCommentOptions(author, permlink, reward, beneficiaries);
 
       try {
-        await comment(
+        await commentMutation({
           author,
-          "",
-          parentPermlink,
           permlink,
+          parentAuthor: "",
+          parentPermlink,
           title,
-          buildBody(cbody),
-          jsonMeta,
-          options,
-          true
-        );
+          body: buildBody(cbody),
+          jsonMetadata: jsonMeta,
+          ...(options
+            ? {
+                options: {
+                  maxAcceptedPayout: options.max_accepted_payout,
+                  percentHbd: options.percent_hbd,
+                  allowVotes: options.allow_votes,
+                  allowCurationRewards: options.allow_curation_rewards,
+                  beneficiaries: options.extensions?.[0]?.[1]?.beneficiaries
+                }
+              }
+            : {})
+        });
 
         // Create entry object in store and cache
         const entry = {
@@ -209,7 +221,7 @@ export function usePublishApi(onClear: () => void) {
           }, 10000);
         }
         if (isCommunity(tags[0]) && reblogSwitch) {
-          await reblog(author, author, permlink);
+          await reblogMutation({ author, permlink });
         }
 
         return [entry as Entry, activePoll] as const;

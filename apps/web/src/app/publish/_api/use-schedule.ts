@@ -1,5 +1,5 @@
 import { addSchedule } from "@ecency/sdk";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";

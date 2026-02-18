@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Follow } from "../types";
 
 /**
@@ -11,13 +12,13 @@ import { Follow } from "../types";
  * @param limit - Maximum number of results (default: 100)
  */
 export function getFollowingQueryOptions(
-  follower: string | undefined,
+  follower: string,
   startFollowing: string,
   followType = "blog",
   limit = 100
 ) {
   return queryOptions({
-    queryKey: ["accounts", "following", follower, startFollowing, followType, limit],
+    queryKey: QueryKeys.accounts.following(follower, startFollowing, followType, limit),
     queryFn: () =>
       CONFIG.hiveClient.database.call("get_following", [
         follower,

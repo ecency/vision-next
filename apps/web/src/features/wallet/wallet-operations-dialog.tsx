@@ -1,5 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";
@@ -207,10 +207,11 @@ export function WalletOperationsDialog({
           <WalletOperationWithdrawRoutes
             onDeleteRoute={(formData) => {
               setData({
-                account: formData.account,
-                percent: formData.percent,
-                auto: formData.auto,
-                from: activeUser?.username
+                from: activeUser?.username,
+                from_account: activeUser?.username,
+                to_account: formData.account,
+                auto_vest: formData.auto === "yes",
+                percent: 0
               });
               setStep("sign");
             }}

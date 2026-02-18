@@ -1,2 +1,1 @@
-export * from "./claim-points";
-export * from "./gift";
+export { useClaimPoints } from "@ecency/sdk";

@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import type { Vote } from "../types";
 
 /**
@@ -16,7 +17,7 @@ export function getUserPostVoteQueryOptions(
   permlink: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["posts", "user-vote", username, author, permlink],
+    queryKey: QueryKeys.posts.userPostVote(username!, author!, permlink!),
     queryFn: async () => {
       const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
         start: [username, author, permlink],

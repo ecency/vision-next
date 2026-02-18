@@ -7,7 +7,7 @@ import { DraftsDialog } from "@/features/shared/drafts";
 import React, { useCallback } from "react";
 import { usePublishApi, useSaveDraftApi, useScheduleApi, useUpdateApi } from "@/app/submit/_api";
 import { makeEntryPath } from "@/utils";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { BeneficiaryRoute, Draft, Entry, RewardType } from "@/entities";
 import { useRouter } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks/use-active-account";

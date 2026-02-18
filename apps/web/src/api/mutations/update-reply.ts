@@ -4,18 +4,23 @@ import { useMutation } from "@tanstack/react-query";
 import * as ss from "@/utils/session-storage";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommentOptions, Entry, MetaData } from "@/entities";
-import { comment, formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { error, success } from "@/features/shared";
+import { ErrorTypes } from "@/enums";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { updateEntryInCache, restoreEntryInCache } from "@ecency/sdk";
 import { useValidatePostUpdating } from "@/api/mutations/validate-post-updating";
 import i18next from "i18next";
+import { useUpdateReplyMutation } from "@/api/sdk-mutations";
 
 export function useUpdateReply(
   entry?: Entry | null,
   onSuccess?: () => Promise<void>,
-  onBlockchainError?: (text: string, error: any) => void
+  onBlockchainError?: (text: string, error: any) => void,
+  root?: Entry | null
 ) {
   const { activeUser } = useActiveAccount();
+  const sdkUpdateReply = useUpdateReplyMutation();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -43,22 +48,35 @@ export function useUpdateReply(
         body: text
       };
 
-      // Update cache immediately for instant feedback
+      // Update cache immediately for instant feedback (web + SDK cache keys)
       updateEntryQueryData([updatedEntry]);
+      updateEntryInCache(entry.author, entry.permlink, { body: text, json_metadata: jsonMeta });
 
-      // Fire blockchain broadcast in background
+      // Fire blockchain broadcast in background using SDK mutation
       const draftKey = `reply_draft_${entry.author}_${entry.permlink}`;
-      comment(
-        activeUser.username,
-        entry.parent_author ?? "",
-        entry.parent_permlink ?? entry.category,
-        entry.permlink,
-        "",
-        text,
-        jsonMeta,
-        options ?? null,
-        point
-      ).then(async (transactionResult) => {
+
+      // Convert web CommentOptions to SDK format
+      const sdkOptions = options ? {
+        maxAcceptedPayout: options.max_accepted_payout,
+        percentHbd: options.percent_hbd,
+        allowVotes: options.allow_votes,
+        allowCurationRewards: options.allow_curation_rewards,
+        beneficiaries: options.extensions?.[0]?.[1]?.beneficiaries
+      } : undefined;
+
+      sdkUpdateReply.mutateAsync({
+        author: activeUser.username,
+        permlink: entry.permlink,
+        parentAuthor: entry.parent_author ?? "",
+        parentPermlink: entry.parent_permlink ?? entry.category,
+        title: "",
+        body: text,
+        jsonMetadata: jsonMeta,
+        // For discussions cache invalidation, use root post info when available
+        rootAuthor: root?.author ?? entry.parent_author,
+        rootPermlink: root?.permlink ?? entry.parent_permlink,
+        options: sdkOptions
+      }).then(async (transactionResult) => {
         // Blockchain confirmed
         try {
           await validatePostUpdating({ entry, text });
@@ -69,8 +87,9 @@ export function useUpdateReply(
         ss.remove(draftKey);
         success(i18next.t("g.updated"));
       }).catch((err) => {
-        // Blockchain failed - revert to original entry
+        // Blockchain failed - revert to original entry (web + SDK cache keys)
         updateEntryQueryData([entry]);
+        restoreEntryInCache(entry.author, entry.permlink, entry as any);
 
         // Notify parent component to restore text
         if (onBlockchainError) {
@@ -78,18 +97,12 @@ export function useUpdateReply(
         }
 
         // Keep draft for retry
-        const errorMessage = formatError(err);
+        const [errorMsg, errorType] = formatError(err);
 
-        // Check if it's an RC error
-        const errorString = JSON.stringify(err).toLowerCase();
-        const isRCError = errorString.includes("rc") ||
-                         errorString.includes("resource credit") ||
-                         errorString.includes("bandwidth");
-
-        if (isRCError) {
-          error(errorMessage[0], i18next.t("comment.rc-error-hint"));
+        if (errorType === ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS) {
+          error(i18next.t("comment.rc-error-hint"), ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS);
         } else {
-          error(errorMessage[0], errorMessage[1] || i18next.t("comment.retry-hint"));
+          error(errorMsg || i18next.t("comment.retry-hint"), errorType);
         }
       });
 
@@ -100,9 +113,10 @@ export function useUpdateReply(
       // Already handled in mutationFn
     },
     onError: (e) => {
-      // Revert to original entry if sync error
+      // Revert to original entry if sync error (web + SDK cache keys)
       if (entry) {
         updateEntryQueryData([entry]);
+        restoreEntryInCache(entry.author, entry.permlink, entry as any);
       }
       error(...formatError(e));
     }

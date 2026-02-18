@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { CONFIG, getBoundFetch, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 /**
@@ -14,7 +14,7 @@ export function checkFavouriteQueryOptions(
   targetUsername: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["accounts", "favourites", "check", activeUsername, targetUsername],
+    queryKey: QueryKeys.accounts.checkFavourite(activeUsername!, targetUsername!),
     enabled: !!activeUsername && !!code && !!targetUsername,
     queryFn: async () => {
       if (!activeUsername || !code) {

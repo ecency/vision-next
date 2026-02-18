@@ -11,8 +11,6 @@ import { ConfigManager } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMount } from "react-use";
 import { installConsoleRecorder } from "@/utils/console-msg";
-import { registerWalletHiveAuthBroadcast } from "@ecency/wallets";
-import { broadcastWithHiveAuth } from "@/utils/hive-auth";
 
 export function ClientInit() {
   const { activeUser } = useActiveAccount();
@@ -35,10 +33,6 @@ export function ClientInit() {
     initKeychain();
     initI18next();
     loadUsers();
-
-    registerWalletHiveAuthBroadcast((username, operations, keyType) =>
-      broadcastWithHiveAuth(username, operations, keyType)
-    );
 
     (window as any).dHiveClient = CONFIG.hiveClient;
 

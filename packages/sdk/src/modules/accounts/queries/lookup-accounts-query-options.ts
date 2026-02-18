@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 
 /**
  * Lookup accounts by username prefix
@@ -9,7 +10,7 @@ import { CONFIG } from "@/modules/core/config";
  */
 export function lookupAccountsQueryOptions(query: string, limit = 50) {
   return queryOptions({
-    queryKey: ["accounts", "lookup", query, limit],
+    queryKey: QueryKeys.accounts.lookup(query, limit),
     queryFn: () =>
       CONFIG.hiveClient.database.call("lookup_accounts", [
         query,

@@ -8,7 +8,7 @@ import { useUnmount } from "react-use";
 import { Button } from "@ui/button";
 import { useThreeSpeakVideoUpload } from "@/api/threespeak";
 import i18next from "i18next";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 
 interface Props {
   setVideoUrl: (v: string) => void;

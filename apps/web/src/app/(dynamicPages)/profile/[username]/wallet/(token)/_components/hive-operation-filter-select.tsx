@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/features/ui";
-import { HIVE_OPERATION_LIST } from "@ecency/wallets";
-import type { HiveOperationFilterValue } from "@ecency/wallets";
+import { HIVE_OPERATION_LIST } from "@ecency/sdk";
+import type { HiveOperationFilterValue } from "@ecency/sdk";
 import { Dropdown, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { closeSvg } from "@ui/svg";
 import { clsx } from "clsx";

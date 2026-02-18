@@ -11,8 +11,8 @@ import useMount from "react-use/lib/useMount";
 import {
   getAllHiveEngineTokensQueryOptions,
   getHiveEngineTokensBalancesQueryOptions,
-  getHiveEngineTokensMetadataQueryOptions
-} from "@ecency/wallets";
+  getHiveEngineTokensMetadataQueryOptions,
+} from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks";
 import { QueryIdentifiers } from "@/core/react-query";

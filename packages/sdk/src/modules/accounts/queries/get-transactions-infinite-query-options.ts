@@ -1,6 +1,7 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { utils } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
 
 const ops = utils.operationOrders;
@@ -75,7 +76,7 @@ export function getTransactionsInfiniteQueryOptions(
   group: OperationGroup | "" = ""
 ) {
   return infiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], TxCursor>({
-    queryKey: ["accounts", "transactions", username ?? "", group, limit],
+    queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
     initialPageParam: -1 as TxCursor,
 
     queryFn: async ({ pageParam }: { pageParam: TxCursor }) => {

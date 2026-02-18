@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Follow, Profile, FriendSearchResult } from "../types";
 
 const SEARCH_LIMIT = 30;
@@ -17,7 +18,7 @@ export function getSearchFriendsQueryOptions(
   query: string
 ) {
   return queryOptions({
-    queryKey: ["accounts", "friends", "search", username, mode, query],
+    queryKey: QueryKeys.accounts.searchFriends(username, mode, query),
     refetchOnMount: false,
     enabled: false, // Manual query via refetch
     queryFn: async (): Promise<FriendSearchResult[]> => {
