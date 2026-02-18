@@ -5,6 +5,8 @@ import { createRoot } from "react-dom/client";
 
 type VideoOrientation = "landscape" | "portrait" | "square";
 
+const THREE_SPEAK_EMBED_ORIGIN = "https://play.3speak.tv";
+
 export function ThreeSpeakVideoRenderer({
   embedSrc,
   container,
@@ -38,19 +40,22 @@ export function ThreeSpeakVideoRenderer({
 
     const handleMessage = (event: MessageEvent) => {
       if (
-        event.data?.type === "3speak-player-ready" &&
-        iframeRef.current?.contentWindow === event.source
+        event.origin !== THREE_SPEAK_EMBED_ORIGIN ||
+        event.data?.type !== "3speak-player-ready" ||
+        iframeRef.current?.contentWindow !== event.source
       ) {
-        if (event.data.isVertical) {
-          setOrientation("portrait");
-        } else if (
-          event.data.aspectRatio &&
-          Math.abs(event.data.aspectRatio - 1) < 0.1
-        ) {
-          setOrientation("square");
-        } else {
-          setOrientation("landscape");
-        }
+        return;
+      }
+
+      if (event.data.isVertical) {
+        setOrientation("portrait");
+      } else if (
+        event.data.aspectRatio &&
+        Math.abs(event.data.aspectRatio - 1) < 0.1
+      ) {
+        setOrientation("square");
+      } else {
+        setOrientation("landscape");
       }
     };
 
@@ -74,8 +79,7 @@ export function ThreeSpeakVideoRenderer({
       className="speak-iframe"
       src={embedSrc}
       title="3Speak video"
-      frameBorder="0"
-      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowFullScreen
     />
   ) : null;

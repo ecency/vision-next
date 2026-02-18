@@ -22,7 +22,14 @@ interface SeoContext {
     postPayout?: number;
 }
 
-declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean, parentDomain?: string, seoContext?: SeoContext): string;
+/**
+ * @param obj - Entry object or raw markdown string
+ * @param forApp - Whether rendering for app context
+ * @param _webp - @deprecated Ignored. Format is now handled server-side via Accept header content negotiation.
+ * @param parentDomain - Parent domain for iframe embed parameters
+ * @param seoContext - Optional SEO context for structured data
+ */
+declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext): string;
 
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
@@ -37,7 +44,10 @@ declare function catchPostImage(obj: Entry | string, width?: number, height?: nu
 declare function getPostBodySummary(obj: Entry | string, length?: number, platform?: 'ios' | 'android' | 'web'): string;
 
 declare function setProxyBase(p: string): void;
-declare function proxifyImageSrc(url?: string, width?: number, height?: number, format?: string): string;
+/**
+ * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ */
+declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string): string;
 
 declare function setCacheSize(size: number): void;
 

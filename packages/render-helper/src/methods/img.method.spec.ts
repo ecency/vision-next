@@ -16,7 +16,7 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image)
 
       const state = { firstImageFound: false }
-      img(image, false, state)
+      img(image, state)
 
       expect(state.firstImageFound).toBe(true)
       expect(image.getAttribute('loading')).toBe('eager')
@@ -33,8 +33,8 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image2)
 
       const state = { firstImageFound: false }
-      img(image1, false, state)
-      img(image2, false, state)
+      img(image1, state)
+      img(image2, state)
 
       expect(state.firstImageFound).toBe(true)
       expect(image1.getAttribute('loading')).toBe('eager')
@@ -49,7 +49,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('loading')).toBe('lazy')
       expect(image.getAttribute('decoding')).toBe('async')
@@ -63,7 +63,7 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image)
 
       const state = { firstImageFound: true }
-      img(image, false, state)
+      img(image, state)
 
       expect(image.getAttribute('loading')).toBe('lazy')
       expect(image.getAttribute('decoding')).toBe('async')
@@ -76,7 +76,7 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image)
 
       const state = { firstImageFound: false }
-      img(image, false, state)
+      img(image, state)
 
       expect(image.getAttribute('decoding')).toBeNull()
     })
@@ -89,7 +89,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -101,7 +101,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, true)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -114,7 +114,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('format=match')
@@ -127,7 +127,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', proxiedUrl)
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe(proxiedUrl)
     })
@@ -140,7 +140,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('class', 'no-replace')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe(originalUrl)
     })
@@ -153,7 +153,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('class', 'some-class no-replace another-class')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe(originalUrl)
     })
@@ -166,7 +166,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('itemprop')).toBe('image')
     })
@@ -182,7 +182,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('height', '300')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('onerror')).toBeNull()
       expect(image.getAttribute('dynsrc')).toBeNull()
@@ -199,7 +199,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -209,7 +209,7 @@ describe('img() method - Image Processing', () => {
       const image = doc.createElement('img')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -220,7 +220,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'javascript:alert(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -231,7 +231,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'vbscript:msgbox(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -242,7 +242,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'x')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -253,7 +253,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'photo.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -264,7 +264,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', './photo.png')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -275,7 +275,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'assets/pic.jpeg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -286,7 +286,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -298,7 +298,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'http://example.com/image.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -310,7 +310,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '/images/photo.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       // URLs starting with / pass the relative check but fail proxifyImageSrc validation
       // because they're not valid absolute URLs (missing protocol and domain)
@@ -327,7 +327,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;:alert(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -339,7 +339,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '&#x6a;&#x61;&#x76;&#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;:alert(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -350,7 +350,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '&#106;&#x61;vascript:alert(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -361,7 +361,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '&#X6A;avascript:alert(1)')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -373,7 +373,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image%20with%20spaces.jpg')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toBeTruthy()
@@ -388,7 +388,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg')
       parent.appendChild(image)
 
-      expect(() => img(image, false)).not.toThrow()
+      expect(() => img(image)).not.toThrow()
     })
 
     it('should mutate state.firstImageFound only once', () => {
@@ -401,12 +401,12 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image2)
 
       const state = { firstImageFound: false }
-      img(image1, false, state)
+      img(image1, state)
 
       expect(state.firstImageFound).toBe(true)
 
       const stateBeforeSecondCall = state.firstImageFound
-      img(image2, false, state)
+      img(image2, state)
 
       expect(state.firstImageFound).toBe(stateBeforeSecondCall)
     })
@@ -423,8 +423,8 @@ describe('img() method - Image Processing', () => {
       const state1 = { firstImageFound: false }
       const state2 = { firstImageFound: false }
 
-      img(image1, false, state1)
-      img(image2, false, state2)
+      img(image1, state1)
+      img(image2, state2)
 
       expect(state1.firstImageFound).toBe(true)
       expect(state2.firstImageFound).toBe(true)
@@ -436,14 +436,14 @@ describe('img() method - Image Processing', () => {
   describe('edge cases', () => {
     it('should throw error for null element', () => {
       // The function does not handle null elements and will throw
-      expect(() => img(null as any, false)).toThrow()
+      expect(() => img(null as any)).toThrow()
     })
 
     it('should handle element without parent', () => {
       const image = doc.createElement('img')
       image.setAttribute('src', 'https://example.com/image.jpg')
 
-      expect(() => img(image, false)).not.toThrow()
+      expect(() => img(image)).not.toThrow()
     })
 
     it('should handle malformed URL', () => {
@@ -452,7 +452,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'not a valid url')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('src')).toBe('')
     })
@@ -463,7 +463,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg?width=500&height=300')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -475,7 +475,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'https://example.com/image.jpg#section')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -488,7 +488,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', longUrl)
       parent.appendChild(image)
 
-      expect(() => img(image, false)).not.toThrow()
+      expect(() => img(image)).not.toThrow()
     })
 
     it('should handle image with existing class attribute', () => {
@@ -498,7 +498,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('class', 'existing-class')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       expect(image.getAttribute('class')).toBe('existing-class')
     })
@@ -509,7 +509,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', '  https://example.com/image.jpg  ')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       // After fix: function now uses trimmed decodedSrc for protocol check
       // So URLs with whitespace are recognized as absolute and proxified (not removed)
@@ -524,7 +524,7 @@ describe('img() method - Image Processing', () => {
       image.setAttribute('src', 'HTTPS://EXAMPLE.COM/IMAGE.JPG')
       parent.appendChild(image)
 
-      img(image, false)
+      img(image)
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
@@ -539,7 +539,7 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image)
 
       const state = { firstImageFound: false }
-      img(image, true, state)
+      img(image, state)
 
       expect(state.firstImageFound).toBe(true)
       expect(image.getAttribute('loading')).toBe('eager')
@@ -555,7 +555,7 @@ describe('img() method - Image Processing', () => {
       parent.appendChild(image)
 
       const state = { firstImageFound: true }
-      img(image, true, state)
+      img(image, state)
 
       expect(image.getAttribute('loading')).toBe('lazy')
       expect(image.getAttribute('decoding')).toBe('async')

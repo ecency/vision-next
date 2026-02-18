@@ -131,7 +131,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, _webp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!el || !el.parentNode) {
     return
   }

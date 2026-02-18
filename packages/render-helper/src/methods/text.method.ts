@@ -4,18 +4,18 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { linkify } from './linkify.method'
 import {createImageHTML} from "./img.method";
 
-export function text(node: HTMLElement | null, forApp: boolean, _webp: boolean): void {
+export function text(node: HTMLElement | null, forApp: boolean): void {
   if (!node || !node.parentNode) {
     return
   }
 
-  // Case-insensitive check with null safety
-  if (node.parentNode && ['a', 'code'].includes(node.parentNode.nodeName.toLowerCase())) {
+  // Case-insensitive check
+  if (['a', 'code'].includes(node.parentNode.nodeName.toLowerCase())) {
     return
   }
 
   const nodeValue = node.nodeValue || ''
-  const linkified = linkify(nodeValue, forApp, _webp)
+  const linkified = linkify(nodeValue, forApp)
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,

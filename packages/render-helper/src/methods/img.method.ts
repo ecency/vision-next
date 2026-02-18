@@ -1,6 +1,6 @@
 import { proxifyImageSrc } from "../proxify-image-src";
 
-export function img(el: HTMLElement, webp: boolean, state?: { firstImageFound: boolean }): void {
+export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void {
   let src = el.getAttribute("src") || "";
 
   // Normalize encoded characters

@@ -32,12 +32,14 @@ export function useImageDownloader(
     queryKey: [QueryIdentifiers.ENTRY_THUMB, entry.author, entry.permlink, width, height],
     queryFn: async () => {
       try {
-        const response = await appAxios.get(
-          catchPostImage(entry, width, height),
-          {
-            responseType: "blob"
-          }
-        );
+        const imageUrl = catchPostImage(entry, width, height);
+        if (!imageUrl) {
+          return useFallback ? noImage : "";
+        }
+
+        const response = await appAxios.get(imageUrl, {
+          responseType: "blob"
+        });
         const data = (await blobToBase64(response.data)) as string;
 
         if (data) {

@@ -29,7 +29,10 @@ export function getLatestUrl(str: string): string {
   return last
 }
 
-export function proxifyImageSrc(url?: string, width = 0, height = 0, format = 'match') {
+/**
+ * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ */
+export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = 'match') {
   if (!url || typeof url !== 'string' || !isValidUrl(url)) {
     return ''
   }

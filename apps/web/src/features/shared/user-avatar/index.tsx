@@ -40,7 +40,7 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
   const imageSrc = useMemo(() => {
     return (
         proxifyImageSrc(src) ||
-        `https://images.ecency.com/u/${username}/avatar/${imgSize}`
+        `${defaults.imageServer}/u/${username}/avatar/${imgSize}`
     );
   }, [src, imgSize, username]);
 

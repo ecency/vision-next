@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import md5 from "js-md5";
-import useMount from "react-use/lib/useMount";
 import defaults from "@/defaults";
 
 interface Props {
@@ -18,10 +17,6 @@ interface Line {
 setProxyBase(defaults.imageServer);
 export function PostBodyLazyRenderer({ rawBody, className }: Props) {
   const [lines, setLines] = useState<Line[]>([]);
-
-  useMount(() => {
-    lazyBuild();
-  });
 
   const lazyBuild = useCallback(() => {
     const renderedBody = renderPostBody(rawBody, false);
