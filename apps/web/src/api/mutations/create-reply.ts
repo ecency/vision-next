@@ -180,12 +180,7 @@ export function useCreateReply(
       });
       optimistic.is_optimistic = true;
 
-      // Add optimistic entry to web-specific discussions cache
-      queryClient.setQueryData<Entry[]>(
-          getDiscussionsCacheKey(),
-          (prev = []) => [optimistic, ...prev]
-      );
-      // Also add to SDK discussions cache (all sort orders)
+      // Add optimistic entry to all discussions caches (all sort orders)
       addOptimisticDiscussionEntry(optimistic, root.author, root.permlink, queryClient);
 
       return { optimistic, text };

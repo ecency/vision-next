@@ -51,7 +51,10 @@ export function AuthUpgradeDialog() {
   const handleKeychainOrHiveAuth = useCallback(() => {
     setRequest(null);
     const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-    resolveAuthUpgrade(useHiveAuth ? "hiveauth" : "keychain");
+    // On mobile without Keychain extension, use HiveAuth for app-based signing
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 570;
+    const forceHiveAuth = isMobile && !isKeychainInAppBrowser() && !(window as any).hive_keychain;
+    resolveAuthUpgrade((useHiveAuth || forceHiveAuth) ? "hiveauth" : "keychain");
   }, [activeUser?.username]);
 
   if (!request) return null;
@@ -60,9 +63,12 @@ export function AuthUpgradeDialog() {
     ? request.authority
     : "active";
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  const showKeychainBtn = !isMobileBrowser || useHiveAuth || isKeychainInAppBrowser();
-  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainLabel = useHiveAuth
+  // On mobile, always show HiveAuth so users can sign via Keychain/HiveAuth apps
+  const showHiveAuthOnMobile = isMobileBrowser && !isKeychainInAppBrowser();
+  const showKeychainBtn = !isMobileBrowser || useHiveAuth || isKeychainInAppBrowser() || showHiveAuthOnMobile;
+  const useHiveAuthIcon = useHiveAuth || showHiveAuthOnMobile;
+  const keychainIcon = useHiveAuthIcon ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainLabel = useHiveAuthIcon
     ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
     : i18next.t("key-or-hot.with-keychain");
 
