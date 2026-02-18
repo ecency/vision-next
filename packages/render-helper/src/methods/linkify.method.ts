@@ -3,7 +3,7 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { isValidPermlink, isValidUsername, sanitizePermlink } from "../helper";
 import { createImageHTML } from "./img.method";
 
-export function linkify(content: string, forApp: boolean, webp: boolean): string {
+export function linkify(content: string, forApp: boolean, _webp: boolean): string {
   // Tags
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, tag => {
     if (/#[\d]+$/.test(tag)) return tag // do not allow only numbers (like #1)
@@ -54,7 +54,7 @@ export function linkify(content: string, forApp: boolean, webp: boolean): string
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
-    return createImageHTML(imglink, isLCP, webp);
+    return createImageHTML(imglink, isLCP);
   });
 
   return content

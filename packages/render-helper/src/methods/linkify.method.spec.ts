@@ -205,11 +205,11 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('images.ecency.com')
     })
 
-    it('should use webp format when webp=true', () => {
+    it('should always use match format regardless of webp flag', () => {
       const content = 'https://example.com/image.jpg'
       const result = linkify(content, false, true)
 
-      expect(result).toContain('format=webp')
+      expect(result).toContain('format=match')
     })
 
     it('should use match format when webp=false', () => {

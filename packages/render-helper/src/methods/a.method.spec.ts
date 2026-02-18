@@ -1056,7 +1056,7 @@ describe('a() method - Link Processing', () => {
         a(el, false, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-speak')
-        expect(el.getAttribute('data-embed-src')).toBe('https://play.3speak.tv/watch?v=username/permlink&mode=iframe')
+        expect(el.getAttribute('data-embed-src')).toBe('https://play.3speak.tv/embed?v=username/permlink&mode=iframe')
       })
 
       it('should handle 3Speak with thumbnail', () => {
@@ -1420,7 +1420,7 @@ describe('a() method - Link Processing', () => {
 
       const imgs = parent.getElementsByTagName('img')
       const img = imgs[0]
-      expect(img?.getAttribute('src')).toContain('format=webp')
+      expect(img?.getAttribute('src')).toContain('format=match')
     })
 
     it('should use match format when webp=false for images', () => {
@@ -1438,7 +1438,7 @@ describe('a() method - Link Processing', () => {
       expect(img?.getAttribute('src')).toContain('format=match')
     })
 
-    it('should use webp for YouTube thumbnails when webp=true', () => {
+    it('should always use match format for YouTube thumbnails (webp via server)', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('a')
       const href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -1450,7 +1450,7 @@ describe('a() method - Link Processing', () => {
 
       const imgs = el.getElementsByTagName('img')
       const img = imgs[0]
-      expect(img?.getAttribute('src')).toContain('format=webp')
+      expect(img?.getAttribute('src')).toContain('format=match')
     })
   })
 

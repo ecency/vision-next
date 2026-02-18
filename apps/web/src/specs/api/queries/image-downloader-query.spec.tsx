@@ -143,24 +143,8 @@ describe('useImageDownloader', () => {
     });
   });
 
-  describe('WebP support', () => {
-    it('should use WebP format when canUseWebp is true', async () => {
-      (useGlobalStore as any).mockImplementation((selector: any) =>
-        selector({ canUseWebp: true })
-      );
-      (appAxios.get as any).mockResolvedValue({ data: new Blob() });
-
-      renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
-
-      await waitFor(() => {
-        expect(catchPostImage).toHaveBeenCalledWith(entry, width, height, 'webp');
-      });
-    });
-
-    it('should not use WebP format when canUseWebp is false', async () => {
-      (useGlobalStore as any).mockImplementation((selector: any) =>
-        selector({ canUseWebp: false })
-      );
+  describe('image format', () => {
+    it('should always use match format (server handles WebP via Accept header)', async () => {
       (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
       renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });

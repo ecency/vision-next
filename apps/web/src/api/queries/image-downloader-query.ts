@@ -1,5 +1,4 @@
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
 import { QueryIdentifiers } from "@/core/react-query";
 import { catchPostImage } from "@ecency/render-helper";
@@ -13,8 +12,6 @@ export function useImageDownloader(
   enabled: boolean,
   useFallback = true
 ) {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   const blobToBase64 = (blob: Blob) => {
     const reader = new FileReader();
 
@@ -36,9 +33,7 @@ export function useImageDownloader(
     queryFn: async () => {
       try {
         const response = await appAxios.get(
-          canUseWebp
-            ? catchPostImage(entry, width, height, "webp")
-            : catchPostImage(entry, width, height),
+          catchPostImage(entry, width, height),
           {
             responseType: "blob"
           }

@@ -4,7 +4,6 @@ import { accountReputation } from "@/utils";
 import { Entry } from "@/entities";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import type { SeoContext } from "@ecency/render-helper";
-import { useGlobalStore } from "@/core/global-store";
 import { TagLink } from "@/features/shared/tag";
 import { EcencyConfigManager } from "@/config";
 import React from "react";
@@ -15,8 +14,6 @@ interface Props {
 }
 setProxyBase(defaults.imageServer);
 export function EntryPageCrossPostBody({ entry }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   if (!entry.original_entry) {
     return <></>;
   }
@@ -27,7 +24,7 @@ export function EntryPageCrossPostBody({ entry }: Props) {
     postPayout: entry.original_entry.payout
   };
   const renderedBody = {
-    __html: renderPostBody(entry.original_entry.body, false, canUseWebp, 'ecency.com', seoContext)
+    __html: renderPostBody(entry.original_entry.body, false, false, 'ecency.com', seoContext)
   };
 
   return (

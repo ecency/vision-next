@@ -150,7 +150,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         const imgs = container.getElementsByTagName('img')
         if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
+          expect(imgs[0]?.getAttribute('src')).toContain('format=match')
         }
       })
     })
@@ -194,7 +194,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         traverse(container, false, 0, true)
 
-        expect(img.getAttribute('src')).toContain('format=webp')
+        expect(img.getAttribute('src')).toContain('format=match')
       })
 
       it('should proxify image sources', () => {
@@ -653,7 +653,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         traverse(container, false, 0, true)
 
-        expect(img.getAttribute('src')).toContain('format=webp')
+        expect(img.getAttribute('src')).toContain('format=match')
       })
 
       it('should pass webp=false to img handler', () => {
@@ -676,7 +676,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         const imgs = container.getElementsByTagName('img')
         if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
+          expect(imgs[0]?.getAttribute('src')).toContain('format=match')
         }
       })
 
@@ -691,7 +691,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         const imgs = container.getElementsByTagName('img')
         if (imgs.length > 0) {
-          expect(imgs[0]?.getAttribute('src')).toContain('format=webp')
+          expect(imgs[0]?.getAttribute('src')).toContain('format=match')
         }
       })
     })
@@ -1086,7 +1086,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         expect(p.getAttribute('dir')).toBe('auto')
         expect(link.getAttribute('data-href')).toBe('https://example.com')
-        expect(img.getAttribute('src')).toContain('format=webp')
+        expect(img.getAttribute('src')).toContain('format=match')
         expect(state.firstImageFound).toBe(true)
       })
     })

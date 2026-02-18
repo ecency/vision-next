@@ -95,7 +95,7 @@ describe('img() method - Image Processing', () => {
       expect(src).toContain('https://images.ecency.com')
     })
 
-    it('should use webp format when webp=true', () => {
+    it('should always use match format (webp handled by server via Accept header)', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
       image.setAttribute('src', 'https://example.com/image.jpg')
@@ -105,7 +105,7 @@ describe('img() method - Image Processing', () => {
 
       const src = image.getAttribute('src')
       expect(src).toContain('https://images.ecency.com')
-      expect(src).toContain('format=webp')
+      expect(src).toContain('format=match')
     })
 
     it('should use match format when webp=false', () => {
@@ -531,8 +531,8 @@ describe('img() method - Image Processing', () => {
     })
   })
 
-  describe('integration with LCP and webp', () => {
-    it('should apply both LCP and webp settings correctly', () => {
+  describe('integration with LCP and format', () => {
+    it('should apply LCP settings with match format (webp via server)', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
       image.setAttribute('src', 'https://example.com/image.jpg')
@@ -545,10 +545,10 @@ describe('img() method - Image Processing', () => {
       expect(image.getAttribute('loading')).toBe('eager')
       expect(image.getAttribute('fetchpriority')).toBe('high')
       const src = image.getAttribute('src')
-      expect(src).toContain('format=webp')
+      expect(src).toContain('format=match')
     })
 
-    it('should apply lazy loading with webp for non-LCP images', () => {
+    it('should apply lazy loading with match format for non-LCP images', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
       image.setAttribute('src', 'https://example.com/image.jpg')
@@ -560,7 +560,7 @@ describe('img() method - Image Processing', () => {
       expect(image.getAttribute('loading')).toBe('lazy')
       expect(image.getAttribute('decoding')).toBe('async')
       const src = image.getAttribute('src')
-      expect(src).toContain('format=webp')
+      expect(src).toContain('format=match')
     })
   })
 })

@@ -4,7 +4,7 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { linkify } from './linkify.method'
 import {createImageHTML} from "./img.method";
 
-export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): void {
+export function text(node: HTMLElement | null, forApp: boolean, _webp: boolean): void {
   if (!node || !node.parentNode) {
     return
   }
@@ -15,7 +15,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
   }
 
   const nodeValue = node.nodeValue || ''
-  const linkified = linkify(nodeValue, forApp, webp)
+  const linkified = linkify(nodeValue, forApp, _webp)
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,
@@ -32,7 +32,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
 
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false; // Traverse handles LCP; no need to double-count
-    const imageHTML = createImageHTML(nodeValue, isLCP, webp);
+    const imageHTML = createImageHTML(nodeValue, isLCP);
     const doc = DOMParser.parseFromString(imageHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
     if (replaceNode) {
@@ -45,7 +45,7 @@ export function text(node: HTMLElement | null, forApp: boolean, webp: boolean): 
     const e = YOUTUBE_REGEX.exec(nodeValue)
     if (e && e[1]) {
       const vid = e[1]
-      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
+      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, 'match')
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
       const startTime = extractYtStartTime(nodeValue);
 

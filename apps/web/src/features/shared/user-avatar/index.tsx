@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { proxifyImageSrc, setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults";
 
 setProxyBase(defaults.imageServer);
@@ -17,12 +16,6 @@ interface Props {
 }
 
 export function UserAvatar({ username, size, src, onClick, className }: Props) {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
-  // ensure hydration-safe SSR fallback
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => setHasMounted(true), []);
-
   const imgSize = useMemo(() => {
     switch (size) {
       case "xLarge":
@@ -45,14 +38,11 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
   }, [size]);
 
   const imageSrc = useMemo(() => {
-    // fallback to non-webp version until after hydration
-    const format = hasMounted && canUseWebp ? "webp" : "match";
-
     return (
-        proxifyImageSrc(src, 0, 0, format) ||
-        `https://images.ecency.com${format === "webp" ? "/webp" : ""}/u/${username}/avatar/${imgSize}`
+        proxifyImageSrc(src) ||
+        `https://images.ecency.com/u/${username}/avatar/${imgSize}`
     );
-  }, [src, imgSize, username, canUseWebp, hasMounted]);
+  }, [src, imgSize, username]);
 
   return (
       <span

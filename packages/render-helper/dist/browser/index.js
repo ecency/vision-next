@@ -78,8 +78,8 @@ var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
 var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
-var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
-var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak.([a-z]+)\/embed\?[^/]+$/i;
+var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i;
+var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak\.([a-z]+)\/(?:embed|watch)\?.+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
 var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
@@ -284,15 +284,13 @@ function sanitizeHtml(html) {
   });
 }
 var proxyBase = "https://images.ecency.com";
-var fileExtension = true;
 function setProxyBase(p2) {
   proxyBase = p2;
-  fileExtension = proxyBase == "https://images.ecency.com";
 }
 function extractPHash(url) {
   if (url.startsWith(`${proxyBase}/p/`)) {
     const [hash] = url.split("/p/")[1].split("?");
-    return hash.replace(/.webp/, "").replace(/.png/, "");
+    return hash.replace(/\.(webp|png)$/, "");
   }
   return null;
 }
@@ -320,7 +318,7 @@ function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
   const realUrl = getLatestUrl(url);
   const pHash = extractPHash(realUrl);
   const options = {
-    format,
+    format: "match",
     mode: "fit"
   };
   if (width > 0) {
@@ -331,14 +329,10 @@ function proxifyImageSrc(url, width = 0, height = 0, format = "match") {
   }
   const qs = querystring.stringify(options);
   if (pHash) {
-    if (fileExtension) {
-      return `${proxyBase}/p/${pHash}${format === "webp" ? ".webp" : ".png"}?${qs}`;
-    } else {
-      return `${proxyBase}/p/${pHash}?${qs}`;
-    }
+    return `${proxyBase}/p/${pHash}?${qs}`;
   }
   const b58url = multihash.toB58String(Buffer.from(realUrl.toString()));
-  return `${proxyBase}/p/${b58url}${fileExtension ? format === "webp" ? ".webp" : ".png" : ""}?${qs}`;
+  return `${proxyBase}/p/${b58url}?${qs}`;
 }
 
 // src/methods/img.method.ts
@@ -370,14 +364,14 @@ function img(el, webp, state) {
   const shouldReplace = !cls.includes("no-replace");
   const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
+    const proxified = proxifyImageSrc(src);
     el.setAttribute("src", proxified);
   }
 }
-function createImageHTML(src, isLCP, webp) {
+function createImageHTML(src, isLCP) {
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
-  const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
+  const proxified = proxifyImageSrc(src);
   return `<img
     class="markdown-img-link"
     src="${proxified}"
@@ -429,7 +423,7 @@ var addLineBreakBeforePostLink = (el, forApp, isInline) => {
     el.parentNode.insertBefore(br, el);
   }
 };
-function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
+function a(el, forApp, _webp, parentDomain = "ecency.com", seoContext) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -447,7 +441,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
   }
   if (href.match(IMG_REGEX) && href.trim().replace(/&amp;/g, "&") === getSerializedInnerHTML(el).trim().replace(/&amp;/g, "&")) {
     const isLCP = false;
-    const imgHTML = createImageHTML(href, isLCP, webp);
+    const imgHTML = createImageHTML(href, isLCP);
     const doc = DOMParser.parseFromString(imgHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
@@ -769,7 +763,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
     el.setAttribute("class", "markdown-video-link markdown-video-link-youtube");
     el.removeAttribute("href");
     const vid = match[1];
-    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, "match");
     const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
     el.textContent = "";
     el.setAttribute("data-embed-src", embedSrc);
@@ -865,7 +859,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
       if (imgEls.length === 1) {
         const src = imgEls[0].getAttribute("src");
         if (src) {
-          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
           const thumbImg = el.ownerDocument.createElement("img");
           thumbImg.setAttribute("class", "no-replace video-thumbnail");
           thumbImg.setAttribute("itemprop", "thumbnailUrl");
@@ -900,7 +894,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`;
+        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -910,7 +904,7 @@ function a(el, forApp, webp, parentDomain = "ecency.com", seoContext) {
         if (imgEls2.length === 1) {
           const src = imgEls2[0].getAttribute("src");
           if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, webp ? "webp" : "match");
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
             const thumbImg = el.ownerDocument.createElement("img");
             thumbImg.setAttribute("class", "no-replace video-thumbnail");
             thumbImg.setAttribute("itemprop", "thumbnailUrl");
@@ -1033,7 +1027,8 @@ function iframe(el, parentDomain = "ecency.com") {
     return;
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
-    let normalizedSrc = src.replace(/3speak\.[a-z]+/i, "play.3speak.tv");
+    let normalizedSrc = src.replace(/(?:play\.)?3speak\.[a-z]+/i, "play.3speak.tv");
+    normalizedSrc = normalizedSrc.replace(/\/watch\?/, "/embed?");
     const hasMode = /[?&]mode=/.test(normalizedSrc);
     if (!hasMode) {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
@@ -1041,6 +1036,7 @@ function iframe(el, parentDomain = "ecency.com") {
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
     const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);
+    el.setAttribute("class", "speak-iframe");
     return;
   }
   if (src.match(SPOTIFY_EMBED_REGEX)) {
@@ -1149,7 +1145,7 @@ function p(el) {
 }
 
 // src/methods/linkify.method.ts
-function linkify(content, forApp, webp) {
+function linkify(content, forApp, _webp) {
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
     if (/#[\d]+$/.test(tag)) return tag;
     const preceding = /^\s|>/.test(tag) ? tag[0] : "";
@@ -1191,13 +1187,13 @@ function linkify(content, forApp, webp) {
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
-    return createImageHTML(imglink, isLCP, webp);
+    return createImageHTML(imglink, isLCP);
   });
   return content;
 }
 
 // src/methods/text.method.ts
-function text(node, forApp, webp) {
+function text(node, forApp, _webp) {
   if (!node || !node.parentNode) {
     return;
   }
@@ -1205,7 +1201,7 @@ function text(node, forApp, webp) {
     return;
   }
   const nodeValue = node.nodeValue || "";
-  const linkified = linkify(nodeValue, forApp, webp);
+  const linkified = linkify(nodeValue, forApp);
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,
@@ -1220,7 +1216,7 @@ function text(node, forApp, webp) {
   }
   if (nodeValue.match(IMG_REGEX)) {
     const isLCP = false;
-    const imageHTML = createImageHTML(nodeValue, isLCP, webp);
+    const imageHTML = createImageHTML(nodeValue, isLCP);
     const doc = DOMParser.parseFromString(imageHTML, "text/html");
     const replaceNode = doc.body?.firstChild || doc.firstChild;
     if (replaceNode) {
@@ -1232,7 +1228,7 @@ function text(node, forApp, webp) {
     const e = YOUTUBE_REGEX.exec(nodeValue);
     if (e && e[1]) {
       const vid = e[1];
-      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, webp ? "webp" : "match");
+      const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split("?")[0]}/hqdefault.jpg`, 0, 0, "match");
       const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`;
       const startTime = extractYtStartTime(nodeValue);
       const container = node.ownerDocument.createElement("p");
@@ -1292,7 +1288,7 @@ function traverse(node, forApp, depth = 0, webp = false, state = { firstImageFou
       iframe(child, parentDomain);
     }
     if (child.nodeName === "#text") {
-      text(child, forApp, webp);
+      text(child, forApp);
     }
     if (child.nodeName.toLowerCase() === "img") {
       img(child, webp, state);
@@ -1459,7 +1455,7 @@ function markdown2Html(obj, forApp = true, webp = false, parentDomain = "ecency.
     const cleanedStr = cleanReply(obj);
     return markdownToHTML(cleanedStr, forApp, webp, parentDomain, seoContext);
   }
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? "-webp" : ""}-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
+  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
   const item = cacheGet(key);
   if (item) {
     return item;

@@ -47,8 +47,8 @@ function VideoViewer({
               <iframe
                 width="560"
                 height="315"
-                src={src.replace("watch", "embed")}
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                src={`${src.replace("watch", "embed")}${src.includes("mode=") ? "" : "&mode=iframe"}`}
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               ></iframe>
             )}

@@ -172,16 +172,12 @@ describe('markdownToHTML() method', () => {
       expect(result).toContain('href="https://example.com"')
     })
 
-    it('should use webp when enabled for images', () => {
+    it('should always use match format regardless of webp flag (server handles via Accept header)', () => {
       const input = '![Image](https://example.com/image.jpg)'
-      const result = markdownToHTML(input, false, true, 'ecency.com')
-      expect(result).toContain('format=webp')
-    })
-
-    it('should use match format when webp is disabled for images', () => {
-      const input = '![Image](https://example.com/image.jpg)'
-      const result = markdownToHTML(input, false, false, 'ecency.com')
-      expect(result).toContain('format=match')
+      const resultTrue = markdownToHTML(input, false, true, 'ecency.com')
+      const resultFalse = markdownToHTML(input, false, false, 'ecency.com')
+      expect(resultTrue).toContain('format=match')
+      expect(resultFalse).toContain('format=match')
     })
 
     it('should pass parentDomain to Twitch embeds', () => {
@@ -199,7 +195,7 @@ describe('markdownToHTML() method', () => {
     it('should handle all parameters together', () => {
       const input = '![Image](https://example.com/image.jpg)\n\n[Link](https://example.com)'
       const result = markdownToHTML(input, true, true, 'custom.com')
-      expect(result).toContain('format=webp')
+      expect(result).toContain('format=match')
       expect(result).toContain('data-href="https://example.com"')
     })
   })

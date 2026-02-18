@@ -131,7 +131,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function a(el: HTMLElement | null, forApp: boolean, _webp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -163,7 +163,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     getSerializedInnerHTML(el).trim().replace(/&amp;/g, '&')
   ) {
     const isLCP = false; // LCP handled elsewhere
-    const imgHTML = createImageHTML(href, isLCP, webp);
+    const imgHTML = createImageHTML(href, isLCP);
     const doc = DOMParser.parseFromString(imgHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
 
@@ -580,7 +580,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     el.removeAttribute('href')
 
     const vid = match[1]
-    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, 'match')
     const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
 
     el.textContent = ''
@@ -722,7 +722,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       if (imgEls.length === 1) {
         const src = imgEls[0].getAttribute('src')
         if (src) {
-          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
           const thumbImg = el.ownerDocument.createElement('img')
 
           thumbImg.setAttribute('class', 'no-replace video-thumbnail')
@@ -773,7 +773,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     if (imgEls.length === 1 || el.textContent.trim() === href) {
       // match[1] / match[2] = tld , match[3] = embed address
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`
+        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`
         el.setAttribute('class', 'markdown-video-link markdown-video-link-speak')
         el.removeAttribute('href')
         el.setAttribute('data-embed-src', videoHref)
@@ -783,7 +783,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
         if (imgEls.length === 1) {
           const src = imgEls[0].getAttribute('src')
           if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
             const thumbImg = el.ownerDocument.createElement('img')
             thumbImg.setAttribute('class', 'no-replace video-thumbnail')
             thumbImg.setAttribute('itemprop', 'thumbnailUrl')

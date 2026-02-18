@@ -5,19 +5,16 @@ import { dateToFullRelative } from "@/utils";
 import { EntryLink } from "@/features/shared";
 import React, { useMemo, useRef } from "react";
 import { SearchResult } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
-
 interface Props {
   entry: SearchResult;
   i: number;
 }
 
 export function SimilarEntryItem({ entry, i }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const ref = useRef<HTMLDivElement>(null);
   const postImage = useMemo(
-    () => catchPostImage(entry.img_url, 600, 500, canUseWebp ? "webp" : "match"),
-    [canUseWebp, entry.img_url]
+    () => catchPostImage(entry.img_url, 600, 500),
+    [entry.img_url]
   );
 
   return (

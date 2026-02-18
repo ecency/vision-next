@@ -44,15 +44,15 @@ export function img(el: HTMLElement, webp: boolean, state?: { firstImageFound: b
   const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
 
   if (shouldReplace && !hasAlreadyProxied) {
-    const proxified = proxifyImageSrc(src, 0, 0, webp ? "webp" : "match");
+    const proxified = proxifyImageSrc(src);
     el.setAttribute("src", proxified);
   }
 }
 
-export function createImageHTML(src: string, isLCP: boolean, webp: boolean): string {
+export function createImageHTML(src: string, isLCP: boolean): string {
   const loading = isLCP ? 'eager' : 'lazy';
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
-  const proxified = proxifyImageSrc(src, 0, 0, webp ? 'webp' : 'match');
+  const proxified = proxifyImageSrc(src);
   return `<img
     class="markdown-img-link"
     src="${proxified}"

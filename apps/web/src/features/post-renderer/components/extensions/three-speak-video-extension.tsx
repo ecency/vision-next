@@ -1,7 +1,9 @@
 "use client";
 
-import React, { RefObject, useCallback, useEffect, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+
+type VideoOrientation = "landscape" | "portrait" | "square";
 
 export function ThreeSpeakVideoRenderer({
   embedSrc,
@@ -11,6 +13,8 @@ export function ThreeSpeakVideoRenderer({
   container: HTMLElement;
 }) {
   const [show, setShow] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
 
   useEffect(() => {
     const handler = () => setShow(true);
@@ -28,15 +32,52 @@ export function ThreeSpeakVideoRenderer({
     }
   }, [show]);
 
+  // Listen for 3speak-player-ready to auto-detect video orientation
+  useEffect(() => {
+    if (!show) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (
+        event.data?.type === "3speak-player-ready" &&
+        iframeRef.current?.contentWindow === event.source
+      ) {
+        if (event.data.isVertical) {
+          setOrientation("portrait");
+        } else if (
+          event.data.aspectRatio &&
+          Math.abs(event.data.aspectRatio - 1) < 0.1
+        ) {
+          setOrientation("square");
+        } else {
+          setOrientation("landscape");
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [show]);
+
+  // Apply orientation class to the parent container element
+  useEffect(() => {
+    if (orientation !== "landscape") {
+      container.classList.add(`speak-${orientation}`);
+    }
+    return () => {
+      container.classList.remove("speak-portrait", "speak-square");
+    };
+  }, [orientation, container]);
+
   return show ? (
-      <iframe
-          className="speak-iframe"
-          src={embedSrc}
-          title="3Speak video"
-          frameBorder="0"
-          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-      />
+    <iframe
+      ref={iframeRef}
+      className="speak-iframe"
+      src={embedSrc}
+      title="3Speak video"
+      frameBorder="0"
+      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+    />
   ) : null;
 }
 

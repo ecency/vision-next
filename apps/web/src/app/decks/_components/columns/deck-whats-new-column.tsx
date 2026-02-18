@@ -79,7 +79,7 @@ export const DeckWhatsNewColumn = ({ id, draggable, settings }: Props) => {
               <AccordionCollapse eventKey="1">
                 <div
                   className="wn-item-content"
-                  dangerouslySetInnerHTML={{ __html: renderPostBody(item.body, false, true) }}
+                  dangerouslySetInnerHTML={{ __html: renderPostBody(item.body, false) }}
                 />
               </AccordionCollapse>
             </Accordion>

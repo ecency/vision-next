@@ -445,6 +445,18 @@ $xxxl-break: "1600px";
     }
   }
 
+  // 3Speak auto-detected portrait videos (3:4 aspect ratio)
+  .markdown-video-link-speak.speak-portrait {
+    padding-bottom: 133.33%; // 3:4 aspect ratio
+    max-width: 450px;
+  }
+
+  // 3Speak auto-detected square videos (1:1 aspect ratio)
+  .markdown-video-link-speak.speak-square {
+    padding-bottom: 100%; // 1:1 aspect ratio
+    max-width: 600px;
+  }
+
   // Portrait embeds (9:16 aspect ratio)
   // Target iframe.portrait-embed since the class is applied to iframe elements, not anchors
   iframe.portrait-embed {

@@ -9,7 +9,7 @@ export function markdown2Html(obj: Entry | string, forApp = true, webp = false, 
     return markdownToHTML(cleanedStr, forApp, webp, parentDomain, seoContext)
   }
 
-  const key = `${makeEntryCacheKey(obj)}-md${webp ? '-webp' : ''}-${forApp ? 'app' : 'site'}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ''}-${seoContext.postPayout ?? ''}` : ''}`
+  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? 'app' : 'site'}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ''}-${seoContext.postPayout ?? ''}` : ''}`
 
   const item = cacheGet<string>(key)
   if (item) {

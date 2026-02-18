@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
-import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 
@@ -10,8 +9,6 @@ interface Props {
 }
 
 export function ProfilePreviewAvatar({ username }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   const { data: profile, isLoading: isProfileLoading } =
     useQuery(getAccountFullQueryOptions(username));
 
@@ -30,9 +27,7 @@ export function ProfilePreviewAvatar({ username }: Props) {
               <Image
                 width={1000}
                 height={1000}
-                src={`https://images.ecency.com/${
-                  canUseWebp ? "webp/" : ""
-                }u/${username}/avatar/medium`}
+                src={`https://images.ecency.com/u/${username}/avatar/medium`}
                 alt="img"
                 className="w-[96px] h-[96px] rounded-full bg-primary"
                 loading="lazy"

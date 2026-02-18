@@ -51,7 +51,6 @@ import { DmWarningBanner } from "./components/dm-warning-banner";
 import { setProxyBase } from "@ecency/render-helper";
 import { Button } from "@ui/button";
 import { Modal, ModalBody } from "@ui/modal";
-import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQueryClient } from "@tanstack/react-query";
 import defaults from "@/defaults";
@@ -105,7 +104,6 @@ export function MattermostChannelView({ channelId }: Props) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const { activeUser } = useActiveAccount();
   const isEcencyAdmin = activeUser?.username?.toLowerCase() === "ecency";
   const channelAdmin = useChannelAdmin(isEcencyAdmin);
@@ -338,7 +336,6 @@ export function MattermostChannelView({ channelId }: Props) {
     usersById,
     usersByUsername,
     activeUsername: activeUser?.username,
-    canUseWebp,
     startDirectMessage,
     normalizeUsername
   });

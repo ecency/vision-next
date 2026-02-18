@@ -87,7 +87,6 @@ interface UseMessageRenderingParams {
   usersById: Record<string, MattermostUser>;
   usersByUsername: Record<string, MattermostUser>;
   activeUsername: string | undefined;
-  canUseWebp: boolean;
   startDirectMessage: (username: string) => void;
   normalizeUsername: (username?: string | null) => string | undefined;
 }
@@ -96,17 +95,15 @@ export function useMessageRendering({
   usersById,
   usersByUsername,
   activeUsername,
-  canUseWebp,
   startDirectMessage,
   normalizeUsername
 }: UseMessageRenderingParams) {
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
-      const format = canUseWebp ? "webp" : "match";
-      return proxifyImageSrc(url, 1024, 0, format) || url;
+      return proxifyImageSrc(url, 1024, 0) || url;
     },
-    [canUseWebp]
+    []
   );
 
   const getDisplayName = useCallback(

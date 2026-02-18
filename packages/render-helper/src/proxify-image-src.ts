@@ -2,17 +2,15 @@ import multihash from 'multihashes'
 import querystring from 'querystring'
 
 let proxyBase = 'https://images.ecency.com'
-let fileExtension = true
 
 export function setProxyBase(p: string): void {
   proxyBase = p
-  fileExtension = proxyBase == 'https://images.ecency.com';
 }
 
 export function extractPHash(url: string): string | null {
   if (url.startsWith(`${proxyBase}/p/`)) {
     const [hash] = url.split('/p/')[1].split('?')
-    return hash.replace(/.webp/,'').replace(/.png/,'')
+    return hash.replace(/\.(webp|png)$/,'')
   }
   return null
 }
@@ -48,8 +46,9 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, format = 'm
   const realUrl = getLatestUrl(url)
   const pHash = extractPHash(realUrl)
 
+  // Always use 'match' format — the server handles WebP via Accept header content negotiation
   const options: Record<string, string | number> = {
-    format,
+    format: 'match',
     mode: 'fit',
   }
 
@@ -64,14 +63,10 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, format = 'm
   const qs = querystring.stringify(options)
 
   if (pHash) {
-    if (fileExtension) {
-      return `${proxyBase}/p/${pHash}${format==='webp'?'.webp':'.png'}?${qs}`
-    } else {
-      return `${proxyBase}/p/${pHash}?${qs}`
-    }
+    return `${proxyBase}/p/${pHash}?${qs}`
   }
 
   const b58url = multihash.toB58String(Buffer.from(realUrl.toString()))
 
-  return `${proxyBase}/p/${b58url}${fileExtension ? format==='webp'?'.webp':'.png' : ''}?${qs}`
+  return `${proxyBase}/p/${b58url}?${qs}`
 }
