@@ -13,12 +13,13 @@ import { FilterFriends } from "./filter-friends";
 import { useDebounce } from "react-use";
 import { FriendListItem } from "@/app/(dynamicPages)/profile/[username]/_components/friends/friend-list-item";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Friend } from "./types";
 
 const loadLimit = 30;
 
 interface Props {
   account: Account;
-  mode: string;
+  mode: "following" | "followers";
 }
 
 export const FriendsList = ({ account, mode }: Props) => {
@@ -28,7 +29,8 @@ export const FriendsList = ({ account, mode }: Props) => {
   const {
     data,
     isFetching: isFriendsFetching,
-    fetchNextPage
+    fetchNextPage,
+    hasNextPage
   } = useInfiniteQuery(
     getFriendsInfiniteQueryOptions(account.name, mode, {
       limit: loadLimit
@@ -46,40 +48,41 @@ export const FriendsList = ({ account, mode }: Props) => {
     () => isFriendsFetching || isSearchFetching,
     [isFriendsFetching, isSearchFetching]
   );
-  const dataFlow = useMemo(
-    () =>
-      query
-        ? searchData ?? []
-        : data?.pages
-            ?.reduce((acc, page) => [...acc, ...page], [])
-            ?.filter((item) => {
-              if (!type) {
-                return true;
-              }
 
-              const lastSeenTime = dayjs(item.active).toDate();
-              const timeDifference = new Date().getTime() - lastSeenTime.getTime();
-              const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
-              const yearsDifference = Math.ceil(daysDifference / 365);
+  const dataFlow = useMemo((): Friend[] => {
+    const rawItems = query
+      ? searchData ?? []
+      : data?.pages?.flat() ?? [];
 
-              return (
-                (type === FilterFriendsType.Recently && daysDifference < 7) ||
-                (type === FilterFriendsType.ThisMonth &&
-                  daysDifference > 7 &&
-                  daysDifference < 30) ||
-                (type === FilterFriendsType.ThisYear &&
-                  daysDifference >= 30 &&
-                  daysDifference < 360) ||
-                (type === FilterFriendsType.OneYear && daysDifference === 365) ||
-                (type === FilterFriendsType.MoreThanOneYear && yearsDifference > 1)
-              );
-            }) ?? [],
-    [data?.pages, query, searchData, type]
-  );
-  const hasMore = useMemo(
-    () => (data?.pages?.[data?.pages.length - 1]?.length ?? 0) >= loadLimit,
-    [data?.pages]
-  );
+    const filtered = rawItems.filter((item) => {
+      if (!type) return true;
+
+      const lastSeenTime = dayjs(item.active).toDate();
+      const timeDifference = new Date().getTime() - lastSeenTime.getTime();
+      const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
+
+      return (
+        (type === FilterFriendsType.Recently && daysDifference <= 7) ||
+        (type === FilterFriendsType.ThisMonth &&
+          daysDifference > 7 &&
+          daysDifference <= 30) ||
+        (type === FilterFriendsType.ThisYear &&
+          daysDifference > 30 &&
+          daysDifference < 365) ||
+        (type === FilterFriendsType.OneYear &&
+          daysDifference >= 365 &&
+          daysDifference < 730) ||
+        (type === FilterFriendsType.MoreThanOneYear && daysDifference >= 730)
+      );
+    });
+
+    return filtered.map((item) => ({
+      name: item.name,
+      reputation: item.reputation,
+      lastSeen: dayjs(item.active).fromNow()
+    }));
+  }, [data?.pages, query, searchData, type]);
+
 
   useDebounce(
     () => {
@@ -141,7 +144,7 @@ export const FriendsList = ({ account, mode }: Props) => {
 
       {!query && dataFlow.length > 1 && (
         <div className="load-more">
-          <Button disabled={isFetching || !hasMore} onClick={() => fetchNextPage()}>
+          <Button disabled={isFetching || !hasNextPage} onClick={() => fetchNextPage()}>
             {i18next.t("g.load-more")}
           </Button>
         </div>

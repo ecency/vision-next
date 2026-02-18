@@ -23,7 +23,7 @@ export function Followers({ onHide, account }: Props) {
         </ModalTitle>
       </ModalHeader>
       <ModalBody>
-        <FriendsList mode="follower" account={account} />
+        <FriendsList mode="followers" account={account} />
       </ModalBody>
     </Modal>
   );
