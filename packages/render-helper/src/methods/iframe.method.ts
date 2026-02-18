@@ -53,8 +53,8 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
     // Use (?:play\.)? to avoid doubling the prefix on already-correct URLs
     let normalizedSrc = src.replace(/(?:play\.)?3speak\.[a-z]+/i, 'play.3speak.tv');
 
-    // Normalize /watch? to /embed? for proper embed endpoint
-    normalizedSrc = normalizedSrc.replace(/\/watch\?/, '/embed?');
+    // Normalize /embed? to /watch? for proper embed endpoint
+    normalizedSrc = normalizedSrc.replace(/\/embed\?/, '/watch?');
 
     // Ensure mode=iframe parameter is present for minimal embed UI
     const hasMode = /[?&]mode=/.test(normalizedSrc);

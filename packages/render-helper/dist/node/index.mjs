@@ -902,7 +902,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
     const imgEls2 = el.getElementsByTagName("img");
     if (imgEls2.length === 1 || el.textContent.trim() === href) {
       if ((match[1] || match[2]) && match[3]) {
-        const videoHref = `https://play.3speak.tv/embed?v=${match[3]}&mode=iframe`;
+        const videoHref = `https://play.3speak.tv/watch?v=${match[3]}&mode=iframe`;
         el.setAttribute("class", "markdown-video-link markdown-video-link-speak");
         el.removeAttribute("href");
         el.setAttribute("data-embed-src", videoHref);
@@ -1038,7 +1038,7 @@ function iframe(el, parentDomain = "ecency.com") {
   }
   if (src.match(SPEAK_EMBED_REGEX)) {
     let normalizedSrc = src.replace(/(?:play\.)?3speak\.[a-z]+/i, "play.3speak.tv");
-    normalizedSrc = normalizedSrc.replace(/\/watch\?/, "/embed?");
+    normalizedSrc = normalizedSrc.replace(/\/embed\?/, "/watch?");
     const hasMode = /[?&]mode=/.test(normalizedSrc);
     if (!hasMode) {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
