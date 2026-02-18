@@ -145,6 +145,7 @@ describe("chain-errors", () => {
       const result = parseChainError(error);
 
       expect(result.type).toBe(ErrorType.TOKEN_EXPIRED);
+      expect(result.message).toContain("expired");
     });
 
     it("should parse already reblogged error", () => {
@@ -356,7 +357,7 @@ describe("chain-errors", () => {
     });
 
     it("should return true for HiveSigner unauthorized_access errors", () => {
-      const error = { error: "unauthorized_access", error_description: "The IP is not authorized" };
+      const error = { error: "unauthorized_access", error_description: "The IP 1.2.3.4 is not authorized" };
       expect(shouldTriggerAuthFallback(error)).toBe(true);
     });
 
