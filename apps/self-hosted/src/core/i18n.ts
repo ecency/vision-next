@@ -59,7 +59,8 @@ type TranslationKey =
   | 'already_reblogged'
   | 'reblog_to_followers'
   | 'error_loading'
-  | 'retry';
+  | 'retry'
+  | 'community_not_found';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -123,6 +124,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Reblog to your followers',
     error_loading: 'Something went wrong. Please try again.',
     retry: 'Retry',
+    community_not_found: 'Community not found.',
   },
   es: {
     loading: 'Cargando...',
@@ -183,6 +185,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Rebloguear a tus seguidores',
     error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
     retry: 'Reintentar',
+    community_not_found: 'Comunidad no encontrada.',
   },
   de: {
     loading: 'Lädt...',
@@ -243,6 +246,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'An Ihre Follower rebloggen',
     error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
     retry: 'Erneut versuchen',
+    community_not_found: 'Community nicht gefunden.',
   },
   fr: {
     loading: 'Chargement...',
@@ -303,6 +307,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Repartager à vos abonnés',
     error_loading: "Une erreur s'est produite. Veuillez réessayer.",
     retry: 'Réessayer',
+    community_not_found: 'Communauté introuvable.',
   },
   ko: {
     loading: '로딩 중...',
@@ -363,6 +368,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: '팔로워에게 리블로그',
     error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
     retry: '다시 시도',
+    community_not_found: '커뮤니티를 찾을 수 없습니다.',
   },
   ru: {
     loading: 'Загрузка...',
@@ -423,6 +429,7 @@ const translations: Record<string, Translations> = {
     reblog_to_followers: 'Сделать реблог для подписчиков',
     error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
     retry: 'Повторить',
+    community_not_found: 'Сообщество не найдено.',
   },
 };
 

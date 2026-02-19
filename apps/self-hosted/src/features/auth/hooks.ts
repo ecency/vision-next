@@ -1,9 +1,10 @@
 import { useContext } from 'react';
 import { AuthContext } from './auth-provider';
 import type { AuthContextValue } from './types';
+import { broadcast as broadcastAction } from './auth-actions';
 
 /**
- * Get the full auth context
+ * Get the full auth context (state only; use auth actions for login/logout/broadcast).
  */
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
@@ -46,11 +47,10 @@ export function useCurrentUser() {
 }
 
 /**
- * Get broadcast function
+ * Get broadcast function (standalone action, does not require context).
  */
 export function useBroadcast() {
-  const { broadcast } = useAuth();
-  return broadcast;
+  return broadcastAction;
 }
 
 /**

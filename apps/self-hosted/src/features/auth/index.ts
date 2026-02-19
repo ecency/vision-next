@@ -1,6 +1,9 @@
 // Types
 export type { AuthMethod, AuthUser, AuthContextValue, AuthConfig, HiveAuthSession } from './types';
 
+// Standalone actions (use these directly; no context needed)
+export { login, loginWithHivesigner, logout, broadcast } from './auth-actions';
+
 // Provider
 export { AuthProvider, AuthContext } from './auth-provider';
 

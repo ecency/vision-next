@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import type { Operation } from '@hiveio/dhive';
-import { ReblogButton as BaseReblogButton } from '@ecency/ui';
-import { UilRedo } from '@tooni/iconscout-unicons-react';
-import { useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { t } from '@/core';
-import { useAuth, useIsAuthenticated, useIsAuthEnabled } from '../hooks';
+import { ReblogButton as BaseReblogButton } from "@ecency/ui";
+import { UilRedo } from "@tooni/iconscout-unicons-react";
+import { useCallback } from "react";
+import { useReblog } from "@ecency/sdk";
+import { t } from "@/core";
+import { createBroadcastAdapter } from "@/providers/sdk";
+import { useAuth, useIsAuthenticated, useIsAuthEnabled } from "../hooks";
 
 interface ReblogButtonProps {
   author: string;
@@ -25,39 +25,18 @@ export function ReblogButton({
   reblogCount = 0,
   className,
 }: ReblogButtonProps) {
-  const { user, broadcast } = useAuth();
+  const { user } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const isAuthEnabled = useIsAuthEnabled();
-  const queryClient = useQueryClient();
+
+  const adapter = createBroadcastAdapter();
+  const reblogMutation = useReblog(user?.username, { adapter });
 
   const handleReblog = useCallback(async () => {
     if (!user) return;
 
-    // Create the reblog custom_json operation
-    const reblogOp: Operation = [
-      'custom_json',
-      {
-        required_auths: [],
-        required_posting_auths: [user.username],
-        id: 'follow',
-        json: JSON.stringify([
-          'reblog',
-          {
-            account: user.username,
-            author,
-            permlink,
-          },
-        ]),
-      },
-    ];
-
-    await broadcast([reblogOp]);
-
-    // Invalidate the entry query to refresh reblog count
-    queryClient.invalidateQueries({
-      queryKey: ['entry', author, permlink],
-    });
-  }, [user, author, permlink, broadcast, queryClient]);
+    await reblogMutation.mutateAsync({ author, permlink });
+  }, [user, author, permlink, reblogMutation]);
 
   return (
     <BaseReblogButton
@@ -70,13 +49,13 @@ export function ReblogButton({
       onReblog={handleReblog}
       className={className}
       labels={{
-        reblogs: t('reblogs'),
-        reblogging: t('reblogging'),
-        confirmMessage: t('reblog_confirm'),
-        loginTitle: t('login_to_reblog'),
-        ownPostTitle: t('cant_reblog_own'),
-        rebloggedTitle: t('already_reblogged'),
-        reblogTitle: t('reblog_to_followers'),
+        reblogs: t("reblogs"),
+        reblogging: t("reblogging"),
+        confirmMessage: t("reblog_confirm"),
+        loginTitle: t("login_to_reblog"),
+        ownPostTitle: t("cant_reblog_own"),
+        rebloggedTitle: t("already_reblogged"),
+        reblogTitle: t("reblog_to_followers"),
       }}
       icon={<ReblogIcon className="w-4 h-4" />}
     />

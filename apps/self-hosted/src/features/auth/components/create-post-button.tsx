@@ -1,20 +1,16 @@
-'use client';
+"use client";
 
-import { UilPen } from '@tooni/iconscout-unicons-react';
-import clsx from 'clsx';
-import { useIsBlogOwner, useIsAuthEnabled } from '../hooks';
-import { InstanceConfigManager, t } from '@/core';
+import { InstanceConfigManager, t } from "@/core";
+import { UilPen } from "@tooni/iconscout-unicons-react";
+import { useIsAuthEnabled, useIsBlogOwner } from "../hooks";
 
-interface CreatePostButtonProps {
-  className?: string;
-}
-
-export function CreatePostButton({ className }: CreatePostButtonProps) {
+export function CreatePostButton() {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
 
   const createPostUrl = InstanceConfigManager.getConfigValue(
-    ({ configuration }) => configuration.general.createPostUrl || 'https://ecency.com/submit',
+    ({ configuration }) =>
+      configuration.general.createPostUrl || "https://ecency.com/submit",
   );
 
   // Only show for blog owner when auth is enabled
@@ -27,15 +23,10 @@ export function CreatePostButton({ className }: CreatePostButtonProps) {
       href={createPostUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={clsx(
-        'flex items-center gap-2 px-3 py-1.5 rounded-md',
-        'bg-blue-600 text-white hover:bg-blue-700 transition-colors',
-        'text-sm font-medium',
-        className
-      )}
+      className="fixed bottom-6 right-30 z-50 px-4 py-2 flex items-center text-sm !no-underline rounded-full border border-gray-400 dark:border-gray-600 !font-serif"
     >
       <UilPen className="w-4 h-4" />
-      <span className="hidden sm:inline">{t('create_post')}</span>
+      <span className="hidden sm:block">{t("create_post")}</span>
     </a>
   );
 }
