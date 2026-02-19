@@ -11,6 +11,7 @@ export async function generateProfileMetadata(
   const account = await prefetchQuery(getAccountFullQueryOptions(username));
   if (account) {
     const base = await getServerAppBase();
+    const cleanUsername = username.replace("@", "");
     const metaTitle = `${account.profile?.name || account.name}'s ${
       section ? (section === "engine" ? "tokens" : `${section}`) : ""
     } on decentralized web`;
@@ -19,18 +20,18 @@ export async function generateProfileMetadata(
         ? `${account.profile?.about} ${section ? `${section}` : ""}`
         : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
     }`;
-    const metaUrl = `/@${username.replace("@", "")}${section ? `/${section}` : ""}`;
-    const metaImage = `${defaults.imageServer}/u/${username.replace("@", "")}/avatar/medium`;
-    const metaKeywords = [username.replace("@", ""), `${username.replace("@", "")}'s blog`];
-    const rsssections = ["posts", "blog", undefined, ""];
+    const metaUrl = `/@${cleanUsername}${section ? `/${section}` : ""}`;
+    const metaImage = `${defaults.imageServer}/u/${cleanUsername}/avatar/medium`;
+    const metaKeywords = [cleanUsername, `${cleanUsername}'s blog`];
+    const rssSections = ["posts", "blog", ""];
     return {
       title: metaTitle,
       description: metaDescription,
       alternates: {
         canonical: `${base}${metaUrl}`,
-        ...(rsssections.includes(section) && {
+        ...(rssSections.includes(section) && {
           types: {
-            "application/rss+xml": `${base}/@${username.replace("@", "")}/rss`,
+            "application/rss+xml": `${base}/@${cleanUsername}/rss`,
           },
         }),
       },
