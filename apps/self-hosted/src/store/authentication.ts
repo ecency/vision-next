@@ -1,4 +1,4 @@
-import { AuthUser, HiveAuthSession } from "@/features/auth";
+import type { AuthUser, HiveAuthSession } from "@/features/auth";
 import { create, useStore } from "zustand";
 
 interface State {

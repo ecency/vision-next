@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createPermlink } from "../utils/permlink";
 import { broadcast } from "@/features/auth/auth-actions";
 
-export function usePublishPost() {
+export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void } = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -67,6 +67,7 @@ export function usePublishPost() {
       return { success: true, permlink };
     },
     onSuccess: () => {
+      beforeNavigate?.();
       navigate({ to: "/blog", search: { filter: "posts" } });
     },
   });

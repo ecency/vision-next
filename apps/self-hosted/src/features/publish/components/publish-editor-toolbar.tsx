@@ -10,7 +10,7 @@ import {
   UilAlignLeft,
   UilAlignCenter,
   UilAlignRight,
-  UilArrow,
+  UilBracketsCurly,
   UilParagraph,
 } from "@tooni/iconscout-unicons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -211,7 +211,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Code"
       >
-        <UilArrow className="w-5 h-5" />
+        <UilBracketsCurly className="w-5 h-5" />
       </button>
 
       <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />

@@ -125,6 +125,6 @@ export async function broadcast(operations: Operation[]): Promise<unknown> {
       return broadcastWithHiveAuth(session, operations);
 
     default:
-      throw new Error("Unknown login type");
+      throw new Error(`Unknown login type: ${user.loginType}`);
   }
 }

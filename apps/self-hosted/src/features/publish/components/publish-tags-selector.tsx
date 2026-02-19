@@ -48,7 +48,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       setWarning(`Tag must be ${MAX_TAG_LENGTH} characters or less`);
       return false;
     }
-    if (tag.split("-").length > 2) {
+    if (tag.split("-").length > 3) {
       setWarning("Tag can have at most 2 hyphens");
       return false;
     }
@@ -125,13 +125,14 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       let next = [...tags];
       for (const part of parts) {
         if (next.length >= MAX_TAGS) break;
-        const tag = part.slice(0, MAX_TAG_LENGTH);
-        if (tag && !next.includes(tag)) next.push(tag);
+        const tag = part.slice(0, MAX_TAG_LENGTH).trim();
+        if (tag && !next.includes(tag) && validateTag(tag)) next.push(tag);
       }
       onChange(next.slice(0, MAX_TAGS));
       setValue("");
+      setWarning("");
     },
-    [tags, onChange]
+    [tags, onChange, validateTag]
   );
 
   return (

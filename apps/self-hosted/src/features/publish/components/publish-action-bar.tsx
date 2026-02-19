@@ -14,7 +14,7 @@ export function PublishActionBar({ onSuccess }: Props) {
     mutateAsync: publishPost,
     isPending: isPublishing,
     error,
-  } = usePublishPost();
+  } = usePublishPost({ beforeNavigate: clearAll });
 
   const safeTitle = title ?? "";
   const safeContent = content ?? "";
@@ -34,7 +34,6 @@ export function PublishActionBar({ onSuccess }: Props) {
         body: safeContent,
         tags: safeTags,
       });
-      clearAll();
       onSuccess?.();
     } catch (err) {
       // Error is handled by usePublishPost hook
