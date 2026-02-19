@@ -8,6 +8,30 @@ import { BannerManager } from "@/features/banners";
 import React from "react";
 import Script from "next/script";
 import localFont from "next/font/local";
+import { Metadata } from "next";
+import defaults from "@/defaults.json";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(defaults.base),
+  openGraph: {
+    siteName: defaults.name,
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: defaults.name,
+      },
+    ],
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: defaults.twitterHandle,
+    creator: defaults.twitterHandle,
+    images: ["/og.jpg"],
+  },
+};
 
 const inter = localFont({
   src: [

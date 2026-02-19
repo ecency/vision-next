@@ -25,5 +25,18 @@ export async function generateFeedMetadata(filter: string, tag: string) {
     rss = `${base}/${filter}/${tag}/rss.xml`;
   }
 
-  return { title, description, openGraph: { url } };
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
 }

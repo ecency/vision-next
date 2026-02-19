@@ -18,6 +18,7 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
     const metaRss = `${base}/${tag}/${community!!.name}/rss.xml`;
     const metaCanonical = `${base}/created/${community!!.name}`;
 
+    const metaImage = `${defaults.imageServer}/u/${community!!.name}/avatar/medium`;
     return {
       title,
       description,
@@ -25,8 +26,14 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
         title,
         description,
         url: `/${tag}/${community!!.name}`,
-        images: [`${defaults.imageServer}/u/${community!!.name}/avatar/medium`]
-      }
+        images: [metaImage],
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+        images: [metaImage],
+      },
     };
   }
 

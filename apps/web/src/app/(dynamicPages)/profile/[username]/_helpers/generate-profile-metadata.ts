@@ -20,12 +20,8 @@ export async function generateProfileMetadata(
         : `${account.profile?.name || account.name} ${section ? `${section}` : ""}`
     }`;
     const metaUrl = `/@${username.replace("@", "")}${section ? `/${section}` : ""}`;
-    const metaCanonical = `${base}/@${username.replace("@", "")}${
-      section ? `/${section}` : ""
-    }`;
-    const metaRss = `${base}/@${username.replace("@", "")}/rss`;
-    const metaKeywords = `${username.replace("@", "")}, ${username.replace("@", "")}'s blog`;
     const metaImage = `${defaults.imageServer}/u/${username.replace("@", "")}/avatar/medium`;
+    const metaKeywords = `${username.replace("@", "")}, ${username.replace("@", "")}'s blog`;
     return {
       title: metaTitle,
       description: metaDescription,
@@ -34,8 +30,14 @@ export async function generateProfileMetadata(
         description: metaDescription,
         images: [metaImage],
         url: metaUrl,
-        tags: metaKeywords
-      }
+        tags: metaKeywords,
+      },
+      twitter: {
+        card: "summary",
+        title: metaTitle,
+        description: metaDescription,
+        images: [metaImage],
+      },
     };
   }
 
