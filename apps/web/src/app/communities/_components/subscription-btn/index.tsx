@@ -43,7 +43,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           disabled={isPending}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={() => unsubscribeMutation.mutateAsync({ community: community.name })}
+          onClick={() => unsubscribeMutation.mutate({ community: community.name })}
           outline={true}
           appearance={hover ? "danger" : "primary"}
           {...buttonProps}
@@ -56,7 +56,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           <Button
             icon={isPending && <Spinner className="w-3.5 h-3.5" />}
             disabled={isPending}
-            onClick={() => subscribeMutation.mutateAsync({ community: community.name })}
+            onClick={() => subscribeMutation.mutate({ community: community.name })}
             {...buttonProps}
           >
             {i18next.t("community.subscribe")}

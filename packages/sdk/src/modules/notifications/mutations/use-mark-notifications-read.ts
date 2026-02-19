@@ -99,14 +99,28 @@ export function useMarkNotificationsRead(
       const currentUnread = queryClient.getQueryData<number>(unreadKey);
       if (typeof currentUnread === "number" && currentUnread > 0) {
         previousData.push([unreadKey, currentUnread]);
-        queryClient.setQueryData(unreadKey, id ? currentUnread - 1 : 0);
+
+        if (!id) {
+          // Mark all: set to 0
+          queryClient.setQueryData(unreadKey, 0);
+        } else {
+          // Mark single: only decrement if the notification is currently unread
+          const isUnread = infiniteQueries.some(([, d]) =>
+            d?.pages.some((page) =>
+              page.some((item) => item.id === id && item.read === 0)
+            )
+          );
+          if (isUnread) {
+            queryClient.setQueryData(unreadKey, currentUnread - 1);
+          }
+        }
       }
 
       // Return context for rollback
       return { previousData };
     },
 
-    onSuccess: (response, variables) => {
+    onSuccess: (response) => {
       // Extract unread count from response if available
       const unreadCount = typeof response === "object" && response !== null
         ? (response as { unread?: number }).unread
@@ -121,13 +135,6 @@ export function useMarkNotificationsRead(
       }
 
       onSuccess?.(unreadCount);
-
-      // If marking all notifications, invalidate to ensure fresh data
-      if (!variables.id) {
-        queryClient.invalidateQueries({
-          queryKey: QueryKeys.notifications._prefix,
-        });
-      }
     },
 
     // Rollback optimistic update on error
