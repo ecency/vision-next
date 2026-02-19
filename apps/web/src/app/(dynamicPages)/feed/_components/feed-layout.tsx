@@ -6,8 +6,8 @@ import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
 import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
-import { getPostsRankedQueryOptions } from "@ecency/sdk";
-import { getQueryClient, QueryIdentifiers } from "@/core/react-query";
+import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
+import { getQueryClient } from "@/core/react-query";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
 const MAX_PENDING = 20;
@@ -55,13 +55,12 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
     if (!props.observer || !["trending", "hot", "created"].includes(props.filter)) return;
 
     const queryClient = getQueryClient();
-    const queryKey = [
-      QueryIdentifiers.GET_POSTS_RANKED,
+    const queryKey = QueryKeys.posts.postsRanked(
       props.filter,
       props.tag,
       20,
-      props.observer ?? "",
-    ];
+      props.observer ?? ""
+    );
 
     const interval = setInterval(async () => {
       const resp = await queryClient.fetchQuery(

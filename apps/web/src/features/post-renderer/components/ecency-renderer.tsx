@@ -2,6 +2,7 @@
 
 import React, { HTMLProps, useRef } from "react";
 import { renderPostBody } from "@ecency/render-helper";
+import type { SeoContext } from "@ecency/render-helper";
 import { clsx } from "clsx";
 import "../ecency-renderer.scss";
 import {
@@ -19,6 +20,7 @@ import { TwitterExtension } from "./extensions/twitter-extension";
 interface Props {
   value: string;
   pure?: boolean;
+  seoContext?: SeoContext;
   onHiveOperationClick?: (op: string) => void;
   TwitterComponent?: any;
 }
@@ -26,6 +28,7 @@ interface Props {
 export function EcencyRenderer({
   value,
   pure = false,
+  seoContext,
   onHiveOperationClick,
   TwitterComponent = () => <div>No twitter component</div>,
   ...other
@@ -43,7 +46,7 @@ export function EcencyRenderer({
           pure ? "markdown-view-pure" : "",
           other.className
         )}
-        dangerouslySetInnerHTML={{ __html: renderPostBody(value, false) }}
+        dangerouslySetInnerHTML={{ __html: renderPostBody(value, false, false, 'ecency.com', seoContext) }}
       />
       {!pure && (
         <>

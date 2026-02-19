@@ -1,4 +1,5 @@
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import {
   AccountFollowStats,
   AccountReputation,
@@ -9,7 +10,7 @@ import { queryOptions } from "@tanstack/react-query";
 
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
-    queryKey: ["get-account-full", username],
+    queryKey: QueryKeys.accounts.full(username),
     queryFn: async () => {
       if (!username) {
         throw new Error("[SDK] Username is empty");

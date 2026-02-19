@@ -1,10 +1,10 @@
 "use client";
 
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
-import { getPointsQueryOptions, useClaimPoints } from "@ecency/wallets";
+import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { formatNumber, getAccessToken } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";

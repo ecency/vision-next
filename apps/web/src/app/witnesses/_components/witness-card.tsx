@@ -5,7 +5,6 @@ import { WitnessVoteBtn } from "@/app/witnesses/_components/witness-vote-btn";
 import { openInNewSvg } from "@ui/svg";
 import { dateToRelative } from "@/utils";
 import { WitnessTransformed } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import Image from "next/image";
 
 interface Props {
@@ -14,8 +13,6 @@ interface Props {
 }
 
 export const WitnessCard = ({ row, witness }: Props) => {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   return (
     <div className="witnesses-card p-3 mb-3 border border-[--border-color] rounded">
       <div className="flex items-center justify-between">
@@ -35,7 +32,7 @@ export const WitnessCard = ({ row, witness }: Props) => {
           <Image
             width={1000}
             height={1000}
-            src={`https://images.ecency.com/${canUseWebp ? "webp/" : ""}u/${
+            src={`https://images.ecency.com/u/${
               row.name
             }/avatar/medium`}
             alt=""
@@ -59,13 +56,13 @@ export const WitnessCard = ({ row, witness }: Props) => {
         <b>{i18next.t("witnesses.list-miss")}: </b>
         <div className="ml-2">{row.miss}</div>{" "}
         <div>
-          <a target="_external" href={row.url} className="witness-link ml-3">
+          <a target="_external" rel="nofollow ugc noopener" href={row.url} className="witness-link ml-3">
             {openInNewSvg}
           </a>
         </div>
       </div>
       <div className="flex items-center">
-        <b>{i18next.t("witnesses.list-miss")}: </b>
+        <b>{i18next.t("witnesses.list-fee")}: </b>
         <div className="ml-2">{row.fee}</div>
       </div>
       <div className="flex items-center my-2 justify-between">

@@ -10,9 +10,8 @@ import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-usernam
 import { formatApr } from "@/utils";
 import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { proxifyImageSrc } from "@ecency/render-helper";
+import { AssetOperation, getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import {
-  AssetOperation,
-  getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions,
   getTokenOperationsQueryOptions,
 } from "@ecency/wallets";

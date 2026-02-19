@@ -1,4 +1,4 @@
-import { PointTransactionType } from "@ecency/wallets";
+import { PointTransactionType } from "@ecency/sdk";
 import {
   UilArrowCircleUp,
   UilArrowDownRight,

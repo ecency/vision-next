@@ -71,6 +71,7 @@
     "more-results": "より多くの結果",
     "close": "閉じる",
     "loading": "読み込み中",
+    "validating": "検証中...",
     "stop": "停止",
     "settings": "設定",
     "confirm": "確認する",
@@ -296,7 +297,7 @@
     "description": "フリーピーチ、真の所有権、金融の自由！",
     "description-2": "Hiveは多くのアプリをサポートし、世界中のコミュニティメンバーによって完全に分散して実行されています。 アカウントでは、エコシステムに直接アクセスできます。",
     "bottom-description": "1つのアカウント、1つのウォレットでブロックチェーン上のすべてを管理できます。",
-    "learn-more": "<a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a> のメリットについての詳細はこちら",
+    "learn-more": "<a href=\"/faq#how-to-join\"></a> のメリットについての詳細はこちらformat@@2",
     "username": "ユーザー名を選択",
     "email": "メールアドレスを入力してください",
     "ref": "参照されたユーザー (オプション)",
@@ -864,6 +865,9 @@
     "muted-warning": "このコンテンツは、コミュニティガイドラインに準拠していないとして、 {{community}} モデレータによってミュートされました。",
     "lowrep-warning": "このコンテンツの著者の評判は低いです。",
     "deleted-content-warning": "このコンテンツは著者によって削除されました。ブロックチェーンから見ることができます ",
+    "deleted-content": "この投稿は {{author}}によって削除されました",
+    "deleted-no-history": "削除されたコンテンツの履歴はブロックチェーンからは利用できません。",
+    "untitled": "無題のタイトル",
     "comments-hidden": "この投稿の投稿者はあなたによってミュートされています。",
     "address-copy": "リンクをコピー",
     "address-copied": "リンクをクリップボードにコピーしました",
@@ -1077,7 +1081,9 @@
     "go-community": "コミュニティページ",
     "com-mod": "これらのコミュニティのモデレーター",
     "empty-communities": "ここにコミュニティはありません",
-    "empty-communities-hint": "ユーザーはまだどのコミュニティのメンバーでもありません。いずれかのコミュニティに参加するか、独自のコミュニティを作成してください。"
+    "empty-communities-hint": "ユーザーはまだどのコミュニティのメンバーでもありません。いずれかのコミュニティに参加するか、独自のコミュニティを作成してください。",
+    "dm-followers-only": "DM: フォロワーのみ",
+    "dm-disabled": "DMs: 無効"
   },
   "profile-info": {
     "joined": "参加しました",
@@ -1131,7 +1137,7 @@
     "confirm": "確認する",
     "cancel": "キャンセル",
     "check-faq": "RCの詳細はこちらをご覧ください",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "資源クレジットが不足しています",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "キーと権限",
     "permissions-hint": "キーを管理し、アプリケーションに対する権限を制御します",
     "permissions": "権限を開く"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "チャットプライバシー",
+      "who-can-message": "ダイレクトメッセージを送信できるのは誰ですか？",
+      "description": "スパムやフィッシングの試みを防ぐためにダイレクトメッセージを送信できるユーザーを制御します。",
+      "allow-all": "全員に",
+      "followers-only": "フォローしている人のみ",
+      "no-one": "誰もいない（DMを無効にする）"
+    },
+    "dm-privacy-updated": "DM のプライバシー設定が更新されました",
+    "dm-privacy-failed": "DM のプライバシー設定を更新できませんでした"
   },
   "wallet": {
     "unclaimed-rewards": "未請求の報酬",
@@ -1300,6 +1318,10 @@
       "account-value-description": "アカウント内のすべての SPK 資産のおおよその米ドル価値",
       "larynx-locked": "LARYNXがロックされました",
       "larynx-locked-description": "ロックされたトークンはネットワークに流動性を提供し、コンセンサスを決定するのに役立ち、ノードランナーの報酬を獲得します"
+    },
+    "setup-external": {
+      "login-required": "外部ウォレットをセットアップするにはログインが必要です",
+      "import-login-required": "ウォレットをインポートするにはログインが必要です"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "チャンネルをミュート",
     "unmute-channel": "チャンネルのミュートを解除",
     "leave-channel": "僅用於中文",
+    "leave-conversation": "会話から出る",
+    "dm-warning-title": "新しい会話 - 安全を確保する",
+    "dm-warning-body": "不明なユーザーからのメッセージには注意してください。疑わしいリンクをクリックしたり、パスワードや秘密鍵などの機密情報を共有したりしないでください。 行動を起こす前に送信者の身元を確認してください。",
+    "dm-warning-settings": "DMプライバシーは設定で更新できます。",
     "no-channels": "割り当てられたチャンネルはまだありません。",
     "no-channels-search": "検索に一致するチャンネルがありません。",
     "joinable-channels": "参加可能なチャンネル",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "コミュニティチャット",
     "public-key": "公開キー",
     "private-key": "Private key",
-    "hide-message": "メッセージを隠す",
     "enter-private-key-detail": "すべてのチャットをインポートするにはチャット秘密鍵を入力してください",
     "message-search-results": "メッセージ検索結果",
     "no-messages-found": "メッセージが見つかりません。",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "翻訳先の言語",
     "pinned-messages": "ピン留め済みのメッセージ",
     "pin-message": "メッセージをピン留めする",
-    "unpin-message": "メッセージのピン留めを解除"
+    "unpin-message": "メッセージのピン留めを解除",
+    "dm-not-allowed": "@{{username}} はあなたからのメッセージを受け入れません",
+    "dm-followers-only": "フォローしている人からのDMのみ受け付けます",
+    "dm-disabled": "ダイレクトメッセージを無効にする"
   },
   "add-image": {
     "title": "画像を追加",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "エディターを読み込んでいます...",
     "gif-picker": "GIF 画像を選択",
     "description-hint": "この記事を見つけるためにエンジンシステムを検索するのに役立ちます",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "パワーアップ",
       "power-down": "パワーダウン",
       "swap": "入れ替え",
+      "convert": "変換",
       "delegate": "Delegate",
       "withdraw-saving": "ルートを引き出します",
       "gift": "ギフト",
@@ -3086,7 +3116,7 @@
     "keys": {
       "title": "キーとパスワード",
       "hint": "Hiveアカウントは複数のキーを同時に保持することができ、そのすべてが以下にリストされています。",
-      "add-key": "新しい鍵を追加",
+      "add-key": "キーの追加/管理",
       "key-created": "キーが作成され、割り当てられました。",
       "error-private-key-reveal": "秘密鍵はマスターパスワードまたはシードフレーズでのみ表示できます"
     },
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "ハイブキーを取り消す",
       "hint": "所有者キー/マスターパスワード/シードを使用して、任意のハイブキーを取り消すことができます"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "認証",
+        "generate-seed": "シードを生成",
+        "review-keys": "鍵の確認",
+        "confirm": "確認する"
+      },
+      "step1": {
+        "title": "新しいキーセットの追加",
+        "info1": "新しいシードフレーズがあなたのアカウントに生成されます",
+        "info2": "複数のキーセットを同時にアクティブにすることができます",
+        "info3": "次のステップで古いキーを取り消すオプションがあります",
+        "authenticate": "続行するには認証してください",
+        "error-not-owner": "指定されたキーは所有者キーではありません。所有者キー、マスターパスワード、またはシードフレーズを入力してください。",
+        "error-invalid-key": "秘密鍵の形式が無効です",
+        "error-authentication": "認証に失敗しました。資格情報を確認して、もう一度やり直してください。",
+        "error-credentials-not-match": "指定された資格情報がこのアカウントと一致しません。マスターパスワード、シードフレーズ、オーナーキーを確認してください。",
+        "error-account-not-loaded": "アカウントデータがまだ読み込まれています。しばらくしてからもう一度お試しください。"
+      },
+      "step2": {
+        "warning-title": "重要：新しいシードフレーズを保存する",
+        "warning1": "これは元のアカウントのシードとは異なる新しいシードフレーズです。",
+        "warning2": "別々に保存してください - これらのキーでログインするにはそれが必要です",
+        "warning3": "シードファイルをダウンロードして、続行する前に安全に保存してください"
+      },
+      "step3": {
+        "title": "既存の鍵を確認",
+        "description": "取り消したい古いキーを選択してください。このステップをスキップして、既存のキーをすべてアクティブに保つことができます。",
+        "cannot-revoke-last": "取り消すことができません - これはこのタイプの唯一の鍵です。",
+        "selected-count": "{{count}} キーが失効のために選択されました",
+        "next-with-revoke": "続行して選択を取り消します",
+        "next-skip": "取り消しをせずに続ける",
+        "will-be-replaced": "新しいキーに置き換えられます",
+        "memo-will-replace": "新しいメモキーがこのキーを置き換えます",
+        "derivation-unknown": "不明",
+        "derivation-bip44": "BIP44の種",
+        "derivation-master-password": "マスターパスワード"
+      },
+      "step4": {
+        "title": "変更を適用する準備ができました",
+        "description": "以下の変更を確認し、アカウントの更新を確認してください。",
+        "adding": "追加中",
+        "new-bip44-keys": "新しい BIP44 シードベースのキー (オーナー、アクティブ、投稿、メモ)",
+        "revoking": "取り消し",
+        "revoking-count": "{{count}} 既存のキー",
+        "applying": "変更を適用しています...",
+        "please-wait": "アカウントを更新するまでしばらくお待ちください",
+        "success": "キーが正常に更新されました！",
+        "success-description": "新しいキーが追加され、古いキーが取り消されました。",
+        "error-no-keys": "追加できるキーがありません"
+      },
+      "import": {
+        "title": "既存のシードフレーズをインポート",
+        "description": "ウォレットアドレスとオプションでハイブキーをインポートするには、既存の12ワードシードフレーズを入力してください。",
+        "warning": "Seedフレーズは絶対に誰とも共有しないでください。Ecencyはそれを求めることはありません。信頼できるデバイスにのみ入力してください。",
+        "placeholder": "12単語のシードフレーズをスペースで区切って入力してください",
+        "load-from-file": "またはシードファイルから読み込む",
+        "error-word-count": "シードフレーズは正確に12単語でなければなりません",
+        "error-invalid-seed": "シードフレーズが無効です。確認してもう一度やり直してください。",
+        "error-derive-keys": "シードフレーズから鍵を取得できませんでした",
+        "error-invalid-file": "無効なファイルです。有効なシードファイルをアップロードしてください。",
+        "error-invalid-file-format": "無効なファイル形式です。シードファイルには 'seed' プロパティが含まれている必要があります。",
+        "error-no-wallets": "ウォレットアドレスが見つかりません。ウォレットの作成が完了するまでお待ちください。",
+        "existing-tokens-warning": "このアカウントはすでに外部ウォレットアドレスが設定されています。新しいシードフレーズをインポートすると、既存のウォレットアドレスが置き換えられます。 続行する前に、以前のシードフレーズをバックアップしたことを確認してください。",
+        "hive-keys-title": "ハイブキーのインポート",
+        "hive-keys-description": "シードフレーズにHiveキーが見つかりました。Hiveキーをアカウントにインポートしますか？",
+        "hive-keys-already-added": "これらのキーは既にあなたのアカウントで有効です。",
+        "owner-key": "オーナーキー",
+        "active-key": "アクティブなキー",
+        "posting-key": "投稿キー",
+        "skip-hive-keys": "ハイブキーをスキップ",
+        "import-hive-keys": "ハイブキーのインポート",
+        "tokens-title": "ウォレットアドレスを確認する",
+        "tokens-description": "これらのウォレットアドレスはシードフレーズから派生しました。続行する前に確認してください。",
+        "sign-title": "署名してインポートを完了",
+        "success-title": "インポートに成功しました！",
+        "success-description": "あなたのウォレットアドレスとキーは正常にインポートされました。",
+        "step-import-title": "シードフレーズをインポート",
+        "step-import-description": "既存の12単語のシードフレーズを入力してください",
+        "step-hive-keys-title": "ハイブキー",
+        "step-hive-keys-description": "必要に応じて同じシードフレーズからハイブキーをインポート",
+        "step-tokens-title": "トークン",
+        "step-tokens-description": "派生ウォレットアドレスをレビュー",
+        "step-sign-title": "変更の署名",
+        "step-sign-description": "ウォレットをリンクするために変更に署名する",
+        "step-link-title": "リンクウォレット",
+        "step-link-description": "Ecency アカウントへのリンクを完了する"
+      }
     }
   }
 }

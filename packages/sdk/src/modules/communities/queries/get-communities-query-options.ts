@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Communities } from "../types";
 
@@ -10,7 +10,7 @@ export function getCommunitiesQueryOptions(
   enabled = true
 ) {
   return queryOptions({
-    queryKey: ["communities", "list", sort, query, limit],
+    queryKey: QueryKeys.communities.list(sort, query ?? "", limit),
     enabled,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(

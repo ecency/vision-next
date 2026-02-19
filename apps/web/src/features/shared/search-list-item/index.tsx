@@ -7,7 +7,6 @@ import { EntryLink, FormattedCurrency, ProfileLink, UserAvatar } from "@/feature
 import { TagLink } from "../tag";
 import { commentSvg, peopleSvg } from "@ui/svg";
 import { accountReputation, dateToFormatted, dateToRelative } from "@/utils";
-import { useGlobalStore } from "@/core/global-store";
 import Image from "next/image";
 
 setProxyBase(defaults.imageServer);
@@ -17,8 +16,6 @@ interface Props {
 }
 
 export function SearchListItem({ res }: Props) {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   const entry = useMemo(
     () => ({
       category: res.category,
@@ -32,10 +29,8 @@ export function SearchListItem({ res }: Props) {
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
   const img = useMemo(
     () =>
-      (canUseWebp
-        ? catchPostImage(res.body, 600, 500, "webp")
-        : catchPostImage(res.body, 600, 500)) || "/public/assets/noimage.svg",
-    [canUseWebp, res.body]
+      catchPostImage(res.body, 600, 500) || "/public/assets/noimage.svg",
+    [res.body]
   );
 
   const title = useMemo(() => (res.title_marked ? res.title_marked : res.title), [res]);

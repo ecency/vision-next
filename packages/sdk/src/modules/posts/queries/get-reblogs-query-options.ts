@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 export interface BlogEntry {
@@ -21,7 +21,7 @@ export function getReblogsQueryOptions(
   limit = 200
 ) {
   return queryOptions({
-    queryKey: ["posts", "reblogs", username ?? "", limit],
+    queryKey: QueryKeys.posts.reblogs(username ?? "", limit),
     queryFn: async () => {
       const response = (await CONFIG.hiveClient.call("condenser_api", "get_blog_entries", [
         username ?? activeUsername,

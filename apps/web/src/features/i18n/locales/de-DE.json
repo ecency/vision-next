@@ -71,6 +71,7 @@
     "more-results": "Mehr Ergebnisse",
     "close": "Schliessen",
     "loading": "Lädt",
+    "validating": "Validieren...",
     "stop": "Stop",
     "settings": "Einstellungen",
     "confirm": "Bestätigen",
@@ -296,7 +297,7 @@
     "description": "Redefreiheit, echte Inhaberschaft, finanzielle Freiheit!",
     "description-2": "Hive-Macht viele Apps und wird komplett dezentralisiert von Gemeinschaftsmitgliedern auf der ganzen Welt. Mit einem Konto haben Sie direkten Zugriff auf das Ökosystem.",
     "bottom-description": "Ein Konto, eine Wallet, um alles in der Blockchain zu erledigen.",
-    "learn-more": "Erfahren Sie mehr über die Vorteile in unserer <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Erfahren Sie mehr über die Vorteile in unserer <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Wähle einen Benutzernamen",
     "email": "E-Mail Adresse eingeben",
     "ref": "Referral Nutzer (optional)",
@@ -864,6 +865,9 @@
     "muted-warning": "Dieser Inhalt wurde von Moderatoren der {{community}} stumm geschaltet, da er nicht den Richtlinien der Community entspricht.",
     "lowrep-warning": "Der Autor dieses Inhalts hat einen schlechten Ruf.",
     "deleted-content-warning": "Dieser Inhalt wurde vom Autor gelöscht. Du kannst ihn jedoch in der Blockchain einsehen ",
+    "deleted-content": "Dieser Beitrag wurde von {{author}} gelöscht",
+    "deleted-no-history": "Der gelöschte Inhaltsverlauf ist nicht in der Blockchain verfügbar.",
+    "untitled": "Ohne Titel",
     "comments-hidden": "Autor dieses Beitrags ist von dir stumm geschaltet.",
     "address-copy": "Link kopieren",
     "address-copied": "Link in Zwischenablage kopiert",
@@ -1077,7 +1081,9 @@
     "go-community": "Community-Seite",
     "com-mod": "Moderator dieser Gemeinschaften",
     "empty-communities": "Keine Gemeinschaften hier",
-    "empty-communities-hint": "Benutzer ist noch kein Mitglied einer Gemeinschaft. Treten Sie einer der Gemeinschaften bei oder erstellen Sie Ihre eigene"
+    "empty-communities-hint": "Benutzer ist noch kein Mitglied einer Gemeinschaft. Treten Sie einer der Gemeinschaften bei oder erstellen Sie Ihre eigene",
+    "dm-followers-only": "DMs: nur Follower",
+    "dm-disabled": "DM: deaktiviert"
   },
   "profile-info": {
     "joined": "Beitreten",
@@ -1131,7 +1137,7 @@
     "confirm": "Bestätigen",
     "cancel": "Abbrechen",
     "check-faq": "Erfahren Sie mehr über RC in unseren",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#was-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Unzureichende Ressourcen-Credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Schlüssel & Berechtigungen",
     "permissions-hint": "Verwalten Sie Ihre Schlüssel, steuern Sie die Berechtigungen über Anwendungen",
     "permissions": "Öffne Berechtigungen"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Chat-Privatsphäre",
+      "who-can-message": "Wer kann Ihnen direkte Nachrichten schicken?",
+      "description": "Legen Sie fest, wer Ihnen direkte Nachrichten senden kann, um Spam und Phishing-Versuche zu verhindern.",
+      "allow-all": "Alle",
+      "followers-only": "Nur Leute, denen ich folge",
+      "no-one": "Niemand (deaktiviere DMs)"
+    },
+    "dm-privacy-updated": "DM Privatsphäre-Einstellungen erfolgreich aktualisiert",
+    "dm-privacy-failed": "Aktualisierung der DM-Privatsphäre-Einstellungen fehlgeschlagen"
   },
   "wallet": {
     "unclaimed-rewards": "Nicht abgeholte Belohnungen",
@@ -1300,6 +1318,10 @@
       "account-value-description": "Der ungefähre US-Dollar-Wert für alle SPK-Assets in Ihrem Konto",
       "larynx-locked": "LARYNX gesperrt",
       "larynx-locked-description": "Gesperrte Tokens sorgen für Liquidität im Netzwerk, helfen bei der Konsensfindung und verdienen Belohnungen für Knotenläufer"
+    },
+    "setup-external": {
+      "login-required": "Anmeldung erforderlich, um externe Brieftaschen einzurichten",
+      "import-login-required": "Anmeldung erforderlich, um Wallet zu importieren"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Kanal stumm",
     "unmute-channel": "Kanal entmuten",
     "leave-channel": "Kanal verlassen",
+    "leave-conversation": "Gespräch verlassen",
+    "dm-warning-title": "Neue Unterhaltung - Bleib sicher",
+    "dm-warning-body": "Seien Sie vorsichtig mit Nachrichten von unbekannten Benutzern. Klicken Sie nicht auf verdächtige Links oder teilen Sie vertrauliche Informationen wie Passwörter oder private Schlüssel. Überprüfen Sie die Identität des Absenders, bevor Sie etwas unternehmen.",
+    "dm-warning-settings": "Sie können Ihre DM-Privatsphäre in den Einstellungen aktualisieren.",
     "no-channels": "Noch keine Kanäle zugewiesen.",
     "no-channels-search": "Keine Kanäle stimmen mit Ihrer Suche überein.",
     "joinable-channels": "Beitrittbare Kanäle",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "Community-Chat",
     "public-key": "Öffentlicher Schlüssel",
     "private-key": "Privater Schlüssel",
-    "hide-message": "Nachricht ausblenden",
     "enter-private-key-detail": "Chat-Privatschlüssel eingeben um alle Chats zu importieren",
     "message-search-results": "Nachrichten Suchergebnisse",
     "no-messages-found": "Keine Nachrichten gefunden.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Zielsprache",
     "pinned-messages": "Angeheftete Nachrichten",
     "pin-message": "Nachricht anheften",
-    "unpin-message": "Nachricht lösen"
+    "unpin-message": "Nachricht lösen",
+    "dm-not-allowed": "@{{username}} akzeptiert keine Nachrichten von Ihnen",
+    "dm-followers-only": "Akzeptiert nur DMs von Personen, denen sie folgen",
+    "dm-disabled": "Hat Direktnachrichten deaktiviert"
   },
   "add-image": {
     "title": "Bild hinzufügen",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Editor wird geladen...",
     "gif-picker": "GIF-Bild auswählen",
     "description-hint": "Hilft den Suchmaschinensystemen diesen Beitrag zu finden",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Hochfahren",
       "power-down": "Strom runter",
       "swap": "Tausch",
+      "convert": "Konvertieren",
       "delegate": "Delegieren",
       "withdraw-saving": "Routen zurückziehen",
       "gift": "Geschenk",
@@ -3086,7 +3116,7 @@
     "keys": {
       "title": "Schlüssel & Passwörter",
       "hint": "Ein Hive-Konto kann mehrere Schlüssel gleichzeitig halten, die alle unten aufgelistet sind",
-      "add-key": "Neue Schlüssel hinzufügen",
+      "add-key": "Schlüssel hinzufügen/verwalten",
       "key-created": "Schlüssel wurden erfolgreich erstellt und zugewiesen.",
       "error-private-key-reveal": "Privater Schlüssel kann nur mit Masterpasswort oder Seed-Phrase angezeigt werden"
     },
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Hive-Schlüssel widerrufen",
       "hint": "Sie können jeden Hive-Schlüssel mit einem der Schlüssel/Master-Passwort/Seed widerrufen"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Authentifizieren",
+        "generate-seed": "Seed generieren",
+        "review-keys": "Überprüfungsschlüssel",
+        "confirm": "Bestätigen"
+      },
+      "step1": {
+        "title": "Neues Schlüsselset hinzufügen",
+        "info1": "Eine neue Seed-Phrase wird für Ihr Konto generiert",
+        "info2": "Sie können mehrere Schlüsselsets gleichzeitig aktiv halten",
+        "info3": "Du hast die Möglichkeit, alte Schlüssel in den nächsten Schritten zu widerrufen",
+        "authenticate": "Authentifizieren um fortzufahren",
+        "error-not-owner": "Der angegebene Schlüssel ist kein Owner-Schlüssel. Bitte geben Sie Ihren Owner-Schlüssel, Master-Passwort oder Seed-Phrase an.",
+        "error-invalid-key": "Ungültiges Format für privaten Schlüssel",
+        "error-authentication": "Authentifizierung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten und versuchen Sie es erneut.",
+        "error-credentials-not-match": "Die angegebenen Zugangsdaten stimmen nicht mit diesem Konto überein. Bitte überprüfen Sie Ihr Master-Passwort, Ihre Seed-Phrase oder Ihren Owner-Schlüssel.",
+        "error-account-not-loaded": "Kontodaten werden noch geladen. Bitte warten Sie einen Moment und versuchen Sie es erneut."
+      },
+      "step2": {
+        "warning-title": "Wichtig: Speichere deinen neuen Seed Phrase",
+        "warning1": "Dies ist eine NEUE Seed-Phrase, die sich von Ihrem ursprünglichen Account-Seed unterscheidet",
+        "warning2": "Speichern Sie es separat - Sie müssen sich mit diesen Schlüsseln anmelden",
+        "warning3": "Laden Sie die Seed-Datei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
+      },
+      "step3": {
+        "title": "Vorhandene Schlüssel überprüfen",
+        "description": "Wählen Sie alle alten Schlüssel, die Sie widerrufen möchten. Sie können diesen Schritt überspringen, um alle vorhandenen Schlüssel aktiv zu halten.",
+        "cannot-revoke-last": "Kann nicht widerrufen - dies ist der einzige Schlüssel dieses Typs",
+        "selected-count": "{{count}} Schlüssel(e) für den Widerruf ausgewählt",
+        "next-with-revoke": "Ausgewählte fortsetzen & widerrufen",
+        "next-skip": "Ohne Widerruf fortfahren",
+        "will-be-replaced": "wird durch neuen Schlüssel ersetzt",
+        "memo-will-replace": "Neuer Memo-Schlüssel ersetzt diesen",
+        "derivation-unknown": "Unbekannt",
+        "derivation-bip44": "BIP44 Seed",
+        "derivation-master-password": "Master-Passwort"
+      },
+      "step4": {
+        "title": "Bereit zur Übernahme von Änderungen",
+        "description": "Überprüfen Sie die nachstehenden Änderungen und bestätigen Sie, dass Sie Ihr Konto aktualisieren möchten.",
+        "adding": "Hinzufügen",
+        "new-bip44-keys": "Neue BIP44 Seed-basierte Schlüssel (Besitzer, aktiv, posten, Memo)",
+        "revoking": "Widerruf",
+        "revoking-count": "{{count}} vorhandene Schlüssel(e)",
+        "applying": "Änderungen werden angewendet...",
+        "please-wait": "Bitte warten Sie, während wir Ihr Konto aktualisieren",
+        "success": "Schlüssel erfolgreich aktualisiert!",
+        "success-description": "Ihre neuen Schlüssel wurden hinzugefügt und die ausgewählten alten Schlüssel wurden widerrufen.",
+        "error-no-keys": "Keine Schlüssel zum Hinzufügen verfügbar"
+      },
+      "import": {
+        "title": "Existierende Seed-Phrase importieren",
+        "description": "Geben Sie Ihre vorhandene 12-Wort-Seed-Phrase ein, um Wallet-Adressen und optional Hive-Schlüssel zu importieren.",
+        "warning": "Teilen Sie niemals Ihre Seed-Phrase mit niemandem. Ecency wird nie danach fragen. Geben Sie sie nur auf vertrauenswürdigen Geräten ein.",
+        "placeholder": "Geben Sie Ihre 12-Wort-Seed-Phrase durch Leerzeichen getrennt ein",
+        "load-from-file": "Oder aus Seed-Datei laden",
+        "error-word-count": "Seed-Phrase muss genau 12 Wörter sein",
+        "error-invalid-seed": "Ungültige Seed-Phrase. Bitte überprüfen und erneut versuchen.",
+        "error-derive-keys": "Fehler beim Abholen der Schlüssel aus Seed-Phrase",
+        "error-invalid-file": "Ungültige Datei. Bitte laden Sie eine gültige Seed-Datei hoch.",
+        "error-invalid-file-format": "Ungültiges Dateiformat. Seed Datei muss eine 'seed' Eigenschaft enthalten.",
+        "error-no-wallets": "Keine Wallet-Adressen gefunden. Bitte warten Sie, bis die Wallet-Erstellung abgeschlossen ist.",
+        "existing-tokens-warning": "Dieses Konto hat bereits externe Wallet-Adressen konfiguriert. Das Importieren einer neuen Seed-Phrase ersetzt die vorhandenen Wallet-Adressen. Stellen Sie sicher, dass Sie Ihre vorherige Seed-Phrase gesichert haben, bevor Sie fortfahren.",
+        "hive-keys-title": "Hive-Schlüssel importieren",
+        "hive-keys-description": "Wir haben Hive-Schlüssel in Ihrer Seed-Phrase gefunden. Möchten Sie sie in Ihr Konto importieren?",
+        "hive-keys-already-added": "Diese Schlüssel sind bereits auf Ihrem Konto aktiv.",
+        "owner-key": "Eigentümerschlüssel",
+        "active-key": "Aktiver Schlüssel",
+        "posting-key": "Posting-Schlüssel",
+        "skip-hive-keys": "Hive-Schlüssel überspringen",
+        "import-hive-keys": "Hive-Schlüssel importieren",
+        "tokens-title": "Wallet-Adressen überprüfen",
+        "tokens-description": "Diese Wallet-Adressen wurden von Ihrer Seed-Phrase abgeleitet. Überprüfen Sie sie, bevor Sie fortfahren.",
+        "sign-title": "Zum vollständigen Import anmelden",
+        "success-title": "Import erfolgreich!",
+        "success-description": "Ihre Wallet-Adressen und Schlüssel wurden erfolgreich importiert.",
+        "step-import-title": "Seed-Phrase importieren",
+        "step-import-description": "Geben Sie Ihre vorhandene 12-Wort-Seed-Phrase ein",
+        "step-hive-keys-title": "Hive-Schlüssel",
+        "step-hive-keys-description": "Optional Hive-Schlüssel aus der gleichen Seed-Phrase importieren",
+        "step-tokens-title": "Token",
+        "step-tokens-description": "Abgeleitete Wallet-Adressen überprüfen",
+        "step-sign-title": "Signiere Änderungen",
+        "step-sign-description": "Signiere Änderungen an Link-Wallets",
+        "step-link-title": "Brieftaschen verknüpfen",
+        "step-link-description": "Wallet-Verlinkung zum Ecency Konto abschließen"
+      }
     }
   }
 }

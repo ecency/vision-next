@@ -1,6 +1,6 @@
 {
   "name": "@ecency/web",
-  "version": "4.3.5",
+  "version": "4.3.6",
   "private": true,
   "packageManager": "pnpm@10.18.1",
   "scripts": {
@@ -120,6 +120,7 @@
     "react-twitter-embed": "^4.0.4",
     "react-use": "^17.4.2",
     "react-virtualized": "^9.22.5",
+    "react-virtuoso": "^4.18.1",
     "remeda": "^2.30.0",
     "rss": "^1.2.2",
     "sharp": "0.32.6",
@@ -165,7 +166,8 @@
     "@types/uuid": "^9.0.8",
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.5",
     "@types/ws": "^8.18.1",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "vite": "^5.4.6",
     "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.0.1",
     "baseline-browser-mapping": "^2.9.11",

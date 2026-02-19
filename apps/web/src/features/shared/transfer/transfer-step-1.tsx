@@ -18,7 +18,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { withFeatureFlag } from "@/core/react-query";
 import { getDynamicPropsQueryOptions, getPointsQueryOptions } from "@ecency/sdk";
-import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { getSpkWalletQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { TransferFormText } from "@/features/shared/transfer/transfer-form-text";
 import { TransferAssetSwitch } from "@/features/shared/transfer/transfer-assets-switch";

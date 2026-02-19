@@ -5,8 +5,10 @@ import {
   FullAccount,
   getAccountFullQueryOptions,
   getQueryClient,
+  getPortfolioQueryOptions,
+  type PortfolioResponse,
+  type PortfolioWalletItem,
 } from "@ecency/sdk";
-import { getVisionPortfolioQueryOptions, VisionPortfolioResponse, VisionPortfolioWalletItem } from "./get-vision-portfolio-query-options";
 
 type ProfileTokens = AccountProfile["tokens"];
 type ProfileToken = NonNullable<ProfileTokens>[number];
@@ -37,7 +39,7 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
     queryKey: ["ecency-wallets", "list", username, currency],
     enabled: !!username,
     queryFn: async () => {
-      const portfolioQuery = getVisionPortfolioQueryOptions(username, currency);
+      const portfolioQuery = getPortfolioQueryOptions(username, currency, true);
       const queryClient = getQueryClient();
       const accountQuery = getAccountFullQueryOptions(username);
 
@@ -82,9 +84,9 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
       };
 
       try {
-        const portfolio: VisionPortfolioResponse = await queryClient.fetchQuery(portfolioQuery);
+        const portfolio: PortfolioResponse = await queryClient.fetchQuery(portfolioQuery);
         const tokensFromPortfolio: string[] = portfolio.wallets.map(
-          (asset: VisionPortfolioWalletItem) => asset.symbol
+          (asset: PortfolioWalletItem) => asset.symbol
         );
 
         if (tokensFromPortfolio.length > 0) {

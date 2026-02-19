@@ -1,5 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core/config";
+import { QueryKeys } from "@/modules/core";
 import { Entry } from "@/modules/posts/types";
 import { getPostQueryOptions } from "@/modules/posts/queries";
 
@@ -77,7 +78,7 @@ export function getAccountVoteHistoryInfiniteQueryOptions<F>(
     (string | number)[],
     VoteHistoryPageParam
   >({
-    queryKey: ["accounts", "vote-history", username, limit],
+    queryKey: QueryKeys.accounts.voteHistory(username, limit),
     initialPageParam: { start: -1 },
 
     queryFn: async ({ pageParam }: { pageParam: VoteHistoryPageParam }) => {

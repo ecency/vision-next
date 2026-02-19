@@ -27,8 +27,8 @@ export const LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i
 export const ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i
 export const SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i
 export const ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i
-export const SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak.([a-z]+)\/embed\?v=))([A-Za-z0-9\_\-\.\/]+)(&.*)?/i
-export const SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak.([a-z]+)\/embed\?[^/]+$/i
+export const SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i
+export const SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak\.([a-z]+)\/(?:embed|watch)\?.+$/i
 export const TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi
 export const SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi
 export const RUMBLE_REGEX  = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/

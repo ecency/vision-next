@@ -13,7 +13,7 @@ export function BlogPostBody({ entry, isRawContent }: Props) {
   const entryData = entry.original_entry || entry;
 
   const renderedBody = useMemo(
-    () => renderPostBody(entryData.body, false, true),
+    () => renderPostBody(entryData.body, false),
     [entryData.body],
   );
 

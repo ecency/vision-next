@@ -1,21 +1,18 @@
 "use client";
 
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { formattedNumber } from "@/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { claimHiveEngineRewards, getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
-import { getUser } from "@/utils/user-token";
-import { getSdkAuthContext } from "@/utils/sdk-auth";
-import { shouldUseHiveAuth } from "@/utils/client";
-import { PrivateKey } from "@hiveio/dhive";
+import { useClaimEngineRewardsMutation } from "@/api/sdk-mutations";
 
 type PendingAmountInfo = {
   formatted: string;
@@ -121,14 +118,9 @@ export function HiveEngineClaimRewardsButton({
   fullWidth = false,
   pendingRewards: pendingRewardsProp,
 }: HiveEngineClaimRewardsButtonProps) {
-  const { activeUser } = useActiveAccount();
   const params = useParams();
   const { token, username } = params ?? {};
   const queryClient = useQueryClient();
-  const auth = useMemo(
-    () => (activeUser ? getSdkAuthContext(getUser(activeUser.username)) : undefined),
-    [activeUser]
-  );
 
   const tokenFromParams =
     typeof token === "string" ? token.toUpperCase() : undefined;
@@ -150,45 +142,18 @@ export function HiveEngineClaimRewardsButton({
     pendingRewardsProp
   );
 
-  const { mutate: claimTokenRewards, isPending: isClaiming } = useMutation({
-    mutationFn: async ({ formattedAmount }: PendingAmountInfo) => {
-      if (!tokenSymbol || !cleanUsername || !activeUser) {
-        return formattedAmount;
-      }
+  const { mutateAsync: claimEngineRewards, isPending: isClaiming } = useClaimEngineRewardsMutation();
 
-      const loginType = activeUser.loginType;
+  const handleClaim = async () => {
+    if (!tokenSymbol || !cleanUsername || !canClaim || !pendingAmountInfo) {
+      return;
+    }
 
-      // When loginType is undefined, default to hivesigner (no extension required)
-      const signType =
-        shouldUseHiveAuth(cleanUsername)
-          ? "hiveauth"
-          : loginType === "keychain"
-            ? "keychain"
-            : "hivesigner";
-
-      if (loginType === "privateKey" && activeUser.postingKey) {
-        await claimHiveEngineRewards({
-          account: cleanUsername,
-          tokens: [tokenSymbol],
-          type: "key",
-          key: PrivateKey.fromString(activeUser.postingKey)
-        });
-      } else {
-        await claimHiveEngineRewards(
-          { account: cleanUsername, tokens: [tokenSymbol], type: signType },
-          auth
-        );
-      }
-      return formattedAmount;
-    },
-    onSuccess: async (formattedAmount) => {
-      if (!tokenSymbol || !cleanUsername) {
-        return;
-      }
-
+    try {
+      await claimEngineRewards({ tokens: [tokenSymbol] });
       success(
         i18next.t("profile-wallet.claim-rewards-success", {
-          amount: formattedAmount,
+          amount: pendingAmountInfo.formatted,
           token: tokenSymbol
         })
       );
@@ -207,9 +172,11 @@ export function HiveEngineClaimRewardsButton({
           queryKey: ["ecency-wallets", "asset-info", cleanUsername, tokenSymbol]
         })
       ]);
-    },
-    onError: (err) => error(...formatError(err))
-  });
+    } catch (err) {
+      error(...formatError(err));
+    }
+  };
+
   if (!hasPendingRewards || !pendingAmountInfo || !tokenSymbol) {
     return null;
   }
@@ -230,7 +197,7 @@ export function HiveEngineClaimRewardsButton({
       full={fullWidth}
       icon={icon}
       iconClassName={iconClassName}
-      onClick={() => canClaim && claimTokenRewards(pendingAmountInfo)}
+      onClick={handleClaim}
       disabled={!canClaim || isClaiming}
       isLoading={isClaiming}
       loadingText={i18next.t("profile-wallet.claim-rewards-loading")}

@@ -4,7 +4,6 @@ export * from "./get-token-price-query-options.ts";
 export * from "./use-hive-keys-query";
 export * from "./get-all-tokens-list-query-options";
 export * from "./use-get-account-wallet-list-query";
-export * from "./get-account-wallet-asset-info-query-options";
+export { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 export * from "./get-tokens-operations-query-options";
 export * from "./use-wallets-cache-query";
-export * from "./get-vision-portfolio-query-options";

@@ -4,8 +4,8 @@ import { Button } from "@ui/button";
 import i18next from "i18next";
 import React, { useMemo } from "react";
 import { useTransferSharedState } from "./transfer-shared-state";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import { Account } from "@/entities";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -29,11 +29,11 @@ export function TransferStep4({ onFinish, account }: Props) {
     if (account && activeUser && account.name !== activeUser.username) {
       if (mode === "transfer" && asset === "POINT") {
         queryClient.invalidateQueries({
-          queryKey: [QueryIdentifiers.POINTS, account.name]
+          queryKey: QueryKeys.points.points(account.name, 0)
         }); // todo: find filter
       } else {
         queryClient.invalidateQueries({
-          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, account.name]
+          queryKey: QueryKeys.accounts.full(account.name)
         });
       }
     }

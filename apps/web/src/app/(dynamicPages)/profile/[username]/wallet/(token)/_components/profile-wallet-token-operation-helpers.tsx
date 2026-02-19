@@ -1,4 +1,4 @@
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import {
   UilArrowDownRight,
   UilArrowRight,

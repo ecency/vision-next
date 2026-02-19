@@ -28,8 +28,6 @@ export function CommunityCover({ community, account }: Props) {
   const { activeUser } = useActiveAccount();
   const users = useGlobalStore((state) => state.users);
   const theme = useGlobalStore((state) => state.theme);
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   const { data: channelData } = useQuery({
     queryKey: ["private-api", "get-community-channel", community.name],
     queryFn: () =>
@@ -43,11 +41,11 @@ export function CommunityCover({ community, account }: Props) {
     let img =
       theme === "day" ? "/assets/cover-fallback-day.png" : "/assets/cover-fallback-night.png";
     if (community) {
-      img = `https://images.ecency.com/${canUseWebp ? "webp/" : ""}u/${community.name}/cover`;
+      img = `https://images.ecency.com/u/${community.name}/cover`;
     }
 
     return img ? { backgroundImage: `url('${img}')` } : {};
-  }, [theme, community, canUseWebp]);
+  }, [theme, community]);
   const subscribers = useMemo(
     () => formattedNumber(community.subscribers, { fractionDigits: 0 }),
     [community.subscribers]

@@ -5,14 +5,14 @@ import { Entry, FullAccount } from "@/entities";
 import { error } from "@/features/shared";
 import i18next from "i18next";
 import { useUpdateProfile } from "@/api/mutations/update-profile";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function usePinToBlog(entry: Entry, onSuccess: () => void) {
   const { activeUser, account } = useActiveAccount();
   const qc = useQueryClient();
 
-  const { mutateAsync: updateProfile } = useUpdateProfile(account!);
+  const { mutateAsync: updateProfile } = useUpdateProfile(account ?? null);
 
   return useMutation({
     mutationKey: ["pinToBlog"],
@@ -39,7 +39,7 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
-          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
+          queryKey: QueryKeys.accounts.full(name)
         });
       } else if (ownEntry && !pin && profile && activeUser) {
         await updateProfile({
@@ -56,7 +56,7 @@ export function usePinToBlog(entry: Entry, onSuccess: () => void) {
 
         // Invalidate account query to refresh profile data
         qc.invalidateQueries({
-          queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, name]
+          queryKey: QueryKeys.accounts.full(name)
         });
       }
     },

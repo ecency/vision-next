@@ -1,21 +1,23 @@
-import { getQueryClient, QueryIdentifiers } from "../react-query";
+import { getQueryClient } from "../react-query";
 import {
   getNormalizePostQueryOptions,
-  getPostQueryOptions
+  getPostQueryOptions,
+  QueryKeys
 } from "@ecency/sdk";
 import { Entry, EntryVote } from "@/entities";
 import { makeEntryPath } from "@/utils";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
+function entryKey(author: string, permlink: string) {
+  return QueryKeys.posts.entry(makeEntryPath("", author, permlink));
+}
+
 export namespace EcencyEntriesCacheManagement {
   export function getEntryQueryByPath(author?: string, permlink?: string) {
     return {
       ...getPostQueryOptions(author ?? "", permlink),
-      queryKey: [
-        QueryIdentifiers.ENTRY,
-        author && permlink ? makeEntryPath("", author, permlink) : "EMPTY"
-      ],
+      queryKey: entryKey(author ?? "", permlink ?? ""),
       enabled: typeof author === "string" && typeof permlink === "string" && !!author && !!permlink
     };
   }
@@ -23,10 +25,7 @@ export namespace EcencyEntriesCacheManagement {
   export function getEntryQuery<T extends Entry>(initialEntry?: T) {
     return {
       ...getPostQueryOptions(initialEntry?.author ?? "", initialEntry?.permlink),
-      queryKey: [
-        QueryIdentifiers.ENTRY,
-        initialEntry ? makeEntryPath("", initialEntry.author, initialEntry.permlink) : "EMPTY"
-      ],
+      queryKey: entryKey(initialEntry?.author ?? "", initialEntry?.permlink ?? ""),
       initialData: initialEntry,
       enabled: !!initialEntry
     };
@@ -35,10 +34,7 @@ export namespace EcencyEntriesCacheManagement {
   export function getNormalizedPostQuery<T extends Entry>(entry?: T) {
     return {
       ...getNormalizePostQueryOptions(entry),
-      queryKey: [
-        QueryIdentifiers.NORMALIZED_ENTRY,
-        entry ? makeEntryPath("", entry.author, entry.permlink) : "EMPTY"
-      ],
+      queryKey: QueryKeys.posts.normalize(entry?.author ?? "", entry?.permlink ?? ""),
       enabled: !!entry
     };
   }
@@ -47,7 +43,7 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
 
     return {
-      addReply: (reply: Entry, entry = initialEntry) =>
+      addReply: (reply: Entry, entry = initialEntry) => {
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -56,7 +52,8 @@ export namespace EcencyEntriesCacheManagement {
             replies: [reply, ...value.replies]
           }),
           qc
-        )
+        );
+      }
     };
   }
 
@@ -64,7 +61,7 @@ export namespace EcencyEntriesCacheManagement {
     const qc = useQueryClient();
 
     return {
-      updateRepliesCount: (count: number, entry = initialEntry) =>
+      updateRepliesCount: (count: number, entry = initialEntry) => {
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -72,28 +69,29 @@ export namespace EcencyEntriesCacheManagement {
             children: count
           }),
           qc
-        )
+        );
+      }
     };
   }
 
-  export function useInvalidation(entry?: Entry) {
+  export function useInvalidation(entry?: Entry | null) {
     const qc = useQueryClient();
     return {
-      invalidate: () =>
-        qc.invalidateQueries({
-          queryKey: [
-            QueryIdentifiers.ENTRY,
-            makeEntryPath("", entry?.author ?? "", entry?.permlink ?? "")
-          ]
-        })
+      invalidate: () => {
+        if (entry) {
+          qc.invalidateQueries({
+            queryKey: entryKey(entry.author, entry.permlink)
+          });
+        }
+      }
     };
   }
 
-  export function useUpdateVotes(entry?: Entry) {
+  export function useUpdateVotes(entry?: Entry | null) {
     const qc = useQueryClient();
     return {
-      update: (votes: EntryVote[], payout: number) =>
-        entry &&
+      update: (votes: EntryVote[], payout: number) => {
+        if (!entry) return;
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -109,7 +107,8 @@ export namespace EcencyEntriesCacheManagement {
             pending_payout_value: String(payout)
           }),
           qc
-        )
+        );
+      }
     };
   }
 
@@ -129,7 +128,7 @@ export namespace EcencyEntriesCacheManagement {
   export function useUpdateReblogsCount(entry: Entry) {
     const qc = useQueryClient();
     return {
-      update: (count: number) =>
+      update: (count: number) => {
         mutateEntryInstance(
           entry,
           (value) => ({
@@ -137,14 +136,15 @@ export namespace EcencyEntriesCacheManagement {
             reblogs: count
           }),
           qc
-        )
+        );
+      }
     };
   }
 
   export function updateEntryQueryData(entries: Entry[], qc: QueryClient = getQueryClient()) {
     entries.forEach((entry) => {
       qc.setQueryData<Entry>(
-        [QueryIdentifiers.ENTRY, makeEntryPath("", entry.author, entry.permlink)],
+        entryKey(entry.author, entry.permlink),
         () => entry
       );
     });
@@ -159,10 +159,9 @@ export namespace EcencyEntriesCacheManagement {
       throw new Error("Mutate entry instance – entry not provided");
     }
 
-    const actualEntryValue = qc.getQueryData<Entry>([
-      QueryIdentifiers.ENTRY,
-      makeEntryPath("", entry.author, entry.permlink)
-    ]);
+    const actualEntryValue = qc.getQueryData<Entry>(
+      entryKey(entry.author, entry.permlink)
+    );
     const value = callback(actualEntryValue ?? entry);
     return updateEntryQueryData([value], qc);
   }

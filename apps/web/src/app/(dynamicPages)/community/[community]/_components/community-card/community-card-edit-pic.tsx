@@ -8,7 +8,7 @@ import { ImageUploadDialog } from "./community-image-upload-dialog";
 import { FullAccount } from "@/entities";
 import { useUpdateProfile } from "@/api/mutations";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryKeys } from "@ecency/sdk";
 
 interface EditPicProps {
   account: FullAccount;
@@ -38,7 +38,7 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
 
       // Invalidate account query to refresh profile data
       qc.invalidateQueries({
-        queryKey: [QueryIdentifiers.GET_ACCOUNT_FULL, account.name]
+        queryKey: QueryKeys.accounts.full(account.name)
       });
 
       setDialog(false);

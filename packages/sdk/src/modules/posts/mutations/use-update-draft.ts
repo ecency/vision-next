@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { updateDraft } from "@/modules/private-api/requests";
 import { DraftMetadata } from "../types";
 
@@ -32,7 +32,7 @@ export function useUpdateDraft(
     onSuccess: () => {
       onSuccess?.();
       getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username],
+        queryKey: QueryKeys.posts.drafts(username),
       });
     },
     onError,

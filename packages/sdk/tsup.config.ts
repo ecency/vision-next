@@ -33,7 +33,7 @@ export default defineConfig([
         target: "es2020",
         outDir: "dist/browser",
         clean: true,
-        minify: false,
+        minify: true,
         outExtension() {
             return { js: ".js" };
         },
@@ -51,7 +51,7 @@ export default defineConfig([
         target: "node18",
         outDir: "dist/node",
         clean: false,
-        minify: false,
+        minify: true,
         outExtension({ format }) {
             return { js: format === "esm" ? ".mjs" : ".cjs" };
         },

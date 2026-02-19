@@ -4,7 +4,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import React, { useMemo } from "react";
 import { LinearProgress, success } from "@/features/shared";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { UserImage } from "@ecency/sdk";
 import { clipboard } from "@/utils/clipboard";
@@ -20,7 +19,6 @@ interface Props {
 }
 
 export function GalleryList({ onPick }: Props) {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
   const { activeUser } = useActiveAccount();
 
   const {
@@ -74,7 +72,7 @@ export function GalleryList({ onPick }: Props) {
         <div className="gallery-list">
           <div className="gallery-list-body">
             {items.map((item) => {
-              const src = proxifyImageSrc(item.url, 600, 500, canUseWebp ? "webp" : "match");
+              const src = proxifyImageSrc(item.url, 600, 500);
               return (
                 <div
                   className="gallery-list-item"

@@ -1,6 +1,6 @@
 import { WitnessesExtra } from "@/app/witnesses/_components/witnesses-extra";
 import { useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
+import { QueryKeys } from "@ecency/sdk";
 import { useWitnessProxyQuery, useWitnessVotesQuery } from "@/app/witnesses/_queries";
 import { WitnessesProxy } from "@/app/witnesses/_components/witness-proxy";
 import { useMemo } from "react";
@@ -30,7 +30,7 @@ export function WitnessesControls({ witnesses }: Props) {
       <div className="flex-spacer" />
 
       <WitnessesProxy
-        onDone={() => queryClient.invalidateQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] })}
+        onDone={() => queryClient.invalidateQueries({ queryKey: QueryKeys.witnesses.proxy() })}
       />
     </div>
   );

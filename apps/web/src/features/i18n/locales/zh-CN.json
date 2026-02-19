@@ -71,6 +71,7 @@
     "more-results": "更多结果",
     "close": "关闭",
     "loading": "正在加载",
+    "validating": "正在验证...",
     "stop": "停止",
     "settings": "设置",
     "confirm": "确认",
@@ -296,7 +297,7 @@
     "description": "Freespeech, True own, financial freedom!",
     "description-2": "Hive 增强了许多应用的能力，并完全由世界各地的社区成员来运行。 使用一个帐户，您可以直接访问生态系统。",
     "bottom-description": "一个帐户，一个钱包来管理Blockchain上的一切。",
-    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "在我们的 <a href=\"/faq#how-to-join\">常见问题</a>中了解更多好处",
     "username": "选择用户名",
     "email": "输入您的电子邮件地址",
     "ref": "推荐用户 (可选)",
@@ -864,6 +865,9 @@
     "muted-warning": "此内容被 {{community}} 版主禁言，因为他们不遵守社区指南。",
     "lowrep-warning": "此内容的作者信誉积分较低。",
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
+    "deleted-content": "This post was deleted by {{author}}",
+    "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
+    "untitled": "无标题",
     "comments-hidden": "这个帖子的作者被你禁言。",
     "address-copy": "复制链接",
     "address-copied": "链接已复制到剪贴板",
@@ -1077,7 +1081,9 @@
     "go-community": "社区页面",
     "com-mod": "这些社区的管理员",
     "empty-communities": "这里没有社区",
-    "empty-communities-hint": "用户还不是任何社区的成员。加入一个社区或创建你自己的社区"
+    "empty-communities-hint": "用户还不是任何社区的成员。加入一个社区或创建你自己的社区",
+    "dm-followers-only": "DM：仅关注者",
+    "dm-disabled": "DM：已禁用"
   },
   "profile-info": {
     "joined": "已加入",
@@ -1131,7 +1137,7 @@
     "confirm": "确认",
     "cancel": "取消",
     "check-faq": "了解更多关于我们的 RC的信息",
-    "learn-more": "https://docs.ecency.com/hive/resourcescredits/",
+    "learn-more": "/faq#what are-rc",
     "faq-link": "常见问题",
     "insufficient-rc-error": "资源积分不足",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "密钥和权限",
     "permissions-hint": "管理您的密钥，控制应用程序的权限",
     "permissions": "打开权限"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "聊天隐私",
+      "who-can-message": "谁可以向您发送私信？",
+      "description": "控制谁可以向您发送邮件来防止垃圾邮件和钓鱼尝试。",
+      "allow-all": "每个人",
+      "followers-only": "只有我关注的人",
+      "no-one": "没有人(禁用DMs)"
+    },
+    "dm-privacy-updated": "已成功更新 DM 隐私设置",
+    "dm-privacy-failed": "更新 DM 隐私设置失败"
   },
   "wallet": {
     "unclaimed-rewards": "未认领的奖励",
@@ -1300,6 +1318,10 @@
       "account-value-description": "您帐户中所有SPK资产的大约美元价值",
       "larynx-locked": "LARYNX 锁定",
       "larynx-locked-description": "锁定令牌为网络提供流动性，帮助确定共识，为节点运行者赚取奖励"
+    },
+    "setup-external": {
+      "login-required": "设置外部钱包需要登录",
+      "import-login-required": "需要登录才能导入钱包"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "静音频道",
     "unmute-channel": "取消静音频道",
     "leave-channel": "离开频道",
+    "leave-conversation": "离开对话",
+    "dm-warning-title": "新对话-保持安全",
+    "dm-warning-body": "谨慎对待来自未知用户的消息。请不要点击可疑链接或分享敏感信息，如密码或私钥。 在采取任何行动之前验证发送者的身份。",
+    "dm-warning-settings": "您可以在设置中更新您的DM隐私。",
     "no-channels": "尚未分配频道。",
     "no-channels-search": "没有匹配您搜索的频道。",
     "joinable-channels": "可加入的频道",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "社区聊天",
     "public-key": "公钥",
     "private-key": "私钥",
-    "hide-message": "隐藏消息",
     "enter-private-key-detail": "输入私钥导入所有聊天",
     "message-search-results": "消息搜索结果",
     "no-messages-found": "未找到消息。",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "目标语言",
     "pinned-messages": "置頂消息",
     "pin-message": "置顶消息",
-    "unpin-message": "取消置顶消息"
+    "unpin-message": "取消置顶消息",
+    "dm-not-allowed": "@{{username}} doesn't accept messages from you",
+    "dm-followers-only": "只接受他们所关注的人的私信",
+    "dm-disabled": "已禁用私信"
   },
   "add-image": {
     "title": "添加图像",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "加载编辑器...",
     "gif-picker": "选择 GIF 图像",
     "description-hint": "帮助搜索引擎系统找到这篇文章",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "电源上移",
       "power-down": "电源断开",
       "swap": "切换",
+      "convert": "转换",
       "delegate": "代表",
       "withdraw-saving": "取出路由",
       "gift": "礼物",
@@ -3086,7 +3116,7 @@
     "keys": {
       "title": "密钥和密码",
       "hint": "Hive 帐户可以同时持有多个键，所有键都列在下面：",
-      "add-key": "添加新密钥",
+      "add-key": "添加/管理密钥",
       "key-created": "密钥已成功创建和分配。",
       "error-private-key-reveal": "私钥只能通过主密码或种子短语暴露。"
     },
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "撤销Hive 密钥",
       "hint": "您可以使用一个所有者密钥/主密码/种子撤销任何Hive 密钥"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "验证",
+        "generate-seed": "生成种子",
+        "review-keys": "审查密钥",
+        "confirm": "确认"
+      },
+      "step1": {
+        "title": "添加新密钥集",
+        "info1": "将为您的帐户生成一个新的种子短语",
+        "info2": "您可以同时启用多个密钥集",
+        "info3": "您可以选择在下一步中撤销旧密钥",
+        "authenticate": "身份验证以继续",
+        "error-not-owner": "提供的密钥不是所有者密钥。请提供您的所有者密钥、主密码或种子短语。",
+        "error-invalid-key": "无效的私钥格式",
+        "error-authentication": "认证失败。请检查您的凭据，然后重试。",
+        "error-credentials-not-match": "提供的凭据与此账户不匹配。请验证您的主密码、种子短语或所有者密钥。",
+        "error-account-not-loaded": "帐户数据仍在加载。请稍等，然后重试。"
+      },
+      "step2": {
+        "warning-title": "重要：保存你新的种子词组",
+        "warning1": "这是一个新的种子短语，不同于您原始的帐户种子",
+        "warning2": "单独保存 - 您需要使用这些密钥登录",
+        "warning3": "在继续之前下载种子文件并安全存储"
+      },
+      "step3": {
+        "title": "查看现有密钥",
+        "description": "选择您想要撤销的任何旧密钥。您可以跳过此步骤来保持所有现有密钥的活动。",
+        "cannot-revoke-last": "无法吊销-这是此类型的唯一密钥",
+        "selected-count": "{{count}} key(s) selected for revocation",
+        "next-with-revoke": "继续并撤销选定的",
+        "next-skip": "不撤销则继续",
+        "will-be-replaced": "将被新密钥替换",
+        "memo-will-replace": "新的备注键将替换这个密钥",
+        "derivation-unknown": "未知的",
+        "derivation-bip44": "BIP44 种子",
+        "derivation-master-password": "主密码"
+      },
+      "step4": {
+        "title": "准备应用更改",
+        "description": "查看下面的更改并确认更新您的帐户。",
+        "adding": "添加中",
+        "new-bip44-keys": "新 BIP44 种子密钥(所有者，激活，发布，备忘录)",
+        "revoking": "正在取消",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "正在应用更改...",
+        "please-wait": "请稍等，我们正在更新您的帐户",
+        "success": "密钥更新成功！",
+        "success-description": "您的新密钥已被添加，所选的旧密钥已被撤销。",
+        "error-no-keys": "没有可用的密钥可添加"
+      },
+      "import": {
+        "title": "导入现有种子词组",
+        "description": "输入您现有的12个字的种子短语来导入钱包地址和可选的 Hive 密钥。",
+        "warning": "永远不会与任何人分享您的种子短语。生态将永远不会要求它。只能在信任的设备上输入它。",
+        "placeholder": "输入您的12个字的种子短语，用空格隔开",
+        "load-from-file": "或者从种子文件加载",
+        "error-word-count": "种子短语必须是12个单词",
+        "error-invalid-seed": "无效的种子短语。请检查并重试。",
+        "error-derive-keys": "从种子短语中获取密钥失败",
+        "error-invalid-file": "无效的文件。请上传有效的种子文件。",
+        "error-invalid-file-format": "无效的文件格式。种子文件必须包含 'seed' 属性。",
+        "error-no-wallets": "未找到钱包地址。请等待钱包创建完成。",
+        "existing-tokens-warning": "此帐户已配置外部钱包地址。导入新的种子短语将替换现有的钱包地址。 请确保您在继续之前已备份您以前的种子短语。",
+        "hive-keys-title": "导入 Hive 密钥",
+        "hive-keys-description": "我们在您的种子短语中找到了Hive 密钥。您想要将它们导入到您的帐户吗？",
+        "hive-keys-already-added": "这些密钥已经在您的帐户上激活。",
+        "owner-key": "所有者密钥",
+        "active-key": "活动密钥",
+        "posting-key": "发布密钥",
+        "skip-hive-keys": "跳过Hive 密钥",
+        "import-hive-keys": "导入 Hive 密钥",
+        "tokens-title": "查看钱包地址",
+        "tokens-description": "这些钱包地址来自您的种子短语。在继续之前验证它们。",
+        "sign-title": "登录以完成导入",
+        "success-title": "导入成功！",
+        "success-description": "您的钱包地址和密钥已成功导入。",
+        "step-import-title": "导入种子短语",
+        "step-import-description": "输入您现有的12个字的种子短语",
+        "step-hive-keys-title": "Hive 密钥",
+        "step-hive-keys-description": "从相同种子短语导入Hive 密钥",
+        "step-tokens-title": "令牌",
+        "step-tokens-description": "审查派生的钱包地址",
+        "step-sign-title": "签名更改",
+        "step-sign-description": "签名更改以链接钱包",
+        "step-link-title": "链接钱包",
+        "step-link-description": "完成连接到生态帐户的钱包"
+      }
     }
   }
 }

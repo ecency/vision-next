@@ -3,17 +3,15 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { PrivateKey } from "@hiveio/dhive";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { LinearProgress, SuggestionList } from "@/features/shared";
-import { KeyOrHot } from "@/features/shared/key-or-hot";
 import { checkAllSvg } from "@ui/svg";
-import { promoteHot } from "@/api/operations";
-import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
+import { usePromoteMutation } from "@/api/sdk-mutations";
+import { usePreCheckPromote } from "@/api/mutations";
 import { withFeatureFlag } from "@/core/react-query";
 import { getPointsQueryOptions, getPromotePriceQueryOptions, getSearchPathQueryOptions } from "@ecency/sdk";
 import { getAccessToken } from "@/utils";
@@ -58,13 +56,12 @@ export function Promote({ onHide, entry }: Props) {
   });
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
-  const { mutateAsync: promoteByKeychain, isPending: isKeychainPending } = usePromoteByKeychain();
-  const { mutateAsync: promoteByApi, isPending: isApiPending } = usePromoteByApi();
+  const { mutateAsync: promote, isPending: isPromoting } = usePromoteMutation();
   const { mutateAsync: next, error: postError } = usePreCheckPromote(path, () => setStep(2));
 
   const inProgress = useMemo(
-    () => isKeychainPending || isApiPending || isPricesLoading,
-    [isKeychainPending, isApiPending, isPricesLoading]
+    () => isPromoting || isPricesLoading,
+    [isPromoting, isPricesLoading]
   );
 
   const isValidPath = useCallback((p: string) => {
@@ -112,25 +109,11 @@ export function Promote({ onHide, entry }: Props) {
     setPathQuery(path);
   }, []);
 
-  const sign = useCallback(
-    async (key: PrivateKey) => {
-      await promoteByApi({ path, duration, key });
-      setStep(3);
-    },
-    [duration, path, promoteByApi]
-  );
-
-  const signKc = useCallback(async () => {
-    await promoteByKeychain({ path, duration });
-    setStep(3);
-  }, [duration, path, promoteByKeychain]);
-
-  const hotSign = useCallback(() => {
+  const sign = useCallback(async () => {
     const [author, permlink] = path.replace("@", "").split("/");
-
-    promoteHot(activeUser!.username, author, permlink, duration);
-    onHide();
-  }, [activeUser, duration, onHide, path]);
+    await promote({ author, permlink, duration });
+    setStep(3);
+  }, [duration, path, promote]);
 
   const finish = () => onHide();
 
@@ -234,7 +217,9 @@ export function Promote({ onHide, entry }: Props) {
               </div>
               {inProgress && <LinearProgress />}
               <div className="transaction-form-body">
-                <KeyOrHot inProgress={inProgress} onKey={sign} onHot={hotSign} onKc={signKc} />
+                <Button onClick={sign} disabled={inProgress}>
+                  {i18next.t("trx-common.sign-title")}
+                </Button>
               </div>
             </div>
           )}

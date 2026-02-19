@@ -5,7 +5,8 @@ import { PollsContext } from "@/features/polls";
 import { Entry, FullAccount } from "@/entities";
 import { createReplyPermlink, tempEntry } from "@/utils";
 import { EntryMetadataManagement } from "@/features/entry-management";
-import { comment } from "@/api/operations";
+import { useCommentMutation } from "@/api/sdk-mutations";
+import type { CommentPayload } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
@@ -17,6 +18,7 @@ export function useThreadsApi() {
 
   const { addReply } = EcencyEntriesCacheManagement.useAddReply();
   const { updateRepliesCount } = EcencyEntriesCacheManagement.useUpdateRepliesCount();
+  const { mutateAsync: sdkComment } = useCommentMutation();
 
   const request = async (entry: Entry, raw: string, editingEntry?: ThreadItemEntry) => {
     if (!username) {
@@ -49,7 +51,20 @@ export function useThreadsApi() {
       .withPoll(activePoll)
       .build();
 
-    await comment(author, parentAuthor, parentPermlink, permlink, "", raw, jsonMeta, null, true);
+    // Build SDK comment payload
+    const commentPayload: CommentPayload = {
+      author,
+      permlink,
+      parentAuthor,
+      parentPermlink,
+      title: "",
+      body: raw,
+      jsonMetadata: jsonMeta,
+      rootAuthor: entry.author,
+      rootPermlink: entry.permlink
+    };
+
+    await sdkComment(commentPayload);
 
     const nReply = tempEntry({
       author: authorData,

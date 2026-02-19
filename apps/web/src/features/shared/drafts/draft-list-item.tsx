@@ -4,7 +4,6 @@ import { PopoverConfirm } from "@ui/popover-confirm";
 import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { Draft } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import fallbackImage from "../../../../public/assets/fallback.png";
 import noImage from "@/assets/img/noimage.svg";
 import { getCommunityCache } from "@/core/caches";
@@ -23,11 +22,9 @@ interface Props {
 }
 
 export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
-  const canUseWebp = useGlobalStore((state) => state.canUseWebp);
-
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500, canUseWebp ? "webp" : "match") || noImage.src;
+  const img = catchPostImage(draft.body, 600, 500) || noImage.src;
   const summary = postBodySummary(draft.body, 200);
 
   const { data: community } = useQuery(getCommunityCache(tag));

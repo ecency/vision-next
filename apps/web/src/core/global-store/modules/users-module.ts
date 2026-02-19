@@ -33,6 +33,7 @@ export function createUsersActions(
               refreshToken: u.refreshToken,
               accessToken: u.accessToken,
               expiresIn: u.expiresIn,
+              tokenObtainedAt: u.tokenObtainedAt,
               postingKey: u.postingKey,
               loginType: u.loginType,
               index: u.index

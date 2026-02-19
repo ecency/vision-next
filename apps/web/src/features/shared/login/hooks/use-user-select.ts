@@ -1,5 +1,5 @@
 import { User } from "@/entities";
-import { getAccessToken, getRefreshToken } from "@/utils";
+import { ensureValidToken, getAccessToken, getRefreshToken } from "@/utils";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { error } from "../../feedback";
@@ -35,6 +35,9 @@ export function useUserSelect(user: User) {
           deleteUser(user.username);
           throw new Error(`${i18next.t("login.error-user-not-found-cache")}`);
         }
+
+        // Ensure access token is valid before switching — refreshes if expired
+        await ensureValidToken(user.username);
 
         // Switch active user - this triggers re-render of components using activeUser
         setActiveUser(user.username);

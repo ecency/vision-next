@@ -32,6 +32,28 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { removeChildNodes } from './remove-child-nodes.method'
 import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink } from '../helper'
 import { createImageHTML } from "./img.method";
+import { SeoContext } from '../types'
+
+const NOFOLLOW_REPUTATION_THRESHOLD = 40;
+const FOLLOW_PAYOUT_THRESHOLD = 5;
+
+/**
+ * Determines the rel attribute for external links based on SEO context.
+ *
+ * Default: "nofollow ugc noopener" for all user-generated external links.
+ * Exception: "noopener" only (followed) when author reputation >= 40 AND post payout > $5.
+ */
+function getExternalLinkRel(seoContext?: SeoContext): string {
+  if (
+    seoContext?.authorReputation !== undefined &&
+    seoContext?.postPayout !== undefined &&
+    seoContext.authorReputation >= NOFOLLOW_REPUTATION_THRESHOLD &&
+    seoContext.postPayout > FOLLOW_PAYOUT_THRESHOLD
+  ) {
+    return 'noopener';
+  }
+  return 'nofollow ugc noopener';
+}
 
 const normalizeValue = (value?: string | null): string => (value ? value.trim() : '')
 
@@ -109,7 +131,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parentDomain: string = 'ecency.com'): void {
+export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -141,11 +163,11 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     getSerializedInnerHTML(el).trim().replace(/&amp;/g, '&')
   ) {
     const isLCP = false; // LCP handled elsewhere
-    const imgHTML = createImageHTML(href, isLCP, webp);
+    const imgHTML = createImageHTML(href, isLCP);
     const doc = DOMParser.parseFromString(imgHTML, 'text/html');
     const replaceNode = doc.body?.firstChild || doc.firstChild
 
-    if (replaceNode) {
+    if (replaceNode && el.parentNode) {
       const importedNode = el.ownerDocument.importNode(replaceNode, true)
       el.parentNode.replaceChild(importedNode, el)
     }
@@ -558,7 +580,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
     el.removeAttribute('href')
 
     const vid = match[1]
-    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, webp ? 'webp' : 'match')
+    const thumbnail = proxifyImageSrc(`https://img.youtube.com/vi/${vid.split('?')[0]}/hqdefault.jpg`, 0, 0, 'match')
     const embedSrc = `https://www.youtube.com/embed/${vid}?autoplay=1`
 
     el.textContent = ''
@@ -700,7 +722,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       if (imgEls.length === 1) {
         const src = imgEls[0].getAttribute('src')
         if (src) {
-          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+          const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
           const thumbImg = el.ownerDocument.createElement('img')
 
           thumbImg.setAttribute('class', 'no-replace video-thumbnail')
@@ -761,7 +783,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
         if (imgEls.length === 1) {
           const src = imgEls[0].getAttribute('src')
           if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, webp ? 'webp' : 'match')
+            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
             const thumbImg = el.ownerDocument.createElement('img')
             thumbImg.setAttribute('class', 'no-replace video-thumbnail')
             thumbImg.setAttribute('itemprop', 'thumbnailUrl')
@@ -806,7 +828,9 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       blockquote.appendChild(textNode)
       blockquote.appendChild(a)
 
-      el.parentNode.replaceChild(blockquote, el)
+      if (el.parentNode) {
+        el.parentNode.replaceChild(blockquote, el)
+      }
       return
     }
   }
@@ -861,7 +885,7 @@ export function a(el: HTMLElement | null, forApp: boolean, webp: boolean, parent
       el.setAttribute('class', 'markdown-internal-link');
     } else {
       el.setAttribute('target', '_blank');
-      el.setAttribute('rel', 'noopener');
+      el.setAttribute('rel', getExternalLinkRel(seoContext));
     }
     el.setAttribute('href', href)
   }

@@ -16,7 +16,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', 'javascript:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -27,7 +27,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', 'JavaScript:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -38,7 +38,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', 'JAVASCRIPT:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -49,7 +49,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', '  javascript:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -60,7 +60,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', '\tjavascript:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -71,7 +71,7 @@ describe('a() method - Link Processing', () => {
         el.setAttribute('href', '\njavascript:alert(1)')
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBeNull()
       })
@@ -83,7 +83,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'https://example.com/javascript-tutorial'
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('https://example.com/javascript-tutorial')
         expect(el.getAttribute('class')).toBe('markdown-external-link')
@@ -93,14 +93,14 @@ describe('a() method - Link Processing', () => {
 
   describe('edge cases', () => {
     it('should handle null element', () => {
-      expect(() => a(null, false, false)).not.toThrow()
+      expect(() => a(null, false)).not.toThrow()
     })
 
     it('should handle element without parent', () => {
       const el = doc.createElement('a')
       el.setAttribute('href', 'https://example.com')
 
-      expect(() => a(el, false, false)).not.toThrow()
+      expect(() => a(el, false)).not.toThrow()
     })
 
     it('should handle empty href', () => {
@@ -108,7 +108,7 @@ describe('a() method - Link Processing', () => {
       const el = doc.createElement('a')
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBeNull()
     })
@@ -121,7 +121,7 @@ describe('a() method - Link Processing', () => {
       parent.appendChild(el)
 
       const originalHref = el.getAttribute('href')
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe(originalHref)
     })
@@ -134,7 +134,7 @@ describe('a() method - Link Processing', () => {
       parent.appendChild(el)
 
       const originalHref = el.getAttribute('href')
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe(originalHref)
     })
@@ -149,7 +149,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
@@ -164,7 +164,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
@@ -178,7 +178,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
@@ -192,7 +192,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
@@ -206,7 +206,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
@@ -222,7 +222,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = ipfsUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-img-link')
       const imgs = el.getElementsByTagName('img')
@@ -238,7 +238,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = ipfsUrl
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).not.toBe('markdown-img-link')
     })
@@ -251,7 +251,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = ipfsUrl
       parent.appendChild(el)
 
-      a(el, true, false)
+      a(el, true)
 
       expect(el.getAttribute('data-href')).toBe(ipfsUrl)
       expect(el.getAttribute('href')).toBeNull()
@@ -268,7 +268,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
@@ -284,7 +284,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
@@ -298,7 +298,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/test/@author/permlink')
@@ -312,7 +312,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('href')).toBeNull()
         expect(el.getAttribute('data-href')).toBe(href)
@@ -330,7 +330,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
@@ -344,7 +344,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Different text'
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('data-is-inline')).toBe('false')
         expect(el.textContent).toBe('Different text')
@@ -359,7 +359,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Different text'
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('data-is-inline')).toBe('true')
       })
@@ -372,7 +372,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
       })
@@ -385,7 +385,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
       })
@@ -398,7 +398,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         // Invalid permlink should be skipped, element unchanged
         expect(el.getAttribute('class')).toBeNull()
@@ -414,7 +414,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-author-link')
         expect(el.getAttribute('href')).toBe('/@username')
@@ -429,7 +429,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('class')).toBe('markdown-author-link')
         expect(el.getAttribute('href')).toBeNull()
@@ -444,7 +444,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/@username')
       })
@@ -457,7 +457,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         // Invalid username should be skipped, element unchanged
         expect(el.getAttribute('class')).toBeNull()
@@ -471,7 +471,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-author-link')
         expect(el.getAttribute('href')).toBe('/@username')
@@ -485,7 +485,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).not.toBe('markdown-author-link')
       })
@@ -500,7 +500,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-tag-link')
         expect(el.getAttribute('href')).toBe('/trending/bitcoin')
@@ -515,7 +515,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('href')).toBeNull()
         expect(el.getAttribute('data-filter')).toBe('hot')
@@ -530,7 +530,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-tag-link')
         expect(el.getAttribute('href')).toBe('/created/programming')
@@ -544,7 +544,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-tag-link')
         expect(el.getAttribute('href')).toBe('/promoted/art')
@@ -560,7 +560,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-community-link')
         expect(el.getAttribute('href')).toBe('/created/hive-123456')
@@ -575,7 +575,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/trending/hive-123456')
       })
@@ -588,7 +588,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/created/hive-123456')
       })
@@ -601,7 +601,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('href')).toBe('/created/hive-123456')
       })
@@ -614,7 +614,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('href')).toBeNull()
         expect(el.getAttribute('data-community')).toBe('hive-123456')
@@ -631,7 +631,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-profile-link')
         expect(el.getAttribute('href')).toBe('/@username/wallet')
@@ -646,7 +646,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-profile-link')
         expect(el.getAttribute('href')).toBe('/@username/posts')
@@ -660,7 +660,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-profile-link')
         expect(el.getAttribute('href')).toBe('/@username/followers')
@@ -674,7 +674,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('href')).toBe('https://ecency.com/@username/wallet')
       })
@@ -687,7 +687,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-profile-link')
         expect(el.getAttribute('href')).toBe('/@username/wallet?token=HIVE')
@@ -703,7 +703,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/ccc/@username/permlink')
@@ -717,7 +717,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('data-tag')).toBe('ccc')
         expect(el.getAttribute('data-author')).toBe('username')
@@ -734,7 +734,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/post/@author/permlink')
@@ -748,7 +748,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-post-link')
         expect(el.getAttribute('href')).toBe('/hive/@author/permlink')
@@ -766,7 +766,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link')
         expect(el.getAttribute('class')).toContain('markdown-video-link-youtube')
@@ -782,7 +782,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-youtube')
         expect(el.getAttribute('data-youtube')).toBe('dQw4w9WgXcQ')
@@ -796,7 +796,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-youtube')
         expect(el.getAttribute('data-youtube')).toBe('dQw4w9WgXcQ')
@@ -810,7 +810,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('data-start-time')).toBe('123')
       })
@@ -823,7 +823,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('data-start-time')).toBe('456')
       })
@@ -836,7 +836,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('data-start-time')).toBe('123')
       })
@@ -849,7 +849,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const imgs = el.getElementsByTagName('img')
         expect(imgs.length).toBeGreaterThan(0)
@@ -864,7 +864,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const spans = el.getElementsByTagName('span')
         expect(spans.length).toBeGreaterThan(0)
@@ -879,7 +879,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Click here'
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).not.toContain('markdown-video-link-youtube')
       })
@@ -894,7 +894,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-vimeo')
         const iframes = el.getElementsByTagName('iframe')
@@ -911,7 +911,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-vimeo')
       })
@@ -924,7 +924,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const iframes = el.getElementsByTagName('iframe')
         const iframe = iframes[0]
@@ -942,7 +942,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false, 'ecency.com')
+        a(el, false, 'ecency.com')
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-twitch')
         const iframes = el.getElementsByTagName('iframe')
@@ -958,7 +958,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false, 'ecency.com')
+        a(el, false, 'ecency.com')
 
         const iframes = el.getElementsByTagName('iframe')
         const iframe = iframes[0]
@@ -973,7 +973,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const iframes = el.getElementsByTagName('iframe')
         const iframe = iframes[0]
@@ -988,7 +988,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const iframes = el.getElementsByTagName('iframe')
         const iframe = iframes[0]
@@ -1005,7 +1005,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-dtube')
         expect(el.getAttribute('data-embed-src')).toBe('https://emb.d.tube/#!/username/objectid')
@@ -1019,7 +1019,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-dtube')
         expect(el.getAttribute('data-embed-src')).toBe('https://emb.d.tube/#!/username/objectid')
@@ -1035,7 +1035,7 @@ describe('a() method - Link Processing', () => {
         el.appendChild(img)
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const imgs = el.getElementsByTagName('img')
         expect(imgs.length).toBeGreaterThan(0)
@@ -1053,7 +1053,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-speak')
         expect(el.getAttribute('data-embed-src')).toBe('https://play.3speak.tv/watch?v=username/permlink&mode=iframe')
@@ -1069,7 +1069,7 @@ describe('a() method - Link Processing', () => {
         el.appendChild(img)
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         const imgs = el.getElementsByTagName('img')
         expect(imgs.length).toBeGreaterThan(0)
@@ -1085,7 +1085,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-audio-link-spotify')
         const iframes = el.getElementsByTagName('iframe')
@@ -1104,7 +1104,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link-loom')
         const iframes = el.getElementsByTagName('iframe')
@@ -1123,7 +1123,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link')
         expect(el.getAttribute('data-embed-src')).toBe('https://www.rumble.com/embed/v1abc23/?pub=4')
@@ -1139,7 +1139,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link')
         expect(el.getAttribute('data-embed-src')).toBe('https://www.brighteon.com/embed/abc123')
@@ -1155,7 +1155,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = href
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toContain('markdown-video-link')
         expect(el.getAttribute('data-embed-src')).toBe('https://www.bitchute.com/embed/abc123def/')
@@ -1172,7 +1172,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const blockquotes = parent.getElementsByTagName('blockquote')
       expect(blockquotes.length).toBe(1)
@@ -1191,7 +1191,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       const blockquotes = parent.getElementsByTagName('blockquote')
       const links = blockquotes[0]?.getElementsByTagName('a')
@@ -1210,7 +1210,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Vote for witness'
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('class')).toBe('markdown-witnesses-link')
         expect(el.getAttribute('data-href')).toBe(href)
@@ -1225,7 +1225,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Vote for witness'
         parent.appendChild(el)
 
-        a(el, false, false)
+        a(el, false)
 
         expect(el.getAttribute('class')).toBe('markdown-external-link')
       })
@@ -1240,7 +1240,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Vote for proposal'
         parent.appendChild(el)
 
-        a(el, true, false)
+        a(el, true)
 
         expect(el.getAttribute('class')).toBe('markdown-proposal-link')
         expect(el.getAttribute('data-href')).toBe(href)
@@ -1256,7 +1256,7 @@ describe('a() method - Link Processing', () => {
         el.textContent = 'Vote'
         parent.appendChild(el)
 
-        expect(() => a(el, true, false)).not.toThrow()
+        expect(() => a(el, true)).not.toThrow()
       })
     })
   })
@@ -1270,11 +1270,48 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Example'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-external-link')
       expect(el.getAttribute('target')).toBe('_blank')
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
+    })
+
+    it('should allow follow for high-reputation authors with significant payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, 'ecency.com', { authorReputation: 60, postPayout: 10 })
+
+      expect(el.getAttribute('class')).toBe('markdown-external-link')
       expect(el.getAttribute('rel')).toBe('noopener')
+    })
+
+    it('should nofollow for high-reputation authors with low payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, 'ecency.com', { authorReputation: 60, postPayout: 3 })
+
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
+    })
+
+    it('should nofollow for low-reputation authors with high payout', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      el.setAttribute('href', 'https://example.com')
+      el.textContent = 'Example'
+      parent.appendChild(el)
+
+      a(el, false, 'ecency.com', { authorReputation: 30, postPayout: 20 })
+
+      expect(el.getAttribute('rel')).toBe('nofollow ugc noopener')
     })
 
     it('should prepend https to URLs without protocol', () => {
@@ -1285,7 +1322,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Example'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe('https://example.com')
     })
@@ -1298,7 +1335,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Email'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe('mailto:test@example.com')
     })
@@ -1311,7 +1348,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Section'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe('#section')
     })
@@ -1324,7 +1361,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'About'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('href')).toBe('/about')
     })
@@ -1337,7 +1374,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Example'
       parent.appendChild(el)
 
-      a(el, true, false)
+      a(el, true)
 
       expect(el.getAttribute('data-href')).toBe(href)
       expect(el.getAttribute('href')).toBeNull()
@@ -1351,7 +1388,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Video link'
       parent.appendChild(el)
 
-      a(el, true, false)
+      a(el, true)
 
       expect(el.getAttribute('data-youtube')).toBe('dQw4w9WgXcQ')
     })
@@ -1364,14 +1401,14 @@ describe('a() method - Link Processing', () => {
       el.textContent = 'Section'
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-internal-link')
     })
   })
 
-  describe('webp parameter', () => {
-    it('should use webp format when webp=true for images', () => {
+  describe('image format', () => {
+    it('should always use match format for images', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('a')
       const imageUrl = 'https://example.com/image.jpg'
@@ -1379,29 +1416,15 @@ describe('a() method - Link Processing', () => {
       el.textContent = imageUrl
       parent.appendChild(el)
 
-      a(el, false, true)
-
-      const imgs = parent.getElementsByTagName('img')
-      const img = imgs[0]
-      expect(img?.getAttribute('src')).toContain('format=webp')
-    })
-
-    it('should use match format when webp=false for images', () => {
-      const parent = doc.createElement('div')
-      const el = doc.createElement('a')
-      const imageUrl = 'https://example.com/image.jpg'
-      el.setAttribute('href', imageUrl)
-      el.textContent = imageUrl
-      parent.appendChild(el)
-
-      a(el, false, false)
+      a(el, false)
 
       const imgs = parent.getElementsByTagName('img')
       const img = imgs[0]
       expect(img?.getAttribute('src')).toContain('format=match')
+      expect(img?.getAttribute('src')).not.toContain('format=webp')
     })
 
-    it('should use webp for YouTube thumbnails when webp=true', () => {
+    it('should always use match format for YouTube thumbnails', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('a')
       const href = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
@@ -1409,11 +1432,12 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, true)
+      a(el, false)
 
       const imgs = el.getElementsByTagName('img')
       const img = imgs[0]
-      expect(img?.getAttribute('src')).toContain('format=webp')
+      expect(img?.getAttribute('src')).toContain('format=match')
+      expect(img?.getAttribute('src')).not.toContain('format=webp')
     })
   })
 
@@ -1426,7 +1450,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-author-link')
     })
@@ -1439,7 +1463,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = `  ${href}  `
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toContain('markdown-video-link-youtube')
     })
@@ -1454,7 +1478,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-post-link')
       expect(el.getAttribute('href')).toBe('/hive/@author/my-post-title-2024')
@@ -1468,7 +1492,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-author-link')
       expect(el.getAttribute('href')).toBe('/@user.name')
@@ -1482,7 +1506,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-author-link')
       expect(el.getAttribute('href')).toBe('/@user-name')
@@ -1496,7 +1520,7 @@ describe('a() method - Link Processing', () => {
       el.textContent = href
       parent.appendChild(el)
 
-      a(el, false, false)
+      a(el, false)
 
       expect(el.getAttribute('class')).toBe('markdown-post-link')
     })

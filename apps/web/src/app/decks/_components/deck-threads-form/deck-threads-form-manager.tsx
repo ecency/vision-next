@@ -7,7 +7,7 @@ import { Entry } from "@/entities";
 import { ProfileFilter } from "@/enums";
 import i18next from "i18next";
 import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface Context {

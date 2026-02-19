@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import * as keychain from "@/utils/keychain";
 import { error } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { makeHsCode } from "@/utils";
 import { EcencyConfigManager } from "@/config";
 import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiveio/dhive";

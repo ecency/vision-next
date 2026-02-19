@@ -1,11 +1,11 @@
 import { addSchedule } from "@ecency/sdk";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { CommentOptions, Entry, FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { error } from "@/features/shared";
-import { createPermlink, getAccessToken, isCommunity, makeCommentOptions } from "@/utils";
+import { createPermlink, ensureValidToken, isCommunity, makeCommentOptions } from "@/utils";
 import { postBodySummary } from "@ecency/render-helper";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -134,8 +134,9 @@ export function useScheduleApi() {
       const reblog = Boolean(isCommunity(tags?.[0]) && isReblogToCommunity);
 
       try {
+        const token = await ensureValidToken(author);
         await addSchedule(
-          getAccessToken(author),
+          token,
           permlink,
           title!,
           //   buildBody(body),

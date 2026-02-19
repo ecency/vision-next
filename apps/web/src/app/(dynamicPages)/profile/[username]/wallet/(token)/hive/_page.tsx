@@ -2,9 +2,9 @@
 
 import { useInfiniteDataFlow } from "@/utils";
 import {
-  getHiveAssetTransactionsQueryOptions,
   type HiveOperationFilterValue,
-} from "@ecency/wallets";
+  getHiveAssetTransactionsQueryOptions,
+} from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";

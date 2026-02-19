@@ -6,11 +6,10 @@ import { Button } from "@/features/ui";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { PromotePostIntro, PromotePostSetup, PromoteSuccess } from "./_components";
-import { KeyOrHot } from "@/features/shared";
-import { usePreCheckPromote, usePromoteByApi, usePromoteByKeychain } from "@/api/mutations";
-import { promoteHot } from "@/api/operations";
+import { usePromoteMutation } from "@/api/sdk-mutations";
+import { usePreCheckPromote } from "@/api/mutations";
 import { EcencyAnalytics } from "@ecency/sdk";
 
 export function PromotePost() {
@@ -20,19 +19,12 @@ export function PromotePost() {
   const [path, setPath] = useState("");
   const [duration, setDuration] = useState(0);
 
-  const { mutateAsync: promoteByKeychain, isPending: isKeychainPending } = usePromoteByKeychain();
-  const { mutateAsync: promoteByApi, isPending: isApiPending } = usePromoteByApi();
+  const { mutateAsync: promote, isPending } = usePromoteMutation();
   const { mutateAsync: next } = usePreCheckPromote(path, () => setStep("sign"));
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-promote"
   );
-
-  const hotSign = useCallback(() => {
-    const [author, permlink] = path.replace("@", "").split("/");
-
-    promoteHot(activeUser!.username, author, permlink, duration);
-  }, [activeUser, duration, path]);
 
   return (
     <div className="p-2 md:p-4 lg:p-6 bg-white rounded-xl w-full flex flex-col gap-4">
@@ -65,20 +57,18 @@ export function PromotePost() {
       )}
       {step === "sign" && (
         <div>
-          <KeyOrHot
-            inProgress={isKeychainPending || isApiPending}
-            onKey={async (key) => {
-              await promoteByApi({ path, duration, key });
+          <Button
+            disabled={isPending}
+            isLoading={isPending}
+            onClick={async () => {
+              const [author, permlink] = path.replace("@", "").split("/");
+              await promote({ author, permlink, duration });
               recordActivity();
               setStep("success");
             }}
-            onHot={hotSign}
-            onKc={async () => {
-              await promoteByKeychain({ path, duration });
-              recordActivity();
-              setStep("success");
-            }}
-          />
+          >
+            {i18next.t("trx-common.sign-title")}
+          </Button>
         </div>
       )}
       {step === "success" && <PromoteSuccess />}

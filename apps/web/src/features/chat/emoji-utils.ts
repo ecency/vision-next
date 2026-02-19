@@ -1,5 +1,7 @@
-import emojiData from "@emoji-mart/data";
+import emojiDataRaw from "@emoji-mart/data";
 import { SearchIndex, init as initEmojiMart } from "emoji-mart";
+
+const emojiData = emojiDataRaw as any;
 
 export const MATTERMOST_SHORTCODE_REGEX = /:([a-zA-Z0-9_+-]+):/g;
 export const EMOJI_TRIGGER_REGEX = /:([a-zA-Z0-9_+-]{1,30})$/i;
@@ -14,11 +16,11 @@ export type EmojiSuggestion = {
 const SHORTCODE_TO_NATIVE = new Map<string, string>();
 const NATIVE_TO_SHORTCODE = new Map<string, string>();
 
-Object.entries(emojiData.emojis).forEach(([id, emoji]) => {
+Object.entries(emojiData.emojis).forEach(([id, emoji]: [string, any]) => {
   const primaryId = id.toLowerCase();
   const native = emoji.skins?.[0]?.native;
 
-  emoji.skins?.forEach((skin) => {
+  emoji.skins?.forEach((skin: any) => {
     if (!skin?.native) return;
 
     const shortcodes = Array.isArray(skin.shortcodes)
@@ -38,14 +40,14 @@ Object.entries(emojiData.emojis).forEach(([id, emoji]) => {
     SHORTCODE_TO_NATIVE.set(primaryId, native);
   }
 
-  emoji.aliases?.forEach((alias) => {
+  emoji.aliases?.forEach((alias: string) => {
     if (native && !SHORTCODE_TO_NATIVE.has(alias.toLowerCase())) {
       SHORTCODE_TO_NATIVE.set(alias.toLowerCase(), native);
     }
   });
 });
 
-Object.entries(emojiData.aliases || {}).forEach(([alias, id]) => {
+Object.entries(emojiData.aliases || {}).forEach(([alias, id]: [string, any]) => {
   const native = SHORTCODE_TO_NATIVE.get((id as string).toLowerCase());
   if (native) {
     SHORTCODE_TO_NATIVE.set(alias.toLowerCase(), native);
@@ -76,8 +78,10 @@ export function toMattermostEmojiName(emoji: string): string {
 /**
  * Convert native emojis in a message to Mattermost shortcode format
  */
+const EMOJI_UNICODE_REGEX = new RegExp("\\p{Extended_Pictographic}+", "gu");
+
 export function normalizeMessageEmojis(message: string): string {
-  return message.replace(/\p{Extended_Pictographic}+/gu, (emoji) => {
+  return message.replace(EMOJI_UNICODE_REGEX, (emoji: string) => {
     const emojiName = toMattermostEmojiName(emoji);
     if (!emojiName) return emoji;
     return `:${emojiName}:`;
@@ -103,7 +107,7 @@ export async function searchEmojis(query: string, maxResults = 15): Promise<Emoj
   const results = await SearchIndex.search(query, { maxResults, caller: "chat" });
 
   return (results || [])
-    .map((emoji) => {
+    .map((emoji: any) => {
       if (!emoji?.id || !emoji?.skins?.[0]?.native) return null;
 
       return {

@@ -8,10 +8,11 @@ import {
   getOutgoingRcDelegationsInfiniteQueryOptions
 } from "@ecency/sdk";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
+import { error, LinearProgress, ProfileLink, UserAvatar } from "@/features/shared";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
-import { delegateRC } from "@/api/operations";
+import { useDelegateRcMutation } from "@/api/sdk-mutations";
+import { formatError } from "@/api/format-error";
 import { rcFormatter } from "@/utils";
 import { FullAccount } from "@/entities";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -220,7 +221,7 @@ interface ConfirmDeleteProps {
 }
 
 export const ConfirmDelete = ({ to, hideConfirmDelete }: ConfirmDeleteProps) => {
-  const { activeUser } = useActiveAccount();
+  const { mutateAsync: delegateRc, isPending } = useDelegateRcMutation();
   return (
     <>
       <div className="container">
@@ -232,15 +233,21 @@ export const ConfirmDelete = ({ to, hideConfirmDelete }: ConfirmDeleteProps) => 
             className="mr-2"
             appearance="secondary"
             outline={true}
+            disabled={isPending}
             onClick={hideConfirmDelete}
           >
             {i18next.t("rc-info.cancel")}
           </Button>
           <Button
             className="ml-2"
-            onClick={() => {
-              delegateRC(activeUser!.username, to, 0);
-              hideConfirmDelete();
+            disabled={isPending}
+            onClick={async () => {
+              try {
+                await delegateRc({ to, maxRc: 0 });
+                hideConfirmDelete();
+              } catch (e) {
+                error(...formatError(e));
+              }
             }}
           >
             {i18next.t("rc-info.confirm")}

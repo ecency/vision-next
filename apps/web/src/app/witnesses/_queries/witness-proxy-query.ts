@@ -1,9 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useEffect, useMemo } from "react";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions, QueryKeys } from "@ecency/sdk";
 
 export interface WitnessProxyQueryResult {
   highlightedProxy: string;
@@ -30,15 +29,15 @@ export function useWitnessProxyQuery() {
   }, [activeUserProxy, urlAccountProxy]);
 
   useEffect(() => {
-    queryClient.setQueryData([QueryIdentifiers.WITNESSES, "proxy"], proxyResult);
+    queryClient.setQueryData(QueryKeys.witnesses.proxy(), proxyResult);
   }, [proxyResult, queryClient]);
 
   useEffect(() => {
-    queryClient.refetchQueries({ queryKey: [QueryIdentifiers.WITNESSES, "proxy"] });
+    queryClient.refetchQueries({ queryKey: QueryKeys.witnesses.proxy() });
   }, [urlParamAccount, activeUserAccount, queryClient]);
 
   return useQuery<WitnessProxyQueryResult>({
-    queryKey: [QueryIdentifiers.WITNESSES, "proxy"],
+    queryKey: QueryKeys.witnesses.proxy(),
     queryFn: () => proxyResult,
     initialData: { highlightedProxy: "", activeUserProxy: "" },
     enabled: !!activeUserAccount || !!urlParamAccount

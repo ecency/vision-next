@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useImageDownloader } from '@/api/queries/image-downloader-query';
-import { useGlobalStore } from '@/core/global-store';
 import { appAxios } from '@/api/axios';
 import { catchPostImage } from '@ecency/render-helper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,10 +9,6 @@ import { QueryIdentifiers } from '@/core/react-query';
 import React from 'react';
 
 // Mock dependencies
-vi.mock('@/core/global-store', () => ({
-  useGlobalStore: vi.fn((selector) => selector({ canUseWebp: true })),
-}));
-
 vi.mock('@/api/axios', () => ({
   appAxios: {
     get: vi.fn(),
@@ -51,10 +46,6 @@ describe('useImageDownloader', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     queryClient = createTestQueryClient();
-    // Mock useGlobalStore to properly invoke selector with mock state
-    (useGlobalStore as any).mockImplementation((selector: any) =>
-      selector({ canUseWebp: false })
-    );
     (catchPostImage as any).mockReturnValue('https://example.com/image.png');
   });
 
@@ -143,24 +134,8 @@ describe('useImageDownloader', () => {
     });
   });
 
-  describe('WebP support', () => {
-    it('should use WebP format when canUseWebp is true', async () => {
-      (useGlobalStore as any).mockImplementation((selector: any) =>
-        selector({ canUseWebp: true })
-      );
-      (appAxios.get as any).mockResolvedValue({ data: new Blob() });
-
-      renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
-
-      await waitFor(() => {
-        expect(catchPostImage).toHaveBeenCalledWith(entry, width, height, 'webp');
-      });
-    });
-
-    it('should not use WebP format when canUseWebp is false', async () => {
-      (useGlobalStore as any).mockImplementation((selector: any) =>
-        selector({ canUseWebp: false })
-      );
+  describe('image format', () => {
+    it('should always use match format (server handles WebP via Accept header)', async () => {
       (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
       renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
@@ -306,13 +281,14 @@ describe('useImageDownloader', () => {
 
     it('should handle entry with no image', async () => {
       (catchPostImage as any).mockReturnValue('');
-      (appAxios.get as any).mockResolvedValue({ data: new Blob() });
 
-      renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
+      const { result } = renderHook(() => useImageDownloader(entry, noImage, width, height, true), { wrapper });
 
       await waitFor(() => {
-        expect(appAxios.get).toHaveBeenCalled();
+        expect(result.current.data).toBe(noImage);
       });
+
+      expect(appAxios.get).not.toHaveBeenCalled();
     });
 
     it('should handle blob conversion error', async () => {
