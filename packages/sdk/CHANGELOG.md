@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.6
+
+### Patch Changes
+
+- Marking notification, joining community fixes (#663)
+
 ## 2.0.5
 
 ### Patch Changes
