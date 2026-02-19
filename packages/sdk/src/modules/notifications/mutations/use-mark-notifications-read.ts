@@ -1,7 +1,27 @@
-import { useMutation, QueryKey } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { useMutation, QueryKey, InfiniteData } from "@tanstack/react-query";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { markNotifications } from "@/modules/private-api/requests";
 import { ApiNotification } from "../types";
+
+type NotificationPage = ApiNotification[];
+type InfiniteNotificationData = InfiniteData<NotificationPage>;
+
+function markNotificationRead(item: ApiNotification, id?: string): ApiNotification {
+  return {
+    ...item,
+    read: (!id || id === item.id ? 1 : item.read) as 0 | 1,
+  };
+}
+
+function isInfiniteData(data: unknown): data is InfiniteNotificationData {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "pages" in data &&
+    "pageParams" in data &&
+    Array.isArray((data as InfiniteNotificationData).pages)
+  );
+}
 
 /**
  * Hook to mark notifications as read with optimistic updates
@@ -45,36 +65,45 @@ export function useMarkNotificationsRead(
     // Optimistic update: Immediately mark notifications as read in cache
     onMutate: async ({ id }: { id?: string }) => {
       // Cancel any outgoing refetches to prevent overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      await queryClient.cancelQueries({ queryKey: QueryKeys.notifications._prefix });
 
       // Snapshot current state for rollback
-      const previousNotifications: Array<[QueryKey, ApiNotification[] | undefined]> = [];
+      const previousData: Array<[QueryKey, unknown]> = [];
 
-      // Get all notification queries from cache
-      const queriesData = queryClient.getQueriesData<ApiNotification[]>({
-        queryKey: ["notifications"],
+      // Update infinite notification list queries (pages structure)
+      const infiniteQueries = queryClient.getQueriesData<InfiniteNotificationData>({
+        queryKey: QueryKeys.notifications._prefix,
+        predicate: (query) => {
+          const data = query.state.data;
+          return isInfiniteData(data);
+        },
       });
 
-      // Update each cached notification query
-      queriesData.forEach(([queryKey, data]) => {
-        if (data) {
-          // Save previous state
-          previousNotifications.push([queryKey, data]);
+      infiniteQueries.forEach(([queryKey, data]) => {
+        if (data && isInfiniteData(data)) {
+          previousData.push([queryKey, data]);
 
-          // Optimistically update: mark as read
-          const updatedData = data.map((item) => ({
-            ...item,
-            // If specific ID provided: mark only that notification
-            // If no ID (mark all): mark ALL notifications
-            read: (!id || id === item.id ? 1 : item.read) as 0 | 1,
-          }));
+          const updatedData: InfiniteNotificationData = {
+            ...data,
+            pages: data.pages.map((page) =>
+              page.map((item) => markNotificationRead(item, id))
+            ),
+          };
 
           queryClient.setQueryData(queryKey, updatedData);
         }
       });
 
+      // Optimistically decrement unread count
+      const unreadKey = QueryKeys.notifications.unreadCount(username);
+      const currentUnread = queryClient.getQueryData<number>(unreadKey);
+      if (typeof currentUnread === "number" && currentUnread > 0) {
+        previousData.push([unreadKey, currentUnread]);
+        queryClient.setQueryData(unreadKey, id ? currentUnread - 1 : 0);
+      }
+
       // Return context for rollback
-      return { previousNotifications };
+      return { previousData };
     },
 
     onSuccess: (response, variables) => {
@@ -83,12 +112,20 @@ export function useMarkNotificationsRead(
         ? (response as { unread?: number }).unread
         : undefined;
 
+      // Update unread count cache with server value
+      if (typeof unreadCount === "number") {
+        queryClient.setQueryData(
+          QueryKeys.notifications.unreadCount(username),
+          unreadCount
+        );
+      }
+
       onSuccess?.(unreadCount);
 
       // If marking all notifications, invalidate to ensure fresh data
       if (!variables.id) {
         queryClient.invalidateQueries({
-          queryKey: ["notifications"],
+          queryKey: QueryKeys.notifications._prefix,
         });
       }
     },
@@ -96,8 +133,8 @@ export function useMarkNotificationsRead(
     // Rollback optimistic update on error
     onError: (error, _variables, context) => {
       // Restore previous state
-      if (context?.previousNotifications) {
-        context.previousNotifications.forEach(([queryKey, data]) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
         });
       }
@@ -108,7 +145,7 @@ export function useMarkNotificationsRead(
     // Always refetch after mutation settles
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["notifications"],
+        queryKey: QueryKeys.notifications._prefix,
       });
     },
   });

@@ -51,9 +51,14 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           {hover ? i18next.t("community.unsubscribe") : i18next.t("community.subscribed")}
         </Button>
       )}
-      {!isPending && !subscribed && (
+      {!subscribed && (
         <LoginRequired>
-          <Button onClick={() => subscribeMutation.mutateAsync({ community: community.name })} {...buttonProps}>
+          <Button
+            icon={isPending && <Spinner className="w-3.5 h-3.5" />}
+            disabled={isPending}
+            onClick={() => subscribeMutation.mutateAsync({ community: community.name })}
+            {...buttonProps}
+          >
             {i18next.t("community.subscribe")}
           </Button>
         </LoginRequired>

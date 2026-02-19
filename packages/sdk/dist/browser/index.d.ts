@@ -5456,7 +5456,7 @@ declare function getAnnouncementsQueryOptions(): _tanstack_react_query.OmitKeyof
 declare function useMarkNotificationsRead(username: string | undefined, code: string | undefined, onSuccess?: (unreadCount?: number) => void, onError?: (e: Error) => void): _tanstack_react_query.UseMutationResult<Record<string, unknown>, Error, {
     id?: string;
 }, {
-    previousNotifications: [readonly unknown[], ApiNotification[] | undefined][];
+    previousData: [readonly unknown[], unknown][];
 }>;
 
 interface SetLastReadPayload {
