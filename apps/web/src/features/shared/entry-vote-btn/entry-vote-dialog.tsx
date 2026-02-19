@@ -7,9 +7,7 @@ import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
 import { EntryTipBtn, FormattedCurrency } from "@/features/shared";
 import { getVoteValue, setVoteValue } from "@/features/shared/entry-vote-btn/utils";
 import { InputVote } from "@ui/input";
-import { parseAsset } from "@/utils";
-import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions, votingPower } from "@ecency/sdk";
+import { getDynamicPropsQueryOptions, votingPower, votingValue } from "@ecency/sdk";
 import { Account, Entry } from "@/entities";
 import { Spinner } from "@ui/spinner";
 import { useActiveAccount } from "@/core/hooks";
@@ -122,53 +120,15 @@ export function EntryVoteDialog({
   );
 
   const estimate = (percent: number): number => {
-    const { fundRecentClaims, fundRewardBalance, base, quote } =
-      dynamicProps ?? DEFAULT_DYNAMIC_PROPS;
-
-    // Return 0 while account is loading or not available
-    if (isAccountLoading || !activeAccount) {
+    if (isAccountLoading || !activeAccount || !dynamicProps) {
       return 0;
     }
 
     const sign = percent < 0 ? -1 : 1;
-    const postRshares = entry.net_rshares;
+    const vPower = votingPower(activeAccount) * 100; // 0-100 → 0-10000
+    const weight = Math.abs(percent) * 100; // slider 0-100 → 0-10000
 
-    const totalVests =
-      parseAsset(activeAccount.vesting_shares).amount +
-      parseAsset(activeAccount.received_vesting_shares).amount -
-      parseAsset(activeAccount.delegated_vesting_shares).amount;
-
-    const userVestingShares = totalVests * 1e6;
-
-    const userVotingPower = votingPower(activeAccount) * Math.abs(percent);
-    const voteEffectiveShares = userVestingShares * (userVotingPower / 10000) * 0.02;
-
-    // reward curve algorithm (no idea whats going on here)
-    const CURVE_CONSTANT = 2000000000000;
-    const CURVE_CONSTANT_X4 = 4 * CURVE_CONSTANT;
-    const SQUARED_CURVE_CONSTANT = CURVE_CONSTANT * CURVE_CONSTANT;
-
-    const postRsharesNormalized = postRshares + CURVE_CONSTANT;
-    const postRsharesAfterVoteNormalized = postRshares + voteEffectiveShares + CURVE_CONSTANT;
-    const postRsharesCurve =
-      (postRsharesNormalized * postRsharesNormalized - SQUARED_CURVE_CONSTANT) /
-      (postRshares + CURVE_CONSTANT_X4);
-    const postRsharesCurveAfterVote =
-      (postRsharesAfterVoteNormalized * postRsharesAfterVoteNormalized - SQUARED_CURVE_CONSTANT) /
-      (postRshares + voteEffectiveShares + CURVE_CONSTANT_X4);
-
-    const voteClaim = postRsharesCurveAfterVote - postRsharesCurve;
-
-    const proportion = voteClaim / fundRecentClaims;
-    const fullVote = proportion * fundRewardBalance;
-
-    const voteValue = fullVote * (base / quote);
-
-    if (sign > 0) {
-      return Math.max(voteValue * sign, 0);
-    }
-
-    return voteValue * sign;
+    return votingValue(activeAccount, dynamicProps, vPower, weight) * sign;
   };
 
   const upVoteClicked = useCallback(() => {
