@@ -49,16 +49,14 @@ export async function login(method: AuthMethod, username: string): Promise<void>
           window.dispatchEvent(new CustomEvent("hiveauth:waiting"));
         },
         onSuccess: (session) => {
-          const { setUser: setUserState, setSession: setSessionState } =
-            authenticationStore.getState();
           const newUser: AuthUser = {
             username,
             loginType: "hiveauth",
             expiresAt: session.expire * 1000,
           };
-          setUserState(newUser);
+          setUser(newUser);
           saveUser(newUser);
-          setSessionState(session);
+          setSession(session);
           saveHiveAuthSession(session);
         },
         onError: (error) => {
@@ -71,8 +69,7 @@ export async function login(method: AuthMethod, username: string): Promise<void>
     }
 
     case "hivesigner":
-      // Redirect handles the rest
-      break;
+      throw new Error("Use loginWithHivesigner() for the hivesigner OAuth flow");
   }
 }
 

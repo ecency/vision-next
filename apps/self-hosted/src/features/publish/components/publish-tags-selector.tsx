@@ -52,11 +52,11 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       setWarning("Tag can have at most 2 hyphens");
       return false;
     }
-    if (!/^[a-z0-9-#]+$/.test(tag)) {
+    if (!/^[a-z0-9-]+$/.test(tag)) {
       setWarning("Use only lowercase letters, numbers, and hyphens");
       return false;
     }
-    if (!/^[a-z-#]/.test(tag)) {
+    if (!/^[a-z-]/.test(tag)) {
       setWarning("Tag must start with a letter or hyphen");
       return false;
     }
@@ -130,7 +130,7 @@ export function PublishTagsSelector({ tags, onChange }: Props) {
       }
       onChange(next.slice(0, MAX_TAGS));
       setValue("");
-      setWarning("");
+      if (next.length > tags.length) setWarning("");
     },
     [tags, onChange, validateTag]
   );

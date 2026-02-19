@@ -4,11 +4,11 @@ import { VoteButton as BaseVoteButton, type Vote } from "@ecency/ui";
 import { UilHeart } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useVote } from "@ecency/sdk";
 import { t } from "@/core";
+import { createBroadcastAdapter } from "@/providers/sdk";
 import { useAuth, useIsAuthenticated, useIsAuthEnabled } from "../hooks";
-import { broadcast } from "../auth-actions";
 
 interface VoteButtonProps {
   author: string;
@@ -38,8 +38,10 @@ export function VoteButton({
   const { user } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const isAuthEnabled = useIsAuthEnabled();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const adapter = createBroadcastAdapter();
+  const voteMutation = useVote(user?.username, { adapter });
 
   const handleVote = useCallback(
     async ({
@@ -51,23 +53,9 @@ export function VoteButton({
     }) => {
       if (!user) return;
 
-      await broadcast([
-        [
-          "vote",
-          {
-            voter: user.username,
-            author,
-            permlink,
-            weight,
-          },
-        ],
-      ]);
-
-      // Invalidate queries to refresh vote data
-      queryClient.invalidateQueries({ queryKey: ["entry", author, permlink] });
-      queryClient.invalidateQueries({ queryKey: ["entries"] });
+      await voteMutation.mutateAsync({ author, permlink, weight });
     },
-    [user, author, permlink, broadcast, queryClient]
+    [user, author, permlink, voteMutation]
   );
 
   const handleAuthRequired = useCallback(() => {

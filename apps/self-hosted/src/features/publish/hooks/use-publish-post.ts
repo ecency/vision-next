@@ -1,13 +1,16 @@
 import { useAuth } from "@/features/auth/hooks";
 import { useNavigate } from "@tanstack/react-router";
-import type { Operation } from "@hiveio/dhive";
+import { useComment } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { createPermlink } from "../utils/permlink";
-import { broadcast } from "@/features/auth/auth-actions";
+import { createBroadcastAdapter } from "@/providers/sdk";
 
 export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void } = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const adapter = createBroadcastAdapter();
+  const commentMutation = useComment(user?.username, { adapter });
 
   return useMutation({
     mutationKey: ["publish-post"],
@@ -36,35 +39,23 @@ export function usePublishPost({ beforeNavigate }: { beforeNavigate?: () => void
         throw new Error("At least one tag is required");
       }
 
-      // Generate permlink from title
-      let permlink = createPermlink(title);
+      const permlink = createPermlink(title, true);
 
-      // If permlink already exists or is too short, add random suffix
-      // In a real implementation, you might want to check if permlink exists
-      // For now, we'll add random suffix to ensure uniqueness
-      permlink = createPermlink(title, true);
-
-      // Create the post operation (top-level post has empty parent)
-      const postOp: Operation = [
-        "comment",
-        {
-          parent_author: "",
-          parent_permlink: tags[0].toLowerCase().trim(),
-          author: user.username,
-          permlink,
-          title: title.trim(),
-          body: body.trim(),
-          json_metadata: JSON.stringify({
-            tags: tags.length > 0 ? tags : [],
-            app: "ecency-selfhost/1.0",
-            format: "markdown",
-          }),
+      const result = await commentMutation.mutateAsync({
+        author: user.username,
+        permlink,
+        parentAuthor: "",
+        parentPermlink: tags[0].toLowerCase().trim(),
+        title: title.trim(),
+        body: body.trim(),
+        jsonMetadata: {
+          tags,
+          app: "ecency-selfhost/1.0",
+          format: "markdown",
         },
-      ];
+      });
 
-      await broadcast([postOp]);
-
-      return { success: true, permlink };
+      return result;
     },
     onSuccess: () => {
       beforeNavigate?.();

@@ -1,13 +1,12 @@
 "use client";
 
-import type { Operation } from "@hiveio/dhive";
 import clsx from "clsx";
 import { useCallback, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useComment } from "@ecency/sdk";
 import { useAuth, useIsAuthenticated, useIsAuthEnabled } from "../hooks";
 import { t } from "@/core";
-import { broadcast } from "../auth-actions";
+import { createBroadcastAdapter } from "@/providers/sdk";
 
 interface CommentFormProps {
   parentAuthor: string;
@@ -25,15 +24,15 @@ export function CommentForm({
   const { user } = useAuth();
   const isAuthenticated = useIsAuthenticated();
   const isAuthEnabled = useIsAuthEnabled();
-  const queryClient = useQueryClient();
   const [body, setBody] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(async () => {
-    if (!user || !body.trim() || isSubmitting) return;
+  const adapter = createBroadcastAdapter();
+  const commentMutation = useComment(user?.username, { adapter });
 
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(async () => {
+    if (!user || !body.trim() || commentMutation.isPending) return;
+
     setError(null);
 
     try {
@@ -46,49 +45,32 @@ export function CommentForm({
         ""
       )}-${Date.now()}-${randomSuffix}`;
 
-      // Create the comment operation
-      const commentOp: Operation = [
-        "comment",
-        {
-          parent_author: parentAuthor,
-          parent_permlink: parentPermlink,
-          author: user.username,
-          permlink,
-          title: "",
-          body: body.trim(),
-          json_metadata: JSON.stringify({
-            tags: [],
-            app: "ecency-selfhost/1.0",
-          }),
+      await commentMutation.mutateAsync({
+        author: user.username,
+        permlink,
+        parentAuthor,
+        parentPermlink,
+        title: "",
+        body: body.trim(),
+        jsonMetadata: {
+          tags: [],
+          app: "ecency-selfhost/1.0",
         },
-      ];
+      });
 
-      await broadcast([commentOp]);
-
-      // Clear form and refresh comments
+      // Clear form on success
       setBody("");
-      queryClient.invalidateQueries({
-        queryKey: ["discussion", parentAuthor, parentPermlink],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["entry", parentAuthor, parentPermlink],
-      });
-
       onSuccess?.();
     } catch (err) {
       console.error("Comment failed:", err);
       setError(err instanceof Error ? err.message : "Failed to post comment");
-    } finally {
-      setIsSubmitting(false);
     }
   }, [
     user,
     body,
-    isSubmitting,
+    commentMutation,
     parentAuthor,
     parentPermlink,
-    broadcast,
-    queryClient,
     onSuccess,
   ]);
 
@@ -131,7 +113,7 @@ export function CommentForm({
             placeholder={t("write_comment")}
             className="w-full px-3 py-2 rounded-md border border-theme bg-theme text-theme-primary placeholder:text-theme-muted focus:outline-none focus:ring-2 focus:ring-theme-strong resize-none"
             rows={3}
-            disabled={isSubmitting}
+            disabled={commentMutation.isPending}
           />
         </div>
       </div>
@@ -144,14 +126,14 @@ export function CommentForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isSubmitting || !body.trim()}
+          disabled={commentMutation.isPending || !body.trim()}
           className={clsx(
             "px-4 py-2 rounded-md text-sm font-medium transition-colors",
             "bg-blue-600 text-white hover:bg-blue-700",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         >
-          {isSubmitting ? t("posting") : t("post_comment")}
+          {commentMutation.isPending ? t("posting") : t("post_comment")}
         </button>
       </div>
     </div>

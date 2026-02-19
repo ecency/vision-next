@@ -63,7 +63,7 @@ export function BlogNavigation() {
   const getFilterLabel = (filter: string): string => {
     // Try i18n key first (e.g., blog.navigation.blog, blog.navigation.trending)
     const i18nKey = `blog.navigation.${filter}`;
-    const translated = t(i18nKey);
+    const translated = t(i18nKey as Parameters<typeof t>[0]);
     // If translation returns the key itself, use capitalized filter name
     if (translated === i18nKey) {
       return filter.charAt(0).toUpperCase() + filter.slice(1);

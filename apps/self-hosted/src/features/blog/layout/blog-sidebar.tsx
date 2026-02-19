@@ -29,6 +29,21 @@ function BlogSidebarContent({ username }: { username: string }) {
     return formatMonthYear(data.created);
   }, [data?.created]);
 
+  const websiteUrl = useMemo(() => {
+    const raw = data?.profile?.website;
+    if (!raw) return null;
+    const url =
+      raw.startsWith("http://") || raw.startsWith("https://")
+        ? raw
+        : `https://${raw}`;
+    try {
+      new URL(url);
+      return url;
+    } catch {
+      return null;
+    }
+  }, [data?.profile?.website]);
+
   return (
     <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
@@ -88,37 +103,19 @@ function BlogSidebarContent({ username }: { username: string }) {
           {data.profile.location}
         </div>
       )}
-      {data?.profile?.website &&
-        (() => {
-          // Normalize website URL
-          let websiteUrl = data.profile.website;
-          if (
-            websiteUrl &&
-            !websiteUrl.startsWith("http://") &&
-            !websiteUrl.startsWith("https://")
-          ) {
-            websiteUrl = `https://${websiteUrl}`;
-          }
-          // Validate URL format
-          try {
-            new URL(websiteUrl);
-          } catch {
-            return null;
-          }
-          return (
-            <div className="text-xs text-theme-muted">
-              <span className="font-medium">{t("website")}:</span>{" "}
-              <a
-                href={websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-theme-accent"
-              >
-                {data.profile.website}
-              </a>
-            </div>
-          );
-        })()}
+      {websiteUrl && (
+        <div className="text-xs text-theme-muted">
+          <span className="font-medium">{t("website")}:</span>{" "}
+          <a
+            href={websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-theme-accent"
+          >
+            {data?.profile?.website}
+          </a>
+        </div>
+      )}
     </div>
   );
 }

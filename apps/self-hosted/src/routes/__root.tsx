@@ -1,6 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
+import { ConfigManager } from "@ecency/sdk";
 import { queryClient } from "@/consts/react-query";
 import { FloatingMenu } from "@/features/floating-menu";
 import { AuthProvider, useIsBlogOwner } from "@/features/auth";
@@ -24,6 +25,10 @@ const ReactQueryDevtools = isDev
       }))
     )
   : () => null;
+
+// Sync SDK's internal QueryClient with the app's client so SDK-side
+// cache invalidations and optimistic updates target the same cache.
+ConfigManager.setQueryClient(queryClient);
 
 export const Route = createRootRoute({
   component: RootComponent,

@@ -54,9 +54,8 @@ export function PublishActionBar({ onSuccess }: Props) {
       <motion.div
         initial={{ opacity: 0, y: -32 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -32 }}
         transition={{ delay: 0.4 }}
-        className="container max-w-[1024px] mx-auto px-2 md:px-4 py-4 flex justify-end"
+        className="px-2 md:px-4 py-4 flex justify-end"
       >
         <div className="flex flex-col items-end gap-2">
           {error && (
@@ -68,9 +67,9 @@ export function PublishActionBar({ onSuccess }: Props) {
             type="button"
             onClick={handlePublish}
             disabled={!canPublish || isPublishing}
-            className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors cursor-pointer ${
+            className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors ${
               canPublish && !isPublishing
-                ? "bg-black hover:bg-black/80 text-white"
+                ? "bg-black hover:bg-black/80 text-white cursor-pointer"
                 : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
             }`}
           >
