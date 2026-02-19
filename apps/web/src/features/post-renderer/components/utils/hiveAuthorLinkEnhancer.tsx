@@ -11,12 +11,15 @@ export function applyAuthorLinks(container: HTMLElement) {
     elements.forEach((el) => {
         try {
             if (el.dataset.enhanced === "true") return;
-            
+
             // Verify element is still connected to the DOM
             if (!el.isConnected || !el.parentElement) {
                 console.warn("Author link element is not connected to DOM, skipping");
                 return;
             }
+
+            // Skip mentions inside archived tweet blocks
+            if (el.closest(".markdown-view")?.textContent?.includes("Archived Tweet from")) return;
             
             el.dataset.enhanced = "true";
 
