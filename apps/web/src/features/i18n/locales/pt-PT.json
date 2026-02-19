@@ -1193,7 +1193,7 @@
   },
   "settings": {
     "dm-privacy": {
-      "title": "Privacidade do Bate-papo",
+      "title": "Privacidade de mensagens diretas",
       "who-can-message": "Quem pode te enviar mensagens diretas?",
       "description": "Controle quem pode enviar-lhe mensagens diretas para evitar tentativas de spam e phishing.",
       "allow-all": "Todos",
@@ -3116,7 +3116,7 @@
     "keys": {
       "title": "Chaves e Senhas",
       "hint": "Uma conta do Hive pode segurar várias chaves simultaneamente, todas listadas abaixo",
-      "add-key": "Adicionar/Gerenciar Chaves",
+      "add-key": "Adicionar novas chaves",
       "key-created": "As chaves criaram e atribuíram com sucesso.",
       "error-private-key-reveal": "Chave privada pode ser revelada apenas com senha mestra ou semente"
     },
