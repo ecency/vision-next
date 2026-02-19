@@ -129,7 +129,7 @@ export function getAccountWalletAssetInfoQueryOptions(
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
 
-      if (portfolioAssetInfo && portfolioAssetInfo.price > 0) {
+      if (portfolioAssetInfo) {
         return portfolioAssetInfo;
       }
 
