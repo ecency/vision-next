@@ -21,15 +21,18 @@ export async function generateProfileMetadata(
     }`;
     const metaUrl = `/@${username.replace("@", "")}${section ? `/${section}` : ""}`;
     const metaImage = `${defaults.imageServer}/u/${username.replace("@", "")}/avatar/medium`;
-    const metaKeywords = `${username.replace("@", "")}, ${username.replace("@", "")}'s blog`;
+    const metaKeywords = [username.replace("@", ""), `${username.replace("@", "")}'s blog`];
+    const rsssections = ["posts", "blog", undefined, ""];
     return {
       title: metaTitle,
       description: metaDescription,
       alternates: {
         canonical: `${base}${metaUrl}`,
-        types: {
-          "application/rss+xml": `${base}/@${username.replace("@", "")}/rss`,
-        },
+        ...(rsssections.includes(section) && {
+          types: {
+            "application/rss+xml": `${base}/@${username.replace("@", "")}/rss`,
+          },
+        }),
       },
       openGraph: {
         title: metaTitle,

@@ -186,6 +186,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
 
   const activeOperationDialog = activeOperation !== null ? (
     <WalletOperationsDialog
+      key={`${assetSymbol}-${activeOperation}`}
       controlled={{ show: true, onHide: () => setActiveOperation(null) }}
       asset={assetSymbol}
       operation={activeOperation}
