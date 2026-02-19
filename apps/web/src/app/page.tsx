@@ -17,11 +17,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: defaults.name,
       images: [
         {
-          url: `${defaults.imageServer}/assets/og-image.png`,
+          url: `${base}/og.jpg`,
           width: 1200,
           height: 630,
-          alt: defaults.name
-        }
+          alt: defaults.name,
+        },
       ],
       locale: "en_US",
       type: "website"
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: defaults.description,
       site: defaults.twitterHandle,
       creator: defaults.twitterHandle,
-      images: [`${defaults.imageServer}/assets/og-image.png`]
+      images: [`${base}/og.jpg`]
     },
     alternates: {
       canonical: base
