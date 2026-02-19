@@ -22,6 +22,12 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
     return {
       title,
       description,
+      alternates: {
+        canonical: metaCanonical,
+        types: {
+          "application/rss+xml": metaRss,
+        },
+      },
       openGraph: {
         title,
         description,

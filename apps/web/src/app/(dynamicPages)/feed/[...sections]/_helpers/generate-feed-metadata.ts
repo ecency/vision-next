@@ -28,6 +28,10 @@ export async function generateFeedMetadata(filter: string, tag: string) {
   return {
     title,
     description,
+    alternates: {
+      canonical,
+      ...(rss && { types: { "application/rss+xml": rss } }),
+    },
     openGraph: {
       title,
       description,

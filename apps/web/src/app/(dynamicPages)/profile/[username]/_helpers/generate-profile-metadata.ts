@@ -25,6 +25,12 @@ export async function generateProfileMetadata(
     return {
       title: metaTitle,
       description: metaDescription,
+      alternates: {
+        canonical: `${base}${metaUrl}`,
+        types: {
+          "application/rss+xml": `${base}/@${username.replace("@", "")}/rss`,
+        },
+      },
       openGraph: {
         title: metaTitle,
         description: metaDescription,
