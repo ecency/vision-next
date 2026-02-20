@@ -12,7 +12,7 @@ export class NotificationsWebSocket {
   private activeUser: ActiveUser | null = null;
   private hasNotifications = false;
   private hasUiNotifications = false;
-  private onSuccessCallbacks: Function[] = [];
+  private onMessageCallback: Function | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
 
@@ -145,7 +145,7 @@ export class NotificationsWebSocket {
   }
 
   public withCallbackOnMessage(cb: Function) {
-    this.onSuccessCallbacks.push(cb);
+    this.onMessageCallback = cb;
     return this;
   }
 
@@ -223,6 +223,6 @@ export class NotificationsWebSocket {
       this.toggleUiProp("notifications");
     }
 
-    this.onSuccessCallbacks.forEach((cb) => cb());
+    this.onMessageCallback?.();
   }
 }

@@ -10,7 +10,7 @@ import {
   getNotificationsUnreadCountQueryOptions
 } from "@ecency/sdk";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { usePrevious } from "react-use";
 import { getAccessToken } from "@/utils";
 import * as ls from "@/utils/local-storage";
@@ -41,14 +41,19 @@ export function NotificationHandler() {
     )
   );
 
+  const refetchAll = useCallback(() => {
+    notificationsSettingsQuery.refetch();
+    notificationUnreadCountQuery.refetch();
+    notificationsQuery.refetch();
+  }, [notificationsSettingsQuery, notificationUnreadCountQuery, notificationsQuery]);
+
+  const refetchAllRef = useRef(refetchAll);
+  refetchAllRef.current = refetchAll;
+
   useEffect(() => {
     nws.current
       .withActiveUser(activeUser)
-      .withCallbackOnMessage(() => {
-        notificationsSettingsQuery.refetch();
-        notificationUnreadCountQuery.refetch();
-        notificationsQuery.refetch();
-      })
+      .withCallbackOnMessage(() => refetchAllRef.current())
       .withToggleUi(toggleUIProp)
       .setHasUiNotifications(uiNotifications)
       .setHasNotifications(globalNotifications)
@@ -58,9 +63,7 @@ export function NotificationHandler() {
   }, [
     activeUser,
     globalNotifications,
-    notificationUnreadCountQuery,
-    notificationsQuery,
-    notificationsSettingsQuery,
+    notificationsSettingsQuery.data,
     toggleUIProp,
     uiNotifications
   ]);

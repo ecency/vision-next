@@ -7,7 +7,7 @@ import { date2key } from "@/features/shared/notifications/utils";
 import { getNotificationsInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import i18next from "i18next";
-import { Fragment, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { getAccessToken } from "@/utils";
 
 interface Props {
@@ -26,7 +26,7 @@ export function NotificationList({
   selectNotification
 }: Props) {
   const { activeUser } = useActiveAccount();
-  const { data, isFetching, fetchNextPage } = useInfiniteQuery(
+  const { data, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(
     getNotificationsInfiniteQueryOptions(
       activeUser?.username,
       getAccessToken(activeUser?.username ?? ""),
@@ -34,74 +34,63 @@ export function NotificationList({
     )
   );
 
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
   const dataFlow = useMemo(
     () => data?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
     [data]
   );
 
+  const filteredData = useMemo(() => {
+    if (currentStatus === NotificationViewType.READ) {
+      return dataFlow.filter((n) => n.read === 1);
+    }
+    if (currentStatus === NotificationViewType.UNREAD) {
+      return dataFlow.filter((n) => n.read === 0);
+    }
+    return dataFlow;
+  }, [dataFlow, currentStatus]);
+
   return (
     <>
       {isFetching && dataFlow.length === 0 ? <LinearProgress /> : <></>}
 
-      {!isFetching && dataFlow.length === 0 && (
+      {!isFetching && filteredData.length === 0 && (
         <div className="list-body empty-list">
           <span className="empty-text">{i18next.t("g.empty-list")}</span>
         </div>
       )}
-      {dataFlow.length > 0 && (
+      {filteredData.length > 0 && (
         <div className="list-body">
-          {dataFlow.map((n, i) => (
-            <Fragment key={n.id}>
-              {currentStatus === NotificationViewType.ALL && (
-                <AnimatedNotificationListItemLayout index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-              {currentStatus === NotificationViewType.READ && n.read === 1 && (
-                <AnimatedNotificationListItemLayout key={n.id} index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-              {currentStatus === NotificationViewType.UNREAD && n.read === 0 && (
-                <AnimatedNotificationListItemLayout key={n.id} index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-            </Fragment>
+          {filteredData.map((n, i) => (
+            <AnimatedNotificationListItemLayout key={n.id} index={i}>
+              {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
+              <NotificationListItem
+                notification={n}
+                isSelect={select}
+                setSelectedNotifications={selectNotification}
+                openLinksInNewTab={openLinksInNewTab}
+              />
+            </AnimatedNotificationListItemLayout>
           ))}
+          <div ref={sentinelRef} style={{ height: 1 }} />
         </div>
       )}
       {isFetching && dataFlow.length > 0 && <LinearProgress />}

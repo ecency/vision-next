@@ -9,7 +9,7 @@ import {
   useUnsubscribeCommunityMutation
 } from "@/api/sdk-mutations";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, ButtonProps } from "@ui/button";
 import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
@@ -22,18 +22,44 @@ interface Props {
 export function SubscriptionBtn({ buttonProps, community }: Props) {
   const { activeUser } = useActiveAccount();
   const [hover, setHover] = useState(false);
+  const [isSettling, setIsSettling] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: subscriptions } = useQuery(
     getAccountSubscriptionsQueryOptions(activeUser?.username)
   );
   const subscribeMutation = useSubscribeCommunityMutation();
   const unsubscribeMutation = useUnsubscribeCommunityMutation();
-  const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending;
+  const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending || isSettling;
 
   const subscribed = useMemo(
     () => subscriptions?.find((x) => x[0] === community.name) !== undefined,
     [subscriptions, community]
   );
+
+  const handleSubscribe = async () => {
+    try {
+      setIsSettling(true);
+      await subscribeMutation.mutateAsync({ community: community.name });
+      await queryClient.refetchQueries({
+        queryKey: getAccountSubscriptionsQueryOptions(activeUser?.username).queryKey
+      });
+    } finally {
+      setIsSettling(false);
+    }
+  };
+
+  const handleUnsubscribe = async () => {
+    try {
+      setIsSettling(true);
+      await unsubscribeMutation.mutateAsync({ community: community.name });
+      await queryClient.refetchQueries({
+        queryKey: getAccountSubscriptionsQueryOptions(activeUser?.username).queryKey
+      });
+    } finally {
+      setIsSettling(false);
+    }
+  };
 
   return (
     <>
@@ -43,7 +69,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           disabled={isPending}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={() => unsubscribeMutation.mutate({ community: community.name })}
+          onClick={handleUnsubscribe}
           outline={true}
           appearance={hover ? "danger" : "primary"}
           {...buttonProps}
@@ -56,7 +82,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           <Button
             icon={isPending && <Spinner className="w-3.5 h-3.5" />}
             disabled={isPending}
-            onClick={() => subscribeMutation.mutate({ community: community.name })}
+            onClick={handleSubscribe}
             {...buttonProps}
           >
             {i18next.t("community.subscribe")}

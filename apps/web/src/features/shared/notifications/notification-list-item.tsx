@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { ApiMentionNotification, ApiNotification } from "@/entities";
 import { NotificationReferralType } from "@/features/shared/notifications/notification-types/notification-referral-type";
 import { NotificationInactiveType } from "@/features/shared/notifications/notification-types/notification-inactive-type";
@@ -21,9 +21,7 @@ import { classNameObject } from "@ui/util";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { useGlobalStore } from "@/core/global-store";
 import { useMarkNotificationsMutation } from "@/api/sdk-mutations";
-import { useDebounce, usePrevious } from "react-use";
-import useMount from "react-use/lib/useMount";
-import { useInViewport } from "react-in-viewport";
+import { usePrevious } from "react-use";
 import { FormControl } from "@ui/input";
 
 interface Props {
@@ -36,10 +34,9 @@ interface Props {
   className?: string;
   onLinkClick?: () => void;
   openLinksInNewTab?: boolean;
-  onInViewport?: (inViewport: boolean) => void;
 }
 
-export function NotificationListItem({
+export const NotificationListItem = memo(function NotificationListItem({
   notification: primaryNotification,
   entry,
   isSelect,
@@ -47,12 +44,8 @@ export function NotificationListItem({
   openLinksInNewTab = false,
   onLinkClick,
   setSelectedNotifications,
-  onMounted,
-  onInViewport
+  onMounted
 }: Props) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const { inViewport } = useInViewport(ref, { rootMargin: "0px 0px 200px 0px" });
-
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
 
   const [isChecked, setIsChecked] = useState(false);
@@ -62,17 +55,9 @@ export function NotificationListItem({
 
   const markNotifications = useMarkNotificationsMutation();
 
-  useMount(() => {
+  useEffect(() => {
     onMounted?.();
-  });
-
-  useDebounce(
-    () => {
-      onInViewport?.(inViewport);
-    },
-    500,
-    [inViewport]
-  );
+  }, []);
 
   useEffect(() => {
     if (previousIsSelect !== isSelect && !isSelect) {
@@ -119,7 +104,6 @@ export function NotificationListItem({
 
   return (
     <div
-      ref={ref}
       title={notification.timestamp}
       className={classNameObject({
         "list-item": true,
@@ -246,4 +230,4 @@ export function NotificationListItem({
       </div>
     </div>
   );
-}
+});

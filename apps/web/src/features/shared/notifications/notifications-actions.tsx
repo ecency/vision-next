@@ -21,7 +21,7 @@ import { checkSvg, settingsSvg, syncSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
 import { default as i18n, default as i18next } from "i18next";
 import { useEffect } from "react";
-import { useDebounce, useMap, useMount } from "react-use";
+import { useDebounce, useMap } from "react-use";
 import { getAccessToken } from "@/utils";
 import * as ls from "@/utils/local-storage";
 
@@ -73,8 +73,6 @@ export function NotificationsActions({ filter }: Props) {
   const markNotifications = useMarkNotificationsMutation();
   const setLastRead = useSetLastReadMutation();
   const updateSettings = useUpdateNotificationsSettings();
-
-  useMount(() => refetchData());
 
   useEffect(() => {
     if (notificationSettings) {
