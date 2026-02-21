@@ -2850,7 +2850,7 @@
       "checking-balance": "Comprobando el saldo de su cartera...",
       "balance-fetch-error": "No se pudo actualizar el saldo de tu billetera. Seguiremos intentándolo automáticamente.",
       "price-unavailable": "Los datos del precio no están disponibles temporalmente. Vuelva a intentarlo en un momento.",
-      "price-required": "Los datos de precios son necesarios para validar que tu saldo alcanza el mínimo {{minimum}} . Seguiremos comprobando tu saldo, por favor vuelve a intentarlo en un momento."
+      "price-required": "Los datos de precios son necesarios para validar que tu saldo alcanza el mínimo {{minimum}}. Seguiremos comprobando tu saldo, por favor vuelve a intentarlo en un momento."
     },
     "import": {
       "title": "Importar cartera propia",
