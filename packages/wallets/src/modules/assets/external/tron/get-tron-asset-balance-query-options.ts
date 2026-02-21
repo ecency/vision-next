@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { parsePrivateApiBalance } from "../common/parse-private-api-balance";
 
@@ -6,7 +6,7 @@ export function getTronAssetBalanceQueryOptions(address: string) {
   return queryOptions({
     queryKey: ["assets", "tron", "balance", address],
     queryFn: async () => {
-      const baseUrl = `${CONFIG.privateApiHost}/private-api/balance/tron/${encodeURIComponent(
+      const baseUrl = `${ConfigManager.getValidatedBaseUrl()}/private-api/balance/tron/${encodeURIComponent(
         address
       )}`;
 

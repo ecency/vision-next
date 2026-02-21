@@ -2844,7 +2844,11 @@
       "topup": "Please, top-up your wallet with some amount of tokens",
       "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
-      "address-copied": "Address copied"
+      "address-copied": "Address copied",
+      "checking-balance": "Checking your wallet balance...",
+      "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
+      "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
+      "price-required": "Price data is required to validate that your balance meets the $1 minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "Import own wallet",

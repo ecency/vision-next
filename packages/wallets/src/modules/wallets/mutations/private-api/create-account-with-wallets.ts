@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { useHiveKeysQuery, useWalletsCacheQuery } from "@/modules/wallets/queries";
 import { getBoundFetch } from "@/modules/wallets/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -17,7 +17,7 @@ export function useCreateAccountWithWallets(username: string) {
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
     mutationFn: ({ currency, address }: Payload) =>
-      fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
+      fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

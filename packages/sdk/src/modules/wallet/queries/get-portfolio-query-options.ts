@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, ConfigManager } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
@@ -199,7 +199,7 @@ export function getPortfolioQueryOptions(
         );
       }
 
-      const endpoint = `${CONFIG.privateApiHost}/wallet-api/portfolio-v2`;
+      const endpoint = `${ConfigManager.getValidatedBaseUrl()}/wallet-api/portfolio-v2`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {

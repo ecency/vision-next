@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getBoundFetch } from "@/modules/wallets/utils";
 
@@ -35,7 +35,7 @@ export function useUpdateAccountWithWallets(
         );
       }
 
-      return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
+      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

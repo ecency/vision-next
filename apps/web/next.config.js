@@ -50,7 +50,7 @@ const withPWA = require("next-pwa")({
   ]
 });
 const appPackage = require("./package.json");
-const { v4 } = require("uuid");
+const { execSync } = require("child_process");
 
 const config = {
   productionBrowserSourceMaps: true,
@@ -61,10 +61,16 @@ const config = {
     includePaths: [path.join(__dirname), path.join(__dirname, "src/styles")],
     silenceDeprecations: ["legacy-js-api", "import", "global-builtin", "color-functions"]
   },
-  generateBuildId: async () => v4(),
+  generateBuildId: async () => {
+    try {
+      return execSync("git rev-parse --short HEAD").toString().trim();
+    } catch {
+      return Date.now().toString();
+    }
+  },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/renderer"],
+  transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/render-helper"],
   experimental: {
     externalDir: true
   },
