@@ -96,7 +96,6 @@ interface Props {
   asset: HiveMarketAsset;
   amount: string;
   setToAmount: (amount: string) => void;
-  loading: boolean;
   setLoading: (v: boolean) => void;
   setInvalidAmount: (v: boolean) => void;
   setTooMuchSlippage: (v: boolean) => void;
@@ -157,13 +156,7 @@ export const HiveMarketRateListener = ({
   useEffect(() => {
     fetchOrderBookRef.current();
     updateIntervalRef.current = setInterval(() => fetchOrderBookRef.current(), 60000);
-    return () => {
-      clearInterval(updateIntervalRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    fetchOrderBookRef.current();
+    return () => clearInterval(updateIntervalRef.current);
   }, [asset]);
 
   useEffect(() => {

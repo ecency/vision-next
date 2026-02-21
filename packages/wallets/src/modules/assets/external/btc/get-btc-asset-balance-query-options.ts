@@ -30,7 +30,17 @@ export function getBtcAssetBalanceQueryOptions(address: string) {
       }
 
       const fallbackUrl = `${baseUrl}?provider=chainz`;
-      const fallbackResponse = await fetch(fallbackUrl);
+      let fallbackResponse: Response;
+      try {
+        fallbackResponse = await fetch(fallbackUrl);
+      } catch (error) {
+        throw new Error(
+          `${primaryFailure}; [SDK][Wallets] – fallback request failed(${fallbackUrl}): ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+          { cause: error }
+        );
+      }
       if (!fallbackResponse.ok) {
         throw new Error(
           `${primaryFailure}; [SDK][Wallets] – fallback request failed(${fallbackUrl}) status ${fallbackResponse.status} ${fallbackResponse.statusText}`

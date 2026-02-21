@@ -38,12 +38,20 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
         pendingInvalidationTimers.delete(timerKey);
       }
 
-      const timer = setTimeout(() => {
+      const timer = setTimeout(async () => {
         try {
           const qc = getQueryClient();
-          keysToInvalidate.forEach((key) => {
-            qc.invalidateQueries({ queryKey: key });
-          });
+          const results = await Promise.allSettled(
+            keysToInvalidate.map((key) => qc.invalidateQueries({ queryKey: key }))
+          );
+          const rejected = results.filter((result) => result.status === "rejected");
+          if (rejected.length > 0) {
+            console.error("[SDK][Wallet][useClaimRewards] delayed invalidation rejected", {
+              username,
+              rejectedCount: rejected.length,
+              rejected
+            });
+          }
         } catch (error) {
           console.error("[SDK][Wallet][useClaimRewards] delayed invalidation failed", {
             username,

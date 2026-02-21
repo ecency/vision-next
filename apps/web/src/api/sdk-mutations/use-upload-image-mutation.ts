@@ -26,6 +26,8 @@ export function useUploadImageMutation() {
 
   // SDK hooks
   const sdkUpload = useUploadImage();
+  // Intentionally keep hook-level code undefined; a fresh access token is read
+  // at execution time and passed per-call to mutateAsync({ url, code }).
   const sdkAddImage = useAddImage(username, undefined);
 
   // Feature-flagged add mutation

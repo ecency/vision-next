@@ -97,14 +97,18 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
 
   const hasPrice = typeof priceUsd === "number" && Number.isFinite(priceUsd);
   const usdValue = hasPrice ? tokenAmount.mul(priceUsd) : new Decimal(0);
-  const isCheckingBalance = isBalanceLoading || isBalanceFetching;
-  const isCheckingPrice = isPriceLoading || isPriceFetching;
-  const minimumValidationUsdLabel = new Intl.NumberFormat(i18next.resolvedLanguage ?? "en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  }).format(MINIMUM_VALIDATION_USD.toNumber());
+  const isCheckingBalance = isBalanceLoading;
+  const isCheckingPrice = isPriceLoading;
+  const minimumValidationUsdLabel = useMemo(
+    () =>
+      new Intl.NumberFormat(i18next.resolvedLanguage ?? "en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(MINIMUM_VALIDATION_USD.toNumber()),
+    [i18next.resolvedLanguage]
+  );
   const hasValidated = hasPrice && usdValue.greaterThanOrEqualTo(MINIMUM_VALIDATION_USD);
 
   const [_, copy] = useCopyToClipboard();
@@ -181,7 +185,9 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
           )}
           {hasPrice ? (
             <div className="-mb-2 text-sm opacity-75">
-              Estimated value: ${usdValue.toFixed(2)}
+              {i18next.t("signup-wallets.validate-funds.estimated-value", {
+                value: usdValue.toFixed(2)
+              })}
             </div>
           ) : !isCheckingPrice ? (
             <div className="-mb-2 text-sm text-orange-500">

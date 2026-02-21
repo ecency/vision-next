@@ -76,7 +76,7 @@ export function useProposalVoteMutation(proposalId: number) {
       // Broadcast transaction via SDK
       await proposalVote({ proposalIds: [proposalId], approve });
 
-      const proposalVotesPrefix = QueryKeys.proposals.votes(proposalId, "", 0).slice(0, 3);
+      const proposalVotesPrefix = QueryKeys.proposals.votesPrefix(proposalId);
       const userVotesKey = QueryKeys.proposals.votesByUser(username);
 
       // Poll for blockchain confirmation to keep loading state active.
