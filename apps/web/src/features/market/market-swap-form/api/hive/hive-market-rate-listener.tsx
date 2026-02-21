@@ -1,5 +1,5 @@
 import { HiveMarketAsset } from "../../market-pair";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { OrdersDataItem } from "@/entities";
 import { getOrderBookQueryOptions, getQueryClient } from "@ecency/sdk";
 import { error } from "@/features/shared";
@@ -113,13 +113,13 @@ export const HiveMarketRateListener = ({
   const [buyOrderBook, setBuyOrderBook] = useState<OrdersDataItem[]>([]);
   const [sellOrderBook, setSellOrderBook] = useState<OrdersDataItem[]>([]);
 
-  let updateInterval: any;
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval>>();
 
   useEffect(() => {
     fetchOrderBook();
-    updateInterval = setInterval(() => fetchOrderBook(), 60000);
+    updateIntervalRef.current = setInterval(() => fetchOrderBook(), 60000);
     return () => {
-      clearInterval(updateInterval);
+      clearInterval(updateIntervalRef.current);
     };
   }, []);
 

@@ -1,7 +1,7 @@
 "use client";
 import { useDelegateVestingShares } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web wrapper for SDK's useDelegateVestingShares mutation.
@@ -27,7 +27,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useDelegateVestingSharesMutation() {
-  const { activeUser } = useActiveAccount();
-  const adapter = createWebBroadcastAdapter();
-  return useDelegateVestingShares(activeUser?.username, { adapter });
+  const username = useActiveUsername();
+  const adapter = getWebBroadcastAdapter();
+  return useDelegateVestingShares(username, { adapter });
 }

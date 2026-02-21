@@ -1,11 +1,11 @@
 "use client";
 
 import { useAddDraft as useSdkAddDraft } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 
 export function useAddDraftMutation() {
-  const { activeUser } = useActiveAccount();
-  const code = activeUser ? getAccessToken(activeUser.username) : undefined;
-  return useSdkAddDraft(activeUser?.username, code);
+  const username = useActiveUsername();
+  const code = username ? getAccessToken(username) : undefined;
+  return useSdkAddDraft(username, code);
 }

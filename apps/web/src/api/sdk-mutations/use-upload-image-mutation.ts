@@ -1,7 +1,7 @@
 "use client";
 
 import { useUploadImage, useAddImage } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
@@ -22,12 +22,12 @@ import { EcencyConfigManager } from "@/config";
  * uploadMutation.mutate({ file, signal });
  */
 export function useUploadImageMutation() {
-  const { activeUser } = useActiveAccount();
-  const code = activeUser ? getAccessToken(activeUser.username) : undefined;
+  const username = useActiveUsername();
+  const code = username ? getAccessToken(username) : undefined;
 
   // SDK hooks
   const sdkUpload = useUploadImage();
-  const sdkAddImage = useAddImage(activeUser?.username, code);
+  const sdkAddImage = useAddImage(username, code);
 
   // Feature-flagged add mutation
   const conditionalAdd = EcencyConfigManager.useConditionalMutation(
@@ -59,11 +59,11 @@ export function useUploadImageMutation() {
   return useMutation({
     mutationKey: ["uploadAndAddPostImage"],
     mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
-      if (!activeUser?.username) {
+      if (!username) {
         throw new Error("Cannot upload image without an active user");
       }
 
-      const token = getAccessToken(activeUser.username);
+      const token = getAccessToken(username);
       if (!token) {
         error(i18next.t("editor-toolbar.image-error-cache"));
         throw new Error("Token missed");

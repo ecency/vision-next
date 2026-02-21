@@ -96,9 +96,9 @@ export function useVote(
         );
       }
 
-      // Activity tracking
+      // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(120, result.block_num, result.id);
+        auth.adapter.recordActivity(120, result.block_num, result.id).catch(() => {});
       }
 
       // Cache invalidation

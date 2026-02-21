@@ -26,11 +26,8 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
         QueryKeys.assets.hivePowerGeneralInfo(username!),
       ];
 
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries(keysToInvalidate);
-      }
-
-      // Delayed re-invalidation for blockchain propagation
+      // Delay invalidation to allow blockchain to propagate the transaction.
+      // Immediate invalidation would fetch stale (pre-confirmation) data.
       setTimeout(() => {
         const qc = getQueryClient();
         keysToInvalidate.forEach((key) => {

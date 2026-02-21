@@ -162,13 +162,9 @@ export function useUpdateReply(
       return operations;
     },
     async (_result: any, variables) => {
-      // Activity tracking (comment update = type 110)
+      // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && _result?.block_num && _result?.id) {
-        try {
-          await auth.adapter.recordActivity(110, _result.block_num, _result.id);
-        } catch (err) {
-          console.warn('[useUpdateReply] Failed to record activity:', err);
-        }
+        auth.adapter.recordActivity(110, _result.block_num, _result.id).catch(() => {});
       }
 
       // Cache invalidation

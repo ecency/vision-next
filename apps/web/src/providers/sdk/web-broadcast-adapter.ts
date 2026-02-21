@@ -59,6 +59,19 @@ import { error, success } from '@/features/shared/feedback/feedback-events';
  *
  * @see {@link PlatformAdapter} for the full interface definition
  */
+/**
+ * Singleton adapter instance. Safe to reuse because all methods read from
+ * localStorage / window at call time — no state is captured at creation.
+ */
+let _singletonAdapter: PlatformAdapter | null = null;
+
+export function getWebBroadcastAdapter(): PlatformAdapter {
+  if (!_singletonAdapter) {
+    _singletonAdapter = createWebBroadcastAdapter();
+  }
+  return _singletonAdapter;
+}
+
 export function createWebBroadcastAdapter(): PlatformAdapter {
   return {
     // ============================================================================

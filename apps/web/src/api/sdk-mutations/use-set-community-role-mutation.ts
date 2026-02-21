@@ -1,8 +1,8 @@
 "use client";
 
 import { useSetCommunityRole, type SetCommunityRolePayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific set community role mutation hook using SDK.
@@ -35,11 +35,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useSetCommunityRoleMutation(community: string) {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
   // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useSetCommunityRole mutation with web adapter
   return useSetCommunityRole(community, username, {

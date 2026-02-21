@@ -1,7 +1,7 @@
 "use client";
 import { useSetWithdrawVestingRoute } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web wrapper for SDK's useSetWithdrawVestingRoute mutation.
@@ -22,7 +22,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useSetWithdrawVestingRouteMutation() {
-  const { activeUser } = useActiveAccount();
-  const adapter = createWebBroadcastAdapter();
-  return useSetWithdrawVestingRoute(activeUser?.username, { adapter });
+  const username = useActiveUsername();
+  const adapter = getWebBroadcastAdapter();
+  return useSetWithdrawVestingRoute(username, { adapter });
 }

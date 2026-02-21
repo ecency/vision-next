@@ -1,11 +1,11 @@
 "use client";
 
 import { useDeleteDraft as useSdkDeleteDraft } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 
 export function useDeleteDraftMutation() {
-  const { activeUser } = useActiveAccount();
-  const code = activeUser ? getAccessToken(activeUser.username) : undefined;
-  return useSdkDeleteDraft(activeUser?.username, code);
+  const username = useActiveUsername();
+  const code = username ? getAccessToken(username) : undefined;
+  return useSdkDeleteDraft(username, code);
 }

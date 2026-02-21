@@ -1,8 +1,8 @@
 "use client";
 
 import { useProposalVote, getUserProposalVotesQueryOptions } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
@@ -56,12 +56,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
  * - Web layer adds additional invalidation for specific proposal votes
  */
 export function useProposalVoteMutation(proposalId: number) {
-  const { activeUser } = useActiveAccount();
+  const username = useActiveUsername();
   const queryClient = useQueryClient();
-  const username = activeUser?.username;
 
   // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useProposalVote mutation with web adapter
   const { mutateAsync: proposalVote } = useProposalVote(username, { adapter });

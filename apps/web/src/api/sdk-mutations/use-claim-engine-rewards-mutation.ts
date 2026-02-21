@@ -1,10 +1,10 @@
 "use client";
 import { useClaimEngineRewards } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 export function useClaimEngineRewardsMutation() {
-  const { activeUser } = useActiveAccount();
-  const adapter = createWebBroadcastAdapter();
-  return useClaimEngineRewards(activeUser?.username, { adapter });
+  const username = useActiveUsername();
+  const adapter = getWebBroadcastAdapter();
+  return useClaimEngineRewards(username, { adapter });
 }

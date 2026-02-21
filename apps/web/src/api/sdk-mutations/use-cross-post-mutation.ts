@@ -1,8 +1,8 @@
 "use client";
 
 import { useCrossPost, type CrossPostPayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific cross-post mutation hook using SDK.
@@ -49,11 +49,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useCrossPostMutation() {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
   // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useCrossPost mutation with web adapter
   return useCrossPost(username, {

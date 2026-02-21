@@ -78,9 +78,9 @@ export function useProposalVote(
     async (result: any) => {
       // Wrap post-broadcast side-effects in try-catch to prevent propagating errors
       try {
-        // Activity tracking
+        // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
         if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-          await auth.adapter.recordActivity(150, result.block_num, result.id);
+          auth.adapter.recordActivity(150, result.block_num, result.id).catch(() => {});
         }
 
         // Cache invalidation

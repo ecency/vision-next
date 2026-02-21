@@ -1,6 +1,6 @@
 import type { AuthContextV2 } from "@ecency/sdk";
 import type { User } from "@/entities";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
 
 export function getSdkAuthContext(user?: User): AuthContextV2 | undefined {
   if (!user) {
@@ -11,6 +11,6 @@ export function getSdkAuthContext(user?: User): AuthContextV2 | undefined {
     accessToken: user.accessToken,
     postingKey: user.postingKey,
     loginType: user.loginType,
-    adapter: createWebBroadcastAdapter(),
+    adapter: getWebBroadcastAdapter(),
   };
 }

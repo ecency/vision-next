@@ -6,7 +6,7 @@ export function useCountdown(initialTime: number) {
   const [time, setTime] = useState(initialTime);
 
   useEffect(() => {
-    let timer = setInterval(() => {
+    const timer = setInterval(() => {
       setTime((time) => {
         if (time === 0) {
           clearInterval(timer);
@@ -14,6 +14,7 @@ export function useCountdown(initialTime: number) {
         } else return time - 1;
       });
     }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   return [time, setTime] as const;
