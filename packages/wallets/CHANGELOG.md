@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 1.5.36
+
+### Patch Changes
+
+- Improve notification drawer (#666)
+
 ## 1.5.35
 
 ### Patch Changes
