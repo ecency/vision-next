@@ -134,7 +134,9 @@ export class NotificationsWebSocket {
     return this;
   }
 
-  public withToggleUi(toggle: (...args: any[]) => void) {
+  public withToggleUi(
+    toggle: (type: "login" | "notifications", value?: boolean) => void
+  ) {
     this.toggleUiProp = toggle;
     return this;
   }
@@ -178,7 +180,7 @@ export class NotificationsWebSocket {
     }
   }
 
-  private toggleUiProp: (...args: any[]) => void = () => {};
+  private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
   private async playSound() {
     if (!("Notification" in window)) {
@@ -197,7 +199,11 @@ export class NotificationsWebSocket {
     const msg = NotificationsWebSocket.getBody(data);
 
     // Always trigger data refresh regardless of notification display settings
-    this.onMessageCallback?.();
+    try {
+      await Promise.resolve(this.onMessageCallback?.());
+    } catch (error) {
+      console.error("notifications websocket callback failed", error);
+    }
 
     const messageNotifyType = this.getNotificationType(data.type);
     const allowedToNotify =

@@ -54,17 +54,14 @@ export function NotificationHandler() {
       .withCallbackOnMessage(() => refetchAllRef.current())
       .withToggleUi(toggleUIProp)
       .setHasUiNotifications(uiNotifications)
-      .setHasNotifications(globalNotifications)
-      .setEnabledNotificationsTypes(
-        (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) || []
-      );
-  }, [
-    activeUser,
-    globalNotifications,
-    notificationsSettingsQuery.data,
-    toggleUIProp,
-    uiNotifications
-  ]);
+      .setHasNotifications(globalNotifications);
+  }, [activeUser, globalNotifications, toggleUIProp, uiNotifications]);
+
+  useEffect(() => {
+    nws.current.setEnabledNotificationsTypes(
+      (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) || []
+    );
+  }, [notificationsSettingsQuery.data]);
 
   useEffect(() => {
     if (fbSupport === "denied" && activeUser) {

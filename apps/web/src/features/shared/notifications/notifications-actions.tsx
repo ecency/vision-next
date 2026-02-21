@@ -170,7 +170,14 @@ export function NotificationsActions({ filter }: Props) {
         <DropdownMenu align="right">
           <DropdownItemHeader>{i18next.t(`notifications.settings`)}</DropdownItemHeader>
           {isMobile && (
-            <DropdownItem onClick={() => markAsRead()}>
+            <DropdownItem
+              onClick={() => {
+                if (markNotifications.isPending || unread === 0) {
+                  return;
+                }
+                markAsRead();
+              }}
+            >
               <Tooltip content={i18next.t("notifications.mark-all-read")}>
                 <span
                   className={classNameObject({
@@ -184,7 +191,14 @@ export function NotificationsActions({ filter }: Props) {
             </DropdownItem>
           )}
           {isMobile && (
-            <DropdownItem onClick={() => refresh()}>
+            <DropdownItem
+              onClick={() => {
+                if (isDataLoading || isUnreadLoading) {
+                  return;
+                }
+                refresh();
+              }}
+            >
               <Tooltip content={i18next.t("notifications.refresh")}>
                 <span
                   className={classNameObject({

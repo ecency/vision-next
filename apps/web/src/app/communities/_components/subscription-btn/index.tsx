@@ -19,6 +19,19 @@ interface Props {
   community: Community;
   buttonProps?: ButtonProps;
 }
+
+function isSubscriptionRows(value: unknown): value is string[][] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (row) =>
+        Array.isArray(row) &&
+        row.length >= 4 &&
+        row.every((cell) => typeof cell === "string")
+    )
+  );
+}
+
 export function SubscriptionBtn({ buttonProps, community }: Props) {
   const { activeUser } = useActiveAccount();
   const [hover, setHover] = useState(false);
@@ -39,11 +52,12 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
   const performAction = async (
     mutation: typeof subscribeMutation | typeof unsubscribeMutation
   ) => {
-    const previousData = queryClient.getQueryData(subscriptionsQueryOptions.queryKey);
+    const previousDataRaw = queryClient.getQueryData<unknown>(subscriptionsQueryOptions.queryKey);
+    const previousData = isSubscriptionRows(previousDataRaw) ? previousDataRaw : [];
     const optimisticData =
       mutation === subscribeMutation
-        ? [...((previousData as string[][]) ?? []), [community.name, community.title, "guest", ""]]
-        : ((previousData as string[][]) ?? []).filter((x) => x[0] !== community.name);
+        ? [...previousData, [community.name, community.title, "guest", ""]]
+        : previousData.filter((x) => x[0] !== community.name);
 
     // Optimistic update
     queryClient.setQueryData(subscriptionsQueryOptions.queryKey, optimisticData);

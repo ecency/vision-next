@@ -155,7 +155,7 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
           ) : (
             <div className="-mb-2 text-sm text-orange-500">
               Price data is required to validate that your balance meets the $1 minimum. We&apos;ll keep
-              checking your balance—please retry in a moment.
+              checking your balance-please retry in a moment.
             </div>
           )}
           <Button className="min-w-[200px] mt-4" appearance="gray" onClick={onCancel}>

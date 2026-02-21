@@ -38,34 +38,14 @@ export function NotificationList({
   const hasNextPageRef = useRef(hasNextPage);
   const isFetchingNextPageRef = useRef(isFetchingNextPage);
   const fetchNextPageRef = useRef(fetchNextPage);
+  const isLoadingRef = useRef(false);
 
   hasNextPageRef.current = hasNextPage;
   isFetchingNextPageRef.current = isFetchingNextPage;
   fetchNextPageRef.current = fetchNextPage;
 
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasNextPageRef.current &&
-          !isFetchingNextPageRef.current
-        ) {
-          fetchNextPageRef.current();
-        }
-      },
-      { rootMargin: "0px 0px 200px 0px" }
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
-
   const dataFlow = useMemo(
-    () => data?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    () => data?.pages.flat() ?? [],
     [data]
   );
 
@@ -84,6 +64,29 @@ export function NotificationList({
   }, [dataFlow, currentStatus]);
 
   const isLoading = isFetching || !hasFetchedOnce;
+  isLoadingRef.current = isLoading;
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isLoadingRef.current &&
+          hasNextPageRef.current &&
+          !isFetchingNextPageRef.current
+        ) {
+          fetchNextPageRef.current();
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
