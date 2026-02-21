@@ -2714,6 +2714,7 @@ declare const QueryKeys: {
         readonly list: () => string[];
         readonly proposal: (id: number) => (string | number)[];
         readonly votes: (proposalId: number, voter: string, limit: number) => (string | number)[];
+        readonly votesPrefix: (proposalId: number) => readonly ["proposals", "votes", number];
         readonly votesByUser: (voter: string) => string[];
     };
     readonly search: {
@@ -3723,6 +3724,7 @@ declare function useMoveSchedule(username: string | undefined, code: string | un
  */
 declare function useAddImage(username: string | undefined, code: string | undefined, onSuccess?: () => void, onError?: (e: Error) => void): _tanstack_react_query.UseMutationResult<Record<string, unknown>, Error, {
     url: string;
+    code?: string;
 }, unknown>;
 
 /**
