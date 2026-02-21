@@ -21,6 +21,11 @@ export function getBnbAssetBalanceQueryOptions(address: string) {
         console.error(error);
 
         const response = await fetch(`${baseUrl}?provider=chainz`);
+        if (!response.ok) {
+          throw new Error(
+            `[SDK][Wallets] – fallback request failed(${response.status} ${response.statusText})`
+          );
+        }
         return +parsePrivateApiBalance(await response.json(), "bnb")
           .balanceString;
       }

@@ -19,7 +19,7 @@ export function useUpdateAccountWithWallets(
   const fetchApi = getBoundFetch();
 
   return useMutation({
-    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationKey: ["ecency-wallets", "update-account-with-wallets", username],
     mutationFn: async ({ tokens, hiveKeys }: Payload) => {
       const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
 

@@ -63,7 +63,10 @@ const config = {
   },
   generateBuildId: async () => {
     try {
-      return execSync("git rev-parse --short HEAD").toString().trim();
+      return execSync("git rev-parse --short HEAD", {
+        encoding: "utf8",
+        timeout: 5000
+      }).trim();
     } catch {
       return Date.now().toString();
     }

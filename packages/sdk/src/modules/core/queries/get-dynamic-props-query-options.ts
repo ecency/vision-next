@@ -5,10 +5,14 @@ import { parseAsset } from "../utils";
 import { QueryKeys } from "@/modules/core";
 
 export function getDynamicPropsQueryOptions() {
+  // This query powers wallet/HP/reward math that should stay close to chain state.
+  // Keep a short refresh cadence despite the 4 RPC calls.
+  const DYNAMIC_PROPS_REFRESH_MS = 60 * 1000;
+
   return queryOptions({
     queryKey: QueryKeys.core.dynamicProps(),
-    refetchInterval: 5 * 60 * 1000, // 5 minutes - makes 4 RPC calls, no need to poll every minute
-    staleTime: 5 * 60 * 1000,
+    refetchInterval: DYNAMIC_PROPS_REFRESH_MS,
+    staleTime: DYNAMIC_PROPS_REFRESH_MS,
     queryFn: async (): Promise<DynamicProps> => {
       // Get raw blockchain data without transformation
       const rawGlobalDynamic: any = await CONFIG.hiveClient.database.getDynamicGlobalProperties();

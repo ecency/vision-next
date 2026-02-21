@@ -32,17 +32,17 @@ ConfigManager.setDmcaLists({
 });
 
 // NOTE: Web broadcast adapter is NOT initialized here.
-// Following the mobile pattern, each SDK mutation hook should create and pass
-// its own adapter instance when calling SDK mutations.
+// Mutation hooks should retrieve and pass the shared web adapter singleton
+// when calling SDK mutations.
 //
 // Example usage in a hook:
 // ```typescript
 // import { useVote } from '@ecency/sdk';
-// import { createWebBroadcastAdapter } from '@/providers/sdk';
+// import { getWebBroadcastAdapter } from '@/providers/sdk';
 //
 // export function useVoteMutation() {
 //   const currentUser = useGlobalStore(state => state.activeUser);
-//   const adapter = createWebBroadcastAdapter();
+//   const adapter = getWebBroadcastAdapter();
 //
 //   return useVote(currentUser?.username, { adapter });
 // }

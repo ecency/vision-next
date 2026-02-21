@@ -80,7 +80,14 @@ export function useProposalVote(
       try {
         // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
         if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-          auth.adapter.recordActivity(150, result.block_num, result.id).catch(() => {});
+          auth.adapter.recordActivity(150, result.block_num, result.id).catch((error) => {
+            console.debug("[SDK][Proposals][useProposalVote] recordActivity failed", {
+              activityType: 150,
+              blockNum: result?.block_num,
+              transactionId: result?.id,
+              error
+            });
+          });
         }
 
         // Cache invalidation

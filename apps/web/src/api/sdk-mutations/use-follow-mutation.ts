@@ -35,7 +35,8 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
 export function useFollowMutation() {
   const username = useActiveUsername();
 
-  // Create web broadcast adapter for SDK mutations
+  // Get shared web broadcast adapter singleton for SDK mutations.
+  // The adapter reads user/token/key data at call time, so account switches are safe.
   const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useFollow mutation with web adapter

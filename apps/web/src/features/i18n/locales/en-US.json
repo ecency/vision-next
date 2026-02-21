@@ -2848,7 +2848,7 @@
       "checking-balance": "Checking your wallet balance...",
       "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
       "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
-      "price-required": "Price data is required to validate that your balance meets the $1 minimum. We will keep checking your balance, please retry in a moment."
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "Import own wallet",

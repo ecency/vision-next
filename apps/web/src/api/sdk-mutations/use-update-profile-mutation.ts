@@ -63,7 +63,7 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
 export function useUpdateProfileMutation() {
   const username = useActiveUsername();
 
-  // Create web broadcast adapter for SDK mutations
+  // Get shared web broadcast adapter singleton for SDK mutations
   const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useAccountUpdate mutation with web adapter

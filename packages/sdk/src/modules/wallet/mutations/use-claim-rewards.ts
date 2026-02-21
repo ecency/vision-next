@@ -9,6 +9,9 @@ export interface ClaimRewardsPayload {
   rewardVests: string;
 }
 
+const CLAIM_REWARDS_INVALIDATION_DELAY_MS = 5000;
+let pendingInvalidationTimer: ReturnType<typeof setTimeout> | null = null;
+
 export function useClaimRewards(username: string | undefined, auth?: AuthContextV2) {
   return useBroadcastMutation<ClaimRewardsPayload>(
     ["wallet", "claim-rewards"],
@@ -16,7 +19,7 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
     (payload) => [
       buildClaimRewardBalanceOp(username!, payload.rewardHive, payload.rewardHbd, payload.rewardVests)
     ],
-    async () => {
+    () => {
       const keysToInvalidate = [
         QueryKeys.accounts.full(username),
         ["ecency-wallets", "asset-info", username],
@@ -28,12 +31,17 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
 
       // Delay invalidation to allow blockchain to propagate the transaction.
       // Immediate invalidation would fetch stale (pre-confirmation) data.
-      setTimeout(() => {
+      if (pendingInvalidationTimer) {
+        clearTimeout(pendingInvalidationTimer);
+      }
+
+      pendingInvalidationTimer = setTimeout(() => {
         const qc = getQueryClient();
         keysToInvalidate.forEach((key) => {
           qc.invalidateQueries({ queryKey: key });
         });
-      }, 5000);
+        pendingInvalidationTimer = null;
+      }, CLAIM_REWARDS_INVALIDATION_DELAY_MS);
     },
     auth,
     'posting'

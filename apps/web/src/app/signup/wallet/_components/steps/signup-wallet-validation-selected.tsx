@@ -99,6 +99,12 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
   const usdValue = hasPrice ? tokenAmount.mul(priceUsd) : new Decimal(0);
   const isCheckingBalance = isBalanceLoading || isBalanceFetching;
   const isCheckingPrice = isPriceLoading || isPriceFetching;
+  const minimumValidationUsdLabel = new Intl.NumberFormat(i18next.resolvedLanguage ?? "en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(MINIMUM_VALIDATION_USD.toNumber());
   const hasValidated = hasPrice && usdValue.greaterThanOrEqualTo(MINIMUM_VALIDATION_USD);
   // const hasValidated = true;
 
@@ -174,12 +180,16 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
             <div className="-mb-2 text-sm opacity-75">
               Estimated value: ${usdValue.toFixed(2)}
             </div>
-          ) : (
+          ) : !isCheckingPrice ? (
             <div className="-mb-2 text-sm text-orange-500">
               {isPriceError
                 ? i18next.t("signup-wallets.validate-funds.price-unavailable")
-                : i18next.t("signup-wallets.validate-funds.price-required")}
+                : i18next.t("signup-wallets.validate-funds.price-required", {
+                    minimum: minimumValidationUsdLabel
+                  })}
             </div>
+          ) : (
+            <></>
           )}
           <Button className="min-w-[200px] mt-4" appearance="gray" onClick={onCancel}>
             {i18next.t("g.cancel")}

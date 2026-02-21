@@ -1,6 +1,6 @@
 "use client";
 
-import { useUploadImage, useAddImage } from "@ecency/sdk";
+import { useAddImage, useUploadImage } from "@ecency/sdk";
 import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -38,7 +38,16 @@ export function useUploadImageMutation() {
         if (!url || url.length === 0) {
           throw new Error("URL missed");
         }
-        await sdkAddImage.mutateAsync({ url });
+        if (!username) {
+          throw new Error("Cannot add image without an active user");
+        }
+
+        const token = getAccessToken(username);
+        if (!token) {
+          throw new Error("Token missed");
+        }
+
+        await sdkAddImage.mutateAsync({ url, code: token });
       },
       onError: (e: Error) => {
         // Web-specific error handling for add
