@@ -2844,7 +2844,13 @@
       "topup": "Per favore, ricarica il tuo portafoglio con una certa quantità di gettoni",
       "topup-description": "Quando cambia il saldo del portafoglio, la pagina si rileverà automaticamente e ti permetterà di continuare la creazione dell'account",
       "validation-success": "Abbiamo convalidato il tuo portafoglio",
-      "address-copied": "Indirizzo copiato"
+      "address-copied": "Indirizzo copiato",
+      "minimum-required": "Almeno {{minimum}} richiesto per convalidare.",
+      "estimated-value": "Valore stimato: ${{value}}",
+      "checking-balance": "Controllo del saldo del portafoglio...",
+      "balance-fetch-error": "Impossibile aggiornare il saldo del tuo portafoglio. Continueremo a riprovare automaticamente.",
+      "price-unavailable": "I dati del prezzo non sono al momento disponibili. Riprova tra un attimo.",
+      "price-required": "I dati di prezzo sono necessari per convalidare che il tuo saldo soddisfa il minimo {{minimum}} . Continueremo a controllare il tuo saldo, riprova tra un attimo."
     },
     "import": {
       "title": "Importa portafoglio personale",
