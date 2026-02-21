@@ -2844,7 +2844,13 @@
       "topup": "Por favor, recargue su wallet con alguna cantidad de tokens",
       "topup-description": "Cuando el balance de su cartera cambia, la página lo detectará automáticamente y le permitirá continuar con la creación de la cuenta",
       "validation-success": "Hemos validado su wallet",
-      "address-copied": "Dirección copiada"
+      "address-copied": "Dirección copiada",
+      "minimum-required": "Se requiere al menos {{minimum}} para validarlo.",
+      "estimated-value": "Valor estimado: ${{value}}",
+      "checking-balance": "Comprobando el saldo de su cartera...",
+      "balance-fetch-error": "No se pudo actualizar el saldo de tu billetera. Seguiremos intentándolo automáticamente.",
+      "price-unavailable": "Los datos del precio no están disponibles temporalmente. Vuelva a intentarlo en un momento.",
+      "price-required": "Los datos de precios son necesarios para validar que tu saldo alcanza el mínimo {{minimum}} . Seguiremos comprobando tu saldo, por favor vuelve a intentarlo en un momento."
     },
     "import": {
       "title": "Importar cartera propia",
