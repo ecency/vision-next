@@ -159,10 +159,7 @@ function useGetExternalWalletBalanceQuery(currency, address) {
       if (!chain) {
         throw new Error(`Unsupported currency ${currency}`);
       }
-      if (!sdk.CONFIG.privateApiHost) {
-        throw new Error("Private API host is not configured");
-      }
-      const baseUrl = `${sdk.CONFIG.privateApiHost}/private-api/balance/${chain}/${encodeURIComponent(
+      const baseUrl = `${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/balance/${chain}/${encodeURIComponent(
         address
       )}`;
       let primaryResponse;

@@ -12,7 +12,7 @@ export class NotificationsWebSocket {
   private activeUser: ActiveUser | null = null;
   private hasNotifications = false;
   private hasUiNotifications = false;
-  private onSuccessCallbacks: Function[] = [];
+  private onMessageCallback: (() => void) | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
 
@@ -134,7 +134,9 @@ export class NotificationsWebSocket {
     return this;
   }
 
-  public withToggleUi(toggle: Function) {
+  public withToggleUi(
+    toggle: (type: "login" | "notifications", value?: boolean) => void
+  ) {
     this.toggleUiProp = toggle;
     return this;
   }
@@ -144,8 +146,8 @@ export class NotificationsWebSocket {
     return this;
   }
 
-  public withCallbackOnMessage(cb: Function) {
-    this.onSuccessCallbacks.push(cb);
+  public withCallbackOnMessage(cb: () => void) {
+    this.onMessageCallback = cb;
     return this;
   }
 
@@ -178,7 +180,7 @@ export class NotificationsWebSocket {
     }
   }
 
-  private toggleUiProp: Function = () => {};
+  private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
   private async playSound() {
     if (!("Notification" in window)) {
@@ -195,6 +197,13 @@ export class NotificationsWebSocket {
 
     const data = JSON.parse(evt.data);
     const msg = NotificationsWebSocket.getBody(data);
+
+    // Always trigger data refresh regardless of notification display settings
+    try {
+      await Promise.resolve(this.onMessageCallback?.());
+    } catch (error) {
+      console.error("notifications websocket callback failed", error);
+    }
 
     const messageNotifyType = this.getNotificationType(data.type);
     const allowedToNotify =
@@ -222,7 +231,5 @@ export class NotificationsWebSocket {
     } else if (this.hasUiNotifications) {
       this.toggleUiProp("notifications");
     }
-
-    this.onSuccessCallbacks.forEach((cb) => cb());
   }
 }

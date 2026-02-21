@@ -27,10 +27,10 @@ export function NotificationHandler() {
   const previousActiveUser = usePrevious(activeUser);
   const accessToken = getAccessToken(activeUser?.username ?? "");
 
-  const notificationUnreadCountQuery = useQuery(
+  const { refetch: refetchUnreadCount } = useQuery(
     getNotificationsUnreadCountQueryOptions(activeUser?.username, accessToken)
   );
-  const notificationsQuery = useInfiniteQuery(
+  const { refetch: refetchNotifications } = useInfiniteQuery(
     getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken)
   );
   const notificationsSettingsQuery = useQuery(
@@ -41,35 +41,27 @@ export function NotificationHandler() {
     )
   );
 
+  const refetchAllRef = useRef(() => {});
+  refetchAllRef.current = () => {
+    notificationsSettingsQuery.refetch();
+    refetchUnreadCount();
+    refetchNotifications();
+  };
+
   useEffect(() => {
     nws.current
       .withActiveUser(activeUser)
-      .withCallbackOnMessage(() => {
-        notificationsSettingsQuery.refetch();
-        notificationUnreadCountQuery.refetch();
-        notificationsQuery.refetch();
-      })
+      .withCallbackOnMessage(() => refetchAllRef.current())
       .withToggleUi(toggleUIProp)
       .setHasUiNotifications(uiNotifications)
-      .setHasNotifications(globalNotifications)
-      .setEnabledNotificationsTypes(
-        (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) || []
-      );
-  }, [
-    activeUser,
-    globalNotifications,
-    notificationUnreadCountQuery,
-    notificationsQuery,
-    notificationsSettingsQuery,
-    toggleUIProp,
-    uiNotifications
-  ]);
+      .setHasNotifications(globalNotifications);
+  }, [activeUser, globalNotifications, toggleUIProp, uiNotifications]);
 
   useEffect(() => {
     nws.current.setEnabledNotificationsTypes(
       (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) || []
     );
-  }, [notificationsSettingsQuery.data, nws]);
+  }, [notificationsSettingsQuery.data]);
 
   useEffect(() => {
     if (fbSupport === "denied" && activeUser) {

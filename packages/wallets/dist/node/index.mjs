@@ -1,4 +1,4 @@
-import { CONFIG, getAccountFullQueryOptions, getPortfolioQueryOptions, getQueryClient, AssetOperation, useAccountUpdate, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMetadataQueryOptions } from '@ecency/sdk';
+import { ConfigManager, CONFIG, getAccountFullQueryOptions, getPortfolioQueryOptions, getQueryClient, AssetOperation, useAccountUpdate, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMetadataQueryOptions } from '@ecency/sdk';
 export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, rewardSpk, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
 import { useQuery, queryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
@@ -135,10 +135,7 @@ function useGetExternalWalletBalanceQuery(currency, address) {
       if (!chain) {
         throw new Error(`Unsupported currency ${currency}`);
       }
-      if (!CONFIG.privateApiHost) {
-        throw new Error("Private API host is not configured");
-      }
-      const baseUrl = `${CONFIG.privateApiHost}/private-api/balance/${chain}/${encodeURIComponent(
+      const baseUrl = `${ConfigManager.getValidatedBaseUrl()}/private-api/balance/${chain}/${encodeURIComponent(
         address
       )}`;
       let primaryResponse;
