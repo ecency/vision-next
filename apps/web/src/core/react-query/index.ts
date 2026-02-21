@@ -33,6 +33,7 @@ export function makeQueryClient() {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000, // 60 seconds - prevents immediate refetch after SSR prefetch
+        gcTime: 10 * 60 * 1000, // 10 minutes - garbage collect unused cache entries
         refetchOnWindowFocus: false,
         refetchOnMount: false
       }

@@ -9,6 +9,9 @@ export interface ClaimRewardsPayload {
   rewardVests: string;
 }
 
+const CLAIM_REWARDS_INVALIDATION_DELAY_MS = 5000;
+const pendingInvalidationTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
 export function useClaimRewards(username: string | undefined, auth?: AuthContextV2) {
   return useBroadcastMutation<ClaimRewardsPayload>(
     ["wallet", "claim-rewards"],
@@ -16,7 +19,8 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
     (payload) => [
       buildClaimRewardBalanceOp(username!, payload.rewardHive, payload.rewardHbd, payload.rewardVests)
     ],
-    async () => {
+    () => {
+      const timerKey = username ?? "__anonymous__";
       const keysToInvalidate = [
         QueryKeys.accounts.full(username),
         ["ecency-wallets", "asset-info", username],
@@ -26,17 +30,39 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
         QueryKeys.assets.hivePowerGeneralInfo(username!),
       ];
 
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries(keysToInvalidate);
+      // Delay invalidation to allow blockchain to propagate the transaction.
+      // Immediate invalidation would fetch stale (pre-confirmation) data.
+      const existingTimer = pendingInvalidationTimers.get(timerKey);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+        pendingInvalidationTimers.delete(timerKey);
       }
 
-      // Delayed re-invalidation for blockchain propagation
-      setTimeout(() => {
-        const qc = getQueryClient();
-        keysToInvalidate.forEach((key) => {
-          qc.invalidateQueries({ queryKey: key });
-        });
-      }, 5000);
+      const timer = setTimeout(async () => {
+        try {
+          const qc = getQueryClient();
+          const results = await Promise.allSettled(
+            keysToInvalidate.map((key) => qc.invalidateQueries({ queryKey: key }))
+          );
+          const rejected = results.filter((result) => result.status === "rejected");
+          if (rejected.length > 0) {
+            console.error("[SDK][Wallet][useClaimRewards] delayed invalidation rejected", {
+              username,
+              rejectedCount: rejected.length,
+              rejected
+            });
+          }
+        } catch (error) {
+          console.error("[SDK][Wallet][useClaimRewards] delayed invalidation failed", {
+            username,
+            error
+          });
+        } finally {
+          pendingInvalidationTimers.delete(timerKey);
+        }
+      }, CLAIM_REWARDS_INVALIDATION_DELAY_MS);
+
+      pendingInvalidationTimers.set(timerKey, timer);
     },
     auth,
     'posting'

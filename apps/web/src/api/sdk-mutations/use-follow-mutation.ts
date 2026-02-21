@@ -1,8 +1,8 @@
 "use client";
 
 import { useFollow, type FollowPayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific follow mutation hook using SDK.
@@ -33,11 +33,11 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useFollowMutation() {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
-  // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  // Get shared web broadcast adapter singleton for SDK mutations.
+  // The adapter reads user/token/key data at call time, so account switches are safe.
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useFollow mutation with web adapter
   return useFollow(username, {

@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { ConfigManager } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 
 type PortfolioLayer = "points" | "hive" | "chain" | "spk" | "engine";
@@ -193,13 +193,7 @@ export function getPortfolioQueryOptions(
         throw new Error("[SDK][Wallet] – username is required");
       }
 
-      if (CONFIG.privateApiHost === undefined || CONFIG.privateApiHost === null) {
-        throw new Error(
-          "[SDK][Wallet] – privateApiHost isn't configured for portfolio"
-        );
-      }
-
-      const endpoint = `${CONFIG.privateApiHost}/wallet-api/portfolio-v2`;
+      const endpoint = `${ConfigManager.getValidatedBaseUrl()}/wallet-api/portfolio-v2`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {

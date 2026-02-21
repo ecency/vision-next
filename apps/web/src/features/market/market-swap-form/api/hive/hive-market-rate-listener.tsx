@@ -1,5 +1,5 @@
 import { HiveMarketAsset } from "../../market-pair";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { OrdersDataItem } from "@/entities";
 import { getOrderBookQueryOptions, getQueryClient } from "@ecency/sdk";
 import { error } from "@/features/shared";
@@ -96,7 +96,6 @@ interface Props {
   asset: HiveMarketAsset;
   amount: string;
   setToAmount: (amount: string) => void;
-  loading: boolean;
   setLoading: (v: boolean) => void;
   setInvalidAmount: (v: boolean) => void;
   setTooMuchSlippage: (v: boolean) => void;
@@ -113,25 +112,11 @@ export const HiveMarketRateListener = ({
   const [buyOrderBook, setBuyOrderBook] = useState<OrdersDataItem[]>([]);
   const [sellOrderBook, setSellOrderBook] = useState<OrdersDataItem[]>([]);
 
-  let updateInterval: any;
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval>>();
+  const fetchOrderBookRef = useRef<() => Promise<void>>(async () => {});
+  const isFetchingRef = useRef(false);
 
-  useEffect(() => {
-    fetchOrderBook();
-    updateInterval = setInterval(() => fetchOrderBook(), 60000);
-    return () => {
-      clearInterval(updateInterval);
-    };
-  }, []);
-
-  useEffect(() => {
-    fetchOrderBook();
-  }, [asset]);
-
-  useEffect(() => {
-    processOrderBook();
-  }, [amount]);
-
-  const processOrderBook = () => {
+  const processOrderBook = useCallback(() => {
     const { tooMuchSlippage, invalidAmount, toAmount } = HiveMarket.processHiveOrderBook(
       buyOrderBook,
       sellOrderBook,
@@ -143,9 +128,14 @@ export const HiveMarketRateListener = ({
     if (toAmount) {
       setToAmount(toAmount);
     }
-  };
+  }, [amount, asset, buyOrderBook, sellOrderBook, setInvalidAmount, setToAmount, setTooMuchSlippage]);
 
-  const fetchOrderBook = async () => {
+  const fetchOrderBook = useCallback(async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    isFetchingRef.current = true;
     setLoading(true);
     try {
       const book = await HiveMarket.fetchHiveOrderBook();
@@ -153,11 +143,25 @@ export const HiveMarketRateListener = ({
         setBuyOrderBook(book.bids);
         setSellOrderBook(book.asks);
       }
-      processOrderBook();
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
-  };
+  }, [setLoading]);
+
+  useEffect(() => {
+    fetchOrderBookRef.current = fetchOrderBook;
+  }, [fetchOrderBook]);
+
+  useEffect(() => {
+    fetchOrderBookRef.current();
+    updateIntervalRef.current = setInterval(() => fetchOrderBookRef.current(), 60000);
+    return () => clearInterval(updateIntervalRef.current);
+  }, [asset]);
+
+  useEffect(() => {
+    processOrderBook();
+  }, [processOrderBook]);
 
   return <></>;
 };

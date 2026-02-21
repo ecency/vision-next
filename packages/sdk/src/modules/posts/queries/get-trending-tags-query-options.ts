@@ -19,6 +19,5 @@ export function getTrendingTagsQueryOptions(limit = 20) {
       afterTag: lastPage?.[lastPage?.length - 1],
     }),
     staleTime: Infinity,
-    refetchOnMount: true,
   });
 }

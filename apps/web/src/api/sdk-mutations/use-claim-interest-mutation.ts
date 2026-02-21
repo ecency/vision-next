@@ -1,10 +1,10 @@
 "use client";
 import { useClaimInterest } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 export function useClaimInterestMutation() {
-  const { activeUser } = useActiveAccount();
-  const adapter = createWebBroadcastAdapter();
-  return useClaimInterest(activeUser?.username, { adapter });
+  const username = useActiveUsername();
+  const adapter = getWebBroadcastAdapter();
+  return useClaimInterest(username, { adapter });
 }

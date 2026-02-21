@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.9
+
+### Patch Changes
+
+- Performance optimizations (#667)
+
 ## 2.0.7
 
 ### Patch Changes

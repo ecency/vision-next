@@ -1,8 +1,8 @@
 "use client";
 
 import { useUpdateCommunity, type UpdateCommunityPayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific update community mutation hook using SDK.
@@ -42,11 +42,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useUpdateCommunityMutation(community: string) {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
-  // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  // Get shared web broadcast adapter singleton for SDK mutations
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useUpdateCommunity mutation with web adapter
   return useUpdateCommunity(community, username, {

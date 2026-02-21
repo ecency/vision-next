@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeleteImage } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 
 /**
@@ -20,8 +20,8 @@ export function useDeleteImageMutation(
   onSuccess?: () => void,
   onError?: (e: Error) => void
 ) {
-  const { activeUser } = useActiveAccount();
-  const code = activeUser ? getAccessToken(activeUser.username) : undefined;
+  const username = useActiveUsername();
+  const code = username ? getAccessToken(username) : undefined;
 
-  return useDeleteImage(activeUser?.username, code, onSuccess, onError);
+  return useDeleteImage(username, code, onSuccess, onError);
 }

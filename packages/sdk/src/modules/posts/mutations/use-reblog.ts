@@ -76,9 +76,9 @@ export function useReblog(
         EntriesCacheManagement.updateReblogsCount(variables.author, variables.permlink, newCount);
       }
 
-      // Activity tracking
+      // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        await auth.adapter.recordActivity(130, result.block_num, result.id);
+        auth.adapter.recordActivity(130, result.block_num, result.id).catch(() => {});
       }
 
       // Invalidate user's blog feed so reblogged post appears/disappears

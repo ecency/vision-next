@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, PropsWithChildren } from "react";
+import React, { createContext, PropsWithChildren, useMemo } from "react";
 import { useSet } from "react-use";
 
 export * from "./intro-step.interface";
@@ -20,14 +20,13 @@ export function UIManager({ children }: PropsWithChildren<unknown>) {
     new Set<string>()
   );
 
+  const contextValue = useMemo(
+    () => ({ openPopovers, addOpenPopover, removeOpenPopover }),
+    [openPopovers, addOpenPopover, removeOpenPopover]
+  );
+
   return (
-    <UIContext.Provider
-      value={{
-        openPopovers,
-        addOpenPopover,
-        removeOpenPopover
-      }}
-    >
+    <UIContext.Provider value={contextValue}>
       {children}
     </UIContext.Provider>
   );

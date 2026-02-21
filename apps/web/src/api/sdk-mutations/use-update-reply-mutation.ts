@@ -1,8 +1,8 @@
 "use client";
 
 import { useUpdateReply, type UpdateReplyPayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific update reply mutation hook using SDK.
@@ -48,11 +48,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function useUpdateReplyMutation() {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
   // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's useUpdateReply mutation with web adapter
   return useUpdateReply(username, {

@@ -1,1 +1,1 @@
-export { createWebBroadcastAdapter } from './web-broadcast-adapter';
+export { createWebBroadcastAdapter, getWebBroadcastAdapter } from './web-broadcast-adapter';

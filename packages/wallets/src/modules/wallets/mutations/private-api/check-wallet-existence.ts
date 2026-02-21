@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { EcencyWalletCurrency } from "@/modules/wallets/enums";
 import { useMutation } from "@tanstack/react-query";
 
@@ -12,7 +12,7 @@ export function useCheckWalletExistence() {
     mutationKey: ["ecency-wallets", "check-wallet-existence"],
     mutationFn: async ({ address, currency }: Payload) => {
       const response = await fetch(
-        CONFIG.privateApiHost + "/private-api/wallets-exist",
+        `${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-exist`,
         {
           method: "POST",
           headers: {

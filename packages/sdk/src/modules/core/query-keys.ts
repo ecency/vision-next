@@ -281,6 +281,8 @@ export const QueryKeys = {
     proposal: (id: number) => ["proposals", "proposal", id],
     votes: (proposalId: number, voter: string, limit: number) =>
       ["proposals", "votes", proposalId, voter, limit],
+    votesPrefix: (proposalId: number) =>
+      ["proposals", "votes", proposalId] as const,
     votesByUser: (voter: string) =>
       ["proposals", "votes", "by-user", voter],
   },

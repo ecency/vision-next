@@ -384,7 +384,6 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
           amount={from}
           asset={fromAsset as HiveMarketAsset}
           setToAmount={(v) => setTo(v)}
-          loading={disabled}
           setLoading={(v) => setDisabled(v)}
           setInvalidAmount={(v) => setIsInvalidFrom(v)}
           setTooMuchSlippage={(v) => setTooMuchSlippage(v)}

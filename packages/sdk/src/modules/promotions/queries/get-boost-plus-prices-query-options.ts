@@ -25,7 +25,6 @@ export function getBoostPlusPricesQueryOptions(accessToken: string) {
       return await response.json() as PromotePrice[];
     },
     staleTime: Infinity,
-    refetchOnMount: true,
     enabled: !!accessToken
   });
 }

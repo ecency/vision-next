@@ -9,6 +9,6 @@ export function getChainPropertiesQueryOptions() {
   return queryOptions({
     queryKey: QueryKeys.core.chainProperties(),
     queryFn: () => CONFIG.hiveClient.database.getChainProperties(),
-    refetchOnMount: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes - chain properties change rarely
   });
 }

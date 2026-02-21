@@ -266,16 +266,12 @@ function getTokenPriceQueryOptions(currency) {
           "[SDK][Wallets][MarketData] \u2013 currency wasn`t provided"
         );
       }
-      if (!sdk.CONFIG.privateApiHost) {
-        throw new Error(
-          "[SDK][Wallets][MarketData] \u2013 privateApiHost isn`t configured"
-        );
-      }
       const token = normalizeCurrencyToToken(currency);
+      const baseUrl = sdk.ConfigManager.getValidatedBaseUrl();
       let marketData = cacheGet(MARKET_DATA_CACHE_KEY);
       if (!marketData) {
         const httpResponse = await fetch(
-          `${sdk.CONFIG.privateApiHost}/private-api/market-data/latest`,
+          `${baseUrl}/private-api/market-data/latest`,
           {
             method: "GET"
           }
@@ -947,7 +943,7 @@ function useCreateAccountWithWallets(username) {
   const fetchApi = getBoundFetch();
   return reactQuery.useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address }) => fetchApi(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
+    mutationFn: ({ currency, address }) => fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -978,7 +974,7 @@ function useCheckWalletExistence() {
     mutationKey: ["ecency-wallets", "check-wallet-existence"],
     mutationFn: async ({ address, currency }) => {
       const response = await fetch(
-        sdk.CONFIG.privateApiHost + "/private-api/wallets-exist",
+        `${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-exist`,
         {
           method: "POST",
           headers: {
@@ -998,7 +994,7 @@ function useCheckWalletExistence() {
 function useUpdateAccountWithWallets(username, accessToken) {
   const fetchApi = getBoundFetch();
   return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationKey: ["ecency-wallets", "update-account-with-wallets", username],
     mutationFn: async ({ tokens, hiveKeys }) => {
       const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
       if (entries.length === 0) {
@@ -1010,7 +1006,7 @@ function useUpdateAccountWithWallets(username, accessToken) {
           "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
         );
       }
-      return fetchApi(sdk.CONFIG.privateApiHost + "/private-api/wallets-add", {
+      return fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

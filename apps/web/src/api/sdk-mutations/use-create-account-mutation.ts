@@ -1,13 +1,12 @@
 "use client";
 
 import { useCreateAccount } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 export function useCreateAccountMutation() {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
-  const adapter = createWebBroadcastAdapter();
+  const username = useActiveUsername();
+  const adapter = getWebBroadcastAdapter();
 
   return useCreateAccount(username, { adapter });
 }

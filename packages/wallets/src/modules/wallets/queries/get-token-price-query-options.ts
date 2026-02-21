@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { EcencyWalletCurrency } from "@/modules/wallets/enums";
 import { queryOptions } from "@tanstack/react-query";
 import { LRUCache } from "lru-cache";
@@ -69,13 +69,8 @@ export function getTokenPriceQueryOptions(currency?: string) {
         );
       }
 
-      if (!CONFIG.privateApiHost) {
-        throw new Error(
-          "[SDK][Wallets][MarketData] – privateApiHost isn`t configured"
-        );
-      }
-
       const token = normalizeCurrencyToToken(currency);
+      const baseUrl = ConfigManager.getValidatedBaseUrl();
 
       let marketData = cacheGet(MARKET_DATA_CACHE_KEY) as
         | MarketDataLatestResponse
@@ -83,7 +78,7 @@ export function getTokenPriceQueryOptions(currency?: string) {
 
       if (!marketData) {
         const httpResponse = await fetch(
-          `${CONFIG.privateApiHost}/private-api/market-data/latest`,
+          `${baseUrl}/private-api/market-data/latest`,
           {
             method: "GET",
           }

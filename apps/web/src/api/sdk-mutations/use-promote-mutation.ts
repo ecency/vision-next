@@ -1,8 +1,8 @@
 "use client";
 
 import { usePromote, type PromotePayload } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 
 /**
  * Web-specific promote mutation hook using SDK.
@@ -37,11 +37,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
  * ```
  */
 export function usePromoteMutation() {
-  const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = useActiveUsername();
 
   // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  const adapter = getWebBroadcastAdapter();
 
   // Use SDK's usePromote mutation with web adapter
   return usePromote(username, {

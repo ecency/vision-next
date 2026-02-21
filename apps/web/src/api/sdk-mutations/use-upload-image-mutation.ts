@@ -1,7 +1,7 @@
 "use client";
 
-import { useUploadImage, useAddImage } from "@ecency/sdk";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useAddImage, useUploadImage } from "@ecency/sdk";
+import { useActiveUsername } from "@/core/hooks/use-active-username";
 import { getAccessToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
@@ -22,12 +22,13 @@ import { EcencyConfigManager } from "@/config";
  * uploadMutation.mutate({ file, signal });
  */
 export function useUploadImageMutation() {
-  const { activeUser } = useActiveAccount();
-  const code = activeUser ? getAccessToken(activeUser.username) : undefined;
+  const username = useActiveUsername();
 
   // SDK hooks
   const sdkUpload = useUploadImage();
-  const sdkAddImage = useAddImage(activeUser?.username, code);
+  // Intentionally keep hook-level code undefined; a fresh access token is read
+  // at execution time and passed per-call to mutateAsync({ url, code }).
+  const sdkAddImage = useAddImage(username, undefined);
 
   // Feature-flagged add mutation
   const conditionalAdd = EcencyConfigManager.useConditionalMutation(
@@ -38,7 +39,16 @@ export function useUploadImageMutation() {
         if (!url || url.length === 0) {
           throw new Error("URL missed");
         }
-        await sdkAddImage.mutateAsync({ url });
+        if (!username) {
+          throw new Error("Cannot add image without an active user");
+        }
+
+        const token = getAccessToken(username);
+        if (!token) {
+          throw new Error("Token missed");
+        }
+
+        await sdkAddImage.mutateAsync({ url, code: token });
       },
       onError: (e: Error) => {
         // Web-specific error handling for add
@@ -59,11 +69,11 @@ export function useUploadImageMutation() {
   return useMutation({
     mutationKey: ["uploadAndAddPostImage"],
     mutationFn: async ({ file, signal }: { file: File; signal?: AbortSignal }) => {
-      if (!activeUser?.username) {
+      if (!username) {
         throw new Error("Cannot upload image without an active user");
       }
 
-      const token = getAccessToken(activeUser.username);
+      const token = getAccessToken(username);
       if (!token) {
         error(i18next.t("editor-toolbar.image-error-cache"));
         throw new Error("Token missed");

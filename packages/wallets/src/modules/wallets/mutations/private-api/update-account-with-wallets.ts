@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
 import { getBoundFetch } from "@/modules/wallets/utils";
 
@@ -19,7 +19,7 @@ export function useUpdateAccountWithWallets(
   const fetchApi = getBoundFetch();
 
   return useMutation({
-    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationKey: ["ecency-wallets", "update-account-with-wallets", username],
     mutationFn: async ({ tokens, hiveKeys }: Payload) => {
       const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
 
@@ -35,7 +35,7 @@ export function useUpdateAccountWithWallets(
         );
       }
 
-      return fetchApi(CONFIG.privateApiHost + "/private-api/wallets-add", {
+      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

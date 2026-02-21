@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { queryOptions } from "@tanstack/react-query";
 import { parsePrivateApiBalance } from "../common/parse-private-api-balance";
 
@@ -6,24 +6,38 @@ export function getTonAssetBalanceQueryOptions(address: string) {
   return queryOptions({
     queryKey: ["assets", "ton", "balance", address],
     queryFn: async () => {
-      const baseUrl = `${CONFIG.privateApiHost}/private-api/balance/ton/${encodeURIComponent(
+      const baseUrl = `${ConfigManager.getValidatedBaseUrl()}/private-api/balance/ton/${encodeURIComponent(
         address
       )}`;
+      let primaryResponse: Response | undefined;
+      let primaryFailure = "";
 
       try {
-        const response = await fetch(baseUrl);
-        if (!response.ok) {
-          throw new Error(`[SDK][Wallets] – request failed(${baseUrl})`);
-        }
-        return +parsePrivateApiBalance(await response.json(), "ton")
-          .balanceString;
+        primaryResponse = await fetch(baseUrl);
       } catch (error) {
         console.error(error);
-
-        const response = await fetch(`${baseUrl}?provider=chainz`);
-        return +parsePrivateApiBalance(await response.json(), "ton")
-          .balanceString;
+        primaryFailure = `[SDK][Wallets] – primary request failed(${baseUrl}): ${
+          error instanceof Error ? error.message : String(error)
+        }`;
       }
+
+      if (primaryResponse?.ok) {
+        return +parsePrivateApiBalance(await primaryResponse.json(), "ton").balanceString;
+      }
+
+      if (primaryResponse && !primaryResponse.ok) {
+        primaryFailure = `[SDK][Wallets] – primary request failed(${baseUrl}) status ${primaryResponse.status} ${primaryResponse.statusText}`;
+      }
+
+      const fallbackUrl = `${baseUrl}?provider=chainz`;
+      const fallbackResponse = await fetch(fallbackUrl);
+      if (!fallbackResponse.ok) {
+        throw new Error(
+          `${primaryFailure}; [SDK][Wallets] – fallback request failed(${fallbackUrl}) status ${fallbackResponse.status} ${fallbackResponse.statusText}`
+        );
+      }
+
+      return +parsePrivateApiBalance(await fallbackResponse.json(), "ton").balanceString;
     },
   });
 }

@@ -22,11 +22,13 @@ export function useAddImage(
 ) {
   return useMutation({
     mutationKey: ["posts", "images", "add", username],
-    mutationFn: async ({ url }: { url: string }) => {
-      if (!username || !code) {
+    mutationFn: async ({ url, code: nextCode }: { url: string; code?: string }) => {
+      const effectiveCode = nextCode ?? code;
+
+      if (!username || !effectiveCode) {
         throw new Error("[SDK][Posts] – missing auth for addImage");
       }
-      return addImage(code, url);
+      return addImage(effectiveCode, url);
     },
     onSuccess: () => {
       onSuccess?.();

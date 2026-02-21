@@ -27,28 +27,20 @@ import { error, success } from '@/features/shared/feedback/feedback-events';
  *
  * @returns {PlatformAdapter} Platform adapter instance configured for web
  *
+ * @remarks
+ * `createWebBroadcastAdapter` is an internal factory.
+ * App code should use `getWebBroadcastAdapter()` to retrieve the shared singleton.
+ *
  * @example
  * ```typescript
- * import { createWebBroadcastAdapter } from '@/providers/sdk';
+ * import { getWebBroadcastAdapter } from '@/providers/sdk';
  * import { useVote } from '@ecency/sdk';
- * import { useActiveAccount } from '@/core/hooks';
  *
- * // Create a web-specific mutation hook wrapper
- * export function useVoteMutation() {
- *   const { username } = useActiveAccount();
- *   const adapter = createWebBroadcastAdapter();
- *
+ * export function useVoteMutation(username?: string) {
+ *   const adapter = getWebBroadcastAdapter();
  *   return useVote(username, { adapter });
  * }
- *
- * // Now use the wrapper in components
- * const { mutate: vote } = useVoteMutation();
- * vote({ author: 'ecency', permlink: 'welcome', weight: 10000 });
  * ```
- *
- * @remarks
- * Following the mobile pattern, each mutation hook wrapper creates its own adapter
- * instance and passes it to the SDK mutation hook. Creating adapters is lightweight.
  *
  * The adapter integrates with:
  * - **localStorage**: Persistent storage for user data and encrypted keys
@@ -59,6 +51,24 @@ import { error, success } from '@/features/shared/feedback/feedback-events';
  *
  * @see {@link PlatformAdapter} for the full interface definition
  */
+/**
+ * Singleton adapter instance. Safe to reuse because all methods read from
+ * localStorage / window at call time — no state is captured at creation.
+ */
+let _singletonAdapter: PlatformAdapter | null = null;
+
+export function getWebBroadcastAdapter(): PlatformAdapter {
+  if (!_singletonAdapter) {
+    _singletonAdapter = createWebBroadcastAdapter();
+  }
+  return _singletonAdapter;
+}
+
+// Test-only helper for resetting singleton state between tests.
+export function resetWebBroadcastAdapterForTests() {
+  _singletonAdapter = null;
+}
+
 export function createWebBroadcastAdapter(): PlatformAdapter {
   return {
     // ============================================================================

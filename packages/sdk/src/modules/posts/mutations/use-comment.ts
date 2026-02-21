@@ -187,14 +187,9 @@ export function useComment(
       const isPost = !variables.parentAuthor;
       const activityType = isPost ? 100 : 110;
 
-      // Activity tracking (wrapped in try/catch to prevent failures from blocking cache invalidation)
+      // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        try {
-          await auth.adapter.recordActivity(activityType, result.block_num, result.id);
-        } catch (err) {
-          // Log error but don't rethrow - activity tracking is non-critical
-          console.warn('[useComment] Failed to record activity:', err);
-        }
+        auth.adapter.recordActivity(activityType, result.block_num, result.id).catch(() => {});
       }
 
       // Cache invalidation (always runs regardless of recordActivity outcome)

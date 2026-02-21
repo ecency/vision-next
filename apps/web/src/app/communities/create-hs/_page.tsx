@@ -3,7 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import { hsTokenRenew, useSetCommunityRole, useUpdateCommunity } from "@ecency/sdk";
-import { createWebBroadcastAdapter } from "@/providers/sdk";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import { User } from "@/entities";
 import { delay } from "@/utils";
@@ -57,8 +57,8 @@ export function CommunityCreateHsPage() {
   const roleSetRef = useRef(false);
   const propsUpdatedRef = useRef(false);
 
-  // Create web broadcast adapter for SDK mutations
-  const adapter = createWebBroadcastAdapter();
+  // Singleton web broadcast adapter for SDK mutations
+  const adapter = getWebBroadcastAdapter();
 
   // SDK mutation hooks – we use the SDK hooks directly (not the web wrappers from
   // @/api/sdk-mutations) because this flow broadcasts AS the community account, not
