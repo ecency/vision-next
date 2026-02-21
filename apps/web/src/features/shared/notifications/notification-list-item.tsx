@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { ApiMentionNotification, ApiNotification } from "@/entities";
 import { NotificationReferralType } from "@/features/shared/notifications/notification-types/notification-referral-type";
 import { NotificationInactiveType } from "@/features/shared/notifications/notification-types/notification-inactive-type";
@@ -30,7 +30,6 @@ interface Props {
   isSelect?: boolean;
   setSelectedNotifications?: (d: string) => void;
   onMounted?: () => void;
-  onAppear?: () => void;
   className?: string;
   onLinkClick?: () => void;
   openLinksInNewTab?: boolean;
@@ -55,8 +54,11 @@ export const NotificationListItem = memo(function NotificationListItem({
 
   const markNotifications = useMarkNotificationsMutation();
 
+  const onMountedRef = useRef(onMounted);
+  onMountedRef.current = onMounted;
+
   useEffect(() => {
-    onMounted?.();
+    onMountedRef.current?.();
   }, []);
 
   useEffect(() => {

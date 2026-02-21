@@ -25,9 +25,8 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
   const [isSettling, setIsSettling] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: subscriptions } = useQuery(
-    getAccountSubscriptionsQueryOptions(activeUser?.username)
-  );
+  const subscriptionsQueryOptions = getAccountSubscriptionsQueryOptions(activeUser?.username);
+  const { data: subscriptions } = useQuery(subscriptionsQueryOptions);
   const subscribeMutation = useSubscribeCommunityMutation();
   const unsubscribeMutation = useUnsubscribeCommunityMutation();
   const isPending = subscribeMutation.isPending || unsubscribeMutation.isPending || isSettling;
@@ -37,25 +36,29 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
     [subscriptions, community]
   );
 
-  const handleSubscribe = async () => {
-    try {
-      setIsSettling(true);
-      await subscribeMutation.mutateAsync({ community: community.name });
-      await queryClient.refetchQueries({
-        queryKey: getAccountSubscriptionsQueryOptions(activeUser?.username).queryKey
-      });
-    } finally {
-      setIsSettling(false);
-    }
-  };
+  const performAction = async (
+    mutation: typeof subscribeMutation | typeof unsubscribeMutation
+  ) => {
+    const previousData = queryClient.getQueryData(subscriptionsQueryOptions.queryKey);
+    const optimisticData =
+      mutation === subscribeMutation
+        ? [...((previousData as string[][]) ?? []), [community.name, community.title, "guest", ""]]
+        : ((previousData as string[][]) ?? []).filter((x) => x[0] !== community.name);
 
-  const handleUnsubscribe = async () => {
+    // Optimistic update
+    queryClient.setQueryData(subscriptionsQueryOptions.queryKey, optimisticData);
+
     try {
       setIsSettling(true);
-      await unsubscribeMutation.mutateAsync({ community: community.name });
-      await queryClient.refetchQueries({
-        queryKey: getAccountSubscriptionsQueryOptions(activeUser?.username).queryKey
-      });
+      await mutation.mutateAsync({ community: community.name });
+      // SDK's invalidateQueries fires in onSuccess, triggering a refetch that may
+      // return stale data (blockchain hasn't confirmed yet). Cancel it and re-apply
+      // the optimistic data to prevent the stale refetch from overwriting the UI.
+      await queryClient.cancelQueries({ queryKey: subscriptionsQueryOptions.queryKey });
+      queryClient.setQueryData(subscriptionsQueryOptions.queryKey, optimisticData);
+    } catch {
+      // Rollback on error
+      queryClient.setQueryData(subscriptionsQueryOptions.queryKey, previousData);
     } finally {
       setIsSettling(false);
     }
@@ -69,7 +72,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           disabled={isPending}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={handleUnsubscribe}
+          onClick={() => performAction(unsubscribeMutation)}
           outline={true}
           appearance={hover ? "danger" : "primary"}
           {...buttonProps}
@@ -82,7 +85,7 @@ export function SubscriptionBtn({ buttonProps, community }: Props) {
           <Button
             icon={isPending && <Spinner className="w-3.5 h-3.5" />}
             disabled={isPending}
-            onClick={handleSubscribe}
+            onClick={() => performAction(subscribeMutation)}
             {...buttonProps}
           >
             {i18next.t("community.subscribe")}

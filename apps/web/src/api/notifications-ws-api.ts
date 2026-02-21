@@ -12,7 +12,7 @@ export class NotificationsWebSocket {
   private activeUser: ActiveUser | null = null;
   private hasNotifications = false;
   private hasUiNotifications = false;
-  private onMessageCallback: Function | null = null;
+  private onMessageCallback: (() => void) | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
 
@@ -134,7 +134,7 @@ export class NotificationsWebSocket {
     return this;
   }
 
-  public withToggleUi(toggle: Function) {
+  public withToggleUi(toggle: (...args: any[]) => void) {
     this.toggleUiProp = toggle;
     return this;
   }
@@ -144,7 +144,7 @@ export class NotificationsWebSocket {
     return this;
   }
 
-  public withCallbackOnMessage(cb: Function) {
+  public withCallbackOnMessage(cb: () => void) {
     this.onMessageCallback = cb;
     return this;
   }
@@ -178,7 +178,7 @@ export class NotificationsWebSocket {
     }
   }
 
-  private toggleUiProp: Function = () => {};
+  private toggleUiProp: (...args: any[]) => void = () => {};
 
   private async playSound() {
     if (!("Notification" in window)) {
@@ -195,6 +195,9 @@ export class NotificationsWebSocket {
 
     const data = JSON.parse(evt.data);
     const msg = NotificationsWebSocket.getBody(data);
+
+    // Always trigger data refresh regardless of notification display settings
+    this.onMessageCallback?.();
 
     const messageNotifyType = this.getNotificationType(data.type);
     const allowedToNotify =
@@ -222,7 +225,5 @@ export class NotificationsWebSocket {
     } else if (this.hasUiNotifications) {
       this.toggleUiProp("notifications");
     }
-
-    this.onMessageCallback?.();
   }
 }

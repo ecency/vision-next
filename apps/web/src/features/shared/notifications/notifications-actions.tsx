@@ -19,7 +19,7 @@ import {
 } from "@ui/dropdown";
 import { checkSvg, settingsSvg, syncSvg } from "@ui/svg";
 import { classNameObject } from "@ui/util";
-import { default as i18n, default as i18next } from "i18next";
+import i18next from "i18next";
 import { useEffect } from "react";
 import { useDebounce, useMap } from "react-use";
 import { getAccessToken } from "@/utils";
@@ -79,7 +79,7 @@ export function NotificationsActions({ filter }: Props) {
       Array.from(Object.keys(settings) as NotifyTypes[]).forEach((type) =>
         setSettingItem(type, false)
       );
-      notificationSettings.notify_types?.map((type) => setSettingItem(type, true));
+      notificationSettings.notify_types?.forEach((type) => setSettingItem(type, true));
     }
   }, [notificationSettings, setSettingItem]);
 
@@ -88,9 +88,10 @@ export function NotificationsActions({ filter }: Props) {
       const enabledTypes = Array.from(Object.keys(settings) as NotifyTypes[]).filter(
         (type) => settings[type]
       );
+      const serverTypes = notificationSettings?.notify_types ?? [];
       const isSame =
-        enabledTypes.every((et) => notificationSettings?.notify_types?.every((nt) => et !== nt)) &&
-        enabledTypes.length === notificationSettings?.notify_types?.length;
+        enabledTypes.length === serverTypes.length &&
+        enabledTypes.every((et) => serverTypes.some((nt) => nt === et));
       if (!isSame && activeUser) {
         updateSettings.mutateAsync({
           notifyTypes: enabledTypes,
@@ -170,37 +171,29 @@ export function NotificationsActions({ filter }: Props) {
           <DropdownItemHeader>{i18next.t(`notifications.settings`)}</DropdownItemHeader>
           {isMobile && (
             <DropdownItem onClick={() => markAsRead()}>
-              <Tooltip content={i18n.t(`notifications.mark-all-read`)}>
-                <div className="list-actions">
-                  <Tooltip content={i18next.t("notifications.mark-all-read")}>
-                    <span
-                      className={classNameObject({
-                        "list-action": true,
-                        disabled: markNotifications.isPending || unread === 0
-                      })}
-                    >
-                      {checkSvg}
-                    </span>
-                  </Tooltip>
-                </div>
+              <Tooltip content={i18next.t("notifications.mark-all-read")}>
+                <span
+                  className={classNameObject({
+                    "list-action": true,
+                    disabled: markNotifications.isPending || unread === 0
+                  })}
+                >
+                  {checkSvg}
+                </span>
               </Tooltip>
             </DropdownItem>
           )}
           {isMobile && (
             <DropdownItem onClick={() => refresh()}>
-              <Tooltip content={i18next.t(`notifications.refresh`)}>
-                <div className="list-actions">
-                  <Tooltip content={i18next.t("notifications.refresh")}>
-                    <span
-                      className={classNameObject({
-                        "list-action": true,
-                        disabled: isDataLoading || isUnreadLoading
-                      })}
-                    >
-                      {syncSvg}
-                    </span>
-                  </Tooltip>
-                </div>
+              <Tooltip content={i18next.t("notifications.refresh")}>
+                <span
+                  className={classNameObject({
+                    "list-action": true,
+                    disabled: isDataLoading || isUnreadLoading
+                  })}
+                >
+                  {syncSvg}
+                </span>
               </Tooltip>
             </DropdownItem>
           )}

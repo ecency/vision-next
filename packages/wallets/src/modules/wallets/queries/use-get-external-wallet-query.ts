@@ -1,5 +1,5 @@
 import { EcencyWalletCurrency } from "@/modules/wallets/enums";
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
 const currencyChainMap: Record<EcencyWalletCurrency, string> = {
@@ -115,11 +115,7 @@ export function useGetExternalWalletBalanceQuery(
         throw new Error(`Unsupported currency ${currency}`);
       }
 
-      if (!CONFIG.privateApiHost) {
-        throw new Error("Private API host is not configured");
-      }
-
-      const baseUrl = `${CONFIG.privateApiHost}/private-api/balance/${chain}/${encodeURIComponent(
+      const baseUrl = `${ConfigManager.getValidatedBaseUrl()}/private-api/balance/${chain}/${encodeURIComponent(
         address
       )}`;
 

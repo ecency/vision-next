@@ -10,7 +10,7 @@ import {
   getNotificationsUnreadCountQueryOptions
 } from "@ecency/sdk";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { usePrevious } from "react-use";
 import { getAccessToken } from "@/utils";
 import * as ls from "@/utils/local-storage";
@@ -27,10 +27,10 @@ export function NotificationHandler() {
   const previousActiveUser = usePrevious(activeUser);
   const accessToken = getAccessToken(activeUser?.username ?? "");
 
-  const notificationUnreadCountQuery = useQuery(
+  const { refetch: refetchUnreadCount } = useQuery(
     getNotificationsUnreadCountQueryOptions(activeUser?.username, accessToken)
   );
-  const notificationsQuery = useInfiniteQuery(
+  const { refetch: refetchNotifications } = useInfiniteQuery(
     getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken)
   );
   const notificationsSettingsQuery = useQuery(
@@ -41,14 +41,12 @@ export function NotificationHandler() {
     )
   );
 
-  const refetchAll = useCallback(() => {
+  const refetchAllRef = useRef(() => {});
+  refetchAllRef.current = () => {
     notificationsSettingsQuery.refetch();
-    notificationUnreadCountQuery.refetch();
-    notificationsQuery.refetch();
-  }, [notificationsSettingsQuery, notificationUnreadCountQuery, notificationsQuery]);
-
-  const refetchAllRef = useRef(refetchAll);
-  refetchAllRef.current = refetchAll;
+    refetchUnreadCount();
+    refetchNotifications();
+  };
 
   useEffect(() => {
     nws.current
@@ -67,12 +65,6 @@ export function NotificationHandler() {
     toggleUIProp,
     uiNotifications
   ]);
-
-  useEffect(() => {
-    nws.current.setEnabledNotificationsTypes(
-      (notificationsSettingsQuery.data?.notify_types as NotifyTypes[]) || []
-    );
-  }, [notificationsSettingsQuery.data, nws]);
 
   useEffect(() => {
     if (fbSupport === "denied" && activeUser) {
