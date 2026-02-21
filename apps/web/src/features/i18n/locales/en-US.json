@@ -2846,7 +2846,7 @@
       "validation-success": "We have validated your wallet",
       "address-copied": "Address copied",
       "minimum-required": "At least {{minimum}} required to validate.",
-      "estimated-value": "Estimated value: {{value}}",
+      "estimated-value": "Estimated value: ${{value}}",
       "checking-balance": "Checking your wallet balance...",
       "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
       "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
