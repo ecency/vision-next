@@ -2844,7 +2844,13 @@
       "topup": "请用一定数量的代币充值你的钱包",
       "topup-description": "当你的钱包余额变化时，页面将自动检测并允许你继续创建帐户",
       "validation-success": "我们已验证您的钱包",
-      "address-copied": "地址已复制"
+      "address-copied": "地址已复制",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "正在检查您的钱包余额...",
+      "balance-fetch-error": "无法刷新您的钱包余额。我们将自动重试一次。",
+      "price-unavailable": "价格数据暂时不可用。请稍后再试。",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "导入自己的钱包",
