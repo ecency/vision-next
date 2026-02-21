@@ -2844,7 +2844,13 @@
       "topup": "Veuillez recharger votre portefeuille avec un certain nombre de jetons",
       "topup-description": "Lorsque le solde de votre portefeuille change, la page détecte automatiquement et vous permet de continuer la création de votre compte",
       "validation-success": "Nous avons validé votre portefeuille",
-      "address-copied": "Adresse copiée"
+      "address-copied": "Adresse copiée",
+      "minimum-required": "Au moins {{minimum}} requis pour valider.",
+      "estimated-value": "Valeur estimée : ${{value}}",
+      "checking-balance": "Vérification du solde de votre portefeuille...",
+      "balance-fetch-error": "Impossible de rafraîchir le solde de votre portefeuille. Nous continuerons à réessayer automatiquement.",
+      "price-unavailable": "Les données de prix sont temporairement indisponibles. Veuillez réessayer dans un instant.",
+      "price-required": "Les données de prix sont requises pour valider que votre solde correspond au minimum {{minimum}} . Nous continuerons à vérifier votre solde, veuillez réessayer dans un instant."
     },
     "import": {
       "title": "Importer votre propre portefeuille",
