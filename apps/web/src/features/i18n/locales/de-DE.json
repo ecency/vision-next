@@ -2844,7 +2844,13 @@
       "topup": "Bitte laden Sie Ihre Brieftasche mit einigen Tokens auf",
       "topup-description": "Wenn sich Ihr Wallet-Guthaben ändert, erkennt die Seite automatisch und lässt Sie die Kontoerstellung fortsetzen",
       "validation-success": "Wir haben Ihre Brieftasche bestätigt",
-      "address-copied": "Adresse kopiert"
+      "address-copied": "Adresse kopiert",
+      "minimum-required": "Mindestens {{minimum}} erforderlich für die Validierung.",
+      "estimated-value": "Geschätzter Wert: ${{value}}",
+      "checking-balance": "Ihr Wallet-Guthaben wird überprüft...",
+      "balance-fetch-error": "Ihr Wallet-Guthaben konnte nicht aktualisiert werden. Wir werden es weiterhin automatisch versuchen.",
+      "price-unavailable": "Preisdaten sind vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
+      "price-required": "Preisdaten werden benötigt, um zu überprüfen, ob Ihr Guthaben das Minimum von {{minimum}} erreicht. Wir werden Ihr Guthaben weiterhin überprüfen, bitte versuchen Sie es in Kürze erneut."
     },
     "import": {
       "title": "Eigene Brieftasche importieren",
