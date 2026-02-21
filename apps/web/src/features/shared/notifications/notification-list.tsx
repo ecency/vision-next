@@ -26,13 +26,17 @@ export function NotificationList({
   selectNotification
 }: Props) {
   const { activeUser } = useActiveAccount();
-  const { data, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(
-      activeUser?.username,
-      getAccessToken(activeUser?.username ?? ""),
-      filter
-    )
-  );
+  const accessToken = getAccessToken(activeUser?.username ?? "");
+  const isQueryEnabled = Boolean(activeUser?.username && accessToken);
+  const {
+    data,
+    isFetching,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch
+  } = useInfiniteQuery(getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken, filter));
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const hasNextPageRef = useRef(hasNextPage);
@@ -49,10 +53,6 @@ export function NotificationList({
     [data]
   );
 
-  // pages.length === 0 means we only have initialData (empty shell from SDK),
-  // real data hasn't been fetched yet. Don't show "Nothing here" in this state.
-  const hasFetchedOnce = (data?.pages.length ?? 0) > 0;
-
   const filteredData = useMemo(() => {
     if (currentStatus === NotificationViewType.READ) {
       return dataFlow.filter((n) => n.read === 1);
@@ -63,8 +63,14 @@ export function NotificationList({
     return dataFlow;
   }, [dataFlow, currentStatus]);
 
-  const isLoading = isFetching || !hasFetchedOnce;
+  const isLoading = isQueryEnabled && isFetching;
   isLoadingRef.current = isLoading;
+
+  useEffect(() => {
+    if (isQueryEnabled) {
+      refetch();
+    }
+  }, [filter, isQueryEnabled, refetch]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -94,7 +100,13 @@ export function NotificationList({
 
       <div className={`list-body${filteredData.length === 0 && !isLoading ? " empty-list" : ""}`}>
         {!isLoading && filteredData.length === 0 && !hasNextPage && (
-          <span className="empty-text">{i18next.t("g.empty-list")}</span>
+          <span className="empty-text">
+            {!isQueryEnabled
+              ? i18next.t("notifications.auth-required-desc")
+              : isError
+                ? i18next.t("g.error")
+                : i18next.t("g.empty-list")}
+          </span>
         )}
         {filteredData.map((n, i) => (
           <AnimatedNotificationListItemLayout key={n.id} index={i}>

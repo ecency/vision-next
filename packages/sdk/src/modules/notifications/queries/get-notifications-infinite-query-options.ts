@@ -32,7 +32,15 @@ export function getNotificationsInfiniteQueryOptions(
         }
       );
 
-      return response.json() as Promise<ApiNotification[]>;
+      if (!response.ok) {
+        return [];
+      }
+
+      try {
+        return (await response.json()) as ApiNotification[];
+      } catch {
+        return [];
+      }
     },
     enabled: !!activeUsername && !!code,
     initialData: { pages: [], pageParams: [] },
