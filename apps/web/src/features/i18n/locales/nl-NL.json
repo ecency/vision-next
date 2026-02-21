@@ -2844,7 +2844,13 @@
       "topup": "Vul uw portemonnee aan met een aantal tokens",
       "topup-description": "Als het saldo van uw portemonnee wijzigt, zal de pagina automatisch detecteren en u kunt doorgaan met het aanmaken van uw account",
       "validation-success": "We hebben je portemonnee gevalideerd",
-      "address-copied": "Adres gekopieerd"
+      "address-copied": "Adres gekopieerd",
+      "minimum-required": "Tenminste {{minimum}} vereist om te valideren.",
+      "estimated-value": "Geschatte waarde: ${{value}}",
+      "checking-balance": "Controleer uw portemonnee saldo...",
+      "balance-fetch-error": "Kon uw portemonnee saldo niet vernieuwen. We blijven automatisch opnieuw proberen.",
+      "price-unavailable": "Prijsgegevens zijn tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+      "price-required": "Prijsgegevens zijn vereist om te valideren dat uw saldo voldoet aan het {{minimum}} minimum. We zullen uw balans blijven controleren, probeer het later opnieuw."
     },
     "import": {
       "title": "Importeer eigen portemonnee",
