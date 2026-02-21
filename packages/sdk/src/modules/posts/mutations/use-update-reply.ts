@@ -167,8 +167,8 @@ export function useUpdateReply(
         auth.adapter.recordActivity(110, _result.block_num, _result.id).catch((error) => {
           console.error("[SDK][Posts][useUpdateReply] recordActivity failed", {
             activityType: 110,
-            blockNum: _result?.block_num,
-            transactionId: _result?.id,
+            blockNum: _result.block_num,
+            transactionId: _result.id,
             error
           });
         });

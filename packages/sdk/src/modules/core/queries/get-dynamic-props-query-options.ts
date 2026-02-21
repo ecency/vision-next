@@ -4,11 +4,11 @@ import { CONFIG } from "../config";
 import { parseAsset } from "../utils";
 import { QueryKeys } from "@/modules/core";
 
-export function getDynamicPropsQueryOptions() {
-  // This query powers wallet/HP/reward math that should stay close to chain state.
-  // Keep a short refresh cadence despite the 4 RPC calls.
-  const DYNAMIC_PROPS_REFRESH_MS = 60 * 1000;
+// This query powers wallet/HP/reward math that should stay close to chain state.
+// Keep a short refresh cadence despite the 4 RPC calls.
+const DYNAMIC_PROPS_REFRESH_MS = 60 * 1000;
 
+export function getDynamicPropsQueryOptions() {
   return queryOptions({
     queryKey: QueryKeys.core.dynamicProps(),
     refetchInterval: DYNAMIC_PROPS_REFRESH_MS,

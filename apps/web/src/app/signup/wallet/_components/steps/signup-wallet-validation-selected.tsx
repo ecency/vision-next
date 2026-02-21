@@ -106,7 +106,6 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
     maximumFractionDigits: 2
   }).format(MINIMUM_VALIDATION_USD.toNumber());
   const hasValidated = hasPrice && usdValue.greaterThanOrEqualTo(MINIMUM_VALIDATION_USD);
-  // const hasValidated = true;
 
   const [_, copy] = useCopyToClipboard();
 
@@ -164,7 +163,11 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
           <div className="-mb-2 text-sm opacity-50">
             {i18next.t("signup-wallets.validate-funds.topup-description")}
           </div>
-          <div className="-mb-2 text-sm opacity-75">At least $1 required to validate.</div>
+          <div className="-mb-2 text-sm opacity-75">
+            {i18next.t("signup-wallets.validate-funds.minimum-required", {
+              minimum: minimumValidationUsdLabel
+            })}
+          </div>
           {(isCheckingBalance || isCheckingPrice) && (
             <div className="-mb-2 mt-1 text-sm opacity-75 flex items-center gap-2">
               <Spinner className="w-4 h-4" />

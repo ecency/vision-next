@@ -2845,6 +2845,7 @@
       "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
       "address-copied": "Address copied",
+      "minimum-required": "At least {{minimum}} required to validate.",
       "checking-balance": "Checking your wallet balance...",
       "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
       "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",

@@ -76,62 +76,60 @@ export function useProposalVoteMutation(proposalId: number) {
       // Broadcast transaction via SDK
       await proposalVote({ proposalIds: [proposalId], approve });
 
+      const proposalVotesPrefix = QueryKeys.proposals.votes(proposalId, "", 0).slice(0, 3);
+      const userVotesKey = QueryKeys.proposals.votesByUser(username);
+
       // Poll for blockchain confirmation to keep loading state active.
       // Polling failures should not fail the mutation after a successful broadcast.
-      const pollForConfirmation = async (attempts = 0): Promise<void> => {
-        try {
+      try {
+        for (let attempts = 0; attempts <= 5; attempts++) {
           if (attempts >= 5) {
-            // After 5 attempts (~15 seconds), give up and invalidate all queries
+            // After 5 attempts (~15 seconds), give up and invalidate all queries.
             await queryClient.invalidateQueries({
-              queryKey: QueryKeys.proposals.votes(proposalId, "", 0).slice(0, 3)
+              queryKey: proposalVotesPrefix
             });
             await queryClient.invalidateQueries({
-              queryKey: QueryKeys.proposals.votesByUser(username)
+              queryKey: userVotesKey
             });
-            return;
+            break;
           }
 
-          // Wait 3 seconds between polls (Hive block time)
+          // Wait 3 seconds between polls (Hive block time).
           await new Promise(resolve => setTimeout(resolve, 3000));
 
-          // Invalidate cache first to force fresh fetch
+          // Invalidate cache first to force fresh fetch.
           await queryClient.invalidateQueries({
-            queryKey: QueryKeys.proposals.votesByUser(username)
+            queryKey: userVotesKey
           });
 
-          // Fetch fresh user's proposal votes to check if vote is confirmed
+          // Fetch fresh user's proposal votes to check if vote is confirmed.
           const userVotes = await queryClient.fetchQuery(
             getUserProposalVotesQueryOptions(username)
           );
 
           const hasVote = userVotes.some(vote => vote.proposal?.proposal_id === proposalId);
 
-          // Check if vote state matches what we expect
+          // Check if vote state matches what we expect.
           if ((approve && hasVote) || (!approve && !hasVote)) {
-            // Vote confirmed! Invalidate all relevant queries to ensure UI updates
+            // Vote confirmed! Invalidate all relevant queries to ensure UI updates.
             await queryClient.invalidateQueries({
-              queryKey: QueryKeys.proposals.votes(proposalId, "", 0).slice(0, 3)
+              queryKey: proposalVotesPrefix
             });
             await queryClient.invalidateQueries({
-              queryKey: QueryKeys.proposals.votesByUser(username)
+              queryKey: userVotesKey
             });
-            return;
+            break;
           }
-
-          // Not confirmed yet, poll again
-          await pollForConfirmation(attempts + 1);
-        } catch {
-          // Best-effort refresh; do not fail successful broadcasts on polling errors.
-          await queryClient.invalidateQueries({
-            queryKey: QueryKeys.proposals.votes(proposalId, "", 0).slice(0, 3)
-          });
-          await queryClient.invalidateQueries({
-            queryKey: QueryKeys.proposals.votesByUser(username)
-          });
         }
-      };
-
-      await pollForConfirmation();
+      } catch {
+        // Best-effort refresh; do not fail successful broadcasts on polling errors.
+        await queryClient.invalidateQueries({
+          queryKey: proposalVotesPrefix
+        });
+        await queryClient.invalidateQueries({
+          queryKey: userVotesKey
+        });
+      }
 
       return approve;
     }

@@ -16,7 +16,8 @@ import dmcaPosts from "../../public/dmca/dmca-posts.json";
 // Use relative URLs only on client-side main production domain.
 // Keep absolute host on server-side to avoid relative fetch failures in SSR.
 const isMainProductionClient =
-  typeof window !== "undefined" && window.location.hostname === "ecency.com";
+  typeof window !== "undefined" &&
+  (window.location.hostname === "ecency.com" || window.location.hostname.endsWith(".ecency.com"));
 
 const privateApiHost = isMainProductionClient ? "" : "https://ecency.com";
 ConfigManager.setPrivateApiHost(privateApiHost);

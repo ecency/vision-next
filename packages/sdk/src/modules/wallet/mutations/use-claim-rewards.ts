@@ -10,7 +10,7 @@ export interface ClaimRewardsPayload {
 }
 
 const CLAIM_REWARDS_INVALIDATION_DELAY_MS = 5000;
-let pendingInvalidationTimer: ReturnType<typeof setTimeout> | null = null;
+const pendingInvalidationTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 export function useClaimRewards(username: string | undefined, auth?: AuthContextV2) {
   return useBroadcastMutation<ClaimRewardsPayload>(
@@ -20,6 +20,7 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
       buildClaimRewardBalanceOp(username!, payload.rewardHive, payload.rewardHbd, payload.rewardVests)
     ],
     () => {
+      const timerKey = username ?? "__anonymous__";
       const keysToInvalidate = [
         QueryKeys.accounts.full(username),
         ["ecency-wallets", "asset-info", username],
@@ -31,17 +32,29 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
 
       // Delay invalidation to allow blockchain to propagate the transaction.
       // Immediate invalidation would fetch stale (pre-confirmation) data.
-      if (pendingInvalidationTimer) {
-        clearTimeout(pendingInvalidationTimer);
+      const existingTimer = pendingInvalidationTimers.get(timerKey);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+        pendingInvalidationTimers.delete(timerKey);
       }
 
-      pendingInvalidationTimer = setTimeout(() => {
-        const qc = getQueryClient();
-        keysToInvalidate.forEach((key) => {
-          qc.invalidateQueries({ queryKey: key });
-        });
-        pendingInvalidationTimer = null;
+      const timer = setTimeout(() => {
+        try {
+          const qc = getQueryClient();
+          keysToInvalidate.forEach((key) => {
+            qc.invalidateQueries({ queryKey: key });
+          });
+        } catch (error) {
+          console.error("[SDK][Wallet][useClaimRewards] delayed invalidation failed", {
+            username,
+            error
+          });
+        } finally {
+          pendingInvalidationTimers.delete(timerKey);
+        }
       }, CLAIM_REWARDS_INVALIDATION_DELAY_MS);
+
+      pendingInvalidationTimers.set(timerKey, timer);
     },
     auth,
     'posting'

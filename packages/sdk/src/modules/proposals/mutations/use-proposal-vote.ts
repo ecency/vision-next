@@ -83,8 +83,8 @@ export function useProposalVote(
           auth.adapter.recordActivity(150, result.block_num, result.id).catch((error) => {
             console.debug("[SDK][Proposals][useProposalVote] recordActivity failed", {
               activityType: 150,
-              blockNum: result?.block_num,
-              transactionId: result?.id,
+              blockNum: result.block_num,
+              transactionId: result.id,
               error
             });
           });

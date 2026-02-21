@@ -115,6 +115,7 @@ export const HiveMarketRateListener = ({
 
   const updateIntervalRef = useRef<ReturnType<typeof setInterval>>();
   const fetchOrderBookRef = useRef<() => Promise<void>>(async () => {});
+  const isFetchingRef = useRef(false);
 
   const processOrderBook = useCallback(() => {
     const { tooMuchSlippage, invalidAmount, toAmount } = HiveMarket.processHiveOrderBook(
@@ -131,6 +132,11 @@ export const HiveMarketRateListener = ({
   }, [amount, asset, buyOrderBook, sellOrderBook, setInvalidAmount, setToAmount, setTooMuchSlippage]);
 
   const fetchOrderBook = useCallback(async () => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    isFetchingRef.current = true;
     setLoading(true);
     try {
       const book = await HiveMarket.fetchHiveOrderBook();
@@ -139,6 +145,7 @@ export const HiveMarketRateListener = ({
         setSellOrderBook(book.asks);
       }
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   }, [setLoading]);

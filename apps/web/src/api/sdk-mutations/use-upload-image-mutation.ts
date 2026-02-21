@@ -23,11 +23,10 @@ import { EcencyConfigManager } from "@/config";
  */
 export function useUploadImageMutation() {
   const username = useActiveUsername();
-  const code = username ? getAccessToken(username) : undefined;
 
   // SDK hooks
   const sdkUpload = useUploadImage();
-  const sdkAddImage = useAddImage(username, code);
+  const sdkAddImage = useAddImage(username, undefined);
 
   // Feature-flagged add mutation
   const conditionalAdd = EcencyConfigManager.useConditionalMutation(
