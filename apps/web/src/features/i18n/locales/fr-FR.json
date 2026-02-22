@@ -2063,10 +2063,12 @@
     "move": "Déplacer vers brouillons"
   },
   "bookmarks": {
-    "title": "Signets"
+    "title": "Signets",
+    "hint": "Vous recevrez des notifications lorsque le contenu des signets recevra une réponse."
   },
   "favorites": {
-    "title": "Favoris"
+    "title": "Favoris",
+    "hint": "Vous recevrez des notifications lorsqu'un auteur favori publie un nouveau contenu."
   },
   "fragments": {
     "title": "Extraits",
@@ -2621,6 +2623,12 @@
     "grid": "Grille",
     "classic": "Classique",
     "deck": "Deck"
+  },
+  "my-favorites-widget": {
+    "title": "Mes Favoris",
+    "empty": "Vous n'avez pas encore ajouté d'auteurs favoris",
+    "empty-cta": "Découvrir les auteurs",
+    "view-all": "Tout afficher"
   },
   "top-communities": {
     "title": "Les communautés les plus populaires",
