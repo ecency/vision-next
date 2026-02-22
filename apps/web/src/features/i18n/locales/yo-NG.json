@@ -2063,10 +2063,12 @@
     "move": "Gbé sí àwọn ẹ̀dà kíkọ"
   },
   "bookmarks": {
-    "title": "Àwọn àmì-ìwé"
+    "title": "Àwọn àmì-ìwé",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "Àwọn ààyò"
+    "title": "Àwọn ààyò",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "Snippets",
@@ -2621,6 +2623,12 @@
     "grid": "Grid",
     "classic": "Classic",
     "deck": "Deck"
+  },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
   },
   "top-communities": {
     "title": "Top communities",
