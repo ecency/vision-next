@@ -15,8 +15,8 @@ vi.mock("@/features/shared/bookmarks/bookmarks-list", () => ({
   BookmarksList: vi.fn(() => <div>Bookmarks List</div>)
 }));
 
-vi.mock("@/features/shared/bookmarks/favourites-list", () => ({
-  FavouritesList: vi.fn(() => <div>Favourites List</div>)
+vi.mock("@/features/shared/bookmarks/favorites-list", () => ({
+  FavoritesList: vi.fn(() => <div>Favorites List</div>)
 }));
 
 describe("BookmarksDialog", () => {
@@ -76,7 +76,7 @@ describe("BookmarksDialog", () => {
     fireEvent.click(screen.getByText("favorites.title"));
 
     // Check if the favourites [...sections] is active and rendered
-    expect(screen.getByText("Favourites List")).toBeInTheDocument();
+    expect(screen.getByText("Favorites List")).toBeInTheDocument();
   });
 
   test("hides the modal when close button is clicked", () => {

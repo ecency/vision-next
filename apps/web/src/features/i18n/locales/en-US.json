@@ -2624,7 +2624,7 @@
     "classic": "Classic",
     "deck": "Deck"
   },
-  "my-favourites-widget": {
+  "my-favorites-widget": {
     "title": "My Favorites",
     "empty": "You haven't added any favorite authors yet",
     "empty-cta": "Discover authors",

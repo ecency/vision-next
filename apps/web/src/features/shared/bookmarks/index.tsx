@@ -1,5 +1,5 @@
 import { BookmarksList } from "@/features/shared/bookmarks/bookmarks-list";
-import { FavouritesList } from "@/features/shared/bookmarks/favourites-list";
+import { FavoritesList } from "@/features/shared/bookmarks/favorites-list";
 import { TabItem } from "@/features/ui";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
@@ -37,7 +37,7 @@ export function BookmarksDialog({ show, setShow, initialTab = "bookmarks" }: Pro
       </ModalHeader>
       <ModalBody className="bg-gray-100 dark:bg-gray-900 rounded-b-2xl">
         {section === "bookmarks" && <BookmarksList onHide={() => setShow(false)} />}
-        {section === "favorites" && <FavouritesList onHide={() => setShow(false)} />}
+        {section === "favorites" && <FavoritesList onHide={() => setShow(false)} />}
       </ModalBody>
     </Modal>
   );

@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { InfiniteData, useMutation } from "@tanstack/react-query";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { deleteDraft } from "@/modules/private-api/requests";
 import type { Draft } from "../types";
+import type { WrappedResponse } from "@/modules/core/types";
 
 export function useDeleteDraft(
   username: string | undefined,
@@ -17,15 +18,56 @@ export function useDeleteDraft(
       }
       return deleteDraft(code, draftId);
     },
-    onSuccess: (_data, variables) => {
-      onSuccess?.();
+    onMutate: async ({ draftId }) => {
       const qc = getQueryClient();
-      // Optimistic removal from drafts cache
-      qc.setQueryData<Draft[]>(
-        ["posts", "drafts", username],
-        (prev) => prev?.filter((d) => d._id !== variables.draftId)
-      );
+      const listKey = QueryKeys.posts.drafts(username);
+
+      await qc.cancelQueries({ queryKey: ["posts", "drafts", username] });
+
+      const previousList = qc.getQueryData<Draft[]>(listKey);
+      if (previousList) {
+        qc.setQueryData<Draft[]>(
+          listKey,
+          previousList.filter((d) => d._id !== draftId)
+        );
+      }
+
+      // Also update infinite query caches
+      const infiniteQueries = qc.getQueriesData<InfiniteData<WrappedResponse<Draft>>>({
+        queryKey: ["posts", "drafts", "infinite", username],
+      });
+      const previousInfinite = new Map(infiniteQueries);
+      for (const [key, data] of infiniteQueries) {
+        if (data) {
+          qc.setQueryData(key, {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((d) => d._id !== draftId),
+            })),
+          });
+        }
+      }
+
+      return { previousList, previousInfinite };
     },
-    onError,
+    onSuccess: () => {
+      onSuccess?.();
+      getQueryClient().invalidateQueries({
+        queryKey: ["posts", "drafts", username],
+      });
+    },
+    onError: (err, _variables, context) => {
+      const qc = getQueryClient();
+      if (context?.previousList) {
+        qc.setQueryData(QueryKeys.posts.drafts(username), context.previousList);
+      }
+      if (context?.previousInfinite) {
+        for (const [key, data] of context.previousInfinite) {
+          qc.setQueryData(key, data);
+        }
+      }
+      onError?.(err);
+    },
   });
 }

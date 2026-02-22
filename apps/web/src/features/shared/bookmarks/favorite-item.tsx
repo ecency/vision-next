@@ -1,12 +1,13 @@
 import { error, ProfileLink, success, UserAvatar } from "@/features/shared";
 import { Button } from "@ui/button";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Favorite } from "@/entities";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions, useAccountFavouriteDelete } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getAccessToken } from "@/utils";
 import i18next from "i18next";
 
 interface Props {
@@ -15,13 +16,19 @@ interface Props {
   i: number;
 }
 
-export function FavouriteItem({ item, onHide, i }: Props) {
+export function FavoriteItem({ item, onHide, i }: Props) {
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username;
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
+  );
 
   const { data: account } = useQuery(getAccountFullQueryOptions(item.account));
   const { mutateAsync: removeFromFavourites, isPending: isDeletePending } =
     useAccountFavouriteDelete(
-      activeUser?.username,
+      username,
+      accessToken,
       () => success(i18next.t("favorite-btn.deleted")),
       () => error(i18next.t("g.server-error"))
     );

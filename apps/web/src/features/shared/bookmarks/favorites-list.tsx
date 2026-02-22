@@ -1,6 +1,6 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
-import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
+import { FavoriteItem } from "@/features/shared/bookmarks/favorite-item";
 import { getFavouritesInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
@@ -13,7 +13,7 @@ interface Props {
   onHide: () => void;
 }
 
-export function FavouritesList({ onHide }: Props) {
+export function FavoritesList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
   const accessToken = username ? getAccessToken(username) : undefined;
@@ -49,7 +49,7 @@ export function FavouritesList({ onHide }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AnimatePresence mode="popLayout">
               {items.map((item, i) => (
-                <FavouriteItem i={i} key={item._id} item={item} onHide={onHide} />
+                <FavoriteItem i={i} key={item._id} item={item} onHide={onHide} />
               ))}
             </AnimatePresence>
           </div>
