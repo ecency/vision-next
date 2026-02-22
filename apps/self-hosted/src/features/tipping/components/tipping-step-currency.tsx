@@ -1,7 +1,15 @@
 import { t } from "@/core";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
+import {
+  isAssetRequiringKey,
+  isExternalWalletAsset,
+} from "../types";
 import { TippingCurrencyCards } from "./tipping-currency-cards";
+import { TippingWalletQr } from "./tipping-wallet-qr";
 
 interface TippingStepCurrencyProps {
+  to: string;
   amount: string;
   onAmountChange: (value: string) => void;
   selectedAsset: string | undefined;
@@ -19,7 +27,22 @@ const inputClassName =
   "w-full mb-3 px-3 py-2 rounded-md border border-theme bg-theme-primary text-theme-primary text-sm";
 const inputMonoClassName = `${inputClassName} font-mono`;
 
+function useRecipientWalletAddress(to: string, asset: string | undefined) {
+  const enabled = !!to && !!asset && isExternalWalletAsset(asset);
+  const { data: account } = useQuery({
+    ...getAccountFullQueryOptions(to),
+    enabled,
+  });
+  if (!enabled || !account?.profile?.tokens) return undefined;
+  const token = account.profile.tokens.find(
+    (t) => t.symbol?.toUpperCase() === asset?.toUpperCase(),
+  );
+  const address = token?.meta?.address;
+  return typeof address === "string" && address.trim() ? address : undefined;
+}
+
 export function TippingStepCurrency({
+  to,
   amount,
   onAmountChange,
   selectedAsset,
@@ -32,6 +55,11 @@ export function TippingStepCurrency({
   onCancel,
   onSubmit,
 }: TippingStepCurrencyProps) {
+  const showKeyInput =
+    selectedAsset !== undefined && isAssetRequiringKey(selectedAsset);
+  const isExternal = selectedAsset !== undefined && isExternalWalletAsset(selectedAsset);
+  const recipientAddress = useRecipientWalletAddress(to, selectedAsset);
+
   return (
     <>
       <div className="text-sm font-medium mb-2 text-theme-muted">
@@ -53,7 +81,7 @@ export function TippingStepCurrency({
         selectedAsset={selectedAsset}
         onAssetSelect={onAssetSelect}
       />
-      {selectedAsset !== undefined && (
+      {showKeyInput && (
         <>
           <div className="text-sm font-medium mb-2 text-theme-muted">
             {t("tip_private_key")}
@@ -66,6 +94,25 @@ export function TippingStepCurrency({
             onChange={(e) => onPrivateKeyChange(e.target.value)}
             className={inputMonoClassName}
           />
+        </>
+      )}
+      {isExternal && (
+        <>
+          <div className="text-sm font-medium mb-2 text-theme-muted">
+            {t("tip_wallet_address")}
+          </div>
+          {recipientAddress ? (
+            <div className="mb-3 flex flex-col items-center gap-2">
+              <TippingWalletQr address={recipientAddress} size={180} />
+              <span className="break-all font-mono text-xs text-theme-muted">
+                {recipientAddress}
+              </span>
+            </div>
+          ) : (
+            <div className="mb-3 rounded border border-theme bg-theme-tertiary px-3 py-2 text-sm text-theme-muted">
+              {t("tip_no_wallet_address")}
+            </div>
+          )}
         </>
       )}
       {error && (
@@ -81,14 +128,16 @@ export function TippingStepCurrency({
         >
           {t("cancel")}
         </button>
-        <button
-          type="button"
-          disabled={!canSubmit}
-          className="px-3 py-2 rounded-md bg-theme-accent text-theme-accent-contrast text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={onSubmit}
-        >
-          {loading ? t("tip_sending") : t("tip_send")}
-        </button>
+        {!isExternal && (
+          <button
+            type="button"
+            disabled={!canSubmit}
+            className="px-3 py-2 rounded-md bg-theme-accent text-theme-accent-contrast text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onSubmit}
+          >
+            {loading ? t("tip_sending") : t("tip_send")}
+          </button>
+        )}
       </div>
     </>
   );

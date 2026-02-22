@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
-import { useRef, useState } from 'react';
-import { UilDollarSign } from '@tooni/iconscout-unicons-react';
-import { useTippingConfig } from '../hooks/use-tipping-config';
-import { TippingPopover } from './tipping-popover';
-import type { TippingVariant } from '../types';
+import { autoUpdate, offset } from "@floating-ui/dom";
+import { flip, shift, useFloating } from "@floating-ui/react-dom";
+import { useState } from "react";
+import { UilDollarSign } from "@tooni/iconscout-unicons-react";
+import { useTippingConfig } from "../hooks/use-tipping-config";
+import { TippingPopover } from "./tipping-popover";
+import type { TippingVariant } from "../types";
 
 interface TipButtonProps {
   recipientUsername: string;
@@ -16,19 +18,24 @@ interface TipButtonProps {
 export function TipButton({
   recipientUsername,
   variant,
-  memo = '',
+  memo = "",
   className,
 }: TipButtonProps) {
   const { enabled, buttonLabel, presetAmounts } = useTippingConfig(variant);
   const [open, setOpen] = useState(false);
-  const anchorRef = useRef<HTMLButtonElement | undefined>(undefined);
+
+  const { refs, floatingStyles } = useFloating({
+    placement: "bottom-start",
+    middleware: [offset(8), flip(), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  });
 
   if (!enabled) return undefined;
 
   return (
     <>
       <button
-        ref={anchorRef}
+        ref={refs.setReference}
         type="button"
         className={className}
         onClick={() => setOpen((o) => !o)}
@@ -44,7 +51,8 @@ export function TipButton({
           memo={memo}
           presetAmounts={presetAmounts}
           onClose={() => setOpen(false)}
-          anchorRef={anchorRef}
+          refs={refs}
+          floatingStyles={floatingStyles}
         />
       )}
     </>

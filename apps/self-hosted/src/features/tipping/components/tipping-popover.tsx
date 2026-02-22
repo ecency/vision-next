@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/features/auth/hooks";
 import {
@@ -10,14 +10,26 @@ import {
 } from "../utils/tip-transaction";
 import { TippingStepAmount } from "./tipping-step-amount";
 import { TippingStepCurrency } from "./tipping-step-currency";
-import type { TippingAsset } from "../types";
+import {
+  ASSETS_REQUIRING_KEY,
+  isExternalWalletAsset,
+  type TippingAsset,
+} from "../types";
+
+interface TippingPopoverRefs {
+  setReference: (element: HTMLElement | null) => void;
+  setFloating: (element: HTMLElement | null) => void;
+  reference: React.RefObject<unknown>;
+  floating: React.RefObject<unknown>;
+}
 
 interface TippingPopoverProps {
   to: string;
   memo: string;
   presetAmounts: number[];
   onClose: () => void;
-  anchorRef: React.RefObject<HTMLElement | undefined>;
+  refs: TippingPopoverRefs;
+  floatingStyles: React.CSSProperties;
 }
 
 type Step = "amount" | "currency";
@@ -27,10 +39,10 @@ export function TippingPopover({
   memo,
   presetAmounts,
   onClose,
-  anchorRef,
+  refs,
+  floatingStyles,
 }: TippingPopoverProps) {
   const { user } = useAuth();
-  const panelRef = useRef<HTMLDivElement | null>(null);
   const [step, setStep] = useState<Step>("amount");
   const [selectedPreset, setSelectedPreset] = useState<
     number | "custom" | undefined
@@ -45,23 +57,44 @@ export function TippingPopover({
 
   const amountNum = parseFloat(amount);
   const hasValidAmount = Number.isFinite(amountNum) && amountNum > 0;
+  const isExternalAsset =
+    selectedAsset !== undefined && isExternalWalletAsset(selectedAsset);
   const hasKeyInput = privateKeyStr.trim().length > 0;
+  const requiresKey =
+    selectedAsset !== undefined &&
+    ASSETS_REQUIRING_KEY.includes(
+      selectedAsset as (typeof ASSETS_REQUIRING_KEY)[number],
+    );
   const canSubmit =
-    hasValidAmount && selectedAsset !== undefined && hasKeyInput && !loading;
+    hasValidAmount &&
+    selectedAsset !== undefined &&
+    !isExternalAsset &&
+    (!requiresKey || hasKeyInput) &&
+    !loading;
 
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
-      const anchor = anchorRef.current;
-      const panel = panelRef.current;
+      const refRef = refs.reference.current;
+      const refFloating = refs.floating.current;
+      const referenceEl =
+        refRef != null && typeof refRef === "object" && "contains" in refRef
+          ? (refRef as HTMLElement)
+          : null;
+      const floatingEl =
+        refFloating != null &&
+        typeof refFloating === "object" &&
+        "contains" in refFloating
+          ? (refFloating as HTMLElement)
+          : null;
       if (
-        panel?.contains(e.target as Node) ||
-        anchor?.contains(e.target as Node)
+        floatingEl?.contains(e.target as Node) ||
+        referenceEl?.contains(e.target as Node)
       ) {
         return;
       }
       onClose();
     },
-    [anchorRef, onClose],
+    [refs.reference, refs.floating, onClose],
   );
 
   useEffect(() => {
@@ -121,22 +154,11 @@ export function TippingPopover({
     onClose,
   ]);
 
-  const anchor = anchorRef.current;
-  const rect = anchor?.getBoundingClientRect();
-  const style = rect
-    ? {
-        position: "fixed" as const,
-        top: rect.bottom + 8,
-        left: rect.left,
-        zIndex: 9999,
-      }
-    : undefined;
-
   const content = (
     <div
-      ref={panelRef}
-      className="min-w-[280px] max-w-[340px] rounded-lg border border-theme bg-theme-primary shadow-lg p-4 font-theme-ui text-theme-primary"
-      style={style}
+      ref={refs.setFloating}
+      className="min-w-[280px] max-w-[340px] rounded-lg border border-theme bg-theme-primary shadow-lg p-4 font-theme-ui text-theme-primary z-9999"
+      style={floatingStyles}
       role="dialog"
       aria-label="Tip"
     >
@@ -148,6 +170,7 @@ export function TippingPopover({
       )}
       {step === "currency" && (
         <TippingStepCurrency
+          to={to}
           amount={amount}
           onAmountChange={setAmount}
           selectedAsset={selectedAsset}

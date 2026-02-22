@@ -1,7 +1,7 @@
 import { InstanceConfigManager } from './configuration-loader';
 
 // Translation keys used throughout the app
-type TranslationKey =
+export type TranslationKey =
   | 'loading'
   | 'loadingPost'
   | 'loadingMore'
@@ -64,6 +64,8 @@ type TranslationKey =
   | 'tip_custom'
   | 'tip_currency'
   | 'tip_private_key'
+  | 'tip_wallet_address'
+  | 'tip_no_wallet_address'
   | 'tip_send'
   | 'tip_sending'
   | 'cancel';
@@ -134,6 +136,8 @@ const translations: Record<string, Translations> = {
     tip_custom: 'Custom',
     tip_currency: 'Currency',
     tip_private_key: 'Active key',
+    tip_wallet_address: 'Wallet address',
+    tip_no_wallet_address: 'Recipient has not set up this wallet address.',
     tip_send: 'Tip',
     tip_sending: 'Sending...',
     cancel: 'Cancel',
@@ -201,6 +205,8 @@ const translations: Record<string, Translations> = {
     tip_custom: 'Personalizado',
     tip_currency: 'Moneda',
     tip_private_key: 'Clave activa',
+    tip_wallet_address: 'Dirección de la billetera',
+    tip_no_wallet_address: 'El destinatario no ha configurado esta dirección.',
     tip_send: 'Propina',
     tip_sending: 'Enviando...',
     cancel: 'Cancelar',
@@ -268,6 +274,8 @@ const translations: Record<string, Translations> = {
     tip_custom: 'Benutzerdefiniert',
     tip_currency: 'Währung',
     tip_private_key: 'Aktiver Schlüssel',
+    tip_wallet_address: 'Wallet-Adresse',
+    tip_no_wallet_address: 'Empfänger hat diese Wallet-Adresse nicht eingerichtet.',
     tip_send: 'Trinkgeld',
     tip_sending: 'Wird gesendet...',
     cancel: 'Abbrechen',
@@ -335,6 +343,8 @@ const translations: Record<string, Translations> = {
     tip_custom: 'Personnalisé',
     tip_currency: 'Devise',
     tip_private_key: 'Clé active',
+    tip_wallet_address: 'Adresse du portefeuille',
+    tip_no_wallet_address: "Le destinataire n'a pas configuré cette adresse.",
     tip_send: 'Pourboire',
     tip_sending: 'Envoi...',
     cancel: 'Annuler',
@@ -402,6 +412,8 @@ const translations: Record<string, Translations> = {
     tip_custom: '사용자 지정',
     tip_currency: '통화',
     tip_private_key: '액티브 키',
+    tip_wallet_address: '지갑 주소',
+    tip_no_wallet_address: '수신자가 이 지갑 주소를 설정하지 않았습니다.',
     tip_send: '팁',
     tip_sending: '전송 중...',
     cancel: '취소',
@@ -469,6 +481,8 @@ const translations: Record<string, Translations> = {
     tip_custom: 'Своя',
     tip_currency: 'Валюта',
     tip_private_key: 'Активный ключ',
+    tip_wallet_address: 'Адрес кошелька',
+    tip_no_wallet_address: 'Получатель не настроил этот адрес кошелька.',
     tip_send: 'Отправить',
     tip_sending: 'Отправка...',
     cancel: 'Отмена',
