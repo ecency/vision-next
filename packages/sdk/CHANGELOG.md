@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.10
+
+### Patch Changes
+
+- Fix points transfer (#669)
+
 ## 2.0.9
 
 ### Patch Changes
