@@ -9,7 +9,27 @@ interface Entry {
     json_metadata?: any;
 }
 
-declare function markdown2Html(obj: Entry | string, forApp?: boolean, webp?: boolean, parentDomain?: string): string;
+/**
+ * SEO context for controlling rel attributes on external links in user-generated content.
+ *
+ * By default, all external links get rel="nofollow ugc noopener" to prevent link spam.
+ * High-quality content (high author reputation + meaningful post rewards) earns followed links.
+ */
+interface SeoContext {
+    /** Human-readable author reputation score (after accountReputation() conversion) */
+    authorReputation?: number;
+    /** Total post payout in USD */
+    postPayout?: number;
+}
+
+/**
+ * @param obj - Entry object or raw markdown string
+ * @param forApp - Whether rendering for app context
+ * @param _webp - @deprecated Ignored. Format is now handled server-side via Accept header content negotiation.
+ * @param parentDomain - Parent domain for iframe embed parameters
+ * @param seoContext - Optional SEO context for structured data
+ */
+declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext): string;
 
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
@@ -24,7 +44,10 @@ declare function catchPostImage(obj: Entry | string, width?: number, height?: nu
 declare function getPostBodySummary(obj: Entry | string, length?: number, platform?: 'ios' | 'android' | 'web'): string;
 
 declare function setProxyBase(p: string): void;
-declare function proxifyImageSrc(url?: string, width?: number, height?: number, format?: string): string;
+/**
+ * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
+ */
+declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string): string;
 
 declare function setCacheSize(size: number): void;
 
@@ -32,4 +55,4 @@ declare const SECTION_LIST: string[];
 
 declare function isValidPermlink(permlink: string): boolean;
 
-export { type Entry, SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+export { type Entry, SECTION_LIST, type SeoContext, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };

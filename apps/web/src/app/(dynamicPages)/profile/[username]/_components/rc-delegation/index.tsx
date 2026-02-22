@@ -6,7 +6,8 @@ import { Form } from "@ui/form";
 import i18next from "i18next";
 import { error, LinearProgress, UserAvatar } from "@/features/shared";
 import { arrowRightSvg } from "@ui/svg";
-import { delegateRC, formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
+import { useDelegateRcMutation } from "@/api/sdk-mutations";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "react-use";
@@ -15,6 +16,7 @@ export const ResourceCreditsDelegation = (props: any) => {
   const { resourceCredit, activeUser, hideDelegation, toFromList, amountFromList, delegateeData } =
     props;
   const queryClient = useQueryClient();
+  const { mutateAsync: delegateRc } = useDelegateRcMutation();
 
   const [to, setTo] = useState<string>(toFromList || "");
   const [amount, setAmount] = useState<any>(amountFromList || "");
@@ -57,15 +59,16 @@ export const ResourceCreditsDelegation = (props: any) => {
     setStep(1);
   };
 
-  const signTransaction = () => {
-    const { activeUser } = props;
-    const username = activeUser?.username!;
-    const max_rc = `${amount}`;
-    delegateRC(username, to, max_rc).then((res: any) => {
-      return res;
-    });
-    hideDelegation();
-    return;
+  const signTransaction = async () => {
+    setInProgress(true);
+    try {
+      await delegateRc({ to, maxRc: `${amount}` });
+      hideDelegation();
+    } catch (e) {
+      error(...formatError(e));
+    } finally {
+      setInProgress(false);
+    }
   };
 
   const canSubmit =

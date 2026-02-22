@@ -3,7 +3,6 @@ import { catchPostImage, postBodySummary, proxifyImageSrc } from "@ecency/render
 import { useInViewport } from "react-in-viewport";
 import { commentSvg, voteSvg } from "../../icons";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { useGlobalStore } from "@/core/global-store";
 import { dateToRelative, transformMarkedContent, makeEntryPath } from "@/utils";
 import {
   EntryLink,
@@ -58,7 +57,6 @@ export const SearchListItem = ({
   onEntryView,
   onAppear
 }: SearchItemProps) => {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const ref = useRef<HTMLDivElement | null>(null);
   const { inViewport } = useInViewport(ref);
   const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
@@ -68,7 +66,7 @@ export const SearchListItem = ({
   const [title, setTitle] = useState(entry.title);
   const [body, setBody] = useState(entry.b);
   const [image, setImage] = useState(
-    canUseWebp ? catchPostImage(entry.body, 600, 500, "webp") : catchPostImage(entry.body, 600, 500)
+    catchPostImage(entry.body, 600, 500)
   );
 
   useEffect(() => {
@@ -157,9 +155,7 @@ export const SearchListItem = ({
             <Image
               width={1000}
               height={1000}
-              src={`https://images.ecency.com/${
-                canUseWebp ? "webp/" : ""
-              }u/${username}/avatar/medium`}
+              src={`https://images.ecency.com/u/${username}/avatar/medium`}
               alt={username}
               className="rounded-[50%] search-item-avatar"
             />
@@ -188,9 +184,7 @@ export const SearchListItem = ({
               <Image
                 width={1000}
                 height={1000}
-                src={`https://images.ecency.com/${
-                  canUseWebp ? "webp/" : ""
-                }u/${author}/avatar/medium`}
+                src={`https://images.ecency.com/u/${author}/avatar/medium`}
                 alt={title}
                 className="rounded-[50%] search-item-avatar mr-3"
               />

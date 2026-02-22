@@ -40,18 +40,29 @@ describe('extractPHash', () => {
 
 describe('proxifyImageSrc', () => {
   describe('basic proxification', () => {
-    it('should proxify image URL', () => {
+    it('should proxify image URL without file extension', () => {
+      setProxyBase('https://images.ecency.com')
       const input = 'https://i.imgur.com/muESb0B.png'
-      const expected = 'https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC.png?format=match&mode=fit'
+      const expected = 'https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC?format=match&mode=fit'
 
       expect(proxifyImageSrc(input)).toBe(expected)
     })
 
     it('should re-proxify already proxified URL', () => {
       const input = 'https://images.ecency.com/0x0/https://i.imgur.com/muESb0B.png'
-      const expected = 'https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC.png?format=match&mode=fit'
+      const expected = 'https://images.ecency.com/p/2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC?format=match&mode=fit'
 
       expect(proxifyImageSrc(input)).toBe(expected)
+    })
+
+    it('should always use format=match regardless of format parameter', () => {
+      const input = 'https://i.imgur.com/muESb0B.png'
+      const result = proxifyImageSrc(input, 0, 0, 'webp')
+
+      expect(result).toContain('format=match')
+      expect(result).not.toContain('format=webp')
+      expect(result).not.toContain('.webp')
+      expect(result).not.toContain('.png')
     })
   })
 
@@ -75,10 +86,10 @@ describe('proxifyImageSrc', () => {
   })
 
   describe('with uploaded images', () => {
-    it('should proxify uploaded image URL', () => {
+    it('should proxify uploaded image URL without file extension', () => {
       setProxyBase('https://images.ecency.com')
       const input = 'https://images.hive.blog/DQmT7UTd6JTP3bB2fXzV6tv8u4cJ6fLijy2bUxatkLChzHD/IMG_6631.JPG'
-      const expected = 'https://images.ecency.com/p/Zskj9C56UonZ32EJw6nMctrTQ6kTQ3swaDmbMFtRtMzyrHs9JdvWTXeiP6cW6a7F6pv2A4qkeHLiAPVtmfYMDf3iYbydFZ7e8iYY4MZP74TgyWo8WnJa.png?format=match&mode=fit'
+      const expected = 'https://images.ecency.com/p/Zskj9C56UonZ32EJw6nMctrTQ6kTQ3swaDmbMFtRtMzyrHs9JdvWTXeiP6cW6a7F6pv2A4qkeHLiAPVtmfYMDf3iYbydFZ7e8iYY4MZP74TgyWo8WnJa?format=match&mode=fit'
 
       expect(proxifyImageSrc(input)).toBe(expected)
     })

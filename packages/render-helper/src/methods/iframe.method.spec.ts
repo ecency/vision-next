@@ -417,6 +417,44 @@ describe('iframe() method - Iframe Sanitization', () => {
       expect(el.getAttribute('src')).toContain('play.3speak.tv')
       expect(el.getAttribute('src')).toContain('mode=iframe')
     })
+
+    it('should not double-prefix play. on already-correct play.3speak.tv URLs', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://play.3speak.tv/embed?v=user/video123')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('play.3speak.tv')
+      expect(src).not.toContain('play.play.3speak.tv')
+    })
+
+    it('should normalize /embed? to /watch? in 3speak URLs', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.tv/embed?v=user/video123&mode=iframe')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('/watch?v=')
+      expect(src).not.toContain('/embed?')
+      expect(src).toContain('play.3speak.tv')
+    })
+
+    it('should set speak-iframe class on 3speak iframes', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(el.getAttribute('class')).toBe('speak-iframe')
+    })
   })
 
   describe('Spotify Iframes', () => {

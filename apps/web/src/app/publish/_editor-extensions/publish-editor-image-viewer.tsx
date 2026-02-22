@@ -1,4 +1,4 @@
-import { useUploadPostImage } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import Paragraph from "@tiptap/extension-paragraph";
@@ -45,7 +45,7 @@ export function PublishEditorImageViewer({
     }
   });
 
-  const { mutateAsync: uploadImage } = useUploadPostImage();
+  const { mutateAsync: uploadImage } = useUploadImageMutation();
   const isBlob = typeof src === "string" && src.startsWith("blob");
   const isEcencyImage = typeof src === "string" && src.includes("https://images.ecency.com");
 

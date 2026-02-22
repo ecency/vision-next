@@ -17,6 +17,7 @@ export interface User {
   postingKey: null | undefined | string;
   index?: number; // index in a list
   loginType?: LoginType;
+  tokenObtainedAt?: number; // Unix timestamp (ms) when the access token was obtained
 }
 
 export interface UserPoints {

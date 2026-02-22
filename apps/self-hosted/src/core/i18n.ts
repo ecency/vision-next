@@ -1,65 +1,66 @@
 import { InstanceConfigManager } from "./configuration-loader";
 
 // Translation keys used throughout the app
-export type TranslationKey =
-  | "loading"
-  | "loadingPost"
-  | "loadingMore"
-  | "postNotFound"
-  | "noPosts"
-  | "followers"
-  | "following"
-  | "hiveInfo"
-  | "reputation"
-  | "joined"
-  | "posts"
-  | "location"
-  | "website"
-  | "likes"
-  | "comments"
-  | "reblogs"
-  | "replies"
-  | "blog"
-  | "newest"
-  | "trending"
-  | "authorReputation"
-  | "votes"
-  | "discussion"
-  | "readTime"
-  | "minRead"
-  | "login"
-  | "logout"
-  | "login_to_comment"
-  | "login_to_vote"
-  | "login_to_reblog"
-  | "write_comment"
-  | "posting"
-  | "post_comment"
-  | "create_post"
-  | "subscribers"
-  | "authors"
-  | "community_info"
-  | "created"
-  | "language"
-  | "pending_posts"
-  | "team"
-  | "search"
-  | "searching"
-  | "search_error"
-  | "no_results"
-  | "results_for"
-  | "enter_search_query"
-  | "listen"
-  | "pause"
-  | "resume"
-  | "stop"
-  | "reblogging"
-  | "reblog_confirm"
-  | "cant_reblog_own"
-  | "already_reblogged"
-  | "reblog_to_followers"
-  | "error_loading"
-  | "retry"
+type TranslationKey =
+  | 'loading'
+  | 'loadingPost'
+  | 'loadingMore'
+  | 'postNotFound'
+  | 'noPosts'
+  | 'followers'
+  | 'following'
+  | 'hiveInfo'
+  | 'reputation'
+  | 'joined'
+  | 'posts'
+  | 'location'
+  | 'website'
+  | 'likes'
+  | 'comments'
+  | 'reblogs'
+  | 'replies'
+  | 'blog'
+  | 'newest'
+  | 'trending'
+  | 'authorReputation'
+  | 'votes'
+  | 'discussion'
+  | 'readTime'
+  | 'minRead'
+  | 'login'
+  | 'logout'
+  | 'login_to_comment'
+  | 'login_to_vote'
+  | 'login_to_reblog'
+  | 'write_comment'
+  | 'posting'
+  | 'post_comment'
+  | 'create_post'
+  | 'subscribers'
+  | 'authors'
+  | 'community_info'
+  | 'created'
+  | 'language'
+  | 'pending_posts'
+  | 'team'
+  | 'search'
+  | 'searching'
+  | 'search_error'
+  | 'no_results'
+  | 'results_for'
+  | 'enter_search_query'
+  | 'listen'
+  | 'pause'
+  | 'resume'
+  | 'stop'
+  | 'reblogging'
+  | 'reblog_confirm'
+  | 'cant_reblog_own'
+  | 'already_reblogged'
+  | 'reblog_to_followers'
+  | 'error_loading'
+  | 'retry'
+  | 'community_not_found'
   | "tip_amount"
   | "tip_custom"
   | "tip_currency"
@@ -134,11 +135,12 @@ const translations: Record<string, Translations> = {
     reblog_confirm:
       "Are you sure you want to reblog this post to your followers?",
     cant_reblog_own: "You can't reblog your own post",
-    already_reblogged: "Already reblogged",
-    reblog_to_followers: "Reblog to your followers",
-    error_loading: "Something went wrong. Please try again.",
-    retry: "Retry",
-    tip_amount: "Amount",
+    already_reblogged: 'Already reblogged',
+    reblog_to_followers: 'Reblog to your followers',
+    error_loading: 'Something went wrong. Please try again.',
+    retry: 'Retry',
+    community_not_found: 'Community not found.',
+	tip_amount: "Amount",
     tip_custom: "Custom",
     tip_currency: "Currency",
     tip_private_key: "Active key",
@@ -154,155 +156,126 @@ const translations: Record<string, Translations> = {
     cancel: "Cancel",
   },
   es: {
-    loading: "Cargando...",
-    loadingPost: "Cargando publicación...",
-    loadingMore: "Cargando más publicaciones...",
-    postNotFound: "Publicación no encontrada.",
-    noPosts: "No se encontraron publicaciones.",
-    followers: "Seguidores",
-    following: "Siguiendo",
-    hiveInfo: "Info de Hive",
-    reputation: "Reputación",
-    joined: "Se unió",
-    posts: "Publicaciones",
-    location: "Ubicación",
-    website: "Sitio web",
-    likes: "me gusta",
-    comments: "comentarios",
-    reblogs: "reblogueos",
-    replies: "Respuestas",
-    blog: "Blog",
-    newest: "Más reciente",
-    trending: "Tendencia",
-    authorReputation: "Reputación del autor",
-    votes: "Votos",
-    discussion: "Discusión",
-    readTime: "lectura",
-    minRead: "min de lectura",
-    login: "Iniciar sesión",
-    logout: "Cerrar sesión",
-    login_to_comment: "Inicia sesión para comentar",
-    login_to_vote: "Inicia sesión para votar",
-    login_to_reblog: "Inicia sesión para rebloguear",
-    write_comment: "Escribe un comentario...",
-    posting: "Publicando...",
-    post_comment: "Publicar comentario",
-    create_post: "Crear publicación",
-    subscribers: "Suscriptores",
-    authors: "Autores",
-    community_info: "Info de Comunidad",
-    created: "Creado",
-    language: "Idioma",
-    pending_posts: "Posts Pendientes",
-    team: "Equipo",
-    search: "Buscar",
-    searching: "Buscando...",
-    search_error: "Error en la búsqueda. Intente de nuevo.",
-    no_results: "No se encontraron resultados.",
-    results_for: "resultados para",
-    enter_search_query: "Ingrese un término para buscar publicaciones.",
-    listen: "Escuchar",
-    pause: "Pausar",
-    resume: "Reanudar",
-    stop: "Detener",
-    reblogging: "Reblogueando...",
-    reblog_confirm:
-      "¿Estás seguro de que quieres rebloguear esta publicación a tus seguidores?",
-    cant_reblog_own: "No puedes rebloguear tu propia publicación",
-    already_reblogged: "Ya reblogueado",
-    reblog_to_followers: "Rebloguear a tus seguidores",
-    error_loading: "Algo salió mal. Por favor, intente de nuevo.",
-    retry: "Reintentar",
-    tip_amount: "Monto",
-    tip_custom: "Personalizado",
-    tip_currency: "Moneda",
-    tip_private_key: "Clave activa",
-    tip_wallet_address: "Dirección de la billetera",
-    tip_no_wallet_address: "El destinatario no ha configurado esta dirección.",
-    tip_send: "Propina",
-    tip_sending: "Enviando...",
-    tip_login_to_send: "Inicia sesión para enviar una propina",
-    tip_asset_not_supported: "Este activo aún no es compatible para propinas",
-    tip_transaction_failed: "Error en la transacción",
-    tip_qr_no_address: "Sin dirección",
-    tip_qr_failed: "Error al generar el código QR",
-    cancel: "Cancelar",
+    loading: 'Cargando...',
+    loadingPost: 'Cargando publicación...',
+    loadingMore: 'Cargando más publicaciones...',
+    postNotFound: 'Publicación no encontrada.',
+    noPosts: 'No se encontraron publicaciones.',
+    followers: 'Seguidores',
+    following: 'Siguiendo',
+    hiveInfo: 'Info de Hive',
+    reputation: 'Reputación',
+    joined: 'Se unió',
+    posts: 'Publicaciones',
+    location: 'Ubicación',
+    website: 'Sitio web',
+    likes: 'me gusta',
+    comments: 'comentarios',
+    reblogs: 'reblogueos',
+    replies: 'Respuestas',
+    blog: 'Blog',
+    newest: 'Más reciente',
+    trending: 'Tendencia',
+    authorReputation: 'Reputación del autor',
+    votes: 'Votos',
+    discussion: 'Discusión',
+    readTime: 'lectura',
+    minRead: 'min de lectura',
+    login: 'Iniciar sesión',
+    logout: 'Cerrar sesión',
+    login_to_comment: 'Inicia sesión para comentar',
+    login_to_vote: 'Inicia sesión para votar',
+    login_to_reblog: 'Inicia sesión para rebloguear',
+    write_comment: 'Escribe un comentario...',
+    posting: 'Publicando...',
+    post_comment: 'Publicar comentario',
+    create_post: 'Crear publicación',
+    subscribers: 'Suscriptores',
+    authors: 'Autores',
+    community_info: 'Info de Comunidad',
+    created: 'Creado',
+    language: 'Idioma',
+    pending_posts: 'Posts Pendientes',
+    team: 'Equipo',
+    search: 'Buscar',
+    searching: 'Buscando...',
+    search_error: 'Error en la búsqueda. Intente de nuevo.',
+    no_results: 'No se encontraron resultados.',
+    results_for: 'resultados para',
+    enter_search_query: 'Ingrese un término para buscar publicaciones.',
+    listen: 'Escuchar',
+    pause: 'Pausar',
+    resume: 'Reanudar',
+    stop: 'Detener',
+    reblogging: 'Reblogueando...',
+    reblog_confirm: '¿Estás seguro de que quieres rebloguear esta publicación a tus seguidores?',
+    cant_reblog_own: 'No puedes rebloguear tu propia publicación',
+    already_reblogged: 'Ya reblogueado',
+    reblog_to_followers: 'Rebloguear a tus seguidores',
+    error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
+    retry: 'Reintentar',
+    community_not_found: 'Comunidad no encontrada.',
   },
   de: {
-    loading: "Lädt...",
-    loadingPost: "Beitrag wird geladen...",
-    loadingMore: "Weitere Beiträge laden...",
-    postNotFound: "Beitrag nicht gefunden.",
-    noPosts: "Keine Beiträge gefunden.",
-    followers: "Follower",
-    following: "Folgt",
-    hiveInfo: "Hive-Info",
-    reputation: "Reputation",
-    joined: "Beigetreten",
-    posts: "Beiträge",
-    location: "Standort",
-    website: "Webseite",
-    likes: "Gefällt mir",
-    comments: "Kommentare",
-    reblogs: "Reblogs",
-    replies: "Antworten",
-    blog: "Blog",
-    newest: "Neueste",
-    trending: "Trending",
-    authorReputation: "Autoren-Reputation",
-    votes: "Stimmen",
-    discussion: "Diskussion",
-    readTime: "Lesezeit",
-    minRead: "Min. Lesezeit",
-    login: "Anmelden",
-    logout: "Abmelden",
-    login_to_comment: "Melden Sie sich an, um zu kommentieren",
-    login_to_vote: "Melden Sie sich an, um abzustimmen",
-    login_to_reblog: "Melden Sie sich an, um zu rebloggen",
-    write_comment: "Schreibe einen Kommentar...",
-    posting: "Wird gepostet...",
-    post_comment: "Kommentar posten",
-    create_post: "Beitrag erstellen",
-    subscribers: "Abonnenten",
-    authors: "Autoren",
-    community_info: "Community-Info",
-    created: "Erstellt",
-    language: "Sprache",
-    pending_posts: "Ausstehende Beiträge",
-    team: "Team",
-    search: "Suchen",
-    searching: "Suche...",
-    search_error: "Suche fehlgeschlagen. Bitte erneut versuchen.",
-    no_results: "Keine Ergebnisse gefunden.",
-    results_for: "Ergebnisse für",
-    enter_search_query: "Geben Sie einen Suchbegriff ein.",
-    listen: "Anhören",
-    pause: "Pause",
-    resume: "Fortsetzen",
-    stop: "Stopp",
-    reblogging: "Rebloggen...",
-    reblog_confirm:
-      "Möchten Sie diesen Beitrag wirklich an Ihre Follower rebloggen?",
-    cant_reblog_own: "Sie können Ihren eigenen Beitrag nicht rebloggen",
-    already_reblogged: "Bereits rebloggt",
-    reblog_to_followers: "An Ihre Follower rebloggen",
-    error_loading: "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
-    retry: "Erneut versuchen",
-    tip_amount: "Betrag",
-    tip_custom: "Benutzerdefiniert",
-    tip_currency: "Währung",
-    tip_private_key: "Aktiver Schlüssel",
-    tip_wallet_address: "Wallet-Adresse",
-    tip_no_wallet_address:
-      "Empfänger hat diese Wallet-Adresse nicht eingerichtet.",
-    tip_send: "Trinkgeld",
-    tip_sending: "Wird gesendet...",
-    tip_login_to_send: "Melden Sie sich an, um ein Trinkgeld zu senden",
-    tip_asset_not_supported: "Dieser Vermögenswert wird für Trinkgeld noch nicht unterstützt",
-    tip_transaction_failed: "Transaktion fehlgeschlagen",
-    tip_qr_no_address: "Keine Adresse",
-    tip_qr_failed: "QR-Code konnte nicht erstellt werden",
-    cancel: "Abbrechen",
+    loading: 'Lädt...',
+    loadingPost: 'Beitrag wird geladen...',
+    loadingMore: 'Weitere Beiträge laden...',
+    postNotFound: 'Beitrag nicht gefunden.',
+    noPosts: 'Keine Beiträge gefunden.',
+    followers: 'Follower',
+    following: 'Folgt',
+    hiveInfo: 'Hive-Info',
+    reputation: 'Reputation',
+    joined: 'Beigetreten',
+    posts: 'Beiträge',
+    location: 'Standort',
+    website: 'Webseite',
+    likes: 'Gefällt mir',
+    comments: 'Kommentare',
+    reblogs: 'Reblogs',
+    replies: 'Antworten',
+    blog: 'Blog',
+    newest: 'Neueste',
+    trending: 'Trending',
+    authorReputation: 'Autoren-Reputation',
+    votes: 'Stimmen',
+    discussion: 'Diskussion',
+    readTime: 'Lesezeit',
+    minRead: 'Min. Lesezeit',
+    login: 'Anmelden',
+    logout: 'Abmelden',
+    login_to_comment: 'Melden Sie sich an, um zu kommentieren',
+    login_to_vote: 'Melden Sie sich an, um abzustimmen',
+    login_to_reblog: 'Melden Sie sich an, um zu rebloggen',
+    write_comment: 'Schreibe einen Kommentar...',
+    posting: 'Wird gepostet...',
+    post_comment: 'Kommentar posten',
+    create_post: 'Beitrag erstellen',
+    subscribers: 'Abonnenten',
+    authors: 'Autoren',
+    community_info: 'Community-Info',
+    created: 'Erstellt',
+    language: 'Sprache',
+    pending_posts: 'Ausstehende Beiträge',
+    team: 'Team',
+    search: 'Suchen',
+    searching: 'Suche...',
+    search_error: 'Suche fehlgeschlagen. Bitte erneut versuchen.',
+    no_results: 'Keine Ergebnisse gefunden.',
+    results_for: 'Ergebnisse für',
+    enter_search_query: 'Geben Sie einen Suchbegriff ein.',
+    listen: 'Anhören',
+    pause: 'Pause',
+    resume: 'Fortsetzen',
+    stop: 'Stopp',
+    reblogging: 'Rebloggen...',
+    reblog_confirm: 'Möchten Sie diesen Beitrag wirklich an Ihre Follower rebloggen?',
+    cant_reblog_own: 'Sie können Ihren eigenen Beitrag nicht rebloggen',
+    already_reblogged: 'Bereits rebloggt',
+    reblog_to_followers: 'An Ihre Follower rebloggen',
+    error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
+    retry: 'Erneut versuchen',
+    community_not_found: 'Community nicht gefunden.',
   },
   fr: {
     loading: "Chargement...",
@@ -363,8 +336,9 @@ const translations: Record<string, Translations> = {
     already_reblogged: "Déjà repartagé",
     reblog_to_followers: "Repartager à vos abonnés",
     error_loading: "Une erreur s'est produite. Veuillez réessayer.",
-    retry: "Réessayer",
-    tip_amount: "Montant",
+    retry: 'Réessayer',
+    community_not_found: 'Communauté introuvable.',
+	tip_amount: "Montant",
     tip_custom: "Personnalisé",
     tip_currency: "Devise",
     tip_private_key: "Clé active",
@@ -380,153 +354,126 @@ const translations: Record<string, Translations> = {
     cancel: "Annuler",
   },
   ko: {
-    loading: "로딩 중...",
-    loadingPost: "게시물 로딩 중...",
-    loadingMore: "더 많은 게시물 로딩 중...",
-    postNotFound: "게시물을 찾을 수 없습니다.",
-    noPosts: "게시물이 없습니다.",
-    followers: "팔로워",
-    following: "팔로잉",
-    hiveInfo: "Hive 정보",
-    reputation: "평판",
-    joined: "가입일",
-    posts: "게시물",
-    location: "위치",
-    website: "웹사이트",
-    likes: "좋아요",
-    comments: "댓글",
-    reblogs: "리블로그",
-    replies: "답글",
-    blog: "블로그",
-    newest: "최신",
-    trending: "인기",
-    authorReputation: "작성자 평판",
-    votes: "투표",
-    discussion: "토론",
-    readTime: "읽기",
-    minRead: "분 읽기",
-    login: "로그인",
-    logout: "로그아웃",
-    login_to_comment: "댓글을 남기려면 로그인하세요",
-    login_to_vote: "투표하려면 로그인하세요",
-    login_to_reblog: "리블로그하려면 로그인하세요",
-    write_comment: "댓글 작성...",
-    posting: "게시 중...",
-    post_comment: "댓글 게시",
-    create_post: "게시물 작성",
-    subscribers: "구독자",
-    authors: "작성자",
-    community_info: "커뮤니티 정보",
-    created: "생성됨",
-    language: "언어",
-    pending_posts: "대기 중인 게시물",
-    team: "팀",
-    search: "검색",
-    searching: "검색 중...",
-    search_error: "검색에 실패했습니다. 다시 시도해주세요.",
-    no_results: "결과가 없습니다.",
-    results_for: "검색 결과",
-    enter_search_query: "검색어를 입력하세요.",
-    listen: "듣기",
-    pause: "일시정지",
-    resume: "재개",
-    stop: "정지",
-    reblogging: "리블로그 중...",
-    reblog_confirm: "이 게시물을 팔로워들에게 리블로그하시겠습니까?",
-    cant_reblog_own: "자신의 게시물은 리블로그할 수 없습니다",
-    already_reblogged: "이미 리블로그됨",
-    reblog_to_followers: "팔로워에게 리블로그",
-    error_loading: "문제가 발생했습니다. 다시 시도해주세요.",
-    retry: "다시 시도",
-    tip_amount: "금액",
-    tip_custom: "사용자 지정",
-    tip_currency: "통화",
-    tip_private_key: "액티브 키",
-    tip_wallet_address: "지갑 주소",
-    tip_no_wallet_address: "수신자가 이 지갑 주소를 설정하지 않았습니다.",
-    tip_send: "팁",
-    tip_sending: "전송 중...",
-    tip_login_to_send: "팁을 보내려면 로그인하세요",
-    tip_asset_not_supported: "이 자산은 아직 팁을 지원하지 않습니다",
-    tip_transaction_failed: "거래 실패",
-    tip_qr_no_address: "주소 없음",
-    tip_qr_failed: "QR 코드 생성 실패",
-    cancel: "취소",
+    loading: '로딩 중...',
+    loadingPost: '게시물 로딩 중...',
+    loadingMore: '더 많은 게시물 로딩 중...',
+    postNotFound: '게시물을 찾을 수 없습니다.',
+    noPosts: '게시물이 없습니다.',
+    followers: '팔로워',
+    following: '팔로잉',
+    hiveInfo: 'Hive 정보',
+    reputation: '평판',
+    joined: '가입일',
+    posts: '게시물',
+    location: '위치',
+    website: '웹사이트',
+    likes: '좋아요',
+    comments: '댓글',
+    reblogs: '리블로그',
+    replies: '답글',
+    blog: '블로그',
+    newest: '최신',
+    trending: '인기',
+    authorReputation: '작성자 평판',
+    votes: '투표',
+    discussion: '토론',
+    readTime: '읽기',
+    minRead: '분 읽기',
+    login: '로그인',
+    logout: '로그아웃',
+    login_to_comment: '댓글을 남기려면 로그인하세요',
+    login_to_vote: '투표하려면 로그인하세요',
+    login_to_reblog: '리블로그하려면 로그인하세요',
+    write_comment: '댓글 작성...',
+    posting: '게시 중...',
+    post_comment: '댓글 게시',
+    create_post: '게시물 작성',
+    subscribers: '구독자',
+    authors: '작성자',
+    community_info: '커뮤니티 정보',
+    created: '생성됨',
+    language: '언어',
+    pending_posts: '대기 중인 게시물',
+    team: '팀',
+    search: '검색',
+    searching: '검색 중...',
+    search_error: '검색에 실패했습니다. 다시 시도해주세요.',
+    no_results: '결과가 없습니다.',
+    results_for: '검색 결과',
+    enter_search_query: '검색어를 입력하세요.',
+    listen: '듣기',
+    pause: '일시정지',
+    resume: '재개',
+    stop: '정지',
+    reblogging: '리블로그 중...',
+    reblog_confirm: '이 게시물을 팔로워들에게 리블로그하시겠습니까?',
+    cant_reblog_own: '자신의 게시물은 리블로그할 수 없습니다',
+    already_reblogged: '이미 리블로그됨',
+    reblog_to_followers: '팔로워에게 리블로그',
+    error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
+    retry: '다시 시도',
+    community_not_found: '커뮤니티를 찾을 수 없습니다.',
   },
   ru: {
-    loading: "Загрузка...",
-    loadingPost: "Загрузка поста...",
-    loadingMore: "Загрузка постов...",
-    postNotFound: "Пост не найден.",
-    noPosts: "Посты не найдены.",
-    followers: "Подписчики",
-    following: "Подписки",
-    hiveInfo: "Инфо Hive",
-    reputation: "Репутация",
-    joined: "Присоединился",
-    posts: "Посты",
-    location: "Местоположение",
-    website: "Веб-сайт",
-    likes: "лайков",
-    comments: "комментариев",
-    reblogs: "реблогов",
-    replies: "Ответы",
-    blog: "Блог",
-    newest: "Новые",
-    trending: "Популярные",
-    authorReputation: "Репутация автора",
-    votes: "Голоса",
-    discussion: "Обсуждение",
-    readTime: "чтение",
-    minRead: "мин чтения",
-    login: "Вход",
-    logout: "Выход",
-    login_to_comment: "Войдите, чтобы оставить комментарий",
-    login_to_vote: "Войдите, чтобы проголосовать",
-    login_to_reblog: "Войдите, чтобы сделать реблог",
-    write_comment: "Написать комментарий...",
-    posting: "Публикация...",
-    post_comment: "Опубликовать",
-    create_post: "Создать пост",
-    subscribers: "Подписчики",
-    authors: "Авторы",
-    community_info: "Информация о сообществе",
-    created: "Создано",
-    language: "Язык",
-    pending_posts: "Ожидающие посты",
-    team: "Команда",
-    search: "Поиск",
-    searching: "Поиск...",
-    search_error: "Ошибка поиска. Попробуйте снова.",
-    no_results: "Результаты не найдены.",
-    results_for: "результатов для",
-    enter_search_query: "Введите поисковый запрос.",
-    listen: "Слушать",
-    pause: "Пауза",
-    resume: "Продолжить",
-    stop: "Стоп",
-    reblogging: "Реблог...",
-    reblog_confirm:
-      "Вы уверены, что хотите сделать реблог этого поста для ваших подписчиков?",
-    cant_reblog_own: "Вы не можете сделать реблог своего поста",
-    already_reblogged: "Уже сделан реблог",
-    reblog_to_followers: "Сделать реблог для подписчиков",
-    error_loading: "Что-то пошло не так. Пожалуйста, попробуйте снова.",
-    retry: "Повторить",
-    tip_amount: "Сумма",
-    tip_custom: "Своя",
-    tip_currency: "Валюта",
-    tip_private_key: "Активный ключ",
-    tip_wallet_address: "Адрес кошелька",
-    tip_no_wallet_address: "Получатель не настроил этот адрес кошелька.",
-    tip_send: "Отправить",
-    tip_sending: "Отправка...",
-    tip_login_to_send: "Войдите, чтобы отправить чаевые",
-    tip_asset_not_supported: "Этот актив пока не поддерживается для чаевых",
-    tip_transaction_failed: "Ошибка транзакции",
-    tip_qr_no_address: "Нет адреса",
-    tip_qr_failed: "Не удалось сгенерировать QR-код",
-    cancel: "Отмена",
+    loading: 'Загрузка...',
+    loadingPost: 'Загрузка поста...',
+    loadingMore: 'Загрузка постов...',
+    postNotFound: 'Пост не найден.',
+    noPosts: 'Посты не найдены.',
+    followers: 'Подписчики',
+    following: 'Подписки',
+    hiveInfo: 'Инфо Hive',
+    reputation: 'Репутация',
+    joined: 'Присоединился',
+    posts: 'Посты',
+    location: 'Местоположение',
+    website: 'Веб-сайт',
+    likes: 'лайков',
+    comments: 'комментариев',
+    reblogs: 'реблогов',
+    replies: 'Ответы',
+    blog: 'Блог',
+    newest: 'Новые',
+    trending: 'Популярные',
+    authorReputation: 'Репутация автора',
+    votes: 'Голоса',
+    discussion: 'Обсуждение',
+    readTime: 'чтение',
+    minRead: 'мин чтения',
+    login: 'Вход',
+    logout: 'Выход',
+    login_to_comment: 'Войдите, чтобы оставить комментарий',
+    login_to_vote: 'Войдите, чтобы проголосовать',
+    login_to_reblog: 'Войдите, чтобы сделать реблог',
+    write_comment: 'Написать комментарий...',
+    posting: 'Публикация...',
+    post_comment: 'Опубликовать',
+    create_post: 'Создать пост',
+    subscribers: 'Подписчики',
+    authors: 'Авторы',
+    community_info: 'Информация о сообществе',
+    created: 'Создано',
+    language: 'Язык',
+    pending_posts: 'Ожидающие посты',
+    team: 'Команда',
+    search: 'Поиск',
+    searching: 'Поиск...',
+    search_error: 'Ошибка поиска. Попробуйте снова.',
+    no_results: 'Результаты не найдены.',
+    results_for: 'результатов для',
+    enter_search_query: 'Введите поисковый запрос.',
+    listen: 'Слушать',
+    pause: 'Пауза',
+    resume: 'Продолжить',
+    stop: 'Стоп',
+    reblogging: 'Реблог...',
+    reblog_confirm: 'Вы уверены, что хотите сделать реблог этого поста для ваших подписчиков?',
+    cant_reblog_own: 'Вы не можете сделать реблог своего поста',
+    already_reblogged: 'Уже сделан реблог',
+    reblog_to_followers: 'Сделать реблог для подписчиков',
+    error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
+    retry: 'Повторить',
+    community_not_found: 'Сообщество не найдено.',
   },
 };
 

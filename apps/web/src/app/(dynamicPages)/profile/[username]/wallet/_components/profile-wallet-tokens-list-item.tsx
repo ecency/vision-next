@@ -10,9 +10,8 @@ import { sanitizeWalletUsername } from "@/features/wallet/utils/sanitize-usernam
 import { formatApr } from "@/utils";
 import { formatAssetBalance } from "@/features/wallet/utils/format-asset-balance";
 import { proxifyImageSrc } from "@ecency/render-helper";
+import { AssetOperation, getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import {
-  AssetOperation,
-  getAccountWalletAssetInfoQueryOptions,
   getAllTokensListQueryOptions,
   getTokenOperationsQueryOptions,
 } from "@ecency/wallets";
@@ -21,7 +20,7 @@ import clsx from "clsx";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { UilEllipsisH } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokensListItemLoading } from "./profile-wallet-tokens-list-item-loading";
@@ -121,6 +120,8 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
     [assetSymbol, tokenOperations]
   );
 
+  const [activeOperation, setActiveOperation] = useState<AssetOperation | null>(null);
+
   const dropdownOperationItems = useMemo(
     () =>
       filteredOperations.map((operation, index) => {
@@ -148,22 +149,15 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         }
 
         return (
-          <WalletOperationsDialog
+          <DropdownItemWithIcon
             key={key}
-            className="w-full"
-            asset={assetSymbol}
-            operation={operation}
-            to={
-              sanitizedUsername && sanitizedUsername !== activeUser?.username
-                ? sanitizedUsername
-                : undefined
-            }
-          >
-            <DropdownItemWithIcon icon={icon} label={operationLabel} />
-          </WalletOperationsDialog>
+            icon={icon}
+            label={operationLabel}
+            onClick={() => setActiveOperation(operation)}
+          />
         );
       }),
-    [activeUser?.username, assetSymbol, filteredOperations, sanitizedUsername]
+    [assetSymbol, filteredOperations]
   );
 
   const hasDropdownOperations = dropdownOperationItems.length > 0;
@@ -188,6 +182,20 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         {dropdownOperationItems}
       </DropdownMenu>
     </Dropdown>
+  ) : null;
+
+  const activeOperationDialog = activeOperation !== null ? (
+    <WalletOperationsDialog
+      key={`${assetSymbol}-${activeOperation}`}
+      controlled={{ show: true, onHide: () => setActiveOperation(null) }}
+      asset={assetSymbol}
+      operation={activeOperation}
+      to={
+        sanitizedUsername && sanitizedUsername !== activeUser?.username
+          ? sanitizedUsername
+          : undefined
+      }
+    />
   ) : null;
 
   const { hasPendingPoints } = useProfileWalletPointsClaimState(
@@ -326,6 +334,7 @@ export function ProfileWalletTokensListItem({ asset, username }: Props) {
         </Link>
         {claimSection}
       </div>
+      {activeOperationDialog}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { ConfigManager, getBoundFetch } from "@/modules/core";
+import type { HiveEngineOpenOrder } from "./types";
 
 type EngineOrderBookEntry = {
   txId: string;
@@ -9,17 +10,6 @@ type EngineOrderBookEntry = {
   price: string;
   tokensLocked?: string;
 };
-
-export interface HiveEngineOpenOrder {
-  id: string;
-  type: "buy" | "sell";
-  account: string;
-  symbol: string;
-  quantity: string;
-  price: string;
-  total: string;
-  timestamp: number;
-}
 
 const ENGINE_RPC_HEADERS = { "Content-type": "application/json" };
 

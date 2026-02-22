@@ -10,7 +10,7 @@ import {
   UilAlignLeft,
   UilAlignCenter,
   UilAlignRight,
-  UilArrow,
+  UilBracketsCurly,
   UilParagraph,
 } from "@tooni/iconscout-unicons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -20,7 +20,7 @@ interface Props {
   editor: Editor | null;
 }
 
-const headings = [1, 2, 3, 4, 5, 6];
+const headings = [1, 2, 3, 4, 5, 6] as const;
 
 export function PublishEditorToolbar({ editor }: Props) {
   const [showHeadingMenu, setShowHeadingMenu] = useState(false);
@@ -57,10 +57,16 @@ export function PublishEditorToolbar({ editor }: Props) {
       setIsFocusingTable(editor.isActive("table"));
     };
 
+    const handleBlur = () => {
+      setIsFocusingTable(false);
+    };
+
     editor.on("selectionUpdate", handleSelectionUpdate);
+    editor.on("blur", handleBlur);
 
     return () => {
       editor.off("selectionUpdate", handleSelectionUpdate);
+      editor.off("blur", handleBlur);
     };
   }, [editor]);
 
@@ -129,6 +135,8 @@ export function PublishEditorToolbar({ editor }: Props) {
             editor.isActive("heading") ? "bg-gray-200 dark:bg-gray-600" : ""
           }`}
           title="Headings"
+          aria-expanded={showHeadingMenu}
+          aria-haspopup="menu"
         >
           <UilTextSize className="w-5 h-5" />
         </button>
@@ -211,7 +219,7 @@ export function PublishEditorToolbar({ editor }: Props) {
         }`}
         title="Code"
       >
-        <UilArrow className="w-5 h-5" />
+        <UilBracketsCurly className="w-5 h-5" />
       </button>
 
       <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />

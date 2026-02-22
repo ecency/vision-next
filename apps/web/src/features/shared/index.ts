@@ -63,3 +63,4 @@ export * from "./time-label";
 export * from "./tag";
 export * from "./hiveposh";
 export * from "./stepper";
+export * from "./auth-upgrade";

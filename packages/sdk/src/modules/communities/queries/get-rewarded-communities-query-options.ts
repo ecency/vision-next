@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { RewardedCommunity } from "../types/rewarded-community";
 
 export function getRewardedCommunitiesQueryOptions() {
   return queryOptions({
-    queryKey: ["communities", "rewarded"],
+    queryKey: QueryKeys.communities.rewarded(),
     queryFn: async () => {
       const response = await fetch(
         CONFIG.privateApiHost + "/private-api/rewarded-communities",

@@ -131,7 +131,7 @@ export function EntryListItemComponent({
         <EntryListItemMutedContent entry={entryProp} />
       </div>
       <div>
-        <div className="w-auto inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
+        <div className="w-full flex md:w-auto md:inline-flex items-center gap-2 md:gap-3 rounded-xl border border-[--border-color] px-2 py-1 text-sm">
           <EntryVoteBtn isPostSlider={true} entry={entry} account={account} />
           <EntryPayout entry={entry} />
           <div className="border-r border-[--border-color] w-[1px] h-4" />

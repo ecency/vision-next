@@ -1,5 +1,7 @@
 export * from "./use-account-update";
 export * from "./use-account-relations-update";
+export * from "./use-follow";
+export * from "./use-unfollow";
 export * from "./bookmarks";
 export * from "./favourites";
 export * from "./use-account-update-key-auths";
@@ -7,3 +9,6 @@ export * from "./use-account-update-password";
 export * from "./use-account-revoke-posting";
 export * from "./use-account-update-recovery";
 export * from "./use-account-revoke-key";
+export * from "./use-claim-account";
+export * from "./use-grant-posting-permission";
+export * from "./use-create-account";

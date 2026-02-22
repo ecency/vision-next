@@ -1,7 +1,7 @@
 import i18next from "i18next";
 import { useMemo } from "react";
 import { ProfileWalletTokenHistoryCard } from "../../_components";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";

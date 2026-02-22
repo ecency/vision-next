@@ -26,7 +26,7 @@ export function HivePosh({ username, className = "" }: Props) {
       <div className="social-links flex flex-col justify-center gap-2">
         {links.twitter.profile && (
           <StyledTooltip content="Powered by HivePosh.com">
-            <Link target="_external" href={links.twitter.profile}>
+            <Link target="_external" rel="nofollow ugc noopener" href={links.twitter.profile}>
               <Button appearance="gray" size="sm" icon={xSvg}>
                 {links.twitter.username}
               </Button>
@@ -35,7 +35,7 @@ export function HivePosh({ username, className = "" }: Props) {
         )}
         {links.reddit.profile && (
           <StyledTooltip content="Powered by HivePosh.com">
-            <Link target="_external" href={links.reddit.profile}>
+            <Link target="_external" rel="nofollow ugc noopener" href={links.reddit.profile}>
               <Button appearance="gray" size="sm" icon={redditSvg}>
                 {links.reddit.username}
               </Button>

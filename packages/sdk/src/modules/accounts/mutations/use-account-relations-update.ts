@@ -1,4 +1,4 @@
-import { broadcastJson, getQueryClient } from "@/modules/core";
+import { broadcastJson, getQueryClient, QueryKeys } from "@/modules/core";
 import type { AuthContext } from "@/modules/core/types";
 import { useMutation } from "@tanstack/react-query";
 import { getRelationshipBetweenAccountsQueryOptions, getAccountFullQueryOptions } from "../queries";
@@ -17,8 +17,8 @@ export function useAccountRelationsUpdate(
     mutationKey: ["accounts", "relation", "update", reference, target],
     mutationFn: async (kind: Kind) => {
       const relationsQuery = getRelationshipBetweenAccountsQueryOptions(
-        reference,
-        target
+        reference!,
+        target!
       );
       await getQueryClient().prefetchQuery(relationsQuery);
       const actualRelation = getQueryClient().getQueryData(
@@ -63,7 +63,7 @@ export function useAccountRelationsUpdate(
       onSuccess(data);
 
       getQueryClient().setQueryData(
-        ["accounts", "relations", reference, target],
+        QueryKeys.accounts.relations(reference!, target!),
         data
       );
 

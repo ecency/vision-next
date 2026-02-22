@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { Announcement } from "../types/announcement";
 
 export function getAnnouncementsQueryOptions() {
   return queryOptions({
-    queryKey: ["notifications", "announcements"],
+    queryKey: QueryKeys.notifications.announcements(),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/announcements", {
         method: "GET",

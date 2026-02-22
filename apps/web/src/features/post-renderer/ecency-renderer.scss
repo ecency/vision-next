@@ -445,6 +445,22 @@ $xxxl-break: "1600px";
     }
   }
 
+  // 3Speak auto-detected portrait videos (3:4 aspect ratio)
+  .markdown-video-link-speak.speak-portrait {
+    padding-bottom: 0;
+    aspect-ratio: 3 / 4;
+    height: auto;
+    max-width: 450px;
+  }
+
+  // 3Speak auto-detected square videos (1:1 aspect ratio)
+  .markdown-video-link-speak.speak-square {
+    padding-bottom: 0;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    max-width: 600px;
+  }
+
   // Portrait embeds (9:16 aspect ratio)
   // Target iframe.portrait-embed since the class is applied to iframe elements, not anchors
   iframe.portrait-embed {
@@ -457,10 +473,15 @@ $xxxl-break: "1600px";
     display: block;
   }
 
-  // Fallback for any other iframes not caught by specific classes
-  iframe:not(.youtube-shorts-iframe):not(.speak-iframe):not(.portrait-embed) {
+  // Fallback for standalone iframes not inside video containers.
+  // Use :where() to keep specificity at (0,0,1) so video container rules
+  // (.markdown-video-link-* iframe) win by specificity and aren't shadowed.
+  iframe:where(:not(.youtube-shorts-iframe, .speak-iframe, .portrait-embed)) {
     max-width: 100% !important;
     display: block;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: auto;
   }
 
   &.mini-markdown {

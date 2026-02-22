@@ -2,13 +2,17 @@ import { queryOptions } from "@tanstack/react-query";
 import { DynamicProps } from "../types";
 import { CONFIG } from "../config";
 import { parseAsset } from "../utils";
+import { QueryKeys } from "@/modules/core";
+
+// This query powers wallet/HP/reward math that should stay close to chain state.
+// Keep a short refresh cadence despite the 4 RPC calls.
+const DYNAMIC_PROPS_REFRESH_MS = 60 * 1000;
 
 export function getDynamicPropsQueryOptions() {
   return queryOptions({
-    queryKey: ["core", "dynamic-props"],
-    refetchInterval: 60000,
-    staleTime: 60000,
-    refetchOnMount: true,
+    queryKey: QueryKeys.core.dynamicProps(),
+    refetchInterval: DYNAMIC_PROPS_REFRESH_MS,
+    staleTime: DYNAMIC_PROPS_REFRESH_MS,
     queryFn: async (): Promise<DynamicProps> => {
       // Get raw blockchain data without transformation
       const rawGlobalDynamic: any = await CONFIG.hiveClient.database.getDynamicGlobalProperties();

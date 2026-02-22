@@ -35,8 +35,23 @@ function BlogSidebarContent({ username }: { username: string }) {
     return formatMonthYear(data.created);
   }, [data?.created]);
 
+  const websiteUrl = useMemo(() => {
+    const raw = data?.profile?.website;
+    if (!raw) return null;
+    const url =
+      raw.startsWith("http://") || raw.startsWith("https://")
+        ? raw
+        : `https://${raw}`;
+    try {
+      new URL(url);
+      return url;
+    } catch {
+      return null;
+    }
+  }, [data?.profile?.website]);
+
   return (
-    <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-3 mb-4">
         <UserAvatar username={username} size="sLarge" />
         <div className="text-sm sm:text-base font-bold font-theme-ui text-theme-primary">
@@ -103,37 +118,19 @@ function BlogSidebarContent({ username }: { username: string }) {
           {data.profile.location}
         </div>
       )}
-      {data?.profile?.website &&
-        (() => {
-          // Normalize website URL
-          let websiteUrl = data.profile.website;
-          if (
-            websiteUrl &&
-            !websiteUrl.startsWith("http://") &&
-            !websiteUrl.startsWith("https://")
-          ) {
-            websiteUrl = `https://${websiteUrl}`;
-          }
-          // Validate URL format
-          try {
-            new URL(websiteUrl);
-          } catch {
-            return null;
-          }
-          return (
-            <div className="text-xs text-theme-muted">
-              <span className="font-medium">{t("website")}:</span>{" "}
-              <a
-                href={websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline text-theme-accent"
-              >
-                {data.profile.website}
-              </a>
-            </div>
-          );
-        })()}
+      {websiteUrl && (
+        <div className="text-xs text-theme-muted">
+          <span className="font-medium">{t("website")}:</span>{" "}
+          <a
+            href={websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-theme-accent"
+          >
+            {data?.profile?.website}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
@@ -154,7 +151,7 @@ function CommunitySidebar() {
 
   if (isLoading) {
     return (
-      <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
         <div className="animate-pulse">
           <div className="w-16 h-16 rounded-full bg-theme-tertiary mb-4" />
           <div className="h-4 w-32 bg-theme-tertiary rounded mb-2" />
@@ -166,7 +163,7 @@ function CommunitySidebar() {
 
   if (!community) {
     return (
-      <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
+      <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto">
         <div className="text-sm text-theme-muted">
           {t("community_not_found")}
         </div>
@@ -175,7 +172,7 @@ function CommunitySidebar() {
   }
 
   return (
-    <div className="lg:fixed lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto -ml-4">
+    <div className="lg:sticky lg:top-0 border-b lg:border-b-0 lg:border-l border-theme p-4 sm:p-6 lg:h-screen lg:overflow-y-auto -ml-4">
       <div className="flex items-center gap-3 mb-4">
         {communityAvatarUrl ? (
           <img

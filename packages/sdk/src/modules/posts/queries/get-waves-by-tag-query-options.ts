@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { ConfigManager } from "@/modules/core";
+import { ConfigManager, QueryKeys } from "@/modules/core";
 import { Entry, WaveEntry } from "../types";
 import { normalizeWaveEntryFromApi } from "../utils/waves-helpers";
 
@@ -13,7 +13,7 @@ const DEFAULT_TAG_FEED_LIMIT = 40;
 
 export function getWavesByTagQueryOptions(host: string, tag: string, limit = DEFAULT_TAG_FEED_LIMIT) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "waves", "by-tag", host, tag],
+    queryKey: QueryKeys.posts.wavesByTag(host, tag),
     initialPageParam: undefined,
 
     queryFn: async ({ signal }) => {

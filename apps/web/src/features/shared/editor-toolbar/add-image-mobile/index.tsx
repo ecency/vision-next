@@ -4,7 +4,6 @@ import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { useGlobalStore } from "@/core/global-store";
 import { getImagesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import defaults from "@/defaults";
@@ -23,8 +22,6 @@ interface Props {
 
 export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
   const { activeUser } = useActiveAccount();
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   const { data: items } = useQuery({
     ...getImagesQueryOptions(activeUser?.username, getAccessToken(activeUser?.username ?? "")),
     select: (items: any[]) =>
@@ -45,7 +42,7 @@ export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
               <div className="recent-list-title">{i18next.t("add-image-mobile.recent-title")}</div>
               <div className="recent-list-body">
                 {items.map((item) => {
-                  const src = proxifyImageSrc(item.url, 600, 500, canUseWebp ? "webp" : "match");
+                  const src = proxifyImageSrc(item.url, 600, 500);
                   return (
                     <div
                       className="recent-list-item"

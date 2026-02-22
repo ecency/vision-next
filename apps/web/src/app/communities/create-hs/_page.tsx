@@ -2,8 +2,8 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import { hsTokenRenew } from "@ecency/sdk";
-import { setUserRole, updateCommunity } from "@/api/operations";
+import { hsTokenRenew, useSetCommunityRole, useUpdateCommunity } from "@ecency/sdk";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import { User } from "@/entities";
 import { delay } from "@/utils";
@@ -12,7 +12,7 @@ import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useMount from "react-use/lib/useMount";
 import {
   CommunityCreateCardLayout,
@@ -20,6 +20,18 @@ import {
   CommunityCreateStepper,
   CommunityStepperSteps
 } from "../create/_components";
+
+/**
+ * Tracks the multi-step community creation flow after HiveSigner callback.
+ *
+ * Steps:
+ * 1. "init"        - initial state, waiting to start
+ * 2. "token"       - fetching HiveSigner token, creating community user
+ * 3. "set-role"    - ready to set admin role (community user added to store)
+ * 4. "update-props"- ready to update community properties
+ * 5. "done"        - all operations complete
+ */
+type CreationPhase = "init" | "token" | "set-role" | "update-props" | "done";
 
 export function CommunityCreateHsPage() {
   const router = useRouter();
@@ -35,10 +47,29 @@ export function CommunityCreateHsPage() {
 
   const [username, setUsername] = useState("");
   const [step, setStep] = useState(CommunityStepperSteps.CREATING);
-
   const [progress, setProgress] = useState("");
+  const [phase, setPhase] = useState<CreationPhase>("init");
 
-  const handle = useCallback(async () => {
+  // Store creation params for use across effects
+  const creationParams = useRef<{ title: string; about: string }>({ title: "", about: "" });
+
+  // Guards to prevent double-execution of effects
+  const roleSetRef = useRef(false);
+  const propsUpdatedRef = useRef(false);
+
+  // Singleton web broadcast adapter for SDK mutations
+  const adapter = getWebBroadcastAdapter();
+
+  // SDK mutation hooks – we use the SDK hooks directly (not the web wrappers from
+  // @/api/sdk-mutations) because this flow broadcasts AS the community account, not
+  // as activeUser. The web wrappers hardcode activeUser?.username as the broadcaster.
+  // Username updates via state after HiveSigner token acquisition, causing re-render
+  // so hooks capture the correct community username before mutations fire.
+  const { mutateAsync: setRole } = useSetCommunityRole(username, username, { adapter });
+  const { mutateAsync: updateCommunity } = useUpdateCommunity(username, username, { adapter });
+
+  // Phase 1: On mount, fetch HiveSigner token and create community user
+  useMount(() => {
     const code = params?.get("code");
     const title = params?.get("title") ?? "";
     const about = params?.get("about") ?? "";
@@ -48,45 +79,63 @@ export function CommunityCreateHsPage() {
       return;
     }
 
+    creationParams.current = { title, about };
+    setPhase("token");
     setProgress(i18next.t("communities-create.progress-user"));
 
-    // get access token from code and create user object
-    const response = await hsTokenRenew(code);
-    const user = {
-      username: response.username,
-      accessToken: response.access_token,
-      refreshToken: response.refresh_token,
-      expiresIn: response.expires_in,
-      postingKey: null,
-      loginType: "hivesigner"
-    } satisfies User;
+    hsTokenRenew(code).then((response) => {
+      const user = {
+        username: response.username,
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+        expiresIn: response.expires_in,
+        postingKey: null,
+        loginType: "hivesigner"
+      } satisfies User;
 
-    // add community user to reducer
-    addUser(user);
-    setUsername(user.username);
+      // Add community user to store so the web broadcast adapter can find its credentials
+      addUser(user);
+      setUsername(user.username);
 
-    // set admin role
+      // Transition to next phase - will trigger re-render with correct username
+      // so SDK mutation hooks capture the community username
+      setPhase("set-role");
+    });
+  });
+
+  // Phase 2: Set admin role (runs after re-render with correct username)
+  useEffect(() => {
+    if (phase !== "set-role" || !activeUser || !username || roleSetRef.current) return;
+    roleSetRef.current = true;
+
     setProgress(i18next.t("communities-create.progress-role", { u: activeUser.username }));
-    await setUserRole(user.username, user.username, activeUser.username, "admin");
+    setRole({ account: activeUser.username, role: "admin" }).then(() => {
+      setPhase("update-props");
+    });
+  }, [phase, activeUser, username, setRole]);
 
-    // update community props
+  // Phase 3: Update community properties (runs after role is set)
+  useEffect(() => {
+    if (phase !== "update-props" || !username || propsUpdatedRef.current) return;
+    propsUpdatedRef.current = true;
+
+    const { title, about } = creationParams.current;
     setProgress(i18next.t("communities-create.progress-props"));
-    await updateCommunity(user.username, user.username, {
+    updateCommunity({
       title,
       about,
       lang: "en",
       description: "",
       flag_text: "",
       is_nsfw: false
+    }).then(async () => {
+      // Wait for hivemind to synchronize community data
+      await delay(3000);
+      setStep(CommunityStepperSteps.DONE);
+      setPhase("done");
+      recordActivity();
     });
-
-    // wait 3 seconds to hivemind synchronize community data
-    await delay(3000);
-    setStep(CommunityStepperSteps.DONE);
-    recordActivity();
-  }, [activeUser, addUser, params, recordActivity, router]);
-
-  useMount(handle);
+  }, [phase, username, updateCommunity, recordActivity]);
 
   return (
     <>

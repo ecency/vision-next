@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { CommunityRole } from "../types";
 
 export function getCommunityContextQueryOptions(
@@ -7,7 +7,7 @@ export function getCommunityContextQueryOptions(
   communityName: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["community", "context", username, communityName],
+    queryKey: QueryKeys.communities.context(username!, communityName!),
     enabled: !!username && !!communityName,
     queryFn: async () => {
       const response = await CONFIG.hiveClient.call(

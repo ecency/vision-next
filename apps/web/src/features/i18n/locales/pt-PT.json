@@ -71,6 +71,7 @@
     "more-results": "Mais resultados",
     "close": "Fechar",
     "loading": "Carregando",
+    "validating": "Validando...",
     "stop": "Parar",
     "settings": "Ajustes",
     "confirm": "Confirmar",
@@ -296,7 +297,7 @@
     "description": "Liberdade de expressão, Propriedade verdadeira e Liberdade financeira!",
     "description-2": "A Colméia fortalece muitos aplicativos e é rodada completamente descentralizada por membros da comunidade ao redor do mundo. Com uma conta, você tem acesso direto ao ecossistema.",
     "bottom-description": "Uma conta. Uma carteira. Tudo na Blockchain.",
-    "learn-more": "Saiba mais sobre benefícios em nossa <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Aprenda mais sobre benefícios acessando nossas <a href=\"/faq#how-to-join\">Perguntas Frequentes</a>",
     "username": "Escolha um nome de usuário",
     "email": "Insira o seu email",
     "ref": "Usuário referenciado (opcional)",
@@ -864,6 +865,9 @@
     "muted-warning": "Este conteúdo foi silenciado pelos moderadores da {{community}} por não seguir as diretrizes da comunidade.",
     "lowrep-warning": "O autor desse conteúdo tem uma baixa reputação.",
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
+    "deleted-content": "Esta publicação foi excluída por {{author}}",
+    "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
+    "untitled": "Sem Título",
     "comments-hidden": "O autor desta publicação foi silenciado por você.",
     "address-copy": "Copiar link",
     "address-copied": "Link copiado para a área de transferência",
@@ -1077,7 +1081,9 @@
     "go-community": "Página da comunidade",
     "com-mod": "Moderador dessas comunidades",
     "empty-communities": "Nenhuma comunidade aqui",
-    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade"
+    "empty-communities-hint": "Usuário ainda não é membro de qualquer comunidade. Junte-se a uma das comunidades ou crie sua própria comunidade",
+    "dm-followers-only": "DMs: apenas seguidores",
+    "dm-disabled": "Dados: desativado"
   },
   "profile-info": {
     "joined": "Entrou",
@@ -1131,7 +1137,7 @@
     "confirm": "Confirmar",
     "cancel": "Cancelar",
     "check-faq": "Saiba mais sobre CR no nosso",
-    "learn-more": "https://docs.ecency.com/pt/hive/resource-credits/",
+    "learn-more": "/faq#oque-sao-cr",
     "faq-link": "Perguntas Frequentes",
     "insufficient-rc-error": "Créditos de recursos insuficientes",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
     "permissions": "Abrir permissões"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacidade de mensagens diretas",
+      "who-can-message": "Quem pode te enviar mensagens diretas?",
+      "description": "Controle quem pode enviar-lhe mensagens diretas para evitar tentativas de spam e phishing.",
+      "allow-all": "Todos",
+      "followers-only": "Somente pessoas que sigo",
+      "no-one": "Ninguém (desativar DMs)"
+    },
+    "dm-privacy-updated": "Configurações de privacidade DM atualizadas com sucesso",
+    "dm-privacy-failed": "Falha ao atualizar as configurações de privacidade de DM"
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas não reclamadas",
@@ -1300,6 +1318,10 @@
       "account-value-description": "O valor aproximado em dólares de todos os ativos SPK na sua conta",
       "larynx-locked": "LARYNX Guardado",
       "larynx-locked-description": "Tokens bloqueados fornecem liquidez à rede, ajudam na determinação do consenso e recebem recompensas para rodar servidores de nó"
+    },
+    "setup-external": {
+      "login-required": "Login necessário para configurar carteiras externas",
+      "import-login-required": "Login necessário para importar a carteira"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Silenciar canal",
     "unmute-channel": "Reativar canal",
     "leave-channel": "Sair do canal",
+    "leave-conversation": "Sair da conversa",
+    "dm-warning-title": "Nova conversa - Fique seguro",
+    "dm-warning-body": "Tenha cuidado com mensagens de usuários desconhecidos. Não clique em links suspeitos ou compartilhe informações confidenciais como senhas ou chaves privadas. Verifique a identidade do remetente antes de tomar qualquer ação.",
+    "dm-warning-settings": "Você pode atualizar sua privacidade de DM em Configurações.",
     "no-channels": "Nenhum canal atribuído ainda.",
     "no-channels-search": "Nenhum canal corresponde à sua pesquisa.",
     "joinable-channels": "Canais de inscrições",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "View community channel",
     "public-key": "Chave pública",
     "private-key": "Chave privada",
-    "hide-message": "Ocultar mensagem",
     "enter-private-key-detail": "Introduza a chave privada para importar todas as conversas",
     "message-search-results": "Resultados da pesquisa de mensagens",
     "no-messages-found": "Nenhuma mensagem encontrada.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Idioma alvo",
     "pinned-messages": "Mensagens fixadas",
     "pin-message": "Fixar mensagem",
-    "unpin-message": "Desafixar mensagem"
+    "unpin-message": "Desafixar mensagem",
+    "dm-not-allowed": "@{{username}} não aceita mensagens suas",
+    "dm-followers-only": "Só aceita DMs de pessoas que elas seguem",
+    "dm-disabled": "Tem mensagens diretas desabilitadas"
   },
   "add-image": {
     "title": "Adicionar imagem",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Carregando o editor...",
     "gif-picker": "Escolher imagem GIF",
     "description-hint": "Ajuda a pesquisar sistemas de motores para descobrir esta postagem",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Aumentar o Poder",
       "power-down": "Desligamento automático",
       "swap": "Trocar",
+      "convert": "Converter",
       "delegate": "Delegar",
       "withdraw-saving": "Rotas de retirada",
       "gift": "Presente",
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Revogar chave do Hive",
       "hint": "Você pode revogar qualquer chave do Hive usando uma das chaves/senha mestra do proprietário/semente"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Autenticar",
+        "generate-seed": "Gerar Seed",
+        "review-keys": "Chaves de Revisão",
+        "confirm": "Confirmar"
+      },
+      "step1": {
+        "title": "Adicionando Novo Conjunto de Chaves",
+        "info1": "Uma nova semente será gerada para sua conta",
+        "info2": "Você pode manter vários conjuntos de chaves ativos simultaneamente",
+        "info3": "Você terá a opção de revogar as chaves antigas nos próximos passos",
+        "authenticate": "Autenticar para Continuar",
+        "error-not-owner": "A chave fornecida não é uma chave do proprietário. Por favor, forneça a chave do proprietário, senha mestra ou semente de frase.",
+        "error-invalid-key": "Formato de chave privada inválido",
+        "error-authentication": "Falha na autenticação. Por favor, verifique suas credenciais e tente novamente.",
+        "error-credentials-not-match": "As credenciais fornecidas não correspondem a esta conta. Verifique sua senha mestra, frase de semente ou chave do proprietário.",
+        "error-account-not-loaded": "Os dados da conta ainda estão sendo carregados. Por favor, aguarde alguns instantes e tente novamente."
+      },
+      "step2": {
+        "warning-title": "Importante: Salve sua frase de nova semente",
+        "warning1": "Esta é uma NOVA frase de semente, diferente da sua seed de conta original",
+        "warning2": "Salve-o separadamente - você precisará dele para fazer login com essas chaves",
+        "warning3": "Baixe o arquivo de Seed e armazene-o com segurança antes de continuar"
+      },
+      "step3": {
+        "title": "Revisar chaves existentes",
+        "description": "Selecione quaisquer chaves antigas que deseja revogar. Você pode pular esta etapa para manter todas as chaves existentes ativas.",
+        "cannot-revoke-last": "Não é possível revogar - esta é a única chave deste tipo",
+        "selected-count": "{{count}} chave(s) selecionada(s) para revogação",
+        "next-with-revoke": "Continuar e Revogar Selecionados",
+        "next-skip": "Continuar sem revogar",
+        "will-be-replaced": "será substituído pela nova chave",
+        "memo-will-replace": "Nova tecla de memorando irá substituir esta",
+        "derivation-unknown": "Desconhecido",
+        "derivation-bip44": "Semente BIP44",
+        "derivation-master-password": "Senha Mestra"
+      },
+      "step4": {
+        "title": "Pronto para Aplicar Alterações",
+        "description": "Revise as alterações abaixo e confirme para atualizar sua conta.",
+        "adding": "Adicionando",
+        "new-bip44-keys": "Novas chaves BIP44 baseadas em semente (proprietário, ativo, ativo, postagem, memo)",
+        "revoking": "Revogando",
+        "revoking-count": "{{count}} chave(s) existente(s)",
+        "applying": "Aplicando alterações...",
+        "please-wait": "Por favor, aguarde enquanto atualizamos sua conta",
+        "success": "Chaves Atualizadas com sucesso!",
+        "success-description": "Suas novas chaves foram adicionadas e as chaves antigas selecionadas foram revogadas.",
+        "error-no-keys": "Não há chaves disponíveis para adicionar"
+      },
+      "import": {
+        "title": "Importar frase de semente existente",
+        "description": "Insira sua semente de 12 palavras existente para importar os endereços da carteira e, opcionalmente, as chaves do Hive.",
+        "warning": "Nunca compartilhe sua frase de semente com ninguém. A Ecency nunca pedirá por ela. Só digite-a em dispositivos confiáveis.",
+        "placeholder": "Digite sua frase de semente de 12 palavras separadas por espaços",
+        "load-from-file": "Ou carregar do arquivo Seed",
+        "error-word-count": "A frase Seed deve ser exatamente 12 palavras",
+        "error-invalid-seed": "Frase de seed inválida. Por favor, verifique e tente novamente.",
+        "error-derive-keys": "Falha ao derivar as chaves da frase de semente",
+        "error-invalid-file": "Arquivo inválido. Por favor, envie um arquivo de Seed válido.",
+        "error-invalid-file-format": "Formato de arquivo inválido. O arquivo Seed deve conter uma propriedade 'seed'.",
+        "error-no-wallets": "Nenhum endereço de carteira encontrado. Por favor, aguarde a criação da carteira ser concluída.",
+        "existing-tokens-warning": "Esta conta já tem endereços de carteira externa configurados. Importar uma nova semente irá substituir os endereços da carteira existente. Certifique-se de ter feito o backup de sua frase de semente anterior antes de prosseguir.",
+        "hive-keys-title": "Importar chaves do Hive",
+        "hive-keys-description": "Encontramos as chaves do Hive em sua frase de sementes. Deseja importá-las para sua conta?",
+        "hive-keys-already-added": "Essas chaves já estão ativas em sua conta.",
+        "owner-key": "Chave do proprietário",
+        "active-key": "Chave Ativa",
+        "posting-key": "Chave de postagem",
+        "skip-hive-keys": "Pular Chaves do Hive",
+        "import-hive-keys": "Importar chaves do Hive",
+        "tokens-title": "Revisar endereços da carteira",
+        "tokens-description": "Esses endereços de carteira foram derivados de sua frase de sementes. Verifique-os antes de continuar.",
+        "sign-title": "Assinar a importação completa",
+        "success-title": "Importação bem sucedida!",
+        "success-description": "Os endereços e chaves da carteira foram importados com sucesso.",
+        "step-import-title": "Importar semente",
+        "step-import-description": "Digite sua frase de semente existente de 12 palavras",
+        "step-hive-keys-title": "Chaves da colmeia",
+        "step-hive-keys-description": "Opcionalmente, importar as chaves do Hive da mesma frase de semente",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Revise os endereços da carteira derivada",
+        "step-sign-title": "Assinar alterações",
+        "step-sign-description": "Assinar alterações para as carteiras de link",
+        "step-link-title": "Carteiras de link",
+        "step-link-description": "Finalize a carteira vinculada à conta de Ecency"
+      }
     }
   }
 }

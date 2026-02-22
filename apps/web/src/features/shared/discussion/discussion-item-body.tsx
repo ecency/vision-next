@@ -1,6 +1,5 @@
 import React from "react";
 import { Entry } from "@/entities";
-import { useGlobalStore } from "@/core/global-store";
 import { PostContentRenderer } from "@/features/shared";
 
 interface Props {
@@ -9,7 +8,6 @@ interface Props {
 }
 
 export function DiscussionItemBody({ entry, isRawContent }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
 
   return (
     <>

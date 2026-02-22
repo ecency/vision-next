@@ -47,8 +47,19 @@ function VideoViewer({
               <iframe
                 width="560"
                 height="315"
-                src={src.replace("watch", "embed")}
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                src={(() => {
+                  try {
+                    const url = new URL(src, "https://3speak.tv");
+                    url.pathname = url.pathname.replace("/watch", "/embed");
+                    if (!url.searchParams.has("mode")) {
+                      url.searchParams.set("mode", "iframe");
+                    }
+                    return url.toString();
+                  } catch {
+                    return src;
+                  }
+                })()}
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               ></iframe>
             )}

@@ -1,4 +1,4 @@
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
@@ -23,7 +23,7 @@ export function getPostsRankedInfiniteQueryOptions(
   _options: GetPostsRankedOptions = {}
 ) {
   return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
-    queryKey: ["posts", "posts-ranked", sort, tag, limit, observer],
+    queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
       if (!pageParam.hasNextPage) {
         return [];
@@ -92,16 +92,7 @@ export function getPostsRankedQueryOptions(
   enabled = true
 ) {
   return queryOptions({
-    queryKey: [
-      "posts",
-      "posts-ranked-page",
-      sort,
-      start_author,
-      start_permlink,
-      limit,
-      tag,
-      observer,
-    ],
+    queryKey: QueryKeys.posts.postsRankedPage(sort, start_author, start_permlink, limit, tag, observer),
     enabled,
     queryFn: async () => {
       let sanitizedTag = tag;

@@ -1,12 +1,12 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { ConfigManager } from "@/modules/core";
+import { ConfigManager, QueryKeys } from "@/modules/core";
 import { ReferralItem } from "../types/referral";
 
 type PageParam = { maxId?: number };
 
 export function getReferralsInfiniteQueryOptions(username: string) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "referrals", username],
+    queryKey: QueryKeys.accounts.referrals(username),
     initialPageParam: { maxId: undefined } as PageParam,
     queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
       const { maxId } = pageParam ?? {};

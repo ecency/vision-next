@@ -71,6 +71,7 @@
     "more-results": "Więcej wyników",
     "close": "Zamknij",
     "loading": "Ładowanie",
+    "validating": "Weryfikowanie...",
     "stop": "Zatrzymaj",
     "settings": "Ustawienia",
     "confirm": "Potwierdź",
@@ -296,7 +297,7 @@
     "description": "Freespeech, Prawdziwa własność, swoboda finansowa!",
     "description-2": "Ul potęguje wiele aplikacji i jest całkowicie zdecentralizowany przez członków społeczności na całym świecie. Z kontem masz bezpośredni dostęp do ekosystemu.",
     "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkimi w Blockchain.",
-    "learn-more": "Dowiedz się więcej o korzyściach w naszym <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Dowiedz się więcej o korzyściach w <a href=\"/faq#how-to-join\">sekcji pytań i odpowiedzi</a>",
     "username": "Wybierz nazwę użytkownika",
     "email": "Podaj swój adres e-mail",
     "ref": "Użytkownik rekomendowany (opcjonalnie)",
@@ -864,6 +865,9 @@
     "muted-warning": "Ta zawartość została wyciszona przez moderatorów {{community}} za nieprzestrzeganie wytycznych społeczności.",
     "lowrep-warning": "Autor tej zawartości ma niską reputację.",
     "deleted-content-warning": "Ta zawartość została usunięta przez autora. Możesz ją zobaczyć z Blockchain ",
+    "deleted-content": "Ten post został usunięty przez {{author}}",
+    "deleted-no-history": "Usunięta historia treści nie jest dostępna z blockchain.",
+    "untitled": "Bez tytułu",
     "comments-hidden": "Autor tego wpisu jest wyciszony przez ciebie.",
     "address-copy": "Kopiuj link",
     "address-copied": "Link skopiowany do schowka",
@@ -1077,7 +1081,9 @@
     "go-community": "Strona społeczności",
     "com-mod": "Moderator tych społeczności",
     "empty-communities": "Brak społeczności tutaj",
-    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną"
+    "empty-communities-hint": "Użytkownik nie jest jeszcze członkiem żadnej społeczności. Dołącz do jednej ze społeczności lub utwórz własną",
+    "dm-followers-only": "DM: tylko obserwujący",
+    "dm-disabled": "DM: wyłączone"
   },
   "profile-info": {
     "joined": "Dołączono",
@@ -1131,7 +1137,7 @@
     "confirm": "Potwierdź",
     "cancel": "Anuluj",
     "check-faq": "Dowiedz się więcej o RC w naszym",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "Często zadawane pytania",
     "insufficient-rc-error": "Niewystarczająca ilość punktów zasobów",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Klucze i uprawnienia",
     "permissions-hint": "Zarządzaj kluczami, kontroluj uprawnienia nad aplikacjami",
     "permissions": "Otwórz uprawnienia"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Prywatność wiadomości bezpośredniej",
+      "who-can-message": "Kto może wysyłać Ci bezpośrednie wiadomości?",
+      "description": "Kontroluj, kto może wysyłać Ci bezpośrednie wiadomości, aby zapobiec próbom spamu i phishingu.",
+      "allow-all": "Wszyscy",
+      "followers-only": "Tylko osoby, które obserwuję",
+      "no-one": "Nikt (wyłącz DM)"
+    },
+    "dm-privacy-updated": "Ustawienia prywatności zostały pomyślnie zaktualizowane",
+    "dm-privacy-failed": "Nie udało się zaktualizować ustawień prywatności DM"
   },
   "wallet": {
     "unclaimed-rewards": "Nieodebrane wynagrodzenie",
@@ -1300,6 +1318,10 @@
       "account-value-description": "Przybliżona wartość dolara amerykańskiego dla wszystkich aktywów SPK na Twoim koncie",
       "larynx-locked": "LARYNX zablokowany",
       "larynx-locked-description": "Zablokowane tokeny zapewniają płynność sieci, pomagają w określaniu konsensusu i zarabiają nagrody dla runnerów węzłów"
+    },
+    "setup-external": {
+      "login-required": "Logowanie wymagane do konfiguracji zewnętrznych portfeli",
+      "import-login-required": "Logowanie wymagane do zaimportowania portfela"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Wycisz kanał",
     "unmute-channel": "Wyłącz wyciszenie kanału",
     "leave-channel": "Opuść kanał",
+    "leave-conversation": "Opuść rozmowę",
+    "dm-warning-title": "Nowa konwersacja - Bądź bezpieczny",
+    "dm-warning-body": "Bądź ostrożny z wiadomościami od nieznanych użytkowników. Nie klikaj na podejrzane linki ani nie udostępniaj poufnych informacji, takich jak hasła czy klucze prywatne. Zweryfikuj tożsamość nadawcy przed podjęciem jakichkolwiek działań.",
+    "dm-warning-settings": "Możesz zaktualizować swoją prywatność w Ustawieniach.",
     "no-channels": "Brak przypisanych kanałów.",
     "no-channels-search": "Żaden kanał nie pasuje do Twojego wyszukiwania.",
     "joinable-channels": "Kanały do przyłączenia",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "Czat Społeczności",
     "public-key": "Klucz publiczny",
     "private-key": "Klucz prywatny",
-    "hide-message": "Ukryj wiadomość",
     "enter-private-key-detail": "Wprowadź klucz prywatny czatu, aby zaimportować wszystkie czaty",
     "message-search-results": "Wyniki wyszukiwania wiadomości",
     "no-messages-found": "Nie znaleziono wiadomości.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Docelowy język",
     "pinned-messages": "Przypięte wiadomości",
     "pin-message": "Przypnij wiadomość",
-    "unpin-message": "Odepnij wiadomość"
+    "unpin-message": "Odepnij wiadomość",
+    "dm-not-allowed": "@{{username}} nie akceptuje wiadomości od Ciebie",
+    "dm-followers-only": "Akceptuje tylko prezent od ludzi, którzy obserwują",
+    "dm-disabled": "Posiada wyłączone wiadomości bezpośrednie"
   },
   "add-image": {
     "title": "Dodaj obraz",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Ładowanie edytora...",
     "gif-picker": "Wybierz obraz GIF",
     "description-hint": "Pomaga systemom wyszukiwarki dowiedzieć się o tym poście",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Zasil",
       "power-down": "Siła w dół",
       "swap": "Zamień",
+      "convert": "Konwertuj",
       "delegate": "Delegat",
       "withdraw-saving": "Wycofaj trasy",
       "gift": "Prezent",
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Unieważnij klucz Ul",
       "hint": "Możesz odwołać dowolny klucz Uli, używając jednego z kluczy właściciela/hasła głównego/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Uwierzytelnij",
+        "generate-seed": "Wygeneruj ziarno",
+        "review-keys": "Klawisze recenzji",
+        "confirm": "Potwierdź"
+      },
+      "step1": {
+        "title": "Dodawanie nowego zestawu kluczy",
+        "info1": "Nowa fraza seed zostanie wygenerowana dla Twojego konta",
+        "info2": "Możesz zachować wiele zestawów klawiszy jednocześnie",
+        "info3": "Będziesz miał możliwość cofnięcia starych kluczy w kolejnych krokach",
+        "authenticate": "Uwierzytelnij, aby kontynuować",
+        "error-not-owner": "Podany klucz nie jest kluczem właściciela. Proszę podać klucz właściciela, hasło główne lub frazę seed",
+        "error-invalid-key": "Nieprawidłowy format klucza prywatnego",
+        "error-authentication": "Uwierzytelnianie nie powiodło się. Sprawdź swoje poświadczenia i spróbuj ponownie.",
+        "error-credentials-not-match": "Podane dane logowania nie pasują do tego konta. Sprawdź swoje hasło główne, frazę seed lub klucz właściciela.",
+        "error-account-not-loaded": "Dane konta nadal się ładują. Poczekaj chwilę i spróbuj ponownie."
+      },
+      "step2": {
+        "warning-title": "Ważne: Zapisz swoje nowe frazę seed",
+        "warning1": "To jest NOWA fraza ziaren, inna niż oryginalny seed konta",
+        "warning2": "Zapisz to osobno - będziesz potrzebował go aby zalogować się za pomocą tych kluczy",
+        "warning3": "Pobierz plik seed i przechowuj go bezpiecznie przed kontynuowaniem"
+      },
+      "step3": {
+        "title": "Przejrzyj istniejące klucze",
+        "description": "Wybierz stare klucze, które chcesz cofnąć. Możesz pominąć ten krok, aby wszystkie istniejące klucze były aktywne.",
+        "cannot-revoke-last": "Nie można odwołać - jest to jedyny klucz tego typu",
+        "selected-count": "Klucze {{count}} wybrane do cofnięcia",
+        "next-with-revoke": "Kontynuuj i cofnij zaznaczone",
+        "next-skip": "Kontynuuj bez cofania",
+        "will-be-replaced": "zostanie zastąpiony nowym kluczem",
+        "memo-will-replace": "Nowy klucz memo zastąpi ten",
+        "derivation-unknown": "Nieznane",
+        "derivation-bip44": "BIP44 Nasiona",
+        "derivation-master-password": "Hasło główne"
+      },
+      "step4": {
+        "title": "Gotowy do zastosowania zmian",
+        "description": "Przejrzyj poniższe zmiany i potwierdź aktualizację swojego konta.",
+        "adding": "Dodawanie",
+        "new-bip44-keys": "Nowe klucze seedowe BIP44 (właściciel, aktywny, posting, memo)",
+        "revoking": "Odwoływanie",
+        "revoking-count": "{{count}} istniejące klucze",
+        "applying": "Stosowanie zmian...",
+        "please-wait": "Proszę czekać, aktualizujemy Twoje konto",
+        "success": "Klucze zaktualizowane pomyślnie!",
+        "success-description": "Twoje nowe klucze zostały dodane i wybrane stare klucze zostały cofnięte.",
+        "error-no-keys": "Brak dostępnych kluczy do dodania"
+      },
+      "import": {
+        "title": "Importuj istniejący frazę seed",
+        "description": "Wprowadź swoją istniejącą frazę seed 12 słów aby zaimportować adresy portfela i opcjonalnie klucze Uli.",
+        "warning": "Nigdy nie udostępniaj nikomu swojej frazy ziaren. Ecencja nigdy nie prosi o to. Wprowadź ją tylko na zaufanych urządzeniach.",
+        "placeholder": "Wprowadź swoją frazę seed 12 słów oddzieloną spacjami",
+        "load-from-file": "Lub załaduj z pliku seed",
+        "error-word-count": "Nasiona muszą mieć dokładnie 12 słów",
+        "error-invalid-seed": "Nieprawidłowa fraza seeda. Proszę sprawdzić i spróbować ponownie.",
+        "error-derive-keys": "Nie udało się odczytać kluczy z frazy seed",
+        "error-invalid-file": "Nieprawidłowy plik. Proszę przesłać prawidłowy plik seed.",
+        "error-invalid-file-format": "Nieprawidłowy format pliku. Plik seed musi zawierać właściwość \"seed\".",
+        "error-no-wallets": "Nie znaleziono adresów portfela. Proszę czekać na ukończenie tworzenia portfela.",
+        "existing-tokens-warning": "To konto ma już skonfigurowane adresy portfela zewnętrznego. Importowanie nowej frazy seed zastąpi istniejące adresy portfela. Upewnij się, że wykonałeś kopię zapasową poprzedniej frazy seed przed kontynuowaniem.",
+        "hive-keys-title": "Importuj klucze ulowe",
+        "hive-keys-description": "Znaleźliśmy klucze ulowe w Twojej frazie seedowej. Czy chcesz zaimportować je na swoje konto?",
+        "hive-keys-already-added": "Te klucze są już aktywne na Twoim koncie.",
+        "owner-key": "Klucz właściciela",
+        "active-key": "Aktywny klucz",
+        "posting-key": "Klucz publikowania",
+        "skip-hive-keys": "Pomiń klucze ulowe",
+        "import-hive-keys": "Importuj klucze ulowe",
+        "tokens-title": "Przejrzyj adresy portfela",
+        "tokens-description": "Te adresy portfela zostały wyprowadzone z Twojej frazy seed. Zweryfikuj je przed kontynuowaniem.",
+        "sign-title": "Podpisz aby zakończyć import",
+        "success-title": "Importowanie zakończone pomyślnie!",
+        "success-description": "Twoje adresy i klucze portfela zostały pomyślnie zaimportowane.",
+        "step-import-title": "Importuj frazę seed",
+        "step-import-description": "Wprowadź swoją istniejącą 12-słowną frazę seed",
+        "step-hive-keys-title": "Klucze ulowe",
+        "step-hive-keys-description": "Opcjonalnie zaimportuj klucze ulowe z tej samej frazy seed",
+        "step-tokens-title": "Tokeny",
+        "step-tokens-description": "Przejrzyj adresy portfela pochodnego",
+        "step-sign-title": "Podpisz zmiany",
+        "step-sign-description": "Podpisz zmiany do linków portfeli",
+        "step-link-title": "Połącz portfele",
+        "step-link-description": "Sfinalizuj powiązanie portfela z kontem Ecency"
+      }
     }
   }
 }

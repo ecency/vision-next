@@ -7,7 +7,7 @@ import { date2key } from "@/features/shared/notifications/utils";
 import { getNotificationsInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import i18next from "i18next";
-import { Fragment, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { getAccessToken } from "@/utils";
 
 interface Props {
@@ -26,85 +26,102 @@ export function NotificationList({
   selectNotification
 }: Props) {
   const { activeUser } = useActiveAccount();
-  const { data, isFetching, fetchNextPage } = useInfiniteQuery(
-    getNotificationsInfiniteQueryOptions(
-      activeUser?.username,
-      getAccessToken(activeUser?.username ?? ""),
-      filter
-    )
-  );
+  const accessToken = getAccessToken(activeUser?.username ?? "");
+  const isQueryEnabled = Boolean(activeUser?.username && accessToken);
+  const {
+    data,
+    isFetching,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch
+  } = useInfiniteQuery(getNotificationsInfiniteQueryOptions(activeUser?.username, accessToken, filter));
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const hasNextPageRef = useRef(hasNextPage);
+  const isFetchingNextPageRef = useRef(isFetchingNextPage);
+  const fetchNextPageRef = useRef(fetchNextPage);
+  const isLoadingRef = useRef(false);
+
+  hasNextPageRef.current = hasNextPage;
+  isFetchingNextPageRef.current = isFetchingNextPage;
+  fetchNextPageRef.current = fetchNextPage;
 
   const dataFlow = useMemo(
-    () => data?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    () => data?.pages.flat() ?? [],
     [data]
   );
 
+  const filteredData = useMemo(() => {
+    if (currentStatus === NotificationViewType.READ) {
+      return dataFlow.filter((n) => n.read === 1);
+    }
+    if (currentStatus === NotificationViewType.UNREAD) {
+      return dataFlow.filter((n) => n.read === 0);
+    }
+    return dataFlow;
+  }, [dataFlow, currentStatus]);
+
+  const isLoading = isQueryEnabled && isFetching;
+  isLoadingRef.current = isLoading;
+
+  useEffect(() => {
+    if (isQueryEnabled) {
+      refetch();
+    }
+  }, [filter, isQueryEnabled, refetch]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isLoadingRef.current &&
+          hasNextPageRef.current &&
+          !isFetchingNextPageRef.current
+        ) {
+          fetchNextPageRef.current();
+        }
+      },
+      { rootMargin: "0px 0px 200px 0px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
-      {isFetching && dataFlow.length === 0 ? <LinearProgress /> : <></>}
+      {isLoading && dataFlow.length === 0 ? <LinearProgress /> : <></>}
 
-      {!isFetching && dataFlow.length === 0 && (
-        <div className="list-body empty-list">
-          <span className="empty-text">{i18next.t("g.empty-list")}</span>
-        </div>
-      )}
-      {dataFlow.length > 0 && (
-        <div className="list-body">
-          {dataFlow.map((n, i) => (
-            <Fragment key={n.id}>
-              {currentStatus === NotificationViewType.ALL && (
-                <AnimatedNotificationListItemLayout index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-              {currentStatus === NotificationViewType.READ && n.read === 1 && (
-                <AnimatedNotificationListItemLayout key={n.id} index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-              {currentStatus === NotificationViewType.UNREAD && n.read === 0 && (
-                <AnimatedNotificationListItemLayout key={n.id} index={i}>
-                  {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
-                  <NotificationListItem
-                    notification={n}
-                    isSelect={select}
-                    setSelectedNotifications={selectNotification}
-                    openLinksInNewTab={openLinksInNewTab}
-                    onInViewport={(inViewport) => {
-                      if (inViewport && i === dataFlow.length - 1) {
-                        fetchNextPage();
-                      }
-                    }}
-                  />
-                </AnimatedNotificationListItemLayout>
-              )}
-            </Fragment>
-          ))}
-        </div>
-      )}
-      {isFetching && dataFlow.length > 0 && <LinearProgress />}
+      <div className={`list-body${filteredData.length === 0 && !isLoading ? " empty-list" : ""}`}>
+        {!isLoading && filteredData.length === 0 && !hasNextPage && (
+          <span className="empty-text">
+            {!isQueryEnabled
+              ? i18next.t("notifications.auth-required-desc")
+              : isError
+                ? i18next.t("g.error")
+                : i18next.t("g.empty-list")}
+          </span>
+        )}
+        {filteredData.map((n, i) => (
+          <AnimatedNotificationListItemLayout key={n.id} index={i}>
+            {n.gkf && <div className="group-title">{date2key(n.gk)}</div>}
+            <NotificationListItem
+              notification={n}
+              isSelect={select}
+              setSelectedNotifications={selectNotification}
+              openLinksInNewTab={openLinksInNewTab}
+            />
+          </AnimatedNotificationListItemLayout>
+        ))}
+        <div ref={sentinelRef} style={{ height: 1 }} />
+      </div>
+      {isLoading && dataFlow.length > 0 && <LinearProgress />}
     </>
   );
 }

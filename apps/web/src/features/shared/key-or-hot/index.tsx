@@ -10,6 +10,7 @@ import Image from "next/image";
 import { OrDivider } from "../or-divider";
 import "./index.scss";
 import { shouldUseHiveAuth } from "@/utils/client";
+import { isKeychainInAppBrowser } from "@/utils/keychain";
 
 interface Props {
   inProgress: boolean;
@@ -24,7 +25,7 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="a
   const { activeUser } = useActiveAccount();
   const isMobileBrowser = useIsMobile();
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth);
+  const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser());
   const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
   const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
   const keychainLabel = useHiveAuth

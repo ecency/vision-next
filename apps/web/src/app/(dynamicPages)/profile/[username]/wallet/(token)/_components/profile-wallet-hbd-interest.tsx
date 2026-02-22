@@ -5,7 +5,7 @@ import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { WalletOperationsDialog } from "@/features/wallet";
 import { Button } from "@/features/ui";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";

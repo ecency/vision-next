@@ -11,8 +11,8 @@ import useMount from "react-use/lib/useMount";
 import {
   getAllHiveEngineTokensQueryOptions,
   getHiveEngineTokensBalancesQueryOptions,
-  getHiveEngineTokensMetadataQueryOptions
-} from "@ecency/wallets";
+  getHiveEngineTokensMetadataQueryOptions,
+} from "@ecency/sdk";
 import { useGlobalStore } from "@/core/global-store";
 import { useActiveAccount } from "@/core/hooks";
 import { QueryIdentifiers } from "@/core/react-query";
@@ -384,7 +384,6 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
           amount={from}
           asset={fromAsset as HiveMarketAsset}
           setToAmount={(v) => setTo(v)}
-          loading={disabled}
           setLoading={(v) => setDisabled(v)}
           setInvalidAmount={(v) => setIsInvalidFrom(v)}
           setTooMuchSlippage={(v) => setTooMuchSlippage(v)}

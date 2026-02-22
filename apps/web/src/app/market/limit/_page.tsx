@@ -25,7 +25,7 @@ import { MarketMode } from "@/app/market/_enums/market-mode";
 import { Tsx } from "@/features/i18n/helper";
 import { ModeSelector } from "@/app/market/_components/mode-selector";
 import { useRouter } from "next/navigation";
-import { getAllHiveEngineTokensQueryOptions } from "@ecency/wallets";
+import { getAllHiveEngineTokensQueryOptions } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MarketTokenSelector, MarketSelection } from "@/app/market/limit/_components/token-selector";
 import { EngineMarketSection } from "@/app/market/limit/_engine";

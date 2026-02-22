@@ -4,14 +4,13 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { useClaimRewards } from "@ecency/wallets";
+import { useClaimRewardsMutation } from "@/api/sdk-mutations";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import i18next from "i18next";
 import { useMemo } from "react";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
-import { formatError } from "@/api/operations";
-import { getSdkAuthContext, getUser } from "@/utils";
+import { formatError } from "@/api/format-error";
 
 type Props = {
   username: string;
@@ -64,15 +63,15 @@ export function ProfileWalletHbdClaimRewardsButton({
   className,
   showIcon = false,
 }: Props) {
-  const { activeUser } = useActiveAccount();
   const { isOwnProfile, rewardBalance, hasRewards } =
     useProfileWalletHbdClaimState(username);
 
-  const { mutateAsync: claimRewards, isPending } = useClaimRewards(
-    username,
-    getSdkAuthContext(getUser(activeUser?.username ?? username)),
-    () => success(i18next.t("wallet.claim-reward-balance-ok"))
-  );
+  const { data: accountData } = useQuery({
+    ...getAccountFullQueryOptions(username),
+    enabled: Boolean(username),
+  });
+
+  const { mutateAsync: claimRewards, isPending } = useClaimRewardsMutation();
 
   if (!hasRewards) {
     return null;
@@ -86,12 +85,17 @@ export function ProfileWalletHbdClaimRewardsButton({
     : undefined;
 
   const handleClaim = async () => {
-    if (!isOwnProfile) {
+    if (!isOwnProfile || !accountData) {
       return;
     }
 
     try {
-      await claimRewards();
+      await claimRewards({
+        rewardHive: accountData.reward_hive_balance,
+        rewardHbd: accountData.reward_hbd_balance,
+        rewardVests: accountData.reward_vesting_balance,
+      });
+      success(i18next.t("wallet.claim-reward-balance-ok"));
     } catch (e) {
       error(...formatError(e));
     }

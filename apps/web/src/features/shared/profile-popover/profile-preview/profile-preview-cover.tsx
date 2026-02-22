@@ -9,7 +9,6 @@ interface Props {
 }
 
 export function ProfilePreviewCover({ username }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const theme = useGlobalStore((s) => s.theme);
 
   const { data: profile, isLoading: isProfileLoading } =
@@ -25,7 +24,7 @@ export function ProfilePreviewCover({ username }: Props) {
         height={600}
         src={
           profile.profile?.cover_image
-            ? `https://images.ecency.com/${canUseWebp ? "webp/" : ""}u/${username}/cover`
+            ? `https://images.ecency.com/u/${username}/cover`
             : theme === "day"
               ? "/assets/cover-fallback-day.png"
               : "/assets/cover-fallback-night.png"

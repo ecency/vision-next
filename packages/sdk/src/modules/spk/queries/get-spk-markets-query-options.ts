@@ -1,0 +1,27 @@
+import { getSpkMarkets } from "../requests";
+import { queryOptions } from "@tanstack/react-query";
+import type { SpkMarkets, TransformedSpkMarkets } from "../types";
+
+export function getSpkMarketsQueryOptions() {
+  return queryOptions({
+    queryKey: ["assets", "spk", "markets"],
+    staleTime: 60000,
+    refetchInterval: 90000,
+    queryFn: async () => {
+      const data = await getSpkMarkets<SpkMarkets>();
+
+      return {
+        list: Object.entries(data.markets.node).map(([name, node]) => ({
+          name,
+          status:
+            node.lastGood >= data.head_block - 1200
+              ? "🟩"
+              : node.lastGood > data.head_block - 28800
+                ? "🟨"
+                : "🟥",
+        })),
+        raw: data,
+      } satisfies TransformedSpkMarkets;
+    },
+  });
+}

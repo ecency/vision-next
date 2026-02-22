@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { deleteSchedule } from "@/modules/private-api/requests";
 
 export function useDeleteSchedule(
@@ -16,11 +16,15 @@ export function useDeleteSchedule(
       }
       return deleteSchedule(code, id);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "schedules", username],
-      });
+      const qc = getQueryClient();
+      // Set the full schedules list from the response (API returns complete list)
+      if (data) {
+        qc.setQueryData(QueryKeys.posts.schedules(username), data);
+      } else {
+        qc.invalidateQueries({ queryKey: QueryKeys.posts.schedules(username) });
+      }
     },
     onError,
   });

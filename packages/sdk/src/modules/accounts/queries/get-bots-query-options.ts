@@ -1,9 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 
 export function getBotsQueryOptions() {
   return queryOptions({
-    queryKey: ["accounts", "bots"],
+    queryKey: QueryKeys.accounts.bots(),
     queryFn: async () => {
       const response = await fetch(CONFIG.privateApiHost + "/private-api/public/bots", {
         method: "GET",

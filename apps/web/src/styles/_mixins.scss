@@ -898,8 +898,9 @@
     }
 
     @media screen and (max-width: 560px) {
-      width: calc(100vw - 67px - 24px);
-      left: -12px;
+      width: 93vw;
+      max-width: none;
+      left: auto;
       right: auto;
       top: -23px;
     }

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import "./witness-active-proxy.scss";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
-import { error, KeyOrHotDialog, LoginRequired, ProfileLink } from "@/features/shared";
-import { formatError, witnessProxy, witnessProxyHot, witnessProxyKc } from "@/api/operations";
+import { error, LoginRequired, ProfileLink } from "@/features/shared";
+import { formatError } from "@/api/format-error";
 import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { useWitnessProxyMutation } from "@/api/sdk-mutations";
 
 interface Props {
   username: string;
@@ -15,24 +16,14 @@ interface Props {
 
 export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
   const { activeUser } = useActiveAccount();
+  const { mutateAsync, isPending } = useWitnessProxyMutation();
 
-  const [inProgress, setInProgress] = useState(false);
-
-  const proxy = (fn: any, args: any[]) => {
-    const fnArgs = [...args];
-    const call = fn(...fnArgs);
-    if (typeof call?.then === "function") {
-      setInProgress(true);
-      call
-        .then(() => {
-          onDone();
-        })
-        .catch((e: any) => {
-          error(...formatError(e));
-        })
-        .finally(() => {
-          setInProgress(false);
-        });
+  const removeProxy = async () => {
+    try {
+      await mutateAsync({ proxy: "" });
+      onDone();
+    } catch (e) {
+      error(...formatError(e));
     }
   };
 
@@ -50,25 +41,20 @@ export function WitnessesActiveProxy({ username, isProxy, onDone }: Props) {
             </div>
 
             {activeUser ? (
-              <KeyOrHotDialog
-                onKey={(key) => proxy(witnessProxy, [activeUser!.username, key, ""])}
-                onHot={() => proxy(witnessProxyHot, [activeUser!.username, ""])}
-                onKc={() => proxy(witnessProxyKc, [activeUser!.username, ""])}
+              <Button
+                disabled={isPending}
+                icon={isPending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                iconPlacement="left"
+                appearance="secondary"
+                onClick={removeProxy}
               >
-                <Button
-                  disabled={inProgress}
-                  icon={inProgress && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
-                  iconPlacement="left"
-                  appearance="secondary"
-                >
-                  {i18next.t("witnesses.proxy-active-btn-label")}
-                </Button>
-              </KeyOrHotDialog>
+                {i18next.t("witnesses.proxy-active-btn-label")}
+              </Button>
             ) : (
               <LoginRequired>
                 <Button
-                  disabled={inProgress}
-                  icon={inProgress && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
+                  disabled={isPending}
+                  icon={isPending && <Spinner className="mr-[6px] w-3.5 h-3.5" />}
                   iconPlacement="left"
                 >
                   {i18next.t("witnesses.proxy-active-btn-label")}

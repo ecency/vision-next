@@ -15,7 +15,6 @@ export const Route = createFileRoute("/publish")({
 function RouteComponent() {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
-  const { editor } = usePublishEditor();
   const navigate = useNavigate();
 
   // Redirect if auth is disabled or user is not blog owner
@@ -28,6 +27,12 @@ function RouteComponent() {
   if (!isAuthEnabled || !isBlogOwner) {
     return null;
   }
+
+  return <PublishPageContent />;
+}
+
+function PublishPageContent() {
+  const { editor } = usePublishEditor();
 
   return (
     <div className="min-h-screen bg-theme-primary">

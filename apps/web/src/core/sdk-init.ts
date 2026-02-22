@@ -12,14 +12,14 @@ import dmcaAccounts from "../../public/dmca/dmca-accounts.json";
 import dmcaTags from "../../public/dmca/dmca-tags.json";
 import dmcaPosts from "../../public/dmca/dmca-posts.json";
 
-// Configure SDK API host based on environment
-// Only use relative URLs (self-hosted API) on main production domain
-// All other environments (localhost, alpha, staging, etc.) use ecency.com API
-const isMainProduction = typeof window !== 'undefined'
-  ? window.location.hostname === 'ecency.com'
-  : process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_APP_BASE === 'https://ecency.com';
+// Configure SDK API host based on environment.
+// Use relative URLs only on client-side main production domain.
+// Keep absolute host on server-side to avoid relative fetch failures in SSR.
+const isMainProductionClient =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "ecency.com" || window.location.hostname.endsWith(".ecency.com"));
 
-const privateApiHost = isMainProduction ? "" : "https://ecency.com";
+const privateApiHost = isMainProductionClient ? "" : "https://ecency.com";
 ConfigManager.setPrivateApiHost(privateApiHost);
 ConfigManager.setImageHost(defaults.imageServer);
 
@@ -31,3 +31,20 @@ ConfigManager.setDmcaLists({
   tags: dmcaTags.tags ?? [],
   posts: dmcaPosts.posts ?? [],
 });
+
+// NOTE: Web broadcast adapter is NOT initialized here.
+// Mutation hooks should retrieve and pass the shared web adapter singleton
+// when calling SDK mutations.
+//
+// Example usage in a hook:
+// ```typescript
+// import { useVote } from '@ecency/sdk';
+// import { getWebBroadcastAdapter } from '@/providers/sdk';
+//
+// export function useVoteMutation() {
+//   const currentUser = useGlobalStore(state => state.activeUser);
+//   const adapter = getWebBroadcastAdapter();
+//
+//   return useVote(currentUser?.username, { adapter });
+// }
+// ```

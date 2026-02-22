@@ -1,63 +1,46 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { broadcastPostingOperations, formatError } from "@/api/operations";
+import { useMutation } from "@tanstack/react-query";
+import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
-import { error } from "@/features/shared";
-import { Operation } from "@hiveio/dhive";
-import { SortOrder } from "@/enums";
+import { error, success } from "@/features/shared";
+import { useDeleteCommentMutation } from "@/api/sdk-mutations";
+import i18next from "i18next";
 
+/**
+ * Web wrapper for delete comment mutation.
+ * SDK now handles optimistic removal + rollback for discussions cache.
+ * This wrapper adds web-specific feedback (toasts) and success callback.
+ */
 export function useDeleteComment(entry: Entry, onSuccess: () => void, parent?: Entry) {
   const { activeUser } = useActiveAccount();
-  const queryClient = useQueryClient();
+  const { mutateAsync: sdkDeleteComment } = useDeleteCommentMutation();
 
   return useMutation({
     mutationKey: ["deleteComment", activeUser?.username, entry?.id],
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!activeUser) {
         throw new Error("Active user not found");
       }
 
-      const params = {
+      await sdkDeleteComment({
         author: entry.author,
-        permlink: entry.permlink
-      };
+        permlink: entry.permlink,
+        parentAuthor: entry.parent_author,
+        parentPermlink: entry.parent_permlink,
+        rootAuthor: parent?.author || entry.parent_author,
+        rootPermlink: parent?.permlink || entry.parent_permlink,
+      });
 
-      const opArray: Operation[] = [["delete_comment", params]];
-
-      return broadcastPostingOperations(activeUser.username, opArray);
+      success(i18next.t("comment.delete-success"));
     },
-    onError: (err) => error(...formatError(err)),
     onSuccess: () => {
-      if (parent && activeUser) {
-        const previousReplies =
-          queryClient.getQueryData<Entry[]>([
-            "posts",
-            "discussions",
-            parent.author,
-            parent.permlink,
-            SortOrder.created,
-            activeUser.username
-          ]) ?? [];
-        queryClient.setQueryData(
-          [
-            "posts",
-            "discussions",
-            parent.author,
-            parent.permlink,
-            SortOrder.created,
-            activeUser.username
-          ],
-          [
-            ...previousReplies.filter(
-              (r) => r.author !== entry.author || r.permlink !== entry.permlink
-            )
-          ]
-        );
-      }
-
       onSuccess();
-    }
+    },
+    onError: (err) => {
+      const errorMessage = formatError(err);
+      error(errorMessage[0], errorMessage[1] || i18next.t("comment.delete-error-hint"));
+    },
   });
 }

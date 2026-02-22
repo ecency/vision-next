@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { AccountBookmark } from "../types";
 
@@ -7,7 +7,7 @@ export function getBookmarksQueryOptions(
   code: string | undefined
 ) {
   return queryOptions({
-    queryKey: ["accounts", "bookmarks", activeUsername],
+    queryKey: QueryKeys.accounts.bookmarks(activeUsername),
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
@@ -35,7 +35,7 @@ export function getBookmarksInfiniteQueryOptions(
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["accounts", "bookmarks", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.accounts.bookmarksInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {

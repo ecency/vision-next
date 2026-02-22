@@ -31,6 +31,7 @@ export function useMattermostBootstrap(community?: string) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
   const addUser = useGlobalStore((state) => state.addUser);
+  const users = useGlobalStore((state) => state.users);
 
   return useQuery({
     queryKey: ["mattermost-bootstrap", username, community],
@@ -84,13 +85,15 @@ export function useMattermostBootstrap(community?: string) {
           const refreshedTokens = await hsTokenRenew(refreshToken);
 
           // Update tokens in global store (saves to localStorage)
+          const currentUser = users.find((u) => u.username === username);
           addUser({
             username: refreshedTokens.username,
             accessToken: refreshedTokens.access_token,
             refreshToken: refreshedTokens.refresh_token,
             expiresIn: refreshedTokens.expires_in,
-            postingKey: activeUser?.postingKey,
-            loginType: activeUser?.loginType
+            tokenObtainedAt: Date.now(),
+            postingKey: currentUser?.postingKey,
+            loginType: currentUser?.loginType
           });
 
           console.log("✓ Chat tokens refreshed successfully");
@@ -558,6 +561,7 @@ export interface MattermostPostsResponse {
   users: Record<string, MattermostUser>;
   channel?: MattermostChannelSummary;
   member?: {
+    user_id?: string;
     last_viewed_at?: number;
     mention_count?: number;
     msg_count?: number;
@@ -798,6 +802,7 @@ export interface MattermostPost {
   edit_at?: number;
   type?: string;
   root_id?: string | null;
+  pending_post_id?: string;
   is_pinned?: boolean;
   metadata?: {
     reactions?: MattermostReaction[];

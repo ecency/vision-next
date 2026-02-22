@@ -1,5 +1,5 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { AssetOperation } from "@ecency/wallets";
+import { AssetOperation } from "@ecency/sdk";
 import { UilArrowLeft } from "@tooni/iconscout-unicons-react";
 import clsx from "clsx";
 import { AnimatePresence } from "framer-motion";
@@ -25,6 +25,11 @@ interface Props {
   asset: string;
   to: string | undefined;
   initialData?: Record<string, unknown>;
+  /** Controlled mode: parent manages visibility. When provided, no trigger wrapper is rendered. */
+  controlled?: {
+    show: boolean;
+    onHide: () => void;
+  };
 }
 
 export function WalletOperationsDialog({
@@ -33,15 +38,21 @@ export function WalletOperationsDialog({
   asset,
   to,
   initialData: initialDataProp,
+  controlled,
   ...divProps
 }: PropsWithChildren<Props> & HTMLProps<HTMLDivElement>) {
   const { activeUser } = useActiveAccount();
   const { setShow: setDropdownShow } = useContext(DropdownContext);
-  const [show, setShow] = useState(false);
+  const [internalShow, setInternalShow] = useState(false);
   const [step, setStep] = useState<"form" | "sign" | "success" | "error">("form");
   const initialData = useMemo(() => initialDataProp ?? {}, [initialDataProp]);
   const [data, setData] = useState<Record<string, unknown>>(initialData);
   const [signError, setSignError] = useState<Error>();
+
+  const show = controlled ? controlled.show : internalShow;
+  const setShow = controlled
+    ? (v: boolean) => { if (!v) controlled.onHide(); }
+    : setInternalShow;
 
   useEffect(() => {
     if (!show) {
@@ -49,6 +60,14 @@ export function WalletOperationsDialog({
       setSignError(undefined);
     }
   }, [initialData, show]);
+
+  useEffect(() => {
+    if (controlled?.show) {
+      setStep("form");
+      setData(initialData);
+      setSignError(undefined);
+    }
+  }, [controlled?.show]);
 
   const [titleNamespace, titleKey, subTitleKey] = useMemo(() => {
     if (operation === AssetOperation.WithdrawRoutes) {
@@ -65,23 +84,25 @@ export function WalletOperationsDialog({
 
   return (
     <>
-      <div
-        {...divProps}
-        onClickCapture={(e) => {
-          // Stop propagation in capture phase to prevent DropdownItem from closing
-          // the dropdown before we can open the modal
-          e.stopPropagation();
-          // Open the modal
-          setData(initialData);
-          setStep("form");
-          setSignError(undefined);
-          setShow(true);
-          // Close the dropdown after modal state is set
-          setDropdownShow(false);
-        }}
-      >
-        {children}
-      </div>
+      {!controlled && (
+        <div
+          {...divProps}
+          onClickCapture={(e) => {
+            // Stop propagation in capture phase to prevent DropdownItem from closing
+            // the dropdown before we can open the modal
+            e.stopPropagation();
+            // Open the modal
+            setData(initialData);
+            setStep("form");
+            setSignError(undefined);
+            setInternalShow(true);
+            // Close the dropdown after modal state is set
+            setDropdownShow(false);
+          }}
+        >
+          {children}
+        </div>
+      )}
       <Modal
         centered={true}
         size="lg"
@@ -207,10 +228,11 @@ export function WalletOperationsDialog({
           <WalletOperationWithdrawRoutes
             onDeleteRoute={(formData) => {
               setData({
-                account: formData.account,
-                percent: formData.percent,
-                auto: formData.auto,
-                from: activeUser?.username
+                from: activeUser?.username,
+                from_account: activeUser?.username,
+                to_account: formData.account,
+                auto_vest: formData.auto === "yes",
+                percent: 0
               });
               setStep("sign");
             }}

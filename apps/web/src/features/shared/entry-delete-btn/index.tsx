@@ -28,9 +28,7 @@ export function EntryDeleteBtn({ children, entry, parent }: Props) {
     }`
   });
 
-  if (isPending) {
-    return child;
-  }
-
-  return <PopoverConfirm onConfirm={deleteAction}>{child}</PopoverConfirm>;
+  return (
+    <PopoverConfirm onConfirm={isPending ? undefined : deleteAction}>{child}</PopoverConfirm>
+  );
 }

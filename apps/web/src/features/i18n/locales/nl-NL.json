@@ -71,6 +71,7 @@
     "more-results": "Meer resultaten",
     "close": "Sluiten",
     "loading": "Laden",
+    "validating": "Valideren...",
     "stop": "Stop",
     "settings": "Instellingen",
     "confirm": "Bevestigen",
@@ -296,7 +297,7 @@
     "description": "Freespeech, Ware eigendom, financiële vrijheid!",
     "description-2": "Hive krachten veel apps en wordt volledig gedecentraliseerd door gemeenschapsleden over de hele wereld. Met een account heb je directe toegang tot het ecosysteem.",
     "bottom-description": "Eén rekening, één portemonnee om alles in Blockchain te beheren.",
-    "learn-more": "Meer informatie over de voordelen van onze <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "Lees meer over de voordelen in onze <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Kies een gebruikersnaam",
     "email": "Vul jouw email adres in",
     "ref": "Doorverwezen via lid (optie)",
@@ -864,6 +865,9 @@
     "muted-warning": "Deze inhoud is verborgen {{community}} moderators voor het niet volgen van communityrichtlijnen.",
     "lowrep-warning": "De Maker van dit bericht heeft een slechte reputatie.",
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
+    "deleted-content": "Dit bericht is verwijderd door {{author}}",
+    "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
+    "untitled": "Naamloos",
     "comments-hidden": "Auteur van dit bericht is gedempt door jou.",
     "address-copy": "Link kopiëren",
     "address-copied": "Link gekopieerd naar klembord",
@@ -1077,7 +1081,9 @@
     "go-community": "Gemeenschap pagina",
     "com-mod": "Moderator van deze gemeenschappen",
     "empty-communities": "Geen gemeenschappen hier",
-    "empty-communities-hint": "Gebruiker is nog geen lid van een gemeenschap. Word lid van een van de gemeenschappen of maak je eigen"
+    "empty-communities-hint": "Gebruiker is nog geen lid van een gemeenschap. Word lid van een van de gemeenschappen of maak je eigen",
+    "dm-followers-only": "DMs: alleen volgers",
+    "dm-disabled": "DMs: uitgeschakeld"
   },
   "profile-info": {
     "joined": "Aangesloten",
@@ -1131,7 +1137,7 @@
     "confirm": "Bevestigen",
     "cancel": "annuleren",
     "check-faq": "Leer meer over RC in onze",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "FAQ",
     "insufficient-rc-error": "Onvoldoende resource credits",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Sleutels & machtigingen",
     "permissions-hint": "Beheer uw sleutels, beheer machtigingen over applicaties",
     "permissions": "Open permissies"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Privacy directe berichten",
+      "who-can-message": "Wie kan je privéberichten sturen?",
+      "description": "Bepaal wie u rechtstreeks berichten kan sturen om spam en phishing pogingen te voorkomen.",
+      "allow-all": "Iedereen",
+      "followers-only": "Alleen mensen die ik volg",
+      "no-one": "Niemand (DMs) uitschakelen"
+    },
+    "dm-privacy-updated": "DM privacy-instellingen succesvol bijgewerkt",
+    "dm-privacy-failed": "Bijwerken DM privacy-instellingen mislukt"
   },
   "wallet": {
     "unclaimed-rewards": "Niet opgeëiste beloningen",
@@ -1300,6 +1318,10 @@
       "account-value-description": "De geschatte Amerikaanse Dollar waarde voor alle SPK activa op uw account",
       "larynx-locked": "LARYNX vergrendeld",
       "larynx-locked-description": "Vergrendelde tokens bieden liquiditeit aan het netwerk, hulp bij het bepalen van consensus, en verdienen beloningen voor node runners"
+    },
+    "setup-external": {
+      "login-required": "Inloggen vereist om externe portemonnees in te stellen",
+      "import-login-required": "Inloggen vereist om portemonnee te importeren"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Kanaal dempen",
     "unmute-channel": "Kanaal inschakelen",
     "leave-channel": "Kanaal verlaten",
+    "leave-conversation": "Gesprek verlaten",
+    "dm-warning-title": "Nieuw gesprek - Blijf veilig",
+    "dm-warning-body": "Wees voorzichtig met berichten van onbekende gebruikers. Klik niet op verdachte koppelingen of deel gevoelige informatie zoals wachtwoorden of privésleutels. Verifieer de identiteit van de afzender voordat u actie onderneemt.",
+    "dm-warning-settings": "U kunt uw DM privacy bijwerken in Instellingen.",
     "no-channels": "Nog geen kanalen toegewezen.",
     "no-channels-search": "Geen kanalen gevonden die overeenkomen met uw zoekopdracht.",
     "joinable-channels": "Kanalen inschrijven",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "Community chat",
     "public-key": "Publieke sleutel",
     "private-key": "Privé sleutel",
-    "hide-message": "Bericht verbergen",
     "enter-private-key-detail": "Voer de privésleutel in om alle chats te importeren",
     "message-search-results": "Resultaten van berichten",
     "no-messages-found": "Geen berichten gevonden.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Taal van doel",
     "pinned-messages": "Vastgezette berichten",
     "pin-message": "Bericht vastmaken",
-    "unpin-message": "Bericht losmaken"
+    "unpin-message": "Bericht losmaken",
+    "dm-not-allowed": "@{{username}} accepteert geen berichten van jou",
+    "dm-followers-only": "Accepteert DM's alleen van mensen die ze volgen",
+    "dm-disabled": "Heeft privéberichten uitgeschakeld"
   },
   "add-image": {
     "title": "Afbeelding toevoegen",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Editor laden...",
     "gif-picker": "Kies GIF-afbeelding",
     "description-hint": "Helpt bij het zoeken van motorsystemen om dit bericht te ontdekken",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Power Up",
       "power-down": "Power down",
       "swap": "Wisselen",
+      "convert": "Converteren",
       "delegate": "Overdragen",
       "withdraw-saving": "Routeopname maken",
       "gift": "Geschenk",
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Intrekken Hive key",
       "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "Verifiëren",
+        "generate-seed": "Genereer Seed",
+        "review-keys": "Beoordeel sleutels",
+        "confirm": "Bevestigen"
+      },
+      "step1": {
+        "title": "Nieuwe sleutelset toevoegen",
+        "info1": "Er wordt een nieuwe herstelzin gegenereerd voor uw account",
+        "info2": "Je kunt meerdere sleutelsets tegelijk actief houden",
+        "info3": "Je hebt de optie om oude sleutels in de volgende stappen in te trekken",
+        "authenticate": "Verifieer om verder te gaan",
+        "error-not-owner": "De opgegeven sleutel is geen eigenaarssleutel. Geef uw eigenaarssleutel, hoofdwachtwoord of herstelzin op.",
+        "error-invalid-key": "Ongeldig private key formaat",
+        "error-authentication": "Authenticatie mislukt. Controleer uw inloggegevens en probeer het opnieuw.",
+        "error-credentials-not-match": "De verstrekte referenties komen niet overeen met dit account. Verifieer uw hoofdwachtwoord, herstelzin of eigenaarssleutel.",
+        "error-account-not-loaded": "Rekeninggegevens worden nog steeds geladen. Wacht even en probeer het opnieuw."
+      },
+      "step2": {
+        "warning-title": "Belangrijk: Sla je nieuwe zin op",
+        "warning1": "Dit is een nieuwe herstelzin die afwijkt van uw oorspronkelijke account seed",
+        "warning2": "Sla het afzonderlijk op - u moet inloggen met deze sleutels",
+        "warning3": "Download het seed bestand en sla het veilig op alvorens verder te gaan"
+      },
+      "step3": {
+        "title": "Bestaande sleutels controleren",
+        "description": "Selecteer een oude sleutel die je wilt intrekken. Je kan deze stap overslaan om alle bestaande sleutels actief te houden.",
+        "cannot-revoke-last": "Niet intrekken - dit is de enige sleutel van dit type",
+        "selected-count": "{{count}} sleutel(s) geselecteerd voor herroeping",
+        "next-with-revoke": "Geselecteerde voortzetten en intrekken",
+        "next-skip": "Doorgaan zonder intrekken",
+        "will-be-replaced": "zal worden vervangen door nieuwe sleutel",
+        "memo-will-replace": "Nieuwe memo toets zal deze vervangen",
+        "derivation-unknown": "onbekend",
+        "derivation-bip44": "BIP44 Zaad",
+        "derivation-master-password": "Hoofdwachtwoord"
+      },
+      "step4": {
+        "title": "Klaar om wijzigingen toe te passen",
+        "description": "Controleer de onderstaande wijzigingen en bevestig dat u uw account bijwerkt.",
+        "adding": "Toevoegen",
+        "new-bip44-keys": "Nieuwe BIP44 seedgebaseerde sleutels (eigenaar, actief, posten, memo)",
+        "revoking": "Intrekken",
+        "revoking-count": "{{count}} bestaande sleutel(s)",
+        "applying": "Wijzigingen toepassen...",
+        "please-wait": "Een moment geduld aub terwijl we uw account updaten",
+        "success": "Sleutels succesvol bijgewerkt!",
+        "success-description": "Uw nieuwe sleutels zijn toegevoegd en de geselecteerde oude sleutels zijn ingetrokken.",
+        "error-no-keys": "Geen sleutels beschikbaar om toe te voegen"
+      },
+      "import": {
+        "title": "Importeer bestaande Seed Zin",
+        "description": "Voer uw bestaande 12-word herstelzin in om portemonnee-adressen en optioneel Hive sleutels te importeren.",
+        "warning": "Deel nooit uw herstelzin met iemand. Ecency zal nooit om het vragen. Voer het alleen in op vertrouwde apparaten.",
+        "placeholder": "Voer uw 12-woord herstelzin in, gescheiden door spaties",
+        "load-from-file": "Of laad van het seed-bestand",
+        "error-word-count": "Seed phrase moet precies 12 woorden zijn",
+        "error-invalid-seed": "Ongeldige herstelzin. Controleer en probeer het opnieuw.",
+        "error-derive-keys": "Kon sleutels niet afleiden uit herstelzin",
+        "error-invalid-file": "Ongeldig bestand. Upload een geldig herstelbestand.",
+        "error-invalid-file-format": "Ongeldig bestandsformaat. Seed bestand moet een 'seed' eigenschap bevatten.",
+        "error-no-wallets": "Geen wallet adressen gevonden. Wacht tot de portemonnee is aangemaakt.",
+        "existing-tokens-warning": "Deze account heeft al externe wallet adressen geconfigureerd. Importeren van een nieuwe herstelzin zal de bestaande wallet adressen vervangen. Zorg ervoor dat u een back-up heeft gemaakt van uw vorige herstelzin voordat u verdergaat.",
+        "hive-keys-title": "Importeer Hive Sleutels",
+        "hive-keys-description": "We vonden Hive sleutels in uw herstelzin. Wilt u ze importeren in uw account?",
+        "hive-keys-already-added": "Deze sleutels zijn al actief op uw account.",
+        "owner-key": "Eigenaar sleutel",
+        "active-key": "Actieve sleutel",
+        "posting-key": "Posten sleutel",
+        "skip-hive-keys": "Sla Hive Sleutels over",
+        "import-hive-keys": "Importeer Hive Sleutels",
+        "tokens-title": "Beoordeel Wallet Adressen",
+        "tokens-description": "Deze portemonnee-adressen zijn afgeleid van uw herstelzin. Controleer ze voordat u doorgaat.",
+        "sign-title": "Onderteken om de import te voltooien",
+        "success-title": "Importeren gelukt!",
+        "success-description": "Uw portefeuille adressen en sleutels zijn succesvol geïmporteerd.",
+        "step-import-title": "Herstelzin importeren",
+        "step-import-description": "Voer uw bestaande 12-word herstelzin in",
+        "step-hive-keys-title": "Hive toetsen",
+        "step-hive-keys-description": "Importeer Hive keys optioneel van dezelfde herstelzin",
+        "step-tokens-title": "Tokens",
+        "step-tokens-description": "Review afgeleide portemonnee adressen",
+        "step-sign-title": "Onderteken wijzigingen",
+        "step-sign-description": "Onderteken wijzigingen aan link-portemonnees",
+        "step-link-title": "Koppel portemonnees",
+        "step-link-description": "Portemonnee koppelen aan Ecency account afronden"
+      }
     }
   }
 }

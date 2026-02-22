@@ -2,12 +2,10 @@ import { useThreeSpeakManager } from "../_hooks";
 import React, { useMemo, useState } from "react";
 import { proxifyImageSrc } from "@ecency/render-helper";
 import { Alert } from "@ui/alert";
-import { useGlobalStore } from "@/core/global-store";
 import i18next from "i18next";
 import { closeSvg } from "@ui/svg";
 
 export function SubmitVideoAttachments() {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
   const { videos, remove, hasMultipleUnpublishedVideo } = useThreeSpeakManager();
 
   const [collapsed, setCollapsed] = useState(true);
@@ -35,8 +33,7 @@ export function SubmitVideoAttachments() {
               backgroundImage: `url("${proxifyImageSrc(
                 item.thumbUrl,
                 512,
-                384,
-                canUseWebp ? "webp" : "match"
+                384
               )}")`
             }}
           >

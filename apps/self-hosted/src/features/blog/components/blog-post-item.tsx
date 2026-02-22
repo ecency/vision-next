@@ -137,7 +137,7 @@ export function BlogPostItem({ entry, index = 0 }: Props) {
         <div
           className="markdown-body text-sm sm:text-base max-w-none body-theme entry-body"
           dangerouslySetInnerHTML={{
-            __html: renderPostBody(summary, false, true),
+            __html: renderPostBody(summary, false),
           }}
         />
       </div>

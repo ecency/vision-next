@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, QueryKeys } from "@/modules/core";
 import { WaveEntry } from "../types";
 import {
   getVisibleFirstLevelThreadItems,
@@ -101,7 +101,7 @@ type WavesCursor = WaveEntry | undefined;
 
 export function getWavesByHostQueryOptions(host: string) {
   return infiniteQueryOptions<WavesPage, Error, WavesPage, string[], WavesCursor>({
-    queryKey: ["posts", "waves", "by-host", host],
+    queryKey: QueryKeys.posts.wavesByHost(host),
     initialPageParam: undefined as WavesCursor,
 
     queryFn: async ({ pageParam }: { pageParam: WavesCursor }) => {

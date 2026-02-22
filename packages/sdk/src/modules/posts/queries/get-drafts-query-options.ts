@@ -1,10 +1,10 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch, normalizeToWrappedResponse } from "@/modules/core";
+import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/modules/core";
 import { Draft } from "../types/draft";
 
 export function getDraftsQueryOptions(activeUsername: string | undefined, code?: string) {
   return queryOptions({
-    queryKey: ["posts", "drafts", activeUsername],
+    queryKey: QueryKeys.posts.drafts(activeUsername),
     queryFn: async () => {
       if (!activeUsername || !code) {
         return [];
@@ -37,7 +37,7 @@ export function getDraftsInfiniteQueryOptions(
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: ["posts", "drafts", "infinite", activeUsername, limit],
+    queryKey: QueryKeys.posts.draftsInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {

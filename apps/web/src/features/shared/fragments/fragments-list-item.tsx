@@ -61,7 +61,7 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
       </div>
       <div
         className="text-gray-steel dark:text-white-075 px-3 py-2"
-        dangerouslySetInnerHTML={{ __html: item.body.slice(0, 200) }}
+        dangerouslySetInnerHTML={{ __html: item.body?.slice(0, 200) ?? "" }}
       ></div>
     </motion.div>
   );

@@ -1,5 +1,5 @@
 import { success } from "@/features/shared";
-import { Button } from "@/features/ui";
+import { Button, Spinner } from "@/features/ui";
 import {
   EcencyWalletCurrency,
   getTokenPriceQueryOptions,
@@ -57,10 +57,20 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
 
   const { data: wallets } = useWalletsCacheQuery(username);
   const walletsList = useMemo(() => Array.from(wallets?.entries() ?? []), [wallets]);
-  const { data: externalWalletBalance, refetch: refetchExternalWalletBalance } =
-    useGetExternalWalletBalanceQuery(selectedCurrency, selectedAddress);
+  const {
+    data: externalWalletBalance,
+    refetch: refetchExternalWalletBalance,
+    isLoading: isBalanceLoading,
+    isFetching: isBalanceFetching,
+    isError: isBalanceError
+  } = useGetExternalWalletBalanceQuery(selectedCurrency, selectedAddress);
 
-  const { data: priceUsd } = useQuery({
+  const {
+    data: priceUsd,
+    isLoading: isPriceLoading,
+    isFetching: isPriceFetching,
+    isError: isPriceError
+  } = useQuery({
     ...getTokenPriceQueryOptions(selectedCurrency),
     // Cache for a while so we don't refetch alongside the 10s balance poll.
     staleTime: 30000
@@ -87,9 +97,19 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
 
   const hasPrice = typeof priceUsd === "number" && Number.isFinite(priceUsd);
   const usdValue = hasPrice ? tokenAmount.mul(priceUsd) : new Decimal(0);
-
+  const isCheckingBalance = isBalanceLoading;
+  const isCheckingPrice = isPriceLoading;
+  const minimumValidationUsdLabel = useMemo(
+    () =>
+      new Intl.NumberFormat(i18next.resolvedLanguage ?? "en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(MINIMUM_VALIDATION_USD.toNumber()),
+    [i18next.resolvedLanguage]
+  );
   const hasValidated = hasPrice && usdValue.greaterThanOrEqualTo(MINIMUM_VALIDATION_USD);
-  // const hasValidated = true;
 
   const [_, copy] = useCopyToClipboard();
 
@@ -147,16 +167,38 @@ export function SignupWalletValiadtionSelected({ selected, username, onCancel, o
           <div className="-mb-2 text-sm opacity-50">
             {i18next.t("signup-wallets.validate-funds.topup-description")}
           </div>
-          <div className="-mb-2 text-sm opacity-75">At least $1 required to validate.</div>
+          <div className="-mb-2 text-sm opacity-75">
+            {i18next.t("signup-wallets.validate-funds.minimum-required", {
+              minimum: minimumValidationUsdLabel
+            })}
+          </div>
+          {(isCheckingBalance || isCheckingPrice) && (
+            <div className="-mb-2 mt-1 text-sm opacity-75 flex items-center gap-2">
+              <Spinner className="w-4 h-4" />
+              {i18next.t("signup-wallets.validate-funds.checking-balance")}
+            </div>
+          )}
+          {isBalanceError && (
+            <div className="-mb-2 text-sm text-red-500">
+              {i18next.t("signup-wallets.validate-funds.balance-fetch-error")}
+            </div>
+          )}
           {hasPrice ? (
             <div className="-mb-2 text-sm opacity-75">
-              Estimated value: ${usdValue.toFixed(2)}
+              {i18next.t("signup-wallets.validate-funds.estimated-value", {
+                value: usdValue.toFixed(2)
+              })}
+            </div>
+          ) : !isCheckingPrice ? (
+            <div className="-mb-2 text-sm text-orange-500">
+              {isPriceError
+                ? i18next.t("signup-wallets.validate-funds.price-unavailable")
+                : i18next.t("signup-wallets.validate-funds.price-required", {
+                    minimum: minimumValidationUsdLabel
+                  })}
             </div>
           ) : (
-            <div className="-mb-2 text-sm text-orange-500">
-              Price data is required to validate that your balance meets the $1 minimum. We&apos;ll keep
-              checking your balance—please retry in a moment.
-            </div>
+            <></>
           )}
           <Button className="min-w-[200px] mt-4" appearance="gray" onClick={onCancel}>
             {i18next.t("g.cancel")}

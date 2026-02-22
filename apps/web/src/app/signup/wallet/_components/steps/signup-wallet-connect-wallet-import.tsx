@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CURRENCIES_META_DATA } from "../../consts";
 import { error, success } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 
 const CURRENCIES = [
   EcencyWalletCurrency.BTC,

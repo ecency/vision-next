@@ -3,8 +3,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {renderPostBody, setProxyBase} from "@ecency/render-helper";
 import md5 from "js-md5";
-import useMount from "react-use/lib/useMount";
-import { useGlobalStore } from "@/core/global-store";
 import defaults from "@/defaults";
 
 interface Props {
@@ -18,16 +16,10 @@ interface Line {
 }
 setProxyBase(defaults.imageServer);
 export function PostBodyLazyRenderer({ rawBody, className }: Props) {
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-
   const [lines, setLines] = useState<Line[]>([]);
 
-  useMount(() => {
-    lazyBuild();
-  });
-
   const lazyBuild = useCallback(() => {
-    const renderedBody = renderPostBody(rawBody, false, canUseWebp);
+    const renderedBody = renderPostBody(rawBody, false);
     const tree = document.createElement("div");
     tree.innerHTML = renderedBody;
 
@@ -42,7 +34,7 @@ export function PostBodyLazyRenderer({ rawBody, className }: Props) {
     }
 
     setLines(nextLines);
-  }, [canUseWebp, rawBody]);
+  }, [rawBody]);
 
   useEffect(() => {
     lazyBuild();

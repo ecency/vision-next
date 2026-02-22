@@ -1,7 +1,7 @@
 import { Button } from "@ui/button";
 import { UserAvatar } from "@/features/shared";
 import { emojiIconSvg } from "@ui/icons";
-import { blogSvg, deleteForeverSvg, dotsHorizontal, earthSvg, eyeOffSvg, linkSvg, mailSvg, pinSvg } from "@ui/svg";
+import { blogSvg, deleteForeverSvg, dotsHorizontal, earthSvg, linkSvg, mailSvg, pinSvg } from "@ui/svg";
 import { clipboard } from "@/utils/clipboard";
 import {
   Dropdown,
@@ -14,7 +14,7 @@ import { formatRelativeTime, getAvatarUrl } from "../format-utils";
 import { getNativeEmojiFromShortcode, decodeMessageEmojis } from "../emoji-utils";
 import { MessageTranslate } from "./message-translate";
 import clsx from "clsx";
-import { useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import type { MattermostPost, MattermostUser } from "../mattermost-api";
 
 const QUICK_REACTIONS = ["👍", "👎", "❤️", "😂", "🎉", "😮", "😢"] as const;
@@ -30,7 +30,7 @@ interface MessageItemProps {
   // User and channel data
   usersById: Record<string, MattermostUser>;
   channelData?: {
-    member?: { user_id: string };
+    member?: { user_id?: string };
     canModerate?: boolean;
     channel?: { type?: string };
   };
@@ -62,7 +62,7 @@ interface MessageItemProps {
   pinMutationPending: boolean;
 }
 
-function UsernameActions({
+const UsernameActions = memo(function UsernameActions({
   username,
   displayName,
   currentUsername,
@@ -99,9 +99,63 @@ function UsernameActions({
       </DropdownMenu>
     </Dropdown>
   );
+});
+
+function messageItemPropsAreEqual(prev: MessageItemProps, next: MessageItemProps): boolean {
+  // Post identity & content
+  if (prev.post.id !== next.post.id) return false;
+  if (prev.post.message !== next.post.message) return false;
+  if (prev.post.edit_at !== next.post.edit_at) return false;
+  if (prev.post.is_pinned !== next.post.is_pinned) return false;
+  if (prev.post.metadata !== next.post.metadata) return false;
+
+  // Layout
+  if (prev.isGroupStart !== next.isGroupStart) return false;
+  if (prev.index !== next.index) return false;
+  if (prev.channelId !== next.channelId) return false;
+
+  // Unread divider — only the boundary item needs to re-render
+  const prevShowsDivider = prev.showUnreadDivider && prev.index === prev.firstUnreadIndex;
+  const nextShowsDivider = next.showUnreadDivider && next.index === next.firstUnreadIndex;
+  if (prevShowsDivider !== nextShowsDivider) return false;
+
+  // Reaction picker — only the affected item re-renders
+  const prevPickerOpen = prev.openReactionPostId === prev.post.id;
+  const nextPickerOpen = next.openReactionPostId === next.post.id;
+  if (prevPickerOpen !== nextPickerOpen) return false;
+
+  // Deleting state — only the affected item re-renders
+  const prevDeleting = prev.deletingPostId === prev.post.id && prev.deleteMutationPending;
+  const nextDeleting = next.deletingPostId === next.post.id && next.deleteMutationPending;
+  if (prevDeleting !== nextDeleting) return false;
+
+  // User data — only compare this post's author
+  if (prev.usersById[prev.post.user_id] !== next.usersById[next.post.user_id]) return false;
+
+  // Parent post (for threaded replies)
+  if (prev.post.root_id) {
+    if (prev.parentPostById.get(prev.post.id) !== next.parentPostById.get(next.post.id)) return false;
+  }
+
+  // Channel data — compare individual fields
+  if (prev.channelData?.member?.user_id !== next.channelData?.member?.user_id) return false;
+  if (prev.channelData?.canModerate !== next.channelData?.canModerate) return false;
+  if (prev.channelData?.channel?.type !== next.channelData?.channel?.type) return false;
+
+  // Mutation pending states that affect all items
+  if (prev.reactMutationPending !== next.reactMutationPending) return false;
+  if (prev.canPin !== next.canPin) return false;
+  if (prev.pinMutationPending !== next.pinMutationPending) return false;
+
+  // Active user
+  if (prev.activeUser?.username !== next.activeUser?.username) return false;
+
+  // Skip callback comparison — trust useCallback stability from PR 1
+
+  return true;
 }
 
-export function MessageItem({
+function MessageItemInner({
   post,
   index,
   isGroupStart,
@@ -135,6 +189,15 @@ export function MessageItem({
 }: MessageItemProps) {
   const [showTranslateModal, setShowTranslateModal] = useState(false);
 
+  // Close reaction picker when this item unmounts (e.g., due to virtualization)
+  useEffect(() => {
+    return () => {
+      setOpenReactionPostId((current: string | null) =>
+        current === post.id ? null : current
+      );
+    };
+  }, [post.id, setOpenReactionPostId]);
+
   const handleCopyLink = () => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const link = `${baseUrl}/chats/${channelId}?post=${post.id}`;
@@ -143,7 +206,7 @@ export function MessageItem({
 
   return (
     <div
-      className={clsx("space-y-1.5", !isGroupStart && "-mt-1")}
+      className={clsx(isGroupStart ? "mt-3 first:mt-0" : "mt-0.5")}
       data-post-id={post.id}
     >
       {showUnreadDivider && index === firstUnreadIndex && (
@@ -153,7 +216,7 @@ export function MessageItem({
           <div className="flex-1 border-t border-[--border-color]" />
         </div>
       )}
-      <div className="flex gap-2 group relative">
+      <div className="flex gap-2.5 group relative rounded px-2 py-0.5 -mx-2 hover:bg-[--surface-color] transition-colors">
         {post.type === "system_add_to_channel" ? (
           <div className="w-full flex justify-center">
             <div className="rounded bg-[--surface-color] px-4 py-2 text-sm text-[--text-muted] text-center">
@@ -163,7 +226,7 @@ export function MessageItem({
         ) : (
           <>
             {/* Avatar - show only for group start or hide with placeholder */}
-            <div className="h-10 w-10 flex-shrink-0">
+            <div className="w-8 flex-shrink-0 pt-0.5">
               {isGroupStart ? (
                 (() => {
                   const user = usersById[post.user_id];
@@ -173,7 +236,7 @@ export function MessageItem({
 
                   if (username) {
                     return (
-                      <UserAvatar username={username} size="medium" className="h-10 w-10" />
+                      <UserAvatar username={username} size="small" className="h-8 w-8" />
                     );
                   }
 
@@ -182,20 +245,19 @@ export function MessageItem({
                       <img
                         src={avatarUrl}
                         alt={`${displayName} avatar`}
-                        className="h-10 w-10 rounded-full object-cover"
+                        className="h-8 w-8 rounded-full object-cover"
                       />
                     );
                   }
 
                   return (
-                    <div className="h-10 w-10 rounded-full bg-[--surface-color] text-sm font-semibold text-[--text-muted] flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-[--surface-color] text-xs font-semibold text-[--text-muted] flex items-center justify-center">
                       {displayName.charAt(0).toUpperCase()}
                     </div>
                   );
                 })()
               ) : (
-                // Invisible placeholder for grouped messages, shows timestamp on hover
-                <div className="h-10 w-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-[10px] text-[--text-muted]">
                     {new Date(post.create_at).toLocaleTimeString([], {
                       hour: "numeric",
@@ -206,7 +268,7 @@ export function MessageItem({
               )}
             </div>
 
-            <div className="flex flex-col gap-1 w-full">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
               {/* Header with name and timestamp - show only for group start */}
               {isGroupStart && (
                 <div className="flex items-center gap-2 text-xs text-[--text-muted]">
@@ -233,7 +295,7 @@ export function MessageItem({
                   >
                     {formatRelativeTime(post.create_at)}
                   </span>
-                  {post.edit_at > post.create_at && (
+                  {!!post.edit_at && post.edit_at > post.create_at && (
                     <span
                       className="text-[11px] text-[--text-muted] cursor-help"
                       title={`Edited ${new Date(post.edit_at).toLocaleString()}`}
@@ -269,22 +331,17 @@ export function MessageItem({
                         e.stopPropagation();
                         openThread(rootPost);
                       }}
-                      className="text-left rounded border-l-4 border-l-blue-500 border-y border-r border-dashed border-[--border-color] bg-blue-50/30 dark:bg-blue-900/10 p-2 text-xs text-[--text-muted] hover:border-[--text-muted] hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors"
+                      className="text-left border-l-2 border-l-blue-dark-sky pl-2.5 py-0.5 text-xs text-[--text-muted] hover:text-[--text-color] transition-colors"
                     >
-                      <div className="font-semibold flex items-center gap-1.5">
-                        <span className="text-blue-500">↪</span>
-                        Replying to {parentUsername || "conversation"}
-                      </div>
+                      <span className="font-medium">{parentUsername || "conversation"}</span>
                       {parentMessage && (
-                        <div className="line-clamp-2 text-[--text-muted]">
-                          {renderMessageContent(parentMessage)}
-                        </div>
+                        <span className="line-clamp-1 opacity-70"> {getDecodedDisplayMessage(postsById.get(post.root_id!) ?? post)}</span>
                       )}
                     </button>
                   );
                 })()}
               <div
-                className="rounded bg-[--surface-color] p-2.5 text-sm break-words space-y-1 [&>*]:m-0"
+                className="text-sm break-words space-y-1 [&>*]:m-0"
               >
                 {renderMessageContent(getDecodedDisplayMessage(post))}
               </div>
@@ -358,7 +415,7 @@ export function MessageItem({
                       icon={emojiIconSvg}
                       aria-label="Add reaction"
                       disabled={reactMutationPending}
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
                         e.stopPropagation();
                         setOpenReactionPostId((current) =>
@@ -462,3 +519,5 @@ export function MessageItem({
     </div>
   );
 }
+
+export const MessageItem = memo(MessageItemInner, messageItemPropsAreEqual);

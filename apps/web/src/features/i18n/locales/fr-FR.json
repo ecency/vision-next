@@ -71,6 +71,7 @@
     "more-results": "Plus de résultats",
     "close": "Fermer",
     "loading": "Сhargement",
+    "validating": "Validation en cours...",
     "stop": "Arrêter",
     "settings": "Paramètres",
     "confirm": "Confirmer",
@@ -296,7 +297,7 @@
     "description": "Freespeech, Vrai propriété, Liberté financière!",
     "description-2": "Hive active de nombreuses applications et est entièrement décentralisée par les membres de la communauté dans le monde entier. Avec un compte, vous avez un accès direct à l'écosystème.",
     "bottom-description": "Un compte, un portefeuille pour gérer tout sur la Blockchain.",
-    "learn-more": "Learn more about benefits in our <a href=\"https://docs.ecency.com/guides/create-account/\">FAQ</a>",
+    "learn-more": "En savoir plus sur les avantages dans notre <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Choisissez un nom d’utilisateur",
     "email": "Entrez votre adresse mail",
     "ref": "Utilisateur référé (facultatif)",
@@ -864,6 +865,9 @@
     "muted-warning": "Ce contenu a été désactivé par les modérateurs de {{community}} car il n'a pas suivi les directives de la communauté.",
     "lowrep-warning": "L'auteur de ce contenu a une faible réputation.",
     "deleted-content-warning": "Ce contenu a été supprimé par l'auteur. Vous pouvez le voir depuis la Blockchain ",
+    "deleted-content": "Ce message a été supprimé par {{author}}",
+    "deleted-no-history": "L'historique de contenu supprimé n'est pas disponible depuis la blockchain.",
+    "untitled": "Sans titre",
     "comments-hidden": "Vous avez mis en sourdine l'auteur de ce message.",
     "address-copy": "Copier le lien",
     "address-copied": "Lien copié dans le presse-papiers",
@@ -1077,7 +1081,9 @@
     "go-community": "Page communautaire",
     "com-mod": "Modérateur de ces communautés",
     "empty-communities": "Aucune communauté ici",
-    "empty-communities-hint": "L'utilisateur n'est membre d'aucune communauté pour le moment. Rejoignez l'une des communautés ou créez la vôtre"
+    "empty-communities-hint": "L'utilisateur n'est membre d'aucune communauté pour le moment. Rejoignez l'une des communautés ou créez la vôtre",
+    "dm-followers-only": "MP : suiveurs uniquement",
+    "dm-disabled": "DMs : désactivé"
   },
   "profile-info": {
     "joined": "Inscrit",
@@ -1131,7 +1137,7 @@
     "confirm": "Valider",
     "cancel": "Abandonner",
     "check-faq": "En savoir plus sur la RC dans notre",
-    "learn-more": "https://docs.ecency.com/hive/resource-credits/",
+    "learn-more": "/faq#what-are-rc",
     "faq-link": "Foire Aux Questions",
     "insufficient-rc-error": "Crédits de ressources insuffisants",
     "minimum-rc-error": "Mininum RC is 5,000,000,000",
@@ -1184,6 +1190,18 @@
     "permissions-title": "Touches & autorisations",
     "permissions-hint": "Gérez vos clés, contrôlez les autorisations sur les applications",
     "permissions": "Ouvrir les permissions"
+  },
+  "settings": {
+    "dm-privacy": {
+      "title": "Confidentialité du message direct",
+      "who-can-message": "Qui peut vous envoyer des messages directs ?",
+      "description": "Contrôlez qui peut vous envoyer des messages directs pour prévenir les tentatives de spam et d'hameçonnage.",
+      "allow-all": "Tout le monde",
+      "followers-only": "Seulement les personnes que je suis",
+      "no-one": "Personne (désactiver les DMs)"
+    },
+    "dm-privacy-updated": "Paramètres de confidentialité des DM mis à jour avec succès",
+    "dm-privacy-failed": "Impossible de mettre à jour les paramètres de confidentialité du DM"
   },
   "wallet": {
     "unclaimed-rewards": "Récompenses non réclamées",
@@ -1300,6 +1318,10 @@
       "account-value-description": "La valeur approximative du dollar US pour tous les actifs SPK de votre compte",
       "larynx-locked": "LARYNX Verrouillé",
       "larynx-locked-description": "Les jetons verrouillés fournissent des liquidités au réseau, aident à déterminer le consensus, et gagnent des récompenses pour les coureurs de nœuds"
+    },
+    "setup-external": {
+      "login-required": "Connexion requise pour configurer des portefeuilles externes",
+      "import-login-required": "Connexion requise pour importer le portefeuille"
     }
   },
   "wallet-engine-estimated": {
@@ -2138,6 +2160,10 @@
     "mute-channel": "Couper le canal",
     "unmute-channel": "Démuter le canal",
     "leave-channel": "Quitter le canal",
+    "leave-conversation": "Quitter la conversation",
+    "dm-warning-title": "Nouvelle conversation - Restez en sécurité",
+    "dm-warning-body": "Soyez prudent avec les messages d'utilisateurs inconnus. Ne cliquez pas sur des liens suspects ou ne partagez pas des informations sensibles comme des mots de passe ou des clés privées. Vérifiez l'identité de l'expéditeur avant de prendre des mesures.",
+    "dm-warning-settings": "Vous pouvez mettre à jour la confidentialité de vos DM dans les paramètres.",
     "no-channels": "Aucune chaîne assignée pour le moment.",
     "no-channels-search": "Aucune chaîne ne correspond à votre recherche.",
     "joinable-channels": "Chaînes joignables",
@@ -2152,7 +2178,6 @@
     "view-community-channel": "Chat de la communauté",
     "public-key": "Clé publique",
     "private-key": "Clé privée",
-    "hide-message": "Cacher le message",
     "enter-private-key-detail": "Entrez la clé privée du chat pour importer toutes les conversations",
     "message-search-results": "Résultats de la recherche de messages",
     "no-messages-found": "Aucun message trouvé.",
@@ -2161,7 +2186,10 @@
     "translate-target-language": "Langue cible",
     "pinned-messages": "Messages épinglés",
     "pin-message": "Épingler le message",
-    "unpin-message": "Désépingler le message"
+    "unpin-message": "Désépingler le message",
+    "dm-not-allowed": "@{{username}} n'accepte pas les messages de votre part",
+    "dm-followers-only": "N'accepte que les MP des personnes qu'ils suivent",
+    "dm-disabled": "A désactivé les messages directs"
   },
   "add-image": {
     "title": "Ajouter une image",
@@ -2837,6 +2865,7 @@
     }
   },
   "publish": {
+    "loading-editor": "Chargement de l'éditeur...",
     "gif-picker": "Choisir une image GIF",
     "description-hint": "Aide à rechercher les systèmes des moteurs de recherche pour trouver ce message",
     "schedule-hint": "Scheduling is available for 1 hour forward",
@@ -3033,6 +3062,7 @@
       "power-up": "Power Up",
       "power-down": "Descendre",
       "swap": "Permuter",
+      "convert": "Convertir",
       "delegate": "Déléguer",
       "withdraw-saving": "Retirer les itinéraires",
       "gift": "Cadeau",
@@ -3097,6 +3127,95 @@
     "revoke-key": {
       "title": "Révoquer la touche Hive",
       "hint": "Vous pouvez révoquer n'importe quelle clé Hive en utilisant une des clés propriétaires/mot de passe maître/seed"
+    },
+    "add-keys": {
+      "stepper": {
+        "authenticate": "S'authentifier",
+        "generate-seed": "Générer une graine",
+        "review-keys": "Réviser les clés",
+        "confirm": "Valider"
+      },
+      "step1": {
+        "title": "Ajout d'un nouveau jeu de clés",
+        "info1": "Une nouvelle phrase de graine sera générée pour votre compte",
+        "info2": "Vous pouvez garder plusieurs ensembles de clés actifs simultanément",
+        "info3": "Vous aurez la possibilité de révoquer les anciennes clés dans les prochaines étapes",
+        "authenticate": "Authentification pour continuer",
+        "error-not-owner": "La clé fournie n'est pas une clé propriétaire. Veuillez fournir votre clé propriétaire, mot de passe principal ou phrase de graine.",
+        "error-invalid-key": "Format de clé privée invalide",
+        "error-authentication": "L'authentification a échoué. Veuillez vérifier vos identifiants et réessayer.",
+        "error-credentials-not-match": "Les identifiants fournis ne correspondent pas à ce compte. Veuillez vérifier votre mot de passe maître, votre phrase de graine ou votre clé propriétaire.",
+        "error-account-not-loaded": "Les données du compte sont toujours en cours de chargement. Veuillez patienter un instant et réessayer."
+      },
+      "step2": {
+        "warning-title": "Important : Sauvegardez votre nouvelle phrase de graine",
+        "warning1": "Ceci est une NOUVELLE phrase de graine, différente de votre graine de compte d'origine",
+        "warning2": "Enregistrez-le séparément - vous en aurez besoin pour vous connecter avec ces clés",
+        "warning3": "Télécharger le fichier de la graine et le stocker en toute sécurité avant de continuer"
+      },
+      "step3": {
+        "title": "Revoir les clés existantes",
+        "description": "Sélectionnez les anciennes clés que vous souhaitez révoquer. Vous pouvez sauter cette étape pour garder toutes les clés existantes activées.",
+        "cannot-revoke-last": "Impossible de révoquer - il s'agit de la seule clé de ce type",
+        "selected-count": "Clés {{count}} sélectionnées pour révocation",
+        "next-with-revoke": "Continuer et révoquer la sélection",
+        "next-skip": "Continuer sans révoquer",
+        "will-be-replaced": "sera remplacé par une nouvelle clé",
+        "memo-will-replace": "La nouvelle clé de mémo remplacera celle-ci",
+        "derivation-unknown": "Inconnu",
+        "derivation-bip44": "Graine BIP44",
+        "derivation-master-password": "Mot de passe principal"
+      },
+      "step4": {
+        "title": "Prêt à appliquer les modifications",
+        "description": "Examinez les modifications ci-dessous et confirmez pour mettre à jour votre compte.",
+        "adding": "Ajout en cours",
+        "new-bip44-keys": "Nouvelles clés de graines BIP44 (propriétaire, actif, poste, mémo)",
+        "revoking": "Révocation en cours",
+        "revoking-count": "{{count}} existing key(s)",
+        "applying": "Application des modifications...",
+        "please-wait": "Veuillez patienter pendant que nous mettons à jour votre compte",
+        "success": "Clés mises à jour avec succès !",
+        "success-description": "Vos nouvelles clés ont été ajoutées et les anciennes clés sélectionnées ont été retirées.",
+        "error-no-keys": "Aucune clé disponible à ajouter"
+      },
+      "import": {
+        "title": "Importer une phrase de graine existante",
+        "description": "Entrez votre phrase de graine existante de 12 mots pour importer des adresses de portefeuille et éventuellement des clés Hive.",
+        "warning": "Ne partagez jamais votre phrase de graine avec qui que ce soit. Ecency ne le demandera jamais. Saisissez-la uniquement sur des appareils de confiance.",
+        "placeholder": "Entrez votre phrase de graine de 12 mots séparée par des espaces",
+        "load-from-file": "Ou charger à partir du fichier de seed",
+        "error-word-count": "La phrase de graine doit être exactement 12 mots",
+        "error-invalid-seed": "Phrase de graine invalide. Veuillez vérifier et réessayer.",
+        "error-derive-keys": "Impossible de dériver les clés de la phrase de graine",
+        "error-invalid-file": "Fichier invalide. Veuillez télécharger un fichier de graine valide.",
+        "error-invalid-file-format": "Format de fichier invalide. Le fichier de seed doit contenir une propriété 'seed'.",
+        "error-no-wallets": "Aucune adresse de portefeuille trouvée. Veuillez patienter pendant la création du portefeuille.",
+        "existing-tokens-warning": "Ce compte a déjà des adresses de portefeuille externes configurées. Importer une nouvelle phrase de graine remplacera les adresses existantes du portefeuille. Assurez-vous d'avoir sauvegardé votre phrase de graine précédente avant de continuer.",
+        "hive-keys-title": "Importer des clés Hive",
+        "hive-keys-description": "Nous avons trouvé des clés Hive dans votre phrase de graine. Voulez-vous les importer dans votre compte ?",
+        "hive-keys-already-added": "Ces clés sont déjà actives sur votre compte.",
+        "owner-key": "Clé du propriétaire",
+        "active-key": "Clé active",
+        "posting-key": "Clé de publication",
+        "skip-hive-keys": "Ignorer les touches Hive",
+        "import-hive-keys": "Importer des clés Hive",
+        "tokens-title": "Examiner les adresses du portefeuille",
+        "tokens-description": "Ces adresses de portefeuille ont été dérivées de votre phrase de graine. Vérifiez-les avant de continuer.",
+        "sign-title": "Signer pour terminer l'import",
+        "success-title": "Importation réussie!",
+        "success-description": "Les adresses et clés de votre portefeuille ont été importées avec succès.",
+        "step-import-title": "Importer une phrase de graine",
+        "step-import-description": "Entrez votre phrase de graine de 12 mots existante",
+        "step-hive-keys-title": "Clés Hive",
+        "step-hive-keys-description": "Importez éventuellement des clés Hive de la même phrase de graine",
+        "step-tokens-title": "Jetons",
+        "step-tokens-description": "Examiner les adresses de portefeuille dérivées",
+        "step-sign-title": "Signer les changements",
+        "step-sign-description": "Signer les modifications pour lier les portefeuilles",
+        "step-link-title": "Portefeuilles de liens",
+        "step-link-description": "Finaliser la liaison du portefeuille avec le compte Ecency"
+      }
     }
   }
 }

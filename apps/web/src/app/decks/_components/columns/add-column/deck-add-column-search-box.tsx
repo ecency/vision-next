@@ -6,7 +6,7 @@ import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import { getCommunitiesQueryOptions, lookupAccountsQueryOptions } from "@ecency/sdk";
 import { error, UserAvatar } from "@/features/shared";
-import { formatError } from "@/api/operations";
+import { formatError } from "@/api/format-error";
 import { closeSvg } from "@ui/svg";
 import { useQueryClient } from "@tanstack/react-query";
 

@@ -4,7 +4,7 @@ import React, { useCallback, useRef } from "react";
 import { Spinner } from "@ui/spinner";
 import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
-import { useImageUpload } from "@/api/mutations";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 
 interface UploadButtonProps {
   onBegin: () => void;
@@ -12,6 +12,9 @@ interface UploadButtonProps {
   size?: ButtonProps["size"];
   className?: string;
   appearance?: ButtonProps["appearance"];
+  "aria-label"?: string;
+  title?: string;
+  disabled?: boolean;
 }
 
 export function ImageUploadButton({
@@ -19,11 +22,13 @@ export function ImageUploadButton({
   onEnd,
   size = "sm",
   className,
-  appearance
+  appearance,
+  disabled,
+  ...restProps
 }: UploadButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { mutateAsync: uploadImage, isPending } = useImageUpload();
+  const { mutateAsync: uploadImage, isPending } = useUploadImageMutation();
 
   const handleFileInput = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,8 +42,12 @@ export function ImageUploadButton({
       const [file] = files;
       onBegin();
 
-      const response = await uploadImage({ file });
-      onEnd(response.url);
+      try {
+        const response = await uploadImage({ file });
+        onEnd(response.url);
+      } catch {
+        // Upload failed — onEnd not called, but onBegin was balanced
+      }
     },
     [onBegin, onEnd, uploadImage]
   );
@@ -47,11 +56,13 @@ export function ImageUploadButton({
     <>
       <Button
         size={size}
-        disabled={isPending}
+        disabled={isPending || disabled}
         onClick={() => inputRef.current?.click()}
         icon={isPending ? <Spinner className="w-3.5 h-3.5" /> : uploadSvg}
         className={className}
         appearance={appearance}
+        aria-label={restProps["aria-label"]}
+        title={restProps.title}
       />
       <input
         type="file"

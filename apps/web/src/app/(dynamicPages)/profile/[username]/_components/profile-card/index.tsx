@@ -171,6 +171,7 @@ export function ProfileCard({ account }: Props) {
           >
             <Link
               target="_external"
+              rel="nofollow ugc noopener"
               href={`https://${data?.profile.website.replace(/^(https?|ftp):\/\//, "")}`}
             >
               {data?.profile.website}

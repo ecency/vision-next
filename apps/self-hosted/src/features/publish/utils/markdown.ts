@@ -65,7 +65,7 @@ export function htmlToMarkdown(html: string | undefined): string {
         }
         el.setAttribute("data-align", align);
         el.removeAttribute("dir");
-        return el.outerHTML;
+        return DOMPurify.sanitize(el.outerHTML);
       }
     })
     .addRule("table", {
@@ -82,8 +82,8 @@ export function htmlToMarkdown(html: string | undefined): string {
       filter: "img",
       replacement: function (_, node) {
         const element = node as HTMLElement;
-        const src = element.getAttribute("src") ?? "";
-        const alt = element.getAttribute("alt") ?? "";
+        const src = (element.getAttribute("src") ?? "").replace(/[()]/g, encodeURIComponent);
+        const alt = (element.getAttribute("alt") ?? "").replace(/[\[\]]/g, "");
         return `![${alt}](${src})`;
       }
     })
@@ -99,8 +99,8 @@ export function markdownToHtml(markdown: string | undefined): string {
   }
 
   try {
-    const parsed = marked.parse(markdown);
-    const sanitized = typeof parsed === "string" ? DOMPurify.sanitize(parsed) : "";
+    const parsed = marked.parse(markdown, { async: false }) as string;
+    const sanitized = DOMPurify.sanitize(parsed);
     return sanitized;
   } catch (error) {
     console.error("Failed to parse markdown:", error);
