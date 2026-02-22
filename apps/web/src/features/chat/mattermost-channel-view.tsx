@@ -651,6 +651,24 @@ export function MattermostChannelView({ channelId }: Props) {
     setShowJoinPrompt
   });
 
+  // Detect main query 404 / membership error → show join prompt
+  useEffect(() => {
+    if (!error || isLoading) return;
+    const msg = ((error as Error)?.message ?? '').toLowerCase();
+    if (msg.includes('404') || msg.includes('no channel member')) {
+      setShowJoinPrompt(true);
+    }
+  }, [error, isLoading]);
+
+  // Detect main query 404 / membership error → show join prompt
+  useEffect(() => {
+    if (!error || isLoading) return;
+    const msg = ((error as Error)?.message || '').toLowerCase();
+    if (msg.includes('404') || msg.includes('no channel member')) {
+      setShowJoinPrompt(true);
+    }
+  }, [error, isLoading]);
+
   useEffect(() => {
     if (posts.length && !hasAutoScrolledRef.current) {
       hasAutoScrolledRef.current = true;
@@ -1033,7 +1051,7 @@ export function MattermostChannelView({ channelId }: Props) {
         <div className="flex flex-1 min-h-0 flex-col">
           <div className="relative flex-1 min-h-0 overflow-hidden md:min-h-[340px]">
             {isLoading && <div className="p-4 text-sm text-[--text-muted]">Loading messages…</div>}
-            {error && <div className="p-4 text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>}
+            {error && !showJoinPrompt && <div className="p-4 text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>}
             {moderationError && <div className="p-4 text-sm text-red-500">{moderationError}</div>}
             {!isLoading && !posts.length && !showJoinPrompt && (
               <div className="p-4 text-sm text-[--text-muted]">No messages yet. Say hello!</div>

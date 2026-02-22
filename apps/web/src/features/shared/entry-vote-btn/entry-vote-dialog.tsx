@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import * as ls from "@/utils/local-storage";
-import dayjs from "@/utils/dayjs";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
@@ -82,12 +81,7 @@ export function EntryVoteDialog({
   const [showRemove, setShowRemove] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
-  const days = useMemo(() => {
-    const createdDate = entry.created;
-    const past = dayjs(createdDate);
-    const now = dayjs();
-    return now.diff(past, "day", true);
-  }, [entry]);
+  const isPaidOut = entry.is_paidout;
 
   const upSliderChanged = useCallback(
     (value: number) => {
@@ -185,9 +179,9 @@ export function EntryVoteDialog({
 
   return (
     <>
-      {mode === "up" && (
+      {!isPaidOut && mode === "up" && (
         <>
-          <div className={`voting-controls voting-controls-up ${days > 7.0 ? "disable" : ""}`}>
+          <div className="voting-controls voting-controls-up">
             <Button
               noPadding={true}
               className="w-8"
@@ -233,9 +227,9 @@ export function EntryVoteDialog({
         </>
       )}
 
-      {mode === "down" && (
+      {!isPaidOut && mode === "down" && (
         <>
-          <div className={`voting-controls voting-controls-down ${days > 7.0 ? "disable" : ""}`}>
+          <div className="voting-controls voting-controls-down">
             <Button
               noPadding={true}
               className="w-8"
@@ -286,7 +280,7 @@ export function EntryVoteDialog({
         </>
       )}
 
-      {days >= 7.0 && (
+      {isPaidOut && (
         <div className="vote-error error-message">
           <span>{i18next.t("entry-list-item.old-post-error")}</span>
           <span>{i18next.t("entry-list-item.old-post-error-suggestion")}</span>

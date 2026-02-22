@@ -125,21 +125,14 @@ export async function POST(req: Request) {
 
         const channelResults = await Promise.all(channelPromises);
 
-        // Find the requested community's channel if specified
+        // For explicitly requested community, always auto-join the user
         if (community) {
-          const found = channelResults.find((r) => r.communityId === community);
-          channelId = found?.channelId || null;
-
-          // If not found in subscriptions, create it and join the user
-          if (!channelId) {
-            // For explicitly requested community, DO auto-join
-            channelId = await ensureCommunityChannelMembership(
-              user.id,
-              community,
-              communityTitle || displayName || community,
-              true // Auto-join for explicitly requested community
-            );
-          }
+          channelId = await ensureCommunityChannelMembership(
+            user.id,
+            community,
+            communityTitle || displayName || community,
+            true
+          );
         }
     } catch (e) {
         console.error("MM bootstrap: channel membership error", {
