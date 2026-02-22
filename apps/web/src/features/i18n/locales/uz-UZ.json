@@ -2063,10 +2063,12 @@
     "move": "Qoralamalarga qo'shish"
   },
   "bookmarks": {
-    "title": "Saqlanganlar"
+    "title": "Saqlanganlar",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "Sevimlilar"
+    "title": "Sevimlilar",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "Snippetlar",
@@ -2621,6 +2623,12 @@
     "grid": "Panjara",
     "classic": "Klassik",
     "deck": "Ustun"
+  },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
   },
   "top-communities": {
     "title": "Eng yaxshi guruhlar",
