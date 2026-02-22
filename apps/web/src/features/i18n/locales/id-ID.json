@@ -2063,10 +2063,12 @@
     "move": "Pindahkan ke konsep"
   },
   "bookmarks": {
-    "title": "Bookmark"
+    "title": "Bookmark",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "Favorit"
+    "title": "Favorit",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "Cuplikan",
@@ -2621,6 +2623,12 @@
     "grid": "Kisi",
     "classic": "Klasik",
     "deck": "Deck"
+  },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
   },
   "top-communities": {
     "title": "Top communities",
