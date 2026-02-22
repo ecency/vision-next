@@ -1,9 +1,9 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import {
-  getFavouritesQueryOptions,
-  useAccountFavouriteAdd,
-  useAccountFavouriteDelete
+  getFavoritesQueryOptions,
+  useAccountFavoriteAdd,
+  useAccountFavoriteDelete
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilHeart } from "@tooni/iconscout-unicons-react";
@@ -26,17 +26,17 @@ export function FavouriteBtn({ targetUsername }: Props) {
   );
 
   const { data, isPending } = useQuery({
-    ...getFavouritesQueryOptions(username, accessToken),
+    ...getFavoritesQueryOptions(username, accessToken),
     enabled: !!username && !!accessToken,
   });
 
-  const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
+  const { mutateAsync: add, isPending: isAddPending } = useAccountFavoriteAdd(
     username,
     accessToken,
     () => success(i18next.t("favorite-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
-  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
+  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavoriteDelete(
     username,
     accessToken,
     () => success(i18next.t("favorite-btn.deleted")),

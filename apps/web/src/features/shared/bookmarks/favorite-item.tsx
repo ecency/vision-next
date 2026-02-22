@@ -5,7 +5,7 @@ import React, { useCallback, useMemo } from "react";
 import { Favorite } from "@/entities";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { getAccountFullQueryOptions, useAccountFavouriteDelete } from "@ecency/sdk";
+import { getAccountFullQueryOptions, useAccountFavoriteDelete } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 import i18next from "i18next";
@@ -26,7 +26,7 @@ export function FavoriteItem({ item, onHide, i }: Props) {
 
   const { data: account } = useQuery(getAccountFullQueryOptions(item.account));
   const { mutateAsync: removeFromFavourites, isPending: isDeletePending } =
-    useAccountFavouriteDelete(
+    useAccountFavoriteDelete(
       username,
       accessToken,
       () => success(i18next.t("favorite-btn.deleted")),

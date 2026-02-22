@@ -2,7 +2,7 @@ import { vi, describe, test, expect, beforeEach } from "vitest";
 import React from "react";
 import { fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { useAccountFavouriteDelete } from "@ecency/sdk";
+import { useAccountFavoriteDelete } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 import { renderWithQueryClient } from "@/specs/test-utils";
@@ -14,7 +14,7 @@ vi.mock("@ecency/sdk", async () => {
   const actual = await vi.importActual("@ecency/sdk");
   return {
     ...actual,
-    useAccountFavouriteDelete: vi.fn(() => ({
+    useAccountFavoriteDelete: vi.fn(() => ({
       mutateAsync: mockMutateAsync,
       isPending: false
     })),
@@ -55,12 +55,12 @@ describe("FavoriteItem", () => {
     vi.mocked(getAccessToken).mockReturnValue("test-access-token");
   });
 
-  test("passes accessToken to useAccountFavouriteDelete", () => {
+  test("passes accessToken to useAccountFavoriteDelete", () => {
     renderWithQueryClient(
       <FavoriteItem item={mockItem} onHide={vi.fn()} i={0} />
     );
 
-    expect(useAccountFavouriteDelete).toHaveBeenCalledWith(
+    expect(useAccountFavoriteDelete).toHaveBeenCalledWith(
       "testuser",
       "test-access-token",
       expect.any(Function),

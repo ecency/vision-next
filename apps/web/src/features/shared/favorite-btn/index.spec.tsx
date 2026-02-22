@@ -9,8 +9,8 @@ import { UiInstance, activeUserInstance, allOver } from "../../helper/test-helpe
 let TEST_MODE = 0;
 
 jest.mock("@ecency/sdk", () => ({
-  getFavouritesQueryOptions: (_activeUsername?: string) => ({
-    queryKey: ["favourites"],
+  getFavoritesQueryOptions: (_activeUsername?: string) => ({
+    queryKey: ["favorites"],
     queryFn: () =>
       new Promise((resolve) => {
         if (TEST_MODE === 0) {
@@ -22,8 +22,8 @@ jest.mock("@ecency/sdk", () => ({
         }
       })
   }),
-  useAccountFavouriteAdd: () => ({ mutateAsync: jest.fn(), isPending: false }),
-  useAccountFavouriteDelete: () => ({ mutateAsync: jest.fn(), isPending: false })
+  useAccountFavoriteAdd: () => ({ mutateAsync: jest.fn(), isPending: false }),
+  useAccountFavoriteDelete: () => ({ mutateAsync: jest.fn(), isPending: false })
 }));
 
 const defProps = {

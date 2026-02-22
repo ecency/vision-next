@@ -5,7 +5,7 @@ import { getAccessToken } from "@/utils";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { BookmarksDialog } from "@/features/shared/bookmarks";
 import { Button } from "@ui/button";
-import { getFavouritesQueryOptions } from "@ecency/sdk";
+import { getFavoritesQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export function MyFavoritesWidget() {
   );
 
   const { data: favorites, isLoading, isError } = useQuery({
-    ...getFavouritesQueryOptions(username, accessToken),
+    ...getFavoritesQueryOptions(username, accessToken),
     enabled: !!username && !!accessToken
   });
 
