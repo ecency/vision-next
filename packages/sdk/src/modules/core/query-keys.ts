@@ -17,11 +17,12 @@
  * ```
  */
 /** Strip trailing undefined values so the key works as a prefix for partialMatchKey */
-function key<T extends unknown[]>(...parts: T): T {
-  while (parts.length > 0 && parts[parts.length - 1] === undefined) {
-    parts.pop();
+function key(...parts: unknown[]): unknown[] {
+  let end = parts.length;
+  while (end > 0 && parts[end - 1] === undefined) {
+    end--;
   }
-  return parts;
+  return parts.slice(0, end);
 }
 
 export const QueryKeys = {
@@ -90,6 +91,9 @@ export const QueryKeys = {
     imagesInfinite: (username?: string, limit?: number) =>
       key("posts", "images", "infinite", username, limit),
     promoted: (type: string) => ["posts", "promoted", type],
+    _promotedPrefix: ["posts", "promoted"],
+    accountPostsBlogPrefix: (username: string) =>
+      ["posts", "account-posts", username, "blog"] as const,
     postsRanked: (
       sort: string,
       tag: string,
@@ -475,6 +479,7 @@ export const QueryKeys = {
   points: {
     points: (username: string, filter: number) =>
       ["points", username, filter],
+    _prefix: (username: string) => ["points", username],
   },
 
   // ===========================================================================

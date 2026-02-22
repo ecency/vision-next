@@ -43,10 +43,12 @@ export function useAccountFavoriteDelete(
       const qc = getQueryClient();
       const listKey = QueryKeys.accounts.favorites(username);
       const infinitePrefix = QueryKeys.accounts.favoritesInfinite(username);
+      const checkKey = QueryKeys.accounts.checkFavorite(username, account);
 
       await Promise.all([
         qc.cancelQueries({ queryKey: listKey }),
         qc.cancelQueries({ queryKey: infinitePrefix }),
+        qc.cancelQueries({ queryKey: checkKey }),
       ]);
 
       const previousList = qc.getQueryData<AccountFavorite[]>(listKey);
@@ -56,6 +58,9 @@ export function useAccountFavoriteDelete(
           previousList.filter((f) => f.account !== account)
         );
       }
+
+      const previousCheck = qc.getQueryData<boolean>(checkKey);
+      qc.setQueryData<boolean>(checkKey, false);
 
       const infiniteQueries = qc.getQueriesData<InfiniteData<WrappedResponse<AccountFavorite>>>({
         queryKey: infinitePrefix,
@@ -73,15 +78,16 @@ export function useAccountFavoriteDelete(
         }
       }
 
-      return { previousList, previousInfinite };
+      return { previousList, previousInfinite, previousCheck };
     },
-    onSuccess: () => {
+    onSuccess: (_data, account) => {
       onSuccess();
       const qc = getQueryClient();
       qc.invalidateQueries({ queryKey: QueryKeys.accounts.favorites(username) });
       qc.invalidateQueries({ queryKey: QueryKeys.accounts.favoritesInfinite(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.checkFavorite(username!, account) });
     },
-    onError: (err, _account, context) => {
+    onError: (err, account, context) => {
       const qc = getQueryClient();
       if (context?.previousList) {
         qc.setQueryData(QueryKeys.accounts.favorites(username), context.previousList);
@@ -90,6 +96,12 @@ export function useAccountFavoriteDelete(
         for (const [key, data] of context.previousInfinite) {
           qc.setQueryData(key, data);
         }
+      }
+      if (context?.previousCheck !== undefined) {
+        qc.setQueryData(
+          QueryKeys.accounts.checkFavorite(username!, account),
+          context.previousCheck
+        );
       }
       onError(err);
     },

@@ -67,7 +67,7 @@ export function useRegisterCommunityRewards(
           // Invalidate community cache to update registration status
           [...QueryKeys.communities.singlePrefix(variables.name)],
           // Invalidate points balance
-          ["points", username],
+          [...QueryKeys.points._prefix(username!)],
         ]);
       }
     },

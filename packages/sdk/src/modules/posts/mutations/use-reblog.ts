@@ -84,16 +84,7 @@ export function useReblog(
       // Invalidate user's blog feed so reblogged post appears/disappears
       const qc = getQueryClient();
       qc.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key[0] === "posts" &&
-            key[1] === "account-posts" &&
-            key[2] === username &&
-            key[3] === "blog"
-          );
-        }
+        queryKey: QueryKeys.posts.accountPostsBlogPrefix(username!),
       });
 
       // Cache invalidation

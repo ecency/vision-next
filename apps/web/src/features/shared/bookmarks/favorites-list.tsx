@@ -43,10 +43,12 @@ export function FavoritesList({ onHide }: Props) {
 
   return (
     <div className="dialog-content">
-      <p className="text-sm text-gray-500 dark:text-gray-400 px-3 pt-3 pb-1">
-        {i18next.t("favorites.hint")}
-      </p>
       {isLoading && <LinearProgress />}
+      {!isLoading && items.length > 0 && (
+        <p className="text-sm text-gray-500 dark:text-gray-400 px-3 pt-3 pb-1">
+          {i18next.t("favorites.hint")}
+        </p>
+      )}
       {items && items.length > 0 && (
         <div className="dialog-list">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -30,11 +30,12 @@ export function useAccountFavoriteAdd(
       );
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, account) => {
       onSuccess();
       const qc = getQueryClient();
       qc.invalidateQueries({ queryKey: QueryKeys.accounts.favorites(username) });
       qc.invalidateQueries({ queryKey: QueryKeys.accounts.favoritesInfinite(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.checkFavorite(username!, account) });
     },
     onError,
   });

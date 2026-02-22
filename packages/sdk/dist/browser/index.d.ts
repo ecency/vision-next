@@ -1064,6 +1064,7 @@ declare function useAccountFavoriteAdd(username: string | undefined, code: strin
 declare function useAccountFavoriteDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, {
     previousList: AccountFavorite[] | undefined;
     previousInfinite: Map<readonly unknown[], InfiniteData<WrappedResponse<AccountFavorite>, unknown> | undefined>;
+    previousCheck: boolean | undefined;
 } | undefined>;
 
 interface Keys {
@@ -2619,15 +2620,17 @@ declare const QueryKeys: {
         readonly tips: (author: string, permlink: string) => string[];
         readonly normalize: (author: string, permlink: string) => string[];
         readonly drafts: (activeUsername?: string) => (string | undefined)[];
-        readonly draftsInfinite: (activeUsername?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly draftsInfinite: (activeUsername?: string, limit?: number) => unknown[];
         readonly schedules: (activeUsername?: string) => (string | undefined)[];
-        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => unknown[];
         readonly fragments: (username?: string) => (string | undefined)[];
-        readonly fragmentsInfinite: (username?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly fragmentsInfinite: (username?: string, limit?: number) => unknown[];
         readonly images: (username?: string) => (string | undefined)[];
         readonly galleryImages: (activeUsername?: string) => (string | undefined)[];
-        readonly imagesInfinite: (username?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly imagesInfinite: (username?: string, limit?: number) => unknown[];
         readonly promoted: (type: string) => string[];
+        readonly _promotedPrefix: readonly ["posts", "promoted"];
+        readonly accountPostsBlogPrefix: (username: string) => readonly ["posts", "account-posts", string, "blog"];
         readonly postsRanked: (sort: string, tag: string, limit: number, observer: string) => (string | number)[];
         readonly postsRankedPage: (sort: string, startAuthor: string, startPermlink: string, limit: number, tag: string, observer: string) => (string | number)[];
         readonly discussions: (author: string, permlink: string, order: string, observer: string) => string[];
@@ -2660,14 +2663,14 @@ declare const QueryKeys: {
         readonly lookup: (query: string, limit: number) => (string | number)[];
         readonly transactions: (username: string, group: string, limit: number) => (string | number)[];
         readonly favorites: (activeUsername?: string) => (string | undefined)[];
-        readonly favoritesInfinite: (activeUsername?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly favoritesInfinite: (activeUsername?: string, limit?: number) => unknown[];
         readonly checkFavorite: (activeUsername: string, targetUsername: string) => string[];
         readonly relations: (reference: string, target: string) => string[];
         readonly bots: () => string[];
         readonly voteHistory: (username: string, limit: number) => (string | number)[];
         readonly reputations: (query: string, limit: number) => (string | number)[];
         readonly bookmarks: (activeUsername?: string) => (string | undefined)[];
-        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => [string, string, string, string | undefined, number | undefined];
+        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => unknown[];
         readonly referrals: (username: string) => string[];
         readonly referralsStats: (username: string) => string[];
         readonly _prefix: readonly ["accounts"];
@@ -2770,6 +2773,7 @@ declare const QueryKeys: {
     };
     readonly points: {
         readonly points: (username: string, filter: number) => (string | number)[];
+        readonly _prefix: (username: string) => string[];
     };
     readonly operations: {
         readonly chainProperties: () => string[];
@@ -2825,10 +2829,10 @@ declare function getBookmarksQueryOptions(activeUsername: string | undefined, co
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getBookmarksInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountBookmark>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountBookmark>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getBookmarksInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountBookmark>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountBookmark>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountBookmark>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -2842,10 +2846,10 @@ declare function getFavoritesQueryOptions(activeUsername: string | undefined, co
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getFavoritesInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountFavorite>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountFavorite>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getFavoritesInfiniteQueryOptions(activeUsername: string | undefined, code: string | undefined, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<AccountFavorite>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<AccountFavorite>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<AccountFavorite>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -3298,10 +3302,10 @@ declare function getFragmentsQueryOptions(username: string, code?: string): _tan
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getFragmentsInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Fragment>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Fragment>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Fragment>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getFragmentsInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Fragment>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Fragment>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Fragment>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Fragment>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -3492,10 +3496,10 @@ declare function getSchedulesQueryOptions(activeUsername: string | undefined, co
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getSchedulesInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Schedule>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Schedule>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Schedule>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getSchedulesInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Schedule>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Schedule>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Schedule>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Schedule>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -3509,10 +3513,10 @@ declare function getDraftsQueryOptions(activeUsername: string | undefined, code?
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getDraftsInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Draft>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Draft>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Draft>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getDraftsInfiniteQueryOptions(activeUsername: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<Draft>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<Draft>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<Draft>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<Draft>, unknown>;
         [dataTagErrorSymbol]: Error;
     };
@@ -3534,10 +3538,10 @@ declare function getGalleryImagesQueryOptions(activeUsername: string | undefined
         [dataTagErrorSymbol]: Error;
     };
 };
-declare function getImagesInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<UserImage>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<UserImage>, unknown>, [string, string, string, string | undefined, number | undefined], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<UserImage>, [string, string, string, string | undefined, number | undefined], number> | undefined;
+declare function getImagesInfiniteQueryOptions(username: string | undefined, code?: string, limit?: number): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<WrappedResponse<UserImage>, Error, _tanstack_react_query.InfiniteData<WrappedResponse<UserImage>, unknown>, unknown[], number>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<WrappedResponse<UserImage>, unknown[], number> | undefined;
 } & {
-    queryKey: [string, string, string, string | undefined, number | undefined] & {
+    queryKey: unknown[] & {
         [dataTagSymbol]: _tanstack_react_query.InfiniteData<WrappedResponse<UserImage>, unknown>;
         [dataTagErrorSymbol]: Error;
     };

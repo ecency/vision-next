@@ -72,9 +72,9 @@ export function usePromote(
       if (auth?.adapter?.invalidateQueries) {
         await auth.adapter.invalidateQueries([
           // Invalidate promoted posts feed
-          ["posts", "promoted"],
+          [...QueryKeys.posts._promotedPrefix],
           // Invalidate user points balance
-          ["points", username],
+          [...QueryKeys.points._prefix(username!)],
           // Invalidate specific post cache to update promotion status
           QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
         ]);
