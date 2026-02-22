@@ -8,10 +8,10 @@ export function useAccountFavouriteDelete(
   onError: (e: Error) => void
 ) {
   return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
+    mutationKey: ["accounts", "favourites", "delete", username],
     mutationFn: async (account: string) => {
       if (!username || !code) {
-        throw new Error("[SDK][Account][Bookmarks] – missing auth");
+        throw new Error("[SDK][Account][Favourites] – missing auth");
       }
 
       const fetchApi = getBoundFetch();

@@ -146,6 +146,9 @@ export function buildPointTransferOp(
     throw new Error("[SDK][buildPointTransferOp] Missing required parameters");
   }
 
+  // Normalize "POINTS" to "POINT" — backend expects singular form
+  const normalizedAmount = amount.replace(/POINTS\b/, "POINT");
+
   return [
     "custom_json",
     {
@@ -153,7 +156,7 @@ export function buildPointTransferOp(
       json: JSON.stringify({
         sender,
         receiver,
-        amount,
+        amount: normalizedAmount,
         memo: memo || "",
       }),
       required_auths: [sender],
