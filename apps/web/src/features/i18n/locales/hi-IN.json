@@ -2063,10 +2063,12 @@
     "move": "प्रलेख में भेजें"
   },
   "bookmarks": {
-    "title": "पृष्टस्मृतियाँ"
+    "title": "पृष्टस्मृतियाँ",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "पसंदीदा"
+    "title": "पसंदीदा",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "स्निपेट्स",
@@ -2621,6 +2623,12 @@
     "grid": "ग्रिड",
     "classic": "क्लॅसिक",
     "deck": "डेक"
+  },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
   },
   "top-communities": {
     "title": "शीर्ष समुदाय",
