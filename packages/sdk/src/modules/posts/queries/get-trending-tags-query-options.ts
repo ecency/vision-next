@@ -18,6 +18,6 @@ export function getTrendingTagsQueryOptions(limit = 20) {
     getNextPageParam: (lastPage) => ({
       afterTag: lastPage?.[lastPage?.length - 1],
     }),
-    staleTime: Infinity,
+    staleTime: 60 * 60 * 1000, // 1 hour — tags change slowly
   });
 }
