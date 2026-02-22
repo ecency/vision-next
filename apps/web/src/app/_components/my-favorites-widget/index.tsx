@@ -21,10 +21,9 @@ export function MyFavoritesWidget() {
     [username]
   );
 
-  const { data: favorites, isLoading, isError } = useQuery({
-    ...getFavoritesQueryOptions(username, accessToken),
-    enabled: !!username && !!accessToken
-  });
+  const { data: favorites, isLoading, isError } = useQuery(
+    getFavoritesQueryOptions(username, accessToken)
+  );
 
   const [showDialog, setShowDialog] = useState(false);
 

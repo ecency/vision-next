@@ -31,14 +31,14 @@ export function FavoritesList({ onHide }: Props) {
     getFavoritesInfiniteQueryOptions(username, accessToken, 10)
   );
 
-  const allFavourites = useMemo(
+  const allFavorites = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data]
   );
 
   const items = useMemo(
-    () => allFavourites.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)),
-    [allFavourites]
+    () => [...allFavorites].sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)),
+    [allFavorites]
   );
 
   return (

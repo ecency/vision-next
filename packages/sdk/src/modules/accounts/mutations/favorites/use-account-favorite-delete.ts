@@ -30,6 +30,9 @@ export function useAccountFavoriteDelete(
           }),
         }
       );
+      if (!response.ok) {
+        throw new Error(`Failed to delete favorite: ${response.status}`);
+      }
       return response.json();
     },
     onMutate: async (account: string) => {

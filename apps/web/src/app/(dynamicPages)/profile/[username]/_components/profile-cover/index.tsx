@@ -7,7 +7,7 @@ import "./_index.scss";
 import {Account} from "@/entities";
 import {FollowControls} from "@/features/shared";
 import {useActiveAccount} from "@/core/hooks/use-active-account";
-import {FavouriteBtn} from "@/features/shared/favorite-btn";
+import {FavoriteBtn} from "@/features/shared/favorite-btn";
 import {ProfileInfo} from "@/app/(dynamicPages)/profile/[username]/_components/profile-info";
 import {EcencyConfigManager} from "@/config";
 import {ProfileFilter, Theme} from "@/enums";
@@ -57,7 +57,7 @@ export function ProfileCover({ account }: Props) {
             <EcencyConfigManager.Conditional
               condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
             >
-              <FavouriteBtn targetUsername={account?.name} />
+              <FavoriteBtn targetUsername={account?.name} />
             </EcencyConfigManager.Conditional>
           </>
         )}

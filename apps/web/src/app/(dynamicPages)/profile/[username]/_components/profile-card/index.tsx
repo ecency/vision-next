@@ -5,7 +5,7 @@ import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
-import { FavouriteBtn } from "@/features/shared/favorite-btn";
+import { FavoriteBtn } from "@/features/shared/favorite-btn";
 import { Badge } from "@/features/ui";
 import { accountReputation, dateToFormatted } from "@/utils";
 import {
@@ -144,7 +144,7 @@ export function ProfileCard({ account }: Props) {
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
           >
-            <FavouriteBtn targetUsername={account?.name} />
+            <FavoriteBtn targetUsername={account?.name} />
           </EcencyConfigManager.Conditional>
         </div>
       )}
