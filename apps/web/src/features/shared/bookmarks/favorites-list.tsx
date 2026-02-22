@@ -16,7 +16,10 @@ interface Props {
 export function FavoritesList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
-  const accessToken = username ? getAccessToken(username) : undefined;
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
+  );
 
   const {
     data,

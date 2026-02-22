@@ -22,7 +22,7 @@ export function useDeleteDraft(
       const qc = getQueryClient();
       const listKey = QueryKeys.posts.drafts(username);
 
-      await qc.cancelQueries({ queryKey: ["posts", "drafts", username] });
+      await qc.cancelQueries({ queryKey: listKey });
 
       const previousList = qc.getQueryData<Draft[]>(listKey);
       if (previousList) {

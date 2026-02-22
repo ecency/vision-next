@@ -53,7 +53,7 @@ export function MyFavoritesWidget() {
         )}
         {!isLoading &&
           favorites?.slice(0, MAX_VISIBLE).map((fav) => (
-            <ProfileLink key={fav.account} username={fav.account}>
+            <ProfileLink key={fav._id} username={fav.account}>
               <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded px-1 py-0.5 transition-colors">
                 <UserAvatar username={fav.account} size="small" />
                 <span className="text-sm truncate">{fav.account}</span>
