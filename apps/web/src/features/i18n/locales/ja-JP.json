@@ -2063,10 +2063,12 @@
     "move": "下書きへ移動"
   },
   "bookmarks": {
-    "title": "ブックマーク"
+    "title": "ブックマーク",
+    "hint": "ブックマークされたコンテンツが返信を受け取ったときに通知を受け取ります。"
   },
   "favorites": {
-    "title": "お気に入り"
+    "title": "お気に入り",
+    "hint": "お気に入りの著者が新しいコンテンツを公開すると通知が届きます。"
   },
   "fragments": {
     "title": "Snippets",
@@ -2621,6 +2623,12 @@
     "grid": "グリッド",
     "classic": "クラシック",
     "deck": "デッキ"
+  },
+  "my-favorites-widget": {
+    "title": "お気に入り",
+    "empty": "まだお気に入りの著者を追加していません",
+    "empty-cta": "著者を発見",
+    "view-all": "すべて表示"
   },
   "top-communities": {
     "title": "上位のコミュニティ",
