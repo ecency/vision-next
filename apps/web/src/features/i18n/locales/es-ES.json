@@ -2063,10 +2063,12 @@
     "move": "Mover a borradores"
   },
   "bookmarks": {
-    "title": "Marcadores"
+    "title": "Marcadores",
+    "hint": "Recibirás notificaciones cuando el contenido marcado reciba una respuesta."
   },
   "favorites": {
-    "title": "Favoritos"
+    "title": "Favoritos",
+    "hint": "Recibirás notificaciones cuando un autor favorito publique un nuevo contenido."
   },
   "fragments": {
     "title": "Fragmentos de código",
@@ -2621,6 +2623,12 @@
     "grid": "Cuadrícula",
     "classic": "Clásico",
     "deck": "Mazo"
+  },
+  "my-favorites-widget": {
+    "title": "Mis favoritos",
+    "empty": "Aún no has añadido ningún autor favorito",
+    "empty-cta": "Descubre autores",
+    "view-all": "Ver todo"
   },
   "top-communities": {
     "title": "Comunidades populares",
