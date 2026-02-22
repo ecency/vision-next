@@ -3,7 +3,7 @@ export * from "./use-account-relations-update";
 export * from "./use-follow";
 export * from "./use-unfollow";
 export * from "./bookmarks";
-export * from "./favourites";
+export * from "./favorites";
 export * from "./use-account-update-key-auths";
 export * from "./use-account-update-password";
 export * from "./use-account-revoke-posting";

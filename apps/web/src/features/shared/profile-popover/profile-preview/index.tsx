@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FollowControls } from "@/features/shared";
 import i18next from "i18next";
 import { dateToFullRelative } from "@/utils";
-import { FavouriteBtn } from "@/features/shared/favorite-btn";
+import { FavoriteBtn } from "@/features/shared/favorite-btn";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { ProfilePreviewAbout } from "@/features/shared/profile-popover/profile-preview/profile-preview-about";
@@ -37,7 +37,7 @@ export const ProfilePreview = ({ username }: Props) => {
             <EcencyConfigManager.Conditional
               condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
             >
-              <FavouriteBtn targetUsername={username} />
+              <FavoriteBtn targetUsername={username} />
             </EcencyConfigManager.Conditional>
           </>
         )}

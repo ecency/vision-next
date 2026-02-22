@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatError } from "../format-error";
 import { Entry, FullAccount, MetaData, CommentOptions } from "@/entities";
 import { tempEntry } from "@/utils";
-import { QueryIdentifiers } from "@/core/react-query";
 import { SortOrder } from "@/enums";
 import { error, success } from "@/features/shared";
 import { ErrorTypes } from "@/enums";

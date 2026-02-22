@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
-import { getQueryClient } from "@/modules/core";
+import { InfiniteData, useMutation } from "@tanstack/react-query";
+import { getQueryClient, QueryKeys } from "@/modules/core";
 import { deleteDraft } from "@/modules/private-api/requests";
 import type { Draft } from "../types";
+import type { WrappedResponse } from "@/modules/core/types";
 
 export function useDeleteDraft(
   username: string | undefined,
@@ -17,15 +18,63 @@ export function useDeleteDraft(
       }
       return deleteDraft(code, draftId);
     },
-    onSuccess: (_data, variables) => {
+    onMutate: async ({ draftId }) => {
+      if (!username) {
+        return;
+      }
+
+      const qc = getQueryClient();
+      const listKey = QueryKeys.posts.drafts(username);
+      const infinitePrefix = QueryKeys.posts.draftsInfinite(username);
+
+      await Promise.all([
+        qc.cancelQueries({ queryKey: listKey }),
+        qc.cancelQueries({ queryKey: infinitePrefix }),
+      ]);
+
+      const previousList = qc.getQueryData<Draft[]>(listKey);
+      if (previousList) {
+        qc.setQueryData<Draft[]>(
+          listKey,
+          previousList.filter((d) => d._id !== draftId)
+        );
+      }
+
+      const infiniteQueries = qc.getQueriesData<InfiniteData<WrappedResponse<Draft>>>({
+        queryKey: infinitePrefix,
+      });
+      const previousInfinite = new Map(infiniteQueries);
+      for (const [key, data] of infiniteQueries) {
+        if (data) {
+          qc.setQueryData(key, {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              data: page.data.filter((d) => d._id !== draftId),
+            })),
+          });
+        }
+      }
+
+      return { previousList, previousInfinite };
+    },
+    onSuccess: () => {
       onSuccess?.();
       const qc = getQueryClient();
-      // Optimistic removal from drafts cache
-      qc.setQueryData<Draft[]>(
-        ["posts", "drafts", username],
-        (prev) => prev?.filter((d) => d._id !== variables.draftId)
-      );
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
     },
-    onError,
+    onError: (err, _variables, context) => {
+      const qc = getQueryClient();
+      if (context?.previousList) {
+        qc.setQueryData(QueryKeys.posts.drafts(username), context.previousList);
+      }
+      if (context?.previousInfinite) {
+        for (const [key, data] of context.previousInfinite) {
+          qc.setQueryData(key, data);
+        }
+      }
+      onError?.(err);
+    },
   });
 }

@@ -1,22 +1,22 @@
-import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient, QueryKeys } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
-export function useAccountFavouriteDelete(
+export function useAccountFavoriteAdd(
   username: string | undefined,
   code: string | undefined,
   onSuccess: () => void,
   onError: (e: Error) => void
 ) {
   return useMutation({
-    mutationKey: ["accounts", "favourites", "delete", username],
+    mutationKey: ["accounts", "favorites", "add", username],
     mutationFn: async (account: string) => {
       if (!username || !code) {
-        throw new Error("[SDK][Account][Favourites] – missing auth");
+        throw new Error("[SDK][Account][Favorites] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
-        CONFIG.privateApiHost + "/private-api/favorites-delete",
+        CONFIG.privateApiHost + "/private-api/favorites-add",
         {
           method: "POST",
           headers: {
@@ -30,11 +30,12 @@ export function useAccountFavouriteDelete(
       );
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, account) => {
       onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username],
-      });
+      const qc = getQueryClient();
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.favorites(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.favoritesInfinite(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.checkFavorite(username!, account) });
     },
     onError,
   });

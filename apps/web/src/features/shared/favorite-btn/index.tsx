@@ -1,9 +1,9 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, LoginRequired, success } from "@/features/shared";
 import {
-  getFavouritesQueryOptions,
-  useAccountFavouriteAdd,
-  useAccountFavouriteDelete
+  getFavoritesQueryOptions,
+  useAccountFavoriteAdd,
+  useAccountFavoriteDelete
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilHeart } from "@tooni/iconscout-unicons-react";
@@ -17,7 +17,7 @@ interface Props {
   targetUsername: string;
 }
 
-export function FavouriteBtn({ targetUsername }: Props) {
+export function FavoriteBtn({ targetUsername }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
   const accessToken = useMemo(
@@ -25,25 +25,24 @@ export function FavouriteBtn({ targetUsername }: Props) {
     [username]
   );
 
-  const { data, isPending } = useQuery({
-    ...getFavouritesQueryOptions(username, accessToken),
-    enabled: !!username && !!accessToken,
-  });
+  const { data, isPending } = useQuery(
+    getFavoritesQueryOptions(username, accessToken)
+  );
 
-  const { mutateAsync: add, isPending: isAddPending } = useAccountFavouriteAdd(
+  const { mutateAsync: add, isPending: isAddPending } = useAccountFavoriteAdd(
     username,
     accessToken,
     () => success(i18next.t("favorite-btn.added")),
     () => error(i18next.t("g.server-error"))
   );
-  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavouriteDelete(
+  const { mutateAsync: deleteFrom, isPending: isDeletePending } = useAccountFavoriteDelete(
     username,
     accessToken,
     () => success(i18next.t("favorite-btn.deleted")),
     () => error(i18next.t("g.server-error"))
   );
 
-  const favourited = useMemo(
+  const favorited = useMemo(
     () => data?.some((item) => item.account === targetUsername),
     [data, targetUsername]
   );
@@ -78,14 +77,14 @@ export function FavouriteBtn({ targetUsername }: Props) {
         </Tooltip>
       )}
       {activeUser && accessToken && (
-        <Tooltip content={i18next.t(favourited ? "favorite-btn.delete" : "favorite-btn.add")}>
+        <Tooltip content={i18next.t(favorited ? "favorite-btn.delete" : "favorite-btn.add")}>
           <Button
-            appearance={favourited ? "pressed" : "primary"}
+            appearance={favorited ? "pressed" : "primary"}
             size="sm"
             noPadding={true}
             className="w-8"
             isLoading={inProgress}
-            onClick={() => (favourited ? deleteFrom(targetUsername) : add(targetUsername))}
+            onClick={() => (favorited ? deleteFrom(targetUsername) : add(targetUsername))}
             icon={<UilHeart />}
           />
         </Tooltip>

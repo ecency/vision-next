@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.11
+
+### Patch Changes
+
+- My favorites widget (#670)
+
 ## 2.0.10
 
 ### Patch Changes

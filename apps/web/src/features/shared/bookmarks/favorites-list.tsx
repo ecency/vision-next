@@ -1,7 +1,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { LinearProgress } from "@/features/shared";
-import { FavouriteItem } from "@/features/shared/bookmarks/favourite-item";
-import { getFavouritesInfiniteQueryOptions } from "@ecency/sdk";
+import { FavoriteItem } from "@/features/shared/bookmarks/favorite-item";
+import { getFavoritesInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import i18next from "i18next";
@@ -13,10 +13,13 @@ interface Props {
   onHide: () => void;
 }
 
-export function FavouritesList({ onHide }: Props) {
+export function FavoritesList({ onHide }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
-  const accessToken = username ? getAccessToken(username) : undefined;
+  const accessToken = useMemo(
+    () => (username ? getAccessToken(username) : undefined),
+    [username]
+  );
 
   const {
     data,
@@ -25,28 +28,33 @@ export function FavouritesList({ onHide }: Props) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery(
-    getFavouritesInfiniteQueryOptions(username, accessToken, 10)
+    getFavoritesInfiniteQueryOptions(username, accessToken, 10)
   );
 
-  const allFavourites = useMemo(
+  const allFavorites = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data]
   );
 
   const items = useMemo(
-    () => allFavourites.sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)),
-    [allFavourites]
+    () => [...allFavorites].sort((a, b) => (b.timestamp > a.timestamp ? 1 : -1)),
+    [allFavorites]
   );
 
   return (
     <div className="dialog-content">
       {isLoading && <LinearProgress />}
+      {!isLoading && items.length > 0 && (
+        <p className="text-sm text-gray-500 dark:text-gray-400 px-3 pt-3 pb-1">
+          {i18next.t("favorites.hint")}
+        </p>
+      )}
       {items && items.length > 0 && (
         <div className="dialog-list">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AnimatePresence mode="popLayout">
               {items.map((item, i) => (
-                <FavouriteItem i={i} key={item._id} item={item} onHide={onHide} />
+                <FavoriteItem i={i} key={item._id} item={item} onHide={onHide} />
               ))}
             </AnimatePresence>
           </div>
