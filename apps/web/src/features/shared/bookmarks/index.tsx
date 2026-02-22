@@ -9,10 +9,11 @@ import "./_index.scss";
 interface Props {
   show: boolean;
   setShow: (v: boolean) => void;
+  initialTab?: "bookmarks" | "favorites";
 }
 
-export function BookmarksDialog({ show, setShow }: Props) {
-  const [section, setSection] = useState("bookmarks");
+export function BookmarksDialog({ show, setShow, initialTab = "bookmarks" }: Props) {
+  const [section, setSection] = useState(initialTab);
 
   return (
     <Modal show={show} centered={true} onHide={() => setShow(false)} size="lg">
