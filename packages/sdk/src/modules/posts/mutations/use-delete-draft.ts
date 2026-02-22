@@ -19,10 +19,18 @@ export function useDeleteDraft(
       return deleteDraft(code, draftId);
     },
     onMutate: async ({ draftId }) => {
+      if (!username) {
+        return;
+      }
+
       const qc = getQueryClient();
       const listKey = QueryKeys.posts.drafts(username);
+      const infinitePrefix = QueryKeys.posts.draftsInfinite(username);
 
-      await qc.cancelQueries({ queryKey: listKey });
+      await Promise.all([
+        qc.cancelQueries({ queryKey: listKey }),
+        qc.cancelQueries({ queryKey: infinitePrefix }),
+      ]);
 
       const previousList = qc.getQueryData<Draft[]>(listKey);
       if (previousList) {
@@ -32,9 +40,8 @@ export function useDeleteDraft(
         );
       }
 
-      // Also update infinite query caches
       const infiniteQueries = qc.getQueriesData<InfiniteData<WrappedResponse<Draft>>>({
-        queryKey: ["posts", "drafts", "infinite", username],
+        queryKey: infinitePrefix,
       });
       const previousInfinite = new Map(infiniteQueries);
       for (const [key, data] of infiniteQueries) {
@@ -53,9 +60,9 @@ export function useDeleteDraft(
     },
     onSuccess: () => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: ["posts", "drafts", username],
-      });
+      const qc = getQueryClient();
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
     },
     onError: (err, _variables, context) => {
       const qc = getQueryClient();

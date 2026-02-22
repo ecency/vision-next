@@ -1,17 +1,17 @@
-import { CONFIG, getBoundFetch, getQueryClient } from "@/modules/core";
+import { CONFIG, getBoundFetch, getQueryClient, QueryKeys } from "@/modules/core";
 import { useMutation } from "@tanstack/react-query";
 
-export function useAccountFavouriteAdd(
+export function useAccountFavoriteAdd(
   username: string | undefined,
   code: string | undefined,
   onSuccess: () => void,
   onError: (e: Error) => void
 ) {
   return useMutation({
-    mutationKey: ["accounts", "favourites", "add", username],
+    mutationKey: ["accounts", "favorites", "add", username],
     mutationFn: async (account: string) => {
       if (!username || !code) {
-        throw new Error("[SDK][Account][Favourites] – missing auth");
+        throw new Error("[SDK][Account][Favorites] – missing auth");
       }
 
       const fetchApi = getBoundFetch();
@@ -32,9 +32,9 @@ export function useAccountFavouriteAdd(
     },
     onSuccess: () => {
       onSuccess();
-      getQueryClient().invalidateQueries({
-        queryKey: ["accounts", "favourites", username],
-      });
+      const qc = getQueryClient();
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.favorites(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.accounts.favoritesInfinite(username) });
     },
     onError,
   });

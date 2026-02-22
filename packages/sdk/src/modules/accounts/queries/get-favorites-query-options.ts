@@ -2,16 +2,16 @@ import { CONFIG, getBoundFetch, normalizeToWrappedResponse, QueryKeys } from "@/
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { AccountFavorite } from "../types";
 
-export function getFavouritesQueryOptions(
+export function getFavoritesQueryOptions(
   activeUsername: string | undefined,
   code: string | undefined
 ) {
   return queryOptions({
-    queryKey: QueryKeys.accounts.favourites(activeUsername),
+    queryKey: QueryKeys.accounts.favorites(activeUsername),
     enabled: !!activeUsername && !!code,
     queryFn: async () => {
       if (!activeUsername || !code) {
-        throw new Error("[SDK][Accounts][Favourites] – missing auth");
+        throw new Error("[SDK][Accounts][Favorites] – missing auth");
       }
       const fetchApi = getBoundFetch();
       const response = await fetchApi(
@@ -29,13 +29,13 @@ export function getFavouritesQueryOptions(
   });
 }
 
-export function getFavouritesInfiniteQueryOptions(
+export function getFavoritesInfiniteQueryOptions(
   activeUsername: string | undefined,
   code: string | undefined,
   limit: number = 10
 ) {
   return infiniteQueryOptions({
-    queryKey: QueryKeys.accounts.favouritesInfinite(activeUsername, limit),
+    queryKey: QueryKeys.accounts.favoritesInfinite(activeUsername, limit),
     queryFn: async ({ pageParam = 0 }) => {
       if (!activeUsername || !code) {
         return {

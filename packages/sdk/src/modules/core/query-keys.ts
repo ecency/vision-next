@@ -198,14 +198,14 @@ export const QueryKeys = {
       ["accounts", "lookup", query, limit],
     transactions: (username: string, group: string, limit: number) =>
       ["accounts", "transactions", username, group, limit],
-    favourites: (activeUsername?: string) =>
-      ["accounts", "favourites", activeUsername],
-    favouritesInfinite: (activeUsername?: string, limit?: number) =>
-      ["accounts", "favourites", "infinite", activeUsername, limit],
-    checkFavourite: (activeUsername: string, targetUsername: string) =>
+    favorites: (activeUsername?: string) =>
+      ["accounts", "favorites", activeUsername],
+    favoritesInfinite: (activeUsername?: string, limit?: number) =>
+      ["accounts", "favorites", "infinite", activeUsername, limit],
+    checkFavorite: (activeUsername: string, targetUsername: string) =>
       [
         "accounts",
-        "favourites",
+        "favorites",
         "check",
         activeUsername,
         targetUsername,

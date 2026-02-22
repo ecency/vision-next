@@ -21,7 +21,7 @@ export function MyFavoritesWidget() {
     [username]
   );
 
-  const { data: favorites, isLoading } = useQuery({
+  const { data: favorites, isLoading, isError } = useQuery({
     ...getFavouritesQueryOptions(username, accessToken),
     enabled: !!username && !!accessToken
   });
@@ -43,7 +43,12 @@ export function MyFavoritesWidget() {
               <div className="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
           ))}
-        {!isLoading && favorites && favorites.length === 0 && (
+        {!isLoading && isError && (
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {i18next.t("g.server-error")}
+          </div>
+        )}
+        {!isLoading && !isError && favorites && favorites.length === 0 && (
           <div className="text-sm text-gray-500 dark:text-gray-400">
             <p>{i18next.t("my-favorites-widget.empty")}</p>
             <Link href="/discover" className="text-blue-dark-sky hover:underline mt-1 inline-block">
