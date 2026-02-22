@@ -2063,10 +2063,12 @@
     "move": "下書きへ移動"
   },
   "bookmarks": {
-    "title": "ブックマーク"
+    "title": "ブックマーク",
+    "hint": "ブックマークされたコンテンツが返信を受け取ったときに通知を受け取ります。"
   },
   "favorites": {
-    "title": "お気に入り"
+    "title": "お気に入り",
+    "hint": "お気に入りの著者が新しいコンテンツを公開すると通知が届きます。"
   },
   "fragments": {
     "title": "Snippets",
@@ -2622,6 +2624,12 @@
     "classic": "クラシック",
     "deck": "デッキ"
   },
+  "my-favorites-widget": {
+    "title": "お気に入り",
+    "empty": "まだお気に入りの著者を追加していません",
+    "empty-cta": "著者を発見",
+    "view-all": "すべて表示"
+  },
   "top-communities": {
     "title": "上位のコミュニティ",
     "create-button": "分散型コミュニティを作成"
@@ -2844,7 +2852,13 @@
       "topup": "ウォレットにトークンを追加してください",
       "topup-description": "ウォレットの残高が変更されると、ページは自動的に検出され、アカウントの作成を続けます。",
       "validation-success": "ウォレットを確認しました",
-      "address-copied": "アドレスをコピーしました"
+      "address-copied": "アドレスをコピーしました",
+      "minimum-required": "少なくとも {{minimum}} を検証する必要があります。",
+      "estimated-value": "見積もり値: ${{value}}",
+      "checking-balance": "ウォレット残高を確認しています...",
+      "balance-fetch-error": "ウォレット残高を更新できませんでした。自動的に再試行を続けます。",
+      "price-unavailable": "価格データは一時的に利用できません。しばらくしてから再試行してください。",
+      "price-required": "残高が {{minimum}} 最小値を満たしていることを確認するには価格データが必要です。しばらくしてから再度お試しください。"
     },
     "import": {
       "title": "自分のウォレットをインポート",

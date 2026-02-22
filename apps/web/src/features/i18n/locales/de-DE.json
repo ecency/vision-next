@@ -2063,10 +2063,12 @@
     "move": "In Entwürfe verschieben"
   },
   "bookmarks": {
-    "title": "Lesezeichen"
+    "title": "Lesezeichen",
+    "hint": "Sie erhalten Benachrichtigungen, wenn gespeicherte Inhalte eine Antwort erhalten."
   },
   "favorites": {
-    "title": "Favoriten"
+    "title": "Favoriten",
+    "hint": "Sie erhalten Benachrichtigungen, wenn ein bevorzugter Autor neue Inhalte veröffentlicht."
   },
   "fragments": {
     "title": "Schnipsel",
@@ -2622,6 +2624,12 @@
     "classic": "Klassisch",
     "deck": "Stapel"
   },
+  "my-favorites-widget": {
+    "title": "Meine Favoriten",
+    "empty": "Sie haben noch keine Lieblings-Autoren hinzugefügt",
+    "empty-cta": "Autoren entdecken",
+    "view-all": "Alle anzeigen"
+  },
   "top-communities": {
     "title": "Top-Gemeinschaften",
     "create-button": "Erstelle dezentrale Gemeinschaft"
@@ -2844,7 +2852,13 @@
       "topup": "Bitte laden Sie Ihre Brieftasche mit einigen Tokens auf",
       "topup-description": "Wenn sich Ihr Wallet-Guthaben ändert, erkennt die Seite automatisch und lässt Sie die Kontoerstellung fortsetzen",
       "validation-success": "Wir haben Ihre Brieftasche bestätigt",
-      "address-copied": "Adresse kopiert"
+      "address-copied": "Adresse kopiert",
+      "minimum-required": "Mindestens {{minimum}} erforderlich für die Validierung.",
+      "estimated-value": "Geschätzter Wert: ${{value}}",
+      "checking-balance": "Ihr Wallet-Guthaben wird überprüft...",
+      "balance-fetch-error": "Ihr Wallet-Guthaben konnte nicht aktualisiert werden. Wir werden es weiterhin automatisch versuchen.",
+      "price-unavailable": "Preisdaten sind vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
+      "price-required": "Preisdaten werden benötigt, um zu überprüfen, ob Ihr Guthaben das Minimum von {{minimum}} erreicht. Wir werden Ihr Guthaben weiterhin überprüfen, bitte versuchen Sie es in Kürze erneut."
     },
     "import": {
       "title": "Eigene Brieftasche importieren",

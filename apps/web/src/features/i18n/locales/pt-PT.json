@@ -2063,10 +2063,12 @@
     "move": "Mover para Rascunhos"
   },
   "bookmarks": {
-    "title": "Marcadores"
+    "title": "Marcadores",
+    "hint": "Você receberá notificações quando um conteúdo favorito receber uma resposta."
   },
   "favorites": {
-    "title": "Favoritos"
+    "title": "Favoritos",
+    "hint": "Você receberá notificações quando um autor favorito publicar conteúdo novo."
   },
   "fragments": {
     "title": "Trechos",
@@ -2622,6 +2624,12 @@
     "classic": "Clássico",
     "deck": "Prancha"
   },
+  "my-favorites-widget": {
+    "title": "Meus Favoritos",
+    "empty": "Você ainda não adicionou nenhum autor favorito",
+    "empty-cta": "Descubra autores",
+    "view-all": "Visualizar tudo"
+  },
   "top-communities": {
     "title": "Principais comunidades",
     "create-button": "Criar comunidade descentralizada"
@@ -2844,7 +2852,13 @@
       "topup": "Por favor, recarregue sua carteira com alguma quantidade de tokens",
       "topup-description": "Quando seu saldo de carteira muda, a página será detectada automaticamente e permitirá que Você continue a criar a conta",
       "validation-success": "Nós validamos sua carteira",
-      "address-copied": "Endereço copiado"
+      "address-copied": "Endereço copiado",
+      "minimum-required": "Pelo menos {{minimum}} é necessário para validar.",
+      "estimated-value": "Valor estimado: ${{value}}",
+      "checking-balance": "Verificando o saldo da sua carteira...",
+      "balance-fetch-error": "Não foi possível atualizar seu saldo da carteira. Nós continuaremos tentando novamente.",
+      "price-unavailable": "Os dados de preços estão temporariamente indisponíveis. Por favor, tente novamente em instantes.",
+      "price-required": "Os dados de preço são necessários para validar que seu saldo atende ao mínimo {{minimum}} . Vamos continuar verificando seu saldo, por favor tente novamente em instantes."
     },
     "import": {
       "title": "Importar carteira própria",

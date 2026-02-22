@@ -2063,10 +2063,12 @@
     "move": "Przenieś do szkicy"
   },
   "bookmarks": {
-    "title": "Zakładki"
+    "title": "Zakładki",
+    "hint": "Otrzymasz powiadomienia, gdy dodana zawartość otrzyma odpowiedź."
   },
   "favorites": {
-    "title": "Ulubione"
+    "title": "Ulubione",
+    "hint": "Otrzymasz powiadomienia, gdy ulubiony autor opublikuje nową zawartość."
   },
   "fragments": {
     "title": "Fragmenty",
@@ -2622,6 +2624,12 @@
     "classic": "Klasyczny",
     "deck": "Talia"
   },
+  "my-favorites-widget": {
+    "title": "Moje Ulubione",
+    "empty": "Nie dodano jeszcze żadnych ulubionych autorów",
+    "empty-cta": "Odkryj autorów",
+    "view-all": "Zobacz wszystkie"
+  },
   "top-communities": {
     "title": "Najlepsze społeczności",
     "create-button": "Utwórz społeczność zdecentralizowaną"
@@ -2844,7 +2852,13 @@
       "topup": "Proszę, doładuj swój portfel kilkoma tokenami",
       "topup-description": "Kiedy saldo Twojego portfela zmieni się, strona wykryje automatycznie i pozwoli Ci kontynuować tworzenie konta",
       "validation-success": "Sprawdziliśmy Twój portfel",
-      "address-copied": "Adres skopiowany"
+      "address-copied": "Adres skopiowany",
+      "minimum-required": "Wymagane co najmniej {{minimum}} do walidacji.",
+      "estimated-value": "Szacowana wartość: ${{value}}",
+      "checking-balance": "Sprawdzanie salda portfela...",
+      "balance-fetch-error": "Nie można odświeżyć salda Twojego portfela. Będziemy próbować ponownie automatycznie.",
+      "price-unavailable": "Dane cenowe są chwilowo niedostępne. Spróbuj ponownie za chwilę.",
+      "price-required": "Dane cenowe są wymagane do potwierdzenia, że Twoje saldo spełnia minimum {{minimum}} . Będziemy nadal sprawdzać Twoje saldo, spróbuj ponownie za chwilę."
     },
     "import": {
       "title": "Importuj własny portfel",

@@ -2063,10 +2063,12 @@
     "move": "Premesti u radne verzije"
   },
   "bookmarks": {
-    "title": "Obeleživači"
+    "title": "Obeleživači",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "Omiljeno"
+    "title": "Omiljeno",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "Snippets",
@@ -2622,6 +2624,12 @@
     "classic": "Classic",
     "deck": "Deck"
   },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
+  },
   "top-communities": {
     "title": "Top communities",
     "create-button": "Create decentralized community"
@@ -2844,7 +2852,13 @@
       "topup": "Please, top-up your wallet with some amount of tokens",
       "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
-      "address-copied": "Address copied"
+      "address-copied": "Address copied",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "Checking your wallet balance...",
+      "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
+      "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "Import own wallet",

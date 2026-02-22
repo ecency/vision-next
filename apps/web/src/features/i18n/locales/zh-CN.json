@@ -2063,10 +2063,12 @@
     "move": "移动到草稿"
   },
   "bookmarks": {
-    "title": "书签"
+    "title": "书签",
+    "hint": "当书签内容收到回复时，您将收到通知。"
   },
   "favorites": {
-    "title": "收藏夹"
+    "title": "收藏夹",
+    "hint": "当最喜欢的作者发布新内容时，您将收到通知。"
   },
   "fragments": {
     "title": "预设内容",
@@ -2622,6 +2624,12 @@
     "classic": "经典",
     "deck": "牌组"
   },
+  "my-favorites-widget": {
+    "title": "我的收藏夹",
+    "empty": "您还没有添加任何收藏的作者",
+    "empty-cta": "发现作者",
+    "view-all": "查看全部"
+  },
   "top-communities": {
     "title": "顶级社区",
     "create-button": "创建分散的社区"
@@ -2844,7 +2852,13 @@
       "topup": "请用一定数量的代币充值你的钱包",
       "topup-description": "当你的钱包余额变化时，页面将自动检测并允许你继续创建帐户",
       "validation-success": "我们已验证您的钱包",
-      "address-copied": "地址已复制"
+      "address-copied": "地址已复制",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "正在检查您的钱包余额...",
+      "balance-fetch-error": "无法刷新您的钱包余额。我们将自动重试一次。",
+      "price-unavailable": "价格数据暂时不可用。请稍后再试。",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "导入自己的钱包",
