@@ -2063,10 +2063,12 @@
     "move": "Sposta nelle bozze"
   },
   "bookmarks": {
-    "title": "Segnalibri"
+    "title": "Segnalibri",
+    "hint": "Riceverai notifiche quando il contenuto dei segnalibri riceverà una risposta."
   },
   "favorites": {
-    "title": "Favoriti"
+    "title": "Favoriti",
+    "hint": "Riceverai notifiche quando un autore preferito pubblica nuovi contenuti."
   },
   "fragments": {
     "title": "Ritagli",
@@ -2621,6 +2623,12 @@
     "grid": "Griglia",
     "classic": "Classica",
     "deck": "Deck"
+  },
+  "my-favorites-widget": {
+    "title": "I Miei Preferiti",
+    "empty": "Non hai ancora aggiunto nessun autore preferito",
+    "empty-cta": "Scopri gli autori",
+    "view-all": "Vedi tutti"
   },
   "top-communities": {
     "title": "Iscriviti alle community",
