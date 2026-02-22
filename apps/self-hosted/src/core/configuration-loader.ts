@@ -68,6 +68,12 @@ export interface InstanceConfig {
         post: {
           text2Speech: { enabled: boolean };
         };
+        tipping?: {
+          enabled?: boolean;
+          general?: { enabled: boolean; buttonLabel?: string };
+          post?: { enabled: boolean; buttonLabel?: string };
+          amounts?: number[];
+        };
         auth: {
           enabled: boolean;
           methods: string[];

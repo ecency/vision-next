@@ -5,6 +5,7 @@ import { UilComment } from '@tooni/iconscout-unicons-react';
 import { useMemo } from 'react';
 import { InstanceConfigManager, t } from '@/core';
 import { VoteButton, ReblogButton } from '@/features/auth';
+import { TipButton } from '@/features/tipping';
 
 interface Props {
   entry: Entry;
@@ -20,6 +21,10 @@ export function BlogPostFooter({ entry }: Props) {
   const showComments = InstanceConfigManager.getConfigValue(
     ({ configuration }) =>
       configuration.instanceConfiguration.features.comments?.enabled ?? true,
+  );
+  const showTippingPost = InstanceConfigManager.getConfigValue(
+    ({ configuration }) =>
+      configuration.instanceConfiguration.features.tipping?.post?.enabled ?? false,
   );
 
   const commentsCount = entryData.children || 0;
@@ -67,6 +72,14 @@ export function BlogPostFooter({ entry }: Props) {
           permlink={entryData.permlink}
           reblogCount={reblogsCount}
         />
+        {showTippingPost && (
+          <TipButton
+            recipientUsername={entryData.author}
+            variant="post"
+            memo={`tip for @${entryData.author}/${entryData.permlink}`}
+            className="flex items-center gap-1"
+          />
+        )}
       </div>
     </footer>
   );
