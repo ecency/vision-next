@@ -2063,10 +2063,12 @@
     "move": "移动到草稿"
   },
   "bookmarks": {
-    "title": "书签"
+    "title": "书签",
+    "hint": "当书签内容收到回复时，您将收到通知。"
   },
   "favorites": {
-    "title": "收藏夹"
+    "title": "收藏夹",
+    "hint": "当最喜欢的作者发布新内容时，您将收到通知。"
   },
   "fragments": {
     "title": "预设内容",
@@ -2621,6 +2623,12 @@
     "grid": "网格",
     "classic": "经典",
     "deck": "牌组"
+  },
+  "my-favorites-widget": {
+    "title": "我的收藏夹",
+    "empty": "您还没有添加任何收藏的作者",
+    "empty-cta": "发现作者",
+    "view-all": "查看全部"
   },
   "top-communities": {
     "title": "顶级社区",
