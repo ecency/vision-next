@@ -1,122 +1,87 @@
-import { CONFIG } from '@ecency/sdk';
-import { cryptoUtils, PrivateKey, type Operation } from '@hiveio/dhive';
-import type { TippingAsset } from '../types';
+import { broadcast } from "@/features/auth";
+import { getQueryClient } from "@ecency/sdk";
+import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
+import type { Operation } from "@hiveio/dhive";
+import type { TippingAsset } from "../types";
 
-const KEY_TYPE = 'active' as const;
-
-function formatKeyError(err: unknown): string {
-  const msg = err instanceof Error ? err.message : String(err);
-  return /base58|invalid|wif/i.test(msg)
-    ? 'Invalid key format'
-    : 'Invalid private key or password';
-}
-
-/**
- * Resolve raw key input to a PrivateKey. Same flow as apps/web KeyInput:
- * - WIF (cryptoUtils.isWif) -> PrivateKey.fromString
- * - With username: try master password (PrivateKey.fromLogin), then WIF
- * - Without username: WIF only
- * BIP44 seed support would require @ecency/wallets (detectHiveKeyDerivation, deriveHiveKeys).
- */
-export async function resolvePrivateKey(
-  keyStr: string,
-  username?: string
-): Promise<PrivateKey> {
-  const key = keyStr.trim();
-  if (!key) {
-    throw new Error('Key is required');
-  }
-
-  try {
-    if (cryptoUtils.isWif(key)) {
-      return PrivateKey.fromString(key);
-    }
-
-    if (username) {
-      try {
-        return PrivateKey.fromLogin(username, key, KEY_TYPE);
-      } catch {
-        return PrivateKey.fromString(key);
-      }
-    }
-
-    return PrivateKey.fromString(key);
-  } catch (err) {
-    throw new Error(formatKeyError(err));
-  }
-}
-
+const ASSETS_WITH_USD_PRICE: TippingAsset[] = ["HIVE", "HBD"];
 export interface ExecuteTipParams {
   from: string;
   to: string;
   amount: string;
   asset: TippingAsset;
-  key: PrivateKey;
   memo: string;
 }
 
 /**
- * Resolve account name (from) from a private key using get_key_references.
- */
-export async function resolveFromAccountFromKey(key: PrivateKey): Promise<string> {
-  const publicKey = key.createPublic().toString();
-  const result = (await CONFIG.hiveClient.database.call('get_key_references', [
-    [publicKey],
-  ])) as string[][];
-  const accounts = result?.[0];
-  if (!accounts?.length) {
-    throw new Error('No account found for this key');
-  }
-  return accounts[0];
-}
-
-/**
- * Execute tip: transfer HIVE, HBD, or POINTS using CONFIG.hiveClient (no @ecency/wallets).
+ * Execute tip: transfer HIVE, HBD, or POINTS.
+ * Uses current auth (keychain or hivesigner) to broadcast.
+ * Fetches token price in USD via getTokenPriceQueryOptions for conversion.
  */
 export async function executeTip(params: ExecuteTipParams): Promise<void> {
-  const { from, to, amount, asset, key, memo } = params;
+  const { from, to, amount, asset, memo } = params;
+
+  let realAmount = 0;
   const num = parseFloat(amount);
   if (!Number.isFinite(num) || num <= 0) {
-    throw new Error('Invalid amount');
+    throw new Error("Invalid amount");
   }
   const formatted = num.toFixed(3);
-  if (asset === 'HIVE') {
-    await CONFIG.hiveClient.broadcast.transfer(
-      {
-        from,
-        to,
-        amount: `${formatted} HIVE`,
-        memo,
-      },
-      key
-    );
-  } else if (asset === 'HBD') {
-    await CONFIG.hiveClient.broadcast.transfer(
-      {
-        from,
-        to,
-        amount: `${formatted} HBD`,
-        memo,
-      },
-      key
-    );
-  } else if (asset === 'POINTS') {
-    const op: Operation = [
-      'custom_json',
-      {
-        id: 'ecency_point_transfer',
-        json: JSON.stringify({
-          sender: from,
-          receiver: to,
-          amount: `${formatted} POINT`,
+
+  // Ensure USD price is loaded for supported assets (conversion relative to USD)
+  const queryClient = getQueryClient();
+
+  const info = await queryClient.ensureQueryData(
+    getAccountWalletAssetInfoQueryOptions(to, asset),
+  );
+  realAmount = num / (info?.price ?? 0);
+
+  let operations: Operation[];
+
+  if (asset === "HIVE") {
+    operations = [
+      [
+        "transfer",
+        {
+          from,
+          to,
+          amount: `${realAmount} HIVE`,
           memo,
-        }),
-        required_auths: [from],
-        required_posting_auths: [],
-      },
+        },
+      ],
     ];
-    await CONFIG.hiveClient.broadcast.sendOperations([op], key);
+  } else if (asset === "HBD") {
+    operations = [
+      [
+        "transfer",
+        {
+          from,
+          to,
+          amount: `${realAmount} HBD`,
+          memo,
+        },
+      ],
+    ];
+  } else if (asset === "POINTS") {
+    operations = [
+      [
+        "custom_json",
+        {
+          id: "ecency_point_transfer",
+          json: JSON.stringify({
+            sender: from,
+            receiver: to,
+            amount: `${realAmount} POINT`,
+            memo,
+          }),
+          required_auths: [from],
+          required_posting_auths: [],
+        },
+      ],
+    ];
   } else {
     throw new Error(`Unsupported asset: ${asset}`);
   }
+
+  await broadcast(operations, { authorityType: "Active" });
 }

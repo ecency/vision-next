@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { t } from "@/core";
 
 interface TippingWalletQrProps {
   address: string;
@@ -20,13 +21,15 @@ export function TippingWalletQr({
   useEffect(() => {
     if (!address.trim()) {
       setDataUrl(null);
-      setError("No address");
+      setError(t("tip_qr_no_address"));
       return;
     }
     setError(null);
     QRCode.toDataURL(address, { width: size, margin: 2 })
       .then(setDataUrl)
-      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Failed to generate QR"));
+      .catch((err: unknown) =>
+        setError(err instanceof Error ? err.message : t("tip_qr_failed")),
+      );
   }, [address, size]);
 
   if (error) {

@@ -2,6 +2,12 @@ export type TippingVariant = "post" | "general";
 
 export type TippingAsset = "HIVE" | "HBD" | "POINTS";
 
+const TIPABLE_ASSETS: TippingAsset[] = ["HIVE", "HBD", "POINTS"];
+
+export function isTipableAsset(asset: string): asset is TippingAsset {
+  return TIPABLE_ASSETS.includes(asset as TippingAsset);
+}
+
 /** Assets that require active key input for tipping */
 export const ASSETS_REQUIRING_KEY = ["POINTS", "HIVE", "HBD", "HP"] as const;
 

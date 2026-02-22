@@ -1,12 +1,10 @@
 import { t } from "@/core";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import {
-  isAssetRequiringKey,
-  isExternalWalletAsset,
-} from "../types";
+import { isExternalWalletAsset } from "../types";
 import { TippingCurrencyCards } from "./tipping-currency-cards";
 import { TippingWalletQr } from "./tipping-wallet-qr";
+import { useAuth } from "@/features/auth";
 
 interface TippingStepCurrencyProps {
   to: string;
@@ -14,8 +12,6 @@ interface TippingStepCurrencyProps {
   onAmountChange: (value: string) => void;
   selectedAsset: string | undefined;
   onAssetSelect: (asset: string) => void;
-  privateKeyStr: string;
-  onPrivateKeyChange: (value: string) => void;
   error: string | undefined;
   canSubmit: boolean;
   loading: boolean;
@@ -25,7 +21,6 @@ interface TippingStepCurrencyProps {
 
 const inputClassName =
   "w-full mb-3 px-3 py-2 rounded-md border border-theme bg-theme-primary text-theme-primary text-sm";
-const inputMonoClassName = `${inputClassName} font-mono`;
 
 function useRecipientWalletAddress(to: string, asset: string | undefined) {
   const enabled = !!to && !!asset && isExternalWalletAsset(asset);
@@ -35,7 +30,7 @@ function useRecipientWalletAddress(to: string, asset: string | undefined) {
   });
   if (!enabled || !account?.profile?.tokens) return undefined;
   const token = account.profile.tokens.find(
-    (t) => t.symbol?.toUpperCase() === asset?.toUpperCase(),
+    (token) => token.symbol?.toUpperCase() === asset?.toUpperCase(),
   );
   const address = token?.meta?.address;
   return typeof address === "string" && address.trim() ? address : undefined;
@@ -47,17 +42,16 @@ export function TippingStepCurrency({
   onAmountChange,
   selectedAsset,
   onAssetSelect,
-  privateKeyStr,
-  onPrivateKeyChange,
   error,
   canSubmit,
   loading,
   onCancel,
   onSubmit,
 }: TippingStepCurrencyProps) {
-  const showKeyInput =
-    selectedAsset !== undefined && isAssetRequiringKey(selectedAsset);
-  const isExternal = selectedAsset !== undefined && isExternalWalletAsset(selectedAsset);
+  const { user } = useAuth();
+
+  const isExternal =
+    selectedAsset !== undefined && isExternalWalletAsset(selectedAsset);
   const recipientAddress = useRecipientWalletAddress(to, selectedAsset);
 
   return (
@@ -81,21 +75,6 @@ export function TippingStepCurrency({
         selectedAsset={selectedAsset}
         onAssetSelect={onAssetSelect}
       />
-      {showKeyInput && (
-        <>
-          <div className="text-sm font-medium mb-2 text-theme-muted">
-            {t("tip_private_key")}
-          </div>
-          <input
-            type="password"
-            autoComplete="off"
-            placeholder="Active key"
-            value={privateKeyStr}
-            onChange={(e) => onPrivateKeyChange(e.target.value)}
-            className={inputMonoClassName}
-          />
-        </>
-      )}
       {isExternal && (
         <>
           <div className="text-sm font-medium mb-2 text-theme-muted">
@@ -123,7 +102,7 @@ export function TippingStepCurrency({
       <div className="flex justify-end gap-2">
         <button
           type="button"
-          className="px-3 py-2 rounded-md border border-theme text-theme-muted text-sm hover:bg-theme-tertiary"
+          className="px-3 py-2 rounded-md text-sm"
           onClick={onCancel}
         >
           {t("cancel")}
@@ -132,10 +111,11 @@ export function TippingStepCurrency({
           <button
             type="button"
             disabled={!canSubmit}
-            className="px-3 py-2 rounded-md bg-theme-accent text-theme-accent-contrast text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-md border border-theme text-theme-contrast text-sm hover:bg-theme-tertiary disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onSubmit}
           >
-            {loading ? t("tip_sending") : t("tip_send")}
+            {!user?.username && t("tip_login_to_send")}
+            {user?.username && loading ? t("tip_sending") : t("tip_send")}
           </button>
         )}
       </div>

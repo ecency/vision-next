@@ -30,6 +30,7 @@ export function TippingCurrencyCards({
     <div className="flex flex-wrap gap-2 mb-3">
       {walletList?.map((asset) => (
         <TippingCurrencyCard
+          key={asset}
           asset={asset}
           selectedAsset={selectedAsset}
           onAssetSelect={() => onAssetSelect(asset)}

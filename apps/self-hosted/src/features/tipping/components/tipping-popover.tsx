@@ -3,18 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "@/features/auth/hooks";
-import {
-  executeTip,
-  resolveFromAccountFromKey,
-  resolvePrivateKey,
-} from "../utils/tip-transaction";
+import { executeTip } from "../utils/tip-transaction";
 import { TippingStepAmount } from "./tipping-step-amount";
 import { TippingStepCurrency } from "./tipping-step-currency";
-import {
-  ASSETS_REQUIRING_KEY,
-  isExternalWalletAsset,
-  type TippingAsset,
-} from "../types";
+import { isExternalWalletAsset, type TippingAsset } from "../types";
 
 interface TippingPopoverRefs {
   setReference: (element: HTMLElement | null) => void;
@@ -51,7 +43,6 @@ export function TippingPopover({
   const [selectedAsset, setSelectedAsset] = useState<string | undefined>(
     undefined,
   );
-  const [privateKeyStr, setPrivateKeyStr] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -59,17 +50,11 @@ export function TippingPopover({
   const hasValidAmount = Number.isFinite(amountNum) && amountNum > 0;
   const isExternalAsset =
     selectedAsset !== undefined && isExternalWalletAsset(selectedAsset);
-  const hasKeyInput = privateKeyStr.trim().length > 0;
-  const requiresKey =
-    selectedAsset !== undefined &&
-    ASSETS_REQUIRING_KEY.includes(
-      selectedAsset as (typeof ASSETS_REQUIRING_KEY)[number],
-    );
   const canSubmit =
     hasValidAmount &&
     selectedAsset !== undefined &&
     !isExternalAsset &&
-    (!requiresKey || hasKeyInput) &&
+    !!user?.username &&
     !loading;
 
   const handleClickOutside = useCallback(
@@ -110,7 +95,7 @@ export function TippingPopover({
   };
 
   const handleSubmit = useCallback(async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !user?.username) return;
     if (
       selectedAsset !== "HIVE" &&
       selectedAsset !== "HBD" &&
@@ -122,19 +107,11 @@ export function TippingPopover({
     setLoading(true);
     setError(undefined);
     try {
-      const key = await resolvePrivateKey(privateKeyStr.trim(), user?.username);
-      let from: string;
-      if (user?.username) {
-        from = user.username;
-      } else {
-        from = await resolveFromAccountFromKey(key);
-      }
       await executeTip({
-        from,
+        from: user.username,
         to,
         amount,
         asset: selectedAsset as TippingAsset,
-        key,
         memo,
       });
       onClose();
@@ -143,16 +120,7 @@ export function TippingPopover({
     } finally {
       setLoading(false);
     }
-  }, [
-    canSubmit,
-    privateKeyStr,
-    user?.username,
-    to,
-    amount,
-    selectedAsset,
-    memo,
-    onClose,
-  ]);
+  }, [canSubmit, user?.username, to, amount, selectedAsset, memo, onClose]);
 
   const content = (
     <div
@@ -175,11 +143,6 @@ export function TippingPopover({
           onAmountChange={setAmount}
           selectedAsset={selectedAsset}
           onAssetSelect={setSelectedAsset}
-          privateKeyStr={privateKeyStr}
-          onPrivateKeyChange={(v) => {
-            setPrivateKeyStr(v);
-            setError(undefined);
-          }}
           error={error}
           canSubmit={canSubmit}
           loading={loading}
