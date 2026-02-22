@@ -2063,10 +2063,12 @@
     "move": "In Entwürfe verschieben"
   },
   "bookmarks": {
-    "title": "Lesezeichen"
+    "title": "Lesezeichen",
+    "hint": "Sie erhalten Benachrichtigungen, wenn gespeicherte Inhalte eine Antwort erhalten."
   },
   "favorites": {
-    "title": "Favoriten"
+    "title": "Favoriten",
+    "hint": "Sie erhalten Benachrichtigungen, wenn ein bevorzugter Autor neue Inhalte veröffentlicht."
   },
   "fragments": {
     "title": "Schnipsel",
@@ -2621,6 +2623,12 @@
     "grid": "Raster",
     "classic": "Klassisch",
     "deck": "Stapel"
+  },
+  "my-favorites-widget": {
+    "title": "Meine Favoriten",
+    "empty": "Sie haben noch keine Lieblings-Autoren hinzugefügt",
+    "empty-cta": "Autoren entdecken",
+    "view-all": "Alle anzeigen"
   },
   "top-communities": {
     "title": "Top-Gemeinschaften",
