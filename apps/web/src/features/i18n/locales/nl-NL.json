@@ -2063,10 +2063,12 @@
     "move": "Verplaats naar concepten"
   },
   "bookmarks": {
-    "title": "Bladwijzers"
+    "title": "Bladwijzers",
+    "hint": "U ontvangt meldingen wanneer inhoud met bladwijzers een antwoord ontvangt."
   },
   "favorites": {
-    "title": "Favorieten"
+    "title": "Favorieten",
+    "hint": "U ontvangt meldingen wanneer een favoriete auteur nieuwe inhoud publiceert."
   },
   "fragments": {
     "title": "Tekstbouwstenen",
@@ -2621,6 +2623,12 @@
     "grid": "Rooster",
     "classic": "Klassiek",
     "deck": "Dek"
+  },
+  "my-favorites-widget": {
+    "title": "Mijn favorieten",
+    "empty": "Je hebt nog geen favoriete auteurs toegevoegd",
+    "empty-cta": "Auteurs ontdekken",
+    "view-all": "Alles weergeven"
   },
   "top-communities": {
     "title": "Top communities",
