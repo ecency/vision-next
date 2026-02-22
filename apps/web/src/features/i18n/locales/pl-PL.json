@@ -2063,10 +2063,12 @@
     "move": "Przenieś do szkicy"
   },
   "bookmarks": {
-    "title": "Zakładki"
+    "title": "Zakładki",
+    "hint": "Otrzymasz powiadomienia, gdy dodana zawartość otrzyma odpowiedź."
   },
   "favorites": {
-    "title": "Ulubione"
+    "title": "Ulubione",
+    "hint": "Otrzymasz powiadomienia, gdy ulubiony autor opublikuje nową zawartość."
   },
   "fragments": {
     "title": "Fragmenty",
@@ -2621,6 +2623,12 @@
     "grid": "Siatka",
     "classic": "Klasyczny",
     "deck": "Talia"
+  },
+  "my-favorites-widget": {
+    "title": "Moje Ulubione",
+    "empty": "Nie dodano jeszcze żadnych ulubionych autorów",
+    "empty-cta": "Odkryj autorów",
+    "view-all": "Zobacz wszystkie"
   },
   "top-communities": {
     "title": "Najlepsze społeczności",
