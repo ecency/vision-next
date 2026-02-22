@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import {
   DetectBottom,
   EntryListContent,
@@ -24,6 +25,8 @@ interface Props {
 type Page = Entry[] | SearchResponse;
 
 export function FeedList({ filter, tag, observer, now }: Props) {
+  const searchParams = useSearchParams();
+  const noReblog = searchParams?.get("no-reblog") === "true";
   const visionFeatures = EcencyConfigManager.CONFIG.visionFeatures;
 
   // Fetch promoted posts if feature is enabled and get the data
@@ -39,14 +42,19 @@ export function FeedList({ filter, tag, observer, now }: Props) {
   // Extract entries from all pages (no skipping - simpler and works with client-side navigation)
   const entries = useMemo(() => {
     const pages = (data as InfiniteData<Page, unknown> | undefined)?.pages ?? [];
-    const relevantPages = pages;
 
-    const extracted = relevantPages.flatMap((page) =>
+    const extracted = pages.flatMap((page) =>
       Array.isArray(page) ? page : ((page as any).items ?? (page as any).results ?? [])
     );
 
+    if (noReblog) {
+      return extracted.filter(
+        (entry: Entry) => !entry.reblogged_by || entry.reblogged_by.length === 0
+      );
+    }
+
     return extracted;
-  }, [data, filter, tag, observer]); // Include filter/tag/observer to ensure recalc on param changes
+  }, [data, filter, tag, observer, noReblog]); // Include filter/tag/observer to ensure recalc on param changes
 
   // Simple, clear loading and empty state logic
   const isLoadingData = isLoading || (isFetching && entries.length === 0);
