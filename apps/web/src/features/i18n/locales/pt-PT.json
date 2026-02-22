@@ -2063,10 +2063,12 @@
     "move": "Mover para Rascunhos"
   },
   "bookmarks": {
-    "title": "Marcadores"
+    "title": "Marcadores",
+    "hint": "Você receberá notificações quando um conteúdo favorito receber uma resposta."
   },
   "favorites": {
-    "title": "Favoritos"
+    "title": "Favoritos",
+    "hint": "Você receberá notificações quando um autor favorito publicar conteúdo novo."
   },
   "fragments": {
     "title": "Trechos",
@@ -2621,6 +2623,12 @@
     "grid": "Grade",
     "classic": "Clássico",
     "deck": "Prancha"
+  },
+  "my-favorites-widget": {
+    "title": "Meus Favoritos",
+    "empty": "Você ainda não adicionou nenhum autor favorito",
+    "empty-cta": "Descubra autores",
+    "view-all": "Visualizar tudo"
   },
   "top-communities": {
     "title": "Principais comunidades",
