@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 1.5.41
+
+### Patch Changes
+
+- Better memory optimizations (#674)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.13
+
 ## 1.5.40
 
 ### Patch Changes
