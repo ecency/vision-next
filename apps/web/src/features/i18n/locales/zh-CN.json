@@ -1189,7 +1189,10 @@
     "updated": "首选项已更新！",
     "permissions-title": "密钥和权限",
     "permissions-hint": "管理您的密钥，控制应用程序的权限",
-    "permissions": "打开权限"
+    "permissions": "打开权限",
+    "image-server": "图像服务器",
+    "image-server-default": "生态图像(默认)",
+    "image-server-hiveblog": "Hive 图像 (替代)"
   },
   "settings": {
     "dm-privacy": {
