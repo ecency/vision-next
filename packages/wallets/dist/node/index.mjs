@@ -703,7 +703,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
         if (tokensFromPortfolio.length > 0) {
           const visibleTokens = tokensFromPortfolio.map((token) => token?.toUpperCase?.()).filter((token) => Boolean(token)).filter(isTokenVisible);
           if (visibleTokens.length > 0) {
-            return Array.from(new Set(visibleTokens));
+            return Array.from(/* @__PURE__ */ new Set([...BASIC_TOKENS, ...visibleTokens]));
           }
         }
       } catch {
