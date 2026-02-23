@@ -939,8 +939,11 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
 export type DmPrivacyLevel = "all" | "followers" | "none";
 
 export function useDmPrivacyQuery() {
+  const { activeUser } = useActiveAccount();
+
   return useQuery({
     queryKey: ["mattermost", "dm-privacy"],
+    enabled: Boolean(activeUser),
     queryFn: async () => {
       const res = await fetch("/api/mattermost/me/dm-privacy");
       if (!res.ok) {
