@@ -1189,7 +1189,10 @@
     "updated": "設定を更新しました！",
     "permissions-title": "キーと権限",
     "permissions-hint": "キーを管理し、アプリケーションに対する権限を制御します",
-    "permissions": "権限を開く"
+    "permissions": "権限を開く",
+    "image-server": "画像サーバー",
+    "image-server-default": "Ecency images(デフォルト)",
+    "image-server-hiveblog": "ハイブ画像 (代替)"
   },
   "settings": {
     "dm-privacy": {
