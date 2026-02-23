@@ -3,6 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import defaults from "@/defaults";
 
 interface Props {
   username: string;
@@ -27,7 +28,7 @@ export function ProfilePreviewAvatar({ username }: Props) {
               <Image
                 width={1000}
                 height={1000}
-                src={`https://images.ecency.com/u/${username}/avatar/medium`}
+                src={`${defaults.imageServer}/u/${username}/avatar/medium`}
                 alt="img"
                 className="w-[96px] h-[96px] rounded-full bg-primary"
                 loading="lazy"

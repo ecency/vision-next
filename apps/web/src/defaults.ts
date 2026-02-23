@@ -21,11 +21,25 @@ const resolveRuntimeBase = (): string => {
   return baseDefaults.base;
 };
 
+const defaultImageServer = process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer;
+
 const defaults = {
   ...baseDefaults,
   base: resolveRuntimeBase(),
   chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
-  imageServer: process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer,
+  get imageServer(): string {
+    if (typeof window !== "undefined") {
+      try {
+        const override = localStorage.getItem("ecency_image_proxy");
+        if (override) {
+          return JSON.parse(override);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return defaultImageServer;
+  },
   nwsServer: process.env.NEXT_PUBLIC_NWS_SERVER || baseDefaults.nwsServer,
   name: process.env.NEXT_PUBLIC_APP_NAME || baseDefaults.name,
   title: process.env.NEXT_PUBLIC_APP_TITLE || baseDefaults.title,

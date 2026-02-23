@@ -4,6 +4,7 @@ import React, { RefObject, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import "./hive-operation-extension.scss";
 import { Operation } from "@hiveio/dhive";
+import defaults from "@/defaults";
 
 interface Props {
     op: string;
@@ -43,7 +44,7 @@ export function HiveOperationRenderer({ op }: Props) {
                 </span>
                                 <span> to</span>
                                 <img
-                                    src={`https://images.ecency.com/u/${decodedOp[1].to}/avatar/small`}
+                                    src={`${defaults.imageServer}/u/${decodedOp[1].to}/avatar/small`}
                                     className="ecency-renderer-hive-operation-extension-transfer-image"
                                     alt=""
                                 />

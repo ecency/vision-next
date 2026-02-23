@@ -21,6 +21,7 @@ import { pinSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
+import defaults from "@/defaults";
 
 export interface SearchItemProps {
   avatar: string;
@@ -155,7 +156,7 @@ export const SearchListItem = ({
             <Image
               width={1000}
               height={1000}
-              src={`https://images.ecency.com/u/${username}/avatar/medium`}
+              src={`${defaults.imageServer}/u/${username}/avatar/medium`}
               alt={username}
               className="rounded-[50%] search-item-avatar"
             />
@@ -184,7 +185,7 @@ export const SearchListItem = ({
               <Image
                 width={1000}
                 height={1000}
-                src={`https://images.ecency.com/u/${author}/avatar/medium`}
+                src={`${defaults.imageServer}/u/${author}/avatar/medium`}
                 alt={title}
                 className="rounded-[50%] search-item-avatar mr-3"
               />

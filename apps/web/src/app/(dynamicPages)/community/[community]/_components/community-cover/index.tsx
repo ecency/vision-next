@@ -41,7 +41,7 @@ export function CommunityCover({ community, account }: Props) {
     let img =
       theme === "day" ? "/assets/cover-fallback-day.png" : "/assets/cover-fallback-night.png";
     if (community) {
-      img = `https://images.ecency.com/u/${community.name}/cover`;
+      img = `${defaults.imageServer}/u/${community.name}/cover`;
     }
 
     return img ? { backgroundImage: `url('${img}')` } : {};

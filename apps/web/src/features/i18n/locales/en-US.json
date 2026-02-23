@@ -1189,7 +1189,10 @@
     "updated": "Preference updated!",
     "permissions-title": "Keys & permissions",
     "permissions-hint": "Manage your keys, control permissions over applications",
-    "permissions": "Open permissions"
+    "permissions": "Open permissions",
+    "image-server": "Image server",
+    "image-server-default": "Ecency images (Default)",
+    "image-server-hiveblog": "Hive images (Alternative)"
   },
   "settings": {
   "dm-privacy": {

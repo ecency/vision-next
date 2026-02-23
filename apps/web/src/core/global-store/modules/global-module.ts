@@ -9,6 +9,8 @@ import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
 import { getQueryClient } from "@/core/react-query";
+import defaults from "@/defaults";
+import { setProxyBase } from "@ecency/render-helper";
 
 export function createGlobalState() {
   const storedCurrency = ls.get("currency");
@@ -38,7 +40,8 @@ export function createGlobalState() {
     newVersion: null,
     globalNotifications: true,
     nsfw: false,
-    isMobile: false
+    isMobile: false,
+    imageProxy: ls.get("image_proxy") || defaults.imageServer
   };
 }
 
@@ -123,6 +126,12 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       set({
         nsfw: Boolean(Number(value))
       });
+      success(i18next.t("preferences.updated"));
+    },
+    setImageProxy(server: string) {
+      ls.set("image_proxy", server);
+      setProxyBase(server);
+      set({ imageProxy: server });
       success(i18next.t("preferences.updated"));
     },
     initKeychain() {

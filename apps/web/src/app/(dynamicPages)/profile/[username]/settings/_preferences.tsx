@@ -14,6 +14,7 @@ import React, { useCallback, useMemo } from "react";
 import { getNotificationsSettingsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { getAccessToken } from "@/utils";
+import defaults from "@/defaults";
 
 export function Preferences() {
   const { activeUser } = useActiveAccount();
@@ -23,6 +24,9 @@ export function Preferences() {
 
   const nsfw = useGlobalStore((s) => s.nsfw);
   const setNsfw = useGlobalStore((s) => s.setNsfw);
+
+  const imageProxy = useGlobalStore((s) => s.imageProxy);
+  const setImageProxy = useGlobalStore((s) => s.setImageProxy);
 
   const [theme, toggleTheme] = useClientTheme();
 
@@ -144,6 +148,22 @@ export function Preferences() {
             >
               <option value={1}>{i18next.t("g.on")}</option>
               <option value={0}>{i18next.t("g.off")}</option>
+            </FormControl>
+          </div>
+
+          <div>
+            <label className="text-sm px-2">{i18next.t("preferences.image-server")}</label>
+            <FormControl
+              value={imageProxy}
+              type="select"
+              onChange={(e: any) => setImageProxy(e.target.value)}
+            >
+              <option value="https://images.ecency.com">
+                {i18next.t("preferences.image-server-default")}
+              </option>
+              <option value="https://images.hive.blog">
+                {i18next.t("preferences.image-server-hiveblog")}
+              </option>
             </FormControl>
           </div>
         </div>
