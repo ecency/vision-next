@@ -1189,7 +1189,10 @@
     "updated": "Voorkeuren bijgewerkt!",
     "permissions-title": "Sleutels & machtigingen",
     "permissions-hint": "Beheer uw sleutels, beheer machtigingen over applicaties",
-    "permissions": "Open permissies"
+    "permissions": "Open permissies",
+    "image-server": "Afbeelding server",
+    "image-server-default": "Ecency afbeeldingen (standaard)",
+    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)"
   },
   "settings": {
     "dm-privacy": {
