@@ -184,7 +184,7 @@ export function EntryVoteDialog({
           <div className="voting-controls voting-controls-up">
             <Button
               noPadding={true}
-              className="w-8"
+              className="w-8 !cursor-default"
               size="xs"
               icon={isVotingLoading ? <Spinner /> : chevronUpSvgForSlider}
               onClick={upVoteClicked}
@@ -201,7 +201,7 @@ export function EntryVoteDialog({
             <div className="percentage" />
             <Button
               noPadding={true}
-              className="w-8"
+              className="w-8 !cursor-default"
               appearance="danger"
               outline={true}
               size="xs"
@@ -233,7 +233,7 @@ export function EntryVoteDialog({
           <div className="voting-controls voting-controls-down">
             <Button
               noPadding={true}
-              className="w-8"
+              className="w-8 !cursor-default"
               size="xs"
               icon={chevronUpSvgForSlider}
               onClick={() => setMode("up")}
@@ -254,7 +254,7 @@ export function EntryVoteDialog({
             <div className="percentage" />
             <Button
               noPadding={true}
-              className="w-8"
+              className="w-8 !cursor-default"
               size="xs"
               appearance="danger"
               outline={true}
