@@ -1189,7 +1189,10 @@
     "updated": "Налаштування оновлено!",
     "permissions-title": "Ключі і права доступу",
     "permissions-hint": "Керуйте вашими ключами, керуйте дозволами над програмами",
-    "permissions": "Відкриті дозволи"
+    "permissions": "Відкриті дозволи",
+    "image-server": "Сервер зображень",
+    "image-server-default": "Зображення точностей (за замовчуванням)",
+    "image-server-hiveblog": "Вузлик зображення (альтернативний)"
   },
   "settings": {
     "dm-privacy": {
