@@ -25,6 +25,11 @@ export function createGlobalState() {
     typeof storedCurrencySymbol === "string"
       ? storedCurrencySymbol
       : currencySymbol(initialCurrency);
+  const storedImageProxy = ls.get("image_proxy");
+  const initialImageProxy =
+    storedImageProxy && ALLOWED_IMAGE_SERVERS.includes(storedImageProxy)
+      ? storedImageProxy
+      : defaults.imageServer;
 
   return {
     theme: Cookies.get("theme") || Theme.day,
@@ -41,7 +46,7 @@ export function createGlobalState() {
     globalNotifications: true,
     nsfw: false,
     isMobile: false,
-    imageProxy: ls.get("image_proxy") || defaults.imageServer
+    imageProxy: initialImageProxy
   };
 }
 

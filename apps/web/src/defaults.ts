@@ -1,5 +1,6 @@
 import baseDefaults from "./defaults.json";
 import { shouldUseDefaultBase } from "./utils/host-utils";
+import * as ls from "./utils/local-storage";
 
 const resolveEnvBase = () => {
   const envBase = process.env.NEXT_PUBLIC_APP_BASE || process.env.APP_BASE;
@@ -33,18 +34,9 @@ const defaults = {
   base: resolveRuntimeBase(),
   chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
   get imageServer(): string {
-    if (typeof window !== "undefined") {
-      try {
-        const override = localStorage.getItem("ecency_image_proxy");
-        if (override) {
-          const parsed = JSON.parse(override);
-          if (ALLOWED_IMAGE_SERVERS.includes(parsed)) {
-            return parsed;
-          }
-        }
-      } catch (e) {
-        // ignore
-      }
+    const override = ls.get("image_proxy");
+    if (override && ALLOWED_IMAGE_SERVERS.includes(override)) {
+      return override;
     }
     return defaultImageServer;
   },
