@@ -1189,7 +1189,10 @@
     "updated": "Preferências atualizadas!",
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
-    "permissions": "Abrir permissões"
+    "permissions": "Abrir permissões",
+    "image-server": "Servidor de imagem",
+    "image-server-default": "Imagens de Ecency (Padrão)",
+    "image-server-hiveblog": "Imagens de Colméia (Alternativa)"
   },
   "settings": {
     "dm-privacy": {
