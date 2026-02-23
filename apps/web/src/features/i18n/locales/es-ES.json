@@ -1191,8 +1191,8 @@
     "permissions-hint": "Administra tus claves, controla los permisos sobre las aplicaciones",
     "permissions": "Permisos abiertos",
     "image-server": "Servidor de imágenes",
-    "image-server-default": "Imágenes de ecuencia (por defecto)",
-    "image-server-hiveblog": "Imágenes de la colmena (Alternativa)"
+    "image-server-default": "Imágenes de Ecency (por defecto)",
+    "image-server-hiveblog": "Imágenes de Hive (Alternativa)"
   },
   "settings": {
     "dm-privacy": {
