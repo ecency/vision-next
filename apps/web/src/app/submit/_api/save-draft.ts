@@ -100,24 +100,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
             modified: new Date().toISOString()
           };
 
-          // Update the draft in the infinite query cache
-          queryClient.setQueryData(
-            ["posts", "drafts", "infinite", username, 10],
-            (oldData: any) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any) => ({
-                  ...page,
-                  data: page.data.map((d: Draft) =>
-                    d._id === editingDraft._id ? updatedDraft : d
-                  )
-                }))
-              };
-            }
-          );
-
-          // Also update the regular query cache
+          // Update regular query cache
           queryClient.setQueryData(
             QueryKeys.posts.drafts(username),
             (oldDrafts: Draft[] | undefined) => {
@@ -125,6 +108,8 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
               return oldDrafts.map((d) => (d._id === editingDraft._id ? updatedDraft : d));
             }
           );
+          // Invalidate infinite query so drafts list refetches fresh data
+          queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
 
           clearActivePoll();
           return { draft: updatedDraft, isNew: false };
@@ -137,24 +122,9 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           const { drafts } = resp;
           const draft = drafts[drafts?.length - 1];
 
-          // Update both regular and infinite query caches
+          // Update regular query cache and invalidate infinite query
           queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
-
-          // Update infinite query cache to include the new draft in the first page
-          queryClient.setQueryData(
-            ["posts", "drafts", "infinite", username, 10],
-            (oldData: any) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any, index: number) =>
-                  index === 0
-                    ? { ...page, data: [draft, ...page.data] }
-                    : page
-                )
-              };
-            }
-          );
+          queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
 
           // Update URL without navigation to reflect that we're now editing a draft
           router.replace(`/draft/${draft._id}`, { scroll: false });

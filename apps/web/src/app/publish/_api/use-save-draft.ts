@@ -95,6 +95,7 @@ export function useSaveDraftApi(draftId?: string) {
         }
 
         queryClient.setQueryData(QueryKeys.posts.drafts(username), resp.drafts);
+        queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
       } else {
         const resp = await addDraft(
           token,
@@ -111,6 +112,7 @@ export function useSaveDraftApi(draftId?: string) {
         const draft = drafts[drafts?.length - 1];
 
         queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
+        queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
 
         if (redirect) {
           // Wait for any pending uploads before redirecting

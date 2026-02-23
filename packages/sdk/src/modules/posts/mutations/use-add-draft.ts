@@ -36,6 +36,8 @@ export function useAddDraft(
       } else {
         qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
       }
+      // Also invalidate the infinite query so the drafts list refetches
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
     },
     onError,
   });
