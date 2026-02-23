@@ -26,6 +26,8 @@ export function getHiveEngineTokenTransactionsQueryOptions(
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
       (lastPage?.length ?? 0) === limit ? (lastPageParam as number) + limit : undefined,
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) =>
+      (firstPageParam as number) > 0 ? (firstPageParam as number) - limit : undefined,
     maxPages: 5,
   });
 }

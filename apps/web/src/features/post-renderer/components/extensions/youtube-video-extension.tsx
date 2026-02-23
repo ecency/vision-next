@@ -49,7 +49,7 @@ export function YoutubeVideoExtension({
   const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
 
   useEffect(() => {
-    rootsRef.current.forEach(r => r.unmount());
+    for (const r of rootsRef.current) { r.unmount(); }
     rootsRef.current = [];
 
     const elements = Array.from(
@@ -89,7 +89,7 @@ export function YoutubeVideoExtension({
     });
 
     return () => {
-      rootsRef.current.forEach(r => r.unmount());
+      for (const r of rootsRef.current) { r.unmount(); }
       rootsRef.current = [];
     };
   }, [containerRef]);

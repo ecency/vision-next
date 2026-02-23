@@ -108,7 +108,7 @@ export function HiveOperationExtension({
             });
 
         return () => {
-            rootsRef.current.forEach(r => r.unmount());
+            for (const r of rootsRef.current) { r.unmount(); }
             rootsRef.current = [];
         };
     }, [containerRef]);

@@ -38,7 +38,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
     strPrice = numeral(price).format(formatter);
   }
 
-  const config: any = {
+  const config = useMemo<any>(() => ({
     title: {
       text: null
     },
@@ -107,7 +107,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
         enableMouseTracking: true
       }
     ]
-  };
+  }), [prices, theme]);
 
   return (
     <div className="market-graph">
