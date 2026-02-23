@@ -1189,7 +1189,10 @@
     "updated": "वरीयता अपडेट की गई!",
     "permissions-title": "कुंजियाँ और अनुमतियाँ",
     "permissions-hint": "अपनी कुंजियाँ प्रबंधित करें, एप्लिकेशन पर अनुमतियों को नियंत्रित करें",
-    "permissions": "खुली अनुमतियाँ"
+    "permissions": "खुली अनुमतियाँ",
+    "image-server": "Image server",
+    "image-server-default": "Ecency images (Default)",
+    "image-server-hiveblog": "Hive images (Alternative)"
   },
   "settings": {
     "dm-privacy": {
