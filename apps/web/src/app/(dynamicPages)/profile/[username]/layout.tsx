@@ -18,7 +18,6 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
 
   const { data: account } = useQuery({
     ...getAccountFullQueryOptions((username as string).replace("%40", "")),
-    staleTime: 5 * 60 * 1000, // Mark stale after 5 minutes; all refetch triggers disabled below
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false

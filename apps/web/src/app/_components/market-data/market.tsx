@@ -1,5 +1,5 @@
 import dayjs from "@/utils/dayjs";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import numeral from "numeral";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -25,7 +25,6 @@ interface Props {
 
 export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Props) {
   const theme = useGlobalStore((s) => s.theme);
-  const nodeRef = useRef<HTMLDivElement>(null);
 
   const { data } = useQuery(getMarketDataQueryOptions(coin, vsCurrency, fromTs, toTs));
   const prices = useMemo(
@@ -111,7 +110,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
   };
 
   return (
-    <div className="market-graph" ref={nodeRef}>
+    <div className="market-graph">
       <div className="graph">
         <HighchartsReact highcharts={Highcharts} options={config} />
       </div>

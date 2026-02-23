@@ -94,5 +94,5 @@ export function YoutubeVideoExtension({
     };
   }, [containerRef]);
 
-  return <></>;
+  return null;
 }

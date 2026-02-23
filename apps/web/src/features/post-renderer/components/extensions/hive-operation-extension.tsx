@@ -73,9 +73,6 @@ export function HiveOperationExtension({
     }, [onClick]);
 
     useEffect(() => {
-        rootsRef.current.forEach(r => r.unmount());
-        rootsRef.current = [];
-
         Array.from(
             containerRef.current?.querySelectorAll<HTMLElement>(
                 ".markdown-view:not(.markdown-view-pure) .markdown-external-link"
