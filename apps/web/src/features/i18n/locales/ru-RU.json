@@ -1189,7 +1189,10 @@
     "updated": "Настройки обновлены!",
     "permissions-title": "Ключи и разрешения",
     "permissions-hint": "Управление ключами, управление разрешениями приложений",
-    "permissions": "Открыть разрешения"
+    "permissions": "Открыть разрешения",
+    "image-server": "Сервер изображений",
+    "image-server-default": "Ecency изображения (по умолчанию)",
+    "image-server-hiveblog": "Изображения улей (Альтернатива)"
   },
   "settings": {
     "dm-privacy": {
