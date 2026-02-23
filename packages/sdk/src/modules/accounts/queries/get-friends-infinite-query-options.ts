@@ -66,6 +66,5 @@ export function getFriendsInfiniteQueryOptions(
       lastPage && lastPage.length === limit
         ? { startFollowing: lastPage[lastPage.length - 1].name }
         : undefined,
-    maxPages: 5,
   });
 }

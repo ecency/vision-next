@@ -35,6 +35,5 @@ export function getAccountNotificationsInfiniteQueryOptions(
 
     getNextPageParam: (lastPage: NotifPage): NotifCursor =>
       lastPage?.length > 0 ? lastPage[lastPage.length - 1].id : null,
-    maxPages: 5,
   });
 }

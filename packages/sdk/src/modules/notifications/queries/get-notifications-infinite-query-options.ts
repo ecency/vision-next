@@ -47,6 +47,5 @@ export function getNotificationsInfiniteQueryOptions(
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage?.[lastPage.length - 1]?.id ?? "",
     refetchOnMount: true,
-    maxPages: 5,
   });
 }

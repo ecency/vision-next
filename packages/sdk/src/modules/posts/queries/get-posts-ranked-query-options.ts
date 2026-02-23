@@ -79,7 +79,6 @@ export function getPostsRankedInfiniteQueryOptions(
         hasNextPage: (lastPage?.length ?? 0) > 0,
       };
     },
-    maxPages: 5,
   });
 }
 
