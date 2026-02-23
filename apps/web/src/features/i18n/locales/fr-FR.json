@@ -1189,7 +1189,10 @@
     "updated": "Préférence mise à jour !",
     "permissions-title": "Touches & autorisations",
     "permissions-hint": "Gérez vos clés, contrôlez les autorisations sur les applications",
-    "permissions": "Ouvrir les permissions"
+    "permissions": "Ouvrir les permissions",
+    "image-server": "Serveur d'images",
+    "image-server-default": "Images d'écence (par défaut)",
+    "image-server-hiveblog": "Images Hive (Alternative)"
   },
   "settings": {
     "dm-privacy": {
