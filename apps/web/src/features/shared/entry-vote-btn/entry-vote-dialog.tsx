@@ -182,15 +182,16 @@ export function EntryVoteDialog({
       {!isPaidOut && mode === "up" && (
         <>
           <div className="voting-controls voting-controls-up">
-            <Button
-              noPadding={true}
-              className="w-8 !cursor-default"
-              size="xs"
-              icon={isVotingLoading ? <Spinner /> : chevronUpSvgForSlider}
-              onClick={upVoteClicked}
-              disabled={isVotingLoading}
-              outline={true}
-            />
+            {isVotingLoading ? <Spinner /> : (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                icon={chevronUpSvgForSlider}
+                onClick={upVoteClicked}
+                outline={true}
+              />
+            )}
             <div className="estimated">
               <FormattedCurrency value={estimate(upSliderVal)} fixAt={3} />
             </div>
@@ -199,16 +200,17 @@ export function EntryVoteDialog({
               <InputVote value={upSliderVal} setValue={(x) => upSliderChanged(x)} />
             </div>
             <div className="percentage" />
-            <Button
-              noPadding={true}
-              className="w-8 !cursor-default"
-              appearance="danger"
-              outline={true}
-              size="xs"
-              icon={chevronDownSvgForSlider}
-              onClick={() => setMode("down")}
-              disabled={isVotingLoading}
-            />
+            {!isVotingLoading && (
+              <Button
+                noPadding={true}
+                className="w-8"
+                appearance="danger"
+                outline={true}
+                size="xs"
+                icon={chevronDownSvgForSlider}
+                onClick={() => setMode("down")}
+              />
+            )}
           </div>
           {wrongValueUp && (
             <div className="vote-error">
@@ -231,15 +233,16 @@ export function EntryVoteDialog({
       {!isPaidOut && mode === "down" && (
         <>
           <div className="voting-controls voting-controls-down">
-            <Button
-              noPadding={true}
-              className="w-8 !cursor-default"
-              size="xs"
-              icon={chevronUpSvgForSlider}
-              onClick={() => setMode("up")}
-              outline={true}
-              disabled={isVotingLoading}
-            />
+            {!isVotingLoading && (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                icon={chevronUpSvgForSlider}
+                onClick={() => setMode("up")}
+                outline={true}
+              />
+            )}
             <div className="estimated">
               <FormattedCurrency value={estimate(downSliderVal)} fixAt={3} />
             </div>
@@ -252,16 +255,17 @@ export function EntryVoteDialog({
             </div>
             <div className="space" />
             <div className="percentage" />
-            <Button
-              noPadding={true}
-              className="w-8 !cursor-default"
-              size="xs"
-              appearance="danger"
-              outline={true}
-              icon={isVotingLoading ? <Spinner /> : chevronDownSvgForSlider}
-              onClick={downVoteClicked}
-              disabled={isVotingLoading}
-            />
+            {isVotingLoading ? <Spinner /> : (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                appearance="danger"
+                outline={true}
+                icon={chevronDownSvgForSlider}
+                onClick={downVoteClicked}
+              />
+            )}
           </div>
 
           {wrongValueDown && (
