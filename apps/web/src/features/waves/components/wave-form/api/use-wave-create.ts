@@ -1,7 +1,7 @@
 "use client";
 
 import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAccountPostsQueryOptions } from "@ecency/sdk";
+import { getAccountPostsQueryOptions, QueryKeys } from "@ecency/sdk";
 import { ProfileFilter } from "@/enums";
 import i18next from "i18next";
 import { error } from "@/features/shared";
@@ -9,7 +9,6 @@ import { formatError } from "@/api/format-error";
 import { useWavesApi } from "./use-waves-api";
 import { useCommunityApi } from "./use-community-api";
 import { WaveEntry } from "@/entities";
-import { QueryIdentifiers } from "@/core/react-query";
 
 export function useWaveCreate() {
   const queryClient = useQueryClient();
@@ -56,7 +55,7 @@ export function useWaveCreate() {
       }
 
       queryClient.setQueryData<InfiniteData<WaveEntry[]>>(
-        [QueryIdentifiers.THREADS, host],
+        QueryKeys.posts.wavesByHost(host),
         (data) => {
           if (!data) {
             return data;
