@@ -96,7 +96,9 @@ export function getAccountWalletListQueryOptions(username: string, currency: str
             .filter(isTokenVisible);
 
           if (visibleTokens.length > 0) {
-            return Array.from(new Set(visibleTokens));
+            // Always include basic tokens (HP, HIVE, HBD, POINTS) even if
+            // the portfolio API omits them from its response.
+            return Array.from(new Set([...BASIC_TOKENS, ...visibleTokens]));
           }
         }
       } catch {

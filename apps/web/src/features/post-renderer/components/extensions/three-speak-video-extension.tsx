@@ -22,7 +22,7 @@ export function ThreeSpeakVideoRenderer({
     const handler = () => setShow(true);
     container.addEventListener("click", handler);
     return () => container.removeEventListener("click", handler);
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     if (show) {
@@ -90,7 +90,12 @@ export function ThreeSpeakVideoExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
         ".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.ecency-renderer-speak-extension)"
@@ -111,6 +116,7 @@ export function ThreeSpeakVideoExtension({
 
         // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
         const root = createRoot(container);
+        rootsRef.current.push(root);
         root.render(
           <ThreeSpeakVideoRenderer
             embedSrc={element.dataset.embedSrc ?? ""}
@@ -126,6 +132,11 @@ export function ThreeSpeakVideoExtension({
         console.warn("Error enhancing 3Speak video element:", error);
       }
     });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return <></>;

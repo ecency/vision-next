@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect, useMemo } from "react";
+import React, { RefObject, useEffect, useMemo, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import "./hive-operation-extension.scss";
 import { Operation } from "@hiveio/dhive";
@@ -67,6 +67,12 @@ export function HiveOperationExtension({
     containerRef: RefObject<HTMLElement | null>;
     onClick?: (op: string) => void;
 }) {
+    const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+    const onClickRef = useRef(onClick);
+    useEffect(() => {
+        onClickRef.current = onClick;
+    }, [onClick]);
+
     useEffect(() => {
         Array.from(
             containerRef.current?.querySelectorAll<HTMLElement>(
@@ -87,9 +93,10 @@ export function HiveOperationExtension({
 
                     const op = element.innerText.replace("hive://sign/op/", "");
 
-                    container.addEventListener("click", () => onClick?.(op));
+                    container.addEventListener("click", () => onClickRef.current?.(op));
 
                     const root = createRoot(container);
+                    rootsRef.current.push(root);
                     root.render(<HiveOperationRenderer op={op} />);
 
                     // Final safety check before replacing
@@ -100,7 +107,12 @@ export function HiveOperationExtension({
                     console.warn("Error enhancing Hive operation element:", error);
                 }
             });
-    }, [containerRef, onClick]);
+
+        return () => {
+            for (const r of rootsRef.current) { r.unmount(); }
+            rootsRef.current = [];
+        };
+    }, [containerRef]);
 
     return null;
 }

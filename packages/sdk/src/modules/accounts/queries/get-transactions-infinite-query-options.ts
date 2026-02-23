@@ -147,5 +147,6 @@ export function getTransactionsInfiniteQueryOptions(
 
     getNextPageParam: (lastPage: TxPage | undefined): TxCursor =>
       lastPage?.length ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
+    maxPages: 5,
   });
 }

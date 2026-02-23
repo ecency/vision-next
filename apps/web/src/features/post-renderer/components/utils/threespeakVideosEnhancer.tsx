@@ -1,10 +1,11 @@
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { ThreeSpeakVideoRenderer } from "../extensions";
 
 /**
  * DOM utility enhancer
  */
-export function applyThreeSpeakVideos(container: HTMLElement) {
+export function applyThreeSpeakVideos(container: HTMLElement): Root[] {
+    const roots: Root[] = [];
     const elements = Array.from(
         container.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.ecency-renderer-speak-extension)"
@@ -21,7 +22,10 @@ export function applyThreeSpeakVideos(container: HTMLElement) {
 
         const root = createRoot(wrapper);
         root.render(<ThreeSpeakVideoRenderer embedSrc={embedSrc} container={el} />);
+        roots.push(root);
 
         el.appendChild(wrapper);
     });
+
+    return roots;
 }

@@ -36,5 +36,6 @@ export function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, l
 
     getNextPageParam: (lastPage: RcPage): RcCursor =>
       lastPage.length === limit ? lastPage[lastPage.length - 1].to : null,
+    maxPages: 5,
   });
 }

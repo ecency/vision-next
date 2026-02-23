@@ -83,6 +83,7 @@ export function getAccountPostsInfiniteQueryOptions(
         hasNextPage,
       };
     },
+    maxPages: 5,
   });
 }
 

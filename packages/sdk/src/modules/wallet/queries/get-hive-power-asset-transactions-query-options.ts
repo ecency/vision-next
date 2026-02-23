@@ -77,5 +77,6 @@ export function getHivePowerAssetTransactionsQueryOptions(
         })
       ),
     }),
+    maxPages: 5,
   });
 }

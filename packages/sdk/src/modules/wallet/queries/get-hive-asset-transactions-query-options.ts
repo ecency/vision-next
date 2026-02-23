@@ -171,5 +171,6 @@ export function getHiveAssetTransactionsQueryOptions(
         })
       ),
     }),
+    maxPages: 5,
   });
 }

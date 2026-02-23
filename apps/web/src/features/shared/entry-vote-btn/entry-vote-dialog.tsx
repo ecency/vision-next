@@ -207,6 +207,7 @@ export function EntryVoteDialog({
               size="xs"
               icon={chevronDownSvgForSlider}
               onClick={() => setMode("down")}
+              disabled={isVotingLoading}
             />
           </div>
           {wrongValueUp && (
@@ -237,6 +238,7 @@ export function EntryVoteDialog({
               icon={chevronUpSvgForSlider}
               onClick={() => setMode("up")}
               outline={true}
+              disabled={isVotingLoading}
             />
             <div className="estimated">
               <FormattedCurrency value={estimate(downSliderVal)} fixAt={3} />

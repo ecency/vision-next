@@ -38,5 +38,6 @@ export function getHiveAssetMetricQueryOptions(bucketSeconds = 86_400) {
       subtractSeconds(prevStartDate, Math.max(100 * bucketSeconds, 28_800)),
       subtractSeconds(prevStartDate, bucketSeconds),
     ],
+    maxPages: 5,
   });
 }
