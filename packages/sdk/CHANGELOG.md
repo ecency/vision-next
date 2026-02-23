@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.14
+
+### Patch Changes
+
+- Query max pages (#675)
+
 ## 2.0.13
 
 ### Patch Changes
