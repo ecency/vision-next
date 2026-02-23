@@ -1189,7 +1189,10 @@
     "updated": "Ustawienia zostały zaktualizowane!",
     "permissions-title": "Klucze i uprawnienia",
     "permissions-hint": "Zarządzaj kluczami, kontroluj uprawnienia nad aplikacjami",
-    "permissions": "Otwórz uprawnienia"
+    "permissions": "Otwórz uprawnienia",
+    "image-server": "Serwer obrazów",
+    "image-server-default": "Obrazy ecencji (domyślne)",
+    "image-server-hiveblog": "Obrazy ulowe (alternatywne)"
   },
   "settings": {
     "dm-privacy": {
