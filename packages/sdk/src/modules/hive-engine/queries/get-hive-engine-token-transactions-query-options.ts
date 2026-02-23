@@ -25,5 +25,6 @@ export function getHiveEngineTokenTransactionsQueryOptions(
         pageParam as number
       );
     },
+    maxPages: 5,
   });
 }

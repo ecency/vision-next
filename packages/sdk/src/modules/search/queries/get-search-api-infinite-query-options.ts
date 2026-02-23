@@ -50,5 +50,6 @@ export function getSearchApiInfiniteQueryOptions(
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage: SearchResponse) => lastPage?.scroll_id,
     enabled: !!q,
+    maxPages: 5,
   });
 }

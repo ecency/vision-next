@@ -4,7 +4,6 @@ import { classNameObject, useFilteredProps } from "@ui/util";
 import { AnimatePresence, motion } from "framer-motion";
 import { HTMLProps, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useMount, useUnmount } from "react-use";
 import useMountedState from "react-use/lib/useMountedState";
 import { ModalContext } from "./modal-context";
 
@@ -40,11 +39,18 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
       ? document.querySelector("#modal-dialog-container") || document.body
       : null;
 
-  useMount(() => document.addEventListener("keyup", onKeyUp));
-  useUnmount(() => {
-    document.removeEventListener("keyup", onKeyUp);
-    document.body.classList.remove("overflow-hidden");
-  });
+  useEffect(() => {
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShow(false);
+      }
+    };
+    document.addEventListener("keyup", onKeyUp);
+    return () => {
+      document.removeEventListener("keyup", onKeyUp);
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, []);
 
   useEffect(() => {
     setShow(props.show);
@@ -63,12 +69,6 @@ export function Modal(props: Omit<HTMLProps<HTMLDivElement>, "size"> & Props) {
       ? document.body.classList.add("overflow-hidden")
       : document.body.classList.remove("overflow-hidden");
   }, [show]);
-
-  const onKeyUp = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setShow(false);
-    }
-  };
 
   return (
     <ModalContext.Provider value={{ show, setShow }}>

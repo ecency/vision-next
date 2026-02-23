@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect, useMemo } from "react";
+import React, { RefObject, useEffect, useMemo, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { useQuery, QueryClientProvider } from "@tanstack/react-query";
 import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
@@ -122,7 +122,12 @@ export function WaveLikePostExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -145,6 +150,7 @@ export function WaveLikePostExtension({
 
           // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
           const root = createRoot(container);
+          rootsRef.current.push(root);
           root.render(
             <QueryClientProvider client={queryClient}>
               <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
@@ -159,6 +165,11 @@ export function WaveLikePostExtension({
           console.warn("Error enhancing wave-like post element:", error);
         }
       });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return <></>;

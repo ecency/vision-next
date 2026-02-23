@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect } from "react";
+import React, { RefObject, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import "./tag-link-extension.scss";
 
@@ -13,7 +13,12 @@ export function TagLinkExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-tag-link"
@@ -39,6 +44,7 @@ export function TagLinkExtension({
 
         // Use createRoot instead of hydrateRoot
         const root = createRoot(container);
+        rootsRef.current.push(root);
         root.render(<TagLinkRenderer tag={element.innerText} />);
 
         // Final safety check before replacing
@@ -49,6 +55,11 @@ export function TagLinkExtension({
         console.warn("Error enhancing tag link element:", error);
       }
     });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return null;

@@ -71,5 +71,6 @@ export function getHbdAssetTransactionsQueryOptions(
         })
       ),
     }),
+    maxPages: 5,
   });
 }

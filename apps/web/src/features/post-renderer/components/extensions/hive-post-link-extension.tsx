@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
@@ -137,7 +138,12 @@ export function HivePostLinkExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -174,6 +180,7 @@ export function HivePostLinkExtension({
 
           const href = element.getAttribute("href") ?? "";
           const root = createRoot(container);
+          rootsRef.current.push(root);
           root.render(<HivePostLinkRenderer link={href} />);
 
           // Final safety check before replacing
@@ -184,6 +191,11 @@ export function HivePostLinkExtension({
           console.warn("Error enhancing Hive post link element:", error);
         }
       });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return null;

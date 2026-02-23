@@ -63,6 +63,7 @@ export function getWavesFollowingQueryOptions(host: string, username?: string) {
       }
     },
 
-    getNextPageParam: () => undefined
+    getNextPageParam: () => undefined,
+    maxPages: 5,
   });
 }

@@ -1,7 +1,8 @@
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { AuthorLinkRenderer } from "../extensions";
 
-export function applyAuthorLinks(container: HTMLElement) {
+export function applyAuthorLinks(container: HTMLElement): Root[] {
+    const roots: Root[] = [];
     const elements = Array.from(
         container.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-author-link"
@@ -20,7 +21,7 @@ export function applyAuthorLinks(container: HTMLElement) {
 
             // Skip mentions inside archived tweet blocks
             if (el.closest(".markdown-view")?.textContent?.includes("Archived Tweet from")) return;
-            
+
             el.dataset.enhanced = "true";
 
             const authorHref = el.getAttribute("href");
@@ -34,6 +35,7 @@ export function applyAuthorLinks(container: HTMLElement) {
 
             const root = createRoot(wrapper);
             root.render(<AuthorLinkRenderer author={authorHref} />);
+            roots.push(root);
 
             // Final safety check before replacing
             if (el.isConnected && el.parentElement) {
@@ -43,4 +45,6 @@ export function applyAuthorLinks(container: HTMLElement) {
             console.warn("Error enhancing author link element:", error);
         }
     });
+
+    return roots;
 }

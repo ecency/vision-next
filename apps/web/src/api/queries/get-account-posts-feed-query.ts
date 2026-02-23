@@ -29,7 +29,8 @@ function getPromotedEntriesInfiniteQuery() {
       _lastPage: PromotedPage,
       _allPages: PromotedPage[],
       _lastPageParam: PromotedCursor
-    ): PromotedCursor => "fetched"
+    ): PromotedCursor => "fetched",
+    maxPages: 5,
   });
 }
 

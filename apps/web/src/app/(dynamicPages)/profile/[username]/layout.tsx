@@ -18,7 +18,7 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
 
   const { data: account } = useQuery({
     ...getAccountFullQueryOptions((username as string).replace("%40", "")),
-    staleTime: Infinity, // Trust server prefetch
+    staleTime: 5 * 60 * 1000, // 5 minutes; trust server prefetch but allow GC
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false

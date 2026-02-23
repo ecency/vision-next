@@ -1,5 +1,5 @@
 import dayjs from "@/utils/dayjs";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import numeral from "numeral";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -110,7 +110,49 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
     ]
   };
 
-  const attachEvents = () => {
+  const pointMouseMove = useCallback(
+    (e: Event) => {
+      const node = nodeRef.current;
+      if (!node) return;
+
+      const circle = e.currentTarget as Element | null;
+      const circles = node.querySelectorAll(".graph-bar");
+
+      let index = -1;
+      for (let i = 0; i < circles.length; i += 1) {
+        if (circles[i] === circle) {
+          index = i;
+          break;
+        }
+      }
+
+      if (index < 0) {
+        return;
+      }
+
+      const item = prices[index];
+
+      const strPrice = numeral(item.price).format(formatter);
+      const strDate = dayjs(item.time).format("YYYY-MM-DD HH:mm:ss");
+      const html = `<strong>${strPrice}</strong> ${strDate}`;
+
+      const tooltip = node.querySelector(".tooltip") as HTMLElement;
+      tooltip.style.visibility = "visible";
+      tooltip!.innerHTML = html;
+    },
+    [prices, formatter]
+  );
+
+  const pointMouseOut = useCallback(() => {
+    const node = nodeRef.current;
+    if (!node) return;
+
+    const tooltip = node.querySelector(".tooltip") as HTMLElement;
+    tooltip.style.visibility = "hidden";
+    tooltip!.innerHTML = "";
+  }, []);
+
+  const attachEvents = useCallback(() => {
     const node = nodeRef.current;
     if (!node) return;
 
@@ -128,9 +170,9 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
 
       graph.appendChild(graphBar);
     });
-  };
+  }, [pointMouseMove, pointMouseOut]);
 
-  const detachEvents = () => {
+  const detachEvents = useCallback(() => {
     const node = nodeRef.current;
     if (!node) return;
 
@@ -138,46 +180,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
       el.removeEventListener("mouseover", pointMouseMove);
       el.removeEventListener("mouseout", pointMouseOut);
     });
-  };
-
-  const pointMouseMove = (e: Event) => {
-    const node = nodeRef.current;
-    if (!node) return;
-
-    const circle = e.currentTarget as Element | null;
-    const circles = node.querySelectorAll(".graph-bar");
-
-    let index = -1;
-    for (let i = 0; i < circles.length; i += 1) {
-      if (circles[i] === circle) {
-        index = i;
-        break;
-      }
-    }
-
-    if (index < 0) {
-      return;
-    }
-
-    const item = prices[index];
-
-    const strPrice = numeral(item.price).format(formatter);
-    const strDate = dayjs(item.time).format("YYYY-MM-DD HH:mm:ss");
-    const html = `<strong>${strPrice}</strong> ${strDate}`;
-
-    const tooltip = node.querySelector(".tooltip") as HTMLElement;
-    tooltip.style.visibility = "visible";
-    tooltip!.innerHTML = html;
-  };
-
-  const pointMouseOut = () => {
-    const node = nodeRef.current;
-    if (!node) return;
-
-    const tooltip = node.querySelector(".tooltip") as HTMLElement;
-    tooltip.style.visibility = "hidden";
-    tooltip!.innerHTML = "";
-  };
+  }, [pointMouseMove, pointMouseOut]);
 
   useEffect(() => {
     attachEvents();
@@ -185,7 +188,7 @@ export function Market({ label, formatter, coin, vsCurrency, fromTs, toTs }: Pro
     return () => {
       detachEvents();
     };
-  }, [attachEvents, detachEvents, prices]);
+  }, [attachEvents, detachEvents]);
 
   return (
     <div className="market-graph" ref={nodeRef}>

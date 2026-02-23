@@ -34,5 +34,6 @@ export function getReferralsInfiniteQueryOptions(username: string) {
       const nextMaxId = lastPage?.[lastPage.length - 1]?.id;
       return typeof nextMaxId === "number" ? ({ maxId: nextMaxId } as PageParam) : undefined;
     },
+    maxPages: 5,
   });
 }
