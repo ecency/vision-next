@@ -9,7 +9,7 @@ import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
 import { getQueryClient } from "@/core/react-query";
-import defaults from "@/defaults";
+import defaults, { ALLOWED_IMAGE_SERVERS } from "@/defaults";
 import { setProxyBase } from "@ecency/render-helper";
 
 export function createGlobalState() {
@@ -129,6 +129,9 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       success(i18next.t("preferences.updated"));
     },
     setImageProxy(server: string) {
+      if (!ALLOWED_IMAGE_SERVERS.includes(server)) {
+        return;
+      }
       ls.set("image_proxy", server);
       setProxyBase(server);
       set({ imageProxy: server });

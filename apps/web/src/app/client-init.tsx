@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useMount } from "react-use";
 import { installConsoleRecorder } from "@/utils/console-msg";
 import { setProxyBase } from "@ecency/render-helper";
-import defaults from "@/defaults";
+import defaults, { ALLOWED_IMAGE_SERVERS } from "@/defaults";
 
 export function ClientInit() {
   const { activeUser } = useActiveAccount();
@@ -43,9 +43,13 @@ export function ClientInit() {
       setActiveUser(activeUsername);
     }
 
-    // Apply stored image proxy preference
+    // Apply stored image proxy preference (validated against whitelist)
     const storedImageProxy = ls.get("image_proxy");
-    if (storedImageProxy && storedImageProxy !== defaults.imageServer) {
+    if (
+      storedImageProxy &&
+      storedImageProxy !== defaults.imageServer &&
+      ALLOWED_IMAGE_SERVERS.includes(storedImageProxy)
+    ) {
       setProxyBase(storedImageProxy);
     }
 

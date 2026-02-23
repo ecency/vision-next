@@ -23,6 +23,11 @@ const resolveRuntimeBase = (): string => {
 
 const defaultImageServer = process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer;
 
+export const ALLOWED_IMAGE_SERVERS = [
+  "https://images.ecency.com",
+  "https://images.hive.blog"
+];
+
 const defaults = {
   ...baseDefaults,
   base: resolveRuntimeBase(),
@@ -32,7 +37,10 @@ const defaults = {
       try {
         const override = localStorage.getItem("ecency_image_proxy");
         if (override) {
-          return JSON.parse(override);
+          const parsed = JSON.parse(override);
+          if (ALLOWED_IMAGE_SERVERS.includes(parsed)) {
+            return parsed;
+          }
         }
       } catch (e) {
         // ignore
