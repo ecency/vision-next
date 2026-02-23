@@ -52,6 +52,5 @@ export function getWavesByTagQueryOptions(host: string, tag: string, limit = DEF
     },
 
     getNextPageParam: () => undefined,
-    maxPages: 5,
   });
 }

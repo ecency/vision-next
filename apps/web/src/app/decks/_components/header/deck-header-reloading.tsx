@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import { refreshSvg } from "@ui/svg";
@@ -11,10 +11,15 @@ interface Props {
 }
 
 export const DeckHeaderReloading = ({ isReloading, onReload, updateDataInterval }: Props) => {
+  const onReloadRef = useRef(onReload);
   useEffect(() => {
-    const id = setInterval(onReload, updateDataInterval);
+    onReloadRef.current = onReload;
+  }, [onReload]);
+
+  useEffect(() => {
+    const id = setInterval(() => onReloadRef.current(), updateDataInterval);
     return () => clearInterval(id);
-  }, [onReload, updateDataInterval]);
+  }, [updateDataInterval]);
 
   return (
     <Button

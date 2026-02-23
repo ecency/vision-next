@@ -15,9 +15,10 @@ export function getTrendingTagsQueryOptions(limit = 20) {
             .map((x) => x.name)
         ),
     initialPageParam: { afterTag: "" },
-    getNextPageParam: (lastPage) => ({
-      afterTag: lastPage?.[lastPage?.length - 1],
-    }),
+    getNextPageParam: (lastPage) =>
+      lastPage?.length > 0
+        ? { afterTag: lastPage[lastPage.length - 1] }
+        : undefined,
     staleTime: 60 * 60 * 1000, // 1 hour — tags change slowly
     maxPages: 5,
   });

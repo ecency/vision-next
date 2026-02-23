@@ -131,6 +131,7 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
       } catch (e) {
         if (retries < MAX_ERROR_ATTEMPTS && sinceEntries) {
           setNextPageError(true);
+          clearTimeout(retryTimeoutRef.current);
           retryTimeoutRef.current = setTimeout(() => {
             fetchData(sinceEntries, retries + 1);
           }, ERROR_ATTEMPTS_INTERVALS[retries]);

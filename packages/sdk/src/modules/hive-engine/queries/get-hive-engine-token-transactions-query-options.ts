@@ -11,7 +11,8 @@ export function getHiveEngineTokenTransactionsQueryOptions(
     queryKey: ["assets", "hive-engine", symbol, "transactions", username],
     enabled: !!symbol && !!username,
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => (lastPage?.length ?? 0) + limit,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      (lastPage?.length ?? 0) === limit ? (lastPageParam as number) + limit : undefined,
     queryFn: async ({ pageParam }) => {
       if (!symbol || !username) {
         throw new Error(

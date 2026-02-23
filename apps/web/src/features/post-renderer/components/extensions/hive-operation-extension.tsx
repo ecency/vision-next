@@ -67,6 +67,10 @@ export function HiveOperationExtension({
     onClick?: (op: string) => void;
 }) {
     const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+    const onClickRef = useRef(onClick);
+    useEffect(() => {
+        onClickRef.current = onClick;
+    }, [onClick]);
 
     useEffect(() => {
         rootsRef.current.forEach(r => r.unmount());
@@ -91,7 +95,7 @@ export function HiveOperationExtension({
 
                     const op = element.innerText.replace("hive://sign/op/", "");
 
-                    container.addEventListener("click", () => onClick?.(op));
+                    container.addEventListener("click", () => onClickRef.current?.(op));
 
                     const root = createRoot(container);
                     rootsRef.current.push(root);
@@ -110,7 +114,7 @@ export function HiveOperationExtension({
             rootsRef.current.forEach(r => r.unmount());
             rootsRef.current = [];
         };
-    }, [containerRef, onClick]);
+    }, [containerRef]);
 
     return null;
 }

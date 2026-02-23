@@ -27,7 +27,7 @@ export function YoutubeVideoRenderer({
       if (thumb) (thumb as HTMLElement).style.display = "none";
       if (playBtn) (playBtn as HTMLElement).style.display = "none";
     }
-  }, [show]);
+  }, [show, container]);
 
   return show ? (
     <iframe
@@ -92,7 +92,7 @@ export function YoutubeVideoExtension({
       rootsRef.current.forEach(r => r.unmount());
       rootsRef.current = [];
     };
-  }, []);
+  }, [containerRef]);
 
   return <></>;
 }
