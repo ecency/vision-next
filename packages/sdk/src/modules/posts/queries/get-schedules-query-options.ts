@@ -80,6 +80,5 @@ export function getSchedulesInfiniteQueryOptions(
       return undefined;
     },
     enabled: !!activeUsername && !!code,
-    maxPages: 5,
   });
 }

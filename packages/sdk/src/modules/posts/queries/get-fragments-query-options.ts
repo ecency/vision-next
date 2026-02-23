@@ -78,6 +78,5 @@ export function getFragmentsInfiniteQueryOptions(
       return undefined;
     },
     enabled: !!username && !!code,
-    maxPages: 5,
   });
 }

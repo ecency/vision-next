@@ -112,6 +112,5 @@ export function getWavesByHostQueryOptions(host: string) {
     },
 
     getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container,
-    maxPages: 5,
   });
 }

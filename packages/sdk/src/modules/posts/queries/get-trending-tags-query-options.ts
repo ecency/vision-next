@@ -20,6 +20,5 @@ export function getTrendingTagsQueryOptions(limit = 20) {
         ? { afterTag: lastPage[lastPage.length - 1] }
         : undefined,
     staleTime: 60 * 60 * 1000, // 1 hour — tags change slowly
-    maxPages: 5,
   });
 }

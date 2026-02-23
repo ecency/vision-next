@@ -16,6 +16,5 @@ export function getTrendingTagsWithStatsQueryOptions(limit = 250) {
     getNextPageParam: (lastPage) =>
       lastPage?.length ? { afterTag: lastPage[lastPage.length - 1].name } : undefined,
     staleTime: Infinity,
-    maxPages: 5,
   });
 }

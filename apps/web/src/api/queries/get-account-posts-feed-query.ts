@@ -31,7 +31,6 @@ function getPromotedEntriesInfiniteQuery() {
       lastPageParam: PromotedCursor
     ): PromotedCursor | undefined =>
       lastPageParam === "empty" ? "fetched" : undefined,
-    maxPages: 2,
   });
 }
 

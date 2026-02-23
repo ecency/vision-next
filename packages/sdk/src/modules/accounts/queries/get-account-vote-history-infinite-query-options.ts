@@ -123,6 +123,5 @@ export function getAccountVoteHistoryInfiniteQueryOptions<F>(
     getNextPageParam: (lastPage: VoteHistoryPage): VoteHistoryPageParam => ({
       start: lastPage.lastItemFetched,
     }),
-    maxPages: 5,
   });
 }

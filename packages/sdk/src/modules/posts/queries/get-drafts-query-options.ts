@@ -82,6 +82,5 @@ export function getDraftsInfiniteQueryOptions(
       return undefined;
     },
     enabled: !!activeUsername && !!code,
-    maxPages: 5,
   });
 }

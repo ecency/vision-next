@@ -96,6 +96,5 @@ export function getImagesInfiniteQueryOptions(
       return undefined;
     },
     enabled: !!username && !!code,
-    maxPages: 5,
   });
 }
