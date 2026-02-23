@@ -3,6 +3,7 @@ import React from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import defaults from "@/defaults";
 
 interface Props {
   username: string;
@@ -24,7 +25,7 @@ export function ProfilePreviewCover({ username }: Props) {
         height={600}
         src={
           profile.profile?.cover_image
-            ? `https://images.ecency.com/u/${username}/cover`
+            ? `${defaults.imageServer}/u/${username}/cover`
             : theme === "day"
               ? "/assets/cover-fallback-day.png"
               : "/assets/cover-fallback-night.png"

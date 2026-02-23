@@ -10,6 +10,7 @@ import { findPostLinkElements, isWaveLikePost } from "../functions";
 import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
+import defaults from "@/defaults";
 
 export function WaveLikePostRenderer({ link }: { link: string }) {
   const [author, permlink] = useMemo(() => {
@@ -89,7 +90,7 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
       />
       <div className="ecency-renderer-wave-like-post-extension-renderer--author">
         <img
-          src={`https://images.ecency.com/u/${post.author}/avatar/small`}
+          src={`${defaults.imageServer}/u/${post.author}/avatar/small`}
           alt={post.author}
           className="ecency-renderer-wave-like-post-extension-renderer--author-avatar"
         />
