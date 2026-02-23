@@ -1189,7 +1189,10 @@
     "updated": "Einstellungen aktualisiert!",
     "permissions-title": "Schlüssel & Berechtigungen",
     "permissions-hint": "Verwalten Sie Ihre Schlüssel, steuern Sie die Berechtigungen über Anwendungen",
-    "permissions": "Öffne Berechtigungen"
+    "permissions": "Öffne Berechtigungen",
+    "image-server": "Bild-Server",
+    "image-server-default": "Ecency Bilder (Standard)",
+    "image-server-hiveblog": "Hive-Bilder (Alternative)"
   },
   "settings": {
     "dm-privacy": {
