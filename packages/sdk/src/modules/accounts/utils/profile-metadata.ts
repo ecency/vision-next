@@ -2,16 +2,26 @@ import { AccountProfile, FullAccount } from "../types";
 
 export type ProfileTokens = AccountProfile["tokens"];
 
+const DENIED_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const proto = Object.getPrototypeOf(value);
+  return proto === null || proto === Object.prototype;
+}
+
 function deepMerge<T extends Record<string, unknown>>(target: T, source: Record<string, unknown>): T {
   const result = { ...target } as Record<string, unknown>;
   for (const key of Object.keys(source)) {
+    if (DENIED_KEYS.has(key)) {
+      continue;
+    }
     const srcVal = source[key];
     const tgtVal = result[key];
-    if (
-      srcVal && typeof srcVal === "object" && !Array.isArray(srcVal) &&
-      tgtVal && typeof tgtVal === "object" && !Array.isArray(tgtVal)
-    ) {
-      result[key] = deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>);
+    if (isPlainObject(srcVal) && isPlainObject(tgtVal)) {
+      result[key] = deepMerge(tgtVal, srcVal);
     } else {
       result[key] = srcVal;
     }

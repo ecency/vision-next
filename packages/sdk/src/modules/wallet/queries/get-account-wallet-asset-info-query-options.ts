@@ -172,9 +172,10 @@ export function getAccountWalletAssetInfoQueryOptions(
       // If portfolio had rich data (parts, balance) but zero price,
       // merge the fallback price into the portfolio data
       if (portfolioAssetInfo && assetInfo && assetInfo.price > 0) {
+        const converted = await convertPriceToUserCurrency(assetInfo);
         return {
           ...portfolioAssetInfo,
-          price: assetInfo.price,
+          price: converted?.price ?? assetInfo.price,
         };
       }
 

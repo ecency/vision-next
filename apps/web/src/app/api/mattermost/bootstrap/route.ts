@@ -124,9 +124,12 @@ export async function POST(req: Request) {
     );
 
     const channelResults = await Promise.allSettled(channelPromises);
-    const failedChannels = channelResults.filter(r => r.status === "rejected");
+    const failedChannels = channelResults.filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected"
+    );
     if (failedChannels.length > 0) {
-      console.warn("MM bootstrap: some channels failed", { username, count: failedChannels.length });
+      const failedIds = failedChannels.map(r => r.reason?.communityId ?? r.reason?.message ?? "unknown");
+      console.warn("MM bootstrap: some channels failed", { username, count: failedChannels.length, failedIds });
     }
 
     // For explicitly requested community, always auto-join the user

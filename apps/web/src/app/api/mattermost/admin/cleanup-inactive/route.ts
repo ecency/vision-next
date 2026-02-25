@@ -7,7 +7,9 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 
-const CHAT_SUPER_ADMIN = "ecency";
+export const maxDuration = 300;
+
+const CHAT_SUPER_ADMIN = process.env.MATTERMOST_SUPER_ADMIN ?? "ecency";
 
 export async function POST(req: Request) {
   const token = await getMattermostTokenFromCookies();
@@ -29,7 +31,11 @@ export async function POST(req: Request) {
       // empty body is fine, defaults will be used
     }
 
-    const inactiveDays = body.inactiveDays ?? 60;
+    const rawDays = body.inactiveDays;
+    if (rawDays !== undefined && (typeof rawDays !== "number" || rawDays < 1)) {
+      return NextResponse.json({ error: "inactiveDays must be a positive number" }, { status: 400 });
+    }
+    const inactiveDays = rawDays ?? 60;
     const result = await cleanupInactiveMattermostUsers(inactiveDays);
 
     return NextResponse.json(result);

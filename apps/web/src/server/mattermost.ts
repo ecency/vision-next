@@ -90,29 +90,37 @@ export async function reactivateMattermostUser(userId: string): Promise<void> {
 }
 
 export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
+  // Step 1: Try to find existing user
+  let user: MattermostUser | null = null;
   try {
-    const user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
       headers: getAdminHeaders()
     });
-    // Auto-reactivate if user was deactivated (e.g. by inactive cleanup)
+  } catch {
+    // User not found — will create below
+  }
+
+  // Step 2: If found, reactivate if needed (errors surface to caller)
+  if (user) {
     if (user.delete_at > 0) {
       await reactivateMattermostUser(user.id);
       user.delete_at = 0;
     }
     return user;
-  } catch (error) {
-    const email = `${username}+no-email@ecency.local`;
-    return await mmFetch<MattermostUser>(`/users`, {
-      method: "POST",
-      headers: getAdminHeaders(),
-      body: JSON.stringify({
-        username,
-        email,
-        password: `${username}${Date.now()}!Ecency`,
-        allow_marketing: false
-      })
-    });
   }
+
+  // Step 3: Create new user
+  const email = `${username}+no-email@ecency.local`;
+  return await mmFetch<MattermostUser>(`/users`, {
+    method: "POST",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({
+      username,
+      email,
+      password: `${username}${Date.now()}!Ecency`,
+      allow_marketing: false
+    })
+  });
 }
 
 export async function ensureUserInTeam(userId: string) {
@@ -696,32 +704,48 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
   return result;
 }
 
-async function hiveGetAccounts(
+async function hiveGetProfiles(
   usernames: string[]
-): Promise<Array<{ name: string; last_post: string }>> {
+): Promise<Array<{ name: string; active: string; created: string }>> {
   const resp = await fetch("https://api.hive.blog", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
-      method: "condenser_api.get_accounts",
-      params: [usernames]
+      method: "bridge.get_profiles",
+      params: { accounts: usernames }
     })
   });
+
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Hive API request failed (${resp.status}): ${body}`);
+  }
+
   const data = await resp.json();
-  return data.result || [];
+
+  if (!data.result) {
+    throw new Error(`Hive API returned no result: ${data.error?.message || JSON.stringify(data.error) || "unknown error"}`);
+  }
+
+  return data.result;
 }
 
 export async function cleanupInactiveMattermostUsers(
   inactiveDays: number = 60
-): Promise<{ deactivated: number; checked: number; errors: number }> {
+): Promise<{ deactivated: number; checked: number; skipped: number; errors: number }> {
+  if (!Number.isFinite(inactiveDays) || inactiveDays < 1) {
+    throw new Error(`inactiveDays must be a positive number, got ${inactiveDays}`);
+  }
+
   const teamId = getMattermostTeamId();
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
 
   let deactivated = 0;
   let checked = 0;
+  let skipped = 0;
   let errors = 0;
   let page = 0;
   const perPage = 200;
@@ -748,13 +772,21 @@ export async function cleanupInactiveMattermostUsers(
       .map((u) => u.username);
 
     if (usernames.length > 0) {
-      // Batch Hive lookup (condenser_api.get_accounts supports up to 1000)
+      // Batch Hive lookup using bridge.get_profiles for accurate activity data
       try {
-        const accounts = await hiveGetAccounts(usernames);
+        const accounts = await hiveGetProfiles(usernames);
         for (const account of accounts) {
           checked++;
-          const lastPost = new Date(account.last_post + "Z");
-          if (lastPost < cutoffDate) {
+
+          // Skip accounts with no activity data (epoch or missing)
+          const active = account.active;
+          if (!active || active.startsWith("1970-01-01")) {
+            skipped++;
+            continue;
+          }
+
+          const lastActiveDate = new Date(active + "Z");
+          if (lastActiveDate < cutoffDate) {
             try {
               await deactivateMattermostUserAsAdmin(account.name);
               deactivated++;
@@ -772,5 +804,5 @@ export async function cleanupInactiveMattermostUsers(
     page++;
   }
 
-  return { deactivated, checked, errors };
+  return { deactivated, checked, skipped, errors };
 }
