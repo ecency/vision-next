@@ -1,8 +1,23 @@
-import * as R from "remeda";
-
 import { AccountProfile, FullAccount } from "../types";
 
 export type ProfileTokens = AccountProfile["tokens"];
+
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Record<string, unknown>): T {
+  const result = { ...target } as Record<string, unknown>;
+  for (const key of Object.keys(source)) {
+    const srcVal = source[key];
+    const tgtVal = result[key];
+    if (
+      srcVal && typeof srcVal === "object" && !Array.isArray(srcVal) &&
+      tgtVal && typeof tgtVal === "object" && !Array.isArray(tgtVal)
+    ) {
+      result[key] = deepMerge(tgtVal as Record<string, unknown>, srcVal as Record<string, unknown>);
+    } else {
+      result[key] = srcVal;
+    }
+  }
+  return result as T;
+}
 
 export interface BuildProfileMetadataArgs {
   existingProfile?: AccountProfile;
@@ -64,10 +79,10 @@ export function buildProfileMetadata({
   const { tokens: profileTokens, version: _ignoredVersion, ...profileRest } =
     profile ?? {};
 
-  const metadata = R.mergeDeep(
-    existingProfile ?? ({} as AccountProfile),
-    profileRest
-  );
+  const metadata = deepMerge(
+    (existingProfile ?? {}) as Record<string, unknown>,
+    profileRest as Record<string, unknown>,
+  ) as AccountProfile;
 
   // Clean up corrupted tokens data from blockchain before processing
   if (metadata.tokens && !Array.isArray(metadata.tokens)) {

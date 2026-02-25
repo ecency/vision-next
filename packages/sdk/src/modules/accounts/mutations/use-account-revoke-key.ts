@@ -5,7 +5,6 @@ import {
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
-import * as R from "remeda";
 import { CONFIG } from "@/modules/core";
 import { Keys } from "./use-account-update-key-auths";
 
@@ -46,7 +45,7 @@ export function useAccountRevokeKey(
       }
 
       const prepareAuth = (keyName: keyof Keys) => {
-        const auth: AuthorityType = R.clone(accountData[keyName]);
+        const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
 
         auth.key_auths = auth.key_auths.filter(
           ([key]) => key !== revokingKey.toString()

@@ -16,6 +16,7 @@ export interface MattermostUser {
   id: string;
   username: string;
   email: string;
+  delete_at: number; // 0 = active, >0 = deactivated (epoch ms)
 }
 
 export interface MattermostUserWithProps extends MattermostUser {
@@ -80,11 +81,25 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+export async function reactivateMattermostUser(userId: string): Promise<void> {
+  await mmFetch(`/users/${userId}/active`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ active: true })
+  });
+}
+
 export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
   try {
-    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    const user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
       headers: getAdminHeaders()
     });
+    // Auto-reactivate if user was deactivated (e.g. by inactive cleanup)
+    if (user.delete_at > 0) {
+      await reactivateMattermostUser(user.id);
+      user.delete_at = 0;
+    }
+    return user;
   } catch (error) {
     const email = `${username}+no-email@ecency.local`;
     return await mmFetch<MattermostUser>(`/users`, {
@@ -679,4 +694,83 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
   }
 
   return result;
+}
+
+async function hiveGetAccounts(
+  usernames: string[]
+): Promise<Array<{ name: string; last_post: string }>> {
+  const resp = await fetch("https://api.hive.blog", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "condenser_api.get_accounts",
+      params: [usernames]
+    })
+  });
+  const data = await resp.json();
+  return data.result || [];
+}
+
+export async function cleanupInactiveMattermostUsers(
+  inactiveDays: number = 60
+): Promise<{ deactivated: number; checked: number; errors: number }> {
+  const teamId = getMattermostTeamId();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
+
+  let deactivated = 0;
+  let checked = 0;
+  let errors = 0;
+  let page = 0;
+  const perPage = 200;
+  const skipUsers = new Set(["ecency"]);
+
+  while (true) {
+    // Fetch active team members page
+    const members = await mmFetch<Array<{ user_id: string }>>(
+      `/teams/${teamId}/members?page=${page}&per_page=${perPage}`,
+      { headers: getAdminHeaders() }
+    );
+    if (!members.length) break;
+
+    // Get usernames for this batch
+    const userIds = members.map((m) => m.user_id);
+    const users = await mmFetch<MattermostUser[]>(`/users/ids`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+      body: JSON.stringify(userIds)
+    });
+
+    const usernames = users
+      .filter((u) => !skipUsers.has(u.username) && u.delete_at === 0)
+      .map((u) => u.username);
+
+    if (usernames.length > 0) {
+      // Batch Hive lookup (condenser_api.get_accounts supports up to 1000)
+      try {
+        const accounts = await hiveGetAccounts(usernames);
+        for (const account of accounts) {
+          checked++;
+          const lastPost = new Date(account.last_post + "Z");
+          if (lastPost < cutoffDate) {
+            try {
+              await deactivateMattermostUserAsAdmin(account.name);
+              deactivated++;
+            } catch {
+              errors++;
+            }
+          }
+        }
+      } catch {
+        errors += usernames.length;
+      }
+    }
+
+    if (members.length < perPage) break;
+    page++;
+  }
+
+  return { deactivated, checked, errors };
 }

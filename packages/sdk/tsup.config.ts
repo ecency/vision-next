@@ -15,7 +15,6 @@ const shared = {
         "lru-cache",
         "scheduler",
         "bip39",
-        "remeda",
         "node-fetch",
         "undici",
         "crypto"
