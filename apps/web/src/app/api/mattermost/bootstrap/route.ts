@@ -118,13 +118,17 @@ export async function POST(req: Request) {
       const batch = communityEntries.slice(i, i + BATCH_SIZE);
       const batchResults = await Promise.allSettled(
         batch.map(async ([communityId, title]) => {
-          const ensuredChannelId = await ensureCommunityChannelMembership(
-            user.id,
-            communityId,
-            title,
-            false // Don't auto-join - users will join manually
-          );
-          return { communityId, channelId: ensuredChannelId };
+          try {
+            const ensuredChannelId = await ensureCommunityChannelMembership(
+              user.id,
+              communityId,
+              title,
+              false // Don't auto-join - users will join manually
+            );
+            return { communityId, channelId: ensuredChannelId };
+          } catch (err) {
+            throw Object.assign(err instanceof Error ? err : new Error(String(err)), { communityId });
+          }
         })
       );
       channelResults.push(...batchResults);

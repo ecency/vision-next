@@ -749,8 +749,8 @@ async function hiveGetProfiles(
 export async function cleanupInactiveMattermostUsers(
   inactiveDays: number = 60
 ): Promise<{ deactivated: number; checked: number; skipped: number; errors: number }> {
-  if (!Number.isFinite(inactiveDays) || inactiveDays < 1) {
-    throw new Error(`inactiveDays must be a positive number, got ${inactiveDays}`);
+  if (!Number.isInteger(inactiveDays) || inactiveDays < 1) {
+    throw new Error(`inactiveDays must be a positive integer, got ${inactiveDays}`);
   }
 
   const teamId = getMattermostTeamId();
@@ -809,7 +809,8 @@ export async function cleanupInactiveMattermostUsers(
             }
           }
         }
-      } catch {
+      } catch (err) {
+        console.error("MM cleanup: Hive batch lookup failed", { batchSize: usernames.length, error: err });
         errors += usernames.length;
       }
     }
