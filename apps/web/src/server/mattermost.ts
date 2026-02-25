@@ -800,6 +800,10 @@ export async function cleanupInactiveMattermostUsers(
           }
 
           const lastActiveDate = new Date(active + "Z");
+          if (isNaN(lastActiveDate.getTime())) {
+            skipped++;
+            continue;
+          }
           if (lastActiveDate < cutoffDate) {
             try {
               await deactivateMattermostUserAsAdmin(account.name);
