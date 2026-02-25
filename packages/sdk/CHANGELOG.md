@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.15
+
+### Patch Changes
+
+- Improve account update and chat cleanup (#676)
+
 ## 2.0.14
 
 ### Patch Changes
