@@ -106,13 +106,19 @@ export async function POST(req: Request) {
     }
 
     let channelId: string | null = null;
-    try {
-        // Ensure channels exist for subscribed communities, but DON'T force membership
-        // This prevents auto-rejoining users to channels they've explicitly left
-        // Parallelize channel creation - CRITICAL for performance
-        const channelPromises = Array.from(uniqueCommunityIds).map(
-          async ([communityId, title]) => {
-            // autoJoin = false: only ensure channel exists, don't force user membership
+
+    // Ensure channels exist for subscribed communities, but DON'T force membership
+    // This prevents auto-rejoining users to channels they've explicitly left
+    // Process in batches to avoid flooding Mattermost
+    const BATCH_SIZE = 5;
+    const communityEntries = Array.from(uniqueCommunityIds);
+    const channelResults: PromiseSettledResult<{ communityId: string; channelId: string }>[] = [];
+
+    for (let i = 0; i < communityEntries.length; i += BATCH_SIZE) {
+      const batch = communityEntries.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(async ([communityId, title]) => {
+          try {
             const ensuredChannelId = await ensureCommunityChannelMembership(
               user.id,
               communityId,
@@ -120,30 +126,33 @@ export async function POST(req: Request) {
               false // Don't auto-join - users will join manually
             );
             return { communityId, channelId: ensuredChannelId };
+          } catch (err) {
+            throw Object.assign(err instanceof Error ? err : new Error(String(err)), { communityId });
           }
-        );
+        })
+      );
+      channelResults.push(...batchResults);
+    }
+    const failedChannels = channelResults.filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected"
+    );
+    if (failedChannels.length > 0) {
+      const failedIds = failedChannels.map(r => r.reason?.communityId ?? r.reason?.message ?? "unknown");
+      console.warn("MM bootstrap: some channels failed", { username, count: failedChannels.length, failedIds });
+    }
 
-        const channelResults = await Promise.all(channelPromises);
-
-        // For explicitly requested community, always auto-join the user
-        if (community) {
-          channelId = await ensureCommunityChannelMembership(
-            user.id,
-            community,
-            communityTitle || displayName || community,
-            true
-          );
-        }
-    } catch (e) {
-        console.error("MM bootstrap: channel membership error", {
-          username,
-          userId: user.id,
-          error: e
-        });
-        return NextResponse.json(
-          { error: "failed to prepare channels" },
-          { status: 500 }
+    // For explicitly requested community, always auto-join the user
+    if (community) {
+      try {
+        channelId = await ensureCommunityChannelMembership(
+          user.id,
+          community,
+          communityTitle || displayName || community,
+          true
         );
+      } catch (e) {
+        console.warn("MM bootstrap: explicit community join failed", { username, community, error: e });
+      }
     }
 
     const response = NextResponse.json({

@@ -7,7 +7,6 @@ import {
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
-import * as R from "remeda";
 import { FullAccount } from "../types";
 import hs from "hivesigner";
 import type { AuthContext } from "@/modules/core/types";
@@ -43,10 +42,7 @@ export function useAccountRevokePosting(
         );
       }
 
-      const posting = R.pipe(
-        {},
-        R.mergeDeep(data.posting)
-      ) as FullAccount["posting"];
+      const posting = JSON.parse(JSON.stringify(data.posting)) as FullAccount["posting"];
 
       posting.account_auths = posting.account_auths.filter(
         ([account]) => account !== accountName

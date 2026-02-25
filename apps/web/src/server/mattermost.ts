@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { bridgeApiCall } from "@ecency/sdk";
 import { CommunityRole, ROLES } from "@ecency/sdk";
@@ -16,6 +17,7 @@ export interface MattermostUser {
   id: string;
   username: string;
   email: string;
+  delete_at: number; // 0 = active, >0 = deactivated (epoch ms)
 }
 
 export interface MattermostUserWithProps extends MattermostUser {
@@ -80,24 +82,50 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+export async function reactivateMattermostUser(userId: string): Promise<void> {
+  await mmFetch(`/users/${userId}/active`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ active: true })
+  });
+}
+
 export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
+  // Step 1: Try to find existing user (only suppress 404)
+  let user: MattermostUser | null = null;
   try {
-    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
+    user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
       headers: getAdminHeaders()
     });
   } catch (error) {
-    const email = `${username}+no-email@ecency.local`;
-    return await mmFetch<MattermostUser>(`/users`, {
-      method: "POST",
-      headers: getAdminHeaders(),
-      body: JSON.stringify({
-        username,
-        email,
-        password: `${username}${Date.now()}!Ecency`,
-        allow_marketing: false
-      })
-    });
+    if (error instanceof MattermostError && error.status === 404) {
+      // User not found — will create below
+    } else {
+      throw error;
+    }
   }
+
+  // Step 2: If found, reactivate if needed (errors surface to caller)
+  if (user) {
+    if (user.delete_at > 0) {
+      await reactivateMattermostUser(user.id);
+      user.delete_at = 0;
+    }
+    return user;
+  }
+
+  // Step 3: Create new user
+  const email = `${username}+no-email@ecency.local`;
+  return await mmFetch<MattermostUser>(`/users`, {
+    method: "POST",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({
+      username,
+      email,
+      password: randomBytes(32).toString("base64url") + "!Aa1",
+      allow_marketing: false
+    })
+  });
 }
 
 export async function ensureUserInTeam(userId: string) {
@@ -679,4 +707,121 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
   }
 
   return result;
+}
+
+async function hiveGetProfiles(
+  usernames: string[]
+): Promise<Array<{ name: string; active: string; created: string }>> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  let resp: Response;
+  try {
+    resp = await fetch("https://api.hive.blog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "bridge.get_profiles",
+        params: { accounts: usernames }
+      }),
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Hive API request failed (${resp.status}): ${body}`);
+  }
+
+  const data = await resp.json();
+
+  if (!data.result) {
+    throw new Error(`Hive API returned no result: ${data.error?.message || JSON.stringify(data.error) || "unknown error"}`);
+  }
+
+  return data.result;
+}
+
+export async function cleanupInactiveMattermostUsers(
+  inactiveDays: number = 60
+): Promise<{ deactivated: number; checked: number; skipped: number; errors: number }> {
+  if (!Number.isInteger(inactiveDays) || inactiveDays < 1) {
+    throw new Error(`inactiveDays must be a positive integer, got ${inactiveDays}`);
+  }
+
+  const teamId = getMattermostTeamId();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
+
+  let deactivated = 0;
+  let checked = 0;
+  let skipped = 0;
+  let errors = 0;
+  let page = 0;
+  const perPage = 200;
+  const skipUsers = new Set(["ecency"]);
+
+  while (true) {
+    // Fetch active team members page
+    const members = await mmFetch<Array<{ user_id: string }>>(
+      `/teams/${teamId}/members?page=${page}&per_page=${perPage}`,
+      { headers: getAdminHeaders() }
+    );
+    if (!members.length) break;
+
+    // Get usernames for this batch
+    const userIds = members.map((m) => m.user_id);
+    const users = await mmFetch<MattermostUser[]>(`/users/ids`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+      body: JSON.stringify(userIds)
+    });
+
+    const usernames = users
+      .filter((u) => !skipUsers.has(u.username) && u.delete_at === 0)
+      .map((u) => u.username);
+
+    if (usernames.length > 0) {
+      // Batch Hive lookup using bridge.get_profiles for accurate activity data
+      try {
+        const accounts = await hiveGetProfiles(usernames);
+        for (const account of accounts) {
+          checked++;
+
+          // Skip accounts with no activity data (epoch or missing)
+          const active = account.active;
+          if (!active || active.startsWith("1970-01-01")) {
+            skipped++;
+            continue;
+          }
+
+          const lastActiveDate = new Date(active + "Z");
+          if (isNaN(lastActiveDate.getTime())) {
+            skipped++;
+            continue;
+          }
+          if (lastActiveDate < cutoffDate) {
+            try {
+              await deactivateMattermostUserAsAdmin(account.name);
+              deactivated++;
+            } catch {
+              errors++;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("MM cleanup: Hive batch lookup failed", { batchSize: usernames.length, error: err });
+        errors += usernames.length;
+      }
+    }
+
+    if (members.length < perPage) break;
+    page++;
+  }
+
+  return { deactivated, checked, skipped, errors };
 }
