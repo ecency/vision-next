@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { bridgeApiCall } from "@ecency/sdk";
 import { CommunityRole, ROLES } from "@ecency/sdk";
@@ -90,14 +91,18 @@ export async function reactivateMattermostUser(userId: string): Promise<void> {
 }
 
 export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
-  // Step 1: Try to find existing user
+  // Step 1: Try to find existing user (only suppress 404)
   let user: MattermostUser | null = null;
   try {
     user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
       headers: getAdminHeaders()
     });
-  } catch {
-    // User not found — will create below
+  } catch (error) {
+    if (error instanceof MattermostError && error.status === 404) {
+      // User not found — will create below
+    } else {
+      throw error;
+    }
   }
 
   // Step 2: If found, reactivate if needed (errors surface to caller)
@@ -117,7 +122,7 @@ export async function ensureMattermostUser(username: string): Promise<Mattermost
     body: JSON.stringify({
       username,
       email,
-      password: `${username}${Date.now()}!Ecency`,
+      password: randomBytes(32).toString("base64url") + "!Aa1",
       allow_marketing: false
     })
   });
@@ -707,16 +712,25 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
 async function hiveGetProfiles(
   usernames: string[]
 ): Promise<Array<{ name: string; active: string; created: string }>> {
-  const resp = await fetch("https://api.hive.blog", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "bridge.get_profiles",
-      params: { accounts: usernames }
-    })
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  let resp: Response;
+  try {
+    resp = await fetch("https://api.hive.blog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "bridge.get_profiles",
+        params: { accounts: usernames }
+      }),
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!resp.ok) {
     const body = await resp.text();

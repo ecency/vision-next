@@ -25,10 +25,13 @@ export async function POST(req: Request) {
     }
 
     let body: { inactiveDays?: number } = {};
-    try {
-      body = await req.json();
-    } catch {
-      // empty body is fine, defaults will be used
+    const raw = await req.text();
+    if (raw) {
+      try {
+        body = JSON.parse(raw);
+      } catch {
+        return NextResponse.json({ error: "malformed JSON body" }, { status: 400 });
+      }
     }
 
     const rawDays = body.inactiveDays;

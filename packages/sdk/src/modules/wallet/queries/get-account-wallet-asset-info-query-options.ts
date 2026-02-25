@@ -175,7 +175,7 @@ export function getAccountWalletAssetInfoQueryOptions(
         const converted = await convertPriceToUserCurrency(assetInfo);
         return {
           ...portfolioAssetInfo,
-          price: converted?.price ?? assetInfo.price,
+          price: converted!.price,
         };
       }
 

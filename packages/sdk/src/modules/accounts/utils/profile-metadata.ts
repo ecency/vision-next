@@ -70,7 +70,9 @@ export function parseProfileMetadata(
     ) {
       return parsed.profile as AccountProfile;
     }
-  } catch (err) {}
+  } catch (err) {
+    console.warn("[SDK] Failed to parse posting_json_metadata:", err, postingJsonMetadata?.slice(0, 200));
+  }
 
   return {} as AccountProfile;
 }
@@ -99,10 +101,16 @@ export function buildProfileMetadata({
     metadata.tokens = undefined;
   }
 
-  const nextTokens = tokens ?? profileTokens;
-
-  if (nextTokens && nextTokens.length > 0) {
-    metadata.tokens = nextTokens;
+  // tokens semantics:
+  //   undefined → no change, fall back to profileTokens from profile partial
+  //   null or [] → explicitly clear tokens
+  //   non-empty array → set tokens
+  if (tokens !== undefined) {
+    // Explicit intent from caller: null or [] clears, non-empty array sets
+    metadata.tokens = tokens && tokens.length > 0 ? tokens : [];
+  } else if (profileTokens && profileTokens.length > 0) {
+    // Fall back to tokens from profile partial
+    metadata.tokens = profileTokens;
   }
 
   metadata.tokens = sanitizeTokens(metadata.tokens);

@@ -109,21 +109,26 @@ export async function POST(req: Request) {
 
     // Ensure channels exist for subscribed communities, but DON'T force membership
     // This prevents auto-rejoining users to channels they've explicitly left
-    // Parallelize channel creation - CRITICAL for performance
-    const channelPromises = Array.from(uniqueCommunityIds).map(
-      async ([communityId, title]) => {
-        // autoJoin = false: only ensure channel exists, don't force user membership
-        const ensuredChannelId = await ensureCommunityChannelMembership(
-          user.id,
-          communityId,
-          title,
-          false // Don't auto-join - users will join manually
-        );
-        return { communityId, channelId: ensuredChannelId };
-      }
-    );
+    // Process in batches to avoid flooding Mattermost
+    const BATCH_SIZE = 5;
+    const communityEntries = Array.from(uniqueCommunityIds);
+    const channelResults: PromiseSettledResult<{ communityId: string; channelId: string }>[] = [];
 
-    const channelResults = await Promise.allSettled(channelPromises);
+    for (let i = 0; i < communityEntries.length; i += BATCH_SIZE) {
+      const batch = communityEntries.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(async ([communityId, title]) => {
+          const ensuredChannelId = await ensureCommunityChannelMembership(
+            user.id,
+            communityId,
+            title,
+            false // Don't auto-join - users will join manually
+          );
+          return { communityId, channelId: ensuredChannelId };
+        })
+      );
+      channelResults.push(...batchResults);
+    }
     const failedChannels = channelResults.filter(
       (r): r is PromiseRejectedResult => r.status === "rejected"
     );
