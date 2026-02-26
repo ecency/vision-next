@@ -36,27 +36,27 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
       const file = files[0];
 
       if (!activeUser) {
-        error(i18next.t("g.server-error"));
+        error(i18next.t("g.login"));
         return;
       }
 
       onBegin();
-
       setInProgress(true);
-      let token = await ensureValidToken(activeUser.username);
 
-      if (token) {
-        uploadImage(file, token)
-          .then((r) => {
-            onEnd(r.url);
-            success(i18next.t("image-upload-button.uploaded"));
-          })
-          .catch(() => {
-            error(i18next.t("g.server-error"));
-          })
-          .finally(() => setInProgress(false));
-      } else {
-        error(i18next.t("editor-toolbar.image-error-cache"));
+      try {
+        const token = await ensureValidToken(activeUser.username);
+
+        if (!token) {
+          error(i18next.t("editor-toolbar.image-error-cache"));
+          return;
+        }
+
+        const r = await uploadImage(file, token);
+        onEnd(r.url);
+        success(i18next.t("image-upload-button.uploaded"));
+      } catch {
+        error(i18next.t("g.server-error"));
+      } finally {
         setInProgress(false);
       }
     },
