@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.17
+
+### Patch Changes
+
+- Version bumps (#678)
+
 ## 2.0.16
 
 ### Patch Changes
