@@ -3,7 +3,7 @@
 import { Entry } from "@/entities";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { makeEntryPath } from "@/utils";
-import { QueryKeys } from "@ecency/sdk";
+import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -47,26 +47,11 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
     [queryClient, router]
   );
 
-  // Poll blockchain with separate query key to avoid overwriting optimistic cache
-  const { data: polledEntry } = useQuery<Entry | null>({
+  // Poll blockchain via SDK (with node failover + DMCA filtering)
+  // Uses separate query key to avoid overwriting optimistic cache
+  const { data: polledEntry } = useQuery({
+    ...getPostQueryOptions(username, permlink),
     queryKey: ["entry-chain-poll", username, permlink],
-    queryFn: async () => {
-      const response = await fetch(
-        `https://api.hive.blog`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "bridge.get_post",
-            params: { author: username, permlink, observer: "" },
-            id: 1
-          })
-        }
-      );
-      const json = await response.json();
-      return json.result ?? null;
-    },
     enabled: !!isOptimistic && !hasTransitioned.current,
     refetchInterval: POLL_INTERVAL,
     refetchIntervalInBackground: false,
