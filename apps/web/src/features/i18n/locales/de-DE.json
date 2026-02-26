@@ -867,6 +867,8 @@
     "deleted-content-warning": "Dieser Inhalt wurde vom Autor gelöscht. Du kannst ihn jedoch in der Blockchain einsehen ",
     "deleted-content": "Dieser Beitrag wurde von {{author}} gelöscht",
     "deleted-no-history": "Der gelöschte Inhaltsverlauf ist nicht in der Blockchain verfügbar.",
+    "indexing-blockchain": "Ihr Beitrag wurde in der Blockchain veröffentlicht und wird indiziert. Dies dauert in der Regel ein paar Sekunden.",
+    "indexing-slow": "Die Indexierung dauert länger als erwartet. Aktualisieren Sie die Seite in ein paar Augenblicken.",
     "untitled": "Ohne Titel",
     "comments-hidden": "Autor dieses Beitrags ist von dir stumm geschaltet.",
     "address-copy": "Link kopieren",
