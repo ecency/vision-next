@@ -9,12 +9,12 @@ import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
 import {
-  DeletedPostScreen,
   EntryPageContextProvider,
   EntryPageCrossPostHeader,
   EntryPageEditHistory,
   MdHandler
 } from "./_components";
+import { EntryNotFoundFallback } from "./_components/entry-not-found-fallback";
 import { EntryPageDiscussionsWrapper } from "./_components/entry-page-discussions-wrapper";
 
 interface Props {
@@ -68,7 +68,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
       <EntryPageContextProvider>
         <div className="app-content entry-page">
           <div className="the-entry">
-            <DeletedPostScreen
+            <EntryNotFoundFallback
               username={author}
               permlink={permlink}
             />
