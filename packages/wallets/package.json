@@ -43,7 +43,7 @@
     "react": ">=18",
     "@tanstack/react-query": ">=5",
     "@ecency/sdk": "workspace:*",
-    "@hiveio/dhive": "^1.3.2",
+    "@hiveio/dhive": "^1.3.3",
     "hivesigner": "^3.3.4"
   },
   "peerDependenciesMeta": {

@@ -75,7 +75,6 @@ export function useUploadImageMutation() {
 
       const token = await ensureValidToken(username);
       if (!token) {
-        error(i18next.t("editor-toolbar.image-error-cache"));
         throw new Error("Token missed");
       }
 

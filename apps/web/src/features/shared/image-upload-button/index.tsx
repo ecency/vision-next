@@ -27,18 +27,23 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
 
   const handleFileInput = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      // @ts-ignore
-      const files = [...e.target.files];
+      const files = e.target.files;
 
-      if (files.length === 0) {
+      if (!files || files.length === 0) {
         return;
       }
 
-      const [file] = files;
+      const file = files[0];
+
+      if (!activeUser) {
+        error(i18next.t("g.server-error"));
+        return;
+      }
+
       onBegin();
 
       setInProgress(true);
-      let token = await ensureValidToken(activeUser!.username);
+      let token = await ensureValidToken(activeUser.username);
 
       if (token) {
         uploadImage(file, token)

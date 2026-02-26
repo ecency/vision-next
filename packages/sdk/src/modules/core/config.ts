@@ -111,8 +111,13 @@ export namespace ConfigManager {
    * @param nodes - Array of Hive RPC node URLs
    */
   export function setHiveNodes(nodes: string[]) {
-    if (!nodes.length) return;
-    CONFIG.hiveClient = new Client(nodes, HIVE_CLIENT_OPTIONS);
+    const validNodes = [...new Set(
+      nodes
+        .map((n) => n.trim())
+        .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
+    )];
+    if (!validNodes.length) return;
+    CONFIG.hiveClient = new Client(validNodes, HIVE_CLIENT_OPTIONS);
   }
 
   /**
