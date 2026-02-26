@@ -867,6 +867,8 @@
     "deleted-content-warning": "Ta zawartość została usunięta przez autora. Możesz ją zobaczyć z Blockchain ",
     "deleted-content": "Ten post został usunięty przez {{author}}",
     "deleted-no-history": "Usunięta historia treści nie jest dostępna z blockchain.",
+    "indexing-blockchain": "Twój post został opublikowany w blockchain i jest indeksowany. Zwykle trwa to kilka sekund.",
+    "indexing-slow": "Indeksowanie trwa dłużej niż oczekiwano. Spróbuj odświeżyć stronę za kilka chwil.",
     "untitled": "Bez tytułu",
     "comments-hidden": "Autor tego wpisu jest wyciszony przez ciebie.",
     "address-copy": "Kopiuj link",
