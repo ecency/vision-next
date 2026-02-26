@@ -6,7 +6,7 @@ import { makeEntryPath } from "@/utils";
 import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DeletedPostScreen } from "./deleted-post-screen";
 import { EntryPendingIndexView } from "./entry-pending-index-view";
 
@@ -31,12 +31,12 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
   const isOptimistic = optimisticEntry && optimisticEntry.post_id === 1;
 
   const [isTimedOut, setIsTimedOut] = useState(false);
-  const hasTransitioned = useRef(false);
+  const [hasTransitioned, setHasTransitioned] = useState(false);
 
   const handleSuccess = useCallback(
     (realEntry: Entry) => {
-      if (hasTransitioned.current) return;
-      hasTransitioned.current = true;
+      if (hasTransitioned) return;
+      setHasTransitioned(true);
 
       // Update the main entry cache with real data
       EcencyEntriesCacheManagement.updateEntryQueryData([realEntry], queryClient);
@@ -44,7 +44,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
       // Trigger full SSR re-render
       router.refresh();
     },
-    [queryClient, router]
+    [hasTransitioned, queryClient, router]
   );
 
   // Poll blockchain via SDK (with node failover + DMCA filtering)
@@ -52,7 +52,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
   const { data: polledEntry } = useQuery({
     ...getPostQueryOptions(username, permlink),
     queryKey: ["entry-chain-poll", username, permlink],
-    enabled: !!isOptimistic && !hasTransitioned.current,
+    enabled: !!isOptimistic && !hasTransitioned,
     refetchInterval: POLL_INTERVAL,
     refetchIntervalInBackground: false,
     retry: false
