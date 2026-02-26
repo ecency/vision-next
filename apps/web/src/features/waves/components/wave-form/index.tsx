@@ -16,7 +16,7 @@ import { useWaveSubmit } from "@/features/waves";
 import { useOptionalWavesHost } from "@/app/waves/_context";
 import axios from "axios";
 import { uploadImage } from "@ecency/sdk";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { error } from "@/features/shared";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks";
@@ -211,17 +211,17 @@ const WaveFormComponent = ({
         return;
       }
 
-      const token = getAccessToken(activeUsername);
-
-      if (!token) {
-        error(i18next.t("editor-toolbar.image-error-cache"));
-        return;
-      }
-
       event.preventDefault();
       event.stopPropagation();
 
       void (async () => {
+        const token = await ensureValidToken(activeUsername);
+
+        if (!token) {
+          error(i18next.t("editor-toolbar.image-error-cache"));
+          return;
+        }
+
         for (const file of files) {
           try {
             const { url } = await uploadImage(file, token);

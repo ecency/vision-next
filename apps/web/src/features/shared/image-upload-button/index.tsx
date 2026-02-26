@@ -4,7 +4,7 @@ import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { uploadImage } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -26,7 +26,7 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
   const [inProgress, setInProgress] = useState(false);
 
   const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       // @ts-ignore
       const files = [...e.target.files];
 
@@ -38,7 +38,7 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
       onBegin();
 
       setInProgress(true);
-      let token = getAccessToken(activeUser!.username);
+      let token = await ensureValidToken(activeUser!.username);
 
       if (token) {
         uploadImage(file, token)

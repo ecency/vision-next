@@ -11,6 +11,7 @@ import defaults from "@/defaults";
 import dmcaAccounts from "../../public/dmca/dmca-accounts.json";
 import dmcaTags from "../../public/dmca/dmca-tags.json";
 import dmcaPosts from "../../public/dmca/dmca-posts.json";
+import publicNodes from "../../public/public-nodes.json";
 
 // Configure SDK API host based on environment.
 // Use relative URLs only on client-side main production domain.
@@ -22,6 +23,7 @@ const isMainProductionClient =
 const privateApiHost = isMainProductionClient ? "" : "https://ecency.com";
 ConfigManager.setPrivateApiHost(privateApiHost);
 ConfigManager.setImageHost(defaults.imageServer);
+ConfigManager.setHiveNodes(publicNodes);
 
 // Initialize DMCA filtering immediately at module load time
 // This ensures the lists are available before any React Query fetches execute
