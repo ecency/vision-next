@@ -867,6 +867,8 @@
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
     "deleted-content": "Dit bericht is verwijderd door {{author}}",
     "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
+    "indexing-blockchain": "Je bericht is gepubliceerd naar de blockchain en wordt geïndexeerd. Dit duurt meestal een paar seconden.",
+    "indexing-slow": "Indexeren duurt langer dan verwacht. Probeer de pagina binnen enkele ogenblikken te vernieuwen.",
     "untitled": "Naamloos",
     "comments-hidden": "Auteur van dit bericht is gedempt door jou.",
     "address-copy": "Link kopiëren",
