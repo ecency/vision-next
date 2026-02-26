@@ -1,4 +1,5 @@
 export * from "./deleted-post-screen";
+export * from "./entry-not-found-fallback";
 export * from "./distance-detector";
 export * from "./similar-entries";
 export * from "./md-handler";
