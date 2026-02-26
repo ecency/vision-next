@@ -867,6 +867,8 @@
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
+    "indexing-blockchain": "您的帖子已发布到区块链并正在索引。这通常需要几秒钟。",
+    "indexing-slow": "索引花费的时间超过预期。尝试稍后刷新页面。",
     "untitled": "无标题",
     "comments-hidden": "这个帖子的作者被你禁言。",
     "address-copy": "复制链接",
