@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.16
+
+### Patch Changes
+
+- Server fallbacks, image saving (#677)
+
 ## 2.0.15
 
 ### Patch Changes

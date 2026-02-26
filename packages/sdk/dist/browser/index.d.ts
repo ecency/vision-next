@@ -2429,6 +2429,12 @@ declare namespace ConfigManager {
      */
     function setImageHost(host: string): void;
     /**
+     * Set Hive RPC nodes, replacing the default list and creating a new dhive Client.
+     * The first node in the array will be used as the primary; others are failover.
+     * @param nodes - Array of Hive RPC node URLs
+     */
+    function setHiveNodes(nodes: string[]): void;
+    /**
      * Set DMCA filtering lists
      * @param lists - DMCA lists object containing accounts/tags/posts arrays
      */

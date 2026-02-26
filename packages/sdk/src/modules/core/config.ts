@@ -19,29 +19,25 @@ const getHeliusApiKey = () => {
   }
 };
 
+const DEFAULT_HIVE_NODES = [
+  "https://api.hive.blog",
+  "https://api.deathwing.me",
+  "https://rpc.mahdiyari.info",
+  "https://api.openhive.network",
+  "https://techcoderx.com",
+  "https://api.syncad.com",
+];
+
+const HIVE_CLIENT_OPTIONS = {
+  timeout: 2000,
+  failoverThreshold: 2,
+  consoleOnFailover: true,
+};
+
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
-  hiveClient: new Client(
-    [
-      "https://api.hive.blog",
-      "https://api.deathwing.me",
-      "https://rpc.mahdiyari.info",
-      "https://api.openhive.network",
-      "https://techcoderx.com",
-      "https://hive-api.arcange.eu",
-      "https://api.syncad.com",
-      "https://anyx.io",
-      "https://api.c0ff33a.uk",
-      "https://hiveapi.actifit.io",
-      "https://hive-api.3speak.tv",
-    ],
-    {
-      timeout: 2000,
-      failoverThreshold: 2,
-      consoleOnFailover: true,
-    }
-  ),
+  hiveClient: new Client(DEFAULT_HIVE_NODES, HIVE_CLIENT_OPTIONS),
   heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
@@ -107,6 +103,21 @@ export namespace ConfigManager {
    */
   export function setImageHost(host: string) {
     CONFIG.imageHost = host;
+  }
+
+  /**
+   * Set Hive RPC nodes, replacing the default list and creating a new dhive Client.
+   * The first node in the array will be used as the primary; others are failover.
+   * @param nodes - Array of Hive RPC node URLs
+   */
+  export function setHiveNodes(nodes: string[]) {
+    const validNodes = [...new Set(
+      nodes
+        .map((n) => n.trim())
+        .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
+    )];
+    if (!validNodes.length) return;
+    CONFIG.hiveClient = new Client(validNodes, HIVE_CLIENT_OPTIONS);
   }
 
   /**

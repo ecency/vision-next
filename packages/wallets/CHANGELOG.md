@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 1.5.44
+
+### Patch Changes
+
+- Server fallbacks, image saving (#677)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.16
+
 ## 1.5.43
 
 ### Patch Changes
