@@ -867,6 +867,8 @@
     "deleted-content-warning": "Ce contenu a été supprimé par l'auteur. Vous pouvez le voir depuis la Blockchain ",
     "deleted-content": "Ce message a été supprimé par {{author}}",
     "deleted-no-history": "L'historique de contenu supprimé n'est pas disponible depuis la blockchain.",
+    "indexing-blockchain": "Votre message a été publié sur la blockchain et est en cours d'indexation. Cela prend généralement quelques secondes.",
+    "indexing-slow": "L'indexation prend plus de temps que prévu. Essayez de rafraîchir la page dans quelques instants.",
     "untitled": "Sans titre",
     "comments-hidden": "Vous avez mis en sourdine l'auteur de ce message.",
     "address-copy": "Copier le lien",
