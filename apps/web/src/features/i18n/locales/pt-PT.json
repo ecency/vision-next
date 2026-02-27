@@ -3236,5 +3236,39 @@
         "step-link-description": "Finalize a carteira vinculada à conta de Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Gere imagens a partir de descrições de texto usando AI. Os custos são deduzidos a partir de seus pontos de Ecência.",
+    "toolbar-button": "Imagem de IA",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Criar imagens a partir de prompts de texto usando AI, alimentado por seus Pontos de Ecência",
+    "prompt-label": "Descreva a imagem que você deseja criar",
+    "prompt-placeholder": "Um belo pôr do sol sobre montanhas com nuvens roxas...",
+    "prompt-chars-remaining": "{{count}} caracteres restantes",
+    "select-aspect-ratio": "Proporção da imagem",
+    "cost-label": "Custo",
+    "balance-label": "Saldo",
+    "generate-button": "Gerar Imagem",
+    "generating": "Gerando sua imagem...",
+    "result-title": "Imagem Gerada",
+    "insert-button": "Inserir na publicação",
+    "download-button": "BAIXAR",
+    "generate-again": "Gerar Novamente",
+    "history-title": "Gerações recentes",
+    "history-empty": "Nenhuma história de geração ainda",
+    "success": "Imagem gerada com sucesso!",
+    "error-insufficient-points": "Pontos insuficientes. Você precisa de {{required}} , mas tem {{available}}.",
+    "error-content-policy": "Seu prompt foi rejeitado pela política de conteúdo. Pontos não foram reembolsados. Por favor, tente um prompt diferente.",
+    "error-rate-limit": "Muitas solicitações de geração. Por favor, aguarde um momento e tente novamente.",
+    "error-auth": "A autenticação expirou. Atualize a página e tente novamente.",
+    "error-generic": "Falha ao gerar a imagem. Por favor, tente novamente.",
+    "error-prompt-required": "Por favor, insira um prompt",
+    "error-prompt-too-long": "O pedido deve ter 1000 caracteres ou menos",
+    "points-unit": "PONTOS",
+    "save-to-gallery": "Salvar na Galeria",
+    "save-to-gallery-success": "Imagem salva em sua galeria!",
+    "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente."
   }
 }
