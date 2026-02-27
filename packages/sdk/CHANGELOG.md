@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.18
+
+### Patch Changes
+
+- Image generation (#680)
+
 ## 2.0.17
 
 ### Patch Changes
