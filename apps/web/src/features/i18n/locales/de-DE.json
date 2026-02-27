@@ -447,9 +447,9 @@
     "settings-2": "Anzeigeeinstellungen"
   },
   "bookmark-btn": {
-    "add": "Zu den Lesezeichen hinzufügen",
-    "added": "Zu den Lesezeichen hinzugefügt",
-    "delete": "Von den Lesezeichen entfernen",
+    "add": "Lesezeichen — über neue Kommentare benachrichtigt werden",
+    "added": "Lesezeichen! Du wirst über neue Kommentare zu diesem Beitrag benachrichtigt",
+    "delete": "Lesezeichen entfernen und Benachrichtigungen stoppen",
     "deleted": "Von den Lesezeichen entfernt"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "Ton an"
   },
   "favorite-btn": {
-    "add": "Zu den Favoriten hinzufügen",
-    "added": "Zu den Favoriten hinzugefügt",
-    "delete": "Aus den Favoriten entfernen",
+    "add": "Favorit — über neue Beiträge benachrichtigt werden",
+    "added": "Zu Favoriten hinzugefügt! Du wirst benachrichtigt, wenn neue Beiträge veröffentlicht werden",
+    "delete": "Favoriten entfernen und Benachrichtigungen stoppen",
     "deleted": "Aus Favoriten entfernt"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "PUNKTE",
     "save-to-gallery": "In Galerie speichern",
     "save-to-gallery-success": "Bild in Ihrer Galerie gespeichert!",
-    "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut."
+    "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut.",
+    "use-suggestion": "Verwenden: {{suggestion}}"
   }
 }
