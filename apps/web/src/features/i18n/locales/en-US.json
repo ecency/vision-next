@@ -3260,7 +3260,7 @@
     "history-empty": "No generation history yet",
     "success": "Image generated successfully!",
     "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
-    "error-content-policy": "Your prompt was rejected by content policy. Please try a different prompt.",
+    "error-content-policy": "Your prompt was rejected by content policy. Points were not refunded. Please try a different prompt.",
     "error-rate-limit": "Too many generation requests. Please wait a moment and try again.",
     "error-auth": "Authentication expired. Please refresh the page and try again.",
     "error-generic": "Image generation failed. Please try again.",

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "../../core";
+import { CONFIG, getBoundFetch } from "../../core";
 import { QueryKeys } from "../../core";
 import type { AiGenerationPrice } from "../types";
 
@@ -7,7 +7,8 @@ export function getAiGeneratePriceQueryOptions(accessToken: string) {
   return queryOptions({
     queryKey: QueryKeys.ai.prices(),
     queryFn: async () => {
-      const response = await fetch(CONFIG.privateApiHost + "/private-api/ai-generate-price", {
+      const fetchApi = getBoundFetch();
+      const response = await fetchApi(CONFIG.privateApiHost + "/private-api/ai-generate-price", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

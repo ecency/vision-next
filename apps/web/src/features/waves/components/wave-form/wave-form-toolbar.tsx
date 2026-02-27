@@ -5,6 +5,7 @@ import { Button } from "@ui/button";
 import { UilChart } from "@tooni/iconscout-unicons-react";
 import { PollsContext, PollsCreation } from "@/features/polls";
 import { EcencyConfigManager } from "@/config";
+import i18next from "i18next";
 import dynamic from "next/dynamic";
 
 const AiImageGeneratorDialog = dynamic(
@@ -49,7 +50,7 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disab
             onClick={() => setShowAiGenerator(true)}
             disabled={disabled}
           >
-            AI
+            {i18next.t("ai-image-generator.toolbar-button")}
           </Button>
         </EcencyConfigManager.Conditional>
         <PollsCreation

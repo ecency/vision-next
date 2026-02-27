@@ -447,7 +447,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 size="sm"
                 onClick={() => setShowAiGenerator(true)}
               >
-                AI
+                {i18next.t("ai-image-generator.toolbar-button")}
               </Button>
             </LoginRequired>
           </StyledTooltip>

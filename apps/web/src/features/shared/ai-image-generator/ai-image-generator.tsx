@@ -56,17 +56,11 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
     accessToken
   );
 
-  const { mutateAsync: addToGallery, isPending: isSavingToGallery } = useAddImage(
-    username,
-    accessToken,
-    () => success(i18next.t("ai-image-generator.save-to-gallery-success")),
-    () => error(i18next.t("ai-image-generator.save-to-gallery-error"))
-  );
+  const { mutateAsync: addToGallery } = useAddImage(username, accessToken);
 
   const [prompt, setPrompt] = useState("");
   const [selectedPrice, setSelectedPrice] = useState<AiGenerationPrice | null>(null);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
-  const [savedToGallery, setSavedToGallery] = useState(false);
 
   const charsRemaining = 1000 - prompt.length;
 
@@ -102,6 +96,9 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
 
       setGeneratedUrl(result.url);
       success(i18next.t("ai-image-generator.success"));
+
+      // Auto-add to user's gallery (non-blocking)
+      addToGallery({ url: result.url, code: token }).catch(() => {});
     } catch (err: any) {
       const status = err?.status;
       const data = err?.data;
@@ -125,7 +122,6 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
 
   const handleGenerateAgain = useCallback(() => {
     setGeneratedUrl(null);
-    setSavedToGallery(false);
   }, []);
 
   const handleDownload = useCallback(() => {
@@ -133,19 +129,6 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
       window.open(generatedUrl, "_blank");
     }
   }, [generatedUrl]);
-
-  const handleSaveToGallery = useCallback(async () => {
-    if (!generatedUrl || !username) return;
-
-    try {
-      const token = await ensureValidToken(username);
-      if (!token) return;
-      await addToGallery({ url: generatedUrl, code: token });
-      setSavedToGallery(true);
-    } catch {
-      // error callback in useAddImage handles the toast
-    }
-  }, [generatedUrl, username, addToGallery]);
 
   // Result view
   if (generatedUrl) {
@@ -174,15 +157,6 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
           )}
           <Button size="sm" appearance="gray" onClick={handleDownload}>
             {i18next.t("ai-image-generator.download-button")}
-          </Button>
-          <Button
-            size="sm"
-            appearance="gray"
-            onClick={handleSaveToGallery}
-            disabled={savedToGallery || isSavingToGallery}
-            isLoading={isSavingToGallery}
-          >
-            {savedToGallery ? "✓" : i18next.t("ai-image-generator.save-to-gallery")}
           </Button>
           <Button size="sm" appearance="gray-link" onClick={handleGenerateAgain}>
             {i18next.t("ai-image-generator.generate-again")}
