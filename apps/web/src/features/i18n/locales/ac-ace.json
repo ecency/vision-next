@@ -447,7 +447,7 @@
     "settings-2": "display preferences"
   },
   "bookmark-btn": {
-    "add": "Bookmark — get notified about new comments",
+    "add": "Bookmark - get notified about new comments",
     "added": "Bookmarked! You'll be notified about new comments on this post",
     "delete": "Remove bookmark and stop notifications",
     "deleted": "Dipinah dari bookmarks"
@@ -1640,7 +1640,7 @@
     "unMute": "Peu musue"
   },
   "favorite-btn": {
-    "add": "Favorite — get notified about new posts",
+    "add": "Favorite - get notified about new posts",
     "added": "Added to favorites! You'll be notified when they publish new posts",
     "delete": "Remove favorite and stop notifications",
     "deleted": "Removed from favorites"
