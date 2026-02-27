@@ -36,7 +36,7 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
           // onViewportEnter={() => setShowSidebar(true)}
           // onViewportLeave={() => setShowSidebar(false)}
           className={clsx(
-            " bg-white/80 dark:bg-dark-200/90 glass-box rounded-none sm:rounded-xl lg:min-w-[280px] lg:max-w-[280px] w-full",
+            "bg-white/80 dark:bg-dark-200/90 glass-box rounded-none sm:rounded-xl lg:min-w-[280px] lg:max-w-[280px] w-full overflow-hidden",
             showSidebar ? "static" : "md:absolute"
           )}
         >
@@ -46,7 +46,7 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
             <meta itemProp="name" content={account?.profile?.name || account?.name} />
           </span>
         </motion.div>
-        <div className="w-full">
+        <div className="w-full min-w-0">
           <ProfileMenu username={(username as string).replace("%40", "")} />
           <ProfileSearch username={(username as string).replace("%40", "")} />
 
