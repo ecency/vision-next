@@ -447,7 +447,7 @@
     "settings-2": "preferencias de visualización"
   },
   "bookmark-btn": {
-    "add": "Marcador — recibir notificaciones de nuevos comentarios",
+    "add": "Marcador - Recibe notificaciones de nuevos comentarios",
     "added": "¡Marcado! Serás notificado sobre nuevos comentarios en esta publicación",
     "delete": "Eliminar marcador y detener notificaciones",
     "deleted": "Eliminado de marcadores"
@@ -1640,7 +1640,7 @@
     "unMute": "Dejar de silenciar"
   },
   "favorite-btn": {
-    "add": "Favorite — recibir notificaciones sobre nuevos posts",
+    "add": "Favorito - recibir notificaciones sobre nuevos posts",
     "added": "¡Añadido a favoritos! Serás notificado cuando publiquen nuevos posts",
     "delete": "Eliminar notificaciones favoritas y detener",
     "deleted": "Eliminado de favoritos"
