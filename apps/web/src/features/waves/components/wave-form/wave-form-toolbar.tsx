@@ -3,6 +3,7 @@ import { WaveFormToolbarImagePicker } from "./wave-form-toolbar-image-picker";
 import { WaveFormEmojiPicker } from "./wave-form-emoji-picker";
 import { Button } from "@ui/button";
 import { UilChart } from "@tooni/iconscout-unicons-react";
+import { AiImageIcon } from "@/features/shared/ai-image-icon";
 import { PollsContext, PollsCreation } from "@/features/polls";
 import { EcencyConfigManager } from "@/config";
 import i18next from "i18next";
@@ -48,11 +49,10 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disab
         >
           <Button
             appearance="gray-link"
+            icon={<AiImageIcon />}
             onClick={() => setShowAiGenerator(true)}
             disabled={disabled}
-          >
-            {i18next.t("ai-image-generator.toolbar-button")}
-          </Button>
+          />
         </EcencyConfigManager.Conditional>
         <PollsCreation
           existingPoll={activePoll}

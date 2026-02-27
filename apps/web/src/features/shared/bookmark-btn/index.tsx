@@ -57,12 +57,18 @@ export function BookmarkBtn({ entry }: Props) {
     () => error(i18next.t("g.server-error"))
   );
 
+  const bookmarkIcon = (
+    <NotificationBadgeIcon>
+      <UilBookmark />
+    </NotificationBadgeIcon>
+  );
+
   if (!activeUser) {
     // Show button that triggers login when clicked
     return (
       <div className="bookmark-btn" onClick={() => toggleUiProp("login")}>
         <Tooltip content={i18next.t("bookmark-btn.add")}>
-          <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+          <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
         </Tooltip>
       </div>
     );
@@ -78,11 +84,7 @@ export function BookmarkBtn({ entry }: Props) {
           <Button
             appearance="gray-link"
             size="sm"
-            icon={
-              <NotificationBadgeIcon>
-                <UilBookmark />
-              </NotificationBadgeIcon>
-            }
+            icon={bookmarkIcon}
           />
         </Tooltip>
       </div>
@@ -95,7 +97,7 @@ export function BookmarkBtn({ entry }: Props) {
       onClick={() => addBookmark({ author: entry.author, permlink: entry.permlink })}
     >
       <Tooltip content={i18next.t("bookmark-btn.add")}>
-        <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+        <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
       </Tooltip>
     </div>
   );

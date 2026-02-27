@@ -54,13 +54,19 @@ export function FavoriteBtn({ targetUsername }: Props) {
   );
   const canMutate = !!accessToken;
 
+  const favoriteIcon = (
+    <NotificationBadgeIcon>
+      <UilHeart />
+    </NotificationBadgeIcon>
+  );
+
   return (
     <>
       {!activeUser && (
         <LoginRequired>
           <span className="favorite-btn">
             <Tooltip content={i18next.t("favorite-btn.add")}>
-              <Button size="sm" icon={<UilHeart />} />
+              <Button size="sm" icon={favoriteIcon} />
             </Tooltip>
           </span>
         </LoginRequired>
@@ -73,7 +79,7 @@ export function FavoriteBtn({ targetUsername }: Props) {
             noPadding={true}
             className="w-8"
             disabled={true}
-            icon={<UilHeart />}
+            icon={favoriteIcon}
           />
         </Tooltip>
       )}
@@ -86,15 +92,7 @@ export function FavoriteBtn({ targetUsername }: Props) {
             className="w-8"
             isLoading={inProgress}
             onClick={() => (favorited ? deleteFrom(targetUsername) : add(targetUsername))}
-            icon={
-              favorited ? (
-                <NotificationBadgeIcon>
-                  <UilHeart />
-                </NotificationBadgeIcon>
-              ) : (
-                <UilHeart />
-              )
-            }
+            icon={favoriteIcon}
           />
         </Tooltip>
       )}

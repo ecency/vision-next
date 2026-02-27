@@ -73,6 +73,7 @@ import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
 import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
+import { AiImageIcon } from "@/features/shared/ai-image-icon";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -400,10 +401,9 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               <Button
                 appearance="gray-link"
                 size="sm"
+                icon={<AiImageIcon />}
                 onClick={() => setShowAiGenerator(true)}
-              >
-                {i18next.t("ai-image-generator.toolbar-button")}
-              </Button>
+              />
             </LoginRequired>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
