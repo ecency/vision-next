@@ -3236,5 +3236,39 @@
         "step-link-description": "Sfinalizuj powiązanie portfela z kontem Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Generuj obrazy z opisów tekstowych za pomocą AI. Koszty są odliczane od Twoich Punktów Ecencji.",
+    "toolbar-button": "Obraz SI",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Twórz obrazy z komunikatów tekstowych za pomocą AI, zasilane przez Punkty Ecencji",
+    "prompt-label": "Opisz obraz, który chcesz utworzyć",
+    "prompt-placeholder": "Piękny zachód słońca nad górami z fioletową chmurą...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Współczynnik proporcji",
+    "cost-label": "Koszt",
+    "balance-label": "Saldo",
+    "generate-button": "Generuj obraz",
+    "generating": "Generowanie zdjęcia...",
+    "result-title": "Wygenerowany obraz",
+    "insert-button": "Wstaw do posta",
+    "download-button": "Pobierz",
+    "generate-again": "Wygeneruj ponownie",
+    "history-title": "Ostatnie generacje",
+    "history-empty": "Brak historii generowania",
+    "success": "Zdjęcie wygenerowane pomyślnie!",
+    "error-insufficient-points": "Niewystarczająca ilość punktów. Potrzebujesz {{required}} , ale masz {{available}}.",
+    "error-content-policy": "Twój monit został odrzucony przez zasady zawartości. Punkty nie zostały zwrócone. Spróbuj użyć innego monitu.",
+    "error-rate-limit": "Zbyt wiele żądań generacji. Proszę poczekać chwilę i spróbować ponownie.",
+    "error-auth": "Uwierzytelnianie wygasło. Odśwież stronę i spróbuj ponownie.",
+    "error-generic": "Generowanie obrazu nie powiodło się. Spróbuj ponownie.",
+    "error-prompt-required": "Proszę podać monit",
+    "error-prompt-too-long": "Ostrzeżenie musi zawierać 1000 lub mniej znaków",
+    "points-unit": "PUNKTY",
+    "save-to-gallery": "Zapisz w galerii",
+    "save-to-gallery-success": "Obraz zapisany na twojej galerii!",
+    "save-to-gallery-error": "Nie udało się zapisać obrazu do galerii. Spróbuj ponownie."
   }
 }
