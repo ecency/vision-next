@@ -3236,5 +3236,39 @@
         "step-link-description": "Finalize wallet linking to Ecency account"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Generate images from text descriptions using AI. Costs are deducted from your Ecency Points.",
+    "toolbar-button": "AI Image",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Create images from text prompts using AI, powered by your Ecency Points",
+    "prompt-label": "Describe the image you want to create",
+    "prompt-placeholder": "A beautiful sunset over mountains with purple clouds...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Aspect ratio",
+    "cost-label": "Cost",
+    "balance-label": "Balance",
+    "generate-button": "Generate Image",
+    "generating": "Generating your image...",
+    "result-title": "Generated Image",
+    "insert-button": "Insert into post",
+    "download-button": "Download",
+    "generate-again": "Generate Again",
+    "history-title": "Recent Generations",
+    "history-empty": "No generation history yet",
+    "success": "Image generated successfully!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Your prompt was rejected by content policy. Points were not refunded. Please try a different prompt.",
+    "error-rate-limit": "Too many generation requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "Image generation failed. Please try again.",
+    "error-prompt-required": "Please enter a prompt",
+    "error-prompt-too-long": "Prompt must be 1000 characters or fewer",
+    "points-unit": "POINTS",
+    "save-to-gallery": "Save to Gallery",
+    "save-to-gallery-success": "Image saved to your gallery!",
+    "save-to-gallery-error": "Failed to save image to gallery. Please try again."
   }
 }
