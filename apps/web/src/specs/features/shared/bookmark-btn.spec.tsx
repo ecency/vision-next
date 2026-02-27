@@ -18,7 +18,8 @@ vi.mock("@tanstack/react-query", () => ({
 }));
 
 vi.mock("@tooni/iconscout-unicons-react", () => ({
-  UilBookmark: () => <svg data-testid="bookmark-icon" />
+  UilBookmark: () => <svg data-testid="bookmark-icon" />,
+  UilBell: () => <svg data-testid="bell-icon" />
 }));
 
 describe("BookmarkBtn", () => {
