@@ -447,7 +447,7 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Bladwijzer — krijg een melding over nieuwe reacties",
+    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
     "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
     "delete": "Bladwijzer verwijderen en meldingen stoppen",
     "deleted": "Verwijderd van bladwijzers"
@@ -1640,7 +1640,7 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Favoriet — krijg meldingen over nieuwe berichten",
+    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
     "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
     "delete": "Favoriet verwijderen en meldingen stoppen",
     "deleted": "Verwijderd uit favorieten"
