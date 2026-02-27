@@ -496,4 +496,12 @@ export const QueryKeys = {
     statusCheck: (gameType: string, username: string) =>
       ["games", "status-check", gameType, username],
   },
+
+  // ===========================================================================
+  // AI
+  // ===========================================================================
+  ai: {
+    prices: () => ["ai", "prices"] as const,
+    _prefix: ["ai"],
+  },
 } as const;

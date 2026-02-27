@@ -110,6 +110,9 @@ const CONFIG = {
           gMapsMapId: process.env.NEXT_PUBLIC_GMAPS_MAP_ID,
           gMapsApiKey: process.env.NEXT_PUBLIC_GMAPS_API_KEY
         }
+      },
+      aiImageGenerator: {
+        enabled: true
       }
     },
     service: {

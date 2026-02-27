@@ -94,6 +94,13 @@ const PublishEditorGeoTagDialog = dynamic(
   })),
   { ssr: false }
 );
+
+const AiImageGeneratorDialog = dynamic(
+  () => import("@/features/shared/ai-image-generator").then((m) => ({
+    default: m.AiImageGeneratorDialog
+  })),
+  { ssr: false }
+);
 import clsx from "clsx";
 import { TEXT_COLORS, normalizeTextColor } from "../_constants/text-colors";
 
@@ -182,6 +189,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
+  const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const attachVideo = usePublishVideoAttach(editor);
@@ -429,6 +437,22 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </Button>
         </StyledTooltip>
 
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                onClick={() => setShowAiGenerator(true)}
+              >
+                {i18next.t("ai-image-generator.toolbar-button")}
+              </Button>
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
           <LoginRequired>
             <Dropdown>
@@ -606,6 +630,24 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShowVideoLink(false);
           }}
         />
+        {showAiGenerator && (
+          <AiImageGeneratorDialog
+            show={showAiGenerator}
+            setShow={setShowAiGenerator}
+            onInsert={(url) => {
+              editor
+                ?.chain()
+                .focus()
+                .insertContent([
+                  { type: "image", attrs: { src: url } },
+                  { type: "paragraph" },
+                  { type: "paragraph" },
+                ])
+                .run();
+              setShowAiGenerator(false);
+            }}
+          />
+        )}
         {showGeoTag && (
           <PublishEditorGeoTagDialog
             show={showGeoTag}

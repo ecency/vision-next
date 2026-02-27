@@ -1,3 +1,4 @@
+export * from "./modules/ai";
 export * from "./modules/accounts";
 export * from "./modules/operations";
 export * from "./modules/core";
