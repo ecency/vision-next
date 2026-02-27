@@ -3236,5 +3236,39 @@
         "step-link-description": "Finalizza il collegamento del portafoglio all'account Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Generare immagini da descrizioni di testo utilizzando AI. I costi sono detratti dai vostri Ecency Points.",
+    "toolbar-button": "Immagine AI",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Crea immagini da messaggi di testo utilizzando AI, alimentato dai tuoi Ecency Points",
+    "prompt-label": "Descrivi l'immagine che vuoi creare",
+    "prompt-placeholder": "Un bel tramonto sulle montagne con nuvole viola...",
+    "prompt-chars-remaining": "{{count}} caratteri rimanenti",
+    "select-aspect-ratio": "Rapporto dimensioni",
+    "cost-label": "Costo",
+    "balance-label": "Saldo",
+    "generate-button": "Genera Immagine",
+    "generating": "Generazione immagine...",
+    "result-title": "Immagine Generata",
+    "insert-button": "Inserisci nel post",
+    "download-button": "Scarica",
+    "generate-again": "Genera Di Nuovo",
+    "history-title": "Generazioni Recenti",
+    "history-empty": "Ancora nessuna cronologia di generazione",
+    "success": "Immagine generata con successo!",
+    "error-insufficient-points": "Punti insufficienti. Hai bisogno di {{required}} ma hai {{available}}",
+    "error-content-policy": "Il prompt è stato rifiutato dalla politica dei contenuti. I punti non sono stati rimborsati. Si prega di provare un prompt diverso.",
+    "error-rate-limit": "Troppe richieste di generazione. Si prega di attendere un momento e riprovare.",
+    "error-auth": "Autenticazione scaduta. Per favore aggiorna la pagina e riprova.",
+    "error-generic": "Generazione immagine non riuscita. Riprova.",
+    "error-prompt-required": "Inserisci un prompt",
+    "error-prompt-too-long": "Il prompt deve contenere almeno 1000 caratteri",
+    "points-unit": "PUNTI",
+    "save-to-gallery": "Salva nella Galleria",
+    "save-to-gallery-success": "Immagine salvata nella tua galleria!",
+    "save-to-gallery-error": "Impossibile salvare l'immagine nella galleria. Per favore riprova."
   }
 }
