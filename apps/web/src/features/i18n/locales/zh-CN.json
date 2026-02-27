@@ -3236,5 +3236,39 @@
         "step-link-description": "完成连接到生态帐户的钱包"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "使用AI生成文本描述中的图像。成本将从您的生态点中扣除。",
+    "toolbar-button": "AI 图像",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "使用您的生态点来创建来自文本提示的图像",
+    "prompt-label": "描述您想要创建的图像",
+    "prompt-placeholder": "一个美丽的日落在山上，有紫色云...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "纵横比",
+    "cost-label": "费用",
+    "balance-label": "余额",
+    "generate-button": "生成图像",
+    "generating": "正在生成您的图像...",
+    "result-title": "生成的图像",
+    "insert-button": "插入到帖子",
+    "download-button": "下载",
+    "generate-again": "再次生成",
+    "history-title": "最近几代人",
+    "history-empty": "还没有历史记录",
+    "success": "图像生成成功！",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "您的提示被内容策略拒绝。点数未退还。请尝试其他提示。",
+    "error-rate-limit": "生成请求太多。请稍等，然后重试。",
+    "error-auth": "认证过期。请刷新页面并重试。",
+    "error-generic": "图像生成失败。请重试。",
+    "error-prompt-required": "请输入提示",
+    "error-prompt-too-long": "提示必须是1000个或更少字符",
+    "points-unit": "点数",
+    "save-to-gallery": "保存到相册",
+    "save-to-gallery-success": "图片保存到您的相册！",
+    "save-to-gallery-error": "无法将图像保存到图库。请重试。"
   }
 }
