@@ -8,7 +8,8 @@ import {
   useBookmarkDelete
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilBell, UilBookmark } from "@tooni/iconscout-unicons-react";
+import { UilBookmark } from "@tooni/iconscout-unicons-react";
+import { NotificationBadgeIcon } from "../notification-badge-icon";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -78,10 +79,9 @@ export function BookmarkBtn({ entry }: Props) {
             appearance="gray-link"
             size="sm"
             icon={
-              <span className="relative inline-flex">
+              <NotificationBadgeIcon>
                 <UilBookmark />
-                <UilBell className="absolute -top-1 -right-1.5 !h-3 !w-3" />
-              </span>
+              </NotificationBadgeIcon>
             }
           />
         </Tooltip>

@@ -635,7 +635,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           <AiImageGeneratorDialog
             show={showAiGenerator}
             setShow={setShowAiGenerator}
-            suggestedPrompt={publishState.title || undefined}
+            suggestedPrompt={publishState.title?.trim() || undefined}
             onInsert={(url) => {
               editor
                 ?.chain()

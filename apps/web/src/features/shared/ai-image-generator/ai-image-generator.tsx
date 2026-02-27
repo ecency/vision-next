@@ -208,7 +208,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         <div className={clsx("text-xs mt-1", charsRemaining < 50 ? "text-red" : "opacity-50")}>
           {i18next.t("ai-image-generator.prompt-chars-remaining", { count: charsRemaining })}
         </div>
-        {suggestedPrompt && !prompt && (
+        {suggestedPrompt && !prompt.trim() && (
           <button
             type="button"
             className="text-xs mt-2 px-3 py-1.5 rounded-full border border-blue-dark-sky/30 bg-blue-dark-sky/5 text-blue-dark-sky hover:bg-blue-dark-sky/10 transition-colors truncate max-w-full text-left"
