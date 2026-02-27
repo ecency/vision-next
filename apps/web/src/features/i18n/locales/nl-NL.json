@@ -3236,5 +3236,39 @@
         "step-link-description": "Portemonnee koppelen aan Ecency account afronden"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Genereer afbeeldingen van tekstbeschrijvingen met behulp van AI. Kosten worden van je Ecency Points afgetrokken.",
+    "toolbar-button": "AI afbeelding",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Maak afbeeldingen van tekst prompts met behulp van AI, aangedreven door je Ecency Points",
+    "prompt-label": "Beschrijf de afbeelding die u wilt maken",
+    "prompt-placeholder": "Een prachtige zonsondergang over bergen met paarse wolken...",
+    "prompt-chars-remaining": "{{count}} resterende tekens",
+    "select-aspect-ratio": "Aspect verhouding",
+    "cost-label": "Kosten",
+    "balance-label": "Saldo",
+    "generate-button": "Afbeelding genereren",
+    "generating": "Bezig met aanmaken afbeelding...",
+    "result-title": "Gegenereerde afbeelding",
+    "insert-button": "Invoegen in bericht",
+    "download-button": "downloaden",
+    "generate-again": "Opnieuw genereren",
+    "history-title": "Recente generaties",
+    "history-empty": "Nog geen generatie geschiedenis",
+    "success": "Afbeelding met succes gegenereerd!",
+    "error-insufficient-points": "Onvoldoende punten. Je hebt {{required}} nodig maar {{available}}.",
+    "error-content-policy": "Je prompt werd geweigerd door het inhoudsbeleid. Punten werden niet terugbetaald. Probeer een ander verzoek.",
+    "error-rate-limit": "Te veel generatie verzoeken. Wacht even en probeer het opnieuw.",
+    "error-auth": "Verificatie is verlopen. Vernieuw de pagina en probeer het opnieuw.",
+    "error-generic": "Aanmaken van afbeeldingen is mislukt. Probeer het opnieuw.",
+    "error-prompt-required": "Gelieve een prompt in te voeren",
+    "error-prompt-too-long": "Vraag moet 1000 tekens of minder zijn",
+    "points-unit": "PUNTEN",
+    "save-to-gallery": "Opslaan in galerij",
+    "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
+    "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw."
   }
 }
