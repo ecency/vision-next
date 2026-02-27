@@ -447,9 +447,9 @@
     "settings-2": "प्रदर्शन प्राथमिकताएँ"
   },
   "bookmark-btn": {
-    "add": "बुकमार्क्स में जोड़ें",
-    "added": "पृष्ठ स्मृति में जुड़ गया",
-    "delete": "बुकमार्क से हटाया",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Bookmarked! You'll be notified about new comments on this post",
+    "delete": "Remove bookmark and stop notifications",
     "deleted": "बुकमार्क से हटाया"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "मौन तोड़ें"
   },
   "favorite-btn": {
-    "add": "पसंदीदा में जोड़ें",
-    "added": "पसंदीदा में जोड़ें",
-    "delete": "पसंदीदा से हटाएं",
+    "add": "Favorite — get notified about new posts",
+    "added": "Added to favorites! You'll be notified when they publish new posts",
+    "delete": "Remove favorite and stop notifications",
     "deleted": "पसंदीदा से निकाला गया।"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "POINTS",
     "save-to-gallery": "Save to Gallery",
     "save-to-gallery-success": "Image saved to your gallery!",
-    "save-to-gallery-error": "Failed to save image to gallery. Please try again."
+    "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
+    "use-suggestion": "Use: {{suggestion}}"
   }
 }
