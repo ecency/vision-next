@@ -447,9 +447,9 @@
     "settings-2": "ustawienia wyświetlania"
   },
   "bookmark-btn": {
-    "add": "Dodaj do zakładek",
-    "added": "Dodano do zakładek",
-    "delete": "Usuń z zakładek",
+    "add": "Zakładka – otrzymuj powiadomienia o nowych komentarzach",
+    "added": "Zakładki! Zostaniesz powiadomiony o nowych komentarzach do tego wpisu",
+    "delete": "Usuń zakładkę i zatrzymaj powiadomienia",
     "deleted": "Usunięto z zakładek"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "Wyłącz wyciszenie"
   },
   "favorite-btn": {
-    "add": "Dodaj do ulubionych",
-    "added": "Dodano do ulubionych",
-    "delete": "Usuń z ulubionych",
+    "add": "Ulubione - otrzymuj powiadomienia o nowych postach",
+    "added": "Dodane do ulubionych! Zostaniesz powiadomiony, gdy opublikują nowe posty",
+    "delete": "Usuń ulubione i zatrzymaj powiadomienia",
     "deleted": "Usunięto z ulubionych"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "PUNKTY",
     "save-to-gallery": "Zapisz w galerii",
     "save-to-gallery-success": "Obraz zapisany na twojej galerii!",
-    "save-to-gallery-error": "Nie udało się zapisać obrazu do galerii. Spróbuj ponownie."
+    "save-to-gallery-error": "Nie udało się zapisać obrazu do galerii. Spróbuj ponownie.",
+    "use-suggestion": "Użycie: {{suggestion}}"
   }
 }
