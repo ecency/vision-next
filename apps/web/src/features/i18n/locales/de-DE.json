@@ -447,7 +447,7 @@
     "settings-2": "Anzeigeeinstellungen"
   },
   "bookmark-btn": {
-    "add": "Lesezeichen — über neue Kommentare benachrichtigt werden",
+    "add": "Lesezeichen - über neue Kommentare benachrichtigt werden",
     "added": "Lesezeichen! Du wirst über neue Kommentare zu diesem Beitrag benachrichtigt",
     "delete": "Lesezeichen entfernen und Benachrichtigungen stoppen",
     "deleted": "Von den Lesezeichen entfernt"
@@ -1640,7 +1640,7 @@
     "unMute": "Ton an"
   },
   "favorite-btn": {
-    "add": "Favorit — über neue Beiträge benachrichtigt werden",
+    "add": "Favorit - über neue Beiträge benachrichtigt werden",
     "added": "Zu Favoriten hinzugefügt! Du wirst benachrichtigt, wenn neue Beiträge veröffentlicht werden",
     "delete": "Favoriten entfernen und Benachrichtigungen stoppen",
     "deleted": "Aus Favoriten entfernt"
