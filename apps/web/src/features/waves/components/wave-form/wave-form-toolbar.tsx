@@ -22,9 +22,10 @@ interface Props {
   submit?: ReactNode;
   isEdit?: boolean;
   disabled?: boolean;
+  suggestedPrompt?: string;
 }
 
-export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disabled }: Props) => {
+export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disabled, suggestedPrompt }: Props) => {
   const { activePoll, setActivePoll, clearActivePoll } = useContext(PollsContext);
   const [show, setShow] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
@@ -66,6 +67,7 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disab
         <AiImageGeneratorDialog
           show={showAiGenerator}
           setShow={setShowAiGenerator}
+          suggestedPrompt={suggestedPrompt}
           onInsert={(url) => {
             onAddImage(url, "ai-generated");
             setShowAiGenerator(false);

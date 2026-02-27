@@ -382,51 +382,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
-        <div className="relative">
-          <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
-            <Button
-              ref={emojiButtonRef}
-              appearance="gray-link"
-              size="sm"
-              icon={<UilSmile />}
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            />
-          </StyledTooltip>
-          {showEmojiPicker && (
-            <EmojiPicker
-              show={showEmojiPicker}
-              changeState={(state) => setShowEmojiPicker(state)}
-              onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
-              buttonRef={emojiButtonRef}
-            />
-          )}
-        </div>
-
-        <StyledTooltip
-            content={i18next.t("publish.action-bar.color", { defaultValue: "Text color" })}
-        >
-          <Dropdown>
-            <DropdownToggle>
-              <Button
-                  appearance={activeTextColor ? "link" : "gray-link"}
-                  size="sm"
-                  icon={
-                    <span className="relative flex items-center justify-center">
-                    <UilPalette />
-                    <span
-                        className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-white shadow"
-                        style={{ backgroundColor: activeTextColor ?? "transparent" }}
-                    />
-                  </span>
-                  }
-              />
-            </DropdownToggle>
-            <DropdownMenu size="small" className="!min-w-[200px] gap-3">
-              <PublishEditorToolbarColorPalette editor={editor} />
-            </DropdownMenu>
-          </Dropdown>
-        </StyledTooltip>
-
         <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
           <Button
             appearance="gray-link"
@@ -516,6 +471,52 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             />
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
+
+        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        <div className="relative">
+          <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
+            <Button
+              ref={emojiButtonRef}
+              appearance="gray-link"
+              size="sm"
+              icon={<UilSmile />}
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
+          </StyledTooltip>
+          {showEmojiPicker && (
+            <EmojiPicker
+              show={showEmojiPicker}
+              changeState={(state) => setShowEmojiPicker(state)}
+              onSelect={(e) => editor?.chain().focus().insertContent(e).run()}
+              buttonRef={emojiButtonRef}
+            />
+          )}
+        </div>
+
+        <StyledTooltip
+            content={i18next.t("publish.action-bar.color", { defaultValue: "Text color" })}
+        >
+          <Dropdown>
+            <DropdownToggle>
+              <Button
+                  appearance={activeTextColor ? "link" : "gray-link"}
+                  size="sm"
+                  icon={
+                    <span className="relative flex items-center justify-center">
+                    <UilPalette />
+                    <span
+                        className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-white shadow"
+                        style={{ backgroundColor: activeTextColor ?? "transparent" }}
+                    />
+                  </span>
+                  }
+              />
+            </DropdownToggle>
+            <DropdownMenu size="small" className="!min-w-[200px] gap-3">
+              <PublishEditorToolbarColorPalette editor={editor} />
+            </DropdownMenu>
+          </Dropdown>
+        </StyledTooltip>
 
         {/*Dialogs*/}
         <PublishEditorToolbarFragments
@@ -634,6 +635,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           <AiImageGeneratorDialog
             show={showAiGenerator}
             setShow={setShowAiGenerator}
+            suggestedPrompt={publishState.title?.trim() || undefined}
             onInsert={(url) => {
               editor
                 ?.chain()

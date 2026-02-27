@@ -7,6 +7,7 @@ import {
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilHeart } from "@tooni/iconscout-unicons-react";
+import { NotificationBadgeIcon } from "../notification-badge-icon";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -85,7 +86,15 @@ export function FavoriteBtn({ targetUsername }: Props) {
             className="w-8"
             isLoading={inProgress}
             onClick={() => (favorited ? deleteFrom(targetUsername) : add(targetUsername))}
-            icon={<UilHeart />}
+            icon={
+              favorited ? (
+                <NotificationBadgeIcon>
+                  <UilHeart />
+                </NotificationBadgeIcon>
+              ) : (
+                <UilHeart />
+              )
+            }
           />
         </Tooltip>
       )}

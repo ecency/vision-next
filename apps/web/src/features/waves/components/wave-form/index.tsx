@@ -285,6 +285,7 @@ const WaveFormComponent = ({
         <WaveFormToolbar
           isEdit={!!entry}
           disabled={formInteractivityDisabled}
+          suggestedPrompt={text?.trim() || undefined}
           onAddImage={(url, name) => {
             setImage(url);
             setImageName(name);
