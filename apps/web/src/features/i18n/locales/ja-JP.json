@@ -3236,5 +3236,39 @@
         "step-link-description": "Ecency アカウントへのリンクを完了する"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "AIを使用してテキスト説明から画像を生成します。Ecency Pointsからコストが差し引かれます。",
+    "toolbar-button": "AI 画像",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "AIを使用してテキストプロンプトから画像を作成します。Ecency Pointsを使用します。",
+    "prompt-label": "作成したい画像を記述してください",
+    "prompt-placeholder": "紫色の雲のある山の上に美しい夕日。",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "アスペクト比",
+    "cost-label": "コスト",
+    "balance-label": "残高",
+    "generate-button": "画像を生成する",
+    "generating": "画像を生成しています...",
+    "result-title": "生成された画像",
+    "insert-button": "ポストに挿入",
+    "download-button": "ダウンロード",
+    "generate-again": "もう一度生成",
+    "history-title": "最近の世代",
+    "history-empty": "生成履歴はまだありません",
+    "success": "画像が正常に生成されました！",
+    "error-insufficient-points": "ポイントが足りません。 {{required}} が必要ですが、 {{available}} が必要です。",
+    "error-content-policy": "あなたのプロンプトはコンテンツポリシーによって拒否されました。ポイントは返金されませんでした。別のプロンプトを試してください。",
+    "error-rate-limit": "世代リクエストが多すぎます。しばらく待ってからもう一度お試しください。",
+    "error-auth": "認証の有効期限が切れました。ページを更新してもう一度お試しください。",
+    "error-generic": "画像の生成に失敗しました。もう一度やり直してください。",
+    "error-prompt-required": "プロンプトを入力してください",
+    "error-prompt-too-long": "プロンプトは1000文字以下でなければなりません",
+    "points-unit": "ポイント",
+    "save-to-gallery": "ギャラリーに保存",
+    "save-to-gallery-success": "画像をギャラリーに保存しました！",
+    "save-to-gallery-error": "ギャラリーに画像を保存できませんでした。もう一度やり直してください。"
   }
 }
