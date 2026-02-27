@@ -4,6 +4,15 @@ import { WaveFormEmojiPicker } from "./wave-form-emoji-picker";
 import { Button } from "@ui/button";
 import { UilChart } from "@tooni/iconscout-unicons-react";
 import { PollsContext, PollsCreation } from "@/features/polls";
+import { EcencyConfigManager } from "@/config";
+import dynamic from "next/dynamic";
+
+const AiImageGeneratorDialog = dynamic(
+  () => import("@/features/shared/ai-image-generator").then((m) => ({
+    default: m.AiImageGeneratorDialog
+  })),
+  { ssr: false }
+);
 
 interface Props {
   onAddImage: (url: string, name: string) => void;
@@ -17,6 +26,7 @@ interface Props {
 export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disabled }: Props) => {
   const { activePoll, setActivePoll, clearActivePoll } = useContext(PollsContext);
   const [show, setShow] = useState(false);
+  const [showAiGenerator, setShowAiGenerator] = useState(false);
 
   return (
     <div className="flex items-center justify-between py-4">
@@ -31,6 +41,17 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disab
             disabled={disabled}
           />
         )}
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+        >
+          <Button
+            appearance="gray-link"
+            onClick={() => setShowAiGenerator(true)}
+            disabled={disabled}
+          >
+            AI
+          </Button>
+        </EcencyConfigManager.Conditional>
         <PollsCreation
           existingPoll={activePoll}
           show={show}
@@ -40,6 +61,16 @@ export const WaveFormToolbar = ({ onAddImage, onEmojiPick, submit, isEdit, disab
         />
       </div>
       {submit}
+      {showAiGenerator && (
+        <AiImageGeneratorDialog
+          show={showAiGenerator}
+          setShow={setShowAiGenerator}
+          onInsert={(url) => {
+            onAddImage(url, "ai-generated");
+            setShowAiGenerator(false);
+          }}
+        />
+      )}
     </div>
   );
 };
