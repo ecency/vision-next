@@ -1,6 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, getBoundFetch } from "../../core";
-import { QueryKeys } from "../../core";
+import { CONFIG, getBoundFetch, QueryKeys } from "../../core";
 import type { AiGenerationPrice } from "../types";
 
 export function getAiGeneratePriceQueryOptions(accessToken: string) {
