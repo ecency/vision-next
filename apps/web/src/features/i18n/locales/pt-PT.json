@@ -447,9 +447,9 @@
     "settings-2": "visualizar preferências"
   },
   "bookmark-btn": {
-    "add": "Adicionar aos favoritos",
-    "added": "Adicionado aos favoritos",
-    "delete": "Remover de Favoritos",
+    "add": "Favorito — seja notificado sobre novos comentários",
+    "added": "Favoritos! Você será notificado sobre novos comentários nesta publicação",
+    "delete": "Remover os favoritos e parar notificações",
     "deleted": "Removido dos favoritos"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "Reativar o som"
   },
   "favorite-btn": {
-    "add": "Adicionar aos favoritos",
-    "added": "Adicionado aos favoritos",
-    "delete": "Remover dos favoritos",
+    "add": "Favorito - seja notificado sobre novas publicações",
+    "added": "Adicionado aos favoritos! Você será notificado quando publicar novas postagens",
+    "delete": "Remover favoritos e parar notificações",
     "deleted": "Removido dos favoritos"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "PONTOS",
     "save-to-gallery": "Salvar na Galeria",
     "save-to-gallery-success": "Imagem salva em sua galeria!",
-    "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente."
+    "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente.",
+    "use-suggestion": "Uso: {{suggestion}}"
   }
 }
