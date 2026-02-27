@@ -8,7 +8,7 @@ import {
   useBookmarkDelete
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilBookmark } from "@tooni/iconscout-unicons-react";
+import { UilBell, UilBookmark } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -74,7 +74,16 @@ export function BookmarkBtn({ entry }: Props) {
         onClick={() => deleteBookmark(bookmarkId)}
       >
         <Tooltip content={i18next.t("bookmark-btn.delete")}>
-          <Button appearance="gray-link" size="sm" icon={<UilBookmark color="green" />} />
+          <Button
+            appearance="gray-link"
+            size="sm"
+            icon={
+              <span className="relative inline-flex">
+                <UilBookmark />
+                <UilBell className="absolute -top-1 -right-1.5 !h-3 !w-3" />
+              </span>
+            }
+          />
         </Tooltip>
       </div>
     );

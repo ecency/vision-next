@@ -6,7 +6,7 @@ import {
   useAccountFavoriteDelete
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { UilHeart } from "@tooni/iconscout-unicons-react";
+import { UilBell, UilHeart } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -85,7 +85,16 @@ export function FavoriteBtn({ targetUsername }: Props) {
             className="w-8"
             isLoading={inProgress}
             onClick={() => (favorited ? deleteFrom(targetUsername) : add(targetUsername))}
-            icon={<UilHeart />}
+            icon={
+              favorited ? (
+                <span className="relative inline-flex">
+                  <UilHeart />
+                  <UilBell className="absolute -top-1 -right-1.5 !h-3 !w-3" />
+                </span>
+              ) : (
+                <UilHeart />
+              )
+            }
           />
         </Tooltip>
       )}
