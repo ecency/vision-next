@@ -1642,7 +1642,7 @@
   "favorite-btn": {
     "add": "Favorito - recibir notificaciones sobre nuevos posts",
     "added": "¡Añadido a favoritos! Serás notificado cuando publiquen nuevos posts",
-    "delete": "Eliminar notificaciones favoritas y detener",
+    "delete": "Eliminar de favoritos y detener notificaciones",
     "deleted": "Eliminado de favoritos"
   },
   "editor-toolbar": {
@@ -3238,7 +3238,7 @@
     }
   },
   "ai-image-generator": {
-    "title": "AI Image Generator",
+    "title": "Generador de imagen con IA",
     "page-title": "AI Image Generator",
     "page-description": "Genera imágenes a partir de descripciones de texto usando IA. Los costos se dedican de sus puntos de ecuencia.",
     "toolbar-button": "Imagen IA",
@@ -3246,7 +3246,7 @@
     "perk-card-description": "Crea imágenes a partir de peticiones de texto usando AI, con tus Puntos de Ecencia",
     "prompt-label": "Describa la imagen que desea crear",
     "prompt-placeholder": "Una hermosa puesta de sol sobre montañas con nubes púrpuras...",
-    "prompt-chars-remaining": "{{count}} characters remaining",
+    "prompt-chars-remaining": "{{count}} caracteres restantes",
     "select-aspect-ratio": "Relación de aspecto",
     "cost-label": "Costo",
     "balance-label": "Saldo",
@@ -3270,6 +3270,6 @@
     "save-to-gallery": "Guardar en Galería",
     "save-to-gallery-success": "¡Imagen guardada en tu galería!",
     "save-to-gallery-error": "Error al guardar la imagen en la galería. Por favor, inténtalo de nuevo.",
-    "use-suggestion": "Uso: {{suggestion}}"
+    "use-suggestion": "Usa: {{suggestion}}"
   }
 }
