@@ -447,7 +447,7 @@
     "settings-2": "préférences d'affichage"
   },
   "bookmark-btn": {
-    "add": "Marque-page — être informé des nouveaux commentaires",
+    "add": "Signet - être informé des nouveaux commentaires",
     "added": "Marque-page ! Vous serez informé des nouveaux commentaires sur ce post",
     "delete": "Supprimer le signet et arrêter les notifications",
     "deleted": "Retiré des favoris"
@@ -1640,7 +1640,7 @@
     "unMute": "Enlever la sourdine"
   },
   "favorite-btn": {
-    "add": "Favoris — être informé des nouveaux messages",
+    "add": "Favori - être informé des nouveaux messages",
     "added": "Ajouté aux favoris ! Vous serez notifié quand il publiera de nouveaux messages",
     "delete": "Supprimer les favoris et arrêter les notifications",
     "deleted": "Supprimé des favoris"
