@@ -47,7 +47,7 @@ export function ProfileCover({ account }: Props) {
   const hideControls = activeUser && activeUser.username === account?.name;
 
   return [...Object.keys(ProfileFilter), "communities"].includes(section) ? (
-    <div className="profile-cover rounded-2xl overflow-hidden">
+    <div className="profile-cover rounded-none sm:rounded-2xl overflow-hidden">
       <div className="cover-image" style={style} />
       <div className="relative flex items-center justify-end w-full gap-2 p-4">
         <ProfileInfo account={account} />

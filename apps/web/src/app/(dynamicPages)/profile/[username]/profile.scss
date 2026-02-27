@@ -2,10 +2,10 @@
 
 .profile-page {
   .entry-list-body.grid-view {
-    @apply grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4;
+    @apply grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-0 sm:gap-4;
 
     .entry-list-item {
-      @apply w-full bg-white dark:bg-dark-200 rounded-xl p-4 mt-0;
+      @apply w-full bg-white dark:bg-dark-200 rounded-none sm:rounded-xl p-4 mt-0;
 
       .item-title {
         @apply line-clamp-1;
@@ -15,7 +15,7 @@
 
   .entry-list-body:not(.grid-view) {
     .entry-list-item {
-      @apply p-4 md:py-6 border-b mt-0 border-[--border-color] bg-white dark:bg-dark-200 first:border-t last:rounded-b-xl;
+      @apply p-4 md:py-6 border-b mt-0 border-[--border-color] bg-white dark:bg-dark-200 first:border-t last:rounded-b-none sm:last:rounded-b-xl;
     }
   }
 }
