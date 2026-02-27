@@ -3236,5 +3236,39 @@
         "step-link-description": "Wallet-Verlinkung zum Ecency Konto abschließen"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Erstellen Sie Bilder aus Textbeschreibungen mit Hilfe von AI. Kosten werden von Ihren Ecency Points abgezogen.",
+    "toolbar-button": "KI-Bild",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Erstelle Bilder aus Text-Eingabeaufforderungen mit KI, powered by your Ecency Points",
+    "prompt-label": "Beschreiben Sie das Bild, das Sie erstellen möchten",
+    "prompt-placeholder": "Ein schöner Sonnenuntergang über den Bergen mit violetten Wolken...",
+    "prompt-chars-remaining": "{{count}} Zeichen verbleibend",
+    "select-aspect-ratio": "Seitenverhältnis",
+    "cost-label": "Kosten",
+    "balance-label": "Saldo",
+    "generate-button": "Bild generieren",
+    "generating": "Erstelle dein Bild...",
+    "result-title": "Erstelltes Bild",
+    "insert-button": "In Beitrag einfügen",
+    "download-button": "Download",
+    "generate-again": "Erneut generieren",
+    "history-title": "Neueste Generationen",
+    "history-empty": "Noch kein Generationsverlauf",
+    "success": "Bild erfolgreich erstellt!",
+    "error-insufficient-points": "Unzureichende Punkte. Sie benötigen {{required}} aber {{available}}.",
+    "error-content-policy": "Ihre Eingabeaufforderung wurde durch Inhaltsrichtlinien abgelehnt. Punkte wurden nicht zurückerstattet. Bitte versuchen Sie eine andere Eingabeaufforderung.",
+    "error-rate-limit": "Zu viele Generationsanfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+    "error-auth": "Authentifizierung abgelaufen. Bitte aktualisieren Sie die Seite und versuchen Sie es erneut.",
+    "error-generic": "Bildgenerierung fehlgeschlagen. Bitte erneut versuchen.",
+    "error-prompt-required": "Bitte geben Sie eine Aufforderung ein",
+    "error-prompt-too-long": "Aufforderung muss mindestens 1000 Zeichen lang sein",
+    "points-unit": "PUNKTE",
+    "save-to-gallery": "In Galerie speichern",
+    "save-to-gallery-success": "Bild in Ihrer Galerie gespeichert!",
+    "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut."
   }
 }
