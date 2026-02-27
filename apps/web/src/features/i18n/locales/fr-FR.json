@@ -3236,5 +3236,39 @@
         "step-link-description": "Finaliser la liaison du portefeuille avec le compte Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Générer des images à partir de descriptions de texte à l'aide de l'IA. Les coûts sont déduits de vos Points d'Ecence.",
+    "toolbar-button": "Image IA",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Créez des images à partir de messages texte à l'aide de l'AI, propulsé par vos Points Ecency",
+    "prompt-label": "Décrivez l'image que vous voulez créer",
+    "prompt-placeholder": "Un beau coucher de soleil sur les montagnes avec des nuages violets...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Ratio d'aspect",
+    "cost-label": "Coûts",
+    "balance-label": "Solde",
+    "generate-button": "Générer une image",
+    "generating": "Génération de votre image...",
+    "result-title": "Image générée",
+    "insert-button": "Insérer dans le message",
+    "download-button": "Télécharger",
+    "generate-again": "Renouveler",
+    "history-title": "Génération récente",
+    "history-empty": "Pas encore d'historique de génération",
+    "success": "Image générée avec succès !",
+    "error-insufficient-points": "Points insuffisants. Vous avez besoin de {{required}} mais avez {{available}}.",
+    "error-content-policy": "Votre invite a été rejetée par la politique de contenu. Les points n'ont pas été remboursés. Veuillez essayer une autre prompt.",
+    "error-rate-limit": "Trop de demandes de génération. Veuillez patienter un instant et réessayer.",
+    "error-auth": "L'authentification a expiré. Veuillez actualiser la page et réessayer.",
+    "error-generic": "La génération de l'image a échoué. Veuillez réessayer.",
+    "error-prompt-required": "Veuillez entrer une invite",
+    "error-prompt-too-long": "L'invitation doit être de 1000 caractères ou moins",
+    "points-unit": "POINTS",
+    "save-to-gallery": "Enregistrer dans la galerie",
+    "save-to-gallery-success": "Image enregistrée dans votre galerie!",
+    "save-to-gallery-error": "Impossible d'enregistrer l'image dans la galerie. Veuillez réessayer."
   }
 }
