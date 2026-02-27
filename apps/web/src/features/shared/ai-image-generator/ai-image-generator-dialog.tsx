@@ -8,9 +8,10 @@ interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
   onInsert: (url: string) => void;
+  suggestedPrompt?: string;
 }
 
-export function AiImageGeneratorDialog({ show, setShow, onInsert }: Props) {
+export function AiImageGeneratorDialog({ show, setShow, onInsert, suggestedPrompt }: Props) {
   return (
     <Modal show={show} centered={true} onHide={() => setShow(false)} size="lg">
       <ModalHeader closeButton={true}>
@@ -19,6 +20,7 @@ export function AiImageGeneratorDialog({ show, setShow, onInsert }: Props) {
       <ModalBody>
         <AiImageGenerator
           showInsertAction={true}
+          suggestedPrompt={suggestedPrompt}
           onInsert={(url) => {
             onInsert(url);
             setShow(false);

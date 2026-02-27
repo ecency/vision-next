@@ -17,11 +17,12 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface Props {
   onInsert?: (url: string) => void;
   showInsertAction?: boolean;
+  suggestedPrompt?: string;
 }
 
 const ASPECT_RATIO_LABELS: Record<string, string> = {
@@ -34,7 +35,7 @@ const ASPECT_RATIO_LABELS: Record<string, string> = {
   "2:3": "2:3",
 };
 
-export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
+export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedPrompt }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
@@ -61,6 +62,13 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
   const [prompt, setPrompt] = useState("");
   const [selectedPrice, setSelectedPrice] = useState<AiGenerationPrice | null>(null);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (prices && prices.length > 0 && !selectedPrice) {
+      const defaultRatio = prices.find((p) => p.aspect_ratio === "4:3");
+      setSelectedPrice(defaultRatio ?? prices[0]);
+    }
+  }, [prices, selectedPrice]);
 
   const charsRemaining = 1000 - prompt.length;
 
@@ -200,6 +208,17 @@ export function AiImageGenerator({ onInsert, showInsertAction = true }: Props) {
         <div className={clsx("text-xs mt-1", charsRemaining < 50 ? "text-red" : "opacity-50")}>
           {i18next.t("ai-image-generator.prompt-chars-remaining", { count: charsRemaining })}
         </div>
+        {suggestedPrompt && !prompt && (
+          <button
+            type="button"
+            className="text-xs mt-2 px-3 py-1.5 rounded-full border border-blue-dark-sky/30 bg-blue-dark-sky/5 text-blue-dark-sky hover:bg-blue-dark-sky/10 transition-colors truncate max-w-full text-left"
+            onClick={() => setPrompt(suggestedPrompt.slice(0, 1000))}
+          >
+            {i18next.t("ai-image-generator.use-suggestion", {
+              suggestion: suggestedPrompt.length > 80 ? suggestedPrompt.slice(0, 80) + "…" : suggestedPrompt
+            })}
+          </button>
+        )}
       </div>
 
       <div>
