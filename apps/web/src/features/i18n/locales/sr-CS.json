@@ -447,9 +447,9 @@
     "settings-2": "display preferences"
   },
   "bookmark-btn": {
-    "add": "Dodaj u obeleživače",
-    "added": "Dodaj u obeleživače",
-    "delete": "Uklonjeno iz obeleživača",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Bookmarked! You'll be notified about new comments on this post",
+    "delete": "Remove bookmark and stop notifications",
     "deleted": "Uklonjeno iz obeleživača"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "Uključi"
   },
   "favorite-btn": {
-    "add": "Dodaj u omiljeno",
-    "added": "Dodato u omiljeno",
-    "delete": "Uklonjeno iz omiljeno",
+    "add": "Favorite — get notified about new posts",
+    "added": "Added to favorites! You'll be notified when they publish new posts",
+    "delete": "Remove favorite and stop notifications",
     "deleted": "Uklonjeno iz omiljeno"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "POINTS",
     "save-to-gallery": "Save to Gallery",
     "save-to-gallery-success": "Image saved to your gallery!",
-    "save-to-gallery-error": "Failed to save image to gallery. Please try again."
+    "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
+    "use-suggestion": "Use: {{suggestion}}"
   }
 }
