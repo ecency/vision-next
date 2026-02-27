@@ -3236,5 +3236,39 @@
         "step-link-description": "Finalizar la vinculación de la billetera a la cuenta Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Genera imágenes a partir de descripciones de texto usando IA. Los costos se dedican de sus puntos de ecuencia.",
+    "toolbar-button": "Imagen IA",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Crea imágenes a partir de peticiones de texto usando AI, con tus Puntos de Ecencia",
+    "prompt-label": "Describa la imagen que desea crear",
+    "prompt-placeholder": "Una hermosa puesta de sol sobre montañas con nubes púrpuras...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Relación de aspecto",
+    "cost-label": "Costo",
+    "balance-label": "Saldo",
+    "generate-button": "Generar imagen",
+    "generating": "Generando tu imagen...",
+    "result-title": "Imagen generada",
+    "insert-button": "Insertar en el post",
+    "download-button": "Descargar",
+    "generate-again": "Generar de nuevo",
+    "history-title": "Generaciones recientes",
+    "history-empty": "Aún no hay historial de generación",
+    "success": "Imagen generada con éxito!",
+    "error-insufficient-points": "Puntos insuficientes. Necesitas {{required}} pero tienes {{available}}.",
+    "error-content-policy": "Su petición ha sido rechazada por la política de contenido. Los puntos no han sido reembolsados. Por favor, intente otra petición.",
+    "error-rate-limit": "Demasiadas solicitudes de generación. Por favor, espere un momento y vuelva a intentarlo.",
+    "error-auth": "Autenticación caducada. Por favor, actualiza la página e inténtalo de nuevo.",
+    "error-generic": "Error al generar la imagen. Vuelve a intentarlo.",
+    "error-prompt-required": "Por favor ingrese un mensaje",
+    "error-prompt-too-long": "El cupón debe tener 1000 caracteres o menos",
+    "points-unit": "PUNTOS",
+    "save-to-gallery": "Guardar en Galería",
+    "save-to-gallery-success": "¡Imagen guardada en tu galería!",
+    "save-to-gallery-error": "Error al guardar la imagen en la galería. Por favor, inténtalo de nuevo."
   }
 }
