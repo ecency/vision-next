@@ -447,7 +447,7 @@
     "settings-2": "preferenze di visualizzazione"
   },
   "bookmark-btn": {
-    "add": "Segnalibro — per ricevere una notifica sui nuovi commenti",
+    "add": "Segnalibro - ricevi una notifica sui nuovi commenti",
     "added": "Segnalibro! Ti verranno notificati nuovi commenti su questo post",
     "delete": "Rimuovere il segnalibro e interrompere le notifiche",
     "deleted": "Rimosso dai segnalibri"
@@ -1640,7 +1640,7 @@
     "unMute": "Riattiva"
   },
   "favorite-btn": {
-    "add": "Preferito — ricevi una notifica sui nuovi post",
+    "add": "Preferito - ricevi una notifica sui nuovi post",
     "added": "Aggiunto ai preferiti! Sarai avvisato quando pubblicano nuovi post",
     "delete": "Rimuovi le notifiche preferite e interrompi",
     "deleted": "Rimosso dai favoriti"
