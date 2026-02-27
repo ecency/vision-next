@@ -447,9 +447,9 @@
     "settings-2": "显示首选项"
   },
   "bookmark-btn": {
-    "add": "添加到书签",
-    "added": "已添加到书签",
-    "delete": "从书签中删除",
+    "add": "书签-获得关于新评论的通知",
+    "added": "已加入书签！您将收到关于此帖子的新评论的通知",
+    "delete": "删除书签并停止通知",
     "deleted": "已从书签中删除"
   },
   "entry-reblog": {
@@ -1640,9 +1640,9 @@
     "unMute": "解除屏蔽"
   },
   "favorite-btn": {
-    "add": "添加到收藏夹",
-    "added": "已添加到收藏夹",
-    "delete": "从收藏夹中删除",
+    "add": "收藏夹 — 收到关于新帖子的通知",
+    "added": "添加到收藏夹！当您发布新帖子时会收到通知",
+    "delete": "删除收藏夹和停止通知",
     "deleted": "已从收藏夹移除"
   },
   "editor-toolbar": {
@@ -3269,6 +3269,7 @@
     "points-unit": "点数",
     "save-to-gallery": "保存到相册",
     "save-to-gallery-success": "图片保存到您的相册！",
-    "save-to-gallery-error": "无法将图像保存到图库。请重试。"
+    "save-to-gallery-error": "无法将图像保存到图库。请重试。",
+    "use-suggestion": "Use: {{suggestion}}"
   }
 }
