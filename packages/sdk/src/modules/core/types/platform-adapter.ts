@@ -297,8 +297,8 @@ export interface PlatformAdapter {
    * Record user activity for analytics (optional).
    *
    * @param activityType - Numeric activity type code
-   * @param blockNum - Block number of the activity
    * @param txId - Transaction ID
+   * @param blockNum - Block number of the activity
    *
    * @remarks
    * - Used for tracking user engagement
@@ -306,8 +306,8 @@ export interface PlatformAdapter {
    */
   recordActivity?: (
     activityType: number,
-    blockNum: number,
-    txId: string
+    txId: string,
+    blockNum?: number
   ) => Promise<void>;
 
   /**

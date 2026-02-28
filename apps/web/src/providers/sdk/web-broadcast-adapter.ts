@@ -278,13 +278,13 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     // Optional Platform Features
     // ============================================================================
 
-    async recordActivity(activityType: number, blockNum: number, txId: string) {
+    async recordActivity(activityType: number, txId: string, _blockNum?: number) {
       try {
         const activeUsername = ls.get("active_user");
         if (!activeUsername) return;
         const token = getAccessToken(activeUsername);
         if (!token) return;
-        await usrActivity(token, activityType, blockNum, txId);
+        await usrActivity(token, activityType, undefined, txId);
       } catch (e) {
         // Don't throw on activity recording errors - it's not critical
         console.warn('[WebAdapter] Failed to record user activity:', e);
