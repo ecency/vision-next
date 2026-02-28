@@ -73,7 +73,7 @@ export async function generateEntryMetadata(
     const summary =
       entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 600, 500, "match");
+    const image = catchPostImage(entry, 1200, 630, "match");
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1] ? `${base}/${urlParts[1]}` : `${base}${entry.url}`;
     const authorUrl = `${base}/@${entry.author}`;
