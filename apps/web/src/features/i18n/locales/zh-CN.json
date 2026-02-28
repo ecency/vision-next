@@ -911,6 +911,8 @@
     "body-placeholder": "在此处写下您的回复",
     "preview": "预览",
     "success": "您的回复已成功创建！",
+    "delete-success": "评论已成功删除",
+    "delete-error-hint": "无法删除评论。请重试",
     "retry-hint": "您的文本在下面被保留 - 请重试",
     "rc-error-hint": "资源积分不足 - 您的文本在下方保存"
   },
