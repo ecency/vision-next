@@ -911,6 +911,8 @@
     "body-placeholder": "Scrivi la tua risposta qui",
     "preview": "Anteprima",
     "success": "La tua risposta è stata creata con successo!",
+    "delete-success": "Commento eliminato con successo",
+    "delete-error-hint": "Impossibile eliminare il commento. Per favore riprova",
     "retry-hint": "Il tuo testo è conservato qui sotto - riprova",
     "rc-error-hint": "Crediti di risorse insufficienti: il tuo testo è conservato qui sotto"
   },
