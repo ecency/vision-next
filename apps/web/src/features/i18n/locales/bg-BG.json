@@ -911,6 +911,8 @@
     "body-placeholder": "Напишете вашият отговор тук",
     "preview": "Преглед",
     "success": "Your reply created successfully!",
+    "delete-success": "Comment deleted successfully",
+    "delete-error-hint": "Could not delete comment. Please try again",
     "retry-hint": "Your text is preserved below - please try again",
     "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
