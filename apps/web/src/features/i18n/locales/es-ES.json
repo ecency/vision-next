@@ -911,6 +911,8 @@
     "body-placeholder": "Escribe tu respuesta aquí",
     "preview": "Previsualización",
     "success": "¡Tu respuesta ha sido creada con éxito!",
+    "delete-success": "Comentario eliminado correctamente",
+    "delete-error-hint": "No se pudo eliminar el comentario. Por favor, inténtelo de nuevo",
     "retry-hint": "Tu texto se conserva a continuación - por favor inténtalo de nuevo",
     "rc-error-hint": "Créditos de recursos insuficientes - tu texto se conserva a continuación"
   },
