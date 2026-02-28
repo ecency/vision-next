@@ -29,8 +29,8 @@ const DEFAULT_HIVE_NODES = [
 ];
 
 const HIVE_CLIENT_OPTIONS = {
-  timeout: 2000,
-  failoverThreshold: 2,
+  timeout: 15000,
+  failoverThreshold: 3,
   consoleOnFailover: true,
 };
 
