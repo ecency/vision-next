@@ -911,6 +911,8 @@
     "body-placeholder": "Napisz swoją odpowiedź tutaj",
     "preview": "Podgląd",
     "success": "Twoja odpowiedź została pomyślnie utworzona!",
+    "delete-success": "Komentarz usunięty pomyślnie",
+    "delete-error-hint": "Nie można usunąć komentarza. Spróbuj ponownie",
     "retry-hint": "Twój tekst jest zachowany poniżej - spróbuj ponownie",
     "rc-error-hint": "Niewystarczająca ilość środków na zasoby - Twój tekst jest zachowany poniżej"
   },
