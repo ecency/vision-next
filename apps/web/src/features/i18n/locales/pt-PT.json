@@ -911,6 +911,8 @@
     "body-placeholder": "Escreva a sua resposta aqui",
     "preview": "Pré-visualizar",
     "success": "Sua resposta foi criada com sucesso!",
+    "delete-success": "Comentário apagado com sucesso",
+    "delete-error-hint": "Não foi possível apagar o comentário. Por favor, tente novamente",
     "retry-hint": "Seu texto está preservado abaixo - por favor, tente novamente",
     "rc-error-hint": "Créditos de Recurso Insuficientes - seu texto é preservado abaixo"
   },
