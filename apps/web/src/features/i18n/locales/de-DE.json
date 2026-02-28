@@ -911,6 +911,8 @@
     "body-placeholder": "Schreibe hier deine Antwort",
     "preview": "Vorschau",
     "success": "Ihre Antwort wurde erfolgreich erstellt!",
+    "delete-success": "Kommentar erfolgreich gelöscht",
+    "delete-error-hint": "Kommentar konnte nicht gelöscht werden. Bitte versuchen Sie es erneut",
     "retry-hint": "Ihr Text ist unten erhalten - bitte versuchen Sie es erneut",
     "rc-error-hint": "Unzureichende Ressourcen-Credits - Ihr Text ist unten erhalten"
   },
