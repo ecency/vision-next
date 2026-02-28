@@ -98,7 +98,7 @@ export function useVote(
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.id) {
-        auth.adapter.recordActivity(120, result?.block_num, result.id).catch(() => {});
+        auth.adapter.recordActivity(120, result.id, result?.block_num).catch(() => {});
       }
 
       // Cache invalidation

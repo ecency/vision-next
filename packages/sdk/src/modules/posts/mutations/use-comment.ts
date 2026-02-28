@@ -189,7 +189,7 @@ export function useComment(
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.id) {
-        auth.adapter.recordActivity(activityType, result?.block_num, result.id).catch(() => {});
+        auth.adapter.recordActivity(activityType, result.id, result?.block_num).catch(() => {});
       }
 
       // Cache invalidation (always runs regardless of recordActivity outcome)

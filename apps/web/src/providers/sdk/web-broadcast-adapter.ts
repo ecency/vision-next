@@ -278,7 +278,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     // Optional Platform Features
     // ============================================================================
 
-    async recordActivity(activityType: number, _blockNum?: number, txId: string) {
+    async recordActivity(activityType: number, txId: string, _blockNum?: number) {
       try {
         const activeUsername = ls.get("active_user");
         if (!activeUsername) return;

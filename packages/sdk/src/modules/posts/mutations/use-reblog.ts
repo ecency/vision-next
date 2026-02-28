@@ -78,7 +78,7 @@ export function useReblog(
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
       if (auth?.adapter?.recordActivity && result?.id) {
-        auth.adapter.recordActivity(130, result?.block_num, result.id).catch(() => {});
+        auth.adapter.recordActivity(130, result.id, result?.block_num).catch(() => {});
       }
 
       // Invalidate user's blog feed so reblogged post appears/disappears
