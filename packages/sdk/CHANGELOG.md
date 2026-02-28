@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.19
+
+### Patch Changes
+
+- Fix defaults and null case (#683)
+
 ## 2.0.18
 
 ### Patch Changes
