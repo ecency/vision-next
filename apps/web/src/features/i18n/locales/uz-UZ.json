@@ -911,6 +911,8 @@
     "body-placeholder": "Xabarni kiriting",
     "preview": "Ko'rish",
     "success": "Sizning javobingiz muvaffaqiyatli yaratildi!",
+    "delete-success": "Comment deleted successfully",
+    "delete-error-hint": "Could not delete comment. Please try again",
     "retry-hint": "Your text is preserved below - please try again",
     "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
