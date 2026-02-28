@@ -911,6 +911,8 @@
     "body-placeholder": "Schrijf jouw reactie hier",
     "preview": "Voorbeeld",
     "success": "Uw antwoord is succesvol aangemaakt!",
+    "delete-success": "Reactie succesvol verwijderd",
+    "delete-error-hint": "Opmerking kon niet verwijderd worden. Probeer het opnieuw",
     "retry-hint": "Uw tekst is hieronder bewaard - probeer het opnieuw",
     "rc-error-hint": "Onvoldoende Grondstof Credits - je tekst wordt hieronder bewaard"
   },
