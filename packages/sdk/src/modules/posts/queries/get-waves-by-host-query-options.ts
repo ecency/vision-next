@@ -39,11 +39,17 @@ async function getThreads(
       ...(startPermlink ? { start_permlink: startPermlink } : {})
     };
 
-    const containers = (await CONFIG.hiveClient.call(
-      "bridge",
-      "get_account_posts",
-      rpcParams
-    )) as WaveEntry[]; // API shape is known
+    let containers: WaveEntry[];
+    try {
+      containers = (await CONFIG.hiveClient.call(
+        "bridge",
+        "get_account_posts",
+        rpcParams
+      )) as WaveEntry[];
+    } catch (err) {
+      console.error("[SDK] getThreads get_account_posts error:", err);
+      return null;
+    }
 
     if (!containers || containers.length === 0) {
       return null;
