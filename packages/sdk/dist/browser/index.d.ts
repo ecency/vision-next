@@ -313,14 +313,14 @@ interface PlatformAdapter {
      * Record user activity for analytics (optional).
      *
      * @param activityType - Numeric activity type code
-     * @param blockNum - Block number of the activity
      * @param txId - Transaction ID
+     * @param blockNum - Block number of the activity
      *
      * @remarks
      * - Used for tracking user engagement
      * - Platform can implement custom analytics
      */
-    recordActivity?: (activityType: number, blockNum: number, txId: string) => Promise<void>;
+    recordActivity?: (activityType: number, txId: string, blockNum?: number) => Promise<void>;
     /**
      * Invalidate React Query cache keys (optional).
      *

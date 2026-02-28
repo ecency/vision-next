@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.20
+
+### Patch Changes
+
+- SDK fix activity (#684)
+
 ## 2.0.19
 
 ### Patch Changes
