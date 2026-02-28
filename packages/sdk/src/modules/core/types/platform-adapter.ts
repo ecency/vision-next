@@ -306,7 +306,7 @@ export interface PlatformAdapter {
    */
   recordActivity?: (
     activityType: number,
-    blockNum: number,
+    blockNum?: number,
     txId: string
   ) => Promise<void>;
 
