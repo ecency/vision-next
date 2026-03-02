@@ -11,6 +11,8 @@
     "preview": "rsbuild preview"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
+    "@floating-ui/react-dom": "^2.1.6",
     "@ecency/render-helper": "workspace:*",
     "@ecency/sdk": "workspace:*",
     "@ecency/ui": "workspace:*",
@@ -38,6 +40,7 @@
     "hivesigner": "^3.3.5",
     "marked": "^12.0.0",
     "motion": "^12.23.22",
+    "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -50,6 +53,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.3",
     "@rsbuild/core": "^1.5.6",
+    "@rsbuild/plugin-node-polyfill": "^1.4.4",
     "@rsbuild/plugin-react": "^1.4.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@tanstack/react-query-devtools": "^5.90.2",
@@ -58,6 +62,7 @@
     "@types/dompurify": "^3.0.5",
     "@types/node": "^24.6.0",
     "@types/turndown": "^5.0.0",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@types/speakingurl": "^13.0.6",

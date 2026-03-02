@@ -94,20 +94,28 @@ export function logout(): void {
   clearHiveAuthSession();
 }
 
+export type BroadcastAuthorityType = "Active" | "Posting" | "Owner" | "Memo";
+
 /**
  * Broadcast operations using the current user's auth method.
  * Throws if not authenticated or session/keychain is missing.
+ * @param authorityType - For keychain: which key to use (e.g. "Active" for transfers).
  */
-export async function broadcast(operations: Operation[]): Promise<unknown> {
+export async function broadcast(
+  operations: Operation[],
+  options?: { authorityType?: BroadcastAuthorityType }
+): Promise<unknown> {
   const { user, session } = authenticationStore.getState();
 
   if (!user) {
     throw new Error("Not authenticated");
   }
 
+  const authorityType = options?.authorityType ?? "Posting";
+
   switch (user.loginType) {
     case "keychain":
-      return keychainBroadcast(user.username, operations);
+      return keychainBroadcast(user.username, operations, authorityType);
 
     case "hivesigner":
       if (!user.accessToken) {
