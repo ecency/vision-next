@@ -72,11 +72,13 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
 
   useEffect(() => {
     if (activeUserVote) {
-      const choice = pollDetails.data?.poll_choices.find(
-        (pc) => pc.choice_num === activeUserVote.choice_num
-      );
-      if (choice) {
-        addActiveChoice(choice?.choice_text);
+      for (const choiceNum of activeUserVote.choices) {
+        const choice = pollDetails.data?.poll_choices.find(
+          (pc) => pc.choice_num === choiceNum
+        );
+        if (choice) {
+          addActiveChoice(choice.choice_text);
+        }
       }
     }
   }, [activeUserVote, addActiveChoice, pollDetails.data]);
