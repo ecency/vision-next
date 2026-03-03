@@ -1317,8 +1317,8 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
   if (!node || !node.childNodes) {
     return;
   }
-  Array.from(Array(node.childNodes.length).keys()).forEach((i) => {
-    const child = node.childNodes[i];
+  const children = Array.from(node.childNodes);
+  children.forEach((child) => {
     if (!child) return;
     if (child.nodeName.toLowerCase() === "a") {
       a(child, forApp, parentDomain, seoContext);
@@ -1335,9 +1335,8 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
     if (child.nodeName.toLowerCase() === "p") {
       p(child);
     }
-    const currentChild = node.childNodes[i];
-    if (currentChild) {
-      traverse(currentChild, forApp, depth + 1, state, parentDomain, seoContext);
+    if (child.parentNode) {
+      traverse(child, forApp, depth + 1, state, parentDomain, seoContext);
     }
   });
 }
