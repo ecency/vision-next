@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.19
+
+### Patch Changes
+
+- Robust DOM traversal (#685)
+
 ## 2.4.18
 
 ### Patch Changes
