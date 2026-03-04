@@ -447,9 +447,9 @@
     "settings-2": "ustawienia wyświetlania"
   },
   "bookmark-btn": {
-    "add": "Zakładka - otrzymuj powiadomienia o nowych komentarzach",
-    "added": "Zakładki! Zostaniesz powiadomiony o nowych komentarzach do tego wpisu",
-    "delete": "Usuń zakładkę i zatrzymaj powiadomienia",
+    "add": "Zakładka – otrzymuj powiadomienia o nowych komentarzach",
+    "added": "Dodano do zakładek",
+    "delete": "Usuń z zakładek",
     "deleted": "Usunięto z zakładek"
   },
   "entry-reblog": {
@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "Napiwek",
+    "tip": "Tip",
     "send-tip": "Wyślij napiwk",
     "count": "{{count}} tip",
     "count_plural": "Porady {{count}}"
@@ -1642,9 +1643,9 @@
     "unMute": "Wyłącz wyciszenie"
   },
   "favorite-btn": {
-    "add": "Ulubione - otrzymuj powiadomienia o nowych postach",
-    "added": "Dodane do ulubionych! Zostaniesz powiadomiony, gdy opublikują nowe posty",
-    "delete": "Usuń ulubione i zatrzymaj powiadomienia",
+    "add": "Dodaj do ulubionych",
+    "added": "Dodano do ulubionych",
+    "delete": "Usuń z ulubionych",
     "deleted": "Usunięto z ulubionych"
   },
   "editor-toolbar": {
