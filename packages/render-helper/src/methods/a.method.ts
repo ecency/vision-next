@@ -808,8 +808,8 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     el.setAttribute('class', 'markdown-audio-link markdown-audio-link-speak')
     el.removeAttribute('href')
 
-    const embedSrc = href.includes('iframe=') ? href : `${href}&iframe=1`
-    const finalSrc = embedSrc.includes('mode=') ? embedSrc : `${embedSrc}&mode=compact`
+    const embedSrc = /[?&]iframe=/.test(href) ? href : `${href}&iframe=1`
+    const finalSrc = /[?&]mode=/.test(embedSrc) ? embedSrc : `${embedSrc}&mode=compact`
 
     el.textContent = ''
 
