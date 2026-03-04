@@ -139,6 +139,7 @@ function RssFeedLink() {
       rel="noopener noreferrer"
       className="p-2 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-secondary transition-colors"
       title="RSS Feed"
+      aria-label="RSS Feed"
     >
       <UilRss className="w-5 h-5" />
     </a>

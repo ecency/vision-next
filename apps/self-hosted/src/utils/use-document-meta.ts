@@ -93,7 +93,7 @@ export function useDocumentMeta(meta: DocumentMeta) {
 
     // Cleanup: restore previous values
     return () => {
-      document.title = meta.title ? defaultTitle : previousTitle;
+      document.title = previousTitle;
       for (const [property, previous, attribute] of snapshots) {
         restoreOrRemoveMeta(property, previous, attribute);
       }
