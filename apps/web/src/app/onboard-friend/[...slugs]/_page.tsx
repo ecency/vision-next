@@ -138,7 +138,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   useEffect(() => {
     if (decodedInfo) {
       setConfirmDetails([
-        { label: i18next.t("onboard.username"), value: formatUsername(decodedInfo!.username) },
+        { label: i18next.t("onboard.username"), value: decodedInfo!.username },
         { label: i18next.t("onboard.public-owner"), value: decodedInfo?.pubkeys?.ownerPublicKey },
         { label: i18next.t("onboard.public-active"), value: decodedInfo?.pubkeys?.activePublicKey },
         {
@@ -196,15 +196,16 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
       const dataToEncode = {
         username: decodedInfo.username,
         email: decodedInfo.email,
+        referral: decodedInfo.referral,
         pubkeys
       };
       const stringifiedData = JSON.stringify(dataToEncode);
       const hashedPubKeys = b64uEnc(stringifiedData);
       setSecret(hashedPubKeys);
       const accInfo = {
-        username: formatUsername(decodedInfo.username),
-        email: formatEmail(decodedInfo.email),
-        referral: formatUsername(decodedInfo.referral || ""),
+        username: decodedInfo.username,
+        email: decodedInfo.email,
+        referral: decodedInfo.referral || "",
         keys
       };
       setAccountInfo(accInfo);
@@ -217,7 +218,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     const username = decodedInfo!.username || accountInfo!.username;
     const email = decodedInfo!.email || accountInfo!.email;
     if (activeUser) {
-      await onboardEmail(formatUsername(username), formatEmail(email), activeUser?.username);
+      await onboardEmail(username, email, activeUser?.username);
     }
   };
 
@@ -225,19 +226,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     return url.slice(0, 50);
   };
 
-  const formatUsername = (username: string) => {
-    return username?.replace(/\+/g, "-").replace(/=/g, ".");
-  };
-
-  const formatEmail = (username: string) => {
-    return username?.replace(/\+/g, "-").replace(/=/g, ".").replace(/\//g, "_");
-  };
-
   const onCreateAccount = async (type: string) => {
     if (!activeUser || !decodedInfo?.pubkeys) return;
 
     const useClaimed = type === createOptions.CREDIT;
-    const newAccountName = formatUsername(decodedInfo.username);
+    const newAccountName = decodedInfo.username;
 
     try {
       await createAccount({
@@ -254,16 +247,21 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
 
       setStep("success");
       sendMail();
+    } catch (err: any) {
+      setStep("failed");
+      error(...formatError(err));
+      return;
+    }
 
-      if (isChecked) {
+    if (isChecked) {
+      try {
         await delegateRc({
           to: newAccountName,
           maxRc: rcAmount * 1e9
         });
+      } catch (err: any) {
+        error(i18next.t("onboard.rc-delegation-failed"), ...formatError(err));
       }
-    } catch (err: any) {
-      setStep("failed");
-      error(...formatError(err));
     }
   };
 
@@ -310,7 +308,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     const transferCost = operationCosts.transfer_operation.avg_cost;
     const voteCost = operationCosts.vote_operation.avg_cost;
     const customJsonOperationsCosts = operationCosts.custom_json_operation.avg_cost;
-    if (Number(rcAmount * 1e9) < 5000000000) {
+    if (isNaN(rcAmount) || Number(rcAmount * 1e9) < 5000000000) {
       setRcError(i18next.t("onboard.rc-error"));
     } else {
       setRcError("");
@@ -344,11 +342,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
           <div className="success-dialog-content">
             <span>
               {i18next.t("onboard.success-message")}{" "}
-              <strong>{formatUsername(decodedInfo!.username)}</strong>
+              <strong>{decodedInfo!.username}</strong>
             </span>
           </div>
           <div className="flex justify-center">
-            <Link href={`/@${formatUsername(decodedInfo!.username)}`}>
+            <Link href={`/@${decodedInfo!.username}`}>
               <Button className="mt-3" onClick={finish}>
                 {i18next.t("g.finish")}
               </Button>
@@ -520,7 +518,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                   </div>
                   {isChecked && (
                     <div className="mt-3">
-                      {rcAmount && rcError ? (
+                      {rcError ? (
                         <span className="text-danger mt-3">{rcError}</span>
                       ) : (
                         ""
@@ -557,6 +555,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
                 <div className="onboard-btn-container">
                   <Button
                     className="align-self-center"
+                    disabled={isChecked && rcError !== ""}
                     onClick={() => {
                       setCreateOption("hive");
                       setShowModal(true);
@@ -585,15 +584,15 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
         </div>
       )}
 
-      {type === "confirming" && (
+      {type === "confirming" && decodedInfo && (
         <div className="onboard-container">
           <div className="login-warning">
             <span>
               {i18next.t("onboard.success-message")}{" "}
-              <strong>@{formatUsername(decodedInfo!.username)}</strong>
+              <strong>@{decodedInfo.username}</strong>
             </span>
           </div>
-          <Link href={`/@${formatUsername(decodedInfo!.username)}`}>
+          <Link href={`/@${decodedInfo.username}`}>
             <Button
               className="mt-3 w-[50%] align-self-center"
               onClick={() => {
