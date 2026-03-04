@@ -447,9 +447,9 @@
     "settings-2": "görüntüleme tercihlerinizden düzenleyin"
   },
   "bookmark-btn": {
-    "add": "Bookmark - get notified about new comments",
-    "added": "Bookmarked! You'll be notified about new comments on this post",
-    "delete": "Remove bookmark and stop notifications",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Yer imlerine eklendi",
+    "delete": "Yer imlerinden kaldır",
     "deleted": "Yer imlerinden kaldırıldı"
   },
   "entry-reblog": {
@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "Bahşiş",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1643,9 @@
     "unMute": "Engeli kaldır"
   },
   "favorite-btn": {
-    "add": "Favorite - get notified about new posts",
-    "added": "Added to favorites! You'll be notified when they publish new posts",
-    "delete": "Remove favorite and stop notifications",
+    "add": "Favorite — get notified about new posts",
+    "added": "Favorilere eklendi",
+    "delete": "Favorilerden kaldır",
     "deleted": "Favorilerden kaldırıldı"
   },
   "editor-toolbar": {
