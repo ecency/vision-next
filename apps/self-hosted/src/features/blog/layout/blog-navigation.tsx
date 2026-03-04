@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useMemo } from 'react';
 import { UilRss } from '@tooni/iconscout-unicons-react';
 import { InstanceConfigManager, t } from '@/core';
+import { getRssFeedUrl } from '@/utils/rss-feed-url';
 import { UserMenu, CreatePostButton } from '@/features/auth';
 import { useInstanceConfig, useCommunityData } from '../hooks/use-instance-config';
 import { SearchInput } from '../components/search-input';
@@ -127,10 +128,10 @@ export function BlogNavigation() {
 }
 
 function RssFeedLink() {
-  const { username, communityId, isCommunityMode } = useInstanceConfig();
-  const rssUrl = isCommunityMode
-    ? `https://ecency.com/created/${communityId}/rss`
-    : `https://ecency.com/@${username}/rss`;
+  const { username, communityId, type } = useInstanceConfig();
+  const rssUrl = getRssFeedUrl(type, username, communityId);
+
+  if (!rssUrl) return null;
 
   return (
     <a

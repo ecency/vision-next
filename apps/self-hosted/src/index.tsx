@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './globals.css';
 import { InstanceConfigManager } from './core';
+import { getRssFeedUrl } from './utils/rss-feed-url';
 import { routeTree } from './routeTree.gen';
 
 // Get config once and extract all needed values
@@ -166,19 +167,18 @@ if (meta.favicon) {
 }
 
 // Add RSS feed auto-discovery link
-const isCommunity = instanceType === 'community';
-const rssUrl = isCommunity
-  ? `https://ecency.com/created/${instanceConfiguration.communityId}/rss`
-  : `https://ecency.com/@${instanceConfiguration.username}/rss`;
-let rssLink = document.querySelector('link[rel="alternate"][type="application/rss+xml"]') as HTMLLinkElement | null;
-if (!rssLink) {
-  rssLink = document.createElement('link');
+const rssUrl = getRssFeedUrl(instanceType, instanceConfiguration.username, instanceConfiguration.communityId);
+const existingRssLink = document.querySelector('link[rel="alternate"][type="application/rss+xml"]') as HTMLLinkElement | null;
+if (rssUrl) {
+  const rssLink = existingRssLink ?? document.createElement('link');
   rssLink.setAttribute('rel', 'alternate');
   rssLink.setAttribute('type', 'application/rss+xml');
-  document.head.appendChild(rssLink);
+  rssLink.setAttribute('title', meta.title || 'RSS Feed');
+  rssLink.setAttribute('href', rssUrl);
+  if (!existingRssLink) document.head.appendChild(rssLink);
+} else if (existingRssLink) {
+  existingRssLink.remove();
 }
-rssLink.setAttribute('title', meta.title || 'RSS Feed');
-rssLink.setAttribute('href', rssUrl);
 
 // Render the app
 const rootElement = document.getElementById('root')!;
