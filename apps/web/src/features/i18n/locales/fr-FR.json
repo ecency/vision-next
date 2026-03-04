@@ -447,9 +447,9 @@
     "settings-2": "préférences d'affichage"
   },
   "bookmark-btn": {
-    "add": "Signet - être informé des nouveaux commentaires",
-    "added": "Marque-page ! Vous serez informé des nouveaux commentaires sur ce post",
-    "delete": "Supprimer le signet et arrêter les notifications",
+    "add": "Marque-page — être informé des nouveaux commentaires",
+    "added": "Ajouté aux favoris",
+    "delete": "Retirer des favoris",
     "deleted": "Retiré des favoris"
   },
   "entry-reblog": {
@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "Pourboire",
+    "tip": "Tip",
     "send-tip": "Envoyer une astuce",
     "count": "{{count}} tip",
     "count_plural": "{{count}} conseils"
@@ -1642,9 +1643,9 @@
     "unMute": "Enlever la sourdine"
   },
   "favorite-btn": {
-    "add": "Favori - être informé des nouveaux messages",
-    "added": "Ajouté aux favoris ! Vous serez notifié quand il publiera de nouveaux messages",
-    "delete": "Supprimer les favoris et arrêter les notifications",
+    "add": "Favoris — être informé des nouveaux messages",
+    "added": "Ajouté aux favoris",
+    "delete": "Retirer des favoris",
     "deleted": "Supprimé des favoris"
   },
   "editor-toolbar": {
