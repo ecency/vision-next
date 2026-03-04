@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.21
+
+### Patch Changes
+
+- Audio embeds (#687)
+
 ## 2.4.20
 
 ### Patch Changes
