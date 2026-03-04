@@ -1076,6 +1076,73 @@ describe('a() method - Link Processing', () => {
       })
     })
 
+    describe('3Speak Audio', () => {
+      it('should create 3Speak audio embed from permlink URL', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://audio.3speak.tv/play?a=m6crhwqw'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toContain('markdown-audio-link-speak')
+        const iframes = el.getElementsByTagName('iframe')
+        expect(iframes.length).toBe(1)
+        const iframe = iframes[0]
+        expect(iframe?.getAttribute('src')).toContain('https://audio.3speak.tv/play?a=m6crhwqw')
+        expect(iframe?.getAttribute('src')).toContain('iframe=1')
+        expect(iframe?.getAttribute('src')).toContain('mode=compact')
+        expect(iframe?.getAttribute('sandbox')).toBe('allow-scripts allow-same-origin allow-popups')
+      })
+
+      it('should create 3Speak audio embed from CID URL', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://audio.3speak.tv/play?cid=QmdMsEXyDe5Z4S3n8THfYgFP1iH3ngCeCytdHnndzqdZAK'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).toContain('markdown-audio-link-speak')
+        const iframes = el.getElementsByTagName('iframe')
+        expect(iframes.length).toBe(1)
+        expect(iframes[0]?.getAttribute('src')).toContain('cid=QmdMsEXyDe5Z4S3n8THfYgFP1iH3ngCeCytdHnndzqdZAK')
+      })
+
+      it('should not convert 3Speak audio link when text differs from href', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://audio.3speak.tv/play?a=m6crhwqw'
+        el.setAttribute('href', href)
+        el.textContent = 'Click here to listen'
+        parent.appendChild(el)
+
+        a(el, false)
+
+        // Should not be converted to audio embed
+        expect(el.getAttribute('class')).not.toContain('markdown-audio-link-speak')
+      })
+
+      it('should preserve existing mode parameter in audio URL', () => {
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://audio.3speak.tv/play?a=m6crhwqw&mode=minimal'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        const iframes = el.getElementsByTagName('iframe')
+        expect(iframes[0]?.getAttribute('src')).toContain('mode=minimal')
+        expect(iframes[0]?.getAttribute('src')).not.toContain('mode=compact')
+      })
+    })
+
     describe('Spotify', () => {
       it('should create Spotify embed', () => {
         const parent = doc.createElement('div')

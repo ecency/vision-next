@@ -14,6 +14,7 @@ import {
   POST_REGEX,
   CCC_REGEX,
   SPEAK_REGEX,
+  SPEAK_AUDIO_REGEX,
   TWITCH_REGEX,
   TWITTER_REGEX,
   VIMEO_REGEX,
@@ -800,6 +801,25 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         return
       }
     }
+  }
+
+  // Detect 3Speak Audio
+  if (href.match(SPEAK_AUDIO_REGEX) && el.textContent.trim() === href) {
+    el.setAttribute('class', 'markdown-audio-link markdown-audio-link-speak')
+    el.removeAttribute('href')
+
+    const embedSrc = /[?&]iframe=/.test(href) ? href : `${href}&iframe=1`
+    const finalSrc = /[?&]mode=/.test(embedSrc) ? embedSrc : `${embedSrc}&mode=compact`
+
+    el.textContent = ''
+
+    const ifr = el.ownerDocument.createElement('iframe')
+    ifr.setAttribute('frameborder', '0')
+    ifr.setAttribute('src', finalSrc)
+    ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups')
+    el.appendChild(ifr)
+
+    return
   }
 
   // If tweets

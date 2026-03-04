@@ -1,4 +1,4 @@
-import { ARCH_REGEX, DAPPLR_REGEX, LBRY_REGEX, TRUVVL_REGEX, ODYSEE_REGEX, SKATEHIVE_IPFS_REGEX, BITCHUTE_REGEX, RUMBLE_REGEX, BRIGHTEON_REGEX, VIMEO_EMBED_REGEX, SPEAK_EMBED_REGEX, VIMM_EMBED_REGEX, D_TUBE_EMBED_REGEX, SPOTIFY_EMBED_REGEX, SOUNDCLOUD_EMBED_REGEX, TWITCH_EMBED_REGEX, YOUTUBE_EMBED_REGEX, BRAND_NEW_TUBE_REGEX, LOOM_EMBED_REGEX, AUREAL_EMBED_REGEX } from '../consts'
+import { ARCH_REGEX, DAPPLR_REGEX, LBRY_REGEX, TRUVVL_REGEX, ODYSEE_REGEX, SKATEHIVE_IPFS_REGEX, BITCHUTE_REGEX, RUMBLE_REGEX, BRIGHTEON_REGEX, VIMEO_EMBED_REGEX, SPEAK_EMBED_REGEX, SPEAK_AUDIO_EMBED_REGEX, VIMM_EMBED_REGEX, D_TUBE_EMBED_REGEX, SPOTIFY_EMBED_REGEX, SOUNDCLOUD_EMBED_REGEX, TWITCH_EMBED_REGEX, YOUTUBE_EMBED_REGEX, BRAND_NEW_TUBE_REGEX, LOOM_EMBED_REGEX, AUREAL_EMBED_REGEX } from '../consts'
 
 export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.com'): void {
   if (!el || !el.parentNode) {
@@ -69,6 +69,27 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
       : `${normalizedSrc}&autoplay=true`;
     el.setAttribute('src', s);
     el.setAttribute('class', 'speak-iframe');
+    return;
+  }
+
+  // 3Speak Audio
+  if (src.match(SPEAK_AUDIO_EMBED_REGEX)) {
+    let normalizedSrc = src;
+
+    // Ensure iframe=1 parameter for clean embedding
+    if (!/[?&]iframe=/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}&iframe=1`;
+    }
+
+    // Default to compact mode if no mode specified
+    if (!/[?&]mode=/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}&mode=compact`;
+    }
+
+    el.setAttribute('src', normalizedSrc);
+    el.setAttribute('class', 'speak-audio-iframe');
+    el.setAttribute('frameborder', '0');
+    el.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
     return;
   }
 

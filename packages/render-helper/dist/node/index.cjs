@@ -109,6 +109,8 @@ var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
 var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i;
 var SPEAK_EMBED_REGEX = /^(https?:)?\/\/(?:play\.)?3speak\.([a-z]+)\/(?:embed|watch)\?.+$/i;
+var SPEAK_AUDIO_REGEX = /https?:\/\/audio\.3speak\.tv\/play\?[^\s]+/i;
+var SPEAK_AUDIO_EMBED_REGEX = /^https?:\/\/audio\.3speak\.tv\/play\?.+$/i;
 var TWITTER_REGEX = /(?:https?:\/\/(?:(?:twitter\.com\/(.*?)\/status\/(.*))))/gi;
 var SPOTIFY_REGEX = /^https:\/\/open\.spotify\.com\/playlist\/(.*)?$/gi;
 var RUMBLE_REGEX = /^https:\/\/rumble.com\/embed\/([a-zA-Z0-9-]+)\/\?pub=\w+/;
@@ -957,6 +959,19 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
       }
     }
   }
+  if (href.match(SPEAK_AUDIO_REGEX) && el.textContent.trim() === href) {
+    el.setAttribute("class", "markdown-audio-link markdown-audio-link-speak");
+    el.removeAttribute("href");
+    const embedSrc = /[?&]iframe=/.test(href) ? href : `${href}&iframe=1`;
+    const finalSrc = /[?&]mode=/.test(embedSrc) ? embedSrc : `${embedSrc}&mode=compact`;
+    el.textContent = "";
+    const ifr = el.ownerDocument.createElement("iframe");
+    ifr.setAttribute("frameborder", "0");
+    ifr.setAttribute("src", finalSrc);
+    ifr.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
+    el.appendChild(ifr);
+    return;
+  }
   const matchT = href.match(TWITTER_REGEX);
   if (matchT && el.textContent.trim() === href) {
     TWITTER_REGEX.lastIndex = 0;
@@ -1076,6 +1091,20 @@ function iframe(el, parentDomain = "ecency.com") {
     const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
     el.setAttribute("src", s);
     el.setAttribute("class", "speak-iframe");
+    return;
+  }
+  if (src.match(SPEAK_AUDIO_EMBED_REGEX)) {
+    let normalizedSrc = src;
+    if (!/[?&]iframe=/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}&iframe=1`;
+    }
+    if (!/[?&]mode=/.test(normalizedSrc)) {
+      normalizedSrc = `${normalizedSrc}&mode=compact`;
+    }
+    el.setAttribute("src", normalizedSrc);
+    el.setAttribute("class", "speak-audio-iframe");
+    el.setAttribute("frameborder", "0");
+    el.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
     return;
   }
   if (src.match(SPOTIFY_EMBED_REGEX)) {
