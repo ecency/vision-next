@@ -978,6 +978,98 @@ describe('iframe() method - Iframe Sanitization', () => {
     })
   })
 
+  describe('3Speak Audio Iframes', () => {
+    it('should allow audio.3speak.tv embed with permlink', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('class')).toBe('speak-audio-iframe')
+      expect(el.getAttribute('frameborder')).toBe('0')
+      expect(el.getAttribute('sandbox')).toBe('allow-scripts allow-same-origin allow-popups')
+    })
+
+    it('should allow audio.3speak.tv embed with IPFS CID', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?cid=QmdMsEXyDe5Z4S3n8THfYgFP1iH3ngCeCytdHnndzqdZAK')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('class')).toBe('speak-audio-iframe')
+    })
+
+    it('should add iframe=1 parameter if not present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('iframe=1')
+    })
+
+    it('should not duplicate iframe parameter if already present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&iframe=1')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      const iframeMatches = src.match(/iframe=/g)
+      expect(iframeMatches).toHaveLength(1)
+    })
+
+    it('should add mode=compact if no mode specified', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=compact')
+    })
+
+    it('should not override existing mode parameter', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&mode=minimal')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=minimal')
+      expect(src).not.toContain('mode=compact')
+    })
+
+    it('should handle audio.3speak.tv with mode=full', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&mode=full')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=full')
+      const modeMatches = src.match(/mode=/g)
+      expect(modeMatches).toHaveLength(1)
+    })
+  })
+
   describe('Edge Cases', () => {
     it('should handle null element', () => {
       expect(() => iframe(null)).not.toThrow()
