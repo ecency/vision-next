@@ -3,26 +3,7 @@
  *
  * These tests verify the fixes for 8 bugs found in the onboard flow.
  */
-import { Base64 } from "js-base64";
-
-// ── Inline implementations (mirrors apps/web/src/utils/b64.ts — FIXED) ──────
-const b64uLookup: Record<string, string> = {
-  "/": "_",
-  _: "/",
-  "+": "-",
-  "-": "+",
-  "=": ".",
-  ".": "="
-};
-
-const b64uEnc = (str: string): string =>
-  Base64.encode(str).replace(/(\+|\/|=)/g, (m) => b64uLookup[m]);
-
-// FIXED: replacements applied to encoded input, not decoded output
-const b64uDec = (str: string): string =>
-  Base64.decode(str.replace(/(-|_|\.)/g, (m) => b64uLookup[m]));
-
-// ─────────────────────────────────────────────────────────────────────────────
+import { b64uEnc, b64uDec } from "../../utils/b64";
 
 describe("b64u encode / decode", () => {
   describe("basic roundtrip", () => {

@@ -138,7 +138,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
   useEffect(() => {
     if (decodedInfo) {
       setConfirmDetails([
-        { label: i18next.t("onboard.username"), value: decodedInfo!.username },
+        { label: i18next.t("onboard.username"), value: decodedInfo?.username },
         { label: i18next.t("onboard.public-owner"), value: decodedInfo?.pubkeys?.ownerPublicKey },
         { label: i18next.t("onboard.public-active"), value: decodedInfo?.pubkeys?.activePublicKey },
         {
@@ -342,11 +342,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
           <div className="success-dialog-content">
             <span>
               {i18next.t("onboard.success-message")}{" "}
-              <strong>{decodedInfo!.username}</strong>
+              <strong>{decodedInfo?.username}</strong>
             </span>
           </div>
           <div className="flex justify-center">
-            <Link href={`/@${decodedInfo!.username}`}>
+            <Link href={`/@${decodedInfo?.username}`}>
               <Button className="mt-3" onClick={finish}>
                 {i18next.t("g.finish")}
               </Button>
