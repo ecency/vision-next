@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "Sugerencia",
+    "tip": "Tip",
     "send-tip": "Enviar una propina",
     "count": "{{count}} propina",
     "count_plural": "{{count}} propinas"
@@ -1644,7 +1645,7 @@
   "favorite-btn": {
     "add": "Favorito - recibir notificaciones sobre nuevos posts",
     "added": "¡Añadido a favoritos! Serás notificado cuando publiquen nuevos posts",
-    "delete": "Eliminar de favoritos y detener notificaciones",
+    "delete": "Eliminar de Favoritos",
     "deleted": "Eliminado de favoritos"
   },
   "editor-toolbar": {
