@@ -66,7 +66,9 @@ type TranslationKey =
   | 'back_to_blog'
   | 'edit_post'
   | 'updating'
-  | 'update';
+  | 'update'
+  | 'editor_start_writing'
+  | 'editor_post_title';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -137,6 +139,8 @@ const translations: Record<string, Translations> = {
     edit_post: 'Edit',
     updating: 'Updating...',
     update: 'Update',
+    editor_start_writing: 'Start writing...',
+    editor_post_title: 'Post title...',
   },
   es: {
     loading: 'Cargando...',
@@ -204,6 +208,8 @@ const translations: Record<string, Translations> = {
     edit_post: 'Editar',
     updating: 'Actualizando...',
     update: 'Actualizar',
+    editor_start_writing: 'Empieza a escribir...',
+    editor_post_title: 'Título de la publicación...',
   },
   de: {
     loading: 'Lädt...',
@@ -271,6 +277,8 @@ const translations: Record<string, Translations> = {
     edit_post: 'Bearbeiten',
     updating: 'Aktualisierung...',
     update: 'Aktualisieren',
+    editor_start_writing: 'Beginne zu schreiben...',
+    editor_post_title: 'Beitragstitel...',
   },
   fr: {
     loading: 'Chargement...',
@@ -338,6 +346,8 @@ const translations: Record<string, Translations> = {
     edit_post: 'Modifier',
     updating: 'Mise à jour...',
     update: 'Mettre à jour',
+    editor_start_writing: 'Commencez à écrire...',
+    editor_post_title: "Titre de l'article...",
   },
   ko: {
     loading: '로딩 중...',
@@ -405,6 +415,8 @@ const translations: Record<string, Translations> = {
     edit_post: '편집',
     updating: '업데이트 중...',
     update: '업데이트',
+    editor_start_writing: '글을 작성하세요...',
+    editor_post_title: '게시물 제목...',
   },
   ru: {
     loading: 'Загрузка...',
@@ -472,6 +484,8 @@ const translations: Record<string, Translations> = {
     edit_post: 'Редактировать',
     updating: 'Обновление...',
     update: 'Обновить',
+    editor_start_writing: 'Начните писать...',
+    editor_post_title: 'Заголовок поста...',
   },
 };
 

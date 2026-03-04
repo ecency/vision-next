@@ -12,6 +12,16 @@ interface DocumentMeta {
   twitterCard?: "summary" | "summary_large_image";
 }
 
+function getMetaContent(
+  property: string,
+  attribute: "name" | "property" = "property"
+): string | null {
+  const tag = document.querySelector(
+    `meta[${attribute}="${property}"]`
+  ) as HTMLMetaElement | null;
+  return tag?.getAttribute("content") ?? null;
+}
+
 function setMetaTag(
   property: string,
   content: string,
@@ -28,13 +38,21 @@ function setMetaTag(
   tag.setAttribute("content", content);
 }
 
-function removeMetaTag(property: string, attribute: "name" | "property" = "property") {
-  const tag = document.querySelector(`meta[${attribute}="${property}"]`);
-  if (tag) tag.remove();
+function restoreOrRemoveMeta(
+  property: string,
+  previous: string | null,
+  attribute: "name" | "property" = "property"
+) {
+  if (previous !== null) {
+    setMetaTag(property, previous, attribute);
+  } else {
+    const tag = document.querySelector(`meta[${attribute}="${property}"]`);
+    if (tag) tag.remove();
+  }
 }
 
 /**
- * Sets document title and OG/Twitter meta tags. Restores defaults on unmount.
+ * Sets document title and OG/Twitter meta tags. Restores previous values on unmount.
  */
 export function useDocumentMeta(meta: DocumentMeta) {
   useEffect(() => {
@@ -42,54 +60,43 @@ export function useDocumentMeta(meta: DocumentMeta) {
     const defaultTitle = config.configuration.instanceConfiguration.meta.title || "Blog";
     const previousTitle = document.title;
 
+    // Snapshot current meta values before overwriting
+    const snapshots: Array<[string, string | null, "name" | "property"]> = [];
+
+    const applyMeta = (
+      property: string,
+      content: string | undefined,
+      attribute: "name" | "property" = "property"
+    ) => {
+      if (!content) return;
+      snapshots.push([property, getMetaContent(property, attribute), attribute]);
+      setMetaTag(property, content, attribute);
+    };
+
     // Set title
     if (meta.title) {
       document.title = `${meta.title} — ${defaultTitle}`;
     }
 
     // OG tags
-    if (meta.ogTitle || meta.title) {
-      setMetaTag("og:title", meta.ogTitle || meta.title!);
-    }
-    if (meta.ogDescription || meta.description) {
-      setMetaTag("og:description", meta.ogDescription || meta.description!);
-    }
-    if (meta.ogImage) {
-      setMetaTag("og:image", meta.ogImage);
-    }
-    if (meta.ogType) {
-      setMetaTag("og:type", meta.ogType);
-    }
-    if (meta.ogUrl) {
-      setMetaTag("og:url", meta.ogUrl);
-    }
+    applyMeta("og:title", meta.ogTitle || meta.title);
+    applyMeta("og:description", meta.ogDescription || meta.description);
+    applyMeta("og:image", meta.ogImage);
+    applyMeta("og:type", meta.ogType);
+    applyMeta("og:url", meta.ogUrl);
 
     // Twitter card tags
-    if (meta.twitterCard) {
-      setMetaTag("twitter:card", meta.twitterCard, "name");
-    }
-    if (meta.ogTitle || meta.title) {
-      setMetaTag("twitter:title", meta.ogTitle || meta.title!, "name");
-    }
-    if (meta.ogDescription || meta.description) {
-      setMetaTag("twitter:description", meta.ogDescription || meta.description!, "name");
-    }
-    if (meta.ogImage) {
-      setMetaTag("twitter:image", meta.ogImage, "name");
-    }
+    applyMeta("twitter:card", meta.twitterCard, "name");
+    applyMeta("twitter:title", meta.ogTitle || meta.title, "name");
+    applyMeta("twitter:description", meta.ogDescription || meta.description, "name");
+    applyMeta("twitter:image", meta.ogImage, "name");
 
-    // Cleanup: restore defaults
+    // Cleanup: restore previous values
     return () => {
-      document.title = previousTitle !== meta.title ? previousTitle : defaultTitle;
-      removeMetaTag("og:title");
-      removeMetaTag("og:description");
-      removeMetaTag("og:image");
-      removeMetaTag("og:type");
-      removeMetaTag("og:url");
-      removeMetaTag("twitter:card", "name");
-      removeMetaTag("twitter:title", "name");
-      removeMetaTag("twitter:description", "name");
-      removeMetaTag("twitter:image", "name");
+      document.title = meta.title ? defaultTitle : previousTitle;
+      for (const [property, previous, attribute] of snapshots) {
+        restoreOrRemoveMeta(property, previous, attribute);
+      }
     };
   }, [meta.title, meta.description, meta.ogTitle, meta.ogDescription, meta.ogImage, meta.ogType, meta.ogUrl, meta.twitterCard]);
 }

@@ -165,6 +165,18 @@ if (meta.favicon) {
   faviconLink.setAttribute('href', meta.favicon);
 }
 
+// Add RSS feed auto-discovery link
+const isCommunity = instanceType === 'community';
+const rssUrl = isCommunity
+  ? `https://ecency.com/created/${instanceConfiguration.communityId}/rss`
+  : `https://ecency.com/@${instanceConfiguration.username}/rss`;
+const rssLink = document.createElement('link');
+rssLink.setAttribute('rel', 'alternate');
+rssLink.setAttribute('type', 'application/rss+xml');
+rssLink.setAttribute('title', meta.title || 'RSS Feed');
+rssLink.setAttribute('href', rssUrl);
+document.head.appendChild(rssLink);
+
 // Render the app
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {

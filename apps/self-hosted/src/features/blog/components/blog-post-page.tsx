@@ -65,13 +65,17 @@ export function BlogPostPage() {
     return clean.slice(0, 200) + (clean.length > 200 ? '...' : '');
   }, [entry]);
 
-  useDocumentMeta({
-    title: entry?.title,
-    description: ogDescription,
-    ogImage,
-    ogType: 'article',
-    twitterCard: ogImage ? 'summary_large_image' : 'summary',
-  });
+  useDocumentMeta(
+    entry
+      ? {
+          title: entry.title,
+          description: ogDescription,
+          ogImage,
+          ogType: 'article',
+          twitterCard: ogImage ? 'summary_large_image' : 'summary',
+        }
+      : {},
+  );
 
   if (isLoading) {
     return (

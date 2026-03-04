@@ -49,7 +49,7 @@ export function EditPostEditor({
     shouldRerenderOnTransaction: true,
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: "Start writing..." }),
+      Placeholder.configure({ placeholder: t("editor_start_writing") }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Table.configure({ resizable: true }),
       TableRow,
@@ -75,7 +75,7 @@ export function EditPostEditor({
         editor.commands.setContent("");
       }
     }
-  }, [editor]);
+  }, [editor, initialBody]);
 
   const canUpdate =
     title.trim().length > 0 && body.trim().length > 0 && tags.length > 0;
@@ -161,12 +161,12 @@ export function EditPostEditor({
           <input
             type="text"
             className="text-3xl w-full px-3 py-4 pb-3 bg-transparent outline-none font-serif text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-            placeholder="Post title..."
+            placeholder={t("editor_post_title")}
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
             maxLength={MAX_TITLE_LENGTH}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === "Tab") {
+              if (e.key === "Enter") {
                 e.preventDefault();
                 editor?.commands.focus("start");
               }

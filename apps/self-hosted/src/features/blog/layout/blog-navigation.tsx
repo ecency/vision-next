@@ -3,6 +3,7 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import clsx from 'clsx';
 import { useMemo } from 'react';
+import { UilRss } from '@tooni/iconscout-unicons-react';
 import { InstanceConfigManager, t } from '@/core';
 import { UserMenu, CreatePostButton } from '@/features/auth';
 import { useInstanceConfig, useCommunityData } from '../hooks/use-instance-config';
@@ -95,6 +96,7 @@ export function BlogNavigation() {
         </div>
         <div className="flex items-center gap-2">
           <SearchInput />
+          <RssFeedLink />
           <CreatePostButton />
           <UserMenu />
         </div>
@@ -121,5 +123,24 @@ export function BlogNavigation() {
         })}
       </nav>
     </div>
+  );
+}
+
+function RssFeedLink() {
+  const { username, communityId, isCommunityMode } = useInstanceConfig();
+  const rssUrl = isCommunityMode
+    ? `https://ecency.com/created/${communityId}/rss`
+    : `https://ecency.com/@${username}/rss`;
+
+  return (
+    <a
+      href={rssUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-2 rounded-lg text-theme-muted hover:text-theme-primary hover:bg-theme-secondary transition-colors"
+      title="RSS Feed"
+    >
+      <UilRss className="w-5 h-5" />
+    </a>
   );
 }

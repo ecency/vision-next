@@ -38,7 +38,13 @@ export function useUpdatePost() {
         throw new Error("Post content cannot be empty");
       }
 
-      if (!tags.length) {
+      const normalizedTags = [...new Set(
+        tags
+          .map((tag) => tag.trim().toLowerCase())
+          .filter((tag) => tag.length > 0)
+      )];
+
+      if (!normalizedTags.length) {
         throw new Error("At least one tag is required");
       }
 
@@ -50,16 +56,18 @@ export function useUpdatePost() {
         title: title.trim(),
         body: body.trim(),
         jsonMetadata: {
-          tags,
+          tags: normalizedTags,
           app: "ecency-selfhost/1.0",
           format: "markdown",
         },
       });
     },
     onSuccess: (_data, variables) => {
+      if (!user?.username) return;
+
       navigate({
         to: "/$author/$permlink",
-        params: { author: user!.username, permlink: variables.permlink },
+        params: { author: user.username, permlink: variables.permlink },
         search: { raw: undefined },
       });
     },

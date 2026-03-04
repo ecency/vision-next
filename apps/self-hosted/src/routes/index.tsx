@@ -5,5 +5,5 @@ export const Route = createFileRoute('/')({
 });
 
 function Index() {
-  return <Navigate to="/blog" search={{ filter: 'posts' }} />;
+  return <Navigate to="/blog" search={{ filter: 'posts' }} replace />;
 }

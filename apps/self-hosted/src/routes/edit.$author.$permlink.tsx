@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { getPostQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
-import { useIsBlogOwner, useIsAuthEnabled } from "@/features/auth/hooks";
+import { useIsBlogOwner, useIsAuthEnabled, useAuth } from "@/features/auth/hooks";
 import { BlogSidebar } from "@/features/blog/layout/blog-sidebar";
 import { useEffect, useMemo } from "react";
 import { t } from "@/core";
@@ -14,23 +14,27 @@ export const Route = createFileRoute("/edit/$author/$permlink")({
 function RouteComponent() {
   const isBlogOwner = useIsBlogOwner();
   const isAuthEnabled = useIsAuthEnabled();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { author, permlink } = Route.useParams();
 
+  const cleanAuthor = author.replace("@", "");
+  const isAuthorOwner = isBlogOwner && user?.username === cleanAuthor;
+
   useEffect(() => {
-    if (!isAuthEnabled || !isBlogOwner) {
+    if (!isAuthEnabled || !isAuthorOwner) {
       navigate({ to: "/blog", search: { filter: "posts" } });
     }
-  }, [isAuthEnabled, isBlogOwner, navigate]);
+  }, [isAuthEnabled, isAuthorOwner, navigate]);
 
-  const cleanAuthor = author.replace("@", "");
+  const queryOptions = getPostQueryOptions(cleanAuthor, permlink);
   const {
     data: entry,
     isLoading,
     error,
-  } = useQuery(getPostQueryOptions(cleanAuthor, permlink));
+  } = useQuery({ ...queryOptions, enabled: isAuthorOwner });
 
-  if (!isAuthEnabled || !isBlogOwner) {
+  if (!isAuthEnabled || !isAuthorOwner) {
     return null;
   }
 
