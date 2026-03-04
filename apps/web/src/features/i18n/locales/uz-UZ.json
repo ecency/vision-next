@@ -447,9 +447,9 @@
     "settings-2": "ko‘rinish sozlamalari"
   },
   "bookmark-btn": {
-    "add": "Bookmark - get notified about new comments",
-    "added": "Bookmarked! You'll be notified about new comments on this post",
-    "delete": "Remove bookmark and stop notifications",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Saqlanganlarga qo'shildi",
+    "delete": "Saqlanganlardan olib tashlash",
     "deleted": "Saqlanganlardan olib tashlandi"
   },
   "entry-reblog": {
@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "Sovg'a",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1643,9 @@
     "unMute": "Blokdan ochish"
   },
   "favorite-btn": {
-    "add": "Favorite - get notified about new posts",
-    "added": "Added to favorites! You'll be notified when they publish new posts",
-    "delete": "Remove favorite and stop notifications",
+    "add": "Favorite — get notified about new posts",
+    "added": "Sevimlilarga qo'shildi",
+    "delete": "Sevimlilardan olib tashlash",
     "deleted": "Sevimlilardan olib tashlandi"
   },
   "editor-toolbar": {
