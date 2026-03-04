@@ -125,6 +125,33 @@ if (meta.keywords) {
   keywordsMeta.setAttribute('content', meta.keywords);
 }
 
+// Set base OG meta tags
+const setMetaTag = (attr: string, attrValue: string, content: string) => {
+  let tag = document.querySelector(`meta[${attr}="${attrValue}"]`) as HTMLMetaElement | null;
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute(attr, attrValue);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('content', content);
+};
+
+if (meta.title) {
+  setMetaTag('property', 'og:title', meta.title);
+  setMetaTag('property', 'og:site_name', meta.title);
+  setMetaTag('name', 'twitter:title', meta.title);
+}
+if (meta.description) {
+  setMetaTag('property', 'og:description', meta.description);
+  setMetaTag('name', 'twitter:description', meta.description);
+}
+if (meta.logo) {
+  setMetaTag('property', 'og:image', meta.logo);
+  setMetaTag('name', 'twitter:image', meta.logo);
+}
+setMetaTag('property', 'og:type', 'website');
+setMetaTag('name', 'twitter:card', 'summary');
+
 // Set favicon
 if (meta.favicon) {
   let faviconLink = document.querySelector(
