@@ -447,9 +447,9 @@
     "settings-2": "Anzeigeeinstellungen"
   },
   "bookmark-btn": {
-    "add": "Zu den Lesezeichen hinzufügen",
-    "added": "Zu den Lesezeichen hinzugefügt",
-    "delete": "Von den Lesezeichen entfernen",
+    "add": "Lesezeichen - über neue Kommentare benachrichtigt werden",
+    "added": "Lesezeichen! Du wirst über neue Kommentare zu diesem Beitrag benachrichtigt",
+    "delete": "Lesezeichen entfernen und Benachrichtigungen stoppen",
     "deleted": "Von den Lesezeichen entfernt"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "Dieser Inhalt wurde vom Autor gelöscht. Du kannst ihn jedoch in der Blockchain einsehen ",
     "deleted-content": "Dieser Beitrag wurde von {{author}} gelöscht",
     "deleted-no-history": "Der gelöschte Inhaltsverlauf ist nicht in der Blockchain verfügbar.",
+    "indexing-blockchain": "Ihr Beitrag wurde in der Blockchain veröffentlicht und wird indiziert. Dies dauert in der Regel ein paar Sekunden.",
+    "indexing-slow": "Die Indexierung dauert länger als erwartet. Aktualisieren Sie die Seite in ein paar Augenblicken.",
     "untitled": "Ohne Titel",
     "comments-hidden": "Autor dieses Beitrags ist von dir stumm geschaltet.",
     "address-copy": "Link kopieren",
@@ -909,6 +911,8 @@
     "body-placeholder": "Schreibe hier deine Antwort",
     "preview": "Vorschau",
     "success": "Ihre Antwort wurde erfolgreich erstellt!",
+    "delete-success": "Kommentar erfolgreich gelöscht",
+    "delete-error-hint": "Kommentar konnte nicht gelöscht werden. Bitte versuchen Sie es erneut",
     "retry-hint": "Ihr Text ist unten erhalten - bitte versuchen Sie es erneut",
     "rc-error-hint": "Unzureichende Ressourcen-Credits - Ihr Text ist unten erhalten"
   },
@@ -1189,7 +1193,10 @@
     "updated": "Einstellungen aktualisiert!",
     "permissions-title": "Schlüssel & Berechtigungen",
     "permissions-hint": "Verwalten Sie Ihre Schlüssel, steuern Sie die Berechtigungen über Anwendungen",
-    "permissions": "Öffne Berechtigungen"
+    "permissions": "Öffne Berechtigungen",
+    "image-server": "Bild-Server",
+    "image-server-default": "Ecency Bilder (Standard)",
+    "image-server-hiveblog": "Hive-Bilder (Alternative)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "Ton an"
   },
   "favorite-btn": {
-    "add": "Zu den Favoriten hinzufügen",
-    "added": "Zu den Favoriten hinzugefügt",
-    "delete": "Aus den Favoriten entfernen",
+    "add": "Favorit - über neue Beiträge benachrichtigt werden",
+    "added": "Zu Favoriten hinzugefügt! Du wirst benachrichtigt, wenn neue Beiträge veröffentlicht werden",
+    "delete": "Favoriten entfernen und Benachrichtigungen stoppen",
     "deleted": "Aus Favoriten entfernt"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "In Entwürfe verschieben"
   },
   "bookmarks": {
-    "title": "Lesezeichen"
+    "title": "Lesezeichen",
+    "hint": "Sie erhalten Benachrichtigungen, wenn gespeicherte Inhalte eine Antwort erhalten."
   },
   "favorites": {
-    "title": "Favoriten"
+    "title": "Favoriten",
+    "hint": "Sie erhalten Benachrichtigungen, wenn ein bevorzugter Autor neue Inhalte veröffentlicht."
   },
   "fragments": {
     "title": "Schnipsel",
@@ -2622,6 +2631,12 @@
     "classic": "Klassisch",
     "deck": "Stapel"
   },
+  "my-favorites-widget": {
+    "title": "Meine Favoriten",
+    "empty": "Sie haben noch keine Lieblings-Autoren hinzugefügt",
+    "empty-cta": "Autoren entdecken",
+    "view-all": "Alle anzeigen"
+  },
   "top-communities": {
     "title": "Top-Gemeinschaften",
     "create-button": "Erstelle dezentrale Gemeinschaft"
@@ -2844,7 +2859,13 @@
       "topup": "Bitte laden Sie Ihre Brieftasche mit einigen Tokens auf",
       "topup-description": "Wenn sich Ihr Wallet-Guthaben ändert, erkennt die Seite automatisch und lässt Sie die Kontoerstellung fortsetzen",
       "validation-success": "Wir haben Ihre Brieftasche bestätigt",
-      "address-copied": "Adresse kopiert"
+      "address-copied": "Adresse kopiert",
+      "minimum-required": "Mindestens {{minimum}} erforderlich für die Validierung.",
+      "estimated-value": "Geschätzter Wert: ${{value}}",
+      "checking-balance": "Ihr Wallet-Guthaben wird überprüft...",
+      "balance-fetch-error": "Ihr Wallet-Guthaben konnte nicht aktualisiert werden. Wir werden es weiterhin automatisch versuchen.",
+      "price-unavailable": "Preisdaten sind vorübergehend nicht verfügbar. Bitte versuchen Sie es in Kürze erneut.",
+      "price-required": "Preisdaten werden benötigt, um zu überprüfen, ob Ihr Guthaben das Minimum von {{minimum}} erreicht. Wir werden Ihr Guthaben weiterhin überprüfen, bitte versuchen Sie es in Kürze erneut."
     },
     "import": {
       "title": "Eigene Brieftasche importieren",
@@ -3217,5 +3238,40 @@
         "step-link-description": "Wallet-Verlinkung zum Ecency Konto abschließen"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Erstellen Sie Bilder aus Textbeschreibungen mit Hilfe von AI. Kosten werden von Ihren Ecency Points abgezogen.",
+    "toolbar-button": "KI-Bild",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Erstelle Bilder aus Text-Eingabeaufforderungen mit KI, powered by your Ecency Points",
+    "prompt-label": "Beschreiben Sie das Bild, das Sie erstellen möchten",
+    "prompt-placeholder": "Ein schöner Sonnenuntergang über den Bergen mit violetten Wolken...",
+    "prompt-chars-remaining": "{{count}} Zeichen verbleibend",
+    "select-aspect-ratio": "Seitenverhältnis",
+    "cost-label": "Kosten",
+    "balance-label": "Saldo",
+    "generate-button": "Bild generieren",
+    "generating": "Erstelle dein Bild...",
+    "result-title": "Erstelltes Bild",
+    "insert-button": "In Beitrag einfügen",
+    "download-button": "Download",
+    "generate-again": "Erneut generieren",
+    "history-title": "Neueste Generationen",
+    "history-empty": "Noch kein Generationsverlauf",
+    "success": "Bild erfolgreich erstellt!",
+    "error-insufficient-points": "Unzureichende Punkte. Sie benötigen {{required}} aber {{available}}.",
+    "error-content-policy": "Ihre Eingabeaufforderung wurde durch Inhaltsrichtlinien abgelehnt. Punkte wurden nicht zurückerstattet. Bitte versuchen Sie eine andere Eingabeaufforderung.",
+    "error-rate-limit": "Zu viele Generationsanfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+    "error-auth": "Authentifizierung abgelaufen. Bitte aktualisieren Sie die Seite und versuchen Sie es erneut.",
+    "error-generic": "Bildgenerierung fehlgeschlagen. Bitte erneut versuchen.",
+    "error-prompt-required": "Bitte geben Sie eine Aufforderung ein",
+    "error-prompt-too-long": "Aufforderung muss mindestens 1000 Zeichen lang sein",
+    "points-unit": "PUNKTE",
+    "save-to-gallery": "In Galerie speichern",
+    "save-to-gallery-success": "Bild in Ihrer Galerie gespeichert!",
+    "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut.",
+    "use-suggestion": "Verwenden: {{suggestion}}"
   }
 }

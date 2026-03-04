@@ -447,9 +447,9 @@
     "settings-2": "प्रदर्शन प्राथमिकताएँ"
   },
   "bookmark-btn": {
-    "add": "बुकमार्क्स में जोड़ें",
-    "added": "पृष्ठ स्मृति में जुड़ गया",
-    "delete": "बुकमार्क से हटाया",
+    "add": "Bookmark - get notified about new comments",
+    "added": "Bookmarked! You'll be notified about new comments on this post",
+    "delete": "Remove bookmark and stop notifications",
     "deleted": "बुकमार्क से हटाया"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "यह सामग्री लेखक द्वारा हटा दी गई है। आप इसे ब्लॉकचेन पर देख सकते हैं। ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "indexing-blockchain": "Your post has been published to the blockchain and is being indexed. This usually takes a few seconds.",
+    "indexing-slow": "Indexing is taking longer than expected. Try refreshing the page in a few moments.",
     "untitled": "Untitled",
     "comments-hidden": "इस पोस्ट के लेखक को आपने म्यूट कर दिया है।",
     "address-copy": "लिंक की प्रतिलिपि करें",
@@ -909,6 +911,8 @@
     "body-placeholder": "अपना उत्तर यहां लिखें",
     "preview": "पूर्वावलोकन",
     "success": "आपका उत्तर सफलतापूर्वक बनाया गया!",
+    "delete-success": "Comment deleted successfully",
+    "delete-error-hint": "Could not delete comment. Please try again",
     "retry-hint": "Your text is preserved below - please try again",
     "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
@@ -1189,7 +1193,10 @@
     "updated": "वरीयता अपडेट की गई!",
     "permissions-title": "कुंजियाँ और अनुमतियाँ",
     "permissions-hint": "अपनी कुंजियाँ प्रबंधित करें, एप्लिकेशन पर अनुमतियों को नियंत्रित करें",
-    "permissions": "खुली अनुमतियाँ"
+    "permissions": "खुली अनुमतियाँ",
+    "image-server": "Image server",
+    "image-server-default": "Ecency images (Default)",
+    "image-server-hiveblog": "Hive images (Alternative)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "मौन तोड़ें"
   },
   "favorite-btn": {
-    "add": "पसंदीदा में जोड़ें",
-    "added": "पसंदीदा में जोड़ें",
-    "delete": "पसंदीदा से हटाएं",
+    "add": "Favorite - get notified about new posts",
+    "added": "Added to favorites! You'll be notified when they publish new posts",
+    "delete": "Remove favorite and stop notifications",
     "deleted": "पसंदीदा से निकाला गया।"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "प्रलेख में भेजें"
   },
   "bookmarks": {
-    "title": "पृष्टस्मृतियाँ"
+    "title": "पृष्टस्मृतियाँ",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "पसंदीदा"
+    "title": "पसंदीदा",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "स्निपेट्स",
@@ -2622,6 +2631,12 @@
     "classic": "क्लॅसिक",
     "deck": "डेक"
   },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
+  },
   "top-communities": {
     "title": "शीर्ष समुदाय",
     "create-button": "Create decentralized community"
@@ -2844,7 +2859,13 @@
       "topup": "Please, top-up your wallet with some amount of tokens",
       "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
-      "address-copied": "Address copied"
+      "address-copied": "Address copied",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "Checking your wallet balance...",
+      "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
+      "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "Import own wallet",
@@ -3217,5 +3238,40 @@
         "step-link-description": "Finalize wallet linking to Ecency account"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Generate images from text descriptions using AI. Costs are deducted from your Ecency Points.",
+    "toolbar-button": "AI Image",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Create images from text prompts using AI, powered by your Ecency Points",
+    "prompt-label": "Describe the image you want to create",
+    "prompt-placeholder": "A beautiful sunset over mountains with purple clouds...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Aspect ratio",
+    "cost-label": "Cost",
+    "balance-label": "Balance",
+    "generate-button": "Generate Image",
+    "generating": "Generating your image...",
+    "result-title": "Generated Image",
+    "insert-button": "Insert into post",
+    "download-button": "Download",
+    "generate-again": "Generate Again",
+    "history-title": "Recent Generations",
+    "history-empty": "No generation history yet",
+    "success": "Image generated successfully!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Your prompt was rejected by content policy. Points were not refunded. Please try a different prompt.",
+    "error-rate-limit": "Too many generation requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "Image generation failed. Please try again.",
+    "error-prompt-required": "Please enter a prompt",
+    "error-prompt-too-long": "Prompt must be 1000 characters or fewer",
+    "points-unit": "POINTS",
+    "save-to-gallery": "Save to Gallery",
+    "save-to-gallery-success": "Image saved to your gallery!",
+    "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
+    "use-suggestion": "Use: {{suggestion}}"
   }
 }

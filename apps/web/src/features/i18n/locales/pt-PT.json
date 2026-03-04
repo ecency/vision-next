@@ -447,9 +447,9 @@
     "settings-2": "visualizar preferências"
   },
   "bookmark-btn": {
-    "add": "Adicionar aos favoritos",
-    "added": "Adicionado aos favoritos",
-    "delete": "Remover de Favoritos",
+    "add": "Favorito - seja notificado sobre novos comentários",
+    "added": "Favoritos! Você será notificado sobre novos comentários nesta publicação",
+    "delete": "Remover os favoritos e parar notificações",
     "deleted": "Removido dos favoritos"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
     "deleted-content": "Esta publicação foi excluída por {{author}}",
     "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
+    "indexing-blockchain": "Sua postagem foi publicada na blockchain e está sendo indexada. Isso geralmente leva alguns segundos.",
+    "indexing-slow": "A indexação está demorando mais do que o esperado. Tente atualizar a página em alguns instantes.",
     "untitled": "Sem Título",
     "comments-hidden": "O autor desta publicação foi silenciado por você.",
     "address-copy": "Copiar link",
@@ -909,6 +911,8 @@
     "body-placeholder": "Escreva a sua resposta aqui",
     "preview": "Pré-visualizar",
     "success": "Sua resposta foi criada com sucesso!",
+    "delete-success": "Comentário apagado com sucesso",
+    "delete-error-hint": "Não foi possível apagar o comentário. Por favor, tente novamente",
     "retry-hint": "Seu texto está preservado abaixo - por favor, tente novamente",
     "rc-error-hint": "Créditos de Recurso Insuficientes - seu texto é preservado abaixo"
   },
@@ -1189,7 +1193,10 @@
     "updated": "Preferências atualizadas!",
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
-    "permissions": "Abrir permissões"
+    "permissions": "Abrir permissões",
+    "image-server": "Servidor de imagem",
+    "image-server-default": "Imagens de Ecency (Padrão)",
+    "image-server-hiveblog": "Imagens de Colméia (Alternativa)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "Reativar o som"
   },
   "favorite-btn": {
-    "add": "Adicionar aos favoritos",
-    "added": "Adicionado aos favoritos",
-    "delete": "Remover dos favoritos",
+    "add": "Favorito - seja notificado sobre novas publicações",
+    "added": "Adicionado aos favoritos! Você será notificado quando publicar novas postagens",
+    "delete": "Remover favoritos e parar notificações",
     "deleted": "Removido dos favoritos"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "Mover para Rascunhos"
   },
   "bookmarks": {
-    "title": "Marcadores"
+    "title": "Marcadores",
+    "hint": "Você receberá notificações quando um conteúdo favorito receber uma resposta."
   },
   "favorites": {
-    "title": "Favoritos"
+    "title": "Favoritos",
+    "hint": "Você receberá notificações quando um autor favorito publicar conteúdo novo."
   },
   "fragments": {
     "title": "Trechos",
@@ -2622,6 +2631,12 @@
     "classic": "Clássico",
     "deck": "Prancha"
   },
+  "my-favorites-widget": {
+    "title": "Meus Favoritos",
+    "empty": "Você ainda não adicionou nenhum autor favorito",
+    "empty-cta": "Descubra autores",
+    "view-all": "Visualizar tudo"
+  },
   "top-communities": {
     "title": "Principais comunidades",
     "create-button": "Criar comunidade descentralizada"
@@ -2844,7 +2859,13 @@
       "topup": "Por favor, recarregue sua carteira com alguma quantidade de tokens",
       "topup-description": "Quando seu saldo de carteira muda, a página será detectada automaticamente e permitirá que Você continue a criar a conta",
       "validation-success": "Nós validamos sua carteira",
-      "address-copied": "Endereço copiado"
+      "address-copied": "Endereço copiado",
+      "minimum-required": "Pelo menos {{minimum}} é necessário para validar.",
+      "estimated-value": "Valor estimado: ${{value}}",
+      "checking-balance": "Verificando o saldo da sua carteira...",
+      "balance-fetch-error": "Não foi possível atualizar seu saldo da carteira. Nós continuaremos tentando novamente.",
+      "price-unavailable": "Os dados de preços estão temporariamente indisponíveis. Por favor, tente novamente em instantes.",
+      "price-required": "Os dados de preço são necessários para validar que seu saldo atende ao mínimo {{minimum}} . Vamos continuar verificando seu saldo, por favor tente novamente em instantes."
     },
     "import": {
       "title": "Importar carteira própria",
@@ -3217,5 +3238,40 @@
         "step-link-description": "Finalize a carteira vinculada à conta de Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Gere imagens a partir de descrições de texto usando AI. Os custos são deduzidos a partir de seus pontos de Ecência.",
+    "toolbar-button": "Imagem de IA",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Criar imagens a partir de prompts de texto usando AI, alimentado por seus Pontos de Ecência",
+    "prompt-label": "Descreva a imagem que você deseja criar",
+    "prompt-placeholder": "Um belo pôr do sol sobre montanhas com nuvens roxas...",
+    "prompt-chars-remaining": "{{count}} caracteres restantes",
+    "select-aspect-ratio": "Proporção da imagem",
+    "cost-label": "Custo",
+    "balance-label": "Saldo",
+    "generate-button": "Gerar Imagem",
+    "generating": "Gerando sua imagem...",
+    "result-title": "Imagem Gerada",
+    "insert-button": "Inserir na publicação",
+    "download-button": "BAIXAR",
+    "generate-again": "Gerar Novamente",
+    "history-title": "Gerações recentes",
+    "history-empty": "Nenhuma história de geração ainda",
+    "success": "Imagem gerada com sucesso!",
+    "error-insufficient-points": "Pontos insuficientes. Você precisa de {{required}} , mas tem {{available}}.",
+    "error-content-policy": "Seu prompt foi rejeitado pela política de conteúdo. Pontos não foram reembolsados. Por favor, tente um prompt diferente.",
+    "error-rate-limit": "Muitas solicitações de geração. Por favor, aguarde um momento e tente novamente.",
+    "error-auth": "A autenticação expirou. Atualize a página e tente novamente.",
+    "error-generic": "Falha ao gerar a imagem. Por favor, tente novamente.",
+    "error-prompt-required": "Por favor, insira um prompt",
+    "error-prompt-too-long": "O pedido deve ter 1000 caracteres ou menos",
+    "points-unit": "PONTOS",
+    "save-to-gallery": "Salvar na Galeria",
+    "save-to-gallery-success": "Imagem salva em sua galeria!",
+    "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente.",
+    "use-suggestion": "Uso: {{suggestion}}"
   }
 }

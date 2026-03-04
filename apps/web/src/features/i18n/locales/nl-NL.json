@@ -447,9 +447,9 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Voeg toe aan bladwijzers",
-    "added": "Toegevoegd aan bladwijzers",
-    "delete": "Verwijder uit bladwijzers",
+    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
+    "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
+    "delete": "Bladwijzer verwijderen en meldingen stoppen",
     "deleted": "Verwijderd van bladwijzers"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
     "deleted-content": "Dit bericht is verwijderd door {{author}}",
     "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
+    "indexing-blockchain": "Je bericht is gepubliceerd naar de blockchain en wordt geïndexeerd. Dit duurt meestal een paar seconden.",
+    "indexing-slow": "Indexeren duurt langer dan verwacht. Probeer de pagina binnen enkele ogenblikken te vernieuwen.",
     "untitled": "Naamloos",
     "comments-hidden": "Auteur van dit bericht is gedempt door jou.",
     "address-copy": "Link kopiëren",
@@ -909,6 +911,8 @@
     "body-placeholder": "Schrijf jouw reactie hier",
     "preview": "Voorbeeld",
     "success": "Uw antwoord is succesvol aangemaakt!",
+    "delete-success": "Reactie succesvol verwijderd",
+    "delete-error-hint": "Opmerking kon niet verwijderd worden. Probeer het opnieuw",
     "retry-hint": "Uw tekst is hieronder bewaard - probeer het opnieuw",
     "rc-error-hint": "Onvoldoende Grondstof Credits - je tekst wordt hieronder bewaard"
   },
@@ -1189,7 +1193,10 @@
     "updated": "Voorkeuren bijgewerkt!",
     "permissions-title": "Sleutels & machtigingen",
     "permissions-hint": "Beheer uw sleutels, beheer machtigingen over applicaties",
-    "permissions": "Open permissies"
+    "permissions": "Open permissies",
+    "image-server": "Afbeelding server",
+    "image-server-default": "Ecency afbeeldingen (standaard)",
+    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Toevoegen aan favorieten",
-    "added": "Aan favorieten toegevoegd",
-    "delete": "Uit favorieten verwijderen",
+    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
+    "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
+    "delete": "Favoriet verwijderen en meldingen stoppen",
     "deleted": "Verwijderd uit favorieten"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "Verplaats naar concepten"
   },
   "bookmarks": {
-    "title": "Bladwijzers"
+    "title": "Bladwijzers",
+    "hint": "U ontvangt meldingen wanneer inhoud met bladwijzers een antwoord ontvangt."
   },
   "favorites": {
-    "title": "Favorieten"
+    "title": "Favorieten",
+    "hint": "U ontvangt meldingen wanneer een favoriete auteur nieuwe inhoud publiceert."
   },
   "fragments": {
     "title": "Tekstbouwstenen",
@@ -2622,6 +2631,12 @@
     "classic": "Klassiek",
     "deck": "Dek"
   },
+  "my-favorites-widget": {
+    "title": "Mijn favorieten",
+    "empty": "Je hebt nog geen favoriete auteurs toegevoegd",
+    "empty-cta": "Auteurs ontdekken",
+    "view-all": "Alles weergeven"
+  },
   "top-communities": {
     "title": "Top communities",
     "create-button": "Maak een gedecentraliseerde gemeenschap"
@@ -2844,7 +2859,13 @@
       "topup": "Vul uw portemonnee aan met een aantal tokens",
       "topup-description": "Als het saldo van uw portemonnee wijzigt, zal de pagina automatisch detecteren en u kunt doorgaan met het aanmaken van uw account",
       "validation-success": "We hebben je portemonnee gevalideerd",
-      "address-copied": "Adres gekopieerd"
+      "address-copied": "Adres gekopieerd",
+      "minimum-required": "Tenminste {{minimum}} vereist om te valideren.",
+      "estimated-value": "Geschatte waarde: ${{value}}",
+      "checking-balance": "Controleer uw portemonnee saldo...",
+      "balance-fetch-error": "Kon uw portemonnee saldo niet vernieuwen. We blijven automatisch opnieuw proberen.",
+      "price-unavailable": "Prijsgegevens zijn tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+      "price-required": "Prijsgegevens zijn vereist om te valideren dat uw saldo voldoet aan het {{minimum}} minimum. We zullen uw balans blijven controleren, probeer het later opnieuw."
     },
     "import": {
       "title": "Importeer eigen portemonnee",
@@ -3217,5 +3238,40 @@
         "step-link-description": "Portemonnee koppelen aan Ecency account afronden"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Genereer afbeeldingen van tekstbeschrijvingen met behulp van AI. Kosten worden van je Ecency Points afgetrokken.",
+    "toolbar-button": "AI afbeelding",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Maak afbeeldingen van tekst prompts met behulp van AI, aangedreven door je Ecency Points",
+    "prompt-label": "Beschrijf de afbeelding die u wilt maken",
+    "prompt-placeholder": "Een prachtige zonsondergang over bergen met paarse wolken...",
+    "prompt-chars-remaining": "{{count}} resterende tekens",
+    "select-aspect-ratio": "Aspect verhouding",
+    "cost-label": "Kosten",
+    "balance-label": "Saldo",
+    "generate-button": "Afbeelding genereren",
+    "generating": "Bezig met aanmaken afbeelding...",
+    "result-title": "Gegenereerde afbeelding",
+    "insert-button": "Invoegen in bericht",
+    "download-button": "downloaden",
+    "generate-again": "Opnieuw genereren",
+    "history-title": "Recente generaties",
+    "history-empty": "Nog geen generatie geschiedenis",
+    "success": "Afbeelding met succes gegenereerd!",
+    "error-insufficient-points": "Onvoldoende punten. Je hebt {{required}} nodig maar {{available}}.",
+    "error-content-policy": "Je prompt werd geweigerd door het inhoudsbeleid. Punten werden niet terugbetaald. Probeer een ander verzoek.",
+    "error-rate-limit": "Te veel generatie verzoeken. Wacht even en probeer het opnieuw.",
+    "error-auth": "Verificatie is verlopen. Vernieuw de pagina en probeer het opnieuw.",
+    "error-generic": "Aanmaken van afbeeldingen is mislukt. Probeer het opnieuw.",
+    "error-prompt-required": "Gelieve een prompt in te voeren",
+    "error-prompt-too-long": "Vraag moet 1000 tekens of minder zijn",
+    "points-unit": "PUNTEN",
+    "save-to-gallery": "Opslaan in galerij",
+    "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
+    "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw.",
+    "use-suggestion": "Gebruik: {{suggestion}}"
   }
 }

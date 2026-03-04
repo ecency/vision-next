@@ -447,9 +447,9 @@
     "settings-2": "表示設定"
   },
   "bookmark-btn": {
-    "add": "ブックマークに追加",
-    "added": "ブックマークに追加しました",
-    "delete": "ブックマークから削除",
+    "add": "ブックマーク - 新しいコメントについて通知を受ける",
+    "added": "ブックマークしました！この投稿に新しいコメントが表示されます。",
+    "delete": "ブックマークを削除して通知を停止する",
     "deleted": "ブックマークから削除しました"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "このコンテンツは著者によって削除されました。ブロックチェーンから見ることができます ",
     "deleted-content": "この投稿は {{author}}によって削除されました",
     "deleted-no-history": "削除されたコンテンツの履歴はブロックチェーンからは利用できません。",
+    "indexing-blockchain": "あなたの投稿はブロックチェーンに公開されています。これは通常数秒かかります。",
+    "indexing-slow": "インデックス作成に時間がかかっています。しばらくしてからページを更新してください。",
     "untitled": "無題のタイトル",
     "comments-hidden": "この投稿の投稿者はあなたによってミュートされています。",
     "address-copy": "リンクをコピー",
@@ -909,6 +911,8 @@
     "body-placeholder": "ここに返信を書いてください",
     "preview": "プレビュー",
     "success": "返信が正常に作成されました！",
+    "delete-success": "コメントは正常に削除されました",
+    "delete-error-hint": "コメントを削除できませんでした。もう一度やり直してください。",
     "retry-hint": "テキストは以下に保存されています - もう一度やり直してください",
     "rc-error-hint": "資源クレジットが不足しています。テキストは以下に保存されます。"
   },
@@ -1189,7 +1193,10 @@
     "updated": "設定を更新しました！",
     "permissions-title": "キーと権限",
     "permissions-hint": "キーを管理し、アプリケーションに対する権限を制御します",
-    "permissions": "権限を開く"
+    "permissions": "権限を開く",
+    "image-server": "画像サーバー",
+    "image-server-default": "Ecency images(デフォルト)",
+    "image-server-hiveblog": "ハイブ画像 (代替)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "ミュート解除"
   },
   "favorite-btn": {
-    "add": "お気に入りに追加",
-    "added": "お気に入りに追加しました",
-    "delete": "お気に入りから削除",
+    "add": "お気に入り - 新しい投稿について通知を受け取る",
+    "added": "お気に入りに追加されました！新しい投稿を公開すると通知されます。",
+    "delete": "お気に入りを削除して通知を停止する",
     "deleted": "お気に入りから削除しました"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "下書きへ移動"
   },
   "bookmarks": {
-    "title": "ブックマーク"
+    "title": "ブックマーク",
+    "hint": "ブックマークされたコンテンツが返信を受け取ったときに通知を受け取ります。"
   },
   "favorites": {
-    "title": "お気に入り"
+    "title": "お気に入り",
+    "hint": "お気に入りの著者が新しいコンテンツを公開すると通知が届きます。"
   },
   "fragments": {
     "title": "Snippets",
@@ -2622,6 +2631,12 @@
     "classic": "クラシック",
     "deck": "デッキ"
   },
+  "my-favorites-widget": {
+    "title": "お気に入り",
+    "empty": "まだお気に入りの著者を追加していません",
+    "empty-cta": "著者を発見",
+    "view-all": "すべて表示"
+  },
   "top-communities": {
     "title": "上位のコミュニティ",
     "create-button": "分散型コミュニティを作成"
@@ -2844,7 +2859,13 @@
       "topup": "ウォレットにトークンを追加してください",
       "topup-description": "ウォレットの残高が変更されると、ページは自動的に検出され、アカウントの作成を続けます。",
       "validation-success": "ウォレットを確認しました",
-      "address-copied": "アドレスをコピーしました"
+      "address-copied": "アドレスをコピーしました",
+      "minimum-required": "少なくとも {{minimum}} を検証する必要があります。",
+      "estimated-value": "見積もり値: ${{value}}",
+      "checking-balance": "ウォレット残高を確認しています...",
+      "balance-fetch-error": "ウォレット残高を更新できませんでした。自動的に再試行を続けます。",
+      "price-unavailable": "価格データは一時的に利用できません。しばらくしてから再試行してください。",
+      "price-required": "残高が {{minimum}} 最小値を満たしていることを確認するには価格データが必要です。しばらくしてから再度お試しください。"
     },
     "import": {
       "title": "自分のウォレットをインポート",
@@ -3217,5 +3238,40 @@
         "step-link-description": "Ecency アカウントへのリンクを完了する"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "AIを使用してテキスト説明から画像を生成します。Ecency Pointsからコストが差し引かれます。",
+    "toolbar-button": "AI 画像",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "AIを使用してテキストプロンプトから画像を作成します。Ecency Pointsを使用します。",
+    "prompt-label": "作成したい画像を記述してください",
+    "prompt-placeholder": "紫色の雲のある山の上に美しい夕日。",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "アスペクト比",
+    "cost-label": "コスト",
+    "balance-label": "残高",
+    "generate-button": "画像を生成する",
+    "generating": "画像を生成しています...",
+    "result-title": "生成された画像",
+    "insert-button": "ポストに挿入",
+    "download-button": "ダウンロード",
+    "generate-again": "もう一度生成",
+    "history-title": "最近の世代",
+    "history-empty": "生成履歴はまだありません",
+    "success": "画像が正常に生成されました！",
+    "error-insufficient-points": "ポイントが足りません。 {{required}} が必要ですが、 {{available}} が必要です。",
+    "error-content-policy": "あなたのプロンプトはコンテンツポリシーによって拒否されました。ポイントは返金されませんでした。別のプロンプトを試してください。",
+    "error-rate-limit": "世代リクエストが多すぎます。しばらく待ってからもう一度お試しください。",
+    "error-auth": "認証の有効期限が切れました。ページを更新してもう一度お試しください。",
+    "error-generic": "画像の生成に失敗しました。もう一度やり直してください。",
+    "error-prompt-required": "プロンプトを入力してください",
+    "error-prompt-too-long": "プロンプトは1000文字以下でなければなりません",
+    "points-unit": "ポイント",
+    "save-to-gallery": "ギャラリーに保存",
+    "save-to-gallery-success": "画像をギャラリーに保存しました！",
+    "save-to-gallery-error": "ギャラリーに画像を保存できませんでした。もう一度やり直してください。",
+    "use-suggestion": "使用: {{suggestion}}"
   }
 }

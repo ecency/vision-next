@@ -447,9 +447,9 @@
     "settings-2": "显示首选项"
   },
   "bookmark-btn": {
-    "add": "添加到书签",
-    "added": "已添加到书签",
-    "delete": "从书签中删除",
+    "add": "书签-收到关于新评论的通知",
+    "added": "已加入书签！您将收到关于此帖子的新评论的通知",
+    "delete": "删除书签并停止通知",
     "deleted": "已从书签中删除"
   },
   "entry-reblog": {
@@ -867,6 +867,8 @@
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
+    "indexing-blockchain": "您的帖子已发布到区块链并正在索引。这通常需要几秒钟。",
+    "indexing-slow": "索引花费的时间超过预期。尝试稍后刷新页面。",
     "untitled": "无标题",
     "comments-hidden": "这个帖子的作者被你禁言。",
     "address-copy": "复制链接",
@@ -909,6 +911,8 @@
     "body-placeholder": "在此处写下您的回复",
     "preview": "预览",
     "success": "您的回复已成功创建！",
+    "delete-success": "评论已成功删除",
+    "delete-error-hint": "无法删除评论。请重试",
     "retry-hint": "您的文本在下面被保留 - 请重试",
     "rc-error-hint": "资源积分不足 - 您的文本在下方保存"
   },
@@ -1189,7 +1193,10 @@
     "updated": "首选项已更新！",
     "permissions-title": "密钥和权限",
     "permissions-hint": "管理您的密钥，控制应用程序的权限",
-    "permissions": "打开权限"
+    "permissions": "打开权限",
+    "image-server": "图像服务器",
+    "image-server-default": "生态图像(默认)",
+    "image-server-hiveblog": "Hive 图像 (替代)"
   },
   "settings": {
     "dm-privacy": {
@@ -1635,9 +1642,9 @@
     "unMute": "解除屏蔽"
   },
   "favorite-btn": {
-    "add": "添加到收藏夹",
-    "added": "已添加到收藏夹",
-    "delete": "从收藏夹中删除",
+    "add": "收藏夹 - 获得关于新帖子的通知",
+    "added": "添加到收藏夹！当您发布新帖子时会收到通知",
+    "delete": "删除收藏夹和停止通知",
     "deleted": "已从收藏夹移除"
   },
   "editor-toolbar": {
@@ -2063,10 +2070,12 @@
     "move": "移动到草稿"
   },
   "bookmarks": {
-    "title": "书签"
+    "title": "书签",
+    "hint": "当书签内容收到回复时，您将收到通知。"
   },
   "favorites": {
-    "title": "收藏夹"
+    "title": "收藏夹",
+    "hint": "当最喜欢的作者发布新内容时，您将收到通知。"
   },
   "fragments": {
     "title": "预设内容",
@@ -2622,6 +2631,12 @@
     "classic": "经典",
     "deck": "牌组"
   },
+  "my-favorites-widget": {
+    "title": "我的收藏夹",
+    "empty": "您还没有添加任何收藏的作者",
+    "empty-cta": "发现作者",
+    "view-all": "查看全部"
+  },
   "top-communities": {
     "title": "顶级社区",
     "create-button": "创建分散的社区"
@@ -2844,7 +2859,13 @@
       "topup": "请用一定数量的代币充值你的钱包",
       "topup-description": "当你的钱包余额变化时，页面将自动检测并允许你继续创建帐户",
       "validation-success": "我们已验证您的钱包",
-      "address-copied": "地址已复制"
+      "address-copied": "地址已复制",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "正在检查您的钱包余额...",
+      "balance-fetch-error": "无法刷新您的钱包余额。我们将自动重试一次。",
+      "price-unavailable": "价格数据暂时不可用。请稍后再试。",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "导入自己的钱包",
@@ -3217,5 +3238,40 @@
         "step-link-description": "完成连接到生态帐户的钱包"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "使用AI生成文本描述中的图像。成本将从您的生态点中扣除。",
+    "toolbar-button": "AI 图像",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "使用您的生态点来创建来自文本提示的图像",
+    "prompt-label": "描述您想要创建的图像",
+    "prompt-placeholder": "一个美丽的日落在山上，有紫色云...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "纵横比",
+    "cost-label": "费用",
+    "balance-label": "余额",
+    "generate-button": "生成图像",
+    "generating": "正在生成您的图像...",
+    "result-title": "生成的图像",
+    "insert-button": "插入到帖子",
+    "download-button": "下载",
+    "generate-again": "再次生成",
+    "history-title": "最近几代人",
+    "history-empty": "还没有历史记录",
+    "success": "图像生成成功！",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "您的提示被内容策略拒绝。点数未退还。请尝试其他提示。",
+    "error-rate-limit": "生成请求太多。请稍等，然后重试。",
+    "error-auth": "认证过期。请刷新页面并重试。",
+    "error-generic": "图像生成失败。请重试。",
+    "error-prompt-required": "请输入提示",
+    "error-prompt-too-long": "提示必须是1000个或更少字符",
+    "points-unit": "点数",
+    "save-to-gallery": "保存到相册",
+    "save-to-gallery-success": "图片保存到您的相册！",
+    "save-to-gallery-error": "无法将图像保存到图库。请重试。",
+    "use-suggestion": "Use: {{suggestion}}"
   }
 }
