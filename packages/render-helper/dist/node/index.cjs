@@ -1317,9 +1317,10 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
   if (!node || !node.childNodes) {
     return;
   }
-  const children = Array.from(node.childNodes);
-  children.forEach((child) => {
-    if (!child) return;
+  let child = node.firstChild;
+  while (child) {
+    const next = child.nextSibling;
+    const prev = child.previousSibling;
     if (child.nodeName.toLowerCase() === "a") {
       a(child, forApp, parentDomain, seoContext);
     }
@@ -1337,8 +1338,14 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
     }
     if (child.parentNode) {
       traverse(child, forApp, depth + 1, state, parentDomain, seoContext);
+    } else {
+      const possibleReplacement = next ? next.previousSibling : node.lastChild;
+      if (possibleReplacement && possibleReplacement !== prev && possibleReplacement.parentNode === node) {
+        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext);
+      }
     }
-  });
+    child = next;
+  }
 }
 
 // src/methods/clean-reply.method.ts

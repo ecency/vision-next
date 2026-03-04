@@ -496,7 +496,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://peakd.com/tag/@demo/tests and https://steemit.com/test/@demo/post'
       }
-      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
+      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a class=\"markdown-external-link\" data-href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })

@@ -10,15 +10,15 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
     return
   }
 
-  // Snapshot childNodes into a static array before iterating.
-  // node.childNodes is a live NodeList: when a handler removes or replaces a
-  // child the indices shift, causing subsequent iterations to skip nodes or
-  // visit the wrong ones — ultimately leaving orphaned elements whose
-  // parentNode is null and crashing any code that later reads it.
-  const children = Array.from(node.childNodes);
-
-  children.forEach(child => {
-    if (!child) return;
+  // Walk siblings using nextSibling instead of indexing into the live NodeList.
+  // node.childNodes is live: when a handler removes or replaces a child the
+  // indices shift, causing index-based loops to skip nodes. Capturing
+  // nextSibling before running handlers gives a stable "next" pointer that
+  // isn't affected by mutations to the current child.
+  let child = node.firstChild
+  while (child) {
+    const next = child.nextSibling
+    const prev = child.previousSibling
 
     if (child.nodeName.toLowerCase() === 'a') {
       a(<HTMLElement>child, forApp, parentDomain, seoContext)
@@ -36,12 +36,21 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
       p(<HTMLElement>child)
     }
 
-    // Only recurse if the child is still attached to the DOM.
-    // A handler (e.g. text(), iframe()) may have removed or replaced the node,
-    // setting its parentNode to null.  Recursing into a detached node can cause
-    // descendant handlers to crash when they access el.parentNode.
     if (child.parentNode) {
+      // Child is still in the DOM — recurse into it normally
       traverse(child, forApp, depth + 1, state, parentDomain, seoContext)
+    } else {
+      // Child was removed or replaced by a handler. If a replacement was
+      // inserted (e.g. text() wraps a URL in <span>, a() swaps a tweet link
+      // for <blockquote>), it now sits between `prev` and `next` in the live
+      // childNodes. Detect it by comparing next.previousSibling to the
+      // captured `prev` — if they differ a new node was inserted.
+      const possibleReplacement = next ? next.previousSibling : node.lastChild
+      if (possibleReplacement && possibleReplacement !== prev && possibleReplacement.parentNode === node) {
+        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext)
+      }
     }
-  })
+
+    child = next
+  }
 }
