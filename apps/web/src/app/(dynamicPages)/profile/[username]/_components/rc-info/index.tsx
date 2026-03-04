@@ -113,7 +113,8 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
           const transferCost = operationCosts.transfer_operation.avg_cost;
           const voteCost = operationCosts.vote_operation.avg_cost;
           const customJsonOperationsCosts = operationCosts.custom_json_operation.avg_cost;
-          const createClaimAccountCost = Number(operationCosts.claim_account_operation.avg_cost);
+          const createClaimAccountCost =
+            Number(operationCosts.claim_account_operation.avg_cost) * 1.1;
 
           const commentCount: number = Math.ceil(Number(availableResourceCredit) / commentCost);
           const votetCount: number = Math.ceil(Number(availableResourceCredit) / voteCost);

@@ -290,12 +290,13 @@ export function EntryVoteDialog({
         <div className="vote-error error-message">
           <span>{i18next.t("entry-list-item.old-post-error")}</span>
           <span>{i18next.t("entry-list-item.old-post-error-suggestion")}</span>
-          <div className="tipping-icon inline-flex">
+          <div className="tipping-icon inline-flex ml-1">
             <EntryTipBtn
               account={account}
               entry={entry}
               setTipDialogMounted={setTipDialogMounted}
               handleClickAway={handleClickAway}
+              inlineTipButton={true}
             />
           </div>
         </div>
