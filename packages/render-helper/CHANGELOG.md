@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.20
+
+### Patch Changes
+
+- Fix render-helper traverse (#686)
+
 ## 2.4.19
 
 ### Patch Changes
