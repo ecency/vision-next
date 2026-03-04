@@ -193,10 +193,11 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
         postingPublicKey: keys.postingPubkey
       };
 
+      const normalizedReferral = decodedInfo.referral ?? "";
       const dataToEncode = {
         username: decodedInfo.username,
         email: decodedInfo.email,
-        referral: decodedInfo.referral,
+        referral: normalizedReferral,
         pubkeys
       };
       const stringifiedData = JSON.stringify(dataToEncode);
@@ -205,7 +206,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
       const accInfo = {
         username: decodedInfo.username,
         email: decodedInfo.email,
-        referral: decodedInfo.referral || "",
+        referral: normalizedReferral,
         keys
       };
       setAccountInfo(accInfo);
@@ -230,7 +231,7 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     if (!activeUser || !decodedInfo?.pubkeys) return;
 
     const useClaimed = type === createOptions.CREDIT;
-    const newAccountName = decodedInfo.username;
+    const newAccountName = decodedInfo.username.trim().toLowerCase();
 
     try {
       await createAccount({
@@ -308,16 +309,16 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     const transferCost = operationCosts.transfer_operation.avg_cost;
     const voteCost = operationCosts.vote_operation.avg_cost;
     const customJsonOperationsCosts = operationCosts.custom_json_operation.avg_cost;
-    if (isNaN(rcAmount) || Number(rcAmount * 1e9) < 5000000000) {
+    if (isNaN(rcAmount) || rcAmount * 1e9 < 5000000000) {
       setRcError(i18next.t("onboard.rc-error"));
     } else {
       setRcError("");
     }
 
-    const commentCount: number = Math.ceil(Number(rcAmount * 1e9) / commentCost);
-    const votetCount: number = Math.ceil(Number(rcAmount * 1e9) / voteCost);
-    const transferCount: number = Math.ceil(Number(rcAmount * 1e9) / transferCost);
-    const customJsonCount: number = Math.ceil(Number(rcAmount * 1e9) / customJsonOperationsCosts);
+    const commentCount: number = Math.ceil((rcAmount * 1e9) / commentCost);
+    const votetCount: number = Math.ceil((rcAmount * 1e9) / voteCost);
+    const transferCount: number = Math.ceil((rcAmount * 1e9) / transferCost);
+    const customJsonCount: number = Math.ceil((rcAmount * 1e9) / customJsonOperationsCosts);
 
     setCommentAmount(commentCount);
     setVoteAmount(votetCount);

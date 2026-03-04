@@ -119,7 +119,7 @@ describe("b64u encode / decode", () => {
   describe("RC validation edge cases (Bug #5 fix)", () => {
     // Mirrors the fixed rcOperationsCost validation logic
     const validateRcAmount = (rcAmount: number) => {
-      if (isNaN(rcAmount) || Number(rcAmount * 1e9) < 5000000000) {
+      if (isNaN(rcAmount) || rcAmount * 1e9 < 5000000000) {
         return "onboard.rc-error";
       }
       return "";
