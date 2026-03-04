@@ -464,7 +464,7 @@
   },
   "entry-tip": {
     "title": "Sugerencia",
-    "tip": "Tip",
+    "tip": "Propina",
     "send-tip": "Enviar una propina",
     "count": "{{count}} propina",
     "count_plural": "{{count}} propinas"
