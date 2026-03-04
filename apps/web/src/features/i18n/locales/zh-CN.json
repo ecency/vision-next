@@ -447,9 +447,9 @@
     "settings-2": "显示首选项"
   },
   "bookmark-btn": {
-    "add": "书签-收到关于新评论的通知",
-    "added": "已加入书签！您将收到关于此帖子的新评论的通知",
-    "delete": "删除书签并停止通知",
+    "add": "书签-获得关于新评论的通知",
+    "added": "已添加到书签",
+    "delete": "从书签中删除",
     "deleted": "已从书签中删除"
   },
   "entry-reblog": {
@@ -464,6 +464,7 @@
   },
   "entry-tip": {
     "title": "礼物",
+    "tip": "Tip",
     "send-tip": "发送提示",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1643,9 @@
     "unMute": "解除屏蔽"
   },
   "favorite-btn": {
-    "add": "收藏夹 - 获得关于新帖子的通知",
-    "added": "添加到收藏夹！当您发布新帖子时会收到通知",
-    "delete": "删除收藏夹和停止通知",
+    "add": "收藏夹 — 收到关于新帖子的通知",
+    "added": "已添加到收藏夹",
+    "delete": "从收藏夹中删除",
     "deleted": "已从收藏夹移除"
   },
   "editor-toolbar": {
