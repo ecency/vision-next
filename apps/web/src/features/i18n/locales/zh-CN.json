@@ -103,7 +103,8 @@
     "import": "导入",
     "clear": "清空",
     "play": "播放",
-    "pause": "暂停"
+    "pause": "暂停",
+    "updated": "已更新"
   },
   "validation": {
     "required": "必填字段",
