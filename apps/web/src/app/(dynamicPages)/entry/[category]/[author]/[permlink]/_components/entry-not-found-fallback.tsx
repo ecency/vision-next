@@ -56,7 +56,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
 
   // Poll blockchain via SDK (with node failover + DMCA filtering)
   // Uses separate query key to avoid overwriting optimistic cache
-  const { data: polledEntry, dataUpdatedAt, isError } = useQuery({
+  const { data: polledEntry, dataUpdatedAt, isError, errorUpdatedAt } = useQuery({
     ...getPostQueryOptions(username, permlink),
     queryKey: ["entry-chain-poll", username, permlink],
     enabled: (!!isOptimistic && !hasTransitioned) || isVerifying,
@@ -72,14 +72,18 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
     }
   }, [polledEntry, handleSuccess]);
 
-  // Track verification poll count based on actual query completions
-  const prevDataUpdatedAt = useRef(dataUpdatedAt);
+  // Track verification poll count based on actual query completions (success or error)
+  const prevUpdatedAt = useRef({ data: dataUpdatedAt, error: errorUpdatedAt });
   useEffect(() => {
-    if (!isOptimistic && isVerifying && dataUpdatedAt > 0 && dataUpdatedAt !== prevDataUpdatedAt.current) {
-      prevDataUpdatedAt.current = dataUpdatedAt;
-      setVerifyPollCount((c) => c + 1);
+    if (!isOptimistic && isVerifying) {
+      const dataChanged = dataUpdatedAt > 0 && dataUpdatedAt !== prevUpdatedAt.current.data;
+      const errorChanged = errorUpdatedAt > 0 && errorUpdatedAt !== prevUpdatedAt.current.error;
+      if (dataChanged || errorChanged) {
+        prevUpdatedAt.current = { data: dataUpdatedAt, error: errorUpdatedAt };
+        setVerifyPollCount((c) => c + 1);
+      }
     }
-  }, [isOptimistic, isVerifying, dataUpdatedAt]);
+  }, [isOptimistic, isVerifying, dataUpdatedAt, errorUpdatedAt]);
 
   // Timeout after 30s (optimistic path)
   useEffect(() => {
