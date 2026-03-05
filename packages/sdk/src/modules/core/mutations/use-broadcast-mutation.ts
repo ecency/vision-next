@@ -367,14 +367,13 @@ async function broadcastWithFallback(
             shouldSkip = true;
             skipReason = 'No adapter provided';
           } else {
-            // Pre-fetch token to check availability (will be reused in broadcast)
+            // Pre-fetch token if available (will be reused in broadcast)
             const token = await adapter.getAccessToken(username);
-            if (!token) {
-              shouldSkip = true;
-              skipReason = 'No access token available';
-            } else {
+            if (token) {
               prefetchedToken = token; // Store for reuse
             }
+            // When no token but adapter exists, don't skip —
+            // broadcastWithMethod can fall back to adapter.broadcastWithHiveSigner
           }
           break;
         case 'keychain':
