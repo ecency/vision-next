@@ -103,7 +103,8 @@
     "import": "Importeren",
     "clear": "Verwijderen",
     "play": "Afspelen",
-    "pause": "Onderbreken"
+    "pause": "Onderbreken",
+    "updated": "Bijgewerkt"
   },
   "validation": {
     "required": "Verplicht veld",
