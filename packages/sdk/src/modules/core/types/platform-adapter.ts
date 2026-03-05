@@ -289,6 +289,26 @@ export interface PlatformAdapter {
     keyType: "posting" | "active" | "owner" | "memo"
   ) => Promise<TransactionConfirmation>;
 
+  /**
+   * Broadcast operations using HiveSigner with platform-specific UI.
+   *
+   * @param username - Username to broadcast for
+   * @param ops - Operations to broadcast
+   * @param keyType - Key authority required
+   * @returns Transaction confirmation
+   *
+   * @remarks
+   * - Mobile: Opens full-screen WebView for HiveSigner hot signing
+   * - Web: May redirect to HiveSigner or use popup
+   * - When provided, used instead of direct token-based API broadcast
+   * - Required for active operations where the access token lacks authority
+   */
+  broadcastWithHiveSigner?: (
+    username: string,
+    ops: Operation[],
+    keyType: "posting" | "active" | "owner" | "memo"
+  ) => Promise<TransactionConfirmation>;
+
   // ============================================================================
   // Optional Platform Features
   // ============================================================================

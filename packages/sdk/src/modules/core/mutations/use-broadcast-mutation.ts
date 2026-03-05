@@ -101,18 +101,32 @@ async function broadcastWithMethod(
         throw new Error('No adapter provided for HiveSigner auth');
       }
 
-      // Use pre-fetched token if provided, otherwise fetch it
+      // Try direct API broadcast with access token first
       const token = fetchedToken !== undefined
         ? fetchedToken
         : await adapter.getAccessToken(username);
 
-      if (!token) {
-        throw new Error(`No access token available for ${username}`);
+      if (token) {
+        try {
+          const client = new hs.Client({ accessToken: token });
+          const response = await client.broadcast(ops);
+          return response.result;
+        } catch (tokenError) {
+          // Token broadcast failed — try platform-specific HiveSigner broadcast
+          // (e.g., mobile WebView hot signing for active ops where token lacks authority)
+          if (adapter.broadcastWithHiveSigner && shouldTriggerAuthFallback(tokenError)) {
+            return await adapter.broadcastWithHiveSigner(username, ops, authority);
+          }
+          throw tokenError;
+        }
       }
 
-      const client = new hs.Client({ accessToken: token });
-      const response = await client.broadcast(ops);
-      return response.result;
+      // No token available — try platform-specific HiveSigner broadcast
+      if (adapter.broadcastWithHiveSigner) {
+        return await adapter.broadcastWithHiveSigner(username, ops, authority);
+      }
+
+      throw new Error(`No access token available for ${username}`);
     }
 
     case 'keychain': {
