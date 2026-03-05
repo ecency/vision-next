@@ -56,7 +56,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
 
   // Poll blockchain via SDK (with node failover + DMCA filtering)
   // Uses separate query key to avoid overwriting optimistic cache
-  const { data: polledEntry, dataUpdatedAt, isError, error } = useQuery({
+  const { data: polledEntry, dataUpdatedAt, isError } = useQuery({
     ...getPostQueryOptions(username, permlink),
     queryKey: ["entry-chain-poll", username, permlink],
     enabled: (!!isOptimistic && !hasTransitioned) || isVerifying,
@@ -109,7 +109,10 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
         </div>
         <button
           className="px-4 py-2 rounded bg-blue-dark-sky text-white hover:opacity-90"
-          onClick={() => router.refresh()}
+          onClick={() => {
+            setVerifyPollCount(0);
+            router.refresh();
+          }}
         >
           Retry
         </button>

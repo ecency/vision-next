@@ -3,11 +3,12 @@ import { CONFIG } from "@/modules/core";
 
 // Must use vi.hoisted for variables referenced in vi.mock factories
 const mockCall = vi.hoisted(() => vi.fn());
+const mockClientConstructor = vi.hoisted(() =>
+  vi.fn().mockImplementation(() => ({ call: mockCall }))
+);
 
 vi.mock("@hiveio/dhive", () => ({
-  Client: vi.fn().mockImplementation(() => ({
-    call: mockCall,
-  })),
+  Client: mockClientConstructor,
 }));
 
 vi.mock("@/modules/core", async (importOriginal) => {
@@ -28,7 +29,7 @@ vi.mock("@/modules/core", async (importOriginal) => {
 });
 
 // Import after mocks are set up
-import { verifyPostOnAlternateNode } from "./verify-on-alternate-node";
+import { verifyPostOnAlternateNode, MAX_ALTERNATE_NODES } from "./verify-on-alternate-node";
 
 describe("verifyPostOnAlternateNode", () => {
   beforeEach(() => {
@@ -47,6 +48,7 @@ describe("verifyPostOnAlternateNode", () => {
 
     const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
     expect(result).toBeNull();
+    expect(mockClientConstructor).not.toHaveBeenCalled();
     expect(mockCall).not.toHaveBeenCalled();
   });
 
@@ -57,6 +59,11 @@ describe("verifyPostOnAlternateNode", () => {
     const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
 
     expect(result).toEqual(mockEntry);
+    expect(mockClientConstructor).toHaveBeenCalledTimes(1);
+    expect(mockClientConstructor).toHaveBeenCalledWith(
+      "https://api.deathwing.me",
+      expect.objectContaining({ timeout: 10000 })
+    );
     expect(mockCall).toHaveBeenCalledTimes(1);
     expect(mockCall).toHaveBeenCalledWith("bridge", "get_post", {
       author: "author",
@@ -71,7 +78,15 @@ describe("verifyPostOnAlternateNode", () => {
     const result = await verifyPostOnAlternateNode("author", "permlink", "obs", "https://api.hive.blog");
 
     expect(result).toBeNull();
-    expect(mockCall).toHaveBeenCalledTimes(2);
+    expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
+    expect(mockClientConstructor).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
+    // Verify each alternate was tried with correct URL
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      1, "https://api.deathwing.me", expect.objectContaining({ timeout: 10000 })
+    );
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      2, "https://api.openhive.network", expect.objectContaining({ timeout: 10000 })
+    );
   });
 
   it("should try next node when first alternate throws", async () => {
@@ -82,6 +97,12 @@ describe("verifyPostOnAlternateNode", () => {
 
     expect(result).toEqual(mockEntry);
     expect(mockCall).toHaveBeenCalledTimes(2);
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      1, "https://api.deathwing.me", expect.objectContaining({ timeout: 10000 })
+    );
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      2, "https://api.openhive.network", expect.objectContaining({ timeout: 10000 })
+    );
   });
 
   it("should return null when all alternates throw", async () => {
@@ -90,10 +111,10 @@ describe("verifyPostOnAlternateNode", () => {
     const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
 
     expect(result).toBeNull();
-    expect(mockCall).toHaveBeenCalledTimes(2);
+    expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
   });
 
-  it("should try at most 2 alternate nodes", async () => {
+  it("should try at most MAX_ALTERNATE_NODES alternate nodes", async () => {
     (CONFIG.hiveClient as any).address = [
       "https://node1.com",
       "https://node2.com",
@@ -105,7 +126,8 @@ describe("verifyPostOnAlternateNode", () => {
 
     await verifyPostOnAlternateNode("author", "permlink", "", "https://node1.com");
 
-    expect(mockCall).toHaveBeenCalledTimes(2);
+    expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
+    expect(mockClientConstructor).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
   });
 
   it("should fall back to allNodes.slice(1) when no primaryNode provided", async () => {
@@ -114,8 +136,7 @@ describe("verifyPostOnAlternateNode", () => {
     const result = await verifyPostOnAlternateNode("author", "permlink", "");
 
     expect(result).toBeNull();
-    // Without primaryNode, slices from index 1 → tries deathwing + openhive
-    expect(mockCall).toHaveBeenCalledTimes(2);
+    expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
   });
 
   it("should use primaryNode snapshot to exclude the correct node even if currentAddress changed", async () => {
@@ -129,6 +150,10 @@ describe("verifyPostOnAlternateNode", () => {
 
     expect(result).toEqual(mockEntry);
     // Should exclude hive.blog (the snapshot), not deathwing (the current)
-    expect(mockCall).toHaveBeenCalledTimes(1);
+    expect(mockClientConstructor).toHaveBeenCalledTimes(1);
+    expect(mockClientConstructor).toHaveBeenCalledWith(
+      "https://api.deathwing.me",
+      expect.objectContaining({ timeout: 10000 })
+    );
   });
 });

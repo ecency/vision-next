@@ -2,6 +2,9 @@ import { Client } from "@hiveio/dhive";
 import { CONFIG } from "@/modules/core";
 import { Entry } from "@/modules/posts/types";
 
+/** Maximum number of alternate nodes to try during verification */
+export const MAX_ALTERNATE_NODES = 2;
+
 /**
  * When the primary node returns null for a get_post call,
  * verify against up to 2 alternate nodes before concluding
@@ -29,8 +32,7 @@ export async function verifyPostOnAlternateNode(
     ? allNodes.filter((node) => node !== primaryNode)
     : allNodes.slice(1);
 
-  // Try up to 2 alternate nodes
-  const nodesToTry = alternateNodes.slice(0, 2);
+  const nodesToTry = alternateNodes.slice(0, MAX_ALTERNATE_NODES);
 
   for (const node of nodesToTry) {
     try {
