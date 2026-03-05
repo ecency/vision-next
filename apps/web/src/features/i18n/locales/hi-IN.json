@@ -103,7 +103,8 @@
     "import": "आयात करें",
     "clear": "मिटायें",
     "play": "खेल",
-    "pause": "विराम दें"
+    "pause": "विराम दें",
+    "updated": "Updated"
   },
   "validation": {
     "required": "आवश्यक क्षेत्र",
