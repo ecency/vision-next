@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.22
+
+### Patch Changes
+
+- Improve adapter (#693)
+
 ## 2.0.21
 
 ### Patch Changes
