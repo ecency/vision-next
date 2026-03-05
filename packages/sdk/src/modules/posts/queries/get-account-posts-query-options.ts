@@ -48,23 +48,21 @@ export function getAccountPostsInfiniteQueryOptions(
         ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {}),
       };
 
-      try {
-        if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
+      if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
 
-        const resp = await CONFIG.hiveClient.call(
-          "bridge",
-          "get_account_posts",
-          rpcParams
+      const resp = await CONFIG.hiveClient.call(
+        "bridge",
+        "get_account_posts",
+        rpcParams
+      );
+
+      if (!resp || !Array.isArray(resp)) {
+        throw new Error(
+          `[SDK] get_account_posts returned ${resp === null ? "null" : typeof resp} for @${username}`
         );
-
-        if (resp && Array.isArray(resp)) {
-          return filterDmcaEntry(resp as Entry[]);
-        }
-        return [];
-      } catch (err) {
-        console.error("[SDK] get_account_posts error:", err);
-        return [];
       }
+
+      return filterDmcaEntry(resp as Entry[]);
     },
 
     getNextPageParam: (lastPage: Page): PageParam | undefined => {
