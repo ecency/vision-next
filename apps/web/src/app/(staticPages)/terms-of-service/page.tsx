@@ -522,9 +522,9 @@ export default function TermsOfService() {
           </p>
           <h2>26. Child Safety Standards (Ecency)</h2>
           <p>
-            Ecency (including the Android app listed as <code>app.esteem.mobile.android</code>) has
-            zero tolerance for child sexual abuse and exploitation. You may not use the Service to
-            create, upload, share, request, promote, or store child sexual abuse material
+            Ecency has zero tolerance for child sexual abuse and exploitation across all Ecency
+            products and surfaces, including web and mobile applications. You may not use the Service
+            to create, upload, share, request, promote, or store child sexual abuse material
             (&quot;CSAM&quot;) or any content or behavior that sexually exploits, endangers, or
             harms minors (&quot;CSAE&quot;).
           </p>
