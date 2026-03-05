@@ -103,7 +103,8 @@
     "import": "Importa",
     "clear": "Pulisci",
     "play": "Gioca",
-    "pause": "Pausa"
+    "pause": "Pausa",
+    "updated": "Aggiornato"
   },
   "validation": {
     "required": "Campo obbligatorio",
