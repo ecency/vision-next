@@ -6,7 +6,7 @@ import { makeEntryPath } from "@/utils";
 import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DeletedPostScreen } from "./deleted-post-screen";
 import { EntryPendingIndexView } from "./entry-pending-index-view";
 
@@ -18,7 +18,7 @@ interface Props {
 const POLL_INTERVAL = 3_000;
 const POLL_TIMEOUT = 30_000;
 
-// Verification phase: 3 polls at 3s intervals = 9s before showing deleted
+// Verification phase: 3 actual query completions before showing deleted
 const VERIFY_MAX_POLLS = 3;
 
 export function EntryNotFoundFallback({ username, permlink }: Props) {
@@ -56,7 +56,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
 
   // Poll blockchain via SDK (with node failover + DMCA filtering)
   // Uses separate query key to avoid overwriting optimistic cache
-  const { data: polledEntry } = useQuery({
+  const { data: polledEntry, dataUpdatedAt, isError, error } = useQuery({
     ...getPostQueryOptions(username, permlink),
     queryKey: ["entry-chain-poll", username, permlink],
     enabled: (!!isOptimistic && !hasTransitioned) || isVerifying,
@@ -68,24 +68,18 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
   // Handle real data arrival
   useEffect(() => {
     if (polledEntry && polledEntry.post_id && polledEntry.post_id > 1) {
-      if (isOptimistic) {
-        handleSuccess(polledEntry);
-      } else {
-        // Verification succeeded — update cache and refresh
-        handleSuccess(polledEntry);
-      }
+      handleSuccess(polledEntry);
     }
-  }, [polledEntry, handleSuccess, isOptimistic]);
+  }, [polledEntry, handleSuccess]);
 
-  // Track verification poll count for non-optimistic entries
+  // Track verification poll count based on actual query completions
+  const prevDataUpdatedAt = useRef(dataUpdatedAt);
   useEffect(() => {
-    if (!isOptimistic && isVerifying) {
-      const timer = setInterval(() => {
-        setVerifyPollCount((c) => c + 1);
-      }, POLL_INTERVAL);
-      return () => clearInterval(timer);
+    if (!isOptimistic && isVerifying && dataUpdatedAt > 0 && dataUpdatedAt !== prevDataUpdatedAt.current) {
+      prevDataUpdatedAt.current = dataUpdatedAt;
+      setVerifyPollCount((c) => c + 1);
     }
-  }, [isOptimistic, isVerifying]);
+  }, [isOptimistic, isVerifying, dataUpdatedAt]);
 
   // Timeout after 30s (optimistic path)
   useEffect(() => {
@@ -101,6 +95,24 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
         <div className="text-gray-500 dark:text-gray-400 animate-pulse">
           Loading...
         </div>
+      </div>
+    );
+  }
+
+  // Non-optimistic: query errored (network/RPC failure) — show retry prompt
+  // instead of incorrectly showing deleted post
+  if (!isOptimistic && isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <div className="text-gray-500 dark:text-gray-400">
+          Unable to load this post. Please check your connection and try again.
+        </div>
+        <button
+          className="px-4 py-2 rounded bg-blue-dark-sky text-white hover:opacity-90"
+          onClick={() => router.refresh()}
+        >
+          Retry
+        </button>
       </div>
     );
   }

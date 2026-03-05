@@ -7319,8 +7319,11 @@ declare function getProfiles(accounts: string[], observer?: string): Promise<Pro
  * verify against up to 2 alternate nodes before concluding
  * the post is truly deleted. This guards against sync lag
  * where a single node temporarily returns null for valid content.
+ *
+ * @param primaryNode - Snapshot of CONFIG.hiveClient.currentAddress captured
+ *   before the primary request, so failover can't change which node we exclude.
  */
-declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string): Promise<Entry$1 | null>;
+declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string, primaryNode?: string): Promise<Entry$1 | null>;
 
 declare function signUp(username: string, email: string, referral: string): Promise<ApiResponse<Record<string, unknown>>>;
 declare function subscribeEmail(email: string): Promise<ApiResponse<Record<string, unknown>>>;

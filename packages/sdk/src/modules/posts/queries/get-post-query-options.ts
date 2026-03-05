@@ -20,6 +20,10 @@ export function getPostQueryOptions(
         return null;
       }
 
+      // Snapshot the current node before the call so failover
+      // can't change which node we exclude during verification
+      const primaryNode = CONFIG.hiveClient.currentAddress;
+
       const response = await CONFIG.hiveClient.call("bridge", "get_post", {
         author,
         permlink: cleanPermlink,
@@ -29,7 +33,7 @@ export function getPostQueryOptions(
       if (!response) {
         // Primary node returned null — verify on alternate nodes
         // to guard against sync lag returning null for valid posts
-        const verified = await verifyPostOnAlternateNode(author, cleanPermlink, observer);
+        const verified = await verifyPostOnAlternateNode(author, cleanPermlink, observer, primaryNode);
         if (!verified) {
           return null;
         }

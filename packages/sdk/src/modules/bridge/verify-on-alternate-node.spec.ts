@@ -45,16 +45,16 @@ describe("verifyPostOnAlternateNode", () => {
   it("should return null when node list has fewer than 2 nodes", async () => {
     (CONFIG.hiveClient as any).address = ["https://api.hive.blog"];
 
-    const result = await verifyPostOnAlternateNode("author", "permlink", "");
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
     expect(result).toBeNull();
     expect(mockCall).not.toHaveBeenCalled();
   });
 
-  it("should skip the current node and try alternates", async () => {
+  it("should skip the primary node snapshot and try alternates", async () => {
     const mockEntry = { author: "author", permlink: "permlink", post_id: 123 };
     mockCall.mockResolvedValueOnce(mockEntry);
 
-    const result = await verifyPostOnAlternateNode("author", "permlink", "");
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
 
     expect(result).toEqual(mockEntry);
     expect(mockCall).toHaveBeenCalledTimes(1);
@@ -68,7 +68,7 @@ describe("verifyPostOnAlternateNode", () => {
   it("should return null when all alternate nodes return null", async () => {
     mockCall.mockResolvedValue(null);
 
-    const result = await verifyPostOnAlternateNode("author", "permlink", "obs");
+    const result = await verifyPostOnAlternateNode("author", "permlink", "obs", "https://api.hive.blog");
 
     expect(result).toBeNull();
     expect(mockCall).toHaveBeenCalledTimes(2);
@@ -78,7 +78,7 @@ describe("verifyPostOnAlternateNode", () => {
     const mockEntry = { author: "author", permlink: "permlink", post_id: 456 };
     mockCall.mockRejectedValueOnce(new Error("timeout")).mockResolvedValueOnce(mockEntry);
 
-    const result = await verifyPostOnAlternateNode("author", "permlink", "");
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
 
     expect(result).toEqual(mockEntry);
     expect(mockCall).toHaveBeenCalledTimes(2);
@@ -87,7 +87,7 @@ describe("verifyPostOnAlternateNode", () => {
   it("should return null when all alternates throw", async () => {
     mockCall.mockRejectedValue(new Error("network error"));
 
-    const result = await verifyPostOnAlternateNode("author", "permlink", "");
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
 
     expect(result).toBeNull();
     expect(mockCall).toHaveBeenCalledTimes(2);
@@ -101,11 +101,34 @@ describe("verifyPostOnAlternateNode", () => {
       "https://node4.com",
       "https://node5.com",
     ];
-    (CONFIG.hiveClient as any).currentAddress = "https://node1.com";
     mockCall.mockResolvedValue(null);
 
-    await verifyPostOnAlternateNode("author", "permlink", "");
+    await verifyPostOnAlternateNode("author", "permlink", "", "https://node1.com");
 
     expect(mockCall).toHaveBeenCalledTimes(2);
+  });
+
+  it("should fall back to allNodes.slice(1) when no primaryNode provided", async () => {
+    mockCall.mockResolvedValue(null);
+
+    const result = await verifyPostOnAlternateNode("author", "permlink", "");
+
+    expect(result).toBeNull();
+    // Without primaryNode, slices from index 1 → tries deathwing + openhive
+    expect(mockCall).toHaveBeenCalledTimes(2);
+  });
+
+  it("should use primaryNode snapshot to exclude the correct node even if currentAddress changed", async () => {
+    // Simulate: primary was hive.blog, but failover moved currentAddress to deathwing
+    (CONFIG.hiveClient as any).currentAddress = "https://api.deathwing.me";
+    const mockEntry = { author: "author", permlink: "permlink", post_id: 789 };
+    mockCall.mockResolvedValueOnce(mockEntry);
+
+    // Pass the snapshot of hive.blog as primaryNode
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
+
+    expect(result).toEqual(mockEntry);
+    // Should exclude hive.blog (the snapshot), not deathwing (the current)
+    expect(mockCall).toHaveBeenCalledTimes(1);
   });
 });

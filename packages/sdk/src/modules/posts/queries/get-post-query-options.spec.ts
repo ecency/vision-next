@@ -10,7 +10,8 @@ vi.mock('@/modules/core', async (importOriginal) => {
     ...actual,
     CONFIG: {
       hiveClient: {
-        call: vi.fn()
+        call: vi.fn(),
+        currentAddress: 'https://api.hive.blog'
       }
     }
   }
@@ -154,7 +155,7 @@ describe('getPostQueryOptions', () => {
       const result = await options.queryFn()
 
       expect(result).toBeNull()
-      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
+      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '', 'https://api.hive.blog')
     })
 
     it('should return verified entry when primary returns null but alternate node has it', async () => {
@@ -171,7 +172,7 @@ describe('getPostQueryOptions', () => {
       const result = await options.queryFn()
 
       expect(result).toEqual(verifiedEntry)
-      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
+      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '', 'https://api.hive.blog')
     })
 
     it('should not call verification when primary returns data', async () => {

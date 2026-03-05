@@ -43,9 +43,13 @@ export function getPostsRankedInfiniteQueryOptions(
         observer,
       });
 
-      if (!response || !Array.isArray(response)) {
+      if (response === null || response === undefined) {
+        return [];
+      }
+
+      if (!Array.isArray(response)) {
         throw new Error(
-          `[SDK] get_ranked_posts returned ${response === null ? "null" : typeof response} for sort=${sort}`
+          `[SDK] get_ranked_posts returned ${typeof response} for sort=${sort}`
         );
       }
 

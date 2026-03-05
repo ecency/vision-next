@@ -7,14 +7,17 @@ import { Entry } from "@/modules/posts/types";
  * verify against up to 2 alternate nodes before concluding
  * the post is truly deleted. This guards against sync lag
  * where a single node temporarily returns null for valid content.
+ *
+ * @param primaryNode - Snapshot of CONFIG.hiveClient.currentAddress captured
+ *   before the primary request, so failover can't change which node we exclude.
  */
 export async function verifyPostOnAlternateNode(
   author: string,
   permlink: string,
-  observer: string
+  observer: string,
+  primaryNode?: string
 ): Promise<Entry | null> {
   const allNodes = CONFIG.hiveClient.address;
-  const currentNode = CONFIG.hiveClient.currentAddress;
 
   // If we can't determine the node list, we can't verify
   if (!Array.isArray(allNodes) || allNodes.length < 2) {
@@ -22,8 +25,8 @@ export async function verifyPostOnAlternateNode(
   }
 
   // Filter out the node that just returned null
-  const alternateNodes = currentNode
-    ? allNodes.filter((node) => node !== currentNode)
+  const alternateNodes = primaryNode
+    ? allNodes.filter((node) => node !== primaryNode)
     : allNodes.slice(1);
 
   // Try up to 2 alternate nodes
