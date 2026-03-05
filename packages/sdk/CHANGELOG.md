@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.21
+
+### Patch Changes
+
+- Fallback of RPC selection (#692)
+
 ## 2.0.20
 
 ### Patch Changes
