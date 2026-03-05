@@ -103,7 +103,8 @@
     "import": "インポート",
     "clear": "クリア",
     "play": "再生",
-    "pause": "一時停止"
+    "pause": "一時停止",
+    "updated": "更新日時"
   },
   "validation": {
     "required": "必須項目",
