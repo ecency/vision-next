@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 1.5.51
+
+### Patch Changes
+
+- Improve adapter (#693)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.23
+
 ## 1.5.50
 
 ### Patch Changes
