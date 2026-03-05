@@ -103,7 +103,8 @@
     "import": "Importuj",
     "clear": "Wyczyść",
     "play": "Odtwórz",
-    "pause": "Wstrzymaj"
+    "pause": "Wstrzymaj",
+    "updated": "Zaktualizowano"
   },
   "validation": {
     "required": "Pole wymagane",
