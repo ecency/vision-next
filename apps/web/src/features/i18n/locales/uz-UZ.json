@@ -103,7 +103,8 @@
     "import": "Import",
     "clear": "Clear",
     "play": "O‘ynash",
-    "pause": "To‘xtatib turish"
+    "pause": "To‘xtatib turish",
+    "updated": "Updated"
   },
   "validation": {
     "required": "To'ldirish shart",
