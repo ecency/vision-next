@@ -103,7 +103,8 @@
     "import": "Importieren",
     "clear": "Leeren",
     "play": "Abspielen",
-    "pause": "Pause"
+    "pause": "Pause",
+    "updated": "Aktualisiert"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -447,9 +448,9 @@
     "settings-2": "Anzeigeeinstellungen"
   },
   "bookmark-btn": {
-    "add": "Lesezeichen - über neue Kommentare benachrichtigt werden",
-    "added": "Lesezeichen! Du wirst über neue Kommentare zu diesem Beitrag benachrichtigt",
-    "delete": "Lesezeichen entfernen und Benachrichtigungen stoppen",
+    "add": "Lesezeichen — über neue Kommentare benachrichtigt werden",
+    "added": "Zu den Lesezeichen hinzugefügt",
+    "delete": "Von den Lesezeichen entfernen",
     "deleted": "Von den Lesezeichen entfernt"
   },
   "entry-reblog": {
@@ -464,6 +465,7 @@
   },
   "entry-tip": {
     "title": "Hinweis",
+    "tip": "Tip",
     "send-tip": "Tipp senden",
     "count": "{{count}} tip",
     "count_plural": "{{count}} Tipps"
@@ -1642,9 +1644,9 @@
     "unMute": "Ton an"
   },
   "favorite-btn": {
-    "add": "Favorit - über neue Beiträge benachrichtigt werden",
-    "added": "Zu Favoriten hinzugefügt! Du wirst benachrichtigt, wenn neue Beiträge veröffentlicht werden",
-    "delete": "Favoriten entfernen und Benachrichtigungen stoppen",
+    "add": "Favorit — über neue Beiträge benachrichtigt werden",
+    "added": "Zu den Favoriten hinzugefügt",
+    "delete": "Aus den Favoriten entfernen",
     "deleted": "Aus Favoriten entfernt"
   },
   "editor-toolbar": {

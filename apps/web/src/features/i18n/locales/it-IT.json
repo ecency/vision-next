@@ -103,7 +103,8 @@
     "import": "Importa",
     "clear": "Pulisci",
     "play": "Gioca",
-    "pause": "Pausa"
+    "pause": "Pausa",
+    "updated": "Aggiornato"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -447,9 +448,9 @@
     "settings-2": "preferenze di visualizzazione"
   },
   "bookmark-btn": {
-    "add": "Segnalibro - ricevi una notifica sui nuovi commenti",
-    "added": "Segnalibro! Ti verranno notificati nuovi commenti su questo post",
-    "delete": "Rimuovere il segnalibro e interrompere le notifiche",
+    "add": "Segnalibro — per ricevere una notifica sui nuovi commenti",
+    "added": "Aggiunto ai segnalibri",
+    "delete": "Rimuovi dai Segnalibri",
     "deleted": "Rimosso dai segnalibri"
   },
   "entry-reblog": {
@@ -464,6 +465,7 @@
   },
   "entry-tip": {
     "title": "Invia omaggio",
+    "tip": "Tip",
     "send-tip": "Invia un suggerimento",
     "count": "{{count}} tip",
     "count_plural": "{{count}} suggerimenti"
@@ -1642,9 +1644,9 @@
     "unMute": "Riattiva"
   },
   "favorite-btn": {
-    "add": "Preferito - ricevi una notifica sui nuovi post",
-    "added": "Aggiunto ai preferiti! Sarai avvisato quando pubblicano nuovi post",
-    "delete": "Rimuovi le notifiche preferite e interrompi",
+    "add": "Preferito — ricevi una notifica sui nuovi post",
+    "added": "Aggiunto ai favoriti",
+    "delete": "Rimuovi dai favoriti",
     "deleted": "Rimosso dai favoriti"
   },
   "editor-toolbar": {

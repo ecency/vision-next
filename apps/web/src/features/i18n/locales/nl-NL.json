@@ -103,7 +103,8 @@
     "import": "Importeren",
     "clear": "Verwijderen",
     "play": "Afspelen",
-    "pause": "Onderbreken"
+    "pause": "Onderbreken",
+    "updated": "Bijgewerkt"
   },
   "validation": {
     "required": "Verplicht veld",
@@ -447,9 +448,9 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
-    "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
-    "delete": "Bladwijzer verwijderen en meldingen stoppen",
+    "add": "Bladwijzer — krijg een melding over nieuwe reacties",
+    "added": "Toegevoegd aan bladwijzers",
+    "delete": "Verwijder uit bladwijzers",
     "deleted": "Verwijderd van bladwijzers"
   },
   "entry-reblog": {
@@ -464,6 +465,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "Stuur een tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1644,9 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
-    "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
-    "delete": "Favoriet verwijderen en meldingen stoppen",
+    "add": "Favoriet — krijg meldingen over nieuwe berichten",
+    "added": "Aan favorieten toegevoegd",
+    "delete": "Uit favorieten verwijderen",
     "deleted": "Verwijderd uit favorieten"
   },
   "editor-toolbar": {

@@ -103,7 +103,8 @@
     "import": "Importação",
     "clear": "Limpar",
     "play": "Reproduzir",
-    "pause": "Suspender"
+    "pause": "Suspender",
+    "updated": "Atualizado"
   },
   "validation": {
     "required": "Campo obrigatório",
@@ -447,9 +448,9 @@
     "settings-2": "visualizar preferências"
   },
   "bookmark-btn": {
-    "add": "Favorito - seja notificado sobre novos comentários",
-    "added": "Favoritos! Você será notificado sobre novos comentários nesta publicação",
-    "delete": "Remover os favoritos e parar notificações",
+    "add": "Favorito — seja notificado sobre novos comentários",
+    "added": "Adicionado aos favoritos",
+    "delete": "Remover de Favoritos",
     "deleted": "Removido dos favoritos"
   },
   "entry-reblog": {
@@ -464,6 +465,7 @@
   },
   "entry-tip": {
     "title": "Dica",
+    "tip": "Tip",
     "send-tip": "Enviar uma dica",
     "count": "{{count}} tip",
     "count_plural": "Dicas de {{count}}"
@@ -1642,9 +1644,9 @@
     "unMute": "Reativar o som"
   },
   "favorite-btn": {
-    "add": "Favorito - seja notificado sobre novas publicações",
-    "added": "Adicionado aos favoritos! Você será notificado quando publicar novas postagens",
-    "delete": "Remover favoritos e parar notificações",
+    "add": "Adicionar aos favoritos",
+    "added": "Adicionado aos favoritos",
+    "delete": "Remover dos favoritos",
     "deleted": "Removido dos favoritos"
   },
   "editor-toolbar": {
