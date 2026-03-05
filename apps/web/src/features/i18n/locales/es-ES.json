@@ -103,7 +103,8 @@
     "import": "Importar",
     "clear": "Limpiar",
     "play": "Reproducir",
-    "pause": "Pausa"
+    "pause": "Pausa",
+    "updated": "Actualizado"
   },
   "validation": {
     "required": "Campo requerido",
