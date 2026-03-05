@@ -103,7 +103,8 @@
     "import": "Import",
     "clear": "Nettoyer",
     "play": "Jouer",
-    "pause": "Mettre en pause"
+    "pause": "Mettre en pause",
+    "updated": "Mis à jour"
   },
   "validation": {
     "required": "Champ obligatoire",
