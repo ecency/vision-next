@@ -17,7 +17,7 @@ export default function TermsOfService() {
       <div className="app-content static-page tos-page">
         <div className="static-content">
           <h1 className="page-title">Terms Of Service</h1>
-          <p className="static-last-updated">Last Updated August 20, 2020</p>
+          <p className="static-last-updated">Last Updated March 5, 2026</p>
           <p>
             This agreement (the &quot;Agreement&quot;) between you and this site’s operators
             (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) sets out your rights to access and use
@@ -520,7 +520,46 @@ export default function TermsOfService() {
             settled through binding arbitration on an individual basis, and you waive any right to
             participate in a class action or class-wide arbitration.
           </p>
-          <h2>26. Contact Information</h2>
+          <h2>26. Child Safety Standards (Ecency)</h2>
+          <p>
+            Ecency (including the Android app listed as <code>app.esteem.mobile.android</code>) has
+            zero tolerance for child sexual abuse and exploitation. You may not use the Service to
+            create, upload, share, request, promote, or store child sexual abuse material
+            (&quot;CSAM&quot;) or any content or behavior that sexually exploits, endangers, or
+            harms minors (&quot;CSAE&quot;).
+          </p>
+          <p>
+            Prohibited conduct includes, without limitation: grooming; sexualization of minors;
+            solicitation of sexual content involving minors; trafficking or exploitation of minors;
+            and any attempt to use Ecency to facilitate or normalize abuse of children.
+          </p>
+          <p>
+            We may remove content, restrict visibility, suspend features, or terminate accounts that
+            violate these standards or applicable law. We may preserve and disclose relevant
+            information to law enforcement, child-protection organizations, and regulators when
+            required or permitted by law.
+          </p>
+          <p>
+            In line with applicable child safety laws, Ecency maintains a process to report
+            confirmed CSAM to the National Center for Missing and Exploited Children (NCMEC) or the
+            relevant regional authority, as required by law.
+          </p>
+          <p>
+            Child Safety Point of Contact: <code>info@ecency.com</code>. To report suspected CSAM,
+            CSAE, or any threat to a minor related to Ecency, contact this address with links,
+            usernames, and supporting details so we can investigate and take action.
+          </p>
+          <p>
+            This contact is also the designated representative to receive potential child safety
+            notifications from Google Play and coordinate enforcement and review actions when
+            required.
+          </p>
+          <p>
+            Users may also submit safety complaints through available in-app reporting and moderation
+            mechanisms where provided. We review child-safety reports in good faith and prioritize
+            urgent risk-of-harm cases.
+          </p>
+          <h2>27. Contact Information</h2>
           <p>
             Notices to this site’s operators should be directed to <code>info@ecency.com</code>.
           </p>
