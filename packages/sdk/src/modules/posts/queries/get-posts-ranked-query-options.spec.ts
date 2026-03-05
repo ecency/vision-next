@@ -24,6 +24,19 @@ vi.mock('../utils/filter-dmca-entries', () => ({
   filterDmcaEntry: vi.fn((entries) => entries)
 }))
 
+function makeInfiniteContext(
+  options: ReturnType<typeof getPostsRankedInfiniteQueryOptions>,
+  pageParam: { author?: string; permlink?: string; hasNextPage: boolean }
+) {
+  return {
+    pageParam: { author: undefined, permlink: undefined, ...pageParam },
+    meta: undefined as any,
+    direction: 'forward' as const,
+    queryKey: options.queryKey,
+    signal: new AbortController().signal
+  }
+}
+
 describe('getPostsRankedInfiniteQueryOptions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,13 +44,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
 
   it('should return [] when pageParam.hasNextPage is false', async () => {
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: false },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: false }))
     expect(result).toEqual([])
   })
 
@@ -45,13 +52,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(null)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(result).toEqual([])
   })
@@ -60,47 +61,53 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
     vi.mocked(CONFIG.hiveClient.call).mockResolvedValue('unexpected')
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    await expect(options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })).rejects.toThrow('[SDK] get_ranked_posts returned string')
+    await expect(
+      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    ).rejects.toThrow('[SDK] get_ranked_posts returned string')
   })
 
-  it('should return sorted and filtered entries on success', async () => {
+  it('should sort entries by created desc and place pinned first', async () => {
+    // Entries intentionally unsorted: oldest first, newest last, pinned in the middle
     const mockEntries = [
-      { author: 'a', permlink: 'p1', created: '2026-01-02T00:00:00', stats: null },
-      { author: 'b', permlink: 'p2', created: '2026-01-01T00:00:00', stats: null }
+      { author: 'c', permlink: 'oldest', created: '2026-01-01T00:00:00', stats: null },
+      { author: 'b', permlink: 'pinned', created: '2026-01-02T00:00:00', stats: { is_pinned: true } },
+      { author: 'a', permlink: 'newest', created: '2026-01-03T00:00:00', stats: null }
     ]
     vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockEntries)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
 
-    expect(result).toHaveLength(2)
-    // Sorted by created desc
-    expect(result[0].author).toBe('a')
+    expect(result).toHaveLength(3)
+    // Pinned entry should be first regardless of date
+    expect(result[0].permlink).toBe('pinned')
+    // Remaining sorted by created desc
+    expect(result[1].permlink).toBe('newest')
+    expect(result[2].permlink).toBe('oldest')
+  })
+
+  it('should not re-sort when sort is "hot"', async () => {
+    const mockEntries = [
+      { author: 'a', permlink: 'p1', created: '2026-01-01T00:00:00', stats: null },
+      { author: 'b', permlink: 'p2', created: '2026-01-03T00:00:00', stats: null }
+    ]
+    vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockEntries)
+
+    const options = getPostsRankedInfiniteQueryOptions('hot', 'hive')
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+
+    // "hot" preserves original order
+    expect(result[0].permlink).toBe('p1')
+    expect(result[1].permlink).toBe('p2')
   })
 
   it('should propagate network errors', async () => {
     vi.mocked(CONFIG.hiveClient.call).mockRejectedValue(new Error('network'))
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
-    await expect(options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })).rejects.toThrow('network')
+    await expect(
+      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    ).rejects.toThrow('network')
   })
 })
 

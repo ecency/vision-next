@@ -38,7 +38,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
 
   // For non-optimistic entries: verification polling before concluding deleted
   const [verifyPollCount, setVerifyPollCount] = useState(0);
-  const isVerifying = !isOptimistic && verifyPollCount < VERIFY_MAX_POLLS;
+  const isVerifying = !isOptimistic && !hasTransitioned && verifyPollCount < VERIFY_MAX_POLLS;
 
   const handleSuccess = useCallback(
     (realEntry: Entry) => {

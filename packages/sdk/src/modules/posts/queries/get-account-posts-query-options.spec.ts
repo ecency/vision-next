@@ -16,6 +16,19 @@ vi.mock('../utils/filter-dmca-entries', () => ({
   filterDmcaEntry: vi.fn((entries) => entries)
 }))
 
+function makeInfiniteContext(
+  options: ReturnType<typeof getAccountPostsInfiniteQueryOptions>,
+  pageParam: { author?: string; permlink?: string; hasNextPage: boolean }
+) {
+  return {
+    pageParam: { author: undefined, permlink: undefined, ...pageParam },
+    meta: undefined as any,
+    direction: 'forward' as const,
+    queryKey: options.queryKey,
+    signal: new AbortController().signal
+  }
+}
+
 describe('getAccountPostsInfiniteQueryOptions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -23,26 +36,14 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
 
   it('should return [] when pageParam.hasNextPage is false', async () => {
     const options = getAccountPostsInfiniteQueryOptions('testuser')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: false },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: false }))
     expect(result).toEqual([])
     expect(mockGetAccountPosts).not.toHaveBeenCalled()
   })
 
   it('should return [] when username is undefined', async () => {
     const options = getAccountPostsInfiniteQueryOptions(undefined)
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
     expect(result).toEqual([])
   })
 
@@ -54,13 +55,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(mockEntries)
 
     const options = getAccountPostsInfiniteQueryOptions('testuser', 'posts', 20, 'obs')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(mockGetAccountPosts).toHaveBeenCalledWith('posts', 'testuser', '', '', 20, 'obs')
     expect(result).toEqual(mockEntries)
@@ -70,13 +65,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockResolvedValue(null)
 
     const options = getAccountPostsInfiniteQueryOptions('testuser')
-    const result = await options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
 
     expect(result).toEqual([])
   })
@@ -85,26 +74,20 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     mockGetAccountPosts.mockRejectedValue(new Error('RPC timeout'))
 
     const options = getAccountPostsInfiniteQueryOptions('testuser')
-    await expect(options.queryFn({
-      pageParam: { author: undefined, permlink: undefined, hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })).rejects.toThrow('RPC timeout')
+    await expect(
+      options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
+    ).rejects.toThrow('RPC timeout')
   })
 
   it('should pass pagination params from pageParam', async () => {
     mockGetAccountPosts.mockResolvedValue([])
 
     const options = getAccountPostsInfiniteQueryOptions('testuser', 'blog', 10, 'obs')
-    await options.queryFn({
-      pageParam: { author: 'prev-author', permlink: 'prev-permlink', hasNextPage: true },
-      meta: undefined as any,
-      direction: 'forward',
-      queryKey: options.queryKey,
-      signal: new AbortController().signal
-    })
+    await options.queryFn(makeInfiniteContext(options, {
+      author: 'prev-author',
+      permlink: 'prev-permlink',
+      hasNextPage: true
+    }))
 
     expect(mockGetAccountPosts).toHaveBeenCalledWith('blog', 'testuser', 'prev-author', 'prev-permlink', 10, 'obs')
   })

@@ -163,4 +163,28 @@ describe("verifyPostOnAlternateNode", () => {
       expect.objectContaining({ timeout: 10000 })
     );
   });
+
+  it("should reject response with mismatched author/permlink", async () => {
+    // Node returns a valid-looking entry but for a different post
+    const wrongEntry = { author: "other-author", permlink: "other-permlink", post_id: 999 };
+    mockCall.mockResolvedValue(wrongEntry);
+
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
+
+    expect(result).toBeNull();
+    // Tried both alternates, both returned mismatched data
+    expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
+  });
+
+  it("should accept response only when author and permlink match", async () => {
+    // First node returns mismatched, second returns correct
+    const wrongEntry = { author: "wrong", permlink: "permlink", post_id: 100 };
+    const correctEntry = { author: "author", permlink: "permlink", post_id: 200 };
+    mockCall.mockResolvedValueOnce(wrongEntry).mockResolvedValueOnce(correctEntry);
+
+    const result = await verifyPostOnAlternateNode("author", "permlink", "", "https://api.hive.blog");
+
+    expect(result).toEqual(correctEntry);
+    expect(mockCall).toHaveBeenCalledTimes(2);
+  });
 });

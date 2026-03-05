@@ -44,7 +44,12 @@ export async function verifyPostOnAlternateNode(
         observer,
       });
 
-      if (response) {
+      if (
+        response &&
+        typeof response === "object" &&
+        (response as Entry).author === author &&
+        (response as Entry).permlink === permlink
+      ) {
         return response as Entry;
       }
     } catch {
