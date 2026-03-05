@@ -28,9 +28,10 @@ export async function verifyPostOnAlternateNode(
   }
 
   // Filter out the node that just returned null
-  const alternateNodes = primaryNode
-    ? allNodes.filter((node) => node !== primaryNode)
-    : allNodes.slice(1);
+  const nodeToExclude = primaryNode ?? CONFIG.hiveClient.currentAddress;
+  const alternateNodes = nodeToExclude
+    ? allNodes.filter((node) => node !== nodeToExclude)
+    : [...allNodes];
 
   const nodesToTry = alternateNodes.slice(0, MAX_ALTERNATE_NODES);
 

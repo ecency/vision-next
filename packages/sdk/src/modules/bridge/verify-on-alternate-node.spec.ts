@@ -130,13 +130,20 @@ describe("verifyPostOnAlternateNode", () => {
     expect(mockClientConstructor).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
   });
 
-  it("should fall back to allNodes.slice(1) when no primaryNode provided", async () => {
+  it("should fall back to currentAddress when no primaryNode provided", async () => {
     mockCall.mockResolvedValue(null);
 
     const result = await verifyPostOnAlternateNode("author", "permlink", "");
 
     expect(result).toBeNull();
+    // Falls back to CONFIG.hiveClient.currentAddress (hive.blog), excludes it by identity
     expect(mockCall).toHaveBeenCalledTimes(MAX_ALTERNATE_NODES);
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      1, "https://api.deathwing.me", expect.objectContaining({ timeout: 10000 })
+    );
+    expect(mockClientConstructor).toHaveBeenNthCalledWith(
+      2, "https://api.openhive.network", expect.objectContaining({ timeout: 10000 })
+    );
   });
 
   it("should use primaryNode snapshot to exclude the correct node even if currentAddress changed", async () => {
