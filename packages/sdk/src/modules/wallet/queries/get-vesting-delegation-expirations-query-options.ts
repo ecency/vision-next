@@ -18,6 +18,7 @@ export function getVestingDelegationExpirationsQueryOptions(username?: string) {
   return queryOptions({
     queryKey: ["wallet", "vesting-delegation-expirations", username],
     queryFn: async () => {
+      if (!username) return [];
       const result = await CONFIG.hiveClient.call(
         "database_api",
         "find_vesting_delegation_expirations",

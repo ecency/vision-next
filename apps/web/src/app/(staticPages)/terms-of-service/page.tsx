@@ -335,7 +335,7 @@ export default function TermsOfService() {
           </p>
           <p>Copyright Agent</p>
           <p>
-            <code>info@ecency.com</code>
+            <code>hello@ecency.com</code>
           </p>
           <p>Please send our Copyright Agent the following information:</p>
           <p>
@@ -406,7 +406,7 @@ export default function TermsOfService() {
             Ecency does not create, modify, or host this third-party content and cannot guarantee the legality, accuracy, or appropriateness of such material. Responsibility for such content lies with the original publisher.
           </p>
           <p>
-            If you believe that content visible on Ecency is unlawful, defamatory, infringes your personal rights, or violates applicable laws (excluding copyright claims, which are addressed in Section 15), you may submit a complaint to <code>info@ecency.com</code>. Please include:
+            If you believe that content visible on Ecency is unlawful, defamatory, infringes your personal rights, or violates applicable laws (excluding copyright claims, which are addressed in Section 15), you may submit a complaint to <code>hello@ecency.com</code>. Please include:
           </p>
           <ul>
             <li>Your full name and contact information</li>
@@ -545,7 +545,7 @@ export default function TermsOfService() {
             relevant regional authority, as required by law.
           </p>
           <p>
-            Child Safety Point of Contact: <code>info@ecency.com</code>. To report suspected CSAM,
+            Child Safety Point of Contact: <code>hello@ecency.com</code>. To report suspected CSAM,
             CSAE, or any threat to a minor related to Ecency, contact this address with links,
             usernames, and supporting details so we can investigate and take action.
           </p>
@@ -559,9 +559,13 @@ export default function TermsOfService() {
             mechanisms where provided. We review child-safety reports in good faith and prioritize
             urgent risk-of-harm cases.
           </p>
-          <h2>27. Contact Information</h2>
+          <h2>27. Digital Services Act (EU) Redress Options</h2>
+          <p>If you disagree with a content moderation decision made by Ecency, you may submit a complaint through available internal review or reporting mechanisms.</p>
+          <p>Users in the European Union may also refer disputes relating to moderation decisions to a certified out-of-court dispute settlement body in accordance with Article 21 of Regulation (EU) 2022/2065 (Digital Services Act).</p>
+          <p>Nothing in this section limits your right to seek judicial redress through the courts.</p>
+          <h2>28. Contact Information</h2>
           <p>
-            Notices to this site’s operators should be directed to <code>info@ecency.com</code>.
+            Notices to this site’s operators should be directed to <code>hello@ecency.com</code>.
           </p>
         </div>
       </div>
