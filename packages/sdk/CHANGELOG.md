@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.22
+
+### Patch Changes
+
+- Expiring delegations (#694)
+
 ## 2.0.21
 
 ### Patch Changes
