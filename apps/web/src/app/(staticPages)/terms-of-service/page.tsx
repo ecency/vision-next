@@ -545,7 +545,7 @@ export default function TermsOfService() {
             relevant regional authority, as required by law.
           </p>
           <p>
-            Child Safety Point of Contact: <code>hello@ecency.com</code>. To report suspected CSAM,
+            Child Safety Point of Contact: <code>safety@ecency.com</code>. To report suspected CSAM,
             CSAE, or any threat to a minor related to Ecency, contact this address with links,
             usernames, and supporting details so we can investigate and take action.
           </p>
@@ -560,7 +560,7 @@ export default function TermsOfService() {
             urgent risk-of-harm cases.
           </p>
           <h2>27. Digital Services Act (EU) Redress Options</h2>
-          <p>If you disagree with a content moderation decision made by Ecency, you may submit a complaint through available internal review or reporting mechanisms.</p>
+          <p>If you disagree with a content moderation decision made by Ecency, you may submit a complaint through email <code>hello@ecency.com</code>, available internal review or reporting mechanisms.</p>
           <p>Users in the European Union may also refer disputes relating to moderation decisions to a certified out-of-court dispute settlement body in accordance with Article 21 of Regulation (EU) 2022/2065 (Digital Services Act).</p>
           <p>Nothing in this section limits your right to seek judicial redress through the courts.</p>
           <h2>28. Contact Information</h2>
