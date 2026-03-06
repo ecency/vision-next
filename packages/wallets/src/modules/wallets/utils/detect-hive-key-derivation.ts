@@ -7,7 +7,7 @@ export type HiveKeyDerivation = "bip44" | "master-password" | "unknown";
 export async function detectHiveKeyDerivation(
     username: string,
     seed: string,
-    type: "active" | "owner" = "active"
+    type: "active" | "owner" | "memo" = "active"
 ): Promise<HiveKeyDerivation> {
   const uname = username.trim().toLowerCase();
 
@@ -15,6 +15,21 @@ export async function detectHiveKeyDerivation(
   const account = (await CONFIG.queryClient.fetchQuery(
       getAccountFullQueryOptions(uname)
   )) as FullAccount;
+
+  if (type === "memo") {
+    // Memo key is a single public key on the account, not an authority array
+    const accountMemoKey = String(account.memo_key);
+
+    const bip44 = deriveHiveKeys(seed);
+    if (bip44.memoPubkey === accountMemoKey) return "bip44";
+
+    const legacyPub = PrivateKey.fromLogin(uname, seed, "memo")
+        .createPublic()
+        .toString();
+    if (legacyPub === accountMemoKey) return "master-password";
+
+    return "unknown";
+  }
 
   // pick the right authority based on `type`
   const auth = account[type];

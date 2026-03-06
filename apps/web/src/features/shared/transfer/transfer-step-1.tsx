@@ -470,7 +470,14 @@ export function TransferStep1({ titleLngKey }: Props) {
                       value={memo}
                       onChange={memoChanged}
                     />
-                    <TransferFormText msg={i18next.t("transfer.memo-help")} type="muted" />
+                    <TransferFormText
+                      msg={
+                        memo.startsWith("#")
+                          ? `🔒 ${i18next.t("transfer.memo-encrypted")}`
+                          : i18next.t("transfer.memo-help")
+                      }
+                      type="muted"
+                    />
                     {memoError && <TransferFormText msg={memoError} type="danger" />}
                   </div>
                 </div>

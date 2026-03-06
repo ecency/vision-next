@@ -53,7 +53,16 @@ export function TransferStep2({ titleLngKey }: Props) {
               {hpToVests(Number(amount), (dynamicProps ?? DEFAULT_DYNAMIC_PROPS).hivePerMVests)}
             </div>
           )}
-          {memo && <div className="memo">{memo}</div>}
+          {memo && (
+            <div className="memo">
+              {memo.startsWith("#") && (
+                <span className="text-xs text-gray-500 block mb-1">
+                  🔒 {i18next.t("transfer.memo-encrypted-label")}
+                </span>
+              )}
+              {memo}
+            </div>
+          )}
         </div>
         <div className="flex justify-center">
           <Button

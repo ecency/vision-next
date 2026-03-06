@@ -6,6 +6,7 @@ import { formattedNumber, parseAsset } from "@/utils";
 import { UilArrowRight, UilRefresh } from "@tooni/iconscout-unicons-react";
 import { ProfileWalletTokenHistoryHiveItem } from "../../_components";
 import { Badge } from "@/features/ui";
+import { MemoDisplay } from "@/features/shared/memo-display";
 
 interface Props {
   transaction: Transaction;
@@ -78,7 +79,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       <div className="space-y-2">
         <TransferParticipants from={tr.from} to={tr.to} />
         {tr.memo ? (
-          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          tr.memo.startsWith("#") ? (
+            <MemoDisplay memo={tr.memo} />
+          ) : (
+            <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          )
         ) : null}
       </div>
     );
@@ -107,7 +112,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
     details = (
       <div className="space-y-2">
         {tr.memo ? (
-          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          tr.memo.startsWith("#") ? (
+            <MemoDisplay memo={tr.memo} />
+          ) : (
+            <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          )
         ) : null}
         <div className="text-sm text-gray-600 dark:text-gray-400">{recurrentDescription}</div>
         <TransferParticipants from={tr.from} to={tr.to} />
@@ -145,7 +154,11 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
       <div className="space-y-2">
         <TransferParticipants from={tr.from} to={tr.to} />
         {tr.memo ? (
-          <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          tr.memo.startsWith("#") ? (
+            <MemoDisplay memo={tr.memo} />
+          ) : (
+            <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{tr.memo}</div>
+          )
         ) : null}
       </div>
     );

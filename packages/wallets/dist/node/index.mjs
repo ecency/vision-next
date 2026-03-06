@@ -1,5 +1,5 @@
 import { ConfigManager, CONFIG, getAccountFullQueryOptions, getPortfolioQueryOptions, getQueryClient, AssetOperation, useAccountUpdate, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMetadataQueryOptions } from '@ecency/sdk';
-export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, rewardSpk, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
+export { AssetOperation, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, HiveEngineToken, NaiMap, PointTransactionType, Symbol, decryptMemoWithAccounts, decryptMemoWithKeys, encryptMemoWithAccounts, encryptMemoWithKeys, formattedNumber, getAccountWalletAssetInfoQueryOptions, getAllHiveEngineTokensQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineUnclaimedRewardsQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarketsQueryOptions, getSpkWalletQueryOptions, isEmptyDate, parseAsset, resolveHiveOperationFilters, rewardSpk, useClaimPoints, useWalletOperation, vestsToHp } from '@ecency/sdk';
 import { useQuery, queryOptions, useQueryClient, useMutation } from '@tanstack/react-query';
 import bip39, { mnemonicToSeedSync } from 'bip39';
 import { LRUCache } from 'lru-cache';
@@ -12,7 +12,6 @@ import { AptosWallet } from '@okxweb3/coin-aptos';
 import { bip32 } from '@okxweb3/crypto-lib';
 import { PrivateKey } from '@hiveio/dhive';
 import { cryptoUtils } from '@hiveio/dhive/lib/crypto';
-import { Memo } from '@hiveio/dhive/lib/memo';
 import * as R from 'remeda';
 
 var __defProp = Object.defineProperty;
@@ -373,6 +372,14 @@ async function detectHiveKeyDerivation(username, seed, type = "active") {
   const account = await CONFIG.queryClient.fetchQuery(
     getAccountFullQueryOptions(uname)
   );
+  if (type === "memo") {
+    const accountMemoKey = String(account.memo_key);
+    const bip442 = deriveHiveKeys(seed);
+    if (bip442.memoPubkey === accountMemoKey) return "bip44";
+    const legacyPub2 = PrivateKey.fromLogin(uname, seed, "memo").createPublic().toString();
+    if (legacyPub2 === accountMemoKey) return "master-password";
+    return "unknown";
+  }
   const auth = account[type];
   const bip44 = deriveHiveKeys(seed);
   const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
@@ -397,20 +404,6 @@ async function signTxAndBroadcast(client, tx, privateKey, chainId) {
   const signed = signTx(tx, privateKey, chainId);
   return client.broadcast.send(signed);
 }
-function encryptMemoWithKeys(privateKey, publicKey, memo) {
-  return Memo.encode(PrivateKey.fromString(privateKey), publicKey, memo);
-}
-async function encryptMemoWithAccounts(client, fromPrivateKey, toAccount, memo) {
-  const [account] = await client.database.getAccounts([toAccount]);
-  if (!account) {
-    throw new Error("Account not found");
-  }
-  return Memo.encode(PrivateKey.fromString(fromPrivateKey), account.memo_key, memo);
-}
-function decryptMemoWithKeys(privateKey, memo) {
-  return Memo.decode(PrivateKey.fromString(privateKey), memo);
-}
-var decryptMemoWithAccounts = decryptMemoWithKeys;
 async function signExternalTx(currency, params) {
   const wallet = getWallet(currency);
   if (!wallet) throw new Error("Unsupported currency");
@@ -1174,6 +1167,6 @@ function useSaveWalletInformationToMetadata(username, auth, options2) {
 // src/index.ts
 rememberScryptBsvVersion();
 
-export { EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, decryptMemoWithAccounts, decryptMemoWithKeys, delay, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, encryptMemoWithAccounts, encryptMemoWithKeys, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, mnemonicToSeedBip39, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletsCacheQuery };
+export { EcencyWalletBasicTokens, EcencyWalletCurrency, private_api_exports as EcencyWalletsPrivateApi, buildAptTx, buildEthTx, buildExternalTx, buildPsbt, buildSolTx, buildTonTx, buildTronTx, delay, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getBoundFetch, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, getWallet, mnemonicToSeedBip39, signDigest, signExternalTx, signExternalTxAndBroadcast, signTx, signTxAndBroadcast, useGetExternalWalletBalanceQuery, useHiveKeysQuery, useImportWallet, useSaveWalletInformationToMetadata, useSeedPhrase, useWalletCreate, useWalletsCacheQuery };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

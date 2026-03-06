@@ -8,6 +8,7 @@ import { getQueryClient } from "@/core/react-query";
 import { Announcements } from "@/features/announcement";
 import { Tracker } from "@/features/monitoring";
 import { AuthUpgradeDialog } from "@/features/shared/auth-upgrade";
+import { MemoKeyDialog } from "@/features/shared/memo-key";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { UserActivityRecorder } from "@/features/user-activity";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -45,6 +46,7 @@ export function ClientProviders(props: PropsWithChildren) {
           {/* Defer non-critical components for LCP optimization */}
           <DeferredRender>
             <AuthUpgradeDialog />
+            <MemoKeyDialog />
             <EcencyConfigManager.Conditional
               condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
             >

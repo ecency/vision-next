@@ -22,7 +22,7 @@ import clsx from "clsx";
 interface Props {
   isLoading?: boolean;
   onSign?: (key: PrivateKey) => void;
-  keyType?: "owner" | "active";
+  keyType?: "owner" | "active" | "memo";
 }
 
 export interface KeyInputImperativeHandle {
@@ -78,10 +78,17 @@ export const KeyInput = forwardRef<
 
           if (derivation === "bip44") {
             const keys = deriveHiveKeys(key);
-            const derivedKey = keyType === "active" ? keys.active : keys.owner;
+            const derivedKey =
+              keyType === "active" ? keys.active :
+              keyType === "memo" ? keys.memo :
+              keys.owner;
             privateKey = PrivateKey.fromString(derivedKey);
           } else if (derivation === "master-password") {
-            privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+            privateKey = PrivateKey.fromLogin(
+              activeUser.username,
+              key,
+              keyType === "memo" ? "memo" : keyType
+            );
           } else {
             privateKey = PrivateKey.from(key);
           }

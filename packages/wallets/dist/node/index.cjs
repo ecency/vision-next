@@ -13,7 +13,6 @@ var coinAptos = require('@okxweb3/coin-aptos');
 var cryptoLib = require('@okxweb3/crypto-lib');
 var dhive = require('@hiveio/dhive');
 var crypto = require('@hiveio/dhive/lib/crypto');
-var memo = require('@hiveio/dhive/lib/memo');
 var R = require('remeda');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
@@ -397,6 +396,14 @@ async function detectHiveKeyDerivation(username, seed, type = "active") {
   const account = await sdk.CONFIG.queryClient.fetchQuery(
     sdk.getAccountFullQueryOptions(uname)
   );
+  if (type === "memo") {
+    const accountMemoKey = String(account.memo_key);
+    const bip442 = deriveHiveKeys(seed);
+    if (bip442.memoPubkey === accountMemoKey) return "bip44";
+    const legacyPub2 = dhive.PrivateKey.fromLogin(uname, seed, "memo").createPublic().toString();
+    if (legacyPub2 === accountMemoKey) return "master-password";
+    return "unknown";
+  }
   const auth = account[type];
   const bip44 = deriveHiveKeys(seed);
   const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
@@ -421,20 +428,6 @@ async function signTxAndBroadcast(client, tx, privateKey, chainId) {
   const signed = signTx(tx, privateKey, chainId);
   return client.broadcast.send(signed);
 }
-function encryptMemoWithKeys(privateKey, publicKey, memo$1) {
-  return memo.Memo.encode(dhive.PrivateKey.fromString(privateKey), publicKey, memo$1);
-}
-async function encryptMemoWithAccounts(client, fromPrivateKey, toAccount, memo$1) {
-  const [account] = await client.database.getAccounts([toAccount]);
-  if (!account) {
-    throw new Error("Account not found");
-  }
-  return memo.Memo.encode(dhive.PrivateKey.fromString(fromPrivateKey), account.memo_key, memo$1);
-}
-function decryptMemoWithKeys(privateKey, memo$1) {
-  return memo.Memo.decode(dhive.PrivateKey.fromString(privateKey), memo$1);
-}
-var decryptMemoWithAccounts = decryptMemoWithKeys;
 async function signExternalTx(currency, params) {
   const wallet = getWallet(currency);
   if (!wallet) throw new Error("Unsupported currency");
@@ -1234,6 +1227,22 @@ Object.defineProperty(exports, "Symbol", {
   enumerable: true,
   get: function () { return sdk.Symbol; }
 });
+Object.defineProperty(exports, "decryptMemoWithAccounts", {
+  enumerable: true,
+  get: function () { return sdk.decryptMemoWithAccounts; }
+});
+Object.defineProperty(exports, "decryptMemoWithKeys", {
+  enumerable: true,
+  get: function () { return sdk.decryptMemoWithKeys; }
+});
+Object.defineProperty(exports, "encryptMemoWithAccounts", {
+  enumerable: true,
+  get: function () { return sdk.encryptMemoWithAccounts; }
+});
+Object.defineProperty(exports, "encryptMemoWithKeys", {
+  enumerable: true,
+  get: function () { return sdk.encryptMemoWithKeys; }
+});
 Object.defineProperty(exports, "formattedNumber", {
   enumerable: true,
   get: function () { return sdk.formattedNumber; }
@@ -1388,16 +1397,12 @@ exports.buildPsbt = buildPsbt;
 exports.buildSolTx = buildSolTx;
 exports.buildTonTx = buildTonTx;
 exports.buildTronTx = buildTronTx;
-exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
-exports.decryptMemoWithKeys = decryptMemoWithKeys;
 exports.delay = delay;
 exports.deriveHiveKey = deriveHiveKey;
 exports.deriveHiveKeys = deriveHiveKeys;
 exports.deriveHiveMasterPasswordKey = deriveHiveMasterPasswordKey;
 exports.deriveHiveMasterPasswordKeys = deriveHiveMasterPasswordKeys;
 exports.detectHiveKeyDerivation = detectHiveKeyDerivation;
-exports.encryptMemoWithAccounts = encryptMemoWithAccounts;
-exports.encryptMemoWithKeys = encryptMemoWithKeys;
 exports.getAccountWalletListQueryOptions = getAccountWalletListQueryOptions;
 exports.getAllTokensListQueryOptions = getAllTokensListQueryOptions;
 exports.getBoundFetch = getBoundFetch;
