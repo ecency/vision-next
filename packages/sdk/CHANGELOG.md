@@ -5,6 +5,7 @@
 ### Patch Changes
 
 - Expiring delegations (#694)
+- Improve adapter (#693)
 
 ## 2.0.21
 
