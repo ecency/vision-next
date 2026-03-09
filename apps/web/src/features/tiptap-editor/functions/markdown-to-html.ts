@@ -40,6 +40,12 @@ export function markdownToHtml(html: string | undefined) {
     return "";
   }
 
+  // Strip TipTap mention/tag nodes to plain text before Turndown processes HTML.
+  // Turndown normally strips inline spans, but custom rules using outerHTML (e.g. tables)
+  // would preserve the raw <span data-type="mention"> markup in the output.
+  html = html.replace(/<span[^>]*data-type="mention"[^>]*>([^<]*)<\/span>/gi, "$1");
+  html = html.replace(/<span[^>]*data-type="tag"[^>]*>([^<]*)<\/span>/gi, "$1");
+
   return new Turndown({
     codeBlockStyle: "fenced"
   })
