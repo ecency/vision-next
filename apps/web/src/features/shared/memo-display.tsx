@@ -12,10 +12,26 @@ interface Props {
   memo: string;
 }
 
+/**
+ * Heuristic to detect if a #-prefixed memo is actually encrypted.
+ *
+ * Encrypted memos on Hive are `#` followed by a long base58-encoded string
+ * (typically 150+ chars, no spaces, no punctuation outside base58 alphabet).
+ * Plain text memos starting with `#` will have spaces and regular text.
+ */
+function isLikelyEncryptedMemo(memo: string): boolean {
+  if (!memo.startsWith("#")) return false;
+  const content = memo.slice(1);
+  // Encrypted memos are long base58 strings with no whitespace
+  return content.length > 50 && !/\s/.test(content);
+}
+
 export function MemoDisplay({ memo }: Props) {
   const { activeUser } = useActiveAccount();
   const [decryptedText, setDecryptedText] = useState<string | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
+
+  const encrypted = isLikelyEncryptedMemo(memo);
 
   const handleDecrypt = useCallback(async () => {
     if (!activeUser) return;
@@ -38,6 +54,13 @@ export function MemoDisplay({ memo }: Props) {
         <span className="text-xs text-gray-500">🔓 </span>
         {decryptedText}
       </div>
+    );
+  }
+
+  if (!encrypted) {
+    // Plain text memo that happens to start with #
+    return (
+      <div className="text-sm text-gray-600 dark:text-gray-400 break-words">{memo}</div>
     );
   }
 

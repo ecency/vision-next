@@ -89,6 +89,10 @@ export const KeyInput = forwardRef<
               key,
               keyType === "memo" ? "memo" : keyType
             );
+          } else if (keyType === "memo") {
+            // For memo keys, try master password derivation as fallback
+            // (detectHiveKeyDerivation may return "unknown" if memo key was changed)
+            privateKey = PrivateKey.fromLogin(activeUser.username, key, "memo");
           } else {
             privateKey = PrivateKey.from(key);
           }
