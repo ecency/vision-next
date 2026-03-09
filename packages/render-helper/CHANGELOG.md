@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.22
+
+### Patch Changes
+
+- Render helper proxy fix (#698)
+
 ## 2.4.21
 
 ### Patch Changes

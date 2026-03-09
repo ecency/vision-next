@@ -366,7 +366,7 @@ function img(el, state) {
   }
   const cls = el.getAttribute("class") || "";
   const shouldReplace = !cls.includes("no-replace");
-  const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
+  const hasAlreadyProxied = src.startsWith("https://images.ecency.com/p/") || src.startsWith("https://images.ecency.com/u/") || /^https:\/\/images\.ecency\.com\/\d+x\d+\//.test(src);
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);
     if (proxified) {
