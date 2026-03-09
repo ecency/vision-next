@@ -218,134 +218,15 @@ export async function loginWithHiveAuth(
 }
 
 /**
- * Broadcast operations with HiveAuth
+ * Internal helper: sends a sign_req via HiveAuth WebSocket and resolves with
+ * the sign_ack data string (or undefined if broadcast-only).
  */
-export async function broadcastWithHiveAuth(
+function hiveAuthSignRequest(
   session: HiveAuthSession,
   operations: Operation[],
+  opts: { keyType: string; broadcast: boolean },
   callbacks?: HiveAuthSignCallback
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(HIVEAUTH_API);
-    let signTimeout: ReturnType<typeof setTimeout> | null = null;
-    let settled = false;
-
-    const cleanup = () => {
-      if (signTimeout) {
-        clearTimeout(signTimeout);
-        signTimeout = null;
-      }
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
-      }
-    };
-
-    const safeReject = (error: Error) => {
-      if (!settled) {
-        settled = true;
-        reject(error);
-      }
-    };
-
-    const safeResolve = () => {
-      if (!settled) {
-        settled = true;
-        resolve();
-      }
-    };
-
-    ws.onopen = () => {
-      const signReq = {
-        cmd: 'sign_req',
-        account: session.username,
-        token: session.token,
-        data: {
-          key_type: 'posting',
-          ops: operations,
-          broadcast: true,
-        },
-      };
-
-      ws.send(JSON.stringify(signReq));
-      callbacks?.onWaiting?.();
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data) as HiveAuthSignResponse;
-
-        switch (msg.cmd) {
-          case 'sign_wait':
-            callbacks?.onWaiting?.();
-            break;
-
-          case 'sign_ack':
-            callbacks?.onSuccess?.(msg.data);
-            cleanup();
-            safeResolve();
-            break;
-
-          case 'sign_nack':
-            callbacks?.onError?.('Transaction rejected');
-            cleanup();
-            safeReject(new Error('Transaction rejected'));
-            break;
-
-          case 'sign_err':
-            callbacks?.onError?.(msg.error || 'Signing error');
-            cleanup();
-            safeReject(new Error(msg.error || 'Signing error'));
-            break;
-        }
-      } catch (error) {
-        callbacks?.onError?.('Failed to parse response');
-        cleanup();
-        safeReject(error instanceof Error ? error : new Error('Failed to parse response'));
-      }
-    };
-
-    ws.onerror = () => {
-      callbacks?.onError?.('WebSocket connection error');
-      cleanup();
-      safeReject(new Error('WebSocket connection error'));
-    };
-
-    ws.onclose = () => {
-      // Connection closed - ensure timeout is cleared
-      if (signTimeout) {
-        clearTimeout(signTimeout);
-        signTimeout = null;
-      }
-      // Reject if the Promise hasn't been settled yet
-      if (!settled) {
-        callbacks?.onError?.('WebSocket closed before signing completed');
-        safeReject(new Error('WebSocket closed before signing completed'));
-      }
-    };
-
-    // Timeout after 2 minutes for signing
-    signTimeout = setTimeout(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        callbacks?.onError?.('Signing timeout');
-        cleanup();
-        safeReject(new Error('Signing timeout'));
-      }
-    }, 2 * 60 * 1000);
-  });
-}
-
-/**
- * Sign operations with HiveAuth without broadcasting (for x402 payments).
- * Uses key_type: 'active' and broadcast: false to get signed tx data back.
- *
- * Note: HiveAuth may not support broadcast:false with active keys.
- * If unsupported, this will reject with an error.
- */
-export async function signWithHiveAuth(
-  session: HiveAuthSession,
-  operations: Operation[],
-  callbacks?: HiveAuthSignCallback
-): Promise<string> {
+): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(HIVEAUTH_API);
     let signTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -374,9 +255,9 @@ export async function signWithHiveAuth(
         account: session.username,
         token: session.token,
         data: {
-          key_type: 'active',
+          key_type: opts.keyType,
           ops: operations,
-          broadcast: false,
+          broadcast: opts.broadcast,
         },
       };
 
@@ -398,7 +279,7 @@ export async function signWithHiveAuth(
               settled = true;
               callbacks?.onSuccess?.(msg.data);
               cleanup();
-              resolve(msg.data ?? '');
+              resolve(msg.data);
             }
             break;
 
@@ -446,6 +327,33 @@ export async function signWithHiveAuth(
       }
     }, 2 * 60 * 1000);
   });
+}
+
+/**
+ * Broadcast operations with HiveAuth
+ */
+export async function broadcastWithHiveAuth(
+  session: HiveAuthSession,
+  operations: Operation[],
+  callbacks?: HiveAuthSignCallback
+): Promise<void> {
+  await hiveAuthSignRequest(session, operations, { keyType: 'posting', broadcast: true }, callbacks);
+}
+
+/**
+ * Sign operations with HiveAuth without broadcasting (for x402 payments).
+ * Uses key_type: 'active' and broadcast: false to get signed tx data back.
+ *
+ * Note: HiveAuth may not support broadcast:false with active keys.
+ * If unsupported, this will reject with an error.
+ */
+export async function signWithHiveAuth(
+  session: HiveAuthSession,
+  operations: Operation[],
+  callbacks?: HiveAuthSignCallback
+): Promise<string> {
+  const data = await hiveAuthSignRequest(session, operations, { keyType: 'active', broadcast: false }, callbacks);
+  return data ?? '';
 }
 
 /**

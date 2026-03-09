@@ -23,7 +23,7 @@ export function PaymentDialog({
   onPaymentSigned,
   onCancel,
 }: PaymentDialogProps) {
-  const [loading, setLoading] = useState(false);
+  const [loadingMethod, setLoadingMethod] = useState<PaymentSignMethod | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeKey, setActiveKey] = useState('');
   const [showKeyInput, setShowKeyInput] = useState(false);
@@ -32,7 +32,7 @@ export function PaymentDialog({
   const hiveAuthValid = isHiveAuthSessionValid(hiveAuthSession ?? null);
 
   async function handleSign(method: PaymentSignMethod) {
-    setLoading(true);
+    setLoadingMethod(method);
     setError(null);
 
     try {
@@ -40,11 +40,12 @@ export function PaymentDialog({
         hiveAuthSession: hiveAuthSession ?? undefined,
         activeKey: method === 'manual' ? activeKey : undefined,
       });
+      setActiveKey('');
       onPaymentSigned(header);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Payment signing failed');
     } finally {
-      setLoading(false);
+      setLoadingMethod(null);
     }
   }
 
@@ -89,7 +90,7 @@ export function PaymentDialog({
           <button
             type="button"
             onClick={() => handleSign('keychain')}
-            disabled={!keychainAvailable || loading}
+            disabled={!keychainAvailable || !!loadingMethod}
             className={clsx(
               'w-full p-3 rounded-theme border border-theme transition-theme',
               'flex items-center gap-3 text-left bg-theme-primary',
@@ -108,14 +109,14 @@ export function PaymentDialog({
                   : 'Extension not detected'}
               </div>
             </div>
-            {loading && <Spinner />}
+            {loadingMethod === 'keychain' && <Spinner />}
           </button>
 
           {/* HiveAuth */}
           <button
             type="button"
             onClick={() => handleSign('hiveauth')}
-            disabled={!hiveAuthValid || loading}
+            disabled={!hiveAuthValid || !!loadingMethod}
             className={clsx(
               'w-full p-3 rounded-theme border border-theme transition-theme',
               'flex items-center gap-3 text-left bg-theme-primary',
@@ -132,7 +133,7 @@ export function PaymentDialog({
                   : 'No active HiveAuth session'}
               </div>
             </div>
-            {loading && <Spinner />}
+            {loadingMethod === 'hiveauth' && <Spinner />}
           </button>
 
           {/* Manual Active Key */}
@@ -140,7 +141,7 @@ export function PaymentDialog({
             <button
               type="button"
               onClick={() => setShowKeyInput(true)}
-              disabled={loading}
+              disabled={!!loadingMethod}
               className={clsx(
                 'w-full p-3 rounded-theme border border-theme transition-theme',
                 'flex items-center gap-3 text-left bg-theme-primary',
@@ -174,14 +175,14 @@ export function PaymentDialog({
               <button
                 type="button"
                 onClick={() => handleSign('manual')}
-                disabled={!activeKey || loading}
+                disabled={!activeKey || !!loadingMethod}
                 className={clsx(
                   'w-full p-2 rounded-theme bg-blue-600 text-white text-sm font-medium',
                   'hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed',
                   'focus:outline-none focus:ring-2 focus:ring-blue-500'
                 )}
               >
-                {loading ? 'Signing...' : 'Sign Payment'}
+                {loadingMethod === 'manual' ? 'Signing...' : 'Sign Payment'}
               </button>
             </div>
           )}
@@ -190,7 +191,7 @@ export function PaymentDialog({
         <button
           type="button"
           onClick={onCancel}
-          disabled={loading}
+          disabled={!!loadingMethod}
           className="w-full mt-4 p-2 text-sm text-theme-muted hover:text-theme-primary transition-theme"
         >
           Cancel

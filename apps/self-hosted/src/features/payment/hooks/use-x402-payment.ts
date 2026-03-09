@@ -73,7 +73,18 @@ export function useX402Payment(): UseX402PaymentReturn {
         headers,
       });
 
-      // Reset state
+      // If the retry itself returns 402 (e.g., payment expired/invalid),
+      // re-enter payment state with fresh requirements
+      if (response.status === 402) {
+        const requirements = await parseRequirementsFromResponse(response);
+        if (requirements) {
+          setPaymentRequirements(requirements);
+          // pendingRequest stays the same for the next retry
+          return response;
+        }
+      }
+
+      // Non-402 final response — clear state
       pendingRequest.current = null;
       setIsPendingPayment(false);
       setPaymentRequirements(null);

@@ -170,9 +170,13 @@ interface DynamicGlobalProperties {
   head_block_id: string;
 }
 
+const NODE_TIMEOUT_MS = 8000;
+
 async function fetchDynamicGlobalProperties(): Promise<DynamicGlobalProperties> {
   let lastError: Error | undefined;
   for (const node of HIVE_API_NODES) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), NODE_TIMEOUT_MS);
     try {
       const res = await fetch(node, {
         method: 'POST',
@@ -183,10 +187,13 @@ async function fetchDynamicGlobalProperties(): Promise<DynamicGlobalProperties> 
           params: [],
           id: 1,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timer);
       const json = (await res.json()) as { result?: DynamicGlobalProperties };
       if (json.result) return json.result;
     } catch (err) {
+      clearTimeout(timer);
       lastError = err instanceof Error ? err : new Error(String(err));
     }
   }

@@ -119,99 +119,124 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
 });
 
 // POST /v1/tenants/subscribe - Create tenant via x402 payment
-tenantRoutes.post('/subscribe', subscriptionPaywall, zValidator('json', createTenantSchema), async (c) => {
-  const body = c.req.valid('json');
-  const payer = c.get('payer');
-  const txId = c.get('txId');
+// Validation runs before paywall so we don't settle payment for invalid requests
+tenantRoutes.post('/subscribe',
+  zValidator('json', createTenantSchema),
+  async (c, next) => {
+    const body = c.req.valid('json');
+    const existing = await TenantService.getByUsername(body.username);
+    if (existing) {
+      return c.json({ error: 'Username already registered' }, 409);
+    }
+    const hiveAccountExists = await TenantService.verifyHiveAccount(body.username);
+    if (!hiveAccountExists) {
+      return c.json({ error: 'Hive account not found' }, 400);
+    }
+    await next();
+  },
+  subscriptionPaywall,
+  async (c) => {
+    const body = c.req.valid('json');
+    const payer = c.get('payer');
+    const txId = c.get('txId');
 
-  // Check if username already exists
-  const existing = await TenantService.getByUsername(body.username);
-  if (existing) {
-    return c.json({ error: 'Username already registered' }, 409);
+    // Claim payment first — if already claimed, this is a duplicate
+    const tenant = await TenantService.create(body.username, body.config);
+    const paymentResult = await db.query(
+      `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, processed_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 1, NOW())
+       ON CONFLICT (trx_id) DO NOTHING`,
+      [
+        tenant.id,
+        txId,
+        payer,
+        parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000'),
+        `x402:subscribe:${body.username}`,
+      ]
+    );
+
+    if (paymentResult.rowCount === 0) {
+      return c.json({ error: 'Payment already processed' }, 409);
+    }
+
+    const activatedTenant = await TenantService.activateSubscription(body.username, 1);
+
+    try {
+      await ConfigService.generateConfigFile(activatedTenant);
+    } catch (err) {
+      console.error(`Failed to generate config for ${body.username}:`, err);
+    }
+
+    return c.json({
+      tenant: {
+        username: activatedTenant.username,
+        subscriptionStatus: activatedTenant.subscriptionStatus,
+        subscriptionExpiresAt: activatedTenant.subscriptionExpiresAt,
+        blogUrl: TenantService.getBlogUrl(activatedTenant),
+      },
+      payment: { payer, txId },
+    }, 201);
   }
-
-  // Verify the Hive account exists
-  const hiveAccountExists = await TenantService.verifyHiveAccount(body.username);
-  if (!hiveAccountExists) {
-    return c.json({ error: 'Hive account not found' }, 400);
-  }
-
-  // Create tenant and immediately activate subscription
-  const tenant = await TenantService.create(body.username, body.config);
-  const activatedTenant = await TenantService.activateSubscription(body.username, 1);
-
-  // Record payment with ON CONFLICT to prevent double-processing
-  await db.query(
-    `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, subscription_extended_to, processed_at)
-     VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 1, $6, NOW())
-     ON CONFLICT (trx_id) DO NOTHING`,
-    [
-      tenant.id,
-      txId,
-      payer,
-      parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000'),
-      `x402:subscribe:${body.username}`,
-      activatedTenant.subscriptionExpiresAt,
-    ]
-  );
-
-  await ConfigService.generateConfigFile(activatedTenant);
-
-  return c.json({
-    tenant: {
-      username: activatedTenant.username,
-      subscriptionStatus: activatedTenant.subscriptionStatus,
-      subscriptionExpiresAt: activatedTenant.subscriptionExpiresAt,
-      blogUrl: TenantService.getBlogUrl(activatedTenant),
-    },
-    payment: { payer, txId },
-  }, 201);
-});
+);
 
 // POST /v1/tenants/:username/upgrade - Upgrade to Pro via x402 payment
-tenantRoutes.post('/:username/upgrade', proUpgradePaywall, async (c) => {
-  const username = c.req.param('username');
-  const payer = c.get('payer');
-  const txId = c.get('txId');
+// Validation runs before paywall so we don't settle payment for invalid requests
+tenantRoutes.post('/:username/upgrade',
+  async (c, next) => {
+    const username = c.req.param('username');
+    const tenant = await TenantService.getByUsername(username);
+    if (!tenant) {
+      return c.json({ error: 'Tenant not found' }, 404);
+    }
+    if (tenant.subscriptionStatus !== 'active') {
+      return c.json({ error: 'Subscription must be active to upgrade' }, 400);
+    }
+    if (tenant.subscriptionPlan === 'pro') {
+      return c.json({ error: 'Already on Pro plan' }, 409);
+    }
+    await next();
+  },
+  proUpgradePaywall,
+  async (c) => {
+    const username = c.req.param('username');
+    const payer = c.get('payer');
+    const txId = c.get('txId');
 
-  const tenant = await TenantService.getByUsername(username);
-  if (!tenant) {
-    return c.json({ error: 'Tenant not found' }, 404);
+    const tenant = await TenantService.getByUsername(username);
+    if (!tenant) {
+      return c.json({ error: 'Tenant not found' }, 404);
+    }
+
+    // Claim payment first — if already claimed, this is a duplicate
+    const paymentResult = await db.query(
+      `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, processed_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 0, NOW())
+       ON CONFLICT (trx_id) DO NOTHING`,
+      [
+        tenant.id,
+        txId,
+        payer,
+        parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '3.000'),
+        `x402:upgrade:${username}`,
+      ]
+    );
+
+    if (paymentResult.rowCount === 0) {
+      return c.json({ error: 'Payment already processed' }, 409);
+    }
+
+    const upgradedTenant = await TenantService.upgradeToPro(username);
+
+    return c.json({
+      tenant: {
+        username: upgradedTenant.username,
+        subscriptionPlan: upgradedTenant.subscriptionPlan,
+        blogUrl: TenantService.getBlogUrl(upgradedTenant),
+      },
+      payment: { payer, txId },
+    });
   }
-
-  if (tenant.subscriptionStatus !== 'active') {
-    return c.json({ error: 'Subscription must be active to upgrade' }, 400);
-  }
-
-  if (tenant.subscriptionPlan === 'pro') {
-    return c.json({ error: 'Already on Pro plan' }, 409);
-  }
-
-  const upgradedTenant = await TenantService.upgradeToPro(username);
-
-  // Record payment with ON CONFLICT to prevent double-processing
-  await db.query(
-    `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, processed_at)
-     VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 0, NOW())
-     ON CONFLICT (trx_id) DO NOTHING`,
-    [
-      tenant.id,
-      txId,
-      payer,
-      parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '3.000'),
-      `x402:upgrade:${username}`,
-    ]
-  );
-
-  return c.json({
-    tenant: {
-      username: upgradedTenant.username,
-      subscriptionPlan: upgradedTenant.subscriptionPlan,
-      blogUrl: TenantService.getBlogUrl(upgradedTenant),
-    },
-    payment: { payer, txId },
-  });
-});
+);
 
 // PATCH /v1/tenants/:username - Update tenant config (requires auth)
 tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenantSchema), async (c) => {

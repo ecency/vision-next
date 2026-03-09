@@ -7,7 +7,6 @@
  * - Manual (active key input)
  */
 
-import type { AuthMethod } from '../auth/types';
 import type { HiveAuthSession } from '../auth/types';
 import { signTx } from '../auth/utils/keychain';
 import { signWithHiveAuth } from '../auth/utils/hive-auth';
@@ -74,14 +73,14 @@ export async function signX402Payment(
       }
       // Dynamic import dhive only when needed (keeps bundle small for other methods)
       const { PrivateKey, cryptoUtils } = await import('@hiveio/dhive');
-      const HIVE_CHAIN_ID = hexToBytes(
+      const chainId = hexToBytes(
         'beeab0de00000000000000000000000000000000000000000000000000000000'
       );
       const privKey = PrivateKey.fromString(options.activeKey);
       const signed = cryptoUtils.signTransaction(
         transaction as any,
         privKey,
-        Buffer.from(HIVE_CHAIN_ID)
+        chainId as any
       );
       signedTx = signed as unknown as Record<string, unknown>;
       break;
