@@ -36,6 +36,17 @@ export interface KeychainResponse {
   publicKey?: string;
 }
 
+export interface KeychainSignTxResponse {
+  success: boolean;
+  error?: string;
+  result?: string;
+  data?: {
+    /** The signed transaction object (JSON string) */
+    tx?: string;
+  };
+  message?: string;
+}
+
 export interface HiveAuthSession {
   username: string;
   token: string;

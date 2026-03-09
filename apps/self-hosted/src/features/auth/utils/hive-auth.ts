@@ -335,6 +335,120 @@ export async function broadcastWithHiveAuth(
 }
 
 /**
+ * Sign operations with HiveAuth without broadcasting (for x402 payments).
+ * Uses key_type: 'active' and broadcast: false to get signed tx data back.
+ *
+ * Note: HiveAuth may not support broadcast:false with active keys.
+ * If unsupported, this will reject with an error.
+ */
+export async function signWithHiveAuth(
+  session: HiveAuthSession,
+  operations: Operation[],
+  callbacks?: HiveAuthSignCallback
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(HIVEAUTH_API);
+    let signTimeout: ReturnType<typeof setTimeout> | null = null;
+    let settled = false;
+
+    const cleanup = () => {
+      if (signTimeout) {
+        clearTimeout(signTimeout);
+        signTimeout = null;
+      }
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+    };
+
+    const safeReject = (error: Error) => {
+      if (!settled) {
+        settled = true;
+        reject(error);
+      }
+    };
+
+    ws.onopen = () => {
+      const signReq = {
+        cmd: 'sign_req',
+        account: session.username,
+        token: session.token,
+        data: {
+          key_type: 'active',
+          ops: operations,
+          broadcast: false,
+        },
+      };
+
+      ws.send(JSON.stringify(signReq));
+      callbacks?.onWaiting?.();
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data) as HiveAuthSignResponse;
+
+        switch (msg.cmd) {
+          case 'sign_wait':
+            callbacks?.onWaiting?.();
+            break;
+
+          case 'sign_ack':
+            if (!settled) {
+              settled = true;
+              callbacks?.onSuccess?.(msg.data);
+              cleanup();
+              resolve(msg.data ?? '');
+            }
+            break;
+
+          case 'sign_nack':
+            callbacks?.onError?.('Transaction rejected');
+            cleanup();
+            safeReject(new Error('Transaction rejected'));
+            break;
+
+          case 'sign_err':
+            callbacks?.onError?.(msg.error || 'Signing error');
+            cleanup();
+            safeReject(new Error(msg.error || 'Signing error'));
+            break;
+        }
+      } catch (error) {
+        callbacks?.onError?.('Failed to parse response');
+        cleanup();
+        safeReject(error instanceof Error ? error : new Error('Failed to parse response'));
+      }
+    };
+
+    ws.onerror = () => {
+      callbacks?.onError?.('WebSocket connection error');
+      cleanup();
+      safeReject(new Error('WebSocket connection error'));
+    };
+
+    ws.onclose = () => {
+      if (signTimeout) {
+        clearTimeout(signTimeout);
+        signTimeout = null;
+      }
+      if (!settled) {
+        callbacks?.onError?.('WebSocket closed before signing completed');
+        safeReject(new Error('WebSocket closed before signing completed'));
+      }
+    };
+
+    signTimeout = setTimeout(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        callbacks?.onError?.('Signing timeout');
+        cleanup();
+        safeReject(new Error('Signing timeout'));
+      }
+    }, 2 * 60 * 1000);
+  });
+}
+
+/**
  * Check if HiveAuth session is valid
  */
 export function isHiveAuthSessionValid(session: HiveAuthSession | null): boolean {
