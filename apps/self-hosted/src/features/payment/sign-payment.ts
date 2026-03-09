@@ -3,24 +3,23 @@
  *
  * Dispatches transaction signing to the appropriate method:
  * - Keychain (browser extension)
- * - HiveAuth (mobile app via WebSocket)
  * - Manual (active key input)
+ *
+ * Note: HiveAuth is not supported for x402 payments because its protocol
+ * only accepts operations (not full transactions), so the signed result
+ * won't match the prebuilt transaction from buildPaymentTx.
  */
 
-import type { HiveAuthSession } from '../auth/types';
 import { signTx } from '../auth/utils/keychain';
-import { signWithHiveAuth } from '../auth/utils/hive-auth';
 import {
   buildPaymentTx,
   encodePaymentHeader,
   type PaymentRequirements,
 } from './x402-client';
 
-export type PaymentSignMethod = 'keychain' | 'hiveauth' | 'manual';
+export type PaymentSignMethod = 'keychain' | 'manual';
 
 export interface SignX402PaymentOptions {
-  /** HiveAuth session (required when method is 'hiveauth') */
-  hiveAuthSession?: HiveAuthSession;
   /** Active private key in WIF format (required when method is 'manual') */
   activeKey?: string;
 }
@@ -36,6 +35,11 @@ export async function signX402Payment(
   method: PaymentSignMethod,
   options?: SignX402PaymentOptions
 ): Promise<string> {
+  // Validate method-specific prerequisites before network I/O
+  if (method === 'manual' && !options?.activeKey) {
+    throw new Error('Active key required for manual signing');
+  }
+
   // Step 1: Build unsigned transaction
   const { transaction, nonce } = await buildPaymentTx(username, requirements);
 
@@ -56,36 +60,14 @@ export async function signX402Payment(
       break;
     }
 
-    case 'hiveauth': {
-      if (!options?.hiveAuthSession) {
-        throw new Error('HiveAuth session required for HiveAuth signing');
-      }
-      const data = await signWithHiveAuth(
-        options.hiveAuthSession,
-        transaction.operations as any
-      );
-      if (!data) {
-        throw new Error('HiveAuth did not return signed transaction');
-      }
-      try {
-        signedTx = JSON.parse(data);
-      } catch (e) {
-        throw new Error(`Failed to parse HiveAuth signed transaction: ${e instanceof Error ? e.message : e}`);
-      }
-      break;
-    }
-
     case 'manual': {
-      if (!options?.activeKey) {
-        throw new Error('Active key required for manual signing');
-      }
       // Dynamic import dhive only when needed (keeps bundle small for other methods)
       const { PrivateKey, cryptoUtils } = await import('@hiveio/dhive');
       const chainId = Buffer.from(
         'beeab0de00000000000000000000000000000000000000000000000000000000',
         'hex'
       );
-      const privKey = PrivateKey.fromString(options.activeKey);
+      const privKey = PrivateKey.fromString(options!.activeKey!);
       const signed = cryptoUtils.signTransaction(
         transaction as any,
         privKey,

@@ -12,6 +12,7 @@ declare module 'hono' {
     user: AuthUser;
     payer: string;
     txId: string;
+    blockNum: number;
   }
 }
 

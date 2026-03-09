@@ -4,14 +4,11 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import type { PaymentRequirements } from '../x402-client';
 import { signX402Payment, type PaymentSignMethod } from '../sign-payment';
-import type { HiveAuthSession } from '../../auth/types';
 import { isKeychainAvailable } from '../../auth/utils/keychain';
-import { isHiveAuthSessionValid } from '../../auth/utils/hive-auth';
 
 interface PaymentDialogProps {
   requirements: PaymentRequirements;
   username: string;
-  hiveAuthSession?: HiveAuthSession | null;
   onPaymentSigned: (paymentHeader: string) => void;
   onCancel: () => void;
 }
@@ -19,7 +16,6 @@ interface PaymentDialogProps {
 export function PaymentDialog({
   requirements,
   username,
-  hiveAuthSession,
   onPaymentSigned,
   onCancel,
 }: PaymentDialogProps) {
@@ -29,7 +25,6 @@ export function PaymentDialog({
   const [showKeyInput, setShowKeyInput] = useState(false);
 
   const keychainAvailable = isKeychainAvailable();
-  const hiveAuthValid = isHiveAuthSessionValid(hiveAuthSession ?? null);
 
   async function handleSign(method: PaymentSignMethod) {
     setLoadingMethod(method);
@@ -37,7 +32,6 @@ export function PaymentDialog({
 
     try {
       const header = await signX402Payment(username, requirements, method, {
-        hiveAuthSession: hiveAuthSession ?? undefined,
         activeKey: method === 'manual' ? activeKey : undefined,
       });
       setActiveKey('');
@@ -110,30 +104,6 @@ export function PaymentDialog({
               </div>
             </div>
             {loadingMethod === 'keychain' && <Spinner />}
-          </button>
-
-          {/* HiveAuth */}
-          <button
-            type="button"
-            onClick={() => handleSign('hiveauth')}
-            disabled={!hiveAuthValid || !!loadingMethod}
-            className={clsx(
-              'w-full p-3 rounded-theme border border-theme transition-theme',
-              'flex items-center gap-3 text-left bg-theme-primary',
-              'hover:bg-theme-secondary hover:border-theme-strong',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500'
-            )}
-          >
-            <div className="flex-1">
-              <div className="font-medium text-theme-primary">HiveAuth</div>
-              <div className="text-xs text-theme-muted">
-                {hiveAuthValid
-                  ? 'Sign with mobile app'
-                  : 'No active HiveAuth session'}
-              </div>
-            </div>
-            {loadingMethod === 'hiveauth' && <Spinner />}
           </button>
 
           {/* Manual Active Key */}

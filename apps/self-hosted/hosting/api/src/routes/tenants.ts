@@ -143,26 +143,32 @@ tenantRoutes.post('/subscribe',
 
     // Prepare config before entering the DB transaction (pure, no I/O)
     const tenantConfig = await TenantService.buildConfig(body.username, body.config);
+    const blockNum = c.get('blockNum') ?? 0;
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
-      // Create tenant
+      // Create tenant — ON CONFLICT handles race with concurrent requests
       const tenantRow = await client.query(
         `INSERT INTO tenants (username, config, subscription_status, subscription_plan)
          VALUES ($1, $2, 'inactive', 'standard')
+         ON CONFLICT (username) DO NOTHING
          RETURNING *`,
         [body.username.toLowerCase(), JSON.stringify(tenantConfig)]
       );
+      if (tenantRow.rowCount === 0) {
+        throw Object.assign(new Error('Username already registered'), { isConflict: true });
+      }
       const tenantId = tenantRow.rows[0].id;
 
       // Claim payment — if already claimed, rollback (duplicate)
       const paymentResult = await client.query(
-        `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, processed_at)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 1, NOW())
+        `INSERT INTO payments (id, tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited, processed_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, 'HBD', $6, 'processed', 1, NOW())
          ON CONFLICT (trx_id) DO NOTHING`,
         [
           tenantId,
           txId,
+          blockNum,
           payer,
           parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000'),
           `x402:subscribe:${body.username}`,
@@ -192,8 +198,13 @@ tenantRoutes.post('/subscribe',
       return activatedRow.rows[0];
     }).catch((err) => {
       if (err.isDuplicate) return null;
+      if (err.isConflict) return 'conflict';
       throw err;
     });
+
+    if (result === 'conflict') {
+      return c.json({ error: 'Username already registered' }, 409);
+    }
 
     if (!result) {
       return c.json({ error: 'Payment already processed' }, 409);
@@ -242,20 +253,34 @@ tenantRoutes.post('/:username/upgrade',
     const payer = c.get('payer');
     const txId = c.get('txId');
 
-    const tenant = await TenantService.getByUsername(username);
-    if (!tenant) {
-      return c.json({ error: 'Tenant not found' }, 404);
-    }
+    const blockNum = c.get('blockNum') ?? 0;
 
-    // Payment claim + upgrade inside a DB transaction
+    // Payment claim + upgrade inside a DB transaction with row lock
     const result = await db.transaction(async (client) => {
+      // Re-check eligibility with row lock to prevent concurrent upgrades
+      const tenantRow = await client.query(
+        `SELECT id, subscription_status, subscription_plan FROM tenants WHERE username = $1 FOR UPDATE`,
+        [username.toLowerCase()]
+      );
+      if (tenantRow.rowCount === 0) {
+        throw Object.assign(new Error('Tenant not found'), { isNotFound: true });
+      }
+      const tenant = tenantRow.rows[0];
+      if (tenant.subscription_status !== 'active') {
+        throw Object.assign(new Error('Subscription must be active to upgrade'), { isIneligible: true });
+      }
+      if (tenant.subscription_plan === 'pro') {
+        throw Object.assign(new Error('Already on Pro plan'), { isIneligible: true });
+      }
+
       const paymentResult = await client.query(
-        `INSERT INTO payments (id, tenant_id, trx_id, from_account, amount, currency, memo, status, months_credited, processed_at)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, 'HBD', $5, 'processed', 0, NOW())
+        `INSERT INTO payments (id, tenant_id, trx_id, block_num, from_account, amount, currency, memo, status, months_credited, processed_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, 'HBD', $6, 'processed', 0, NOW())
          ON CONFLICT (trx_id) DO NOTHING`,
         [
           tenant.id,
           txId,
+          blockNum,
           payer,
           parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '3.000'),
           `x402:upgrade:${username}`,
@@ -269,16 +294,25 @@ tenantRoutes.post('/:username/upgrade',
       const upgradedRow = await client.query(
         `UPDATE tenants
          SET subscription_plan = 'pro', updated_at = NOW()
-         WHERE username = $1
+         WHERE id = $1
          RETURNING *`,
-        [username.toLowerCase()]
+        [tenant.id]
       );
 
       return upgradedRow.rows[0];
     }).catch((err) => {
       if (err.isDuplicate) return null;
+      if (err.isNotFound) return 'not_found';
+      if (err.isIneligible) return { error: err.message };
       throw err;
     });
+
+    if (result === 'not_found') {
+      return c.json({ error: 'Tenant not found' }, 404);
+    }
+    if (result && typeof result === 'object' && 'error' in result && !('id' in result)) {
+      return c.json({ error: (result as { error: string }).error }, 409);
+    }
 
     if (!result) {
       return c.json({ error: 'Payment already processed' }, 409);
