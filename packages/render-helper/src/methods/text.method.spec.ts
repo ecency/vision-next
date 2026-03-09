@@ -820,11 +820,12 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('@aws-sdk')
       em.appendChild(textNode)
 
-      const originalText = em.textContent
       text(textNode as any, false)
 
       // Should not process because ancestor is <code>
-      expect(em.textContent).toBe(originalText)
+      // Check no anchor was inserted (textContent alone won't catch a wrapped <a>)
+      expect(em.textContent).toBe('@aws-sdk')
+      expect(code.getElementsByTagName('a').length).toBe(0)
     })
 
     it('should skip processing when ancestor is <pre> tag', () => {
@@ -835,11 +836,11 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('@hiveio #hashtag')
       code.appendChild(textNode)
 
-      const originalText = code.textContent
       text(textNode as any, false)
 
       // Should not process because ancestor is <pre>
-      expect(code.textContent).toBe(originalText)
+      expect(code.textContent).toBe('@hiveio #hashtag')
+      expect(pre.getElementsByTagName('a').length).toBe(0)
     })
 
     it('should skip processing when text is inside <pre> without <code>', () => {
@@ -848,10 +849,10 @@ describe('text() method - Text Node Processing', () => {
       const textNode = doc.createTextNode('@mention')
       pre.appendChild(textNode)
 
-      const originalText = pre.textContent
       text(textNode as any, false)
 
-      expect(pre.textContent).toBe(originalText)
+      expect(pre.textContent).toBe('@mention')
+      expect(pre.getElementsByTagName('a').length).toBe(0)
     })
 
     it('should handle empty text nodes', () => {

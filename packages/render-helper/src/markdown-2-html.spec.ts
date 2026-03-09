@@ -1255,6 +1255,7 @@ describe('Markdown2Html', () => {
       const result = markdown2Html(input, false)
       expect(result).toContain('<code>@aws-sdk/client-s3</code>')
       expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('should not create author links inside backtick-wrapped username', () => {
@@ -1262,6 +1263,7 @@ describe('Markdown2Html', () => {
       const result = markdown2Html(input, false)
       expect(result).toContain('<code>@hiveio/dhive</code>')
       expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('should not create author links for simple mention inside backticks', () => {
