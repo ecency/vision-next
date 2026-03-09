@@ -141,6 +141,10 @@ tenantRoutes.post('/subscribe',
     const payer = c.get('payer');
     const txId = c.get('txId');
 
+    if (!payer || typeof payer !== 'string' || !txId || typeof txId !== 'string') {
+      return c.json({ error: 'Missing or invalid payer/txId from payment settlement' }, 502);
+    }
+
     // Prepare config before entering the DB transaction (pure, no I/O)
     const tenantConfig = await TenantService.buildConfig(body.username, body.config);
     const blockNum = c.get('blockNum');
@@ -252,6 +256,10 @@ tenantRoutes.post('/:username/upgrade',
     const payer = c.get('payer');
     const txId = c.get('txId');
 
+    if (!payer || typeof payer !== 'string' || !txId || typeof txId !== 'string') {
+      return c.json({ error: 'Missing or invalid payer/txId from payment settlement' }, 502);
+    }
+
     const blockNum = c.get('blockNum');
     if (!Number.isInteger(blockNum) || blockNum <= 0) {
       return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
@@ -269,10 +277,10 @@ tenantRoutes.post('/:username/upgrade',
       }
       const tenant = tenantRow.rows[0];
       if (tenant.subscription_status !== 'active') {
-        throw Object.assign(new Error('Subscription must be active to upgrade'), { isIneligible: true });
+        throw Object.assign(new Error('Subscription must be active to upgrade'), { isInactive: true });
       }
       if (tenant.subscription_plan === 'pro') {
-        throw Object.assign(new Error('Already on Pro plan'), { isIneligible: true });
+        throw Object.assign(new Error('Already on Pro plan'), { isAlreadyPro: true });
       }
 
       const paymentResult = await client.query(
@@ -303,17 +311,24 @@ tenantRoutes.post('/:username/upgrade',
 
       return upgradedRow.rows[0];
     }).catch((err) => {
-      if (err.isDuplicate) return null;
+      if (err.isDuplicate) return 'duplicate';
       if (err.isNotFound) return 'not_found';
-      if (err.isIneligible) return { error: err.message };
+      if (err.isInactive) return 'inactive';
+      if (err.isAlreadyPro) return 'already_pro';
       throw err;
     });
 
     if (result === 'not_found') {
       return c.json({ error: 'Tenant not found' }, 404);
     }
-    if (result && typeof result === 'object' && 'error' in result && !('id' in result)) {
-      return c.json({ error: (result as { error: string }).error }, 409);
+    if (result === 'inactive') {
+      return c.json({ error: 'Subscription must be active to upgrade' }, 400);
+    }
+    if (result === 'already_pro') {
+      return c.json({ error: 'Already on Pro plan' }, 409);
+    }
+    if (result === 'duplicate') {
+      return c.json({ error: 'Payment already processed' }, 409);
     }
 
     if (!result) {
