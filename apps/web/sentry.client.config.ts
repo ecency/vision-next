@@ -30,8 +30,9 @@ Sentry.init({
     "window.ethereum._handleChainChanged is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
     // iOS Safari cross-origin security errors from post-renderer library
-    "null is not an object (evaluating 'c.parentNode')",
-    "null is not an object (evaluating 'b.parentNode')"
+    "null is not an object (evaluating 'a.parentNode')",
+    "null is not an object (evaluating 'b.parentNode')",
+    "null is not an object (evaluating 'c.parentNode')"
   ],
   // Filter out errors originating from browser extension
   denyUrls: [
