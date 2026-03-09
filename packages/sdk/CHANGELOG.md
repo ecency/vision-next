@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.24
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
+## 2.0.22
+
+### Patch Changes
+
+- Expiring delegations (#694)
+- Improve adapter (#693)
+
+## 2.0.21
+
+### Patch Changes
+
+- Fallback of RPC selection (#692)
+
 ## 2.0.20
 
 ### Patch Changes

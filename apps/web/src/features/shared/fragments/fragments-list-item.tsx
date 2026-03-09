@@ -21,7 +21,6 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
 
   const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
     activeUser.username,
-    item.id,
     getAccessToken(activeUser.username)
   );
 
@@ -54,7 +53,7 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
             icon={<UilTrash />}
             onClick={(e: MouseEvent) => {
               e.stopPropagation();
-              deleteFragment();
+              deleteFragment({ fragmentId: item.id });
             }}
           />
         </div>

@@ -1,4 +1,5 @@
 export * from "./delegated-vesting-share";
+export * from "./vesting-delegation-expiration";
 export * from "./conversion-request";
 export * from "./savings-withdraw-request";
 export * from "./withdraw-route";

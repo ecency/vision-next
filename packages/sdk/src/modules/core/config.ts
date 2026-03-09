@@ -22,15 +22,15 @@ const getHeliusApiKey = () => {
 const DEFAULT_HIVE_NODES = [
   "https://api.hive.blog",
   "https://api.deathwing.me",
-  "https://rpc.mahdiyari.info",
   "https://api.openhive.network",
   "https://techcoderx.com",
   "https://api.syncad.com",
+  "https://rpc.mahdiyari.info",
 ];
 
 const HIVE_CLIENT_OPTIONS = {
   timeout: 15000,
-  failoverThreshold: 3,
+  failoverThreshold: 2,
   consoleOnFailover: true,
 };
 
