@@ -1276,6 +1276,11 @@ describe('Markdown2Html', () => {
     it('should not linkify mentions inside fenced code blocks', () => {
       const input = '```\n@aws-sdk/client-s3\n```'
       const result = markdown2Html(input, false)
+      // Code block wrapper must be present (content may be syntax-highlighted into spans)
+      expect(result).toContain('<pre><code>')
+      expect(result).toContain('</code></pre>')
+      expect(result).toMatch(/aws/)
+      expect(result).toMatch(/sdk/)
       expect(result).not.toContain('markdown-author-link')
       expect(result).not.toContain('markdown-post-link')
     })
