@@ -19,6 +19,9 @@ export function applyAuthorLinks(container: HTMLElement): Root[] {
                 return;
             }
 
+            // Skip mentions inside code blocks or inline code
+            if (el.closest("code") || el.closest("pre")) return;
+
             // Skip mentions inside archived tweet blocks
             if (el.closest(".markdown-view")?.textContent?.includes("Archived Tweet from")) return;
 

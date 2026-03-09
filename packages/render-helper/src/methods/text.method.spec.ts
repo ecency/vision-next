@@ -812,6 +812,48 @@ describe('text() method - Text Node Processing', () => {
       expect(parent.textContent).toBe(originalText)
     })
 
+    it('should skip processing when ancestor is <code> tag (nested)', () => {
+      const code = doc.createElement('code')
+      const em = doc.createElement('em')
+      doc.body?.appendChild(code)
+      code.appendChild(em)
+      const textNode = doc.createTextNode('@aws-sdk')
+      em.appendChild(textNode)
+
+      const originalText = em.textContent
+      text(textNode as any, false)
+
+      // Should not process because ancestor is <code>
+      expect(em.textContent).toBe(originalText)
+    })
+
+    it('should skip processing when ancestor is <pre> tag', () => {
+      const pre = doc.createElement('pre')
+      const code = doc.createElement('code')
+      doc.body?.appendChild(pre)
+      pre.appendChild(code)
+      const textNode = doc.createTextNode('@hiveio #hashtag')
+      code.appendChild(textNode)
+
+      const originalText = code.textContent
+      text(textNode as any, false)
+
+      // Should not process because ancestor is <pre>
+      expect(code.textContent).toBe(originalText)
+    })
+
+    it('should skip processing when text is inside <pre> without <code>', () => {
+      const pre = doc.createElement('pre')
+      doc.body?.appendChild(pre)
+      const textNode = doc.createTextNode('@mention')
+      pre.appendChild(textNode)
+
+      const originalText = pre.textContent
+      text(textNode as any, false)
+
+      expect(pre.textContent).toBe(originalText)
+    })
+
     it('should handle empty text nodes', () => {
       const parent = doc.createElement('p')
       doc.body?.appendChild(parent)
