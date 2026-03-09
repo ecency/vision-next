@@ -44,7 +44,7 @@ export function useX402Payment(): UseX402PaymentReturn {
       const response = await fetch(url, init);
 
       if (response.status === 402) {
-        const requirements = await parseRequirementsFromResponse(response);
+        const requirements = await parseRequirementsFromResponse(response.clone());
         if (requirements) {
           pendingRequest.current = { url, init };
           setPaymentRequirements(requirements);
@@ -76,7 +76,7 @@ export function useX402Payment(): UseX402PaymentReturn {
       // If the retry itself returns 402 (e.g., payment expired/invalid),
       // re-enter payment state with fresh requirements
       if (response.status === 402) {
-        const requirements = await parseRequirementsFromResponse(response);
+        const requirements = await parseRequirementsFromResponse(response.clone());
         if (requirements) {
           setPaymentRequirements(requirements);
           // pendingRequest stays the same for the next retry

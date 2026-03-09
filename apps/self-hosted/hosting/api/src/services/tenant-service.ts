@@ -251,6 +251,15 @@ export const TenantService = {
   },
   
   /**
+   * Build the full tenant config from defaults + overrides.
+   * Pure function, safe to call outside a DB transaction.
+   */
+  async buildConfig(username: string, configOverrides?: any): Promise<any> {
+    const defaults = await this.getDefaultConfig(username);
+    return configOverrides ? this.mergeConfig(defaults, configOverrides) : defaults;
+  },
+
+  /**
    * Get default config for a new tenant
    */
   async getDefaultConfig(username: string): Promise<any> {

@@ -353,7 +353,10 @@ export async function signWithHiveAuth(
   callbacks?: HiveAuthSignCallback
 ): Promise<string> {
   const data = await hiveAuthSignRequest(session, operations, { keyType: 'active', broadcast: false }, callbacks);
-  return data ?? '';
+  if (!data) {
+    throw new Error('HiveAuth signing failed: no data returned');
+  }
+  return data;
 }
 
 /**

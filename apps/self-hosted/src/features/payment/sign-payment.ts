@@ -48,7 +48,11 @@ export async function signX402Payment(
       if (!resp.result) {
         throw new Error('Keychain did not return signed transaction');
       }
-      signedTx = JSON.parse(resp.result);
+      try {
+        signedTx = JSON.parse(resp.result);
+      } catch (e) {
+        throw new Error(`Failed to parse Keychain signed transaction: ${e instanceof Error ? e.message : e}`);
+      }
       break;
     }
 
@@ -63,7 +67,11 @@ export async function signX402Payment(
       if (!data) {
         throw new Error('HiveAuth did not return signed transaction');
       }
-      signedTx = JSON.parse(data);
+      try {
+        signedTx = JSON.parse(data);
+      } catch (e) {
+        throw new Error(`Failed to parse HiveAuth signed transaction: ${e instanceof Error ? e.message : e}`);
+      }
       break;
     }
 
@@ -73,14 +81,15 @@ export async function signX402Payment(
       }
       // Dynamic import dhive only when needed (keeps bundle small for other methods)
       const { PrivateKey, cryptoUtils } = await import('@hiveio/dhive');
-      const chainId = hexToBytes(
-        'beeab0de00000000000000000000000000000000000000000000000000000000'
+      const chainId = Buffer.from(
+        'beeab0de00000000000000000000000000000000000000000000000000000000',
+        'hex'
       );
       const privKey = PrivateKey.fromString(options.activeKey);
       const signed = cryptoUtils.signTransaction(
         transaction as any,
         privKey,
-        chainId as any
+        chainId
       );
       signedTx = signed as unknown as Record<string, unknown>;
       break;
@@ -92,12 +101,4 @@ export async function signX402Payment(
 
   // Step 3: Encode for x-payment header
   return encodePaymentHeader(signedTx, nonce);
-}
-
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  }
-  return bytes;
 }
