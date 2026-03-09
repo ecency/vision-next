@@ -110,8 +110,9 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle mentions
   // We cannot use :has selector because some browsers like Safari 15 doesn't support it well
-  (Array.from(tree.querySelectorAll("*:not(a)")) as HTMLElement[])
-    .filter((el) => !el.querySelector("a") && USER_MENTION_PURE_REGEX.test(el.innerText))
+  // Skip code/pre elements so backtick-wrapped text like `@aws-sdk` stays as plain text
+  (Array.from(tree.querySelectorAll("*:not(a):not(code):not(pre)")) as HTMLElement[])
+    .filter((el) => !el.closest("code") && !el.closest("pre") && !el.querySelector("a") && USER_MENTION_PURE_REGEX.test(el.innerText))
     .forEach((el) => {
       el.innerHTML = el.innerHTML.replace(
         USER_MENTION_PURE_REGEX,
@@ -121,8 +122,9 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle tags
   // We cannot use :has selector because some browsers like Safari 15 doesn't support it well
-  (Array.from(tree.querySelectorAll("*:not(a)")) as HTMLElement[])
-    .filter((el) => !el.querySelector("a") && TAG_MENTION_PURE_REGEX.test(el.innerText))
+  // Skip code/pre elements so backtick-wrapped text like `#tag` stays as plain text
+  (Array.from(tree.querySelectorAll("*:not(a):not(code):not(pre)")) as HTMLElement[])
+    .filter((el) => !el.closest("code") && !el.closest("pre") && !el.querySelector("a") && TAG_MENTION_PURE_REGEX.test(el.innerText))
     .forEach((el) => {
       el.innerHTML = el.innerHTML.replace(
         TAG_MENTION_PURE_REGEX,
