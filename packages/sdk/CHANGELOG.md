@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.24
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
 ## 2.0.22
 
 ### Patch Changes
