@@ -8,6 +8,8 @@ import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
+import { encryptMemo } from "@/utils/memo-crypto";
+import { getLoginType } from "@/utils/user-token";
 import {
   useTransferMutation,
   useTransferPointMutation,
@@ -81,31 +83,38 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
   return {
     isPending,
     mutateAsync: async ({ to, amount, memo }: SignTransferPayload) => {
+      // Encrypt memo if it starts with #
+      let processedMemo = memo;
+      if (memo.startsWith("#") && to) {
+        const loginType = getLoginType(activeUser?.username ?? "");
+        processedMemo = await encryptMemo(loginType, activeUser!.username, to, memo.slice(1));
+      }
+
       const fullAmount = `${(+amount).toFixed(3)} ${asset}`;
       const requestId = Date.now() >>> 0;
 
       switch (mode) {
         case "transfer":
           if (asset === "POINT") {
-            await transferPoint.mutateAsync({ to, amount: fullAmount, memo });
+            await transferPoint.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           } else if (asset === "SPK") {
             await transferSpk.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (asset === "LARYNX") {
             await transferLarynx.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
           } else if (asset !== "HIVE" && asset !== "HBD") {
             // Hive Engine token
-            await transferEngine.mutateAsync({ to, quantity: amount, symbol: asset, memo });
+            await transferEngine.mutateAsync({ to, quantity: amount, symbol: asset, memo: processedMemo });
           } else {
-            await transfer.mutateAsync({ to, amount: fullAmount, memo });
+            await transfer.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           }
           break;
 
         case "transfer-saving":
-          await toSavings.mutateAsync({ to, amount: fullAmount, memo });
+          await toSavings.mutateAsync({ to, amount: fullAmount, memo: processedMemo });
           break;
 
         case "withdraw-saving":
-          await fromSavings.mutateAsync({ to, amount: fullAmount, memo, requestId });
+          await fromSavings.mutateAsync({ to, amount: fullAmount, memo: processedMemo, requestId });
           break;
 
         case "convert":
@@ -117,7 +126,7 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
           break;
 
         case "claim-interest":
-          await claimInterest.mutateAsync({ to, amount: fullAmount, memo, requestId });
+          await claimInterest.mutateAsync({ to, amount: fullAmount, memo: processedMemo, requestId });
           break;
 
         case "power-up":

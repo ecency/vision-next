@@ -82,4 +82,19 @@ export interface KeyChainImpl {
     callback: (r: TxResponse) => void,
     rpc: string | null
   ): void;
+
+  requestEncodeMessage(
+    username: string,
+    recipient: string,
+    message: string,
+    key: AuthorityTypes,
+    callback: (r: TxResponse) => void
+  ): void;
+
+  requestVerifyKey(
+    username: string,
+    encryptedMessage: string,
+    key: AuthorityTypes,
+    callback: (r: TxResponse) => void
+  ): void;
 }

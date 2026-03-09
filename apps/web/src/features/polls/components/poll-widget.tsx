@@ -196,7 +196,7 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-center mt-4">
           {showVote && (
             <Button
-              disabled={isReadOnly || activeChoices.size === 0 || isVoting}
+              disabled={isReadOnly || !activeUser || activeChoices.size === 0 || isVoting}
               icon={<UilPanelAdd />}
               iconPlacement="left"
               size="lg"
