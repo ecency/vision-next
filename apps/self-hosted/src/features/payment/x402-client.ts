@@ -108,9 +108,19 @@ export async function buildPaymentTx(
   );
   const refBlockPrefix = view.getUint32(4, true);
 
-  const expiration = new Date(Date.now() + 60 * 1000)
-    .toISOString()
-    .slice(0, -5);
+  // Expiration: min(60s from now, validBefore) — fail fast if already expired
+  const now = Date.now();
+  let expiryMs = now + 60 * 1000;
+  if (requirements.validBefore) {
+    const validBeforeMs = new Date(requirements.validBefore).getTime();
+    if (validBeforeMs <= now) {
+      throw new Error('Payment requirements have expired (validBefore is in the past)');
+    }
+    if (validBeforeMs < expiryMs) {
+      expiryMs = validBeforeMs;
+    }
+  }
+  const expiration = new Date(expiryMs).toISOString().slice(0, -5);
 
   const transaction: HiveTransaction = {
     ref_block_num: refBlockNum,
