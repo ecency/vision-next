@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.23
+
+### Patch Changes
+
+- Fix wrapping on render helper (#699)
+
 ## 2.4.22
 
 ### Patch Changes
