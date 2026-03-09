@@ -113,6 +113,9 @@ export async function buildPaymentTx(
   let expiryMs = now + 60 * 1000;
   if (requirements.validBefore) {
     const validBeforeMs = new Date(requirements.validBefore).getTime();
+    if (Number.isNaN(validBeforeMs)) {
+      throw new Error('Invalid validBefore timestamp in payment requirements');
+    }
     if (validBeforeMs <= now) {
       throw new Error('Payment requirements have expired (validBefore is in the past)');
     }
@@ -201,7 +204,16 @@ async function fetchDynamicGlobalProperties(): Promise<DynamicGlobalProperties> 
       });
       clearTimeout(timer);
       const json = (await res.json()) as { result?: DynamicGlobalProperties };
-      if (json.result) return json.result;
+      const r = json.result;
+      if (
+        r &&
+        typeof r.head_block_id === 'string' &&
+        r.head_block_id.length > 0 &&
+        typeof r.head_block_number === 'number' &&
+        Number.isInteger(r.head_block_number)
+      ) {
+        return r;
+      }
     } catch (err) {
       clearTimeout(timer);
       lastError = err instanceof Error ? err : new Error(String(err));
