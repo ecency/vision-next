@@ -143,7 +143,10 @@ tenantRoutes.post('/subscribe',
 
     // Prepare config before entering the DB transaction (pure, no I/O)
     const tenantConfig = await TenantService.buildConfig(body.username, body.config);
-    const blockNum = c.get('blockNum') ?? 0;
+    const blockNum = c.get('blockNum');
+    if (!Number.isInteger(blockNum) || blockNum <= 0) {
+      return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
+    }
 
     // All mutations inside a DB transaction to prevent orphan tenants
     const result = await db.transaction(async (client) => {
@@ -179,20 +182,16 @@ tenantRoutes.post('/subscribe',
         throw Object.assign(new Error('Payment already processed'), { isDuplicate: true });
       }
 
-      // Activate subscription
-      const now = new Date();
-      const expiresAt = new Date(now);
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-
+      // Activate subscription (use SQL INTERVAL for correct month arithmetic)
       const activatedRow = await client.query(
         `UPDATE tenants
          SET subscription_status = 'active',
-             subscription_started_at = $2,
-             subscription_expires_at = $3,
+             subscription_started_at = NOW(),
+             subscription_expires_at = NOW() + INTERVAL '1 month',
              updated_at = NOW()
          WHERE id = $1
          RETURNING *`,
-        [tenantId, now, expiresAt]
+        [tenantId]
       );
 
       return activatedRow.rows[0];
@@ -253,7 +252,10 @@ tenantRoutes.post('/:username/upgrade',
     const payer = c.get('payer');
     const txId = c.get('txId');
 
-    const blockNum = c.get('blockNum') ?? 0;
+    const blockNum = c.get('blockNum');
+    if (!Number.isInteger(blockNum) || blockNum <= 0) {
+      return c.json({ error: 'Missing or invalid block number from payment settlement' }, 502);
+    }
 
     // Payment claim + upgrade inside a DB transaction with row lock
     const result = await db.transaction(async (client) => {
