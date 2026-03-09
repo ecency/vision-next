@@ -1261,11 +1261,21 @@ function linkify(content, forApp) {
 }
 
 // src/methods/text.method.ts
+function hasAncestor(node, tagNames) {
+  let current = node.parentNode;
+  while (current) {
+    if (tagNames.includes(current.nodeName.toLowerCase())) {
+      return true;
+    }
+    current = current.parentNode;
+  }
+  return false;
+}
 function text(node, forApp) {
   if (!node || !node.parentNode) {
     return;
   }
-  if (["a", "code"].includes(node.parentNode.nodeName.toLowerCase())) {
+  if (hasAncestor(node, ["a", "code", "pre"])) {
     return;
   }
   const nodeValue = node.nodeValue || "";

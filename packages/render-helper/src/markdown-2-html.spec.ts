@@ -1241,6 +1241,64 @@ describe('Markdown2Html', () => {
     })
   })
 
+  describe('Inline code should not linkify mentions', () => {
+    it('should not create author links inside backtick-wrapped text', () => {
+      const input = '`@aws-sdk/client-s3`'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@aws-sdk/client-s3</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links inside inline code in a sentence', () => {
+      const input = '~3MB (`@aws-sdk/client-s3` only)'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@aws-sdk/client-s3</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links inside backtick-wrapped username', () => {
+      const input = '`@hiveio/dhive`'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@hiveio/dhive</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links for simple mention inside backticks', () => {
+      const input = 'use `@scope` package'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@scope</code>')
+      expect(result).not.toContain('markdown-author-link')
+    })
+
+    it('should not linkify mentions inside fenced code blocks', () => {
+      const input = '```\n@aws-sdk/client-s3\n```'
+      const result = markdown2Html(input, false)
+      // Code block wrapper must be present (content may be syntax-highlighted into spans)
+      expect(result).toContain('<pre><code>')
+      expect(result).toContain('</code></pre>')
+      expect(result).toMatch(/aws/)
+      expect(result).toMatch(/sdk/)
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not linkify hashtags inside inline code', () => {
+      const input = 'use `#hashtag` in code'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>#hashtag</code>')
+      expect(result).not.toContain('markdown-tag-link')
+    })
+
+    it('should still linkify mentions outside of code', () => {
+      const input = '@goodkarma is great'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('markdown-author-link')
+    })
+  })
+
   describe('Format handling (webp via server Accept header)', () => {
     it('Should always render images with match format regardless of webp flag', () => {
       const input = 'lorem ipsum https://images.ecency.com/foobarbaz.jpg dolor sit amet'
