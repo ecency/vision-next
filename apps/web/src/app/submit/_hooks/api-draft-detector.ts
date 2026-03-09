@@ -66,6 +66,10 @@ export function useApiDraftDetector(
   }, [draftId, draftsQuery.data, activeUser?.username, queryClient]);
 
   useEffect(() => {
+    hasLoadedRef.current = false;
+  }, [draftId]);
+
+  useEffect(() => {
     if (existingDraft && !hasLoadedRef.current) {
       onDraftLoadedRef.current(existingDraft);
       setActivePoll(existingDraft.meta?.poll);
