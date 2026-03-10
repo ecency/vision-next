@@ -2,9 +2,9 @@ import { queryOptions } from "@tanstack/react-query";
 import { CONFIG, getBoundFetch, QueryKeys } from "../../core";
 import type { AiAssistPrice } from "../types";
 
-export function getAiAssistPriceQueryOptions(accessToken: string) {
+export function getAiAssistPriceQueryOptions(username: string | undefined, accessToken: string) {
   return queryOptions({
-    queryKey: QueryKeys.ai.assistPrices(),
+    queryKey: QueryKeys.ai.assistPrices(username),
     queryFn: async () => {
       const fetchApi = getBoundFetch();
       const response = await fetchApi(CONFIG.privateApiHost + "/private-api/ai-assist-price", {

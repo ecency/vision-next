@@ -72,7 +72,7 @@ export function useAiAssist(
         }
         // Invalidate assist prices to refresh free_remaining counts
         getQueryClient().invalidateQueries({
-          queryKey: QueryKeys.ai.assistPrices(),
+          queryKey: QueryKeys.ai.assistPrices(username),
         });
       }
     },

@@ -9,7 +9,6 @@ import {
   getAiAssistPriceQueryOptions,
   getPointsQueryOptions,
   useAiAssist,
-  type AiAssistPrice,
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
@@ -37,7 +36,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
   );
 
   const { data: prices, isLoading: isPricesLoading } = useQuery(
-    getAiAssistPriceQueryOptions(accessToken ?? "")
+    getAiAssistPriceQueryOptions(username, accessToken ?? "")
   );
 
   const { mutateAsync: runAssist, isPending: isProcessing } = useAiAssist(username, accessToken);
@@ -73,7 +72,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
   }, [activeUserPoints, selectedPrice, isFree]);
 
   const canSubmit =
-    selectedAction && text.trim().length >= minInput && !isInsufficientBalance && !isProcessing;
+    selectedAction && selectedPrice && !isPricesLoading && text.trim().length >= minInput && !isInsufficientBalance && !isProcessing;
 
   const handleSubmit = useCallback(async () => {
     if (!selectedAction || !text.trim()) return;
@@ -206,13 +205,15 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
               const freeRemaining = price?.free_remaining ?? 0;
 
               return (
-                <motion.div
+                <motion.button
+                  type="button"
                   key={action}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
+                  aria-pressed={selectedAction === action}
                   className={clsx(
-                    "border px-4 py-3 rounded-lg cursor-pointer flex items-center justify-between",
+                    "border px-4 py-3 rounded-lg cursor-pointer flex items-center justify-between text-left w-full",
                     selectedAction === action
                       ? "border-blue-dark-sky bg-blue-dark-sky/10"
                       : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -240,7 +241,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
                       {price?.cost ?? "?"} {i18next.t("ai-assist.points-unit")}
                     </span>
                   </div>
-                </motion.div>
+                </motion.button>
               );
             })}
           </div>

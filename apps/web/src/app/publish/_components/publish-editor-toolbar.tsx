@@ -402,43 +402,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </Button>
         </StyledTooltip>
 
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
-        >
-          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
-            <LoginRequired>
-              <Button
-                appearance="gray-link"
-                size="sm"
-                icon={<AiImageIcon />}
-                onClick={() => setShowAiGenerator(true)}
-              />
-            </LoginRequired>
-          </StyledTooltip>
-        </EcencyConfigManager.Conditional>
-
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
-        >
-          <StyledTooltip content={i18next.t("ai-assist.toolbar-button")}>
-            <LoginRequired>
-              <Button
-                appearance="gray-link"
-                size="sm"
-                icon={
-                  <span className="relative inline-flex">
-                    <UilEditAlt />
-                    <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
-                      AI
-                    </span>
-                  </span>
-                }
-                onClick={() => setShowAiAssist(true)}
-              />
-            </LoginRequired>
-          </StyledTooltip>
-        </EcencyConfigManager.Conditional>
-
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
           <LoginRequired>
             <Dropdown>
@@ -548,6 +511,44 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             </DropdownMenu>
           </Dropdown>
         </StyledTooltip>
+
+        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={<AiImageIcon />}
+                onClick={() => setShowAiGenerator(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-assist.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={
+                  <span className="relative inline-flex">
+                    <UilEditAlt />
+                    <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
+                      AI
+                    </span>
+                  </span>
+                }
+                onClick={() => setShowAiAssist(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
 
         {/*Dialogs*/}
         <PublishEditorToolbarFragments
@@ -687,28 +688,31 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShow={setShowAiAssist}
             initialText={editor?.getText()?.trim() || ""}
             onApply={(output, action) => {
-              if (action === "improve" || action === "check_grammar") {
+              if (action === "improve" || action === "check_grammar" || action === "summarize") {
                 editor?.commands.setContent(output);
+                setShowAiAssist(false);
               } else if (action === "generate_title") {
                 try {
                   const titles = JSON.parse(output);
                   if (Array.isArray(titles) && titles.length > 0) {
                     publishState.setTitle(titles[0]);
+                    setShowAiAssist(false);
                   }
                 } catch {
                   publishState.setTitle(output);
+                  setShowAiAssist(false);
                 }
               } else if (action === "suggest_tags") {
                 try {
                   const tags = JSON.parse(output);
-                  if (Array.isArray(tags)) {
+                  if (Array.isArray(tags) && tags.length > 0) {
                     publishState.setTags(tags);
+                    setShowAiAssist(false);
                   }
                 } catch {
-                  // ignore parse errors
+                  // parse failed — keep dialog open
                 }
               }
-              setShowAiAssist(false);
             }}
           />
         )}
