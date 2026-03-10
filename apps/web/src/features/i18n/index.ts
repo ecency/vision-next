@@ -1,5 +1,4 @@
 import i18n from "i18next";
-import i18next from "i18next";
 
 import dayjs from "@/utils/dayjs";
 import * as ls from "@/utils/local-storage";
@@ -123,7 +122,7 @@ export async function initI18next() {
   if (userLang && userLang !== "en-US") {
     await loadLocale(userLang);
   }
-  await i18next.changeLanguage(userLang || "en-US");
+  await i18n.changeLanguage(userLang || "en-US");
 
   i18n.on("languageChanged", async function (lang) {
     await loadLocale(lang);
@@ -131,6 +130,6 @@ export async function initI18next() {
   });
 }
 
-initI18next();
+initI18next().catch((err) => console.error("[i18n] init failed:", err));
 
 export * from "./navigation-locale-watcher";

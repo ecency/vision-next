@@ -726,8 +726,9 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                     }
                   }
                 } catch {
-                  // parse failed — keep dialog open
+                  // parse failed
                 }
+                error(i18next.t("ai-assist.error-generic"));
               }
             }}
           />

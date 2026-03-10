@@ -53,7 +53,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
 
   return (
     showImage && (
-      <div className={"item-image " + (img === noImage ? "noImage" : "")}>
+      <div className={"item-image " + (!hasFullImage ? "noImage" : "")}>
         <EntryLink className="h-full" entry={isCrossPost ? entryProp : entry}>
           <div className="h-full w-full relative overflow-hidden">
             {blurUrl && !hasFullImage && (
@@ -73,7 +73,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 }
                 src={img || noImage}
                 alt={isLoading ? "" : entry.title}
-                style={{ width: img === noImage ? "172px" : "100%" }}
+                style={{ width: !hasFullImage ? "172px" : "100%" }}
               />
             ) : (
               <picture>
