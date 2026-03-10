@@ -16,10 +16,6 @@ const Market = dynamic(
   { ssr: false }
 );
 
-interface MarketDataProps {
-  global: Global;
-}
-
 export function MarketData() {
   const theme = useGlobalStore((s) => s.theme);
 

@@ -104,30 +104,41 @@ export async function loadLocale(lang: string) {
   i18n.addResourceBundle(lang, "translation", module.default || module);
 }
 
-export async function initI18next() {
-  await i18n.init({
-    resources: {
-      ["en-US"]: {
-        translation: enUs
+const supportedCodes = new Set(langOptions.map((l) => l.code));
+
+let initI18nextPromise: Promise<void> | null = null;
+
+export function initI18next(): Promise<void> {
+  if (initI18nextPromise) return initI18nextPromise;
+
+  initI18nextPromise = (async () => {
+    await i18n.init({
+      resources: {
+        ["en-US"]: {
+          translation: enUs
+        }
+      },
+      fallbackLng: "en-US",
+      interpolation: {
+        escapeValue: false
       }
-    },
-    fallbackLng: "en-US",
-    interpolation: {
-      escapeValue: false
+    });
+
+    i18n.on("languageChanged", async function (lang) {
+      await loadLocale(lang);
+      dayjs.locale(lang);
+    });
+
+    // Load the user's preferred locale on demand
+    const raw = ls.get("lang") || ls.get("current-language");
+    const userLang = raw && supportedCodes.has(raw) ? raw : "en-US";
+    if (userLang !== "en-US") {
+      await loadLocale(userLang);
     }
-  });
+    await i18n.changeLanguage(userLang);
+  })();
 
-  // Load the user's preferred locale on demand
-  const userLang = ls.get("lang") || ls.get("current-language");
-  if (userLang && userLang !== "en-US") {
-    await loadLocale(userLang);
-  }
-  await i18n.changeLanguage(userLang || "en-US");
-
-  i18n.on("languageChanged", async function (lang) {
-    await loadLocale(lang);
-    dayjs.locale(lang);
-  });
+  return initI18nextPromise;
 }
 
 initI18next().catch((err) => console.error("[i18n] init failed:", err));

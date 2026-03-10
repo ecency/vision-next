@@ -59,6 +59,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
             {blurUrl && !hasFullImage && (
               <img
                 src={blurUrl}
+                alt=""
                 aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -76,17 +77,14 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 style={{ width: !hasFullImage ? "172px" : "100%" }}
               />
             ) : (
-              <picture>
-                <source srcSet={img || noImage} media="(min-width: 576px)" />
-                <img
-                  className={
-                    "w-full relative transition-opacity duration-300 " +
-                    (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
-                  }
-                  srcSet={img || noImage}
-                  alt={isLoading ? "" : entry.title}
-                />
-              </picture>
+              <img
+                className={
+                  "w-full relative transition-opacity duration-300 " +
+                  (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
+                }
+                src={img || noImage}
+                alt={isLoading ? "" : entry.title}
+              />
             )}
           </div>
         </EntryLink>
