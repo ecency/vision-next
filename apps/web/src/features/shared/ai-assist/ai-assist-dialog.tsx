@@ -2,12 +2,12 @@
 
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import i18next from "i18next";
-import { AiAssist } from "./ai-assist";
+import { AiAssist, type AiAssistAction } from "./ai-assist";
 
 interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
-  onApply?: (output: string, action: string) => void;
+  onApply?: (output: string, action: AiAssistAction) => void;
   initialText?: string;
 }
 

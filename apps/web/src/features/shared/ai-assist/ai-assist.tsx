@@ -16,10 +16,11 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useMemo, useState } from "react";
 
-const ACTIONS = ["improve", "suggest_tags", "generate_title", "summarize", "check_grammar"];
+const ACTIONS = ["improve", "suggest_tags", "generate_title", "summarize", "check_grammar"] as const;
+export type AiAssistAction = (typeof ACTIONS)[number];
 
 interface Props {
-  onApply?: (output: string, action: string) => void;
+  onApply?: (output: string, action: AiAssistAction) => void;
   initialText?: string;
 }
 
@@ -43,9 +44,9 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
 
   const maxInput = 10000;
 
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedAction, setSelectedAction] = useState<AiAssistAction | null>(null);
   const [text, setText] = useState(initialText.slice(0, maxInput));
-  const [result, setResult] = useState<{ output: string; action: string } | null>(null);
+  const [result, setResult] = useState<{ output: string; action: AiAssistAction } | null>(null);
   const [copied, setCopied] = useState(false);
 
   const selectedPrice = useMemo(() => {
@@ -96,7 +97,10 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
         code: token,
       });
 
-      setResult({ output: res.output, action: res.action });
+      const resAction = ACTIONS.includes(res.action as AiAssistAction)
+        ? (res.action as AiAssistAction)
+        : selectedAction!;
+      setResult({ output: res.output, action: resAction });
       success(i18next.t("ai-assist.success"));
     } catch (err: any) {
       const status = err?.status;
@@ -119,11 +123,15 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
     }
   }, [selectedAction, text, username, runAssist, cost, minInput]);
 
-  const handleCopy = useCallback(() => {
+  const handleCopy = useCallback(async () => {
     if (result) {
-      navigator.clipboard.writeText(result.output);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        await navigator.clipboard.writeText(result.output);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // clipboard write failed (e.g. permissions denied)
+      }
     }
   }, [result]);
 

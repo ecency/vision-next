@@ -82,6 +82,8 @@ export function EntryPageListen({ entry }: Props) {
       const status = err?.status;
       if (status === 402) {
         error(i18next.t("ai-assist.error-insufficient-points"));
+      } else if (status === 422) {
+        error(i18next.t("ai-assist.error-content-policy"));
       } else if (status === 429) {
         error(i18next.t("ai-assist.error-rate-limit"));
       } else {
@@ -90,7 +92,10 @@ export function EntryPageListen({ entry }: Props) {
     }
   }, [username, runAssist, text]);
 
-  const showAiAssistColumn = !!(activeUser);
+  const isAiAssistEnabled = EcencyConfigManager.useConfig(
+    ({ visionFeatures }) => visionFeatures.aiAssist?.enabled ?? false
+  );
+  const showAiAssistColumn = !!(activeUser) && isAiAssistEnabled;
 
   return (
     <div className="flex flex-col gap-2">
@@ -133,9 +138,6 @@ export function EntryPageListen({ entry }: Props) {
         </div>
 
         {showAiAssistColumn && (
-          <EcencyConfigManager.Conditional
-            condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
-          >
             <div className="w-full p-2">
               <div className="text-sm opacity-50 flex items-center gap-1">
                 <span className="text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
@@ -171,7 +173,6 @@ export function EntryPageListen({ entry }: Props) {
                 </button>
               )}
             </div>
-          </EcencyConfigManager.Conditional>
         )}
       </div>
 
