@@ -1,10 +1,8 @@
 import { getMessaging, getToken, MessagePayload, Messaging, onMessage } from "@firebase/messaging";
 import { FirebaseApp, initializeApp } from "@firebase/app";
-import { Analytics, getAnalytics, logEvent } from "@firebase/analytics";
 
 let app: FirebaseApp;
 export let FCM: Messaging;
-export let FA: Analytics;
 
 export function initFirebase(initMessaging = true) {
   if (typeof window === "undefined") {
@@ -24,9 +22,6 @@ export function initFirebase(initMessaging = true) {
   if (initMessaging) {
     FCM = getMessaging(app);
   }
-  FA = getAnalytics(app);
-
-  logEvent(FA, "test-event");
 }
 
 export const handleMessage = (payload: MessagePayload) => {

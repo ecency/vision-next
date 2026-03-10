@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.25
+
+### Patch Changes
+
+- AI Assists (#700)
+
 ## 2.0.24
 
 ### Patch Changes

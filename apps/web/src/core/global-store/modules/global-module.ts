@@ -3,6 +3,7 @@ import { AllFilter, ListStyle, Theme } from "@/enums";
 import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
+import { loadLocale } from "@/features/i18n";
 import { getCurrencyRate } from "@ecency/sdk";
 import { currencySymbol } from "@/utils/currency-symbol";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
@@ -88,6 +89,7 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
     setLang: async (lang: string) => {
       ls.set("lang", lang);
       ls.set("current-language", lang);
+      await loadLocale(lang);
       await i18next.changeLanguage(lang);
       set({
         lang: lang ?? "en-US"

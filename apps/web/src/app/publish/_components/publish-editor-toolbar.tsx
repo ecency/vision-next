@@ -74,6 +74,10 @@ import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
+import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -99,6 +103,13 @@ const PublishEditorGeoTagDialog = dynamic(
 const AiImageGeneratorDialog = dynamic(
   () => import("@/features/shared/ai-image-generator").then((m) => ({
     default: m.AiImageGeneratorDialog
+  })),
+  { ssr: false }
+);
+
+const AiAssistDialog = dynamic(
+  () => import("@/features/shared/ai-assist").then((m) => ({
+    default: m.AiAssistDialog
   })),
   { ssr: false }
 );
@@ -191,6 +202,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [showAiAssist, setShowAiAssist] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const attachVideo = usePublishVideoAttach(editor);
@@ -393,21 +405,6 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </Button>
         </StyledTooltip>
 
-        <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
-        >
-          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
-            <LoginRequired>
-              <Button
-                appearance="gray-link"
-                size="sm"
-                icon={<AiImageIcon />}
-                onClick={() => setShowAiGenerator(true)}
-              />
-            </LoginRequired>
-          </StyledTooltip>
-        </EcencyConfigManager.Conditional>
-
         <StyledTooltip content={i18next.t("publish.action-bar.video")}>
           <LoginRequired>
             <Dropdown>
@@ -517,6 +514,48 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             </DropdownMenu>
           </Dropdown>
         </StyledTooltip>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled || visionFeatures.aiAssist?.enabled}
+        >
+          <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        </EcencyConfigManager.Conditional>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={<AiImageIcon />}
+                onClick={() => setShowAiGenerator(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-assist.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={
+                  <span className="relative inline-flex">
+                    <UilEditAlt />
+                    <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
+                      AI
+                    </span>
+                  </span>
+                }
+                onClick={() => setShowAiAssist(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
 
         {/*Dialogs*/}
         <PublishEditorToolbarFragments
@@ -647,6 +686,50 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 ])
                 .run();
               setShowAiGenerator(false);
+            }}
+          />
+        )}
+        {showAiAssist && (
+          <AiAssistDialog
+            show={showAiAssist}
+            setShow={setShowAiAssist}
+            initialText={editor?.getText()?.trim() || ""}
+            onApply={(output, action) => {
+              if (action === "improve" || action === "check_grammar" || action === "summarize") {
+                const parsed = marked.parse(output);
+                const sanitized = DOMPurify.sanitize(parsed as string);
+                const doc = parseAllExtensionsToDoc(sanitized);
+                editor?.commands.setContent(doc);
+                setShowAiAssist(false);
+              } else if (action === "generate_title") {
+                try {
+                  const titles = JSON.parse(output);
+                  if (Array.isArray(titles) && titles.length > 0 && typeof titles[0] === "string" && titles[0].trim()) {
+                    publishState.setTitle(titles[0].trim());
+                    setShowAiAssist(false);
+                    return;
+                  }
+                } catch {
+                  // fall through to raw output
+                }
+                publishState.setTitle(output.trim());
+                setShowAiAssist(false);
+              } else if (action === "suggest_tags") {
+                try {
+                  const tags = JSON.parse(output);
+                  if (Array.isArray(tags)) {
+                    const valid = tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim());
+                    if (valid.length > 0) {
+                      publishState.setTags(valid);
+                      setShowAiAssist(false);
+                      return;
+                    }
+                  }
+                } catch {
+                  // parse failed
+                }
+                error(i18next.t("ai-assist.error-generic"));
+              }
             }}
           />
         )}
