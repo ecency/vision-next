@@ -10,6 +10,9 @@ import { verifyToken, type AuthUser } from '../utils/auth';
 declare module 'hono' {
   interface ContextVariableMap {
     user: AuthUser;
+    payer: string;
+    txId: string;
+    blockNum: number;
   }
 }
 

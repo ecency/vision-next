@@ -251,6 +251,27 @@ export const TenantService = {
   },
   
   /**
+   * Build the full tenant config from defaults + overrides.
+   * Normalizes flat API overrides into the nested stored config shape.
+   * Pure function, safe to call outside a DB transaction.
+   */
+  async buildConfig(username: string, configOverrides?: any): Promise<any> {
+    const defaults = await this.getDefaultConfig(username);
+    if (!configOverrides) return defaults;
+
+    // Map flat API keys to nested config paths
+    const normalized: any = { configuration: { general: {}, instanceConfiguration: { meta: {} } } };
+    if (configOverrides.theme) normalized.configuration.general.theme = configOverrides.theme;
+    if (configOverrides.styleTemplate) normalized.configuration.general.styleTemplate = configOverrides.styleTemplate;
+    if (configOverrides.type) normalized.configuration.instanceConfiguration.type = configOverrides.type;
+    if (configOverrides.communityId) normalized.configuration.instanceConfiguration.communityId = configOverrides.communityId;
+    if (configOverrides.title) normalized.configuration.instanceConfiguration.meta.title = configOverrides.title;
+    if (configOverrides.description) normalized.configuration.instanceConfiguration.meta.description = configOverrides.description;
+
+    return this.mergeConfig(defaults, normalized);
+  },
+
+  /**
    * Get default config for a new tenant
    */
   async getDefaultConfig(username: string): Promise<any> {
