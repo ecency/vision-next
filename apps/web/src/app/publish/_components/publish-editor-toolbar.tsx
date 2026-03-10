@@ -74,6 +74,7 @@ import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -99,6 +100,13 @@ const PublishEditorGeoTagDialog = dynamic(
 const AiImageGeneratorDialog = dynamic(
   () => import("@/features/shared/ai-image-generator").then((m) => ({
     default: m.AiImageGeneratorDialog
+  })),
+  { ssr: false }
+);
+
+const AiAssistDialog = dynamic(
+  () => import("@/features/shared/ai-assist").then((m) => ({
+    default: m.AiAssistDialog
   })),
   { ssr: false }
 );
@@ -191,6 +199,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [showAiAssist, setShowAiAssist] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
 
   const attachVideo = usePublishVideoAttach(editor);
@@ -403,6 +412,28 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 size="sm"
                 icon={<AiImageIcon />}
                 onClick={() => setShowAiGenerator(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-assist.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={
+                  <span className="relative inline-flex">
+                    <UilEditAlt />
+                    <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
+                      AI
+                    </span>
+                  </span>
+                }
+                onClick={() => setShowAiAssist(true)}
               />
             </LoginRequired>
           </StyledTooltip>
@@ -647,6 +678,37 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 ])
                 .run();
               setShowAiGenerator(false);
+            }}
+          />
+        )}
+        {showAiAssist && (
+          <AiAssistDialog
+            show={showAiAssist}
+            setShow={setShowAiAssist}
+            initialText={editor?.getText()?.trim() || ""}
+            onApply={(output, action) => {
+              if (action === "improve" || action === "check_grammar") {
+                editor?.commands.setContent(output);
+              } else if (action === "generate_title") {
+                try {
+                  const titles = JSON.parse(output);
+                  if (Array.isArray(titles) && titles.length > 0) {
+                    publishState.setTitle(titles[0]);
+                  }
+                } catch {
+                  publishState.setTitle(output);
+                }
+              } else if (action === "suggest_tags") {
+                try {
+                  const tags = JSON.parse(output);
+                  if (Array.isArray(tags)) {
+                    publishState.setTags(tags);
+                  }
+                } catch {
+                  // ignore parse errors
+                }
+              }
+              setShowAiAssist(false);
             }}
           />
         )}
