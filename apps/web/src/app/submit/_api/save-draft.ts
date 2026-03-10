@@ -15,6 +15,17 @@ import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ensureValidToken } from "@/utils";
 
+function getCreatedDraft(previousDrafts: Draft[], nextDrafts: Draft[]) {
+  const previousIds = new Set(previousDrafts.map(({ _id }) => _id));
+  const insertedDraft = nextDrafts.find(({ _id }) => !previousIds.has(_id));
+
+  if (insertedDraft) {
+    return insertedDraft;
+  }
+
+  return [...nextDrafts].sort((left, right) => right.timestamp - left.timestamp)[0];
+}
+
 export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();
   const { videos } = useThreeSpeakManager();
@@ -114,13 +125,15 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
           clearActivePoll();
           return { draft: updatedDraft, isNew: false };
         } else {
+          const previousDrafts =
+            queryClient.getQueryData<Draft[]>(QueryKeys.posts.drafts(username)) ?? [];
           const resp = await addDraft(token, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
 
           recordActivity();
 
           const { drafts } = resp;
-          const draft = drafts[drafts?.length - 1];
+          const draft = getCreatedDraft(previousDrafts, drafts);
 
           // Update regular query cache and invalidate infinite query
           queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);

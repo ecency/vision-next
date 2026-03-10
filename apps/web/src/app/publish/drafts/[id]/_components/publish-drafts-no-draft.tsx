@@ -5,9 +5,11 @@ import i18next from "i18next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { usePublishState } from "@/app/publish/_hooks";
 
 export function PublishDraftsNoDraft() {
   const router = useRouter();
+  const { clearAll } = usePublishState();
 
   const { activeUser } = useActiveAccount();
   const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
@@ -30,7 +32,14 @@ export function PublishDraftsNoDraft() {
 
         <div className="flex items-center gap-4">
           <Link href="/publish">
-            <Button appearance="gray" size="sm" onClick={() => router.push("/publish")}>
+            <Button
+              appearance="gray"
+              size="sm"
+              onClick={() => {
+                clearAll();
+                router.push("/publish");
+              }}
+            >
               {i18next.t("publish.back-to-editor")}
             </Button>
           </Link>

@@ -1,5 +1,5 @@
 import { addDraft, updateDraft, QueryKeys } from "@ecency/sdk";
-import { DraftMetadata, RewardType } from "@/entities";
+import { Draft, DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { error, success, info } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
@@ -18,6 +18,17 @@ type SaveDraftOptions = {
   showToast?: boolean;
   redirect?: boolean;
 };
+
+function getCreatedDraft(previousDrafts: Draft[], nextDrafts: Draft[]) {
+  const previousIds = new Set(previousDrafts.map(({ _id }) => _id));
+  const insertedDraft = nextDrafts.find(({ _id }) => !previousIds.has(_id));
+
+  if (insertedDraft) {
+    return insertedDraft;
+  }
+
+  return [...nextDrafts].sort((left, right) => right.timestamp - left.timestamp)[0];
+}
 
 export function useSaveDraftApi(draftId?: string) {
   const { activeUser } = useActiveAccount();
@@ -97,6 +108,8 @@ export function useSaveDraftApi(draftId?: string) {
         queryClient.setQueryData(QueryKeys.posts.drafts(username), resp.drafts);
         queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
       } else {
+        const previousDrafts =
+          queryClient.getQueryData<Draft[]>(QueryKeys.posts.drafts(username)) ?? [];
         const resp = await addDraft(
           token,
           title!,
@@ -109,7 +122,7 @@ export function useSaveDraftApi(draftId?: string) {
         }
 
         const { drafts } = resp;
-        const draft = drafts[drafts?.length - 1];
+        const draft = getCreatedDraft(previousDrafts, drafts);
 
         queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
         queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
@@ -143,7 +156,7 @@ export function useSaveDraftApi(draftId?: string) {
           router.push(`/publish/drafts/${draft._id}`);
         }
 
-        return drafts[drafts.length - 1]._id;
+        return draft?._id;
       }
 
       recordActivity();
