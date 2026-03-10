@@ -14,17 +14,7 @@ import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ensureValidToken } from "@/utils";
-
-function getCreatedDraft(previousDrafts: Draft[], nextDrafts: Draft[]) {
-  const previousIds = new Set(previousDrafts.map(({ _id }) => _id));
-  const insertedDraft = nextDrafts.find(({ _id }) => !previousIds.has(_id));
-
-  if (insertedDraft) {
-    return insertedDraft;
-  }
-
-  return [...nextDrafts].sort((left, right) => right.timestamp - left.timestamp)[0];
-}
+import { getCreatedDraft } from "@/app/publish/_utils/get-created-draft";
 
 export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();

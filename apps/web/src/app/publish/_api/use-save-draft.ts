@@ -13,22 +13,12 @@ import { formatError } from "@/api/format-error";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ensureValidToken } from "@/utils";
+import { getCreatedDraft } from "../_utils/get-created-draft";
 
 type SaveDraftOptions = {
   showToast?: boolean;
   redirect?: boolean;
 };
-
-function getCreatedDraft(previousDrafts: Draft[], nextDrafts: Draft[]) {
-  const previousIds = new Set(previousDrafts.map(({ _id }) => _id));
-  const insertedDraft = nextDrafts.find(({ _id }) => !previousIds.has(_id));
-
-  if (insertedDraft) {
-    return insertedDraft;
-  }
-
-  return [...nextDrafts].sort((left, right) => right.timestamp - left.timestamp)[0];
-}
 
 export function useSaveDraftApi(draftId?: string) {
   const { activeUser } = useActiveAccount();
@@ -153,7 +143,9 @@ export function useSaveDraftApi(draftId?: string) {
               );
             }
           }
-          router.push(`/publish/drafts/${draft._id}`);
+          if (draft) {
+            router.push(`/publish/drafts/${draft._id}`);
+          }
         }
 
         return draft?._id;

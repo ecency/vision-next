@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PollsContext } from "./polls-manager";
 import { Draft } from "@/entities";
-import { getDraftsQueryOptions } from "@ecency/sdk";
+import { getDraftsQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useLocation } from "react-use";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
@@ -48,7 +48,7 @@ export function useApiDraftDetector(
     }
 
     // If not found, check the infinite query cache (for paginated drafts)
-    const infiniteQueryKey = ["posts", "drafts", "infinite", activeUser?.username, 10];
+    const infiniteQueryKey = QueryKeys.posts.draftsInfinite(activeUser?.username, 10);
     const infiniteQueryData = queryClient.getQueryData<{
       pages: Array<{ data: Draft[] }>;
     }>(infiniteQueryKey);
