@@ -3,7 +3,7 @@
 import { EcencyConfigManager } from "@/config";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Entry } from "@/entities";
-import { error, success, LoginRequired } from "@/features/shared";
+import { error, success } from "@/features/shared";
 import { TextToSpeechSettingsDialog, useTts } from "@/features/text-to-speech";
 import { Button } from "@/features/ui";
 import { getAccessToken, ensureValidToken, getPurePostText } from "@/utils";
@@ -73,6 +73,7 @@ export function EntryPageListen({ entry }: Props) {
       const res = await runAssist({
         action: "summarize",
         text: text.slice(0, 10000),
+        code: token,
       });
 
       setSummary(res.output);
@@ -89,9 +90,11 @@ export function EntryPageListen({ entry }: Props) {
     }
   }, [username, runAssist, text]);
 
+  const showAiAssistColumn = !!(activeUser);
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="border border-[--border-color] rounded-xl grid grid-cols-3 items-center min-w-[275px]">
+      <div className={`border border-[--border-color] rounded-xl grid ${showAiAssistColumn ? "grid-cols-4" : "grid-cols-3"} items-center min-w-[275px]`}>
         <div className="border-r border-[--border-color] p-2">
           <div className="text-sm opacity-50">{i18next.t("entry.post-word-count")}</div>
           <div className="text-sm">{wordCount}</div>
@@ -103,7 +106,7 @@ export function EntryPageListen({ entry }: Props) {
           </div>
         </div>
 
-        <div className="w-full gap-2 justify-between p-2">
+        <div className={`w-full gap-2 justify-between p-2 ${showAiAssistColumn ? "border-r border-[--border-color]" : ""}`}>
           <div className="flex justify-between items-center">
             <div className="text-sm opacity-50">{i18next.t("entry.listen")}</div>
             <TextToSpeechSettingsDialog>
@@ -128,41 +131,55 @@ export function EntryPageListen({ entry }: Props) {
             {hasPaused || !hasStarted ? i18next.t("g.play") : i18next.t("g.pause")}
           </div>
         </div>
+
+        {showAiAssistColumn && (
+          <EcencyConfigManager.Conditional
+            condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
+          >
+            <div className="w-full p-2">
+              <div className="text-sm opacity-50 flex items-center gap-1">
+                <span className="text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
+                  AI
+                </span>
+                {i18next.t("ai-assist.action-summarize")}
+              </div>
+              {summary ? (
+                <button
+                  type="button"
+                  className="text-sm text-blue-dark-sky cursor-pointer"
+                  onClick={() => setSummary(null)}
+                >
+                  {i18next.t("ai-assist.try-again")}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={isSummarizing || wordCount < 50}
+                  className={`text-blue-dark-sky hover:text-blue-dark-sky-hover text-sm flex items-center gap-1 ${
+                    isSummarizing || wordCount < 50 ? "opacity-50" : "cursor-pointer"
+                  }`}
+                  onClick={handleSummarize}
+                >
+                  {isSummarizing ? (
+                    <>{i18next.t("ai-assist.submitting")}</>
+                  ) : (
+                    <>
+                      <UilPlay className="w-3.5 h-3.5" />
+                      {i18next.t("g.start")}
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </EcencyConfigManager.Conditional>
+        )}
       </div>
 
-      <EcencyConfigManager.Conditional
-        condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
-      >
-        {!summary ? (
-          <LoginRequired>
-            <Button
-              appearance="gray-link"
-              size="xs"
-              isLoading={isSummarizing}
-              disabled={wordCount < 50}
-              onClick={handleSummarize}
-              icon={
-                <span className="relative inline-flex">
-                  <span className="text-[9px] font-bold leading-none bg-blue-dark-sky text-white rounded px-1 py-0.5">
-                    AI
-                  </span>
-                </span>
-              }
-            >
-              {isSummarizing
-                ? i18next.t("ai-assist.submitting")
-                : i18next.t("ai-assist.action-summarize")}
-            </Button>
-          </LoginRequired>
-        ) : (
-          <div className="border border-[--border-color] rounded-xl p-3">
-            <div className="text-xs font-semibold opacity-50 mb-1">
-              {i18next.t("ai-assist.action-summarize")}
-            </div>
-            <div className="text-sm whitespace-pre-wrap">{summary}</div>
-          </div>
-        )}
-      </EcencyConfigManager.Conditional>
+      {summary && (
+        <div className="border border-[--border-color] rounded-xl p-3">
+          <div className="text-sm whitespace-pre-wrap">{summary}</div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type { AiAssistResponse } from "../types";
 export interface AiAssistParams {
   action: string;
   text: string;
+  code?: string;
 }
 
 export function useAiAssist(
@@ -35,7 +36,7 @@ export function useAiAssist(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            code: accessToken,
+            code: params.code ?? accessToken,
             us: username,
             action: params.action,
             text: params.text,

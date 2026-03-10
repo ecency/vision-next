@@ -41,8 +41,10 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
 
   const { mutateAsync: runAssist, isPending: isProcessing } = useAiAssist(username, accessToken);
 
+  const maxInput = 10000;
+
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [text, setText] = useState(initialText);
+  const [text, setText] = useState(initialText.slice(0, maxInput));
   const [result, setResult] = useState<{ output: string; action: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -57,8 +59,7 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
     return 100;
   }, [selectedAction]);
 
-  const maxInput = 10000;
-  const charsRemaining = maxInput - text.length;
+  const charsRemaining = Math.max(0, maxInput - text.length);
 
   const isFree = selectedPrice ? (selectedPrice.free_remaining ?? 0) > 0 : false;
   const cost = isFree ? 0 : (selectedPrice?.cost ?? 0);
@@ -91,7 +92,8 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
 
       const res = await runAssist({
         action: selectedAction,
-        text: text.trim(),
+        text: text.trim().slice(0, maxInput),
+        code: token,
       });
 
       setResult({ output: res.output, action: res.action });

@@ -20,10 +20,7 @@ export function AiAssistDialog({ show, setShow, onApply, initialText }: Props) {
       <ModalBody>
         <AiAssist
           initialText={initialText}
-          onApply={(output, action) => {
-            onApply?.(output, action);
-            setShow(false);
-          }}
+          onApply={onApply}
         />
       </ModalBody>
     </Modal>

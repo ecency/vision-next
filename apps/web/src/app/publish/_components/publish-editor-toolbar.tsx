@@ -512,7 +512,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </Dropdown>
         </StyledTooltip>
 
-        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled || visionFeatures.aiAssist?.enabled}
+        >
+          <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        </EcencyConfigManager.Conditional>
         <EcencyConfigManager.Conditional
           condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
         >
@@ -694,20 +698,26 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               } else if (action === "generate_title") {
                 try {
                   const titles = JSON.parse(output);
-                  if (Array.isArray(titles) && titles.length > 0) {
-                    publishState.setTitle(titles[0]);
+                  if (Array.isArray(titles) && titles.length > 0 && typeof titles[0] === "string" && titles[0].trim()) {
+                    publishState.setTitle(titles[0].trim());
                     setShowAiAssist(false);
+                    return;
                   }
                 } catch {
-                  publishState.setTitle(output);
-                  setShowAiAssist(false);
+                  // fall through to raw output
                 }
+                publishState.setTitle(output.trim());
+                setShowAiAssist(false);
               } else if (action === "suggest_tags") {
                 try {
                   const tags = JSON.parse(output);
-                  if (Array.isArray(tags) && tags.length > 0) {
-                    publishState.setTags(tags);
-                    setShowAiAssist(false);
+                  if (Array.isArray(tags)) {
+                    const valid = tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim());
+                    if (valid.length > 0) {
+                      publishState.setTags(valid);
+                      setShowAiAssist(false);
+                      return;
+                    }
                   }
                 } catch {
                   // parse failed — keep dialog open
