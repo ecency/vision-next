@@ -43,10 +43,10 @@ declare function getAiGeneratePriceQueryOptions(accessToken: string): _tanstack_
     };
 };
 
-declare function getAiAssistPriceQueryOptions(accessToken: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AiAssistPrice[], Error, AiAssistPrice[], readonly ["ai", "assist-prices"]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<AiAssistPrice[], readonly ["ai", "assist-prices"], never> | undefined;
+declare function getAiAssistPriceQueryOptions(username: string | undefined, accessToken: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AiAssistPrice[], Error, AiAssistPrice[], readonly ["ai", "assist-prices", string | undefined]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<AiAssistPrice[], readonly ["ai", "assist-prices", string | undefined], never> | undefined;
 } & {
-    queryKey: readonly ["ai", "assist-prices"] & {
+    queryKey: readonly ["ai", "assist-prices", string | undefined] & {
         [dataTagSymbol]: AiAssistPrice[];
         [dataTagErrorSymbol]: Error;
     };
@@ -61,6 +61,7 @@ declare function useGenerateImage(username: string | undefined, accessToken: str
 interface AiAssistParams {
     action: string;
     text: string;
+    code?: string;
 }
 declare function useAiAssist(username: string | undefined, accessToken: string | undefined): _tanstack_react_query.UseMutationResult<AiAssistResponse, Error, AiAssistParams, unknown>;
 
@@ -2863,7 +2864,7 @@ declare const QueryKeys: {
     };
     readonly ai: {
         readonly prices: () => readonly ["ai", "prices"];
-        readonly assistPrices: () => readonly ["ai", "assist-prices"];
+        readonly assistPrices: (username?: string) => readonly ["ai", "assist-prices", string | undefined];
         readonly _prefix: readonly ["ai"];
     };
 };
