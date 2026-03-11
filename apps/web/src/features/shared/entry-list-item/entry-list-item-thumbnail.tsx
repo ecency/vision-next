@@ -62,7 +62,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 alt=""
                 aria-hidden="true"
                 className={
-                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-300 " +
+                  "absolute inset-0 w-full !h-full object-cover transition-opacity duration-300 " +
                   (hasFullImage ? "opacity-0" : "opacity-100")
                 }
               />
