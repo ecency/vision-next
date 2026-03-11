@@ -65,7 +65,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
 
   useEffect(() => {
     if (prices && prices.length > 0 && !selectedPrice) {
-      const defaultRatio = prices.find((p) => p.aspect_ratio === "4:3");
+      const defaultRatio = prices.find((p) => p.aspect_ratio === "16:9");
       setSelectedPrice(defaultRatio ?? prices[0]);
     }
   }, [prices, selectedPrice]);
