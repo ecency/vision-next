@@ -104,6 +104,7 @@
     "clear": "Clear",
     "play": "Play",
     "pause": "Pause",
+    "start": "Start",
     "updated": "Updated"
   },
   "validation": {
