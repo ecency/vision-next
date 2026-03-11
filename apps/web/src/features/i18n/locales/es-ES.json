@@ -3280,15 +3280,15 @@
   "ai-assist": {
     "title": "Asistente de Escritura de IA",
     "toolbar-button": "Asistente de IA",
-    "balance-label": "Saldo",
+    "balance-label": "Balance",
     "points-unit": "PUNTOS",
     "free-label": "Gratis",
-    "free-remaining": "{{count}} libre queda hoy",
+    "free-remaining": "{{count}} gratis diarios restantes",
     "cost-label": "Costo",
     "action-label": "¿Qué te gustaría hacer?",
     "text-label": "Tu contenido",
     "text-placeholder": "Pegar o escribir el contenido de su borrador aquí...",
-    "chars-remaining": "{{count}} characters remaining",
+    "chars-remaining": "{{count}} caracteres restantes",
     "min-chars": "Mínimo {{count}} caracteres requeridos",
     "action-improve": "Mejorar escritura",
     "action-improve-desc": "Gramática polaca, claridad y estilo",
@@ -3296,11 +3296,11 @@
     "action-suggest_tags-desc": "Obtén etiquetas relevantes para tu publicación",
     "action-generate_title": "Generar título",
     "action-generate_title-desc": "Crear opciones de título convincentes",
-    "action-summarize": "Summarize",
-    "action-summarize-desc": "Create a TL;DR summary",
+    "action-summarize": "Resumir",
+    "action-summarize-desc": "Crear un resumen TL;DR",
     "action-check_grammar": "Revisar Gramática",
     "action-check_grammar-desc": "Corregir gramática y ortografía",
-    "submit-button": "Ejecutar Ayuda AI",
+    "submit-button": "Ejecutar Asistente de IA",
     "submitting": "Procesando...",
     "result-title": "Resultado",
     "apply-button": "Aplicar al post",
@@ -3317,6 +3317,6 @@
     "error-rate-limit": "Demasiadas solicitudes. Por favor, espere un momento y vuelva a intentarlo.",
     "error-auth": "Autenticación caducada. Por favor, actualiza la página e inténtalo de nuevo.",
     "error-generic": "La asistencia de IA falló. Por favor, inténtalo de nuevo.",
-    "error-text-too-short": "Tu texto es demasiado corto. Se requieren caracteres mínimos {{count}}."
+    "error-text-too-short": "Tu texto es demasiado corto. Se requieren {{count}} caracteres como mínimo."
   }
 }
