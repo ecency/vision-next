@@ -104,6 +104,7 @@
     "clear": "クリア",
     "play": "再生",
     "pause": "一時停止",
+    "start": "開始",
     "updated": "更新日時"
   },
   "validation": {
