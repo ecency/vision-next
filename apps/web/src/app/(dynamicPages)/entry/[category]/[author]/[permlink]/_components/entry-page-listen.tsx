@@ -6,6 +6,7 @@ import { Entry } from "@/entities";
 import { error, success } from "@/features/shared";
 import { TextToSpeechSettingsDialog, useTts } from "@/features/text-to-speech";
 import { Button } from "@/features/ui";
+import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { getAccessToken, ensureValidToken, getPurePostText } from "@/utils";
 import { useAiAssist } from "@ecency/sdk";
 import { UilPause, UilPlay, UilSetting } from "@tooni/iconscout-unicons-react";
@@ -176,11 +177,21 @@ export function EntryPageListen({ entry }: Props) {
         )}
       </div>
 
-      {summary && (
-        <div className="border border-[--border-color] rounded-xl p-3">
+      <Modal show={!!summary} centered={true} onHide={() => setSummary(null)} size="lg">
+        <ModalHeader closeButton={true}>
+          <ModalTitle>
+            <span className="flex items-center gap-2">
+              <span className="text-[10px] font-bold leading-none bg-blue-dark-sky text-white rounded px-1 py-0.5">
+                AI
+              </span>
+              {i18next.t("ai-assist.action-summarize")}
+            </span>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
           <div className="text-sm whitespace-pre-wrap">{summary}</div>
-        </div>
-      )}
+        </ModalBody>
+      </Modal>
     </div>
   );
 }

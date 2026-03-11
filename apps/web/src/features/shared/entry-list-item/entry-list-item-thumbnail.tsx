@@ -74,7 +74,6 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 }
                 src={img || noImage}
                 alt={isLoading ? "" : entry.title}
-                style={{ width: !hasFullImage ? "172px" : "100%" }}
               />
             ) : (
               <img

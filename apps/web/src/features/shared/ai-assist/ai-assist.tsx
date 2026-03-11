@@ -123,18 +123,6 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
     }
   }, [selectedAction, text, username, runAssist, cost, minInput]);
 
-  const handleCopy = useCallback(async () => {
-    if (result) {
-      try {
-        await navigator.clipboard.writeText(result.output);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch {
-        // clipboard write failed (e.g. permissions denied)
-      }
-    }
-  }, [result]);
-
   const handleTryAgain = useCallback(() => {
     setResult(null);
   }, []);
@@ -144,8 +132,59 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
     setSelectedAction(null);
   }, []);
 
+  const [selectedTitleIndex, setSelectedTitleIndex] = useState(0);
+
+  const parsedResult = useMemo(() => {
+    if (!result) return null;
+
+    const stripped = result.output
+      .replace(/^```(?:json)?\s*\n?/i, "")
+      .replace(/\n?```\s*$/i, "")
+      .trim();
+
+    if (result.action === "generate_title") {
+      try {
+        const titles = JSON.parse(stripped);
+        if (Array.isArray(titles) && titles.length > 0 && titles.every((t) => typeof t === "string")) {
+          return { type: "titles" as const, titles: titles.map((t: string) => t.trim()).filter(Boolean) };
+        }
+      } catch {}
+    }
+
+    if (result.action === "suggest_tags") {
+      try {
+        const tags = JSON.parse(stripped);
+        if (Array.isArray(tags) && tags.length > 0 && tags.every((t) => typeof t === "string")) {
+          return { type: "tags" as const, tags: tags.map((t: string) => t.trim().toLowerCase()).filter(Boolean) };
+        }
+      } catch {}
+    }
+
+    return { type: "text" as const };
+  }, [result]);
+
   // Result view
   if (result) {
+    const getApplyValue = () => {
+      if (parsedResult?.type === "titles") {
+        return parsedResult.titles[selectedTitleIndex] || parsedResult.titles[0];
+      }
+      if (parsedResult?.type === "tags") {
+        return JSON.stringify(parsedResult.tags);
+      }
+      return result.output;
+    };
+
+    const getCopyValue = () => {
+      if (parsedResult?.type === "tags") {
+        return parsedResult.tags.join(", ");
+      }
+      if (parsedResult?.type === "titles") {
+        return parsedResult.titles[selectedTitleIndex] || parsedResult.titles[0];
+      }
+      return result.output;
+    };
+
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -153,16 +192,61 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
         className="flex flex-col gap-4"
       >
         <div className="font-semibold">{i18next.t("ai-assist.result-title")}</div>
-        <div className="border border-[--border-color] rounded-xl p-4 max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm">
-          {result.output}
-        </div>
+
+        {parsedResult?.type === "titles" ? (
+          <div className="flex flex-col gap-2">
+            {parsedResult.titles.map((title, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelectedTitleIndex(i)}
+                className={clsx(
+                  "border px-4 py-3 rounded-lg cursor-pointer text-left text-sm w-full",
+                  selectedTitleIndex === i
+                    ? "border-blue-dark-sky bg-blue-dark-sky/10"
+                    : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
+                )}
+              >
+                {title}
+              </button>
+            ))}
+          </div>
+        ) : parsedResult?.type === "tags" ? (
+          <div className="border border-[--border-color] rounded-xl p-4 text-sm">
+            <div className="flex flex-wrap gap-2">
+              {parsedResult.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-dark-sky/10 text-blue-dark-sky text-xs font-medium"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="border border-[--border-color] rounded-xl p-4 max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm">
+            {result.output}
+          </div>
+        )}
+
         <div className="flex items-center gap-2 flex-wrap">
           {onApply && (
-            <Button size="sm" onClick={() => onApply(result.output, result.action)}>
+            <Button size="sm" onClick={() => onApply(getApplyValue(), result.action)}>
               {i18next.t("ai-assist.apply-button")}
             </Button>
           )}
-          <Button size="sm" appearance="gray" onClick={handleCopy}>
+          <Button
+            size="sm"
+            appearance="gray"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(getCopyValue());
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              } catch {}
+            }}
+          >
             {copied ? i18next.t("ai-assist.copied") : i18next.t("ai-assist.copy-button")}
           </Button>
           <Button size="sm" appearance="gray-link" onClick={handleTryAgain}>
