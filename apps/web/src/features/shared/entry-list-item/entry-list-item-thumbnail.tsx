@@ -62,7 +62,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 alt=""
                 aria-hidden="true"
                 className={
-                  "absolute inset-0 w-full h-full !object-cover transition-opacity duration-300 " +
+                  "absolute inset-0 w-full h-full object-cover transition-opacity duration-300 " +
                   (hasFullImage ? "opacity-0" : "opacity-100")
                 }
               />
@@ -72,10 +72,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
                 width={1000}
                 height={1000}
                 className={
-                  "!object-cover transition-opacity duration-300 " +
-                  (blurUrl
-                    ? "absolute inset-0 w-full !h-full "
-                    : "w-full !h-full mx-auto relative ") +
+                  "w-full h-full object-cover mx-auto relative transition-opacity duration-300 " +
                   (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
                 }
                 src={img || noImage}
@@ -84,10 +81,7 @@ export function EntryListItemThumbnail({ entry, noImage, isCrossPost, entryProp 
             ) : (
               <img
                 className={
-                  "transition-opacity duration-300 " +
-                  (blurUrl
-                    ? "absolute inset-0 w-full !h-full !object-cover "
-                    : "w-full relative ") +
+                  "w-full relative transition-opacity duration-300 " +
                   (hasFullImage ? "opacity-100" : blurUrl ? "opacity-0" : "")
                 }
                 src={img || noImage}

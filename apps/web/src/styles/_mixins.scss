@@ -224,8 +224,9 @@
       img {
         @media (min-width: $sm-break) {
           border-radius: 4px;
-          object-fit: contain;
-          max-height: 85px;
+          object-fit: cover;
+          height: 100%;
+          width: 100%;
         }
 
         height: auto;
