@@ -104,6 +104,7 @@
     "clear": "清空",
     "play": "播放",
     "pause": "暂停",
+    "start": "开始",
     "updated": "已更新"
   },
   "validation": {
