@@ -19,6 +19,53 @@ import { useCallback, useMemo, useState } from "react";
 const ACTIONS = ["improve", "suggest_tags", "generate_title", "summarize", "check_grammar"] as const;
 export type AiAssistAction = (typeof ACTIONS)[number];
 
+type DiffSegment = { type: "equal" | "add" | "remove"; text: string };
+
+function computeWordDiff(oldText: string, newText: string): DiffSegment[] {
+  const oldWords = oldText.split(/(\s+)/);
+  const newWords = newText.split(/(\s+)/);
+  const m = oldWords.length;
+  const n = newWords.length;
+
+  // LCS table
+  const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        oldWords[i - 1] === newWords[j - 1]
+          ? dp[i - 1][j - 1] + 1
+          : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+
+  // Backtrack
+  const raw: DiffSegment[] = [];
+  let i = m,
+    j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && oldWords[i - 1] === newWords[j - 1]) {
+      raw.unshift({ type: "equal", text: oldWords[--i] });
+      j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      raw.unshift({ type: "add", text: newWords[--j] });
+    } else {
+      raw.unshift({ type: "remove", text: oldWords[--i] });
+    }
+  }
+
+  // Merge consecutive same-type segments
+  const merged: DiffSegment[] = [];
+  for (const seg of raw) {
+    const last = merged[merged.length - 1];
+    if (last && last.type === seg.type) {
+      last.text += seg.text;
+    } else {
+      merged.push({ ...seg });
+    }
+  }
+  return merged;
+}
+
 interface Props {
   onApply?: (output: string, action: AiAssistAction) => void;
   initialText?: string;
@@ -133,6 +180,14 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
   }, []);
 
   const [selectedTitleIndex, setSelectedTitleIndex] = useState(0);
+  const [showDiff, setShowDiff] = useState(false);
+
+  const hasDiff = result && (result.action === "improve" || result.action === "check_grammar");
+
+  const diffSegments = useMemo(() => {
+    if (!hasDiff || !result) return [];
+    return computeWordDiff(text, result.output);
+  }, [hasDiff, result, text]);
 
   const parsedResult = useMemo(() => {
     if (!result) return null;
@@ -226,8 +281,30 @@ export function AiAssist({ onApply, initialText = "" }: Props) {
           </div>
         ) : (
           <div className="border border-[--border-color] rounded-xl p-4 max-h-[400px] overflow-y-auto whitespace-pre-wrap text-sm">
-            {result.output}
+            {hasDiff && showDiff ? (
+              diffSegments.map((seg, i) =>
+                seg.type === "equal" ? (
+                  <span key={i}>{seg.text}</span>
+                ) : seg.type === "remove" ? (
+                  <span key={i} className="bg-red/15 text-red line-through">{seg.text}</span>
+                ) : (
+                  <span key={i} className="bg-green/15 text-green">{seg.text}</span>
+                )
+              )
+            ) : (
+              result.output
+            )}
           </div>
+        )}
+
+        {hasDiff && (
+          <button
+            type="button"
+            className="text-xs text-blue-dark-sky hover:text-blue-dark-sky-hover self-start"
+            onClick={() => setShowDiff(!showDiff)}
+          >
+            {showDiff ? i18next.t("ai-assist.hide-changes") : i18next.t("ai-assist.show-changes")}
+          </button>
         )}
 
         <div className="flex items-center gap-2 flex-wrap">

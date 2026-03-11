@@ -7,11 +7,14 @@ import { error, success } from "@/features/shared";
 import { TextToSpeechSettingsDialog, useTts } from "@/features/text-to-speech";
 import { Button } from "@/features/ui";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
-import { getAccessToken, ensureValidToken, getPurePostText } from "@/utils";
+import { Spinner } from "@ui/spinner";
+import { Select } from "@ui/input/form-controls/select";
+import { getAccessToken, ensureValidToken, getPurePostText, getPurePostTextForWordCount } from "@/utils";
+import { getTranslation, getLanguages, type Language } from "@/api/translation";
 import { useAiAssist } from "@ecency/sdk";
 import { UilPause, UilPlay, UilSetting } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMount } from "react-use";
 
 interface Props {
@@ -19,7 +22,7 @@ interface Props {
 }
 
 function countWords(entry: string): number {
-  const words = getPurePostText(entry)
+  const words = getPurePostTextForWordCount(entry)
     .trim()
     .split(/\s+/)
     .filter((word) => word);
@@ -92,6 +95,33 @@ export function EntryPageListen({ entry }: Props) {
       }
     }
   }, [username, runAssist, text]);
+
+  const [showTranslate, setShowTranslate] = useState(false);
+  const [translatedSummary, setTranslatedSummary] = useState("");
+  const [translating, setTranslating] = useState(false);
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [targetLang, setTargetLang] = useState(i18next.language.split("-")[0]);
+
+  useEffect(() => {
+    if (showTranslate && languages.length === 0) {
+      getLanguages().then(setLanguages);
+    }
+  }, [showTranslate, languages.length]);
+
+  useEffect(() => {
+    if (!showTranslate || !summary) return;
+    let canceled = false;
+    setTranslating(true);
+    setTranslatedSummary("");
+    getTranslation(summary, "auto", targetLang)
+      .then((r) => {
+        if (!canceled) setTranslatedSummary(r.translatedText);
+      })
+      .finally(() => {
+        if (!canceled) setTranslating(false);
+      });
+    return () => { canceled = true; };
+  }, [showTranslate, summary, targetLang]);
 
   const isAiAssistEnabled = EcencyConfigManager.useConfig(
     ({ visionFeatures }) => visionFeatures.aiAssist?.enabled ?? false
@@ -177,7 +207,16 @@ export function EntryPageListen({ entry }: Props) {
         )}
       </div>
 
-      <Modal show={!!summary} centered={true} onHide={() => setSummary(null)} size="lg">
+      <Modal
+        show={!!summary}
+        centered={true}
+        onHide={() => {
+          setSummary(null);
+          setShowTranslate(false);
+          setTranslatedSummary("");
+        }}
+        size="lg"
+      >
         <ModalHeader closeButton={true}>
           <ModalTitle>
             <span className="flex items-center gap-2">
@@ -189,7 +228,40 @@ export function EntryPageListen({ entry }: Props) {
           </ModalTitle>
         </ModalHeader>
         <ModalBody>
-          <div className="text-sm whitespace-pre-wrap">{summary}</div>
+          <div className="text-sm whitespace-pre-wrap mb-4">
+            {showTranslate && translatedSummary ? translatedSummary : summary}
+            {showTranslate && translating && (
+              <div className="flex justify-center py-2">
+                <Spinner className="w-4 h-4" />
+              </div>
+            )}
+          </div>
+          <div className="border-t border-[--border-color] pt-3 flex items-center gap-3">
+            <button
+              type="button"
+              className="text-sm text-blue-dark-sky hover:text-blue-dark-sky-hover"
+              onClick={() => setShowTranslate(!showTranslate)}
+            >
+              {showTranslate
+                ? i18next.t("ai-assist.hide-translation")
+                : i18next.t("entry-menu.translate")}
+            </button>
+            {showTranslate && (
+              <Select
+                type="select"
+                value={targetLang}
+                size="sm"
+                onChange={(e) => setTargetLang(e.currentTarget.value)}
+                className="!w-auto"
+              >
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </div>
         </ModalBody>
       </Modal>
     </div>

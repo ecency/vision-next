@@ -710,8 +710,15 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   if (Array.isArray(tags)) {
                     const valid = tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim());
                     if (valid.length > 0) {
-                      const hashTags = valid.map((t) => `#${t}`).join(" ");
-                      editor?.chain().focus("end").insertContent(`\n\n${hashTags}`).run();
+                      const tagNodes: any[] = [];
+                      valid.forEach((t, i) => {
+                        if (i > 0) tagNodes.push({ type: "text", text: " " });
+                        tagNodes.push({ type: "tag", attrs: { id: t, label: t } });
+                      });
+                      editor?.chain().focus("end").insertContent([
+                        { type: "paragraph" },
+                        { type: "paragraph", content: tagNodes }
+                      ]).run();
                       setShowAiAssist(false);
                       return;
                     }
