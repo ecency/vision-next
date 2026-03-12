@@ -78,9 +78,16 @@ export function uploadVideoEmbed(
       },
       onSuccess() {
         if (embedUrl) {
+          const permlink = extractPermlink(embedUrl);
+          if (!permlink) {
+            reject(
+              new Error("[3Speak Embed] Upload succeeded but the permlink could not be extracted")
+            );
+            return;
+          }
           resolve({
             embedUrl,
-            permlink: extractPermlink(embedUrl)
+            permlink
           });
         } else {
           reject(new Error("[3Speak Embed] Upload succeeded but no embed URL was returned"));

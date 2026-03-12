@@ -18,9 +18,10 @@ interface Props {
   list: BeneficiaryRoute[];
   onAdd: (item: BeneficiaryRoute) => void;
   onDelete: (username: string) => void;
+  lockedAccounts?: string[];
 }
 
-export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props) {
+export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd, lockedAccounts = [] }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const queryClient = useQueryClient();
 
@@ -151,19 +152,22 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props
                       </Td>
                     </Tr>
                     {list.map((x) => {
+                      const isLocked = lockedAccounts.includes(x.account);
                       return (
                         <Tr key={x.account}>
                           <Td>{`@${x.account}`}</Td>
                           <Td>{`${x.weight / 100}%`}</Td>
                           <Td>
-                            <Button
-                              onClick={() => {
-                                onDelete(x.account);
-                              }}
-                              appearance="danger"
-                              size="sm"
-                              icon={deleteForeverSvg}
-                            />
+                            {!isLocked && (
+                              <Button
+                                onClick={() => {
+                                  onDelete(x.account);
+                                }}
+                                appearance="danger"
+                                size="sm"
+                                icon={deleteForeverSvg}
+                              />
+                            )}
                           </Td>
                         </Tr>
                       );

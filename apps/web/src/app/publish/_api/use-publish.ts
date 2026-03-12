@@ -1,4 +1,5 @@
 import { validatePostCreating } from "@ecency/sdk";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
@@ -130,20 +131,7 @@ export function usePublishApi() {
         .withPoll(poll)
         .build();
 
-      // Enforce 3Speak beneficiary if content contains a 3speak embed
-      const hasThreeSpeakEmbed = cleanBody.includes("3speak.tv/embed");
-      let finalBeneficiaries = beneficiaries;
-      if (hasThreeSpeakEmbed) {
-        const threeSpeakAccount = "threespeakfund";
-        const threeSpeakWeight = 1100; // 11%
-        const alreadyExists = beneficiaries.some((b) => b.account === threeSpeakAccount);
-        if (!alreadyExists) {
-          finalBeneficiaries = [
-            ...beneficiaries,
-            { account: threeSpeakAccount, weight: threeSpeakWeight }
-          ];
-        }
-      }
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
 
       const options = makeCommentOptions(author, permlink, reward as RewardType, finalBeneficiaries);
 

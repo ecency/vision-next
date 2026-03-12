@@ -27,7 +27,8 @@ export function useThreeSpeakEmbedUpload() {
         return result;
       } catch (e) {
         const status =
-          e instanceof Error && "status" in e ? (e as any).status : undefined;
+          (e as any)?.originalResponse?.getStatus?.() ??
+          (e instanceof Error && "status" in e ? (e as any).status : undefined);
 
         if (status === 413) {
           error("Video file is too large. Please use a smaller file.");

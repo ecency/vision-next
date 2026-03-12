@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { addSchedule, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
@@ -83,22 +84,7 @@ export function useScheduleApi(onClear: () => void) {
         .withPoll(activePoll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      // Enforce 3Speak beneficiary if content contains a 3speak embed
-      const hasThreeSpeakEmbed = body.includes("3speak.tv/embed");
-      let finalBeneficiaries = beneficiaries;
-      if (hasThreeSpeakEmbed) {
-        const threeSpeakAccount = "threespeakfund";
-        const threeSpeakWeight = 1100; // 11%
-        const alreadyExists = (beneficiaries ?? []).some(
-          (b: any) => b.account === threeSpeakAccount
-        );
-        if (!alreadyExists) {
-          finalBeneficiaries = [
-            ...(beneficiaries ?? []),
-            { account: threeSpeakAccount, weight: threeSpeakWeight }
-          ];
-        }
-      }
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries ?? [], body);
 
       let options = makeCommentOptions(author, permlink, reward, finalBeneficiaries);
       if (!options) {

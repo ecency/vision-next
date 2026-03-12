@@ -423,7 +423,12 @@ export function EditorToolbar({
             condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
           >
             <Tooltip content={i18next.t("video-upload.upload-video")}>
-              <div className="editor-tool" role="none" onClick={() => activeUser && setShowVideoUpload(true)}>
+              <button
+                type="button"
+                className="editor-tool"
+                onClick={() => activeUser && setShowVideoUpload(true)}
+                disabled={!activeUser}
+              >
                 {videoSvg}
                 <VideoUpload
                   show={showVideoUpload}
@@ -436,7 +441,7 @@ export function EditorToolbar({
                     }
                   }}
                 />
-              </div>
+              </button>
             </Tooltip>
           </EcencyConfigManager.Conditional>
         )}

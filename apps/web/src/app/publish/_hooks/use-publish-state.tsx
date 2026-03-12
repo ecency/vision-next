@@ -3,6 +3,7 @@ import {
   SUBMIT_TAG_MAX_LENGTH,
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
+import { hasThreeSpeakEmbed } from "@/api/threespeak-embed";
 import { BeneficiaryRoute, Entry } from "@/entities";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
@@ -92,7 +93,8 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
       }
     | undefined
   >(undefined);
-  const [hasThreeSpeakVideo, setHasThreeSpeakVideo] = useState<boolean>(false);
+  const [hasThreeSpeakVideoFlag, setHasThreeSpeakVideo] = useState<boolean>(false);
+  const hasThreeSpeakVideo = hasThreeSpeakVideoFlag || hasThreeSpeakEmbed(content);
   const [poll, setPoll] = usePublishPollState(false);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);

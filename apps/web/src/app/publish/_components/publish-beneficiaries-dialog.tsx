@@ -1,3 +1,4 @@
+import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import React, { useCallback, useMemo, useRef, useState } from "react";
@@ -151,7 +152,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                 </Tr>
                 {beneficiaries?.map((x) => {
                   const isLocked =
-                    hasThreeSpeakVideo && x.account === "threespeakfund";
+                    hasThreeSpeakVideo && isThreeSpeakBeneficiary(x.account);
                   return (
                     <Tr key={x.account}>
                       <Td>{`@${x.account}`}</Td>

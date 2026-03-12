@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { formatError } from "@/api/format-error";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { useContext } from "react";
@@ -125,20 +126,7 @@ export function usePublishApi(onClear: () => void) {
         .withPoll(activePoll)
         .build();
 
-      // Enforce 3Speak beneficiary if content contains a 3speak embed
-      const hasThreeSpeakEmbed = cbody.includes("3speak.tv/embed");
-      let finalBeneficiaries = beneficiaries;
-      if (hasThreeSpeakEmbed) {
-        const threeSpeakAccount = "threespeakfund";
-        const threeSpeakWeight = 1100; // 11%
-        const alreadyExists = beneficiaries.some((b) => b.account === threeSpeakAccount);
-        if (!alreadyExists) {
-          finalBeneficiaries = [
-            ...beneficiaries,
-            { account: threeSpeakAccount, weight: threeSpeakWeight }
-          ];
-        }
-      }
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cbody);
 
       const options = makeCommentOptions(author, permlink, reward, finalBeneficiaries);
 

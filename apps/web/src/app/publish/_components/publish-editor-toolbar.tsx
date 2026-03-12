@@ -1,5 +1,6 @@
 "use client";
 
+import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { EcencyConfigManager } from "@/config";
 import { LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
@@ -594,12 +595,10 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             // Mark that a 3Speak video is present and add required beneficiary
             publishState.setHasThreeSpeakVideo(true);
             publishState.setBeneficiaries((prev) => {
-              const threeSpeakAccount = "threespeakfund";
-              const threeSpeakWeight = 1100; // 11%
-              if (prev.some((b) => b.account === threeSpeakAccount)) {
+              if (prev.some((b) => isThreeSpeakBeneficiary(b.account))) {
                 return prev;
               }
-              return [...prev, { account: threeSpeakAccount, weight: threeSpeakWeight }];
+              return [...prev, { account: "threespeakfund", weight: 1100 }];
             });
 
             setShowVideoUpload(false);
