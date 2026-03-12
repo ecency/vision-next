@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addSchedule, getPostHeaderQueryOptions } from "@ecency/sdk";
-import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
@@ -16,7 +15,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 export function useScheduleApi(onClear: () => void) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
-  const { buildBody } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const { clearAll } = usePollsCreationManagement();
@@ -85,7 +83,24 @@ export function useScheduleApi(onClear: () => void) {
         .withPoll(activePoll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      let options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      // Enforce 3Speak beneficiary if content contains a 3speak embed
+      const hasThreeSpeakEmbed = body.includes("3speak.tv/embed");
+      let finalBeneficiaries = beneficiaries;
+      if (hasThreeSpeakEmbed) {
+        const threeSpeakAccount = "threespeakfund";
+        const threeSpeakWeight = 1100; // 11%
+        const alreadyExists = (beneficiaries ?? []).some(
+          (b: any) => b.account === threeSpeakAccount
+        );
+        if (!alreadyExists) {
+          finalBeneficiaries = [
+            ...(beneficiaries ?? []),
+            { account: threeSpeakAccount, weight: threeSpeakWeight }
+          ];
+        }
+      }
+
+      let options = makeCommentOptions(author, permlink, reward, finalBeneficiaries);
       if (!options) {
         options = {
           allow_curation_rewards: true,
@@ -106,7 +121,7 @@ export function useScheduleApi(onClear: () => void) {
           token,
           permlink,
           title,
-          buildBody(body),
+          body,
           jsonMeta,
           options,
           schedule,

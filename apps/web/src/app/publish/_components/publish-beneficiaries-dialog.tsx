@@ -10,10 +10,10 @@ import { FormControl, InputGroup } from "@ui/input";
 import { handleInvalid, handleOnInput } from "@/utils";
 import { deleteForeverSvg, plusSvg } from "@ui/svg";
 import { Form } from "@ui/form";
-import { useThreeSpeakManager } from "@/features/3speak";
 import { Alert } from "@ui/alert";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQueryClient } from "@tanstack/react-query";
+import { StyledTooltip } from "@/features/ui";
 
 interface Props {
   show: boolean;
@@ -25,9 +25,8 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
 
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
-  const { videos } = useThreeSpeakManager();
 
-  const { beneficiaries, setBeneficiaries } = usePublishState();
+  const { beneficiaries, setBeneficiaries, hasThreeSpeakVideo } = usePublishState();
   const [username, setUsername] = useState("");
   const [percentage, setPercentage] = useState(0);
   const [inProgress, setInProgress] = useState(false);
@@ -150,26 +149,42 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                     />
                   </Td>
                 </Tr>
-                {beneficiaries?.map((x) => (
-                  <Tr key={x.account}>
-                    <Td>{`@${x.account}`}</Td>
-                    <Td>{`${x.weight / 100}%`}</Td>
-                    <Td>
-                      {Object.values(videos).length > 0 && x.src === "ENCODER_PAY" ? (
-                        <></>
-                      ) : (
-                        <Button
-                          onClick={() => {
-                            setBeneficiaries(beneficiaries.filter((b) => b.account !== x.account));
-                          }}
-                          appearance="danger"
-                          size="sm"
-                          icon={deleteForeverSvg}
-                        />
-                      )}
-                    </Td>
-                  </Tr>
-                ))}
+                {beneficiaries?.map((x) => {
+                  const isLocked =
+                    hasThreeSpeakVideo && x.account === "threespeakfund";
+                  return (
+                    <Tr key={x.account}>
+                      <Td>{`@${x.account}`}</Td>
+                      <Td>{`${x.weight / 100}%`}</Td>
+                      <Td>
+                        {isLocked ? (
+                          <StyledTooltip
+                            content={i18next.t(
+                              "beneficiary-editor.threespeak-locked"
+                            )}
+                          >
+                            <span className="text-gray-400 text-xs">
+                              {i18next.t("beneficiary-editor.required")}
+                            </span>
+                          </StyledTooltip>
+                        ) : (
+                          <Button
+                            onClick={() => {
+                              setBeneficiaries(
+                                beneficiaries.filter(
+                                  (b) => b.account !== x.account
+                                )
+                              );
+                            }}
+                            appearance="danger"
+                            size="sm"
+                            icon={deleteForeverSvg}
+                          />
+                        )}
+                      </Td>
+                    </Tr>
+                  );
+                })}
               </tbody>
             </Table>
           </div>

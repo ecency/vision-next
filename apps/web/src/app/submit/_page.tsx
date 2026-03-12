@@ -3,17 +3,15 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { PostBase, VideoProps } from "./_types";
+import { PostBase } from "./_types";
 import {
   BodyVersioningManager,
-  ThreeSpeakManager,
   useAdvancedManager,
   useApiDraftDetector,
   useBodyVersioningManager,
   useCommunityDetector,
   useEntryDetector,
-  useLocalDraftManager,
-  useThreeSpeakManager
+  useLocalDraftManager
 } from "./_hooks";
 import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import useLocalStorage from "react-use/lib/useLocalStorage";
@@ -29,13 +27,10 @@ import {
   EditorPanelActions,
   PostSchedulerDialog,
   SubmitPreviewContent,
-  SubmitVideoAttachments,
   TagSelector,
   WordCount
 } from "@/app/submit/_components";
 import "./_index.scss";
-import { useThreeSpeakMigrationAdapter } from "@/app/submit/_hooks/three-speak-migration-adapter";
-import { mergeThreeSpeakBeneficiaries } from "@/features/3speak";
 import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
@@ -74,7 +69,6 @@ interface Props {
 
 function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   const postBodyRef = useRef<HTMLDivElement | null>(null);
-  const threeSpeakManager = useThreeSpeakManager();
   const { setActivePoll, activePoll, clearActivePoll } = useContext(PollsContext);
   const { body, setBody } = useBodyVersioningManager();
 
@@ -166,11 +160,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     [setAdvancedDescription]
   );
 
-  useThreeSpeakMigrationAdapter({
-    body,
-    setBody
-  });
-
   useCommunityDetector((community) => setTags((prev) => sanitizeTags([...prev, community])));
 
   useEntryDetector(username, permlink, (entry) => {
@@ -183,12 +172,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       );
       entry?.json_metadata?.image && setSelectedThumbnail(entry?.json_metadata?.image[0]);
       setEditingEntry(entry);
-      threeSpeakManager.setIsEditing(true);
     } else if (editingEntry) {
       setEditingEntry(null);
-      threeSpeakManager.setIsEditing(false);
-    } else {
-      threeSpeakManager.setIsEditing(false);
     }
   });
 
@@ -208,10 +193,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
       setReward(draft.meta?.rewardType ?? "default");
       setSelectedThumbnail(draft.meta?.image?.[0]);
       setDescription(draft.meta?.description ?? "");
-
-      [...Object.values(draft.meta?.videos ?? {})].forEach((item) =>
-        threeSpeakManager.attach(item)
-      );
 
       setTimeout(() => setIsDraftEmpty(false), 100);
     },
@@ -243,11 +224,8 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     if (activeUser?.username !== previousActiveUser?.username && activeUser && previousActiveUser) {
       // delete active user from beneficiaries list
       setBeneficiaries(beneficiaries.filter((x) => x.account !== activeUser.username));
-
-      // clear not current user videos
-      threeSpeakManager.clear();
     }
-  }, [activeUser, beneficiaries, previousActiveUser, setBeneficiaries, threeSpeakManager]);
+  }, [activeUser, beneficiaries, previousActiveUser, setBeneficiaries]);
 
   // In case of creating new post then should save to local draft
   useEffect(() => {
@@ -269,8 +247,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
   }, [title, body, tags]);
 
   useEffect(() => {
-    threeSpeakManager.checkBodyForVideos(body);
-
     // Whenever body changed then need to re-validate thumbnails
     const { thumbnails: mergedThumbnails } = extractMetaData(body, editingEntry?.json_metadata ?? {});
     setThumbnails(mergedThumbnails ?? []);
@@ -303,7 +279,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     setIsDraftEmpty(true);
     setDescription("");
 
-    threeSpeakManager.clear();
     clearAdvanced();
     setSelectedThumbnail(undefined);
     setThumbnails([]);
@@ -332,10 +307,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     }
   };
 
-  const setVideoEncoderBeneficiary = async (video: VideoProps) => {
-    setBeneficiaries(mergeThreeSpeakBeneficiaries(video.beneficiaries, beneficiaries));
-  };
-
   const focusInput = (parentSelector: string): void => {
     const el = document.querySelector(`${parentSelector} .form-control`) as HTMLInputElement;
     if (el) {
@@ -359,11 +330,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
     if (body.trim() === "") {
       focusInput(".body-input");
       error(i18next.t("submit.empty-body-alert"));
-      return false;
-    }
-
-    if (threeSpeakManager.hasMultipleUnpublishedVideo) {
-      error(i18next.t("submit.should-be-only-one-unpublished"));
       return false;
     }
 
@@ -399,16 +365,11 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
             </div>
           )}
           <EditorToolbar
-            setVideoEncoderBeneficiary={setVideoEncoderBeneficiary}
-            toggleNsfwC={() => {
-              threeSpeakManager.setIsNsfw(true);
-            }}
             comment={false}
             existingPoll={activePoll}
-            setVideoMetadata={(v) => {
-              threeSpeakManager.attach(v);
-              // Attach videos as special token in a body and render it in a preview
-              setBody(`${body}\n[3speak](${v._id})`);
+            onVideoUploaded={(embedUrl) => {
+              // Insert the embed URL directly into the post body
+              setBody(`${body}\n${embedUrl}`);
             }}
             onAddPoll={(v) => setActivePoll(v)}
             onDeletePoll={() => clearActivePoll()}
@@ -453,7 +414,6 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               spellCheck={true}
             />
           </div>
-          <SubmitVideoAttachments />
           {activeUser ? (
             <AvailableCredits
               className="mr-2"
@@ -558,24 +518,22 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                   <EcencyConfigManager.Conditional
                     condition={({ visionFeatures }) => visionFeatures.schedules.enabled}
                   >
-                    {!threeSpeakManager.hasUnpublishedVideo && (
-                      <div className="grid grid-cols-12 mb-4">
-                        <div className="col-span-12 sm:col-span-3">
-                          <label>{i18next.t("submit.schedule")}</label>
-                        </div>
-                        <div className="col-span-12 sm:col-span-9">
-                          <PostSchedulerDialog
-                            date={schedule ? dayjs(schedule) : null}
-                            onChange={(d) => {
-                              setSchedule(d ? d.toISOString() : null);
-                            }}
-                          />
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {i18next.t("submit.schedule-hint")}
-                          </div>
+                    <div className="grid grid-cols-12 mb-4">
+                      <div className="col-span-12 sm:col-span-3">
+                        <label>{i18next.t("submit.schedule")}</label>
+                      </div>
+                      <div className="col-span-12 sm:col-span-9">
+                        <PostSchedulerDialog
+                          date={schedule ? dayjs(schedule) : null}
+                          onChange={(d) => {
+                            setSchedule(d ? d.toISOString() : null);
+                          }}
+                        />
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {i18next.t("submit.schedule-hint")}
                         </div>
                       </div>
-                    )}
+                    </div>
                   </EcencyConfigManager.Conditional>
                 )}
                 {editingEntry === null && tags?.length > 0 && isCommunity(tags[0]) && (
@@ -696,11 +654,9 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
 export const SubmitWithProvidersPage = (props: Props) => {
   return (
     <BodyVersioningManager>
-      <ThreeSpeakManager>
-        <PollsManager>
-          <Submit {...props} />
-        </PollsManager>
-      </ThreeSpeakManager>
+      <PollsManager>
+        <Submit {...props} />
+      </PollsManager>
     </BodyVersioningManager>
   );
 };

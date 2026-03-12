@@ -6,7 +6,6 @@ import { Form } from "@ui/form";
 import { FormControl, InputGroup } from "@ui/input";
 import { Table, Td, Th, Tr } from "@ui/table";
 import { BeneficiaryRoute } from "@/entities";
-import { useThreeSpeakManager } from "@/features/3speak";
 import { accountMultipleSvg, deleteForeverSvg, plusSvg } from "@ui/svg";
 import i18next from "i18next";
 import { handleInvalid, handleOnInput } from "@/utils";
@@ -23,7 +22,6 @@ interface Props {
 
 export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const { videos } = useThreeSpeakManager();
   const queryClient = useQueryClient();
 
   const [visible, setVisible] = useState(false);
@@ -158,18 +156,14 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props
                           <Td>{`@${x.account}`}</Td>
                           <Td>{`${x.weight / 100}%`}</Td>
                           <Td>
-                            {Object.values(videos).length > 0 && x.src === "ENCODER_PAY" ? (
-                              <></>
-                            ) : (
-                              <Button
-                                onClick={() => {
-                                  onDelete(x.account);
-                                }}
-                                appearance="danger"
-                                size="sm"
-                                icon={deleteForeverSvg}
-                              />
-                            )}
+                            <Button
+                              onClick={() => {
+                                onDelete(x.account);
+                              }}
+                              appearance="danger"
+                              size="sm"
+                              icon={deleteForeverSvg}
+                            />
                           </Td>
                         </Tr>
                       );

@@ -1,7 +1,7 @@
 "use client";
 
 import { EcencyConfigManager } from "@/config";
-import { error, LoginRequired } from "@/features/shared";
+import { LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
 
 const PublishGifPickerDialog = dynamic(
@@ -68,9 +68,8 @@ import {
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
 import i18next from "i18next";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { usePublishState, usePublishVideoAttach } from "../_hooks";
+import { usePublishState } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
@@ -186,14 +185,11 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
-
-  const attachVideo = usePublishVideoAttach(editor);
 
   const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
 
@@ -416,21 +412,9 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               </DropdownToggle>
               <DropdownMenu>
                 <DropdownItemWithIcon
-                  disabled={!allowToUploadVideo}
                   icon={<UilUpload />}
                   label={i18next.t("publish.three-speak-upload")}
-                  onClick={() => {
-                    if (allowToUploadVideo) {
-                      setShowVideoUpload(true);
-                    } else {
-                      error(i18next.t("publish.upload-video-error-hint"));
-                    }
-                  }}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilVideo />}
-                  label={i18next.t("publish.three-speak-gallery")}
-                  onClick={() => setShowVideoGallery(true)}
+                  onClick={() => setShowVideoUpload(true)}
                 />
                 <DropdownItemWithIcon
                   icon={<UilLink />}
@@ -592,25 +576,34 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           }}
         />
 
-        <PublishEditorVideoGallery
-          hasAlreadyPublishingVideo={!!publishState.publishingVideo}
-          filterOnly={allowToUploadVideo ? undefined : "published"}
-          show={showVideoGallery}
-          setShow={setShowVideoGallery}
-          onUpload={() => {
-            setShowVideoGallery(false);
-            setShowVideoUpload(true);
-          }}
-          onAdd={(video, isNsfw) => {
-            attachVideo(video, isNsfw);
-            setShowVideoGallery(false);
-          }}
-        />
-
         <VideoUpload
           show={showVideoUpload}
           setShow={setShowVideoUpload}
-          setShowGallery={setShowVideoGallery}
+          onVideoUploaded={(embedUrl, videoThumbnailUrl) => {
+            if (editor) {
+              editor.chain().focus().insertContent(embedUrl).run();
+            }
+
+            // Add video thumbnail to post metadata so feed cards show it
+            if (videoThumbnailUrl) {
+              publishState.setEntryImages((prev) =>
+                prev.includes(videoThumbnailUrl) ? prev : [...prev, videoThumbnailUrl]
+              );
+            }
+
+            // Mark that a 3Speak video is present and add required beneficiary
+            publishState.setHasThreeSpeakVideo(true);
+            publishState.setBeneficiaries((prev) => {
+              const threeSpeakAccount = "threespeakfund";
+              const threeSpeakWeight = 1100; // 11%
+              if (prev.some((b) => b.account === threeSpeakAccount)) {
+                return prev;
+              }
+              return [...prev, { account: threeSpeakAccount, weight: threeSpeakWeight }];
+            });
+
+            setShowVideoUpload(false);
+          }}
         />
 
         <PublishEditorVideoByLinkDialog

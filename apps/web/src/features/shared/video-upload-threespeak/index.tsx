@@ -1,12 +1,14 @@
-import { useThreeSpeakVideoUpload, useUploadVideoInfo } from "@/api/threespeak";
+import { useThreeSpeakEmbedUpload } from "@/api/threespeak-embed";
+import { setVideoThumbnail } from "@/api/threespeak-embed/api";
+import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useGlobalStore } from "@/core/global-store";
-import { createFile } from "@/utils/create-file";
+import { error } from "@/features/shared";
 import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { recordVideoSvg } from "@ui/svg";
 import i18next from "i18next";
-import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import useMountedState from "react-use/lib/useMountedState";
 import "./index.scss";
 import { VideoUploadItem } from "./video-upload-item";
@@ -17,138 +19,201 @@ interface Props {
   children?: ReactNode;
   show: boolean;
   setShow: (v: boolean) => void;
-  setShowGallery: (v: boolean) => void;
+  onVideoUploaded: (embedUrl: string, thumbnailUrl?: string) => void;
+}
+
+interface VideoData {
+  embedUrl: string;
+  permlink: string;
 }
 
 export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>) => {
   const { activeUser } = useActiveAccount();
   const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
-  const {
-    mutateAsync: uploadVideo,
-    completed: videoPercentage,
-    setCompleted: setVideoPercentage
-  } = useThreeSpeakVideoUpload("video");
-  const {
-    mutateAsync: uploadThumbnail,
-    completed: thumbnailPercentage,
-    setCompleted: setThumbnailPercentage
-  } = useThreeSpeakVideoUpload("thumbnail");
-  const { mutateAsync: uploadInfo } = useUploadVideoInfo();
+  const { mutateAsync: uploadVideo, completed: videoPercentage, setCompleted: setVideoPercentage } =
+    useThreeSpeakEmbedUpload();
+
+  const { mutateAsync: uploadThumbnailImage, isPending: isThumbnailUploading } =
+    useUploadImageMutation();
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const selectedFileUrlRef = useRef<string>();
-  const coverImageUrlRef = useRef<string>();
 
-  const [selectedFile, setSelectedFile] = useState<any>(null);
-  const [coverImage, setCoverImage] = useState<string>();
-  const [step, setStep] = useState("upload");
-  const [filevName, setFilevName] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [filevSize, setFilevSize] = useState(0);
-  const [fileSize, setFileSize] = useState(0);
-  const [videoUrl, setVideoUrl] = useState("");
-  const [thumbUrl, setThumbUrl] = useState("");
-  const [duration, setDuration] = useState("");
-  const [durationForApiCall, setDurationForApiCall] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFileType, setSelectedFileType] = useState<string>("video/mp4");
+  const [step, setStep] = useState<"upload" | "preview">("upload");
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [showRecorder, setShowRecorder] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [isExtractingThumbnail, setIsExtractingThumbnail] = useState(false);
+  const [hasManualThumbnail, setHasManualThumbnail] = useState(false);
 
-  const canUpload = videoUrl;
+  const canContinue = !!videoData;
 
   const isMounted = useMountedState();
 
   // Reset on dialog hide
   useEffect(() => {
     if (!props.show) {
-      // Clean up blob URLs before resetting
       if (selectedFileUrlRef.current) {
         URL.revokeObjectURL(selectedFileUrlRef.current);
         selectedFileUrlRef.current = undefined;
       }
-      if (coverImageUrlRef.current) {
-        URL.revokeObjectURL(coverImageUrlRef.current);
-        coverImageUrlRef.current = undefined;
-      }
       setSelectedFile(null);
-      setCoverImage(undefined);
-      setFileName("");
-      setFileSize(0);
-      setFilevName("");
-      setFilevSize(0);
-      setVideoUrl("");
-      setThumbUrl("");
-      setDuration("");
+      setSelectedFileType("video/mp4");
+      setVideoData(null);
+      setThumbnailUrl("");
+      setHasManualThumbnail(false);
+      setIsExtractingThumbnail(false);
       setStep("upload");
       setVideoPercentage(0);
-      setThumbnailPercentage(0);
       setShowRecorder(false);
-      setDurationForApiCall(0);
     }
-  }, [props.show, setThumbnailPercentage, setVideoPercentage]);
+  }, [props.show, setVideoPercentage]);
 
-  const getVideoDuration = () => {
-    if (videoRef.current) {
-      const { duration } = videoRef.current;
-      const minutes = Math.floor(duration / 60);
-      const seconds = Math.floor(duration % 60);
-      const videoDuration = `${minutes}:${seconds}`;
-      setDuration(videoDuration);
-      setDurationForApiCall(duration);
-    }
-  };
+  const maxFileSizeBytes = 1 * 1024 * 1024 * 1024; // 1 GB
 
-  const onChange = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
-    let file = event.target.files?.[0];
-    if (!file) return;
+  const handleVideoChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeUser) return;
 
-    if (type === "video") {
-      const result = await uploadVideo({ file });
-      if (result) {
-        setVideoUrl(result.fileUrl);
-        setFilevName(result.fileName);
-        setFilevSize(result.fileSize);
-      }
-    } else {
-      const result = await uploadThumbnail({ file });
-      if (result) {
-        setThumbUrl(result.fileUrl);
-        setFileName(result.fileName);
-        setFileSize(result.fileSize);
-      }
-    }
-  };
-
-  const handleThumbnailChange = (e: ChangeEvent<HTMLInputElement | any>) => {
-    const file: File | undefined = e?.target?.files?.[0];
-    if (!file) {
+    if (file.size > maxFileSizeBytes) {
+      error(i18next.t("video-upload.file-too-large"));
+      e.target.value = "";
       return;
     }
-    onChange(e, "thumbnail");
-    // Clean up old cover image URL before creating new one
-    if (coverImageUrlRef.current) {
-      URL.revokeObjectURL(coverImageUrlRef.current);
-    }
-    const imageUrl = URL?.createObjectURL(file);
-    coverImageUrlRef.current = imageUrl;
-    setCoverImage(imageUrl);
-  };
 
-  const handleVideoChange = (e: ChangeEvent<HTMLInputElement | any>) => {
-    const file: File | undefined = e?.target?.files?.[0];
-    if (!file) {
-      return;
-    }
-    onChange(e, "video");
-    // Clean up old selected file URL before creating new one
+    // Show local preview
     if (selectedFileUrlRef.current) {
       URL.revokeObjectURL(selectedFileUrlRef.current);
     }
-    const fileUrl = URL?.createObjectURL(file);
+    const fileUrl = URL.createObjectURL(file);
     selectedFileUrlRef.current = fileUrl;
     setSelectedFile(fileUrl);
+    setSelectedFileType(file.type || "video/mp4");
+
+    try {
+      const result = await uploadVideo({
+        file,
+        owner: activeUser.username
+      });
+      if (result) {
+        setVideoData({ embedUrl: result.embedUrl, permlink: result.permlink });
+      }
+    } catch {
+      // Error already shown by the mutation's error handler
+    }
+  };
+
+  const handleRecordedUpload = (embedUrl: string, videoPermlink: string) => {
+    setVideoData({ embedUrl, permlink: videoPermlink });
+  };
+
+  const extractFrameAsBlob = useCallback(
+    (video: HTMLVideoElement): Promise<Blob | null> =>
+      new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          canvas.width = 0;
+          canvas.height = 0;
+          resolve(null);
+          return;
+        }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            // Release canvas GPU resources
+            canvas.width = 0;
+            canvas.height = 0;
+            resolve(blob);
+          },
+          "image/jpeg",
+          0.85
+        );
+      }),
+    []
+  );
+
+  // Auto-extract thumbnail from video when entering preview step
+  useEffect(() => {
+    if (step !== "preview" || !videoData?.permlink || !selectedFile || hasManualThumbnail || thumbnailUrl) {
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    let cancelled = false;
+    const permlink = videoData.permlink;
+
+    const handleSeeked = async () => {
+      if (cancelled) return;
+      setIsExtractingThumbnail(true);
+      try {
+        const blob = await extractFrameAsBlob(video);
+        if (cancelled || !blob) return;
+
+        const file = new File([blob], "auto-thumbnail.jpg", { type: "image/jpeg" });
+        const response = await uploadThumbnailImage({ file });
+        if (cancelled || !response?.url) return;
+
+        setThumbnailUrl(response.url);
+        try {
+          await setVideoThumbnail(permlink, response.url);
+        } catch {
+          // Thumbnail image uploaded successfully but metadata persistence failed — non-critical
+        }
+      } finally {
+        if (!cancelled) setIsExtractingThumbnail(false);
+      }
+    };
+
+    const handleLoaded = () => {
+      if (cancelled) return;
+      video.currentTime = Math.max(0.1, Math.min(1, video.duration * 0.25));
+    };
+
+    video.addEventListener("seeked", handleSeeked, { once: true });
+
+    if (video.readyState >= 2) {
+      handleLoaded();
+    } else {
+      video.addEventListener("loadeddata", handleLoaded, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      video.removeEventListener("seeked", handleSeeked);
+      video.removeEventListener("loadeddata", handleLoaded);
+    };
+  }, [step, videoData?.permlink, selectedFile, hasManualThumbnail, thumbnailUrl, extractFrameAsBlob, uploadThumbnailImage]);
+
+  const handleThumbnailChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !videoData?.permlink) return;
+
+    try {
+      const response = await uploadThumbnailImage({ file });
+      if (response?.url) {
+        setHasManualThumbnail(true);
+        setThumbnailUrl(response.url);
+        try {
+          await setVideoThumbnail(videoData.permlink, response.url);
+        } catch {
+          // Thumbnail image uploaded successfully but metadata persistence failed — non-critical
+        }
+      }
+    } catch {
+      error(i18next.t("video-upload.thumbnail-upload-failed"));
+    }
   };
 
   const uploadVideoModal = (
-    <div className="dialog-content ">
+    <div className="dialog-content">
       <div className="three-speak-video-uploading position-relative">
         <Alert appearance="primary" className="mb-4">
           {i18next.t("video-upload.min-duration-alert")}
@@ -158,10 +223,11 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         </p>
         {showRecorder ? (
           <VideoUploadRecorder
-            setVideoUrl={setVideoUrl}
-            setFilevName={setFilevName}
-            setFilevSize={setFilevSize}
-            setSelectedFile={setSelectedFile}
+            onEmbedUrlReady={handleRecordedUpload}
+            setSelectedFile={(url) => {
+              setSelectedFile(url);
+              setSelectedFileType("video/webm");
+            }}
             onReset={() => setShowRecorder(false)}
           />
         ) : (
@@ -186,35 +252,8 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
             />
           </div>
         )}
-        <p className="font-weight-bold mt-5 mb-2 text-sm opacity-50">
-          {i18next.t("video-upload.thumbnail")}
-        </p>
-        <VideoUploadItem
-          label={i18next.t("video-upload.choose-thumbnail")}
-          onFileChange={handleThumbnailChange}
-          type="thumbnail"
-          accept="image/jpg, image/jpeg, image/png"
-          completed={thumbnailPercentage}
-        />
       </div>
-      <Button
-        className="mt-3"
-        disabled={!canUpload}
-        onClick={async () => {
-          if (!thumbUrl) {
-            const file = await createFile("/assets/thumbnail-play.jpg");
-            onChange({ target: { files: [file] } } as any, "thumbnail");
-            // Clean up old cover image URL before creating new one
-            if (coverImageUrlRef.current) {
-              URL.revokeObjectURL(coverImageUrlRef.current);
-            }
-            const imageUrl = URL?.createObjectURL(file);
-            coverImageUrlRef.current = imageUrl;
-            setCoverImage(imageUrl);
-          }
-          setStep("preview");
-        }}
-      >
+      <Button className="mt-3" disabled={!canContinue} onClick={() => setStep("preview")}>
         {i18next.t("video-upload.continue")}
       </Button>
     </div>
@@ -223,42 +262,64 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   const previewVideo = (
     <div className="dialog-content">
       <div className="file-input">
-        <video
-          onLoadedMetadata={getVideoDuration}
-          ref={videoRef}
-          controls={true}
-          poster={coverImage}
-        >
-          <source src={selectedFile} type="video/mp4" />
+        <video ref={videoRef} controls={true}>
+          <source src={selectedFile ?? undefined} type={selectedFileType} />
         </video>
       </div>
+      {videoData?.permlink && (
+        <div className="mt-3">
+          <p className="font-weight-bold mb-2 text-sm opacity-50">
+            {i18next.t("video-upload.thumbnail")}
+          </p>
+          <div className="flex items-center gap-3">
+            {isExtractingThumbnail ? (
+              <div
+                className="rounded bg-gray-200 dark:bg-dark-default flex items-center justify-center text-xs text-gray-500"
+                style={{ width: 160, height: 90 }}
+              >
+                {i18next.t("video-upload.extracting-thumbnail")}
+              </div>
+            ) : thumbnailUrl ? (
+              <img
+                src={thumbnailUrl}
+                alt="Thumbnail"
+                className="rounded"
+                style={{ maxWidth: 160, maxHeight: 90 }}
+              />
+            ) : null}
+            <input
+              ref={thumbnailInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleThumbnailChange}
+              disabled={isThumbnailUploading || isExtractingThumbnail}
+            />
+            <Button
+              size="sm"
+              appearance="gray"
+              isLoading={isThumbnailUploading}
+              disabled={isThumbnailUploading || isExtractingThumbnail}
+              onClick={() => thumbnailInputRef.current?.click()}
+            >
+              {i18next.t("video-upload.choose-thumbnail")}
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="flex justify-end mt-3">
-        <Button
-          className="bg-dark"
-          onClick={() => {
-            setStep("upload");
-          }}
-        >
+        <Button className="bg-dark" onClick={() => setStep("upload")}>
           {i18next.t("g.back")}
         </Button>
         <Button
           className="ml-3"
-          disabled={!canUpload}
+          disabled={!canContinue}
           onClick={() => {
-            uploadInfo({
-              fileName: filevName,
-              fileSize: filevSize,
-              videoUrl,
-              thumbUrl,
-              activeUser: activeUser!.username,
-              duration: durationForApiCall
-            });
+            props.onVideoUploaded(videoData!.embedUrl, thumbnailUrl || undefined);
             props.setShow(false);
-            setStep("upload");
-            props.setShowGallery(true);
           }}
         >
-          {i18next.t("video-upload.to-gallery")}
+          {i18next.t("video-upload.insert-video")}
         </Button>
       </div>
     </div>

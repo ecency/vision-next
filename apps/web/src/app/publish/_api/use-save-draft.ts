@@ -37,7 +37,6 @@ export function useSaveDraftApi(draftId?: string) {
     selectedThumbnail,
     poll,
     postLinks,
-    publishingVideo,
     location
   } = usePublishState();
 
@@ -67,10 +66,6 @@ export function useSaveDraftApi(draftId?: string) {
         .withPostLinks(postLinks)
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
-
-      if (publishingVideo) {
-        metaBuilder.withVideo(title!, content!, publishingVideo);
-      }
 
       const meta = metaBuilder.build();
       const draftMeta: DraftMetadata = {
