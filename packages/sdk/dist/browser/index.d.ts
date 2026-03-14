@@ -2787,7 +2787,7 @@ declare const QueryKeys: {
         readonly votesByUser: (voter: string) => string[];
     };
     readonly search: {
-        readonly topics: (q: string) => string[];
+        readonly topics: (q: string, limit: number) => (string | number)[];
         readonly path: (q: string) => string[];
         readonly account: (q: string, limit: number) => (string | number)[];
         readonly results: (q: string, sort: string, hideLow: boolean, since?: string, scrollId?: string, votes?: number) => (string | number | boolean | undefined)[];
