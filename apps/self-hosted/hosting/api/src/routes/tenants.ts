@@ -349,7 +349,7 @@ tenantRoutes.post('/:username/upgrade',
     }
 
     if (!result) {
-      return c.json({ error: 'Payment already processed' }, 409);
+      return c.json({ error: 'Upgrade failed' }, 500);
     }
 
     const upgradedTenant = mapTenantFromDb(result);

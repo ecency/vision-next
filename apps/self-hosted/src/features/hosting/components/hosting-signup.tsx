@@ -32,6 +32,15 @@ function isValidHttpUrl(url: string): boolean {
   }
 }
 
+async function fetchJson(url: string, init?: RequestInit): Promise<any> {
+  const response = await fetch(url, init);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || `Request failed (${response.status})`);
+  }
+  return response.json();
+}
+
 export function HostingSignup({
   apiBaseUrl = 'https://api.blogs.ecency.com/hosting',
   onSuccess,
@@ -54,6 +63,8 @@ export function HostingSignup({
     description: '',
   });
 
+  const statusUrl = `${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`;
+
   const checkUsername = useCallback(async () => {
     if (!username || username.length < 3) {
       setError('Username must be at least 3 characters');
@@ -69,9 +80,7 @@ export function HostingSignup({
     setError(null);
 
     try {
-      // Check if username is available
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`);
-      const data = await response.json();
+      const data = await fetchJson(statusUrl);
 
       if (data.exists && data.subscriptionStatus === 'active') {
         setError('This username already has an active blog');
@@ -81,20 +90,20 @@ export function HostingSignup({
       // Move to configure step
       setConfig((prev) => ({ ...prev, title: `${username}'s Blog` }));
       setStep('configure');
-    } catch (err) {
-      setError('Failed to check username. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to check username. Please try again.');
       onError?.('Failed to check username');
     } finally {
       setIsLoading(false);
     }
-  }, [username, apiBaseUrl, onError]);
+  }, [username, statusUrl, onError]);
 
   const createTenant = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/v1/tenants`, {
+      const data = await fetchJson(`${apiBaseUrl}/v1/tenants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -109,12 +118,10 @@ export function HostingSignup({
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create blog');
+      if (!data.paymentInstructions || !data.tenant?.blogUrl) {
+        throw new Error('Invalid response from server. Please try again.');
       }
 
-      const data = await response.json();
       setPaymentInstructions(data.paymentInstructions);
       setBlogUrl(data.tenant.blogUrl);
       setStep('payment');
@@ -131,8 +138,7 @@ export function HostingSignup({
     setError(null);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`);
-      const data = await response.json();
+      const data = await fetchJson(statusUrl);
 
       if (data.subscriptionStatus === 'active') {
         setStep('success');
@@ -142,12 +148,13 @@ export function HostingSignup({
       } else {
         setError('Payment not yet received. Please wait a few seconds and try again.');
       }
-    } catch (err) {
-      setError('Failed to check payment status');
+    } catch (err: any) {
+      setError(err.message || 'Failed to check payment status');
     } finally {
       setIsLoading(false);
+      setIsTransferring(false);
     }
-  }, [username, blogUrl, apiBaseUrl, onSuccess]);
+  }, [username, blogUrl, statusUrl, onSuccess]);
 
   const sendPaymentWithKeychain = useCallback(async () => {
     if (!paymentInstructions || isTransferring) return;
@@ -159,6 +166,7 @@ export function HostingSignup({
     }
 
     setIsTransferring(true);
+    setError(null);
     const keychain = (window as any).hive_keychain;
     const [amountStr] = paymentInstructions.amount.split(' ');
     const amount = parseFloat(amountStr);
@@ -179,11 +187,13 @@ export function HostingSignup({
           setTimeout(checkPayment, BLOCKCHAIN_CONFIRMATION_DELAY_MS);
         } else {
           setError('Payment cancelled or failed');
+          setIsTransferring(false);
         }
-        setIsTransferring(false);
       }
     );
   }, [username, paymentInstructions, checkPayment, isTransferring]);
+
+  const isBusy = isLoading || isTransferring;
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -341,7 +351,7 @@ export function HostingSignup({
 
           <button
             onClick={sendPaymentWithKeychain}
-            disabled={isTransferring}
+            disabled={isBusy}
             className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
             {isTransferring ? 'Processing...' : 'Pay with Keychain'}
@@ -349,7 +359,7 @@ export function HostingSignup({
 
           <button
             onClick={checkPayment}
-            disabled={isLoading}
+            disabled={isBusy}
             className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             {isLoading ? 'Checking...' : 'I\'ve sent the payment'}
@@ -400,7 +410,7 @@ export function HostingSignup({
               </a>
 
               <button
-                onClick={() => window.open(blogUrl, '_blank')}
+                onClick={() => window.open(blogUrl, '_blank', 'noopener,noreferrer')}
                 className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               >
                 Visit Your Blog
