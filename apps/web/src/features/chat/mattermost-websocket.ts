@@ -847,8 +847,10 @@ export class MattermostWebSocket {
     this.pingInterval = setInterval(() => {
       if (this.ws && this.connectionState === "connected") {
         // Check if last pong was received recently
+        // Threshold must exceed ping interval so the first check doesn't
+        // fire before the first ping is even sent
         const timeSinceLastPong = Date.now() - this.lastPongReceived;
-        if (timeSinceLastPong > this.PONG_TIMEOUT * 2) {
+        if (timeSinceLastPong > this.currentPingInterval + this.PONG_TIMEOUT) {
           console.warn("No pong received for too long, reconnecting...");
           this.ws.close(1000, "Ping timeout");
           return;
