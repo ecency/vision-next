@@ -37,13 +37,11 @@ export function SearchTopics() {
 
           return (
             <div className="topic-list">
-              {data?.map((x) => {
-                return (
-                  <Link href={makePath(defaults.filter, x.tag)} className="list-item" key={x.tag}>
-                    {x.tag}
+              {data?.map((tag) => (
+                  <Link href={makePath(defaults.filter, tag)} className="list-item" key={tag}>
+                    {tag}
                   </Link>
-                );
-              })}
+              ))}
             </div>
           );
         })()}
