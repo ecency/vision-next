@@ -14,7 +14,8 @@ export function SearchTopics() {
   const params = useSearchParams();
 
   const q = useMemo(
-    () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
+    () =>
+      (new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "").toLowerCase(),
     [params]
   );
 
