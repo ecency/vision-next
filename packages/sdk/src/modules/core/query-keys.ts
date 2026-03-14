@@ -303,7 +303,7 @@ export const QueryKeys = {
   // Search
   // ===========================================================================
   search: {
-    topics: (q: string) => ["search", "topics", q],
+    topics: (q: string, limit: number) => ["search", "topics", q, limit],
     path: (q: string) => ["search", "path", q],
     account: (q: string, limit: number) =>
       ["search", "account", q, limit],

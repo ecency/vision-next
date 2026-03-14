@@ -32,7 +32,10 @@ export function middleware(request: NextRequest) {
   }
 
   const userAgent = request.headers.get("user-agent") || "";
-  const isSocialBot = /redditbot/i.test(userAgent);
+  const isSocialBot =
+    /Discordbot|Twitterbot|facebookexternalhit|TelegramBot|LinkedInBot|Slackbot|WhatsApp|redditbot/i.test(
+      userAgent
+    );
 
   if (isSocialBot && path.match(/^\/[^\/]+\/@[^\/]+\/[^\/]+$/)) {
     const nextUrl = request.nextUrl.clone();

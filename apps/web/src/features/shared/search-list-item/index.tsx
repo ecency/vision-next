@@ -29,7 +29,7 @@ export function SearchListItem({ res }: Props) {
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
   const img = useMemo(
     () =>
-      catchPostImage(res.body, 600, 500) || "/public/assets/noimage.svg",
+      catchPostImage(res.body, 600, 500) || "/assets/noimage.svg",
     [res.body]
   );
 
@@ -71,7 +71,7 @@ export function SearchListItem({ res }: Props) {
                 height={500}
                 src={img ?? "/assets/fallback.png"}
                 alt={res.title}
-                className={img === "/public/assets/noimage.svg" ? "no-img" : ""}
+                className={img === "/assets/noimage.svg" ? "no-img" : ""}
               />
             </div>
           </EntryLink>
