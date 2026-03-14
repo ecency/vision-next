@@ -450,12 +450,15 @@ tenantRoutes.delete('/:username', authMiddleware, async (c) => {
 
   // Capture tenant ID before deletion for audit trail
   const tenant = await TenantService.getByUsername(username);
+  if (!tenant) {
+    return c.json({ error: 'Tenant not found' }, 404);
+  }
 
   await TenantService.delete(username);
   await ConfigService.deleteConfigFile(username);
 
   void AuditService.log({
-    tenantId: tenant?.id,
+    tenantId: tenant.id,
     eventType: 'tenant.deleted',
     eventData: { username },
     ipAddress: parseClientIp(c.req.header('x-forwarded-for')),

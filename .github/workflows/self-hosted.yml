@@ -66,8 +66,6 @@ jobs:
           file: ./apps/self-hosted/Dockerfile
           push: true
           tags: ecency/self-hosted:${{ steps.tag.outputs.tag }}
-          build-args: |
-            PNPM_VERSION=10.18.1
 
   build-api:
     needs: tests
@@ -104,7 +102,7 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     steps:
       - name: Deploy to staging
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1
         env:
           POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
@@ -136,7 +134,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to production
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1
         env:
           POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}

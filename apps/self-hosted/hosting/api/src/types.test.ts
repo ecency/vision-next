@@ -71,6 +71,16 @@ describe('parseMemo', () => {
     const result = parseMemo('refund:alice');
     expect(result).toEqual({ action: 'unknown', username: '', months: 0 });
   });
+
+  it('defaults months to 1 when months is 0', () => {
+    const result = parseMemo('blog:alice:0');
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+  });
+
+  it('defaults negative months to 1', () => {
+    const result = parseMemo('blog:alice:-1');
+    expect(result).toEqual({ action: 'blog', username: 'alice', months: 1 });
+  });
 });
 
 // =============================================================================

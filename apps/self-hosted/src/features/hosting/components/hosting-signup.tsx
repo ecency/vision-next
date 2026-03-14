@@ -21,6 +21,7 @@ interface PaymentInstructions {
 type Step = 'username' | 'configure' | 'payment' | 'success';
 
 const HIVE_USERNAME_RE = /^[a-z][a-z0-9.-]*$/;
+const BLOCKCHAIN_CONFIRMATION_DELAY_MS = 5000;
 
 function isValidHttpUrl(url: string): boolean {
   try {
@@ -127,6 +128,7 @@ export function HostingSignup({
 
   const checkPayment = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch(`${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`);
@@ -134,7 +136,9 @@ export function HostingSignup({
 
       if (data.subscriptionStatus === 'active') {
         setStep('success');
-        onSuccess?.({ username, blogUrl: blogUrl! });
+        if (blogUrl) {
+          onSuccess?.({ username, blogUrl });
+        }
       } else {
         setError('Payment not yet received. Please wait a few seconds and try again.');
       }
@@ -156,18 +160,23 @@ export function HostingSignup({
 
     setIsTransferring(true);
     const keychain = (window as any).hive_keychain;
-    const [amount] = paymentInstructions.amount.split(' ');
+    const [amountStr] = paymentInstructions.amount.split(' ');
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      setError('Invalid payment amount. Please try again.');
+      setIsTransferring(false);
+      return;
+    }
 
     keychain.requestTransfer(
       username,
       paymentInstructions.to,
-      amount,
+      amount.toFixed(3),
       paymentInstructions.memo,
       'HBD',
       (response: any) => {
         if (response.success) {
-          // Wait a bit for blockchain confirmation, then check
-          setTimeout(checkPayment, 5000);
+          setTimeout(checkPayment, BLOCKCHAIN_CONFIRMATION_DELAY_MS);
         } else {
           setError('Payment cancelled or failed');
         }
@@ -269,7 +278,7 @@ export function HostingSignup({
             <select
               value={config.theme}
               onChange={(e) =>
-                setConfig((prev) => ({ ...prev, theme: e.target.value as any }))
+                setConfig((prev) => ({ ...prev, theme: e.target.value as 'light' | 'dark' | 'system' }))
               }
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >

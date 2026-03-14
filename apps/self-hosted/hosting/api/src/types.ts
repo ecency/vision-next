@@ -318,7 +318,8 @@ export function parseMemo(memo: string): ParsedMemo {
   if (parts[0] === 'blog' && username !== '') {
     // Trim months string before parsing to avoid whitespace issues
     const monthsStr = parts[2]?.trim() || '1';
-    const months = parseInt(monthsStr, 10) || 1;
+    const parsed = parseInt(monthsStr, 10);
+    const months = parsed > 0 ? parsed : 1;
     return {
       action: 'blog',
       username,
