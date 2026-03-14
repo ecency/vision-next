@@ -20,6 +20,17 @@ interface PaymentInstructions {
 
 type Step = 'username' | 'configure' | 'payment' | 'success';
 
+const HIVE_USERNAME_RE = /^[a-z][a-z0-9.-]*$/;
+
+function isValidHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 export function HostingSignup({
   apiBaseUrl = 'https://api.blogs.ecency.com/hosting',
   onSuccess,
@@ -31,6 +42,7 @@ export function HostingSignup({
   const [error, setError] = useState<string | null>(null);
   const [paymentInstructions, setPaymentInstructions] = useState<PaymentInstructions | null>(null);
   const [blogUrl, setBlogUrl] = useState<string | null>(null);
+  const [isTransferring, setIsTransferring] = useState(false);
 
   // Config options
   const [config, setConfig] = useState({
@@ -47,12 +59,17 @@ export function HostingSignup({
       return;
     }
 
+    if (username.length > 16 || !HIVE_USERNAME_RE.test(username)) {
+      setError('Username must be 3-16 characters, start with a letter, and contain only lowercase letters, numbers, dots, or hyphens');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       // Check if username is available
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${username}/status`);
+      const response = await fetch(`${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`);
       const data = await response.json();
 
       if (data.exists && data.subscriptionStatus === 'active') {
@@ -112,7 +129,7 @@ export function HostingSignup({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${username}/status`);
+      const response = await fetch(`${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`);
       const data = await response.json();
 
       if (data.subscriptionStatus === 'active') {
@@ -129,7 +146,7 @@ export function HostingSignup({
   }, [username, blogUrl, apiBaseUrl, onSuccess]);
 
   const sendPaymentWithKeychain = useCallback(async () => {
-    if (!paymentInstructions) return;
+    if (!paymentInstructions || isTransferring) return;
 
     // Check if Keychain is available
     if (typeof window === 'undefined' || !(window as any).hive_keychain) {
@@ -137,6 +154,7 @@ export function HostingSignup({
       return;
     }
 
+    setIsTransferring(true);
     const keychain = (window as any).hive_keychain;
     const [amount] = paymentInstructions.amount.split(' ');
 
@@ -153,9 +171,10 @@ export function HostingSignup({
         } else {
           setError('Payment cancelled or failed');
         }
+        setIsTransferring(false);
       }
     );
-  }, [username, paymentInstructions, checkPayment]);
+  }, [username, paymentInstructions, checkPayment, isTransferring]);
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -313,9 +332,10 @@ export function HostingSignup({
 
           <button
             onClick={sendPaymentWithKeychain}
-            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
+            disabled={isTransferring}
+            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
-            Pay with Keychain
+            {isTransferring ? 'Processing...' : 'Pay with Keychain'}
           </button>
 
           <button
@@ -359,21 +379,29 @@ export function HostingSignup({
             Your blog has been created and is now accessible at:
           </p>
 
-          <a
-            href={blogUrl!}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-blue-600 dark:text-blue-400 font-medium hover:underline"
-          >
-            {blogUrl}
-          </a>
+          {blogUrl && isValidHttpUrl(blogUrl) ? (
+            <>
+              <a
+                href={blogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-blue-600 dark:text-blue-400 font-medium hover:underline"
+              >
+                {blogUrl}
+              </a>
 
-          <button
-            onClick={() => window.open(blogUrl!, '_blank')}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
-          >
-            Visit Your Blog
-          </button>
+              <button
+                onClick={() => window.open(blogUrl, '_blank')}
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+              >
+                Visit Your Blog
+              </button>
+            </>
+          ) : (
+            <p className="py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-gray-600 dark:text-gray-400">
+              {blogUrl}
+            </p>
+          )}
         </div>
       )}
 

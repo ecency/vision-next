@@ -4,10 +4,10 @@
 
 import { db } from '../db/client';
 import { Client } from '@hiveio/dhive';
-import { Tenant, TenantRow, mapTenantFromDb } from '../../types';
+import { Tenant, TenantRow, mapTenantFromDb } from '../types';
 
 // Re-export Tenant type for backward compatibility
-export type { Tenant } from '../../types';
+export type { Tenant } from '../types';
 
 const hiveClient = new Client(process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog']);
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';

@@ -15,6 +15,11 @@ export interface AuditEntry {
   userAgent?: string | null;
 }
 
+export function parseClientIp(xForwardedFor: string | undefined): string | null {
+  if (!xForwardedFor) return null;
+  return xForwardedFor.split(',')[0]?.trim() || null;
+}
+
 export const AuditService = {
   log(entry: AuditEntry): void {
     const { tenantId, eventType, eventData, ipAddress, userAgent } = entry;
@@ -30,7 +35,7 @@ export const AuditService = {
         userAgent ?? null,
       ],
     ).catch((err) => {
-      console.error('[AuditService] Failed to write audit log:', err);
+      console.error(`[AuditService] Failed to write audit log for eventType=${eventType}:`, err);
     });
   },
 };

@@ -12,7 +12,7 @@ import { TenantService } from '../services/tenant-service';
 import { nanoid } from 'nanoid';
 import { createToken, verifyToken, getTokenExpiry } from '../utils/auth';
 import { challengeStore } from '../utils/redis';
-import { AuditService } from '../services/audit-service';
+import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const authRoutes = new Hono();
 
@@ -114,7 +114,7 @@ authRoutes.post(
     void AuditService.log({
       eventType: 'auth.login',
       eventData: { username },
-      ipAddress: c.req.header('x-forwarded-for'),
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
       userAgent: c.req.header('user-agent'),
     });
 

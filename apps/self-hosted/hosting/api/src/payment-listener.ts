@@ -9,7 +9,7 @@ import { Client } from '@hiveio/dhive';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
-import { parseMemo, type ParsedMemo } from '../types';
+import { parseMemo, type ParsedMemo } from './types';
 import { AuditService } from './services/audit-service';
 
 // Configuration
@@ -282,12 +282,6 @@ class PaymentListener {
           [paymentId, updatedTenant.id, updatedTenant.subscriptionExpiresAt]
         );
 
-        void AuditService.log({
-          tenantId: updatedTenant.id,
-          eventType: 'payment.processed',
-          eventData: { username, months, amount, trxId: transfer.trxId },
-        });
-
         console.log(
           '[PaymentListener] Subscription activated for',
           username,
@@ -296,9 +290,15 @@ class PaymentListener {
         );
       });
 
-      // 5. Generate config file AFTER transaction commits successfully
+      // 5. Post-commit side effects (only if transaction succeeded)
       if (updatedTenant) {
         await ConfigService.generateConfigFile(updatedTenant);
+
+        void AuditService.log({
+          tenantId: updatedTenant.id,
+          eventType: 'payment.processed',
+          eventData: { username, months, amount, trxId: transfer.trxId },
+        });
       }
     } catch (error) {
       console.error('[PaymentListener] Failed to process subscription for', username, error);

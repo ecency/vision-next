@@ -33,6 +33,7 @@ describe('createPermlink', () => {
   it('returns a random fallback for emoji-only input', () => {
     const result = createPermlink('😀🎉');
     expect(result.length).toBeGreaterThan(0);
+    expect(result).toMatch(/^[a-f0-9]+$/);
   });
 
   it('appends random suffix when random=true', () => {

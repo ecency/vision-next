@@ -8,7 +8,7 @@ import { zValidator } from '@hono/zod-validator';
 import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { authMiddleware } from '../middleware/auth';
-import { AuditService } from '../services/audit-service';
+import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const domainRoutes = new Hono();
 
@@ -51,7 +51,7 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
     tenantId: tenant.id,
     eventType: 'domain.added',
     eventData: { domain, username },
-    ipAddress: c.req.header('x-forwarded-for'),
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
 
@@ -102,7 +102,7 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
     tenantId: tenant.id,
     eventType: 'domain.verified',
     eventData: { domain: tenant.customDomain, username },
-    ipAddress: c.req.header('x-forwarded-for'),
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
 
@@ -119,12 +119,14 @@ domainRoutes.delete('/', authMiddleware, async (c) => {
   const username = authUser.username;
 
   try {
+    const tenant = await TenantService.getByUsername(username);
     await TenantService.removeCustomDomain(username);
 
     void AuditService.log({
+      tenantId: tenant?.id ?? null,
       eventType: 'domain.removed',
       eventData: { username },
-      ipAddress: c.req.header('x-forwarded-for'),
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
       userAgent: c.req.header('user-agent'),
     });
 

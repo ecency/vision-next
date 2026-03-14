@@ -7,11 +7,11 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '../db/client';
 import { TenantService } from '../services/tenant-service';
-import { mapTenantFromDb } from '../../types';
+import { mapTenantFromDb } from '../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
 import { subscriptionPaywall, proUpgradePaywall } from '../middleware/x402-paywall';
-import { AuditService } from '../services/audit-service';
+import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const tenantRoutes = new Hono();
 
@@ -109,7 +109,7 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
     tenantId: tenant.id,
     eventType: 'tenant.created',
     eventData: { username: body.username },
-    ipAddress: c.req.header('x-forwarded-for'),
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
 
@@ -234,7 +234,7 @@ tenantRoutes.post('/subscribe',
       tenantId: activatedTenant.id,
       eventType: 'tenant.subscribed',
       eventData: { username: body.username, payer, txId },
-      ipAddress: c.req.header('x-forwarded-for'),
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
       userAgent: c.req.header('user-agent'),
     });
 
@@ -358,7 +358,7 @@ tenantRoutes.post('/:username/upgrade',
       tenantId: upgradedTenant.id,
       eventType: 'tenant.upgraded',
       eventData: { username, plan: 'pro', payer, txId },
-      ipAddress: c.req.header('x-forwarded-for'),
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
       userAgent: c.req.header('user-agent'),
     });
 
@@ -399,7 +399,7 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
     tenantId: updatedTenant.id,
     eventType: 'tenant.config_updated',
     eventData: { username },
-    ipAddress: c.req.header('x-forwarded-for'),
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
 
@@ -442,19 +442,23 @@ tenantRoutes.get('/:username/status', async (c) => {
 tenantRoutes.delete('/:username', authMiddleware, async (c) => {
   const username = c.req.param('username');
   const authUser = c.get('user');
-  
+
   // Verify user owns this tenant
   if (authUser.username !== username) {
     return c.json({ error: 'Unauthorized' }, 403);
   }
-  
+
+  // Capture tenant ID before deletion for audit trail
+  const tenant = await TenantService.getByUsername(username);
+
   await TenantService.delete(username);
   await ConfigService.deleteConfigFile(username);
 
   void AuditService.log({
+    tenantId: tenant?.id,
     eventType: 'tenant.deleted',
     eventData: { username },
-    ipAddress: c.req.header('x-forwarded-for'),
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
     userAgent: c.req.header('user-agent'),
   });
 

@@ -25,4 +25,12 @@ describe('getRssFeedUrl', () => {
   it('returns null for blog type with empty username', () => {
     expect(getRssFeedUrl('blog', '', undefined)).toBeNull();
   });
+
+  it('returns null for community type with empty communityId', () => {
+    expect(getRssFeedUrl('community', '', '')).toBeNull();
+  });
+
+  it('returns null for community type with whitespace communityId', () => {
+    expect(getRssFeedUrl('community', '', '   ')).toBeNull();
+  });
 });
