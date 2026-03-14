@@ -94,6 +94,12 @@ services:
     labels:
       - "traefik.enable=true"
       
+      # Apex domain routing (landing / signup page)
+      - "traefik.http.routers.blogs-apex.rule=Host(`${BASE_DOMAIN:-blogs.ecency.com}`)"
+      - "traefik.http.routers.blogs-apex.entrypoints=websecure"
+      - "traefik.http.routers.blogs-apex.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.blogs-apex.service=blog-server"
+
       # Wildcard subdomain routing
       - "traefik.http.routers.blogs-wildcard.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.${BASE_DOMAIN:-blogs.ecency.com}`)"
       - "traefik.http.routers.blogs-wildcard.entrypoints=websecure"

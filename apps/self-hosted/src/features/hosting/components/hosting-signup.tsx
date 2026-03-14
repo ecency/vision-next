@@ -82,8 +82,8 @@ export function HostingSignup({
     try {
       const data = await fetchJson(statusUrl);
 
-      if (data.exists && data.subscriptionStatus === 'active') {
-        setError('This username already has an active blog');
+      if (data.exists) {
+        setError('This username is already taken');
         return;
       }
 

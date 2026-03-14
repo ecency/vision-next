@@ -15,9 +15,15 @@ export interface AuditEntry {
   userAgent?: string | null;
 }
 
+/**
+ * Extract client IP from X-Forwarded-For header.
+ * Takes the rightmost entry, which is the IP added by the nearest trusted
+ * reverse proxy (Traefik). The leftmost entries can be spoofed by the client.
+ */
 export function parseClientIp(xForwardedFor: string | undefined): string | null {
   if (!xForwardedFor) return null;
-  return xForwardedFor.split(',')[0]?.trim() || null;
+  const parts = xForwardedFor.split(',');
+  return parts[parts.length - 1]?.trim() || null;
 }
 
 export const AuditService = {
