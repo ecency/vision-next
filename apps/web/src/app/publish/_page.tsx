@@ -8,7 +8,7 @@ import {
 import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
 import { isCommunity } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
 import { PublishSuccessState } from "./_components/publish-success-state";
@@ -34,10 +34,25 @@ export default function Publish() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
-  const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
+  const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { tags, setTags } = usePublishState();
+  const { tags, setTags, setTitle, setContent, setSelectedThumbnail } = usePublishState();
+
+  const handleImport = useCallback(
+    (result: { title: string; content: string; thumbnail: string; tags: string[] }) => {
+      setTitle(result.title);
+      setContent(result.content);
+      setEditorContent(result.content);
+      if (result.thumbnail) {
+        setSelectedThumbnail(result.thumbnail);
+      }
+      if (result.tags.length > 0) {
+        setTags(result.tags);
+      }
+    },
+    [setTitle, setContent, setEditorContent, setSelectedThumbnail, setTags]
+  );
   const appliedCommunityRef = useRef<string | null>(null);
 
   const { isActiveTab, lastSaved, draftId } = usePublishAutosave();
@@ -87,6 +102,7 @@ export default function Publish() {
           <PublishActionBar
             onPublish={() => setStep("validation")}
             onBackToClassic={() => router.push("/submit")}
+            onImport={handleImport}
             draftId={draftId}
           />
           <PublishEditor editor={editor} />
