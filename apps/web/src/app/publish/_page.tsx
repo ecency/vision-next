@@ -44,12 +44,8 @@ export default function Publish() {
       setTitle(result.title);
       setContent(result.content);
       setEditorContent(result.content);
-      if (result.thumbnail) {
-        setSelectedThumbnail(result.thumbnail);
-      }
-      if (result.tags.length > 0) {
-        setTags(result.tags);
-      }
+      setSelectedThumbnail(result.thumbnail || "");
+      setTags(result.tags ?? []);
     },
     [setTitle, setContent, setEditorContent, setSelectedThumbnail, setTags]
   );

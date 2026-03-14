@@ -29,18 +29,15 @@ export default function PublishImportPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(data.error || i18next.t("publish.import-failed"));
+        const key = data.error ? `publish.${data.error}` : "publish.import-failed";
+        setErrorMessage(i18next.t(key, { defaultValue: i18next.t("publish.import-failed") }));
         return;
       }
 
       setTitle(data.title);
       setContent(data.content);
-      if (data.thumbnail) {
-        setSelectedThumbnail(data.thumbnail);
-      }
-      if (data.tags?.length > 0) {
-        setTags(data.tags);
-      }
+      setSelectedThumbnail(data.thumbnail || "");
+      setTags(data.tags ?? []);
 
       router.push("/publish");
     } catch {
@@ -51,10 +48,15 @@ export default function PublishImportPage() {
   };
 
   return (
-    <div className="container max-w-[600px] mx-auto px-4 pt-8 md:pt-12">
+    <div className="container max-w-[600px] mx-auto px-4 pt-16 md:pt-24">
+      <div className="text-center mb-8">
+        <h1 className="text-2xl md:text-3xl font-semibold mb-3">{i18next.t("publish.import-title")}</h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          {i18next.t("publish.import-subtitle")}
+        </p>
+      </div>
       <div className="bg-white dark:bg-dark-200 rounded-2xl p-6 md:p-8 shadow-sm">
-        <h1 className="text-xl font-semibold mb-6">{i18next.t("publish.import-title")}</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
           {i18next.t("publish.import-hint")}
         </p>
         <FormControl
@@ -91,6 +93,9 @@ export default function PublishImportPage() {
           </Button>
         </div>
       </div>
+      <p className="text-xs text-gray-500 dark:text-gray-500 text-center mt-4">
+        {i18next.t("publish.import-ownership-notice")}
+      </p>
     </div>
   );
 }

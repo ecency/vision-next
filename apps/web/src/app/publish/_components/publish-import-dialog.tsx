@@ -38,7 +38,8 @@ export function PublishImportDialog({ show, setShow, onImport }: Props) {
       const data = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(data.error || i18next.t("publish.import-failed"));
+        const key = data.error ? `publish.${data.error}` : "publish.import-failed";
+        setErrorMessage(i18next.t(key, { defaultValue: i18next.t("publish.import-failed") }));
         return;
       }
 
@@ -83,6 +84,9 @@ export function PublishImportDialog({ show, setShow, onImport }: Props) {
         {errorMessage && (
           <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
         )}
+        <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
+          {i18next.t("publish.import-ownership-notice")}
+        </p>
       </ModalBody>
       <ModalFooter className="flex justify-end gap-2">
         <Button size="sm" appearance="gray" onClick={handleClose} disabled={loading}>
