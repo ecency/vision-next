@@ -251,7 +251,8 @@ export class MattermostWebSocket {
           const message: MattermostWSEvent = JSON.parse(event.data);
 
           // Handle pong responses
-          if (message.event === "pong") {
+          // Mattermost responds with {status:"OK", text:"pong"} not {event:"pong"}
+          if (message.event === "pong" || (message as any).text === "pong") {
             this.handlePong();
             return;
           }
