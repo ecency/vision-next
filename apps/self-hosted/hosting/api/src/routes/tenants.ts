@@ -11,6 +11,7 @@ import { mapTenantFromDb } from '../../types';
 import { ConfigService } from '../services/config-service';
 import { authMiddleware } from '../middleware/auth';
 import { subscriptionPaywall, proUpgradePaywall } from '../middleware/x402-paywall';
+import { AuditService } from '../services/audit-service';
 
 export const tenantRoutes = new Hono();
 
@@ -104,6 +105,14 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
   const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '1.000';
   
+  void AuditService.log({
+    tenantId: tenant.id,
+    eventType: 'tenant.created',
+    eventData: { username: body.username },
+    ipAddress: c.req.header('x-forwarded-for'),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({
     tenant: {
       username: tenant.username,
@@ -221,6 +230,14 @@ tenantRoutes.post('/subscribe',
       console.error(`Failed to generate config for ${body.username}:`, err);
     }
 
+    void AuditService.log({
+      tenantId: activatedTenant.id,
+      eventType: 'tenant.subscribed',
+      eventData: { username: body.username, payer, txId },
+      ipAddress: c.req.header('x-forwarded-for'),
+      userAgent: c.req.header('user-agent'),
+    });
+
     return c.json({
       tenant: {
         username: activatedTenant.username,
@@ -337,6 +354,14 @@ tenantRoutes.post('/:username/upgrade',
 
     const upgradedTenant = mapTenantFromDb(result);
 
+    void AuditService.log({
+      tenantId: upgradedTenant.id,
+      eventType: 'tenant.upgraded',
+      eventData: { username, plan: 'pro', payer, txId },
+      ipAddress: c.req.header('x-forwarded-for'),
+      userAgent: c.req.header('user-agent'),
+    });
+
     return c.json({
       tenant: {
         username: upgradedTenant.username,
@@ -370,6 +395,14 @@ tenantRoutes.patch('/:username', authMiddleware, zValidator('json', updateTenant
   // Regenerate config file
   await ConfigService.generateConfigFile(updatedTenant);
   
+  void AuditService.log({
+    tenantId: updatedTenant.id,
+    eventType: 'tenant.config_updated',
+    eventData: { username },
+    ipAddress: c.req.header('x-forwarded-for'),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({
     username: updatedTenant.username,
     config: updatedTenant.config,
@@ -417,7 +450,14 @@ tenantRoutes.delete('/:username', authMiddleware, async (c) => {
   
   await TenantService.delete(username);
   await ConfigService.deleteConfigFile(username);
-  
+
+  void AuditService.log({
+    eventType: 'tenant.deleted',
+    eventData: { username },
+    ipAddress: c.req.header('x-forwarded-for'),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({ message: 'Tenant deleted' });
 });
 

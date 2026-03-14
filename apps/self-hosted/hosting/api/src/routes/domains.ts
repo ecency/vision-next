@@ -8,6 +8,7 @@ import { zValidator } from '@hono/zod-validator';
 import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { authMiddleware } from '../middleware/auth';
+import { AuditService } from '../services/audit-service';
 
 export const domainRoutes = new Hono();
 
@@ -45,6 +46,14 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
   // Set domain and generate verification
   await TenantService.setCustomDomain(username, domain);
   const verification = await DomainService.createVerification(username, domain);
+
+  void AuditService.log({
+    tenantId: tenant.id,
+    eventType: 'domain.added',
+    eventData: { domain, username },
+    ipAddress: c.req.header('x-forwarded-for'),
+    userAgent: c.req.header('user-agent'),
+  });
 
   return c.json({
     domain,
@@ -89,6 +98,14 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
   await TenantService.verifyCustomDomain(username);
   await DomainService.markVerified(username, tenant.customDomain);
 
+  void AuditService.log({
+    tenantId: tenant.id,
+    eventType: 'domain.verified',
+    eventData: { domain: tenant.customDomain, username },
+    ipAddress: c.req.header('x-forwarded-for'),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({
     verified: true,
     domain: tenant.customDomain,
@@ -103,6 +120,14 @@ domainRoutes.delete('/', authMiddleware, async (c) => {
 
   try {
     await TenantService.removeCustomDomain(username);
+
+    void AuditService.log({
+      eventType: 'domain.removed',
+      eventData: { username },
+      ipAddress: c.req.header('x-forwarded-for'),
+      userAgent: c.req.header('user-agent'),
+    });
+
     return c.json({ message: 'Custom domain removed' });
   } catch (error: any) {
     if (error.message === 'Tenant not found') {

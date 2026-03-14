@@ -10,6 +10,7 @@ import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
 import { parseMemo, type ParsedMemo } from '../types';
+import { AuditService } from './services/audit-service';
 
 // Configuration
 const CONFIG = {
@@ -281,6 +282,12 @@ class PaymentListener {
           [paymentId, updatedTenant.id, updatedTenant.subscriptionExpiresAt]
         );
 
+        void AuditService.log({
+          tenantId: updatedTenant.id,
+          eventType: 'payment.processed',
+          eventData: { username, months, amount, trxId: transfer.trxId },
+        });
+
         console.log(
           '[PaymentListener] Subscription activated for',
           username,
@@ -319,6 +326,12 @@ class PaymentListener {
 
       await TenantService.upgradeToPro(username);
       await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro');
+
+      void AuditService.log({
+        tenantId: tenant.id,
+        eventType: 'payment.upgrade',
+        eventData: { username, amount, trxId: transfer.trxId },
+      });
 
       console.log('[PaymentListener] Upgraded', username, 'to Pro plan');
     } catch (error) {

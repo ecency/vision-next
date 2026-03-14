@@ -74,9 +74,10 @@ services:
   # Blog Server - Serves static SPA with multi-tenant config routing
   # ==========================================================================
   blog-server:
-    build:
-      context: ../../..
-      dockerfile: apps/self-hosted/Dockerfile
+    image: ecency/self-hosted:${TAG:-latest}
+    # build:
+    #   context: ../../..
+    #   dockerfile: apps/self-hosted/Dockerfile
     container_name: ecency-hosting-blog
     restart: unless-stopped
     volumes:
@@ -115,9 +116,10 @@ services:
   # Hosting API - Tenant management, subscriptions, config generation
   # ==========================================================================
   hosting-api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+    image: ecency/hosting-api:${TAG:-latest}
+    # build:
+    #   context: ./api
+    #   dockerfile: Dockerfile
     container_name: ecency-hosting-api
     restart: unless-stopped
     environment:
@@ -150,9 +152,9 @@ services:
   # HBD Payment Listener - Monitors blockchain for subscription payments
   # ==========================================================================
   payment-listener:
-    build:
-      context: ./api
-      dockerfile: Dockerfile.payment-listener
+    image: ecency/hosting-api:${TAG:-latest}
+    command: ["node", "dist/payment-listener.js"]
+    # Reuses API image with different entrypoint
     container_name: ecency-hosting-payments
     restart: unless-stopped
     environment:

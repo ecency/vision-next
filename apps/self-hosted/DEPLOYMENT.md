@@ -417,32 +417,26 @@ docker-compose build --no-cache
 
 ## Managed Hosting by Ecency
 
-> **⚠️ PLANNED - NOT YET AVAILABLE**
->
-> The managed hosting service described below is under development and not yet launched.
-> The endpoints, payment accounts, and features listed are placeholders for the planned service.
-> Check [ecency.com](https://ecency.com) for announcements when this service becomes available.
-
 Don't want to manage your own infrastructure? Let Ecency host your blog.
 
-### Planned Pricing
+### Pricing
 
 | Plan | Price | Features |
 |------|-------|----------|
 | **Standard** | 1 HBD/month | Custom subdomain, SSL, CDN, 99.9% uptime |
 | **Pro** | 3 HBD/month | Custom domain, priority support, analytics |
 
-### How It Will Work (Planned)
+### How It Works
 
-1. **Visit** the Ecency blog hosting page (URL TBD)
+1. **Visit** [https://blogs.ecency.com](https://blogs.ecency.com)
 2. **Connect** your Hive wallet
 3. **Configure** your blog (username, theme, features)
 4. **Pay** via HBD transfer
 5. **Go live** instantly!
 
-### Custom Domain Setup (Planned)
+### Custom Domain Setup
 
-For custom domains, you would add a CNAME record:
+For custom domains, add a CNAME record:
 
 ```
 Type:  CNAME
@@ -451,10 +445,10 @@ Value: YOUR-BLOG-ID.blogs.ecency.com
 TTL:   3600
 ```
 
-### Payment Memo Format (Planned)
+### Payment Memo Format
 
 ```
-To: (TBD - payment account not yet active)
+To: ecency.hosting
 Amount: 1.000 HBD
 Memo: blog:YOUR_HIVE_USERNAME
 ```
