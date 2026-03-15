@@ -6,7 +6,6 @@ import { Form } from "@ui/form";
 import { FormControl, InputGroup } from "@ui/input";
 import { Table, Td, Th, Tr } from "@ui/table";
 import { BeneficiaryRoute } from "@/entities";
-import { useThreeSpeakManager } from "@/features/3speak";
 import { accountMultipleSvg, deleteForeverSvg, plusSvg } from "@ui/svg";
 import i18next from "i18next";
 import { handleInvalid, handleOnInput } from "@/utils";
@@ -19,11 +18,11 @@ interface Props {
   list: BeneficiaryRoute[];
   onAdd: (item: BeneficiaryRoute) => void;
   onDelete: (username: string) => void;
+  lockedAccounts?: string[];
 }
 
-export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props) {
+export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd, lockedAccounts = [] }: Props) {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const { videos } = useThreeSpeakManager();
   const queryClient = useQueryClient();
 
   const [visible, setVisible] = useState(false);
@@ -153,14 +152,13 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd }: Props
                       </Td>
                     </Tr>
                     {list.map((x) => {
+                      const isLocked = lockedAccounts.includes(x.account);
                       return (
                         <Tr key={x.account}>
                           <Td>{`@${x.account}`}</Td>
                           <Td>{`${x.weight / 100}%`}</Td>
                           <Td>
-                            {Object.values(videos).length > 0 && x.src === "ENCODER_PAY" ? (
-                              <></>
-                            ) : (
+                            {!isLocked && (
                               <Button
                                 onClick={() => {
                                   onDelete(x.account);

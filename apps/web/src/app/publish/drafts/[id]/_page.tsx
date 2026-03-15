@@ -34,7 +34,6 @@ export default function PublishPage() {
     setTitle,
     setContent,
     setTags,
-    setPublishingVideo,
     setLocation,
     setReward,
     setBeneficiaries,
@@ -54,7 +53,6 @@ export default function PublishPage() {
       setTags(draft.tags_arr);
 
       setEditorContent(draft.body);
-      setPublishingVideo(draft.meta?.video);
       setLocation(draft.meta?.location);
       setReward(draft.meta?.rewardType ?? "default");
       setBeneficiaries(draft.meta?.beneficiaries ?? []);

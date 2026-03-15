@@ -3,12 +3,11 @@ import {
   SUBMIT_TAG_MAX_LENGTH,
   SUBMIT_TITLE_MAX_LENGTH
 } from "@/app/submit/_consts";
+import { hasThreeSpeakEmbed } from "@/api/threespeak-embed";
 import { BeneficiaryRoute, Entry } from "@/entities";
-import { filterOutThreeSpeakBeneficiaries, mergeThreeSpeakBeneficiaries } from "@/features/3speak";
 import { extractMetaData } from "@/utils";
 import dayjs from "@/utils/dayjs";
 import { postBodySummary } from "@ecency/render-helper";
-import { ThreeSpeakVideo } from "@ecency/sdk";
 import i18next from "i18next";
 import {
   createContext,
@@ -48,9 +47,6 @@ interface PublishStateContextValue {
   poll: any;
   setPoll: (value: any) => void;
   createDefaultPoll: () => void;
-  publishingVideo: ThreeSpeakVideo | undefined;
-  setPublishingVideo: (value: ThreeSpeakVideo | undefined) => void;
-  clearPublishingVideo: () => void;
   postLinks: Entry[];
   setPostLinks: (value: Entry[]) => void;
   setEntryImages: (value: string[]) => void;
@@ -71,6 +67,8 @@ interface PublishStateContextValue {
   clearLocation: () => void;
   skipAutoThumbnailSelection: boolean;
   clearSelectedThumbnail: () => void;
+  hasThreeSpeakVideo: boolean;
+  setHasThreeSpeakVideo: (value: boolean) => void;
 }
 
 const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
@@ -86,7 +84,6 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
   const [selectedThumbnail, setSelectedThumbnail] = useState<string>("");
   const [skipAutoThumbnailSelection, setSkipAutoThumbnailSelection] = useState<boolean>(false);
   const [isReblogToCommunity, setIsReblogToCommunity] = useState<boolean>(false);
-  const [publishingVideo, setPublishingVideo] = useState<ThreeSpeakVideo | undefined>(undefined);
   const [postLinks, setPostLinks] = useState<Entry[]>([]);
   const [entryImages, setEntryImages] = useState<string[]>([]);
   const [location, setLocation] = useState<
@@ -96,11 +93,12 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
       }
     | undefined
   >(undefined);
+  const [hasThreeSpeakVideoFlag, setHasThreeSpeakVideo] = useState<boolean>(false);
+  const hasThreeSpeakVideo = hasThreeSpeakVideoFlag || hasThreeSpeakEmbed(content);
   const [poll, setPoll] = usePublishPollState(false);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
   const clearSelectedThumbnail = useCallback(() => setSelectedThumbnail(""), []);
-  const clearPublishingVideo = useCallback(() => setPublishingVideo(undefined), []);
   const clearPostLinks = useCallback(() => setPostLinks([]), []);
   const clearEntryImages = useCallback(() => setEntryImages([]), []);
   const clearLocation = useCallback(() => setLocation(undefined), []);
@@ -147,32 +145,15 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     }
   }, [sanitizeTags, setStoredTags, tags]);
 
-  useEffect(() => {
-    setBeneficiaries((previous = []) => {
-      const base = filterOutThreeSpeakBeneficiaries(previous);
-      const next =
-        publishingVideo && publishingVideo.status === "publish_manual"
-          ? mergeThreeSpeakBeneficiaries(publishingVideo.beneficiaries, base)
-          : base;
-
-      return isEqual(next, previous) ? previous : next;
-    });
-  }, [publishingVideo]);
-
   const metadata = useMemo(() => {
-    const initialImage = selectedThumbnail
-      ? [selectedThumbnail]
-      : publishingVideo?.thumbUrl
-        ? [publishingVideo.thumbUrl]
-        : [];
-
+    const initialImage = selectedThumbnail ? [selectedThumbnail] : [];
     const mergedImages = Array.from(new Set([...initialImage, ...(entryImages ?? [])]));
 
     return extractMetaData(content ?? "", {
       image: mergedImages,
       thumbnails: mergedImages
     });
-  }, [content, selectedThumbnail, publishingVideo, entryImages]);
+  }, [content, selectedThumbnail, entryImages]);
   const thumbnails = useMemo(() => metadata.thumbnails ?? [], [metadata.thumbnails]);
 
   const createDefaultPoll = useCallback(
@@ -230,11 +211,11 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     setSelectedThumbnail("");
     setSkipAutoThumbnailSelection(false);
     clearPoll();
-    clearPublishingVideo();
     clearPostLinks();
     clearEntryImages();
     clearLocation();
     setIsReblogToCommunity(false);
+    setHasThreeSpeakVideo(false);
   }, [
     setBeneficiaries,
     setContent,
@@ -246,11 +227,11 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     setSelectedThumbnail,
     setSkipAutoThumbnailSelection,
     clearPoll,
-    clearPublishingVideo,
     clearPostLinks,
     clearEntryImages,
     clearLocation,
-    setIsReblogToCommunity
+    setIsReblogToCommunity,
+    setHasThreeSpeakVideo
   ]);
 
   return (
@@ -280,9 +261,6 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         poll,
         setPoll,
         createDefaultPoll,
-        publishingVideo,
-        setPublishingVideo,
-        clearPublishingVideo,
         postLinks,
         setPostLinks,
         setEntryImages,
@@ -290,7 +268,9 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         setLocation,
         clearLocation,
         skipAutoThumbnailSelection,
-        clearSelectedThumbnail: _clearSelectedThumbnail
+        clearSelectedThumbnail: _clearSelectedThumbnail,
+        hasThreeSpeakVideo,
+        setHasThreeSpeakVideo
       }}
     >
       {children}

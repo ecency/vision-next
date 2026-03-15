@@ -1,4 +1,3 @@
-import { ThreeSpeakVideo } from "@ecency/sdk";
 import {
   HIVE_POST_PURE_REGEX,
   LOOM_REGEX,
@@ -7,7 +6,7 @@ import {
   YOUTUBE_REGEX
 } from "../extensions";
 
-export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeSpeakVideo) {
+export function parseAllExtensionsToDoc(value?: string) {
   const tree = document.createElement("body");
   tree.innerHTML = value ?? "";
 
@@ -18,15 +17,10 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       const image = el.querySelector("img");
       const newEl = document.createElement("div");
 
-      const isPublishingVideo =
-        el.getAttribute("href") ===
-        (publishingVideo &&
-          `https://3speak.tv/watch?v=${publishingVideo.owner}/${publishingVideo.permlink}`);
-
       newEl.dataset.threeSpeakVideo = "";
       newEl.setAttribute("src", el.getAttribute("href") ?? "");
       newEl.setAttribute("thumbnail", image?.getAttribute("src") ?? "");
-      newEl.setAttribute("status", isPublishingVideo ? "publish_manual" : "published");
+      newEl.setAttribute("status", "published");
 
       el.parentElement?.replaceChild(newEl, el);
     });

@@ -21,7 +21,6 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
         selectedThumbnail,
         poll,
         postLinks,
-        publishingVideo,
         location
     } = usePublishState();
 
@@ -46,7 +45,6 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
                 selectedThumbnail,
                 poll,
                 postLinks,
-                publishingVideo,
                 location
             };
 
@@ -73,7 +71,6 @@ export function useAutoSavePublishDraft(step: string, draftId?: string) {
             selectedThumbnail,
             poll,
             postLinks,
-            publishingVideo,
             location,
             isActiveTab
         ]

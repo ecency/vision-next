@@ -223,7 +223,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         const parsed = content ? marked.parse(content) : undefined;
         const sanitized = typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
         const doc = sanitized
-          ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
+          ? parseAllExtensionsToDoc(sanitized)
           : undefined;
         editor
           ?.chain()
@@ -235,7 +235,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         editor?.commands.setContent("");
       }
     },
-    [editor, publishState.publishingVideo]
+    [editor]
   );
 
   // Handle editor clearing

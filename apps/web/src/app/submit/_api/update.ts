@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { formatError } from "@/api/format-error";
 import { useCommentMutation } from "@/api/sdk-mutations";
 import dayjs from "@/utils/dayjs";
-import { useThreeSpeakManager } from "../_hooks";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { Entry } from "@/entities";
 import { correctIsoDate, makeEntryPath } from "@/utils";
@@ -17,7 +16,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 export function useUpdateApi(onClear: () => void) {
   const { username } = useActiveAccount();
-  const { buildBody } = useThreeSpeakManager();
   const router = useRouter();
 
   const { mutateAsync: validatePostUpdating } = useValidatePostUpdating();
@@ -57,6 +55,7 @@ export function useUpdateApi(onClear: () => void) {
       const newBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildPatchFrom(editingEntry, body);
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .extend(editingEntry)
@@ -75,19 +74,19 @@ export function useUpdateApi(onClear: () => void) {
           parentAuthor: "",
           parentPermlink: category,
           title,
-          body: buildBody(newBody),
+          body: newBody,
           jsonMetadata: jsonMeta
         });
 
         try {
-          await validatePostUpdating({ entry: editingEntry, title, text: buildBody(newBody) });
+          await validatePostUpdating({ entry: editingEntry, title, text: newBody });
         } catch (e) {}
 
         // Update the entry object in store
         const entry: Entry = {
           ...editingEntry,
           title,
-          body: buildBody(body),
+          body,
           category: tags[0],
           json_metadata: jsonMeta,
           updated: correctIsoDate(dayjs().toISOString())
