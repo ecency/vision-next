@@ -396,14 +396,14 @@ const ERROR_STATUS: Record<string, number> = {
 
 export async function POST(request: NextRequest) {
   try {
-    let body: any;
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
       return Response.json({ error: "import-error-invalid-url" }, { status: 400 });
     }
 
-    const { url } = body;
+    const url = (body as Record<string, unknown>)?.url;
 
     if (!url || typeof url !== "string") {
       return Response.json({ error: "import-error-invalid-url" }, { status: 400 });
