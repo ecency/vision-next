@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import Turndown from "turndown";
 import { Resolver } from "node:dns/promises";
 import { isIP } from "node:net";
+import { getPost } from "@ecency/sdk";
 
 const HIVE_FRONT_ENDS = [
   "ecency.com",
@@ -168,20 +169,7 @@ function parseHiveUrl(url: string): { author: string; permlink: string } | null 
 }
 
 async function fetchHivePost(author: string, permlink: string) {
-  const response = await fetch("https://api.hive.blog", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      method: "bridge.get_post",
-      params: { author, permlink },
-      id: 1
-    }),
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-  });
-
-  const data = await response.json();
-  const post = data?.result;
+  const post = await getPost(author, permlink);
 
   if (!post || !post.body) {
     return null;

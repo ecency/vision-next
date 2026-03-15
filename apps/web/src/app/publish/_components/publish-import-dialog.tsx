@@ -49,8 +49,8 @@ export function PublishImportDialog({ show, setShow, onImport }: Props) {
       const data = await fetchImport(url);
       onImport(data);
       handleClose();
-    } catch (e: any) {
-      setErrorMessage(e.message || i18next.t("publish.import-failed"));
+    } catch (e: unknown) {
+      setErrorMessage(e instanceof Error ? e.message : i18next.t("publish.import-failed"));
     } finally {
       setLoading(false);
     }
