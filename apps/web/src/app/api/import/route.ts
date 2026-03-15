@@ -273,6 +273,7 @@ function fixLazyImages(document: Document) {
     const content = noscript.textContent || "";
     if (/<img\s/i.test(content)) {
       const wrapper = document.createElement("div");
+      // Safe: server-side JSDOM with no script execution — recovers real <img> from noscript blocks
       wrapper.innerHTML = content;
       noscript.parentNode?.replaceChild(wrapper, noscript);
     }
@@ -386,6 +387,13 @@ const ERROR_CODES: Record<string, string> = {
   EXTRACT_FAILED: "import-error-extract-failed"
 };
 
+const ERROR_STATUS: Record<string, number> = {
+  INVALID_PROTOCOL: 400,
+  BLOCKED_HOST: 400,
+  NOT_HTML: 415,
+  RESPONSE_TOO_LARGE: 413
+};
+
 export async function POST(request: NextRequest) {
   try {
     let body: any;
@@ -426,6 +434,7 @@ export async function POST(request: NextRequest) {
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "";
     const code = ERROR_CODES[message] || "import-failed";
-    return Response.json({ error: code }, { status: 500 });
+    const status = ERROR_STATUS[message] || 500;
+    return Response.json({ error: code }, { status });
   }
 }

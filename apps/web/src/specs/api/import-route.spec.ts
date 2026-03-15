@@ -186,4 +186,88 @@ describe("POST /api/import", () => {
     const data = await res.json();
     expect(data.error).toBe("import-failed");
   });
+
+  it("returns 415 for non-HTML content type", async () => {
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      url: "https://example.com/file.json",
+      headers: new Headers({ "content-type": "application/json" }),
+      body: {
+        getReader: () => ({
+          read: vi.fn().mockResolvedValueOnce({ done: true, value: undefined })
+        })
+      }
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse as any);
+
+    const res = await POST(makeRequest({ url: "https://example.com/file.json" }));
+    expect(res.status).toBe(415);
+    const data = await res.json();
+    expect(data.error).toBe("import-error-not-html");
+  });
+
+  it("returns 413 for oversized response", async () => {
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      url: "https://example.com/huge",
+      headers: new Headers({ "content-type": "text/html" }),
+      body: {
+        getReader: () => ({
+          read: vi.fn()
+            .mockResolvedValueOnce({
+              done: false,
+              value: new Uint8Array(6 * 1024 * 1024) // 6MB, exceeds 5MB limit
+            })
+            .mockResolvedValueOnce({ done: true, value: undefined }),
+          cancel: vi.fn()
+        })
+      }
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse as any);
+
+    const res = await POST(makeRequest({ url: "https://example.com/huge" }));
+    expect(res.status).toBe(413);
+    const data = await res.json();
+    expect(data.error).toBe("import-error-too-large");
+  });
+
+  it("returns 500 for extract failure", async () => {
+    const mockDoc = {
+      querySelector: vi.fn().mockReturnValue(null),
+      querySelectorAll: vi.fn().mockReturnValue([])
+    };
+
+    vi.mocked(JSDOM).mockImplementation(() => ({
+      window: { document: mockDoc }
+    }) as any);
+
+    vi.mocked(Readability).mockImplementation(() => ({
+      parse: () => null
+    }) as any);
+
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      url: "https://example.com/empty",
+      headers: new Headers({ "content-type": "text/html" }),
+      body: {
+        getReader: () => ({
+          read: vi.fn()
+            .mockResolvedValueOnce({
+              done: false,
+              value: new TextEncoder().encode("<html><body></body></html>")
+            })
+            .mockResolvedValueOnce({ done: true, value: undefined })
+        })
+      }
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(mockResponse as any);
+
+    const res = await POST(makeRequest({ url: "https://example.com/empty" }));
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toBe("import-error-extract-failed");
+  });
 });
