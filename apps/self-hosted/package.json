@@ -8,7 +8,8 @@
     "check": "biome check --write",
     "dev": "rsbuild dev --open",
     "format": "biome format --write",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ecency/render-helper": "workspace:*",
@@ -62,6 +63,7 @@
     "@types/react-dom": "^19.1.9",
     "@types/speakingurl": "^13.0.6",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
   }
 }

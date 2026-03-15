@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as PublishRouteImport } from './routes/publish'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HostingRouteImport } from './routes/hosting'
 import { Route as BlogRouteRouteImport } from './routes/blog/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthorPermlinkRouteImport } from './routes/$author.$permlink'
@@ -31,6 +32,11 @@ const PublishRoute = PublishRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HostingRoute = HostingRouteImport.update({
+  id: '/hosting',
+  path: '/hosting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRouteRoute = BlogRouteRouteImport.update({
@@ -62,6 +68,7 @@ const CategoryAuthorPermlinkRoute = CategoryAuthorPermlinkRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/hosting': typeof HostingRoute
   '/login': typeof LoginRoute
   '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/hosting': typeof HostingRoute
   '/login': typeof LoginRoute
   '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteRoute
+  '/hosting': typeof HostingRoute
   '/login': typeof LoginRoute
   '/publish': typeof PublishRoute
   '/search': typeof SearchRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/blog'
+    | '/hosting'
     | '/login'
     | '/publish'
     | '/search'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/blog'
+    | '/hosting'
     | '/login'
     | '/publish'
     | '/search'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/blog'
+    | '/hosting'
     | '/login'
     | '/publish'
     | '/search'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BlogRouteRoute: typeof BlogRouteRoute
+  HostingRoute: typeof HostingRoute
   LoginRoute: typeof LoginRoute
   PublishRoute: typeof PublishRoute
   SearchRoute: typeof SearchRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hosting': {
+      id: '/hosting'
+      path: '/hosting'
+      fullPath: '/hosting'
+      preLoaderRoute: typeof HostingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BlogRouteRoute: BlogRouteRoute,
+  HostingRoute: HostingRoute,
   LoginRoute: LoginRoute,
   PublishRoute: PublishRoute,
   SearchRoute: SearchRoute,

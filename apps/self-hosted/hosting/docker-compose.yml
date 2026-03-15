@@ -74,9 +74,10 @@ services:
   # Blog Server - Serves static SPA with multi-tenant config routing
   # ==========================================================================
   blog-server:
-    build:
-      context: ../../..
-      dockerfile: apps/self-hosted/Dockerfile
+    image: ecency/self-hosted:${TAG:-latest}
+    # build:
+    #   context: ../../..
+    #   dockerfile: apps/self-hosted/Dockerfile
     container_name: ecency-hosting-blog
     restart: unless-stopped
     volumes:
@@ -93,6 +94,12 @@ services:
     labels:
       - "traefik.enable=true"
       
+      # Apex domain routing (landing / signup page)
+      - "traefik.http.routers.blogs-apex.rule=Host(`${BASE_DOMAIN:-blogs.ecency.com}`)"
+      - "traefik.http.routers.blogs-apex.entrypoints=websecure"
+      - "traefik.http.routers.blogs-apex.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.blogs-apex.service=blog-server"
+
       # Wildcard subdomain routing
       - "traefik.http.routers.blogs-wildcard.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.${BASE_DOMAIN:-blogs.ecency.com}`)"
       - "traefik.http.routers.blogs-wildcard.entrypoints=websecure"
@@ -115,9 +122,10 @@ services:
   # Hosting API - Tenant management, subscriptions, config generation
   # ==========================================================================
   hosting-api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
+    image: ecency/hosting-api:${TAG:-latest}
+    # build:
+    #   context: ./api
+    #   dockerfile: Dockerfile
     container_name: ecency-hosting-api
     restart: unless-stopped
     environment:
@@ -150,9 +158,9 @@ services:
   # HBD Payment Listener - Monitors blockchain for subscription payments
   # ==========================================================================
   payment-listener:
-    build:
-      context: ./api
-      dockerfile: Dockerfile.payment-listener
+    image: ecency/hosting-api:${TAG:-latest}
+    command: ["node", "dist/payment-listener.js"]
+    # Reuses API image with different entrypoint
     container_name: ecency-hosting-payments
     restart: unless-stopped
     environment:
