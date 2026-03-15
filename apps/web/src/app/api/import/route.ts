@@ -6,6 +6,14 @@ import { Resolver } from "node:dns/promises";
 import { isIP } from "node:net";
 import { getPost } from "@ecency/sdk";
 
+interface ArticleData {
+  title: string;
+  content: string;
+  thumbnail: string;
+  tags: string[];
+  source: "hive" | "external";
+}
+
 const HIVE_FRONT_ENDS = [
   "ecency.com",
   "hive.blog",
@@ -168,7 +176,7 @@ function parseHiveUrl(url: string): { author: string; permlink: string } | null 
   }
 }
 
-async function fetchHivePost(author: string, permlink: string) {
+async function fetchHivePost(author: string, permlink: string): Promise<ArticleData | null> {
   const post = await getPost(author, permlink);
 
   if (!post || !post.body) {
@@ -180,7 +188,7 @@ async function fetchHivePost(author: string, permlink: string) {
     content: post.body || "",
     thumbnail: post.json_metadata?.image?.[0] || "",
     tags: post.json_metadata?.tags || [],
-    source: "hive" as const
+    source: "hive"
   };
 }
 
@@ -307,7 +315,7 @@ function fixLazyImages(document: Document) {
   }
 }
 
-async function fetchExternalArticle(url: string) {
+async function fetchExternalArticle(url: string): Promise<ArticleData> {
   const html = await fetchPage(url);
   const dom = new JSDOM(html, { url });
   const document = dom.window.document;
@@ -364,8 +372,8 @@ async function fetchExternalArticle(url: string) {
     title: article.title || "",
     content: markdown,
     thumbnail: ogImage,
-    tags: [] as string[],
-    source: "external" as const
+    tags: [],
+    source: "external"
   };
 }
 
@@ -380,7 +388,13 @@ const ERROR_CODES: Record<string, string> = {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return Response.json({ error: "import-error-invalid-url" }, { status: 400 });
+    }
+
     const { url } = body;
 
     if (!url || typeof url !== "string") {
@@ -409,8 +423,9 @@ export async function POST(request: NextRequest) {
     // External article
     const result = await fetchExternalArticle(url);
     return Response.json(result);
-  } catch (e: any) {
-    const code = ERROR_CODES[e.message] || "import-failed";
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "";
+    const code = ERROR_CODES[message] || "import-failed";
     return Response.json({ error: code }, { status: 500 });
   }
 }
