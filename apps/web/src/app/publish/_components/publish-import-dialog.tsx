@@ -5,12 +5,29 @@ import { Spinner } from "@ui/spinner";
 import i18next from "i18next";
 import { useState } from "react";
 
-interface ImportResult {
+export interface ImportResult {
   title: string;
   content: string;
   thumbnail: string;
   tags: string[];
   source: "hive" | "external";
+}
+
+export async function fetchImport(url: string): Promise<ImportResult> {
+  const response = await fetch("/api/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: url.trim() })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const key = data.error ? `publish.${data.error}` : "publish.import-failed";
+    throw new Error(i18next.t(key, { defaultValue: i18next.t("publish.import-failed") }));
+  }
+
+  return data;
 }
 
 interface Props {
@@ -29,24 +46,11 @@ export function PublishImportDialog({ show, setShow, onImport }: Props) {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const key = data.error ? `publish.${data.error}` : "publish.import-failed";
-        setErrorMessage(i18next.t(key, { defaultValue: i18next.t("publish.import-failed") }));
-        return;
-      }
-
+      const data = await fetchImport(url);
       onImport(data);
       handleClose();
-    } catch {
-      setErrorMessage(i18next.t("publish.import-failed"));
+    } catch (e: any) {
+      setErrorMessage(e.message || i18next.t("publish.import-failed"));
     } finally {
       setLoading(false);
     }

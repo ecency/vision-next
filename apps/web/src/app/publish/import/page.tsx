@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchImport } from "@/app/publish/_components/publish-import-dialog";
 import { usePublishState } from "@/app/publish/_hooks";
 import { Button, FormControl } from "@/features/ui";
 import { Spinner } from "@ui/spinner";
@@ -20,19 +21,7 @@ export default function PublishImportPage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const key = data.error ? `publish.${data.error}` : "publish.import-failed";
-        setErrorMessage(i18next.t(key, { defaultValue: i18next.t("publish.import-failed") }));
-        return;
-      }
+      const data = await fetchImport(url);
 
       setTitle(data.title);
       setContent(data.content);
@@ -40,8 +29,8 @@ export default function PublishImportPage() {
       setTags(data.tags ?? []);
 
       router.push("/publish");
-    } catch {
-      setErrorMessage(i18next.t("publish.import-failed"));
+    } catch (e: any) {
+      setErrorMessage(e.message || i18next.t("publish.import-failed"));
     } finally {
       setLoading(false);
     }

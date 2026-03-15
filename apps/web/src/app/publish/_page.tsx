@@ -6,7 +6,9 @@ import {
   PublishMultiTabWarning
 } from "@/app/publish/_components";
 import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import type { ImportResult } from "@/app/publish/_components/publish-import-dialog";
 import { isCommunity } from "@/utils";
+import routes from "@/routes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import i18next from "i18next";
@@ -40,7 +42,7 @@ export default function Publish() {
   const { tags, setTags, setTitle, setContent, setSelectedThumbnail } = usePublishState();
 
   const handleImport = useCallback(
-    (result: { title: string; content: string; thumbnail: string; tags: string[] }) => {
+    (result: ImportResult) => {
       setTitle(result.title);
       setContent(result.content);
       setEditorContent(result.content);
@@ -97,7 +99,7 @@ export default function Publish() {
           </div>
           <PublishActionBar
             onPublish={() => setStep("validation")}
-            onBackToClassic={() => router.push("/submit")}
+            onBackToClassic={() => router.push(routes.SUBMIT)}
             onImport={handleImport}
             draftId={draftId}
           />

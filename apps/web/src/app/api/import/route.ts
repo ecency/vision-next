@@ -74,7 +74,7 @@ function isPrivateIP(ip: string): boolean {
     if (full === "0000:0000:0000:0000:0000:0000:0000:0001") return true; // ::1 loopback
     const g1 = parseInt(full.slice(0, 4), 16);
     if (g1 >= 0xfc00 && g1 <= 0xfdff) return true; // fc00::/7 — ULA
-    if (g1 === 0xfe80) return true;                 // fe80::/10 — link-local
+    if ((g1 & 0xffc0) === 0xfe80) return true;        // fe80::/10 — link-local
     if (full.startsWith("2001:0db8")) return true;  // 2001:db8::/32 — documentation
     if (full.startsWith("2001:0000")) return true;  // 2001::/32 — Teredo
     if (full.startsWith("0100:0000:0000:0000")) return true; // 100::/64 — discard
@@ -145,7 +145,7 @@ function parseHiveUrl(url: string): { author: string; permlink: string } | null 
     const parsed = new URL(url);
     const hostname = parsed.hostname.replace("www.", "");
 
-    if (!HIVE_FRONT_ENDS.some((fe) => hostname.endsWith(fe))) {
+    if (!HIVE_FRONT_ENDS.some((fe) => hostname === fe || hostname.endsWith("." + fe))) {
       return null;
     }
 

@@ -62,14 +62,7 @@ import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { hasPublishContent } from "../_utils/content";
 import { Spinner } from "@ui/spinner";
-
-interface ImportResult {
-  title: string;
-  content: string;
-  thumbnail: string;
-  tags: string[];
-  source: "hive" | "external";
-}
+import type { ImportResult } from "./publish-import-dialog";
 
 interface Props {
   onPublish: () => void;
