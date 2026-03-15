@@ -103,7 +103,9 @@
     "import": "Importieren",
     "clear": "Leeren",
     "play": "Abspielen",
-    "pause": "Pause"
+    "pause": "Pause",
+    "start": "Start",
+    "updated": "Aktualisiert"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -447,9 +449,9 @@
     "settings-2": "Anzeigeeinstellungen"
   },
   "bookmark-btn": {
-    "add": "Lesezeichen - über neue Kommentare benachrichtigt werden",
-    "added": "Lesezeichen! Du wirst über neue Kommentare zu diesem Beitrag benachrichtigt",
-    "delete": "Lesezeichen entfernen und Benachrichtigungen stoppen",
+    "add": "Lesezeichen — über neue Kommentare benachrichtigt werden",
+    "added": "Zu den Lesezeichen hinzugefügt",
+    "delete": "Von den Lesezeichen entfernen",
     "deleted": "Von den Lesezeichen entfernt"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Hinweis",
+    "tip": "Tip",
     "send-tip": "Tipp senden",
     "count": "{{count}} tip",
     "count_plural": "{{count}} Tipps"
@@ -1642,9 +1645,9 @@
     "unMute": "Ton an"
   },
   "favorite-btn": {
-    "add": "Favorit - über neue Beiträge benachrichtigt werden",
-    "added": "Zu Favoriten hinzugefügt! Du wirst benachrichtigt, wenn neue Beiträge veröffentlicht werden",
-    "delete": "Favoriten entfernen und Benachrichtigungen stoppen",
+    "add": "Favorit — über neue Beiträge benachrichtigt werden",
+    "added": "Zu den Favoriten hinzugefügt",
+    "delete": "Aus den Favoriten entfernen",
     "deleted": "Aus Favoriten entfernt"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "Bild wird hochgeladen...",
     "back-to-old": "Zurück zum klassischen Editor",
     "clear": "Leeren",
+    "import": "Von URL importieren",
+    "import-title": "Artikel importieren",
+    "import-subtitle": "Sie haben die Möglichkeit vor dem Veröffentlichen zu überprüfen und zu bearbeiten.",
+    "import-hint": "Fügen Sie eine URL ein, um Artikelinhalte in den Editor zu importieren. Unterstützt Hive-Beiträge und externe Web-Artikel.",
+    "import-ownership-notice": "Bitte importieren Sie nur Inhalte, die Sie besitzen oder die Berechtigung haben, neu zu veröffentlichen.",
+    "import-failed": "Fehler beim Importieren des Artikels. Bitte überprüfen Sie die URL und versuchen Sie es erneut.",
+    "import-error-invalid-url": "Ungültige URL. Bitte geben Sie eine gültige Webadresse ein.",
+    "import-error-fetch-failed": "Konnte die Website nicht erreichen. Bitte überprüfen Sie die URL und versuchen Sie es erneut.",
+    "import-error-not-html": "Die URL zeigt nicht auf eine Webseite.",
+    "import-error-too-large": "Die Seite ist zu groß zum Importieren.",
+    "import-error-extract-failed": "Artikelinhalt konnte nicht von der Seite extrahiert werden.",
+    "import-error-not-found": "Beitrag nicht gefunden. Bitte überprüfen Sie die URL.",
+    "importing": "Importieren...",
     "reward-settings": "Prämieneinstellungen",
     "beneficiaries": "Nutznießer",
     "meta-information": "Meta-Informationen",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "Bild in Ihrer Galerie gespeichert!",
     "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut.",
     "use-suggestion": "Verwenden: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "KI Schreibassistent",
+    "toolbar-button": "KI-Assistent",
+    "balance-label": "Saldo",
+    "points-unit": "PUNKTE",
+    "free-label": "Kostenlos",
+    "free-remaining": "{{count}} heute kostenlos",
+    "cost-label": "Kosten",
+    "action-label": "Was möchten Sie tun?",
+    "text-label": "Ihr Inhalt",
+    "text-placeholder": "Fügen Sie hier Ihren Entwurfsinhalt ein oder tippen Sie ihn ein...",
+    "chars-remaining": "{{count}} Zeichen verbleibend",
+    "min-chars": "Minimale {{count}} Zeichen erforderlich",
+    "action-improve": "Schreiben verbessern",
+    "action-improve-desc": "Polnische Grammatik, Klarheit und Stil",
+    "action-suggest_tags": "Tags vorschlagen",
+    "action-suggest_tags-desc": "Erhalte relevante Tags für deinen Beitrag",
+    "action-generate_title": "Titel generieren",
+    "action-generate_title-desc": "Erstelle überzeugende Titeloptionen",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Grammatik prüfen",
+    "action-check_grammar-desc": "Grammatik und Rechtschreibung korrigieren",
+    "submit-button": "KI-Assistent ausführen",
+    "submitting": "Verarbeitung...",
+    "result-title": "Ergebnis",
+    "apply-button": "Auf Beitrag anwenden",
+    "copy-button": "Kopieren",
+    "copied": "Kopiert!",
+    "try-again": "Erneut versuchen",
+    "try-another": "Eine andere Aktion versuchen",
+    "show-changes": "Änderungen anzeigen",
+    "hide-changes": "Änderungen ausblenden",
+    "hide-translation": "Übersetzung ausblenden",
+    "success": "KI Hilfe abgeschlossen!",
+    "error-insufficient-points": "Unzureichende Punkte. Sie benötigen {{required}} aber {{available}}.",
+    "error-content-policy": "Inhalt verletzt die Richtlinie. Punkte wurden nicht zurückerstattet.",
+    "error-rate-limit": "Zu viele Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+    "error-auth": "Authentifizierung abgelaufen. Bitte aktualisieren Sie die Seite und versuchen Sie es erneut.",
+    "error-generic": "Hilfe fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "error-text-too-short": "Ihr Text ist zu kurz. Mindestens {{count}} Zeichen erforderlich."
   }
 }

@@ -103,7 +103,9 @@
     "import": "导入",
     "clear": "清空",
     "play": "播放",
-    "pause": "暂停"
+    "pause": "暂停",
+    "start": "开始",
+    "updated": "已更新"
   },
   "validation": {
     "required": "必填字段",
@@ -447,9 +449,9 @@
     "settings-2": "显示首选项"
   },
   "bookmark-btn": {
-    "add": "书签-收到关于新评论的通知",
-    "added": "已加入书签！您将收到关于此帖子的新评论的通知",
-    "delete": "删除书签并停止通知",
+    "add": "书签-获得关于新评论的通知",
+    "added": "已添加到书签",
+    "delete": "从书签中删除",
     "deleted": "已从书签中删除"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "礼物",
+    "tip": "Tip",
     "send-tip": "发送提示",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1645,9 @@
     "unMute": "解除屏蔽"
   },
   "favorite-btn": {
-    "add": "收藏夹 - 获得关于新帖子的通知",
-    "added": "添加到收藏夹！当您发布新帖子时会收到通知",
-    "delete": "删除收藏夹和停止通知",
+    "add": "收藏夹 — 收到关于新帖子的通知",
+    "added": "已添加到收藏夹",
+    "delete": "从收藏夹中删除",
     "deleted": "已从收藏夹移除"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "正在上传图像...",
     "back-to-old": "Back to Classic View",
     "clear": "清空",
+    "import": "从 URL 导入",
+    "import-title": "导入文章",
+    "import-subtitle": "您将有机会在发布前审核和编辑。",
+    "import-hint": "粘贴一个 URL 将文章内容导入编辑器。支持Hive 文章和外部的 web 文章。",
+    "import-ownership-notice": "请只导入您拥有或有权重新发布的内容。",
+    "import-failed": "导入文章失败。请检查URL，然后重试。",
+    "import-error-invalid-url": "无效的 URL。请输入一个有效的网址。",
+    "import-error-fetch-failed": "无法访问网站。请检查URL，然后重试。",
+    "import-error-not-html": "URL不指向一个网页。",
+    "import-error-too-large": "页面太大，无法导入。",
+    "import-error-extract-failed": "无法从页面提取文章内容。",
+    "import-error-not-found": "未找到帖子。请检查 URL。",
+    "importing": "导入中...",
     "reward-settings": "奖励设置",
     "beneficiaries": "三. 受惠者",
     "meta-information": "元信息",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "图片保存到您的相册！",
     "save-to-gallery-error": "无法将图像保存到图库。请重试。",
     "use-suggestion": "Use: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "AI 书写助理",
+    "toolbar-button": "AI 帮助",
+    "balance-label": "余额",
+    "points-unit": "点数",
+    "free-label": "免费的",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "费用",
+    "action-label": "你想做什么？",
+    "text-label": "您的内容",
+    "text-placeholder": "在这里粘贴或输入您的草稿内容...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "改进写入",
+    "action-improve-desc": "波兰语法、 清晰度 和风格",
+    "action-suggest_tags": "建议标签",
+    "action-suggest_tags-desc": "获取您帖子的相关标签",
+    "action-generate_title": "生成标题",
+    "action-generate_title-desc": "创建令人信服的标题选项",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "检查语法",
+    "action-check_grammar-desc": "修复语法和拼写",
+    "submit-button": "运行 AI 助手",
+    "submitting": "正在处理...",
+    "result-title": "结果",
+    "apply-button": "应用到帖子",
+    "copy-button": "复制",
+    "copied": "已复制！",
+    "try-again": "再试一次",
+    "try-another": "尝试另一个操作",
+    "show-changes": "显示更改",
+    "hide-changes": "隐藏更改",
+    "hide-translation": "隐藏翻译",
+    "success": "AI 协助完成！",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "内容违反了政策。没有退款。",
+    "error-rate-limit": "请求太多。请稍等，然后重试。",
+    "error-auth": "认证过期。请刷新页面并重试。",
+    "error-generic": "AI 协助失败。请重试。",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

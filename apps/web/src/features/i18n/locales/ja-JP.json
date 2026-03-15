@@ -103,7 +103,9 @@
     "import": "インポート",
     "clear": "クリア",
     "play": "再生",
-    "pause": "一時停止"
+    "pause": "一時停止",
+    "start": "開始",
+    "updated": "更新日時"
   },
   "validation": {
     "required": "必須項目",
@@ -447,9 +449,9 @@
     "settings-2": "表示設定"
   },
   "bookmark-btn": {
-    "add": "ブックマーク - 新しいコメントについて通知を受ける",
-    "added": "ブックマークしました！この投稿に新しいコメントが表示されます。",
-    "delete": "ブックマークを削除して通知を停止する",
+    "add": "ブックマーク — 新しいコメントについて通知を受ける",
+    "added": "ブックマークに追加しました",
+    "delete": "ブックマークから削除",
     "deleted": "ブックマークから削除しました"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "ヒントを送信",
     "count": "{{count}} tip",
     "count_plural": "{{count}} のヒント"
@@ -1642,9 +1645,9 @@
     "unMute": "ミュート解除"
   },
   "favorite-btn": {
-    "add": "お気に入り - 新しい投稿について通知を受け取る",
-    "added": "お気に入りに追加されました！新しい投稿を公開すると通知されます。",
-    "delete": "お気に入りを削除して通知を停止する",
+    "add": "お気に入り — 新しい投稿について通知を受け取る",
+    "added": "お気に入りに追加しました",
+    "delete": "お気に入りから削除",
     "deleted": "お気に入りから削除しました"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "画像をアップロードしています...",
     "back-to-old": "Back to Classic View",
     "clear": "クリア",
+    "import": "URLからインポート",
+    "import-title": "記事をインポート",
+    "import-subtitle": "公開する前にレビューと編集を行うチャンスがあります。",
+    "import-hint": "URLを貼り付けて記事の内容をエディタにインポートします。Hiveの投稿や外部Web記事をサポートしています。",
+    "import-ownership-notice": "あなたが所有しているコンテンツ、または再公開する権限を持っているコンテンツのみをインポートしてください。",
+    "import-failed": "記事をインポートできませんでした。URLを確認して、もう一度お試しください。",
+    "import-error-invalid-url": "無効な URL です。有効な Web アドレスを入力してください。",
+    "import-error-fetch-failed": "ウェブサイトにアクセスできませんでした。URLを確認して、もう一度やり直してください。",
+    "import-error-not-html": "URLはウェブページを指していません。",
+    "import-error-too-large": "ページが大きすぎてインポートできません。",
+    "import-error-extract-failed": "ページから記事の内容を抽出できませんでした。",
+    "import-error-not-found": "投稿が見つかりません。URLを確認してください。",
+    "importing": "インポート中...",
     "reward-settings": "報酬設定",
     "beneficiaries": "受取人:",
     "meta-information": "メタ情報",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "画像をギャラリーに保存しました！",
     "save-to-gallery-error": "ギャラリーに画像を保存できませんでした。もう一度やり直してください。",
     "use-suggestion": "使用: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "AIライティングアシスタント",
+    "toolbar-button": "AIアシスタント",
+    "balance-label": "残高",
+    "points-unit": "ポイント",
+    "free-label": "無料",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "コスト",
+    "action-label": "あなたは何をしたいですか？",
+    "text-label": "あなたのコンテンツ",
+    "text-placeholder": "ここにドラフトコンテンツを貼り付けるか入力してください...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "最低 {{count}} 文字が必要です",
+    "action-improve": "ライティングの改善",
+    "action-improve-desc": "ポーランド語の文法、明瞭度、スタイル",
+    "action-suggest_tags": "タグを提案",
+    "action-suggest_tags-desc": "投稿に関連するタグを取得する",
+    "action-generate_title": "タイトルを生成",
+    "action-generate_title-desc": "説得力のあるタイトルオプションを作成",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "文法チェック",
+    "action-check_grammar-desc": "文法とスペルを修正",
+    "submit-button": "AIアシストを実行",
+    "submitting": "処理中...",
+    "result-title": "結果",
+    "apply-button": "投稿に適用",
+    "copy-button": "コピー",
+    "copied": "コピーしました！",
+    "try-again": "もう一度試す",
+    "try-another": "別の操作を試す",
+    "show-changes": "変更を表示",
+    "hide-changes": "変更を非表示",
+    "hide-translation": "翻訳を非表示",
+    "success": "AIアシスト完了！",
+    "error-insufficient-points": "ポイントが足りません。 {{required}} が必要ですが、 {{available}} が必要です。",
+    "error-content-policy": "コンテンツはポリシーに違反しています。ポイントは返金されませんでした。",
+    "error-rate-limit": "リクエストが多すぎます。しばらく待ってからもう一度お試しください。",
+    "error-auth": "認証の有効期限が切れました。ページを更新してもう一度お試しください。",
+    "error-generic": "AIアシストに失敗しました。もう一度やり直してください。",
+    "error-text-too-short": "テキストが短すぎます。 {{count}} 文字以上で入力してください。"
   }
 }

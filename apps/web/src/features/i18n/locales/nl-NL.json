@@ -103,7 +103,9 @@
     "import": "Importeren",
     "clear": "Verwijderen",
     "play": "Afspelen",
-    "pause": "Onderbreken"
+    "pause": "Onderbreken",
+    "start": "Beginnen",
+    "updated": "Bijgewerkt"
   },
   "validation": {
     "required": "Verplicht veld",
@@ -447,9 +449,9 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
-    "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
-    "delete": "Bladwijzer verwijderen en meldingen stoppen",
+    "add": "Bladwijzer — krijg een melding over nieuwe reacties",
+    "added": "Toegevoegd aan bladwijzers",
+    "delete": "Verwijder uit bladwijzers",
     "deleted": "Verwijderd van bladwijzers"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "Stuur een tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1645,9 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
-    "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
-    "delete": "Favoriet verwijderen en meldingen stoppen",
+    "add": "Favoriet — krijg meldingen over nieuwe berichten",
+    "added": "Aan favorieten toegevoegd",
+    "delete": "Uit favorieten verwijderen",
     "deleted": "Verwijderd uit favorieten"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "Afbeelding uploaden...",
     "back-to-old": "Back to Classic View",
     "clear": "Verwijderen",
+    "import": "Importeer van URL",
+    "import-title": "Artikel importeren",
+    "import-subtitle": "U maakt kans om te beoordelen en bewerken voordat u publiceert.",
+    "import-hint": "Plak een URL om artikelinhoud te importeren in de editor. Ondersteunt Hive posts en externe webartikelen.",
+    "import-ownership-notice": "Importeer alleen inhoud die je hebt of die je rechten hebt om opnieuw te publiceren.",
+    "import-failed": "Kan artikel niet importeren. Controleer de URL en probeer het opnieuw.",
+    "import-error-invalid-url": "Ongeldige URL. Voer een geldig webadres in.",
+    "import-error-fetch-failed": "De website kon niet worden bereikt. Controleer de URL en probeer het opnieuw.",
+    "import-error-not-html": "De URL verwijst niet naar een webpagina.",
+    "import-error-too-large": "De pagina is te groot om te importeren.",
+    "import-error-extract-failed": "Kon artikelinhoud niet uitpakken van de pagina.",
+    "import-error-not-found": "Bericht niet gevonden. Controleer de URL.",
+    "importing": "Importeren...",
     "reward-settings": "Beloning instellingen",
     "beneficiaries": "Begunstigden",
     "meta-information": "Meta informatie",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
     "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw.",
     "use-suggestion": "Gebruik: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "AI Schrijfassistent",
+    "toolbar-button": "AI assistentie",
+    "balance-label": "Saldo",
+    "points-unit": "PUNTEN",
+    "free-label": "Vrij",
+    "free-remaining": "{{count}} gratis resterend vandaag",
+    "cost-label": "Kosten",
+    "action-label": "Wat wil je doen?",
+    "text-label": "Je inhoud",
+    "text-placeholder": "Plak of typ je kladinhoud hier...",
+    "chars-remaining": "{{count}} resterende tekens",
+    "min-chars": "Minimum aantal {{count}} tekens vereist",
+    "action-improve": "Verbeter schrijven",
+    "action-improve-desc": "Poolse grammatica, helderheid en stijl",
+    "action-suggest_tags": "Tags voorstellen",
+    "action-suggest_tags-desc": "Krijg relevante tags voor je bericht",
+    "action-generate_title": "Genereer titel",
+    "action-generate_title-desc": "Maak dwingende titel opties",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Grammatica controleren",
+    "action-check_grammar-desc": "Repareer grammatica en spelling",
+    "submit-button": "Start AI Assistent",
+    "submitting": "Verwerken...",
+    "result-title": "Resultaat",
+    "apply-button": "Toepassen op bericht",
+    "copy-button": "Kopiëren",
+    "copied": "Gekopieerd!",
+    "try-again": "Probeer opnieuw",
+    "try-another": "Probeer een andere actie",
+    "show-changes": "Wijzigingen weergeven",
+    "hide-changes": "Wijzigingen verbergen",
+    "hide-translation": "Vertaling verbergen",
+    "success": "AI assistentie voltooid!",
+    "error-insufficient-points": "Onvoldoende punten. Je hebt {{required}} nodig maar {{available}}.",
+    "error-content-policy": "Inhoud schendt het beleid. Punten werden niet terugbetaald.",
+    "error-rate-limit": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "error-auth": "Verificatie is verlopen. Vernieuw de pagina en probeer het opnieuw.",
+    "error-generic": "AI assistentie mislukt. Probeer het opnieuw.",
+    "error-text-too-short": "Uw tekst is te kort. Minimaal {{count}} tekens zijn vereist."
   }
 }

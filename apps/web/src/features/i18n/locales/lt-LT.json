@@ -103,7 +103,9 @@
     "import": "Import",
     "clear": "Clear",
     "play": "Play",
-    "pause": "Pause"
+    "pause": "Pause",
+    "start": "Start",
+    "updated": "Updated"
   },
   "validation": {
     "required": "Required field",
@@ -447,9 +449,9 @@
     "settings-2": "rodymo nuostatos"
   },
   "bookmark-btn": {
-    "add": "Bookmark - get notified about new comments",
-    "added": "Bookmarked! You'll be notified about new comments on this post",
-    "delete": "Remove bookmark and stop notifications",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Pridėta į žymes",
+    "delete": "Pašalinti iš žymų",
     "deleted": "Pašalinta iš žymų"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Arbatpinigiai",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -1642,9 +1645,9 @@
     "unMute": "Atitildyti"
   },
   "favorite-btn": {
-    "add": "Favorite - get notified about new posts",
-    "added": "Added to favorites! You'll be notified when they publish new posts",
-    "delete": "Remove favorite and stop notifications",
+    "add": "Favorite — get notified about new posts",
+    "added": "Pridėta prie mėgstamiausių",
+    "delete": "Pašalinti iš mėgstamiausių",
     "deleted": "Pašalinta iš mėgstamiausių"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
+    "import": "Import from URL",
+    "import-title": "Import article",
+    "import-subtitle": "You will have a chance to review and edit before publishing.",
+    "import-hint": "Paste a URL to import article content into the editor. Supports Hive posts and external web articles.",
+    "import-ownership-notice": "Please only import content that you own or have permission to republish.",
+    "import-failed": "Failed to import article. Please check the URL and try again.",
+    "import-error-invalid-url": "Invalid URL. Please enter a valid web address.",
+    "import-error-fetch-failed": "Could not reach the website. Please check the URL and try again.",
+    "import-error-not-html": "The URL does not point to a web page.",
+    "import-error-too-large": "The page is too large to import.",
+    "import-error-extract-failed": "Could not extract article content from the page.",
+    "import-error-not-found": "Post not found. Please check the URL.",
+    "importing": "Importing...",
     "reward-settings": "Reward settings",
     "beneficiaries": "Beneficiaries",
     "meta-information": "Meta information",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "Image saved to your gallery!",
     "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
     "use-suggestion": "Use: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "AI Writing Assistant",
+    "toolbar-button": "AI Assist",
+    "balance-label": "Balance",
+    "points-unit": "POINTS",
+    "free-label": "Free",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "Cost",
+    "action-label": "What would you like to do?",
+    "text-label": "Your content",
+    "text-placeholder": "Paste or type your draft content here...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "Improve Writing",
+    "action-improve-desc": "Polish grammar, clarity, and style",
+    "action-suggest_tags": "Suggest Tags",
+    "action-suggest_tags-desc": "Get relevant tags for your post",
+    "action-generate_title": "Generate Title",
+    "action-generate_title-desc": "Create compelling title options",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Check Grammar",
+    "action-check_grammar-desc": "Fix grammar and spelling",
+    "submit-button": "Run AI Assist",
+    "submitting": "Processing...",
+    "result-title": "Result",
+    "apply-button": "Apply to post",
+    "copy-button": "Copy",
+    "copied": "Copied!",
+    "try-again": "Try Again",
+    "try-another": "Try Another Action",
+    "show-changes": "Show changes",
+    "hide-changes": "Hide changes",
+    "hide-translation": "Hide translation",
+    "success": "AI assist completed!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Content violates policy. Points were not refunded.",
+    "error-rate-limit": "Too many requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "AI assist failed. Please try again.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

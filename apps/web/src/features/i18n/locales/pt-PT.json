@@ -103,7 +103,9 @@
     "import": "Importação",
     "clear": "Limpar",
     "play": "Reproduzir",
-    "pause": "Suspender"
+    "pause": "Suspender",
+    "start": "Iniciar",
+    "updated": "Atualizado"
   },
   "validation": {
     "required": "Campo obrigatório",
@@ -447,9 +449,9 @@
     "settings-2": "visualizar preferências"
   },
   "bookmark-btn": {
-    "add": "Favorito - seja notificado sobre novos comentários",
-    "added": "Favoritos! Você será notificado sobre novos comentários nesta publicação",
-    "delete": "Remover os favoritos e parar notificações",
+    "add": "Favorito — seja notificado sobre novos comentários",
+    "added": "Adicionado aos favoritos",
+    "delete": "Remover de Favoritos",
     "deleted": "Removido dos favoritos"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Dica",
+    "tip": "Tip",
     "send-tip": "Enviar uma dica",
     "count": "{{count}} tip",
     "count_plural": "Dicas de {{count}}"
@@ -1642,9 +1645,9 @@
     "unMute": "Reativar o som"
   },
   "favorite-btn": {
-    "add": "Favorito - seja notificado sobre novas publicações",
-    "added": "Adicionado aos favoritos! Você será notificado quando publicar novas postagens",
-    "delete": "Remover favoritos e parar notificações",
+    "add": "Adicionar aos favoritos",
+    "added": "Adicionado aos favoritos",
+    "delete": "Remover dos favoritos",
     "deleted": "Removido dos favoritos"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "Enviando imagem...",
     "back-to-old": "Back to Classic View",
     "clear": "Limpar",
+    "import": "Importar da URL",
+    "import-title": "Importar artigo",
+    "import-subtitle": "Você terá a chance de revisar e editar antes de publicar.",
+    "import-hint": "Cole uma URL para importar o conteúdo do artigo para o editor. Suporta postagens de Hive e artigos da web externos.",
+    "import-ownership-notice": "Por favor, apenas importe conteúdo que você possui ou tem permissão para republicar.",
+    "import-failed": "Falha ao importar artigo. Por favor, verifique o URL e tente novamente.",
+    "import-error-invalid-url": "URL inválida. Por favor, insira um endereço web válido.",
+    "import-error-fetch-failed": "Não foi possível alcançar o site. Por favor, verifique o URL e tente novamente.",
+    "import-error-not-html": "A URL não aponta para uma página da web.",
+    "import-error-too-large": "A página é muito grande para importar.",
+    "import-error-extract-failed": "Não foi possível extrair o conteúdo do artigo da página.",
+    "import-error-not-found": "Postagem não encontrada. Por favor, verifique a URL.",
+    "importing": "Importando...",
     "reward-settings": "Configurações de recompensa",
     "beneficiaries": "Beneficiários",
     "meta-information": "Meta Informação",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "Imagem salva em sua galeria!",
     "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente.",
     "use-suggestion": "Uso: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "Assistente de Escrita IA",
+    "toolbar-button": "Assistência IA",
+    "balance-label": "Saldo",
+    "points-unit": "PONTOS",
+    "free-label": "Gratuito",
+    "free-remaining": "{{count}} restante grátis hoje",
+    "cost-label": "Custo",
+    "action-label": "O que você gostaria de fazer?",
+    "text-label": "Seu conteúdo",
+    "text-placeholder": "Cole ou digite seu conteúdo de rascunho aqui...",
+    "chars-remaining": "{{count}} caracteres restantes",
+    "min-chars": "Mínimo de {{count}} caracteres necessários",
+    "action-improve": "Melhorar Escrita",
+    "action-improve-desc": "gramática polonesa, clareza e estilo",
+    "action-suggest_tags": "Sugerir Tags",
+    "action-suggest_tags-desc": "Obtenha tags relevantes para a sua publicação",
+    "action-generate_title": "Gerar Título",
+    "action-generate_title-desc": "Criar opções de título convincente",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Verificar gramática",
+    "action-check_grammar-desc": "Corrigir gramática e ortografia",
+    "submit-button": "Executar assistência IA",
+    "submitting": "Processandochar@@0",
+    "result-title": "Resultado",
+    "apply-button": "Aplicar à publicação",
+    "copy-button": "copiar",
+    "copied": "Copiado!",
+    "try-again": "Tente novamente",
+    "try-another": "Tente outra ação",
+    "show-changes": "Mostrar alterações",
+    "hide-changes": "Ocultar alterações",
+    "hide-translation": "Ocultar tradução",
+    "success": "Assistência de IA concluída!",
+    "error-insufficient-points": "Pontos insuficientes. Você precisa de {{required}} , mas tem {{available}}.",
+    "error-content-policy": "O conteúdo viola a política. Os pontos não foram reembolsados.",
+    "error-rate-limit": "Muitas solicitações. Por favor, aguarde um momento e tente novamente.",
+    "error-auth": "A autenticação expirou. Atualize a página e tente novamente.",
+    "error-generic": "Assistência de IA falhou. Por favor, tente novamente.",
+    "error-text-too-short": "Seu texto é muito curto. Mínimo de {{count}} caracteres."
   }
 }

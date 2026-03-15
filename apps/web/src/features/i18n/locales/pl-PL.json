@@ -103,7 +103,9 @@
     "import": "Importuj",
     "clear": "Wyczyść",
     "play": "Odtwórz",
-    "pause": "Wstrzymaj"
+    "pause": "Wstrzymaj",
+    "start": "Rozpocznij",
+    "updated": "Zaktualizowano"
   },
   "validation": {
     "required": "Pole wymagane",
@@ -447,9 +449,9 @@
     "settings-2": "ustawienia wyświetlania"
   },
   "bookmark-btn": {
-    "add": "Zakładka - otrzymuj powiadomienia o nowych komentarzach",
-    "added": "Zakładki! Zostaniesz powiadomiony o nowych komentarzach do tego wpisu",
-    "delete": "Usuń zakładkę i zatrzymaj powiadomienia",
+    "add": "Zakładka – otrzymuj powiadomienia o nowych komentarzach",
+    "added": "Dodano do zakładek",
+    "delete": "Usuń z zakładek",
     "deleted": "Usunięto z zakładek"
   },
   "entry-reblog": {
@@ -464,6 +466,7 @@
   },
   "entry-tip": {
     "title": "Napiwek",
+    "tip": "Tip",
     "send-tip": "Wyślij napiwk",
     "count": "{{count}} tip",
     "count_plural": "Porady {{count}}"
@@ -1642,9 +1645,9 @@
     "unMute": "Wyłącz wyciszenie"
   },
   "favorite-btn": {
-    "add": "Ulubione - otrzymuj powiadomienia o nowych postach",
-    "added": "Dodane do ulubionych! Zostaniesz powiadomiony, gdy opublikują nowe posty",
-    "delete": "Usuń ulubione i zatrzymaj powiadomienia",
+    "add": "Dodaj do ulubionych",
+    "added": "Dodano do ulubionych",
+    "delete": "Usuń z ulubionych",
     "deleted": "Usunięto z ulubionych"
   },
   "editor-toolbar": {
@@ -2964,6 +2967,19 @@
     "upload-started": "Przesyłanie obrazu...",
     "back-to-old": "Back to Classic View",
     "clear": "Wyczyść",
+    "import": "Importuj z URL",
+    "import-title": "Importuj artykuł",
+    "import-subtitle": "Będziesz miał szansę przejrzeć i edytować przed publikacją.",
+    "import-hint": "Wklej adres URL aby importować zawartość artykułu do edytora. Obsługuje posty Hive i zewnętrzne artykuły internetowe.",
+    "import-ownership-notice": "Proszę zaimportuj tylko treści, które posiadasz lub masz uprawnienia do ponownej publikacji.",
+    "import-failed": "Importowanie artykułu nie powiodło się. Sprawdź adres URL i spróbuj ponownie.",
+    "import-error-invalid-url": "Nieprawidłowy adres URL. Wprowadź poprawny adres internetowy.",
+    "import-error-fetch-failed": "Nie można dotrzeć do witryny. Sprawdź adres URL i spróbuj ponownie.",
+    "import-error-not-html": "Adres URL nie wskazuje na stronę internetową.",
+    "import-error-too-large": "Strona jest zbyt duża, aby zaimportować.",
+    "import-error-extract-failed": "Nie można wyodrębnić zawartości artykułu ze strony.",
+    "import-error-not-found": "Nie znaleziono postu. Proszę sprawdzić adres URL.",
+    "importing": "Importowanie...",
     "reward-settings": "Ustawienia nagród",
     "beneficiaries": "Beneficjenci",
     "meta-information": "Meta informacje",
@@ -3273,5 +3289,47 @@
     "save-to-gallery-success": "Obraz zapisany na twojej galerii!",
     "save-to-gallery-error": "Nie udało się zapisać obrazu do galerii. Spróbuj ponownie.",
     "use-suggestion": "Użycie: {{suggestion}}"
+  },
+  "ai-assist": {
+    "title": "Asystent pisania SI",
+    "toolbar-button": "Asystent SI",
+    "balance-label": "Saldo",
+    "points-unit": "PUNKTY",
+    "free-label": "Darmowe",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "Koszt",
+    "action-label": "Co chciałbyś zrobić?",
+    "text-label": "Twoje treści",
+    "text-placeholder": "Wklej lub wpisz wersję roboczą tutaj...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "Ulepsz pisanie",
+    "action-improve-desc": "Polskie gramy, jasność i styl",
+    "action-suggest_tags": "Zaproponuj tagi",
+    "action-suggest_tags-desc": "Uzyskaj odpowiednie tagi dla swojego posta",
+    "action-generate_title": "Wygeneruj tytuł",
+    "action-generate_title-desc": "Utwórz ważne opcje tytułu",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Sprawdź Gramatykę",
+    "action-check_grammar-desc": "Napraw gramatykę i pisownię",
+    "submit-button": "Uruchom Asystent SI",
+    "submitting": "Przetwarzanie...",
+    "result-title": "Wynik",
+    "apply-button": "Zastosuj do posta",
+    "copy-button": "Kopiuj",
+    "copied": "Skopiowano!",
+    "try-again": "Spróbuj ponownie",
+    "try-another": "Spróbuj innej akcji",
+    "show-changes": "Pokaż zmiany",
+    "hide-changes": "Ukryj zmiany",
+    "hide-translation": "Ukryj tłumaczenie",
+    "success": "Pomoc AI zakończona!",
+    "error-insufficient-points": "Niewystarczająca ilość punktów. Potrzebujesz {{required}} , ale masz {{available}}.",
+    "error-content-policy": "Treść narusza zasadę. Punkty nie zostały zwrócone.",
+    "error-rate-limit": "Zbyt wiele żądań. Proszę poczekać chwilę i spróbować ponownie.",
+    "error-auth": "Uwierzytelnianie wygasło. Odśwież stronę i spróbuj ponownie.",
+    "error-generic": "Pomoc AI nie powiodła się. Spróbuj ponownie.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }
