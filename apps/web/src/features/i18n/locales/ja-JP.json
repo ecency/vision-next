@@ -292,7 +292,10 @@
     "use-key": "キー/パスを使用",
     "seed-info": "シードフレーズと生成されたキーは保存されません",
     "sign-in": "サインイン",
-    "my-users": "マイユーザー"
+    "my-users": "マイユーザー",
+    "metamask-not-found": "MetaMask が見つかりません。ブラウザ拡張機能をインストールしてください。",
+    "metamask-no-keys": "MetaMaskスナップからハイブキーを取得できませんでした",
+    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。"
   },
   "sign-up": {
     "header": "Web3コミュニティの報酬",
@@ -401,7 +404,10 @@
     "votes": "投票：",
     "transfers": "転送:",
     "reblogs-follows": "リブログ/フォロー:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC 委任に失敗しました",
+    "invalid-link": "無効なオンボーディングリンク",
+    "delegate-placeholder": "委任する金額を入力 (Bn)"
   },
   "trending-tags": {
     "title": "トピック"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "HiveAuthでサインイン",
     "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
-    "key-error": "キーの処理に失敗しました。正しいことを確認してください。"
+    "key-error": "キーの処理に失敗しました。正しいことを確認してください。",
+    "sign-with-metamask": "MetaMaskでサインイン"
   },
   "hive-auth": {
     "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "無料アカウント",
+      "description": "基本的な電子メールの検証でHiveアカウントを取得します。",
+      "button": "無料アカウントを取得",
+      "label": "無料"
+    },
+    "premium": {
+      "title": "プレミアムアカウント",
+      "description": "3倍のリソースクレジットと300エクシーポイントを持つインスタントアカウント。",
+      "button": "プレミアム版を入手 - $2.99",
+      "label": "プレミアム"
+    },
+    "wallet": {
+      "title": "暗号化ウォレット",
+      "description": "MetaMaskを使用して即座にアカウントを作成します。シードフレーズは必要ありません。",
+      "button": "ウォレットに接続",
+      "label": "ウォレット"
+    },
+    "invited": {
+      "title": "友達に招待",
+      "description": "Hiveアカウントを持つ友人は無料で作成できます。",
+      "button": "招待されました",
+      "label": "招待済み"
+    }
+  },
   "signup-email": {
     "title": "メールアドレスでサインアップ",
     "description": "電子メールの検証を使用してアカウントを作成する柔軟な方法。 3Xリソースクレジットを含む無料アカウントやブーストアカウントなどのオプションのいずれかを$ 2.99または友達のオンボードで選択してください",
@@ -2886,6 +2919,27 @@
       "creating": "Hiveアカウントを作成しています...",
       "validating": "アカウントを準備しています...",
       "success": "あなたのアカウントが作成されました。ハイブとエクセンシーをお楽しみください！"
+    },
+    "metamask": {
+      "title": "メタマスクに接続",
+      "description": "MetaMaskウォレットを接続して身元を確認し、Hiveアカウントを作成します。",
+      "not-found": "MetaMask が検出されません。MetaMask エクステンションをインストールしてください。",
+      "connect-button": "メタマスクに接続",
+      "connect-hint": "本人確認のためウォレットの残高を確認します。資金は送金されません。",
+      "connect-error": "メタマスクの接続に失敗しました。もう一度やり直してください。",
+      "connected": "メタマスクが接続されました",
+      "chain-unsupported": "このチェーンはまだ直接接続に対応していません。近日公開予定です。",
+      "address-in-use": "このウォレットアドレスはすでにHiveアカウントに関連付けられています。",
+      "sign-and-continue": "サインして続ける",
+      "sign-rejected": "署名が拒否されました。もう一度やり直してください。",
+      "installing-snap": "Hiveウォレットスナップをインストールしています...",
+      "getting-keys": "あなたのウォレットからハイブの鍵を派生中char@@0",
+      "create-error": "アカウントの作成に失敗しました。もう一度やり直してください。",
+      "success-hint": "ハイブスナップでMetaMaskウォレットを使用してEcencyにサインインできます。",
+      "enter-address": "{{chain}} アドレスを入力してください",
+      "enter-address-hint": "このチェーンについては、MetaMaskウォレットからアドレスをコピーしてください。",
+      "login-with-metamask": "MetaMaskでログイン",
+      "logging-in": "MetaMaskでサインインしています..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "委任状",
     "delegations-incoming": "委任を受信する",
     "external-wallets-offer": {
-      "title": "暗号通貨をEcencyに届けよう",
-      "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
-      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます",
+      "title": "暗号化ウォレットをリンクする",
+      "description": "MetaMaskを接続するか、BTC、ETH、BNB、SOLのウォレットアドレスを入力して、Hiveエコシステム内で暗号を管理および監視します。",
+      "hint": "ウォレットアドレスはHiveアカウントのメタデータとEcencyに保存されています",
       "dismiss": "たぶん後で"
     },
     "external-wallets-signup": {
