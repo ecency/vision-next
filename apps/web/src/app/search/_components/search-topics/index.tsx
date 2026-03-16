@@ -14,7 +14,8 @@ export function SearchTopics() {
   const params = useSearchParams();
 
   const q = useMemo(
-    () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
+    () =>
+      (new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "").toLowerCase(),
     [params]
   );
 
@@ -37,13 +38,11 @@ export function SearchTopics() {
 
           return (
             <div className="topic-list">
-              {data?.map((x) => {
-                return (
-                  <Link href={makePath(defaults.filter, x.tag)} className="list-item" key={x.tag}>
-                    {x.tag}
+              {data?.map((tag) => (
+                  <Link href={makePath(defaults.filter, tag)} className="list-item" key={tag}>
+                    {tag}
                   </Link>
-                );
-              })}
+              ))}
             </div>
           );
         })()}

@@ -27,11 +27,7 @@ export function SearchListItem({ res }: Props) {
   const dateRelative = useMemo(() => dateToRelative(res.created_at), [res]);
   const dateFormatted = useMemo(() => dateToFormatted(res.created_at), [res]);
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
-  const img = useMemo(
-    () =>
-      catchPostImage(res.body, 600, 500) || "/public/assets/noimage.svg",
-    [res.body]
-  );
+  const img = useMemo(() => catchPostImage(res.body, 600, 500), [res.body]);
 
   const title = useMemo(() => (res.title_marked ? res.title_marked : res.title), [res]);
   const summary = useMemo(
@@ -63,16 +59,20 @@ export function SearchListItem({ res }: Props) {
         </div>
       </div>
       <div className="item-body">
-        <div className="item-image">
+        <div className={`item-image ${!img ? "item-image-placeholder" : ""}`}>
           <EntryLink entry={entry}>
             <div>
-              <Image
-                width={500}
-                height={500}
-                src={img ?? "/assets/fallback.png"}
-                alt={res.title}
-                className={img === "/public/assets/noimage.svg" ? "no-img" : ""}
-              />
+              {img ? (
+                <Image width={500} height={500} src={img} alt={res.title} />
+              ) : (
+                <Image
+                  width={64}
+                  height={64}
+                  src="/assets/noimage.svg"
+                  alt={res.title}
+                  className="no-img"
+                />
+              )}
             </div>
           </EntryLink>
         </div>

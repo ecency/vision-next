@@ -1,27 +1,23 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
-import { TagSearchResult } from "../types/tag-search-result";
+import { CONFIG, QueryKeys } from "@/modules/core";
+import { TrendingTag } from "@/modules/posts/types";
 
-export function getSearchTopicsQueryOptions(q: string, limit = 20, random = false) {
+export function getSearchTopicsQueryOptions(q: string, limit = 10) {
+  const normalized = q.trim();
+
   return queryOptions({
-    queryKey: ["search", "topics", q],
-    queryFn: async () => {
-      const data = { q, limit, random: +random };
+    queryKey: QueryKeys.search.topics(normalized, limit),
+    queryFn: async (): Promise<string[]> => {
+      const tags = (await CONFIG.hiveClient.database.call("get_trending_tags", [
+        normalized,
+        limit + 1,
+      ])) as TrendingTag[];
 
-      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-tag", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to search topics: ${response.status}`);
-      }
-
-      return response.json() as Promise<TagSearchResult[]>;
+      return tags
+        .map((t) => t.name)
+        .filter((name) => name !== "" && !name.startsWith("hive-"))
+        .slice(0, limit);
     },
-    enabled: !!q,
+    enabled: !!normalized,
   });
 }
