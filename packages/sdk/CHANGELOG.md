@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.28
+
+### Patch Changes
+
+- Metamask integration, Signup simplified, Login changes (#705)
+
 ## 2.0.27
 
 ### Patch Changes

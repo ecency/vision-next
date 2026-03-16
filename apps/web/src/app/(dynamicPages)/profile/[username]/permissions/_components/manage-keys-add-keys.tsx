@@ -2,7 +2,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { useState } from "react";
 import {
-  Step1Authenticate,
   Step2GenerateSeed,
   Step3ReviewKeys,
   Step4Confirm
@@ -17,7 +16,7 @@ type KeyAuthority = "owner" | "active" | "posting" | "memo";
 export function ManageKeysAddKeys({ onSuccess }: Props) {
   const { activeUser } = useActiveAccount();
   const [currentStep, setCurrentStep] = useState(1);
-  const [ownerKey, setOwnerKey] = useState("");
+  const [masterPassword, setMasterPassword] = useState("");
   const [keysToRevokeByAuthority, setKeysToRevokeByAuthority] = useState<
     Record<KeyAuthority, string[]>
   >({
@@ -37,20 +36,19 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
     );
   }
 
-  const handleStep1Next = (derivedOwnerKey: string, originalCredential: string) => {
-    setOwnerKey(derivedOwnerKey);
+  const handleStep1Next = (password: string) => {
+    setMasterPassword(password);
     setCurrentStep(2);
   };
 
-  const handleStep3Next = (keys: Record<KeyAuthority, string[]>) => {
+  const handleStep2Next = (keys: Record<KeyAuthority, string[]>) => {
     setKeysToRevokeByAuthority(keys);
-    setCurrentStep(4);
+    setCurrentStep(3);
   };
 
   const renderStepIndicator = () => {
     const steps = [
-      i18next.t("permissions.add-keys.stepper.authenticate"),
-      i18next.t("permissions.add-keys.stepper.generate-seed"),
+      i18next.t("permissions.add-keys.stepper.generate-keys", { defaultValue: "Generate Keys" }),
       i18next.t("permissions.add-keys.stepper.review-keys"),
       i18next.t("permissions.add-keys.stepper.confirm")
     ];
@@ -105,22 +103,20 @@ export function ManageKeysAddKeys({ onSuccess }: Props) {
       {renderStepIndicator()}
 
       <div className="mt-4">
-        {currentStep === 1 && <Step1Authenticate username={username} onNext={handleStep1Next} />}
-        {currentStep === 2 && (
+        {currentStep === 1 && (
           <Step2GenerateSeed
             username={username}
-            onNext={() => setCurrentStep(3)}
-            onBack={() => setCurrentStep(1)}
+            onNext={handleStep1Next}
           />
         )}
-        {currentStep === 3 && (
-          <Step3ReviewKeys onNext={handleStep3Next} onBack={() => setCurrentStep(2)} />
+        {currentStep === 2 && (
+          <Step3ReviewKeys onNext={handleStep2Next} onBack={() => setCurrentStep(1)} />
         )}
-        {currentStep === 4 && (
+        {currentStep === 3 && (
           <Step4Confirm
-            ownerKey={ownerKey}
+            masterPassword={masterPassword}
             keysToRevokeByAuthority={keysToRevokeByAuthority}
-            onBack={() => setCurrentStep(3)}
+            onBack={() => setCurrentStep(2)}
             onSuccess={onSuccess}
           />
         )}

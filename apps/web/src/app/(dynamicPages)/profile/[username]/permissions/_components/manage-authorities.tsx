@@ -110,6 +110,9 @@ export function ManageAuthorities() {
                 accountName: revokingAccount
               })
             }
+            onMetaMask={() =>
+              revoke({ type: "keychain", accountName: revokingAccount })
+            }
           />
         </ModalBody>
       </Modal>

@@ -227,6 +227,22 @@ async function broadcastWithFallback(
         }
       }
 
+      // OPTIMIZATION: Use HiveSigner token for keychain/MetaMask users with posting auth (faster, no popup)
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'keychain'
+      ) {
+        try {
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          console.warn('[SDK] HiveSigner token auth failed, falling back to keychain/snap:', error);
+        }
+      }
+
       // OPTIMIZATION: Use HiveSigner token for HiveAuth users with posting auth (faster)
       if (
         authority === 'posting' &&

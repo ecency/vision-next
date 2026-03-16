@@ -1,16 +1,12 @@
-import { SignUp } from "./_page";
-import { Metadata, ResolvingMetadata } from "next";
-import { PagesMetadataGenerator } from "@/features/metadata";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export async function generateMetadata(
-  props: unknown,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  return PagesMetadataGenerator.getForPage("signup");
-}
-
-export default function Page() {
-  return <SignUp />;
+export default async function Page({
+  searchParams
+}: {
+  searchParams?: Promise<{ referral?: string }>;
+}) {
+  const params = await searchParams;
+  const referral = typeof params?.referral === "string" ? params.referral : "";
+  const target = referral ? `/signup/free?referral=${encodeURIComponent(referral)}` : "/signup/free";
+  redirect(target);
 }

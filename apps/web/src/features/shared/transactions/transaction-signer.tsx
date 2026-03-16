@@ -140,6 +140,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
           <KeyOrHot
             onKey={signByKey}
             onKc={signByKc}
+            onMetaMask={signByKc}
             onHot={() => signOperationByHivesigner({ operation: JSON.parse(decodedOp) })}
             inProgress={isSigningKey || isSigningKeychain}
           />

@@ -6,6 +6,7 @@ import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
+import { getLoginType } from "@/utils/user-token";
 
 type Keys = Record<string, [string, number][]>;
 type KeyAuthority = "owner" | "active" | "posting" | "memo";
@@ -70,16 +71,32 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
     return count;
   };
 
+  const loginType = getLoginType(username ?? "");
+
+  const getLoginTypeBadge = () => {
+    switch (loginType) {
+      case "metamask":
+        return { label: "MetaMask", className: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" };
+      case "keychain":
+        return { label: "Keychain", className: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" };
+      case "hivesigner":
+        return { label: "HiveSigner", className: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" };
+      case "hiveauth":
+        return { label: "HiveAuth", className: "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300" };
+      case "privateKey":
+        return { label: i18next.t("permissions.add-keys.step3.derivation-private-key", { defaultValue: "Private Key" }), className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" };
+      default:
+        return { label: i18next.t("permissions.add-keys.step3.derivation-unknown"), className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" };
+    }
+  };
+
   const getDerivationBadge = (publicKey: string) => {
     const method = getDerivation(username ?? "", publicKey);
 
     const getBadgeConfig = () => {
       switch (method) {
         case "unknown":
-          return {
-            label: i18next.t("permissions.add-keys.step3.derivation-unknown"),
-            className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-          };
+          return getLoginTypeBadge();
         case "bip44":
           return {
             label: i18next.t("permissions.add-keys.step3.derivation-bip44"),

@@ -34,6 +34,7 @@ const PublishEditor = dynamic(
 
 export default function Publish() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
+  const [publishedEntry, setPublishedEntry] = useState<{ title: string; author: string; permlink: string; category: string } | undefined>();
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
   const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
@@ -109,7 +110,8 @@ export default function Publish() {
       {step === "validation" && (
         <PublishValidatePost
           onClose={() => setStep("edit")}
-          onSuccess={(step) => {
+          onSuccess={(step, entryInfo) => {
+            setPublishedEntry(entryInfo);
             setStep(step);
           }}
         />
@@ -118,6 +120,7 @@ export default function Publish() {
         <PublishSuccessState
           step={step as "published" | "scheduled"}
           setEditStep={() => setStep("edit")}
+          entryInfo={publishedEntry}
         />
       )}
 

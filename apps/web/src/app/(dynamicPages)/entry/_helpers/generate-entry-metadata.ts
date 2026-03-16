@@ -34,7 +34,10 @@ export async function generateEntryMetadata(
   const cleanPermlink = safeDecodeURIComponent(permlink).trim();
   const base = await getServerAppBase();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
-    console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
+    // Only warn for plausible permlinks — skip file extensions (browser/extension source map requests)
+    if (!/\.\w{2,4}$/.test(cleanPermlink)) {
+      console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
+    }
     return {};
   }
   try {

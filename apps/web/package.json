@@ -65,6 +65,7 @@
     "@tiptap/suggestion": "^2.11.7",
     "@tooni/iconscout-unicons-react": "^1.0.1",
     "@vis.gl/react-google-maps": "^1.5.3",
+    "@wallet-standard/app": "^1.1.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "axios": "1.6.2",
     "bip39": "^3.1.0",
