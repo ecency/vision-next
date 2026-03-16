@@ -64,6 +64,7 @@
     "@tiptap/suggestion": "^2.11.7",
     "@tooni/iconscout-unicons-react": "^1.0.1",
     "@vis.gl/react-google-maps": "^1.5.3",
+    "@wallet-standard/app": "^1.1.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "axios": "1.6.2",
     "bip39": "^3.1.0",
@@ -167,7 +168,6 @@
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.5",
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.5.0",
-    "vite": "^5.4.6",
     "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.0.1",
     "baseline-browser-mapping": "^2.9.11",
@@ -180,6 +180,7 @@
     "tailwindcss": "^3.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5",
+    "vite": "^5.4.6",
     "vitest": "^2.1.8"
   }
 }

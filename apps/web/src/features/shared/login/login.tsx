@@ -8,7 +8,7 @@ import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useLoginByKeychain } from "./hooks";
+import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
 import { motion } from "framer-motion";
@@ -55,6 +55,11 @@ export default function Login() {
       /* Already handled in onError of the mutation */
     });
   };
+
+  const {
+    mutateAsync: loginByMetaMask,
+    isPending: isLoginByMetaMaskPending
+  } = useLoginByMetaMask(username);
 
   const useHiveAuth = shouldUseHiveAuth();
   const keychainMethodLabel = useHiveAuth ? "HiveAuth" : "Keychain";
@@ -197,6 +202,30 @@ export default function Login() {
             >
               {keychainButtonLabel}
             </Button>
+
+            {typeof window !== "undefined" && window.ethereum?.isMetaMask && (
+              <Button
+                appearance="secondary"
+                outline={true}
+                full={true}
+                size="lg"
+                className="col-span-2"
+                onClick={() => !!username && loginByMetaMask()}
+                disabled={!username || isLoginByMetaMaskPending}
+                isLoading={isLoginByMetaMaskPending}
+                icon={
+                  <Image
+                    width={100}
+                    height={100}
+                    src="/assets/metamask-fox.svg"
+                    alt="metamask"
+                    className="w-4 h-4"
+                  />
+                }
+              >
+                MetaMask
+              </Button>
+            )}
           </motion.div>
         )}
       </div>

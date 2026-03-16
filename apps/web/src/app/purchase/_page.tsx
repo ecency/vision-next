@@ -62,8 +62,8 @@ export function Purchase() {
       <Navbar />
 
       <div className="app-content container">
-        <div className="flex items-center w-full justify-center">
-          <div className="w-[50%] border border-[--border-color] rounded-2xl p-4">
+        <div className="flex items-center w-full justify-center px-4">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[50%] border border-[--border-color] rounded-2xl p-4">
             <PurchaseQrBuilder username={username} queryType={type} queryProductId={productId} />
           </div>
         </div>
