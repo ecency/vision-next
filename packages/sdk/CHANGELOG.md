@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.27
+
+### Patch Changes
+
+- Search improvements (#703)
+
 ## 2.0.25
 
 ### Patch Changes

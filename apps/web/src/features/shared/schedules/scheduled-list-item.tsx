@@ -6,13 +6,11 @@ import { Button } from "@ui/button";
 import { Schedule } from "@/entities";
 import { accountReputation, dateToFormatted, dateToFullRelative } from "@/utils";
 import { UserAvatar } from "@/features/shared";
-import { classNameObject } from "@ui/util";
 import { Tooltip } from "@ui/tooltip";
 import { alertCircleSvg, checkAllSvg, deleteForeverSvg, textBoxOutline, timeSvg } from "@ui/svg";
 import i18next from "i18next";
 import Image from "next/image";
 import fallbackImage from "../../../../public/assets/fallback.png";
-import noImage from "@/assets/img/noimage.svg";
 import { useDeleteSchedule, useMoveSchedule } from "@/api/mutations";
 import { useActiveAccount } from "@/core/hooks";
 
@@ -26,7 +24,7 @@ export function ScheduledListItem({ post }: Props) {
   const reputation = account?.reputation;
 
   const tag = post.tags_arr[0] || "";
-  const img = catchPostImage(post.body, 600, 500) || noImage.src;
+  const img = catchPostImage(post.body, 600, 500);
   const summary = postBodySummary(post.body, 200);
 
   const dateRelative = useMemo(() => dateToFullRelative(post.schedule), [post]);
@@ -64,20 +62,27 @@ export function ScheduledListItem({ post }: Props) {
         }}
       >
         <div className="w-full flex items-center justify-center border rounded-2xl aspect-[4/3] overflow-hidden">
-          <Image
-            alt={post.title}
-            src={img}
-            width={500}
-            height={500}
-            onError={(e: React.SyntheticEvent) => {
-              const target = e.target as HTMLImageElement;
-              target.src = fallbackImage.src;
-            }}
-            className={classNameObject({
-              "w-full h-auto": img !== noImage.src,
-              "w-[40px] h-auto": img === noImage.src
-            })}
-          />
+          {img ? (
+            <Image
+              alt={post.title}
+              src={img}
+              width={500}
+              height={500}
+              onError={(e: React.SyntheticEvent) => {
+                const target = e.target as HTMLImageElement;
+                target.src = fallbackImage.src;
+              }}
+              className="w-full h-auto"
+            />
+          ) : (
+            <Image
+              alt={post.title}
+              src="/assets/noimage.svg"
+              width={64}
+              height={64}
+              className="w-[40px] h-auto"
+            />
+          )}
         </div>
         <div>
           <div className="text-gray-charcoal dark:text-white text-lg font-semibold">
