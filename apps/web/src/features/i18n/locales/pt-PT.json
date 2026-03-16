@@ -292,7 +292,10 @@
     "use-key": "Usar tecla/senha",
     "seed-info": "Nós não armazenamos a sua frase de semente e chaves geradas",
     "sign-in": "Iniciar sessão",
-    "my-users": "Meus usuários"
+    "my-users": "Meus usuários",
+    "metamask-not-found": "MetaMask não encontrada. Por favor instale a extensão de navegador MetaMascote.",
+    "metamask-no-keys": "Não foi possível obter as chaves do Hive da snap de MetaMask",
+    "metamask-key-mismatch": "Chaves MetaMask Hive não coincidem com esta conta. Certifique-se de estar usando a mesma carteira MetaMask usada durante a inscrição."
   },
   "sign-up": {
     "header": "Comunidades da Web3 que Valem a Pena",
@@ -401,7 +404,10 @@
     "votes": "Votos:",
     "transfers": "Transferências:",
     "reblogs-follows": "Reblogs/Seguindo:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "Delegação RC falhou",
+    "invalid-link": "Link de integração inválido",
+    "delegate-placeholder": "Digite o valor para delegar (Bn)"
   },
   "trending-tags": {
     "title": "Tópicos"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Assinar com HiveAuth",
     "invalid-key": "Formato de chave inválido. Por favor, verifique caracteres inválidos.",
-    "key-error": "Falha ao processar a chave. Por favor, verifique se está correta."
+    "key-error": "Falha ao processar a chave. Por favor, verifique se está correta.",
+    "sign-with-metamask": "Assine com MetaMask"
   },
   "hive-auth": {
     "pending-request": "Pedido de HiveAuth pendente. Corresponda a ID {{id}} na sua carteira."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Conta Gratuita",
+      "description": "Obtenha uma conta da Hive com verificação básica por e-mail.",
+      "button": "Obtenha uma conta gratuita",
+      "label": "Gratuito"
+    },
+    "premium": {
+      "title": "Conta Premium",
+      "description": "Conta instantânea com créditos de recursos 3x e 300 pontos de identidade.",
+      "button": "Obter Premium - US$ 2,99",
+      "label": "Prêmio"
+    },
+    "wallet": {
+      "title": "Carteira Criptografada",
+      "description": "Crie uma conta instantaneamente usando MetaMask. Nenhuma frase de semente é necessária.",
+      "button": "Conectar Carteira",
+      "label": "Carteira"
+    },
+    "invited": {
+      "title": "Convidado por um amigo",
+      "description": "Um amigo com uma conta na Hive pode criar uma para você sem custo.",
+      "button": "Seja convidado",
+      "label": "Convidado"
+    }
+  },
   "signup-email": {
     "title": "Cadastre-se com E-mail",
     "description": "Forma flexível para criar uma conta usando validação de e-mail. Escolha uma das opções como conta Grátis e Boosted com créditos de recursos 3X por $2,99 ou um amigo",
@@ -2886,6 +2919,27 @@
       "creating": "Criando conta do Hive...",
       "validating": "Preparando a sua conta...",
       "success": "Sua conta foi criada. Aproveite o Hive e a Ecency!"
+    },
+    "metamask": {
+      "title": "Conectar a MetaMask",
+      "description": "Conecte sua carteira MetaMask para verificar sua identidade e criar uma conta no Hive.",
+      "not-found": "MetaMask não detectado. Por favor instale a extensão MetaMascote.",
+      "connect-button": "Conectar a MetaMask",
+      "connect-hint": "Nós verificaremos o seu saldo da carteira para verificar sua identidade. Nenhum saldo será transferido.",
+      "connect-error": "Falha ao conectar com MetaMask. Por favor, tente novamente.",
+      "connected": "Máscara conectada",
+      "chain-unsupported": "Esta cadeia ainda não é suportada por conexão direta. Em breve.",
+      "address-in-use": "Este endereço de carteira já está associado a uma conta de Hive.",
+      "sign-and-continue": "Assinar e Continuar",
+      "sign-rejected": "A assinatura foi rejeitada. Tente novamente.",
+      "installing-snap": "Instalando o heap da Hive...",
+      "getting-keys": "Derivando chaves da Colmeia da sua carteira...",
+      "create-error": "Falha ao criar a conta. Por favor, tente novamente.",
+      "success-hint": "Você pode entrar em Ecaência usando sua carteira MetaMask com o snap!",
+      "enter-address": "Digite o seu endereço {{chain}}",
+      "enter-address-hint": "Copie o endereço da sua carteira MetaMask para esta cadeia.",
+      "login-with-metamask": "Faça login com MetaMask",
+      "logging-in": "Conectando com MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Delegações enviadas",
     "delegations-incoming": "delegações recebidas",
     "external-wallets-offer": {
-      "title": "Traga a sua Ecência cripto",
-      "description": "Crie ou importe carteiras para BTC, ETH, BNB, SOL, TRX, APT e TON diretamente de aplicativos como Trust ou Exodus, e começar a usá-los sem problemas dentro do ecossistema da Hive.",
-      "hint": "Informações criadas e importadas do token serão armazenadas em dados da conta de Ecency e Hive",
+      "title": "Vincule suas carteiras cripto",
+      "description": "Conecte o MetaMask ou insira endereços da carteira para BTC, ETH, BNB e SOL para gerenciar e monitorar sua cripto dentro do ecossistema da Hive.",
+      "hint": "Endereços da carteira são armazenados nos metadados da sua conta do Hive e na Ecência",
       "dismiss": "Talvez mais tarde"
     },
     "external-wallets-signup": {
