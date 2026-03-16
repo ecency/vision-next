@@ -292,7 +292,10 @@
     "use-key": "使用密钥/密码",
     "seed-info": "我们不储存您的种子短语和生成的密钥",
     "sign-in": "登录",
-    "my-users": "我的用户"
+    "my-users": "我的用户",
+    "metamask-not-found": "找不到 MetaMask。请安装 MetaMask 浏览器扩展。",
+    "metamask-no-keys": "无法从 MetaMask snap 获取 Hive 密钥",
+    "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。"
   },
   "sign-up": {
     "header": "奖励Web3社区",
@@ -401,7 +404,10 @@
     "votes": "赞成：",
     "transfers": "传输：",
     "reblogs-follows": "重博客/关注：",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC 授权失败",
+    "invalid-link": "无效的在线链接",
+    "delegate-placeholder": "输入要代表的金额 (Bn)"
   },
   "trending-tags": {
     "title": "主题"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "使用 HiveAuth 登录",
     "invalid-key": "密钥格式无效。请检查无效字符。",
-    "key-error": "处理密钥失败。请验证它是否正确。"
+    "key-error": "处理密钥失败。请验证它是否正确。",
+    "sign-with-metamask": "使用 MetaMask 登录"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "免费帐户",
+      "description": "通过基本电子邮件验证获取 Hive 帐户。",
+      "button": "获取免费账户",
+      "label": "免费的"
+    },
+    "premium": {
+      "title": "高级账户",
+      "description": "拥有3倍资源信贷和300个生态点的即时账户。",
+      "button": "获得高级版 - 2.99",
+      "label": "高级版"
+    },
+    "wallet": {
+      "title": "加密钱包",
+      "description": "立即使用 Metamask 创建帐户。不需要种子短语。",
+      "button": "连接钱包",
+      "label": "钱包"
+    },
+    "invited": {
+      "title": "被朋友邀请",
+      "description": "Hive 帐户的朋友可以免费为您创建一个。",
+      "button": "获得邀请",
+      "label": "已邀请"
+    }
+  },
   "signup-email": {
     "title": "用电子邮件注册",
     "description": "使用电子邮件验证创建帐户的灵活方式。 选择其中一个选项，如免费和提升帐户，包含3X资源积分$2.99或在板上一个朋友。",
@@ -2886,6 +2919,27 @@
       "creating": "正在创建 Hive 帐户...",
       "validating": "正在准备您的帐户...",
       "success": "您的帐户已创建。享受Hive 和生态！"
+    },
+    "metamask": {
+      "title": "连接 MetaMask",
+      "description": "连接您的 MetaMask 钱包以验证您的身份并创建一个 Hive 帐户。",
+      "not-found": "未检测到 MetaMask。请安装 MetaMask扩展。",
+      "connect-button": "连接 MetaMask",
+      "connect-hint": "我们将检查您的钱包余额以验证您的身份。没有资金将被转移。",
+      "connect-error": "无法连接MetaMask。请重试。",
+      "connected": "已连接 MetaMask",
+      "chain-unsupported": "此链尚不支持直接连接。",
+      "address-in-use": "此钱包地址已经与 Hive 帐户关联。",
+      "sign-and-continue": "签名并继续",
+      "sign-rejected": "签名被拒绝。请重试。",
+      "installing-snap": "正在安装 Hive 钱包快照...",
+      "getting-keys": "从您的钱包生成Hive 密钥...",
+      "create-error": "帐户创建失败。请重试。",
+      "success-hint": "您可以使用 Hive 快照使用MetaMask 钱包登录生态系统。",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "复制您的 MetaMask 钱包中的地址到此链。",
+      "login-with-metamask": "使用MetaMask登录",
+      "logging-in": "正在使用Metamask登录您..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "发出的代表团",
     "delegations-incoming": "来到的代表团",
     "external-wallets-offer": {
-      "title": "将您的加密带到生态环境",
-      "description": "直接从 Trust 或 Exodus 等应用创建或导入BTC、ETH 、BNB、SOL、TRX、APT 和 TON 的钱包 并开始在Hive 生态系统内无缝使用它们。",
-      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中",
+      "title": "链接您的加密钱包",
+      "description": "连接MetaMask或输入BTC、ETH、BNB和SOL的钱包地址来管理和监视你在 Hive 生态系统中的加密。",
+      "hint": "钱包地址存储在您的 Hive 账户元数据和生态中",
       "dismiss": "稍后再说"
     },
     "external-wallets-signup": {
