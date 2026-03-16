@@ -8,9 +8,9 @@ import { copyContent, downloadSvg, regenerateSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
-import { useSeedPhrase } from "@ecency/wallets";
-import { useDownloadSeed } from "@/features/wallet";
-import { getKeysFromSeed } from "@/utils/onBoard-helper";
+import { useDownloadKeys } from "@/features/wallet";
+import { generateMasterPassword } from "@/utils/master-password";
+import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -27,7 +27,7 @@ interface Props {
 export function OnboardAsking({ decodedInfo }: Props) {
   const { activeUser } = useActiveAccount();
 
-  const { data: seedPhrase = "", refetch: refetchSeed } = useSeedPhrase(decodedInfo.username);
+  const [masterPassword, setMasterPassword] = useState(() => generateMasterPassword());
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
   const [secret, setSecret] = useState("");
 
@@ -35,17 +35,17 @@ export function OnboardAsking({ decodedInfo }: Props) {
     ? `${window.location.origin}/signup/invited/`
     : "";
 
-  const downloadSeed = useDownloadSeed(seedPhrase, decodedInfo.username);
+  const downloadKeys = useDownloadKeys(masterPassword, decodedInfo.username);
 
   const accountKeys = useMemo(() => {
-    if (!seedPhrase || !decodedInfo) return null;
+    if (!masterPassword || !decodedInfo) return null;
     try {
-      return getKeysFromSeed(seedPhrase);
+      return deriveHiveMasterPasswordKeys(decodedInfo.username, masterPassword);
     } catch (err: any) {
       error(err?.message);
       return null;
     }
-  }, [seedPhrase, decodedInfo]);
+  }, [masterPassword, decodedInfo]);
 
   useEffect(() => {
     if (!accountKeys || !decodedInfo) return;
@@ -68,9 +68,13 @@ export function OnboardAsking({ decodedInfo }: Props) {
   }, [accountKeys, decodedInfo]);
 
   const handleDownload = useCallback(() => {
-    downloadSeed();
+    downloadKeys();
     setFileIsDownloaded(true);
-  }, [downloadSeed]);
+  }, [downloadKeys]);
+
+  const handleRegenerate = useCallback(() => {
+    setMasterPassword(generateMasterPassword());
+  }, []);
 
   const creationLink = onboardUrl + secret;
 
@@ -99,16 +103,16 @@ export function OnboardAsking({ decodedInfo }: Props) {
           )}
         </div>
 
-        {/* Seed phrase section */}
+        {/* Master password section */}
         <p className="text-sm opacity-75 mb-3">{i18next.t("onboard.copy-key")}</p>
         <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-4 mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono flex-1 break-all">{seedPhrase}</span>
+            <span className="text-sm font-mono flex-1 break-all">{masterPassword}</span>
             <Tooltip content={i18next.t("onboard.copy-tooltip")}>
               <button
                 className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded cursor-pointer"
                 onClick={() => {
-                  clipboard(seedPhrase);
+                  clipboard(masterPassword);
                   success(i18next.t("onboard.copy-password"));
                 }}
               >
@@ -118,7 +122,7 @@ export function OnboardAsking({ decodedInfo }: Props) {
             <Tooltip content={i18next.t("onboard.regenerate-password")}>
               <button
                 className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded cursor-pointer"
-                onClick={() => refetchSeed()}
+                onClick={handleRegenerate}
               >
                 {regenerateSvg}
               </button>

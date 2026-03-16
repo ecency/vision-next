@@ -105,7 +105,7 @@ export function OnboardCreating({ decodedInfo }: Props) {
       });
 
       setModalStep("success");
-      sendMail();
+      sendMail().catch(() => { /* Email notification is best-effort */ });
     } catch (err: any) {
       setModalStep("failed");
       error(...formatError(err));

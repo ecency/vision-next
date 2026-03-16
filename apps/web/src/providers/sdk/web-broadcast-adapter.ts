@@ -60,6 +60,63 @@ const KEY_ROLE_MAP: Record<string, string> = {
   memo: 'memo',
 };
 
+const NAI_MAP: Record<string, { nai: string; precision: number }> = {
+  HIVE: { nai: '@@000000021', precision: 3 },
+  TESTS: { nai: '@@000000021', precision: 3 },
+  HBD: { nai: '@@000000013', precision: 3 },
+  TBD: { nai: '@@000000013', precision: 3 },
+  VESTS: { nai: '@@000000037', precision: 6 },
+};
+
+/** Field names that hold Hive asset values across all operation types. */
+const ASSET_FIELDS = new Set([
+  'amount', 'fee', 'vesting_shares', 'reward_hive', 'reward_hbd', 'reward_vests',
+  'hbd_amount', 'hive_amount', 'amount_to_sell', 'min_to_receive', 'daily_pay',
+  'max_accepted_payout', 'balance', 'hbd_balance',
+]);
+
+/**
+ * Convert a dhive string amount ("1.500 HIVE") to wax NAI format.
+ * Returns original value if it doesn't match the pattern.
+ */
+function stringAmountToNai(value: string): unknown {
+  const match = value.match(/^(\d+\.\d+)\s+(HIVE|HBD|VESTS|TESTS|TBD)$/);
+  if (!match) return value;
+  const { nai, precision } = NAI_MAP[match[2]];
+  const parts = match[1].split('.');
+  const amount = parts[0] + parts[1].padEnd(precision, '0').slice(0, precision);
+  return { amount, precision, nai };
+}
+
+/**
+ * Convert asset fields in an operation value from dhive string format to wax NAI format.
+ * Only converts fields in the ASSET_FIELDS whitelist to avoid corrupting string fields like memo.
+ */
+function convertOpAssets(opValue: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(opValue)) {
+    if (ASSET_FIELDS.has(key) && typeof val === 'string') {
+      result[key] = stringAmountToNai(val);
+    } else {
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+/**
+ * Convert a dhive Operation tuple to wax protobuf-JSON format.
+ * dhive: ["vote", { voter: "alice", ... }]
+ * wax:   { type: "vote_operation", value: { voter: "alice", ... } }
+ */
+function dhiveOpToWaxFormat(op: Operation): { type: string; value: Record<string, unknown> } {
+  const arr = op as unknown as [string, Record<string, unknown>];
+  return {
+    type: `${arr[0]}_operation`,
+    value: convertOpAssets(arr[1]),
+  };
+}
+
 /**
  * Broadcast Hive operations via MetaMask's Hive snap.
  * Signs the transaction using hive_signTransaction, then broadcasts.
@@ -79,6 +136,7 @@ async function broadcastWithMetaMaskSnap(
   const refBlockPrefix = Buffer.from(props.head_block_id, 'hex').readUInt32LE(4);
   const expiration = new Date(Date.now() + 60000).toISOString().slice(0, 19);
 
+  // dhive operations in tuple format for broadcasting
   const transaction = {
     ref_block_num: refBlockNum,
     ref_block_prefix: refBlockPrefix,
@@ -87,9 +145,18 @@ async function broadcastWithMetaMaskSnap(
     extensions: []
   };
 
+  // Wax (used by the snap) expects protobuf-JSON format for operations
+  const waxTransaction = {
+    ref_block_num: refBlockNum,
+    ref_block_prefix: refBlockPrefix,
+    expiration,
+    operations: ops.map(dhiveOpToWaxFormat),
+    extensions: []
+  };
+
   const role = KEY_ROLE_MAP[keyType] ?? 'posting';
 
-  // Sign via Hive snap
+  // Sign via Hive snap (send wax format)
   const result = await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: {
@@ -97,14 +164,14 @@ async function broadcastWithMetaMaskSnap(
       request: {
         method: 'hive_signTransaction',
         params: {
-          transaction: JSON.stringify(transaction),
-          keys: [{ role, accountIndex: 0, addressIndex: 0 }]
+          transaction: JSON.stringify(waxTransaction),
+          keys: [{ role, accountIndex: 0 }]
         }
       }
     }
   }) as { signatures: string[] };
 
-  // Broadcast the signed transaction
+  // Broadcast the signed transaction (dhive format)
   const signedTx = {
     ...transaction,
     signatures: result.signatures

@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Preload hero image for LCP optimization (WebP format - 12KB vs 29KB PNG) */}
         <link
           rel="preload"
-          href="https://images.ecency.com/assets/illustration-earn-money.webp"
+          href="https://ecency.com/assets/illustration-earn-money.webp"
           as="image"
           type="image/webp"
           imageSizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"

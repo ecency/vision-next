@@ -17,15 +17,22 @@ interface HivePublicKey {
   addressIndex: number;
 }
 
+function requireEthereum() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask/ethereum provider not available");
+  }
+  return window.ethereum;
+}
+
 async function ensureHiveSnap(): Promise<void> {
-  await window.ethereum!.request({
+  await requireEthereum().request({
     method: "wallet_requestSnaps",
     params: { [HIVE_SNAP_ID]: {} }
   });
 }
 
 async function getHivePublicKeys(): Promise<HivePublicKey[]> {
-  const result = await window.ethereum!.request({
+  const result = await requireEthereum().request({
     method: "wallet_invokeSnap",
     params: {
       snapId: HIVE_SNAP_ID,
@@ -33,7 +40,7 @@ async function getHivePublicKeys(): Promise<HivePublicKey[]> {
         method: "hive_getPublicKeys",
         params: {
           keys: [
-            { role: "posting", accountIndex: 0, addressIndex: 0 }
+            { role: "posting", accountIndex: 0 }
           ]
         }
       }
@@ -49,7 +56,7 @@ async function signBufferWithSnap(message: string): Promise<string> {
   // producing a standard Hive signature (same as signBuffer).
   const bytes = Array.from(new TextEncoder().encode(message));
 
-  const result = await window.ethereum!.request({
+  const result = await requireEthereum().request({
     method: "wallet_invokeSnap",
     params: {
       snapId: HIVE_SNAP_ID,
@@ -57,7 +64,7 @@ async function signBufferWithSnap(message: string): Promise<string> {
         method: "hive_encrypt",
         params: {
           buffer: bytes,
-          firstKey: { role: "posting", accountIndex: 0, addressIndex: 0 }
+          firstKey: { role: "posting", accountIndex: 0 }
         }
       }
     }

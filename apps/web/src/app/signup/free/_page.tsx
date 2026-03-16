@@ -40,7 +40,7 @@ export function FreeSignUp() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [registrationError, setRegistrationError] = useState("");
 
-  const form = useRef<any>();
+  const form = useRef<HTMLFormElement>(null);
 
   const params = useSearchParams();
   const router = useRouter();
@@ -103,7 +103,9 @@ export function FreeSignUp() {
         if (item.length < 3) {
           setReferralError(i18next.t("sign-up.referral-min-length-error"));
           setIsDisabled(true);
+          return true;
         }
+        return false;
       });
     }
   }, [referral, referralTouched]);
@@ -165,9 +167,7 @@ export function FreeSignUp() {
   };
 
   const captchaCheck = (value: string | null) => {
-    if (value) {
-      setIsVerified(true);
-    }
+    setIsVerified(!!value);
   };
 
   return (
@@ -261,9 +261,9 @@ export function FreeSignUp() {
             </Form>
             <div className="text-center mt-4">
               {i18next.t("sign-up.login-text-1")}
-              <a className="pl-1 cursor-pointer" onClick={() => toggleUIProp("login")}>
+              <button type="button" className="pl-1 cursor-pointer" onClick={() => toggleUIProp("login")}>
                 {i18next.t("sign-up.login-text-2")}
-              </a>
+              </button>
             </div>
           </>
         )}

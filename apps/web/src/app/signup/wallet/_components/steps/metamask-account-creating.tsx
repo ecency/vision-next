@@ -3,6 +3,7 @@
 import { getQueryClient } from "@/core/react-query";
 import { Button } from "@/features/ui";
 import { error } from "@/features/shared";
+import { useLoginByMetaMask } from "@/features/shared/login/hooks/use-login-by-metamask";
 import { delay } from "@/utils";
 import { EcencyAnalytics, getAccountFullQueryOptions, ConfigManager } from "@ecency/sdk";
 import type { FullAccount as FullAccountEntity } from "@/entities";
@@ -10,8 +11,6 @@ import { EcencyWalletCurrency } from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const HIVE_SNAP_ID = "npm:@hiveio/metamask-snap";
@@ -48,10 +47,10 @@ async function getHivePublicKeys(): Promise<HivePublicKey[]> {
         method: "hive_getPublicKeys",
         params: {
           keys: [
-            { role: "owner", accountIndex: 0, addressIndex: 0 },
-            { role: "active", accountIndex: 0, addressIndex: 0 },
-            { role: "posting", accountIndex: 0, addressIndex: 0 },
-            { role: "memo", accountIndex: 0, addressIndex: 0 }
+            { role: "owner", accountIndex: 0 },
+            { role: "active", accountIndex: 0 },
+            { role: "posting", accountIndex: 0 },
+            { role: "memo", accountIndex: 0 }
           ]
         }
       }
@@ -75,10 +74,6 @@ async function createAccountWithWallets(
   const normalizedWalletAddresses = Object.fromEntries(
     Object.entries(walletAddresses)
       .filter(([, walletAddress]): walletAddress is string => Boolean(walletAddress))
-      .map(([walletCurrency, walletAddress]) => [
-        walletCurrency.toLowerCase(),
-        walletAddress
-      ])
   );
 
   return fetch(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
@@ -86,21 +81,20 @@ async function createAccountWithWallets(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username,
-      token: currency.toLowerCase(),
+      token: currency,
       address,
       meta: {
         ...hiveKeys,
         ...normalizedWalletAddresses,
-        [currency.toLowerCase()]: address
+        [currency]: address
       }
     })
   });
 }
 
 export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
-  const params = useSearchParams();
-
-  const [status, setStatus] = useState<"installing-snap" | "getting-keys" | "creating" | "validating" | "success" | "error">("installing-snap");
+  const [status, setStatus] = useState<"installing-snap" | "getting-keys" | "creating" | "validating" | "success" | "logging-in" | "error">("installing-snap");
+  const { mutateAsync: loginByMetaMask } = useLoginByMetaMask(username);
   const hasInitiatedRef = useRef(false);
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
@@ -115,7 +109,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
 
       while (!shouldStop?.()) {
         try {
-          const account = await accountQueryOptions.queryFn!({} as any);
+          const account = await queryClient.fetchQuery(accountQueryOptions);
           if (account) {
             queryClient.setQueryData(accountQueryOptions.queryKey, account);
             return account as unknown as FullAccountEntity;
@@ -221,7 +215,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
     <div className="flex flex-col gap-4 w-full">
       <div className="max-w-[440px] w-full my-4 md:my-8 xl:my-12 mx-auto flex flex-col gap-4">
         <AnimatePresence mode="wait">
-          {status !== "success" && status !== "error" && (
+          {status !== "success" && status !== "logging-in" && status !== "error" && (
             <motion.div
               key="loading"
               initial={{ opacity: 0, y: -16 }}
@@ -251,11 +245,34 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
               <p className="text-sm opacity-60 text-center mb-4">
                 {i18next.t("signup-wallets.metamask.success-hint")}
               </p>
-              <Link href={params?.get("backUri") ?? "/"}>
-                <Button size="lg">
-                  {params?.has("backUri") ? "Back to origin" : "Explore Ecency"}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                onClick={async () => {
+                  setStatus("logging-in");
+                  try {
+                    await loginByMetaMask();
+                  } catch {
+                    setStatus("success");
+                  }
+                }}
+              >
+                {i18next.t("signup-wallets.metamask.login-with-metamask")}
+              </Button>
+            </motion.div>
+          )}
+
+          {status === "logging-in" && (
+            <motion.div
+              key="logging-in"
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="flex items-center flex-col"
+            >
+              <UilSpinner className="animate-spin duration-500 opacity-50 w-16 h-16" />
+              <div className="text-xl font-semibold mt-4">
+                {i18next.t("signup-wallets.metamask.logging-in")}
+              </div>
             </motion.div>
           )}
 

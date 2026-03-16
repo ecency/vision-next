@@ -2836,7 +2836,7 @@
     "premium": {
       "title": "Premium Account",
       "description": "Instant account with 3x resource credits and 300 Ecency Points.",
-      "button": "Get Premium — $2.99",
+      "button": "Get Premium - $2.99",
       "label": "Premium"
     },
     "wallet": {
@@ -2935,7 +2935,9 @@
       "create-error": "Account creation failed. Please try again.",
       "success-hint": "You can sign into Ecency using your MetaMask wallet with the Hive snap.",
       "enter-address": "Enter your {{chain}} address",
-      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain."
+      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
+      "login-with-metamask": "Login with MetaMask",
+      "logging-in": "Signing you in with MetaMask..."
     }
   },
   "publish": {
@@ -3114,9 +3116,9 @@
     "delegations-outgoing": "Outgoing delegations",
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
-      "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
-      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
+      "title": "Link your crypto wallets",
+      "description": "Connect MetaMask or enter wallet addresses for BTC, ETH, BNB and SOL to manage and monitor your crypto within the Hive ecosystem.",
+      "hint": "Wallet addresses are stored in your Hive account metadata and Ecency",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {

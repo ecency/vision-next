@@ -324,7 +324,6 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
 
         if (!cancelled && !isAvailable) {
           setAddressAlreadyUsed(true);
-          error(i18next.t("signup-wallets.metamask.address-in-use"));
         }
       } catch {
         // If check fails, allow continuing — backend will catch duplicates
@@ -430,7 +429,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           {selectedCurrency && !isEvmChain && connectedAddress && (
             <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-3 text-sm">
               <span className="opacity-60">
-                {CURRENCIES_META_DATA[selectedCurrency]?.title} address:{" "}
+                {i18next.t("signup-wallets.metamask.address-label", { chain: CURRENCIES_META_DATA[selectedCurrency]?.title, defaultValue: "{{chain}} address:" })}{" "}
               </span>
               <span className="font-mono break-all">{connectedAddress}</span>
             </div>
@@ -438,7 +437,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           {selectedCurrency && !isEvmChain && isLoadingChainAddresses && (
             <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-3 text-sm flex items-center gap-2">
               <Spinner className="w-4 h-4" />
-              <span className="opacity-75">Checking MetaMask multichain addresses...</span>
+              <span className="opacity-75">{i18next.t("signup-wallets.metamask.checking-multichain", { defaultValue: "Checking MetaMask multichain addresses..." })}</span>
             </div>
           )}
           {selectedCurrency && !isEvmChain && !connectedAddress && !isLoadingChainAddresses && (
@@ -462,7 +461,7 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
 
               {!isBalanceLoading && tokenAmount.greaterThan(0) && (
                 <div className="text-sm">
-                  <span className="opacity-75">Balance: </span>
+                  <span className="opacity-75">{i18next.t("signup-wallets.balance.label", { defaultValue: "Balance:" })} </span>
                   <span className="font-semibold">
                     {tokenAmount.toFixed(4)} {CURRENCIES_META_DATA[selectedCurrency]?.name}
                   </span>

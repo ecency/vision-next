@@ -36,7 +36,7 @@ export function PremiumSignUp() {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState("");
 
-  const form = useRef<any>();
+  const form = useRef<HTMLFormElement>(null);
   const qrCodeRef = useRef<HTMLImageElement>(null);
 
   const params = useSearchParams();
@@ -100,7 +100,9 @@ export function PremiumSignUp() {
         if (item.length < 3) {
           setReferralError(i18next.t("sign-up.referral-min-length-error"));
           setIsDisabled(true);
+          return true;
         }
+        return false;
       });
     }
   }, [referral, referralTouched]);
@@ -241,14 +243,14 @@ export function PremiumSignUp() {
               <img alt="" width={300} height={300} ref={qrCodeRef} className="rounded-xl" />
             </a>
             <div className="flex flex-col my-4 gap-4 sm:flex-row">
-              <a href="https://ios.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank">
+              <a href="https://ios.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank" rel="noopener noreferrer">
                 <span className="w-8 h-8">{appleSvg}</span>
                 <span>
                   <span className="text-xs block opacity-75">Download on the</span>
                   <span className="font-semibold">AppStore</span>
                 </span>
               </a>
-              <a href="https://android.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank">
+              <a href="https://android.ecency.com" className="flex items-center gap-2 bg-gray-100 dark:bg-dark-default hover:bg-gray-200 dark:hover:bg-black rounded-lg px-3 py-2" target="_blank" rel="noopener noreferrer">
                 <span className="w-8 h-8">{googleSvg}</span>
                 <span>
                   <span className="text-xs block opacity-75">Get it on</span>

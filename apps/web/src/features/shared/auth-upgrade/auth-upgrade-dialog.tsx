@@ -7,6 +7,7 @@ import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
 import { PrivateKey } from "@hiveio/dhive";
+import { MetaMaskSignButton } from "../metamask-sign-button";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseHiveAuth } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -93,68 +94,56 @@ export function AuthUpgradeDialog() {
           {i18next.t("trx-common.sign-sub-title")}
         </p>
         <div className="flex flex-col gap-3">
-          <KeyInput onSign={handleKeySign} keyType={authority} />
-          <div className="flex items-center gap-2 my-1">
-            <hr className="flex-1" />
-            <span className="text-xs text-gray-400">
-              {i18next.t("g.or", { defaultValue: "or" })}
-            </span>
-            <hr className="flex-1" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Button
-              outline={true}
-              appearance="hivesigner"
-              onClick={handleHiveSigner}
-              icon={
-                <Image
-                  width={100}
-                  height={100}
-                  src="/assets/hive-signer.svg"
-                  className="w-4 h-4"
-                  alt="hivesigner"
-                />
-              }
-            >
-              {i18next.t("key-or-hot.with-hivesigner")}
-            </Button>
-            {showKeychainBtn && (
-              <Button
-                outline={true}
-                appearance="secondary"
-                onClick={handleKeychainOrHiveAuth}
-                icon={
-                  <Image
-                    width={100}
-                    height={100}
-                    src={keychainIcon}
-                    className="w-4 h-4"
-                    alt={useHiveAuth ? "hiveauth" : "keychain"}
-                  />
-                }
-              >
-                {keychainLabel}
-              </Button>
-            )}
-            {isMetaMaskUser && (
-              <Button
-                outline={true}
-                appearance="secondary"
-                onClick={handleMetaMask}
-                icon={
-                  <Image
-                    width={100}
-                    height={100}
-                    src="/assets/metamask-fox.svg"
-                    className="w-4 h-4"
-                    alt="metamask"
-                  />
-                }
-              >
-                MetaMask
-              </Button>
-            )}
-          </div>
+          {isMetaMaskUser ? (
+            <MetaMaskSignButton onClick={handleMetaMask} />
+          ) : (
+            <>
+              <KeyInput onSign={handleKeySign} keyType={authority} />
+              <div className="flex items-center gap-2 my-1">
+                <hr className="flex-1" />
+                <span className="text-xs text-gray-400">
+                  {i18next.t("g.or", { defaultValue: "or" })}
+                </span>
+                <hr className="flex-1" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  outline={true}
+                  appearance="hivesigner"
+                  onClick={handleHiveSigner}
+                  icon={
+                    <Image
+                      width={100}
+                      height={100}
+                      src="/assets/hive-signer.svg"
+                      className="w-4 h-4"
+                      alt="hivesigner"
+                    />
+                  }
+                >
+                  {i18next.t("key-or-hot.with-hivesigner")}
+                </Button>
+                {showKeychainBtn && (
+                  <Button
+                    outline={true}
+                    appearance="secondary"
+                    onClick={handleKeychainOrHiveAuth}
+                    icon={
+                      <Image
+                        width={100}
+                        height={100}
+                        src={keychainIcon}
+                        className="w-4 h-4"
+                        alt={useHiveAuth ? "hiveauth" : "keychain"}
+                      />
+                    }
+                  >
+                    {keychainLabel}
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </ModalBody>
     </Modal>

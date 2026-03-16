@@ -10,11 +10,11 @@ import { copyContent, downloadSvg, regenerateSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
-import { useDownloadSeed } from "@/features/wallet";
-import { getKeysFromSeed } from "@/utils/onBoard-helper";
+import { useDownloadKeys } from "@/features/wallet";
+import { generateMasterPassword } from "@/utils/master-password";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAccountsQueryOptions } from "@ecency/sdk";
-import { useSeedPhrase } from "@ecency/wallets";
+import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
 import { useQueryClient } from "@tanstack/react-query";
 import useDebounce from "react-use/lib/useDebounce";
 
@@ -29,6 +29,7 @@ export default function InvitedSignupPage() {
   const [emailError, setEmailError] = useState("");
   const [showKeys, setShowKeys] = useState(false);
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
+  const [masterPassword, setMasterPassword] = useState(() => generateMasterPassword());
 
   useDebounce(() => setDebouncedUsername(username), 500, [username]);
 
@@ -63,19 +64,17 @@ export default function InvitedSignupPage() {
     }
   }, [email]);
 
-  // Generate seed phrase for this username
-  const { data: seedPhrase = "", refetch: refetchSeed } = useSeedPhrase(debouncedUsername);
-  const downloadSeed = useDownloadSeed(seedPhrase, debouncedUsername);
+  const downloadKeys = useDownloadKeys(masterPassword, debouncedUsername);
 
   const accountKeys = useMemo(() => {
-    if (!seedPhrase) return null;
+    if (!masterPassword || !debouncedUsername) return null;
     try {
-      return getKeysFromSeed(seedPhrase);
+      return deriveHiveMasterPasswordKeys(debouncedUsername, masterPassword);
     } catch (err: any) {
       error(err?.message);
       return null;
     }
-  }, [seedPhrase]);
+  }, [masterPassword, debouncedUsername]);
 
   // Build the shareable link with pubkeys
   const shareLink = useMemo(() => {
@@ -111,9 +110,13 @@ export default function InvitedSignupPage() {
   }, [canProceed, username, queryClient]);
 
   const handleDownload = useCallback(() => {
-    downloadSeed();
+    downloadKeys();
     setFileIsDownloaded(true);
-  }, [downloadSeed]);
+  }, [downloadKeys]);
+
+  const handleRegenerate = useCallback(() => {
+    setMasterPassword(generateMasterPassword());
+  }, []);
 
   return (
     <div className="max-w-[540px] mx-auto">
@@ -176,16 +179,16 @@ export default function InvitedSignupPage() {
           </>
         ) : (
           <>
-            {/* Seed phrase */}
+            {/* Master password */}
             <p className="text-sm opacity-75 mb-3">{i18next.t("onboard.copy-key")}</p>
             <div className="bg-gray-50 dark:bg-dark-default rounded-xl p-4 mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-mono flex-1 break-all">{seedPhrase}</span>
+                <span className="text-sm font-mono flex-1 break-all">{masterPassword}</span>
                 <Tooltip content={i18next.t("onboard.copy-tooltip")}>
                   <button
                     className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded cursor-pointer"
                     onClick={() => {
-                      clipboard(seedPhrase);
+                      clipboard(masterPassword);
                       success(i18next.t("onboard.copy-password"));
                     }}
                   >
@@ -195,7 +198,7 @@ export default function InvitedSignupPage() {
                 <Tooltip content={i18next.t("onboard.regenerate-password")}>
                   <button
                     className="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded cursor-pointer"
-                    onClick={() => refetchSeed()}
+                    onClick={handleRegenerate}
                   >
                     {regenerateSvg}
                   </button>

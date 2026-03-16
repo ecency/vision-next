@@ -193,6 +193,7 @@ export function AccountRecovery() {
             onKey={(key) => handleSign("key", key)}
             onKc={() => handleSign("keychain")}
             onHot={() => handleSign("hivesigner")}
+            onMetaMask={() => handleSign("keychain")}
           />
         </ModalBody>
       </Modal>

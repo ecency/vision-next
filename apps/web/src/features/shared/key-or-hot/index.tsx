@@ -8,29 +8,41 @@ import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
 import { OrDivider } from "../or-divider";
+import { MetaMaskSignButton } from "../metamask-sign-button";
 import "./index.scss";
 import { shouldUseHiveAuth } from "@/utils/client";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { getLoginType } from "@/utils/user-token";
 
 interface Props {
   inProgress: boolean;
   onKey: (key: PrivateKey) => void;
   onHot?: () => void;
   onKc?: () => void;
+  onMetaMask?: () => void;
   keyOnly?: boolean;
-  authority: "owner" | "active";
+  authority?: "owner" | "active";
 }
 
-export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
+export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, authority="active" }: Props) {
   const { activeUser } = useActiveAccount();
   const isMobileBrowser = useIsMobile();
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser());
+  const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
+  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser());
   const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
   const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
   const keychainLabel = useHiveAuth
     ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
     : i18next.t("key-or-hot.with-keychain");
+
+  if (isMetaMaskUser) {
+    return (
+      <div className="key-or-hot">
+        <MetaMaskSignButton onClick={() => onMetaMask?.()} />
+      </div>
+    );
+  }
 
   return (
     <>

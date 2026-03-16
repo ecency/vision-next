@@ -47,6 +47,7 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
         onKey={(key) => onApi(key)}
         onKc={() => onKc()}
         onHot={() => onHs()}
+        onMetaMask={() => onKc()}
       />
     </CommunityCreateCardLayout>
   );

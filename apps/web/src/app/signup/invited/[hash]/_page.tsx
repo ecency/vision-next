@@ -96,7 +96,7 @@ export function InvitedSponsorPage({ hash }: Props) {
       return;
     }
     rcOperationsCost();
-  }, [isChecked, rcAmount]);
+  }, [isChecked]);
 
   const rcOperationsCost = async () => {
     const rcStats: any = await queryClient.fetchQuery(getRcStatsQueryOptions());
@@ -134,7 +134,11 @@ export function InvitedSponsorPage({ hash }: Props) {
 
       setModalStep("success");
       // Notify new user by email
-      onboardEmail(newAccountName, decodedInfo.email, activeUser.username);
+      try {
+        await onboardEmail(newAccountName, decodedInfo.email, activeUser.username);
+      } catch {
+        // Email notification is best-effort; account was already created
+      }
     } catch (err: any) {
       setModalStep("failed");
       error(...formatError(err));
