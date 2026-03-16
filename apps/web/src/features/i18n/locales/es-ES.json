@@ -292,7 +292,10 @@
     "use-key": "Usar clave/password",
     "seed-info": "No almacenamos su frase de semilla ni las claves generadas",
     "sign-in": "Iniciar sesión",
-    "my-users": "Mis usuarios"
+    "my-users": "Mis usuarios",
+    "metamask-not-found": "MetaMask no encontrado. Por favor instale la extensión del navegador MetaMask.",
+    "metamask-no-keys": "No se pudo obtener las teclas de Hive de MetaMask",
+    "metamask-key-mismatch": "Las claves de MetaMask Hive no coinciden con esta cuenta. Asegúrese de que está usando la misma cartera de MetaMask usada durante el registro."
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
@@ -401,7 +404,10 @@
     "votes": "Votos:",
     "transfers": "Transferencias:",
     "reblogs-follows": "Reblogs / Seguidos:",
-    "rc-error": "No puede delegar menos de 5bn Rc"
+    "rc-error": "No puede delegar menos de 5bn Rc",
+    "rc-delegation-failed": "Delegación RC fallida",
+    "invalid-link": "Enlace de incorporación no válido",
+    "delegate-placeholder": "Introduzca la cantidad a delegar (Bn)"
   },
   "trending-tags": {
     "title": "Temas"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Iniciar sesión con KeyChain",
     "with-hiveauth": "Firmar con HiveAuth",
     "invalid-key": "Formato de clave no válido. Por favor, compruebe los caracteres no válidos.",
-    "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta."
+    "key-error": "Error al procesar la clave. Por favor, compruebe que es correcta.",
+    "sign-with-metamask": "Firmar con MetaMask"
   },
   "hive-auth": {
     "pending-request": "Solicitud de HiveAuth pendiente. Coincide con el ID {{id}} en tu cartera."
@@ -2821,6 +2828,32 @@
     "muted": "Usuario ha silenciado",
     "unmuted": "Usuario ha dejado de silenciar"
   },
+  "signup-options": {
+    "free": {
+      "title": "Cuenta gratuita",
+      "description": "Consigue una cuenta de Hive con verificación básica de correo electrónico.",
+      "button": "Obtener cuenta gratuita",
+      "label": "Gratis"
+    },
+    "premium": {
+      "title": "Cuenta Premium",
+      "description": "Cuenta instantánea con créditos de recursos 3x y 300 Puntos Ecencia.",
+      "button": "Obtén Premium - $2,99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Cartera criptográfica",
+      "description": "Crea una cuenta al instante usando MetaMask. No se necesitan frases de semillas.",
+      "button": "Conectar cartera",
+      "label": "Cartera"
+    },
+    "invited": {
+      "title": "Invitado por un amigo",
+      "description": "Un amigo con una cuenta de Hive puede crear una sin costo alguno.",
+      "button": "Invitarse",
+      "label": "Invitado"
+    }
+  },
   "signup-email": {
     "title": "Regístrate con Email",
     "description": "Forma flexible de crear una cuenta usando la validación de correo electrónico. Elija una de las opciones, tales como cuenta gratuita o cuenta optimizada con 3X créditos de recursos, por $2,99 o por invitación de un amigo",
@@ -2886,6 +2919,27 @@
       "creating": "Creando cuenta de Hive...",
       "validating": "Preparando tu cuenta...",
       "success": "Tu cuenta fue creada. ¡Disfruta de Hive y Ecencia!"
+    },
+    "metamask": {
+      "title": "Conectar MetaMask",
+      "description": "Conecte su cartera de MetaMask para verificar su identidad y crear una cuenta de Hive.",
+      "not-found": "MetaMask no detectado. Por favor instale la extensión MetaMask.",
+      "connect-button": "Conectar MetaMask",
+      "connect-hint": "Verificaremos el saldo de su cartera para verificar su identidad. No se transferirán fondos.",
+      "connect-error": "Error al conectar MetaMask. Vuelve a intentarlo.",
+      "connected": "Metamáscara conectada",
+      "chain-unsupported": "Esta cadena aún no está soportada para conexión directa. Próximamente.",
+      "address-in-use": "Esta dirección de cartera ya está asociada con una cuenta de Hive.",
+      "sign-and-continue": "Firmar y continuar",
+      "sign-rejected": "Firma rechazada. Por favor, inténtelo de nuevo.",
+      "installing-snap": "Instalando Snap...",
+      "getting-keys": "Obteniendo las claves de la Colmena de tu cartera...",
+      "create-error": "Error al crear la cuenta. Vuelve a intentarlo.",
+      "success-hint": "Puede iniciar sesión en Ecencia usando su cartera MetaMask con el Snap de Colmena.",
+      "enter-address": "Introduzca su dirección {{chain}}",
+      "enter-address-hint": "Copie la dirección de su cartera MetaMask para esta cadena.",
+      "login-with-metamask": "Iniciar sesión con MetaMask",
+      "logging-in": "Iniciando sesión con MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Delegaciones salientes",
     "delegations-incoming": "Delegaciones entrantes",
     "external-wallets-offer": {
-      "title": "Trae tu criptomoneda a Ecency",
-      "description": "Crear o importar carteras para BTC, ETH, BNB, SOL, TRX, APT y TON directamente desde aplicaciones como Trust o Exodus, y empiece a usarlos sin problemas dentro del ecosistema de Hive.",
-      "hint": "La información del token creada e importada se almacenará en metadatos de la cuenta de Ecency y de Hive",
+      "title": "Vincula tus criptomonedas",
+      "description": "Conecte MetaMask o introduzca direcciones de cartera para BTC, ETH, BNB y SOL para administrar y monitorear su cripto dentro del ecosistema Hive.",
+      "hint": "Las direcciones del monedero se almacenan en los metadatos y la Ecencia de su cuenta de Hive",
       "dismiss": "Tal vez más tarde"
     },
     "external-wallets-signup": {
