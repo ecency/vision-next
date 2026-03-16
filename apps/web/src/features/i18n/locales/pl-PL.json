@@ -292,7 +292,10 @@
     "use-key": "Użyj klucza/pasku",
     "seed-info": "Nie przechowujemy Twojej frazy seed ani wygenerowanych kluczy",
     "sign-in": "Zaloguj się",
-    "my-users": "Moi użytkownicy"
+    "my-users": "Moi użytkownicy",
+    "metamask-not-found": "MetaMask nie został znaleziony. Proszę zainstalować rozszerzenie przeglądarki MetaMask",
+    "metamask-no-keys": "Nie można uzyskać kluczy ulowych z MetaMask",
+    "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji."
   },
   "sign-up": {
     "header": "Nagroda społeczności Web3",
@@ -401,7 +404,10 @@
     "votes": "Głosy:",
     "transfers": "Transfery:",
     "reblogs-follows": "Reblogi/Obserwujący:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "Delegacja RC nie powiodła się",
+    "invalid-link": "Nieprawidłowy link do wdrożenia",
+    "delegate-placeholder": "Wprowadź kwotę do delegowania (Bn)"
   },
   "trending-tags": {
     "title": "Tematy"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Podpisz z HiveAuth",
     "invalid-key": "Nieprawidłowy format klucza. Sprawdź czy nie występują nieprawidłowe znaki.",
-    "key-error": "Przetwarzanie klucza nie powiodło się. Sprawdź, czy jest poprawne."
+    "key-error": "Przetwarzanie klucza nie powiodło się. Sprawdź, czy jest poprawne.",
+    "sign-with-metamask": "Podpisz za pomocą MetaMask"
   },
   "hive-auth": {
     "pending-request": "Żądanie HiveAuth w toku. Dopasuj ID {{id}} w portfelu."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Darmowe konto",
+      "description": "Otrzymaj konto Howowe z podstawową weryfikacją e-mail.",
+      "button": "Otrzymaj darmowe konto",
+      "label": "Darmowe"
+    },
+    "premium": {
+      "title": "Konto Premium",
+      "description": "Natychmiastowe konto z 3 punktami zasobów i 300 punktami ecencji.",
+      "button": "Zdobądź Premium - 2,99 USD",
+      "label": "Premia"
+    },
+    "wallet": {
+      "title": "Portfel kryptowalutowy",
+      "description": "Utwórz konto natychmiastowo używając MetaMask. Nie są potrzebne frazy ziaren.",
+      "button": "Połącz portfel",
+      "label": "Portfel"
+    },
+    "invited": {
+      "title": "Zaproszony przez znajomego",
+      "description": "Przyjaciel z kontem w uli może utworzyć je dla Ciebie za wszelką cenę.",
+      "button": "Otrzymaj zaproszenie",
+      "label": "Zaproszono"
+    }
+  },
   "signup-email": {
     "title": "Zarejestruj się przez e-mail",
     "description": "Elastyczny sposób na utworzenie konta przy użyciu weryfikacji adresu e-mail. Wybierz jedną z opcji, takich jak darmowe i wzmocnione konto z 3X kredytów zasobowych dla $2.99 lub na pokładzie znajomego",
@@ -2886,6 +2919,27 @@
       "creating": "Tworzenie konta ulowego...",
       "validating": "Przygotowywanie konta...",
       "success": "Twoje konto utworzone. Ciesz się Ulem i Ecencją!"
+    },
+    "metamask": {
+      "title": "Połącz MetaMask",
+      "description": "Połącz swój portfel MetaMask aby zweryfikować swoją tożsamość i utworzyć konto Ho.",
+      "not-found": "MetaMask nie wykryty. Proszę zainstalować rozszerzenie MetaMask.",
+      "connect-button": "Połącz MetaMask",
+      "connect-hint": "Sprawdzimy Twoje saldo portfela aby zweryfikować Twoją tożsamość. Żadne środki nie zostaną przekazane.",
+      "connect-error": "Nie udało się połączyć z MetaMask. Spróbuj ponownie.",
+      "connected": "MetaMask podłączony",
+      "chain-unsupported": "Ten łańcuch nie jest jeszcze obsługiwany dla bezpośredniego połączenia. Już wkrótce.",
+      "address-in-use": "Ten adres portfela jest już powiązany z kontem Hive.",
+      "sign-and-continue": "Podpisz i kontynuuj",
+      "sign-rejected": "Podpis został odrzucony. Spróbuj ponownie.",
+      "installing-snap": "Instalowanie snapu portfela ul...",
+      "getting-keys": "Wyprowadzanie kluczy ulowych z twojego portfela...",
+      "create-error": "Tworzenie konta nie powiodło się. Spróbuj ponownie.",
+      "success-hint": "Możesz zalogować się do Ecencji za pomocą portfela MetaMask za pomocą przyciągnięcia ula.",
+      "enter-address": "Wprowadź swój adres {{chain}}",
+      "enter-address-hint": "Skopiuj adres z portfela MetaMask do tego łańcucha.",
+      "login-with-metamask": "Zaloguj się za pomocą MetaMask",
+      "logging-in": "Logowanie za pomocą MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Wychodzące delegacje",
     "delegations-incoming": "Przychodzące delegacje",
     "external-wallets-offer": {
-      "title": "Przynieś swoją kryptowalutę do ecencji",
-      "description": "Tworzenie lub importowanie portfeli dla BTC, ETH, BNB, SOL, TRX, APT i TON bezpośrednio z aplikacji takich jak Trust lub Exodus, i zacząć płynnie z nich korzystać w ekosystemie ulowym.",
-      "hint": "Utworzone i importowane informacje o tokenie będą przechowywane w metadanych konta Ecency i Uli",
+      "title": "Połącz swoje portfele kryptowalutowe",
+      "description": "Połącz MetaMask lub wprowadź adresy portfela dla BTC, ETH, BNB i SOL, aby zarządzać kryptowalutą i monitorować ją w ekosystemie Hive.",
+      "hint": "Adresy portfela są przechowywane w metadanych konta Howniczego i Ecencji",
       "dismiss": "Może później"
     },
     "external-wallets-signup": {
