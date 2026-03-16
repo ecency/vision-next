@@ -292,7 +292,10 @@
     "use-key": "Gebruik toets/pass",
     "seed-info": "We slaan uw herstelzin niet op en genereren sleutels",
     "sign-in": "Log in",
-    "my-users": "Mijn gebruikers"
+    "my-users": "Mijn gebruikers",
+    "metamask-not-found": "MetaMask is niet gevonden. Installeer MetaMask browserextensie.",
+    "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden."
   },
   "sign-up": {
     "header": "Web3 gemeenschappen belonen",
@@ -401,7 +404,10 @@
     "votes": "Stemmen:",
     "transfers": "Overdrachten:",
     "reblogs-follows": "Reblogs/Volgt:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegatie mislukt",
+    "invalid-link": "Ongeldige onboarding link",
+    "delegate-placeholder": "Voer bedrag in om te delegeren (Bn)"
   },
   "trending-tags": {
     "title": "Onderwerpen"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Meld je aan met HiveAuth",
     "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
-    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is."
+    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is.",
+    "sign-with-metamask": "Ondertekenen met MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Gratis Account",
+      "description": "Neem een Hive account met basis e-mail verificatie.",
+      "button": "Ontvang een gratis account",
+      "label": "Vrij"
+    },
+    "premium": {
+      "title": "Premium account",
+      "description": "Direct account met 3x resource credits en 300 Ecency Punten.",
+      "button": "Neem Premium - $2,99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Maak direct een account aan met MetaMask. Geen herstelzinnen nodig.",
+      "button": "Verbind Portemonnee",
+      "label": "Portemonnee"
+    },
+    "invited": {
+      "title": "Uitgenodigd door een vriend",
+      "description": "Een vriend met een Hive account kan er kosteloos een voor u maken.",
+      "button": "Uitgenodigd",
+      "label": "Uitgenodigd"
+    }
+  },
   "signup-email": {
     "title": "Aanmelden met e-mail",
     "description": "Flexibele manier om een account aan te maken via e-mailvalidatie. Kies een van de opties zoals een gratis account met 3X resource credits voor $2.99 of Onboard een vriend",
@@ -2886,6 +2919,27 @@
       "creating": "Aanmaken Hive account...",
       "validating": "Je account wordt voorbereid...",
       "success": "Je account is aangemaakt. Geniet van de Korf en Ecency!"
+    },
+    "metamask": {
+      "title": "Verbinden met MetaMask",
+      "description": "Sluit uw MetaMask portemonnee aan om uw identiteit te verifiëren en een Hive account aan te maken.",
+      "not-found": "MetaMask is niet gedetecteerd. Installeer MetaMask extensie.",
+      "connect-button": "Verbinden met MetaMask",
+      "connect-hint": "We zullen je portemonnee controleren om je identiteit te verifiëren. Er wordt geen geld overgemaakt.",
+      "connect-error": "Verbinding maken met MetaMask mislukt. Probeer het opnieuw.",
+      "connected": "MetaMask verbonden",
+      "chain-unsupported": "Deze keten wordt nog niet ondersteund voor directe verbinding. Binnenkort beschikbaar.",
+      "address-in-use": "Dit portemonnee adres is al gekoppeld aan een Hive account.",
+      "sign-and-continue": "Ondertekenen & doorgaan",
+      "sign-rejected": "Handtekening werd geweigerd. Probeer het opnieuw.",
+      "installing-snap": "Installeren van Hive wallet snap...",
+      "getting-keys": "Vervallen van de Hive keys uit uw portemonnee...",
+      "create-error": "Account aanmaken is mislukt. Probeer het opnieuw.",
+      "success-hint": "Je kunt bij Ecency inloggen met je MetaMask portemonnee met de Hive snap.",
+      "enter-address": "Voer uw {{chain}} adres in",
+      "enter-address-hint": "Kopieer het adres van uw MetaMask portemonnee voor deze keten.",
+      "login-with-metamask": "Login met MetaMask",
+      "logging-in": "Je wordt aangemeld met MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Uitgaande delegaties",
     "delegations-incoming": "Inkomende delegaties",
     "external-wallets-offer": {
-      "title": "Breng uw crypto naar Ecency",
-      "description": "Maken of importeren van portemonnees voor BTC, ETH, BNB, SOL, TRX, APT en TON direct vanuit apps als Trust of Exodus, en gebruik ze naadloos binnen het ecosysteem van de Hive.",
-      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata",
+      "title": "Koppel uw crypto-portefeuilles",
+      "description": "Verbind MetaMask of voer portemonnee-adressen in voor BTC, ETH, BNB en SOL om uw crypto te beheren en te monitoren binnen het Hive ecosysteem.",
+      "hint": "Portemonnee adressen worden opgeslagen in uw Hive account metagegevens en Ecency",
       "dismiss": "Misschien later"
     },
     "external-wallets-signup": {
