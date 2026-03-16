@@ -23,8 +23,8 @@ export const OnboardFriend = ({ params: { slugs } }: Props) => {
     // "asking" was the visitor flow — redirect to visitor page (no hash)
     if (type === "asking") {
       router.replace("/signup/invited");
-    } else if (type === "creating" && slugs[1]) {
-      router.replace(`/signup/invited/${encodeURIComponent(slugs[1])}`);
+    } else if (type === "creating") {
+      router.replace(slugs[1] ? `/signup/invited/${encodeURIComponent(slugs[1])}` : "/signup/invited");
     } else {
       router.replace(hash ? `/signup/invited/${encodeURIComponent(hash)}` : "/signup/invited");
     }

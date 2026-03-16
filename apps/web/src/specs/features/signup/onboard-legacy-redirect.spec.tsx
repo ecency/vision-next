@@ -27,6 +27,11 @@ describe("OnboardFriend legacy redirect", () => {
     expect(mockReplace).toHaveBeenCalledWith(`/signup/invited/${encodeURIComponent("abc123hash")}`);
   });
 
+  it("redirects /onboard-friend/creating (no hash) to /signup/invited", () => {
+    render(<OnboardFriend params={{ slugs: ["creating"] }} />);
+    expect(mockReplace).toHaveBeenCalledWith("/signup/invited");
+  });
+
   it("redirects /onboard-friend/{hash} (single slug) to /signup/invited/{hash}", () => {
     render(<OnboardFriend params={{ slugs: ["directhash"] }} />);
     expect(mockReplace).toHaveBeenCalledWith(`/signup/invited/${encodeURIComponent("directhash")}`);

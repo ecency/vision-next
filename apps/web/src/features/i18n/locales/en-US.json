@@ -406,7 +406,8 @@
     "reblogs-follows": "Reblogs/Follows:",
     "rc-error": "You cannot delegate below 5bn RC",
     "rc-delegation-failed": "RC delegation failed",
-    "invalid-link": "Invalid onboarding link"
+    "invalid-link": "Invalid onboarding link",
+    "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
     "title": "Topics"
@@ -1592,7 +1593,8 @@
     "with-keychain": "Sign with Keychain",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
-    "key-error": "Failed to process the key. Please verify it is correct."
+    "key-error": "Failed to process the key. Please verify it is correct.",
+    "sign-with-metamask": "Sign with MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
