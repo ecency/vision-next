@@ -292,7 +292,10 @@
     "use-key": "Usa chiave/passaggio",
     "seed-info": "Non memorizziamo la tua seed phrase e le chiavi generate",
     "sign-in": "Accedi",
-    "my-users": "Gestisci le mie utenze"
+    "my-users": "Gestisci le mie utenze",
+    "metamask-not-found": "MetaMaschera non trovata. Installare l'estensione del browser MetaMask.",
+    "metamask-no-keys": "Impossibile ottenere le chiavi Hive dallo snap di MetaMask",
+    "metamask-key-mismatch": "Le chiavi MetaMask Hive non corrispondono a questo account. Assicurati di usare lo stesso portafoglio MetaMask usato durante la registrazione."
   },
   "sign-up": {
     "header": "Ricompensando Comunità Web3",
@@ -401,7 +404,10 @@
     "votes": "Voti:",
     "transfers": "Trasferimenti:",
     "reblogs-follows": "Reblogs/Follows:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "Delega RC non riuscita",
+    "invalid-link": "Link onboarding non valido",
+    "delegate-placeholder": "Inserisci l'importo da delegare (Bn)"
   },
   "trending-tags": {
     "title": "Argomenti"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Firma con HiveAuth",
     "invalid-key": "Formato chiave non valido. Si prega di verificare la presenza di caratteri non validi.",
-    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta."
+    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta.",
+    "sign-with-metamask": "Firma con MetaMask"
   },
   "hive-auth": {
     "pending-request": "Richiesta HiveAuth in sospeso. Partita con ID {{id}} nel tuo portafoglio."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Account Gratuito",
+      "description": "Ottieni un account Hive con verifica email di base.",
+      "button": "Ottieni Account Gratuito",
+      "label": "Gratis"
+    },
+    "premium": {
+      "title": "Account Premium",
+      "description": "Account istantaneo con 3x crediti di risorse e 300 Ecency Points.",
+      "button": "Ottieni Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Portafoglio Crypto",
+      "description": "Crea un account istantaneamente usando MetaMask. Nessuna frase di seed necessaria.",
+      "button": "Connetti Portafoglio",
+      "label": "Portafoglio"
+    },
+    "invited": {
+      "title": "Invitato da un amico",
+      "description": "Un amico con un account Hive può crearne uno per te senza alcun costo.",
+      "button": "Get Invited",
+      "label": "Invitato"
+    }
+  },
   "signup-email": {
     "title": "Registrati con l'email",
     "description": "Modo flessibile per creare un account utilizzando la convalida via email. Scegli una delle opzioni come un account gratuito e potenziato con 3X crediti di risorse per $2,99 o a bordo di un amico",
@@ -2886,6 +2919,27 @@
       "creating": "Creazione account Hive...",
       "validating": "Preparazione del tuo account...",
       "success": "Il tuo account creato. Goditi l'Hive e l'Ecency!"
+    },
+    "metamask": {
+      "title": "Connetti La MetaMaschera",
+      "description": "Collega il tuo portafoglio MetaMask per verificare la tua identità e creare un account Hive.",
+      "not-found": "MetaMask non rilevata. Installare l'estensione MetaMask",
+      "connect-button": "Connetti La MetaMaschera",
+      "connect-hint": "Verificheremo il saldo del tuo portafoglio per verificare la tua identità. Nessun fondo verrà trasferito.",
+      "connect-error": "Impossibile connettersi a MetaMask. Riprova.",
+      "connected": "MetaMaschera connessa",
+      "chain-unsupported": "Questa catena non è ancora supportata per la connessione diretta. In arrivo.",
+      "address-in-use": "Questo indirizzo del portafoglio è già associato a un account Hive.",
+      "sign-and-continue": "Firma E Continua",
+      "sign-rejected": "La firma è stata rifiutata. Riprova.",
+      "installing-snap": "Installazione dello snapet Portafoglio Hive...",
+      "getting-keys": "Derivare le chiavi Hive dal tuo portafoglio...",
+      "create-error": "Creazione account non riuscita. Riprova.",
+      "success-hint": "È possibile accedere a Ecency utilizzando il vostro portafoglio MetaMask con il Hive snap.",
+      "enter-address": "Inserisci il tuo indirizzo {{chain}}",
+      "enter-address-hint": "Copia l'indirizzo dal tuo portafoglio MetaMask per questa catena.",
+      "login-with-metamask": "Accedi con MetaMask",
+      "logging-in": "Accedi con MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Delegazioni uscenti",
     "delegations-incoming": "Delegazioni in arrivo",
     "external-wallets-offer": {
-      "title": "Porta le tue criptovalute in Ecenza",
-      "description": "Crea o importa portafogli per BTC, ETH, BNB, SOL, TRX, APT e TON direttamente da app come Trust o Exodus, e iniziare a usarli senza soluzione di continuità all'interno dell'ecosistema Hive.",
-      "hint": "Le informazioni di token create e importate saranno memorizzate in un account Ecency e Hive metadati",
+      "title": "Collega i tuoi portafogli criptovalute",
+      "description": "Collega MetaMask o inserisci indirizzi portafoglio per BTC, ETH, BNB e SOL per gestire e monitorare le tue criptovalute all'interno dell'ecosistema Hive.",
+      "hint": "Gli indirizzi del portafoglio sono memorizzati nei metadati del tuo account Hive e Ecency",
       "dismiss": "Forse più tardi"
     },
     "external-wallets-signup": {
