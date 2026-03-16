@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
+vi.mock("@/core/hooks/use-active-account");
 vi.mock("@/utils/client", () => ({
   shouldUseHiveAuth: vi.fn(() => false)
 }));
@@ -12,9 +14,9 @@ vi.mock("@/utils/user-token", () => ({
   getLoginType: vi.fn()
 }));
 vi.mock("@/utils", () => ({
+  useIsMobile: vi.fn(() => false),
   random: vi.fn(),
-  getAccessToken: vi.fn(() => "mock-token"),
-  useIsMobile: vi.fn(() => false)
+  getAccessToken: vi.fn(() => "mock-token")
 }));
 vi.mock("next/image", () => ({
   __esModule: true,
@@ -50,9 +52,9 @@ describe("KeyOrHot - MetaMask rendering", () => {
 
     render(<KeyOrHot {...defaultProps} />);
 
-    expect(screen.getByTestId("metamask-btn")).toBeDefined();
-    // Should NOT show HiveSigner
-    expect(screen.queryByText("key-or-hot.with-hivesigner")).toBeNull();
+    expect(screen.getByTestId("metamask-btn")).toBeInTheDocument();
+    // Should NOT show other signing options
+    expect(screen.queryByText("key-or-hot.with-hivesigner")).not.toBeInTheDocument();
   });
 
   it("calls onMetaMask when MetaMask button is clicked", () => {
@@ -74,7 +76,7 @@ describe("KeyOrHot - MetaMask rendering", () => {
 
     render(<KeyOrHot {...defaultProps} />);
 
-    expect(screen.getByText("key-or-hot.with-hivesigner")).toBeDefined();
-    expect(screen.queryByTestId("metamask-btn")).toBeNull();
+    expect(screen.getByText("key-or-hot.with-hivesigner")).toBeInTheDocument();
+    expect(screen.queryByTestId("metamask-btn")).not.toBeInTheDocument();
   });
 });

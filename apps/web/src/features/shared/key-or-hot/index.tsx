@@ -36,10 +36,10 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
     ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
     : i18next.t("key-or-hot.with-keychain");
 
-  if (isMetaMaskUser) {
+  if (isMetaMaskUser && onMetaMask && !keyOnly) {
     return (
       <div className="key-or-hot">
-        <MetaMaskSignButton onClick={() => onMetaMask?.()} />
+        <MetaMaskSignButton onClick={() => onMetaMask()} />
       </div>
     );
   }
@@ -48,27 +48,29 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
     <>
       <div className="key-or-hot">
         <KeyInput onSign={onKey} keyType={authority}/>
-        {!keyOnly && (
+        {!keyOnly && (onHot || canRenderKeychain) && (
           <>
             <OrDivider />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button
-                size="lg"
-                outline={true}
-                appearance="hivesigner"
-                onClick={() => onHot?.()}
-                icon={
-                  <Image
-                    width={100}
-                    height={100}
-                    src="/assets/hive-signer.svg"
-                    className="w-4 h-4"
-                    alt="hivesigner"
-                  />
-                }
-              >
-                {i18next.t("key-or-hot.with-hivesigner")}
-              </Button>
+              {onHot && (
+                <Button
+                  size="lg"
+                  outline={true}
+                  appearance="hivesigner"
+                  onClick={() => onHot()}
+                  icon={
+                    <Image
+                      width={100}
+                      height={100}
+                      src="/assets/hive-signer.svg"
+                      className="w-4 h-4"
+                      alt="hivesigner"
+                    />
+                  }
+                >
+                  {i18next.t("key-or-hot.with-hivesigner")}
+                </Button>
+              )}
 
               {canRenderKeychain && (
                 <Button

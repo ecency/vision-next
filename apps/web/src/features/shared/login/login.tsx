@@ -223,7 +223,7 @@ export default function Login() {
                   />
                 }
               >
-                MetaMask
+                {i18next.t("key-or-hot.sign-with-metamask", { defaultValue: "Sign with MetaMask" })}
               </Button>
             )}
           </motion.div>

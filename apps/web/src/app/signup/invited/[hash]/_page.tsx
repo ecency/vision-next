@@ -90,17 +90,23 @@ export function InvitedSponsorPage({ hash }: Props) {
       ]
     : [];
 
+  const [rcOps, setRcOps] = useState<Record<string, { avg_cost: number }> | null>(null);
+
+  // Fetch RC stats once when delegation is enabled
   useEffect(() => {
     if (!isChecked) {
       setRcAmount(0);
+      setRcOps(null);
       return;
     }
-    rcOperationsCost();
+    queryClient.fetchQuery(getRcStatsQueryOptions()).then((rcStats: any) => {
+      setRcOps(rcStats.ops);
+    });
   }, [isChecked]);
 
-  const rcOperationsCost = async () => {
-    const rcStats: any = await queryClient.fetchQuery(getRcStatsQueryOptions());
-    const ops = rcStats.ops;
+  // Recompute estimates and validation whenever rcAmount or rcOps change (no fetch)
+  useEffect(() => {
+    if (!rcOps || !isChecked) return;
 
     if (isNaN(rcAmount) || rcAmount * 1e9 < 5000000000) {
       setRcError(i18next.t("onboard.rc-error"));
@@ -108,15 +114,11 @@ export function InvitedSponsorPage({ hash }: Props) {
       setRcError("");
     }
 
-    setCommentAmount(Math.ceil((rcAmount * 1e9) / ops.comment_operation.avg_cost));
-    setVoteAmount(Math.ceil((rcAmount * 1e9) / ops.vote_operation.avg_cost));
-    setTransferAmount(
-      Math.ceil((rcAmount * 1e9) / ops.transfer_operation.avg_cost)
-    );
-    setCustomJsonAmount(
-      Math.ceil((rcAmount * 1e9) / ops.custom_json_operation.avg_cost)
-    );
-  };
+    setCommentAmount(Math.ceil((rcAmount * 1e9) / rcOps.comment_operation.avg_cost));
+    setVoteAmount(Math.ceil((rcAmount * 1e9) / rcOps.vote_operation.avg_cost));
+    setTransferAmount(Math.ceil((rcAmount * 1e9) / rcOps.transfer_operation.avg_cost));
+    setCustomJsonAmount(Math.ceil((rcAmount * 1e9) / rcOps.custom_json_operation.avg_cost));
+  }, [rcAmount, rcOps, isChecked]);
 
   const onCreateAccount = async (type: "hive" | "credit") => {
     if (!activeUser || !decodedInfo?.pubkeys) return;

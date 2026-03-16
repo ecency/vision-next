@@ -21,7 +21,7 @@ import { hasPublishContent } from "../_utils/content";
 
 interface Props {
   onClose: () => void;
-  onSuccess: (step: "published" | "scheduled") => void;
+  onSuccess: (step: "published" | "scheduled", entryInfo?: { title: string; author: string; permlink: string; category: string }) => void;
 }
 
 export function PublishValidatePost({ onClose, onSuccess }: Props) {
@@ -69,9 +69,14 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
 
         onSuccess("scheduled");
       } else {
-        await publishNow();
+        const [entry] = await publishNow();
 
-        onSuccess("published");
+        onSuccess("published", entry ? {
+          title: entry.title,
+          author: entry.author,
+          permlink: entry.permlink,
+          category: entry.category
+        } : undefined);
       }
 
       clearAll();

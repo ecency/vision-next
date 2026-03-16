@@ -96,6 +96,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
   const [status, setStatus] = useState<"installing-snap" | "getting-keys" | "creating" | "validating" | "success" | "logging-in" | "error">("installing-snap");
   const { mutateAsync: loginByMetaMask } = useLoginByMetaMask(username);
   const hasInitiatedRef = useRef(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
@@ -200,7 +201,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [username, verifiedWallet, validateAccountIsCreated, recordActivity]);
+  }, [username, verifiedWallet, validateAccountIsCreated, recordActivity, retryCount]);
 
   const statusMessages: Record<string, string> = {
     "installing-snap": i18next.t("signup-wallets.metamask.installing-snap"),
@@ -292,6 +293,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
                 onClick={() => {
                   hasInitiatedRef.current = false;
                   setStatus("installing-snap");
+                  setRetryCount((c) => c + 1);
                 }}
               >
                 {i18next.t("g.try-again")}

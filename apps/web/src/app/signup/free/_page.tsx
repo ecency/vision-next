@@ -122,22 +122,27 @@ export function FreeSignUp() {
       return;
     }
 
-    const existingAccount = await queryClient.fetchQuery(
-      getAccountsQueryOptions([username])
-    );
-    if (existingAccount.length > 0) {
-      setUsernameError(i18next.t("sign-up.username-exists"));
-      return;
-    }
-
-    if (referral) {
-      const referralIsValid = await queryClient.fetchQuery(
-        getAccountsQueryOptions([referral])
+    try {
+      const existingAccount = await queryClient.fetchQuery(
+        getAccountsQueryOptions([username])
       );
-      if (referralIsValid.length === 0) {
-        setReferralError(i18next.t("sign-up.referral-invalid"));
+      if (existingAccount.length > 0) {
+        setUsernameError(i18next.t("sign-up.username-exists"));
         return;
       }
+
+      if (referral) {
+        const referralIsValid = await queryClient.fetchQuery(
+          getAccountsQueryOptions([referral])
+        );
+        if (referralIsValid.length === 0) {
+          setReferralError(i18next.t("sign-up.referral-invalid"));
+          return;
+        }
+      }
+    } catch {
+      error(i18next.t("g.server-error"));
+      return;
     }
 
     setInProgress(true);

@@ -22,7 +22,6 @@ export default function InvitedSignupPage() {
   const queryClient = useQueryClient();
 
   const [username, setUsername] = useState("");
-  const [debouncedUsername, setDebouncedUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [usernameTouched, setUsernameTouched] = useState(false);
   const [email, setEmail] = useState("");
@@ -31,8 +30,6 @@ export default function InvitedSignupPage() {
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
   const [masterPassword, setMasterPassword] = useState(() => generateMasterPassword());
 
-  useDebounce(() => setDebouncedUsername(username), 500, [username]);
-
   // Validate username format
   useEffect(() => {
     if (!username && !usernameTouched) return;
@@ -40,7 +37,7 @@ export default function InvitedSignupPage() {
     setUsernameError(err || "");
   }, [username, usernameTouched]);
 
-  // Check if username already exists
+  // Check if username already exists (debounced)
   useDebounce(
     () => {
       if (username.length >= 3 && username.length <= 16) {
@@ -57,24 +54,29 @@ export default function InvitedSignupPage() {
 
   // Validate email
   useEffect(() => {
-    if (email.length > 72) {
+    if (!email) {
+      setEmailError("");
+    } else if (email.length > 72) {
       setEmailError(i18next.t("sign-up.email-max-length-error"));
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError(i18next.t("sign-up.email-format-error", { defaultValue: "Invalid email format" }));
     } else {
       setEmailError("");
     }
   }, [email]);
 
-  const downloadKeys = useDownloadKeys(masterPassword, debouncedUsername);
+  // Keys derived from username + master password (both synchronous, no debounce needed)
+  const downloadKeys = useDownloadKeys(masterPassword, username);
 
   const accountKeys = useMemo(() => {
-    if (!masterPassword || !debouncedUsername) return null;
+    if (!masterPassword || !username) return null;
     try {
-      return deriveHiveMasterPasswordKeys(debouncedUsername, masterPassword);
+      return deriveHiveMasterPasswordKeys(username, masterPassword);
     } catch (err: any) {
       error(err?.message);
       return null;
     }
-  }, [masterPassword, debouncedUsername]);
+  }, [masterPassword, username]);
 
   // Build the shareable link with pubkeys
   const shareLink = useMemo(() => {
@@ -116,6 +118,7 @@ export default function InvitedSignupPage() {
 
   const handleRegenerate = useCallback(() => {
     setMasterPassword(generateMasterPassword());
+    setFileIsDownloaded(false);
   }, []);
 
   return (

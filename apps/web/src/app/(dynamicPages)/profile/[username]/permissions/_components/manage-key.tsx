@@ -114,51 +114,53 @@ export function ManageKey({ keyName }: Props) {
                 />
               </StyledTooltip>
 
-              {!isMetamask && (
-                <div className="grid grid-cols-[1fr_max-content] gap-2 items-center font-mono truncate">
-                  <StyledTooltip className="truncate" content={i18next.t("chat.private-key")}>
-                    {keys[key[0]]
-                      ? keys[key[0]]
-                      : "************************************************************************"}
+              <div className="grid grid-cols-[1fr_max-content] gap-2 items-center font-mono truncate">
+                {!isMetamask && (
+                  <>
+                    <StyledTooltip className="truncate" content={i18next.t("chat.private-key")}>
+                      {keys[key[0]]
+                        ? keys[key[0]]
+                        : "************************************************************************"}
+                    </StyledTooltip>
+                    <div className="flex gap-2">
+                      {keys[key[0]] && (
+                        <Button
+                          noPadding={true}
+                          appearance="gray-link"
+                          size="sm"
+                          icon={<UilCopy />}
+                          onClick={() => copy(keys[key[0]])}
+                        />
+                      )}
+                      {!keys[key[0]] && (
+                        <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
+                          <Button
+                            noPadding={true}
+                            appearance="gray-link"
+                            size="sm"
+                            icon={<UilEye />}
+                            onClick={() => setShowReveal(true)}
+                          />
+                        </StyledTooltip>
+                      )}
+                    </div>
+                  </>
+                )}
+                {accountData?.[keyName].length > 1 && (
+                  <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
+                    <Button
+                      noPadding={true}
+                      appearance="gray-link"
+                      size="sm"
+                      icon={<UilTrash />}
+                      onClick={() => {
+                        setShowRevoke(true);
+                        setRevokingKey(key[0]);
+                      }}
+                    />
                   </StyledTooltip>
-                  <div className="flex gap-2">
-                    {keys[key[0]] && (
-                      <Button
-                        noPadding={true}
-                        appearance="gray-link"
-                        size="sm"
-                        icon={<UilCopy />}
-                        onClick={() => copy(keys[key[0]])}
-                      />
-                    )}
-                    {!keys[key[0]] && (
-                      <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
-                        <Button
-                          noPadding={true}
-                          appearance="gray-link"
-                          size="sm"
-                          icon={<UilEye />}
-                          onClick={() => setShowReveal(true)}
-                        />
-                      </StyledTooltip>
-                    )}
-                    {accountData?.[keyName].length > 1 && (
-                      <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
-                        <Button
-                          noPadding={true}
-                          appearance="gray-link"
-                          size="sm"
-                          icon={<UilTrash />}
-                          onClick={() => {
-                            setShowRevoke(true);
-                            setRevokingKey(keys[key[0]]);
-                          }}
-                        />
-                      </StyledTooltip>
-                    )}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ))}

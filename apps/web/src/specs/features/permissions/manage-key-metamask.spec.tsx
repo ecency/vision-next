@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
+vi.mock("@/core/hooks/use-active-account");
 vi.mock("@tanstack/react-query", async () => {
   const actual = await vi.importActual("@tanstack/react-query");
-  return {
-    ...actual,
-    useQuery: vi.fn()
-  };
+  return { ...actual, useQuery: vi.fn() };
 });
 vi.mock("@/utils/user-token", () => ({
   getLoginType: vi.fn()
@@ -18,6 +17,16 @@ vi.mock("react-use", () => ({
 vi.mock("next/image", () => ({
   __esModule: true,
   default: (props: any) => <img {...props} />
+}));
+vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_components/manage-key-password-dialog", () => ({
+  ManageKeyPasswordDialog: () => null
+}));
+vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_components/manage-key-revoke-dialog", () => ({
+  ManageKeyRevokeDialog: () => null
+}));
+vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_hooks", () => ({
+  useRevealedKeysStore: vi.fn(() => ({})),
+  useKeyDerivationStore: vi.fn((selector: any) => selector({ getDerivation: () => "unknown" }))
 }));
 
 import { useQuery } from "@tanstack/react-query";
@@ -44,30 +53,27 @@ describe("ManageKey - MetaMask user", () => {
     (getLoginType as any).mockReturnValue("metamask");
     render(<ManageKey keyName="owner" />);
 
-    // Public key should be visible
-    expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeDefined();
-    // Private key asterisks should NOT be visible
-    expect(screen.queryByText(/\*{10,}/)).toBeNull();
+    expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeInTheDocument();
+    expect(screen.queryByText(/\*{10,}/)).not.toBeInTheDocument();
   });
 
   it("shows private key row for non-MetaMask users", () => {
     (getLoginType as any).mockReturnValue("keychain");
     render(<ManageKey keyName="owner" />);
 
-    expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeDefined();
-    // Private key asterisks should be visible
-    expect(screen.getByText(/\*{10,}/)).toBeDefined();
+    expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeInTheDocument();
+    expect(screen.getByText(/\*{10,}/)).toBeInTheDocument();
   });
 
   it("shows MetaMask badge for MetaMask users", () => {
     (getLoginType as any).mockReturnValue("metamask");
     render(<ManageKey keyName="owner" />);
-    expect(screen.getByText("MetaMask")).toBeDefined();
+    expect(screen.getByText("MetaMask")).toBeInTheDocument();
   });
 
   it("shows Keychain badge for Keychain users", () => {
     (getLoginType as any).mockReturnValue("keychain");
     render(<ManageKey keyName="owner" />);
-    expect(screen.getByText("Keychain")).toBeDefined();
+    expect(screen.getByText("Keychain")).toBeInTheDocument();
   });
 });

@@ -172,9 +172,9 @@ export function OnboardCreating({ decodedInfo }: Props) {
               <InputGroup>
                 <FormControl
                   type="text"
-                  placeholder="Enter amount to delegate (Bn)"
+                  placeholder={i18next.t("onboard.delegate-placeholder", { defaultValue: "Enter amount to delegate (Bn)" })}
                   value={rcAmount}
-                  onChange={(e: any) => setRcAmount(Number(e.target.value))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRcAmount(Number(e.target.value))}
                 />
               </InputGroup>
               <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs opacity-75">

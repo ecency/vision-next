@@ -31,6 +31,11 @@ export function OnboardAsking({ decodedInfo }: Props) {
   const [fileIsDownloaded, setFileIsDownloaded] = useState(false);
   const [secret, setSecret] = useState("");
 
+  // Reset download flag when master password is regenerated
+  useEffect(() => {
+    setFileIsDownloaded(false);
+  }, [masterPassword]);
+
   const onboardUrl = typeof window !== "undefined"
     ? `${window.location.origin}/signup/invited/`
     : "";

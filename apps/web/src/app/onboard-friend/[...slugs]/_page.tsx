@@ -8,16 +8,26 @@ interface Props {
 }
 
 /**
- * Legacy redirect: /onboard-friend/{type}/{hash} → /signup/invited/{hash}
- * Old format had asking/creating prefix; new format uses hash directly.
+ * Legacy redirect:
+ *   /onboard-friend/asking/{hash}   → /signup/invited     (visitor key-gen, no hash needed)
+ *   /onboard-friend/creating/{hash} → /signup/invited/{hash} (sponsor account-creation)
+ *   /onboard-friend/{hash}          → /signup/invited/{hash} (direct link)
  */
 export const OnboardFriend = ({ params: { slugs } }: Props) => {
   const router = useRouter();
 
   useEffect(() => {
-    // The hash is the last slug (old URL: /onboard-friend/creating/{hash})
-    const hash = slugs[slugs.length - 1];
-    router.replace(hash ? `/signup/invited/${hash}` : "/signup/invited");
+    const type = slugs[0];
+    const hash = slugs[1] ?? slugs[0];
+
+    // "asking" was the visitor flow — redirect to visitor page (no hash)
+    if (type === "asking") {
+      router.replace("/signup/invited");
+    } else if (type === "creating" && slugs[1]) {
+      router.replace(`/signup/invited/${encodeURIComponent(slugs[1])}`);
+    } else {
+      router.replace(hash ? `/signup/invited/${encodeURIComponent(hash)}` : "/signup/invited");
+    }
   }, [router, slugs]);
 
   return null;

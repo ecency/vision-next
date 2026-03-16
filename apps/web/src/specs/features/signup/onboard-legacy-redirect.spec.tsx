@@ -17,27 +17,22 @@ describe("OnboardFriend legacy redirect", () => {
     mockReplace.mockClear();
   });
 
-  it("redirects /onboard-friend/creating/{hash} to /signup/invited/{hash}", () => {
+  it("redirects /onboard-friend/asking/* to /signup/invited (visitor flow, no hash)", () => {
+    render(<OnboardFriend params={{ slugs: ["asking", "somehash"] }} />);
+    expect(mockReplace).toHaveBeenCalledWith("/signup/invited");
+  });
+
+  it("redirects /onboard-friend/creating/{hash} to /signup/invited/{hash} (sponsor flow)", () => {
     render(<OnboardFriend params={{ slugs: ["creating", "abc123hash"] }} />);
-    expect(mockReplace).toHaveBeenCalledWith("/signup/invited/abc123hash");
+    expect(mockReplace).toHaveBeenCalledWith(`/signup/invited/${encodeURIComponent("abc123hash")}`);
   });
 
-  it("redirects /onboard-friend/asking/{hash} to /signup/invited/{hash}", () => {
-    render(<OnboardFriend params={{ slugs: ["asking", "xyz789hash"] }} />);
-    expect(mockReplace).toHaveBeenCalledWith("/signup/invited/xyz789hash");
-  });
-
-  it("redirects /onboard-friend/confirming/{hash} to /signup/invited/{hash}", () => {
-    render(<OnboardFriend params={{ slugs: ["confirming", "confirmhash"] }} />);
-    expect(mockReplace).toHaveBeenCalledWith("/signup/invited/confirmhash");
-  });
-
-  it("handles single slug (no prefix)", () => {
+  it("redirects /onboard-friend/{hash} (single slug) to /signup/invited/{hash}", () => {
     render(<OnboardFriend params={{ slugs: ["directhash"] }} />);
-    expect(mockReplace).toHaveBeenCalledWith("/signup/invited/directhash");
+    expect(mockReplace).toHaveBeenCalledWith(`/signup/invited/${encodeURIComponent("directhash")}`);
   });
 
-  it("redirects to /signup/invited when no hash", () => {
+  it("redirects to /signup/invited when no slugs", () => {
     render(<OnboardFriend params={{ slugs: [] }} />);
     expect(mockReplace).toHaveBeenCalledWith("/signup/invited");
   });
