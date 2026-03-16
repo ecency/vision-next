@@ -292,7 +292,10 @@
     "use-key": "Use key/pass",
     "seed-info": "We don't store your seed phrase and generated keys",
     "sign-in": "Sign in",
-    "my-users": "My users"
+    "my-users": "My users",
+    "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
+    "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
   },
   "sign-up": {
     "header": "Rewarding Web3 Communities",
@@ -401,7 +404,10 @@
     "votes": "Votes:",
     "transfers": "Transfers:",
     "reblogs-follows": "Reblogs/Follows:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegation failed",
+    "invalid-link": "Invalid onboarding link",
+    "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
     "title": "Topik"
@@ -1587,7 +1593,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
-    "key-error": "Failed to process the key. Please verify it is correct."
+    "key-error": "Failed to process the key. Please verify it is correct.",
+    "sign-with-metamask": "Sign with MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -2821,6 +2828,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Free Account",
+      "description": "Get a Hive account with basic email verification.",
+      "button": "Get Free Account",
+      "label": "Free"
+    },
+    "premium": {
+      "title": "Premium Account",
+      "description": "Instant account with 3x resource credits and 300 Ecency Points.",
+      "button": "Get Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Create account instantly using MetaMask. No seed phrases needed.",
+      "button": "Connect Wallet",
+      "label": "Wallet"
+    },
+    "invited": {
+      "title": "Invited by a Friend",
+      "description": "A friend with a Hive account can create one for you at no cost.",
+      "button": "Get Invited",
+      "label": "Invited"
+    }
+  },
   "signup-email": {
     "title": "Signup with Email",
     "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
@@ -2886,6 +2919,27 @@
       "creating": "Creating Hive account...",
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
+    },
+    "metamask": {
+      "title": "Connect MetaMask",
+      "description": "Connect your MetaMask wallet to verify your identity and create a Hive account.",
+      "not-found": "MetaMask not detected. Please install MetaMask extension.",
+      "connect-button": "Connect MetaMask",
+      "connect-hint": "We will check your wallet balance to verify your identity. No funds will be transferred.",
+      "connect-error": "Failed to connect MetaMask. Please try again.",
+      "connected": "MetaMask connected",
+      "chain-unsupported": "This chain is not yet supported for direct connection. Coming soon.",
+      "address-in-use": "This wallet address is already associated with a Hive account.",
+      "sign-and-continue": "Sign & Continue",
+      "sign-rejected": "Signature was rejected. Please try again.",
+      "installing-snap": "Installing Hive wallet snap...",
+      "getting-keys": "Deriving Hive keys from your wallet...",
+      "create-error": "Account creation failed. Please try again.",
+      "success-hint": "You can sign into Ecency using your MetaMask wallet with the Hive snap.",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
+      "login-with-metamask": "Login with MetaMask",
+      "logging-in": "Signing you in with MetaMask..."
     }
   },
   "publish": {
@@ -3077,9 +3131,9 @@
     "delegations-outgoing": "Outgoing delegations",
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
-      "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
-      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
+      "title": "Link your crypto wallets",
+      "description": "Connect MetaMask or enter wallet addresses for BTC, ETH, BNB and SOL to manage and monitor your crypto within the Hive ecosystem.",
+      "hint": "Wallet addresses are stored in your Hive account metadata and Ecency",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {
