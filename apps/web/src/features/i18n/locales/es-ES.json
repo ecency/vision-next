@@ -293,9 +293,9 @@
     "seed-info": "No almacenamos su frase de semilla ni las claves generadas",
     "sign-in": "Iniciar sesión",
     "my-users": "Mis usuarios",
-    "metamask-not-found": "MetaMask no encontrado. Por favor instale la extensión del navegador MetaMask.",
-    "metamask-no-keys": "No se pudo obtener las teclas de Hive de MetaMask",
-    "metamask-key-mismatch": "Las claves de MetaMask Hive no coinciden con esta cuenta. Asegúrese de que está usando la misma cartera de MetaMask usada durante el registro."
+    "metamask-not-found": "MetaMask no encontrado. Por favor, instala la extensión del navegador MetaMask.",
+    "metamask-no-keys": "No se pudieron obtener las claves de Hive de MetaMask",
+    "metamask-key-mismatch": "Las claves de Hive en MetaMask no coinciden con esta cuenta. Asegúrese de que está usando la misma cartera de MetaMask usada durante el registro."
   },
   "sign-up": {
     "header": "Recompensando a las comunidades Web3",
@@ -2837,8 +2837,8 @@
     },
     "premium": {
       "title": "Cuenta Premium",
-      "description": "Cuenta instantánea con créditos de recursos 3x y 300 Puntos Ecencia.",
-      "button": "Obtén Premium - $2,99",
+      "description": "Cuenta instantánea con créditos de recursos 3x y 300 Puntos de Ecency.",
+      "button": "Obtén Premium – $2,99",
       "label": "Premium"
     },
     "wallet": {
@@ -2849,8 +2849,8 @@
     },
     "invited": {
       "title": "Invitado por un amigo",
-      "description": "Un amigo con una cuenta de Hive puede crear una sin costo alguno.",
-      "button": "Invitarse",
+      "description": "Un amigo con una cuenta de Hive puede crear una para ti sin costo alguno.",
+      "button": "Recibe una invitación",
       "label": "Invitado"
     }
   },
@@ -2923,19 +2923,19 @@
     "metamask": {
       "title": "Conectar MetaMask",
       "description": "Conecte su cartera de MetaMask para verificar su identidad y crear una cuenta de Hive.",
-      "not-found": "MetaMask no detectado. Por favor instale la extensión MetaMask.",
+      "not-found": "MetaMask no detectado. Por favor, instala la extensión MetaMask.",
       "connect-button": "Conectar MetaMask",
       "connect-hint": "Verificaremos el saldo de su cartera para verificar su identidad. No se transferirán fondos.",
-      "connect-error": "Error al conectar MetaMask. Vuelve a intentarlo.",
-      "connected": "Metamáscara conectada",
-      "chain-unsupported": "Esta cadena aún no está soportada para conexión directa. Próximamente.",
+      "connect-error": "Error al conectar MetaMask. Vuelve a intentarlo, por favor.",
+      "connected": "MetaMask conectado",
+      "chain-unsupported": "Esta cadena aún no está soportada para conexión directa. Próximamente puede estarlo.",
       "address-in-use": "Esta dirección de cartera ya está asociada con una cuenta de Hive.",
       "sign-and-continue": "Firmar y continuar",
       "sign-rejected": "Firma rechazada. Por favor, inténtelo de nuevo.",
-      "installing-snap": "Instalando Snap...",
-      "getting-keys": "Obteniendo las claves de la Colmena de tu cartera...",
-      "create-error": "Error al crear la cuenta. Vuelve a intentarlo.",
-      "success-hint": "Puede iniciar sesión en Ecencia usando su cartera MetaMask con el Snap de Colmena.",
+      "installing-snap": "Instalando Snap de billetera de Hive...",
+      "getting-keys": "Obteniendo las claves de Hive de tu cartera...",
+      "create-error": "Error al crear la cuenta. Por favor, vuelve a intentarlo.",
+      "success-hint": "Puede iniciar sesión en Ecency usando su cartera MetaMask con el Snap de Hive.",
       "enter-address": "Introduzca su dirección {{chain}}",
       "enter-address-hint": "Copie la dirección de su cartera MetaMask para esta cadena.",
       "login-with-metamask": "Iniciar sesión con MetaMask",
@@ -3131,9 +3131,9 @@
     "delegations-outgoing": "Delegaciones salientes",
     "delegations-incoming": "Delegaciones entrantes",
     "external-wallets-offer": {
-      "title": "Vincula tus criptomonedas",
+      "title": "Vincula tus carteras de criptomonedas",
       "description": "Conecte MetaMask o introduzca direcciones de cartera para BTC, ETH, BNB y SOL para administrar y monitorear su cripto dentro del ecosistema Hive.",
-      "hint": "Las direcciones del monedero se almacenan en los metadatos y la Ecencia de su cuenta de Hive",
+      "hint": "Las direcciones de billeteras se almacenan en los metadatos de su cuenta en Hive y Ecency",
       "dismiss": "Tal vez más tarde"
     },
     "external-wallets-signup": {
