@@ -77,7 +77,7 @@ export function BuySellHiveDialog({
           orderId
         });
       }
-      setStep(3);
+      setStep(2);
       onTransactionSuccess();
     } catch (err) {
       error(...formatError(err));
@@ -144,10 +144,13 @@ export function BuySellHiveDialog({
                     {i18next.t("g.cancel")}
                   </Button>
                   <Button
-                    onClick={() => setStep(2)}
+                    onClick={sign}
+                    disabled={inProgress}
                     appearance={type === BuySellHiveTransactionType.Cancel ? "danger" : "primary"}
                   >
-                    {i18next.t("g.continue")}
+                    {inProgress
+                      ? i18next.t("market.signing")
+                      : i18next.t("g.continue")}
                   </Button>
                 </div>
               </div>
@@ -156,33 +159,6 @@ export function BuySellHiveDialog({
         )}
 
         {step === 2 && (
-          <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
-            {formHeader1}
-            {inProgress && <LinearProgress />}
-            <div className="transaction-form-body flex flex-col items-center">
-              <div className="my-5">
-                <Button onClick={sign} disabled={inProgress}>
-                  {inProgress
-                    ? i18next.t("market.signing")
-                    : i18next.t("trx-common.sign-title")}
-                </Button>
-              </div>
-              <p className="text-center">
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setStep(1);
-                  }}
-                >
-                  {i18next.t("g.back")}
-                </a>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
           <div className="transaction-form">
             {formHeader4}
             <div className="transaction-form-body flex flex-col items-center">

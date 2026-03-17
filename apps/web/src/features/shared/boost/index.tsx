@@ -79,11 +79,9 @@ export function BoostDialog({ onHide }: Props) {
     }
   }, [prices]);
 
-  const next = () => setStep(step + 1);
-
-  const sign = useCallback(async () => {
+  const handleSubmit = useCallback(async () => {
     await boostPlus({ account, duration });
-    setStep(3);
+    setStep(2);
   }, [account, duration, boostPlus]);
 
   const finish = () => onHide();
@@ -158,7 +156,7 @@ export function BoostDialog({ onHide }: Props) {
                 <div className="grid grid-cols-12 mb-4">
                   <div className="col-span-12 sm:col-span-2 flex items-center" />
                   <div className="col-span-12 sm:col-span-10">
-                    <Button onClick={next} disabled={!canSubmit || inProgress}>
+                    <Button onClick={handleSubmit} disabled={!canSubmit || inProgress}>
                       {i18next.t("g.next")}
                     </Button>
                   </div>
@@ -171,24 +169,6 @@ export function BoostDialog({ onHide }: Props) {
             <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
               <div className="transaction-form-header">
                 <div className="step-no">2</div>
-                <div className="box-titles">
-                  <div className="main-title">{i18next.t("trx-common.sign-title")}</div>
-                  <div className="sub-title">{i18next.t("trx-common.sign-sub-title")}</div>
-                </div>
-              </div>
-              {inProgress && <LinearProgress />}
-              <div className="transaction-form-body">
-                <Button onClick={sign} disabled={inProgress}>
-                  {i18next.t("trx-common.sign-title")}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
-              <div className="transaction-form-header">
-                <div className="step-no">3</div>
                 <div className="box-titles">
                   <div className="main-title">{i18next.t("trx-common.success-title")}</div>
                   <div className="sub-title">{i18next.t("trx-common.success-sub-title")}</div>

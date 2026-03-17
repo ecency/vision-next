@@ -8,7 +8,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { BuyWithHiveForm, BuyWithHiveSuccess } from "./_components";
 import "./_page.scss";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
 import { TransferAsset } from "@/features/shared";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -19,7 +19,7 @@ import { formatError } from "@/api/format-error";
 export function BuyPointsPage() {
   const { activeUser } = useActiveAccount();
 
-  const [step, setStep] = useState<"form" | "sign" | "success">("form");
+  const [step, setStep] = useState<"form" | "success">("form");
   const [amount, setAmount] = useState("0");
   const [asset, setAsset] = useState<string>(MarketAsset.HIVE);
   const [pointsAmount, setPointsAmount] = useState("0");
@@ -32,22 +32,6 @@ export function BuyPointsPage() {
     activeUser?.username,
     "perks-points-by-hive" as any
   );
-
-  const handleSign = useCallback(async () => {
-    if (!activeUser) return;
-
-    try {
-      await sign({
-        to: "esteem.app",
-        amount,
-        memo: "points",
-      });
-      recordActivity();
-      setStep("success");
-    } catch (e) {
-      error(...formatError(e));
-    }
-  }, [activeUser, amount, recordActivity, sign]);
 
   return (
     <div className="buy-points-page grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
@@ -70,24 +54,26 @@ export function BuyPointsPage() {
 
         {step === "form" && (
           <BuyWithHiveForm
-            onSubmit={(amount, asset, pointsAmount) => {
-              setAmount(amount);
-              setAsset(asset);
-              setPointsAmount(pointsAmount);
-              setStep("sign");
+            onSubmit={async (formAmount, formAsset, formPointsAmount) => {
+              setAmount(formAmount);
+              setAsset(formAsset);
+              setPointsAmount(formPointsAmount);
+
+              if (!activeUser) return;
+
+              try {
+                await sign({
+                  to: "esteem.app",
+                  amount: formAmount,
+                  memo: "points",
+                });
+                recordActivity();
+                setStep("success");
+              } catch (e) {
+                error(...formatError(e));
+              }
             }}
           />
-        )}
-        {step === "sign" && (
-          <div className="flex justify-center py-4">
-            <Button
-              onClick={handleSign}
-              disabled={isPending}
-              appearance="primary"
-            >
-              {i18next.t("trx-common.sign-title")}
-            </Button>
-          </div>
         )}
         {step === "success" && <BuyWithHiveSuccess pointsAmount={pointsAmount} />}
       </div>
