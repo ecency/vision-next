@@ -22,7 +22,6 @@ export function usePublishAutosave() {
     selectedThumbnail,
     poll,
     postLinks,
-    publishingVideo,
     location
   } = usePublishState();
 
@@ -58,7 +57,6 @@ export function usePublishAutosave() {
       selectedThumbnail,
       poll,
       postLinks,
-      publishingVideo,
       location,
       isActiveTab
     ]

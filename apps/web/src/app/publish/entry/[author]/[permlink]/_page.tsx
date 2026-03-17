@@ -89,7 +89,7 @@ export default function Publish() {
               </div>
             </div>
             <PublishEntryActionBar entry={entry} onEdit={() => setStep("validation")} />
-            <PublishEditor editor={editor} />
+            <PublishEditor editor={editor} allowToUploadVideo={false} />
           </>
         )}
         {step === "validation" && (

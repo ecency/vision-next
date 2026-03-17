@@ -1,76 +1,99 @@
 import { BeneficiaryRoute } from "@/entities";
 import {
-  filterOutThreeSpeakBeneficiaries,
-  mergeThreeSpeakBeneficiaries,
-  THREE_SPEAK_ENCODER_ACCOUNT,
-  THREE_SPEAK_ENCODER_DEFAULT_WEIGHT,
-  THREE_SPEAK_ENCODER_SRC
-} from "@/features/3speak";
+  hasThreeSpeakEmbed,
+  enforceThreeSpeakBeneficiary,
+  isThreeSpeakBeneficiary
+} from "@/api/threespeak-embed/beneficiary";
 
-describe("3Speak beneficiaries helpers", () => {
-  it("merges encoder beneficiaries with existing ones", () => {
-    const existing: BeneficiaryRoute[] = [
-      { account: "alice", weight: 500 },
-      { account: "encoder-old", weight: 100, src: THREE_SPEAK_ENCODER_SRC }
-    ];
+describe("3Speak embed beneficiaries", () => {
+  describe("hasThreeSpeakEmbed", () => {
+    it("detects a 3Speak embed URL with ?v= format", () => {
+      const body = 'Check out my video: https://play.3speak.tv/embed?v=user/abcd1234';
+      expect(hasThreeSpeakEmbed(body)).toBe(true);
+    });
 
-    const raw = JSON.stringify([
-      { account: "encoder-one", weight: 250, src: THREE_SPEAK_ENCODER_SRC },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 750 }
-    ]);
+    it("detects embed URLs with subdomains", () => {
+      const body = '<iframe src="https://cdn.3speak.tv/embed?v=user/abc"></iframe>';
+      expect(hasThreeSpeakEmbed(body)).toBe(true);
+    });
 
-    const merged = mergeThreeSpeakBeneficiaries(raw, existing);
+    it("detects embed URLs with path format", () => {
+      const body = "https://play.3speak.tv/embed/user/abc123";
+      expect(hasThreeSpeakEmbed(body)).toBe(true);
+    });
 
-    expect(merged).toEqual([
-      { account: "alice", weight: 500 },
-      { account: "encoder-one", weight: 250, src: THREE_SPEAK_ENCODER_SRC },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 750, src: THREE_SPEAK_ENCODER_SRC }
-    ]);
+    it("does NOT match plain text mentions of 3speak.tv/embed without URL", () => {
+      const body = "check out 3speak.tv/embed for more info";
+      expect(hasThreeSpeakEmbed(body)).toBe(false);
+    });
+
+    it("does NOT match partial URLs without protocol", () => {
+      const body = "visit play.3speak.tv/embed?v=user/abc";
+      expect(hasThreeSpeakEmbed(body)).toBe(false);
+    });
+
+    it("returns false for empty body", () => {
+      expect(hasThreeSpeakEmbed("")).toBe(false);
+    });
+
+    it("returns false for unrelated content", () => {
+      expect(hasThreeSpeakEmbed("Hello world, this is a blog post")).toBe(false);
+    });
   });
 
-  it("falls back to default encoder beneficiary on invalid payload", () => {
-    const merged = mergeThreeSpeakBeneficiaries("not-json", []);
+  describe("enforceThreeSpeakBeneficiary", () => {
+    const bodyWithEmbed = 'Video: https://play.3speak.tv/embed?v=user/abcd1234';
+    const bodyWithoutEmbed = "Just a regular post";
 
-    expect(merged).toEqual([
-      {
-        account: THREE_SPEAK_ENCODER_ACCOUNT,
-        weight: THREE_SPEAK_ENCODER_DEFAULT_WEIGHT,
-        src: THREE_SPEAK_ENCODER_SRC
-      }
-    ]);
+    it("returns original list when no embed is detected", () => {
+      const list: BeneficiaryRoute[] = [{ account: "alice", weight: 500 }];
+      const result = enforceThreeSpeakBeneficiary(list, bodyWithoutEmbed);
+      expect(result).toBe(list); // Same reference
+    });
+
+    it("appends threespeakfund when embed detected and not in list", () => {
+      const list: BeneficiaryRoute[] = [{ account: "alice", weight: 500 }];
+      const result = enforceThreeSpeakBeneficiary(list, bodyWithEmbed);
+      expect(result).toEqual([
+        { account: "alice", weight: 500 },
+        { account: "threespeakfund", weight: 1100 }
+      ]);
+    });
+
+    it("normalizes weight when threespeakfund exists with wrong weight", () => {
+      const list: BeneficiaryRoute[] = [
+        { account: "alice", weight: 500 },
+        { account: "threespeakfund", weight: 500 }
+      ];
+      const result = enforceThreeSpeakBeneficiary(list, bodyWithEmbed);
+      expect(result).toEqual([
+        { account: "alice", weight: 500 },
+        { account: "threespeakfund", weight: 1100 }
+      ]);
+    });
+
+    it("returns original list when threespeakfund already has correct weight", () => {
+      const list: BeneficiaryRoute[] = [
+        { account: "alice", weight: 500 },
+        { account: "threespeakfund", weight: 1100 }
+      ];
+      const result = enforceThreeSpeakBeneficiary(list, bodyWithEmbed);
+      expect(result).toBe(list); // Same reference
+    });
+
+    it("works with empty beneficiary list", () => {
+      const result = enforceThreeSpeakBeneficiary([], bodyWithEmbed);
+      expect(result).toEqual([{ account: "threespeakfund", weight: 1100 }]);
+    });
   });
 
-  it("filters out encoder beneficiaries", () => {
-    const existing: BeneficiaryRoute[] = [
-      { account: "alice", weight: 500 },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 1000, src: THREE_SPEAK_ENCODER_SRC }
-    ];
+  describe("isThreeSpeakBeneficiary", () => {
+    it("returns true for threespeakfund", () => {
+      expect(isThreeSpeakBeneficiary("threespeakfund")).toBe(true);
+    });
 
-    expect(filterOutThreeSpeakBeneficiaries(existing)).toEqual([{ account: "alice", weight: 500 }]);
-  });
-
-  it("filters encoder beneficiaries even when src is missing", () => {
-    const existing: BeneficiaryRoute[] = [
-      { account: "bob", weight: 250 },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 1000 }
-    ];
-
-    expect(filterOutThreeSpeakBeneficiaries(existing)).toEqual([{ account: "bob", weight: 250 }]);
-  });
-
-  it("supports already parsed beneficiaries", () => {
-    const existing: BeneficiaryRoute[] = [{ account: "charlie", weight: 200 }];
-    const raw = [
-      { account: "spk.helper", weight: 250, src: THREE_SPEAK_ENCODER_SRC },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 700 }
-    ];
-
-    const merged = mergeThreeSpeakBeneficiaries(raw, existing);
-
-    expect(merged).toEqual([
-      { account: "charlie", weight: 200 },
-      { account: "spk.helper", weight: 250, src: THREE_SPEAK_ENCODER_SRC },
-      { account: THREE_SPEAK_ENCODER_ACCOUNT, weight: 700, src: THREE_SPEAK_ENCODER_SRC }
-    ]);
+    it("returns false for other accounts", () => {
+      expect(isThreeSpeakBeneficiary("alice")).toBe(false);
+    });
   });
 });
