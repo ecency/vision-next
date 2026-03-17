@@ -190,7 +190,8 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
       video.removeEventListener("seeked", handleSeeked);
       video.removeEventListener("loadeddata", handleLoaded);
     };
-  }, [step, videoData?.permlink, selectedFile, hasManualThumbnail, thumbnailUrl, extractFrameAsBlob, uploadThumbnailImage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- uploadThumbnailImage is a stable mutation fn
+  }, [step, videoData?.permlink, selectedFile, hasManualThumbnail, thumbnailUrl, extractFrameAsBlob]);
 
   const handleThumbnailChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

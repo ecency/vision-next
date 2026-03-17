@@ -49,7 +49,7 @@ interface PublishStateContextValue {
   createDefaultPoll: () => void;
   postLinks: Entry[];
   setPostLinks: (value: Entry[]) => void;
-  setEntryImages: (value: string[]) => void;
+  setEntryImages: Dispatch<SetStateAction<string[]>>;
   location:
     | {
         coordinates: { lng: number; lat: number };

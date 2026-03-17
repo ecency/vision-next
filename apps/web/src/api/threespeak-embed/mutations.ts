@@ -5,6 +5,7 @@ import { useState } from "react";
 import { uploadVideoEmbed } from "./api";
 import { VideoUploadResult } from "./types";
 import { error } from "@/features/shared";
+import i18next from "i18next";
 
 export function useThreeSpeakEmbedUpload() {
   const [completed, setCompleted] = useState<number>(0);
@@ -31,15 +32,15 @@ export function useThreeSpeakEmbedUpload() {
           (e instanceof Error && "status" in e ? (e as any).status : undefined);
 
         if (status === 413) {
-          error("Video file is too large. Please use a smaller file.");
+          error(i18next.t("video-upload.error-too-large"));
         } else if (status === 429) {
-          error("Too many upload requests. Please wait a moment and try again.");
+          error(i18next.t("video-upload.error-too-many"));
         } else if (status === 503) {
-          error("Upload service is temporarily unavailable. Please try again later.");
+          error(i18next.t("video-upload.error-unavailable"));
         } else if (status === 401 || status === 403) {
-          error("Authentication failed. Please contact support.");
+          error(i18next.t("video-upload.error-auth"));
         } else {
-          error("Failed to upload video. Please try again.");
+          error(i18next.t("video-upload.error-generic"));
         }
         throw e;
       } finally {

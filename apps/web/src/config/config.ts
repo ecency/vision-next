@@ -25,7 +25,7 @@ const CONFIG = {
           enabled: true,
           embedEndpoint:
             process.env.NEXT_PUBLIC_THREESPEAK_EMBED_ENDPOINT || "https://embed.3speak.tv",
-          apiKey: process.env.NEXT_PUBLIC_THREESPEAK_EMBED_API_KEY
+          serverApiKey: process.env.THREESPEAK_EMBED_API_KEY
         }
       }
     },

@@ -368,10 +368,13 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
           <EditorToolbar
             comment={false}
             existingPoll={activePoll}
-            onVideoUploaded={(embedUrl) => {
-              // Insert the embed URL directly into the post body
-              setBody(`${body}\n${embedUrl}`);
-            }}
+            onVideoUploaded={
+              editingEntry || hasThreeSpeakEmbed(body)
+                ? undefined
+                : (embedUrl) => {
+                    setBody(`${body}\n${embedUrl}`);
+                  }
+            }
             onAddPoll={(v) => setActivePoll(v)}
             onDeletePoll={() => clearActivePoll()}
             readonlyPoll={!!editingEntry}

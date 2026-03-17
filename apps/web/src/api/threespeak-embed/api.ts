@@ -8,14 +8,26 @@ function getEmbedEndpoint(): string {
   ) as string;
 }
 
-function getApiKey(): string {
-  const key = EcencyConfigManager.getConfigValue(
-    ({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.apiKey
-  ) as string | undefined;
-  if (!key) {
-    throw new Error("[3Speak Embed] Missing THREESPEAK_EMBED_API_KEY");
+/**
+ * Request a short-lived upload token from our backend proxy.
+ * The server-side API key never reaches the browser.
+ */
+async function requestUploadToken(
+  owner: string,
+  isShort: boolean
+): Promise<{ token: string; upload_url: string }> {
+  const response = await fetch("/api/threespeak/upload-token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ owner, isShort })
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`[3Speak Embed] Failed to get upload token: ${response.status} ${text}`);
   }
-  return key;
+
+  return response.json();
 }
 
 /**
@@ -24,7 +36,7 @@ function getApiKey(): string {
  *   https://play.3speak.tv/embed?v=user/abcd1234
  *   @user/abcd1234
  */
-function extractPermlink(embedUrl: string): string {
+export function extractPermlink(embedUrl: string): string {
   // Try ?v=user/permlink format
   const vParam = embedUrl.match(/[?&]v=([^&]+)/);
   if (vParam?.[1]) {
@@ -37,37 +49,38 @@ function extractPermlink(embedUrl: string): string {
   if (atFormat?.[1]) {
     return atFormat[1];
   }
-  // Last segment fallback
-  return embedUrl.split("/").pop() ?? "";
+  // Last segment fallback — strip query params
+  const lastSegment = embedUrl.split("/").pop() ?? "";
+  return lastSegment.split("?")[0].split("#")[0];
 }
 
 /**
  * Upload a video file via the TUS resumable upload protocol.
- * Returns the embed URL and permlink.
+ * Obtains a short-lived upload token from the backend, then uploads directly to 3Speak.
  */
-export function uploadVideoEmbed(
+export async function uploadVideoEmbed(
   file: File,
   owner: string,
   isShort: boolean,
   progressCallback: (percentage: number) => void
 ): Promise<VideoUploadResult> {
-  const endpoint = getEmbedEndpoint();
-  const apiKey = getApiKey();
+  // Get upload token from our server (API key stays server-side)
+  const { token, upload_url } = await requestUploadToken(owner, isShort);
+
+  // Fall back to config endpoint if upload_url not provided
+  const endpoint = upload_url || `${getEmbedEndpoint()}/uploads`;
 
   return new Promise<VideoUploadResult>((resolve, reject) => {
     let embedUrl = "";
 
     const upload = new tus.Upload(file, {
-      endpoint: `${endpoint}/uploads`,
+      endpoint,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
-        "X-API-Key": apiKey
+        Authorization: `Bearer ${token}`
       },
       metadata: {
-        filename: file.name,
-        owner,
-        frontend_app: "ecency",
-        short: isShort ? "true" : "false"
+        filename: file.name
       },
       onError(error: Error) {
         reject(error);
@@ -107,14 +120,11 @@ export function uploadVideoEmbed(
 
 /**
  * Get video metadata by permlink.
+ * This endpoint is public on 3Speak (no API key needed).
  */
 export async function getVideoMetadata(permlink: string): Promise<ThreeSpeakEmbedVideo> {
   const endpoint = getEmbedEndpoint();
-  const response = await fetch(`${endpoint}/video/${permlink}`, {
-    headers: {
-      "X-API-Key": getApiKey()
-    }
-  });
+  const response = await fetch(`${endpoint}/video/${permlink}`);
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
@@ -128,17 +138,14 @@ export async function getVideoMetadata(permlink: string): Promise<ThreeSpeakEmbe
 }
 
 /**
- * Set a custom thumbnail for a video.
+ * Set a custom thumbnail for a video via our backend proxy.
+ * The API key stays server-side.
  */
 export async function setVideoThumbnail(permlink: string, thumbnailUrl: string): Promise<void> {
-  const endpoint = getEmbedEndpoint();
-  const response = await fetch(`${endpoint}/video/${permlink}/thumbnail`, {
+  const response = await fetch("/api/threespeak/thumbnail", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-Key": getApiKey()
-    },
-    body: JSON.stringify({ thumbnail_url: thumbnailUrl })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ permlink, thumbnail_url: thumbnailUrl })
   });
 
   if (!response.ok) {

@@ -412,11 +412,13 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
               </DropdownToggle>
               <DropdownMenu>
-                <DropdownItemWithIcon
-                  icon={<UilUpload />}
-                  label={i18next.t("publish.three-speak-upload")}
-                  onClick={() => setShowVideoUpload(true)}
-                />
+                {allowToUploadVideo && !publishState.hasThreeSpeakVideo && (
+                  <DropdownItemWithIcon
+                    icon={<UilUpload />}
+                    label={i18next.t("publish.three-speak-upload")}
+                    onClick={() => setShowVideoUpload(true)}
+                  />
+                )}
                 <DropdownItemWithIcon
                   icon={<UilLink />}
                   label={i18next.t("publish.from-link")}

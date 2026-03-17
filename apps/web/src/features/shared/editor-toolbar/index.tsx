@@ -418,7 +418,7 @@ export function EditorToolbar({
             </div>
           </Tooltip>
         )}
-        {!comment && (
+        {!comment && onVideoUploaded && (
           <EcencyConfigManager.Conditional
             condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
           >
@@ -433,13 +433,7 @@ export function EditorToolbar({
                 <VideoUpload
                   show={showVideoUpload}
                   setShow={(v) => setShowVideoUpload(v)}
-                  onVideoUploaded={(embedUrl) => {
-                    if (onVideoUploaded) {
-                      onVideoUploaded(embedUrl);
-                    } else {
-                      insertText(embedUrl);
-                    }
-                  }}
+                  onVideoUploaded={(embedUrl) => onVideoUploaded(embedUrl)}
                 />
               </button>
             </Tooltip>

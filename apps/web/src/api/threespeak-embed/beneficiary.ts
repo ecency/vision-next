@@ -4,10 +4,12 @@ const THREESPEAK_ACCOUNT = "threespeakfund";
 const THREESPEAK_WEIGHT = 1100; // 11%
 
 /**
- * Check if body content contains a 3Speak embed.
+ * Check if body content contains a 3Speak embed URL.
+ * Matches actual embed URLs (e.g. https://play.3speak.tv/embed?v=user/id),
+ * not plain text mentions of "3speak.tv/embed".
  */
 export function hasThreeSpeakEmbed(body: string): boolean {
-  return body.includes("3speak.tv/embed");
+  return /https?:\/\/[a-z.]*3speak\.tv\/embed[?/]/.test(body);
 }
 
 /**
