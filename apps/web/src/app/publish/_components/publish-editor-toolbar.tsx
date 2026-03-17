@@ -594,8 +594,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               );
             }
 
-            // Mark that a 3Speak video is present and add required beneficiary
-            publishState.setHasThreeSpeakVideo(true);
+            // Add required 3Speak beneficiary (hasThreeSpeakVideo derives from content automatically)
             publishState.setBeneficiaries((prev) => {
               if (prev.some((b) => isThreeSpeakBeneficiary(b.account))) {
                 return prev;

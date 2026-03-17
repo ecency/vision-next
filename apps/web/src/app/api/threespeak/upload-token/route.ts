@@ -18,11 +18,17 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "3Speak integration not configured" }, { status: 503 });
   }
 
+  // Require logged-in user — the owner must match the active session
+  const activeUser = req.cookies.get("active_user")?.value;
+  if (!activeUser) {
+    return Response.json({ error: "Authentication required" }, { status: 401 });
+  }
+
   try {
     const { owner, isShort } = await req.json();
 
-    if (!owner || typeof owner !== "string") {
-      return Response.json({ error: "owner is required" }, { status: 400 });
+    if (!owner || typeof owner !== "string" || owner !== activeUser) {
+      return Response.json({ error: "owner must match the logged-in user" }, { status: 403 });
     }
 
     const res = await fetch(`${embedEndpoint}/uploads/token`, {

@@ -68,7 +68,6 @@ interface PublishStateContextValue {
   skipAutoThumbnailSelection: boolean;
   clearSelectedThumbnail: () => void;
   hasThreeSpeakVideo: boolean;
-  setHasThreeSpeakVideo: (value: boolean) => void;
 }
 
 const PublishStateContext = createContext<PublishStateContextValue | undefined>(undefined);
@@ -93,8 +92,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
       }
     | undefined
   >(undefined);
-  const [hasThreeSpeakVideoFlag, setHasThreeSpeakVideo] = useState<boolean>(false);
-  const hasThreeSpeakVideo = hasThreeSpeakVideoFlag || hasThreeSpeakEmbed(content);
+  const hasThreeSpeakVideo = useMemo(() => hasThreeSpeakEmbed(content), [content]);
   const [poll, setPoll] = usePublishPollState(false);
 
   const clearSchedule = useCallback(() => setSchedule(undefined), []);
@@ -215,7 +213,6 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearEntryImages();
     clearLocation();
     setIsReblogToCommunity(false);
-    setHasThreeSpeakVideo(false);
   }, [
     setBeneficiaries,
     setContent,
@@ -230,8 +227,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
     clearPostLinks,
     clearEntryImages,
     clearLocation,
-    setIsReblogToCommunity,
-    setHasThreeSpeakVideo
+    setIsReblogToCommunity
   ]);
 
   return (
@@ -269,8 +265,7 @@ export function PublishStateProvider({ children }: { children: React.ReactNode }
         clearLocation,
         skipAutoThumbnailSelection,
         clearSelectedThumbnail: _clearSelectedThumbnail,
-        hasThreeSpeakVideo,
-        setHasThreeSpeakVideo
+        hasThreeSpeakVideo
       }}
     >
       {children}

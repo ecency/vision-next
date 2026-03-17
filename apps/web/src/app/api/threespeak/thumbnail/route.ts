@@ -18,6 +18,12 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "3Speak integration not configured" }, { status: 503 });
   }
 
+  // Require logged-in user
+  const activeUser = req.cookies.get("active_user")?.value;
+  if (!activeUser) {
+    return Response.json({ error: "Authentication required" }, { status: 401 });
+  }
+
   try {
     const { permlink, thumbnail_url } = await req.json();
 

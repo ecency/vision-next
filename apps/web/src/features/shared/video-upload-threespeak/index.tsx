@@ -229,7 +229,11 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
               setSelectedFile(url);
               setSelectedFileType("video/webm");
             }}
-            onReset={() => setShowRecorder(false)}
+            onReset={() => {
+              setShowRecorder(false);
+              setSelectedFile(null);
+              setVideoData(null);
+            }}
           />
         ) : (
           <div className="video-source">
