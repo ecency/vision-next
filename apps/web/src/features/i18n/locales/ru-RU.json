@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Поставщик по умолчанию",
     "default-beneficiary-username": "Имя пользователя в Hive",
     "default-beneficiary-reward": "Награда (в %)",
-    "default-beneficiary-docs": "Смотреть документы"
+    "default-beneficiary-docs": "Смотреть документы",
+    "finalize-title": "Завершить настройку сообщества",
+    "finalize-description": "Этот аккаунт сообщества был создан, но установка не была завершена.",
+    "finalize-admin-label": "Имя администратора",
+    "finalize-admin-hint": "Учетная запись Hiv, которая будет управлять этим сообществом",
+    "finalize-success": "Настройка сообщества успешно завершена!"
   },
   "community-rewards-registration": {
     "body-text": "Зарегистрируйте свое сообщество, чтобы получить Ecency POINTS",
