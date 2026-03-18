@@ -1754,7 +1754,6 @@
     "reset": "Reset",
     "source": "Video bron",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Video minder dan 15 seconden zal worden genegeerd door 3Speak.",
     "insert-video": "Video invoegen",
     "file-too-large": "Bestandsgrootte overschrijdt de 1 GB limiet. Kies een kleinere video.",
     "extracting-thumbnail": "Extracting thumbnail…",
