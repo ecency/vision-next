@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Standaard begunstigde",
     "default-beneficiary-username": "Gebruikersnaam invullen",
     "default-beneficiary-reward": "Beloning(in %)",
-    "default-beneficiary-docs": "Bekijk documenten"
+    "default-beneficiary-docs": "Bekijk documenten",
+    "finalize-title": "Instellen community voltooien",
+    "finalize-description": "Dit community account is aangemaakt maar de installatie is nog niet voltooid. Voltooi het nu.",
+    "finalize-admin-label": "Admin gebruikersnaam",
+    "finalize-admin-hint": "Het Hive account dat deze gemeenschap zal beheren",
+    "finalize-success": "Community configuratie succesvol voltooid!"
   },
   "community-rewards-registration": {
     "body-text": "Registreer je community om Ecency PUNTEN te krijgen",
