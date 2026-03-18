@@ -1763,7 +1763,10 @@
     "error-too-many": "Zbyt wiele żądań przesyłania. Proszę poczekać chwilę i spróbować ponownie.",
     "error-unavailable": "Przesyłanie usługi jest tymczasowo niedostępne. Spróbuj ponownie później.",
     "error-auth": "Uwierzytelnianie nie powiodło się. Skontaktuj się z pomocą techniczną.",
-    "error-generic": "Nie udało się przesłać filmu. Spróbuj ponownie."
+    "error-generic": "Nie udało się przesłać filmu. Spróbuj ponownie.",
+    "title-short": "Prześlij krótkie wideo",
+    "short-badge": "Krótki",
+    "video-attached": "Wideo dołączone"
   },
   "tag-selector": {
     "placeholder-empty": "Tagi. Pierwszy tag jest kategorią główną. Tagi można sortować.",
