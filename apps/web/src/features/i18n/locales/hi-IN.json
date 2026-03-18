@@ -1052,7 +1052,12 @@
     "default-beneficiary": "डिफ़ॉल्ट लाभार्थी",
     "default-beneficiary-username": "हाइव उपयोगकर्ता नाम",
     "default-beneficiary-reward": "इनाम (% में)",
-    "default-beneficiary-docs": "दस्तावेज़ देखें"
+    "default-beneficiary-docs": "दस्तावेज़ देखें",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "एक्सेंसी पॉइंट्स प्राप्त करने के लिए अपने समुदाय को पंजीकृत करें",
