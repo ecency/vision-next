@@ -105,7 +105,8 @@ describe("FinalizeCommunityBanner", () => {
 
     queryClient.setQueryData(["community", "hive-123456"], {
       name: "hive-123456",
-      title: "Existing Community"
+      title: "Existing Community",
+      team: [["hive-123456", "owner", ""], ["myadmin", "admin", ""]]
     });
     const { container } = renderComponent("hive-123456");
     expect(container.innerHTML).toBe("");
