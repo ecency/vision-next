@@ -1763,7 +1763,10 @@
     "error-too-many": "Troppe richieste di upload. Si prega di attendere un momento e riprovare.",
     "error-unavailable": "Il servizio di caricamento è temporaneamente non disponibile. Riprova più tardi.",
     "error-auth": "Autenticazione non riuscita. Contatta il supporto.",
-    "error-generic": "Impossibile caricare il video. Per favore riprova."
+    "error-generic": "Impossibile caricare il video. Per favore riprova.",
+    "title-short": "Carica breve video",
+    "short-badge": "Breve",
+    "video-attached": "Video allegato"
   },
   "tag-selector": {
     "placeholder-empty": "Tag. Il primo tag è la categoria principale. Ordinabile.",
