@@ -8,7 +8,7 @@ import i18next from "i18next";
 import Link from "next/link";
 import { BuyWithHiveForm, BuyWithHiveSuccess } from "./_components";
 import "./_page.scss";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
 import { TransferAsset } from "@/features/shared";
 import { EcencyAnalytics } from "@ecency/sdk";
@@ -28,6 +28,7 @@ export function BuyPointsPage() {
     "transfer",
     asset as TransferAsset
   );
+  const isSubmittingRef = useRef(false);
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-points-by-hive" as any
@@ -54,12 +55,19 @@ export function BuyPointsPage() {
 
         {step === "form" && (
           <BuyWithHiveForm
+            isPending={isPending}
             onSubmit={async (formAmount, formAsset, formPointsAmount) => {
+              if (isSubmittingRef.current) return;
+              isSubmittingRef.current = true;
+
               setAmount(formAmount);
               setAsset(formAsset);
               setPointsAmount(formPointsAmount);
 
-              if (!activeUser) return;
+              if (!activeUser) {
+                isSubmittingRef.current = false;
+                return;
+              }
 
               try {
                 await sign({
@@ -72,6 +80,8 @@ export function BuyPointsPage() {
                 setStep("success");
               } catch (e) {
                 error(...formatError(e));
+              } finally {
+                isSubmittingRef.current = false;
               }
             }}
           />

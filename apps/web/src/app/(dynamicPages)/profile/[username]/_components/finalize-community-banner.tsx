@@ -81,10 +81,11 @@ export function FinalizeCommunityBanner({ username }: Props) {
 
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-sm font-medium mb-1 block">
+          <label htmlFor="community-title" className="text-sm font-medium mb-1 block">
             {i18next.t("communities-create.title")}
           </label>
           <FormControl
+            id="community-title"
             type="text"
             value={title}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
@@ -93,10 +94,11 @@ export function FinalizeCommunityBanner({ username }: Props) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium mb-1 block">
+          <label htmlFor="community-about" className="text-sm font-medium mb-1 block">
             {i18next.t("communities-create.about")}
           </label>
           <FormControl
+            id="community-about"
             type="textarea"
             value={about}
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setAbout(e.target.value)}
@@ -105,10 +107,11 @@ export function FinalizeCommunityBanner({ username }: Props) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium mb-1 block">
+          <label htmlFor="community-admin-username" className="text-sm font-medium mb-1 block">
             {i18next.t("communities-create.finalize-admin-label")}
           </label>
           <FormControl
+            id="community-admin-username"
             type="text"
             value={adminUsername}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminUsername(e.target.value)}
