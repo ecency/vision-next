@@ -112,6 +112,25 @@ describe("FinalizeCommunityBanner", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  test("renders banner with only admin field when community exists but has no admin", () => {
+    (useActiveAccount as any).mockReturnValue({
+      activeUser: { username: "hive-123456" }
+    });
+
+    queryClient.setQueryData(["community", "hive-123456"], {
+      name: "hive-123456",
+      title: "Existing Community",
+      team: [["hive-123456", "owner", ""]]
+    });
+    renderComponent("hive-123456");
+
+    // Banner should show
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("communities-create.finalize-title");
+    // Title/about fields should NOT show (community already has props)
+    const inputs = screen.getAllByRole("textbox");
+    expect(inputs).toHaveLength(1); // only admin username field
+  });
+
   test("renders the banner when conditions are met", () => {
     (useActiveAccount as any).mockReturnValue({
       activeUser: { username: "hive-123456" }
