@@ -33,7 +33,7 @@ export function TransferStep2({ titleLngKey }: Props) {
   const handleConfirmAndSign = useCallback(async () => {
     try {
       await signTransfer({ to, amount, memo });
-      await refetch();
+      refetch().catch(() => {});
       setStep(3);
     } catch (e) {
       error(...formatError(e));

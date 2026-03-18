@@ -54,7 +54,7 @@ export function PromotePost() {
             await preCheck(path);
             const [author, permlink] = path.replace("@", "").split("/");
             await promote({ author, permlink, duration });
-            recordActivity();
+            recordActivity().catch(() => {});
             setStep("success");
           }}
         />

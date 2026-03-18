@@ -36,6 +36,9 @@ export interface SignTransferPayload {
   to: string;
   amount: string;
   memo: string;
+  /** Overrides the hook-level asset for this call. Use when the desired asset
+   *  may differ from the one captured by the hook (e.g. after a state update
+   *  that hasn't triggered a re-render yet). */
   asset?: TransferAsset;
 }
 

@@ -15,7 +15,7 @@ import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 interface Props {
   username: string;
@@ -26,7 +26,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
 
   const [title, setTitle] = useState("");
   const [about, setAbout] = useState("");
-  const [adminUsername, setAdminUsername] = useState(activeUser?.username ?? "");
+  const [adminUsername, setAdminUsername] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -87,7 +87,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
           <FormControl
             type="text"
             value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
             placeholder={i18next.t("communities-create.title")}
             disabled={submitting}
           />
@@ -99,7 +99,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
           <FormControl
             type="textarea"
             value={about}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAbout(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setAbout(e.target.value)}
             placeholder={i18next.t("communities-create.about")}
             disabled={submitting}
           />
@@ -111,7 +111,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
           <FormControl
             type="text"
             value={adminUsername}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAdminUsername(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminUsername(e.target.value)}
             placeholder={i18next.t("communities-create.finalize-admin-hint")}
             disabled={submitting}
           />

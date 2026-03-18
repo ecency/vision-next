@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { FormControl } from "@ui/input";
@@ -67,8 +67,8 @@ export function BoostDialog({ onHide }: Props) {
     [alreadyBoostAccount]
   );
   const canSubmit = useMemo(
-    () => !balanceError && !isAlreadyBoosted && account.length > 0,
-    [balanceError, isAlreadyBoosted, account]
+    () => !balanceError && !isAlreadyBoosted && account.length > 0 && duration > 0,
+    [balanceError, isAlreadyBoosted, account, duration]
   );
 
   const inProgress = isBoostPending;
@@ -79,9 +79,16 @@ export function BoostDialog({ onHide }: Props) {
     }
   }, [prices]);
 
+  const isSubmittingRef = useRef(false);
   const handleSubmit = useCallback(async () => {
-    await boostPlus({ account, duration });
-    setStep(2);
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    try {
+      await boostPlus({ account, duration });
+      setStep(2);
+    } finally {
+      isSubmittingRef.current = false;
+    }
   }, [account, duration, boostPlus]);
 
   const finish = () => onHide();

@@ -68,7 +68,7 @@ export function BuyPointsPage() {
                   memo: "points",
                   asset: formAsset as TransferAsset,
                 });
-                recordActivity();
+                recordActivity().catch(() => {});
                 setStep("success");
               } catch (e) {
                 error(...formatError(e));

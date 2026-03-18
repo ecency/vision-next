@@ -122,7 +122,7 @@ describe("FinalizeCommunityBanner", () => {
     expect(screen.getByText("communities-create.finalize-description")).toBeInTheDocument();
   });
 
-  test("submit button is disabled when title is blank", () => {
+  test("submit button is disabled when title or admin is blank", () => {
     (useActiveAccount as any).mockReturnValue({
       activeUser: { username: "hive-123456" }
     });
@@ -130,6 +130,7 @@ describe("FinalizeCommunityBanner", () => {
     queryClient.setQueryData(["community", "hive-123456"], null);
     renderComponent("hive-123456");
 
+    // Both title and admin are empty by default — button should be disabled
     const submitButton = screen.getByRole("button");
     expect(submitButton).toBeDisabled();
   });
@@ -143,8 +144,9 @@ describe("FinalizeCommunityBanner", () => {
     renderComponent("hive-123456");
 
     const inputs = screen.getAllByRole("textbox");
-    // First input is title, third is admin username (pre-filled with activeUser)
+    // First input is title, third is admin username (must be filled manually)
     fireEvent.change(inputs[0], { target: { value: "My Community" } });
+    fireEvent.change(inputs[2], { target: { value: "myadmin" } });
 
     const submitButton = screen.getByRole("button");
     expect(submitButton).toBeEnabled();
@@ -163,12 +165,13 @@ describe("FinalizeCommunityBanner", () => {
 
     const inputs = screen.getAllByRole("textbox");
     fireEvent.change(inputs[0], { target: { value: "My Community" } });
+    fireEvent.change(inputs[2], { target: { value: "myadmin" } });
 
     fireEvent.click(screen.getByRole("button"));
 
     await waitFor(() => {
       expect(mockSetRole).toHaveBeenCalledWith({
-        account: "hive-123456",
+        account: "myadmin",
         role: "admin"
       });
     });
@@ -197,6 +200,7 @@ describe("FinalizeCommunityBanner", () => {
 
     const inputs = screen.getAllByRole("textbox");
     fireEvent.change(inputs[0], { target: { value: "My Community" } });
+    fireEvent.change(inputs[2], { target: { value: "myadmin" } });
 
     fireEvent.click(screen.getByRole("button"));
 
