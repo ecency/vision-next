@@ -1054,7 +1054,7 @@
     "default-beneficiary-reward": "Recompensa (en %)",
     "default-beneficiary-docs": "Ver documentos",
     "finalize-title": "Finalizar configuración de la comunidad",
-    "finalize-description": "Esta cuenta de la comunidad ha sido creada pero la configuración no se ha completado. Complévala ahora.",
+    "finalize-description": "Esta cuenta de la comunidad ha sido creada, pero la configuración no se ha completado. Complétala ahora.",
     "finalize-admin-label": "Usuario Admin",
     "finalize-admin-hint": "La cuenta de Hive que administrará esta comunidad",
     "finalize-success": "¡Configuración de la comunidad completada con éxito!"
