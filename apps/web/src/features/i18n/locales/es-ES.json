@@ -1763,7 +1763,10 @@
     "error-too-many": "Demasiadas solicitudes de subida. Por favor, espere un momento y vuelva a intentarlo.",
     "error-unavailable": "El servicio de subida no está disponible temporalmente. Inténtalo de nuevo más tarde.",
     "error-auth": "Error de autenticación. Por favor, póngase en contacto con el soporte.",
-    "error-generic": "Error al subir el video. Por favor, inténtalo de nuevo."
+    "error-generic": "Error al subir el video. Por favor, inténtalo de nuevo.",
+    "title-short": "Subir vídeo corto",
+    "short-badge": "Corto",
+    "video-attached": "Vídeo adjunto"
   },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. Primera etiqueta es la categoría principal. Organízable.",
