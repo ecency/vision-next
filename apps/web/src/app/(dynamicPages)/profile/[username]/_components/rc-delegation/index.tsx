@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import badActors from "@hiveio/hivescript/bad-actors.json";
 import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";
 import { Form } from "@ui/form";
@@ -8,6 +7,8 @@ import { error, LinearProgress, UserAvatar } from "@/features/shared";
 import { arrowRightSvg } from "@ui/svg";
 import { formatError } from "@/api/format-error";
 import { useDelegateRcMutation } from "@/api/sdk-mutations";
+import { getBadActorsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "react-use";
@@ -16,6 +17,7 @@ export const ResourceCreditsDelegation = (props: any) => {
   const { resourceCredit, activeUser, hideDelegation, toFromList, amountFromList, delegateeData } =
     props;
   const queryClient = useQueryClient();
+  const { data: badActors } = useQuery(getBadActorsQueryOptions());
   const { mutateAsync: delegateRc } = useDelegateRcMutation();
 
   const [to, setTo] = useState<string>(toFromList || "");
@@ -92,7 +94,7 @@ export const ResourceCreditsDelegation = (props: any) => {
       return;
     }
 
-    if (badActors.includes(value)) {
+    if (badActors?.has(value)) {
       setToWarning(i18next.t("transfer.to-bad-actor"));
     } else {
       setToWarning("");
@@ -122,7 +124,7 @@ export const ResourceCreditsDelegation = (props: any) => {
         setInProgress(false);
       }
     }
-  }, []);
+  }, [badActors, queryClient]);
 
   useDebounce(() => handleTo(to), 3000, [to]);
 
