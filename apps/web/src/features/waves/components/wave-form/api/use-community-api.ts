@@ -12,6 +12,7 @@ import { DBUZZ_COMMUNITY } from "@/features/waves";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { enforceThreeSpeakBeneficiary, hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
 
 interface Body {
   host: string;
@@ -103,6 +104,14 @@ export function useCommunityApi() {
           allowCurationRewards: options.allow_curation_rewards,
           beneficiaries: extractBeneficiaries(options.extensions)
         };
+      }
+
+      // Add 3Speak beneficiary when the wave contains a video embed
+      if (hasThreeSpeakEmbed(cleanedRaw) && commentPayload.options) {
+        commentPayload.options.beneficiaries = enforceThreeSpeakBeneficiary(
+          commentPayload.options.beneficiaries ?? [],
+          cleanedRaw
+        );
       }
 
       await sdkComment(commentPayload);

@@ -20,6 +20,8 @@ interface Props {
   show: boolean;
   setShow: (v: boolean) => void;
   onVideoUploaded: (embedUrl: string, thumbnailUrl?: string) => void;
+  /** When true, passes isShort flag to the upload token request (for Shorts/Waves). */
+  isShort?: boolean;
 }
 
 interface VideoData {
@@ -96,13 +98,16 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
     try {
       const result = await uploadVideo({
         file,
-        owner: activeUser.username
+        owner: activeUser.username,
+        isShort: props.isShort
       });
       if (result) {
         setVideoData({ embedUrl: result.embedUrl, permlink: result.permlink });
       }
     } catch {
-      // Error already shown by the mutation's error handler
+      // Error already shown by the mutation's error handler.
+      // Reset file state so the selector reappears and user can retry.
+      setSelectedFile(null);
     }
   };
 
@@ -254,6 +259,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
               type="video"
               accept="video/mp4, video/webm"
               completed={videoPercentage}
+              hasFile={!!selectedFile}
             />
           </div>
         )}
