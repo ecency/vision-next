@@ -1763,7 +1763,10 @@
     "error-too-many": "Muitas solicitações de envio. Por favor, aguarde um momento e tente novamente.",
     "error-unavailable": "O serviço de envio está temporariamente indisponível. Por favor, tente novamente mais tarde.",
     "error-auth": "Falha de autenticação. Entre em contato com o suporte.",
-    "error-generic": "Falha ao fazer upload do vídeo. Tente novamente."
+    "error-generic": "Falha ao fazer upload do vídeo. Tente novamente.",
+    "title-short": "Carregar um vídeo curto",
+    "short-badge": "Curto",
+    "video-attached": "Vídeo anexado"
   },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. A primeira etiqueta é a categoria principal. Ordenável.",
