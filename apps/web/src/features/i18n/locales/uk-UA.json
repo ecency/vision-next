@@ -1754,7 +1754,6 @@
     "reset": "Скинути",
     "source": "Джерело відео",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Відео менш ніж 15 секунд в тривалості буде проігнороване 3Speak.",
     "insert-video": "Вставка відео",
     "file-too-large": "Розмір файлу перевищує ліміт 1 ГБ. Будь ласка, виберіть менші відео.",
     "extracting-thumbnail": "Extracting thumbnail…",
