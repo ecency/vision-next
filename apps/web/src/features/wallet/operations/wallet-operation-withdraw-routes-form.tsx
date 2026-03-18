@@ -80,7 +80,7 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
                 {methods.formState.errors.account.message}
               </motion.div>
             )}
-            {badActors?.has(methods.watch("account")?.toLowerCase()) && (
+            {badActors?.has(methods.watch("account")?.trim().toLowerCase()) && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}

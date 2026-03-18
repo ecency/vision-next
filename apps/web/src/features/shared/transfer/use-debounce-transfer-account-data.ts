@@ -93,7 +93,7 @@ export function useDebounceTransferAccountData() {
         return;
       }
 
-      setToWarning(badActors?.has(to?.toLowerCase()) ? i18next.t("transfer.to-bad-actor") : "");
+      setToWarning(badActors?.has(to?.trim().toLowerCase()) ? i18next.t("transfer.to-bad-actor") : "");
       setToDebounce(to);
     },
     500,
