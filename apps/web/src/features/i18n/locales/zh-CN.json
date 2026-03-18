@@ -1052,7 +1052,12 @@
     "default-beneficiary": "默认收件人",
     "default-beneficiary-username": "Hive 用户名",
     "default-beneficiary-reward": "奖励(%)",
-    "default-beneficiary-docs": "查看文档"
+    "default-beneficiary-docs": "查看文档",
+    "finalize-title": "完成社区设置",
+    "finalize-description": "此社区帐户已创建，但设置尚未完成。现在就完成。",
+    "finalize-admin-label": "管理员用户名",
+    "finalize-admin-hint": "将管理这个社区的 Hive 帐户",
+    "finalize-success": "社区设置成功完成！"
   },
   "community-rewards-registration": {
     "body-text": "注册您的社区以获取Ecency积分",
