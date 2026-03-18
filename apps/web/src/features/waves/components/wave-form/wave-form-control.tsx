@@ -16,6 +16,7 @@ interface Props {
   video: string | undefined;
   selectedImage: string | undefined;
   clearSelectedImage: () => void;
+  clearVideo?: () => void;
   placeholder?: string;
   characterLimit: number;
   onPasteImage?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
@@ -27,6 +28,8 @@ export const WaveFormControl = ({
   setText,
   selectedImage,
   clearSelectedImage,
+  clearVideo,
+  video,
   characterLimit,
   placeholder,
   textareaRef,
@@ -81,6 +84,31 @@ export const WaveFormControl = ({
               className="absolute top-4 right-4"
               onClick={() => clearSelectedImage()}
             />
+          </motion.div>
+        )}
+        {video && (
+          <motion.div
+            key="video"
+            initial={{ opacity: 0, scale: 0.875, height: 0 }}
+            animate={{ opacity: 1, scale: 1, height: "auto" }}
+            exit={{ opacity: 0, scale: 0.875, height: 0 }}
+            className="max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3 flex items-center justify-center bg-gray-100 dark:bg-dark-default p-4"
+          >
+            <Badge className="absolute top-4 left-4 text-xs uppercase">
+              {i18next.t("video-upload.short-badge")}
+            </Badge>
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400 py-4">
+              {i18next.t("video-upload.video-attached")}
+            </div>
+            {clearVideo && (
+              <Button
+                appearance="danger"
+                size="sm"
+                icon={<UilMultiply />}
+                className="absolute top-4 right-4"
+                onClick={clearVideo}
+              />
+            )}
           </motion.div>
         )}
         {activePoll && (

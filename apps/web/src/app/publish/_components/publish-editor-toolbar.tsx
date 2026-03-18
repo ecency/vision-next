@@ -623,7 +623,15 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           setShow={setShowVideoUpload}
           onVideoUploaded={(embedUrl, videoThumbnailUrl) => {
             if (editor) {
-              editor.chain().focus().insertContent(embedUrl).run();
+              editor
+                .chain()
+                .focus()
+                .set3SpeakVideo({
+                  src: embedUrl,
+                  thumbnail: videoThumbnailUrl || "",
+                  status: "published"
+                })
+                .run();
             }
 
             // Add video thumbnail to post metadata so feed cards show it

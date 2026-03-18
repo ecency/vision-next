@@ -156,3 +156,42 @@ export async function setVideoThumbnail(permlink: string, thumbnailUrl: string):
     throw err;
   }
 }
+
+/**
+ * Links an uploaded video to a published Hive post/comment.
+ * This enables the video to appear in 3Speak's special feeds (e.g. Shorts).
+ *
+ * Should be called after the Hive broadcast succeeds — fire-and-forget is fine
+ * since this is a non-critical metadata update.
+ */
+export async function linkVideoToHive(params: {
+  /** Video permlink (from the embed URL, NOT the Hive post permlink) */
+  videoPermlink: string;
+  hiveAuthor: string;
+  hivePermlink: string;
+  hiveTitle?: string;
+  hiveBody?: string;
+  hiveTags?: string[];
+}): Promise<void> {
+  try {
+    const response = await fetch("/api/threespeak/link-hive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        permlink: params.videoPermlink,
+        hive_author: params.hiveAuthor,
+        hive_permlink: params.hivePermlink,
+        hive_title: params.hiveTitle,
+        hive_body: params.hiveBody,
+        hive_tags: params.hiveTags
+      })
+    });
+
+    if (!response.ok) {
+      console.error(`[3Speak] Failed to link video to Hive: ${response.status}`);
+    }
+  } catch (e) {
+    // Non-critical — video still works, just won't appear in 3Speak feeds
+    console.error("[3Speak] linkVideoToHive error:", e);
+  }
+}

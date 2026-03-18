@@ -13,6 +13,8 @@ import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
+import { enforceThreeSpeakBeneficiary, hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
+import { extractPermlink, linkVideoToHive } from "@/api/threespeak-embed/api";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -84,6 +86,19 @@ export function useWavesApi() {
         rootPermlink: entry.permlink
       };
 
+      // Add 3Speak beneficiary when the wave contains a video embed
+      if (hasThreeSpeakEmbed(raw)) {
+        const beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+        if (beneficiaries.length > 0) {
+          commentPayload.options = {
+            beneficiaries: beneficiaries.map((b) => ({
+              account: b.account,
+              weight: b.weight
+            }))
+          };
+        }
+      }
+
       await sdkComment(commentPayload);
       if (!editingEntry) {
         // For newly created waves we still confirm blockchain propagation but
@@ -92,6 +107,22 @@ export function useWavesApi() {
         await validatePostCreating(username, permlink, 0, {
           delays: [750, 1500, 2250]
         });
+      }
+
+      // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+      if (!editingEntry && hasThreeSpeakEmbed(raw)) {
+        const embedMatch = raw.match(/https?:\/\/[a-z.]*3speak\.tv\/embed[?/][^\s<"']*/);
+        if (embedMatch) {
+          const videoPermlink = extractPermlink(embedMatch[0]);
+          if (videoPermlink) {
+            linkVideoToHive({
+              videoPermlink,
+              hiveAuthor: username,
+              hivePermlink: permlink,
+              hiveTags: tags
+            }).catch(() => {}); // non-critical
+          }
+        }
       }
 
       const tempReply = editingEntry

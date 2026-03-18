@@ -1,5 +1,7 @@
 import { validatePostCreating } from "@ecency/sdk";
 import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
+import { hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
+import { extractPermlink, linkVideoToHive } from "@/api/threespeak-embed/api";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
@@ -183,6 +185,23 @@ export function usePublishApi() {
         Sentry.captureException(e, {
           extra: { username: entry.author }
         });
+      }
+
+      // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+      if (hasThreeSpeakEmbed(cleanBody)) {
+        const embedMatch = cleanBody.match(/https?:\/\/[a-z.]*3speak\.tv\/embed[?/][^\s<"']*/);
+        if (embedMatch) {
+          const videoPermlink = extractPermlink(embedMatch[0]);
+          if (videoPermlink) {
+            linkVideoToHive({
+              videoPermlink,
+              hiveAuthor: author,
+              hivePermlink: permlink,
+              hiveTitle: title,
+              hiveTags: tags
+            }).catch(() => {}); // non-critical
+          }
+        }
       }
 
       // Record user activity
