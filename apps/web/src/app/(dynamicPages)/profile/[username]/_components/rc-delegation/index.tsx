@@ -7,10 +7,8 @@ import { error, LinearProgress, UserAvatar } from "@/features/shared";
 import { arrowRightSvg } from "@ui/svg";
 import { formatError } from "@/api/format-error";
 import { useDelegateRcMutation } from "@/api/sdk-mutations";
-import { getBadActorsQueryOptions } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { useQueryClient } from "@tanstack/react-query";
+import { getBadActorsQueryOptions, getAccountFullQueryOptions } from "@ecency/sdk";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "react-use";
 
 export const ResourceCreditsDelegation = (props: any) => {
@@ -94,7 +92,7 @@ export const ResourceCreditsDelegation = (props: any) => {
       return;
     }
 
-    if (badActors?.has(value)) {
+    if (badActors?.has(value.toLowerCase())) {
       setToWarning(i18next.t("transfer.to-bad-actor"));
     } else {
       setToWarning("");

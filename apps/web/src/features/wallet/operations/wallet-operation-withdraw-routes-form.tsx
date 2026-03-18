@@ -80,7 +80,7 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
                 {methods.formState.errors.account.message}
               </motion.div>
             )}
-            {badActors?.has(methods.watch("account")) && (
+            {badActors?.has(methods.watch("account")?.toLowerCase()) && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -100,16 +100,18 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
             type="number"
             aria-invalid={!!methods.formState.errors.percent}
           />
-          {methods.formState.errors.percent && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-red text-xs px-3 pt-0.5"
-            >
-              {methods.formState.errors.percent.message}
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {methods.formState.errors.percent && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-red text-xs px-3 pt-0.5"
+              >
+                {methods.formState.errors.percent.message}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div>
           <label>{i18next.t("withdraw-routes.auto-power-up")}</label>
