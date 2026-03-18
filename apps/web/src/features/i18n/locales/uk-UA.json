@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Бенефіціар за замовчуванням",
     "default-beneficiary-username": "Вуличне ім'я користувача",
     "default-beneficiary-reward": "Винагорода (у %)",
-    "default-beneficiary-docs": "Переглянути документацію"
+    "default-beneficiary-docs": "Переглянути документацію",
+    "finalize-title": "Завершити налаштування спільноти",
+    "finalize-description": "Цей обліковий запис спільноти було створено, але налаштування не були завершені.",
+    "finalize-admin-label": "Ім'я адміністратора",
+    "finalize-admin-hint": "Вулик аккаунт, який буде керувати цією спільнотою",
+    "finalize-success": "Налаштування спільноти успішно завершено!"
   },
   "community-rewards-registration": {
     "body-text": "Зареєструйте свою спільноту, щоб отримати БАЛИ на Ecency",
