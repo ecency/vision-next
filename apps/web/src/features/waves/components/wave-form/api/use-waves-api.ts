@@ -13,7 +13,7 @@ import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
-import { enforceThreeSpeakBeneficiary, hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed/beneficiary";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 
 export function useWavesApi() {
@@ -87,16 +87,14 @@ export function useWavesApi() {
       };
 
       // Add 3Speak beneficiary when the wave contains a video embed
-      if (hasThreeSpeakEmbed(raw)) {
-        const beneficiaries = enforceThreeSpeakBeneficiary([], raw);
-        if (beneficiaries.length > 0) {
-          commentPayload.options = {
-            beneficiaries: beneficiaries.map((b) => ({
-              account: b.account,
-              weight: b.weight
-            }))
-          };
-        }
+      const beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+      if (beneficiaries.length > 0) {
+        commentPayload.options = {
+          beneficiaries: beneficiaries.map((b) => ({
+            account: b.account,
+            weight: b.weight
+          }))
+        };
       }
 
       await sdkComment(commentPayload);

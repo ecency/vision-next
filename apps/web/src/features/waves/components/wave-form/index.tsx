@@ -352,7 +352,6 @@ const WaveFormComponent = ({
           isShort={true}
           onVideoUploaded={(embedUrl) => {
             setVideo(embedUrl);
-            setShowVideoUpload(false);
           }}
         />
       </div>
