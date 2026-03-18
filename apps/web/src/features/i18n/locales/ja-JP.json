@@ -1763,7 +1763,10 @@
     "error-too-many": "アップロードリクエストが多すぎます。しばらく待ってからもう一度やり直してください。",
     "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
     "error-auth": "認証に失敗しました。サポートにお問い合わせください。",
-    "error-generic": "動画のアップロードに失敗しました。もう一度やり直してください。"
+    "error-generic": "動画のアップロードに失敗しました。もう一度やり直してください。",
+    "title-short": "短い動画をアップロード",
+    "short-badge": "Short",
+    "video-attached": "ビデオが添付されました"
   },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
