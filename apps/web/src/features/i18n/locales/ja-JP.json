@@ -1052,7 +1052,12 @@
     "default-beneficiary": "既定の<unk>",
     "default-beneficiary-username": "ハイブユーザー名",
     "default-beneficiary-reward": "報酬 (%)",
-    "default-beneficiary-docs": "ドキュメントを見る"
+    "default-beneficiary-docs": "ドキュメントを見る",
+    "finalize-title": "コミュニティの設定を完了する",
+    "finalize-description": "このコミュニティアカウントは作成されましたが、セットアップが完了していません。今すぐ完了してください。",
+    "finalize-admin-label": "管理者ユーザー名",
+    "finalize-admin-hint": "このコミュニティを管理するHiveアカウント",
+    "finalize-success": "コミュニティの設定が正常に完了しました！"
   },
   "community-rewards-registration": {
     "body-text": "Ecency POINTSを入手するには、コミュニティを登録してください",
