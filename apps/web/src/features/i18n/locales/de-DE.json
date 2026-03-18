@@ -1763,7 +1763,10 @@
     "error-too-many": "Zu viele Upload-Anfragen. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
     "error-unavailable": "Upload-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
     "error-auth": "Authentifizierung fehlgeschlagen. Bitte kontaktieren Sie den Support.",
-    "error-generic": "Video konnte nicht hochgeladen werden. Bitte erneut versuchen."
+    "error-generic": "Video konnte nicht hochgeladen werden. Bitte erneut versuchen.",
+    "title-short": "Kurzes Video hochladen",
+    "short-badge": "Kurze",
+    "video-attached": "Video hinzugefügt"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Erster Tag ist die Hauptkategorie. Sortierbar.",
