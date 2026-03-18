@@ -1763,7 +1763,10 @@
     "error-too-many": "Trop de demandes de téléchargement. Veuillez patienter un instant et réessayer.",
     "error-unavailable": "Le service de téléchargement est temporairement indisponible. Veuillez réessayer plus tard.",
     "error-auth": "L'authentification a échoué. Veuillez contacter le support.",
-    "error-generic": "Impossible de télécharger la vidéo. Veuillez réessayer."
+    "error-generic": "Impossible de télécharger la vidéo. Veuillez réessayer.",
+    "title-short": "Charger une courte vidéo",
+    "short-badge": "Courte",
+    "video-attached": "Vidéo attachée"
   },
   "tag-selector": {
     "placeholder-empty": "Mots-clés. Le premier mot-clé est la catégorie principale. Triable.",
