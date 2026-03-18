@@ -1754,7 +1754,6 @@
     "reset": "रीसेट",
     "source": "वीडियो स्रोत",
     "thumbnail": "थंबनेल",
-    "min-duration-alert": "15 सेकंड से कम अवधि वाले वीडियो को 3Speak द्वारा अनदेखा कर दिया जाएगा।",
     "insert-video": "Insert video",
     "file-too-large": "File size exceeds the 1 GB limit. Please choose a smaller video.",
     "extracting-thumbnail": "Extracting thumbnail…",
