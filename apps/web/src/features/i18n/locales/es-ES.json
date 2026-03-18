@@ -1052,7 +1052,12 @@
     "default-beneficiary": "beneficiario por defecto",
     "default-beneficiary-username": "Nombre de usuario en Hive",
     "default-beneficiary-reward": "Recompensa (en %)",
-    "default-beneficiary-docs": "Ver documentos"
+    "default-beneficiary-docs": "Ver documentos",
+    "finalize-title": "Finalizar configuración de la comunidad",
+    "finalize-description": "Esta cuenta de la comunidad ha sido creada pero la configuración no se ha completado. Complévala ahora.",
+    "finalize-admin-label": "Usuario Admin",
+    "finalize-admin-hint": "La cuenta de Hive que administrará esta comunidad",
+    "finalize-success": "¡Configuración de la comunidad completada con éxito!"
   },
   "community-rewards-registration": {
     "body-text": "Registra tu comunidad para obtener POINTS de Ecency",
