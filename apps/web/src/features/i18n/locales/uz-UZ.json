@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Doimiy benefitsiar",
     "default-beneficiary-username": "Hive foydalanuvchi nomi",
     "default-beneficiary-reward": "Mukofot (foizda)",
-    "default-beneficiary-docs": "Hujjatlarni ko‘rish"
+    "default-beneficiary-docs": "Hujjatlarni ko‘rish",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "Ecency POINTS olish uchun guruhingizni roʻyxatdan oʻtkazing",
