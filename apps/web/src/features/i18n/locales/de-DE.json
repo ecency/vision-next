@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Standard Empfänger",
     "default-beneficiary-username": "Hive-Benutzername",
     "default-beneficiary-reward": "Belohnung (in %)",
-    "default-beneficiary-docs": "Dokumentation ansehen"
+    "default-beneficiary-docs": "Dokumentation ansehen",
+    "finalize-title": "Community-Einrichtung abschließen",
+    "finalize-description": "Dieses Community-Konto wurde angelegt, aber das Setup wurde nicht abgeschlossen. Vervollständige es jetzt.",
+    "finalize-admin-label": "Admin-Benutzername",
+    "finalize-admin-hint": "Das Hive-Konto, das diese Community verwalten wird",
+    "finalize-success": "Community-Einrichtung erfolgreich abgeschlossen!"
   },
   "community-rewards-registration": {
     "body-text": "Registriere deine Community, um Ecency-Punkte zu erhalten",
