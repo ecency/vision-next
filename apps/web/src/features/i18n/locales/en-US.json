@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Default beneficiary",
     "default-beneficiary-username": "Hive username",
     "default-beneficiary-reward": "Reward(in %)",
-    "default-beneficiary-docs": "See docs"
+    "default-beneficiary-docs": "See docs",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "Register your community to get Ecency POINTS",

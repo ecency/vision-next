@@ -27,7 +27,7 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
       const code = await submitApi({ creatorKey, fee: fee!, wif, username });
       onSubmit(code);
     },
-    [fee, submitApi, username, wif]
+    [fee, submitApi, username, wif, onSubmit]
   );
 
   const onHs = useCallback(
@@ -38,7 +38,7 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
   const onKc = useCallback(async () => {
     const code = await submitKc({ username, wif, fee: fee! });
     onSubmit(code);
-  }, [fee, submitKc, username, wif]);
+  }, [fee, submitKc, username, wif, onSubmit]);
 
   return (
     <CommunityCreateCardLayout>
