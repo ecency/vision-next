@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Beneficiario predefinito",
     "default-beneficiary-username": "Nome utente alveare",
     "default-beneficiary-reward": "Ricompensa (in %)",
-    "default-beneficiary-docs": "Vedi documenti"
+    "default-beneficiary-docs": "Vedi documenti",
+    "finalize-title": "Finalizza la configurazione della community",
+    "finalize-description": "Questo account della comunità è stato creato ma la configurazione non è stata completata. Completalo ora.",
+    "finalize-admin-label": "Nome utente amministratore",
+    "finalize-admin-hint": "L'account Hive che gestirà questa comunità",
+    "finalize-success": "Configurazione della comunità completata con successo!"
   },
   "community-rewards-registration": {
     "body-text": "Registra la tua community per ottenere PUNTI Ecency",
