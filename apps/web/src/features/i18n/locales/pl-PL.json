@@ -1052,7 +1052,12 @@
     "default-beneficiary": "Domyślny beneficjent",
     "default-beneficiary-username": "Nazwa użytkownika",
     "default-beneficiary-reward": "Nagroda (w %)",
-    "default-beneficiary-docs": "Zobacz dokumenty"
+    "default-beneficiary-docs": "Zobacz dokumenty",
+    "finalize-title": "Sfinalizuj konfigurację społeczności",
+    "finalize-description": "To konto społeczności zostało utworzone, ale konfiguracja nie została zakończona. Uzupełnij je teraz.",
+    "finalize-admin-label": "Nazwa użytkownika administratora",
+    "finalize-admin-hint": "Konto Uli, które będzie zarządzać tą społecznością",
+    "finalize-success": "Konfiguracja społeczności zakończona pomyślnie!"
   },
   "community-rewards-registration": {
     "body-text": "Stwórz nową społeczność, aby otrzymać Punkty Ecency",
