@@ -1763,7 +1763,10 @@
     "error-too-many": "Te veel uploadverzoeken. Wacht even en probeer het opnieuw.",
     "error-unavailable": "Upload service is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
     "error-auth": "Authenticatie mislukt. Neem contact op met support.",
-    "error-generic": "Uploaden van video mislukt. Probeer het opnieuw."
+    "error-generic": "Uploaden van video mislukt. Probeer het opnieuw.",
+    "title-short": "Korte video uploaden",
+    "short-badge": "Kort",
+    "video-attached": "Video toegevoegd"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
