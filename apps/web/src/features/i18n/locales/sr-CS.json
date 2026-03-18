@@ -1763,7 +1763,10 @@
     "error-too-many": "Too many upload requests. Please wait a moment and try again.",
     "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
     "error-auth": "Authentication failed. Please contact support.",
-    "error-generic": "Failed to upload video. Please try again."
+    "error-generic": "Failed to upload video. Please try again.",
+    "title-short": "Upload short video",
+    "short-badge": "Short",
+    "video-attached": "Video attached"
   },
   "tag-selector": {
     "placeholder-empty": "Oznake. Prva oznaka je glavna kategorija. Podložno razvrstavanju.",
