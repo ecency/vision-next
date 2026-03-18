@@ -1,14 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import badActors from "@hiveio/hivescript/bad-actors.json";
 import { error } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
-import { getDynamicPropsQueryOptions, getVestingDelegationsQueryOptions } from "@ecency/sdk";
+import {
+  getBadActorsQueryOptions,
+  getDynamicPropsQueryOptions,
+  getVestingDelegationsQueryOptions,
+  getAccountFullQueryOptions
+} from "@ecency/sdk";
 import { useDebounce } from "react-use";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getAccountFullQueryOptions } from "@ecency/sdk";
 import i18next from "i18next";
 import { formattedNumber, parseAsset, vestsToHp } from "@/utils";
 
@@ -21,6 +24,7 @@ export function useDebounceTransferAccountData() {
   const [vestingDelegationUsername, setVestingDelegationUsername] = useState<string>();
   const [toWarning, setToWarning] = useState<string>();
 
+  const { data: badActors } = useQuery(getBadActorsQueryOptions());
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const {
     data: toData,
@@ -89,7 +93,7 @@ export function useDebounceTransferAccountData() {
         return;
       }
 
-      setToWarning(badActors.includes(to) ? i18next.t("transfer.to-bad-actor") : "");
+      setToWarning(badActors?.has(to?.trim().toLowerCase()) ? i18next.t("transfer.to-bad-actor") : "");
       setToDebounce(to);
     },
     500,

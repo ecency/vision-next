@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.30
+
+### Patch Changes
+
+- Bad actors in SDK (#708)
+
 ## 2.0.28
 
 ### Patch Changes

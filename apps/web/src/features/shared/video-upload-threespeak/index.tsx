@@ -3,7 +3,6 @@ import { setVideoThumbnail } from "@/api/threespeak-embed/api";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useGlobalStore } from "@/core/global-store";
 import { error } from "@/features/shared";
-import { Alert } from "@ui/alert";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { recordVideoSvg } from "@ui/svg";
@@ -221,9 +220,6 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   const uploadVideoModal = (
     <div className="dialog-content">
       <div className="three-speak-video-uploading position-relative">
-        <Alert appearance="primary" className="mb-4">
-          {i18next.t("video-upload.min-duration-alert")}
-        </Alert>
         <p className="font-weight-bold mb-2 text-sm opacity-50">
           {i18next.t("video-upload.source")}
         </p>
