@@ -1754,7 +1754,6 @@
     "reset": "Reset",
     "source": "视频源",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "3扬声器将忽略少于15秒的视频。",
     "insert-video": "插入视频",
     "file-too-large": "文件大小超过 1 GB 限制。请选择一个较小的视频。",
     "extracting-thumbnail": "Extracting thumbnail…",
