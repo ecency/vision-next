@@ -1763,7 +1763,10 @@
     "error-too-many": "上传请求太多。请稍等，然后重试。",
     "error-unavailable": "上传服务暂时不可用。请稍后再试。",
     "error-auth": "身份验证失败。请联系支持。",
-    "error-generic": "上传视频失败。请重试。"
+    "error-generic": "上传视频失败。请重试。",
+    "title-short": "上传短视频",
+    "short-badge": "短暂的",
+    "video-attached": "视频已连接"
   },
   "tag-selector": {
     "placeholder-empty": "标签：第一个标签是主要分类，可排序。",
