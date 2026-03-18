@@ -63,7 +63,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 
   useEffect(() => {
-    if (communityOwnerAccount) {
+    if (communityOwnerAccount?.posting_json_metadata) {
       try {
         const meta = JSON.parse(communityOwnerAccount.posting_json_metadata);
         const beneficiary = (meta?.profile ?? meta)?.beneficiary;
@@ -76,11 +76,12 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
         if (weight !== undefined) {
           methods.setValue("defaultBeneficiaryReward", weight / 100);
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
+        // Account may have invalid or empty posting_json_metadata
       }
     }
-  }, [communityOwnerAccount, methods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [communityOwnerAccount]);
 
   const onSubmit = methods.handleSubmit(
     async ({

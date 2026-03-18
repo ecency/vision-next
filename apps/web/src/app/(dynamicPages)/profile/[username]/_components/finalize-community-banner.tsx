@@ -41,9 +41,13 @@ export function FinalizeCommunityBanner({ username }: Props) {
     refetchOnWindowFocus: false
   });
 
-  // Only show if: this is a community account, user is logged in as this account, and community doesn't exist
+  // Show if: this is a community account, user is logged in as this account, and either:
+  // 1. Community doesn't exist on hivemind yet (community === null), or
+  // 2. Community exists but has no admin team set up (only owner or empty team)
   const isMyProfile = activeUser?.username === username;
-  if (!isMyProfile || !isCommunity(username) || isLoading || isError || community !== null || done) {
+  const needsSetup = community === null ||
+    (community && (!community.team || community.team.length <= 1));
+  if (!isMyProfile || !isCommunity(username) || isLoading || isError || !needsSetup || done) {
     return null;
   }
 
