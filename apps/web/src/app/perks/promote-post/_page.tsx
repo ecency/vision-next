@@ -20,7 +20,7 @@ export function PromotePost() {
   const [duration, setDuration] = useState(0);
 
   const { mutateAsync: promote, isPending } = usePromoteMutation();
-  const { mutateAsync: preCheck } = usePreCheckPromote(path, () => {});
+  const { mutateAsync: preCheck } = usePreCheckPromote(() => {});
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-promote"
@@ -51,7 +51,7 @@ export function PromotePost() {
           onSuccess={async (path, duration) => {
             setPath(path);
             setDuration(duration);
-            await preCheck();
+            await preCheck(path);
             const [author, permlink] = path.replace("@", "").split("/");
             await promote({ author, permlink, duration });
             recordActivity();

@@ -67,8 +67,8 @@ export function BoostDialog({ onHide }: Props) {
     [alreadyBoostAccount]
   );
   const canSubmit = useMemo(
-    () => !balanceError || !isAlreadyBoosted,
-    [balanceError, isAlreadyBoosted]
+    () => !balanceError && !isAlreadyBoosted && account.length > 0,
+    [balanceError, isAlreadyBoosted, account]
   );
 
   const inProgress = isBoostPending;

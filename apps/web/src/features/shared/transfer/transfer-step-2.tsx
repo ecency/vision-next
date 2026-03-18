@@ -9,23 +9,20 @@ import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { getDynamicPropsQueryOptions, getAccountFullQueryOptions } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useSignTransfer } from "@/api/mutations";
-import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 import { formatError } from "@/api/format-error";
 
 interface Props {
   titleLngKey: string;
-  onHide: () => void;
 }
 
-export function TransferStep2({ titleLngKey, onHide }: Props) {
+export function TransferStep2({ titleLngKey }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const { step, amount, asset, memo, to, setStep, inProgress, mode } = useTransferSharedState();
   const { refetch } = useQuery(getAccountFullQueryOptions(activeUser?.username));
-  const queryClient = useQueryClient();
   const { mutateAsync: signTransfer, isPending } = useSignTransfer(mode, asset);
 
   const showTo = useMemo(
@@ -37,12 +34,11 @@ export function TransferStep2({ titleLngKey, onHide }: Props) {
     try {
       await signTransfer({ to, amount, memo });
       await refetch();
-      invalidateWalletQueries(queryClient, activeUser?.username);
       setStep(3);
     } catch (e) {
       error(...formatError(e));
     }
-  }, [activeUser?.username, amount, memo, queryClient, refetch, setStep, signTransfer, to]);
+  }, [amount, memo, refetch, setStep, signTransfer, to]);
 
   return (
     <div className="transaction-form">

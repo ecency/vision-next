@@ -57,11 +57,11 @@ export function Promote({ onHide, entry }: Props) {
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
   const { mutateAsync: promote, isPending: isPromoting } = usePromoteMutation();
-  const { mutateAsync: preCheck, error: postError } = usePreCheckPromote(path, () => {});
+  const { mutateAsync: preCheck, error: postError, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
 
   const inProgress = useMemo(
-    () => isPromoting || isPricesLoading,
-    [isPromoting, isPricesLoading]
+    () => isPromoting || isPricesLoading || isPreCheckPending,
+    [isPromoting, isPricesLoading, isPreCheckPending]
   );
 
   const isValidPath = useCallback((p: string) => {
@@ -110,7 +110,7 @@ export function Promote({ onHide, entry }: Props) {
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    await preCheck();
+    await preCheck(path);
     const [author, permlink] = path.replace("@", "").split("/");
     await promote({ author, permlink, duration });
     setStep(2);

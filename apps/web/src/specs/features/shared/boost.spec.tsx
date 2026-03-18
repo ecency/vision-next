@@ -178,6 +178,56 @@ describe("BoostDialog", () => {
     expect(onHideMock).toHaveBeenCalled();
   });
 
+  test("disables the next button when account is not selected", () => {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    // No account set — button should be disabled
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+  });
+
+  test("disables the next button when account is already boosted", async () => {
+    queryClient.setQueryData(["boost-account"], {
+      expires: new Date(Date.now() + 86400000).toISOString()
+    });
+
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    // Set an account
+    fireEvent.change(screen.getByPlaceholderText("Search by username"), {
+      target: { value: "boosteduser" }
+    });
+
+    // Button should be disabled because account is already boosted
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+    expect(mockBoostPlus).not.toHaveBeenCalled();
+  });
+
+  test("disables the next button when funds are insufficient", () => {
+    queryClient.setQueryData(["points"], {
+      points: "50",
+      uPoints: "0",
+      transactions: []
+    });
+
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    fireEvent.change(screen.getByPlaceholderText("Search by username"), {
+      target: { value: "someuser" }
+    });
+
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+    expect(mockBoostPlus).not.toHaveBeenCalled();
+  });
+
   test("shows balance error message if funds are insufficient", () => {
     // Adjust points to simulate insufficient funds
     queryClient.setQueryData(["points"], {

@@ -35,7 +35,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
   const { mutateAsync: updateCommunity } = useUpdateCommunity(username, username, { adapter });
 
   // Check if community exists on hivemind
-  const { data: community, isLoading } = useQuery({
+  const { data: community, isLoading, isError } = useQuery({
     ...getCommunityQueryOptions(username, "", isCommunity(username)),
     refetchOnMount: false,
     refetchOnWindowFocus: false
@@ -43,7 +43,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
 
   // Only show if: this is a community account, user is logged in as this account, and community doesn't exist
   const isMyProfile = activeUser?.username === username;
-  if (!isMyProfile || !isCommunity(username) || isLoading || community !== null || done) {
+  if (!isMyProfile || !isCommunity(username) || isLoading || isError || community !== null || done) {
     return null;
   }
 

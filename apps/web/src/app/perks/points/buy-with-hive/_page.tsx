@@ -66,6 +66,7 @@ export function BuyPointsPage() {
                   to: "esteem.app",
                   amount: formAmount,
                   memo: "points",
+                  asset: formAsset as TransferAsset,
                 });
                 recordActivity();
                 setStep("success");

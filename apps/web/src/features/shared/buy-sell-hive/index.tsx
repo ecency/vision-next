@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { error } from "../feedback";
 import { formatError } from "@/api/format-error";
 import "./_index.scss";
@@ -43,8 +43,11 @@ export function BuySellHiveDialog({
     useLimitOrderCancelMutation();
 
   const inProgress = isCreatePending || isCancelPending;
+  const isSigningRef = useRef(false);
 
   const sign = useCallback(async () => {
+    if (isSigningRef.current) return;
+    isSigningRef.current = true;
     try {
       if (type === BuySellHiveTransactionType.Cancel && orderid) {
         await limitOrderCancel({ orderId: orderid });
@@ -82,11 +85,12 @@ export function BuySellHiveDialog({
     } catch (err) {
       error(...formatError(err));
       onHide();
+    } finally {
+      isSigningRef.current = false;
     }
   }, [type, orderid, total, amount, limitOrderCreate, limitOrderCancel, onTransactionSuccess, onHide]);
 
   const finish = () => {
-    onTransactionSuccess();
     onHide();
   };
 
