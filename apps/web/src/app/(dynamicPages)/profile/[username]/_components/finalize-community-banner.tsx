@@ -71,7 +71,7 @@ export function FinalizeCommunityBanner({ username }: Props) {
   };
 
   return (
-    <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 mb-4">
+    <div className="-mx-4 border-t border-[--border-color] p-4">
       <h3 className="text-lg font-semibold mb-1">
         {i18next.t("communities-create.finalize-title")}
       </h3>

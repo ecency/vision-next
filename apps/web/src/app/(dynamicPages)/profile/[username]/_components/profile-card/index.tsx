@@ -31,6 +31,7 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
@@ -58,7 +59,7 @@ export function ProfileCard({ account }: Props) {
   const [showFollowing, setShowFollowing] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
   const moderatedCommunities = useMemo(
-    () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],
+    () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin" || x[2] === "owner") ?? [],
     [subscriptions]
   );
 
@@ -207,6 +208,8 @@ export function ProfileCard({ account }: Props) {
           ))}
         </div>
       )}
+
+      <FinalizeCommunityBanner username={account.name} />
     </motion.div>
   );
 }

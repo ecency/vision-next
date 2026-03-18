@@ -1,7 +1,6 @@
 "use client";
 
 import { ProfileCard, ProfileMenu, ProfileSearch } from "./_components";
-import { FinalizeCommunityBanner } from "./_components/finalize-community-banner";
 import { PropsWithChildren, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -48,7 +47,6 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
           </span>
         </motion.div>
         <div className="w-full min-w-0">
-          <FinalizeCommunityBanner username={(username as string).replace("%40", "")} />
           <ProfileMenu username={(username as string).replace("%40", "")} />
           <ProfileSearch username={(username as string).replace("%40", "")} />
 
