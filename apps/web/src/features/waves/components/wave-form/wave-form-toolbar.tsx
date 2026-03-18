@@ -54,7 +54,7 @@ export const WaveFormToolbar = ({
             appearance="gray-link"
             icon={<UilVideo />}
             onClick={onShowVideoUpload}
-            disabled={disabled || hasVideo}
+            disabled={disabled || hasVideo || !onShowVideoUpload}
             title={i18next.t("video-upload.title-short")}
           />
         </EcencyConfigManager.Conditional>

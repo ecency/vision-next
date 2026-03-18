@@ -20,6 +20,7 @@ import { ensureValidToken } from "@/utils";
 import { error } from "@/features/shared";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks";
+import { useGlobalStore } from "@/core/global-store";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 
 interface Props {
@@ -39,6 +40,7 @@ const WaveFormComponent = ({
   entry
 }: Props) => {
   const { username: activeUsername, account, isLoading: isAccountLoading } = useActiveAccount();
+  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -296,7 +298,13 @@ const WaveFormComponent = ({
           }}
           onEmojiPick={handleEmojiPick}
           onAddVideo={setVideo}
-          onShowVideoUpload={() => setShowVideoUpload(true)}
+          onShowVideoUpload={() => {
+            if (!activeUsername) {
+              toggleUIProp("login");
+              return;
+            }
+            setShowVideoUpload(true);
+          }}
           submit={
             <Button
               onClick={() =>

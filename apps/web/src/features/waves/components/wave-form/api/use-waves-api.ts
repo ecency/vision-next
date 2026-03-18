@@ -14,7 +14,7 @@ import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SD
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
 import { enforceThreeSpeakBeneficiary, hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
-import { extractPermlink, linkVideoToHive } from "@/api/threespeak-embed/api";
+import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -110,20 +110,12 @@ export function useWavesApi() {
       }
 
       // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
-      if (!editingEntry && hasThreeSpeakEmbed(raw)) {
-        const embedMatch = raw.match(/https?:\/\/[a-z.]*3speak\.tv\/embed[?/][^\s<"']*/);
-        if (embedMatch) {
-          const videoPermlink = extractPermlink(embedMatch[0]);
-          if (videoPermlink) {
-            linkVideoToHive({
-              videoPermlink,
-              hiveAuthor: username,
-              hivePermlink: permlink,
-              hiveTags: tags
-            }).catch(() => {}); // non-critical
-          }
-        }
-      }
+      linkThreeSpeakEmbed(raw, {
+        hiveAuthor: username,
+        hivePermlink: permlink,
+        hiveTags: tags,
+        isEditing: !!editingEntry
+      });
 
       const tempReply = editingEntry
         ? {

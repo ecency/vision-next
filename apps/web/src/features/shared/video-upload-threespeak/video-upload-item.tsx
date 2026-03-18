@@ -39,6 +39,9 @@ export function VideoUploadItem({ onFileChange, type, accept, label, completed, 
             <div
               className="absolute inset-y-0 left-0 bg-blue-dark-sky duration-300"
               role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={completed}
               style={{ width: `${completed}%` }}
             />
             <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white drop-shadow-sm">

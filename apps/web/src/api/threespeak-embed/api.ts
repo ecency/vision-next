@@ -164,7 +164,7 @@ export async function setVideoThumbnail(permlink: string, thumbnailUrl: string):
  * Should be called after the Hive broadcast succeeds — fire-and-forget is fine
  * since this is a non-critical metadata update.
  */
-export async function linkVideoToHive(params: {
+export interface LinkVideoToHiveParams {
   /** Video permlink (from the embed URL, NOT the Hive post permlink) */
   videoPermlink: string;
   hiveAuthor: string;
@@ -172,7 +172,9 @@ export async function linkVideoToHive(params: {
   hiveTitle?: string;
   hiveBody?: string;
   hiveTags?: string[];
-}): Promise<void> {
+}
+
+export async function linkVideoToHive(params: LinkVideoToHiveParams): Promise<void> {
   try {
     const response = await fetch("/api/threespeak/link-hive", {
       method: "POST",

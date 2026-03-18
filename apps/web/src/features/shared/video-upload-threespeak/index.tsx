@@ -105,7 +105,9 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         setVideoData({ embedUrl: result.embedUrl, permlink: result.permlink });
       }
     } catch {
-      // Error already shown by the mutation's error handler
+      // Error already shown by the mutation's error handler.
+      // Reset file state so the selector reappears and user can retry.
+      setSelectedFile(null);
     }
   };
 

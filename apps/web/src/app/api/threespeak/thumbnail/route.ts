@@ -19,8 +19,17 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "3Speak integration not configured" }, { status: 503 });
   }
 
+  let body: Record<string, unknown>;
   try {
-    const body = await req.json();
+    body = await req.json();
+    if (typeof body !== "object" || body === null) {
+      return Response.json({ error: "Invalid request body" }, { status: 400 });
+    }
+  } catch {
+    return Response.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  try {
     const { permlink, thumbnail_url } = body;
 
     // Resolve authenticated user from cookie (web) or code token (mobile)
@@ -33,7 +42,7 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: "permlink and thumbnail_url are required" }, { status: 400 });
     }
 
-    const res = await fetch(`${embedEndpoint}/video/${permlink}/thumbnail`, {
+    const res = await fetch(`${embedEndpoint}/video/${encodeURIComponent(permlink as string)}/thumbnail`, {
       method: "POST",
       headers: {
         "X-API-Key": apiKey,

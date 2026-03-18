@@ -107,6 +107,7 @@ export const WaveFormControl = ({
                 icon={<UilMultiply />}
                 className="absolute top-4 right-4"
                 onClick={clearVideo}
+                aria-label={i18next.t("g.clear")}
               />
             )}
           </motion.div>

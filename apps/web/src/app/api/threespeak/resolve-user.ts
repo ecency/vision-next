@@ -28,7 +28,8 @@ export async function resolveUser(
   if (typeof code === "string" && code.length > 0) {
     try {
       const res = await fetch("https://hivesigner.com/api/me", {
-        headers: { Authorization: `Bearer ${code}` }
+        headers: { Authorization: `Bearer ${code}` },
+        signal: AbortSignal.timeout(8_000)
       });
 
       if (!res.ok) {
@@ -40,7 +41,11 @@ export async function resolveUser(
       const username = data?.account?.name ?? data?.user;
       return typeof username === "string" ? username : null;
     } catch (e) {
-      console.error("[3Speak] HiveSigner token validation error:", e);
+      if (e instanceof DOMException && e.name === "TimeoutError") {
+        console.error("[3Speak] HiveSigner token validation timed out");
+      } else {
+        console.error("[3Speak] HiveSigner token validation error:", e);
+      }
       return null;
     }
   }
