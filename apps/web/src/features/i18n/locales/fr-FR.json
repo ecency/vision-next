@@ -1754,7 +1754,6 @@
     "reset": "Reset",
     "source": "Source vidéo",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "La vidéo de moins de 15 secondes sera ignorée par 3Speak.",
     "insert-video": "Insérer une vidéo",
     "file-too-large": "La taille du fichier dépasse la limite de 1 Go. Veuillez choisir une petite vidéo.",
     "extracting-thumbnail": "Extraction de la miniature…",
