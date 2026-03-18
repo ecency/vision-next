@@ -1754,7 +1754,6 @@
     "reset": "Reset",
     "source": "ビデオ ソース",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "15秒未満の動画は3Speakによって無視されます。",
     "insert-video": "ビデオを挿入",
     "file-too-large": "ファイルサイズが1GBの制限を超えています。小さい動画を選択してください。",
     "extracting-thumbnail": "Extracting thumbnail…",
