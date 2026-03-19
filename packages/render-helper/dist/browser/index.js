@@ -75,7 +75,7 @@ var TWITCH_REGEX = /https?:\/\/(?:www.)?twitch.tv\/(?:(videos)\/)?([a-zA-Z0-9][\
 var DAPPLR_REGEX = /^(https?:)?\/\/[a-z]*\.dapplr.in\/file\/dapplr-videos\/.*/i;
 var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
 var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
-var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
+var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
 var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i;
@@ -1205,12 +1205,28 @@ function linkify(content, forApp) {
     }
   );
   content = content.replace(
-    /((^|\s)(\/|)@[\w.\d-]+)\/(\S+)/gi,
-    (match, u, p1, p2, p3) => {
+    /(^|\s)\/([a-z0-9-]+)\/@([\w.\d-]+)\/(\S+)/gi,
+    (match, preceding, tag, author, p3) => {
+      const authorLower = author.toLowerCase();
+      if (!isValidUsername(authorLower)) return match;
+      const permlink = sanitizePermlink(p3);
+      if (!isValidPermlink(permlink)) return match;
+      if (SECTION_LIST.includes(permlink)) {
+        const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`;
+        return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`;
+      } else {
+        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/${tag}/@${authorLower}/${permlink}"`;
+        return `${preceding}<a class="markdown-post-link" ${attrs}>@${authorLower}/${permlink}</a>`;
+      }
+    }
+  );
+  content = content.replace(
+    /((^|\s)\/@[\w.\d-]+)\/(\S+)/gi,
+    (match, u, _p1, p3) => {
       const uu = u.trim().toLowerCase().replace("/@", "").replace("@", "");
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;
-      if (SECTION_LIST.some((v) => p3.includes(v))) {
+      if (SECTION_LIST.includes(permlink)) {
         const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`;
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`;
       } else {
