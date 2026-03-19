@@ -31,9 +31,28 @@ export function linkify(content: string, forApp: boolean): string {
     }
   )
 
-  // internal links
+  // internal links with category: /category/@user/permlink
   content = content.replace(
-    /((^|\s)(\/|)@[\w.\d-]+)\/(\S+)/gi, (match, u, p1, p2, p3) => {
+    /(^|\s)\/([a-z0-9-]+)\/@([\w.\d-]+)\/(\S+)/gi, (match, preceding, tag, author, p3) => {
+      const authorLower = author.toLowerCase();
+      if (!isValidUsername(authorLower)) return match;
+      const permlink = sanitizePermlink(p3);
+      if (!isValidPermlink(permlink)) return match;
+
+      if (SECTION_LIST.some(v => p3.includes(v))) {
+        const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`
+        return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`
+      } else {
+        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/${tag}/@${authorLower}/${permlink}"`
+        return `${preceding}<a class="markdown-post-link" ${attrs}>@${authorLower}/${permlink}</a>`
+      }
+    }
+  )
+
+  // internal links — require leading / to distinguish /@user/permlink (Hive links)
+  // from @scope/package (npm packages, GitHub orgs, etc.)
+  content = content.replace(
+    /((^|\s)\/@[\w.\d-]+)\/(\S+)/gi, (match, u, _p1, p3) => {
       const uu = u.trim().toLowerCase().replace('/@', '').replace('@', '');
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;

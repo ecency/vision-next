@@ -100,19 +100,19 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('href="/@user-name"')
     })
 
-    it('should linkify internal post links with @author/permlink', () => {
+    it('should not linkify bare @scope/package as internal post link', () => {
       const content = '@user/name is post link'
       const result = linkify(content, false)
 
-      // This is actually a valid post link format
-      expect(result).toContain('markdown-post-link')
-      expect(result).toContain('href="/post/@user/name"')
+      // Bare @scope/package should NOT be treated as a Hive internal link
+      // Only /@user/permlink (with leading /) should be
+      expect(result).not.toContain('markdown-post-link')
     })
   })
 
   describe('internal post links', () => {
-    it('should linkify internal post links with @author/permlink format', () => {
-      const content = 'Check @author/my-post here'
+    it('should linkify internal post links with /@author/permlink format', () => {
+      const content = 'Check /@author/my-post here'
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-post-link"')
@@ -127,7 +127,7 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should use data attributes for app mode', () => {
-      const content = '@bob/cool-post'
+      const content = '/@bob/cool-post'
       const result = linkify(content, true)
 
       expect(result).toContain('data-author="bob"')
@@ -136,7 +136,7 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should handle profile section links', () => {
-      const content = 'Visit @user/wallet for details'
+      const content = 'Visit /@user/wallet for details'
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-profile-link"')
@@ -144,25 +144,50 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should use full URL for app mode with profile sections', () => {
-      const content = '@user/wallet'
+      const content = '/@user/wallet'
       const result = linkify(content, true)
 
       expect(result).toContain('href="https://ecency.com/@user/wallet"')
     })
 
     it('should sanitize permlinks with query params', () => {
-      const content = '@author/post?param=value'
+      const content = '/@author/post?param=value'
       const result = linkify(content, false)
 
       expect(result).toContain('href="/post/@author/post"')
     })
 
     it('should not linkify invalid permlinks', () => {
-      const content = '@author/invalid_permlink'
+      const content = '/@author/invalid_permlink'
       const result = linkify(content, false)
 
       // Invalid permlink should not be linkified
       expect(result).toBe(content)
+    })
+
+    it('should not linkify npm-style scoped packages like @hiveio/x402', () => {
+      const content = 'Install @hiveio/x402 for payments'
+      const result = linkify(content, false)
+
+      // Bare @scope/package must not become a post link
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should linkify /category/@user/permlink format', () => {
+      const content = 'Check /hive-173115/@alice/my-great-post here'
+      const result = linkify(content, false)
+
+      expect(result).toContain('class="markdown-post-link"')
+      expect(result).toContain('href="/hive-173115/@alice/my-great-post"')
+    })
+
+    it('should linkify /category/@user/permlink in app mode with data attributes', () => {
+      const content = '/hive-173115/@bob/cool-post'
+      const result = linkify(content, true)
+
+      expect(result).toContain('data-author="bob"')
+      expect(result).toContain('data-tag="hive-173115"')
+      expect(result).toContain('data-permlink="cool-post"')
     })
   })
 
@@ -253,7 +278,7 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should handle mentions and post links', () => {
-      const content = '@alice check @bob/my-article'
+      const content = '@alice check /@bob/my-article'
       const result = linkify(content, false)
 
       expect(result).toContain('href="/@alice"')
