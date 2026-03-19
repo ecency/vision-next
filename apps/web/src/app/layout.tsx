@@ -67,8 +67,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           imageSizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
         />
         <link rel="dns-prefetch" href="https://images.ecency.com" />
+        <link rel="dns-prefetch" href="https://img.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
         <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://img.ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
       </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />

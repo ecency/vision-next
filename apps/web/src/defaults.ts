@@ -29,15 +29,31 @@ export const ALLOWED_IMAGE_SERVERS = [
   "https://images.hive.blog"
 ];
 
+export const IMAGE_PROXY_FALLBACK = "https://img.ecency.com";
+const FALLBACK_SESSION_KEY = "image_proxy_fallback_active";
+
 const defaults = {
   ...baseDefaults,
   base: resolveRuntimeBase(),
   chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
   get imageServer(): string {
+    // User explicitly chose a different server (e.g. images.hive.blog) — always respect that
     const override = ls.get("image_proxy");
-    if (override && ALLOWED_IMAGE_SERVERS.includes(override)) {
+    if (override && ALLOWED_IMAGE_SERVERS.includes(override) && override !== defaultImageServer) {
       return override;
     }
+
+    // Automatic fallback when primary is unreachable (detected per session)
+    if (typeof window !== "undefined") {
+      try {
+        if (sessionStorage.getItem(FALLBACK_SESSION_KEY) === "1") {
+          return IMAGE_PROXY_FALLBACK;
+        }
+      } catch {
+        // sessionStorage may throw in private browsing / sandboxed iframes
+      }
+    }
+
     return defaultImageServer;
   },
   nwsServer: process.env.NEXT_PUBLIC_NWS_SERVER || baseDefaults.nwsServer,
