@@ -855,16 +855,16 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('60 - Should username with permlink', () => {
+    it('60 - Should not treat bare @scope/name as internal post link', () => {
       const input = {
         author: 'foo360',
         permlink: 'bar360',
         last_update: '2021-10-23T09:15:21',
         body: 'this is link @demo/test for internal'
       }
-      const expected = '<p dir=\"auto\"><span>this is link <a class=\"markdown-post-link\" data-author=\"demo\" data-tag=\"post\" data-permlink=\"test\">@demo/test</a> for internal</span></p>'
-
-      expect(markdown2Html(input)).toBe(expected)
+      // Bare @scope/name should NOT be linkified as a post link (could be npm package, etc.)
+      const result = markdown2Html(input)
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('61 - Should username with permlink with slash', () => {
@@ -879,16 +879,16 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('62 - Should username with permlink new line', () => {
+    it('62 - Should not treat bare @scope/name at line start as internal post link', () => {
       const input = {
         author: 'foo362',
         permlink: 'bar362',
         last_update: '2021-10-23T09:15:21',
         body: '@demo/test for internal'
       }
-      const expected = '<p dir=\"auto\"><span> <a class=\"markdown-post-link\" data-author=\"demo\" data-tag=\"post\" data-permlink=\"test\">@demo/test</a> for internal</span></p>'
-
-      expect(markdown2Html(input)).toBe(expected)
+      // Bare @scope/name should NOT be linkified as a post link
+      const result = markdown2Html(input)
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('63 - Should username with permlink with slash new line', () => {
@@ -903,12 +903,12 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('64 - Should username with section link', () => {
+    it('64 - Should username with section link (requires leading /)', () => {
       const input = {
         author: 'foo364',
         permlink: 'bar364',
         last_update: '2021-10-23T09:15:21',
-        body: '@demo/wallet for internal'
+        body: '/@demo/wallet for internal'
       }
       const expected = '<p dir=\"auto\"><span> <a class=\"markdown-profile-link\" href=\"/@demo/wallet\">@demo/wallet</a> for internal</span></p>'
 

@@ -259,7 +259,9 @@ describe('text() method - Text Node Processing', () => {
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
         )
-        expect(postLinks.length).toBe(1)
+        // Bare @author/permlink should no longer be treated as internal post links
+        // Only /@author/permlink (with leading /) should match
+        expect(postLinks.length).toBe(0)
       })
 
       it('should convert /@author/permlink to post links', () => {
@@ -279,7 +281,7 @@ describe('text() method - Text Node Processing', () => {
       it('should set correct attributes for web mode', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post')
+        const textNode = doc.createTextNode('See /@alice/my-post')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
@@ -293,7 +295,7 @@ describe('text() method - Text Node Processing', () => {
       it('should set correct attributes for app mode', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post')
+        const textNode = doc.createTextNode('See /@alice/my-post')
         parent.appendChild(textNode)
 
         text(textNode as any, true)
@@ -308,7 +310,7 @@ describe('text() method - Text Node Processing', () => {
       it('should sanitize permlinks with query params', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post?foo=bar')
+        const textNode = doc.createTextNode('See /@alice/my-post?foo=bar')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
@@ -368,7 +370,7 @@ describe('text() method - Text Node Processing', () => {
       it('should handle post links and mentions', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post by @alice')
+        const textNode = doc.createTextNode('See /@alice/my-post by @bob')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
