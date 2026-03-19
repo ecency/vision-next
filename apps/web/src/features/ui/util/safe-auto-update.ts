@@ -79,6 +79,7 @@ export function safeAutoUpdate(
     });
   } catch {
     // Handle initialization errors (e.g., elements removed during autoUpdate setup)
+    cleanup?.();
     observer?.disconnect();
     return () => {};
   }

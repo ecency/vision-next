@@ -18,13 +18,13 @@ export function ImageFailureTracker() {
       const src = el.src || el.currentSrc;
       if (!src || !src.includes(IMAGE_HOST)) return;
 
-      if (Math.random() > REPORT_SAMPLE_RATE) return;
-
-      // Deduplicate rapid failures for same URL
+      // Deduplicate rapid failures for same URL before sampling
       const key = src.slice(0, 200);
       if (recentlyReported.has(key)) return;
       recentlyReported.add(key);
       setTimeout(() => recentlyReported.delete(key), DEBOUNCE_MS);
+
+      if (Math.random() > REPORT_SAMPLE_RATE) return;
 
       Sentry.withScope((scope) => {
         scope.setTag("failure_type", "image_load");
@@ -33,7 +33,7 @@ export function ImageFailureTracker() {
         scope.setExtras({
           image_src: src,
           page_url: window.location.href,
-          connection_type: (navigator as any).connection?.effectiveType,
+          connection_type: (navigator as Navigator & { connection?: { effectiveType?: string } }).connection?.effectiveType,
           online: navigator.onLine
         });
         Sentry.captureMessage("Client image load failure: " + IMAGE_HOST);
