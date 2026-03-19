@@ -57,13 +57,18 @@ describe("ImageFailureTracker", () => {
     );
 
     // Verify scope was configured with correct tags and extras
-    const scopeCb = vi.mocked(Sentry.withScope).mock.calls[0][0];
-    const mockScope = {
+    interface MockScope {
+      setTag: ReturnType<typeof vi.fn>;
+      setLevel: ReturnType<typeof vi.fn>;
+      setExtras: ReturnType<typeof vi.fn>;
+    }
+    const scopeCb = vi.mocked(Sentry.withScope).mock.calls[0][0] as unknown as (scope: MockScope) => void;
+    const mockScope: MockScope = {
       setTag: vi.fn(),
       setLevel: vi.fn(),
       setExtras: vi.fn()
     };
-    scopeCb(mockScope as any);
+    scopeCb(mockScope);
 
     expect(mockScope.setTag).toHaveBeenCalledWith("failure_type", "image_load");
     expect(mockScope.setTag).toHaveBeenCalledWith("image_host", IMAGE_HOST);
