@@ -39,7 +39,7 @@ export function linkify(content: string, forApp: boolean): string {
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;
 
-      if (SECTION_LIST.some(v => p3.includes(v))) {
+      if (SECTION_LIST.includes(permlink)) {
         const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`
         return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`
       } else {
@@ -57,7 +57,7 @@ export function linkify(content: string, forApp: boolean): string {
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;
 
-      if (SECTION_LIST.some(v => p3.includes(v))) {
+      if (SECTION_LIST.includes(permlink)) {
         const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`
       } else {

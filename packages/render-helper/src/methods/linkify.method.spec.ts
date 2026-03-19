@@ -100,13 +100,15 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('href="/@user-name"')
     })
 
-    it('should not linkify bare @scope/package as internal post link', () => {
+    it('should not linkify bare @scope/package as any link type', () => {
       const content = '@user/name is post link'
       const result = linkify(content, false)
 
       // Bare @scope/package should NOT be treated as a Hive internal link
       // Only /@user/permlink (with leading /) should be
       expect(result).not.toContain('markdown-post-link')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).toContain('@user/name')
     })
   })
 
@@ -169,8 +171,10 @@ describe('linkify() method - Content Linkification', () => {
       const content = 'Install @hiveio/x402 for payments'
       const result = linkify(content, false)
 
-      // Bare @scope/package must not become a post link
+      // Bare @scope/package must not become any kind of link
       expect(result).not.toContain('markdown-post-link')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).toContain('@hiveio/x402')
     })
 
     it('should linkify /category/@user/permlink format', () => {
