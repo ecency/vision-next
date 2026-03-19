@@ -1,9 +1,10 @@
 import { vi } from "vitest";
 import { TextDecoder, TextEncoder } from "util";
 
-global.TextEncoder = TextEncoder;
-// @ts-ignore
-global.TextDecoder = TextDecoder;
+// Polyfill for jsdom environment — use defineProperty because jsdom v26
+// shadows simple global assignments with its own window descriptors.
+Object.defineProperty(globalThis, "TextEncoder", { value: TextEncoder, writable: true, configurable: true });
+Object.defineProperty(globalThis, "TextDecoder", { value: TextDecoder, writable: true, configurable: true });
 
 // Mock uuid to avoid crypto dependency issues
 vi.mock("uuid", () => ({

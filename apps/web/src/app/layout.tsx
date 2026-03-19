@@ -1,7 +1,7 @@
 import "@/styles/style.scss";
 import "@/core/sdk-init"; // Initialize SDK DMCA filters immediately (SSR)
 import Providers from "@/app/providers";
-import { HiringConsoleLog } from "@/app/_components";
+import { HiringConsoleLog, ImageFailureTracker } from "@/app/_components";
 import { cookies } from "next/headers";
 import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
@@ -75,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <HiringConsoleLog />
+        <ImageFailureTracker />
         <Providers>{children}</Providers>
         <div id="modal-overlay-container" />
         <div id="modal-dialog-container" />
