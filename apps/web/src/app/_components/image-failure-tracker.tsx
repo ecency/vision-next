@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { setProxyBase } from "@ecency/render-helper";
 import * as Sentry from "@sentry/nextjs";
 
@@ -24,6 +24,25 @@ export function _resetImageProxyFallback() {
   } catch {}
 }
 
+/** Check if the user has explicitly chosen a non-default image proxy (e.g. images.hive.blog) */
+function hasNonDefaultProxy(): boolean {
+  try {
+    const raw = localStorage.getItem("image_proxy");
+    if (!raw) return false;
+    const value = JSON.parse(raw);
+    return typeof value === "string" && value.length > 0 && !value.includes(PRIMARY_HOST);
+  } catch {
+    return false;
+  }
+}
+
+function rewriteImageSources() {
+  document.querySelectorAll<HTMLImageElement>(`img[src*="${PRIMARY_HOST}"]`).forEach((img) => {
+    retriedUrls.add(img.src);
+    img.src = img.src.replaceAll(PRIMARY_HOST, FALLBACK_HOST);
+  });
+}
+
 function rewriteBackgroundImages() {
   document.querySelectorAll<HTMLElement>(`[style*="${PRIMARY_HOST}"]`).forEach((el) => {
     if (el.style.backgroundImage) {
@@ -41,7 +60,8 @@ function switchToFallback() {
     sessionStorage.setItem(SESSION_KEY, "1");
   } catch {}
 
-  // Fix already-rendered CSS background images (avatars, covers)
+  // Fix already-rendered <img> elements and CSS background images (avatars, covers)
+  rewriteImageSources();
   rewriteBackgroundImages();
 
   Sentry.withScope((scope) => {
@@ -61,18 +81,35 @@ function switchToFallback() {
 export function ImageFailureTracker() {
   // Synchronous check during render — applies fallback before any effects fire.
   // This ensures setProxyBase is called before ClientInit or any component renders images.
+  // Skipped when user has explicitly chosen a different proxy (e.g. images.hive.blog).
   if (typeof window !== "undefined") {
     try {
-      if (sessionStorage.getItem(SESSION_KEY) === "1" && !globalSwitched) {
+      if (
+        !hasNonDefaultProxy() &&
+        sessionStorage.getItem(SESSION_KEY) === "1" &&
+        !globalSwitched
+      ) {
         setProxyBase(`https://${FALLBACK_HOST}`);
         globalSwitched = true;
       }
     } catch {}
   }
 
+  // Rewrite SSR-rendered images on hydration (before paint) to avoid a flash of
+  // broken images when the cached fallback is active from a previous navigation.
+  // useLayoutEffect runs before the browser paints, so lazy-loaded images below
+  // the fold never attempt the blocked primary host.
+  useLayoutEffect(() => {
+    if (globalSwitched) {
+      rewriteImageSources();
+      rewriteBackgroundImages();
+    }
+  }, []);
+
   useEffect(() => {
-    // Background probe: try loading a small known image from primary
-    if (!globalSwitched) {
+    // Background probe: try loading a small known image from primary.
+    // Skipped when user has a non-default proxy or fallback is already active.
+    if (!globalSwitched && !hasNonDefaultProxy()) {
       const img = new Image();
       const timeout = setTimeout(() => {
         img.src = "";

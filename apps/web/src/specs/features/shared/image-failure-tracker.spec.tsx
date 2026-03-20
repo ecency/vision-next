@@ -66,6 +66,7 @@ describe("ImageFailureTracker", () => {
 
     vi.useFakeTimers();
     sessionStorage.clear();
+    localStorage.clear();
   });
 
   afterEach(() => {
@@ -185,5 +186,57 @@ describe("ImageFailureTracker", () => {
     });
 
     expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
+  });
+
+  it("skips probe and auto-fallback when user has non-default proxy (images.hive.blog)", () => {
+    // Simulate user having explicitly chosen images.hive.blog
+    localStorage.setItem("image_proxy", JSON.stringify("https://images.hive.blog"));
+
+    render(<ImageFailureTracker />);
+
+    // Probe should not have been created
+    expect(probeInstances).toHaveLength(0);
+
+    // Even with probe timeout, no switch should happen
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+
+    // Error handler should still be registered but won't act on images.hive.blog URLs
+    act(() => {
+      fireImageError("https://images.hive.blog/p/abc123");
+    });
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("skips cached fallback from sessionStorage when user has non-default proxy", () => {
+    sessionStorage.setItem("image_proxy_fallback_active", "1");
+    localStorage.setItem("image_proxy", JSON.stringify("https://images.hive.blog"));
+
+    render(<ImageFailureTracker />);
+
+    // Should NOT apply the cached fallback since user has a custom proxy
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("rewrites SSR-rendered img elements on hydration when fallback is cached", () => {
+    sessionStorage.setItem("image_proxy_fallback_active", "1");
+
+    // Simulate SSR-rendered img elements already in the DOM
+    const img1 = document.createElement("img");
+    img1.src = `https://${PRIMARY_HOST}/p/abc123?format=match`;
+    const img2 = document.createElement("img");
+    img2.src = `https://${PRIMARY_HOST}/u/user1/avatar/medium`;
+    document.body.appendChild(img1);
+    document.body.appendChild(img2);
+
+    render(<ImageFailureTracker />);
+
+    expect(img1.src).toContain(FALLBACK_HOST);
+    expect(img2.src).toContain(FALLBACK_HOST);
+
+    document.body.removeChild(img1);
+    document.body.removeChild(img2);
   });
 });
