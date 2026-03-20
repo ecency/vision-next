@@ -7,21 +7,29 @@ vi.mock("@sentry/nextjs", () => ({
   captureMessage: vi.fn()
 }));
 
-import { ImageFailureTracker } from "@/app/_components/image-failure-tracker";
+const mockSetProxyBase = vi.fn();
+vi.mock("@ecency/render-helper", async () => ({
+  ...(await vi.importActual("@ecency/render-helper")),
+  setProxyBase: (...args: unknown[]) => mockSetProxyBase(...args)
+}));
 
-const IMAGE_HOST = "images.ecency.com";
+import { ImageFailureTracker, _resetImageProxyFallback } from "@/app/_components/image-failure-tracker";
+
+const PRIMARY_HOST = "images.ecency.com";
+const FALLBACK_HOST = "img.ecency.com";
 let urlCounter = 0;
 
 function uniqueImageUrl() {
-  return `https://${IMAGE_HOST}/img/${++urlCounter}.png`;
+  return `https://${PRIMARY_HOST}/img/${++urlCounter}.png`;
 }
 
 function fireImageError(src: string) {
   const img = document.createElement("img");
-  Object.defineProperty(img, "src", { value: src, writable: false });
+  Object.defineProperty(img, "src", { value: src, writable: true });
   const event = new Event("error", { bubbles: false });
   Object.defineProperty(event, "target", { value: img });
   document.dispatchEvent(event);
+  return img;
 }
 
 function fireNonImageError() {
@@ -31,53 +39,103 @@ function fireNonImageError() {
   document.dispatchEvent(event);
 }
 
+// Stub the Image constructor so the probe doesn't interfere with tests
+let probeInstances: Array<{ onload?: (() => void) | null; onerror?: (() => void) | null; src: string }> = [];
+
 describe("ImageFailureTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(Math, "random").mockReturnValue(0); // always below sample rate
+    _resetImageProxyFallback();
+    mockSetProxyBase.mockClear();
+    probeInstances = [];
+    urlCounter = 0;
+
+    // Mock Image so probe doesn't fire automatically
+    vi.stubGlobal(
+      "Image",
+      class MockImage {
+        onload: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        src = "";
+
+        constructor() {
+          probeInstances.push(this);
+        }
+      }
+    );
+
     vi.useFakeTimers();
+    sessionStorage.clear();
+    localStorage.clear();
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
-  it("reports to Sentry when an image from IMAGE_HOST fails", () => {
+  it("rewrites failed image src to fallback host", () => {
     render(<ImageFailureTracker />);
 
     const src = uniqueImageUrl();
+    const img = fireImageError(src);
+
+    expect(img.src).toBe(src.replace(PRIMARY_HOST, FALLBACK_HOST));
+  });
+
+  it("does not retry the same element twice", () => {
+    render(<ImageFailureTracker />);
+
+    const src = uniqueImageUrl();
+    const img = fireImageError(src);
+    expect(img.src).toContain(FALLBACK_HOST);
+
+    // Re-fire error on the SAME element — should not rewrite again
+    Object.defineProperty(img, "src", { value: src, writable: true });
+    const event = new Event("error", { bubbles: false });
+    Object.defineProperty(event, "target", { value: img });
+    document.dispatchEvent(event);
+
+    expect(img.src).toBe(src);
+  });
+
+  it("retries different elements with the same URL", () => {
+    render(<ImageFailureTracker />);
+
+    const src = uniqueImageUrl();
+    const img1 = fireImageError(src);
+    expect(img1.src).toContain(FALLBACK_HOST);
+
+    // A different element with the same URL should also get retried
+    const img2 = fireImageError(src);
+    expect(img2.src).toContain(FALLBACK_HOST);
+  });
+
+  it("switches globally after threshold unique failures", () => {
+    render(<ImageFailureTracker />);
+
     act(() => {
-      fireImageError(src);
+      fireImageError(uniqueImageUrl());
+      fireImageError(uniqueImageUrl());
+      fireImageError(uniqueImageUrl());
     });
 
-    expect(Sentry.withScope).toHaveBeenCalledOnce();
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
+    expect(sessionStorage.getItem("image_proxy_fallback_active")).toBe("1");
+  });
+
+  it("reports to Sentry on global fallback activation", () => {
+    render(<ImageFailureTracker />);
+
+    act(() => {
+      fireImageError(uniqueImageUrl());
+      fireImageError(uniqueImageUrl());
+      fireImageError(uniqueImageUrl());
+    });
+
     expect(Sentry.captureMessage).toHaveBeenCalledWith(
-      expect.stringContaining(IMAGE_HOST)
-    );
-
-    // Verify scope was configured with correct tags and extras
-    interface MockScope {
-      setTag: ReturnType<typeof vi.fn>;
-      setLevel: ReturnType<typeof vi.fn>;
-      setExtras: ReturnType<typeof vi.fn>;
-    }
-    const scopeCb = vi.mocked(Sentry.withScope).mock.calls[0][0] as unknown as (scope: MockScope) => void;
-    const mockScope: MockScope = {
-      setTag: vi.fn(),
-      setLevel: vi.fn(),
-      setExtras: vi.fn()
-    };
-    scopeCb(mockScope);
-
-    expect(mockScope.setTag).toHaveBeenCalledWith("failure_type", "image_load");
-    expect(mockScope.setTag).toHaveBeenCalledWith("image_host", IMAGE_HOST);
-    expect(mockScope.setExtras).toHaveBeenCalledWith(
-      expect.objectContaining({
-        image_src: src,
-        page_url: expect.any(String),
-        online: expect.any(Boolean)
-      })
+      expect.stringContaining(FALLBACK_HOST)
     );
   });
 
@@ -88,7 +146,7 @@ describe("ImageFailureTracker", () => {
       fireNonImageError();
     });
 
-    expect(Sentry.withScope).not.toHaveBeenCalled();
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
   });
 
   it("ignores image errors from non-matching hosts", () => {
@@ -98,42 +156,112 @@ describe("ImageFailureTracker", () => {
       fireImageError("https://other-cdn.example.com/photo.jpg");
     });
 
-    expect(Sentry.withScope).not.toHaveBeenCalled();
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
   });
 
-  it("deduplicates rapid errors for the same src", () => {
+  it("applies cached fallback from sessionStorage on render", () => {
+    sessionStorage.setItem("image_proxy_fallback_active", "1");
+
     render(<ImageFailureTracker />);
 
-    const src = uniqueImageUrl();
-    act(() => {
-      fireImageError(src);
-      fireImageError(src);
-    });
-
-    expect(Sentry.captureMessage).toHaveBeenCalledTimes(1);
-
-    // After DEBOUNCE_MS, the same URL can report again
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
-
-    act(() => {
-      fireImageError(src);
-    });
-
-    expect(Sentry.captureMessage).toHaveBeenCalledTimes(2);
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
   });
 
-  it("respects sampling rate", () => {
+  it("switches to fallback when probe fails", () => {
     render(<ImageFailureTracker />);
 
-    // random() returns 0.5, which is > REPORT_SAMPLE_RATE (0.2) — should skip
-    vi.mocked(Math.random).mockReturnValue(0.5);
-
+    // Simulate probe failure
     act(() => {
-      fireImageError(uniqueImageUrl());
+      probeInstances[0]?.onerror?.();
     });
 
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
+  });
+
+  it("does not switch when probe succeeds", () => {
+    render(<ImageFailureTracker />);
+
+    act(() => {
+      probeInstances[0]?.onload?.();
+    });
+
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("switches to fallback on probe timeout", () => {
+    render(<ImageFailureTracker />);
+
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
+  });
+
+  it("skips probe and auto-fallback when user has non-default proxy (images.hive.blog)", () => {
+    // Simulate user having explicitly chosen images.hive.blog
+    localStorage.setItem("image_proxy", JSON.stringify("https://images.hive.blog"));
+
+    render(<ImageFailureTracker />);
+
+    // Probe should not have been created
+    expect(probeInstances).toHaveLength(0);
+
+    // Even with probe timeout, no switch should happen
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+
+    // Error handler should still be registered but won't act on images.hive.blog URLs
+    act(() => {
+      fireImageError("https://images.hive.blog/p/abc123");
+    });
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("skips cached fallback from sessionStorage when user has non-default proxy", () => {
+    sessionStorage.setItem("image_proxy_fallback_active", "1");
+    localStorage.setItem("image_proxy", JSON.stringify("https://images.hive.blog"));
+
+    render(<ImageFailureTracker />);
+
+    // Should NOT apply the cached fallback since user has a custom proxy
+    expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("treats invalid image_proxy values as no override and runs probe", () => {
+    localStorage.setItem("image_proxy", JSON.stringify("https://some-garbage.com"));
+
+    render(<ImageFailureTracker />);
+
+    // Probe should still be created since the stored value is not in ALLOWED_IMAGE_SERVERS
+    expect(probeInstances).toHaveLength(1);
+
+    // Fallback should still work normally
+    act(() => {
+      probeInstances[0]?.onerror?.();
+    });
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
+  });
+
+  it("rewrites SSR-rendered img elements on hydration when fallback is cached", () => {
+    sessionStorage.setItem("image_proxy_fallback_active", "1");
+
+    // Simulate SSR-rendered img elements already in the DOM
+    const img1 = document.createElement("img");
+    img1.src = `https://${PRIMARY_HOST}/p/abc123?format=match`;
+    const img2 = document.createElement("img");
+    img2.src = `https://${PRIMARY_HOST}/u/user1/avatar/medium`;
+    document.body.appendChild(img1);
+    document.body.appendChild(img2);
+
+    render(<ImageFailureTracker />);
+
+    expect(img1.src).toContain(FALLBACK_HOST);
+    expect(img2.src).toContain(FALLBACK_HOST);
+
+    document.body.removeChild(img1);
+    document.body.removeChild(img2);
   });
 });
