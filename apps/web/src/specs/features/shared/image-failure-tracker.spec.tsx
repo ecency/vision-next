@@ -84,22 +84,32 @@ describe("ImageFailureTracker", () => {
     expect(img.src).toBe(src.replace(PRIMARY_HOST, FALLBACK_HOST));
   });
 
-  it("does not retry the same URL twice", () => {
+  it("does not retry the same element twice", () => {
+    render(<ImageFailureTracker />);
+
+    const src = uniqueImageUrl();
+    const img = fireImageError(src);
+    expect(img.src).toContain(FALLBACK_HOST);
+
+    // Re-fire error on the SAME element — should not rewrite again
+    Object.defineProperty(img, "src", { value: src, writable: true });
+    const event = new Event("error", { bubbles: false });
+    Object.defineProperty(event, "target", { value: img });
+    document.dispatchEvent(event);
+
+    expect(img.src).toBe(src);
+  });
+
+  it("retries different elements with the same URL", () => {
     render(<ImageFailureTracker />);
 
     const src = uniqueImageUrl();
     const img1 = fireImageError(src);
     expect(img1.src).toContain(FALLBACK_HOST);
 
-    // Second error for same URL should not rewrite
-    const img2 = document.createElement("img");
-    Object.defineProperty(img2, "src", { value: src, writable: true });
-    const event = new Event("error", { bubbles: false });
-    Object.defineProperty(event, "target", { value: img2 });
-    document.dispatchEvent(event);
-
-    // src stays the same since it was already retried
-    expect(img2.src).toBe(src);
+    // A different element with the same URL should also get retried
+    const img2 = fireImageError(src);
+    expect(img2.src).toContain(FALLBACK_HOST);
   });
 
   it("switches globally after threshold unique failures", () => {
@@ -218,6 +228,21 @@ describe("ImageFailureTracker", () => {
 
     // Should NOT apply the cached fallback since user has a custom proxy
     expect(mockSetProxyBase).not.toHaveBeenCalled();
+  });
+
+  it("treats invalid image_proxy values as no override and runs probe", () => {
+    localStorage.setItem("image_proxy", JSON.stringify("https://some-garbage.com"));
+
+    render(<ImageFailureTracker />);
+
+    // Probe should still be created since the stored value is not in ALLOWED_IMAGE_SERVERS
+    expect(probeInstances).toHaveLength(1);
+
+    // Fallback should still work normally
+    act(() => {
+      probeInstances[0]?.onerror?.();
+    });
+    expect(mockSetProxyBase).toHaveBeenCalledWith(`https://${FALLBACK_HOST}`);
   });
 
   it("rewrites SSR-rendered img elements on hydration when fallback is cached", () => {

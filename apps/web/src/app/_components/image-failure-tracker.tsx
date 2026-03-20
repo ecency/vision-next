@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect } from "react";
 import { setProxyBase } from "@ecency/render-helper";
 import * as Sentry from "@sentry/nextjs";
+import { ALLOWED_IMAGE_SERVERS } from "@/defaults";
 
 const PRIMARY_HOST = "images.ecency.com";
 const FALLBACK_HOST = "img.ecency.com";
@@ -11,26 +12,30 @@ const PROBE_TIMEOUT_MS = 4000;
 const SESSION_KEY = "image_proxy_fallback_active";
 
 const failedUrls = new Set<string>();
-const retriedUrls = new Set<string>();
+let retriedElements = new WeakSet<HTMLImageElement>();
 let globalSwitched = false;
 
 /** @internal Reset module state for tests */
 export function _resetImageProxyFallback() {
   failedUrls.clear();
-  retriedUrls.clear();
+  retriedElements = new WeakSet();
   globalSwitched = false;
   try {
     sessionStorage.removeItem(SESSION_KEY);
   } catch {}
 }
 
-/** Check if the user has explicitly chosen a non-default image proxy (e.g. images.hive.blog) */
+/** Check if the user has explicitly chosen a valid non-default image proxy (e.g. images.hive.blog) */
 function hasNonDefaultProxy(): boolean {
   try {
     const raw = localStorage.getItem("image_proxy");
     if (!raw) return false;
     const value = JSON.parse(raw);
-    return typeof value === "string" && value.length > 0 && !value.includes(PRIMARY_HOST);
+    return (
+      typeof value === "string" &&
+      ALLOWED_IMAGE_SERVERS.includes(value) &&
+      value !== `https://${PRIMARY_HOST}`
+    );
   } catch {
     return false;
   }
@@ -38,7 +43,7 @@ function hasNonDefaultProxy(): boolean {
 
 function rewriteImageSources() {
   document.querySelectorAll<HTMLImageElement>(`img[src*="${PRIMARY_HOST}"]`).forEach((img) => {
-    retriedUrls.add(img.src);
+    retriedElements.add(img);
     img.src = img.src.replaceAll(PRIMARY_HOST, FALLBACK_HOST);
   });
 }
@@ -109,21 +114,24 @@ export function ImageFailureTracker() {
   useEffect(() => {
     // Background probe: try loading a small known image from primary.
     // Skipped when user has a non-default proxy or fallback is already active.
+    let probeTimeout: ReturnType<typeof setTimeout> | undefined;
+    let probeImg: HTMLImageElement | undefined;
+
     if (!globalSwitched && !hasNonDefaultProxy()) {
-      const img = new Image();
-      const timeout = setTimeout(() => {
-        img.src = "";
+      probeImg = new Image();
+      probeTimeout = setTimeout(() => {
+        probeImg!.src = "";
         switchToFallback();
       }, PROBE_TIMEOUT_MS);
 
-      img.onload = () => {
-        clearTimeout(timeout);
+      probeImg.onload = () => {
+        clearTimeout(probeTimeout);
       };
-      img.onerror = () => {
-        clearTimeout(timeout);
+      probeImg.onerror = () => {
+        clearTimeout(probeTimeout);
         switchToFallback();
       };
-      img.src = `https://${PRIMARY_HOST}/u/ecency/avatar/small`;
+      probeImg.src = `https://${PRIMARY_HOST}/u/ecency/avatar/small`;
     }
 
     // Runtime error handler: catch individual <img> failures and retry with fallback
@@ -134,11 +142,11 @@ export function ImageFailureTracker() {
       const src = el.src || el.currentSrc;
       if (!src || !src.includes(PRIMARY_HOST)) return;
 
-      // Already retried this exact URL — don't loop
-      if (retriedUrls.has(src)) return;
+      // Already retried this element — don't loop
+      if (retriedElements.has(el)) return;
 
       // Rewrite this image's src to use fallback immediately
-      retriedUrls.add(src);
+      retriedElements.add(el);
       el.src = src.replaceAll(PRIMARY_HOST, FALLBACK_HOST);
 
       // Track unique failures for global switch threshold
@@ -154,7 +162,15 @@ export function ImageFailureTracker() {
 
     // Capture phase — img error events don't bubble
     document.addEventListener("error", handler, true);
-    return () => document.removeEventListener("error", handler, true);
+    return () => {
+      document.removeEventListener("error", handler, true);
+      if (probeTimeout) clearTimeout(probeTimeout);
+      if (probeImg) {
+        probeImg.onload = null;
+        probeImg.onerror = null;
+        probeImg.src = "";
+      }
+    };
   }, []);
 
   return null;
