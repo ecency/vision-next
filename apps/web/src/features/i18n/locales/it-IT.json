@@ -3320,7 +3320,8 @@
     "save-to-gallery": "Salva nella Galleria",
     "save-to-gallery-success": "Immagine salvata nella tua galleria!",
     "save-to-gallery-error": "Impossibile salvare l'immagine nella galleria. Per favore riprova.",
-    "use-suggestion": "Uso: {{suggestion}}"
+    "use-suggestion": "Uso: {{suggestion}}",
+    "select-power": "Potenziamento qualità"
   },
   "ai-assist": {
     "title": "Assistente Di Scrittura Ia",
