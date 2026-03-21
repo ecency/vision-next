@@ -10,7 +10,7 @@ import {
   getPointsQueryOptions,
   useAddImage,
   useGenerateImage,
-  type AiGenerationPrice,
+  type AiImagePowerTier,
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
@@ -35,6 +35,13 @@ const ASPECT_RATIO_LABELS: Record<string, string> = {
   "2:3": "2:3",
 };
 
+const POWER_LABELS: Record<number, string> = {
+  1: "1x",
+  2: "2x",
+  4: "4x",
+  6: "6x",
+};
+
 export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedPrompt }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
@@ -48,9 +55,12 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
     )
   );
 
-  const { data: prices, isLoading: isPricesLoading } = useQuery(
+  const { data: priceData, isLoading: isPricesLoading } = useQuery(
     getAiGeneratePriceQueryOptions(accessToken ?? "")
   );
+
+  const prices = priceData?.prices;
+  const powerTiers = priceData?.power;
 
   const { mutateAsync: generateImage, isPending: isGenerating } = useGenerateImage(
     username,
@@ -60,22 +70,33 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   const { mutateAsync: addToGallery } = useAddImage(username, accessToken);
 
   const [prompt, setPrompt] = useState("");
-  const [selectedPrice, setSelectedPrice] = useState<AiGenerationPrice | null>(null);
+  const [selectedRatio, setSelectedRatio] = useState<string | null>(null);
+  const [selectedPower, setSelectedPower] = useState<AiImagePowerTier | null>(null);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (prices && prices.length > 0 && !selectedPrice) {
+    if (prices && prices.length > 0 && !selectedRatio) {
       const defaultRatio = prices.find((p) => p.aspect_ratio === "16:9");
-      setSelectedPrice(defaultRatio ?? prices[0]);
+      setSelectedRatio(defaultRatio?.aspect_ratio ?? prices[0].aspect_ratio);
     }
-  }, [prices, selectedPrice]);
+  }, [prices, selectedRatio]);
+
+  useEffect(() => {
+    if (powerTiers && powerTiers.length > 0 && !selectedPower) {
+      setSelectedPower(powerTiers[0]);
+    }
+  }, [powerTiers, selectedPower]);
 
   const charsRemaining = 1000 - prompt.length;
 
-  const cost = useMemo(() => {
+  const baseCost = useMemo(() => {
     if (prices && prices.length > 0) return prices[0].cost;
     return 150;
   }, [prices]);
+
+  const cost = useMemo(() => {
+    return baseCost * (selectedPower?.multiplier ?? 1);
+  }, [baseCost, selectedPower]);
 
   const isInsufficientBalance = useMemo(() => {
     if (activeUserPoints) {
@@ -85,10 +106,10 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
   }, [activeUserPoints, cost]);
 
   const canGenerate =
-    prompt.trim().length > 0 && selectedPrice && !isInsufficientBalance && !isGenerating;
+    prompt.trim().length > 0 && selectedRatio && !isInsufficientBalance && !isGenerating;
 
   const handleGenerate = useCallback(async () => {
-    if (!selectedPrice || !prompt.trim()) return;
+    if (!selectedRatio || !prompt.trim()) return;
 
     try {
       const token = username ? await ensureValidToken(username) : undefined;
@@ -99,7 +120,8 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
 
       const result = await generateImage({
         prompt: prompt.trim(),
-        aspect_ratio: selectedPrice.aspect_ratio,
+        aspect_ratio: selectedRatio,
+        power: selectedPower?.power ?? 1,
       });
 
       setGeneratedUrl(result.url);
@@ -126,7 +148,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
         error(i18next.t("ai-image-generator.error-generic"));
       }
     }
-  }, [selectedPrice, prompt, username, generateImage, cost]);
+  }, [selectedRatio, selectedPower, prompt, username, generateImage, cost]);
 
   const handleGenerateAgain = useCallback(() => {
     setGeneratedUrl(null);
@@ -215,7 +237,7 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
             onClick={() => setPrompt(suggestedPrompt.slice(0, 1000))}
           >
             {i18next.t("ai-image-generator.use-suggestion", {
-              suggestion: suggestedPrompt.length > 80 ? suggestedPrompt.slice(0, 80) + "…" : suggestedPrompt
+              suggestion: suggestedPrompt.length > 80 ? suggestedPrompt.slice(0, 80) + "\u2026" : suggestedPrompt
             })}
           </button>
         )}
@@ -237,11 +259,11 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
                 transition={{ delay: i * 0.03 }}
                 className={clsx(
                   "border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
-                  selectedPrice?.aspect_ratio === price.aspect_ratio
+                  selectedRatio === price.aspect_ratio
                     ? "border-blue-dark-sky bg-blue-dark-sky/10 text-blue-dark-sky"
                     : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
                 )}
-                onClick={() => setSelectedPrice(price)}
+                onClick={() => setSelectedRatio(price.aspect_ratio)}
               >
                 {ASPECT_RATIO_LABELS[price.aspect_ratio] ?? price.aspect_ratio}
               </motion.div>
@@ -249,6 +271,33 @@ export function AiImageGenerator({ onInsert, showInsertAction = true, suggestedP
           </div>
         )}
       </div>
+
+      {powerTiers && powerTiers.length > 1 && (
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            {i18next.t("ai-image-generator.select-power")}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {powerTiers.map((tier, i) => (
+              <motion.div
+                key={tier.power}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className={clsx(
+                  "border px-3 py-2 rounded-lg cursor-pointer text-sm font-medium",
+                  selectedPower?.power === tier.power
+                    ? "border-blue-dark-sky bg-blue-dark-sky/10 text-blue-dark-sky"
+                    : "border-[--border-color] hover:bg-gray-100 dark:hover:bg-gray-800"
+                )}
+                onClick={() => setSelectedPower(tier)}
+              >
+                {POWER_LABELS[tier.power] ?? `${tier.power}x`}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {isInsufficientBalance && (
         <small className="text-red block">

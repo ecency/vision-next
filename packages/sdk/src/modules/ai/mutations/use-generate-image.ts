@@ -5,6 +5,7 @@ import type { AiGenerationResponse } from "../types";
 export interface GenerateImageParams {
   prompt: string;
   aspect_ratio?: string;
+  power?: number;
 }
 
 export function useGenerateImage(
@@ -39,6 +40,7 @@ export function useGenerateImage(
             us: username,
             prompt: params.prompt,
             aspect_ratio: params.aspect_ratio ?? "1:1",
+            power: params.power ?? 1,
           }),
         }
       );
