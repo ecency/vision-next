@@ -3320,7 +3320,8 @@
     "save-to-gallery": "Enregistrer dans la galerie",
     "save-to-gallery-success": "Image enregistrée dans votre galerie!",
     "save-to-gallery-error": "Impossible d'enregistrer l'image dans la galerie. Veuillez réessayer.",
-    "use-suggestion": "Utilisation : {{suggestion}}"
+    "use-suggestion": "Utilisation : {{suggestion}}",
+    "select-power": "Amélioration de la qualité"
   },
   "ai-assist": {
     "title": "Assistant d'écriture IA",
