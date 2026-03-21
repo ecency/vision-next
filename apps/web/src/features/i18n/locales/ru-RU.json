@@ -3320,7 +3320,8 @@
     "save-to-gallery": "Сохранить в галерею",
     "save-to-gallery-success": "Изображение сохранено в вашей галереи!",
     "save-to-gallery-error": "Не удалось сохранить изображение в галерею. Пожалуйста, попробуйте еще раз.",
-    "use-suggestion": "Использовать: {{suggestion}}"
+    "use-suggestion": "Использовать: {{suggestion}}",
+    "select-power": "Повышение качества"
   },
   "ai-assist": {
     "title": "AI помощник по написанию",
