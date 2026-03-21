@@ -3320,7 +3320,8 @@
     "save-to-gallery": "Zapisz w galerii",
     "save-to-gallery-success": "Obraz zapisany na twojej galerii!",
     "save-to-gallery-error": "Nie udało się zapisać obrazu do galerii. Spróbuj ponownie.",
-    "use-suggestion": "Użycie: {{suggestion}}"
+    "use-suggestion": "Użycie: {{suggestion}}",
+    "select-power": "Podwyższenie jakości"
   },
   "ai-assist": {
     "title": "Asystent pisania SI",
