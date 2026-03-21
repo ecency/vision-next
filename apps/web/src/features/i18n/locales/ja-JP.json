@@ -3320,7 +3320,8 @@
     "save-to-gallery": "ギャラリーに保存",
     "save-to-gallery-success": "画像をギャラリーに保存しました！",
     "save-to-gallery-error": "ギャラリーに画像を保存できませんでした。もう一度やり直してください。",
-    "use-suggestion": "使用: {{suggestion}}"
+    "use-suggestion": "使用: {{suggestion}}",
+    "select-power": "品質ブースト"
   },
   "ai-assist": {
     "title": "AIライティングアシスタント",
