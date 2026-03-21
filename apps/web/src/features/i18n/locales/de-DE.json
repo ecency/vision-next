@@ -3320,7 +3320,8 @@
     "save-to-gallery": "In Galerie speichern",
     "save-to-gallery-success": "Bild in Ihrer Galerie gespeichert!",
     "save-to-gallery-error": "Bild konnte nicht in der Galerie gespeichert werden. Bitte versuchen Sie es erneut.",
-    "use-suggestion": "Verwenden: {{suggestion}}"
+    "use-suggestion": "Verwenden: {{suggestion}}",
+    "select-power": "Hochwertiger Boost"
   },
   "ai-assist": {
     "title": "KI Schreibassistent",
