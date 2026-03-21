@@ -3320,7 +3320,8 @@
     "save-to-gallery": "保存到相册",
     "save-to-gallery-success": "图片保存到您的相册！",
     "save-to-gallery-error": "无法将图像保存到图库。请重试。",
-    "use-suggestion": "Use: {{suggestion}}"
+    "use-suggestion": "Use: {{suggestion}}",
+    "select-power": "提高质量"
   },
   "ai-assist": {
     "title": "AI 书写助理",
