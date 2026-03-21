@@ -3320,7 +3320,8 @@
     "save-to-gallery": "Opslaan in galerij",
     "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
     "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw.",
-    "use-suggestion": "Gebruik: {{suggestion}}"
+    "use-suggestion": "Gebruik: {{suggestion}}",
+    "select-power": "Kwaliteit boost"
   },
   "ai-assist": {
     "title": "AI Schrijfassistent",
