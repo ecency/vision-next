@@ -57,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Loaded from external file to comply with CSP policies.
           See /public/scripts/config-stub.js for details.
         */}
+        <script src="/scripts/chunk-reload.js" />
         <script src="/scripts/config-stub.js" />
         {/* Preload hero image for LCP optimization (WebP format - 12KB vs 29KB PNG) */}
         <link

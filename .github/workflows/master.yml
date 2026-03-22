@@ -112,11 +112,12 @@ jobs:
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker system prune -f
-          docker network create --driver overlay vision
+          docker network create --driver overlay vision || true
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          sleep 60
+          docker system prune -f
 
   deploy-US:
     needs: build
@@ -163,11 +164,12 @@ jobs:
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker system prune -f
-          docker network create --driver overlay vision
+          docker network create --driver overlay vision || true
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          sleep 60
+          docker system prune -f
 
   deploy-SG:
     needs: build
@@ -214,8 +216,9 @@ jobs:
           cd ~/vision-next
           git pull origin main
           cd apps/web
-          docker system prune -f
-          docker network create --driver overlay vision
+          docker network create --driver overlay vision || true
           docker pull ecency/api:latest
           docker pull ecency/vision-next:latest
           docker stack deploy -c <(docker-compose -f docker-compose.production.yml config) vision
+          sleep 60
+          docker system prune -f
