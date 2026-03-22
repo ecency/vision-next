@@ -112,5 +112,6 @@ jobs:
           cd ~/vision-next
           git pull origin develop
           cd apps/web
+          docker network create --driver overlay vision || true
           docker pull ecency/vision-next:develop
           docker stack deploy -c <(docker-compose config) vision
