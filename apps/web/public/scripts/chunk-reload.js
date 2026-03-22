@@ -13,6 +13,8 @@
   var MAX_RELOADS = 2;
   var WINDOW_MS = 60000;
 
+  var PARAM = "_cr";
+
   function tryReload() {
     try {
       var raw = sessionStorage.getItem(KEY);
@@ -23,10 +25,13 @@
       data.count++;
       data.ts = now;
       sessionStorage.setItem(KEY, JSON.stringify(data));
+      window.location.reload();
     } catch (e) {
-      // sessionStorage unavailable — reload once without guard
+      // sessionStorage unavailable — fall back to URL parameter guard
+      if (window.location.search.indexOf(PARAM + "=1") !== -1) return;
+      var sep = window.location.search ? "&" : "?";
+      window.location.replace(window.location.href + sep + PARAM + "=1");
     }
-    window.location.reload();
   }
 
   // Catch <script> and <link> elements failing to load Next.js assets
