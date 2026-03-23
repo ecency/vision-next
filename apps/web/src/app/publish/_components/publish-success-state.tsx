@@ -62,7 +62,7 @@ function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
               target="_blank"
               rel="noopener noreferrer"
               title={label}
-              className="w-10 h-10 rounded-full bg-blue-dark-sky flex items-center justify-center text-white hover:opacity-80 transition-opacity [&_svg]:w-[18px] [&_svg]:h-[18px] [&_svg]:shrink-0"
+              className="text-blue-dark-sky hover:opacity-70 transition-opacity [&_svg]:w-7 [&_svg]:h-7"
             >
               {icon}
             </a>

@@ -17,6 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   UilCalendarAlt,
+  UilCommentDots,
   UilGlobe,
   UilLocationPoint,
   UilRss
@@ -147,6 +148,16 @@ export function ProfileCard({ account }: Props) {
           >
             <FavoriteBtn targetUsername={account?.name} />
           </EcencyConfigManager.Conditional>
+          {activeUsername && (
+            <Link
+              href={`/chats?dm=${encodeURIComponent(account?.name ?? "")}`}
+              className="flex items-center justify-center w-9 h-9 rounded-full border border-[--border-color] hover:border-blue-dark-sky hover:text-blue-dark-sky transition-colors"
+              title={i18next.t("profile.message", { defaultValue: "Message" })}
+              aria-label={i18next.t("profile.message", { defaultValue: "Message" })}
+            >
+              <UilCommentDots className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       )}
 
