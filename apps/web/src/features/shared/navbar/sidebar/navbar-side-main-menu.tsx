@@ -15,6 +15,7 @@ import {
   UilFavorite,
   UilImages,
   UilMoneyWithdraw,
+  UilQrcodeScan,
   UilSetting,
   UilSignin,
   UilUser,
@@ -24,6 +25,7 @@ import i18next from "i18next";
 import { ReactNode, useMemo, useState } from "react";
 import { NavbarSideMainLogout } from "./navbar-side-main-logout";
 import { NavbarSideMainMenuItem } from "./navbar-side-main-menu-item";
+import { MobileLoginQrDialog } from "../../mobile-login-qr";
 
 interface Props {
   onHide: () => void;
@@ -45,6 +47,7 @@ export function NavbarSideMainMenu({ onHide }: Props) {
   const [bookmarks, setBookmarks] = useState(false);
   const [schedules, setSchedules] = useState(false);
   const [fragments, setFragments] = useState(false);
+  const [mobileLogin, setMobileLogin] = useState(false);
 
   const mainMenu = useMemo(
     () =>
@@ -108,6 +111,11 @@ export function NavbarSideMainMenu({ onHide }: Props) {
           to: `/@${activeUser?.username}/settings`,
           onClick: () => onHide(),
           icon: <UilSetting size={16} />
+        },
+        {
+          label: i18next.t("user-nav.mobile-login", { defaultValue: "Login to Mobile" }),
+          onClick: () => setMobileLogin(true),
+          icon: <UilQrcodeScan size={16} />
         }
       ] as MenuItem[],
     [activeUser?.username, bookmarks, drafts, fragments, gallery, onHide, schedules]
@@ -175,6 +183,8 @@ export function NavbarSideMainMenu({ onHide }: Props) {
       >
         <FragmentsDialog show={fragments && !!activeUser} setShow={(v) => setFragments(v)} />
       </EcencyConfigManager.Conditional>
+
+      <MobileLoginQrDialog show={mobileLogin} onHide={() => setMobileLogin(false)} />
     </>
   );
 }

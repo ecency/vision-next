@@ -241,6 +241,7 @@
     "schedules": "Schedules",
     "fragments": "Snippets",
     "settings": "Settings",
+    "mobile-login": "Login to Mobile",
     "logout": "Logout",
     "just-logout": "Just logout",
     "logout-and-clear": "Logout & Clear login data",
