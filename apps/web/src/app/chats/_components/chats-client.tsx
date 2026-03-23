@@ -202,13 +202,16 @@ export function ChatsClient() {
   }, [channelSearchResults?.channels, channels?.channels]);
 
   // Auto-start DM when navigating from profile (?dm=username)
-  const dmInitiated = useRef(false);
+  const dmInitiated = useRef<string | null>(null);
   useEffect(() => {
-    if (dmTarget && bootstrap?.ok && !dmInitiated.current) {
-      dmInitiated.current = true;
+    if (dmTarget && bootstrap?.ok && dmInitiated.current !== dmTarget) {
+      dmInitiated.current = dmTarget;
       directChannelMutation.mutate(dmTarget, {
         onSuccess: (data) => {
           router.replace(buildChannelUrl(data.channelId));
+        },
+        onError: () => {
+          dmInitiated.current = null;
         }
       });
     }
