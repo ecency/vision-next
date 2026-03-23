@@ -1465,7 +1465,7 @@
     "to-placeholder": "username",
     "to-not-found": "The user that you are trying to transfer funds to does not exist!",
     "to-bad-actor": "Use caution sending to this account. Please double check your spelling for possible phishing.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
     "amount": "Amount",
     "amount-placeholder": "amount",
     "wrong-amount": "Wrong amount value",
@@ -3116,7 +3116,7 @@
     },
     "external-wallets-signup": {
       "create-wallet-title": "Create & link to Hive account",
-      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB and SOL. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
       "import-wallet-title": "Import existing wallet",
       "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
       "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",

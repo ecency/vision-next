@@ -1,23 +1,36 @@
 import { ConfigManager } from "@ecency/sdk";
-import { useHiveKeysQuery, useWalletsCacheQuery } from "@/modules/wallets/queries";
-import { getBoundFetch } from "@/modules/wallets/utils";
+import { EcencyWalletCurrency } from "@/modules/wallets/enums";
+import { getBoundFetch } from "@/modules/wallets/utils/get-bound-fetch";
 import { useMutation } from "@tanstack/react-query";
+
+interface HiveKeys {
+  ownerPublicKey?: string;
+  activePublicKey?: string;
+  postingPublicKey?: string;
+  memoPublicKey?: string;
+}
 
 interface Payload {
   currency: string;
   address: string;
+  hiveKeys?: HiveKeys;
+  walletAddresses?: Partial<Record<EcencyWalletCurrency, string>>;
 }
 
 export function useCreateAccountWithWallets(username: string) {
-  const { data } = useWalletsCacheQuery(username);
-  const { data: hiveKeys } = useHiveKeysQuery(username);
-
   const fetchApi = getBoundFetch();
 
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address }: Payload) =>
-      fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+    mutationFn: ({ currency, address, hiveKeys, walletAddresses }: Payload) => {
+      const addresses: Record<string, string> = {};
+      if (walletAddresses) {
+        for (const [k, v] of Object.entries(walletAddresses)) {
+          if (v) addresses[k] = v;
+        }
+      }
+
+      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,20 +40,12 @@ export function useCreateAccountWithWallets(username: string) {
           token: currency,
           address,
           meta: {
-            ownerPublicKey: hiveKeys?.ownerPubkey,
-            activePublicKey: hiveKeys?.activePubkey,
-            postingPublicKey: hiveKeys?.postingPubkey,
-            memoPublicKey: hiveKeys?.memoPubkey,
-
-            ...Array.from(data?.entries() ?? []).reduce(
-              (acc, [curr, info]) => ({
-                ...acc,
-                [curr]: info.address,
-              }),
-              {}
-            ),
+            ...hiveKeys,
+            ...addresses,
+            [currency]: address
           },
         }),
-      }),
+      });
+    },
   });
 }

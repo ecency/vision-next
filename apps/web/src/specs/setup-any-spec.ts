@@ -60,9 +60,6 @@ vi.mock("@ecency/wallets", () => ({
     BTC: "BTC",
     ETH: "ETH",
     BNB: "BNB",
-    APT: "APT",
-    TON: "TON",
-    TRON: "TRX",
     SOL: "SOL"
   }
 }));

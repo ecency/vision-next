@@ -5,15 +5,18 @@ import { Button } from "@/features/ui";
 import { error } from "@/features/shared";
 import { useLoginByMetaMask } from "@/features/shared/login/hooks/use-login-by-metamask";
 import { delay } from "@/utils";
-import { EcencyAnalytics, getAccountFullQueryOptions, ConfigManager } from "@ecency/sdk";
+import { EcencyAnalytics, getAccountFullQueryOptions } from "@ecency/sdk";
 import type { FullAccount as FullAccountEntity } from "@/entities";
-import { EcencyWalletCurrency } from "@ecency/wallets";
+import {
+  EcencyWalletCurrency,
+  EcencyWalletsPrivateApi,
+  installHiveSnap,
+  getHivePublicKeys
+} from "@ecency/wallets";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import i18next from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const HIVE_SNAP_ID = "npm:@hiveio/metamask-snap";
 
 interface Props {
   username: string;
@@ -24,77 +27,10 @@ interface Props {
   };
 }
 
-interface HivePublicKey {
-  publicKey: string;
-  role?: string;
-  accountIndex: number;
-  addressIndex: number;
-}
-
-async function installHiveSnap(): Promise<void> {
-  await window.ethereum!.request({
-    method: "wallet_requestSnaps",
-    params: { [HIVE_SNAP_ID]: {} }
-  });
-}
-
-async function getHivePublicKeys(): Promise<HivePublicKey[]> {
-  const result = await window.ethereum!.request({
-    method: "wallet_invokeSnap",
-    params: {
-      snapId: HIVE_SNAP_ID,
-      request: {
-        method: "hive_getPublicKeys",
-        params: {
-          keys: [
-            { role: "owner", accountIndex: 0 },
-            { role: "active", accountIndex: 0 },
-            { role: "posting", accountIndex: 0 },
-            { role: "memo", accountIndex: 0 }
-          ]
-        }
-      }
-    }
-  });
-  return (result as { publicKeys: HivePublicKey[] }).publicKeys;
-}
-
-async function createAccountWithWallets(
-  username: string,
-  currency: string,
-  address: string,
-  walletAddresses: Partial<Record<EcencyWalletCurrency, string>>,
-  hiveKeys: {
-    ownerPublicKey: string;
-    activePublicKey: string;
-    postingPublicKey: string;
-    memoPublicKey: string;
-  }
-): Promise<Response> {
-  const normalizedWalletAddresses = Object.fromEntries(
-    Object.entries(walletAddresses)
-      .filter(([, walletAddress]): walletAddress is string => Boolean(walletAddress))
-  );
-
-  return fetch(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      token: currency,
-      address,
-      meta: {
-        ...hiveKeys,
-        ...normalizedWalletAddresses,
-        [currency]: address
-      }
-    })
-  });
-}
-
 export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
   const [status, setStatus] = useState<"installing-snap" | "getting-keys" | "creating" | "validating" | "success" | "logging-in" | "error">("installing-snap");
   const { mutateAsync: loginByMetaMask } = useLoginByMetaMask(username);
+  const { mutateAsync: createAccount } = EcencyWalletsPrivateApi.useCreateAccountWithWallets(username);
   const hasInitiatedRef = useRef(false);
   const [retryCount, setRetryCount] = useState(0);
 
@@ -165,17 +101,12 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
 
         // Step 3: Create account via backend
         setStatus("creating");
-        const response = await createAccountWithWallets(
-          username,
-          verifiedWallet.currency,
-          verifiedWallet.address,
-          verifiedWallet.addresses,
+        await createAccount({
+          currency: verifiedWallet.currency,
+          address: verifiedWallet.address,
+          walletAddresses: verifiedWallet.addresses,
           hiveKeys
-        );
-
-        if (!response.ok) {
-          throw new Error("Account creation failed");
-        }
+        });
         if (shouldStop()) return;
 
         // Step 4: Wait for account to appear on-chain
@@ -201,7 +132,7 @@ export function MetamaskAccountCreating({ username, verifiedWallet }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [username, verifiedWallet, validateAccountIsCreated, recordActivity, retryCount]);
+  }, [username, verifiedWallet, validateAccountIsCreated, recordActivity, createAccount, retryCount]);
 
   const statusMessages: Record<string, string> = {
     "installing-snap": i18next.t("signup-wallets.metamask.installing-snap"),

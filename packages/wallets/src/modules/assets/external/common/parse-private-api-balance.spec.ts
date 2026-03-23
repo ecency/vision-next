@@ -82,12 +82,12 @@ describe('parsePrivateApiBalance', () => {
 
     it('should handle very large balances', () => {
       const response: PrivateApiBalanceResponse = {
-        chain: 'TRON',
+        chain: 'ETH',
         balance: '999999999999999999999',
-        unit: 'sun',
+        unit: 'wei',
       }
 
-      const result = parsePrivateApiBalance(response, 'TRON')
+      const result = parsePrivateApiBalance(response, 'ETH')
       expect(result.balanceBigInt).toBe(999999999999999999999n)
       expect(result.balanceString).toBe('999999999999999999999')
     })
@@ -96,7 +96,7 @@ describe('parsePrivateApiBalance', () => {
       ['BTC', 12345, 'satoshi'],
       ['ETH', '9876543210', 'wei'],
       ['SOL', 1000000, 'lamports'],
-      ['TON', '500000000000', 'nanoton'],
+      ['BNB', '500000000000', 'wei'],
     ])('should parse %s with balance correctly', (chain, balance, unit) => {
       const response: PrivateApiBalanceResponse = {
         chain,

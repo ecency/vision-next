@@ -1,6 +1,6 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
-import { WalletOperationsDialog } from "@/features/wallet";
+import { ExternalTransferDialog, WalletOperationsDialog } from "@/features/wallet";
 import { AssetOperation } from "@ecency/sdk";
 import {
   EcencyWalletCurrency,
@@ -30,6 +30,7 @@ import {
   getProfileWalletOperationLabel,
   profileWalletOperationIcons,
 } from "./profile-wallet-token-operation-helpers";
+import { getLoginType } from "@/utils/user-token";
 
 export function ProfileWalletTokenActions() {
   const { activeUser } = useActiveAccount();
@@ -73,26 +74,18 @@ export function ProfileWalletTokenActions() {
     enabled: isExternalToken && Boolean(cleanUsername)
   });
 
-  const externalWalletAddress = useMemo(() => {
-    if (!isExternalToken) {
-      return undefined;
-    }
-
+  const matchedToken = useMemo(() => {
+    if (!isExternalToken) return undefined;
     const tokens = account?.profile?.tokens;
-
-    if (!Array.isArray(tokens)) {
-      return undefined;
-    }
-
-    const matchedToken = tokens.find((item) => {
-      const symbol =
-        typeof item.symbol === "string" ? item.symbol.toUpperCase() : undefined;
+    if (!Array.isArray(tokens)) return undefined;
+    return tokens.find((item) => {
+      const symbol = typeof item.symbol === "string" ? item.symbol.toUpperCase() : undefined;
       return symbol === tokenSymbol;
     });
+  }, [account?.profile?.tokens, isExternalToken, tokenSymbol]);
 
-    if (!matchedToken) {
-      return undefined;
-    }
+  const externalWalletAddress = useMemo(() => {
+    if (!matchedToken) return undefined;
 
     const metaAddress =
       typeof matchedToken.meta === "object" && matchedToken.meta
@@ -109,8 +102,16 @@ export function ProfileWalletTokenActions() {
     }
 
     return undefined;
-  }, [account?.profile?.tokens, isExternalToken, tokenSymbol]);
+  }, [matchedToken]);
 
+  const isWatchOnly = (matchedToken as any)?.watchOnly === true;
+  const isOwnWallet = activeUser?.username === cleanUsername;
+  const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
+  const TRANSFERABLE_TOKENS = [EcencyWalletCurrency.ETH, EcencyWalletCurrency.BNB, EcencyWalletCurrency.SOL];
+  const canTransfer = isOwnWallet && isMetaMaskUser && !isWatchOnly && isExternalToken &&
+    TRANSFERABLE_TOKENS.includes(tokenSymbol as EcencyWalletCurrency);
+
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [qrCodeSrc, setQrCodeSrc] = useState<string>();
   const [isQrLoading, setIsQrLoading] = useState(false);
@@ -184,15 +185,20 @@ export function ProfileWalletTokenActions() {
             </button>
             <button
               type="button"
-              disabled={true}
+              disabled={!canTransfer}
               className={clsx(
                 actionCardClass,
-                "opacity-60 cursor-not-allowed text-left"
+                canTransfer
+                  ? [interactiveActionCardClass, "text-left"]
+                  : "opacity-60 cursor-not-allowed text-left"
               )}
+              onClick={canTransfer ? () => setShowTransferModal(true) : undefined}
             >
               <UilArrowRight />
               <div className="w-full font-bold">
-                {i18next.t("profile-wallet.external.transfer-soon")}
+                {canTransfer
+                  ? i18next.t("profile-wallet.external.transfer-button", { defaultValue: "Send" })
+                  : i18next.t("profile-wallet.external.transfer-soon")}
               </div>
             </button>
           </>
@@ -315,6 +321,15 @@ export function ProfileWalletTokenActions() {
           </div>
         </ModalBody>
       </Modal>
+
+      {canTransfer && (
+        <ExternalTransferDialog
+          currency={tokenSymbol as EcencyWalletCurrency}
+          username={cleanUsername}
+          show={showTransferModal}
+          onHide={() => setShowTransferModal(false)}
+        />
+      )}
     </>
   );
 }

@@ -9,13 +9,10 @@ interface Props {
 }
 
 const Symbols: Record<string, string> = {
-  [EcencyWalletCurrency.APT]: "COINBASE:APTUSD",
   [EcencyWalletCurrency.BNB]: "BINANCE:BNBUSD",
   [EcencyWalletCurrency.BTC]: "COINBASE:BTCUSD",
   [EcencyWalletCurrency.ETH]: "COINBASE:ETHUSD",
   [EcencyWalletCurrency.SOL]: "COINBASE:SOLUSD",
-  [EcencyWalletCurrency.TON]: "CRYPTO:TONUSD",
-  [EcencyWalletCurrency.TRON]: "CRYPTO:TRXUSD",
   HIVE: "CRYPTO:HIVEUSD",
   HBD: "CRYPTO:HBDUSD"
 };

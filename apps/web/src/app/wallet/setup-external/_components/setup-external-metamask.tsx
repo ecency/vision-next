@@ -8,7 +8,11 @@ import { Button, Spinner } from "@/features/ui";
 import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
-  useSaveWalletInformationToMetadata
+  useSaveWalletInformationToMetadata,
+  fetchMultichainAddresses,
+  installHiveSnap,
+  getHivePublicKeys,
+  type WalletAddressMap
 } from "@ecency/wallets";
 import { getAccountFullQueryOptions, checkUsernameWalletsPendingQueryOptions } from "@ecency/sdk";
 import { Client, PrivateKey } from "@hiveio/dhive";
@@ -27,94 +31,9 @@ import Image from "next/image";
 import { getAccessToken, getSdkAuthContext } from "@/utils";
 import { getLoginType, getUser } from "@/utils/user-token";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getWallets } from "@wallet-standard/app";
 
 interface Props {
   onBack: () => void;
-}
-
-const HIVE_SNAP_ID = "npm:@hiveio/metamask-snap";
-
-type WalletAddressMap = Partial<Record<EcencyWalletCurrency, string>>;
-
-/** Chain prefixes we look for in Wallet Standard accounts */
-const CHAIN_PREFIX_MAP: Record<string, EcencyWalletCurrency> = {
-  "solana:": EcencyWalletCurrency.SOL,
-  "bip122:": EcencyWalletCurrency.BTC
-};
-
-interface HivePublicKey {
-  publicKey: string;
-  role?: string;
-  accountIndex: number;
-  addressIndex: number;
-}
-
-async function ensureHiveSnap(): Promise<void> {
-  await window.ethereum!.request({
-    method: "wallet_requestSnaps",
-    params: { [HIVE_SNAP_ID]: {} }
-  });
-}
-
-async function getHivePublicKeys(): Promise<HivePublicKey[]> {
-  const result = await window.ethereum!.request({
-    method: "wallet_invokeSnap",
-    params: {
-      snapId: HIVE_SNAP_ID,
-      request: {
-        method: "hive_getPublicKeys",
-        params: {
-          keys: [
-            { role: "owner", accountIndex: 0 },
-            { role: "active", accountIndex: 0 },
-            { role: "posting", accountIndex: 0 },
-            { role: "memo", accountIndex: 0 }
-          ]
-        }
-      }
-    }
-  });
-  return (result as { publicKeys: HivePublicKey[] }).publicKeys;
-}
-
-async function fetchMultichainAddresses(): Promise<WalletAddressMap> {
-  const addresses: WalletAddressMap = {};
-
-  try {
-    const walletsApi = getWallets();
-    const wallets = walletsApi.get();
-
-    const mmWallet = wallets.find(
-      (w) =>
-        w.name.toLowerCase().includes("metamask") &&
-        w.features["standard:connect"]
-    );
-
-    if (!mmWallet) return addresses;
-
-    const connectFeature = mmWallet.features["standard:connect"] as any;
-    await connectFeature.connect();
-
-    const accounts = mmWallet.accounts ?? [];
-
-    for (const account of accounts) {
-      if (!account.address || !Array.isArray(account.chains)) continue;
-
-      for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
-        if (addresses[currency]) continue;
-        if (account.chains.some((c: string) => c.startsWith(prefix))) {
-          addresses[currency] = account.address;
-        }
-      }
-    }
-  } catch (e) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[MetaMask linking] wallet standard discovery failed:", e);
-    }
-  }
-
-  return addresses;
 }
 
 type Step = "connect" | "sign" | "linking" | "success";
@@ -209,7 +128,7 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
       setChainAddresses(multichain);
 
       // 3. Install Hive Snap and get public keys
-      await ensureHiveSnap();
+      await installHiveSnap();
       const publicKeys = await getHivePublicKeys();
       const keysByRole = publicKeys.reduce<Record<string, string>>((acc, k) => {
         if (k.role) acc[k.role] = k.publicKey;

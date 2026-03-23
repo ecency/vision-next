@@ -1451,7 +1451,7 @@
     "to-placeholder": "потребителско име",
     "to-not-found": "Потребителят към когото се опитваш да прехвърлиш сумата не съществува!",
     "to-bad-actor": "Бъди предпазлив когато изпращаш на този акаунт. Моля проверявайте изписването за възможни грешки.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
     "amount": "Сума",
     "amount-placeholder": "сума",
     "wrong-amount": "Грешно количество сума",
@@ -3062,13 +3062,13 @@
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
       "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "description": "Create or import wallets for BTC, ETH, BNB and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
       "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Create & link to Hive account",
-      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB and SOL. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
       "import-wallet-title": "Import existing wallet",
       "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
       "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
