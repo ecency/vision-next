@@ -1,13 +1,29 @@
 import { EcencyWalletCurrency } from "@/modules/wallets/enums";
 
+interface RequestArguments {
+  method: string;
+  params?: unknown[] | Record<string, unknown>;
+}
+
+interface EthereumProvider {
+  isMetaMask?: boolean;
+  request<T = unknown>(args: RequestArguments): Promise<T>;
+}
+
 declare global {
   interface Window {
-    ethereum?: {
-      isMetaMask?: boolean;
-      request: (args: { method: string; params?: unknown[] | Record<string, unknown> }) => Promise<any>;
-    };
+    ethereum?: EthereumProvider;
   }
 }
+
+function getEthereum(): EthereumProvider {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask not found");
+  }
+  return window.ethereum;
+}
+
+const WEI_PER_ETH = 1000000000000000000n;
 
 const EVM_CHAIN_CONFIG: Record<string, { chainId: string; name: string; rpcUrl: string; explorerUrl: string }> = {
   [EcencyWalletCurrency.ETH]: {
@@ -35,22 +51,22 @@ export function getEvmExplorerUrl(currency: EcencyWalletCurrency, txHash: string
 }
 
 export async function ensureEvmChain(currency: EcencyWalletCurrency): Promise<void> {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
 
   const { chainId, name, rpcUrl } = getEvmChainConfig(currency);
-  const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+  const currentChainId = await ethereum.request<string>({ method: "eth_chainId" });
 
   if (currentChainId === chainId) return;
 
   try {
-    await window.ethereum.request({
+    await ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId }]
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Chain not added — add it
-    if (err?.code === 4902) {
-      await window.ethereum.request({
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: number }).code === 4902) {
+      await ethereum.request({
         method: "wallet_addEthereumChain",
         params: [{
           chainId,
@@ -75,16 +91,16 @@ export async function estimateEvmGas(
   valueHex: string,
   currency: EcencyWalletCurrency
 ): Promise<{ gasLimit: string; gasPrice: string; estimatedFeeWei: bigint }> {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
 
   await ensureEvmChain(currency);
 
   const [gasLimit, gasPrice] = await Promise.all([
-    window.ethereum.request({
+    ethereum.request<string>({
       method: "eth_estimateGas",
       params: [{ from, to, value: valueHex }]
     }),
-    window.ethereum.request({ method: "eth_gasPrice" })
+    ethereum.request<string>({ method: "eth_gasPrice" })
   ]);
 
   const estimatedFeeWei = BigInt(gasLimit) * BigInt(gasPrice);
@@ -93,14 +109,31 @@ export async function estimateEvmGas(
 }
 
 export function formatWei(wei: bigint, decimals = 6): string {
-  const eth = Number(wei) / 1e18;
-  return eth.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+  const whole = wei / WEI_PER_ETH;
+  const rem = wei % WEI_PER_ETH;
+  if (rem === 0n) return whole.toString();
+
+  const scale = 10n ** BigInt(decimals);
+  const fractional = (rem * scale) / WEI_PER_ETH;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
 }
 
+const AMOUNT_REGEX = /^\d+(\.\d+)?$/;
+
 export function parseToWei(amount: string): string {
-  const [whole = "0", fraction = ""] = amount.split(".");
+  const trimmed = amount.trim();
+  if (!AMOUNT_REGEX.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || (fraction && !/^\d+$/.test(fraction))) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+
   const paddedFraction = fraction.padEnd(18, "0").slice(0, 18);
-  const wei = BigInt(whole) * BigInt(10 ** 18) + BigInt(paddedFraction);
+  const wei = BigInt(whole) * WEI_PER_ETH + BigInt(paddedFraction);
   return "0x" + wei.toString(16);
 }
 
@@ -109,15 +142,15 @@ export async function sendEvmTransfer(
   amountWei: string,
   currency: EcencyWalletCurrency
 ): Promise<string> {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
 
   await ensureEvmChain(currency);
 
-  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const accounts = await ethereum.request<string[]>({ method: "eth_requestAccounts" });
   const from = accounts[0];
   if (!from) throw new Error("No MetaMask account connected");
 
-  const txHash = await window.ethereum.request({
+  const txHash = await ethereum.request<string>({
     method: "eth_sendTransaction",
     params: [{
       from,

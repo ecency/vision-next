@@ -18,6 +18,7 @@ const shared = {
         "dayjs",
         "remeda",
         "bip39",
+        "@scure/base",
         "@scure/bip32",
         "@wallet-standard/app",
         "@solana/web3.js",

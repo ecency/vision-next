@@ -4,6 +4,7 @@ import { ExternalTransferDialog, WalletOperationsDialog } from "@/features/walle
 import { AssetOperation } from "@ecency/sdk";
 import {
   EcencyWalletCurrency,
+  type TransferableCurrency,
   getTokenOperationsQueryOptions,
 } from "@ecency/wallets";
 import { useQuery } from "@tanstack/react-query";
@@ -324,7 +325,7 @@ export function ProfileWalletTokenActions() {
 
       {canTransfer && (
         <ExternalTransferDialog
-          currency={tokenSymbol as EcencyWalletCurrency}
+          currency={tokenSymbol as TransferableCurrency}
           username={cleanUsername}
           show={showTransferModal}
           onHide={() => setShowTransferModal(false)}

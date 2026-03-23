@@ -72,7 +72,7 @@ export async function fetchEvmAddress(): Promise<string | undefined> {
 
   const accounts = await window.ethereum.request({
     method: "eth_requestAccounts"
-  });
+  }) as string[] | undefined;
 
   return accounts?.[0] ?? undefined;
 }

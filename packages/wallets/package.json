@@ -63,6 +63,7 @@
     }
   },
   "dependencies": {
+    "@scure/base": "^1.2.4",
     "@scure/bip32": "^1.6.2",
     "bip39": "^3.1.0",
     "dayjs": "^1.11.10",

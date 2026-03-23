@@ -718,6 +718,13 @@ function useSaveWalletInformationToMetadata(username, auth, options2) {
 }
 
 // src/modules/wallets/utils/metamask-evm-transfer.ts
+function getEthereum() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask not found");
+  }
+  return window.ethereum;
+}
+var WEI_PER_ETH = 1000000000000000000n;
 var EVM_CHAIN_CONFIG = {
   ["ETH" /* ETH */]: {
     chainId: "0x1",
@@ -741,18 +748,18 @@ function getEvmExplorerUrl(currency, txHash) {
   return `${getEvmChainConfig(currency).explorerUrl}${txHash}`;
 }
 async function ensureEvmChain(currency) {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
   const { chainId, name, rpcUrl } = getEvmChainConfig(currency);
-  const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+  const currentChainId = await ethereum.request({ method: "eth_chainId" });
   if (currentChainId === chainId) return;
   try {
-    await window.ethereum.request({
+    await ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId }]
     });
   } catch (err) {
-    if (err?.code === 4902) {
-      await window.ethereum.request({
+    if (typeof err === "object" && err !== null && "code" in err && err.code === 4902) {
+      await ethereum.request({
         method: "wallet_addEthereumChain",
         params: [{
           chainId,
@@ -771,35 +778,48 @@ async function ensureEvmChain(currency) {
   }
 }
 async function estimateEvmGas(from, to, valueHex, currency) {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
   await ensureEvmChain(currency);
   const [gasLimit, gasPrice] = await Promise.all([
-    window.ethereum.request({
+    ethereum.request({
       method: "eth_estimateGas",
       params: [{ from, to, value: valueHex }]
     }),
-    window.ethereum.request({ method: "eth_gasPrice" })
+    ethereum.request({ method: "eth_gasPrice" })
   ]);
   const estimatedFeeWei = BigInt(gasLimit) * BigInt(gasPrice);
   return { gasLimit, gasPrice, estimatedFeeWei };
 }
 function formatWei(wei, decimals = 6) {
-  const eth = Number(wei) / 1e18;
-  return eth.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+  const whole = wei / WEI_PER_ETH;
+  const rem = wei % WEI_PER_ETH;
+  if (rem === 0n) return whole.toString();
+  const scale = 10n ** BigInt(decimals);
+  const fractional = rem * scale / WEI_PER_ETH;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
 }
+var AMOUNT_REGEX = /^\d+(\.\d+)?$/;
 function parseToWei(amount) {
-  const [whole = "0", fraction = ""] = amount.split(".");
+  const trimmed = amount.trim();
+  if (!AMOUNT_REGEX.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || fraction && !/^\d+$/.test(fraction)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
   const paddedFraction = fraction.padEnd(18, "0").slice(0, 18);
-  const wei = BigInt(whole) * BigInt(10 ** 18) + BigInt(paddedFraction);
+  const wei = BigInt(whole) * WEI_PER_ETH + BigInt(paddedFraction);
   return "0x" + wei.toString(16);
 }
 async function sendEvmTransfer(to, amountWei, currency) {
-  if (!window.ethereum) throw new Error("MetaMask not found");
+  const ethereum = getEthereum();
   await ensureEvmChain(currency);
-  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const accounts = await ethereum.request({ method: "eth_requestAccounts" });
   const from = accounts[0];
   if (!from) throw new Error("No MetaMask account connected");
-  const txHash = await window.ethereum.request({
+  const txHash = await ethereum.request({
     method: "eth_sendTransaction",
     params: [{
       from,
@@ -875,8 +895,11 @@ async function sendSolTransfer(to, amountSol) {
     transaction: serializedTx,
     chain: "solana:mainnet"
   });
-  const signature = typeof result.signature === "string" ? result.signature : Buffer.from(result.signature).toString("base64");
-  return signature;
+  if (typeof result.signature === "string") {
+    return result.signature;
+  }
+  const { base58 } = await import('@scure/base');
+  return base58.encode(new Uint8Array(result.signature));
 }
 function useExternalTransfer(currency) {
   const queryClient = reactQuery.useQueryClient();
@@ -894,8 +917,6 @@ function useExternalTransfer(currency) {
           const signature = await sendSolTransfer(to, amount);
           return { txHash: signature, currency };
         }
-        default:
-          throw new Error(`Transfers not supported for ${currency}`);
       }
     },
     onSuccess: () => {

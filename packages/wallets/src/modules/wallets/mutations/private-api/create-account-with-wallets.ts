@@ -11,7 +11,7 @@ interface HiveKeys {
 }
 
 interface Payload {
-  currency: string;
+  currency: EcencyWalletCurrency;
   address: string;
   hiveKeys?: HiveKeys;
   walletAddresses?: Partial<Record<EcencyWalletCurrency, string>>;

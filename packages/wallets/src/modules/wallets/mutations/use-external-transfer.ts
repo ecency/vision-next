@@ -3,12 +3,17 @@ import { sendEvmTransfer, parseToWei } from "@/modules/wallets/utils/metamask-ev
 import { sendSolTransfer } from "@/modules/wallets/utils/metamask-sol-transfer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+export type TransferableCurrency =
+  | EcencyWalletCurrency.ETH
+  | EcencyWalletCurrency.BNB
+  | EcencyWalletCurrency.SOL;
+
 interface ExternalTransferPayload {
   to: string;
   amount: string;
 }
 
-export function useExternalTransfer(currency: EcencyWalletCurrency) {
+export function useExternalTransfer(currency: TransferableCurrency) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -25,8 +30,6 @@ export function useExternalTransfer(currency: EcencyWalletCurrency) {
           const signature = await sendSolTransfer(to, amount);
           return { txHash: signature, currency };
         }
-        default:
-          throw new Error(`Transfers not supported for ${currency}`);
       }
     },
     onSuccess: () => {

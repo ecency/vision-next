@@ -3,6 +3,7 @@
 import {
   EcencyWalletCurrency,
   useExternalTransfer,
+  type TransferableCurrency,
   getEvmExplorerUrl,
   getSolExplorerUrl,
   estimateEvmGas,
@@ -45,6 +46,15 @@ function isValidAddress(address: string, currency: EcencyWalletCurrency): boolea
   }
 }
 
+function isValidAmount(value: string, currency: EcencyWalletCurrency): boolean {
+  if (!value) return false;
+  const maxDecimals = DECIMALS[currency] ?? 18;
+  const match = value.match(/^(\d+)(?:\.(\d+))?$/);
+  if (!match) return false;
+  const fraction = match[2] ?? "";
+  return fraction.length <= maxDecimals && parseFloat(value) > 0;
+}
+
 function formatBalance(balanceString: string, currency: EcencyWalletCurrency): string {
   const decimals = DECIMALS[currency] ?? 18;
   if (balanceString === "0") return "0";
@@ -56,7 +66,7 @@ function formatBalance(balanceString: string, currency: EcencyWalletCurrency): s
 }
 
 interface Props {
-  currency: EcencyWalletCurrency;
+  currency: TransferableCurrency;
   username: string;
   show: boolean;
   onHide: () => void;
@@ -88,6 +98,9 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   }, [account?.profile?.tokens, currency]);
 
   const { data: balanceData } = useGetExternalWalletBalanceQuery(currency, externalAddress ?? "");
+  const [connectedAddress, setConnectedAddress] = useState<string>();
+  const addressMismatch = connectedAddress && externalAddress &&
+    connectedAddress.toLowerCase() !== externalAddress.toLowerCase();
 
   const humanBalance = useMemo(
     () => balanceData ? formatBalance(balanceData.balanceString, currency) : undefined,
@@ -105,12 +118,21 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
     return isNaN(val) ? undefined : `$${val.toFixed(2)}`;
   }, [amount, usdPrice]);
 
-  // Gas estimation for EVM
+  // Check connected MetaMask address matches the wallet on file
   const isEvm = currency === EcencyWalletCurrency.ETH || currency === EcencyWalletCurrency.BNB;
+
+  useEffect(() => {
+    if (!show || typeof window === "undefined" || !window.ethereum) return;
+    window.ethereum.request({ method: "eth_requestAccounts" })
+      .then((accounts: any) => setConnectedAddress(accounts?.[0]))
+      .catch(() => {});
+  }, [show]);
+
+  // Gas estimation for EVM
   const [gasEstimate, setGasEstimate] = useState<string>();
 
   useEffect(() => {
-    if (!isEvm || !externalAddress || !to || !amount || !isValidAddress(to, currency)) {
+    if (!isEvm || !externalAddress || !to || !isValidAmount(amount, currency) || !isValidAddress(to, currency)) {
       setGasEstimate(undefined);
       return;
     }
@@ -146,8 +168,8 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
   }, [txHash, currency, isEvm]);
 
   const addressValid = to.length > 0 && isValidAddress(to, currency);
-  const amountValid = parseFloat(amount) > 0;
-  const canSubmit = addressValid && amountValid;
+  const amountValid = isValidAmount(amount, currency);
+  const canSubmit = addressValid && amountValid && !addressMismatch && !!externalAddress;
 
   useEffect(() => {
     if (!show) {
@@ -157,6 +179,7 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
       setTxHash("");
       setErrorMessage("");
       setGasEstimate(undefined);
+      setConnectedAddress(undefined);
     }
   }, [show]);
 
@@ -220,7 +243,13 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
                   className="w-full p-3 pr-16 border border-[--border-color] rounded-lg bg-transparent text-sm"
                   placeholder="0.0"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9.]/g, "");
+                    // Allow only one decimal point
+                    const parts = raw.split(".");
+                    const sanitized = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : raw;
+                    setAmount(sanitized);
+                  }}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 font-semibold">
                   {meta?.name ?? currency}
@@ -235,6 +264,14 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
               <div className="text-xs text-gray-500 flex justify-between bg-gray-50 dark:bg-dark-200 p-2 rounded-lg">
                 <span>{i18next.t("external-transfer.estimated-fee", { defaultValue: "Estimated network fee" })}</span>
                 <span>~{gasEstimate} {meta?.name ?? currency}</span>
+              </div>
+            )}
+
+            {addressMismatch && (
+              <div className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                {i18next.t("external-transfer.error-address-mismatch", {
+                  defaultValue: "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask."
+                })}
               </div>
             )}
 

@@ -182,7 +182,8 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           setIsLoadingChainAddresses(false);
         }
       }
-    } catch {
+    } catch (e) {
+      console.error("[MetaMask connect] failed:", e);
       error(i18next.t("signup-wallets.metamask.connect-error"));
       setIsLoadingChainAddresses(false);
     } finally {

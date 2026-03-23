@@ -89,10 +89,12 @@ export async function sendSolTransfer(
     chain: "solana:mainnet"
   });
 
-  // Result contains the signature as a Uint8Array
-  const signature = typeof result.signature === "string"
-    ? result.signature
-    : Buffer.from(result.signature).toString("base64");
+  // Result contains the signature — either a string or Uint8Array
+  if (typeof result.signature === "string") {
+    return result.signature;
+  }
 
-  return signature;
+  // Encode Uint8Array to base58 (standard Solana signature format)
+  const { base58 } = await import("@scure/base");
+  return base58.encode(new Uint8Array(result.signature));
 }

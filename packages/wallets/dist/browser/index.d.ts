@@ -24,7 +24,7 @@ interface HiveKeys {
     memoPublicKey?: string;
 }
 interface Payload$2 {
-    currency: string;
+    currency: EcencyWalletCurrency;
     address: string;
     hiveKeys?: HiveKeys;
     walletAddresses?: Partial<Record<EcencyWalletCurrency, string>>;
@@ -96,11 +96,12 @@ interface AccountPointsResponse {
 type SaveWalletInformationOptions = Pick<UseMutationOptions<unknown, Error, EcencyTokenMetadata[]>, "onSuccess" | "onError">;
 declare function useSaveWalletInformationToMetadata(username: string, auth?: AuthContext, options?: SaveWalletInformationOptions): _tanstack_react_query.UseMutationResult<unknown, Error, EcencyTokenMetadata[], unknown>;
 
+type TransferableCurrency = EcencyWalletCurrency.ETH | EcencyWalletCurrency.BNB | EcencyWalletCurrency.SOL;
 interface ExternalTransferPayload {
     to: string;
     amount: string;
 }
-declare function useExternalTransfer(currency: EcencyWalletCurrency): _tanstack_react_query.UseMutationResult<{
+declare function useExternalTransfer(currency: TransferableCurrency): _tanstack_react_query.UseMutationResult<{
     txHash: string;
     currency: EcencyWalletCurrency.ETH | EcencyWalletCurrency.BNB;
 } | {
@@ -215,15 +216,17 @@ declare function deriveHiveMasterPasswordKeys(username: string, masterPassword: 
 type HiveKeyDerivation = "bip44" | "master-password" | "unknown";
 declare function detectHiveKeyDerivation(username: string, seed: string, type?: "active" | "owner"): Promise<HiveKeyDerivation>;
 
+interface RequestArguments {
+    method: string;
+    params?: unknown[] | Record<string, unknown>;
+}
+interface EthereumProvider {
+    isMetaMask?: boolean;
+    request<T = unknown>(args: RequestArguments): Promise<T>;
+}
 declare global {
     interface Window {
-        ethereum?: {
-            isMetaMask?: boolean;
-            request: (args: {
-                method: string;
-                params?: unknown[] | Record<string, unknown>;
-            }) => Promise<any>;
-        };
+        ethereum?: EthereumProvider;
     }
 }
 declare function getEvmChainConfig(currency: EcencyWalletCurrency): {
@@ -282,4 +285,4 @@ declare function installHiveSnap(): Promise<void>;
  */
 declare function getHivePublicKeys(): Promise<HivePublicKey[]>;
 
-export { type AccountPointsResponse, type EcencyHiveKeys, type EcencyTokenMetadata, EcencyWalletBasicTokens, EcencyWalletCurrency, index as EcencyWalletsPrivateApi, type ExternalWalletBalance, type HiveKeyDerivation, type HivePublicKey, type HiveRole, type WalletAddressMap, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, discoverMetaMaskWallets, ensureEvmChain, estimateEvmGas, fetchEvmAddress, fetchMultichainAddresses, formatLamports, formatWei, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getEvmChainConfig, getEvmExplorerUrl, getHivePublicKeys, getSolExplorerUrl, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, installHiveSnap, parseToLamports, parseToWei, sendEvmTransfer, sendSolTransfer, useExternalTransfer, useGetExternalWalletBalanceQuery, useSaveWalletInformationToMetadata };
+export { type AccountPointsResponse, type EcencyHiveKeys, type EcencyTokenMetadata, EcencyWalletBasicTokens, EcencyWalletCurrency, index as EcencyWalletsPrivateApi, type ExternalWalletBalance, type HiveKeyDerivation, type HivePublicKey, type HiveRole, type TransferableCurrency, type WalletAddressMap, deriveHiveKey, deriveHiveKeys, deriveHiveMasterPasswordKey, deriveHiveMasterPasswordKeys, detectHiveKeyDerivation, discoverMetaMaskWallets, ensureEvmChain, estimateEvmGas, fetchEvmAddress, fetchMultichainAddresses, formatLamports, formatWei, getAccountWalletListQueryOptions, getAllTokensListQueryOptions, getEvmChainConfig, getEvmExplorerUrl, getHivePublicKeys, getSolExplorerUrl, getTokenOperationsQueryOptions, getTokenPriceQueryOptions, installHiveSnap, parseToLamports, parseToWei, sendEvmTransfer, sendSolTransfer, useExternalTransfer, useGetExternalWalletBalanceQuery, useSaveWalletInformationToMetadata };
