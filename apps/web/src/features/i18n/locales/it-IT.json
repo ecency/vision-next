@@ -39,6 +39,7 @@
     "fill-community-feed": "Puoi unirti a più comunità per riempire questo feed.",
     "save": "Salva",
     "try-again": "Prova di nuovo",
+    "soon": "Presto",
     "show": "Mostra",
     "on": "Aziona",
     "off": "Spegni",
@@ -241,6 +242,7 @@
     "schedules": "Programmi",
     "fragments": "Ritagli",
     "settings": "Impostazioni",
+    "mobile-login": "Accedi a Mobile",
     "logout": "Esci",
     "just-logout": "Basta uscire",
     "logout-and-clear": "Esci e cancella i dati locali",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "nome Utente",
     "to-not-found": "L'utente a cui stai tentando di trasferire fondi non esiste!",
     "to-bad-actor": "Usa cautela nell'invio a questo account. Per favore controlla la tua ortografia per un possibile phishing.",
-    "external-wallets-label": "Portafoglio (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Portafoglio (BTC, ETH, SOL, BNB)",
     "amount": "Importo",
     "amount-placeholder": "importo",
     "wrong-amount": "Valore dell'importo errato",
@@ -2925,7 +2927,13 @@
       "enter-address": "Inserisci il tuo indirizzo {{chain}}",
       "enter-address-hint": "Copia l'indirizzo dal tuo portafoglio MetaMask per questa catena.",
       "login-with-metamask": "Accedi con MetaMask",
-      "logging-in": "Accedi con MetaMask..."
+      "logging-in": "Accedi con MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Controllo degli indirizzi multichain di MetaMaschera...",
+      "chain-not-available": "La catena selezionata non è disponibile in MetaMaschera"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Playground",
     "voices": "Voci"
   },
+  "external-transfer": {
+    "title": "Invia {{token}}",
+    "recipient-label": "Indirizzo del destinatario",
+    "error-invalid-address": "Indirizzo {{chain}} non valido",
+    "amount-label": "Importo",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Tariffa di rete stimata",
+    "max-evm-hint": "Le commissioni di rete sono pagate da {{token}}. MetaMask può modificare l'importo per riservare gas.",
+    "error-address-mismatch": "L'account MetaMask connesso non corrisponde all'indirizzo del tuo portafoglio collegato. Si prega di cambiare account in MetaMask.",
+    "error-exceeds-balance": "Importo superiore al saldo disponibile",
+    "review": "Revisione trasferimento",
+    "sending": "Invio",
+    "value": "Valore",
+    "to-label": "A",
+    "confirm-metamask": "Conferma con MetaMask",
+    "signing": "In attesa di conferma MetaMaschera...",
+    "success": "Trasferimento inviato!",
+    "success-hint": "La transazione è stata inviata alla rete. Potrebbe volerci qualche minuto per confermare.",
+    "view-explorer": "Visualizza su explorer",
+    "failed": "Trasferimento fallito",
+    "cancelled": "Transazione annullata dall'utente.",
+    "try-again": "Riprova"
+  },
+  "mobile-login-qr": {
+    "title": "Accedi all'app mobile",
+    "warning-title": "Questo codice QR contiene le credenziali della sessione",
+    "warning-1": "Non scansionare in spazi pubblici dove gli altri possono vedere lo schermo",
+    "warning-2": "Non condividere o screenshot il codice QR",
+    "warning-3": "Disabilita la registrazione o il mirroring dello schermo prima di rivelare",
+    "reveal-button": "Capisco, rivelare il codice QR",
+    "generating": "Generazione codice QR sicuro...",
+    "instructions": "Apri l'app mobile Ecency, tocca lo scanner QR e scansiona questo codice per accedere.",
+    "logged-in-as": "Accesso come @{{username}}",
+    "error-no-token": "Impossibile generare il login QR. Si prega di provare a uscire e tornare indietro.",
+    "error-generate": "Impossibile generare il codice QR. Per favore riprova."
+  },
   "profile-wallet": {
     "pick-tokens": "Scegli i token da mostrare",
     "search-token": "Token di ricerca",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "Delegazioni uscenti",
     "delegations-incoming": "Delegazioni in arrivo",
     "external-wallets-offer": {
-      "title": "Collega i tuoi portafogli criptovalute",
-      "description": "Collega MetaMask o inserisci indirizzi portafoglio per BTC, ETH, BNB e SOL per gestire e monitorare le tue criptovalute all'interno dell'ecosistema Hive.",
-      "hint": "Gli indirizzi del portafoglio sono memorizzati nei metadati del tuo account Hive e Ecency",
+      "title": "Porta le tue criptovalute in Ecenza",
+      "description": "Crea o importa portafogli per BTC, ETH, BNB, SOL, TRX, APT e TON direttamente da app come Trust o Exodus, e iniziare a usarli senza soluzione di continuità all'interno dell'ecosistema Hive.",
+      "hint": "Le informazioni di token create e importate saranno memorizzate in un account Ecency e Hive metadati",
       "dismiss": "Forse più tardi"
     },
     "external-wallets-signup": {
