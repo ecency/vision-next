@@ -39,6 +39,7 @@
     "fill-community-feed": "Ingresse em comunidades para preencher este feed.",
     "save": "Guardar",
     "try-again": "Tente novamente",
+    "soon": "Em breve",
     "show": "Mostrar",
     "on": "Ligado",
     "off": "Desligar",
@@ -241,6 +242,7 @@
     "schedules": "Agendamentos",
     "fragments": "Trechos",
     "settings": "Configurações",
+    "mobile-login": "Faça login no celular",
     "logout": "Sair",
     "just-logout": "Apenas sair",
     "logout-and-clear": "Sair e Limpar dados locais",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "utilizador",
     "to-not-found": "O utilizador para quem está a tentar transferir fundos não existe!",
     "to-bad-actor": "Tenha cuidado ao enviar esta conta. Por favor, verifique novamente a ortografia para um possível phishing.",
-    "external-wallets-label": "Carteira (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Carteira (BTC, ETH, SOL, BNB)",
     "amount": "Quantidade",
     "amount-placeholder": "quantidade",
     "wrong-amount": "Valor errado",
@@ -2925,7 +2927,13 @@
       "enter-address": "Digite o seu endereço {{chain}}",
       "enter-address-hint": "Copie o endereço da sua carteira MetaMask para esta cadeia.",
       "login-with-metamask": "Faça login com MetaMask",
-      "logging-in": "Conectando com MetaMask..."
+      "logging-in": "Conectando com MetaMask...",
+      "address-label": "Endereço {{chain}}:",
+      "checking-multichain": "Verificando endereços multicorrente do MetaMask ...",
+      "chain-not-available": "A cadeia selecionada não está disponível no MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Parquinho",
     "voices": "Vozes"
   },
+  "external-transfer": {
+    "title": "Enviar {{token}}",
+    "recipient-label": "Endereço do destinatário",
+    "error-invalid-address": "Endereço {{chain}} inválido",
+    "amount-label": "Quantidade",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Taxa de rede estimada",
+    "max-evm-hint": "Taxas de rede são pagas a partir de {{token}}. MetaMask pode ajustar o valor para a reserva de gás.",
+    "error-address-mismatch": "A conta MetaMask conectada não coincide com seu endereço de carteira vinculado. Troque de conta no MetaMask.",
+    "error-exceeds-balance": "Montante excede o saldo disponível",
+    "review": "Revisar transferência",
+    "sending": "Enviando",
+    "value": "Valor",
+    "to-label": "Para",
+    "confirm-metamask": "Confirmar com MetaMask",
+    "signing": "Aguardando confirmação do MetaMascote...",
+    "success": "Transferência enviada!",
+    "success-hint": "Sua transação foi enviada para a rede. Pode demorar alguns minutos para confirmar.",
+    "view-explorer": "Ver no explorador",
+    "failed": "Falha na transferência",
+    "cancelled": "Transação cancelada pelo usuário.",
+    "try-again": "Tente novamente"
+  },
+  "mobile-login-qr": {
+    "title": "Fazer login no aplicativo móvel",
+    "warning-title": "Este código QR contém as suas credenciais de sessão",
+    "warning-1": "Não escanear em espaços públicos onde outros podem ver sua tela",
+    "warning-2": "Não compartilhe ou captura de tela do código QR",
+    "warning-3": "Desativar gravação ou espelhamento de tela antes de revelar",
+    "reveal-button": "Entendo, revelar o código QR",
+    "generating": "Gerando código QR seguro...",
+    "instructions": "Abra o aplicativo móvel de Ecency e toque no QR scanner e digitalize este código para entrar.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Não foi possível gerar o login QR. Por favor, tente desconectar e fazer o login novamente.",
+    "error-generate": "Falha ao gerar o código QR. Por favor, tente novamente."
+  },
   "profile-wallet": {
     "pick-tokens": "Escolher tokens para mostrar",
     "search-token": "Pesquisar token",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "Delegações enviadas",
     "delegations-incoming": "delegações recebidas",
     "external-wallets-offer": {
-      "title": "Vincule suas carteiras cripto",
-      "description": "Conecte o MetaMask ou insira endereços da carteira para BTC, ETH, BNB e SOL para gerenciar e monitorar sua cripto dentro do ecossistema da Hive.",
-      "hint": "Endereços da carteira são armazenados nos metadados da sua conta do Hive e na Ecência",
+      "title": "Traga a sua Ecência cripto",
+      "description": "Crie ou importe carteiras para BTC, ETH, BNB, SOL, TRX, APT e TON diretamente de aplicativos como Trust ou Exodus, e começar a usá-los sem problemas dentro do ecossistema da Hive.",
+      "hint": "Informações criadas e importadas do token serão armazenadas em dados da conta de Ecency e Hive",
       "dismiss": "Talvez mais tarde"
     },
     "external-wallets-signup": {
