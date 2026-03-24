@@ -39,6 +39,7 @@
     "fill-community-feed": "Vous pouvez rejoindre plus de communautés pour remplir ce flux.",
     "save": "Sauvegarder",
     "try-again": "Réessayer ",
+    "soon": "Bientôt",
     "show": "Montrer",
     "on": "On",
     "off": "Off",
@@ -241,6 +242,7 @@
     "schedules": "Planifications",
     "fragments": "Extraits de texte",
     "settings": "Paramètres",
+    "mobile-login": "Se connecter à mobile",
     "logout": "Déconnexion",
     "just-logout": "Déconnexion simple",
     "logout-and-clear": "Déconnexion & Effacer les données locales",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "nom d'utilisateur",
     "to-not-found": "L'utilisateur auquel vous essayez d'envoyer des fonds n'existe pas !",
     "to-bad-actor": "Faites preuve de prudence en envoyant à ce compte. Veuillez vérifier votre orthographe pour de possibles hameçonnages.",
-    "external-wallets-label": "Portefeuille (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Portefeuille (BTC, ETH, SOL, BNB)",
     "amount": "Montant",
     "amount-placeholder": "montant",
     "wrong-amount": "Mauvaise valeur de montant",
@@ -2925,7 +2927,13 @@
       "enter-address": "Entrez votre adresse {{chain}}",
       "enter-address-hint": "Copiez l'adresse de votre portefeuille MetaMask pour cette chaîne.",
       "login-with-metamask": "Se connecter avec MetaMask",
-      "logging-in": "Connexion avec MetaMask..."
+      "logging-in": "Connexion avec MetaMask...",
+      "address-label": "Adresse {{chain}}:",
+      "checking-multichain": "Vérification des adresses multi-chaînes MetaMask...",
+      "chain-not-available": "La chaîne sélectionnée n'est pas disponible dans MetaMask"
+    },
+    "balance": {
+      "label": "Solde :"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Terrain de jeux",
     "voices": "Voix"
   },
+  "external-transfer": {
+    "title": "Envoyer {{token}}",
+    "recipient-label": "Adresse du destinataire",
+    "error-invalid-address": "Adresse {{chain}} invalide",
+    "amount-label": "Montant",
+    "balance": "Solde : {{balance}}",
+    "estimated-fee": "Frais de réseau estimés",
+    "max-evm-hint": "Les frais de réseau sont payés à partir de {{token}}. MetaMask peut ajuster le montant au gaz de réserve.",
+    "error-address-mismatch": "Le compte MetaMask connecté ne correspond pas à l'adresse de votre portefeuille. Veuillez changer de compte dans MetaMask.",
+    "error-exceeds-balance": "Le montant dépasse le solde disponible",
+    "review": "Revoir le transfert",
+    "sending": "Envoi en cours",
+    "value": "Valeur",
+    "to-label": "À",
+    "confirm-metamask": "Confirmer avec MetaMask",
+    "signing": "En attente de confirmation de MetaMasque...",
+    "success": "Transfert soumis!",
+    "success-hint": "Votre transaction a été soumise sur le réseau. Cela peut prendre quelques minutes pour confirmer.",
+    "view-explorer": "Voir sur l'explorateur",
+    "failed": "Échec du transfert",
+    "cancelled": "Transaction annulée par l'utilisateur.",
+    "try-again": "Réessayez"
+  },
+  "mobile-login-qr": {
+    "title": "Connectez-vous à l'application mobile",
+    "warning-title": "Ce code QR contient vos identifiants de session",
+    "warning-1": "Ne pas scanner dans les espaces publics où les autres peuvent voir votre écran",
+    "warning-2": "Ne pas partager ou capturer d'écran le code QR",
+    "warning-3": "Désactiver l'enregistrement ou la mise en miroir d'écran avant de révéler",
+    "reveal-button": "Je comprends, révèle le code QR",
+    "generating": "Génération du code QR sécurisé...",
+    "instructions": "Ouvrez l'application mobile Ecency, appuyez sur le scanner QR et scannez ce code pour vous connecter.",
+    "logged-in-as": "Connecté en tant que @{{username}}",
+    "error-no-token": "Impossible de générer le QR de connexion. Veuillez essayer de vous déconnecter et de vous reconnecter.",
+    "error-generate": "Impossible de générer le code QR. Veuillez réessayer."
+  },
   "profile-wallet": {
     "pick-tokens": "Choisir les jetons à afficher",
     "search-token": "Jeton de recherche",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "Délégations sortantes",
     "delegations-incoming": "Délégations entrantes",
     "external-wallets-offer": {
-      "title": "Lier vos portefeuilles de crypto-monnaies",
-      "description": "Connectez MetaMask ou entrez les adresses de portefeuille pour BTC, ETH, BNB et SOL pour gérer et surveiller votre crypto-monnaie dans l'écosystème Hive.",
-      "hint": "Les adresses du portefeuille sont stockées dans les métadonnées et Ecency de votre compte Hive",
+      "title": "Apportez votre crypto Ecency",
+      "description": "Créer ou importer des portefeuilles pour BTC, ETH, BNB, SOL, TRX, APT et TON directement à partir d'applications comme Trust ou Exodus, et commencez à les utiliser de façon transparente dans l'écosystème Hive.",
+      "hint": "Les informations du jeton créé et importé seront stockées dans les métadonnées du compte Ecency and Hive",
       "dismiss": "Peut-être plus tard"
     },
     "external-wallets-signup": {
