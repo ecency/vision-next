@@ -22,8 +22,12 @@ describe("parseToLamports", () => {
     expect(parseToLamports("9007")).toBe(9_007_000_000_000n);
   });
 
-  it("truncates beyond 9 decimals", () => {
-    expect(parseToLamports("1.0000000019")).toBe(1_000_000_001n);
+  it("rejects non-zero digits beyond 9 decimals", () => {
+    expect(() => parseToLamports("1.0000000019")).toThrow("more than 9 decimal");
+  });
+
+  it("allows trailing zeros beyond 9 decimals", () => {
+    expect(parseToLamports("1.000000001000")).toBe(1_000_000_001n);
   });
 
   it("trims whitespace", () => {
