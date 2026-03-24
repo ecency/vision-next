@@ -1,19 +1,37 @@
+import { CONFIG } from "@ecency/sdk";
+
 const SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
-const LAMPORTS_PER_SOL = 1_000_000_000;
+const LAMPORTS_PER_SOL = 1_000_000_000n;
 
 export function getSolExplorerUrl(signature: string) {
   return `${SOL_EXPLORER_URL}${signature}`;
 }
 
 export function parseToLamports(amount: string): number {
-  const [whole = "0", fraction = ""] = amount.split(".");
+  const trimmed = amount.trim();
+  const [whole = "0", fraction = ""] = trimmed.split(".");
   const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
-  return Number(whole) * LAMPORTS_PER_SOL + Number(paddedFraction);
+  const lamports = BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
+  return Number(lamports);
 }
 
 export function formatLamports(lamports: number, decimals = 6): string {
-  const sol = lamports / LAMPORTS_PER_SOL;
-  return sol.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+  const lam = BigInt(lamports);
+  const whole = lam / LAMPORTS_PER_SOL;
+  const rem = lam % LAMPORTS_PER_SOL;
+  if (rem === 0n) return whole.toString();
+
+  const scale = 10n ** BigInt(decimals);
+  const fractional = (rem * scale) / LAMPORTS_PER_SOL;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
+}
+
+function getSolRpcUrl(): string {
+  if (CONFIG.heliusApiKey) {
+    return `https://rpc.helius.xyz/?api-key=${CONFIG.heliusApiKey}`;
+  }
+  return "https://api.mainnet-beta.solana.com";
 }
 
 async function getMetaMaskSolanaWallet(): Promise<any> {
@@ -21,8 +39,14 @@ async function getMetaMaskSolanaWallet(): Promise<any> {
   const walletsApi = getWallets();
   const wallets = walletsApi.get();
 
+  // Prefer a MetaMask wallet that explicitly supports Solana chains
   const mmWallet = wallets.find(
-    (w) =>
+    (w: any) =>
+      w.name.toLowerCase().includes("metamask") &&
+      w.features["standard:connect"] &&
+      w.features["solana:signAndSendTransaction"]
+  ) ?? wallets.find(
+    (w: any) =>
       w.name.toLowerCase().includes("metamask") &&
       w.features["standard:connect"]
   );
@@ -55,7 +79,7 @@ export async function sendSolTransfer(
   // Use @solana/web3.js for transaction building (dynamic import to avoid bundle bloat)
   const { Connection, PublicKey, SystemProgram, Transaction } = await import("@solana/web3.js");
 
-  const connection = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
+  const connection = new Connection(getSolRpcUrl(), "confirmed");
   const fromPubkey = new PublicKey(solAccount.address);
   const toPubkey = new PublicKey(to);
   const lamports = parseToLamports(amountSol);

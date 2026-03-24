@@ -34,11 +34,7 @@ export function useExternalTransfer(currency: TransferableCurrency) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        predicate: (query) =>
-          query.queryKey[0] === "ecency-wallets" &&
-          (query.queryKey as string[]).some(
-            (k) => typeof k === "string" && k.toLowerCase().includes("balance")
-          )
+        queryKey: ["ecency-wallets", "external-wallet-balance"]
       });
     }
   });

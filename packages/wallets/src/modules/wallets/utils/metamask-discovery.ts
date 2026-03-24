@@ -17,6 +17,16 @@ export interface HivePublicKey {
   addressIndex: number;
 }
 
+interface WalletStandardWallet {
+  name: string;
+  chains: readonly string[];
+  features: Record<string, unknown>;
+  accounts: ReadonlyArray<{
+    address: string;
+    chains: readonly string[];
+  }>;
+}
+
 /**
  * Fetch non-EVM addresses from MetaMask via the Wallet Standard protocol.
  *
@@ -31,26 +41,27 @@ export async function fetchMultichainAddresses(): Promise<WalletAddressMap> {
     const walletsApi = getWallets();
     const wallets = walletsApi.get();
 
-    const mmWallet = wallets.find(
-      (w: any) =>
+    // Iterate ALL MetaMask wallet registrations — MetaMask may expose
+    // separate entries per chain (e.g., one for Solana, one for Bitcoin)
+    const mmWallets = wallets.filter(
+      (w: WalletStandardWallet) =>
         w.name.toLowerCase().includes("metamask") &&
         w.features["standard:connect"]
-    );
+    ) as WalletStandardWallet[];
 
-    if (!mmWallet) return addresses;
+    for (const mmWallet of mmWallets) {
+      const connectFeature = mmWallet.features["standard:connect"] as
+        { connect: () => Promise<void> };
+      await connectFeature.connect();
 
-    const connectFeature = mmWallet.features["standard:connect"] as any;
-    await connectFeature.connect();
+      for (const account of mmWallet.accounts ?? []) {
+        if (!account.address || !Array.isArray(account.chains)) continue;
 
-    const accounts = mmWallet.accounts ?? [];
-
-    for (const account of accounts) {
-      if (!account.address || !Array.isArray(account.chains)) continue;
-
-      for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
-        if (addresses[currency]) continue;
-        if (account.chains.some((c: string) => c.startsWith(prefix))) {
-          addresses[currency] = account.address;
+        for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
+          if (addresses[currency]) continue;
+          if (account.chains.some((c: string) => c.startsWith(prefix))) {
+            addresses[currency] = account.address;
+          }
         }
       }
     }
@@ -65,21 +76,25 @@ export async function fetchMultichainAddresses(): Promise<WalletAddressMap> {
 
 /**
  * Fetch the EVM address from MetaMask via window.ethereum.
- * Returns the first connected account address.
+ * Returns the first connected account address, or undefined on failure.
  */
 export async function fetchEvmAddress(): Promise<string | undefined> {
-  if (!window.ethereum?.isMetaMask) return undefined;
+  if (typeof window === "undefined" || !window.ethereum?.isMetaMask) return undefined;
 
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts"
-  }) as string[] | undefined;
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    }) as string[] | undefined;
 
-  return accounts?.[0] ?? undefined;
+    return accounts?.[0] ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
  * Discover all wallet addresses from MetaMask (EVM + non-EVM).
- * Returns a map of currency -> address.
+ * Returns a map of currency -> address. Partial results are returned on failure.
  */
 export async function discoverMetaMaskWallets(): Promise<WalletAddressMap> {
   const addresses: WalletAddressMap = {};
@@ -102,7 +117,10 @@ export async function discoverMetaMaskWallets(): Promise<WalletAddressMap> {
  * Install the Hive Snap in MetaMask.
  */
 export async function installHiveSnap(): Promise<void> {
-  await window.ethereum!.request({
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
+  await window.ethereum.request({
     method: "wallet_requestSnaps",
     params: { [HIVE_SNAP_ID]: {} }
   });
@@ -113,7 +131,11 @@ export async function installHiveSnap(): Promise<void> {
  * Returns owner, active, posting, and memo public keys.
  */
 export async function getHivePublicKeys(): Promise<HivePublicKey[]> {
-  const result = await window.ethereum!.request({
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
+
+  const result = await window.ethereum.request({
     method: "wallet_invokeSnap",
     params: {
       snapId: HIVE_SNAP_ID,
@@ -129,6 +151,12 @@ export async function getHivePublicKeys(): Promise<HivePublicKey[]> {
         }
       }
     }
-  });
-  return (result as { publicKeys: HivePublicKey[] }).publicKeys;
+  }) as { publicKeys?: unknown } | undefined;
+
+  const keys = result?.publicKeys;
+  if (!Array.isArray(keys)) {
+    throw new Error("Hive Snap returned invalid response — expected publicKeys array");
+  }
+
+  return keys as HivePublicKey[];
 }

@@ -22,7 +22,7 @@ export function useCreateAccountWithWallets(username: string) {
 
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address, hiveKeys, walletAddresses }: Payload) => {
+    mutationFn: async ({ currency, address, hiveKeys, walletAddresses }: Payload) => {
       const addresses: Record<string, string> = {};
       if (walletAddresses) {
         for (const [k, v] of Object.entries(walletAddresses)) {
@@ -30,7 +30,7 @@ export function useCreateAccountWithWallets(username: string) {
         }
       }
 
-      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+      const response = await fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,6 +46,12 @@ export function useCreateAccountWithWallets(username: string) {
           },
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`Account creation failed (${response.status})`);
+      }
+
+      return response;
     },
   });
 }

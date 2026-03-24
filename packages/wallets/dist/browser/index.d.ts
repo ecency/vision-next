@@ -267,12 +267,12 @@ interface HivePublicKey {
 declare function fetchMultichainAddresses(): Promise<WalletAddressMap>;
 /**
  * Fetch the EVM address from MetaMask via window.ethereum.
- * Returns the first connected account address.
+ * Returns the first connected account address, or undefined on failure.
  */
 declare function fetchEvmAddress(): Promise<string | undefined>;
 /**
  * Discover all wallet addresses from MetaMask (EVM + non-EVM).
- * Returns a map of currency -> address.
+ * Returns a map of currency -> address. Partial results are returned on failure.
  */
 declare function discoverMetaMaskWallets(): Promise<WalletAddressMap>;
 /**

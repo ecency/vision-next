@@ -85,14 +85,14 @@ function useCreateAccountWithWallets(username) {
   const fetchApi = getBoundFetch();
   return useMutation({
     mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address, hiveKeys, walletAddresses }) => {
+    mutationFn: async ({ currency, address, hiveKeys, walletAddresses }) => {
       const addresses = {};
       if (walletAddresses) {
         for (const [k, v] of Object.entries(walletAddresses)) {
           if (v) addresses[k] = v;
         }
       }
-      return fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+      const response = await fetchApi(`${ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -108,6 +108,10 @@ function useCreateAccountWithWallets(username) {
           }
         })
       });
+      if (!response.ok) {
+        throw new Error(`Account creation failed (${response.status})`);
+      }
+      return response;
     }
   });
 }
@@ -808,27 +812,41 @@ async function sendEvmTransfer(to, amountWei, currency) {
   });
   return txHash;
 }
-
-// src/modules/wallets/utils/metamask-sol-transfer.ts
 var SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
-var LAMPORTS_PER_SOL = 1e9;
+var LAMPORTS_PER_SOL = 1000000000n;
 function getSolExplorerUrl(signature) {
   return `${SOL_EXPLORER_URL}${signature}`;
 }
 function parseToLamports(amount) {
-  const [whole = "0", fraction = ""] = amount.split(".");
+  const trimmed = amount.trim();
+  const [whole = "0", fraction = ""] = trimmed.split(".");
   const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
-  return Number(whole) * LAMPORTS_PER_SOL + Number(paddedFraction);
+  const lamports = BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
+  return Number(lamports);
 }
 function formatLamports(lamports, decimals = 6) {
-  const sol = lamports / LAMPORTS_PER_SOL;
-  return sol.toFixed(decimals).replace(/0+$/, "").replace(/\.$/, "");
+  const lam = BigInt(lamports);
+  const whole = lam / LAMPORTS_PER_SOL;
+  const rem = lam % LAMPORTS_PER_SOL;
+  if (rem === 0n) return whole.toString();
+  const scale = 10n ** BigInt(decimals);
+  const fractional = rem * scale / LAMPORTS_PER_SOL;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
+}
+function getSolRpcUrl() {
+  if (CONFIG.heliusApiKey) {
+    return `https://rpc.helius.xyz/?api-key=${CONFIG.heliusApiKey}`;
+  }
+  return "https://api.mainnet-beta.solana.com";
 }
 async function getMetaMaskSolanaWallet() {
   const { getWallets } = await import('@wallet-standard/app');
   const walletsApi = getWallets();
   const wallets = walletsApi.get();
   const mmWallet = wallets.find(
+    (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"] && w.features["solana:signAndSendTransaction"]
+  ) ?? wallets.find(
     (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"]
   );
   if (!mmWallet) {
@@ -847,7 +865,7 @@ async function sendSolTransfer(to, amountSol) {
     throw new Error("No Solana account found in MetaMask.");
   }
   const { Connection, PublicKey, SystemProgram, Transaction } = await import('@solana/web3.js');
-  const connection = new Connection("https://api.mainnet-beta.solana.com", "confirmed");
+  const connection = new Connection(getSolRpcUrl(), "confirmed");
   const fromPubkey = new PublicKey(solAccount.address);
   const toPubkey = new PublicKey(to);
   const lamports = parseToLamports(amountSol);
@@ -900,9 +918,7 @@ function useExternalTransfer(currency) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "ecency-wallets" && query.queryKey.some(
-          (k) => typeof k === "string" && k.toLowerCase().includes("balance")
-        )
+        queryKey: ["ecency-wallets", "external-wallet-balance"]
       });
     }
   });
@@ -998,19 +1014,19 @@ async function fetchMultichainAddresses() {
     const { getWallets } = await import('@wallet-standard/app');
     const walletsApi = getWallets();
     const wallets = walletsApi.get();
-    const mmWallet = wallets.find(
+    const mmWallets = wallets.filter(
       (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"]
     );
-    if (!mmWallet) return addresses;
-    const connectFeature = mmWallet.features["standard:connect"];
-    await connectFeature.connect();
-    const accounts = mmWallet.accounts ?? [];
-    for (const account of accounts) {
-      if (!account.address || !Array.isArray(account.chains)) continue;
-      for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
-        if (addresses[currency]) continue;
-        if (account.chains.some((c) => c.startsWith(prefix))) {
-          addresses[currency] = account.address;
+    for (const mmWallet of mmWallets) {
+      const connectFeature = mmWallet.features["standard:connect"];
+      await connectFeature.connect();
+      for (const account of mmWallet.accounts ?? []) {
+        if (!account.address || !Array.isArray(account.chains)) continue;
+        for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
+          if (addresses[currency]) continue;
+          if (account.chains.some((c) => c.startsWith(prefix))) {
+            addresses[currency] = account.address;
+          }
         }
       }
     }
@@ -1022,11 +1038,15 @@ async function fetchMultichainAddresses() {
   return addresses;
 }
 async function fetchEvmAddress() {
-  if (!window.ethereum?.isMetaMask) return void 0;
-  const accounts = await window.ethereum.request({
-    method: "eth_requestAccounts"
-  });
-  return accounts?.[0] ?? void 0;
+  if (typeof window === "undefined" || !window.ethereum?.isMetaMask) return void 0;
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+    return accounts?.[0] ?? void 0;
+  } catch {
+    return void 0;
+  }
 }
 async function discoverMetaMaskWallets() {
   const addresses = {};
@@ -1040,12 +1060,18 @@ async function discoverMetaMaskWallets() {
   return addresses;
 }
 async function installHiveSnap() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
   await window.ethereum.request({
     method: "wallet_requestSnaps",
     params: { [HIVE_SNAP_ID]: {} }
   });
 }
 async function getHivePublicKeys() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
   const result = await window.ethereum.request({
     method: "wallet_invokeSnap",
     params: {
@@ -1063,7 +1089,11 @@ async function getHivePublicKeys() {
       }
     }
   });
-  return result.publicKeys;
+  const keys = result?.publicKeys;
+  if (!Array.isArray(keys)) {
+    throw new Error("Hive Snap returned invalid response \u2014 expected publicKeys array");
+  }
+  return keys;
 }
 
 // src/index.ts

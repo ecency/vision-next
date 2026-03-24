@@ -20,6 +20,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useGetExternalWalletBalanceQuery, getTokenPriceQueryOptions } from "@ecency/wallets";
 
+/** MetaMask RPC error code when user clicks "Reject" in the confirmation popup */
+const USER_REJECTED_REQUEST = 4001;
+
 const DECIMALS: Record<string, number> = {
   ETH: 18,
   BNB: 18,
@@ -31,6 +34,8 @@ function isValidEvmAddress(address: string): boolean {
 }
 
 function isValidSolAddress(address: string): boolean {
+  // Base58 character class + length check as a sync gate.
+  // Full Ed25519 public key validation happens at transfer time via @solana/web3.js PublicKey constructor.
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
@@ -55,14 +60,19 @@ function isValidAmount(value: string, currency: EcencyWalletCurrency): boolean {
   return fraction.length <= maxDecimals && parseFloat(value) > 0;
 }
 
-function formatBalance(balanceString: string, currency: EcencyWalletCurrency): string {
+function formatBalance(balanceString: string, currency: EcencyWalletCurrency, maxFractionDigits = 6): string {
   const decimals = DECIMALS[currency] ?? 18;
   if (balanceString === "0") return "0";
 
   const padded = balanceString.padStart(decimals + 1, "0");
   const whole = padded.slice(0, padded.length - decimals) || "0";
   const fraction = padded.slice(padded.length - decimals).replace(/0+$/, "");
-  return fraction ? `${whole}.${fraction.slice(0, 6)}` : whole;
+  return fraction ? `${whole}.${fraction.slice(0, maxFractionDigits)}` : whole;
+}
+
+function fullPrecisionBalance(balanceString: string, currency: EcencyWalletCurrency): string {
+  const decimals = DECIMALS[currency] ?? 18;
+  return formatBalance(balanceString, currency, decimals);
 }
 
 interface Props {
@@ -97,13 +107,21 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
     return typeof addr === "string" ? addr.trim() : undefined;
   }, [account?.profile?.tokens, currency]);
 
+  const isEvm = currency === EcencyWalletCurrency.ETH || currency === EcencyWalletCurrency.BNB;
+
   const { data: balanceData } = useGetExternalWalletBalanceQuery(currency, externalAddress ?? "");
   const [connectedAddress, setConnectedAddress] = useState<string>();
-  const addressMismatch = connectedAddress && externalAddress &&
+  // Only compare addresses for EVM — SOL uses a completely different address format
+  const addressMismatch = isEvm && !!connectedAddress && !!externalAddress &&
     connectedAddress.toLowerCase() !== externalAddress.toLowerCase();
 
   const humanBalance = useMemo(
     () => balanceData ? formatBalance(balanceData.balanceString, currency) : undefined,
+    [balanceData, currency]
+  );
+
+  const fullBalance = useMemo(
+    () => balanceData ? fullPrecisionBalance(balanceData.balanceString, currency) : undefined,
     [balanceData, currency]
   );
 
@@ -118,15 +136,12 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
     return isNaN(val) ? undefined : `$${val.toFixed(2)}`;
   }, [amount, usdPrice]);
 
-  // Check connected MetaMask address matches the wallet on file
-  const isEvm = currency === EcencyWalletCurrency.ETH || currency === EcencyWalletCurrency.BNB;
-
   useEffect(() => {
-    if (!show || typeof window === "undefined" || !window.ethereum) return;
+    if (!isEvm || !show || typeof window === "undefined" || !window.ethereum) return;
     window.ethereum.request({ method: "eth_requestAccounts" })
       .then((accounts: any) => setConnectedAddress(accounts?.[0]))
       .catch(() => {});
-  }, [show]);
+  }, [isEvm, show]);
 
   // Gas estimation for EVM
   const [gasEstimate, setGasEstimate] = useState<string>();
@@ -150,11 +165,12 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
       const result = await transfer.mutateAsync({ to, amount });
       setTxHash(result.txHash);
       setStep("success");
-    } catch (err: any) {
-      if (err?.code === 4001) {
+    } catch (err: unknown) {
+      const rpcErr = err as { code?: number; message?: string };
+      if (rpcErr?.code === USER_REJECTED_REQUEST) {
         setErrorMessage(i18next.t("external-transfer.cancelled", { defaultValue: "Transaction cancelled by user." }));
       } else {
-        setErrorMessage(err?.message || "Transfer failed");
+        setErrorMessage(rpcErr?.message || "Transfer failed");
       }
       setStep("error");
     }
@@ -169,7 +185,8 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
 
   const addressValid = to.length > 0 && isValidAddress(to, currency);
   const amountValid = isValidAmount(amount, currency);
-  const canSubmit = addressValid && amountValid && !addressMismatch && !!externalAddress;
+  const exceedsBalance = amountValid && fullBalance ? parseFloat(amount) > parseFloat(fullBalance) : false;
+  const canSubmit = addressValid && amountValid && !exceedsBalance && !addressMismatch && !!externalAddress;
 
   useEffect(() => {
     if (!show) {
@@ -180,12 +197,18 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
       setErrorMessage("");
       setGasEstimate(undefined);
       setConnectedAddress(undefined);
+      setIsMaxAmount(false);
     }
   }, [show]);
 
+  const [isMaxAmount, setIsMaxAmount] = useState(false);
+
   const handleMax = useCallback(() => {
-    if (humanBalance) setAmount(humanBalance);
-  }, [humanBalance]);
+    if (fullBalance) {
+      setAmount(fullBalance);
+      setIsMaxAmount(true);
+    }
+  }, [fullBalance]);
 
   return (
     <Modal centered={true} show={show} onHide={step === "signing" ? () => {} : onHide}>
@@ -245,10 +268,10 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
                   value={amount}
                   onChange={(e) => {
                     const raw = e.target.value.replace(/[^0-9.]/g, "");
-                    // Allow only one decimal point
                     const parts = raw.split(".");
                     const sanitized = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : raw;
                     setAmount(sanitized);
+                    setIsMaxAmount(false);
                   }}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 font-semibold">
@@ -258,12 +281,26 @@ export function ExternalTransferDialog({ currency, username, show, onHide }: Pro
               {usdValue && (
                 <div className="text-xs text-gray-500 mt-1">{usdValue}</div>
               )}
+              {exceedsBalance && (
+                <div className="text-xs text-red-500 mt-1">
+                  {i18next.t("external-transfer.error-exceeds-balance", { defaultValue: "Amount exceeds available balance" })}
+                </div>
+              )}
             </div>
 
             {gasEstimate && (
               <div className="text-xs text-gray-500 flex justify-between bg-gray-50 dark:bg-dark-200 p-2 rounded-lg">
                 <span>{i18next.t("external-transfer.estimated-fee", { defaultValue: "Estimated network fee" })}</span>
                 <span>~{gasEstimate} {meta?.name ?? currency}</span>
+              </div>
+            )}
+
+            {isEvm && isMaxAmount && (
+              <div className="text-xs text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg">
+                {i18next.t("external-transfer.max-evm-hint", {
+                  defaultValue: "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+                  token: meta?.name ?? currency
+                })}
               </div>
             )}
 
