@@ -1451,7 +1451,7 @@
     "to-placeholder": "ім'я користувача",
     "to-not-found": "Користувача, якому ви намагаєтеся переказати кошти, не існує!",
     "to-bad-actor": "Будьте обережні, відправляючи на цей рахунок. Будь ласка, перевірте правильність написання, щоб уникнути можливого фішингу.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
     "amount": "Сума",
     "amount-placeholder": "сума",
     "wrong-amount": "Невірне значення суми",

@@ -6,7 +6,9 @@ import {
   EcencyWalletCurrency,
   EcencyWalletsPrivateApi,
   getTokenPriceQueryOptions,
-  useGetExternalWalletBalanceQuery
+  useGetExternalWalletBalanceQuery,
+  fetchMultichainAddresses,
+  type WalletAddressMap
 } from "@ecency/wallets";
 import { UilArrowLeft, UilCheckCircle } from "@tooni/iconscout-unicons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +17,6 @@ import i18next from "i18next";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInterval } from "react-use";
-import { getWallets } from "@wallet-standard/app";
 import { CURRENCIES_META_DATA } from "../../consts/currencies-meta-data";
 
 declare global {
@@ -26,8 +27,6 @@ declare global {
     };
   }
 }
-
-type WalletAddressMap = Partial<Record<EcencyWalletCurrency, string>>;
 
 /** Chains supported by both MetaMask AND our backend balance API */
 const SUPPORTED_CHAINS: {
@@ -55,82 +54,6 @@ const DECIMALS_BY_UNIT: Record<string, number> = {
   lamport: 9,
   lamports: 9
 };
-
-/** Chain prefixes we look for in Wallet Standard accounts */
-const CHAIN_PREFIX_MAP: Record<string, EcencyWalletCurrency> = {
-  "solana:": EcencyWalletCurrency.SOL,
-  "bip122:": EcencyWalletCurrency.BTC
-};
-
-/**
- * Fetch non-EVM addresses from MetaMask via the Wallet Standard protocol.
- *
- * MetaMask registers non-EVM wallets (Solana, Bitcoin) as separate Wallet Standard
- * wallets — they are NOT accessible through window.ethereum (EVM-only provider).
- * Discovery uses `@wallet-standard/app` which handles the register-wallet event protocol.
- */
-async function fetchMultichainAddresses(): Promise<WalletAddressMap> {
-  const addresses: WalletAddressMap = {};
-
-  try {
-    const walletsApi = getWallets();
-    const wallets = walletsApi.get();
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[MetaMask multichain] discovered wallets:", wallets.map((w) => ({
-        name: w.name,
-        chains: w.chains,
-        features: Object.keys(w.features ?? {})
-      })));
-    }
-
-    // Find a MetaMask wallet that supports standard:connect
-    const mmWallet = wallets.find(
-      (w) =>
-        w.name.toLowerCase().includes("metamask") &&
-        w.features["standard:connect"]
-    );
-
-    if (!mmWallet) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[MetaMask multichain] no MetaMask wallet with standard:connect found");
-      }
-      return addresses;
-    }
-
-    // Connect — this triggers the approval popup if not already connected
-    const connectFeature = mmWallet.features["standard:connect"] as any;
-    await connectFeature.connect();
-
-    // After connecting, accounts are available on the wallet object
-    const accounts = mmWallet.accounts ?? [];
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[MetaMask multichain] accounts after connect:", accounts.map((a) => ({
-        address: a.address,
-        chains: a.chains
-      })));
-    }
-
-    // Match accounts to our supported chains
-    for (const account of accounts) {
-      if (!account.address || !Array.isArray(account.chains)) continue;
-
-      for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
-        if (addresses[currency]) continue; // already found
-        if (account.chains.some((c: string) => c.startsWith(prefix))) {
-          addresses[currency] = account.address;
-        }
-      }
-    }
-  } catch (e) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[MetaMask multichain] wallet standard discovery failed:", e);
-    }
-  }
-
-  return addresses;
-}
 
 const MINIMUM_VALIDATION_USD = new Decimal(1);
 
@@ -259,7 +182,8 @@ export function MetamaskConnect({ username, onVerified, onBack }: Props) {
           setIsLoadingChainAddresses(false);
         }
       }
-    } catch {
+    } catch (e) {
+      console.error("[MetaMask connect] failed:", e);
       error(i18next.t("signup-wallets.metamask.connect-error"));
       setIsLoadingChainAddresses(false);
     } finally {
