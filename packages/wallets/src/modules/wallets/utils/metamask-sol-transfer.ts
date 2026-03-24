@@ -38,12 +38,19 @@ export function formatLamports(lamports: bigint, decimals = 6): string {
   return fracStr ? `${whole}.${fracStr}` : whole.toString();
 }
 
+interface JsonRpcResponse<T> {
+  jsonrpc: string;
+  id: number | string;
+  result?: T;
+  error?: { code?: number; message?: string };
+}
+
 /**
  * Call a Solana JSON-RPC method via the Ecency private API proxy.
  * This avoids hitting the public Solana RPC directly from the browser
  * (which returns 403). The proxy forwards to a Chainstack dedicated node.
  */
-async function solRpc(method: string, params: unknown[] = []): Promise<any> {
+async function solRpc<T>(method: string, params: unknown[] = []): Promise<T> {
   const baseUrl = ConfigManager.getValidatedBaseUrl();
   const response = await fetch(`${baseUrl}/private-api/rpc/sol`, {
     method: "POST",
@@ -51,11 +58,16 @@ async function solRpc(method: string, params: unknown[] = []): Promise<any> {
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
   });
 
-  const json = await response.json();
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SOL RPC ${method} failed: ${response.status} ${response.statusText}${text ? ` — ${text}` : ""}`);
+  }
+
+  const json: JsonRpcResponse<T> = await response.json();
   if (json.error) {
     throw new Error(json.error.message || `SOL RPC ${method} failed`);
   }
-  return json.result;
+  return json.result as T;
 }
 
 async function getMetaMaskSolanaWallet(): Promise<any> {
@@ -112,7 +124,10 @@ export async function sendSolTransfer(
   );
 
   // Fetch blockhash via Ecency RPC proxy (avoids 403 from public Solana RPC)
-  const blockhashResult = await solRpc("getLatestBlockhash", [{ commitment: "finalized" }]);
+  const blockhashResult = await solRpc<{ value: { blockhash: string } }>(
+    "getLatestBlockhash",
+    [{ commitment: "finalized" }]
+  );
   transaction.recentBlockhash = blockhashResult.value.blockhash;
   transaction.feePayer = fromPubkey;
 

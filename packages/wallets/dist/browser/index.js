@@ -849,6 +849,10 @@ async function solRpc(method, params = []) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
   });
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SOL RPC ${method} failed: ${response.status} ${response.statusText}${text ? ` \u2014 ${text}` : ""}`);
+  }
   const json = await response.json();
   if (json.error) {
     throw new Error(json.error.message || `SOL RPC ${method} failed`);
@@ -888,7 +892,10 @@ async function sendSolTransfer(to, amountSol) {
       lamports
     })
   );
-  const blockhashResult = await solRpc("getLatestBlockhash", [{ commitment: "finalized" }]);
+  const blockhashResult = await solRpc(
+    "getLatestBlockhash",
+    [{ commitment: "finalized" }]
+  );
   transaction.recentBlockhash = blockhashResult.value.blockhash;
   transaction.feePayer = fromPubkey;
   const serializedTx = transaction.serialize({
