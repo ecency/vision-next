@@ -91,7 +91,7 @@ export async function sendSolTransfer(
     SystemProgram.transfer({
       fromPubkey,
       toPubkey,
-      lamports: Number(lamports)
+      lamports
     })
   );
 

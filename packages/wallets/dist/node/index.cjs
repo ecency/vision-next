@@ -897,7 +897,7 @@ async function sendSolTransfer(to, amountSol) {
     SystemProgram.transfer({
       fromPubkey,
       toPubkey,
-      lamports: Number(lamports)
+      lamports
     })
   );
   const { blockhash } = await connection.getLatestBlockhash();
