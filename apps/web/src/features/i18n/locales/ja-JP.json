@@ -39,6 +39,7 @@
     "fill-community-feed": "より多くのコミュニティに参加してこのフィードを埋めることができます。",
     "save": "保存",
     "try-again": "もう一度やり直してください",
+    "soon": "まもなくです",
     "show": "表示",
     "on": "オン",
     "off": "オフ",
@@ -241,6 +242,7 @@
     "schedules": "スケジュール",
     "fragments": "Snippets",
     "settings": "設定",
+    "mobile-login": "モバイルにログイン",
     "logout": "ログアウト",
     "just-logout": "ログアウトするだけ",
     "logout-and-clear": "ログアウトしてローカルデータをクリア",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "ユーザー名",
     "to-not-found": "送金先のユーザーが存在しません！",
     "to-bad-actor": "このアカウントに送金する際は注意してください。フィッシングの可能性があるためスペルを再確認してください。",
-    "external-wallets-label": "ウォレット (BTC、ETH、SOL、BNB、TRX、TON、APT)",
+    "external-wallets-label": "ウォレット (BTC、ETH、BNB、SOL)",
     "amount": "金額",
     "amount-placeholder": "数量",
     "wrong-amount": "間違った金額",
@@ -2925,7 +2927,13 @@
       "enter-address": "{{chain}} アドレスを入力してください",
       "enter-address-hint": "このチェーンについては、MetaMaskウォレットからアドレスをコピーしてください。",
       "login-with-metamask": "MetaMaskでログイン",
-      "logging-in": "MetaMaskでサインインしています..."
+      "logging-in": "MetaMaskでサインインしています...",
+      "address-label": "{{chain}} アドレス:",
+      "checking-multichain": "MetaMask multchainアドレスを確認しています...",
+      "chain-not-available": "選択されたチェーンはMetaMaskでは利用できません"
+    },
+    "balance": {
+      "label": "残高:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Playground",
     "voices": "声"
   },
+  "external-transfer": {
+    "title": "{{token}} を送信",
+    "recipient-label": "受信者アドレス",
+    "error-invalid-address": "無効な {{chain}} アドレス",
+    "amount-label": "金額",
+    "balance": "残高: {{balance}}",
+    "estimated-fee": "推定されるネットワーク手数料",
+    "max-evm-hint": "ネットワーク料金は {{token}}から支払われます。MetaMaskはガスの予備ガス量を調整する場合があります。",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask",
+    "error-exceeds-balance": "残高が利用可能残高を超えています",
+    "review": "送金を確認する",
+    "sending": "送信中",
+    "value": "値",
+    "to-label": "終了日",
+    "confirm-metamask": "MetaMaskで確認",
+    "signing": "メタマスクの確認を待っています...",
+    "success": "送金手続きを送信しました！",
+    "success-hint": "取引がネットワークに送信されました。確認には数分かかることがあります。",
+    "view-explorer": "エクスプローラーで表示",
+    "failed": "転送に失敗しました",
+    "cancelled": "ユーザーによってトランザクションがキャンセルされました。",
+    "try-again": "もう一度やり直してください"
+  },
+  "mobile-login-qr": {
+    "title": "モバイルアプリにログイン",
+    "warning-title": "このQRコードにはセッションの資格情報が含まれています",
+    "warning-1": "他の人が画面を見ることができる公開スペースでスキャンしないでください",
+    "warning-2": "QRコードを共有したりスクリーンショットを撮ったりしない",
+    "warning-3": "画面録画またはミラーリングを無効にしてから明らかにする",
+    "reveal-button": "わかりました。QRコードを明らかにします",
+    "generating": "安全な QR コードを生成しています...",
+    "instructions": "Ecencyモバイルアプリを開き、QRスキャナーをタップしてこのコードをスキャンしてログインします。",
+    "logged-in-as": "@{{username}} としてログインしました",
+    "error-no-token": "ログインQRを生成できませんでした。ログアウトしてから再度お試しください。",
+    "error-generate": "QRコードの生成に失敗しました。もう一度やり直してください。"
+  },
   "profile-wallet": {
     "pick-tokens": "表示するトークンを選択",
     "search-token": "検索トークン",
@@ -3116,9 +3160,9 @@
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
-      "create-wallet-description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
-      "import-wallet-title": "既存のウォレットをインポート",
-      "import-wallet-description": "Trust、Exodus、または他の互換性のあるアプリから既存のウォレットをインポートします。 アセットはHiveアカウントに接続されるため、Ecanceで簡単に資金を管理できます。",
+      "create-wallet-description": "BTC、ETH、BNB、SOLのMetaMaskウォレットをリンクしてください。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
+      "import-wallet-title": "既存のウォレットを見る",
+      "import-wallet-description": "残高を監視するためにウォレットアドレスを入力してください。",
       "create-wallet-tokens-description": "トークンアドレスを確認してください。ウォレットページで後で確認できます。",
       "linking": "Hiveアカウントにトークンをリンクしています...",
       "linking-hint": "HiveとEcencyはあなたの財布の公開アドレスのみを使用します。個人情報は保存されません。",
