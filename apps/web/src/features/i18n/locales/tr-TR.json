@@ -39,6 +39,7 @@
     "fill-community-feed": "Akışınızı genişletmek için daha çok topluluğa katılabilirsiniz.",
     "save": "Kaydet",
     "try-again": "Tekrar dene",
+    "soon": "Soon",
     "show": "Göster",
     "on": "Açık",
     "off": "Kapalı",
@@ -241,6 +242,7 @@
     "schedules": "Zamanlananlar",
     "fragments": "Snippet",
     "settings": "Ayarlar",
+    "mobile-login": "Log in to Mobile",
     "logout": "Çıkış",
     "just-logout": "Just logout",
     "logout-and-clear": "Logout & Clear local data",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "kullanıcı adı",
     "to-not-found": "Fonları aktarmaya çalıştığınız kullanıcı mevcut değil!",
     "to-bad-actor": "Bu hesaba aktarım yaparken dikkatli olun. Kimlik avı olasılığına karşı lütfen girdiğiniz bilgileri iyi kontrol edin.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
     "amount": "Miktar",
     "amount-placeholder": "miktar",
     "wrong-amount": "Hatalı miktar değeri",
@@ -2925,7 +2927,13 @@
       "enter-address": "Enter your {{chain}} address",
       "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
       "login-with-metamask": "Login with MetaMask",
-      "logging-in": "Signing you in with MetaMask..."
+      "logging-in": "Signing you in with MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Checking MetaMask multichain addresses...",
+      "chain-not-available": "Selected chain is not available in MetaMask"
+    },
+    "balance": {
+      "label": "Balance:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Playground",
     "voices": "Voices"
   },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "Recipient address",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "Amount",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "Estimated network fee",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask.",
+    "error-exceeds-balance": "Amount exceeds available balance",
+    "review": "Review transfer",
+    "sending": "Sending",
+    "value": "Value",
+    "to-label": "To",
+    "confirm-metamask": "Confirm with MetaMask",
+    "signing": "Waiting for MetaMask confirmation...",
+    "success": "Transfer submitted!",
+    "success-hint": "Your transaction has been submitted to the network. It may take a few minutes to confirm.",
+    "view-explorer": "View on explorer",
+    "failed": "Transfer failed",
+    "cancelled": "Transaction cancelled by user.",
+    "try-again": "Try again"
+  },
+  "mobile-login-qr": {
+    "title": "Log in to Mobile App",
+    "warning-title": "This QR code contains your session credentials",
+    "warning-1": "Do not scan in public spaces where others can see your screen",
+    "warning-2": "Do not share or screenshot the QR code",
+    "warning-3": "Disable screen recording or mirroring before revealing",
+    "reveal-button": "I understand, reveal QR code",
+    "generating": "Generating secure QR code...",
+    "instructions": "Open Ecency mobile app, tap the QR scanner, and scan this code to log in.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Unable to generate login QR. Please try logging out and back in.",
+    "error-generate": "Failed to generate QR code. Please try again."
+  },
   "profile-wallet": {
     "pick-tokens": "Pick tokens to show",
     "search-token": "Search token",
@@ -3109,14 +3153,14 @@
     "delegations-outgoing": "Outgoing delegations",
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
-      "title": "Link your crypto wallets",
-      "description": "Connect MetaMask or enter wallet addresses for BTC, ETH, BNB and SOL to manage and monitor your crypto within the Hive ecosystem.",
-      "hint": "Wallet addresses are stored in your Hive account metadata and Ecency",
+      "title": "Bring your crypto to Ecency",
+      "description": "Create or import wallets for BTC, ETH, BNB and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Create & link to Hive account",
-      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB and SOL. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
       "import-wallet-title": "Import existing wallet",
       "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
       "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
