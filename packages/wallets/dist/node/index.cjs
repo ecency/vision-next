@@ -848,6 +848,9 @@ function parseToLamports(amount) {
   if (!/^\d+$/.test(whole) || fraction && !/^\d+$/.test(fraction)) {
     throw new Error(`Invalid amount: "${amount}"`);
   }
+  if (fraction.length > 9 && fraction.slice(9).replace(/0/g, "").length > 0) {
+    throw new Error(`Amount has more than 9 decimal places: "${amount}"`);
+  }
   const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
   return BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
 }

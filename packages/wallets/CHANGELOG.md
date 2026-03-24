@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 2.0.0
+
+### Major Changes
+
+- QR login and Metamask transfers (#715)
+
 ## 1.5.55
 
 ### Patch Changes
