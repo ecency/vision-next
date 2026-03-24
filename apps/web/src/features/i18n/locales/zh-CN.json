@@ -39,6 +39,7 @@
     "fill-community-feed": "您可以加入更多的社区来填充此种订阅。",
     "save": "保存",
     "try-again": "请再试一次",
+    "soon": "很快的",
     "show": "显示",
     "on": "启用",
     "off": "关闭",
@@ -241,6 +242,7 @@
     "schedules": "日程表",
     "fragments": "预设内容",
     "settings": "设置",
+    "mobile-login": "登录移动版",
     "logout": "注销",
     "just-logout": "只是注销",
     "logout-and-clear": "注销并清除本地数据",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "用户名",
     "to-not-found": "您正在尝试转账资金的用户不存在！",
     "to-bad-actor": "请谨慎发送到此账户。请仔细检查您的拼写，以免误入可疑的钓鱼账号。",
-    "external-wallets-label": "钱包 (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "钱包 (BTC, ETH, SOL, BNB)",
     "amount": "数量",
     "amount-placeholder": "数量",
     "wrong-amount": "错误数量",
@@ -2925,7 +2927,13 @@
       "enter-address": "Enter your {{chain}} address",
       "enter-address-hint": "复制您的 MetaMask 钱包中的地址到此链。",
       "login-with-metamask": "使用MetaMask登录",
-      "logging-in": "正在使用Metamask登录您..."
+      "logging-in": "正在使用Metamask登录您...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "正在检查MetaMask multichain地址...",
+      "chain-not-available": "所选链在MetaMask 中不可用"
+    },
+    "balance": {
+      "label": "余额："
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "游乐场",
     "voices": "声音"
   },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "收件人地址",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "金额",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "估计网络费用",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "已连接的 MetaMask 帐户与您已链接的钱包地址不匹配。请切换Metamask 中的帐户。",
+    "error-exceeds-balance": "金额超过可用余额",
+    "review": "审核传输",
+    "sending": "正在发送",
+    "value": "值",
+    "to-label": "收件人",
+    "confirm-metamask": "使用 MetaMask 确认",
+    "signing": "正在等待MetaMask确认...",
+    "success": "传输已提交！",
+    "success-hint": "您的交易已经提交到网络。确认可能需要几分钟时间。",
+    "view-explorer": "在浏览器上查看",
+    "failed": "传输失败",
+    "cancelled": "交易被用户取消。",
+    "try-again": "再试一次"
+  },
+  "mobile-login-qr": {
+    "title": "登录移动应用",
+    "warning-title": "这个二维码包含您的会话凭据",
+    "warning-1": "不要在其他人可以看到您的屏幕的公共空间中扫描",
+    "warning-2": "不共享或截取二维码",
+    "warning-3": "在曝光前禁用屏幕录制或镜像",
+    "reveal-button": "我明白了，开启二维码",
+    "generating": "正在生成安全二维码...",
+    "instructions": "打开生态移动应用程序，点击二维码扫描仪并扫描此代码以登录。",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "无法生成登录QR。请尝试注销并重新登录。",
+    "error-generate": "生成二维码失败。请重试。"
+  },
   "profile-wallet": {
     "pick-tokens": "选择要显示的标记",
     "search-token": "搜索令牌",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "发出的代表团",
     "delegations-incoming": "来到的代表团",
     "external-wallets-offer": {
-      "title": "链接您的加密钱包",
-      "description": "连接MetaMask或输入BTC、ETH、BNB和SOL的钱包地址来管理和监视你在 Hive 生态系统中的加密。",
-      "hint": "钱包地址存储在您的 Hive 账户元数据和生态中",
+      "title": "将您的加密带到生态环境",
+      "description": "直接从 Trust 或 Exodus 等应用创建或导入BTC、ETH 、BNB、SOL、TRX、APT 和 TON 的钱包 并开始在Hive 生态系统内无缝使用它们。",
+      "hint": "创建和导入令牌的信息将存储在 Ecency 和 Hive 账户元数据中",
       "dismiss": "稍后再说"
     },
     "external-wallets-signup": {
