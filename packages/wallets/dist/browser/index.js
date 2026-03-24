@@ -842,11 +842,22 @@ function formatLamports(lamports, decimals = 6) {
   const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
   return fracStr ? `${whole}.${fracStr}` : whole.toString();
 }
-function getSolRpcUrl() {
-  if (CONFIG.heliusApiKey) {
-    return `https://rpc.helius.xyz/?api-key=${CONFIG.heliusApiKey}`;
+async function solRpc(method, params = []) {
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const response = await fetch(`${baseUrl}/private-api/rpc/sol`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
+  });
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SOL RPC ${method} failed: ${response.status} ${response.statusText}${text ? ` \u2014 ${text}` : ""}`);
   }
-  return "https://api.mainnet-beta.solana.com";
+  const json = await response.json();
+  if (json.error) {
+    throw new Error(json.error.message || `SOL RPC ${method} failed`);
+  }
+  return json.result;
 }
 async function getMetaMaskSolanaWallet() {
   const { getWallets } = await import('@wallet-standard/app');
@@ -870,8 +881,7 @@ async function sendSolTransfer(to, amountSol) {
   if (!solAccount) {
     throw new Error("No Solana account found in MetaMask.");
   }
-  const { Connection, PublicKey, SystemProgram, Transaction } = await import('@solana/web3.js');
-  const connection = new Connection(getSolRpcUrl(), "confirmed");
+  const { PublicKey, SystemProgram, Transaction } = await import('@solana/web3.js');
   const fromPubkey = new PublicKey(solAccount.address);
   const toPubkey = new PublicKey(to);
   const lamports = parseToLamports(amountSol);
@@ -882,8 +892,11 @@ async function sendSolTransfer(to, amountSol) {
       lamports
     })
   );
-  const { blockhash } = await connection.getLatestBlockhash();
-  transaction.recentBlockhash = blockhash;
+  const blockhashResult = await solRpc(
+    "getLatestBlockhash",
+    [{ commitment: "finalized" }]
+  );
+  transaction.recentBlockhash = blockhashResult.value.blockhash;
   transaction.feePayer = fromPubkey;
   const serializedTx = transaction.serialize({
     requireAllSignatures: false,

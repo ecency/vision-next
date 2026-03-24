@@ -1,4 +1,4 @@
-import { CONFIG } from "@ecency/sdk";
+import { ConfigManager } from "@ecency/sdk";
 
 const SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
 const LAMPORTS_PER_SOL = 1_000_000_000n;
@@ -38,11 +38,36 @@ export function formatLamports(lamports: bigint, decimals = 6): string {
   return fracStr ? `${whole}.${fracStr}` : whole.toString();
 }
 
-function getSolRpcUrl(): string {
-  if (CONFIG.heliusApiKey) {
-    return `https://rpc.helius.xyz/?api-key=${CONFIG.heliusApiKey}`;
+interface JsonRpcResponse<T> {
+  jsonrpc: string;
+  id: number | string;
+  result?: T;
+  error?: { code?: number; message?: string };
+}
+
+/**
+ * Call a Solana JSON-RPC method via the Ecency private API proxy.
+ * This avoids hitting the public Solana RPC directly from the browser
+ * (which returns 403). The proxy forwards to a Chainstack dedicated node.
+ */
+async function solRpc<T>(method: string, params: unknown[] = []): Promise<T> {
+  const baseUrl = ConfigManager.getValidatedBaseUrl();
+  const response = await fetch(`${baseUrl}/private-api/rpc/sol`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SOL RPC ${method} failed: ${response.status} ${response.statusText}${text ? ` — ${text}` : ""}`);
   }
-  return "https://api.mainnet-beta.solana.com";
+
+  const json: JsonRpcResponse<T> = await response.json();
+  if (json.error) {
+    throw new Error(json.error.message || `SOL RPC ${method} failed`);
+  }
+  return json.result as T;
 }
 
 async function getMetaMaskSolanaWallet(): Promise<any> {
@@ -84,9 +109,8 @@ export async function sendSolTransfer(
   }
 
   // Use @solana/web3.js for transaction building (dynamic import to avoid bundle bloat)
-  const { Connection, PublicKey, SystemProgram, Transaction } = await import("@solana/web3.js");
+  const { PublicKey, SystemProgram, Transaction } = await import("@solana/web3.js");
 
-  const connection = new Connection(getSolRpcUrl(), "confirmed");
   const fromPubkey = new PublicKey(solAccount.address);
   const toPubkey = new PublicKey(to);
   const lamports = parseToLamports(amountSol);
@@ -99,8 +123,12 @@ export async function sendSolTransfer(
     })
   );
 
-  const { blockhash } = await connection.getLatestBlockhash();
-  transaction.recentBlockhash = blockhash;
+  // Fetch blockhash via Ecency RPC proxy (avoids 403 from public Solana RPC)
+  const blockhashResult = await solRpc<{ value: { blockhash: string } }>(
+    "getLatestBlockhash",
+    [{ commitment: "finalized" }]
+  );
+  transaction.recentBlockhash = blockhashResult.value.blockhash;
   transaction.feePayer = fromPubkey;
 
   // Serialize the transaction for signing via Wallet Standard
