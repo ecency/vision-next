@@ -39,6 +39,7 @@
     "fill-community-feed": "Je kunt meer mensen volgen om deze feed op te vullen.",
     "save": "Opslaan",
     "try-again": "Probeer opnieuw",
+    "soon": "Binnenkort",
     "show": "Toon",
     "on": "Aan",
     "off": "Uit",
@@ -241,6 +242,7 @@
     "schedules": "Schema's",
     "fragments": "Fragmenten",
     "settings": "Instellingen",
+    "mobile-login": "Log in op mobiel",
     "logout": "Afmelden",
     "just-logout": "Uitloggen",
     "logout-and-clear": "Uitloggen en lokale gegevens wissen",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "gebruikersnaam",
     "to-not-found": "De gebruiker naar wie je probeert over te schrijven bestaat niet!",
     "to-bad-actor": "Wees voorzichtig met verzenden naar dit account. Controleer je spelling extra goed voor mogelijke phishing.",
-    "external-wallets-label": "Portemonnee (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Portemonnee (BTC, ETH, SOL, BNB)",
     "amount": "Aantal",
     "amount-placeholder": "aantal",
     "wrong-amount": "Verkeerde hoeveelheid waarde",
@@ -2925,7 +2927,13 @@
       "enter-address": "Voer uw {{chain}} adres in",
       "enter-address-hint": "Kopieer het adres van uw MetaMask portemonnee voor deze keten.",
       "login-with-metamask": "Login met MetaMask",
-      "logging-in": "Je wordt aangemeld met MetaMask..."
+      "logging-in": "Je wordt aangemeld met MetaMask...",
+      "address-label": "{{chain}} adres:",
+      "checking-multichain": "MetaMask multichain adressen controleren...",
+      "chain-not-available": "Geselecteerde keten is niet beschikbaar in MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Speelplaats",
     "voices": "Stemmen"
   },
+  "external-transfer": {
+    "title": "Verzend {{token}}",
+    "recipient-label": "Adres van ontvanger",
+    "error-invalid-address": "Ongeldig {{chain}} adres",
+    "amount-label": "Hoeveelheid",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Geschatte netwerkvergoeding",
+    "max-evm-hint": "Netwerkkosten worden betaald van {{token}}. MetaMask kan het bedrag aanpassen om gas te reserveren.",
+    "error-address-mismatch": "Verbonden MetaMask account komt niet overeen met je gelinkte portemonnee adres. Verander van account in MetaMask.",
+    "error-exceeds-balance": "Bedrag overschrijdt het beschikbare saldo",
+    "review": "Overboeking beoordelen",
+    "sending": "Verzenden",
+    "value": "Waarde",
+    "to-label": "tot",
+    "confirm-metamask": "Bevestigen met MetaMask",
+    "signing": "Wachten op MetaMask bevestiging...",
+    "success": "Transfer is verstuurd!",
+    "success-hint": "Uw transactie is verzonden naar het netwerk. Het kan enkele minuten duren om te bevestigen.",
+    "view-explorer": "Bekijk op verkenner",
+    "failed": "Overdracht mislukt",
+    "cancelled": "Transactie geannuleerd door gebruiker.",
+    "try-again": "Opnieuw proberen"
+  },
+  "mobile-login-qr": {
+    "title": "Log in op de mobiele app",
+    "warning-title": "Deze QR-code bevat uw sessie referenties",
+    "warning-1": "Scan niet in openbare ruimtes waar anderen jouw scherm kunnen zien",
+    "warning-2": "Deel of schermafbeelding van de QR-code niet",
+    "warning-3": "Schermopname of spiegeling uitschakelen voor onthulling",
+    "reveal-button": "Ik begrijp het, laat QR-code zien",
+    "generating": "Veilige QR code genereren...",
+    "instructions": "Open Ecency mobile app, tik op de QR scanner en scan deze code om in te loggen.",
+    "logged-in-as": "Ingelogd als @{{username}}",
+    "error-no-token": "Kan geen login-QR genereren. Probeer uit te loggen en weer in te loggen.",
+    "error-generate": "Genereren van QR-code mislukt. Probeer het opnieuw."
+  },
   "profile-wallet": {
     "pick-tokens": "Kies tokens om te tonen",
     "search-token": "Zoek token",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "Uitgaande delegaties",
     "delegations-incoming": "Inkomende delegaties",
     "external-wallets-offer": {
-      "title": "Koppel uw crypto-portefeuilles",
-      "description": "Verbind MetaMask of voer portemonnee-adressen in voor BTC, ETH, BNB en SOL om uw crypto te beheren en te monitoren binnen het Hive ecosysteem.",
-      "hint": "Portemonnee adressen worden opgeslagen in uw Hive account metagegevens en Ecency",
+      "title": "Breng uw crypto naar Ecency",
+      "description": "Maken of importeren van portemonnees voor BTC, ETH, BNB, SOL, TRX, APT en TON direct vanuit apps als Trust of Exodus, en gebruik ze naadloos binnen het ecosysteem van de Hive.",
+      "hint": "Gemaakte en geïmporteerde token's informatie wordt opgeslagen in een Ecency en Hive account metadata",
       "dismiss": "Misschien later"
     },
     "external-wallets-signup": {
