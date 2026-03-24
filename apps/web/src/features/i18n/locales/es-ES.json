@@ -1467,7 +1467,7 @@
     "to-placeholder": "nombre de Usuario",
     "to-not-found": "¡El usuario al que estás intentando transferir fondos no existe!",
     "to-bad-actor": "Tenga cuidado enviando a esta cuenta. Por favor verifique la ortografía ante posible suplantación de identidad (phishing).",
-    "external-wallets-label": "Cartera (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Cartera (BTC, ETH, BNB, SOL)",
     "amount": "Cantidad",
     "amount-placeholder": "cantidad",
     "wrong-amount": "Cantidad incorrecta",
@@ -2929,11 +2929,11 @@
       "login-with-metamask": "Iniciar sesión con MetaMask",
       "logging-in": "Iniciando sesión con MetaMask...",
       "address-label": "Dirección {{chain}}:",
-      "checking-multichain": "Comprobando direcciones multicadena MetaMask ...",
+      "checking-multichain": "Comprobando direcciones multicadena MetaMask...",
       "chain-not-available": "La cadena seleccionada no está disponible en MetaMask"
     },
     "balance": {
-      "label": "Saldo:"
+      "label": "Balance:"
     }
   },
   "publish": {
@@ -3104,12 +3104,12 @@
     "title": "Enviar {{token}}",
     "recipient-label": "Dirección del destinatario",
     "error-invalid-address": "Dirección {{chain}} no válida",
-    "amount-label": "Cantidad",
-    "balance": "Saldo: {{balance}}",
+    "amount-label": "Monto",
+    "balance": "Balance: {{balance}}",
     "estimated-fee": "Cargo de red estimado",
     "max-evm-hint": "Las comisiones de red se pagan desde {{token}}. MetaMask puede ajustar la cantidad para reservar gas.",
     "error-address-mismatch": "La cuenta de MetaMask conectada no coincide con la dirección de su cartera vinculada. Por favor, cambie las cuentas en MetaMask.",
-    "error-exceeds-balance": "La cantidad excede el saldo disponible",
+    "error-exceeds-balance": "La cantidad excede el balance disponible",
     "review": "Transferencia de comentarios",
     "sending": "Enviando",
     "value": "Valor",
