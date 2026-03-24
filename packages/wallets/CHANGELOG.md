@@ -1,5 +1,11 @@
 # @ecency/wallets
 
+## 2.0.1
+
+### Patch Changes
+
+- Fix sol rpc (#716)
+
 ## 2.0.0
 
 ### Major Changes
