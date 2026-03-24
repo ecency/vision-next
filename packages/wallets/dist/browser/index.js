@@ -814,20 +814,25 @@ async function sendEvmTransfer(to, amountWei, currency) {
 }
 var SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
 var LAMPORTS_PER_SOL = 1000000000n;
+var AMOUNT_REGEX2 = /^\d+(\.\d+)?$/;
 function getSolExplorerUrl(signature) {
   return `${SOL_EXPLORER_URL}${signature}`;
 }
 function parseToLamports(amount) {
   const trimmed = amount.trim();
-  const [whole = "0", fraction = ""] = trimmed.split(".");
+  if (!AMOUNT_REGEX2.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || fraction && !/^\d+$/.test(fraction)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
   const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
-  const lamports = BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
-  return Number(lamports);
+  return BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
 }
 function formatLamports(lamports, decimals = 6) {
-  const lam = BigInt(lamports);
-  const whole = lam / LAMPORTS_PER_SOL;
-  const rem = lam % LAMPORTS_PER_SOL;
+  const whole = lamports / LAMPORTS_PER_SOL;
+  const rem = lamports % LAMPORTS_PER_SOL;
   if (rem === 0n) return whole.toString();
   const scale = 10n ** BigInt(decimals);
   const fractional = rem * scale / LAMPORTS_PER_SOL;
@@ -846,8 +851,6 @@ async function getMetaMaskSolanaWallet() {
   const wallets = walletsApi.get();
   const mmWallet = wallets.find(
     (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"] && w.features["solana:signAndSendTransaction"]
-  ) ?? wallets.find(
-    (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"]
   );
   if (!mmWallet) {
     throw new Error("MetaMask Solana wallet not found. Enable Solana in MetaMask settings.");
@@ -873,7 +876,7 @@ async function sendSolTransfer(to, amountSol) {
     SystemProgram.transfer({
       fromPubkey,
       toPubkey,
-      lamports
+      lamports: Number(lamports)
     })
   );
   const { blockhash } = await connection.getLatestBlockhash();
@@ -1018,8 +1021,13 @@ async function fetchMultichainAddresses() {
       (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"]
     );
     for (const mmWallet of mmWallets) {
-      const connectFeature = mmWallet.features["standard:connect"];
-      await connectFeature.connect();
+      try {
+        const connectFeature = mmWallet.features["standard:connect"];
+        await connectFeature.connect();
+      } catch (connectErr) {
+        if (false) ;
+        continue;
+      }
       for (const account of mmWallet.accounts ?? []) {
         if (!account.address || !Array.isArray(account.chains)) continue;
         for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {

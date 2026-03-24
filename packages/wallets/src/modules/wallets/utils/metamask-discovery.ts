@@ -50,9 +50,16 @@ export async function fetchMultichainAddresses(): Promise<WalletAddressMap> {
     ) as WalletStandardWallet[];
 
     for (const mmWallet of mmWallets) {
-      const connectFeature = mmWallet.features["standard:connect"] as
-        { connect: () => Promise<void> };
-      await connectFeature.connect();
+      try {
+        const connectFeature = mmWallet.features["standard:connect"] as
+          { connect: () => Promise<void> };
+        await connectFeature.connect();
+      } catch (connectErr) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[MetaMask multichain] wallet connect failed, trying next:", connectErr);
+        }
+        continue;
+      }
 
       for (const account of mmWallet.accounts ?? []) {
         if (!account.address || !Array.isArray(account.chains)) continue;

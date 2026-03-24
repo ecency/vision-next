@@ -2,23 +2,30 @@ import { CONFIG } from "@ecency/sdk";
 
 const SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
 const LAMPORTS_PER_SOL = 1_000_000_000n;
+const AMOUNT_REGEX = /^\d+(\.\d+)?$/;
 
 export function getSolExplorerUrl(signature: string) {
   return `${SOL_EXPLORER_URL}${signature}`;
 }
 
-export function parseToLamports(amount: string): number {
+export function parseToLamports(amount: string): bigint {
   const trimmed = amount.trim();
-  const [whole = "0", fraction = ""] = trimmed.split(".");
+  if (!AMOUNT_REGEX.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || (fraction && !/^\d+$/.test(fraction))) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+
   const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
-  const lamports = BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
-  return Number(lamports);
+  return BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
 }
 
-export function formatLamports(lamports: number, decimals = 6): string {
-  const lam = BigInt(lamports);
-  const whole = lam / LAMPORTS_PER_SOL;
-  const rem = lam % LAMPORTS_PER_SOL;
+export function formatLamports(lamports: bigint, decimals = 6): string {
+  const whole = lamports / LAMPORTS_PER_SOL;
+  const rem = lamports % LAMPORTS_PER_SOL;
   if (rem === 0n) return whole.toString();
 
   const scale = 10n ** BigInt(decimals);
@@ -39,16 +46,12 @@ async function getMetaMaskSolanaWallet(): Promise<any> {
   const walletsApi = getWallets();
   const wallets = walletsApi.get();
 
-  // Prefer a MetaMask wallet that explicitly supports Solana chains
+  // Only select a MetaMask wallet that supports Solana signing
   const mmWallet = wallets.find(
     (w: any) =>
       w.name.toLowerCase().includes("metamask") &&
       w.features["standard:connect"] &&
       w.features["solana:signAndSendTransaction"]
-  ) ?? wallets.find(
-    (w: any) =>
-      w.name.toLowerCase().includes("metamask") &&
-      w.features["standard:connect"]
   );
 
   if (!mmWallet) {
@@ -88,7 +91,7 @@ export async function sendSolTransfer(
     SystemProgram.transfer({
       fromPubkey,
       toPubkey,
-      lamports
+      lamports: Number(lamports)
     })
   );
 

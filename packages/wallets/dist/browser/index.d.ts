@@ -247,8 +247,8 @@ declare function parseToWei(amount: string): string;
 declare function sendEvmTransfer(to: string, amountWei: string, currency: EcencyWalletCurrency): Promise<string>;
 
 declare function getSolExplorerUrl(signature: string): string;
-declare function parseToLamports(amount: string): number;
-declare function formatLamports(lamports: number, decimals?: number): string;
+declare function parseToLamports(amount: string): bigint;
+declare function formatLamports(lamports: bigint, decimals?: number): string;
 declare function sendSolTransfer(to: string, amountSol: string): Promise<string>;
 
 type WalletAddressMap = Partial<Record<EcencyWalletCurrency, string>>;
