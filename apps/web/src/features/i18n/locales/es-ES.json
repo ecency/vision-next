@@ -39,6 +39,7 @@
     "fill-community-feed": "Puedes unirte a más comunidades para llenar esta fuente.",
     "save": "Guardar",
     "try-again": "Reintentar",
+    "soon": "Pronto",
     "show": "Mostrar",
     "on": "Activado",
     "off": "Desactivado",
@@ -241,6 +242,7 @@
     "schedules": "Programados",
     "fragments": "Fragmentos de código",
     "settings": "Configuración",
+    "mobile-login": "Iniciar sesión en Móvil",
     "logout": "Cerrar sesión",
     "just-logout": "Salir",
     "logout-and-clear": "Cerrar sesión y borrar datos de acceso",
@@ -1465,7 +1467,7 @@
     "to-placeholder": "nombre de Usuario",
     "to-not-found": "¡El usuario al que estás intentando transferir fondos no existe!",
     "to-bad-actor": "Tenga cuidado enviando a esta cuenta. Por favor verifique la ortografía ante posible suplantación de identidad (phishing).",
-    "external-wallets-label": "Cartera (BTC, ETH, SOL, BNB, TRX, TON, APT)",
+    "external-wallets-label": "Cartera (BTC, ETH, SOL, BNB)",
     "amount": "Cantidad",
     "amount-placeholder": "cantidad",
     "wrong-amount": "Cantidad incorrecta",
@@ -2925,7 +2927,13 @@
       "enter-address": "Introduzca su dirección {{chain}}",
       "enter-address-hint": "Copie la dirección de su cartera MetaMask para esta cadena.",
       "login-with-metamask": "Iniciar sesión con MetaMask",
-      "logging-in": "Iniciando sesión con MetaMask..."
+      "logging-in": "Iniciando sesión con MetaMask...",
+      "address-label": "Dirección {{chain}}:",
+      "checking-multichain": "Comprobando direcciones multicadena MetaMask ...",
+      "chain-not-available": "La cadena seleccionada no está disponible en MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -3092,6 +3100,42 @@
     "playground": "Campo de juego",
     "voices": "Voces"
   },
+  "external-transfer": {
+    "title": "Enviar {{token}}",
+    "recipient-label": "Dirección del destinatario",
+    "error-invalid-address": "Dirección {{chain}} no válida",
+    "amount-label": "Cantidad",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Cargo de red estimado",
+    "max-evm-hint": "Las comisiones de red se pagan desde {{token}}. MetaMask puede ajustar la cantidad para reservar gas.",
+    "error-address-mismatch": "La cuenta de MetaMask conectada no coincide con la dirección de su cartera vinculada. Por favor, cambie las cuentas en MetaMask.",
+    "error-exceeds-balance": "La cantidad excede el saldo disponible",
+    "review": "Transferencia de comentarios",
+    "sending": "Enviando",
+    "value": "Valor",
+    "to-label": "A",
+    "confirm-metamask": "Confirmar con MetaMask",
+    "signing": "Esperando la confirmación de MetaMask ...",
+    "success": "¡Transferencia enviada!",
+    "success-hint": "Su transacción ha sido enviada a la red. Puede tardar unos minutos en confirmarse.",
+    "view-explorer": "Ver en explorador",
+    "failed": "Transferencia fallida",
+    "cancelled": "Transacción cancelada por el usuario.",
+    "try-again": "Inténtalo de nuevo"
+  },
+  "mobile-login-qr": {
+    "title": "Iniciar sesión en la aplicación móvil",
+    "warning-title": "Este código QR contiene sus credenciales de sesión",
+    "warning-1": "No escanee en espacios públicos donde otros puedan ver su pantalla",
+    "warning-2": "No compartir o capturar pantalla el código QR",
+    "warning-3": "Desactivar grabación de pantalla o reproducción antes de revelar",
+    "reveal-button": "Entiendo, revelar código QR",
+    "generating": "Generando código QR seguro...",
+    "instructions": "Abre la aplicación móvil Ecence, toca el escáner QR y escanea este código para iniciar sesión.",
+    "logged-in-as": "Sesión iniciada como @{{username}}",
+    "error-no-token": "No se puede generar el QR de inicio de sesión. Intente cerrar sesión y volver a entrar.",
+    "error-generate": "Error al generar el código QR. Por favor, inténtalo de nuevo."
+  },
   "profile-wallet": {
     "pick-tokens": "Elegir tokens para mostrar",
     "search-token": "Buscar tokens",
@@ -3109,9 +3153,9 @@
     "delegations-outgoing": "Delegaciones salientes",
     "delegations-incoming": "Delegaciones entrantes",
     "external-wallets-offer": {
-      "title": "Vincula tus carteras de criptomonedas",
+      "title": "Trae tu criptomoneda a Ecency",
       "description": "Conecte MetaMask o introduzca direcciones de cartera para BTC, ETH, BNB y SOL para administrar y monitorear su cripto dentro del ecosistema Hive.",
-      "hint": "Las direcciones de billeteras se almacenan en los metadatos de su cuenta en Hive y Ecency",
+      "hint": "La información del token creada e importada se almacenará en metadatos de la cuenta de Ecency y de Hive",
       "dismiss": "Tal vez más tarde"
     },
     "external-wallets-signup": {
