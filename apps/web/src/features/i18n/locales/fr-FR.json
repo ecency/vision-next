@@ -3241,16 +3241,32 @@
       "title": "Révoquer la touche Hive",
       "hint": "Vous pouvez révoquer n'importe quelle clé Hive en utilisant une des clés propriétaires/mot de passe maître/seed"
     },
+    "manage-keys": {
+      "title": "Gérer les clés",
+      "choose-title": "Que voulez-vous faire?",
+      "add-title": "Ajouter de nouvelles clés",
+      "add-description": "Générer un nouveau mot de passe maître et ajouter des clés à votre compte",
+      "revoke-title": "Révoquer les touches",
+      "revoke-description": "Supprimer les clés dont vous n'avez plus besoin de votre compte",
+      "revoke-select-title": "Sélectionner les touches à révoquer",
+      "revoke-select-description": "Choisissez les clés à supprimer de votre compte. Vous devez conserver au moins une clé par autorité.",
+      "revoke-confirm-title": "Confirmer la révocation",
+      "revoke-confirm-description": "Connectez-vous avec votre clé propriétaire pour supprimer les clés sélectionnées de votre compte.",
+      "revoke-count": "Les clés {{count}} seront révoquées",
+      "revoke-success": "Clés révoquées avec succès",
+      "revoke-step-select": "Sélectionner les touches",
+      "revoke-step-sign": "Signer"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "S'authentifier",
-        "generate-seed": "Générer une graine",
+        "generate-seed": "Générer un mot de passe",
         "review-keys": "Réviser les clés",
         "confirm": "Valider"
       },
       "step1": {
         "title": "Ajout d'un nouveau jeu de clés",
-        "info1": "Une nouvelle phrase de graine sera générée pour votre compte",
+        "info1": "Un nouveau mot de passe maître sera généré pour votre compte",
         "info2": "Vous pouvez garder plusieurs ensembles de clés actifs simultanément",
         "info3": "Vous aurez la possibilité de révoquer les anciennes clés dans les prochaines étapes",
         "authenticate": "Authentification pour continuer",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Important : Sauvegardez votre nouvelle phrase de graine",
-        "warning1": "Ceci est une NOUVELLE phrase de graine, différente de votre graine de compte d'origine",
+        "warning1": "Ceci est un NOUVEAU mot de passe maître, différent de vos identifiants d'origine",
         "warning2": "Enregistrez-le séparément - vous en aurez besoin pour vous connecter avec ces clés",
-        "warning3": "Télécharger le fichier de la graine et le stocker en toute sécurité avant de continuer"
+        "warning3": "Télécharger le fichier de clés et le stocker de manière sécurisée avant de continuer"
       },
       "step3": {
         "title": "Revoir les clés existantes",
