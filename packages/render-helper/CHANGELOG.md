@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.25
+
+### Patch Changes
+
+- Notification and iframe (#719)
+
 ## 2.4.24
 
 ### Patch Changes
