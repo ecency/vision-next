@@ -177,9 +177,25 @@ export function ManageKeysDialog({ show, onHide, initialRevokeKey }: Props) {
             onSignError={() => setIsRevoking(false)}
             onSuccess={() => {
               setIsRevokeComplete(true);
-              queryClient.invalidateQueries({
-                queryKey: getAccountFullQueryOptions(username!).queryKey
+
+              // Optimistic cache update: remove revoked keys immediately
+              const qk = getAccountFullQueryOptions(username!).queryKey;
+              queryClient.setQueryData(qk, (old: any) => {
+                if (!old) return old;
+                const updated = JSON.parse(JSON.stringify(old));
+                for (const auth of ["owner", "active", "posting"] as const) {
+                  const toRemove = revokeKeysMap[auth];
+                  if (toRemove.length > 0 && updated[auth]?.key_auths) {
+                    updated[auth].key_auths = updated[auth].key_auths.filter(
+                      ([key]: [string, number]) => !toRemove.includes(key)
+                    );
+                  }
+                }
+                return updated;
               });
+              // Background refetch to confirm with blockchain
+              queryClient.invalidateQueries({ queryKey: qk });
+
               success(i18next.t("permissions.manage-keys.revoke-success"));
               setTimeout(handleClose, 1500);
             }}
