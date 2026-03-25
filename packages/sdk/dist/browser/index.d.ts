@@ -1203,18 +1203,15 @@ declare function useAccountUpdateRecovery(username: string | undefined, code: st
 
 interface Payload {
     currentKey: PrivateKey;
-    revokingKey: PublicKey;
+    /** Keys to revoke. Accepts a single key or an array. */
+    revokingKey: PublicKey | PublicKey[];
 }
 /**
- * This hook provides functionality to revoke a key from an account on the Hive blockchain.
- * It leverages React Query's `useMutation` for managing the mutation state and executing
- * the operation efficiently.
+ * Revoke one or more keys from an account on the Hive blockchain.
  *
- * @param username The username of the Hive account from which the key should be revoked.
- *                 Pass `undefined` if the username is unknown or not set yet.
- *
- * @returns The mutation object from `useMutation`, including methods to trigger the key
- *          revocation and access its state (e.g., loading, success, error).
+ * When revoking keys that exist only in active/posting authorities,
+ * the owner field is omitted from the operation so active-level
+ * signing is sufficient.
  */
 type RevokeKeyOptions = Pick<UseMutationOptions<unknown, Error, Payload>, "onSuccess" | "onError">;
 declare function useAccountRevokeKey(username: string | undefined, options?: RevokeKeyOptions): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, Payload, unknown>;

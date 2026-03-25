@@ -110,6 +110,7 @@ export function ManageKey({ keyName, onRevoke }: Props) {
                     appearance="gray-link"
                     size="sm"
                     icon={<UilCopy />}
+                    aria-label={i18next.t("manage-authorities.copy")}
                     onClick={() => copy(key[0])}
                   />
                   {accountData?.[keyName].length > 1 && (
@@ -119,6 +120,7 @@ export function ManageKey({ keyName, onRevoke }: Props) {
                         appearance="gray-link"
                         size="sm"
                         icon={<UilTrash />}
+                        aria-label={i18next.t("manage-authorities.revoke")}
                         onClick={() => onRevoke(key[0])}
                       />
                     </StyledTooltip>

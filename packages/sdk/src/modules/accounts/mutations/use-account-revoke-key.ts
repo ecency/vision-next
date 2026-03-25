@@ -10,19 +10,16 @@ import { Keys } from "./use-account-update-key-auths";
 
 interface Payload {
   currentKey: PrivateKey;
-  revokingKey: PublicKey;
+  /** Keys to revoke. Accepts a single key or an array. */
+  revokingKey: PublicKey | PublicKey[];
 }
 
 /**
- * This hook provides functionality to revoke a key from an account on the Hive blockchain.
- * It leverages React Query's `useMutation` for managing the mutation state and executing
- * the operation efficiently.
+ * Revoke one or more keys from an account on the Hive blockchain.
  *
- * @param username The username of the Hive account from which the key should be revoked.
- *                 Pass `undefined` if the username is unknown or not set yet.
- *
- * @returns The mutation object from `useMutation`, including methods to trigger the key
- *          revocation and access its state (e.g., loading, success, error).
+ * When revoking keys that exist only in active/posting authorities,
+ * the owner field is omitted from the operation so active-level
+ * signing is sufficient.
  */
 type RevokeKeyOptions = Pick<
   UseMutationOptions<unknown, Error, Payload>,
@@ -40,31 +37,32 @@ export function useAccountRevokeKey(
     mutationFn: async ({ currentKey, revokingKey }: Payload) => {
       if (!accountData) {
         throw new Error(
-          "[SDK][Update password] – cannot update keys for anon user"
+          "[SDK][Revoke key] – cannot update keys for anon user"
         );
       }
 
-      const revokingKeyStr = revokingKey.toString();
+      const revokingKeys = Array.isArray(revokingKey) ? revokingKey : [revokingKey];
+      const revokingKeyStrs = new Set(revokingKeys.map((k) => k.toString()));
 
-      const hasKeyInAuth = (keyName: keyof Keys) =>
+      const hasAnyKeyInAuth = (keyName: keyof Keys) =>
         accountData[keyName].key_auths.some(
-          ([key]: [string | PublicKey, number]) => String(key) === revokingKeyStr
+          ([key]: [string | PublicKey, number]) => revokingKeyStrs.has(String(key))
         );
 
       const prepareAuth = (keyName: keyof Keys) => {
         const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
 
         auth.key_auths = auth.key_auths.filter(
-          ([key]) => key !== revokingKeyStr
+          ([key]) => !revokingKeyStrs.has(key.toString())
         );
 
         return auth;
       };
 
-      // Only include owner in the update if the revoking key is actually
+      // Only include owner in the update if a revoking key is actually
       // in the owner authority. Including owner forces owner-level signing
       // even when removing a key that only exists in active/posting.
-      const needsOwnerUpdate = hasKeyInAuth("owner");
+      const needsOwnerUpdate = hasAnyKeyInAuth("owner");
 
       return CONFIG.hiveClient.broadcast.updateAccount(
         {

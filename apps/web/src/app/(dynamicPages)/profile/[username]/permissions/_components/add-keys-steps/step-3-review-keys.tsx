@@ -4,7 +4,7 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
 import { getLoginType } from "@/utils/user-token";
 
@@ -25,6 +25,7 @@ export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBa
   const { activeUser } = useActiveAccount();
   const [selectedKeys, setSelectedKeys] = useState<SelectedKeysMap>(new Map());
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
+  const seededKeyRef = useRef<string | undefined>();
 
   const username = activeUser?.username;
 
@@ -40,9 +41,11 @@ export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBa
       }) as Keys
   });
 
-  // Pre-select initialSelectedKey across all authorities where it appears
+  // Pre-select initialSelectedKey across all authorities where it appears.
+  // Only seed once per initialSelectedKey to avoid overwriting user selections on refetch.
   useEffect(() => {
     if (!initialSelectedKey || !accountData) return;
+    if (seededKeyRef.current === initialSelectedKey) return;
 
     const initial = new Map<string, Set<KeyAuthority>>();
     const authorities: KeyAuthority[] = ["owner", "active", "posting"];
@@ -59,6 +62,7 @@ export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBa
     if (initial.size > 0) {
       setSelectedKeys(initial);
     }
+    seededKeyRef.current = initialSelectedKey;
   }, [initialSelectedKey, accountData]);
 
   const toggleKey = (publicKey: string, authority: KeyAuthority) => {

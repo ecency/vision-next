@@ -3260,13 +3260,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Seed",
+        "generate-seed": "Generate Password",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new seed phrase will be generated for your account",
+        "info1": "A new master password will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3278,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning1": "This is a NEW master password, different from your original credentials",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the seed file and store it securely before continuing"
+        "warning3": "Download the keys file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",

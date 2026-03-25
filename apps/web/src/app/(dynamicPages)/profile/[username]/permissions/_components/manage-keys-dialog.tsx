@@ -2,8 +2,9 @@ import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalHeader } from "@/features/ui";
-import { getAccountFullQueryOptions, CONFIG } from "@ecency/sdk";
-import { PrivateKey, type AuthorityType, type Operation } from "@hiveio/dhive";
+import { getAccountFullQueryOptions, useAccountRevokeKey, CONFIG } from "@ecency/sdk";
+import { PrivateKey, PublicKey, type Operation } from "@hiveio/dhive";
+import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
 import {
   UilArrowLeft,
   UilCheckCircle,
@@ -14,7 +15,6 @@ import {
 import i18next from "i18next";
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
 import {
   Step2GenerateSeed,
   Step3ReviewKeys,
@@ -365,42 +365,25 @@ function RevokeConfirmStep({
   onSignError: () => void;
   onSuccess: () => void;
 }) {
-  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
-
-  const buildRevokeOp = (): Operation => {
-    if (!accountData) throw new Error("Account data not loaded");
-
-    const prepareAuth = (keyName: "owner" | "active" | "posting") => {
-      const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
-      const keysToRemove = keysToRevoke[keyName] || [];
-      if (keysToRemove.length === 0) return auth;
-
-      auth.key_auths = auth.key_auths.filter(
-        ([key]) => !keysToRemove.includes(key.toString())
-      );
-      return auth;
-    };
-
-    const needsOwnerUpdate = keysToRevoke.owner.length > 0;
-
-    return [
-      "account_update",
-      {
-        account: username,
-        json_metadata: accountData.json_metadata,
-        owner: needsOwnerUpdate ? prepareAuth("owner") : undefined,
-        active: prepareAuth("active"),
-        posting: prepareAuth("posting"),
-        memo_key: accountData.memo_key
+  // Collect all unique public keys to revoke across all authorities
+  const allRevokingKeys: PublicKey[] = [];
+  const seen = new Set<string>();
+  for (const keys of [keysToRevoke.owner, keysToRevoke.active, keysToRevoke.posting]) {
+    for (const k of keys) {
+      if (!seen.has(k)) {
+        seen.add(k);
+        allRevokingKeys.push(PublicKey.from(k));
       }
-    ] as unknown as Operation;
-  };
+    }
+  }
 
+  const { mutateAsync: revokeKeys } = useAccountRevokeKey(username);
+
+  // Direct key signing - delegates to SDK mutation
   const handleSignByKey = async (privateKey: PrivateKey) => {
     onSignStart();
     try {
-      const op = buildRevokeOp();
-      await CONFIG.hiveClient.broadcast.sendOperations([op], privateKey);
+      await revokeKeys({ currentKey: privateKey, revokingKey: allRevokingKeys });
       onSuccess();
     } catch (err: any) {
       onSignError();
@@ -408,10 +391,38 @@ function RevokeConfirmStep({
     }
   };
 
+  // Keychain/MetaMask signing - adapter builds and broadcasts the operation
   const handleSignByKeychain = async () => {
     onSignStart();
     try {
-      const op = buildRevokeOp();
+      const accountData = await CONFIG.queryClient.fetchQuery(
+        getAccountFullQueryOptions(username)
+      );
+      if (!accountData) throw new Error("Account data not loaded");
+
+      const revokingKeyStrs = new Set(allRevokingKeys.map((k) => k.toString()));
+
+      const prepareAuth = (keyName: "owner" | "active" | "posting") => {
+        const auth = JSON.parse(JSON.stringify(accountData[keyName]));
+        auth.key_auths = auth.key_auths.filter(
+          ([key]: [string, number]) => !revokingKeyStrs.has(key)
+        );
+        return auth;
+      };
+
+      const needsOwnerUpdate = keysToRevoke.owner.length > 0;
+      const op = [
+        "account_update",
+        {
+          account: username,
+          json_metadata: accountData.json_metadata,
+          owner: needsOwnerUpdate ? prepareAuth("owner") : undefined,
+          active: prepareAuth("active"),
+          posting: prepareAuth("posting"),
+          memo_key: accountData.memo_key
+        }
+      ] as unknown as Operation;
+
       const adapter = getWebBroadcastAdapter();
       await adapter.broadcastWithKeychain!(username, [op], "owner");
       onSuccess();
