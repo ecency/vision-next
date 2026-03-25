@@ -290,6 +290,12 @@ export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
   title?: string | null;
 }
 
+export interface ApiAccountUpdateNotification extends BaseAPiNotification {
+  type: "account_update";
+  account: string;
+  changes?: string[];
+}
+
 export interface ApiNotificationSetting {
   system: string; //"web" | "desktop"
   allows_notify: number; //0|1
@@ -313,7 +319,8 @@ export type ApiNotification =
   | ApiCheckinNotification
   | ApiCheckinsNotification
   | ApiPayoutsNotification
-  | ApiMonthlyPostsNotification;
+  | ApiMonthlyPostsNotification
+  | ApiAccountUpdateNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;

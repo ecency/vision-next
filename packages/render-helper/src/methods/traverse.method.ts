@@ -24,7 +24,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
       a(<HTMLElement>child, forApp, parentDomain, seoContext)
     }
     if (child.nodeName.toLowerCase() === 'iframe') {
-      iframe(<HTMLElement>child, parentDomain)
+      iframe(<HTMLElement>child, parentDomain, forApp)
     }
     if (child.nodeName === '#text') {
       text(<HTMLElement>child, forApp)

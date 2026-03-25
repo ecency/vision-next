@@ -1044,7 +1044,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
 }
 
 // src/methods/iframe.method.ts
-function iframe(el, parentDomain = "ecency.com") {
+function iframe(el, parentDomain = "ecency.com", forApp = false) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -1088,7 +1088,10 @@ function iframe(el, parentDomain = "ecency.com") {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    let s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    if (forApp && !/[?&]layout=/.test(s)) {
+      s = `${s}&layout=mobile`;
+    }
     el.setAttribute("src", s);
     el.setAttribute("class", "speak-iframe");
     return;
@@ -1380,7 +1383,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       a(child, forApp, parentDomain, seoContext);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
-      iframe(child, parentDomain);
+      iframe(child, parentDomain, forApp);
     }
     if (child.nodeName === "#text") {
       text(child, forApp);
