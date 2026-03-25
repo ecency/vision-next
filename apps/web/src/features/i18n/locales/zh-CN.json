@@ -3241,16 +3241,32 @@
       "title": "撤销Hive 密钥",
       "hint": "您可以使用一个所有者密钥/主密码/种子撤销任何Hive 密钥"
     },
+    "manage-keys": {
+      "title": "管理密钥",
+      "choose-title": "你想做什么？",
+      "add-title": "添加新密钥",
+      "add-description": "生成新主密码并添加密钥到您的帐户",
+      "revoke-title": "撤销密钥",
+      "revoke-description": "从您的帐户中删除您不再需要的密钥",
+      "revoke-select-title": "选择要撤销的密钥",
+      "revoke-select-description": "选择要从您的帐户中删除的密钥。您必须每个授权至少保留一个密钥。",
+      "revoke-confirm-title": "确认取消",
+      "revoke-confirm-description": "使用您的所有者密钥来从您的帐户中移除所选的密钥。",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "成功吊销密钥",
+      "revoke-step-select": "选择密钥",
+      "revoke-step-sign": "签名"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "验证",
-        "generate-seed": "生成种子",
+        "generate-seed": "生成密码",
         "review-keys": "审查密钥",
         "confirm": "确认"
       },
       "step1": {
         "title": "添加新密钥集",
-        "info1": "将为您的帐户生成一个新的种子短语",
+        "info1": "将为您的帐户生成一个新的主密码",
         "info2": "您可以同时启用多个密钥集",
         "info3": "您可以选择在下一步中撤销旧密钥",
         "authenticate": "身份验证以继续",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "重要：保存你新的种子词组",
-        "warning1": "这是一个新的种子短语，不同于您原始的帐户种子",
+        "warning1": "这是一个不同于您原始凭据的新主密码",
         "warning2": "单独保存 - 您需要使用这些密钥登录",
-        "warning3": "在继续之前下载种子文件并安全存储"
+        "warning3": "在继续之前下载密钥文件并安全存储"
       },
       "step3": {
         "title": "查看现有密钥",
