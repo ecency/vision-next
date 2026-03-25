@@ -3241,16 +3241,32 @@
       "title": "Revogar chave do Hive",
       "hint": "Você pode revogar qualquer chave do Hive usando uma das chaves/senha mestra do proprietário/semente"
     },
+    "manage-keys": {
+      "title": "Gerenciar chaves",
+      "choose-title": "O que você gostaria de fazer?",
+      "add-title": "Adicionar Novas Chaves",
+      "add-description": "Gerar uma nova senha mestra e adicionar chaves à sua conta",
+      "revoke-title": "Revogar chaves",
+      "revoke-description": "Remova as chaves de que você não precisa mais de sua conta",
+      "revoke-select-title": "Selecione chaves para revogar",
+      "revoke-select-description": "Escolha quais chaves serão removidas de sua conta. Você deve manter pelo menos uma chave por autoridade.",
+      "revoke-confirm-title": "Confirmar Revogação",
+      "revoke-confirm-description": "Faça login com sua chave de proprietário para remover as chaves selecionadas da sua conta.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Chaves revogadas com sucesso",
+      "revoke-step-select": "Selecione as chaves",
+      "revoke-step-sign": "Assinar"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticar",
-        "generate-seed": "Gerar Seed",
+        "generate-seed": "Gerar Senha",
         "review-keys": "Chaves de Revisão",
         "confirm": "Confirmar"
       },
       "step1": {
         "title": "Adicionando Novo Conjunto de Chaves",
-        "info1": "Uma nova semente será gerada para sua conta",
+        "info1": "Uma nova senha mestra será gerada para sua conta",
         "info2": "Você pode manter vários conjuntos de chaves ativos simultaneamente",
         "info3": "Você terá a opção de revogar as chaves antigas nos próximos passos",
         "authenticate": "Autenticar para Continuar",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Importante: Salve sua frase de nova semente",
-        "warning1": "Esta é uma NOVA frase de semente, diferente da sua seed de conta original",
+        "warning1": "Esta é uma NOVA senha mestra, diferente das suas credenciais originais",
         "warning2": "Salve-o separadamente - você precisará dele para fazer login com essas chaves",
-        "warning3": "Baixe o arquivo de Seed e armazene-o com segurança antes de continuar"
+        "warning3": "Baixe o arquivo chaves e armazene-o de forma segura antes de continuar"
       },
       "step3": {
         "title": "Revisar chaves existentes",
