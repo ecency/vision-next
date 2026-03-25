@@ -1,4 +1,5 @@
 import { formatError } from "@/api/format-error";
+import { updateAccountKeysCache } from "@/api/mutations/update-account-keys-cache";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button } from "@/features/ui";
@@ -88,40 +89,16 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
       [keys.memoPubkey]: "master-password"
     });
 
-    // Optimistic cache update: add new keys and remove revoked keys immediately
-    const qk = getAccountFullQueryOptions(username).queryKey;
-    const newPubKeys: Record<"owner" | "active" | "posting", string> = {
-      owner: keys.ownerPubkey,
-      active: keys.activePubkey,
-      posting: keys.postingPubkey
-    };
-
-    queryClient.setQueryData(qk, (old: any) => {
-      if (!old) return old;
-      const updated = JSON.parse(JSON.stringify(old));
-      for (const auth of ["owner", "active", "posting"] as const) {
-        if (!updated[auth]?.key_auths) continue;
-        const toRevoke = keysToRevokeByAuthority[auth] || [];
-        // Remove revoked keys
-        if (toRevoke.length > 0) {
-          updated[auth].key_auths = updated[auth].key_auths.filter(
-            ([key]: [string, number]) => !toRevoke.includes(key)
-          );
-        }
-        // Add new key if not already present
-        const hasNew = updated[auth].key_auths.some(
-          ([key]: [string, number]) => key === newPubKeys[auth]
-        );
-        if (!hasNew) {
-          updated[auth].key_auths.push([newPubKeys[auth], 1]);
-        }
-      }
-      // Update memo key
-      updated.memo_key = keys.memoPubkey;
-      return updated;
+    // Optimistic cache update + background refetch
+    updateAccountKeysCache(queryClient, username, {
+      addMap: {
+        owner: keys.ownerPubkey,
+        active: keys.activePubkey,
+        posting: keys.postingPubkey
+      },
+      memoKey: keys.memoPubkey,
+      revokeMap: keysToRevokeByAuthority
     });
-    // Background refetch to confirm with blockchain
-    queryClient.invalidateQueries({ queryKey: qk });
 
     setIsComplete(true);
     success(i18next.t("permissions.keys.key-created"));

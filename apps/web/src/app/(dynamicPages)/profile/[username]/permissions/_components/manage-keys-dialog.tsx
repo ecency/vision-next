@@ -1,4 +1,5 @@
 import { formatError } from "@/api/format-error";
+import { updateAccountKeysCache } from "@/api/mutations/update-account-keys-cache";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalHeader } from "@/features/ui";
@@ -178,23 +179,10 @@ export function ManageKeysDialog({ show, onHide, initialRevokeKey }: Props) {
             onSuccess={() => {
               setIsRevokeComplete(true);
 
-              // Optimistic cache update: remove revoked keys immediately
-              const qk = getAccountFullQueryOptions(username!).queryKey;
-              queryClient.setQueryData(qk, (old: any) => {
-                if (!old) return old;
-                const updated = JSON.parse(JSON.stringify(old));
-                for (const auth of ["owner", "active", "posting"] as const) {
-                  const toRemove = revokeKeysMap[auth];
-                  if (toRemove.length > 0 && updated[auth]?.key_auths) {
-                    updated[auth].key_auths = updated[auth].key_auths.filter(
-                      ([key]: [string, number]) => !toRemove.includes(key)
-                    );
-                  }
-                }
-                return updated;
+              // Optimistic cache update + background refetch
+              updateAccountKeysCache(queryClient, username!, {
+                revokeMap: revokeKeysMap
               });
-              // Background refetch to confirm with blockchain
-              queryClient.invalidateQueries({ queryKey: qk });
 
               success(i18next.t("permissions.manage-keys.revoke-success"));
               setTimeout(handleClose, 1500);
