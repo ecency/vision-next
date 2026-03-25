@@ -3241,16 +3241,32 @@
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     },
+    "manage-keys": {
+      "title": "Manage Keys",
+      "choose-title": "What would you like to do?",
+      "add-title": "Add New Keys",
+      "add-description": "Generate a new master password and add keys to your account",
+      "revoke-title": "Revoke Keys",
+      "revoke-description": "Remove keys you no longer need from your account",
+      "revoke-select-title": "Select Keys to Revoke",
+      "revoke-select-description": "Choose which keys to remove from your account. You must keep at least one key per authority.",
+      "revoke-confirm-title": "Confirm Revocation",
+      "revoke-confirm-description": "Sign with your owner key to remove the selected keys from your account.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Keys revoked successfully",
+      "revoke-step-select": "Select Keys",
+      "revoke-step-sign": "Sign"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Seed",
+        "generate-seed": "Generate Password",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new seed phrase will be generated for your account",
+        "info1": "A new master password will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning1": "This is a NEW master password, different from your original credentials",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the seed file and store it securely before continuing"
+        "warning3": "Download the keys file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",
