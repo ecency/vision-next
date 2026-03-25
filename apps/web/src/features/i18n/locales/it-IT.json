@@ -3241,16 +3241,32 @@
       "title": "Revoca chiave Hive",
       "hint": "È possibile revocare qualsiasi chiave Hive utilizzando una delle chiavi proprietarie/password principale/seed"
     },
+    "manage-keys": {
+      "title": "Gestisci Chiavi",
+      "choose-title": "Cosa vorresti fare?",
+      "add-title": "Aggiungi Nuove Chiavi",
+      "add-description": "Genera una nuova password principale e aggiungi chiavi al tuo account",
+      "revoke-title": "Revoca I Tasti",
+      "revoke-description": "Rimuovere le chiavi che non hai più bisogno dal tuo account",
+      "revoke-select-title": "Seleziona le chiavi da revisionare",
+      "revoke-select-description": "Scegli quali chiavi rimuovere dal tuo account. Devi mantenere almeno una chiave per autorità.",
+      "revoke-confirm-title": "Conferma Revoca",
+      "revoke-confirm-description": "Firma con la chiave proprietaria per rimuovere le chiavi selezionate dal tuo account.",
+      "revoke-count": "{{count}} chiave(i) sarà revocata",
+      "revoke-success": "Chiavi revocate con successo",
+      "revoke-step-select": "Seleziona Tasti",
+      "revoke-step-sign": "Firma"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticazione",
-        "generate-seed": "Genera Seme",
+        "generate-seed": "Genera Password",
         "review-keys": "Revisione Chiavi",
         "confirm": "Conferma"
       },
       "step1": {
         "title": "Aggiunta Di Nuovo Set Di Chiavi",
-        "info1": "Un nuovo seed phrase verrà generato per il tuo account",
+        "info1": "Verrà generata una nuova password principale per il tuo account",
         "info2": "È possibile mantenere più set di chiavi attivi contemporaneamente",
         "info3": "Avrai la possibilità di revocare i vecchi tasti nei prossimi passi",
         "authenticate": "Autenticazione per continuare",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Importante: Salva La Tua Nuova Frase Di Seme",
-        "warning1": "Questa è una frase di nuovo seme, diversa dal tuo seme originale",
+        "warning1": "Questa è una NUOVA password principale, diversa dalle tue credenziali originali",
         "warning2": "Salva separatamente - avrai bisogno di effettuare il login con queste chiavi",
-        "warning3": "Scarica il file seed e memorizzalo in modo sicuro prima di continuare"
+        "warning3": "Scarica il file delle chiavi e memorizzalo in modo sicuro prima di continuare"
       },
       "step3": {
         "title": "Controlla Le Chiavi Esistenti",
