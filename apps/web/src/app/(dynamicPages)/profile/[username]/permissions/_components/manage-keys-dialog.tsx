@@ -387,6 +387,12 @@ function RevokeConfirmStep({
     }
   }
 
+  // Determine the minimum authority level needed for signing.
+  // Hive requires owner authority only when the owner field is included
+  // in the account_update operation; otherwise active authority suffices.
+  const requiredAuthority: "owner" | "active" =
+    keysToRevoke.owner.length > 0 ? "owner" : "active";
+
   const queryClient = useQueryClient();
   const { mutateAsync: revokeKeys } = useAccountRevokeKey(username);
 
@@ -415,7 +421,7 @@ function RevokeConfirmStep({
       const op = ["account_update", opPayload] as unknown as Operation;
 
       const adapter = getWebBroadcastAdapter();
-      await adapter.broadcastWithKeychain!(username, [op], "owner");
+      await adapter.broadcastWithKeychain!(username, [op], requiredAuthority);
       onSuccess();
     } catch (err: any) {
       onSignError();
@@ -473,7 +479,7 @@ function RevokeConfirmStep({
         onKey={handleSignByKey}
         onKc={handleSignByKeychain}
         onMetaMask={handleSignByKeychain}
-        authority="owner"
+        authority={requiredAuthority}
       />
 
       <div className="flex justify-start mt-2">
