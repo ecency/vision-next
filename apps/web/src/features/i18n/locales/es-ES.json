@@ -3241,16 +3241,32 @@
       "title": "Revocar clave de Hive",
       "hint": "Puede revocar cualquier clave de Hive usando una de las claves/contraseña maestra/semilla"
     },
+    "manage-keys": {
+      "title": "Administrar claves",
+      "choose-title": "¿Qué te gustaría hacer?",
+      "add-title": "Añadir nuevas claves",
+      "add-description": "Generar una nueva contraseña maestra y añadir claves a tu cuenta",
+      "revoke-title": "Revocar claves",
+      "revoke-description": "Elimina las claves que ya no necesitas de tu cuenta",
+      "revoke-select-title": "Seleccionar claves para revocar",
+      "revoke-select-description": "Elija qué claves eliminar de su cuenta. Debe mantener al menos una clave por autoridad.",
+      "revoke-confirm-title": "Confirmar revocación",
+      "revoke-confirm-description": "Firma con tu clave de propietario para eliminar las claves seleccionadas de tu cuenta.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Claves revocadas con éxito",
+      "revoke-step-select": "Seleccionar claves",
+      "revoke-step-sign": "Signo"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticar",
-        "generate-seed": "Generar semilla",
+        "generate-seed": "Generar contraseña",
         "review-keys": "Revisar claves",
         "confirm": "Confirmar"
       },
       "step1": {
         "title": "Añadiendo nuevo conjunto de claves",
-        "info1": "Se generará una nueva frase de semilla para tu cuenta",
+        "info1": "Se generará una nueva contraseña maestra para su cuenta",
         "info2": "Puedes mantener múltiples conjuntos de teclas activos simultáneamente",
         "info3": "Tendrás la opción de revocar las claves antiguas en los siguientes pasos",
         "authenticate": "Autenticar para continuar",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Importante: Guarda tu nueva frase de semilla",
-        "warning1": "Esta es una frase de semilla NUEVA, diferente de la semilla de tu cuenta original",
+        "warning1": "Esta es una nueva contraseña maestra, diferente de sus credenciales originales",
         "warning2": "Guárdelo por separado - lo necesitarás para iniciar sesión con estas claves",
-        "warning3": "Descargue el archivo de semilla y guárdelo de forma segura antes de continuar"
+        "warning3": "Descargar el archivo de claves y guardarlo de forma segura antes de continuar"
       },
       "step3": {
         "title": "Revisar claves existentes",
