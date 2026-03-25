@@ -4,7 +4,7 @@ import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
 import { getLoginType } from "@/utils/user-token";
 
@@ -13,13 +13,16 @@ type KeyAuthority = "owner" | "active" | "posting" | "memo";
 type SelectedKeysMap = Map<string, Set<KeyAuthority>>; // publicKey -> Set of authorities
 
 interface Props {
+  /** "add" = selecting old keys to revoke alongside new keys; "revoke" = standalone revoke */
+  mode?: "add" | "revoke";
+  /** Pre-select this key across all authorities where it appears */
+  initialSelectedKey?: string;
   onNext: (keysToRevokeByAuthority: Record<KeyAuthority, string[]>) => void;
   onBack: () => void;
 }
 
-export function Step3ReviewKeys({ onNext, onBack }: Props) {
+export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBack }: Props) {
   const { activeUser } = useActiveAccount();
-  // Track which authorities each selected key belongs to
   const [selectedKeys, setSelectedKeys] = useState<SelectedKeysMap>(new Map());
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
 
@@ -36,6 +39,27 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
         memo: [[resp.memo_key, 1]]
       }) as Keys
   });
+
+  // Pre-select initialSelectedKey across all authorities where it appears
+  useEffect(() => {
+    if (!initialSelectedKey || !accountData) return;
+
+    const initial = new Map<string, Set<KeyAuthority>>();
+    const authorities: KeyAuthority[] = ["owner", "active", "posting"];
+
+    for (const auth of authorities) {
+      const keys = accountData[auth] ?? [];
+      if (keys.length > 1 && keys.some(([k]) => k === initialSelectedKey)) {
+        const set = initial.get(initialSelectedKey) || new Set<KeyAuthority>();
+        set.add(auth);
+        initial.set(initialSelectedKey, set);
+      }
+    }
+
+    if (initial.size > 0) {
+      setSelectedKeys(initial);
+    }
+  }, [initialSelectedKey, accountData]);
 
   const toggleKey = (publicKey: string, authority: KeyAuthority) => {
     setSelectedKeys((prev) => {
@@ -118,6 +142,8 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
     );
   };
 
+  const isRevokeMode = mode === "revoke";
+
   const renderKeyType = (keyName: string) => {
     const keys = accountData?.[keyName] ?? [];
     if (keys.length === 0) return null;
@@ -126,11 +152,14 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
     const authority = keyName as KeyAuthority;
     const canRevoke = !isMemo && keys.length > 1;
 
+    // In revoke mode, hide memo entirely since it can't be revoked standalone
+    if (isRevokeMode && isMemo) return null;
+
     return (
       <div key={keyName} className="mb-4">
         <div className="text-xs opacity-50 uppercase mb-2">
           {i18next.t(`manage-authorities.${keyName}`)}
-          {isMemo && (
+          {!isRevokeMode && isMemo && (
             <span className="ml-2 text-xs normal-case opacity-75">
               ({i18next.t("permissions.add-keys.step3.will-be-replaced")})
             </span>
@@ -162,7 +191,7 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
                     {i18next.t("permissions.add-keys.step3.cannot-revoke-last")}
                   </div>
                 )}
-                {isMemo && (
+                {!isRevokeMode && isMemo && (
                   <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                     {i18next.t("permissions.add-keys.step3.memo-will-replace")}
                   </div>
@@ -175,14 +204,31 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
     );
   };
 
+  const title = isRevokeMode
+    ? i18next.t("permissions.manage-keys.revoke-select-title")
+    : i18next.t("permissions.add-keys.step3.title");
+
+  const description = isRevokeMode
+    ? i18next.t("permissions.manage-keys.revoke-select-description")
+    : i18next.t("permissions.add-keys.step3.description");
+
+  const getNextButtonLabel = () => {
+    if (isRevokeMode) {
+      return i18next.t("g.continue");
+    }
+    return getSelectedCount() > 0
+      ? i18next.t("permissions.add-keys.step3.next-with-revoke")
+      : i18next.t("permissions.add-keys.step3.next-skip");
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-          {i18next.t("permissions.add-keys.step3.title")}
+      <div className={`${isRevokeMode ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800" : "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"} border rounded-lg p-4`}>
+        <h3 className={`font-semibold mb-2 ${isRevokeMode ? "text-red-900 dark:text-red-100" : "text-blue-900 dark:text-blue-100"}`}>
+          {title}
         </h3>
-        <p className="text-sm text-blue-800 dark:text-blue-200">
-          {i18next.t("permissions.add-keys.step3.description")}
+        <p className={`text-sm ${isRevokeMode ? "text-red-800 dark:text-red-200" : "text-blue-800 dark:text-blue-200"}`}>
+          {description}
         </p>
       </div>
 
@@ -207,8 +253,8 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
         </Button>
         <Button
           icon={<UilArrowRight />}
+          disabled={isRevokeMode && getSelectedCount() === 0}
           onClick={() => {
-            // Build authority-specific revocation map
             const keysToRevokeByAuthority: Record<KeyAuthority, string[]> = {
               owner: [],
               active: [],
@@ -225,9 +271,7 @@ export function Step3ReviewKeys({ onNext, onBack }: Props) {
             onNext(keysToRevokeByAuthority);
           }}
         >
-          {getSelectedCount() > 0
-            ? i18next.t("permissions.add-keys.step3.next-with-revoke")
-            : i18next.t("permissions.add-keys.step3.next-skip")}
+          {getNextButtonLabel()}
         </Button>
       </div>
     </div>

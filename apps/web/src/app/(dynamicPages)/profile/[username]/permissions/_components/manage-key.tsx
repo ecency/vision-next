@@ -8,16 +8,16 @@ import { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { ManageKeyPasswordDialog } from "./manage-key-password-dialog";
 import { useRevealedKeysStore, useKeyDerivationStore } from "../_hooks";
-import { ManageKeyRevokeDialog } from "./manage-key-revoke-dialog";
 import { getLoginType } from "@/utils/user-token";
 
 type Keys = Record<string, [string, number][]>;
 
 interface Props {
   keyName: string;
+  onRevoke: (publicKey: string) => void;
 }
 
-export function ManageKey({ keyName }: Props) {
+export function ManageKey({ keyName, onRevoke }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
@@ -40,8 +40,6 @@ export function ManageKey({ keyName }: Props) {
   const isMetamask = getLoginType(activeUser?.username ?? "") === "metamask";
 
   const [showReveal, setShowReveal] = useState(false);
-  const [showRevoke, setShowRevoke] = useState(false);
-  const [revokingKey, setRevokingKey] = useState("");
 
   const loginType = getLoginType(activeUser?.username ?? "");
 
@@ -106,13 +104,26 @@ export function ManageKey({ keyName }: Props) {
                 className="grid grid-cols-[1fr_max-content] items-center font-mono gap-2 truncate"
               >
                 <div className="truncate">{key[0]}</div>
-                <Button
-                  noPadding={true}
-                  appearance="gray-link"
-                  size="sm"
-                  icon={<UilCopy />}
-                  onClick={() => copy(key[0])}
-                />
+                <div className="flex gap-2">
+                  <Button
+                    noPadding={true}
+                    appearance="gray-link"
+                    size="sm"
+                    icon={<UilCopy />}
+                    onClick={() => copy(key[0])}
+                  />
+                  {accountData?.[keyName].length > 1 && (
+                    <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
+                      <Button
+                        noPadding={true}
+                        appearance="gray-link"
+                        size="sm"
+                        icon={<UilTrash />}
+                        onClick={() => onRevoke(key[0])}
+                      />
+                    </StyledTooltip>
+                  )}
+                </div>
               </StyledTooltip>
 
               {!isMetamask && (
@@ -143,20 +154,6 @@ export function ManageKey({ keyName }: Props) {
                         />
                       </StyledTooltip>
                     )}
-                    {accountData?.[keyName].length > 1 && (
-                      <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
-                        <Button
-                          noPadding={true}
-                          appearance="gray-link"
-                          size="sm"
-                          icon={<UilTrash />}
-                          onClick={() => {
-                            setShowRevoke(true);
-                            setRevokingKey(key[0]);
-                          }}
-                        />
-                      </StyledTooltip>
-                    )}
                   </div>
                 </div>
               )}
@@ -165,7 +162,6 @@ export function ManageKey({ keyName }: Props) {
         ))}
       </div>
       <ManageKeyPasswordDialog show={showReveal} setShow={setShowReveal} />
-      <ManageKeyRevokeDialog show={showRevoke} setShow={setShowRevoke} revokingKey={revokingKey} />
     </>
   );
 }

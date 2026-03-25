@@ -44,21 +44,33 @@ export function useAccountRevokeKey(
         );
       }
 
+      const revokingKeyStr = revokingKey.toString();
+
+      const hasKeyInAuth = (keyName: keyof Keys) =>
+        accountData[keyName].key_auths.some(
+          ([key]: [string | PublicKey, number]) => String(key) === revokingKeyStr
+        );
+
       const prepareAuth = (keyName: keyof Keys) => {
         const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
 
         auth.key_auths = auth.key_auths.filter(
-          ([key]) => key !== revokingKey.toString()
+          ([key]) => key !== revokingKeyStr
         );
 
         return auth;
       };
 
+      // Only include owner in the update if the revoking key is actually
+      // in the owner authority. Including owner forces owner-level signing
+      // even when removing a key that only exists in active/posting.
+      const needsOwnerUpdate = hasKeyInAuth("owner");
+
       return CONFIG.hiveClient.broadcast.updateAccount(
         {
           account: accountData.name,
           json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
+          owner: needsOwnerUpdate ? prepareAuth("owner") : undefined,
           active: prepareAuth("active"),
           posting: prepareAuth("posting"),
           memo_key: accountData.memo_key,

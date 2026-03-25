@@ -3241,6 +3241,22 @@
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     },
+    "manage-keys": {
+      "title": "Manage Keys",
+      "choose-title": "What would you like to do?",
+      "add-title": "Add New Keys",
+      "add-description": "Generate a new master password and add keys to your account",
+      "revoke-title": "Revoke Keys",
+      "revoke-description": "Remove keys you no longer need from your account",
+      "revoke-select-title": "Select Keys to Revoke",
+      "revoke-select-description": "Choose which keys to remove from your account. You must keep at least one key per authority.",
+      "revoke-confirm-title": "Confirm Revocation",
+      "revoke-confirm-description": "Sign with your owner key to remove the selected keys from your account.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Keys revoked successfully",
+      "revoke-step-select": "Select Keys",
+      "revoke-step-sign": "Sign"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
