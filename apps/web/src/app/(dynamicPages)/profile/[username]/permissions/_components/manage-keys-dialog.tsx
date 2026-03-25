@@ -1,4 +1,5 @@
 import { formatError } from "@/api/format-error";
+import { updateAccountKeysCache } from "@/api/mutations/update-account-keys-cache";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalHeader } from "@/features/ui";
@@ -177,9 +178,12 @@ export function ManageKeysDialog({ show, onHide, initialRevokeKey }: Props) {
             onSignError={() => setIsRevoking(false)}
             onSuccess={() => {
               setIsRevokeComplete(true);
-              queryClient.invalidateQueries({
-                queryKey: getAccountFullQueryOptions(username!).queryKey
+
+              // Optimistic cache update + background refetch
+              updateAccountKeysCache(queryClient, username!, {
+                revokeMap: revokeKeysMap
               });
+
               success(i18next.t("permissions.manage-keys.revoke-success"));
               setTimeout(handleClose, 1500);
             }}

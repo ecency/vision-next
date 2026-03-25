@@ -1,4 +1,5 @@
 import { formatError } from "@/api/format-error";
+import { updateAccountKeysCache } from "@/api/mutations/update-account-keys-cache";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button } from "@/features/ui";
@@ -88,8 +89,15 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
       [keys.memoPubkey]: "master-password"
     });
 
-    await queryClient.invalidateQueries({
-      queryKey: getAccountFullQueryOptions(username).queryKey
+    // Optimistic cache update + background refetch
+    updateAccountKeysCache(queryClient, username, {
+      addMap: {
+        owner: keys.ownerPubkey,
+        active: keys.activePubkey,
+        posting: keys.postingPubkey
+      },
+      memoKey: keys.memoPubkey,
+      revokeMap: keysToRevokeByAuthority
     });
 
     setIsComplete(true);
