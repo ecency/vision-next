@@ -40,9 +40,12 @@ vi.mock("@ecency/sdk", () => ({
   })),
   useBookmarkAdd: vi.fn(),
   useBookmarkDelete: vi.fn(),
+  useAccountRevokeKey: vi.fn(() => ({ mutateAsync: vi.fn() })),
   usrActivity: vi.fn(),
   buildProfileMetadata: vi.fn(),
-  parseProfileMetadata: vi.fn()
+  parseProfileMetadata: vi.fn(),
+  canRevokeFromAuthority: vi.fn(() => true),
+  buildRevokeKeysOp: vi.fn(() => ({}))
 }));
 
 vi.mock("@/features/post-renderer", () => ({

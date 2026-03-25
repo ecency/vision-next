@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.32
+
+### Patch Changes
+
+- Manage/add keys improved (#717)
+
 ## 2.0.30
 
 ### Patch Changes

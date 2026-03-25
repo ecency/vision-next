@@ -21,9 +21,6 @@ vi.mock("next/image", () => ({
 vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_components/manage-key-password-dialog", () => ({
   ManageKeyPasswordDialog: () => null
 }));
-vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_components/manage-key-revoke-dialog", () => ({
-  ManageKeyRevokeDialog: () => null
-}));
 vi.mock("@/app/(dynamicPages)/profile/[username]/permissions/_hooks", () => ({
   useRevealedKeysStore: vi.fn(() => ({})),
   useKeyDerivationStore: vi.fn((selector: any) => selector({ getDerivation: () => "unknown" }))
@@ -51,7 +48,7 @@ describe("ManageKey - MetaMask user", () => {
 
   it("hides private key row for MetaMask users", () => {
     (getLoginType as any).mockReturnValue("metamask");
-    render(<ManageKey keyName="owner" />);
+    render(<ManageKey keyName="owner" onRevoke={vi.fn()} />);
 
     expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeInTheDocument();
     expect(screen.queryByText(/\*{10,}/)).not.toBeInTheDocument();
@@ -59,7 +56,7 @@ describe("ManageKey - MetaMask user", () => {
 
   it("shows private key row for non-MetaMask users", () => {
     (getLoginType as any).mockReturnValue("keychain");
-    render(<ManageKey keyName="owner" />);
+    render(<ManageKey keyName="owner" onRevoke={vi.fn()} />);
 
     expect(screen.getByText("STM_OWNER_PUB_KEY")).toBeInTheDocument();
     expect(screen.getByText(/\*{10,}/)).toBeInTheDocument();
@@ -67,13 +64,13 @@ describe("ManageKey - MetaMask user", () => {
 
   it("shows MetaMask badge for MetaMask users", () => {
     (getLoginType as any).mockReturnValue("metamask");
-    render(<ManageKey keyName="owner" />);
+    render(<ManageKey keyName="owner" onRevoke={vi.fn()} />);
     expect(screen.getByText("MetaMask")).toBeInTheDocument();
   });
 
   it("shows Keychain badge for Keychain users", () => {
     (getLoginType as any).mockReturnValue("keychain");
-    render(<ManageKey keyName="owner" />);
+    render(<ManageKey keyName="owner" onRevoke={vi.fn()} />);
     expect(screen.getByText("Keychain")).toBeInTheDocument();
   });
 });
