@@ -3241,16 +3241,32 @@
       "title": "Intrekken Hive key",
       "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
     },
+    "manage-keys": {
+      "title": "Sleutels beheren",
+      "choose-title": "Wat wil je doen?",
+      "add-title": "Voeg nieuwe sleutels toe",
+      "add-description": "Genereer een nieuw hoofdwachtwoord en voeg sleutels toe aan uw account",
+      "revoke-title": "Toetsen intrekken",
+      "revoke-description": "Verwijder sleutels die je niet meer nodig hebt van je account",
+      "revoke-select-title": "Selecteer sleutels om in te trekken",
+      "revoke-select-description": "Kies welke sleutels u uit uw account wilt verwijderen. U moet ten minste één sleutel per autoriteit bewaren.",
+      "revoke-confirm-title": "Herroepen bevestigen",
+      "revoke-confirm-description": "Meld u aan met uw eigenaarssleutel om de geselecteerde sleutels uit uw account te verwijderen.",
+      "revoke-count": "{{count}} sleutel(s) worden ingetrokken",
+      "revoke-success": "Sleutels met succes ingetrokken",
+      "revoke-step-select": "Selecteer sleutels",
+      "revoke-step-sign": "Ondertekenen"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Verifiëren",
-        "generate-seed": "Genereer Seed",
+        "generate-seed": "Wachtwoord genereren",
         "review-keys": "Beoordeel sleutels",
         "confirm": "Bevestigen"
       },
       "step1": {
         "title": "Nieuwe sleutelset toevoegen",
-        "info1": "Er wordt een nieuwe herstelzin gegenereerd voor uw account",
+        "info1": "Er zal een nieuw hoofdwachtwoord worden gegenereerd voor uw account",
         "info2": "Je kunt meerdere sleutelsets tegelijk actief houden",
         "info3": "Je hebt de optie om oude sleutels in de volgende stappen in te trekken",
         "authenticate": "Verifieer om verder te gaan",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Belangrijk: Sla je nieuwe zin op",
-        "warning1": "Dit is een nieuwe herstelzin die afwijkt van uw oorspronkelijke account seed",
+        "warning1": "Dit is een nieuw hoofdwachtwoord, anders dan je originele inloggegevens",
         "warning2": "Sla het afzonderlijk op - u moet inloggen met deze sleutels",
-        "warning3": "Download het seed bestand en sla het veilig op alvorens verder te gaan"
+        "warning3": "Download het sleutelbestand en sla het veilig op alvorens verder te gaan"
       },
       "step3": {
         "title": "Bestaande sleutels controleren",
