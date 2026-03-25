@@ -5,9 +5,9 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 vi.mock("@/core/hooks/use-active-account");
 const mockAccountData = {
-  owner: { key_auths: [["STM_OWNER_1", 1], ["STM_OWNER_2", 1]] },
-  active: { key_auths: [["STM_ACTIVE_1", 1], ["STM_ACTIVE_2", 1]] },
-  posting: { key_auths: [["STM_POSTING_1", 1]] },
+  owner: { weight_threshold: 1, account_auths: [], key_auths: [["STM_OWNER_1", 1], ["STM_OWNER_2", 1]] },
+  active: { weight_threshold: 1, account_auths: [], key_auths: [["STM_ACTIVE_1", 1], ["STM_ACTIVE_2", 1]] },
+  posting: { weight_threshold: 1, account_auths: [], key_auths: [["STM_POSTING_1", 1]] },
   memo_key: "STM_MEMO_1",
   json_metadata: ""
 };

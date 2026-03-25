@@ -2,7 +2,12 @@ import { formatError } from "@/api/format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { error, success, KeyOrHot } from "@/features/shared";
 import { Button, Modal, ModalBody, ModalHeader } from "@/features/ui";
-import { getAccountFullQueryOptions, useAccountRevokeKey, CONFIG } from "@ecency/sdk";
+import {
+  getAccountFullQueryOptions,
+  useAccountRevokeKey,
+  buildRevokeKeysOp,
+  canRevokeFromAuthority
+} from "@ecency/sdk";
 import { PrivateKey, PublicKey, type Operation } from "@hiveio/dhive";
 import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
 import {
@@ -42,11 +47,16 @@ export function ManageKeysDialog({ show, onHide, initialRevokeKey }: Props) {
     enabled: !!username
   });
 
-  // Can only revoke if at least one authority has >1 key
+  // Can only show the revoke option if at least one authority has enough
+  // weight to survive removing a key (respects multisig weight_threshold).
   const canRevoke = accountData
-    ? accountData.owner.key_auths.length > 1 ||
-      accountData.active.key_auths.length > 1 ||
-      accountData.posting.key_auths.length > 1
+    ? [accountData.owner, accountData.active, accountData.posting].some((auth) =>
+        auth.key_auths.length > 1 &&
+        auth.key_auths.some(([key]) => {
+          const without = new Set([String(key)]);
+          return canRevokeFromAuthority(auth, without);
+        })
+      )
     : false;
 
   const [mode, setMode] = useState<Mode>("choose");
@@ -377,6 +387,7 @@ function RevokeConfirmStep({
     }
   }
 
+  const queryClient = useQueryClient();
   const { mutateAsync: revokeKeys } = useAccountRevokeKey(username);
 
   // Direct key signing - delegates to SDK mutation
@@ -391,37 +402,17 @@ function RevokeConfirmStep({
     }
   };
 
-  // Keychain/MetaMask signing - adapter builds and broadcasts the operation
+  // Keychain/MetaMask signing - uses shared SDK op builder, broadcasts via adapter
   const handleSignByKeychain = async () => {
     onSignStart();
     try {
-      const accountData = await CONFIG.queryClient.fetchQuery(
+      const account = await queryClient.fetchQuery(
         getAccountFullQueryOptions(username)
       );
-      if (!accountData) throw new Error("Account data not loaded");
+      if (!account) throw new Error("Account data not loaded");
 
-      const revokingKeyStrs = new Set(allRevokingKeys.map((k) => k.toString()));
-
-      const prepareAuth = (keyName: "owner" | "active" | "posting") => {
-        const auth = JSON.parse(JSON.stringify(accountData[keyName]));
-        auth.key_auths = auth.key_auths.filter(
-          ([key]: [string, number]) => !revokingKeyStrs.has(key)
-        );
-        return auth;
-      };
-
-      const needsOwnerUpdate = keysToRevoke.owner.length > 0;
-      const op = [
-        "account_update",
-        {
-          account: username,
-          json_metadata: accountData.json_metadata,
-          owner: needsOwnerUpdate ? prepareAuth("owner") : undefined,
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          memo_key: accountData.memo_key
-        }
-      ] as unknown as Operation;
+      const opPayload = buildRevokeKeysOp(account, allRevokingKeys);
+      const op = ["account_update", opPayload] as unknown as Operation;
 
       const adapter = getWebBroadcastAdapter();
       await adapter.broadcastWithKeychain!(username, [op], "owner");
