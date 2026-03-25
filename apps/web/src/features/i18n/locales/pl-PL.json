@@ -3241,16 +3241,32 @@
       "title": "Unieważnij klucz Ul",
       "hint": "Możesz odwołać dowolny klucz Uli, używając jednego z kluczy właściciela/hasła głównego/seed"
     },
+    "manage-keys": {
+      "title": "Zarządzaj kluczami",
+      "choose-title": "Co chciałbyś zrobić?",
+      "add-title": "Dodaj nowe klucze",
+      "add-description": "Wygeneruj nowe hasło główne i dodaj klucze do swojego konta",
+      "revoke-title": "Unieważnij klucze",
+      "revoke-description": "Usuń klucze, których już nie potrzebujesz ze swojego konta",
+      "revoke-select-title": "Wybierz klucze do cofnięcia",
+      "revoke-select-description": "Wybierz klucze, które chcesz usunąć z konta. Musisz zachować co najmniej jeden klucz na autorytet.",
+      "revoke-confirm-title": "Potwierdź odwołanie",
+      "revoke-confirm-description": "Podpisz swój klucz właściciela, aby usunąć wybrane klucze ze swojego konta.",
+      "revoke-count": "Klucze {{count}} zostaną odwołane",
+      "revoke-success": "Klucze anulowane pomyślnie",
+      "revoke-step-select": "Wybierz klucze",
+      "revoke-step-sign": "Podpis"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Uwierzytelnij",
-        "generate-seed": "Wygeneruj ziarno",
+        "generate-seed": "Wygeneruj hasło",
         "review-keys": "Klawisze recenzji",
         "confirm": "Potwierdź"
       },
       "step1": {
         "title": "Dodawanie nowego zestawu kluczy",
-        "info1": "Nowa fraza seed zostanie wygenerowana dla Twojego konta",
+        "info1": "Nowe hasło główne zostanie wygenerowane dla Twojego konta",
         "info2": "Możesz zachować wiele zestawów klawiszy jednocześnie",
         "info3": "Będziesz miał możliwość cofnięcia starych kluczy w kolejnych krokach",
         "authenticate": "Uwierzytelnij, aby kontynuować",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Ważne: Zapisz swoje nowe frazę seed",
-        "warning1": "To jest NOWA fraza ziaren, inna niż oryginalny seed konta",
+        "warning1": "To jest nowe hasło główne, inne niż Twoje oryginalne dane logowania",
         "warning2": "Zapisz to osobno - będziesz potrzebował go aby zalogować się za pomocą tych kluczy",
-        "warning3": "Pobierz plik seed i przechowuj go bezpiecznie przed kontynuowaniem"
+        "warning3": "Pobierz plik kluczy i przechowuj go bezpiecznie przed kontynuowaniem"
       },
       "step3": {
         "title": "Przejrzyj istniejące klucze",
