@@ -3241,16 +3241,32 @@
       "title": "Hive-Schlüssel widerrufen",
       "hint": "Sie können jeden Hive-Schlüssel mit einem der Schlüssel/Master-Passwort/Seed widerrufen"
     },
+    "manage-keys": {
+      "title": "Schlüssel verwalten",
+      "choose-title": "Was möchten Sie tun?",
+      "add-title": "Neue Schlüssel hinzufügen",
+      "add-description": "Generieren Sie ein neues Master-Passwort und fügen Sie Schlüssel zu Ihrem Konto hinzu",
+      "revoke-title": "Schlüssel widerrufen",
+      "revoke-description": "Entfernen Sie Schlüssel, die Sie nicht mehr von Ihrem Konto benötigen",
+      "revoke-select-title": "Schlüssel zum Widerrufen auswählen",
+      "revoke-select-description": "Wählen Sie aus, welche Schlüssel aus Ihrem Konto entfernt werden sollen. Sie müssen mindestens einen Schlüssel pro Behörde behalten.",
+      "revoke-confirm-title": "Widerruf bestätigen",
+      "revoke-confirm-description": "Melden Sie sich mit Ihrem Eigentümerschlüssel an, um die ausgewählten Schlüssel aus Ihrem Konto zu entfernen.",
+      "revoke-count": "{{count}} Schlüssel(e) werden widerrufen",
+      "revoke-success": "Schlüssel erfolgreich widerrufen",
+      "revoke-step-select": "Schlüssel auswählen",
+      "revoke-step-sign": "Schild"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authentifizieren",
-        "generate-seed": "Seed generieren",
+        "generate-seed": "Passwort generieren",
         "review-keys": "Überprüfungsschlüssel",
         "confirm": "Bestätigen"
       },
       "step1": {
         "title": "Neues Schlüsselset hinzufügen",
-        "info1": "Eine neue Seed-Phrase wird für Ihr Konto generiert",
+        "info1": "Ein neues Master-Passwort wird für Ihr Konto generiert",
         "info2": "Sie können mehrere Schlüsselsets gleichzeitig aktiv halten",
         "info3": "Du hast die Möglichkeit, alte Schlüssel in den nächsten Schritten zu widerrufen",
         "authenticate": "Authentifizieren um fortzufahren",
@@ -3262,9 +3278,9 @@
       },
       "step2": {
         "warning-title": "Wichtig: Speichere deinen neuen Seed Phrase",
-        "warning1": "Dies ist eine NEUE Seed-Phrase, die sich von Ihrem ursprünglichen Account-Seed unterscheidet",
+        "warning1": "Dies ist ein NEUES Master-Passwort, anders als Ihre ursprünglichen Anmeldeinformationen",
         "warning2": "Speichern Sie es separat - Sie müssen sich mit diesen Schlüsseln anmelden",
-        "warning3": "Laden Sie die Seed-Datei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
+        "warning3": "Laden Sie die Schlüsseldatei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
       },
       "step3": {
         "title": "Vorhandene Schlüssel überprüfen",
