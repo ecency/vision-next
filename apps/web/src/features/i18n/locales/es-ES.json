@@ -230,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Cartera",
-    "unclaimed-reward-notice": "¡Tienes ganancias para recoger!",
+    "unclaimed-reward-notice": "Tienes recompensas sin reclamar",
     "points": "Puntos",
-    "unclaimed-points-notice": "¡Tienes puntos para recoger!",
+    "unclaimed-points-notice": "Tienes puntos sin reclamar",
     "notifications": "Notificaciones",
     "profile": "Perfil",
     "profile-menu": "Menú de perfil",
@@ -300,10 +300,10 @@
     "metamask-key-mismatch": "Las claves de Hive en MetaMask no coinciden con esta cuenta. Asegúrese de que está usando la misma cartera de MetaMask usada durante el registro."
   },
   "sign-up": {
-    "header": "Comunidades de recompensa",
-    "description": "La libertad de expresión, la verdadera propiedad, la libertad financiera!",
-    "description-2": "Únete a una plataforma completamente gestionada por su comunidad. Una cuenta te da acceso a todo el ecosistema.",
-    "bottom-description": "Una cuenta, una cartera para gestionar todo.",
+    "header": "Recompensando a las comunidades Web3",
+    "description": "¡Libertad de Expresión, Verdadera propiedad de contenidos, Libertad financiera!",
+    "description-2": "Hive provee muchas aplicaciones y está completamente descentralizada por miembros de la comunidad de todo el mundo. Con una cuenta, usted tiene acceso directo al ecosistema.",
+    "bottom-description": "Una cuenta, una cartera para gestionar todo en Blockchain.",
     "learn-more": "Obtenga más información sobre los beneficios en nuestras <a href=\"/faq#how-to-join\">Preguntas frecuentes</a>",
     "username": "Elige un nombre de usuario",
     "email": "Ingresa tu dirección de email",
@@ -447,8 +447,8 @@
     "vote-remove": "Votar 0% desvota el contenido.",
     "vote-warning": "Cambiando voto...",
     "no-replies": "Aún no hay respuestas. Haga clic para responder.",
-    "old-post-error": "El período de ganancia de este post ha terminado.",
-    "old-post-error-suggestion": "Todavía puede dar consejos al autor directamente. "
+    "old-post-error": "Votar contenido después de su pago no genera nuevas recompensas.",
+    "old-post-error-suggestion": "Intenta dar propia al autor. "
   },
   "nsfw": {
     "reveal": "Revelar este post",
@@ -513,18 +513,18 @@
     "submit-label": "Confirmar",
     "published": "Publicación enviada",
     "no-subscription": "No tienes ninguna suscripción comunitaria para enviar mensajes cruzados.",
-    "info": "Las ganancias se rechazan automáticamente para los puestos cruzados. Las discusiones bajo puestos cruzados siguen las pautas de la comunidad anfitriona."
+    "info": "Las recompensas se rechazan automáticamente para la publicación cruzada y las discusiones bajo la publicación cruzada serán diferentes y seguirán diferentes pautas comunitarias."
   },
   "entry-payout": {
-    "reward": "Ganancias",
+    "reward": "Recompensa",
     "full-power": "Potenciar al 100%",
-    "pending-payout": "Ganancias estimadas",
+    "pending-payout": "Pago Pendiente",
     "promoted": "Promocionado",
-    "author-payout": "Ganancias del autor",
-    "curators-payout": "Ganancias de los seguidores",
+    "author-payout": "Pagos de Autor",
+    "curators-payout": "Pagos de Curación",
     "payout-date": "Pago",
     "beneficiary": "Beneficiario",
-    "breakdown": "Detalles",
+    "breakdown": "Intermedio",
     "max-accepted": "Máximo aceptado"
   },
   "entry-index": {
@@ -723,7 +723,7 @@
   },
   "market": {
     "title": "Intercambio de Token",
-    "description": "Intercambiar e intercambiar tokens al instante. Para obtener más información, lee nuestra <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Intercambio descentralizado para comprar y vender tokens en la cadena de bloques de Hive. Para obtener más información, lea nuestras <a href=\"/faq#how-exchange-work\">preguntas frecuentes</a>.",
     "last-price": "Último precio",
     "volume": "Volumen de 24 horas",
     "bid": "Oferta",
@@ -943,7 +943,7 @@
     "reveal": "Revelar comentario",
     "no-conversation": "Aún no hay conversación, se el primero en responder",
     "start-conversation": "Iniciar conversación",
-    "join-hint": "Únete a la conversación y gana por tus contribuciones",
+    "join-hint": "Forma parte de una enorme comunidad de Hive y gana recompensas por actividad",
     "new-comment": "{{n}} new comment - tap to load",
     "new-comments": "{{n}} nuevos comentarios - toque para cargar"
   },
@@ -1230,18 +1230,18 @@
     "dm-privacy-failed": "Error al actualizar la configuración de privacidad DM"
   },
   "wallet": {
-    "unclaimed-rewards": "Ganancias a recoger",
-    "claim-reward-balance": "Recoger ganancias",
-    "claim-reward-balance-ok": "¡Ganancias obtenidas!",
+    "unclaimed-rewards": "Recompensas no reclamadas",
+    "claim-reward-balance": "Reclamar recompensa",
+    "claim-reward-balance-ok": "Recompensa reclamada",
     "estimated": "Valor estimado de la billetera",
     "estimated-points": "Valor de puntos estimados",
     "estimated-description": "El valor estimado se basa en un valor promedio de 7 días de HIVE.",
     "estimated-description-points": "El valor estimado se basa en el valor de compra de los puntos.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "El VIH es tu saldo líquido (transferir, comerciar o apostarlo en cualquier momento).",
+    "hive-description": "HIVE es una moneda que puede transferirse en cualquier momento. HIVE se puede convertir a Hive Power en un proceso llamado Power Up.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power es tu influencia. Cuanto más sostienes, más importa tu voto y más ganas. Tome el VIHE para crecerlo, no tome más de 13 semanas.",
+    "hive-power-description": "Hive Power son fichas de influencia que ganan más poder por mantenerlas a largo plazo y votar sobre el contenido. Cuanto más Hive Power se tenga, más influye uno en las recompensas de los demás y se gana más recompensas por votar. Hive Power es HIVE en Estaca (Staked) que puede retirado (Unstaked) en 13 semanas.",
     "hive-power-apr-rate": "La tasa de interés APR para Hive Power es de {{value}}%",
     "hive-dollars-apr-rate": "La tasa de interés APR para HBD($) es {{value}}%",
     "hive-dollars-apr-claim": "Interés estimado desde el último pago {{value}}:",
@@ -1253,7 +1253,7 @@
     "next-power-down-amount": "Cantidad del siguiente apagado (power down)",
     "hive-power-total": "Total de Hive Power",
     "hive-dollars": "HIVE DOLLARS",
-    "hive-dollars-description": "fichas estables fijadas a aproximadamente $1.00 cada una.",
+    "hive-dollars-description": "Fichas por valor de alrededor de $ 1.00 de HIVE.",
     "savings": "AHORROS",
     "savings-description": "El balance está sujeto a 3 días de espera para la retirada.",
     "next-power-down": "El siguiente apagado es {{time}}, (~{{amount}}, {{weeks}} semanas restantes)",
@@ -1274,8 +1274,8 @@
     "reserved-amount": "Reservado para Orden Abierta en Mercado",
     "spk": {
       "claim": {
-        "title": "Recoger",
-        "unclaimed-rewards": "Ganancias a recoger"
+        "title": "Reclamar",
+        "unclaimed-rewards": "Recompensas no reclamadas"
       },
       "delegate": {
         "title": "Delegar",
@@ -1366,7 +1366,7 @@
   "points": {
     "get": "COMPRAR PUNTOS",
     "unclaimed-points": "Puntos no reclamados",
-    "claim-reward-points": "Recoger puntos",
+    "claim-reward-points": "Reclamar puntos de recompensa",
     "main-description": "Los puntos se pueden utilizar para servicios dentro de la aplicación, como Promover, Optimizar, Regalar. Gánalos sólo usando aplicaciones de Ecency y mejorar tu experiencia.",
     "earn-points": "Cómo ganar más puntos",
     "post-desc": "Puedes ganar puntos publicando regularmente. Publicar te da 15 puntos.",
@@ -1553,7 +1553,7 @@
     "type-tokens_stake": "Estacar Token",
     "type-tokens_issue": "Tokens de emisión",
     "type-comments_beneficiaryReward": "Recompensa del beneficiario",
-    "type-claim_reward_balance": "Ganancias recogidas",
+    "type-claim_reward_balance": "Reclamar recompensas",
     "type-transfer": "Transferir",
     "type-tokens_transfer": "Transferir",
     "type-transfer_to_vesting": "Power up (Encender)",
@@ -1710,10 +1710,10 @@
     "body-placeholder": "Cuenta tu historia...",
     "reward": "Recompensa",
     "take-tour": "Tomar un tour",
-    "reward-hint": "Elige cómo recibes tus ganancias",
+    "reward-hint": "Establecer la relación de recompensa del autor para los tokens líquidos y en estaca",
     "reward-default": "Por defecto 50% / 50%",
-    "reward-sp": "Tomar 100%",
-    "reward-dp": "Rechazar Ganancias",
+    "reward-sp": "Power Up 100%",
+    "reward-dp": "Rechazar Pago",
     "preview": "Previsualización",
     "publish": "Publicar",
     "update": "Actualizar",
@@ -1829,7 +1829,7 @@
     "transfer": "{{source}} te envió {{amount}}",
     "delegations": "{{source}} te delegó {{amount}}",
     "checkins": "Has comprobado {{count}} día{{suffix}} esta semana. ¡Sigue así!",
-    "payouts": "Tus ganancias de contenido están listas.",
+    "payouts": "Su pago de contenido está listo.",
     "payouts-amount": "Has recibido el pago de {{amount}}.",
     "payouts-amount-usd": "Has ganado ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -2256,9 +2256,9 @@
         "create-title": "Publicar desde cualquier lugar",
         "create-description": "Crea mensajes, comparte actualizaciones y responde a los comentarios con el mismo poderoso editor que usas en el ordenador.",
         "wallet-title": "Monedero de un vistazo",
-        "wallet-description": "Comprueba saldos, recoge ganancias y gestiona tus fichas con sólo un par de toques.",
+        "wallet-description": "Comprueba los balances, reclama recompensas y administra Hive Power o HBD con solo un par de toques.",
         "notifications-title": "Nunca te pierdas una mención",
-        "notifications-description": "Las notificaciones push resaltan nuevos seguidores, menciones y ganancias para que puedas celebrar a tiempo."
+        "notifications-description": "Las notificaciones push resaltan nuevos seguidores, menciones y recompensas para que puedas celebrar a tiempo."
       },
       "features-title": "Diseñado para creadores y comunidades",
       "features": {
@@ -2322,8 +2322,8 @@
       "how-see-rewards-body": "<p>En la página de Billetera o Wallet (en el encabezado superior en el sitio web y la aplicación de escritorio, en la barra de navegación inferior en la aplicación móvil), puedes ver las recompensas de Curación (las recompensas ganadas por votar las publicaciones y los comentarios) y las recompensas de autor (las recompensas obtenidas por tus propios mensajes y comentarios)</p><p>También puedes ver la misma información para otros usuarios visitando su perfil de Billetera.</p>",
       "how-dhf-work-header": "¿Cómo funciona DHF?",
       "how-dhf-work-body": "<p>Cualquiera puede crear una propuesta y convencer a la comunidad de que vote sobre su propuesta para obtener fondos. Antes de crear la propuesta, debería hacerse una publicación normal en la cadena de bloques y se recomienda recoger comentarios de respuestas antes de crear la propuesta. La creación de propuestas tiene una cuota de 10 HBD + 1 HBD por cada día que dura más de 60 días.</p><p>Una vez que la propuesta alcance cierto umbral de votos contabilizados, comenzará a recibir fondos cada hora. Si la propuesta cae por debajo del umbral, el sistema detendrá la financiación de dicha propuesta. Puedes votar tantas propuestas como quieras, no hay límites. La propuesta no puede ser editada, pero puede ser eliminada o retirada por el creador.</p>",
-      "when-claim-rewards-header": "¿Cuándo puedo recoger mis ganancias?",
-      "when-claim-rewards-body": "<p>Las publicaciones y comentarios ganan por 7 días. Durante este período, las ganancias fluctuan en función de los votos y las condiciones del mercado - por eso se muestran como estimadas. Después de 7 días, tus ganancias finales están listas para recoger. Ve a tu billetera y pulsa Recoger para añadirlas a tu saldo.</p>",
+      "when-claim-rewards-header": "¿Cuándo puedo reclamar mis recompensas?",
+      "when-claim-rewards-body": "<p>Las publicaciones y comentarios permanecen activos durante 7 días y las recompensas son fluctuadas dependiendo de los votos y el precio de mercado del token, es por eso que las recompensas se aproximan como recompensa pendiente. Cuando el periodo termine, la recompensa pendiente cambia a la recompensa real y usted puede reclamar las recompensas ganadas. En su Cartera, haga clic en el botón Reclamar recompensas para añadir los tokens a su cuenta.</p>",
       "what-are-rc-header": "¿Qué son los Créditos de Recursos?",
       "what-are-rc-body": "<p>La transacción en la cadena de bloques de Hive tiene cero comisiones, se utiliza la limitación de tasa de transacción para proteger la cadena de bloques de ataques de spam. Cada acción que hagas en la cadena de bloques consumirá una pequeña cantidad de Créditos de Recursos. Esto incluye publicar, comentar, votar, transferir tokens, etc. Ver contenido no consume créditos de recursos.</p><p>Cada usuario tiene una cantidad limitada de Créditos de Recursos para usar cada semana. Cuantas más transacciones haga un usuario, menos créditos de recursos le quedarán (hasta que recarguen). Los usuarios con más HIVE POWER tendrán más créditos de recursos.</p><p>Si te quedas sin créditos de Recursos, no podrás hacer ninguna transacción con la cadena de bloques hasta que tus Créditos de Recurso recarguen (sucede automáticamente) o adquirirás HIVE POWER adicional para aumentar tu saldo de Crédito de Recursos, o puedes <a href=\"/faq#how-boost-account\">solicitar que la cuenta de Optimización de Ecency</a> te proporcione una delegación temporal.</p>",
       "how-boost-account-header": "¿Cómo solicitar el impulso de la cuenta?",
@@ -3207,10 +3207,10 @@
       "note": "El interés se calcula continuamente en {{apr}}% APR.",
       "claim-button": "Reclamar interés"
     },
-    "claim-rewards": "Recoger ganancias",
-    "claim-rewards-with-amount": "Recoger {{amount}} {{token}}",
-    "claim-rewards-loading": "Recolectando...",
-    "claim-rewards-success": "¡Recogido {{amount}} {{token}}!",
+    "claim-rewards": "Reclamar recompensas",
+    "claim-rewards-with-amount": "Reclamar {{amount}} {{token}}",
+    "claim-rewards-loading": "Reclamando...",
+    "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
     "hp-delegation-promo": {
       "tag": "+10% de impulso APR",
       "title": "Deja que Ecency haga curaduría con tu Hive Power",
@@ -3268,13 +3268,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticar",
-        "generate-seed": "Generar contraseña",
+        "generate-seed": "Generar semilla",
         "review-keys": "Revisar claves",
         "confirm": "Confirmar"
       },
       "step1": {
         "title": "Añadiendo nuevo conjunto de claves",
-        "info1": "Se generará una nueva contraseña maestra para su cuenta",
+        "info1": "Se generará una nueva frase de semilla para tu cuenta",
         "info2": "Puedes mantener múltiples conjuntos de teclas activos simultáneamente",
         "info3": "Tendrás la opción de revocar las claves antiguas en los siguientes pasos",
         "authenticate": "Autenticar para continuar",
@@ -3286,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "Importante: Guarda tu nueva frase de semilla",
-        "warning1": "Esta es una nueva contraseña maestra, diferente de sus credenciales originales",
+        "warning1": "Esta es una frase de semilla NUEVA, diferente de la semilla de tu cuenta original",
         "warning2": "Guárdelo por separado - lo necesitarás para iniciar sesión con estas claves",
-        "warning3": "Descargar el archivo de claves y guardarlo de forma segura antes de continuar"
+        "warning3": "Descargue el archivo de semilla y guárdelo de forma segura antes de continuar"
       },
       "step3": {
         "title": "Revisar claves existentes",
