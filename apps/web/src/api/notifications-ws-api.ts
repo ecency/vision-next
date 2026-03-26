@@ -55,10 +55,13 @@ export class NotificationsWebSocket {
       }
       case "payouts": {
         const amount = data.extra?.amount;
+        const amountUsd = data.extra?.amount_usd;
         const title = data.extra?.title;
-        const body = amount
-          ? i18next.t("notification.payouts-amount", { amount })
-          : i18next.t("notification.payouts");
+        const body = amountUsd && amount
+          ? i18next.t("notification.payouts-amount-usd", { amount_usd: amountUsd, amount })
+          : amount
+            ? i18next.t("notification.payouts-amount", { amount })
+            : i18next.t("notification.payouts");
 
         return title ? i18next.t("notification.payouts-title", { body, title }) : body;
       }
@@ -75,6 +78,10 @@ export class NotificationsWebSocket {
           count,
           suffix: count === 1 ? "" : "s"
         });
+      }
+      case "weekly_earnings": {
+        const total = data.extra?.total_usd ?? "0";
+        return i18next.t("notification.weekly-earnings-short", { total });
       }
       default:
         return "";

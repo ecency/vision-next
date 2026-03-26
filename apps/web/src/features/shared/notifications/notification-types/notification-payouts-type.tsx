@@ -20,9 +20,12 @@ export function NotificationPayoutsType({
   openLinksInNewTab
 }: Props) {
   const amount = notification.amount;
-  const body = amount
-    ? i18next.t("notification.payouts-amount", { amount })
-    : i18next.t("notification.payouts");
+  const amountUsd = notification.amount_usd;
+  const body = amountUsd && amount
+    ? i18next.t("notification.payouts-amount-usd", { amount_usd: amountUsd, amount })
+    : amount
+      ? i18next.t("notification.payouts-amount", { amount })
+      : i18next.t("notification.payouts");
   const message = notification.title
     ? i18next.t("notification.payouts-title", { body, title: notification.title })
     : body;

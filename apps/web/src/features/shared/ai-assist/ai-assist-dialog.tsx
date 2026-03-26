@@ -18,6 +18,9 @@ export function AiAssistDialog({ show, setShow, onApply, initialText }: Props) {
         <ModalTitle>{i18next.t("ai-assist.title")}</ModalTitle>
       </ModalHeader>
       <ModalBody>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          {i18next.t("ai-assist.hint")}
+        </p>
         <AiAssist
           initialText={initialText}
           onApply={onApply}

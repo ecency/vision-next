@@ -153,7 +153,7 @@ export function HiveTransactionRow({ entry, transaction: tr }: Props) {
   } else if (tr.type === "cancel_transfer_from_savings") {
     icon = ticketSvg;
     details = (
-      <Tsx k="transactions.type-cancel_transfer_from_savings-detail" args={{ from: tr.from }}>
+      <Tsx k="transactions.type-cancel_transfer_from_savings-detail" args={{ from: tr.from, request: tr.request_id }}>
         <span />
       </Tsx>
     );

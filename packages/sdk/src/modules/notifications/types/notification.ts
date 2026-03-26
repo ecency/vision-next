@@ -222,6 +222,13 @@ export interface ApiDelegationsNotification extends BaseAPiNotification {
   amount: string;
 }
 
+export interface ApiWeeklyEarningsNotification extends BaseAPiNotification {
+  type: "weekly_earnings";
+  total_usd?: string;
+  author_usd?: string;
+  curation_usd?: string;
+}
+
 export interface ApiNotificationSetting {
   system: string; //"web" | "desktop"
   allows_notify: number; //0|1
@@ -241,7 +248,8 @@ export type ApiNotification =
   | ApiSpinNotification
   | ApiInactiveNotification
   | ApiReferralNotification
-  | ApiDelegationsNotification;
+  | ApiDelegationsNotification
+  | ApiWeeklyEarningsNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;
