@@ -1212,7 +1212,8 @@
     "permissions": "Autorizzazioni aperte",
     "image-server": "Server immagini",
     "image-server-default": "Immagini di Ecency (Predefinito)",
-    "image-server-hiveblog": "Immagini di alveare (alternative)"
+    "image-server-hiveblog": "Immagini di alveare (alternative)",
+    "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
     "dm-privacy": {
