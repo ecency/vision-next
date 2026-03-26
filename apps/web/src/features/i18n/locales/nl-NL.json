@@ -1212,7 +1212,8 @@
     "permissions": "Open permissies",
     "image-server": "Afbeelding server",
     "image-server-default": "Ecency afbeeldingen (standaard)",
-    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)"
+    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)",
+    "image-server-nocdn": "Ecency afbeeldingen (Geen CDN)"
   },
   "settings": {
     "dm-privacy": {
