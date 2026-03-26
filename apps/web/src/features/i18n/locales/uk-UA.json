@@ -1212,7 +1212,8 @@
     "permissions": "Відкриті дозволи",
     "image-server": "Сервер зображень",
     "image-server-default": "Зображення точностей (за замовчуванням)",
-    "image-server-hiveblog": "Вузлик зображення (альтернативний)"
+    "image-server-hiveblog": "Вузлик зображення (альтернативний)",
+    "image-server-nocdn": "Зображення точностей (без CDN)"
   },
   "settings": {
     "dm-privacy": {
