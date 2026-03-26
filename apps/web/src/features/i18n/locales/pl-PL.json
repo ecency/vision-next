@@ -230,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Portfel",
-    "unclaimed-reward-notice": "Masz nieodebrane wynagrodzenie",
+    "unclaimed-reward-notice": "Masz zarobki do pobrania!",
     "points": "Punkty",
-    "unclaimed-points-notice": "Masz nieodebrane punkty",
+    "unclaimed-points-notice": "Masz punkty do zebrania!",
     "notifications": "Powiadomienia",
     "profile": "Profil",
     "profile-menu": "Menu profilu",
@@ -300,10 +300,10 @@
     "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji."
   },
   "sign-up": {
-    "header": "Nagroda społeczności Web3",
-    "description": "Freespeech, Prawdziwa własność, swoboda finansowa!",
-    "description-2": "Ul potęguje wiele aplikacji i jest całkowicie zdecentralizowany przez członków społeczności na całym świecie. Z kontem masz bezpośredni dostęp do ekosystemu.",
-    "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkimi w Blockchain.",
+    "header": "Społeczności Nagrodowe",
+    "description": "Wolność słowa, prawdziwa własność, wolność finansowa!",
+    "description-2": "Dołącz do platformy zarządzanej w całości przez jego społeczność. Jedno konto daje Ci dostęp do całego ekosystemu.",
+    "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkiego.",
     "learn-more": "Dowiedz się więcej o korzyściach w <a href=\"/faq#how-to-join\">sekcji pytań i odpowiedzi</a>",
     "username": "Wybierz nazwę użytkownika",
     "email": "Podaj swój adres e-mail",
@@ -447,8 +447,8 @@
     "vote-remove": "Głosowanie 0% odebrało od głosu.",
     "vote-warning": "Zmiana głosu...",
     "no-replies": "Brak odpowiedzi. Kliknij aby odpowiedzieć.",
-    "old-post-error": "Głosowanie na zawartość po wypłacie nie daje żadnych nowych nagród.",
-    "old-post-error-suggestion": "Spróbuj wywrócić autora. "
+    "old-post-error": "Okres zarobkowy tego posta zakończył się.",
+    "old-post-error-suggestion": "Nadal możesz poradzić autorowi. "
   },
   "nsfw": {
     "reveal": "Pokaż ten post",
@@ -513,18 +513,18 @@
     "submit-label": "Zatwierdź",
     "published": "Wpis został opublikowany",
     "no-subscription": "Nie należysz do żadnej społeczności, w której można udostępnić wpis.",
-    "info": "Nagrody są automatycznie odrzucane dla udostępnionego wpisu. Osobne będą również komentarze tego wpisu i będą podlegać wytycznym społeczności docelowej."
+    "info": "Zyski są automatycznie odrzucane dla postów. Dyskusje pod różnymi postami przebiegają zgodnie z wytycznymi społeczności hosta."
   },
   "entry-payout": {
-    "reward": "Nagroda",
+    "reward": "Zyski",
     "full-power": "Zwiększ moc 100%",
-    "pending-payout": "Oczekująca wypłata",
+    "pending-payout": "Szacowane zarobki",
     "promoted": "Promowane",
-    "author-payout": "Wypłata Autorska",
-    "curators-payout": "Wypłata Kuratorska",
+    "author-payout": "Zyski autora",
+    "curators-payout": "Zyski Sojuszników",
     "payout-date": "Wypłata",
     "beneficiary": "Beneficjant",
-    "breakdown": "Podział",
+    "breakdown": "Szczegóły",
     "max-accepted": "Maksymalna zaakceptowana"
   },
   "entry-index": {
@@ -723,7 +723,7 @@
   },
   "market": {
     "title": "Wymiana tokenów",
-    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Ostatnia cena",
     "volume": "24h głośność",
     "bid": "Bid",
@@ -943,7 +943,9 @@
     "reveal": "Pokaż komentarz",
     "no-conversation": "Brak konwersacji, najpierw odpowiedz.",
     "start-conversation": "Rozpocznij rozmowę",
-    "join-hint": "Zostań częścią wielkiej społeczności Uli i zarabiaj nagrody za aktywność"
+    "join-hint": "Dołącz do rozmowy i zarabiaj za swój wkład",
+    "new-comment": "{{n}} nowy komentarz - dotknij, aby załadować",
+    "new-comments": "{{n}} nowe komentarze - dotknij, aby załadować"
   },
   "community": {
     "page-description": "{{f}} tematów",
@@ -1228,18 +1230,18 @@
     "dm-privacy-failed": "Nie udało się zaktualizować ustawień prywatności DM"
   },
   "wallet": {
-    "unclaimed-rewards": "Nieodebrane wynagrodzenie",
-    "claim-reward-balance": "Odbierz wynagrodzenie",
-    "claim-reward-balance-ok": "Wynagrodzenie odebrane",
+    "unclaimed-rewards": "Zyski do zebrania",
+    "claim-reward-balance": "Zbieraj zarobki",
+    "claim-reward-balance-ok": "Zgromadzone zarobki!",
     "estimated": "Szacowana wartość portfela",
     "estimated-points": "Szacowana wartość Punktów",
     "estimated-description": "Wartość jest szacowana na podstawie średniej wartości HIVE z 7 dni.",
     "estimated-description-points": "Szacowana wartość opiera się na wartości zakupu Punktów.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE to Twoje płynne saldo - przelew, handluj lub zastawiaj je w dowolnym momencie.",
     "hive-power": "MOC HIVE",
-    "hive-power-description": "Moc uliczna to tokeny wpływające, które zarabiają więcej mocy za długotrwałe trzymanie i głosowanie nad treścią. Im więcej Mocy Uli, tym więcej może wpływać na nagrody innych i zdobywać nagrody za dokładne głosowanie. Moc Hive jest zablokowany token HIVE, który może być niewykorzystany w ciągu 13 tygodni.",
+    "hive-power-description": "Moc Uli to twój wpływ. Im więcej masz na siebie, tym więcej głosów ma znaczenie i tym więcej zarabiasz. Należy przyjąć HIVE, aby go zwiększyć, bez udziału w ciągu 13 tygodni.",
     "hive-power-apr-rate": "Stopa procentowa APR dla Mocy Hive wynosi {{value}}%",
     "hive-dollars-apr-rate": "Stopa procentowa APR dla HBD($) wynosi {{value}}%",
     "hive-dollars-apr-claim": "Szacowane odsetki od ostatniej płatności {{value}}:",
@@ -1251,7 +1253,7 @@
     "next-power-down-amount": "Następny spadek mocy jest za",
     "hive-power-total": "Całkowita Moc Hive",
     "hive-dollars": "HIVE DOLLARY",
-    "hive-dollars-description": "Tokeny warte około 1,00 USD z HIVE.",
+    "hive-dollars-description": "Stabilne tokeny ustawione do około $1.00 każdy.",
     "savings": "OSZCZĘDNOŚCI",
     "savings-description": "Saldo z 3-dniowym okresem oczekiwania na wypłatę.",
     "next-power-down": "Następnym spadkiem zasilania jest {{time}}(~{{amount}}, {{weeks}} tygodni pozostało)",
@@ -1272,8 +1274,8 @@
     "reserved-amount": "Zarezerwowane dla Otwartego Zamówienia w Rynku",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Nieodebrane nagrody"
+        "title": "Zbierz",
+        "unclaimed-rewards": "Zyski do zebrania"
       },
       "delegate": {
         "title": "Delegat",
@@ -1364,7 +1366,7 @@
   "points": {
     "get": "KUP PUNKTY",
     "unclaimed-points": "Nieodebrane punkty",
-    "claim-reward-points": "Odbierz punkty lojalnościowe",
+    "claim-reward-points": "Zbierz punkty",
     "main-description": "Punkty mogą być używane do usług w aplikacji, takich jak Promote, Boost, Podarunek. Zarabiaj je tylko za pomocą aplikacji Ecency i poprawiaj swoje doświadczenia.",
     "earn-points": "Jak zarobić więcej punktów",
     "post-desc": "Możesz zdobywać punkt poprzez regularne publikowanie. Postowanie daje ci 15 punktów.",
@@ -1551,7 +1553,7 @@
     "type-tokens_stake": "Tokeny tyczenia",
     "type-tokens_issue": "Tokeny wydania",
     "type-comments_beneficiaryReward": "Nagroda dla beneficjenta",
-    "type-claim_reward_balance": "Odbierz wynagrodzenia",
+    "type-claim_reward_balance": "Zgromadzone zarobki",
     "type-transfer": "Przelew",
     "type-tokens_transfer": "Przelew",
     "type-transfer_to_vesting": "Zasil",
@@ -1708,10 +1710,10 @@
     "body-placeholder": "Powiedz swoją historię...",
     "reward": "Nagroda",
     "take-tour": "Zabierz wycieczkę",
-    "reward-hint": "Ustaw współczynnik nagród autorskich dla płynnych i zastawionych tokenów",
+    "reward-hint": "Wybierz sposób, w jaki otrzymujesz swoje zarobki",
     "reward-default": "Domyślnie 50% / 50%",
-    "reward-sp": "Zwiększ moc 100%",
-    "reward-dp": "Odmów wynagrodzenia",
+    "reward-sp": "Tycz 100%",
+    "reward-dp": "Odrzuć zarobki",
     "preview": "Podgląd",
     "publish": "Publikuj",
     "update": "Aktualizuj",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} wysłał(a) Ci {{amount}}",
     "delegations": "{{source}} przekazał Ci {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Wypłata treści jest gotowa.",
+    "payouts": "Twoje zyski z treści są gotowe.",
     "payouts-amount": "Otrzymałeś(aś) wypłatę {{amount}}.",
+    "payouts-amount-usd": "Zarobiłeś ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Utworzyłeś {{count}} post{{suffix}} w tym miesiącu. Tak dalej!"
+    "monthly-posts": "Utworzyłeś {{count}} post{{suffix}} w tym miesiącu. Tak dalej!",
+    "weekly-earnings": "W tym tygodniu zarobiłeś ${{total}} - ${{author}} z postów, ${{curation}} z kuracji.",
+    "weekly-earnings-short": "Zdobyłeś w tym tygodniu ${{total}} z Twoich postów i ciekawości."
   },
   "notifications": {
     "type-all": "Wszystkie powiadomienia",
@@ -1864,6 +1869,7 @@
     "inactive-str": "Bądź aktywny! Napisz post, kontynuuj zarabianie",
     "referral-str": "dołączył(a) do rekomendacji, powitaj ich",
     "account-update-str": "Klucze konta lub profil zostały zaktualizowane",
+    "weekly-earnings-title": "Podsumowanie tygodniowych zarobków dla @{{username}}",
     "refresh": "Odśwież",
     "mark-all-read": "Oznacz wszystkie jako przeczytane",
     "mark-read": "Oznacz jako przeczytane",
@@ -2250,9 +2256,9 @@
         "create-title": "Opublikuj z dowolnego miejsca",
         "create-description": "Szkic postów, udostępniaj aktualizacje i odpowiadaj na komentarze z tym samym potężnym edytorem, którego używasz na komputerze.",
         "wallet-title": "Portfel na rzut oka",
-        "wallet-description": "Sprawdź salda, odbierz nagrody i zarządzaj Mością Uroczną lub HBD tylko kilkoma dotknięciami.",
+        "wallet-description": "Sprawdź salda, zbieraj zyski i zarządzaj tokenami za pomocą kilku kliknięć.",
         "notifications-title": "Nigdy nie przegap wzmianki",
-        "notifications-description": "Powiadomienia wyróżniają nowych obserwujących, wzmianki i nagrody, dzięki czemu możesz świętować na czas."
+        "notifications-description": "Powiadomienia wyróżniają nowych obserwujących, wzmianki i zarobki, aby móc świętować na czas."
       },
       "features-title": "Zaprojektowane dla twórców i społeczności",
       "features": {
@@ -2316,8 +2322,8 @@
       "how-see-rewards-body": "<p>Na stronie Wallet (w górnym nagłówku w witrynie internetowej i aplikacji komputerowej, dolny pasek nawigacyjny w aplikacji mobilnej), możesz zobaczyć nagrody za kurację (nagrody zdobyte za upvote posty i komentarze) oraz nagrody autora (nagrody zdobyte przez własne posty i komentarze)</p><p>Możesz również zobaczyć te same informacje dla innych użytkowników, odwiedzając ich profil portfela.</p>",
       "how-dhf-work-header": "Jak działa DHF?",
       "how-dhf-work-body": "<p>Każdy może przedstawić własną propozycję i przekonać społeczność do głosowania na nią, by pozyskać fundusze na jej sfinansowanie. Utworzenie propozycji powinno być poprzedzone publikacją normalnego wpisu w blockchainie i zebraniem na jej temat opinii. Utworzenie propozycji wiąże się z opłatą 10 HBD + 1 HBD za każdy dzień jej trwania powyżej 60 dni.</p><p>Gdy suma głosów oddanych na daną propozycję przekroczy określony próg, propozycja zaczyna otrzymywać fundusze co godzinę. Jeśli propozycja spadnie poniżej progu, system wstrzyma jej finansowanie. Możesz głosować na dowolną liczbę propozycji bez ograniczeń. Propozycji nie można edytować, ale twórca może je usunąć/ wycofać.</p>",
-      "when-claim-rewards-header": "Kiedy mogę odebrać moje nagrody?",
-      "when-claim-rewards-body": "<p>Posty i komentarze pozostają aktywne przez 7 dni, a nagrody są zmienne w zależności od głosów i ceny rynkowej tokenu, Dlatego nagrody są przybliżone jako nagroda oczekująca. Po zakończeniu okresu, oczekujące zmiany nagród do faktycznej nagrody i możesz odebrać zdobyte nagrody. W swoim portfelu kliknij przycisk Odbierz Nagrody aby dodać tokeny do swojego konta.</p>",
+      "when-claim-rewards-header": "Kiedy mogę zbierać swoje zarobki?",
+      "when-claim-rewards-body": "<p>Wiadomości i komentarze zarabiają przez 7 dni. W tym okresie zarobki zmieniają się w zależności od głosów i warunków rynkowych - dlatego pokazują się według szacunków. Po 7 dniach Twoje ostatnie zarobki są gotowe do zebrania. Przejdź do portfela i naciśnij przycisk Zbierz aby dodać je do swojego salda.</p>",
       "what-are-rc-header": "Czym są Kredyty Zasobów?",
       "what-are-rc-body": "<p>Transakcja w łańcuchu bloków w uli ma zerowe opłaty, ograniczanie szybkości transakcji jest stosowane w celu zabezpieczenia łańcucha bloków przed atakami spamu. Każda akcja, którą podejmujesz w blockchain, zużywa niewielką ilość zasobów kredytowych. Obejmuje to publikowanie, komentowanie, głosowanie, przesyłanie tokenów itp. Oglądanie treści nie zużywa zasobów kredytowych.</p><p>Każdy użytkownik ma ograniczoną ilość środków zasobowych do wykorzystania w każdym tygodniu. Im więcej transakcji dokonuje użytkownik, tym mniej środków Zasobowych zostawią (dopóki nie doładuje). Użytkownicy z większą ilością HIVE POWER będą mieli więcej zasobów kredytowych.</p><p>Jeśli skończysz z zasobami kredytowymi, nie będziesz w stanie dokonać transakcji z blockchain, dopóki nie doładujesz środków zasobowych (nastąpi to automatycznie) lub zdobędziesz dodatkowe środki HIVE POWER w celu zwiększenia salda zasobów lub możesz <a href=\"/faq#how-boost-account\">poprosić o konto Boostingowe od Ecency</a> aby otrzymać tymczasowe delegowanie.</p>",
       "how-boost-account-header": "Jak poprosić o podbicie konta?",
@@ -3201,10 +3207,10 @@
       "note": "Odsetki są obliczane w sposób ciągły dla {{apr}}% APR.",
       "claim-button": "Odsetki"
     },
-    "claim-rewards": "Odbierz nagrody",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Trwa pobieranie...",
-    "claim-rewards-success": "Pomyślnie odebrano {{amount}} {{token}}",
+    "claim-rewards": "Zbieraj zarobki",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "Zbieranie...",
+    "claim-rewards-success": "Zebrano {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% wzmocnienie APR",
       "title": "Niech Ecencja klasztoru z Twoją Moc Uliczną",
@@ -3393,6 +3399,7 @@
     "free-label": "Darmowe",
     "free-remaining": "{{count}} free left today",
     "cost-label": "Koszt",
+    "hint": "Napisz swoją zawartość na początku, a następnie użyj Asystenta AI, aby go wypolecić i ulepszyć.",
     "action-label": "Co chciałbyś zrobić?",
     "text-label": "Twoje treści",
     "text-placeholder": "Wklej lub wpisz wersję roboczą tutaj...",
