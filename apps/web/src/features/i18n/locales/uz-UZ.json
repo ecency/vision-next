@@ -230,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Hamyon",
-    "unclaimed-reward-notice": "Sizda qolib ketgan mukofotlar bor",
+    "unclaimed-reward-notice": "You have earnings to collect!",
     "points": "Ballar",
-    "unclaimed-points-notice": "Sizda olinmagan ballar bor",
+    "unclaimed-points-notice": "You have points to collect!",
     "notifications": "Xabarnomalar",
     "profile": "Profil",
     "profile-menu": "Profil menyusi",
@@ -300,10 +300,10 @@
     "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
   },
   "sign-up": {
-    "header": "MukofotlovchiWeb3 Guruhlari",
-    "description": "So‘z erkinligi, Haqiqiy egalik, Moliyaviy erkinlik!",
-    "description-2": "Hive ko‘plab ilovalarni quvvatlaydi va butunlay markazlashmagan holda butun dunyo bo‘ylab hamjamiyat a’zolari tomonidan boshqariladi. Hisobingiz orqali siz ekotizimga bevosita kirish imkoniga ega bo‘lasiz.",
-    "bottom-description": "Bitta akkaunt, bitta hamyon — blokcheyndagi hamma narsani boshqarish uchun.",
+    "header": "Rewarding Communities",
+    "description": "Free speech, True ownership, Financial freedom!",
+    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
+    "bottom-description": "One account, one wallet to manage everything.",
     "learn-more": "Imtiyozlar haqida batafsil ma'lumotni <a href=\"/faq#how-to-join\">FAQ</a> bo‘limida o‘qing",
     "username": "Foydalanuvchi nomini tanlang",
     "email": "Pochta manzilingizni kiriting",
@@ -447,8 +447,8 @@
     "vote-remove": "0% ovoz berish ovozni bekor qiladi.",
     "vote-warning": "Ovozni o'zgartirish...",
     "no-replies": "Hozircha javoblar yoʻq. Javob berish uchun bosing.",
-    "old-post-error": "To‘lov muddati tugaganidan keyin kontentga ovoz berish yangi mukofotlar keltirmaydi.",
-    "old-post-error-suggestion": "Muallifga tip yuborib ko‘ring "
+    "old-post-error": "This post's earning period has ended.",
+    "old-post-error-suggestion": "You can still tip the author directly. "
   },
   "nsfw": {
     "reveal": "Ushbu postni ko‘rsatish",
@@ -513,18 +513,18 @@
     "submit-label": "Tasdiqlash",
     "published": "Post e'lon qilindi",
     "no-subscription": "Postni ulashish uchun guruhga a'zo bo'lmagansiz.",
-    "info": "Tarqatilgan post uchun mukofot berilmaydi va tarqatilgan post uchun muhokamalar alohida lbo'ladi hamda turli guruh qoidalariga amal qiladi."
+    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
   },
   "entry-payout": {
-    "reward": "Mukofot",
+    "reward": "Earnings",
     "full-power": "100% qo'llab quvvatlash",
-    "pending-payout": "Kutilayotgan to'lov",
+    "pending-payout": "Estimated Earnings",
     "promoted": "Kötarilgan",
-    "author-payout": "Avtorlik to'lovi",
-    "curators-payout": "Kuratorlar to'lovi",
+    "author-payout": "Author Earnings",
+    "curators-payout": "Supporters' Earnings",
     "payout-date": "To'lov",
     "beneficiary": "Haq egasi",
-    "breakdown": "Bo'linish",
+    "breakdown": "Details",
     "max-accepted": "Maksimal olindi"
   },
   "entry-index": {
@@ -723,7 +723,7 @@
   },
   "market": {
     "title": "Token almashinuvi",
-    "description": "Hive blokcheynda tokenlarni Sotib olish va Sotish uchun markazlashmagan almashinuv. Ko'proq ma'lumotga ega bo'lish uchun <a href=\"/faq#how-exchange-work\"> FAQ</a>ga kiring.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "So'nggi narx",
     "volume": "24 soatlik hajm",
     "bid": "Taklif",
@@ -943,7 +943,9 @@
     "reveal": "Izhohni ko'rsatish",
     "no-conversation": "Hali suhbat yo‘q, birinchi bo‘lib javob yozing",
     "start-conversation": "Suhbatni boshlash",
-    "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling"
+    "join-hint": "Join the conversation and earn for your contributions",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} mavzular",
@@ -1228,18 +1230,18 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "Olinmagan mukofotlar",
-    "claim-reward-balance": "Olingan mukofotlar miqdori",
-    "claim-reward-balance-ok": "Mukofot balansi olingan",
+    "unclaimed-rewards": "Earnings to collect",
+    "claim-reward-balance": "Collect earnings",
+    "claim-reward-balance-ok": "Earnings collected!",
     "estimated": "Hamyonning Taxminiy Qiymati",
     "estimated-points": "Ballarning taxminiy qiymati",
     "estimated-description": "Taxminiy xarajat HIVEning 7 kunlik o'rtacha narxiga asoslanadi.",
     "estimated-description-points": "Taxminiy qiymat Ballarni sotib olish narxiga asoslanadi.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power - kontentga ovoz berish uchun ko'proq kuch beradigan ta'sir qiluvchi token. Biror kishi qanchalik ko'p Hive Powerga ega bo'lsa, u boshqalarning mukofotlariga shunchalik ta'sir qilishi va ovoz berish uchun mukofot olishi mumkin. Hive Power asosan ma'lum bir hamyonda saqlanadigan Hive tokenidir, bu so'ralgan pulni to'liq yechib olish uchun 13 haftani talab qiladi.",
+    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
     "hive-power-apr-rate": "Hive Power uchun APR foiz stavkasi{{value}}%",
     "hive-dollars-apr-rate": "HBD ($) uchun APR foiz stavkasi{{value}}%",
     "hive-dollars-apr-claim": "Oxirgi to'lovdan keyin hisoblangan foizlar {{value}}:",
@@ -1251,7 +1253,7 @@
     "next-power-down-amount": "Keyingi power down miqdori",
     "hive-power-total": "Umumiy Hive kuchi",
     "hive-dollars": "HIVE DOLLARLARI",
-    "hive-dollars-description": "Tokenlar taxminan $1.00 HIVEga teng.",
+    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
     "savings": "JAMG'ARMA",
     "savings-description": "Balansni yechib olish uchun 3 kunlik kutish muddati belgilanadi.",
     "next-power-down": "Keyingi quvvat power down {{time}}, (~{{amount}}, {{weeks}} hafta qoldi)",
@@ -1272,8 +1274,8 @@
     "reserved-amount": "Bozorda ochiq buyurtma uchun ajratilgan",
     "spk": {
       "claim": {
-        "title": "Olish",
-        "unclaimed-rewards": "Olinmagan mukofotlar"
+        "title": "Collect",
+        "unclaimed-rewards": "Earnings to collect"
       },
       "delegate": {
         "title": "Delegatsiyalash",
@@ -1364,7 +1366,7 @@
   "points": {
     "get": "BALLARNI SOTIB OLISH",
     "unclaimed-points": "Olinmagan ballar",
-    "claim-reward-points": "Olingan mukofotlar miqdori",
+    "claim-reward-points": "Collect points",
     "main-description": "Ballar Targ'ib qilish, Kuchaytirish, Hadya qilish kabi ilova ichidagi xizmatlar uchun ishlatish mumkin. Ecency ilovalaridan foydalanib, ballarni oling va tajribangizni yaxshilang.",
     "earn-points": "Qanday qilib ko'proq Ball ishlash mumkin",
     "post-desc": "Post yozganingizda tanga beriladi. Har post uchun 15 ball ishlaysiz.",
@@ -1551,7 +1553,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "Mukofotlarni olish",
+    "type-claim_reward_balance": "Collected earnings",
     "type-transfer": "O'tkazmalar",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Kuchni oshirish",
@@ -1708,10 +1710,10 @@
     "body-placeholder": "O'z hikoyangizni yozing...",
     "reward": "Mukofot",
     "take-tour": "Take a tour",
-    "reward-hint": "Suyuq va stavkali tokenlar uchun muallif mukofoti nisbatini belgilang",
+    "reward-hint": "Choose how you receive your earnings",
     "reward-default": "Birlamchi 50% / 50%",
-    "reward-sp": "100% qo'llab quvvatlash",
-    "reward-dp": "To'lovni bekor qilish",
+    "reward-sp": "Stake 100%",
+    "reward-dp": "Decline Earnings",
     "preview": "Ko'rish",
     "publish": "Nashr qilish",
     "update": "Yangilash",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} sizga jo'natdi {{amount}}",
     "delegations": "{{source}} sizga jo'natdi {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content payout is ready.",
+    "payouts": "Your content earnings are ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "Barcha xabarnomalar",
@@ -1864,6 +1869,7 @@
     "inactive-str": "Faol bo'ling! Post yozing, daromad olishda davom eting",
     "referral-str": "joined with referral, welcome them",
     "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Yangilash",
     "mark-all-read": "Hammasini o'qilgan deb belgilash",
     "mark-read": "O'qilgan deb belgilash",
@@ -2250,9 +2256,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2316,8 +2322,8 @@
       "how-see-rewards-body": "<p>Hamyon sahifasida (veb-sayt va ish stoli ilovasining yuqori sarlavhasida, mobil ilovaning pastki navigatsiya panelida) siz Kuratsiya mukofotlarini (post va sharhlarga ovoz berish orqali olingan mukofotlar) va Muallif mukofotlarini koʻrishingiz mumkin (o'z postlaringiz va sharhlaringiz uchun olingan mukofotlar).</p><p>Siz boshqa foydalanuvchilar uchun ham xuddi shu ma'lumotlarni ularning Wallet profiliga tashrif buyurib ko'rishingiz mumkin.</p>",
       "how-dhf-work-header": "MHF (Markazlashtirilmagan Hive Fondi) qanday ishlaydi?",
       "how-dhf-work-body": "<p>Har kim taklif yaratishi va guruhni moliyalashtirish bo'yicha o'z taklifiga ovoz berishga ishontirishi mumkin. Taklifni yaratishdan oldin blokcheynda oddiy post qilish kerak va taklifni yaratishdan oldin javoblardan fikr-mulohazalarni yig'ish tavsiya etiladi. Takliflar yaratishda 60 kundan ortiq davom etadigan har bir kun uchun 10 HBD + 1 HBD kvotasi mavjud.</p><p>Taklif hisoblangan ovozlarning maʼlum chegarasiga yetgandan soʻng, u har soatda mablagʻ olishni boshlaydi. Agar taklif chegaradan pastga tushsa, tizim bu taklifni moliyalashni to'xtatadi. Istaganingizcha takliflar uchun ovoz berishingiz mumkin, cheklovlar yo'q. Taklifni tahrirlab bo‘lmaydi, faqatgina yaratuvchi o‘chirib tashlashi yoki qaytarib olishi mumkin.</p>",
-      "when-claim-rewards-header": "Mukofotlarimni qachon olishim mumkin?",
-      "when-claim-rewards-body": "<p>Postlar va sharhlar 7 kun davomida faol bo'lib qoladi va mukofotlar ovozlar va tokenning bozor narxiga qarab o'zgarib turadi, shuning uchun mukofot kutilayotgan mukofot sifatida taxmin qilinadi. Muddat tugagach, kutilayotgan mukofot haqiqiy mukofotga o'zgaradi va siz olingan mukofotlarga da'vo qilishingiz mumkin. Tokenlarni hisobingizga qo‘shish uchun hamyoningizda “Mukofotlarni olish” tugmasini bosing.</p>",
+      "when-claim-rewards-header": "When can I collect my earnings?",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "Resurs Kreditlari nima?",
       "what-are-rc-body": "<p>Hive blokcheynidagi tranzaksiya nol komissiyaga ega, tranzaksiya tezligini cheklash blokcheynni spam hujumlaridan himoya qilish uchun qo'llaniladi. Blockcheynda qilgan har bir harakatingiz oz miqdorda Resurs kreditlarini sarflaydi. Bunga nashr qilish, izoh qoldirish, ovoz berish, tokenlarni oʻtkazish va hokazo kiradi. Kontentni koʻrish Resurs kreditlarini sarflamaydi.</p><p>Har bir foydalanuvchi har hafta foydalanishi uchun cheklangan miqdordagi Resurs kreditlariga ega. Foydalanuvchi qanchalik ko'p tranzaktsiyalarni amalga oshirsa, shunchalik kam Resurs kreditlari qoladi (ular to'ldirilgunga qadar). Ko‘proq HIVE POWER’ga ega foydalanuvchilar ko‘proq Resurs kreditlariga ega bo‘ladilar.</p><p>Agar sizda resurs kreditlari tugasa, resurs kreditlari to‘ldirilmaguncha (avtomatik ravishda sodir bo‘ladi) yoki qo‘shimcha HIVE POWER ga ega bo‘lmaguncha blokcheyn bilan tranzaksiya qila olmaysiz. Resurs krediti balansini oshirish uchun yoki vaqtinchalik vakolatni olish uchun <a href=\"/faq#how-boost-account\">Ecencydan hisobni kuchaytishni so‘rashingiz</a> mumkin.</p>",
       "how-boost-account-header": "Hisobni kuchaytirishni qanday talab qilish kerak?",
@@ -3201,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Claim rewards",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Claiming...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "Collect earnings",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "Collecting...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3393,6 +3399,7 @@
     "free-label": "Free",
     "free-remaining": "{{count}} free left today",
     "cost-label": "Cost",
+    "hint": "Write your content first, then use AI Assist to polish and improve it.",
     "action-label": "What would you like to do?",
     "text-label": "Your content",
     "text-placeholder": "Paste or type your draft content here...",
