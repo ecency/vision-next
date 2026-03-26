@@ -1212,7 +1212,8 @@
     "permissions": "Abrir permissões",
     "image-server": "Servidor de imagem",
     "image-server-default": "Imagens de Ecency (Padrão)",
-    "image-server-hiveblog": "Imagens de Colméia (Alternativa)"
+    "image-server-hiveblog": "Imagens de Colméia (Alternativa)",
+    "image-server-nocdn": "Imagens de Ecency (Sem CDN)"
   },
   "settings": {
     "dm-privacy": {
