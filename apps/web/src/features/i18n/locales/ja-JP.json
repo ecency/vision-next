@@ -1212,7 +1212,8 @@
     "permissions": "権限を開く",
     "image-server": "画像サーバー",
     "image-server-default": "Ecency images(デフォルト)",
-    "image-server-hiveblog": "ハイブ画像 (代替)"
+    "image-server-hiveblog": "ハイブ画像 (代替)",
+    "image-server-nocdn": "イメージ画像（CDNなし）"
   },
   "settings": {
     "dm-privacy": {
