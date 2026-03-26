@@ -230,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Cüzdan",
-    "unclaimed-reward-notice": "Bekleyen ödülleriniz var",
+    "unclaimed-reward-notice": "You have earnings to collect!",
     "points": "Puan",
-    "unclaimed-points-notice": "Bekleyen puanlarınız var",
+    "unclaimed-points-notice": "You have points to collect!",
     "notifications": "Bildirimler",
     "profile": "Profil",
     "profile-menu": "Profil menüsü",
@@ -300,10 +300,10 @@
     "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
   },
   "sign-up": {
-    "header": "Rewarding Web3 Communities",
-    "description": "Freespeech, True ownership, Financial freedom!",
-    "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
-    "bottom-description": "One account, one wallet to manage everything on Blockchain.",
+    "header": "Rewarding Communities",
+    "description": "Free speech, True ownership, Financial freedom!",
+    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
+    "bottom-description": "One account, one wallet to manage everything.",
     "learn-more": "<a href=\"/faq#how-to-join\">SSS</a> sayfamızdan avantajlar hakkında detaylı bilgi edinebilirsiniz",
     "username": "Kullanıcı adı seçin",
     "email": "E-posta adresinizi girin",
@@ -447,8 +447,8 @@
     "vote-remove": "%0 oylamak mevcut oyu kaldırır.",
     "vote-warning": "Oy değiştirme...",
     "no-replies": "Henüz yorum yapılmadı. Yorum yazmak için tıklayın.",
-    "old-post-error": "Voting on Content after their payout does not generate any new rewards.",
-    "old-post-error-suggestion": "Try tipping the author. "
+    "old-post-error": "This post's earning period has ended.",
+    "old-post-error-suggestion": "You can still tip the author directly. "
   },
   "nsfw": {
     "reveal": "Bu gönderiyi görüntüle",
@@ -513,18 +513,18 @@
     "submit-label": "Onayla",
     "published": "Gönderi Yayınlandı",
     "no-subscription": "Çapraz gönderi yayınlamak için herhangi bir topluluk aboneliğiniz yok.",
-    "info": "Çapraz gönderi için ödüller otomatik olarak reddedilir ve çapraz gönderi altındaki yorumlar farklı olarak farklı topluluk yönergelerini izler."
+    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
   },
   "entry-payout": {
-    "reward": "Ödül",
+    "reward": "Earnings",
     "full-power": "100% Güç Yükselt",
-    "pending-payout": "Bekleyen Ödeme",
+    "pending-payout": "Estimated Earnings",
     "promoted": "Sponsorlu",
-    "author-payout": "Yazar Ödemesi",
-    "curators-payout": "Küratör Ödemesi",
+    "author-payout": "Author Earnings",
+    "curators-payout": "Supporters' Earnings",
     "payout-date": "Ödeme",
     "beneficiary": "Hak sahibi",
-    "breakdown": "Dağılım",
+    "breakdown": "Details",
     "max-accepted": "Maks. kabul edilen"
   },
   "entry-index": {
@@ -723,7 +723,7 @@
   },
   "market": {
     "title": "Token exchange",
-    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Last Price",
     "volume": "24h volume",
     "bid": "Bid",
@@ -943,7 +943,9 @@
     "reveal": "Yorumu görüntüle",
     "no-conversation": "No conversation yet, be first to reply",
     "start-conversation": "Start conversation",
-    "join-hint": "Become part of huge Hive community and earn rewards for activity"
+    "join-hint": "Join the conversation and earn for your contributions",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} konular",
@@ -1228,18 +1230,18 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "Talep edilmemiş ödüller",
-    "claim-reward-balance": "Ödül bakiyesini talep et",
-    "claim-reward-balance-ok": "Ödül bakiyesi talep edildi",
+    "unclaimed-rewards": "Earnings to collect",
+    "claim-reward-balance": "Collect earnings",
+    "claim-reward-balance-ok": "Earnings collected!",
     "estimated": "Tahmini Hesap Değeri",
     "estimated-points": "Tahmini Puan Değeri",
     "estimated-description": "Tahmini değer HIVE'ın 7 günlük ortalama değerine dayanmaktadır.",
     "estimated-description-points": "Tahmini değer puan satış miktarına bağlıdır.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power are influence tokens that earn more power for holding long term and voting on content. The more Hive Power one holds, the more one can influence other’s rewards and earn rewards for accurate voting. Hive Power is staked HIVE token that can be unstaked in 13 weeks.",
+    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
     "hive-power-apr-rate": "APR interest rate for Hive Power is {{value}}%",
     "hive-dollars-apr-rate": "APR interest rate for HBD($) is {{value}}%",
     "hive-dollars-apr-claim": "Estimated interest since last payment {{value}}:",
@@ -1251,7 +1253,7 @@
     "next-power-down-amount": "Sonraki güç azalma miktarı",
     "hive-power-total": "Toplam Hive Power",
     "hive-dollars": "HIVE DOLARLARI",
-    "hive-dollars-description": "Tokenlar yaklaşık $1.00 HIVE değerindedir.",
+    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
     "savings": "BİRİKİM",
     "savings-description": "Bakiye çekimi 3 gün bekleme süresine tabidir.",
     "next-power-down": "The next power down is {{time}}, (~{{amount}}, {{weeks}} weeks remaining)",
@@ -1272,8 +1274,8 @@
     "reserved-amount": "Reserved for Open order in Market",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "Unclaimed rewards"
+        "title": "Collect",
+        "unclaimed-rewards": "Earnings to collect"
       },
       "delegate": {
         "title": "Delegate",
@@ -1364,7 +1366,7 @@
   "points": {
     "get": "PUAN SATIN AL",
     "unclaimed-points": "Talep edilmemiş puanlar",
-    "claim-reward-points": "Ödül bakiyesini talep et",
+    "claim-reward-points": "Collect points",
     "main-description": "Puanlar Tanıtım, Yükseltme, Hediye verme gibi uygulama içi hizmetler için kullanılabilir. Yalnızca Ecency uygulamalarını kullanarak puan kazanın ve deneyiminizi geliştirin.",
     "earn-points": "Daha fazla Puan nasıl kazanılır",
     "post-desc": "Düzenli paylaşım yaparak puan kazanabilirsiniz. Her gönderi size 15 puan kazandırır.",
@@ -1551,7 +1553,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "Ödülleri talep et",
+    "type-claim_reward_balance": "Collected earnings",
     "type-transfer": "Aktar",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Gücü arttır",
@@ -1708,10 +1710,10 @@
     "body-placeholder": "Tell your story...",
     "reward": "Ödül",
     "take-tour": "Take a tour",
-    "reward-hint": "Likit ve stake edilen tokenlar için yazar ödül oranını ayarlayın",
+    "reward-hint": "Choose how you receive your earnings",
     "reward-default": "Varsayılan %50 / %50",
-    "reward-sp": "%100 Güç Yükselt",
-    "reward-dp": "Ödemeyi Reddet",
+    "reward-sp": "Stake 100%",
+    "reward-dp": "Decline Earnings",
     "preview": "Önizleme",
     "publish": "Yayınla",
     "update": "Güncelle",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} sana {{amount}} gönderdi",
     "delegations": "{{source}} delegated you {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content payout is ready.",
+    "payouts": "Your content earnings are ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "Tüm Bildirimler",
@@ -1864,6 +1869,7 @@
     "inactive-str": "Aktif ol! Yazı yaz, kazanmaya devam et",
     "referral-str": "joined with referral, welcome them",
     "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Yenile",
     "mark-all-read": "Tümünü Okundu Olarak İşaretle",
     "mark-read": "Okundu Olarak İşaretle",
@@ -2250,9 +2256,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2316,8 +2322,8 @@
       "how-see-rewards-body": "<p>In Wallet page (in top header on website and desktop app, bottom navigation bar on mobile app), you can see Curation rewards (the rewards earned for upvoting posts and comments) and Author rewards (the rewards earned by your own posts and comments)</p><p>You can also view the same information for other users by visiting their wallet profile.</p>",
       "how-dhf-work-header": "How DHF works?",
       "how-dhf-work-body": "<p>Anyone can create a proposal and convince community to vote on their proposal to get funded. Before creating proposal, normal post should be published on blockchain and it is recommended to gather feedback before creating proposal. Proposal creation has fee of 10 HBD + 1 HBD for each day it lasts over 60 days.</p><p>Once proposal reaches certain threshold of tallied votes, it will start receiving funds each hour. If proposal falls below threshold, system will halt funding for that proposal. You can vote as many proposals as you want, there are no limits. Proposal cannot be edited, but can be deleted/withdrawn by creator.</p>",
-      "when-claim-rewards-header": "Ödüllerimi ne zaman alabilirim?",
-      "when-claim-rewards-body": "<p>Yazılar ve yorumlar 7 gün boyunca aktif kalır ve ödüller oylara ve tokenın piyasa fiyatına göre dalgalanır, bu nedenle ödüller bekleyen ödül olarak tahmin edilir. Süre sonunda bekleyen ödül gerçek ödüle dönüşür ve kazanılan ödüller talep edebilir hale gelir. Tokenları hesabınıza eklemek için cüzdanınızdaki Ödülleri Talep Et düğmesini tıklayın.</p>",
+      "when-claim-rewards-header": "When can I collect my earnings?",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "Kaynak Kredileri nedir?",
       "what-are-rc-body": "<p>Transacting on the Hive blockchain has zero fees, transaction rate-limiting is employed to safeguard the blockchain from spam attacks. Every action that you take on the blockchain will consume a small amount of Resource Credits. This includes posting, commenting, voting, transferring tokens, etc. Viewing content does not consume Resource Credits.</p><p>Every user has a limited amount of Resource Credits to use each week. The more transactions a user does, the less Resource Credits they will have left (until they recharge). Users with more HIVE POWER will have more Resource Credits.</p><p>If you run out of Resource Credits, you will be unable to transact with the blockchain until your Resource Credits recharge (happens automatically) or you acquire additional HIVE POWER to increase your Resource Credit balance or you can <a href=\"/faq#how-boost-account\">request Boosting account from Ecency</a> to receive temporary delegation.</p>",
       "how-boost-account-header": "Hesap yükseltme nasıl talep edilir?",
@@ -3201,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Claim rewards",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Claiming...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "Collect earnings",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "Collecting...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3393,6 +3399,7 @@
     "free-label": "Free",
     "free-remaining": "{{count}} free left today",
     "cost-label": "Cost",
+    "hint": "Write your content first, then use AI Assist to polish and improve it.",
     "action-label": "What would you like to do?",
     "text-label": "Your content",
     "text-placeholder": "Paste or type your draft content here...",
