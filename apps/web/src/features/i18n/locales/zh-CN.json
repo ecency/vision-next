@@ -39,6 +39,7 @@
     "fill-community-feed": "您可以加入更多的社区来填充此种订阅。",
     "save": "保存",
     "try-again": "请再试一次",
+    "soon": "很快的",
     "show": "显示",
     "on": "启用",
     "off": "关闭",
@@ -103,7 +104,9 @@
     "import": "导入",
     "clear": "清空",
     "play": "播放",
-    "pause": "暂停"
+    "pause": "暂停",
+    "start": "开始",
+    "updated": "已更新"
   },
   "validation": {
     "required": "必填字段",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "钱包",
-    "unclaimed-reward-notice": "您有未认领的奖励",
+    "unclaimed-reward-notice": "您有收入可领取！",
     "points": "积分",
-    "unclaimed-points-notice": "您有未认领的积分",
+    "unclaimed-points-notice": "您有要收集的积分！",
     "notifications": "通知",
     "profile": "个人信息",
     "profile-menu": "个人资料",
@@ -239,6 +242,7 @@
     "schedules": "日程表",
     "fragments": "预设内容",
     "settings": "设置",
+    "mobile-login": "登录移动版",
     "logout": "注销",
     "just-logout": "只是注销",
     "logout-and-clear": "注销并清除本地数据",
@@ -290,13 +294,16 @@
     "use-key": "使用密钥/密码",
     "seed-info": "我们不储存您的种子短语和生成的密钥",
     "sign-in": "登录",
-    "my-users": "我的用户"
+    "my-users": "我的用户",
+    "metamask-not-found": "找不到 MetaMask。请安装 MetaMask 浏览器扩展。",
+    "metamask-no-keys": "无法从 MetaMask snap 获取 Hive 密钥",
+    "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。"
   },
   "sign-up": {
-    "header": "奖励Web3社区",
-    "description": "Freespeech, True own, financial freedom!",
-    "description-2": "Hive 增强了许多应用的能力，并完全由世界各地的社区成员来运行。 使用一个帐户，您可以直接访问生态系统。",
-    "bottom-description": "一个帐户，一个钱包来管理Blockchain上的一切。",
+    "header": "奖励社区",
+    "description": "自由言论、真正拥有权、财政自由！",
+    "description-2": "加入一个完全由其社区管理的平台。一个帐户可以让您访问整个生态系统。",
+    "bottom-description": "一个帐户，一个钱包来管理一切。",
     "learn-more": "在我们的 <a href=\"/faq#how-to-join\">常见问题</a>中了解更多好处",
     "username": "选择用户名",
     "email": "输入您的电子邮件地址",
@@ -399,7 +406,10 @@
     "votes": "赞成：",
     "transfers": "传输：",
     "reblogs-follows": "重博客/关注：",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC 授权失败",
+    "invalid-link": "无效的在线链接",
+    "delegate-placeholder": "输入要代表的金额 (Bn)"
   },
   "trending-tags": {
     "title": "主题"
@@ -437,8 +447,8 @@
     "vote-remove": "投票结果0%不投票内容。",
     "vote-warning": "更改投票...",
     "no-replies": "还没有回复。点击进行回复。",
-    "old-post-error": "付出后对内容的投票不会产生任何新的奖励。",
-    "old-post-error-suggestion": "尝试翻修作者。 "
+    "old-post-error": "该帖子的收入期已经结束。",
+    "old-post-error-suggestion": "你仍然可以直接提示作者。 "
   },
   "nsfw": {
     "reveal": "显示此帖子",
@@ -447,9 +457,9 @@
     "settings-2": "显示首选项"
   },
   "bookmark-btn": {
-    "add": "书签-收到关于新评论的通知",
-    "added": "已加入书签！您将收到关于此帖子的新评论的通知",
-    "delete": "删除书签并停止通知",
+    "add": "书签-获得关于新评论的通知",
+    "added": "已添加到书签",
+    "delete": "从书签中删除",
     "deleted": "已从书签中删除"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "礼物",
+    "tip": "Tip",
     "send-tip": "发送提示",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -502,18 +513,18 @@
     "submit-label": "确认",
     "published": "内容已发布",
     "no-subscription": "您没有任何订阅的社区可以进行交叉帖子操作。",
-    "info": "交叉帖子的奖励已被自动取消，该交叉帖子下的讨论内容与原帖将会不同，请遵循不同社区的发帖规则。"
+    "info": "交叉站点的收入自动减少。在交叉站点下的讨论遵循东道社区的准则。"
   },
   "entry-payout": {
-    "reward": "奖励",
+    "reward": "收入",
     "full-power": "100% 充能",
-    "pending-payout": "累积收益中",
+    "pending-payout": "估计收入",
     "promoted": "已推广",
-    "author-payout": "作者收益",
-    "curators-payout": "审查收益",
+    "author-payout": "作者收入",
+    "curators-payout": "支持者的收入",
     "payout-date": "收益",
     "beneficiary": "受益人",
-    "breakdown": "分解",
+    "breakdown": "详细信息",
     "max-accepted": "最大已接受"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "代币交易",
-    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "最后价格",
     "volume": "24小时音量",
     "bid": "Bid",
@@ -932,7 +943,9 @@
     "reveal": "显示评论",
     "no-conversation": "还没有对话, 请先回复",
     "start-conversation": "开始对话",
-    "join-hint": "成为大型Hive 社区的一部分并获得活动奖励"
+    "join-hint": "加入对话并赚取您的贡献",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} 个主题",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "默认收件人",
     "default-beneficiary-username": "Hive 用户名",
     "default-beneficiary-reward": "奖励(%)",
-    "default-beneficiary-docs": "查看文档"
+    "default-beneficiary-docs": "查看文档",
+    "finalize-title": "完成社区设置",
+    "finalize-description": "此社区帐户已创建，但设置尚未完成。现在就完成。",
+    "finalize-admin-label": "管理员用户名",
+    "finalize-admin-hint": "将管理这个社区的 Hive 帐户",
+    "finalize-success": "社区设置成功完成！"
   },
   "community-rewards-registration": {
     "body-text": "注册您的社区以获取Ecency积分",
@@ -1196,7 +1214,8 @@
     "permissions": "打开权限",
     "image-server": "图像服务器",
     "image-server-default": "生态图像(默认)",
-    "image-server-hiveblog": "Hive 图像 (替代)"
+    "image-server-hiveblog": "Hive 图像 (替代)",
+    "image-server-nocdn": "生态图像 (无 CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "更新 DM 隐私设置失败"
   },
   "wallet": {
-    "unclaimed-rewards": "未认领的奖励",
-    "claim-reward-balance": "领取奖励余额",
-    "claim-reward-balance-ok": "领取奖励余额",
+    "unclaimed-rewards": "要收集的收入",
+    "claim-reward-balance": "收取收入",
+    "claim-reward-balance-ok": "赚取的收入！",
     "estimated": "预估钱包值",
     "estimated-points": "估计积分值",
     "estimated-description": "估计的价值是基于HIVE价格的7日平均值",
     "estimated-description-points": "估计价值基于点的购买价值。",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "艾滋病毒是您的流动余额 - 随时转移、交易或利害关系。",
     "hive-power": "Hive Power",
-    "hive-power-description": "Hive Power 正在影响令牌，这些令牌能够获得更多的长时间和对内容进行投票。 Hive 势力越多，就越能影响别人的奖励，通过准确投票赚取奖励。 Hive Power is stated HIVE token that can be unstated in 13 weeks.",
+    "hive-power-description": "Hive 力量是你的影响力。你持有的票数越多，你的票数就越多，你赚取的也就越多。 在13个星期内不再涉及艾滋病毒感染者的生长问题。",
     "hive-power-apr-rate": "APR interest rate for Hive Power is {{value}}%",
     "hive-dollars-apr-rate": "APR interest rate for HBD($) is {{value}}%",
     "hive-dollars-apr-claim": "Estimated interest since last payment {{value}}:",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "下一次 Power 释放大约是在",
     "hive-power-total": "Hive Power 总量",
     "hive-dollars": "HIVE 美元",
-    "hive-dollars-description": "代币价值约为 $1.00 的HIVE",
+    "hive-dollars-description": "稳定的代币每个固定到大约1.00美元。",
     "savings": "储蓄",
     "savings-description": "余额提现需要 3 天等待周期。",
     "next-power-down": "The next power down is {{time}}, (~{{amount}}, {{weeks}} weeks remaining)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "保留为市场中的开放订单",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "未认领的奖励"
+        "title": "收集",
+        "unclaimed-rewards": "要收集的收入"
       },
       "delegate": {
         "title": "代表",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "购买积分",
     "unclaimed-points": "未认领的积分",
-    "claim-reward-points": "认领奖励积分",
+    "claim-reward-points": "收集点",
     "main-description": "积分可以用于Ecency应用内的服务，如推广，推荐，作为礼物。使用Ecency可以提高您的使用体验并获取积分。",
     "earn-points": "如何赚取更多积分",
     "post-desc": "您可以通过定期发帖子来赚取积分。发帖子会给您15积分。",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "Stake 令牌",
     "type-tokens_issue": "发行令牌",
     "type-comments_beneficiaryReward": "受益者奖励",
-    "type-claim_reward_balance": "认领奖励",
+    "type-claim_reward_balance": "收取的收入",
     "type-transfer": "转帐",
     "type-tokens_transfer": "转移",
     "type-transfer_to_vesting": "增加能量",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "使用 HiveAuth 登录",
     "invalid-key": "密钥格式无效。请检查无效字符。",
-    "key-error": "处理密钥失败。请验证它是否正确。"
+    "key-error": "处理密钥失败。请验证它是否正确。",
+    "sign-with-metamask": "使用 MetaMask 登录"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -1642,9 +1662,9 @@
     "unMute": "解除屏蔽"
   },
   "favorite-btn": {
-    "add": "收藏夹 - 获得关于新帖子的通知",
-    "added": "添加到收藏夹！当您发布新帖子时会收到通知",
-    "delete": "删除收藏夹和停止通知",
+    "add": "收藏夹 — 收到关于新帖子的通知",
+    "added": "已添加到收藏夹",
+    "delete": "从收藏夹中删除",
     "deleted": "已从收藏夹移除"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "告诉您的故事...",
     "reward": "奖励",
     "take-tour": "游览",
-    "reward-hint": "设置流动代币和质押代币的作者奖励比率",
+    "reward-hint": "选择您如何获得您的收入",
     "reward-default": "默认 50% / 50%",
-    "reward-sp": "100% 充能",
-    "reward-dp": "拒绝支付",
+    "reward-sp": "蒸汽100%",
+    "reward-dp": "减少收入",
     "preview": "预览",
     "publish": "发布",
     "update": "更新",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "输入帖子标签",
     "empty-body-alert": "输入帖子内容",
     "description": "简短描述",
-    "should-be-only-one-unpublished": "帖子只能包含一个未发布的视频。请删除其他视频。",
     "updating": "正在更新...",
     "publishing": "发布中...",
     "saving": "保存中...",
@@ -1731,15 +1750,8 @@
     "record-video": "录制视频",
     "choose-thumbnail": "设置缩略图(可选)",
     "continue": "继续",
-    "encode": "发送以便编码",
-    "success": "Video succesfully uploaded",
-    "finished": "已完成",
     "upload-video": "上传视频",
-    "video-gallery": "视频库",
     "preview": "预览",
-    "to-gallery": "转到相册",
-    "congrats": "恭喜你",
-    "publishing": "不要刷新此页面，等待几秒钟才能处理视频",
     "no-record-permission": "您没有录制视频的权限",
     "confirm-and-upload": "确认并上传到 3Speak",
     "uploading": "Uploading..{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "Reset",
     "source": "视频源",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "3扬声器将忽略少于15秒的视频。"
-  },
-  "video-gallery": {
-    "all": "所有的",
-    "title": "视频库",
-    "published": "已发布",
-    "encoding": "编码",
-    "encoded": "编码的",
-    "failed": "失败",
-    "status-encoded": "准备发布",
-    "status-encoding": "编码",
-    "status-published": "已发布",
-    "status-failed": "编码失败",
-    "status-deleted": "已删除",
-    "info-created": "创建于：",
-    "status": "状态：",
-    "info-views": "视图：",
-    "info-duration": "持续时间：",
-    "info-size": "文件大小：",
-    "insert-video": "Insert",
-    "insert-nsfw": "插入为 NSFW",
-    "only-one-video": "只能在一个帖子中发布一个视频",
-    "refresh": "刷新以获取更新状态",
-    "video-info": "视频由SPK网络存储和供电，可能需要一些存储和编码费用。"
+    "insert-video": "插入视频",
+    "file-too-large": "文件大小超过 1 GB 限制。请选择一个较小的视频。",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "上传缩略图失败。请重试。",
+    "error-too-large": "视频文件过大。请使用一个较小的文件。",
+    "error-too-many": "上传请求太多。请稍等，然后重试。",
+    "error-unavailable": "上传服务暂时不可用。请稍后再试。",
+    "error-auth": "身份验证失败。请联系支持。",
+    "error-generic": "上传视频失败。请重试。",
+    "title-short": "上传短视频",
+    "short-badge": "短暂的",
+    "video-attached": "视频已连接"
   },
   "tag-selector": {
     "placeholder-empty": "标签：第一个标签是主要分类，可排序。",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} 不是一个有效用户。",
     "validation-percentage": "百分比是必需的。",
     "validation-username": "用户名是必需的。",
-    "user-exists-error": "{{n}} 已经在列表中"
+    "user-exists-error": "{{n}} 已经在列表中",
+    "threespeak-locked": "需要3朗读视频主机",
+    "required": "必填"
   },
   "post-scheduler": {
     "title": "时间表",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} 发送给您 {{amount}}",
     "delegations": "{{source}} delegated you {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "您的支付已准备就绪。",
+    "payouts": "您的内容收入已准备就绪。",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "所有通知",
@@ -1863,6 +1868,8 @@
     "spin-str": "赚取更多点数的时刻，在Ecency移动版上玩转盘游戏。",
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",
+    "account-update-str": "您的账户密钥或个人资料已更新",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "刷新",
     "mark-all-read": "全部标为已读",
     "mark-read": "标为已读",
@@ -2249,9 +2256,9 @@
         "create-title": "在任何地方发布",
         "create-description": "帖子草稿，分享更新和回复您在桌面上使用的强大编辑器的评论。",
         "wallet-title": "一目了然的钱包",
-        "wallet-description": "核对余额，领取奖励并管理Hive Power 或 HBD ，只需几盘磁带即可。",
+        "wallet-description": "检查余额，只需几个点击即可收取收益和管理您的代币。",
         "notifications-title": "永远不要错过一个引用",
-        "notifications-description": "推送通知高亮显示新的关注者、提及和奖励，以便您能够及时庆祝。"
+        "notifications-description": "推送通知高亮显示新的关注者、提及者和收入，以便您能够及时庆祝。"
       },
       "features-title": "为创作者和社区设计",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>在钱包页面(在网站顶端和桌面应用，移动应用上底部导航栏)， 您可以看到管理奖励(通过增加投票帖子和评论获得的奖励)和作者奖励(您自己的帖子和评论获得的奖励)</p><p>您也可以通过访问其他用户的钱包配置来查看相同的信息。</p>",
       "how-dhf-work-header": "DHF 是如何工作的？",
       "how-dhf-work-body": "<p>任何人都可以创建一个提案，并说服社区对他们的提案进行投票以获得资金。 在创建建议之前，正常的帖子应该在区块链上发布，建议在创建建议之前收集反馈。 建议创建费用为10HBD+1HBD，每天超过60天。</p><p>一旦建议达到了特定的空投投票限度，它将开始每小时收到资金。 如果提案低于门槛值，系统将停止为该提案提供资金。 您可以投票的建议数量尽可能多，没有限制。建议不能编辑，但可以被创建者删除/撤回。</p>",
-      "when-claim-rewards-header": "什么时候可以领取我的奖励？",
-      "when-claim-rewards-body": "<p>帖子和评论仍然活跃7天，奖励会根据票价和代币的市场价格而波动。 这就是为什么奖励大致为待定奖励。 当这段时间结束时，等待实际奖励的更改并且你能够领取已赚取的奖励。 在您的钱包中，点击领取奖励按钮将代币添加到您的帐户。</p>",
+      "when-claim-rewards-header": "什么时候能够领取我的收入？",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "什么是资源信贷？",
       "what-are-rc-body": "<p>Hive 区块链上的交易费用为零，使用交易率限制来保护区块链免受垃圾邮件攻击。 你在区块链上采取的每个行动都会消耗少量资源点数。 这包括发布、评论、投票、传输令牌等。查看内容不会消耗资源积分。</p><p>每个用户每周使用的资源积分。 用户进行的交易越多，他们离开的资源积分就越少(直到他们重新充电)。 拥有更多HIVE能量的用户将获得更多的资源积分。</p><p>如果您的资源积分已用完， 您将无法与区块链进行交易，除非您的资源信用充值 (自动发生)，或您获取额外的HIVE能量来增加您的资源信用余额，或您可以 <a href=\"/faq#how-boost-account\">从Ecency请求提升帐户</a> 接收临时授权。</p>",
       "how-boost-account-header": "如何请求账户推荐？",
@@ -2733,7 +2740,6 @@
     "vote": "投票",
     "account-age-hint": "Only accounts older than {{n}} days allowed",
     "preview-mode": "预览模式",
-    "videos-collision-error": "投票和3语音视频不能在同一帖子中发布，因为有不同的帖子。请只选择其中一个。",
     "number_of_votes": "按投票数",
     "tokens": "按代币",
     "view-votes": "查看投票",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "免费帐户",
+      "description": "通过基本电子邮件验证获取 Hive 帐户。",
+      "button": "获取免费账户",
+      "label": "免费的"
+    },
+    "premium": {
+      "title": "高级账户",
+      "description": "拥有3倍资源信贷和300个生态点的即时账户。",
+      "button": "获得高级版 - 2.99",
+      "label": "高级版"
+    },
+    "wallet": {
+      "title": "加密钱包",
+      "description": "立即使用 Metamask 创建帐户。不需要种子短语。",
+      "button": "连接钱包",
+      "label": "钱包"
+    },
+    "invited": {
+      "title": "被朋友邀请",
+      "description": "Hive 帐户的朋友可以免费为您创建一个。",
+      "button": "获得邀请",
+      "label": "已邀请"
+    }
+  },
   "signup-email": {
     "title": "用电子邮件注册",
     "description": "使用电子邮件验证创建帐户的灵活方式。 选择其中一个选项，如免费和提升帐户，包含3X资源积分$2.99或在板上一个朋友。",
@@ -2883,6 +2915,33 @@
       "creating": "正在创建 Hive 帐户...",
       "validating": "正在准备您的帐户...",
       "success": "您的帐户已创建。享受Hive 和生态！"
+    },
+    "metamask": {
+      "title": "连接 MetaMask",
+      "description": "连接您的 MetaMask 钱包以验证您的身份并创建一个 Hive 帐户。",
+      "not-found": "未检测到 MetaMask。请安装 MetaMask扩展。",
+      "connect-button": "连接 MetaMask",
+      "connect-hint": "我们将检查您的钱包余额以验证您的身份。没有资金将被转移。",
+      "connect-error": "无法连接MetaMask。请重试。",
+      "connected": "已连接 MetaMask",
+      "chain-unsupported": "此链尚不支持直接连接。",
+      "address-in-use": "此钱包地址已经与 Hive 帐户关联。",
+      "sign-and-continue": "签名并继续",
+      "sign-rejected": "签名被拒绝。请重试。",
+      "installing-snap": "正在安装 Hive 钱包快照...",
+      "getting-keys": "从您的钱包生成Hive 密钥...",
+      "create-error": "帐户创建失败。请重试。",
+      "success-hint": "您可以使用 Hive 快照使用MetaMask 钱包登录生态系统。",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "复制您的 MetaMask 钱包中的地址到此链。",
+      "login-with-metamask": "使用MetaMask登录",
+      "logging-in": "正在使用Metamask登录您...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "正在检查MetaMask multichain地址...",
+      "chain-not-available": "所选链在MetaMask 中不可用"
+    },
+    "balance": {
+      "label": "余额："
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "上传并粘贴",
-    "three-speak-gallery": "从 3朗读",
     "video-by-link": "通过链接添加视频",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "视频链接",
@@ -2964,6 +3022,19 @@
     "upload-started": "正在上传图像...",
     "back-to-old": "Back to Classic View",
     "clear": "清空",
+    "import": "从 URL 导入",
+    "import-title": "导入文章",
+    "import-subtitle": "您将有机会在发布前审核和编辑。",
+    "import-hint": "粘贴一个 URL 将文章内容导入编辑器。支持Hive 文章和外部的 web 文章。",
+    "import-ownership-notice": "请只导入您拥有或有权重新发布的内容。",
+    "import-failed": "导入文章失败。请检查URL，然后重试。",
+    "import-error-invalid-url": "无效的 URL。请输入一个有效的网址。",
+    "import-error-fetch-failed": "无法访问网站。请检查URL，然后重试。",
+    "import-error-not-html": "URL不指向一个网页。",
+    "import-error-too-large": "页面太大，无法导入。",
+    "import-error-extract-failed": "无法从页面提取文章内容。",
+    "import-error-not-found": "未找到帖子。请检查 URL。",
+    "importing": "导入中...",
     "reward-settings": "奖励设置",
     "beneficiaries": "三. 受惠者",
     "meta-information": "元信息",
@@ -2998,19 +3069,12 @@
     "get-help": "获得帮助",
     "loading-post-title": "正在加载您的帖子...",
     "loading-post-hint": "发布后只能更改标题、内容、标签和元信息",
-    "upload-video-error-hint": "视频只能在创建帖子不编辑时上传",
     "no-post-title": "找不到帖子",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "打开原始帖子",
     "updated-title": "帖子已更新！",
     "updated-hint": "帖子内容已更新。更改将在几分钟后可见。",
     "back-to-post": "返回帖子",
-    "video-gallery": {
-      "no-data": "尚无视频",
-      "no-data-hint": "使用3语音更改过滤器或发布您的第一个视频",
-      "no-data-button": "立即上传"
-    },
-    "video-availability": "视频将在发布后可用",
     "title-placeholder": "标题是什么？",
     "html-warning": {
       "title": "检测到纯HTML代码",
@@ -3043,6 +3107,42 @@
     "hint": "语音文本使用内置工具将文本内容转换为语音。语音列表、可用性和质量仅取决于您的浏览器和设备。",
     "playground": "游乐场",
     "voices": "声音"
+  },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "收件人地址",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "金额",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "估计网络费用",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "已连接的 MetaMask 帐户与您已链接的钱包地址不匹配。请切换Metamask 中的帐户。",
+    "error-exceeds-balance": "金额超过可用余额",
+    "review": "审核传输",
+    "sending": "正在发送",
+    "value": "值",
+    "to-label": "收件人",
+    "confirm-metamask": "使用 MetaMask 确认",
+    "signing": "正在等待MetaMask确认...",
+    "success": "传输已提交！",
+    "success-hint": "您的交易已经提交到网络。确认可能需要几分钟时间。",
+    "view-explorer": "在浏览器上查看",
+    "failed": "传输失败",
+    "cancelled": "交易被用户取消。",
+    "try-again": "再试一次"
+  },
+  "mobile-login-qr": {
+    "title": "登录移动应用",
+    "warning-title": "这个二维码包含您的会话凭据",
+    "warning-1": "不要在其他人可以看到您的屏幕的公共空间中扫描",
+    "warning-2": "不共享或截取二维码",
+    "warning-3": "在曝光前禁用屏幕录制或镜像",
+    "reveal-button": "我明白了，开启二维码",
+    "generating": "正在生成安全二维码...",
+    "instructions": "打开生态移动应用程序，点击二维码扫描仪并扫描此代码以登录。",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "无法生成登录QR。请尝试注销并重新登录。",
+    "error-generate": "生成二维码失败。请重试。"
   },
   "profile-wallet": {
     "pick-tokens": "选择要显示的标记",
@@ -3107,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "B. 索赔利 息"
     },
-    "claim-rewards": "认领奖励",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "正在补全...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "收取收入",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "正在收集...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR 加速",
       "title": "使用你的Hive 能量来进行生态管理",
@@ -3149,16 +3249,32 @@
       "title": "撤销Hive 密钥",
       "hint": "您可以使用一个所有者密钥/主密码/种子撤销任何Hive 密钥"
     },
+    "manage-keys": {
+      "title": "管理密钥",
+      "choose-title": "你想做什么？",
+      "add-title": "添加新密钥",
+      "add-description": "生成新主密码并添加密钥到您的帐户",
+      "revoke-title": "撤销密钥",
+      "revoke-description": "从您的帐户中删除您不再需要的密钥",
+      "revoke-select-title": "选择要撤销的密钥",
+      "revoke-select-description": "选择要从您的帐户中删除的密钥。您必须每个授权至少保留一个密钥。",
+      "revoke-confirm-title": "确认取消",
+      "revoke-confirm-description": "使用您的所有者密钥来从您的帐户中移除所选的密钥。",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "成功吊销密钥",
+      "revoke-step-select": "选择密钥",
+      "revoke-step-sign": "签名"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "验证",
-        "generate-seed": "生成种子",
+        "generate-seed": "生成密码",
         "review-keys": "审查密钥",
         "confirm": "确认"
       },
       "step1": {
         "title": "添加新密钥集",
-        "info1": "将为您的帐户生成一个新的种子短语",
+        "info1": "将为您的帐户生成一个新的主密码",
         "info2": "您可以同时启用多个密钥集",
         "info3": "您可以选择在下一步中撤销旧密钥",
         "authenticate": "身份验证以继续",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "重要：保存你新的种子词组",
-        "warning1": "这是一个新的种子短语，不同于您原始的帐户种子",
+        "warning1": "这是一个不同于您原始凭据的新主密码",
         "warning2": "单独保存 - 您需要使用这些密钥登录",
-        "warning3": "在继续之前下载种子文件并安全存储"
+        "warning3": "在继续之前下载密钥文件并安全存储"
       },
       "step3": {
         "title": "查看现有密钥",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "保存到相册",
     "save-to-gallery-success": "图片保存到您的相册！",
     "save-to-gallery-error": "无法将图像保存到图库。请重试。",
-    "use-suggestion": "Use: {{suggestion}}"
+    "use-suggestion": "Use: {{suggestion}}",
+    "select-power": "提高质量"
+  },
+  "ai-assist": {
+    "title": "AI 书写助理",
+    "toolbar-button": "AI 帮助",
+    "balance-label": "余额",
+    "points-unit": "点数",
+    "free-label": "免费的",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "费用",
+    "hint": "请先写您的内容，然后使用 AI Assist来打磨和改进内容。",
+    "action-label": "你想做什么？",
+    "text-label": "您的内容",
+    "text-placeholder": "在这里粘贴或输入您的草稿内容...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "改进写入",
+    "action-improve-desc": "波兰语法、 清晰度 和风格",
+    "action-suggest_tags": "建议标签",
+    "action-suggest_tags-desc": "获取您帖子的相关标签",
+    "action-generate_title": "生成标题",
+    "action-generate_title-desc": "创建令人信服的标题选项",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "检查语法",
+    "action-check_grammar-desc": "修复语法和拼写",
+    "submit-button": "运行 AI 助手",
+    "submitting": "正在处理...",
+    "result-title": "结果",
+    "apply-button": "应用到帖子",
+    "copy-button": "复制",
+    "copied": "已复制！",
+    "try-again": "再试一次",
+    "try-another": "尝试另一个操作",
+    "show-changes": "显示更改",
+    "hide-changes": "隐藏更改",
+    "hide-translation": "隐藏翻译",
+    "success": "AI 协助完成！",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "内容违反了政策。没有退款。",
+    "error-rate-limit": "请求太多。请稍等，然后重试。",
+    "error-auth": "认证过期。请刷新页面并重试。",
+    "error-generic": "AI 协助失败。请重试。",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

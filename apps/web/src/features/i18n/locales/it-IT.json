@@ -39,6 +39,7 @@
     "fill-community-feed": "Puoi unirti a più comunità per riempire questo feed.",
     "save": "Salva",
     "try-again": "Prova di nuovo",
+    "soon": "Presto",
     "show": "Mostra",
     "on": "Aziona",
     "off": "Spegni",
@@ -103,7 +104,9 @@
     "import": "Importa",
     "clear": "Pulisci",
     "play": "Gioca",
-    "pause": "Pausa"
+    "pause": "Pausa",
+    "start": "Inizia",
+    "updated": "Aggiornato"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Portafoglio",
-    "unclaimed-reward-notice": "Hai nuove ricompense",
+    "unclaimed-reward-notice": "Hai guadagni da raccogliere!",
     "points": "Punti",
-    "unclaimed-points-notice": "Hai punti da riscuotere",
+    "unclaimed-points-notice": "Hai punti da raccogliere!",
     "notifications": "Notifiche",
     "profile": "Profilo",
     "profile-menu": "Menu del profilo",
@@ -239,6 +242,7 @@
     "schedules": "Programmi",
     "fragments": "Ritagli",
     "settings": "Impostazioni",
+    "mobile-login": "Accedi a Mobile",
     "logout": "Esci",
     "just-logout": "Basta uscire",
     "logout-and-clear": "Esci e cancella i dati locali",
@@ -290,13 +294,16 @@
     "use-key": "Usa chiave/passaggio",
     "seed-info": "Non memorizziamo la tua seed phrase e le chiavi generate",
     "sign-in": "Accedi",
-    "my-users": "Gestisci le mie utenze"
+    "my-users": "Gestisci le mie utenze",
+    "metamask-not-found": "MetaMaschera non trovata. Installare l'estensione del browser MetaMask.",
+    "metamask-no-keys": "Impossibile ottenere le chiavi Hive dallo snap di MetaMask",
+    "metamask-key-mismatch": "Le chiavi MetaMask Hive non corrispondono a questo account. Assicurati di usare lo stesso portafoglio MetaMask usato durante la registrazione."
   },
   "sign-up": {
-    "header": "Ricompensando Comunità Web3",
-    "description": "Freespeech, True ownership, Libertà finanziaria!",
-    "description-2": "Hive alimenta molte app ed è gestito completamente decentrato dai membri della comunità in tutto il mondo. Con un account, hai accesso diretto all'ecosistema.",
-    "bottom-description": "Un account, un portafoglio per gestire tutto su Blockchain.",
+    "header": "Comunità Ricompensanti",
+    "description": "Libera parola, vera proprietà, Libertà finanziaria!",
+    "description-2": "Unisciti a una piattaforma gestita interamente dalla sua comunità. Un account ti dà accesso all'intero ecosistema.",
+    "bottom-description": "Un account, un portafoglio per gestire tutto.",
     "learn-more": "Leggi di più sui benefici nelle nostre <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Scegli un nome utente",
     "email": "Inserisci il tuo indirizzo email",
@@ -399,7 +406,10 @@
     "votes": "Voti:",
     "transfers": "Trasferimenti:",
     "reblogs-follows": "Reblogs/Follows:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "Delega RC non riuscita",
+    "invalid-link": "Link onboarding non valido",
+    "delegate-placeholder": "Inserisci l'importo da delegare (Bn)"
   },
   "trending-tags": {
     "title": "Argomenti"
@@ -437,8 +447,8 @@
     "vote-remove": "Votando 0% non stai votando il contenuto.",
     "vote-warning": "Modifica della votazione...",
     "no-replies": "Ancora nessuna risposta. Clicca per rispondere.",
-    "old-post-error": "Votare sul Contenuto dopo il loro pagamento non genera alcun nuovo premio.",
-    "old-post-error-suggestion": "Prova a ribaltare l'autore. "
+    "old-post-error": "Il periodo di guadagno di questo post è finito.",
+    "old-post-error-suggestion": "Puoi ancora suggerire direttamente l'autore. "
   },
   "nsfw": {
     "reveal": "Mostra questo post",
@@ -447,9 +457,9 @@
     "settings-2": "preferenze di visualizzazione"
   },
   "bookmark-btn": {
-    "add": "Segnalibro - ricevi una notifica sui nuovi commenti",
-    "added": "Segnalibro! Ti verranno notificati nuovi commenti su questo post",
-    "delete": "Rimuovere il segnalibro e interrompere le notifiche",
+    "add": "Segnalibro — per ricevere una notifica sui nuovi commenti",
+    "added": "Aggiunto ai segnalibri",
+    "delete": "Rimuovi dai Segnalibri",
     "deleted": "Rimosso dai segnalibri"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "Invia omaggio",
+    "tip": "Tip",
     "send-tip": "Invia un suggerimento",
     "count": "{{count}} tip",
     "count_plural": "{{count}} suggerimenti"
@@ -502,18 +513,18 @@
     "submit-label": "Conferma",
     "published": "Post pubblicato",
     "no-subscription": "Non hai alcun abbonamento alla community per incrociare il post.",
-    "info": "Le ricompense sono automaticamente rifiutate per il post trasversale e le discussioni sotto post trasversale saranno diverse e seguiranno diverse linee guida della comunità."
+    "info": "I guadagni vengono automaticamente rifiutati per i post trasversali. Le discussioni sotto i post trasversali seguono le linee guida della comunità ospitante."
   },
   "entry-payout": {
-    "reward": "Ricompensa",
+    "reward": "Guadagni",
     "full-power": "Potenziamento 100%",
-    "pending-payout": "Pagamento In Attesa",
+    "pending-payout": "Guadagni Stimati",
     "promoted": "Promosso",
-    "author-payout": "Ricompensa dell'Autore",
-    "curators-payout": "Ricompensa dei Curatori",
+    "author-payout": "Guadagni Autore",
+    "curators-payout": "Guadagni Dei Sostenitori",
     "payout-date": "Ricompensa",
     "beneficiary": "Beneficiari",
-    "breakdown": "Guadagni Ripartiti",
+    "breakdown": "Dettagli",
     "max-accepted": "Massimo accettato"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "Cambio token",
-    "description": "Scambio decentralizzato per acquistare e vendere gettoni su Hive blockchain. Per saperne di più, leggi le nostre FAQ <a href=\"/faq#how-exchange-work\"></a>.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Ultimo prezzo",
     "volume": "Volume nelle 24 ore",
     "bid": "Offerta",
@@ -932,7 +943,9 @@
     "reveal": "Mostra commento",
     "no-conversation": "Nessuna conversazione ancora, essere prima a rispondere",
     "start-conversation": "Inizia conversazione",
-    "join-hint": "Diventa parte della grande comunità di Hive e guadagna ricompense per attività"
+    "join-hint": "Partecipa alla conversazione e guadagna per i tuoi contributi",
+    "new-comment": "{{n}} nuovo commento - tocca per caricare",
+    "new-comments": "{{n}} nuovi commenti - tocca per caricare"
   },
   "community": {
     "page-description": "Argomenti {{f}}",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "Beneficiario predefinito",
     "default-beneficiary-username": "Nome utente alveare",
     "default-beneficiary-reward": "Ricompensa (in %)",
-    "default-beneficiary-docs": "Vedi documenti"
+    "default-beneficiary-docs": "Vedi documenti",
+    "finalize-title": "Finalizza la configurazione della community",
+    "finalize-description": "Questo account della comunità è stato creato ma la configurazione non è stata completata. Completalo ora.",
+    "finalize-admin-label": "Nome utente amministratore",
+    "finalize-admin-hint": "L'account Hive che gestirà questa comunità",
+    "finalize-success": "Configurazione della comunità completata con successo!"
   },
   "community-rewards-registration": {
     "body-text": "Registra la tua community per ottenere PUNTI Ecency",
@@ -1196,7 +1214,8 @@
     "permissions": "Autorizzazioni aperte",
     "image-server": "Server immagini",
     "image-server-default": "Immagini di Ecency (Predefinito)",
-    "image-server-hiveblog": "Immagini di alveare (alternative)"
+    "image-server-hiveblog": "Immagini di alveare (alternative)",
+    "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "Aggiornamento delle impostazioni privacy DM non riuscito"
   },
   "wallet": {
-    "unclaimed-rewards": "Ricompense non riscosse",
-    "claim-reward-balance": "Riscuoti ricompense",
-    "claim-reward-balance-ok": "Saldo delle ricompense richiesto",
+    "unclaimed-rewards": "Guadagni da raccogliere",
+    "claim-reward-balance": "Raccogli guadagni",
+    "claim-reward-balance-ok": "Guadagni raccolti!",
     "estimated": "Valore Del Portafoglio Stimato",
     "estimated-points": "Valore Punti Stimati",
     "estimated-description": "Il valore stimato è basato sul valore medio di HIVE in un periodo di 7 giorni.",
     "estimated-description-points": "Il valore stimato si basa sul valore di acquisto dei punti.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE è il tuo saldo liquido: trasferire, scambiare o puntare in qualsiasi momento.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power sono gettoni di influenza che guadagnano più potere per tenere a lungo termine e votare sul contenuto. Più il Potere dell'Alveare, più uno può influenzare le ricompense dell'altro e guadagnare ricompense per una votazione accurata. Hive Power è puntato gettone HIVE che può essere smesso in gioco in 13 settimane.",
+    "hive-power-description": "Il potere dell'alveare è la tua influenza. Più tieni, più i tuoi voti contano e più guadagni. Stake HIVE per crescere, unstake per 13 settimane.",
     "hive-power-apr-rate": "Il tasso di interesse APR per Hive Power è {{value}}%",
     "hive-dollars-apr-rate": "Il tasso di interesse APR per HBD($) è {{value}}%",
     "hive-dollars-apr-claim": "Interessi stimati dall'ultimo pagamento {{value}}:",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "Ammontare del prossimo Depotenziamento",
     "hive-power-total": "Hive Power totali",
     "hive-dollars": "HIVE DOLLARS",
-    "hive-dollars-description": "Token dal valore di circa $1.00 in HIVE.",
+    "hive-dollars-description": "Token stabili ancorati a circa $1.00 ciascuno.",
     "savings": "RISPARMI",
     "savings-description": "Bilancio soggetto a tempo di attesa prima del pagamento di 3 giorni.",
     "next-power-down": "Il prossimo power down è {{time}}, (~{{amount}}, {{weeks}} settimane rimanenti)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "Riservato per l'ordine aperto in mercato",
     "spk": {
       "claim": {
-        "title": "Riscuoti",
-        "unclaimed-rewards": "Premi non reclamati"
+        "title": "Raccogli",
+        "unclaimed-rewards": "Guadagni da raccogliere"
       },
       "delegate": {
         "title": "Delega",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "ACQUISTA PUNTI",
     "unclaimed-points": "Punti non riscossi",
-    "claim-reward-points": "Richiedi Punti di ricompensa",
+    "claim-reward-points": "Raccogli punti",
     "main-description": "I punti possono essere usati per servizi sull'app, come promozioni, boost, donazioni omaggio. Guadagnali semplicemente usando l'app Ecency e migliora la tua esperienza.",
     "earn-points": "Come guadagnare più punti",
     "post-desc": "Puoi guadagnare punti postando regolarmente. Postare ti da diritto a 15 punti.",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "Token di puntata",
     "type-tokens_issue": "Problema token",
     "type-comments_beneficiaryReward": "Premio del beneficiario",
-    "type-claim_reward_balance": "Richiedi ricompense",
+    "type-claim_reward_balance": "Guadagni raccolti",
     "type-transfer": "Trasferisci",
     "type-tokens_transfer": "Trasferisci",
     "type-transfer_to_vesting": "Potenzia",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Firma con HiveAuth",
     "invalid-key": "Formato chiave non valido. Si prega di verificare la presenza di caratteri non validi.",
-    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta."
+    "key-error": "Impossibile elaborare la chiave. Verifica che sia corretta.",
+    "sign-with-metamask": "Firma con MetaMask"
   },
   "hive-auth": {
     "pending-request": "Richiesta HiveAuth in sospeso. Partita con ID {{id}} nel tuo portafoglio."
@@ -1642,9 +1662,9 @@
     "unMute": "Riattiva"
   },
   "favorite-btn": {
-    "add": "Preferito - ricevi una notifica sui nuovi post",
-    "added": "Aggiunto ai preferiti! Sarai avvisato quando pubblicano nuovi post",
-    "delete": "Rimuovi le notifiche preferite e interrompi",
+    "add": "Preferito — ricevi una notifica sui nuovi post",
+    "added": "Aggiunto ai favoriti",
+    "delete": "Rimuovi dai favoriti",
     "deleted": "Rimosso dai favoriti"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "Racconta la tua storia...",
     "reward": "Ricompensa",
     "take-tour": "Scopri com'è",
-    "reward-hint": "Imposta la percentuale di ricompensa per token liquidi e in staking",
+    "reward-hint": "Scegli come ricevere i tuoi guadagni",
     "reward-default": "Predefinito 50% / 50%",
-    "reward-sp": "Potenziamento 100%",
-    "reward-dp": "Rifiuta pagamento",
+    "reward-sp": "Puntata 100%",
+    "reward-dp": "Rifiuta Guadagni",
     "preview": "Anteprima",
     "publish": "Pubblica",
     "update": "Aggiorna",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "Inserisci etichette del post",
     "empty-body-alert": "Inserisci corpo del testo",
     "description": "Descrizione breve",
-    "should-be-only-one-unpublished": "Il post dovrebbe contenere solo un video non pubblicato. Si prega di rimuoverne altri.",
     "updating": "In aggiornamento..",
     "publishing": "Pubblica..",
     "saving": "Salvataggio..",
@@ -1731,15 +1750,8 @@
     "record-video": "Registra un video",
     "choose-thumbnail": "Imposta una miniatura (opzionale)",
     "continue": "Continua",
-    "encode": "Invia per codifica",
-    "success": "Video succesfully uploaded",
-    "finished": "Finito",
     "upload-video": "Carica video",
-    "video-gallery": "Galleria video",
     "preview": "Anteprima",
-    "to-gallery": "Vai alla galleria",
-    "congrats": "Complimenti",
-    "publishing": "Non aggiornare questa pagina, attendere alcuni secondi perché il video possa essere elaborato",
     "no-record-permission": "Non hai i permessi per registrare video",
     "confirm-and-upload": "Conferma e carica in 3Speak",
     "uploading": "Caricamento..{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "Reimposta",
     "source": "Sorgente video",
     "thumbnail": "Anteprima",
-    "min-duration-alert": "Il video di durata inferiore a 15 secondi sarà ignorato da 3Speak."
-  },
-  "video-gallery": {
-    "all": "Tutte",
-    "title": "Galleria video",
-    "published": "Pubblicato",
-    "encoding": "Codifica testo",
-    "encoded": "Codificati",
-    "failed": "Fallito",
-    "status-encoded": "Pronto per la pubblicazione",
-    "status-encoding": "Codifica",
-    "status-published": "Pubblicato",
-    "status-failed": "Codifica non riuscita",
-    "status-deleted": "Eliminato",
-    "info-created": "Creato:",
-    "status": "Stato:",
-    "info-views": "Visualizzazioni:",
-    "info-duration": "Durata:",
-    "info-size": "Dimensione file:",
-    "insert-video": "Aggiungi",
-    "insert-nsfw": "Inserisci come NSFW",
-    "only-one-video": "Solo un video può essere pubblicato in un post",
-    "refresh": "Aggiorna per ottenere lo stato aggiornato",
-    "video-info": "I video sono memorizzati e alimentati dalla rete SPK, potrebbero avere alcune commissioni di memorizzazione e codifica."
+    "insert-video": "Inserisci video",
+    "file-too-large": "La dimensione del file supera il limite di 1 GB. Per favore scegli un video più piccolo.",
+    "extracting-thumbnail": "Estrazione miniatura…",
+    "thumbnail-upload-failed": "Impossibile caricare la miniatura. Riprova.",
+    "error-too-large": "Il file video è troppo grande. Si prega di usare un file più piccolo.",
+    "error-too-many": "Troppe richieste di upload. Si prega di attendere un momento e riprovare.",
+    "error-unavailable": "Il servizio di caricamento è temporaneamente non disponibile. Riprova più tardi.",
+    "error-auth": "Autenticazione non riuscita. Contatta il supporto.",
+    "error-generic": "Impossibile caricare il video. Per favore riprova.",
+    "title-short": "Carica breve video",
+    "short-badge": "Breve",
+    "video-attached": "Video allegato"
   },
   "tag-selector": {
     "placeholder-empty": "Tag. Il primo tag è la categoria principale. Ordinabile.",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} non è un utente valido.",
     "validation-percentage": "Obbligatorio scegliere una percentuale.",
     "validation-username": "Il nome utente è obbligatorio.",
-    "user-exists-error": "{{n}} è già nella lista"
+    "user-exists-error": "{{n}} è già nella lista",
+    "threespeak-locked": "Richiesto per l'hosting di video 3Speak",
+    "required": "Richiesto"
   },
   "post-scheduler": {
     "title": "Pianifica",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} ti ha inviato {{amount}}",
     "delegations": "{{source}} ti ha delegato {{amount}}",
     "checkins": "Hai controllato in {{count}} giorno{{suffix}} questa settimana. Continua!",
-    "payouts": "Il pagamento dei contenuti è pronto.",
+    "payouts": "I tuoi guadagni di contenuto sono pronti.",
     "payouts-amount": "Hai ricevuto il pagamento {{amount}}.",
+    "payouts-amount-usd": "Hai guadagnato ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "Hai guadagnato ${{total}} questa settimana - ${{author}} da post, ${{curation}} dalla curazione.",
+    "weekly-earnings-short": "Hai guadagnato ${{total}} questa settimana dai tuoi post e cura."
   },
   "notifications": {
     "type-all": "Tutte le notifiche",
@@ -1863,6 +1868,8 @@
     "spin-str": "Tempo di guadagnare più punti, divertiti sull'app mobile Ecency",
     "inactive-str": "Rimani attivo! Scrivi un post, continua a guadagnare",
     "referral-str": "si è unito con la consultazione, benvenuti",
+    "account-update-str": "Le chiavi o il profilo del tuo account sono stati aggiornati",
+    "weekly-earnings-title": "Riepilogo guadagni settimanali per @{{username}}",
     "refresh": "Ricarica",
     "mark-all-read": "Segna tutto come letto",
     "mark-read": "Segna come letto",
@@ -2249,9 +2256,9 @@
         "create-title": "Pubblica da qualsiasi luogo",
         "create-description": "Bozza di post, condividi gli aggiornamenti e rispondi ai commenti con lo stesso potente editor che usi sul desktop.",
         "wallet-title": "Portafoglio a colpo d'occhio",
-        "wallet-description": "Controllare i saldi, ottenere premi e gestire Hive Power o HBD con solo un paio di rubinetti.",
+        "wallet-description": "Controllare i saldi, raccogliere i guadagni e gestire i tuoi gettoni con solo un paio di rubinetti.",
         "notifications-title": "Non perdere mai una menzione",
-        "notifications-description": "Le notifiche push evidenziano nuovi follower, menzioni e ricompense in modo da poter festeggiare in tempo."
+        "notifications-description": "Le notifiche push evidenziano nuovi follower, menzioni e guadagni in modo da poter festeggiare in tempo."
       },
       "features-title": "Progettato per creatori e comunità",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>Nella pagina Portafoglio (in alta intestazione sul sito web e app desktop, barra di navigazione inferiore sull'app mobile), puoi vedere le ricompense della Curazione (le ricompense guadagnate per i post e i commenti) e le ricompense dell'Autore (le ricompense guadagnate dai tuoi post e commenti)</p><p>Puoi anche visualizzare le stesse informazioni per gli altri utenti visitando il loro profilo del portafoglio.</p>",
       "how-dhf-work-header": "Come funziona DHF?",
       "how-dhf-work-body": "<p>Chiunque può creare una proposta e convincere la comunità a votare sulla sua proposta di ottenere finanziamenti. Prima di creare una proposta, il normale post dovrebbe essere pubblicato sulla blockchain e si raccomanda di raccogliere feedback prima di creare una proposta. La creazione di proposte ha un costo di 10 HBD + 1 HBD per ogni giorno dura oltre 60 giorni.</p><p>Una volta che la proposta raggiunge una certa soglia di voti, inizierà a ricevere fondi ogni ora. Se la proposta scende al di sotto della soglia, il sistema bloccherà il finanziamento della proposta. Puoi votare tutte le proposte che vuoi, non ci sono limiti. La proposta non può essere modificata, ma può essere eliminata/ritirata dal creatore.</p>",
-      "when-claim-rewards-header": "Quando posso richiedere le mie ricompense?",
-      "when-claim-rewards-body": "<p>Posts and comments remain active for 7 days and rewards are fluctuates depending on votes and market price of token, ecco perché le ricompense sono approssimate come ricompensa in sospeso. Quando il periodo è finito, in attesa di cambiamenti di ricompensa per la ricompensa reale e si è in grado di ottenere ricompense guadagnate. Nel tuo portafoglio, fai clic sul pulsante Richiedi ricompense per aggiungere i token al tuo account.</p>",
+      "when-claim-rewards-header": "Quando posso raccogliere i miei guadagni?",
+      "when-claim-rewards-body": "<p>Post e commenti guadagnano per 7 giorni. Durante questo periodo, i guadagni oscillano in base ai voti e alle condizioni di mercato - ecco perché mostrano come stimato. Dopo 7 giorni, i tuoi guadagni finali sono pronti a raccogliere. Vai al tuo portafoglio e tocca Raccogli per aggiungerli al tuo saldo.</p>",
       "what-are-rc-header": "Cosa sono i Crediti di Risorse?",
       "what-are-rc-body": "<p>Creare transazioni sulla blockchain Hive non prevede commissioni, ma viene attuata una limitazione del tasso di transazioni per proteggere la blockchain da attacchi spam. Ogni azione che operi sulla blockchain consumerà una piccola quantità di crediti di risorse. Questo include il postare, commentare, votare, trasferire token, eccetera. Visionare contenuti non consuma risorse.</p><p>Ogni utente ha un quantitativo limitato di crediti di risorsa da utilizzare ogni settimana. Più transazioni un utente effettua, meno crediti gli rimarranno (fino a che non si saranno ricaricati). Utenti con più HIVE POWER avranno più crediti di risorsa.</p><p>Se termini i tuoi crediti, non sarai in grado di effettuare transazioni sulla blockchain fino a che i crediti non si saranno ricaricati (il che avviene automaticamente con il trascorrere del tempo) o che avrai acquistato più HIVE POWER per aumentare i tuoi crediti, o che <a href=\"/faq#how-boost-account\">avrai richiesto un Boost dell'account da parte di Ecency</a> per ricevere una delega temporanea.</p>",
       "how-boost-account-header": "Come richiedere il potenziamento dell'account?",
@@ -2733,7 +2740,6 @@
     "vote": "Voto",
     "account-age-hint": "Only accounts older than {{n}} days allowed",
     "preview-mode": "Modalità anteprima",
-    "videos-collision-error": "I sondaggi e i video 3speak non possono essere pubblicati nello stesso post poiché ci sono diversi tipi di post. Si prega di scegliere solo uno di essi.",
     "number_of_votes": "Per numero di voti",
     "tokens": "Per token",
     "view-votes": "Visualizza voti",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Account Gratuito",
+      "description": "Ottieni un account Hive con verifica email di base.",
+      "button": "Ottieni Account Gratuito",
+      "label": "Gratis"
+    },
+    "premium": {
+      "title": "Account Premium",
+      "description": "Account istantaneo con 3x crediti di risorse e 300 Ecency Points.",
+      "button": "Ottieni Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Portafoglio Crypto",
+      "description": "Crea un account istantaneamente usando MetaMask. Nessuna frase di seed necessaria.",
+      "button": "Connetti Portafoglio",
+      "label": "Portafoglio"
+    },
+    "invited": {
+      "title": "Invitato da un amico",
+      "description": "Un amico con un account Hive può crearne uno per te senza alcun costo.",
+      "button": "Get Invited",
+      "label": "Invitato"
+    }
+  },
   "signup-email": {
     "title": "Registrati con l'email",
     "description": "Modo flessibile per creare un account utilizzando la convalida via email. Scegli una delle opzioni come un account gratuito e potenziato con 3X crediti di risorse per $2,99 o a bordo di un amico",
@@ -2883,6 +2915,33 @@
       "creating": "Creazione account Hive...",
       "validating": "Preparazione del tuo account...",
       "success": "Il tuo account creato. Goditi l'Hive e l'Ecency!"
+    },
+    "metamask": {
+      "title": "Connetti La MetaMaschera",
+      "description": "Collega il tuo portafoglio MetaMask per verificare la tua identità e creare un account Hive.",
+      "not-found": "MetaMask non rilevata. Installare l'estensione MetaMask",
+      "connect-button": "Connetti La MetaMaschera",
+      "connect-hint": "Verificheremo il saldo del tuo portafoglio per verificare la tua identità. Nessun fondo verrà trasferito.",
+      "connect-error": "Impossibile connettersi a MetaMask. Riprova.",
+      "connected": "MetaMaschera connessa",
+      "chain-unsupported": "Questa catena non è ancora supportata per la connessione diretta. In arrivo.",
+      "address-in-use": "Questo indirizzo del portafoglio è già associato a un account Hive.",
+      "sign-and-continue": "Firma E Continua",
+      "sign-rejected": "La firma è stata rifiutata. Riprova.",
+      "installing-snap": "Installazione dello snapet Portafoglio Hive...",
+      "getting-keys": "Derivare le chiavi Hive dal tuo portafoglio...",
+      "create-error": "Creazione account non riuscita. Riprova.",
+      "success-hint": "È possibile accedere a Ecency utilizzando il vostro portafoglio MetaMask con il Hive snap.",
+      "enter-address": "Inserisci il tuo indirizzo {{chain}}",
+      "enter-address-hint": "Copia l'indirizzo dal tuo portafoglio MetaMask per questa catena.",
+      "login-with-metamask": "Accedi con MetaMask",
+      "logging-in": "Accedi con MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Controllo degli indirizzi multichain di MetaMaschera...",
+      "chain-not-available": "La catena selezionata non è disponibile in MetaMaschera"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Carica e incolla",
-    "three-speak-gallery": "Da 3Speak",
     "video-by-link": "Aggiungi video per link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Link al video",
@@ -2964,6 +3022,19 @@
     "upload-started": "Caricamento dell'immagine in corso...",
     "back-to-old": "Back to Classic View",
     "clear": "Pulisci",
+    "import": "Importa da URL",
+    "import-title": "Importa articolo",
+    "import-subtitle": "Avrai la possibilità di rivedere e modificare prima di pubblicare.",
+    "import-hint": "Incolla un URL per importare i contenuti degli articoli nell'editor. Supporta i post Hive e gli articoli web esterni.",
+    "import-ownership-notice": "Per favore importa solo i contenuti che possiedi o hai il permesso di ripubblicare.",
+    "import-failed": "Impossibile importare l'articolo. Controlla l'URL e riprova.",
+    "import-error-invalid-url": "URL non valido. Inserisci un indirizzo web valido.",
+    "import-error-fetch-failed": "Impossibile raggiungere il sito web. Controlla l'URL e riprova.",
+    "import-error-not-html": "L'URL non punta a una pagina web.",
+    "import-error-too-large": "La pagina è troppo grande da importare.",
+    "import-error-extract-failed": "Impossibile estrarre il contenuto dell'articolo dalla pagina.",
+    "import-error-not-found": "Post non trovato. Controlla l'URL.",
+    "importing": "Importazione...",
     "reward-settings": "Impostazioni ricompensa",
     "beneficiaries": "Beneficiari",
     "meta-information": "Meta informazioni",
@@ -2998,19 +3069,12 @@
     "get-help": "Richiedi aiuto",
     "loading-post-title": "Caricamento del tuo post...",
     "loading-post-hint": "Solo titolo, contenuto, tag e meta informazioni possono essere modificati dopo la pubblicazione",
-    "upload-video-error-hint": "Il video può essere caricato solo durante la creazione di post non modifica",
     "no-post-title": "Impossibile trovare il post",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Apri post originale",
     "updated-title": "Il post è stato aggiornato!",
     "updated-hint": "Il contenuto del post è stato aggiornato. Le modifiche saranno visibili in pochi minuti.",
     "back-to-post": "Torna al post",
-    "video-gallery": {
-      "no-data": "Ancora nessun video",
-      "no-data-hint": "Cambia filtro o pubblica il tuo primo video con 3Speak",
-      "no-data-button": "Carica adesso"
-    },
-    "video-availability": "Il video sarà disponibile dopo la pubblicazione",
     "title-placeholder": "Qual è il titolo?",
     "html-warning": {
       "title": "Rilevato puro codice HTML",
@@ -3043,6 +3107,42 @@
     "hint": "Text-to-Speech utilizza gli strumenti integrati del browser per convertire contenuti di testo in voce. L'elenco vocali, la disponibilità e la qualità dipendono solo dal browser e dal dispositivo.",
     "playground": "Playground",
     "voices": "Voci"
+  },
+  "external-transfer": {
+    "title": "Invia {{token}}",
+    "recipient-label": "Indirizzo del destinatario",
+    "error-invalid-address": "Indirizzo {{chain}} non valido",
+    "amount-label": "Importo",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Tariffa di rete stimata",
+    "max-evm-hint": "Le commissioni di rete sono pagate da {{token}}. MetaMask può modificare l'importo per riservare gas.",
+    "error-address-mismatch": "L'account MetaMask connesso non corrisponde all'indirizzo del tuo portafoglio collegato. Si prega di cambiare account in MetaMask.",
+    "error-exceeds-balance": "Importo superiore al saldo disponibile",
+    "review": "Revisione trasferimento",
+    "sending": "Invio",
+    "value": "Valore",
+    "to-label": "A",
+    "confirm-metamask": "Conferma con MetaMask",
+    "signing": "In attesa di conferma MetaMaschera...",
+    "success": "Trasferimento inviato!",
+    "success-hint": "La transazione è stata inviata alla rete. Potrebbe volerci qualche minuto per confermare.",
+    "view-explorer": "Visualizza su explorer",
+    "failed": "Trasferimento fallito",
+    "cancelled": "Transazione annullata dall'utente.",
+    "try-again": "Riprova"
+  },
+  "mobile-login-qr": {
+    "title": "Accedi all'app mobile",
+    "warning-title": "Questo codice QR contiene le credenziali della sessione",
+    "warning-1": "Non scansionare in spazi pubblici dove gli altri possono vedere lo schermo",
+    "warning-2": "Non condividere o screenshot il codice QR",
+    "warning-3": "Disabilita la registrazione o il mirroring dello schermo prima di rivelare",
+    "reveal-button": "Capisco, rivelare il codice QR",
+    "generating": "Generazione codice QR sicuro...",
+    "instructions": "Apri l'app mobile Ecency, tocca lo scanner QR e scansiona questo codice per accedere.",
+    "logged-in-as": "Accesso come @{{username}}",
+    "error-no-token": "Impossibile generare il login QR. Si prega di provare a uscire e tornare indietro.",
+    "error-generate": "Impossibile generare il codice QR. Per favore riprova."
   },
   "profile-wallet": {
     "pick-tokens": "Scegli i token da mostrare",
@@ -3107,10 +3207,10 @@
       "note": "Gli interessi sono calcolati in modo continuo al TAEG {{apr}}%.",
       "claim-button": "Richiedi interesse"
     },
-    "claim-rewards": "Richiedi ricompense",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Rivendicazione...",
-    "claim-rewards-success": "{{amount}} {{token}} rivendicato con successo",
+    "claim-rewards": "Raccogli guadagni",
+    "claim-rewards-with-amount": "Raccogli {{amount}} {{token}}",
+    "claim-rewards-loading": "Raccogliendo...",
+    "claim-rewards-success": "Collezionato {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Lasciate che Ecency curare con il vostro potere Hive",
@@ -3149,16 +3249,32 @@
       "title": "Revoca chiave Hive",
       "hint": "È possibile revocare qualsiasi chiave Hive utilizzando una delle chiavi proprietarie/password principale/seed"
     },
+    "manage-keys": {
+      "title": "Gestisci Chiavi",
+      "choose-title": "Cosa vorresti fare?",
+      "add-title": "Aggiungi Nuove Chiavi",
+      "add-description": "Genera una nuova password principale e aggiungi chiavi al tuo account",
+      "revoke-title": "Revoca I Tasti",
+      "revoke-description": "Rimuovere le chiavi che non hai più bisogno dal tuo account",
+      "revoke-select-title": "Seleziona le chiavi da revisionare",
+      "revoke-select-description": "Scegli quali chiavi rimuovere dal tuo account. Devi mantenere almeno una chiave per autorità.",
+      "revoke-confirm-title": "Conferma Revoca",
+      "revoke-confirm-description": "Firma con la chiave proprietaria per rimuovere le chiavi selezionate dal tuo account.",
+      "revoke-count": "{{count}} chiave(i) sarà revocata",
+      "revoke-success": "Chiavi revocate con successo",
+      "revoke-step-select": "Seleziona Tasti",
+      "revoke-step-sign": "Firma"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticazione",
-        "generate-seed": "Genera Seme",
+        "generate-seed": "Genera Password",
         "review-keys": "Revisione Chiavi",
         "confirm": "Conferma"
       },
       "step1": {
         "title": "Aggiunta Di Nuovo Set Di Chiavi",
-        "info1": "Un nuovo seed phrase verrà generato per il tuo account",
+        "info1": "Verrà generata una nuova password principale per il tuo account",
         "info2": "È possibile mantenere più set di chiavi attivi contemporaneamente",
         "info3": "Avrai la possibilità di revocare i vecchi tasti nei prossimi passi",
         "authenticate": "Autenticazione per continuare",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "Importante: Salva La Tua Nuova Frase Di Seme",
-        "warning1": "Questa è una frase di nuovo seme, diversa dal tuo seme originale",
+        "warning1": "Questa è una NUOVA password principale, diversa dalle tue credenziali originali",
         "warning2": "Salva separatamente - avrai bisogno di effettuare il login con queste chiavi",
-        "warning3": "Scarica il file seed e memorizzalo in modo sicuro prima di continuare"
+        "warning3": "Scarica il file delle chiavi e memorizzalo in modo sicuro prima di continuare"
       },
       "step3": {
         "title": "Controlla Le Chiavi Esistenti",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "Salva nella Galleria",
     "save-to-gallery-success": "Immagine salvata nella tua galleria!",
     "save-to-gallery-error": "Impossibile salvare l'immagine nella galleria. Per favore riprova.",
-    "use-suggestion": "Uso: {{suggestion}}"
+    "use-suggestion": "Uso: {{suggestion}}",
+    "select-power": "Potenziamento qualità"
+  },
+  "ai-assist": {
+    "title": "Assistente Di Scrittura Ia",
+    "toolbar-button": "Assist AI",
+    "balance-label": "Saldo",
+    "points-unit": "PUNTI",
+    "free-label": "Gratis",
+    "free-remaining": "{{count}} libero lasciato oggi",
+    "cost-label": "Costo",
+    "hint": "Scrivi il tuo contenuto prima, quindi usa AI Assist per lucidare e migliorarlo.",
+    "action-label": "Cosa vorresti fare?",
+    "text-label": "Il tuo contenuto",
+    "text-placeholder": "Incolla o digita qui il contenuto della bozza...",
+    "chars-remaining": "{{count}} caratteri rimanenti",
+    "min-chars": "Minimo {{count}} caratteri richiesti",
+    "action-improve": "Migliora La Scrittura",
+    "action-improve-desc": "Grammatica polacca, chiarezza e stile",
+    "action-suggest_tags": "Suggerisci Tag",
+    "action-suggest_tags-desc": "Ottieni tag rilevanti per il tuo post",
+    "action-generate_title": "Genera Titolo",
+    "action-generate_title-desc": "Crea opzioni di titolo convincenti",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Controlla Grammatica",
+    "action-check_grammar-desc": "Correggi grammatica e ortografia",
+    "submit-button": "Esegui Assistenza AI",
+    "submitting": "Elaborazione...",
+    "result-title": "Risultato",
+    "apply-button": "Applica al post",
+    "copy-button": "Copia",
+    "copied": "Copiato!",
+    "try-again": "Prova Di Nuovo",
+    "try-another": "Prova Un'altra Azione",
+    "show-changes": "Mostra modifiche",
+    "hide-changes": "Nascondi modifiche",
+    "hide-translation": "Nascondi traduzione",
+    "success": "Aiuto AI completato!",
+    "error-insufficient-points": "Punti insufficienti. Hai bisogno di {{required}} ma hai {{available}}",
+    "error-content-policy": "Il contenuto viola la politica. I punti non sono stati rimborsati.",
+    "error-rate-limit": "Troppe richieste. Si prega di attendere un attimo e riprovare.",
+    "error-auth": "Autenticazione scaduta. Per favore aggiorna la pagina e riprova.",
+    "error-generic": "Aiuto AI non riuscito. Riprova.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

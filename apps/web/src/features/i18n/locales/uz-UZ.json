@@ -39,6 +39,7 @@
     "fill-community-feed": "Lentani to'ldirish uchun ko'proq guruhlarni kuzatishingiz mumkin.",
     "save": "Saqlash",
     "try-again": "Yana urinib ko'rish",
+    "soon": "Soon",
     "show": "Ko'rsatish",
     "on": "Yoqish",
     "off": "O'chirish",
@@ -103,7 +104,9 @@
     "import": "Import",
     "clear": "Clear",
     "play": "O‘ynash",
-    "pause": "To‘xtatib turish"
+    "pause": "To‘xtatib turish",
+    "start": "Start",
+    "updated": "Updated"
   },
   "validation": {
     "required": "To'ldirish shart",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Hamyon",
-    "unclaimed-reward-notice": "Sizda qolib ketgan mukofotlar bor",
+    "unclaimed-reward-notice": "You have earnings to collect!",
     "points": "Ballar",
-    "unclaimed-points-notice": "Sizda olinmagan ballar bor",
+    "unclaimed-points-notice": "You have points to collect!",
     "notifications": "Xabarnomalar",
     "profile": "Profil",
     "profile-menu": "Profil menyusi",
@@ -239,6 +242,7 @@
     "schedules": "Rejalar",
     "fragments": "Fragmentlar",
     "settings": "Sozlamalar",
+    "mobile-login": "Log in to Mobile",
     "logout": "Chiqish",
     "just-logout": "Just logout",
     "logout-and-clear": "Logout & Clear local data",
@@ -290,13 +294,16 @@
     "use-key": "Kalit/paroldan foydalanish",
     "seed-info": "Biz sizning seed-frazangizni va yaratilgan kalitlaringizni saqlamaymiz",
     "sign-in": "Kirish",
-    "my-users": "Mening foydalanuvchilarim"
+    "my-users": "Mening foydalanuvchilarim",
+    "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
+    "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
   },
   "sign-up": {
-    "header": "MukofotlovchiWeb3 Guruhlari",
-    "description": "So‘z erkinligi, Haqiqiy egalik, Moliyaviy erkinlik!",
-    "description-2": "Hive ko‘plab ilovalarni quvvatlaydi va butunlay markazlashmagan holda butun dunyo bo‘ylab hamjamiyat a’zolari tomonidan boshqariladi. Hisobingiz orqali siz ekotizimga bevosita kirish imkoniga ega bo‘lasiz.",
-    "bottom-description": "Bitta akkaunt, bitta hamyon — blokcheyndagi hamma narsani boshqarish uchun.",
+    "header": "Rewarding Communities",
+    "description": "Free speech, True ownership, Financial freedom!",
+    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
+    "bottom-description": "One account, one wallet to manage everything.",
     "learn-more": "Imtiyozlar haqida batafsil ma'lumotni <a href=\"/faq#how-to-join\">FAQ</a> bo‘limida o‘qing",
     "username": "Foydalanuvchi nomini tanlang",
     "email": "Pochta manzilingizni kiriting",
@@ -399,7 +406,10 @@
     "votes": "Ovozlar:",
     "transfers": "O'tkazmalar:",
     "reblogs-follows": "Rebloglar/Obunalar:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegation failed",
+    "invalid-link": "Invalid onboarding link",
+    "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
     "title": "Mavzular"
@@ -437,8 +447,8 @@
     "vote-remove": "0% ovoz berish ovozni bekor qiladi.",
     "vote-warning": "Ovozni o'zgartirish...",
     "no-replies": "Hozircha javoblar yoʻq. Javob berish uchun bosing.",
-    "old-post-error": "To‘lov muddati tugaganidan keyin kontentga ovoz berish yangi mukofotlar keltirmaydi.",
-    "old-post-error-suggestion": "Muallifga tip yuborib ko‘ring "
+    "old-post-error": "This post's earning period has ended.",
+    "old-post-error-suggestion": "You can still tip the author directly. "
   },
   "nsfw": {
     "reveal": "Ushbu postni ko‘rsatish",
@@ -447,9 +457,9 @@
     "settings-2": "ko‘rinish sozlamalari"
   },
   "bookmark-btn": {
-    "add": "Bookmark - get notified about new comments",
-    "added": "Bookmarked! You'll be notified about new comments on this post",
-    "delete": "Remove bookmark and stop notifications",
+    "add": "Bookmark — get notified about new comments",
+    "added": "Saqlanganlarga qo'shildi",
+    "delete": "Saqlanganlardan olib tashlash",
     "deleted": "Saqlanganlardan olib tashlandi"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "Sovg'a",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -502,18 +513,18 @@
     "submit-label": "Tasdiqlash",
     "published": "Post e'lon qilindi",
     "no-subscription": "Postni ulashish uchun guruhga a'zo bo'lmagansiz.",
-    "info": "Tarqatilgan post uchun mukofot berilmaydi va tarqatilgan post uchun muhokamalar alohida lbo'ladi hamda turli guruh qoidalariga amal qiladi."
+    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
   },
   "entry-payout": {
-    "reward": "Mukofot",
+    "reward": "Earnings",
     "full-power": "100% qo'llab quvvatlash",
-    "pending-payout": "Kutilayotgan to'lov",
+    "pending-payout": "Estimated Earnings",
     "promoted": "Kötarilgan",
-    "author-payout": "Avtorlik to'lovi",
-    "curators-payout": "Kuratorlar to'lovi",
+    "author-payout": "Author Earnings",
+    "curators-payout": "Supporters' Earnings",
     "payout-date": "To'lov",
     "beneficiary": "Haq egasi",
-    "breakdown": "Bo'linish",
+    "breakdown": "Details",
     "max-accepted": "Maksimal olindi"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "Token almashinuvi",
-    "description": "Hive blokcheynda tokenlarni Sotib olish va Sotish uchun markazlashmagan almashinuv. Ko'proq ma'lumotga ega bo'lish uchun <a href=\"/faq#how-exchange-work\"> FAQ</a>ga kiring.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "So'nggi narx",
     "volume": "24 soatlik hajm",
     "bid": "Taklif",
@@ -932,7 +943,9 @@
     "reveal": "Izhohni ko'rsatish",
     "no-conversation": "Hali suhbat yo‘q, birinchi bo‘lib javob yozing",
     "start-conversation": "Suhbatni boshlash",
-    "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling"
+    "join-hint": "Join the conversation and earn for your contributions",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} mavzular",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "Doimiy benefitsiar",
     "default-beneficiary-username": "Hive foydalanuvchi nomi",
     "default-beneficiary-reward": "Mukofot (foizda)",
-    "default-beneficiary-docs": "Hujjatlarni ko‘rish"
+    "default-beneficiary-docs": "Hujjatlarni ko‘rish",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "Ecency POINTS olish uchun guruhingizni roʻyxatdan oʻtkazing",
@@ -1196,7 +1214,8 @@
     "permissions": "Open permissions",
     "image-server": "Image server",
     "image-server-default": "Ecency images (Default)",
-    "image-server-hiveblog": "Hive images (Alternative)"
+    "image-server-hiveblog": "Hive images (Alternative)",
+    "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "Olinmagan mukofotlar",
-    "claim-reward-balance": "Olingan mukofotlar miqdori",
-    "claim-reward-balance-ok": "Mukofot balansi olingan",
+    "unclaimed-rewards": "Earnings to collect",
+    "claim-reward-balance": "Collect earnings",
+    "claim-reward-balance-ok": "Earnings collected!",
     "estimated": "Hamyonning Taxminiy Qiymati",
     "estimated-points": "Ballarning taxminiy qiymati",
     "estimated-description": "Taxminiy xarajat HIVEning 7 kunlik o'rtacha narxiga asoslanadi.",
     "estimated-description-points": "Taxminiy qiymat Ballarni sotib olish narxiga asoslanadi.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power - kontentga ovoz berish uchun ko'proq kuch beradigan ta'sir qiluvchi token. Biror kishi qanchalik ko'p Hive Powerga ega bo'lsa, u boshqalarning mukofotlariga shunchalik ta'sir qilishi va ovoz berish uchun mukofot olishi mumkin. Hive Power asosan ma'lum bir hamyonda saqlanadigan Hive tokenidir, bu so'ralgan pulni to'liq yechib olish uchun 13 haftani talab qiladi.",
+    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
     "hive-power-apr-rate": "Hive Power uchun APR foiz stavkasi{{value}}%",
     "hive-dollars-apr-rate": "HBD ($) uchun APR foiz stavkasi{{value}}%",
     "hive-dollars-apr-claim": "Oxirgi to'lovdan keyin hisoblangan foizlar {{value}}:",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "Keyingi power down miqdori",
     "hive-power-total": "Umumiy Hive kuchi",
     "hive-dollars": "HIVE DOLLARLARI",
-    "hive-dollars-description": "Tokenlar taxminan $1.00 HIVEga teng.",
+    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
     "savings": "JAMG'ARMA",
     "savings-description": "Balansni yechib olish uchun 3 kunlik kutish muddati belgilanadi.",
     "next-power-down": "Keyingi quvvat power down {{time}}, (~{{amount}}, {{weeks}} hafta qoldi)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "Bozorda ochiq buyurtma uchun ajratilgan",
     "spk": {
       "claim": {
-        "title": "Olish",
-        "unclaimed-rewards": "Olinmagan mukofotlar"
+        "title": "Collect",
+        "unclaimed-rewards": "Earnings to collect"
       },
       "delegate": {
         "title": "Delegatsiyalash",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "BALLARNI SOTIB OLISH",
     "unclaimed-points": "Olinmagan ballar",
-    "claim-reward-points": "Olingan mukofotlar miqdori",
+    "claim-reward-points": "Collect points",
     "main-description": "Ballar Targ'ib qilish, Kuchaytirish, Hadya qilish kabi ilova ichidagi xizmatlar uchun ishlatish mumkin. Ecency ilovalaridan foydalanib, ballarni oling va tajribangizni yaxshilang.",
     "earn-points": "Qanday qilib ko'proq Ball ishlash mumkin",
     "post-desc": "Post yozganingizda tanga beriladi. Har post uchun 15 ball ishlaysiz.",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "Mukofotlarni olish",
+    "type-claim_reward_balance": "Collected earnings",
     "type-transfer": "O'tkazmalar",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Kuchni oshirish",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
-    "key-error": "Failed to process the key. Please verify it is correct."
+    "key-error": "Failed to process the key. Please verify it is correct.",
+    "sign-with-metamask": "Sign with MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -1642,9 +1662,9 @@
     "unMute": "Blokdan ochish"
   },
   "favorite-btn": {
-    "add": "Favorite - get notified about new posts",
-    "added": "Added to favorites! You'll be notified when they publish new posts",
-    "delete": "Remove favorite and stop notifications",
+    "add": "Favorite — get notified about new posts",
+    "added": "Sevimlilarga qo'shildi",
+    "delete": "Sevimlilardan olib tashlash",
     "deleted": "Sevimlilardan olib tashlandi"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "O'z hikoyangizni yozing...",
     "reward": "Mukofot",
     "take-tour": "Take a tour",
-    "reward-hint": "Suyuq va stavkali tokenlar uchun muallif mukofoti nisbatini belgilang",
+    "reward-hint": "Choose how you receive your earnings",
     "reward-default": "Birlamchi 50% / 50%",
-    "reward-sp": "100% qo'llab quvvatlash",
-    "reward-dp": "To'lovni bekor qilish",
+    "reward-sp": "Stake 100%",
+    "reward-dp": "Decline Earnings",
     "preview": "Ko'rish",
     "publish": "Nashr qilish",
     "update": "Yangilash",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "Post teglarini kiriting",
     "empty-body-alert": "Post matnini kiriting",
     "description": "Qisqa Tasvir",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
     "updating": "Updating..",
     "publishing": "Publishing..",
     "saving": "Saving..",
@@ -1731,15 +1750,8 @@
     "record-video": "Record a video",
     "choose-thumbnail": "Set a thumbnail(optional)",
     "continue": "Continue",
-    "encode": "Send for encoding",
-    "success": "Video succesfully uploaded",
-    "finished": "Finished",
     "upload-video": "Upload video",
-    "video-gallery": "Video gallery",
     "preview": "Preview",
-    "to-gallery": "Go to gallery",
-    "congrats": "Congratulations",
-    "publishing": "Don't refresh this page, wait for few seconds for video to process",
     "no-record-permission": "You don't have permission to record video",
     "confirm-and-upload": "Confirm and upload to 3Speak",
     "uploading": "Uploading..{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "Reset",
     "source": "Video source",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Video less than 15 seconds in duration will be ignored by 3Speak."
-  },
-  "video-gallery": {
-    "all": "All",
-    "title": "Video gallery",
-    "published": "Published",
-    "encoding": "Encoding",
-    "encoded": "Encoded",
-    "failed": "Failed",
-    "status-encoded": "Ready for posting",
-    "status-encoding": "Encoding",
-    "status-published": "Published",
-    "status-failed": "Encoding failed",
-    "status-deleted": "Deleted",
-    "info-created": "Created:",
-    "status": "Status:",
-    "info-views": "Views:",
-    "info-duration": "Duration:",
-    "info-size": "File size:",
-    "insert-video": "Insert",
-    "insert-nsfw": "Insert as NSFW",
-    "only-one-video": "Only one video can be published in one post",
-    "refresh": "Refresh to get updated status",
-    "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
+    "insert-video": "Insert video",
+    "file-too-large": "File size exceeds the 1 GB limit. Please choose a smaller video.",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "Failed to upload thumbnail. Please try again.",
+    "error-too-large": "Video file is too large. Please use a smaller file.",
+    "error-too-many": "Too many upload requests. Please wait a moment and try again.",
+    "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
+    "error-auth": "Authentication failed. Please contact support.",
+    "error-generic": "Failed to upload video. Please try again.",
+    "title-short": "Upload short video",
+    "short-badge": "Short",
+    "video-attached": "Video attached"
   },
   "tag-selector": {
     "placeholder-empty": "Teglar. Birinchi teg asosiy toifadir. Uni saralash mumkin.",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} foydalanuvchi mavjud emas.",
     "validation-percentage": "Foizni ko'rsating.",
     "validation-username": "Foydalanuvchi nomini ko'rsating.",
-    "user-exists-error": "{{n}} allaqachon ro'yxatda"
+    "user-exists-error": "{{n}} allaqachon ro'yxatda",
+    "threespeak-locked": "Required for 3Speak video hosting",
+    "required": "Required"
   },
   "post-scheduler": {
     "title": "Jadval",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} sizga jo'natdi {{amount}}",
     "delegations": "{{source}} sizga jo'natdi {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content payout is ready.",
+    "payouts": "Your content earnings are ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "Barcha xabarnomalar",
@@ -1863,6 +1868,8 @@
     "spin-str": "Koʻproq ball toʻplash vaqti keldi, Ecency Mobile ilovasida Spin oʻynang",
     "inactive-str": "Faol bo'ling! Post yozing, daromad olishda davom eting",
     "referral-str": "joined with referral, welcome them",
+    "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Yangilash",
     "mark-all-read": "Hammasini o'qilgan deb belgilash",
     "mark-read": "O'qilgan deb belgilash",
@@ -2249,9 +2256,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>Hamyon sahifasida (veb-sayt va ish stoli ilovasining yuqori sarlavhasida, mobil ilovaning pastki navigatsiya panelida) siz Kuratsiya mukofotlarini (post va sharhlarga ovoz berish orqali olingan mukofotlar) va Muallif mukofotlarini koʻrishingiz mumkin (o'z postlaringiz va sharhlaringiz uchun olingan mukofotlar).</p><p>Siz boshqa foydalanuvchilar uchun ham xuddi shu ma'lumotlarni ularning Wallet profiliga tashrif buyurib ko'rishingiz mumkin.</p>",
       "how-dhf-work-header": "MHF (Markazlashtirilmagan Hive Fondi) qanday ishlaydi?",
       "how-dhf-work-body": "<p>Har kim taklif yaratishi va guruhni moliyalashtirish bo'yicha o'z taklifiga ovoz berishga ishontirishi mumkin. Taklifni yaratishdan oldin blokcheynda oddiy post qilish kerak va taklifni yaratishdan oldin javoblardan fikr-mulohazalarni yig'ish tavsiya etiladi. Takliflar yaratishda 60 kundan ortiq davom etadigan har bir kun uchun 10 HBD + 1 HBD kvotasi mavjud.</p><p>Taklif hisoblangan ovozlarning maʼlum chegarasiga yetgandan soʻng, u har soatda mablagʻ olishni boshlaydi. Agar taklif chegaradan pastga tushsa, tizim bu taklifni moliyalashni to'xtatadi. Istaganingizcha takliflar uchun ovoz berishingiz mumkin, cheklovlar yo'q. Taklifni tahrirlab bo‘lmaydi, faqatgina yaratuvchi o‘chirib tashlashi yoki qaytarib olishi mumkin.</p>",
-      "when-claim-rewards-header": "Mukofotlarimni qachon olishim mumkin?",
-      "when-claim-rewards-body": "<p>Postlar va sharhlar 7 kun davomida faol bo'lib qoladi va mukofotlar ovozlar va tokenning bozor narxiga qarab o'zgarib turadi, shuning uchun mukofot kutilayotgan mukofot sifatida taxmin qilinadi. Muddat tugagach, kutilayotgan mukofot haqiqiy mukofotga o'zgaradi va siz olingan mukofotlarga da'vo qilishingiz mumkin. Tokenlarni hisobingizga qo‘shish uchun hamyoningizda “Mukofotlarni olish” tugmasini bosing.</p>",
+      "when-claim-rewards-header": "When can I collect my earnings?",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "Resurs Kreditlari nima?",
       "what-are-rc-body": "<p>Hive blokcheynidagi tranzaksiya nol komissiyaga ega, tranzaksiya tezligini cheklash blokcheynni spam hujumlaridan himoya qilish uchun qo'llaniladi. Blockcheynda qilgan har bir harakatingiz oz miqdorda Resurs kreditlarini sarflaydi. Bunga nashr qilish, izoh qoldirish, ovoz berish, tokenlarni oʻtkazish va hokazo kiradi. Kontentni koʻrish Resurs kreditlarini sarflamaydi.</p><p>Har bir foydalanuvchi har hafta foydalanishi uchun cheklangan miqdordagi Resurs kreditlariga ega. Foydalanuvchi qanchalik ko'p tranzaktsiyalarni amalga oshirsa, shunchalik kam Resurs kreditlari qoladi (ular to'ldirilgunga qadar). Ko‘proq HIVE POWER’ga ega foydalanuvchilar ko‘proq Resurs kreditlariga ega bo‘ladilar.</p><p>Agar sizda resurs kreditlari tugasa, resurs kreditlari to‘ldirilmaguncha (avtomatik ravishda sodir bo‘ladi) yoki qo‘shimcha HIVE POWER ga ega bo‘lmaguncha blokcheyn bilan tranzaksiya qila olmaysiz. Resurs krediti balansini oshirish uchun yoki vaqtinchalik vakolatni olish uchun <a href=\"/faq#how-boost-account\">Ecencydan hisobni kuchaytishni so‘rashingiz</a> mumkin.</p>",
       "how-boost-account-header": "Hisobni kuchaytirishni qanday talab qilish kerak?",
@@ -2733,7 +2740,6 @@
     "vote": "Vote",
     "account-age-hint": "Only accounts older than {{n}} days allowed",
     "preview-mode": "Preview mode",
-    "videos-collision-error": "Polls and 3speak videos cannot be published in same post since there are different kind of posts. Please choose only one of them.",
     "number_of_votes": "By number of votes",
     "tokens": "By tokens",
     "view-votes": "View votes",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Free Account",
+      "description": "Get a Hive account with basic email verification.",
+      "button": "Get Free Account",
+      "label": "Free"
+    },
+    "premium": {
+      "title": "Premium Account",
+      "description": "Instant account with 3x resource credits and 300 Ecency Points.",
+      "button": "Get Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Create account instantly using MetaMask. No seed phrases needed.",
+      "button": "Connect Wallet",
+      "label": "Wallet"
+    },
+    "invited": {
+      "title": "Invited by a Friend",
+      "description": "A friend with a Hive account can create one for you at no cost.",
+      "button": "Get Invited",
+      "label": "Invited"
+    }
+  },
   "signup-email": {
     "title": "Signup with Email",
     "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
@@ -2883,6 +2915,33 @@
       "creating": "Creating Hive account...",
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
+    },
+    "metamask": {
+      "title": "Connect MetaMask",
+      "description": "Connect your MetaMask wallet to verify your identity and create a Hive account.",
+      "not-found": "MetaMask not detected. Please install MetaMask extension.",
+      "connect-button": "Connect MetaMask",
+      "connect-hint": "We will check your wallet balance to verify your identity. No funds will be transferred.",
+      "connect-error": "Failed to connect MetaMask. Please try again.",
+      "connected": "MetaMask connected",
+      "chain-unsupported": "This chain is not yet supported for direct connection. Coming soon.",
+      "address-in-use": "This wallet address is already associated with a Hive account.",
+      "sign-and-continue": "Sign & Continue",
+      "sign-rejected": "Signature was rejected. Please try again.",
+      "installing-snap": "Installing Hive wallet snap...",
+      "getting-keys": "Deriving Hive keys from your wallet...",
+      "create-error": "Account creation failed. Please try again.",
+      "success-hint": "You can sign into Ecency using your MetaMask wallet with the Hive snap.",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
+      "login-with-metamask": "Login with MetaMask",
+      "logging-in": "Signing you in with MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Checking MetaMask multichain addresses...",
+      "chain-not-available": "Selected chain is not available in MetaMask"
+    },
+    "balance": {
+      "label": "Balance:"
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
-    "three-speak-gallery": "From 3Speak",
     "video-by-link": "Add video by link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
@@ -2964,6 +3022,19 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
+    "import": "Import from URL",
+    "import-title": "Import article",
+    "import-subtitle": "You will have a chance to review and edit before publishing.",
+    "import-hint": "Paste a URL to import article content into the editor. Supports Hive posts and external web articles.",
+    "import-ownership-notice": "Please only import content that you own or have permission to republish.",
+    "import-failed": "Failed to import article. Please check the URL and try again.",
+    "import-error-invalid-url": "Invalid URL. Please enter a valid web address.",
+    "import-error-fetch-failed": "Could not reach the website. Please check the URL and try again.",
+    "import-error-not-html": "The URL does not point to a web page.",
+    "import-error-too-large": "The page is too large to import.",
+    "import-error-extract-failed": "Could not extract article content from the page.",
+    "import-error-not-found": "Post not found. Please check the URL.",
+    "importing": "Importing...",
     "reward-settings": "Reward settings",
     "beneficiaries": "Beneficiaries",
     "meta-information": "Meta information",
@@ -2998,19 +3069,12 @@
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
     "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
-    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
     "no-post-title": "Cannot find the post",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Open original post",
     "updated-title": "Post has updated!",
     "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
     "back-to-post": "Back to post",
-    "video-gallery": {
-      "no-data": "No videos yet",
-      "no-data-hint": "Change filter or publish your first video with 3Speak",
-      "no-data-button": "Upload now"
-    },
-    "video-availability": "Video will be available after publishing",
     "title-placeholder": "What is the title?",
     "html-warning": {
       "title": "Pure HTML code detected",
@@ -3043,6 +3107,42 @@
     "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
     "playground": "Playground",
     "voices": "Voices"
+  },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "Recipient address",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "Amount",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "Estimated network fee",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask.",
+    "error-exceeds-balance": "Amount exceeds available balance",
+    "review": "Review transfer",
+    "sending": "Sending",
+    "value": "Value",
+    "to-label": "To",
+    "confirm-metamask": "Confirm with MetaMask",
+    "signing": "Waiting for MetaMask confirmation...",
+    "success": "Transfer submitted!",
+    "success-hint": "Your transaction has been submitted to the network. It may take a few minutes to confirm.",
+    "view-explorer": "View on explorer",
+    "failed": "Transfer failed",
+    "cancelled": "Transaction cancelled by user.",
+    "try-again": "Try again"
+  },
+  "mobile-login-qr": {
+    "title": "Log in to Mobile App",
+    "warning-title": "This QR code contains your session credentials",
+    "warning-1": "Do not scan in public spaces where others can see your screen",
+    "warning-2": "Do not share or screenshot the QR code",
+    "warning-3": "Disable screen recording or mirroring before revealing",
+    "reveal-button": "I understand, reveal QR code",
+    "generating": "Generating secure QR code...",
+    "instructions": "Open Ecency mobile app, tap the QR scanner, and scan this code to log in.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Unable to generate login QR. Please try logging out and back in.",
+    "error-generate": "Failed to generate QR code. Please try again."
   },
   "profile-wallet": {
     "pick-tokens": "Pick tokens to show",
@@ -3107,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Claim rewards",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Claiming...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "Collect earnings",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "Collecting...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3149,16 +3249,32 @@
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     },
+    "manage-keys": {
+      "title": "Manage Keys",
+      "choose-title": "What would you like to do?",
+      "add-title": "Add New Keys",
+      "add-description": "Generate a new master password and add keys to your account",
+      "revoke-title": "Revoke Keys",
+      "revoke-description": "Remove keys you no longer need from your account",
+      "revoke-select-title": "Select Keys to Revoke",
+      "revoke-select-description": "Choose which keys to remove from your account. You must keep at least one key per authority.",
+      "revoke-confirm-title": "Confirm Revocation",
+      "revoke-confirm-description": "Sign with your owner key to remove the selected keys from your account.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Keys revoked successfully",
+      "revoke-step-select": "Select Keys",
+      "revoke-step-sign": "Sign"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Seed",
+        "generate-seed": "Generate Password",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new seed phrase will be generated for your account",
+        "info1": "A new master password will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning1": "This is a NEW master password, different from your original credentials",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the seed file and store it securely before continuing"
+        "warning3": "Download the keys file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "Save to Gallery",
     "save-to-gallery-success": "Image saved to your gallery!",
     "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
-    "use-suggestion": "Use: {{suggestion}}"
+    "use-suggestion": "Use: {{suggestion}}",
+    "select-power": "Quality boost"
+  },
+  "ai-assist": {
+    "title": "AI Writing Assistant",
+    "toolbar-button": "AI Assist",
+    "balance-label": "Balance",
+    "points-unit": "POINTS",
+    "free-label": "Free",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "Cost",
+    "hint": "Write your content first, then use AI Assist to polish and improve it.",
+    "action-label": "What would you like to do?",
+    "text-label": "Your content",
+    "text-placeholder": "Paste or type your draft content here...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "Improve Writing",
+    "action-improve-desc": "Polish grammar, clarity, and style",
+    "action-suggest_tags": "Suggest Tags",
+    "action-suggest_tags-desc": "Get relevant tags for your post",
+    "action-generate_title": "Generate Title",
+    "action-generate_title-desc": "Create compelling title options",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Check Grammar",
+    "action-check_grammar-desc": "Fix grammar and spelling",
+    "submit-button": "Run AI Assist",
+    "submitting": "Processing...",
+    "result-title": "Result",
+    "apply-button": "Apply to post",
+    "copy-button": "Copy",
+    "copied": "Copied!",
+    "try-again": "Try Again",
+    "try-another": "Try Another Action",
+    "show-changes": "Show changes",
+    "hide-changes": "Hide changes",
+    "hide-translation": "Hide translation",
+    "success": "AI assist completed!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Content violates policy. Points were not refunded.",
+    "error-rate-limit": "Too many requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "AI assist failed. Please try again.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

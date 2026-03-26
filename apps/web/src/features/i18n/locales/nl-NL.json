@@ -39,6 +39,7 @@
     "fill-community-feed": "Je kunt meer mensen volgen om deze feed op te vullen.",
     "save": "Opslaan",
     "try-again": "Probeer opnieuw",
+    "soon": "Binnenkort",
     "show": "Toon",
     "on": "Aan",
     "off": "Uit",
@@ -103,7 +104,9 @@
     "import": "Importeren",
     "clear": "Verwijderen",
     "play": "Afspelen",
-    "pause": "Onderbreken"
+    "pause": "Onderbreken",
+    "start": "Beginnen",
+    "updated": "Bijgewerkt"
   },
   "validation": {
     "required": "Verplicht veld",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "Portemonnee",
-    "unclaimed-reward-notice": "Je hebt niet-opgeëiste beloningen",
+    "unclaimed-reward-notice": "Je hebt winst om te verzamelen!",
     "points": "Punten",
-    "unclaimed-points-notice": "Je hebt niet-opgeëiste punten",
+    "unclaimed-points-notice": "Je hebt punten om te verzamelen!",
     "notifications": "Meldingen",
     "profile": "Profiel",
     "profile-menu": "Profiel menu",
@@ -239,6 +242,7 @@
     "schedules": "Schema's",
     "fragments": "Fragmenten",
     "settings": "Instellingen",
+    "mobile-login": "Log in op mobiel",
     "logout": "Afmelden",
     "just-logout": "Uitloggen",
     "logout-and-clear": "Uitloggen en lokale gegevens wissen",
@@ -290,13 +294,16 @@
     "use-key": "Gebruik toets/pass",
     "seed-info": "We slaan uw herstelzin niet op en genereren sleutels",
     "sign-in": "Log in",
-    "my-users": "Mijn gebruikers"
+    "my-users": "Mijn gebruikers",
+    "metamask-not-found": "MetaMask is niet gevonden. Installeer MetaMask browserextensie.",
+    "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden."
   },
   "sign-up": {
-    "header": "Web3 gemeenschappen belonen",
-    "description": "Freespeech, Ware eigendom, financiële vrijheid!",
-    "description-2": "Hive krachten veel apps en wordt volledig gedecentraliseerd door gemeenschapsleden over de hele wereld. Met een account heb je directe toegang tot het ecosysteem.",
-    "bottom-description": "Eén rekening, één portemonnee om alles in Blockchain te beheren.",
+    "header": "Beloning Gemeenschappen",
+    "description": "Vrije meningsuiting, echt eigendom, financiële vrijheid!",
+    "description-2": "Word lid van een platform dat volledig beheerd wordt door de community. Een account geeft je toegang tot het hele ecosysteem.",
+    "bottom-description": "Eén account, één portemonnee om alles te beheren.",
     "learn-more": "Lees meer over de voordelen in onze <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Kies een gebruikersnaam",
     "email": "Vul jouw email adres in",
@@ -399,7 +406,10 @@
     "votes": "Stemmen:",
     "transfers": "Overdrachten:",
     "reblogs-follows": "Reblogs/Volgt:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegatie mislukt",
+    "invalid-link": "Ongeldige onboarding link",
+    "delegate-placeholder": "Voer bedrag in om te delegeren (Bn)"
   },
   "trending-tags": {
     "title": "Onderwerpen"
@@ -437,8 +447,8 @@
     "vote-remove": "Stemmen met 0% maakt je stem ongedaan",
     "vote-warning": "Stem aanpassen...",
     "no-replies": "Nog geen reacties. Klik om te antwoorden.",
-    "old-post-error": "Stemmen op inhoud na uitbetaling genereert geen nieuwe beloningen.",
-    "old-post-error-suggestion": "Probeer de auteur te tikken. "
+    "old-post-error": "De verdien periode van deze post is afgelopen.",
+    "old-post-error-suggestion": "Je kunt de auteur nog steeds rechtstreeks tikken. "
   },
   "nsfw": {
     "reveal": "Bekijk dit bericht",
@@ -447,9 +457,9 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
-    "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
-    "delete": "Bladwijzer verwijderen en meldingen stoppen",
+    "add": "Bladwijzer — krijg een melding over nieuwe reacties",
+    "added": "Toegevoegd aan bladwijzers",
+    "delete": "Verwijder uit bladwijzers",
     "deleted": "Verwijderd van bladwijzers"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "Stuur een tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -502,18 +513,18 @@
     "submit-label": "Bevestig",
     "published": "Artikel gepubliceerd",
     "no-subscription": "Je hebt geen community abonnement om over te steken.",
-    "info": "Beloningen worden automatisch geweigerd voor de kruis post en discussies onder kruis post zullen anders zijn en zullen verschillende communityrichtlijnen volgen."
+    "info": "De inkomsten worden automatisch geweigerd voor kruisberichten. Discussies onder kruisposten volgen de richtlijnen van de gastgemeenschap."
   },
   "entry-payout": {
-    "reward": "Beloning",
+    "reward": "Inkomsten",
     "full-power": "Power Up 100%",
-    "pending-payout": "Uitbetaling In Behandeling",
+    "pending-payout": "Geschatte opbrengst",
     "promoted": "Gesponsord",
-    "author-payout": "Auteur Uitbetaling",
-    "curators-payout": "Curator Uitbetaling",
+    "author-payout": "Auteur winst",
+    "curators-payout": "Supporters inkomsten",
     "payout-date": "Uitbetaling",
     "beneficiary": "Begunstigde",
-    "breakdown": "Uiteenzetting",
+    "breakdown": "Beschrijving",
     "max-accepted": "Max geaccepteerd"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "Token uitwisseling",
-    "description": "Gedecentraliseerde ruil om tokens te kopen en verkopen op Hive blockchain. Lees onze <a href=\"/faq#how-exchange-work\">FAQ</a> voor meer informatie.",
+    "description": "Wissel en verwissel tokens meteen. Voor meer informatie, lees onze <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Laatste prijs",
     "volume": "24u volume",
     "bid": "Bod",
@@ -932,7 +943,9 @@
     "reveal": "Toon reactie",
     "no-conversation": "Nog geen gesprek, wees de eerste om te reageren",
     "start-conversation": "Gesprek beginnen",
-    "join-hint": "Word onderdeel van een grote Hive gemeenschap en verdien beloningen voor activiteit"
+    "join-hint": "Neem deel aan het gesprek en verdien uw bijdragen",
+    "new-comment": "{{n}} nieuwe reactie - tik om te laden",
+    "new-comments": "{{n}} nieuwe reacties - tik om te laden"
   },
   "community": {
     "page-description": "{{f}} onderwerpen",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "Standaard begunstigde",
     "default-beneficiary-username": "Gebruikersnaam invullen",
     "default-beneficiary-reward": "Beloning(in %)",
-    "default-beneficiary-docs": "Bekijk documenten"
+    "default-beneficiary-docs": "Bekijk documenten",
+    "finalize-title": "Instellen community voltooien",
+    "finalize-description": "Dit community account is aangemaakt maar de installatie is nog niet voltooid. Voltooi het nu.",
+    "finalize-admin-label": "Admin gebruikersnaam",
+    "finalize-admin-hint": "Het Hive account dat deze gemeenschap zal beheren",
+    "finalize-success": "Community configuratie succesvol voltooid!"
   },
   "community-rewards-registration": {
     "body-text": "Registreer je community om Ecency PUNTEN te krijgen",
@@ -1196,7 +1214,8 @@
     "permissions": "Open permissies",
     "image-server": "Afbeelding server",
     "image-server-default": "Ecency afbeeldingen (standaard)",
-    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)"
+    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)",
+    "image-server-nocdn": "Ecency afbeeldingen (Geen CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "Bijwerken DM privacy-instellingen mislukt"
   },
   "wallet": {
-    "unclaimed-rewards": "Niet opgeëiste beloningen",
-    "claim-reward-balance": "Eis Beloningsbalans op",
-    "claim-reward-balance-ok": "Beloningsbalans opgeëist",
+    "unclaimed-rewards": "Verdiensten om te verzamelen",
+    "claim-reward-balance": "Winst verzamelen",
+    "claim-reward-balance-ok": "Winst verzameld!",
     "estimated": "Geschatte accountwaarde",
     "estimated-points": "Geschatte Punten Waarde",
     "estimated-description": "De geschatte waarde is gebaseerd op een 7-daags gemiddelde waarde van Hive.",
     "estimated-description-points": "De geschatte waarde is gebaseerd op aankoop waarde van punten.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE is je liquide saldo - overdracht, handel of stak het altijd uit.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "HIVE Power is een invloed token. Door deze vast te houden neemt het in hoeveelheid toe en geeft het meer stem invloed. Hoe meer HIVE Power iemand heeft, hoe meer invloed deze heeft op de beloningen van anderen en hoe hoger jouw verdiensten zijn bij het waarderen van anderen hun publicaties. Hive Power is staked HIVE token die opgeheven kan worden na 13 weken.",
+    "hive-power-description": "Hive Power is jouw invloed. Hoe meer je invloed, hoe meer je stem telt en hoe meer je verdient. Neem hiv uit om het te laten groeien, geen belang meer dan dertien weken.",
     "hive-power-apr-rate": "Effectieve rente voor Hive Power is {{value}}%",
     "hive-dollars-apr-rate": "Effectieve rente voor HBD($) is {{value}}%",
     "hive-dollars-apr-claim": "Geschatte rente sinds laatste betaling {{value}}:",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "Volgende power down hoeveelheid",
     "hive-power-total": "Totale HIVE Power",
     "hive-dollars": "HIVE DOLLARS",
-    "hive-dollars-description": "Tokens zijn ongeveer $1.00 in HIVE waard.",
+    "hive-dollars-description": "Stabiele tokens gekoppeld aan ruwweg $1.00 per stuk.",
     "savings": "SPAARPOT",
     "savings-description": "Opname van saldo onderhevig aan wachttijd van 3 dagen.",
     "next-power-down": "De volgende power down is {{time}}, (~{{amount}}, {{weeks}} weken resterend)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "Gereserveerd voor Open order in de markt",
     "spk": {
       "claim": {
-        "title": "Opeisen",
-        "unclaimed-rewards": "Niet opgeëiste beloningen"
+        "title": "Verzamelen",
+        "unclaimed-rewards": "Verdiensten om te verzamelen"
       },
       "delegate": {
         "title": "Toewijzen",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "Punten kopen",
     "unclaimed-points": "Niet-opgeëiste punten",
-    "claim-reward-points": "Beloningspunten opeisen",
+    "claim-reward-points": "Verzamel punten",
     "main-description": "Punten kunnen gebruikt worden voor in-app diensten, zoals promotie, Boost, Gifting. Verdien ze gewoon door gebruik te maken van Ecency apps en verbeter jouw ervaring.",
     "earn-points": "Hoe meer punten te verdienen",
     "post-desc": "Je kunt punten verdienen door regelmatig te posten. Het posten geeft je 15 punten.",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "Tokens uitzetten",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beloning begunstigde",
-    "type-claim_reward_balance": "Beloningen opeisen",
+    "type-claim_reward_balance": "Verzamelde winst",
     "type-transfer": "Overschrijving",
     "type-tokens_transfer": "Overschrijving",
     "type-transfer_to_vesting": "Power up",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Meld je aan met HiveAuth",
     "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
-    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is."
+    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is.",
+    "sign-with-metamask": "Ondertekenen met MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
@@ -1642,9 +1662,9 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
-    "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
-    "delete": "Favoriet verwijderen en meldingen stoppen",
+    "add": "Favoriet — krijg meldingen over nieuwe berichten",
+    "added": "Aan favorieten toegevoegd",
+    "delete": "Uit favorieten verwijderen",
     "deleted": "Verwijderd uit favorieten"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "Vertel je verhaal...",
     "reward": "Beloning",
     "take-tour": "Neem een rondleiding",
-    "reward-hint": "Stel de auteur beloningsratio in voor vloeibare en ongebruikte tokens",
+    "reward-hint": "Kies hoe u uw inkomsten ontvangt",
     "reward-default": "Standaard 50% / 50%",
-    "reward-sp": "Power Up 100%",
-    "reward-dp": "Uitbetaling Afwijzen",
+    "reward-sp": "Zet 100% uit",
+    "reward-dp": "Vergelijken afwijzen",
     "preview": "Voorvertoning",
     "publish": "Publiceren",
     "update": "Vernieuwen",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "Voer post tags in",
     "empty-body-alert": "Geef post inhoud",
     "description": "Korte beschrijving",
-    "should-be-only-one-unpublished": "Bericht mag slechts één ongepubliceerde video bevatten. Verwijder andere berichten.",
     "updating": "Bijwerken..",
     "publishing": "Publiceren..",
     "saving": "Opslaan..",
@@ -1731,15 +1750,8 @@
     "record-video": "Neem een video op",
     "choose-thumbnail": "Stel een miniatuur in (optioneel)",
     "continue": "Doorgaan",
-    "encode": "Stuur voor codering",
-    "success": "Video succesfully uploaded",
-    "finished": "Beëindigd",
     "upload-video": "Video uploaden",
-    "video-gallery": "Video galerij",
     "preview": "Voorvertoning",
-    "to-gallery": "Ga naar galerij",
-    "congrats": "Gefeliciteerd",
-    "publishing": "Deze pagina niet vernieuwen, wacht enkele seconden om video te verwerken",
     "no-record-permission": "Je hebt geen toestemming om video op te nemen",
     "confirm-and-upload": "Bevestig en upload naar 3Speak",
     "uploading": "Uploaden...{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "Reset",
     "source": "Video bron",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Video minder dan 15 seconden zal worden genegeerd door 3Speak."
-  },
-  "video-gallery": {
-    "all": "Allemaal",
-    "title": "Video galerij",
-    "published": "Ingediend",
-    "encoding": "Codering",
-    "encoded": "Gecodeerd",
-    "failed": "Mislukt",
-    "status-encoded": "Klaar om te posten",
-    "status-encoding": "Codering",
-    "status-published": "Ingediend",
-    "status-failed": "Codering mislukt",
-    "status-deleted": "Verwijderd",
-    "info-created": "Aangemaakt:",
-    "status": "Status:",
-    "info-views": "Weergaven:",
-    "info-duration": "Duur:",
-    "info-size": "Bestandsgrootte:",
-    "insert-video": "Insert",
-    "insert-nsfw": "Als NSFW invoegen",
-    "only-one-video": "Er kan slechts één video in één bericht worden gepubliceerd",
-    "refresh": "Vernieuwen voor geactualiseerde status",
-    "video-info": "Video's worden opgeslagen en aangedreven door SPK netwerk, kunnen wat opslag- en codering kosten hebben."
+    "insert-video": "Video invoegen",
+    "file-too-large": "Bestandsgrootte overschrijdt de 1 GB limiet. Kies een kleinere video.",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "Uploaden van miniatuur mislukt. Probeer het opnieuw.",
+    "error-too-large": "Videobestand is te groot. Gebruik een kleiner bestand.",
+    "error-too-many": "Te veel uploadverzoeken. Wacht even en probeer het opnieuw.",
+    "error-unavailable": "Upload service is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "error-auth": "Authenticatie mislukt. Neem contact op met support.",
+    "error-generic": "Uploaden van video mislukt. Probeer het opnieuw.",
+    "title-short": "Korte video uploaden",
+    "short-badge": "Kort",
+    "video-attached": "Video toegevoegd"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} is geen geldige gebruiker.",
     "validation-percentage": "Percentage is vereist.",
     "validation-username": "Gebruikersnaam is niet verstrekt",
-    "user-exists-error": "{{n}} staat al in de lijst"
+    "user-exists-error": "{{n}} staat al in de lijst",
+    "threespeak-locked": "Vereist voor 3Speak video hosting",
+    "required": "vereist"
   },
   "post-scheduler": {
     "title": "Planning",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} heeft jou {{amount}} gestuurd",
     "delegations": "{{source}} heeft u gedelegeerd {{amount}}",
     "checkins": "Je hebt deze week {{count}} dag{{suffix}} gecontroleerd. Ga zo door!",
-    "payouts": "De uitbetaling van uw inhoud is klaar.",
+    "payouts": "Uw inkomsten zijn klaar.",
     "payouts-amount": "Je hebt {{amount}} uitbetaling ontvangen.",
+    "payouts-amount-usd": "Je hebt ${{amount_usd}} verdiend ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!"
+    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!",
+    "weekly-earnings": "Je hebt ${{total}} deze week verdiend - ${{author}} van posten, ${{curation}} van curatie.",
+    "weekly-earnings-short": "Je hebt deze week ${{total}} verdiend van je berichten en curatie."
   },
   "notifications": {
     "type-all": "Alle notificaties",
@@ -1863,6 +1868,8 @@
     "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
+    "account-update-str": "Uw accountsleutels of profiel zijn bijgewerkt",
+    "weekly-earnings-title": "Wekelijkse inkomsten samenvatting van @{{username}}",
     "refresh": "Vernieuwen",
     "mark-all-read": "Alles markeren als gelezen",
     "mark-read": "Markeren als gelezen",
@@ -2249,9 +2256,9 @@
         "create-title": "Publiceer van overal",
         "create-description": "Concept berichten, deel updates en antwoord op reacties met dezelfde krachtige editor die u op het bureaublad gebruikt.",
         "wallet-title": "Portemonnee in een oogopslag",
-        "wallet-description": "Controleer saldo's, claim beloningen en beheer Hive Power of HBD met slechts een paar tikken.",
+        "wallet-description": "Controleer saldo's, verzamel inkomsten en beheer uw tokens met slechts een paar tikken.",
         "notifications-title": "Mis nooit een vermelding",
-        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en beloningen, zodat u op tijd kunt vieren."
+        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en verdiensten zodat u op tijd kunt vieren."
       },
       "features-title": "Ontworpen voor makers en gemeenschappen",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>In Portemonnee pagina (in bovenste koptekst van de website en de desktopapp, onderste navigatiebalk op mobiele app), je kan Curation rewards (de beloningen verdiend voor het upstemmen van posts en reacties) en Auteur beloningen (de beloningen verdiend met je eigen berichten en reacties)</p><p>Je kan dezelfde informatie ook bekijken voor andere gebruikers door naar hun portemonnee profiel te gaan.</p>",
       "how-dhf-work-header": "Hoe werkt DHF?",
       "how-dhf-work-body": "<p>Iedereen kan een voorstel maken en de gemeenschap overtuigen om op zijn voorstel te stemmen om geld te krijgen. Voordat u een voorstel maakt, moet de normale post worden gepubliceerd op blockchain en wordt aanbevolen om feedback te verzamelen voordat u een voorstel doet. De creatie van het voorstel kost 10 HBD + 1 HBD voor elke dag meer dan 60 dagen.</p><p>Zodra het voorstel een bepaalde drempel van stemmen voor tallied bereikt, zal het elk uur geld ontvangen. Als het voorstel onder de drempel komt, zal het systeem de financiering van dat voorstel tegenhouden. Je kunt zo veel voorstellen stemmen als je wilt, er zijn geen grenzen. Voorstel kan niet worden bewerkt, maar kan worden verwijderd/ingetrokken door de maker.</p>",
-      "when-claim-rewards-header": "Wanneer kan ik mijn beloningen opeisen?",
-      "when-claim-rewards-body": "<p>berichten en commentaren blijven actief voor 7 dagen en beloningen zijn fluctueren, afhankelijk van de stemmen en de marktprijs van token, Daarom worden de beloningen geschat als beloningen in afwachting van beloning. Wanneer de periode voorbij is, in afwachting van het veranderen van de beloning naar werkelijke beloning en u kunt verdiende beloningen opeisen. Klik in uw Portemonnee op de knop Beloningen Ophalen om de tokens aan uw account toe te voegen.</p>",
+      "when-claim-rewards-header": "Wanneer kan ik mijn inkomsten ophalen?",
+      "when-claim-rewards-body": "<p>Berichten en reacties verdienen voor 7 dagen. Gedurende deze periode fluctueren de inkomsten op basis van stemmen en marktomstandigheden - dat is waarom ze worden getoond zoals ingeschat. Na 7 dagen zijn je laatste inkomsten beschikbaar. Ga naar je Wallet en tik op Verzamelen om ze toe te voegen aan je saldo.</p>",
       "what-are-rc-header": "Wat zijn Grondstoffenkrediet?",
       "what-are-rc-body": "<p>Transacties op de Hive blockchain hebben geen kosten, de transactie tariefbeperking wordt gebruikt om de blockchain te beschermen tegen spam aanvallen. Elke actie die je neemt op de blockchain zal een kleine hoeveelheid aan Grondstoffen Credits verbruiken. Dit omvat het plaatsen van berichten, stemmen, het overdragen van tokens, enz. Inhoud verbruikt geen Resource Credits.</p><p>Elke gebruiker heeft een beperkt aantal Resource Credits om elke week te gebruiken. Hoe meer transacties een gebruiker doet, hoe minder Resource credits ze over zullen hebben (tot ze herladen). Gebruikers met meer HIVE POWER zullen meer Resource credits hebben.</p><p>Als je geen Resource credits meer hebt, je kan geen transacties uitvoeren met de blockchain totdat je Resource Credits betaald worden (automatisch) of je extra HIVE POWER krijgt om je Resource Credit saldo te verhogen of je kunt <a href=\"/faq#how-boost-account\">een Boosting account aanvragen bij Ecency</a> om een tijdelijke delegatie te ontvangen.</p>",
       "how-boost-account-header": "Hoe vraag ik om uw account boosten?",
@@ -2733,7 +2740,6 @@
     "vote": "Stemming",
     "account-age-hint": "Alleen accounts ouder dan {{n}} dagen toegestaan",
     "preview-mode": "Preview modus",
-    "videos-collision-error": "Enquêtes en 3speak video's kunnen niet in hetzelfde bericht worden gepubliceerd, omdat er verschillende soorten berichten zijn. Kies er alsjeblieft maar één van.",
     "number_of_votes": "Op aantal stemmen",
     "tokens": "Door tokens",
     "view-votes": "Toon stemmen",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Gratis Account",
+      "description": "Neem een Hive account met basis e-mail verificatie.",
+      "button": "Ontvang een gratis account",
+      "label": "Vrij"
+    },
+    "premium": {
+      "title": "Premium account",
+      "description": "Direct account met 3x resource credits en 300 Ecency Punten.",
+      "button": "Neem Premium - $2,99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Maak direct een account aan met MetaMask. Geen herstelzinnen nodig.",
+      "button": "Verbind Portemonnee",
+      "label": "Portemonnee"
+    },
+    "invited": {
+      "title": "Uitgenodigd door een vriend",
+      "description": "Een vriend met een Hive account kan er kosteloos een voor u maken.",
+      "button": "Uitgenodigd",
+      "label": "Uitgenodigd"
+    }
+  },
   "signup-email": {
     "title": "Aanmelden met e-mail",
     "description": "Flexibele manier om een account aan te maken via e-mailvalidatie. Kies een van de opties zoals een gratis account met 3X resource credits voor $2.99 of Onboard een vriend",
@@ -2883,6 +2915,33 @@
       "creating": "Aanmaken Hive account...",
       "validating": "Je account wordt voorbereid...",
       "success": "Je account is aangemaakt. Geniet van de Korf en Ecency!"
+    },
+    "metamask": {
+      "title": "Verbinden met MetaMask",
+      "description": "Sluit uw MetaMask portemonnee aan om uw identiteit te verifiëren en een Hive account aan te maken.",
+      "not-found": "MetaMask is niet gedetecteerd. Installeer MetaMask extensie.",
+      "connect-button": "Verbinden met MetaMask",
+      "connect-hint": "We zullen je portemonnee controleren om je identiteit te verifiëren. Er wordt geen geld overgemaakt.",
+      "connect-error": "Verbinding maken met MetaMask mislukt. Probeer het opnieuw.",
+      "connected": "MetaMask verbonden",
+      "chain-unsupported": "Deze keten wordt nog niet ondersteund voor directe verbinding. Binnenkort beschikbaar.",
+      "address-in-use": "Dit portemonnee adres is al gekoppeld aan een Hive account.",
+      "sign-and-continue": "Ondertekenen & doorgaan",
+      "sign-rejected": "Handtekening werd geweigerd. Probeer het opnieuw.",
+      "installing-snap": "Installeren van Hive wallet snap...",
+      "getting-keys": "Vervallen van de Hive keys uit uw portemonnee...",
+      "create-error": "Account aanmaken is mislukt. Probeer het opnieuw.",
+      "success-hint": "Je kunt bij Ecency inloggen met je MetaMask portemonnee met de Hive snap.",
+      "enter-address": "Voer uw {{chain}} adres in",
+      "enter-address-hint": "Kopieer het adres van uw MetaMask portemonnee voor deze keten.",
+      "login-with-metamask": "Login met MetaMask",
+      "logging-in": "Je wordt aangemeld met MetaMask...",
+      "address-label": "{{chain}} adres:",
+      "checking-multichain": "MetaMask multichain adressen controleren...",
+      "chain-not-available": "Geselecteerde keten is niet beschikbaar in MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Uploaden en plakken",
-    "three-speak-gallery": "Van 3Speak",
     "video-by-link": "Voeg video toe via link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
@@ -2964,6 +3022,19 @@
     "upload-started": "Afbeelding uploaden...",
     "back-to-old": "Back to Classic View",
     "clear": "Verwijderen",
+    "import": "Importeer van URL",
+    "import-title": "Artikel importeren",
+    "import-subtitle": "U maakt kans om te beoordelen en bewerken voordat u publiceert.",
+    "import-hint": "Plak een URL om artikelinhoud te importeren in de editor. Ondersteunt Hive posts en externe webartikelen.",
+    "import-ownership-notice": "Importeer alleen inhoud die je hebt of die je rechten hebt om opnieuw te publiceren.",
+    "import-failed": "Kan artikel niet importeren. Controleer de URL en probeer het opnieuw.",
+    "import-error-invalid-url": "Ongeldige URL. Voer een geldig webadres in.",
+    "import-error-fetch-failed": "De website kon niet worden bereikt. Controleer de URL en probeer het opnieuw.",
+    "import-error-not-html": "De URL verwijst niet naar een webpagina.",
+    "import-error-too-large": "De pagina is te groot om te importeren.",
+    "import-error-extract-failed": "Kon artikelinhoud niet uitpakken van de pagina.",
+    "import-error-not-found": "Bericht niet gevonden. Controleer de URL.",
+    "importing": "Importeren...",
     "reward-settings": "Beloning instellingen",
     "beneficiaries": "Begunstigden",
     "meta-information": "Meta informatie",
@@ -2998,19 +3069,12 @@
     "get-help": "Hulp vragen",
     "loading-post-title": "Bericht laden...",
     "loading-post-hint": "Alleen titel, inhoud, tags en meta-informatie kunnen worden gewijzigd na publicatie",
-    "upload-video-error-hint": "Video kan alleen worden geüpload tijdens het maken van berichten die niet worden bewerkt",
     "no-post-title": "Kan het bericht niet vinden",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Open origineel bericht",
     "updated-title": "Bericht is bijgewerkt!",
     "updated-hint": "Inhoud van bericht is bijgewerkt. Wijzigingen worden binnen enkele minuten zichtbaar.",
     "back-to-post": "Terug naar bericht",
-    "video-gallery": {
-      "no-data": "Nog geen video's",
-      "no-data-hint": "Verander de filter of publiceer je eerste video met 3Speak",
-      "no-data-button": "Upload nu"
-    },
-    "video-availability": "Video zal beschikbaar zijn na publicatie",
     "title-placeholder": "Wat is de titel?",
     "html-warning": {
       "title": "Pure HTML code gedetecteerd",
@@ -3043,6 +3107,42 @@
     "hint": "Text-to-Speech maakt gebruik van browser`s ingebouwde tools voor het omzetten van tekst naar speech. Voiceslijst, beschikbaarheid en kwaliteit zijn alleen afhankelijk van uw browser en apparaat.",
     "playground": "Speelplaats",
     "voices": "Stemmen"
+  },
+  "external-transfer": {
+    "title": "Verzend {{token}}",
+    "recipient-label": "Adres van ontvanger",
+    "error-invalid-address": "Ongeldig {{chain}} adres",
+    "amount-label": "Hoeveelheid",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Geschatte netwerkvergoeding",
+    "max-evm-hint": "Netwerkkosten worden betaald van {{token}}. MetaMask kan het bedrag aanpassen om gas te reserveren.",
+    "error-address-mismatch": "Verbonden MetaMask account komt niet overeen met je gelinkte portemonnee adres. Verander van account in MetaMask.",
+    "error-exceeds-balance": "Bedrag overschrijdt het beschikbare saldo",
+    "review": "Overboeking beoordelen",
+    "sending": "Verzenden",
+    "value": "Waarde",
+    "to-label": "tot",
+    "confirm-metamask": "Bevestigen met MetaMask",
+    "signing": "Wachten op MetaMask bevestiging...",
+    "success": "Transfer is verstuurd!",
+    "success-hint": "Uw transactie is verzonden naar het netwerk. Het kan enkele minuten duren om te bevestigen.",
+    "view-explorer": "Bekijk op verkenner",
+    "failed": "Overdracht mislukt",
+    "cancelled": "Transactie geannuleerd door gebruiker.",
+    "try-again": "Opnieuw proberen"
+  },
+  "mobile-login-qr": {
+    "title": "Log in op de mobiele app",
+    "warning-title": "Deze QR-code bevat uw sessie referenties",
+    "warning-1": "Scan niet in openbare ruimtes waar anderen jouw scherm kunnen zien",
+    "warning-2": "Deel of schermafbeelding van de QR-code niet",
+    "warning-3": "Schermopname of spiegeling uitschakelen voor onthulling",
+    "reveal-button": "Ik begrijp het, laat QR-code zien",
+    "generating": "Veilige QR code genereren...",
+    "instructions": "Open Ecency mobile app, tik op de QR scanner en scan deze code om in te loggen.",
+    "logged-in-as": "Ingelogd als @{{username}}",
+    "error-no-token": "Kan geen login-QR genereren. Probeer uit te loggen en weer in te loggen.",
+    "error-generate": "Genereren van QR-code mislukt. Probeer het opnieuw."
   },
   "profile-wallet": {
     "pick-tokens": "Kies tokens om te tonen",
@@ -3107,10 +3207,10 @@
       "note": "De rente wordt continu berekend op {{apr}}% APR.",
       "claim-button": "Opvordering rente"
     },
-    "claim-rewards": "Beloningen opeisen",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Ophalen...",
-    "claim-rewards-success": "Succesvol geclaimd {{amount}} {{token}}",
+    "claim-rewards": "Winst verzamelen",
+    "claim-rewards-with-amount": "Verzamel {{amount}} {{token}}",
+    "claim-rewards-loading": "Verzamelen...",
+    "claim-rewards-success": "Verzamelde {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Laat Ecency curate met je Korf Kracht",
@@ -3149,16 +3249,32 @@
       "title": "Intrekken Hive key",
       "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
     },
+    "manage-keys": {
+      "title": "Sleutels beheren",
+      "choose-title": "Wat wil je doen?",
+      "add-title": "Voeg nieuwe sleutels toe",
+      "add-description": "Genereer een nieuw hoofdwachtwoord en voeg sleutels toe aan uw account",
+      "revoke-title": "Toetsen intrekken",
+      "revoke-description": "Verwijder sleutels die je niet meer nodig hebt van je account",
+      "revoke-select-title": "Selecteer sleutels om in te trekken",
+      "revoke-select-description": "Kies welke sleutels u uit uw account wilt verwijderen. U moet ten minste één sleutel per autoriteit bewaren.",
+      "revoke-confirm-title": "Herroepen bevestigen",
+      "revoke-confirm-description": "Meld u aan met uw eigenaarssleutel om de geselecteerde sleutels uit uw account te verwijderen.",
+      "revoke-count": "{{count}} sleutel(s) worden ingetrokken",
+      "revoke-success": "Sleutels met succes ingetrokken",
+      "revoke-step-select": "Selecteer sleutels",
+      "revoke-step-sign": "Ondertekenen"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Verifiëren",
-        "generate-seed": "Genereer Seed",
+        "generate-seed": "Wachtwoord genereren",
         "review-keys": "Beoordeel sleutels",
         "confirm": "Bevestigen"
       },
       "step1": {
         "title": "Nieuwe sleutelset toevoegen",
-        "info1": "Er wordt een nieuwe herstelzin gegenereerd voor uw account",
+        "info1": "Er zal een nieuw hoofdwachtwoord worden gegenereerd voor uw account",
         "info2": "Je kunt meerdere sleutelsets tegelijk actief houden",
         "info3": "Je hebt de optie om oude sleutels in de volgende stappen in te trekken",
         "authenticate": "Verifieer om verder te gaan",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "Belangrijk: Sla je nieuwe zin op",
-        "warning1": "Dit is een nieuwe herstelzin die afwijkt van uw oorspronkelijke account seed",
+        "warning1": "Dit is een nieuw hoofdwachtwoord, anders dan je originele inloggegevens",
         "warning2": "Sla het afzonderlijk op - u moet inloggen met deze sleutels",
-        "warning3": "Download het seed bestand en sla het veilig op alvorens verder te gaan"
+        "warning3": "Download het sleutelbestand en sla het veilig op alvorens verder te gaan"
       },
       "step3": {
         "title": "Bestaande sleutels controleren",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "Opslaan in galerij",
     "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
     "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw.",
-    "use-suggestion": "Gebruik: {{suggestion}}"
+    "use-suggestion": "Gebruik: {{suggestion}}",
+    "select-power": "Kwaliteit boost"
+  },
+  "ai-assist": {
+    "title": "AI Schrijfassistent",
+    "toolbar-button": "AI assistentie",
+    "balance-label": "Saldo",
+    "points-unit": "PUNTEN",
+    "free-label": "Vrij",
+    "free-remaining": "{{count}} gratis resterend vandaag",
+    "cost-label": "Kosten",
+    "hint": "Schrijf eerst je inhoud, gebruik daarna AI Assistent om het te poetsen en te verbeteren.",
+    "action-label": "Wat wil je doen?",
+    "text-label": "Je inhoud",
+    "text-placeholder": "Plak of typ je kladinhoud hier...",
+    "chars-remaining": "{{count}} resterende tekens",
+    "min-chars": "Minimum aantal {{count}} tekens vereist",
+    "action-improve": "Verbeter schrijven",
+    "action-improve-desc": "Poolse grammatica, helderheid en stijl",
+    "action-suggest_tags": "Tags voorstellen",
+    "action-suggest_tags-desc": "Krijg relevante tags voor je bericht",
+    "action-generate_title": "Genereer titel",
+    "action-generate_title-desc": "Maak dwingende titel opties",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Grammatica controleren",
+    "action-check_grammar-desc": "Repareer grammatica en spelling",
+    "submit-button": "Start AI Assistent",
+    "submitting": "Verwerken...",
+    "result-title": "Resultaat",
+    "apply-button": "Toepassen op bericht",
+    "copy-button": "Kopiëren",
+    "copied": "Gekopieerd!",
+    "try-again": "Probeer opnieuw",
+    "try-another": "Probeer een andere actie",
+    "show-changes": "Wijzigingen weergeven",
+    "hide-changes": "Wijzigingen verbergen",
+    "hide-translation": "Vertaling verbergen",
+    "success": "AI assistentie voltooid!",
+    "error-insufficient-points": "Onvoldoende punten. Je hebt {{required}} nodig maar {{available}}.",
+    "error-content-policy": "Inhoud schendt het beleid. Punten werden niet terugbetaald.",
+    "error-rate-limit": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "error-auth": "Verificatie is verlopen. Vernieuw de pagina en probeer het opnieuw.",
+    "error-generic": "AI assistentie mislukt. Probeer het opnieuw.",
+    "error-text-too-short": "Uw tekst is te kort. Minimaal {{count}} tekens zijn vereist."
   }
 }

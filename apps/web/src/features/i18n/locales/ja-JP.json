@@ -39,6 +39,7 @@
     "fill-community-feed": "より多くのコミュニティに参加してこのフィードを埋めることができます。",
     "save": "保存",
     "try-again": "もう一度やり直してください",
+    "soon": "まもなくです",
     "show": "表示",
     "on": "オン",
     "off": "オフ",
@@ -103,7 +104,9 @@
     "import": "インポート",
     "clear": "クリア",
     "play": "再生",
-    "pause": "一時停止"
+    "pause": "一時停止",
+    "start": "開始",
+    "updated": "更新日時"
   },
   "validation": {
     "required": "必須項目",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "ウォレット",
-    "unclaimed-reward-notice": "未請求の報酬があります",
+    "unclaimed-reward-notice": "受け取る収入があります！",
     "points": "制御点",
-    "unclaimed-points-notice": "請求されていないポイントがあります",
+    "unclaimed-points-notice": "受け取るポイントがあります！",
     "notifications": "通知",
     "profile": "プロフィール",
     "profile-menu": "プロファイルメニュー",
@@ -239,6 +242,7 @@
     "schedules": "スケジュール",
     "fragments": "Snippets",
     "settings": "設定",
+    "mobile-login": "モバイルにログイン",
     "logout": "ログアウト",
     "just-logout": "ログアウトするだけ",
     "logout-and-clear": "ログアウトしてローカルデータをクリア",
@@ -290,13 +294,16 @@
     "use-key": "キー/パスを使用",
     "seed-info": "シードフレーズと生成されたキーは保存されません",
     "sign-in": "サインイン",
-    "my-users": "マイユーザー"
+    "my-users": "マイユーザー",
+    "metamask-not-found": "MetaMask が見つかりません。ブラウザ拡張機能をインストールしてください。",
+    "metamask-no-keys": "MetaMaskスナップからハイブキーを取得できませんでした",
+    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。"
   },
   "sign-up": {
-    "header": "Web3コミュニティの報酬",
-    "description": "フリーピーチ、真の所有権、金融の自由！",
-    "description-2": "Hiveは多くのアプリをサポートし、世界中のコミュニティメンバーによって完全に分散して実行されています。 アカウントでは、エコシステムに直接アクセスできます。",
-    "bottom-description": "1つのアカウント、1つのウォレットでブロックチェーン上のすべてを管理できます。",
+    "header": "コミュニティの報酬",
+    "description": "言論の自由, 真の所有権, 金融の自由!",
+    "description-2": "コミュニティ全体が運営するプラットフォームに参加しましょう。一つのアカウントでは、エコシステム全体にアクセスできます。",
+    "bottom-description": "1つのアカウント、1つのウォレットですべてを管理できます。",
     "learn-more": "<a href=\"/faq#how-to-join\"></a> のメリットについての詳細はこちらformat@@2",
     "username": "ユーザー名を選択",
     "email": "メールアドレスを入力してください",
@@ -399,7 +406,10 @@
     "votes": "投票：",
     "transfers": "転送:",
     "reblogs-follows": "リブログ/フォロー:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC 委任に失敗しました",
+    "invalid-link": "無効なオンボーディングリンク",
+    "delegate-placeholder": "委任する金額を入力 (Bn)"
   },
   "trending-tags": {
     "title": "トピック"
@@ -437,8 +447,8 @@
     "vote-remove": "投票 0% でコンテンツの投票を解除します。",
     "vote-warning": "投票を変更中...",
     "no-replies": "まだ応答がありません。クリックして応答します。",
-    "old-post-error": "支払い後にコンテンツに投票すると、新たな報酬は発生しません。",
-    "old-post-error-suggestion": "著者をひっくり返してみてください。 "
+    "old-post-error": "この投稿の収益は終了しました。",
+    "old-post-error-suggestion": "作者に直接チップを渡すこともできます。 "
   },
   "nsfw": {
     "reveal": "この投稿を表示",
@@ -447,9 +457,9 @@
     "settings-2": "表示設定"
   },
   "bookmark-btn": {
-    "add": "ブックマーク - 新しいコメントについて通知を受ける",
-    "added": "ブックマークしました！この投稿に新しいコメントが表示されます。",
-    "delete": "ブックマークを削除して通知を停止する",
+    "add": "ブックマーク — 新しいコメントについて通知を受ける",
+    "added": "ブックマークに追加しました",
+    "delete": "ブックマークから削除",
     "deleted": "ブックマークから削除しました"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "ヒントを送信",
     "count": "{{count}} tip",
     "count_plural": "{{count}} のヒント"
@@ -502,18 +513,18 @@
     "submit-label": "確認する",
     "published": "公開された投稿",
     "no-subscription": "投稿を行うためのコミュニティサブスクリプションがありません。",
-    "info": "報酬はクロスポストのために自動的に拒否され、クロスポストの下での議論は異なり、異なるコミュニティガイドラインに従います。"
+    "info": "クロスポストの収益は自動的に減少します。クロスポストの下でのディスカッションはホストコミュニティのガイドラインに従ってください。"
   },
   "entry-payout": {
-    "reward": "Recompensa",
+    "reward": "収益",
     "full-power": "パワーアップ100%",
-    "pending-payout": "保留中の支払い",
+    "pending-payout": "推定収益",
     "promoted": "プロモート",
-    "author-payout": "著者支払い額",
-    "curators-payout": "キュレーターの支払い額",
+    "author-payout": "投稿者の収益",
+    "curators-payout": "サポーターの収益",
     "payout-date": "支払い額",
     "beneficiary": "受取人",
-    "breakdown": "破壊",
+    "breakdown": "詳細",
     "max-accepted": "承認された最大数"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "トークン交換",
-    "description": "Hiveブロックチェーンでトークンを購入して売却するための分散型取引所。 詳細については、 <a href=\"/faq#how-exchange-work\">FAQ</a> をご覧ください。",
+    "description": "トークンを交換して交換します。詳細については、 <a href=\"/faq#how-exchange-work\">FAQ</a> をご覧ください。",
     "last-price": "最終価格",
     "volume": "24時間音量",
     "bid": "Bid",
@@ -932,7 +943,9 @@
     "reveal": "コメントを表示",
     "no-conversation": "会話はまだありません。最初に返信してください",
     "start-conversation": "会話を開始",
-    "join-hint": "巨大なハイブコミュニティの一員になって、アクティビティで報酬を獲得しましょう"
+    "join-hint": "会話に参加して貢献して獲得する",
+    "new-comment": "{{n}} 新しいコメント - タップして読み込む",
+    "new-comments": "{{n}} 新しいコメント - タップして読み込む"
   },
   "community": {
     "page-description": "{{f}} トピック",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "既定の<unk>",
     "default-beneficiary-username": "ハイブユーザー名",
     "default-beneficiary-reward": "報酬 (%)",
-    "default-beneficiary-docs": "ドキュメントを見る"
+    "default-beneficiary-docs": "ドキュメントを見る",
+    "finalize-title": "コミュニティの設定を完了する",
+    "finalize-description": "このコミュニティアカウントは作成されましたが、セットアップが完了していません。今すぐ完了してください。",
+    "finalize-admin-label": "管理者ユーザー名",
+    "finalize-admin-hint": "このコミュニティを管理するHiveアカウント",
+    "finalize-success": "コミュニティの設定が正常に完了しました！"
   },
   "community-rewards-registration": {
     "body-text": "Ecency POINTSを入手するには、コミュニティを登録してください",
@@ -1196,7 +1214,8 @@
     "permissions": "権限を開く",
     "image-server": "画像サーバー",
     "image-server-default": "Ecency images(デフォルト)",
-    "image-server-hiveblog": "ハイブ画像 (代替)"
+    "image-server-hiveblog": "ハイブ画像 (代替)",
+    "image-server-nocdn": "イメージ画像（CDNなし）"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "DM のプライバシー設定を更新できませんでした"
   },
   "wallet": {
-    "unclaimed-rewards": "未請求の報酬",
-    "claim-reward-balance": "報酬残高を請求する",
-    "claim-reward-balance-ok": "報酬残高が請求されました",
+    "unclaimed-rewards": "収集する収益",
+    "claim-reward-balance": "収益を収集",
+    "claim-reward-balance-ok": "収入を集めました！",
     "estimated": "ウォレットの推定値",
     "estimated-points": "推定された点数の値",
     "estimated-description": "推定値はHIVEの7日間の平均値に基づいています。",
     "estimated-description-points": "推定値は、ポイントの購入額に基づいています。",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVEは、いつでも転送、取引、またはステークするあなたの液体バランスです。",
     "hive-power": "Hive POWER",
-    "hive-power-description": "Hive Powerは、長期保持とコンテンツへの投票により多くの力を得る影響力トークンです。 Hiveパワーが多ければ多いほど、他のプレイヤーの報酬に影響を与え、正確な投票で報酬を獲得できます。 Hive Powerは、13週間でステーク解除できるHIVEトークンをステークされます。",
+    "hive-power-description": "Hive Powerはあなたの影響力です。保持すればするほど、より多くの票が重要になり、獲得するほどです。 それを成長させるためにHIVEをステークし、13週間以上かけてステークします。",
     "hive-power-apr-rate": "Hive PowerのAPR利率は {{value}} %です",
     "hive-dollars-apr-rate": "HBD($)のAPR利率は {{value}} %です",
     "hive-dollars-apr-claim": "前回の支払い {{value}}以降の利息の推定：",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "次のパワーダウン量",
     "hive-power-total": "合計ハイブパワー",
     "hive-dollars": "Hive DOLLARS",
-    "hive-dollars-description": "約$ 1.00のHIVEの価値があるトークン。",
+    "hive-dollars-description": "安定したトークンはそれぞれ約$ 1.00に固定されています。",
     "savings": "保存",
     "savings-description": "3日間の待機期間の引き出しの対象となる残高。",
     "next-power-down": "次のパワーダウンは {{time}}, (~{{amount}}, {{weeks}} 週間残り)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "市場でのオープン注文の予約",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "未請求の報酬"
+        "title": "回収する",
+        "unclaimed-rewards": "収集する収益"
       },
       "delegate": {
         "title": "Delegate",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "ポイントを購入",
     "unclaimed-points": "未請求ポイント",
-    "claim-reward-points": "報酬ポイントを請求する",
+    "claim-reward-points": "ポイントを収集",
     "main-description": "ポイントはプロモーション、ブースト、ギフトなどのアプリ内サービスに使用できます。Ecencyアプリを使用して獲得し、あなたの経験を向上させるだけで獲得できます。",
     "earn-points": "もっとポイントを獲得する方法は？",
     "post-desc": "定期的に投稿することでポイントを獲得できます。投稿には15ポイントが与えられます。",
@@ -1451,7 +1470,7 @@
     "to-placeholder": "ユーザー名",
     "to-not-found": "送金先のユーザーが存在しません！",
     "to-bad-actor": "このアカウントに送金する際は注意してください。フィッシングの可能性があるためスペルを再確認してください。",
-    "external-wallets-label": "ウォレット (BTC、ETH、SOL、BNB、TRX、TON、APT)",
+    "external-wallets-label": "ウォレット (BTC、ETH、BNB、SOL)",
     "amount": "金額",
     "amount-placeholder": "数量",
     "wrong-amount": "間違った金額",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "ステークトークン",
     "type-tokens_issue": "課題トークン",
     "type-comments_beneficiaryReward": "受取人の報酬",
-    "type-claim_reward_balance": "報酬を要求する",
+    "type-claim_reward_balance": "収集された収益",
     "type-transfer": "送金",
     "type-tokens_transfer": "送金",
     "type-transfer_to_vesting": "パワーアップ",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "HiveAuthでサインイン",
     "invalid-key": "無効なキーフォーマットです。無効な文字を確認してください。",
-    "key-error": "キーの処理に失敗しました。正しいことを確認してください。"
+    "key-error": "キーの処理に失敗しました。正しいことを確認してください。",
+    "sign-with-metamask": "MetaMaskでサインイン"
   },
   "hive-auth": {
     "pending-request": "HiveAuthリクエストは保留中です。ウォレット内のマッチID {{id}}。"
@@ -1642,9 +1662,9 @@
     "unMute": "ミュート解除"
   },
   "favorite-btn": {
-    "add": "お気に入り - 新しい投稿について通知を受け取る",
-    "added": "お気に入りに追加されました！新しい投稿を公開すると通知されます。",
-    "delete": "お気に入りを削除して通知を停止する",
+    "add": "お気に入り — 新しい投稿について通知を受け取る",
+    "added": "お気に入りに追加しました",
+    "delete": "お気に入りから削除",
     "deleted": "お気に入りから削除しました"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "あなたの物語を伝えてください...",
     "reward": "Recompensa",
     "take-tour": "ツアーに参加する",
-    "reward-hint": "液体およびステークトークンの著者報酬比率を設定",
+    "reward-hint": "収益の受け取り方を選択してください",
     "reward-default": "既定の 50% / 50%",
-    "reward-sp": "パワーアップ100%",
-    "reward-dp": "支払いを拒否する",
+    "reward-sp": "ステーク100%",
+    "reward-dp": "収益の拒否",
     "preview": "プレビュー",
     "publish": "公開",
     "update": "更新",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "投稿タグを入力",
     "empty-body-alert": "投稿の本文を入力",
     "description": "短い説明",
-    "should-be-only-one-unpublished": "投稿には、未公開の動画を1つだけ含める必要があります。他の動画を削除してください。",
     "updating": "更新中..",
     "publishing": "公開中..",
     "saving": "保存中...",
@@ -1731,15 +1750,8 @@
     "record-video": "ビデオを録画する",
     "choose-thumbnail": "サムネイルを設定します(オプション)",
     "continue": "続ける",
-    "encode": "エンコード用に送信",
-    "success": "Video succesfully uploaded",
-    "finished": "完了",
     "upload-video": "動画をアップロード",
-    "video-gallery": "ビデオギャラリー",
     "preview": "プレビュー",
-    "to-gallery": "ギャラリーに移動",
-    "congrats": "おめでとうございます",
-    "publishing": "このページを更新しないで、ビデオが処理されるまで数秒待ってください",
     "no-record-permission": "ビデオを録画する権限がありません",
     "confirm-and-upload": "確認して3Speakにアップロードする",
     "uploading": "アップロード中...{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "Reset",
     "source": "ビデオ ソース",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "15秒未満の動画は3Speakによって無視されます。"
-  },
-  "video-gallery": {
-    "all": "すべて",
-    "title": "ビデオギャラリー",
-    "published": "公開済み",
-    "encoding": "エンコード",
-    "encoded": "エンコード済み",
-    "failed": "失敗しました",
-    "status-encoded": "投稿の準備完了",
-    "status-encoding": "エンコード",
-    "status-published": "公開済み",
-    "status-failed": "エンコードに失敗しました",
-    "status-deleted": "削除しました",
-    "info-created": "作成日時:",
-    "status": "ステータス:",
-    "info-views": "閲覧回数:",
-    "info-duration": "期間:",
-    "info-size": "ファイルサイズ:",
-    "insert-video": "Insert",
-    "insert-nsfw": "NSFWとして挿入",
-    "only-one-video": "1つの投稿で公開できるビデオは1つだけです",
-    "refresh": "更新して状態を取得する",
-    "video-info": "ビデオはSPKネットワークによって保存され、いくつかのストレージとエンコード料金がかかる可能性があります。"
+    "insert-video": "ビデオを挿入",
+    "file-too-large": "ファイルサイズが1GBの制限を超えています。小さい動画を選択してください。",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "サムネイルのアップロードに失敗しました。もう一度やり直してください。",
+    "error-too-large": "ビデオファイルが大きすぎます。小さいファイルを使用してください。",
+    "error-too-many": "アップロードリクエストが多すぎます。しばらく待ってからもう一度やり直してください。",
+    "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
+    "error-auth": "認証に失敗しました。サポートにお問い合わせください。",
+    "error-generic": "動画のアップロードに失敗しました。もう一度やり直してください。",
+    "title-short": "短い動画をアップロード",
+    "short-badge": "Short",
+    "video-attached": "ビデオが添付されました"
   },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} は有効なユーザーではありません。",
     "validation-percentage": "パーセンテージが必要です。",
     "validation-username": "ユーザー名が必要です。",
-    "user-exists-error": "{{n}} は既にリストにあります"
+    "user-exists-error": "{{n}} は既にリストにあります",
+    "threespeak-locked": "3Speakビデオホスティングに必要",
+    "required": "必須"
   },
   "post-scheduler": {
     "title": "スケジュール",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} が {{amount}}を送信しました",
     "delegations": "{{source}} があなたに {{amount}}を委任しました",
     "checkins": "あなたは今週 {{count}} 日{{suffix}} にチェックインしました。続けてください！",
-    "payouts": "コンテンツの支払いの準備ができました。",
+    "payouts": "コンテンツ収入の準備ができました。",
     "payouts-amount": "{{amount}} の支払いを受け取りました。",
+    "payouts-amount-usd": "${{amount_usd}} ({{amount}}) を獲得しました。",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "あなたは今週投稿から${{total}} - ${{author}} を獲得しました。キュレーションから${{curation}}",
+    "weekly-earnings-short": "今週は投稿とキュレーションで${{total}} を獲得しました。"
   },
   "notifications": {
     "type-all": "すべての通知",
@@ -1863,6 +1868,8 @@
     "spin-str": "より多くのポイントを獲得しましょう。Ecency Mobile アプリでスピンをプレイしましょう",
     "inactive-str": "アクティブにしましょう！投稿を書き、獲得を続けましょう",
     "referral-str": "紹介を受けて歓迎します",
+    "account-update-str": "アカウントキーまたはプロファイルが更新されました",
+    "weekly-earnings-title": "@{{username}}の週間収入概要",
     "refresh": "更新",
     "mark-all-read": "すべて既読にする",
     "mark-read": "既読にする",
@@ -2249,9 +2256,9 @@
         "create-title": "どこからでも公開",
         "create-description": "ドラフト投稿、アップデートを共有し、デスクトップで使用するのと同じ強力なエディタでコメントに返信します。",
         "wallet-title": "ウォレットを一目で確認する",
-        "wallet-description": "残高を確認し、報酬を請求し、わずか数タップでハイブパワーまたはHBDを管理します。",
+        "wallet-description": "残高を確認し、収益を収集し、わずか数タップでトークンを管理します。",
         "notifications-title": "メンションをお見逃しなく",
-        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、報酬を強調表示するので、時間通りに祝うことができます。"
+        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、収益を強調表示するので、時間通りに祝うことができます。"
       },
       "features-title": "クリエイターやコミュニティ向けにデザインされた",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>In Wallet page (in top header on website and desktop app, bottom navigation bar on mobile app), you can see Curation rewards (the rewards earned for upvoting posts and comments) and Author rewards (the rewards earned by your own posts and comments)</p><p>You can also view the same information for other users by visiting their wallet profile.</p>",
       "how-dhf-work-header": "DHFはどのように機能しますか？",
       "how-dhf-work-body": "<p>Anyone can create a proposal and convince community to vote on their proposal to get funded. Before creating proposal, normal post should be published on blockchain and it is recommended to gather feedback before creating proposal. Proposal creation has fee of 10 HBD + 1 HBD for each day it lasts over 60 days.</p><p>Once proposal reaches certain threshold of tallied votes, it will start receiving funds each hour. If proposal falls below threshold, system will halt funding for that proposal. You can vote as many proposals as you want, there are no limits. Proposal cannot be edited, but can be deleted/withdrawn by creator.</p>",
-      "when-claim-rewards-header": "報酬はいつ受け取れますか?",
-      "when-claim-rewards-body": "<p>Posts and comments remain active for 7 days and rewards are fluctuates depending on votes and market price of token, that is why rewards are approximated as pending reward. When the period is over, pending reward changes to actual reward and you are able to claim earned rewards. In your Wallet, click the Claim Rewards button to add the tokens to your account.</p>",
+      "when-claim-rewards-header": "収入はいつ集められますか。",
+      "when-claim-rewards-body": "<p>投稿とコメントは7日間獲得します。 この期間中、収益は投票と市場の状況に基づいて変動します。 7日後、最終的な収入を受け取る準備ができました。ウォレットにアクセスし、format@@0をタップして残高に追加します。</p>",
       "what-are-rc-header": "資源クレジットとは何ですか？",
       "what-are-rc-body": "<p>Transacting on the Hive blockchain has zero fees, transaction rate-limiting is employed to safeguard the blockchain from spam attacks. Every action that you take on the blockchain will consume a small amount of Resource Credits. This includes posting, commenting, voting, transferring tokens, etc. Viewing content does not consume Resource Credits.</p><p>Every user has a limited amount of Resource Credits to use each week. The more transactions a user does, the less Resource Credits they will have left (until they recharge). Users with more HIVE POWER will have more Resource Credits.</p><p>If you run out of Resource Credits, you will be unable to transact with the blockchain until your Resource Credits recharge (happens automatically) or you acquire additional HIVE POWER to increase your Resource Credit balance or you can <a href=\"/faq#how-boost-account\">request Boosting account from Ecency</a> to receive temporary delegation.</p>",
       "how-boost-account-header": "アカウントのブーストをリクエストする方法は？",
@@ -2733,7 +2740,6 @@
     "vote": "投票",
     "account-age-hint": "{{n}} 日より古いアカウントのみが許可されています",
     "preview-mode": "プレビュー モード",
-    "videos-collision-error": "アンケートと3speak動画は、異なる種類の投稿があるため、同じ投稿で公開することはできません。それらのいずれかを選択してください。",
     "number_of_votes": "投票数順",
     "tokens": "トークン順",
     "view-votes": "投票を表示",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "無料アカウント",
+      "description": "基本的な電子メールの検証でHiveアカウントを取得します。",
+      "button": "無料アカウントを取得",
+      "label": "無料"
+    },
+    "premium": {
+      "title": "プレミアムアカウント",
+      "description": "3倍のリソースクレジットと300エクシーポイントを持つインスタントアカウント。",
+      "button": "プレミアム版を入手 - $2.99",
+      "label": "プレミアム"
+    },
+    "wallet": {
+      "title": "暗号化ウォレット",
+      "description": "MetaMaskを使用して即座にアカウントを作成します。シードフレーズは必要ありません。",
+      "button": "ウォレットに接続",
+      "label": "ウォレット"
+    },
+    "invited": {
+      "title": "友達に招待",
+      "description": "Hiveアカウントを持つ友人は無料で作成できます。",
+      "button": "招待されました",
+      "label": "招待済み"
+    }
+  },
   "signup-email": {
     "title": "メールアドレスでサインアップ",
     "description": "電子メールの検証を使用してアカウントを作成する柔軟な方法。 3Xリソースクレジットを含む無料アカウントやブーストアカウントなどのオプションのいずれかを$ 2.99または友達のオンボードで選択してください",
@@ -2883,6 +2915,33 @@
       "creating": "Hiveアカウントを作成しています...",
       "validating": "アカウントを準備しています...",
       "success": "あなたのアカウントが作成されました。ハイブとエクセンシーをお楽しみください！"
+    },
+    "metamask": {
+      "title": "メタマスクに接続",
+      "description": "MetaMaskウォレットを接続して身元を確認し、Hiveアカウントを作成します。",
+      "not-found": "MetaMask が検出されません。MetaMask エクステンションをインストールしてください。",
+      "connect-button": "メタマスクに接続",
+      "connect-hint": "本人確認のためウォレットの残高を確認します。資金は送金されません。",
+      "connect-error": "メタマスクの接続に失敗しました。もう一度やり直してください。",
+      "connected": "メタマスクが接続されました",
+      "chain-unsupported": "このチェーンはまだ直接接続に対応していません。近日公開予定です。",
+      "address-in-use": "このウォレットアドレスはすでにHiveアカウントに関連付けられています。",
+      "sign-and-continue": "サインして続ける",
+      "sign-rejected": "署名が拒否されました。もう一度やり直してください。",
+      "installing-snap": "Hiveウォレットスナップをインストールしています...",
+      "getting-keys": "あなたのウォレットからハイブの鍵を派生中char@@0",
+      "create-error": "アカウントの作成に失敗しました。もう一度やり直してください。",
+      "success-hint": "ハイブスナップでMetaMaskウォレットを使用してEcencyにサインインできます。",
+      "enter-address": "{{chain}} アドレスを入力してください",
+      "enter-address-hint": "このチェーンについては、MetaMaskウォレットからアドレスをコピーしてください。",
+      "login-with-metamask": "MetaMaskでログイン",
+      "logging-in": "MetaMaskでサインインしています...",
+      "address-label": "{{chain}} アドレス:",
+      "checking-multichain": "MetaMask multchainアドレスを確認しています...",
+      "chain-not-available": "選択されたチェーンはMetaMaskでは利用できません"
+    },
+    "balance": {
+      "label": "残高:"
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "アップロードして貼り付け",
-    "three-speak-gallery": "3Speakから",
     "video-by-link": "リンクで動画を追加",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "動画リンク",
@@ -2964,6 +3022,19 @@
     "upload-started": "画像をアップロードしています...",
     "back-to-old": "Back to Classic View",
     "clear": "クリア",
+    "import": "URLからインポート",
+    "import-title": "記事をインポート",
+    "import-subtitle": "公開する前にレビューと編集を行うチャンスがあります。",
+    "import-hint": "URLを貼り付けて記事の内容をエディタにインポートします。Hiveの投稿や外部Web記事をサポートしています。",
+    "import-ownership-notice": "あなたが所有しているコンテンツ、または再公開する権限を持っているコンテンツのみをインポートしてください。",
+    "import-failed": "記事をインポートできませんでした。URLを確認して、もう一度お試しください。",
+    "import-error-invalid-url": "無効な URL です。有効な Web アドレスを入力してください。",
+    "import-error-fetch-failed": "ウェブサイトにアクセスできませんでした。URLを確認して、もう一度やり直してください。",
+    "import-error-not-html": "URLはウェブページを指していません。",
+    "import-error-too-large": "ページが大きすぎてインポートできません。",
+    "import-error-extract-failed": "ページから記事の内容を抽出できませんでした。",
+    "import-error-not-found": "投稿が見つかりません。URLを確認してください。",
+    "importing": "インポート中...",
     "reward-settings": "報酬設定",
     "beneficiaries": "受取人:",
     "meta-information": "メタ情報",
@@ -2998,19 +3069,12 @@
     "get-help": "ヘルプを見る",
     "loading-post-title": "投稿を読み込み中...",
     "loading-post-hint": "公開後、タイトル、コンテンツ、タグ、メタ情報のみが変更できます",
-    "upload-video-error-hint": "投稿を編集しないときにのみビデオをアップロードできました",
     "no-post-title": "投稿が見つかりません",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "元の投稿を開く",
     "updated-title": "投稿が更新されました！",
     "updated-hint": "投稿コンテンツが更新されました。変更は数分後に表示されます。",
     "back-to-post": "投稿に戻る",
-    "video-gallery": {
-      "no-data": "動画はまだありません",
-      "no-data-hint": "フィルタを変更するか、3Speakで最初のビデオを公開します",
-      "no-data-button": "今すぐアップロード"
-    },
-    "video-availability": "公開後にビデオが利用可能になります",
     "title-placeholder": "タイトルは何ですか？",
     "html-warning": {
       "title": "純粋なHTMLコードが検出されました",
@@ -3044,6 +3108,42 @@
     "playground": "Playground",
     "voices": "声"
   },
+  "external-transfer": {
+    "title": "{{token}} を送信",
+    "recipient-label": "受信者アドレス",
+    "error-invalid-address": "無効な {{chain}} アドレス",
+    "amount-label": "金額",
+    "balance": "残高: {{balance}}",
+    "estimated-fee": "推定されるネットワーク手数料",
+    "max-evm-hint": "ネットワーク料金は {{token}}から支払われます。MetaMaskはガスの予備ガス量を調整する場合があります。",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask",
+    "error-exceeds-balance": "残高が利用可能残高を超えています",
+    "review": "送金を確認する",
+    "sending": "送信中",
+    "value": "値",
+    "to-label": "終了日",
+    "confirm-metamask": "MetaMaskで確認",
+    "signing": "メタマスクの確認を待っています...",
+    "success": "送金手続きを送信しました！",
+    "success-hint": "取引がネットワークに送信されました。確認には数分かかることがあります。",
+    "view-explorer": "エクスプローラーで表示",
+    "failed": "転送に失敗しました",
+    "cancelled": "ユーザーによってトランザクションがキャンセルされました。",
+    "try-again": "もう一度やり直してください"
+  },
+  "mobile-login-qr": {
+    "title": "モバイルアプリにログイン",
+    "warning-title": "このQRコードにはセッションの資格情報が含まれています",
+    "warning-1": "他の人が画面を見ることができる公開スペースでスキャンしないでください",
+    "warning-2": "QRコードを共有したりスクリーンショットを撮ったりしない",
+    "warning-3": "画面録画またはミラーリングを無効にしてから明らかにする",
+    "reveal-button": "わかりました。QRコードを明らかにします",
+    "generating": "安全な QR コードを生成しています...",
+    "instructions": "Ecencyモバイルアプリを開き、QRスキャナーをタップしてこのコードをスキャンしてログインします。",
+    "logged-in-as": "@{{username}} としてログインしました",
+    "error-no-token": "ログインQRを生成できませんでした。ログアウトしてから再度お試しください。",
+    "error-generate": "QRコードの生成に失敗しました。もう一度やり直してください。"
+  },
   "profile-wallet": {
     "pick-tokens": "表示するトークンを選択",
     "search-token": "検索トークン",
@@ -3061,16 +3161,16 @@
     "delegations-outgoing": "委任状",
     "delegations-incoming": "委任を受信する",
     "external-wallets-offer": {
-      "title": "暗号通貨をEcencyに届けよう",
-      "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
-      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます",
+      "title": "暗号化ウォレットをリンクする",
+      "description": "MetaMaskを接続するか、BTC、ETH、BNB、SOLのウォレットアドレスを入力して、Hiveエコシステム内で暗号を管理および監視します。",
+      "hint": "ウォレットアドレスはHiveアカウントのメタデータとEcencyに保存されています",
       "dismiss": "たぶん後で"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
-      "create-wallet-description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
-      "import-wallet-title": "既存のウォレットをインポート",
-      "import-wallet-description": "Trust、Exodus、または他の互換性のあるアプリから既存のウォレットをインポートします。 アセットはHiveアカウントに接続されるため、Ecanceで簡単に資金を管理できます。",
+      "create-wallet-description": "BTC、ETH、BNB、SOLのMetaMaskウォレットをリンクしてください。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
+      "import-wallet-title": "既存のウォレットを見る",
+      "import-wallet-description": "残高を監視するためにウォレットアドレスを入力してください。",
       "create-wallet-tokens-description": "トークンアドレスを確認してください。ウォレットページで後で確認できます。",
       "linking": "Hiveアカウントにトークンをリンクしています...",
       "linking-hint": "HiveとEcencyはあなたの財布の公開アドレスのみを使用します。個人情報は保存されません。",
@@ -3107,10 +3207,10 @@
       "note": "利息は {{apr}}%のAPRで継続的に計算されます。",
       "claim-button": "利息を受け取る"
     },
-    "claim-rewards": "報酬を要求する",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "請求しています...",
-    "claim-rewards-success": "{{amount}} {{token}} の請求に成功しました",
+    "claim-rewards": "収益を収集",
+    "claim-rewards-with-amount": "{{amount}} {{token}} を集める",
+    "claim-rewards-loading": "収集中...",
+    "claim-rewards-success": "{{amount}} {{token}} を集めました！",
     "hp-delegation-promo": {
       "tag": "APRブースト+10%",
       "title": "ハイブパワーでEcancyキュレーションをする",
@@ -3149,16 +3249,32 @@
       "title": "ハイブキーを取り消す",
       "hint": "所有者キー/マスターパスワード/シードを使用して、任意のハイブキーを取り消すことができます"
     },
+    "manage-keys": {
+      "title": "キーの管理",
+      "choose-title": "あなたは何をしたいですか？",
+      "add-title": "新しいキーを追加",
+      "add-description": "新しいマスターパスワードを生成し、アカウントにキーを追加する",
+      "revoke-title": "鍵を取り消す",
+      "revoke-description": "アカウントから不要なキーを削除する",
+      "revoke-select-title": "取り消すキーを選択してください",
+      "revoke-select-description": "アカウントから削除するキーを選択します。権限ごとに少なくとも1つのキーを保持する必要があります。",
+      "revoke-confirm-title": "Confirm Revocação",
+      "revoke-confirm-description": "所有者キーでサインインして、選択したキーをアカウントから削除します。",
+      "revoke-count": "{{count}} キーが取り消されます",
+      "revoke-success": "キーが正常に取り消されました",
+      "revoke-step-select": "鍵を選択",
+      "revoke-step-sign": "サイン"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "認証",
-        "generate-seed": "シードを生成",
+        "generate-seed": "パスワードの生成",
         "review-keys": "鍵の確認",
         "confirm": "確認する"
       },
       "step1": {
         "title": "新しいキーセットの追加",
-        "info1": "新しいシードフレーズがあなたのアカウントに生成されます",
+        "info1": "新しいマスターパスワードがあなたのアカウントに生成されます",
         "info2": "複数のキーセットを同時にアクティブにすることができます",
         "info3": "次のステップで古いキーを取り消すオプションがあります",
         "authenticate": "続行するには認証してください",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "重要：新しいシードフレーズを保存する",
-        "warning1": "これは元のアカウントのシードとは異なる新しいシードフレーズです。",
+        "warning1": "これは新しいマスターパスワードです。元の資格情報とは異なります。",
         "warning2": "別々に保存してください - これらのキーでログインするにはそれが必要です",
-        "warning3": "シードファイルをダウンロードして、続行する前に安全に保存してください"
+        "warning3": "続行する前にキーファイルをダウンロードし、安全に保存してください"
       },
       "step3": {
         "title": "既存の鍵を確認",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "ギャラリーに保存",
     "save-to-gallery-success": "画像をギャラリーに保存しました！",
     "save-to-gallery-error": "ギャラリーに画像を保存できませんでした。もう一度やり直してください。",
-    "use-suggestion": "使用: {{suggestion}}"
+    "use-suggestion": "使用: {{suggestion}}",
+    "select-power": "品質ブースト"
+  },
+  "ai-assist": {
+    "title": "AIライティングアシスタント",
+    "toolbar-button": "AIアシスタント",
+    "balance-label": "残高",
+    "points-unit": "ポイント",
+    "free-label": "無料",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "コスト",
+    "hint": "まずコンテンツを書いてから、AIアシストを使って磨き上げて改善しましょう。",
+    "action-label": "あなたは何をしたいですか？",
+    "text-label": "あなたのコンテンツ",
+    "text-placeholder": "ここにドラフトコンテンツを貼り付けるか入力してください...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "最低 {{count}} 文字が必要です",
+    "action-improve": "ライティングの改善",
+    "action-improve-desc": "ポーランド語の文法、明瞭度、スタイル",
+    "action-suggest_tags": "タグを提案",
+    "action-suggest_tags-desc": "投稿に関連するタグを取得する",
+    "action-generate_title": "タイトルを生成",
+    "action-generate_title-desc": "説得力のあるタイトルオプションを作成",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "文法チェック",
+    "action-check_grammar-desc": "文法とスペルを修正",
+    "submit-button": "AIアシストを実行",
+    "submitting": "処理中...",
+    "result-title": "結果",
+    "apply-button": "投稿に適用",
+    "copy-button": "コピー",
+    "copied": "コピーしました！",
+    "try-again": "もう一度試す",
+    "try-another": "別の操作を試す",
+    "show-changes": "変更を表示",
+    "hide-changes": "変更を非表示",
+    "hide-translation": "翻訳を非表示",
+    "success": "AIアシスト完了！",
+    "error-insufficient-points": "ポイントが足りません。 {{required}} が必要ですが、 {{available}} が必要です。",
+    "error-content-policy": "コンテンツはポリシーに違反しています。ポイントは返金されませんでした。",
+    "error-rate-limit": "リクエストが多すぎます。しばらく待ってからもう一度お試しください。",
+    "error-auth": "認証の有効期限が切れました。ページを更新してもう一度お試しください。",
+    "error-generic": "AIアシストに失敗しました。もう一度やり直してください。",
+    "error-text-too-short": "テキストが短すぎます。 {{count}} 文字以上で入力してください。"
   }
 }

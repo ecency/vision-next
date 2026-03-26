@@ -39,6 +39,7 @@
     "fill-community-feed": "आप इस फ़ीड को भरने के लिए और अधिक समुदायों में शामिल हो सकते हैं।",
     "save": "रक्षित करें",
     "try-again": "पुनः प्रयास करें",
+    "soon": "Soon",
     "show": "दिखाएँ",
     "on": "ऑन",
     "off": "बंद",
@@ -103,7 +104,9 @@
     "import": "आयात करें",
     "clear": "मिटायें",
     "play": "खेल",
-    "pause": "विराम दें"
+    "pause": "विराम दें",
+    "start": "Start",
+    "updated": "Updated"
   },
   "validation": {
     "required": "आवश्यक क्षेत्र",
@@ -227,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "वटुवा",
-    "unclaimed-reward-notice": "आपके पास दावा न किए गए रिवॉर्ड्स हैं",
+    "unclaimed-reward-notice": "You have earnings to collect!",
     "points": "अंक",
-    "unclaimed-points-notice": "आपके पास दावा न किए गए अंक हैं",
+    "unclaimed-points-notice": "You have points to collect!",
     "notifications": "सूचनाएँ",
     "profile": "प्रोफाइल",
     "profile-menu": "प्रोफ़ाइल मेनू",
@@ -239,6 +242,7 @@
     "schedules": "निर्धारित",
     "fragments": "स्निपेट्स",
     "settings": "सेटिंग्स",
+    "mobile-login": "Log in to Mobile",
     "logout": "लॉग आउट",
     "just-logout": "बस लॉगआउट करें",
     "logout-and-clear": "Logout & Clear local data",
@@ -290,13 +294,16 @@
     "use-key": "कुंजी/पास का उपयोग करें",
     "seed-info": "हम आपके बीज वाक्यांश और जनरेटेड कुंजियों को संग्रहीत नहीं करते हैं",
     "sign-in": "दाखिल करना",
-    "my-users": "मेरे उपयोगकर्ता"
+    "my-users": "मेरे उपयोगकर्ता",
+    "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
+    "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
   },
   "sign-up": {
-    "header": "पुरस्कृत वेब3 समुदाय",
-    "description": "मुक्त भाषण, सच्चा स्वामित्व, वित्तीय स्वतंत्रता!",
-    "description-2": "हाइव कई ऐप्स को संचालित करता है और दुनिया भर के समुदाय के सदस्यों द्वारा पूरी तरह से विकेंद्रीकृत रूप से चलाया जाता है। एक खाते के साथ, आपको पूरे पारिस्थितिकी तंत्र तक सीधी पहुँच मिलती है।",
-    "bottom-description": "ब्लॉकचेन पर सब कुछ प्रबंधित करने के लिए एक खाता, एक वॉलेट।",
+    "header": "Rewarding Communities",
+    "description": "Free speech, True ownership, Financial freedom!",
+    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
+    "bottom-description": "One account, one wallet to manage everything.",
     "learn-more": "हमारे <a href=\"/faq#how-to-join\">FAQ</a> में लाभों के बारे में अधिक जानें",
     "username": "प्रयोक्ता नाम उठाओ",
     "email": "अपना ईमेल पता दर्ज करें",
@@ -399,7 +406,10 @@
     "votes": "वोटस:",
     "transfers": "स्थानांतरण:",
     "reblogs-follows": "रीब्लॉग/फॉलो:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegation failed",
+    "invalid-link": "Invalid onboarding link",
+    "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
     "title": "विषय"
@@ -437,8 +447,8 @@
     "vote-remove": "0% वोट देने पर सामग्री को अनवोट कर दिया जाता है।",
     "vote-warning": "वोट बदल रहा है...",
     "no-replies": "अभी तक कोई प्रतिक्रिया नहीं. प्रतिक्रिया देने के लिए क्लिक करें।",
-    "old-post-error": "भुगतान के बाद सामग्री पर वोट करने से कोई नया पुरस्कार नहीं मिलता।",
-    "old-post-error-suggestion": "लेखक को टिप देने का प्रयास करें। "
+    "old-post-error": "This post's earning period has ended.",
+    "old-post-error-suggestion": "You can still tip the author directly. "
   },
   "nsfw": {
     "reveal": "इस पोस्ट को प्रकट करें",
@@ -447,9 +457,9 @@
     "settings-2": "प्रदर्शन प्राथमिकताएँ"
   },
   "bookmark-btn": {
-    "add": "Bookmark - get notified about new comments",
-    "added": "Bookmarked! You'll be notified about new comments on this post",
-    "delete": "Remove bookmark and stop notifications",
+    "add": "Bookmark — get notified about new comments",
+    "added": "पृष्ठ स्मृति में जुड़ गया",
+    "delete": "बुकमार्क से हटाया",
     "deleted": "बुकमार्क से हटाया"
   },
   "entry-reblog": {
@@ -464,6 +474,7 @@
   },
   "entry-tip": {
     "title": "टिप",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -502,18 +513,18 @@
     "submit-label": "पुष्टी करें",
     "published": "पोस्ट प्रकाशित",
     "no-subscription": "आपके पास क्रॉस पोस्ट करने के लिए कोई सामुदायिक सदस्यता नहीं है।",
-    "info": "क्रॉस पोस्ट के लिए पुरस्कार स्वतः ही अस्वीकृत हो जाएंगे तथा क्रॉस पोस्ट के अंतर्गत चर्चाएं भिन्न होंगी तथा भिन्न सामुदायिक दिशानिर्देशों का पालन करेंगी।"
+    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
   },
   "entry-payout": {
-    "reward": "इनाम",
+    "reward": "Earnings",
     "full-power": "पावर अप 100%",
-    "pending-payout": "लंबित भुगतान",
+    "pending-payout": "Estimated Earnings",
     "promoted": "प्रचारित",
-    "author-payout": "लेखक भुगतान",
-    "curators-payout": "अध्यक्ष्ता भुगतान",
+    "author-payout": "Author Earnings",
+    "curators-payout": "Supporters' Earnings",
     "payout-date": "भुगतान",
     "beneficiary": "लाभार्थी",
-    "breakdown": "विश्लेषण",
+    "breakdown": "Details",
     "max-accepted": "अधिकतम स्वीकृत"
   },
   "entry-index": {
@@ -712,7 +723,7 @@
   },
   "market": {
     "title": "टोकन एक्सचेंज",
-    "description": "हाइव ब्लॉकचेन पर टोकन खरीदने और बेचने के लिए विकेन्द्रीकृत एक्सचेंज। अधिक जानने के लिए, हमारे <a href=\"/faq#how-exchange-work\">अक्सर पूछे जाने वाले प्रश्न</a> पढ़ें।",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "अंतिम मूल्य",
     "volume": "24घंटे की मात्रा",
     "bid": "बोली",
@@ -932,7 +943,9 @@
     "reveal": "टिप्पणी प्रकट करें",
     "no-conversation": "अभी तक कोई बातचीत नहीं हुई है, सबसे पहले जवाब दें",
     "start-conversation": "चर्चा शुरू करें",
-    "join-hint": "विशाल हाइव समुदाय का हिस्सा बनें और गतिविधि के लिए पुरस्कार अर्जित करें"
+    "join-hint": "Join the conversation and earn for your contributions",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} विषय",
@@ -1043,7 +1056,12 @@
     "default-beneficiary": "डिफ़ॉल्ट लाभार्थी",
     "default-beneficiary-username": "हाइव उपयोगकर्ता नाम",
     "default-beneficiary-reward": "इनाम (% में)",
-    "default-beneficiary-docs": "दस्तावेज़ देखें"
+    "default-beneficiary-docs": "दस्तावेज़ देखें",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "एक्सेंसी पॉइंट्स प्राप्त करने के लिए अपने समुदाय को पंजीकृत करें",
@@ -1196,7 +1214,8 @@
     "permissions": "खुली अनुमतियाँ",
     "image-server": "Image server",
     "image-server-default": "Ecency images (Default)",
-    "image-server-hiveblog": "Hive images (Alternative)"
+    "image-server-hiveblog": "Hive images (Alternative)",
+    "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1211,18 +1230,18 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "दावा न किए गए पुरस्कार",
-    "claim-reward-balance": "इनाम शेष का दावा करें",
-    "claim-reward-balance-ok": "दावा किया गया पुरस्कार शेष",
+    "unclaimed-rewards": "Earnings to collect",
+    "claim-reward-balance": "Collect earnings",
+    "claim-reward-balance-ok": "Earnings collected!",
     "estimated": "अनुमानित वॉलेट मूल्य",
     "estimated-points": "अनुमानित अंक मूल्य",
     "estimated-description": "अनुमानित मूल्य हाइव के 7 दिन के औसत मूल्य पर आधारित है।",
     "estimated-description-points": "अनुमानित मूल्य अंकों के क्रय मूल्य पर आधारित है।",
     "hive": "हाइव",
     "hbd": "एचबीडी",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
     "hive-power": "हाइव पावर",
-    "hive-power-description": "हाइव पावर प्रभावशाली टोकन हैं जो लंबे समय तक रखने और सामग्री पर मतदान करने के लिए अधिक शक्ति अर्जित करते हैं। एक व्यक्ति जितना अधिक हाइव पावर रखता है, उतना ही वह दूसरे के पुरस्कारों को प्रभावित कर सकता है और सटीक मतदान के लिए पुरस्कार अर्जित कर सकता है। हाइव पावर एचआईवीई टोकन है जिसे 13 सप्ताह में बिना दांव पर लगाया जा सकता है।",
+    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
     "hive-power-apr-rate": "हाइव पावर के लिए एपीआर ब्याज दर {{value}}% है",
     "hive-dollars-apr-rate": "एचबीडी($) के लिए APR ब्याज दर {{value}}% है",
     "hive-dollars-apr-claim": "पिछले भुगतान के बाद से अनुमानित ब्याज {{value}}:",
@@ -1234,7 +1253,7 @@
     "next-power-down-amount": "अगली पावर डाउन राशि",
     "hive-power-total": "कुल हाइव पावर",
     "hive-dollars": "हाइव डॉलर",
-    "hive-dollars-description": "हाइव के लगभग 1.00 डॉलर मूल्य के टोकन।",
+    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
     "savings": "बचत",
     "savings-description": "शेष राशि 3 दिन की निकासी प्रतीक्षा अवधि के अधीन है।",
     "next-power-down": "अगला पावर डाउन {{time}} है, (~{{amount}}, {{weeks}} सप्ताह शेष)",
@@ -1255,8 +1274,8 @@
     "reserved-amount": "बाजार में खुले आदेश के लिए आरक्षित",
     "spk": {
       "claim": {
-        "title": "दावा करें",
-        "unclaimed-rewards": "दावा न किए गए पुरस्कार"
+        "title": "Collect",
+        "unclaimed-rewards": "Earnings to collect"
       },
       "delegate": {
         "title": "डेलीगेट​",
@@ -1347,7 +1366,7 @@
   "points": {
     "get": "अंक खरीदें",
     "unclaimed-points": "लावारिस अंक",
-    "claim-reward-points": "रिवॉर्ड पॉइंट्स का दावा करें",
+    "claim-reward-points": "Collect points",
     "main-description": "पॉइंट्स का इस्तेमाल इन-ऐप सेवाओं, जैसे प्रमोट, बूस्ट, गिफ्टिंग, के लिए किया जा सकता है। Ecency ऐप्स का इस्तेमाल करके इन्हें कमाएँ और अपने अनुभव को बेहतर बनाएँ।",
     "earn-points": "अधिक अंक कैसे अर्जित करें",
     "post-desc": "आप नियमित रूप से पोस्ट करके बिंदु अर्जित कर सकते हैं। पोस्टिंग आपको 15 अंक देती है।",
@@ -1534,7 +1553,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "अंक अर्जित करे",
+    "type-claim_reward_balance": "Collected earnings",
     "type-transfer": "स्थानांतरण",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "पावर उप",
@@ -1584,7 +1603,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
-    "key-error": "Failed to process the key. Please verify it is correct."
+    "key-error": "Failed to process the key. Please verify it is correct.",
+    "sign-with-metamask": "Sign with MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -1642,9 +1662,9 @@
     "unMute": "मौन तोड़ें"
   },
   "favorite-btn": {
-    "add": "Favorite - get notified about new posts",
-    "added": "Added to favorites! You'll be notified when they publish new posts",
-    "delete": "Remove favorite and stop notifications",
+    "add": "Favorite — get notified about new posts",
+    "added": "पसंदीदा में जोड़ें",
+    "delete": "पसंदीदा से हटाएं",
     "deleted": "पसंदीदा से निकाला गया।"
   },
   "editor-toolbar": {
@@ -1690,10 +1710,10 @@
     "body-placeholder": "अपनी कहानी सुनाएं...",
     "reward": "इनाम",
     "take-tour": "Take a tour",
-    "reward-hint": "तरल और पके हुए टोकन के लिए लेखक इनाम अनुपात सेट करें",
+    "reward-hint": "Choose how you receive your earnings",
     "reward-default": "वितथ रूप से ५०%/५०%",
-    "reward-sp": "१००% शक्तिप्रापक करें",
-    "reward-dp": "भुगतान अस्वीकार करें",
+    "reward-sp": "Stake 100%",
+    "reward-dp": "Decline Earnings",
     "preview": "पूर्वावलोकन",
     "publish": "प्रकाशित करें",
     "update": "अपडेट करें",
@@ -1719,7 +1739,6 @@
     "empty-tags-alert": "पोस्ट टैग दर्ज करें",
     "empty-body-alert": "पोस्ट बॉडी दर्ज करें",
     "description": "संक्षिप्त वर्णन",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
     "updating": "Updating..",
     "publishing": "Publishing..",
     "saving": "Saving..",
@@ -1731,15 +1750,8 @@
     "record-video": "वीडियो रिकॉर्ड करें",
     "choose-thumbnail": "थंबनेल सेट करें(वैकल्पिक)",
     "continue": "जारी रखना",
-    "encode": "एन्कोडिंग के लिए भेजें",
-    "success": "Video succesfully uploaded",
-    "finished": "समाप्त",
     "upload-video": "वीडियो अपलोड करें",
-    "video-gallery": "वीडियो गैलरी",
     "preview": "पूर्वावलोकन",
-    "to-gallery": "गैलरी में जाएँ",
-    "congrats": "बधाइयाँ",
-    "publishing": "इस पेज को रीफ़्रेश न करें, वीडियो प्रोसेस होने के लिए कुछ सेकंड प्रतीक्षा करें",
     "no-record-permission": "आपको वीडियो रिकॉर्ड करने की अनुमति नहीं है",
     "confirm-and-upload": "पुष्टि करें और 3Speak पर अपलोड करें",
     "uploading": "अपलोड हो रहा है..{{n}}/{{total}}",
@@ -1747,30 +1759,18 @@
     "reset": "रीसेट",
     "source": "वीडियो स्रोत",
     "thumbnail": "थंबनेल",
-    "min-duration-alert": "15 सेकंड से कम अवधि वाले वीडियो को 3Speak द्वारा अनदेखा कर दिया जाएगा।"
-  },
-  "video-gallery": {
-    "all": "सब",
-    "title": "वीडियो गैलरी",
-    "published": "प्रकाशित",
-    "encoding": "एन्कोडिंग",
-    "encoded": "इनकोडएड",
-    "failed": "असफल",
-    "status-encoded": "पोस्ट करने के लिए तैयार",
-    "status-encoding": "एन्कोडिंग",
-    "status-published": "प्रकाशित",
-    "status-failed": "एन्कोडिंग विफल",
-    "status-deleted": "हटाए गए",
-    "info-created": "बनाया था:",
-    "status": "स्थिति:",
-    "info-views": "दृश्य:",
-    "info-duration": "अवधि:",
-    "info-size": "फ़ाइल आकार:",
-    "insert-video": "शामिल करें",
-    "insert-nsfw": "एनएसएफडब्ल्यू के रूप में डालें",
-    "only-one-video": "एक पोस्ट में केवल एक ही वीडियो प्रकाशित किया जा सकता है",
-    "refresh": "अद्यतन स्थिति प्राप्त करने के लिए रीफ़्रेश करें",
-    "video-info": "वीडियो एसपीके नेटवर्क द्वारा संग्रहीत और संचालित किए जाते हैं, इसमें कुछ भंडारण और एन्कोडिंग शुल्क हो सकता है।"
+    "insert-video": "Insert video",
+    "file-too-large": "File size exceeds the 1 GB limit. Please choose a smaller video.",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "Failed to upload thumbnail. Please try again.",
+    "error-too-large": "Video file is too large. Please use a smaller file.",
+    "error-too-many": "Too many upload requests. Please wait a moment and try again.",
+    "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
+    "error-auth": "Authentication failed. Please contact support.",
+    "error-generic": "Failed to upload video. Please try again.",
+    "title-short": "Upload short video",
+    "short-badge": "Short",
+    "video-attached": "Video attached"
   },
   "tag-selector": {
     "placeholder-empty": "टैग। पहला टैग मुख्य श्रेणी है। क्रमित करने योग्य।",
@@ -1807,7 +1807,9 @@
     "user-error": "{{n}} वैध उपयोगकर्ता नहीं है।",
     "validation-percentage": "प्रतिशत आवश्यक है।",
     "validation-username": "यूज़रनेम आवश्यक है",
-    "user-exists-error": "{{n}} पहले से सूची में है"
+    "user-exists-error": "{{n}} पहले से सूची में है",
+    "threespeak-locked": "Required for 3Speak video hosting",
+    "required": "Required"
   },
   "post-scheduler": {
     "title": "अनुसूची",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} ने आपको {{amount}} भेजा है",
     "delegations": "{{source}} आपको डेलीगेटेड {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content payout is ready.",
+    "payouts": "Your content earnings are ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "सभी अधिसूचनाएं",
@@ -1863,6 +1868,8 @@
     "spin-str": "अधिक अंक अर्जित करने का समय, इसेंसी मोबाइल ऐप पर प्ले स्पिन",
     "inactive-str": "सक्रिय हों! एक पोस्ट लिखो, कमाई जारी रखो",
     "referral-str": "joined with referral, welcome them",
+    "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "रीफ्रेश करें",
     "mark-all-read": "सभी को पढ़ा हुआ मार्क करें",
     "mark-read": "पढ़ा हुआ मार्क करें",
@@ -2249,9 +2256,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
+        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2315,8 +2322,8 @@
       "how-see-rewards-body": "<p>वॉलेट पेज में (वेबसाइट और डेस्कटॉप ऐप के शीर्ष हेडर में, मोबाइल ऐप पर नीचे नेविगेशन बार में), आप क्यूरेशन रिवॉर्ड्स (अपवोटिंग पोस्ट और टिप्पणियों के लिए अर्जित पुरस्कार) और लेखक पुरस्कार (आपकी खुद की पोस्ट द्वारा अर्जित पुरस्कार) देख सकते हैं और टिप्पणियाँ)</p><p>आप अन्य उपयोगकर्ताओं की वॉलेट प्रोफ़ाइल पर जाकर भी वही जानकारी देख सकते हैं।</p>",
       "how-dhf-work-header": "डीएचएफ कैसे काम करता है?",
       "how-dhf-work-body": "<p> कोई भी एक प्रस्ताव बना सकता है और समुदाय को धन प्राप्त करने के उनके प्रस्ताव पर मतदान करने के लिए मना सकता है। प्रस्ताव बनाने से पहले, ब्लॉकचैन पर सामान्य पोस्ट प्रकाशित की जानी चाहिए और प्रस्ताव बनाने से पहले प्रतिक्रिया इकट्ठा करने की सिफारिश की जाती है। प्रस्ताव निर्माण में प्रत्येक दिन के लिए 10 HBD + 1 HBD का शुल्क है जो 60 दिनों से अधिक समय तक रहता है। </p> <p> एक बार जब प्रस्ताव लम्बे मतों की निश्चित सीमा तक पहुँच जाता है, तो उसे प्रत्येक घंटे धन प्राप्त होने लगेगा। यदि प्रस्ताव सीमा से नीचे आता है, तो सिस्टम उस प्रस्ताव के लिए धन रोक देगा। आप जितने चाहें प्रस्ताव दे सकते हैं, कोई सीमा नहीं है। प्रस्ताव संपादित नहीं किया जा सकता है, लेकिन निर्माता द्वारा हटाया / वापस लिया जा सकता है। </p>",
-      "when-claim-rewards-header": "मैं अपने पुरस्कारों कोअर्जित कब कर सकता हूं?",
-      "when-claim-rewards-body": "<p> 7 दिनों के लिए पोस्ट और टिप्पणियां सक्रिय रहती हैं और वोटों और टोकन के बाजार मूल्य के आधार पर पुरस्कारों में उतार-चढ़ाव होता है, यही कारण है कि पुरस्कार लंबित इनाम के रूप में अनुमानित हैं। जब अवधि समाप्त हो जाती है, तो लंबित इनाम वास्तविक इनाम में बदल जाता है और आप अर्जित पुरस्कारों का दावा करने में सक्षम होते हैं। अपने वॉलेट में, अपने खाते में टोकन जोड़ने के लिए दावा पुरस्कार बटन पर क्लिक करें। </p>",
+      "when-claim-rewards-header": "When can I collect my earnings?",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "संसाधन क्रेडिट क्या हैं?",
       "what-are-rc-body": "<p>हाइव ब्लॉकचैन पर लेनदेन करने पर शून्य फीस लगती है, ब्लॉकचैन को स्पैम हमलों से बचाने के लिए लेनदेन की दर सीमित होती है। ब्लॉकचेन पर आपके द्वारा की जाने वाली प्रत्येक कार्रवाई में संसाधन क्रेडिट की थोड़ी मात्रा का उपभोग होगा। इसमें पोस्टिंग, कमेंटिंग, वोटिंग, टोकन ट्रांसफर करना आदि शामिल हैं, कंटेंट देखने से रिसोर्स क्रेडिट का उपभोग नहीं होता है। </p> <p> प्रत्येक उपयोगकर्ता के पास प्रत्येक सप्ताह उपयोग करने के लिए सीमित मात्रा में रिसोर्स क्रेडिट होते हैं। उपयोगकर्ता जितना अधिक लेन-देन करता है, उसके पास उतने कम रिसोर्स क्रेडिट होते हैं (जब तक वे रिचार्ज नहीं हो जाते)। अधिक HIVE POWER वाले उपयोगकर्ताओं के पास अधिक संसाधन क्रेडिट होंगे। </p> <p> यदि आप संसाधन क्रेडिट से बाहर निकलते हैं, तो आप ब्लॉकचैन के साथ तब तक लेन-देन नहीं कर पाएंगे, जब तक कि आपके संसाधन क्रेडिट रिचार्ज (स्वचालित रूप से नहीं हो जाते) या आप अतिरिक्त HIT POWER प्राप्त कर लेते हैं अपने संसाधन क्रेडिट संतुलन को बढ़ाने के लिए या आप अस्थायी प्रतिनिधिमंडल प्राप्त करने के लिए <a href=\"/faq#how-boost-account\"> Ecency से Boosting खाते का अनुरोध करें </a> कर सकते हैं।</p>",
       "how-boost-account-header": "खाता बढ़ाने का अनुरोध कैसे करें?",
@@ -2733,7 +2740,6 @@
     "vote": "Vote",
     "account-age-hint": "Only accounts older than {{n}} days allowed",
     "preview-mode": "Preview mode",
-    "videos-collision-error": "Polls and 3speak videos cannot be published in same post since there are different kind of posts. Please choose only one of them.",
     "number_of_votes": "By number of votes",
     "tokens": "By tokens",
     "view-votes": "View votes",
@@ -2818,6 +2824,32 @@
     "muted": "User has muted",
     "unmuted": "User has unmuted"
   },
+  "signup-options": {
+    "free": {
+      "title": "Free Account",
+      "description": "Get a Hive account with basic email verification.",
+      "button": "Get Free Account",
+      "label": "Free"
+    },
+    "premium": {
+      "title": "Premium Account",
+      "description": "Instant account with 3x resource credits and 300 Ecency Points.",
+      "button": "Get Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Create account instantly using MetaMask. No seed phrases needed.",
+      "button": "Connect Wallet",
+      "label": "Wallet"
+    },
+    "invited": {
+      "title": "Invited by a Friend",
+      "description": "A friend with a Hive account can create one for you at no cost.",
+      "button": "Get Invited",
+      "label": "Invited"
+    }
+  },
   "signup-email": {
     "title": "Signup with Email",
     "description": "Flexible way to create an account using email validation. Choose one of the options such as Free and Boosted account with 3X resource credits for $2.99 or Onboard a friend",
@@ -2883,6 +2915,33 @@
       "creating": "Creating Hive account...",
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
+    },
+    "metamask": {
+      "title": "Connect MetaMask",
+      "description": "Connect your MetaMask wallet to verify your identity and create a Hive account.",
+      "not-found": "MetaMask not detected. Please install MetaMask extension.",
+      "connect-button": "Connect MetaMask",
+      "connect-hint": "We will check your wallet balance to verify your identity. No funds will be transferred.",
+      "connect-error": "Failed to connect MetaMask. Please try again.",
+      "connected": "MetaMask connected",
+      "chain-unsupported": "This chain is not yet supported for direct connection. Coming soon.",
+      "address-in-use": "This wallet address is already associated with a Hive account.",
+      "sign-and-continue": "Sign & Continue",
+      "sign-rejected": "Signature was rejected. Please try again.",
+      "installing-snap": "Installing Hive wallet snap...",
+      "getting-keys": "Deriving Hive keys from your wallet...",
+      "create-error": "Account creation failed. Please try again.",
+      "success-hint": "You can sign into Ecency using your MetaMask wallet with the Hive snap.",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
+      "login-with-metamask": "Login with MetaMask",
+      "logging-in": "Signing you in with MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Checking MetaMask multichain addresses...",
+      "chain-not-available": "Selected chain is not available in MetaMask"
+    },
+    "balance": {
+      "label": "Balance:"
     }
   },
   "publish": {
@@ -2931,7 +2990,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
-    "three-speak-gallery": "From 3Speak",
     "video-by-link": "Add video by link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
@@ -2964,6 +3022,19 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
+    "import": "Import from URL",
+    "import-title": "Import article",
+    "import-subtitle": "You will have a chance to review and edit before publishing.",
+    "import-hint": "Paste a URL to import article content into the editor. Supports Hive posts and external web articles.",
+    "import-ownership-notice": "Please only import content that you own or have permission to republish.",
+    "import-failed": "Failed to import article. Please check the URL and try again.",
+    "import-error-invalid-url": "Invalid URL. Please enter a valid web address.",
+    "import-error-fetch-failed": "Could not reach the website. Please check the URL and try again.",
+    "import-error-not-html": "The URL does not point to a web page.",
+    "import-error-too-large": "The page is too large to import.",
+    "import-error-extract-failed": "Could not extract article content from the page.",
+    "import-error-not-found": "Post not found. Please check the URL.",
+    "importing": "Importing...",
     "reward-settings": "Reward settings",
     "beneficiaries": "Beneficiaries",
     "meta-information": "Meta information",
@@ -2998,19 +3069,12 @@
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
     "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
-    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
     "no-post-title": "Cannot find the post",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Open original post",
     "updated-title": "Post has updated!",
     "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
     "back-to-post": "Back to post",
-    "video-gallery": {
-      "no-data": "No videos yet",
-      "no-data-hint": "Change filter or publish your first video with 3Speak",
-      "no-data-button": "Upload now"
-    },
-    "video-availability": "Video will be available after publishing",
     "title-placeholder": "What is the title?",
     "html-warning": {
       "title": "Pure HTML code detected",
@@ -3043,6 +3107,42 @@
     "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
     "playground": "Playground",
     "voices": "Voices"
+  },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "Recipient address",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "Amount",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "Estimated network fee",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask.",
+    "error-exceeds-balance": "Amount exceeds available balance",
+    "review": "Review transfer",
+    "sending": "Sending",
+    "value": "Value",
+    "to-label": "To",
+    "confirm-metamask": "Confirm with MetaMask",
+    "signing": "Waiting for MetaMask confirmation...",
+    "success": "Transfer submitted!",
+    "success-hint": "Your transaction has been submitted to the network. It may take a few minutes to confirm.",
+    "view-explorer": "View on explorer",
+    "failed": "Transfer failed",
+    "cancelled": "Transaction cancelled by user.",
+    "try-again": "Try again"
+  },
+  "mobile-login-qr": {
+    "title": "Log in to Mobile App",
+    "warning-title": "This QR code contains your session credentials",
+    "warning-1": "Do not scan in public spaces where others can see your screen",
+    "warning-2": "Do not share or screenshot the QR code",
+    "warning-3": "Disable screen recording or mirroring before revealing",
+    "reveal-button": "I understand, reveal QR code",
+    "generating": "Generating secure QR code...",
+    "instructions": "Open Ecency mobile app, tap the QR scanner, and scan this code to log in.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Unable to generate login QR. Please try logging out and back in.",
+    "error-generate": "Failed to generate QR code. Please try again."
   },
   "profile-wallet": {
     "pick-tokens": "Pick tokens to show",
@@ -3107,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Claim rewards",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "Claiming...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "Collect earnings",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "Collecting...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3149,16 +3249,32 @@
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     },
+    "manage-keys": {
+      "title": "Manage Keys",
+      "choose-title": "What would you like to do?",
+      "add-title": "Add New Keys",
+      "add-description": "Generate a new master password and add keys to your account",
+      "revoke-title": "Revoke Keys",
+      "revoke-description": "Remove keys you no longer need from your account",
+      "revoke-select-title": "Select Keys to Revoke",
+      "revoke-select-description": "Choose which keys to remove from your account. You must keep at least one key per authority.",
+      "revoke-confirm-title": "Confirm Revocation",
+      "revoke-confirm-description": "Sign with your owner key to remove the selected keys from your account.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Keys revoked successfully",
+      "revoke-step-select": "Select Keys",
+      "revoke-step-sign": "Sign"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Seed",
+        "generate-seed": "Generate Password",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new seed phrase will be generated for your account",
+        "info1": "A new master password will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3170,9 +3286,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW seed phrase, different from your original account seed",
+        "warning1": "This is a NEW master password, different from your original credentials",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the seed file and store it securely before continuing"
+        "warning3": "Download the keys file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",
@@ -3272,6 +3388,50 @@
     "save-to-gallery": "Save to Gallery",
     "save-to-gallery-success": "Image saved to your gallery!",
     "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
-    "use-suggestion": "Use: {{suggestion}}"
+    "use-suggestion": "Use: {{suggestion}}",
+    "select-power": "Quality boost"
+  },
+  "ai-assist": {
+    "title": "AI Writing Assistant",
+    "toolbar-button": "AI Assist",
+    "balance-label": "Balance",
+    "points-unit": "POINTS",
+    "free-label": "Free",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "Cost",
+    "hint": "Write your content first, then use AI Assist to polish and improve it.",
+    "action-label": "What would you like to do?",
+    "text-label": "Your content",
+    "text-placeholder": "Paste or type your draft content here...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "Improve Writing",
+    "action-improve-desc": "Polish grammar, clarity, and style",
+    "action-suggest_tags": "Suggest Tags",
+    "action-suggest_tags-desc": "Get relevant tags for your post",
+    "action-generate_title": "Generate Title",
+    "action-generate_title-desc": "Create compelling title options",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Check Grammar",
+    "action-check_grammar-desc": "Fix grammar and spelling",
+    "submit-button": "Run AI Assist",
+    "submitting": "Processing...",
+    "result-title": "Result",
+    "apply-button": "Apply to post",
+    "copy-button": "Copy",
+    "copied": "Copied!",
+    "try-again": "Try Again",
+    "try-another": "Try Another Action",
+    "show-changes": "Show changes",
+    "hide-changes": "Hide changes",
+    "hide-translation": "Hide translation",
+    "success": "AI assist completed!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Content violates policy. Points were not refunded.",
+    "error-rate-limit": "Too many requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "AI assist failed. Please try again.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }
