@@ -1829,10 +1829,13 @@
     "transfer": "{{source}} sent you {{amount}}",
     "delegations": "{{source}} delegated you {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content payout is ready.",
+    "payouts": "Your content earnings are ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "All Notifications",
@@ -1866,6 +1869,7 @@
     "inactive-str": "Be active! Write a post, continue earning",
     "referral-str": "joined with referral, welcome them",
     "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Refresh",
     "mark-all-read": "Mark All as Read",
     "mark-read": "Mark as Read",
