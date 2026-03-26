@@ -1212,7 +1212,8 @@
     "permissions": "打开权限",
     "image-server": "图像服务器",
     "image-server-default": "生态图像(默认)",
-    "image-server-hiveblog": "Hive 图像 (替代)"
+    "image-server-hiveblog": "Hive 图像 (替代)",
+    "image-server-nocdn": "生态图像 (无 CDN)"
   },
   "settings": {
     "dm-privacy": {
