@@ -230,9 +230,9 @@
   },
   "user-nav": {
     "wallet": "钱包",
-    "unclaimed-reward-notice": "您有未认领的奖励",
+    "unclaimed-reward-notice": "您有收入可领取！",
     "points": "积分",
-    "unclaimed-points-notice": "您有未认领的积分",
+    "unclaimed-points-notice": "您有要收集的积分！",
     "notifications": "通知",
     "profile": "个人信息",
     "profile-menu": "个人资料",
@@ -300,10 +300,10 @@
     "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。"
   },
   "sign-up": {
-    "header": "奖励Web3社区",
-    "description": "Freespeech, True own, financial freedom!",
-    "description-2": "Hive 增强了许多应用的能力，并完全由世界各地的社区成员来运行。 使用一个帐户，您可以直接访问生态系统。",
-    "bottom-description": "一个帐户，一个钱包来管理Blockchain上的一切。",
+    "header": "奖励社区",
+    "description": "自由言论、真正拥有权、财政自由！",
+    "description-2": "加入一个完全由其社区管理的平台。一个帐户可以让您访问整个生态系统。",
+    "bottom-description": "一个帐户，一个钱包来管理一切。",
     "learn-more": "在我们的 <a href=\"/faq#how-to-join\">常见问题</a>中了解更多好处",
     "username": "选择用户名",
     "email": "输入您的电子邮件地址",
@@ -447,8 +447,8 @@
     "vote-remove": "投票结果0%不投票内容。",
     "vote-warning": "更改投票...",
     "no-replies": "还没有回复。点击进行回复。",
-    "old-post-error": "付出后对内容的投票不会产生任何新的奖励。",
-    "old-post-error-suggestion": "尝试翻修作者。 "
+    "old-post-error": "该帖子的收入期已经结束。",
+    "old-post-error-suggestion": "你仍然可以直接提示作者。 "
   },
   "nsfw": {
     "reveal": "显示此帖子",
@@ -513,18 +513,18 @@
     "submit-label": "确认",
     "published": "内容已发布",
     "no-subscription": "您没有任何订阅的社区可以进行交叉帖子操作。",
-    "info": "交叉帖子的奖励已被自动取消，该交叉帖子下的讨论内容与原帖将会不同，请遵循不同社区的发帖规则。"
+    "info": "交叉站点的收入自动减少。在交叉站点下的讨论遵循东道社区的准则。"
   },
   "entry-payout": {
-    "reward": "奖励",
+    "reward": "收入",
     "full-power": "100% 充能",
-    "pending-payout": "累积收益中",
+    "pending-payout": "估计收入",
     "promoted": "已推广",
-    "author-payout": "作者收益",
-    "curators-payout": "审查收益",
+    "author-payout": "作者收入",
+    "curators-payout": "支持者的收入",
     "payout-date": "收益",
     "beneficiary": "受益人",
-    "breakdown": "分解",
+    "breakdown": "详细信息",
     "max-accepted": "最大已接受"
   },
   "entry-index": {
@@ -723,7 +723,7 @@
   },
   "market": {
     "title": "代币交易",
-    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "最后价格",
     "volume": "24小时音量",
     "bid": "Bid",
@@ -943,7 +943,9 @@
     "reveal": "显示评论",
     "no-conversation": "还没有对话, 请先回复",
     "start-conversation": "开始对话",
-    "join-hint": "成为大型Hive 社区的一部分并获得活动奖励"
+    "join-hint": "加入对话并赚取您的贡献",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load"
   },
   "community": {
     "page-description": "{{f}} 个主题",
@@ -1228,18 +1230,18 @@
     "dm-privacy-failed": "更新 DM 隐私设置失败"
   },
   "wallet": {
-    "unclaimed-rewards": "未认领的奖励",
-    "claim-reward-balance": "领取奖励余额",
-    "claim-reward-balance-ok": "领取奖励余额",
+    "unclaimed-rewards": "要收集的收入",
+    "claim-reward-balance": "收取收入",
+    "claim-reward-balance-ok": "赚取的收入！",
     "estimated": "预估钱包值",
     "estimated-points": "估计积分值",
     "estimated-description": "估计的价值是基于HIVE价格的7日平均值",
     "estimated-description-points": "估计价值基于点的购买价值。",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
+    "hive-description": "艾滋病毒是您的流动余额 - 随时转移、交易或利害关系。",
     "hive-power": "Hive Power",
-    "hive-power-description": "Hive Power 正在影响令牌，这些令牌能够获得更多的长时间和对内容进行投票。 Hive 势力越多，就越能影响别人的奖励，通过准确投票赚取奖励。 Hive Power is stated HIVE token that can be unstated in 13 weeks.",
+    "hive-power-description": "Hive 力量是你的影响力。你持有的票数越多，你的票数就越多，你赚取的也就越多。 在13个星期内不再涉及艾滋病毒感染者的生长问题。",
     "hive-power-apr-rate": "APR interest rate for Hive Power is {{value}}%",
     "hive-dollars-apr-rate": "APR interest rate for HBD($) is {{value}}%",
     "hive-dollars-apr-claim": "Estimated interest since last payment {{value}}:",
@@ -1251,7 +1253,7 @@
     "next-power-down-amount": "下一次 Power 释放大约是在",
     "hive-power-total": "Hive Power 总量",
     "hive-dollars": "HIVE 美元",
-    "hive-dollars-description": "代币价值约为 $1.00 的HIVE",
+    "hive-dollars-description": "稳定的代币每个固定到大约1.00美元。",
     "savings": "储蓄",
     "savings-description": "余额提现需要 3 天等待周期。",
     "next-power-down": "The next power down is {{time}}, (~{{amount}}, {{weeks}} weeks remaining)",
@@ -1272,8 +1274,8 @@
     "reserved-amount": "保留为市场中的开放订单",
     "spk": {
       "claim": {
-        "title": "Claim",
-        "unclaimed-rewards": "未认领的奖励"
+        "title": "收集",
+        "unclaimed-rewards": "要收集的收入"
       },
       "delegate": {
         "title": "代表",
@@ -1364,7 +1366,7 @@
   "points": {
     "get": "购买积分",
     "unclaimed-points": "未认领的积分",
-    "claim-reward-points": "认领奖励积分",
+    "claim-reward-points": "收集点",
     "main-description": "积分可以用于Ecency应用内的服务，如推广，推荐，作为礼物。使用Ecency可以提高您的使用体验并获取积分。",
     "earn-points": "如何赚取更多积分",
     "post-desc": "您可以通过定期发帖子来赚取积分。发帖子会给您15积分。",
@@ -1551,7 +1553,7 @@
     "type-tokens_stake": "Stake 令牌",
     "type-tokens_issue": "发行令牌",
     "type-comments_beneficiaryReward": "受益者奖励",
-    "type-claim_reward_balance": "认领奖励",
+    "type-claim_reward_balance": "收取的收入",
     "type-transfer": "转帐",
     "type-tokens_transfer": "转移",
     "type-transfer_to_vesting": "增加能量",
@@ -1708,10 +1710,10 @@
     "body-placeholder": "告诉您的故事...",
     "reward": "奖励",
     "take-tour": "游览",
-    "reward-hint": "设置流动代币和质押代币的作者奖励比率",
+    "reward-hint": "选择您如何获得您的收入",
     "reward-default": "默认 50% / 50%",
-    "reward-sp": "100% 充能",
-    "reward-dp": "拒绝支付",
+    "reward-sp": "蒸汽100%",
+    "reward-dp": "减少收入",
     "preview": "预览",
     "publish": "发布",
     "update": "更新",
@@ -1827,10 +1829,13 @@
     "transfer": "{{source}} 发送给您 {{amount}}",
     "delegations": "{{source}} delegated you {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "您的支付已准备就绪。",
+    "payouts": "您的内容收入已准备就绪。",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "所有通知",
@@ -1864,6 +1869,7 @@
     "inactive-str": "活跃！写一个帖子，继续赚钱",
     "referral-str": "加入推荐，欢迎他们加入",
     "account-update-str": "您的账户密钥或个人资料已更新",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "刷新",
     "mark-all-read": "全部标为已读",
     "mark-read": "标为已读",
@@ -2250,9 +2256,9 @@
         "create-title": "在任何地方发布",
         "create-description": "帖子草稿，分享更新和回复您在桌面上使用的强大编辑器的评论。",
         "wallet-title": "一目了然的钱包",
-        "wallet-description": "核对余额，领取奖励并管理Hive Power 或 HBD ，只需几盘磁带即可。",
+        "wallet-description": "检查余额，只需几个点击即可收取收益和管理您的代币。",
         "notifications-title": "永远不要错过一个引用",
-        "notifications-description": "推送通知高亮显示新的关注者、提及和奖励，以便您能够及时庆祝。"
+        "notifications-description": "推送通知高亮显示新的关注者、提及者和收入，以便您能够及时庆祝。"
       },
       "features-title": "为创作者和社区设计",
       "features": {
@@ -2316,8 +2322,8 @@
       "how-see-rewards-body": "<p>在钱包页面(在网站顶端和桌面应用，移动应用上底部导航栏)， 您可以看到管理奖励(通过增加投票帖子和评论获得的奖励)和作者奖励(您自己的帖子和评论获得的奖励)</p><p>您也可以通过访问其他用户的钱包配置来查看相同的信息。</p>",
       "how-dhf-work-header": "DHF 是如何工作的？",
       "how-dhf-work-body": "<p>任何人都可以创建一个提案，并说服社区对他们的提案进行投票以获得资金。 在创建建议之前，正常的帖子应该在区块链上发布，建议在创建建议之前收集反馈。 建议创建费用为10HBD+1HBD，每天超过60天。</p><p>一旦建议达到了特定的空投投票限度，它将开始每小时收到资金。 如果提案低于门槛值，系统将停止为该提案提供资金。 您可以投票的建议数量尽可能多，没有限制。建议不能编辑，但可以被创建者删除/撤回。</p>",
-      "when-claim-rewards-header": "什么时候可以领取我的奖励？",
-      "when-claim-rewards-body": "<p>帖子和评论仍然活跃7天，奖励会根据票价和代币的市场价格而波动。 这就是为什么奖励大致为待定奖励。 当这段时间结束时，等待实际奖励的更改并且你能够领取已赚取的奖励。 在您的钱包中，点击领取奖励按钮将代币添加到您的帐户。</p>",
+      "when-claim-rewards-header": "什么时候能够领取我的收入？",
+      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
       "what-are-rc-header": "什么是资源信贷？",
       "what-are-rc-body": "<p>Hive 区块链上的交易费用为零，使用交易率限制来保护区块链免受垃圾邮件攻击。 你在区块链上采取的每个行动都会消耗少量资源点数。 这包括发布、评论、投票、传输令牌等。查看内容不会消耗资源积分。</p><p>每个用户每周使用的资源积分。 用户进行的交易越多，他们离开的资源积分就越少(直到他们重新充电)。 拥有更多HIVE能量的用户将获得更多的资源积分。</p><p>如果您的资源积分已用完， 您将无法与区块链进行交易，除非您的资源信用充值 (自动发生)，或您获取额外的HIVE能量来增加您的资源信用余额，或您可以 <a href=\"/faq#how-boost-account\">从Ecency请求提升帐户</a> 接收临时授权。</p>",
       "how-boost-account-header": "如何请求账户推荐？",
@@ -3201,10 +3207,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "B. 索赔利 息"
     },
-    "claim-rewards": "认领奖励",
-    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
-    "claim-rewards-loading": "正在补全...",
-    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
+    "claim-rewards": "收取收入",
+    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
+    "claim-rewards-loading": "正在收集...",
+    "claim-rewards-success": "Collected {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% APR 加速",
       "title": "使用你的Hive 能量来进行生态管理",
@@ -3393,6 +3399,7 @@
     "free-label": "免费的",
     "free-remaining": "{{count}} free left today",
     "cost-label": "费用",
+    "hint": "请先写您的内容，然后使用 AI Assist来打磨和改进内容。",
     "action-label": "你想做什么？",
     "text-label": "您的内容",
     "text-placeholder": "在这里粘贴或输入您的草稿内容...",
