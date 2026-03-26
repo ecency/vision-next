@@ -164,6 +164,9 @@ export function Preferences() {
               <option value={ALLOWED_IMAGE_SERVERS[1]}>
                 {i18next.t("preferences.image-server-hiveblog")}
               </option>
+              <option value={ALLOWED_IMAGE_SERVERS[2]}>
+                {i18next.t("preferences.image-server-nocdn")}
+              </option>
             </FormControl>
           </div>
         </div>

@@ -43,22 +43,9 @@ export function ClientInit() {
       setActiveUser(activeUsername);
     }
 
-    // Apply stored image proxy preference (validated against whitelist).
-    // Skip if automatic fallback is active and stored proxy is the failing primary —
-    // the ImageFailureTracker has already set the fallback proxy base.
+    // Apply stored image proxy preference (validated against whitelist)
     const storedImageProxy = ls.get("image_proxy");
-    const fallbackActive = (() => {
-      try {
-        return sessionStorage.getItem("image_proxy_fallback_active") === "1";
-      } catch {
-        return false;
-      }
-    })();
-    if (
-      storedImageProxy &&
-      ALLOWED_IMAGE_SERVERS.includes(storedImageProxy) &&
-      !(fallbackActive && storedImageProxy === ALLOWED_IMAGE_SERVERS[0])
-    ) {
+    if (storedImageProxy && ALLOWED_IMAGE_SERVERS.includes(storedImageProxy)) {
       setProxyBase(storedImageProxy);
     }
 
