@@ -1212,7 +1212,8 @@
     "permissions": "Otwórz uprawnienia",
     "image-server": "Serwer obrazów",
     "image-server-default": "Obrazy ecencji (domyślne)",
-    "image-server-hiveblog": "Obrazy ulowe (alternatywne)"
+    "image-server-hiveblog": "Obrazy ulowe (alternatywne)",
+    "image-server-nocdn": "Obrazy ecencji (nr CDN)"
   },
   "settings": {
     "dm-privacy": {
