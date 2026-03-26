@@ -7,8 +7,8 @@ import { ALLOWED_IMAGE_SERVERS } from "@/defaults";
 
 const PRIMARY_HOST = "images.ecency.com";
 const FALLBACK_HOST = "img.ecency.com";
-const FALLBACK_THRESHOLD = 3;
-const PROBE_TIMEOUT_MS = 4000;
+const FALLBACK_THRESHOLD = 10;
+const PROBE_TIMEOUT_MS = 10000;
 const SESSION_KEY = "image_proxy_fallback_active";
 
 const failedUrls = new Set<string>();
