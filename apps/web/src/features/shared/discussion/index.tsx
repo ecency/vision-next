@@ -34,6 +34,17 @@ interface Props {
   onTopLevelCommentsChange?: (hasComments: boolean) => void;
 }
 
+function NewCommentsButton({ count, onClick }: { count: number; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full my-3 py-2.5 px-4 rounded-lg bg-blue-dark-sky/10 dark:bg-blue-dark-sky/20 text-blue-dark-sky hover:bg-blue-dark-sky/20 dark:hover:bg-blue-dark-sky/30 transition-colors text-sm font-medium cursor-pointer text-center"
+    >
+      {i18next.t(count === 1 ? "discussion.new-comment" : "discussion.new-comments", { n: count })}
+    </button>
+  );
+}
+
 export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
@@ -83,9 +94,12 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
   }, [allComments.length]);
 
   const handleLoadNewComments = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: discussionsQueryOptions.queryKey });
+    if (postHeader) {
+      loadedCountRef.current = postHeader.children;
+    }
     setNewCommentCount(0);
-  }, [queryClient, discussionsQueryOptions.queryKey]);
+    queryClient.invalidateQueries({ queryKey: discussionsQueryOptions.queryKey });
+  }, [queryClient, discussionsQueryOptions.queryKey, postHeader]);
 
   const { data: botsList } = useQuery(getBotsQueryOptions());
 
@@ -173,15 +187,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
         )}
 
         {topLevelComments.length === 0 && newCommentCount > 0 && (
-            <button
-              onClick={handleLoadNewComments}
-              className="w-full my-3 py-2.5 px-4 rounded-lg bg-blue-dark-sky/10 dark:bg-blue-dark-sky/20 text-blue-dark-sky hover:bg-blue-dark-sky/20 dark:hover:bg-blue-dark-sky/30 transition-colors text-sm font-medium cursor-pointer text-center"
-            >
-              {i18next.t(
-                newCommentCount === 1 ? "discussion.new-comment" : "discussion.new-comments",
-                { n: newCommentCount }
-              )}
-            </button>
+            <NewCommentsButton count={newCommentCount} onClick={handleLoadNewComments} />
         )}
 
         {topLevelComments.length > 0 && (
@@ -219,15 +225,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
               </div>
 
               {newCommentCount > 0 && (
-                <button
-                  onClick={handleLoadNewComments}
-                  className="w-full my-3 py-2.5 px-4 rounded-lg bg-blue-dark-sky/10 dark:bg-blue-dark-sky/20 text-blue-dark-sky hover:bg-blue-dark-sky/20 dark:hover:bg-blue-dark-sky/30 transition-colors text-sm font-medium cursor-pointer text-center"
-                >
-                  {i18next.t(
-                    newCommentCount === 1 ? "discussion.new-comment" : "discussion.new-comments",
-                    { n: newCommentCount }
-                  )}
-                </button>
+                <NewCommentsButton count={newCommentCount} onClick={handleLoadNewComments} />
               )}
 
               <DiscussionList
