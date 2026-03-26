@@ -1,5 +1,82 @@
 # @ecency/wallets
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.33
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.32
+
+## 2.0.1
+
+### Patch Changes
+
+- Fix sol rpc (#716)
+
+## 2.0.0
+
+### Major Changes
+
+- QR login and Metamask transfers (#715)
+
+## 1.5.55
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.30
+
+## 1.5.54
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.28
+
+## 1.5.53
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.27
+
+## 1.5.52
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.25
+
+## 1.5.51
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.24
+
+## 1.5.50
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.22
+
+## 1.5.49
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.21
+
 ## 1.5.48
 
 ### Patch Changes

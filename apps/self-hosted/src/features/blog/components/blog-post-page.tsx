@@ -3,7 +3,9 @@
 import { getPostQueryOptions } from '@ecency/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useSearch } from '@tanstack/react-router';
+import { useMemo } from 'react';
 import { InstanceConfigManager, t } from '@/core';
+import { useDocumentMeta } from '@/utils/use-document-meta';
 import { BlogLayout } from '../layout/blog-layout';
 import { BlogPostBody } from './blog-post-body';
 import { BlogPostDiscussion } from './blog-post-discussion';
@@ -31,6 +33,49 @@ export function BlogPostPage() {
     error,
     refetch,
   } = useQuery(getPostQueryOptions(author, permlink));
+
+  // Extract first image from post body for OG image
+  const ogImage = useMemo(() => {
+    if (!entry) return undefined;
+    const body = entry.original_entry?.body || entry.body || '';
+    // Try markdown image syntax first
+    const mdMatch = body.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+    if (mdMatch) return mdMatch[1];
+    // Try HTML img tag
+    const htmlMatch = body.match(/<img[^>]+src=["'](https?:\/\/[^\s"']+)["']/);
+    if (htmlMatch) return htmlMatch[1];
+    // Try json_metadata image
+    const metaImage = entry.json_metadata?.image?.[0];
+    if (metaImage) return metaImage;
+    return undefined;
+  }, [entry]);
+
+  // Extract description from post body
+  const ogDescription = useMemo(() => {
+    if (!entry) return undefined;
+    const body = entry.original_entry?.body || entry.body || '';
+    // Strip markdown/HTML and take first 200 chars
+    const clean = body
+      .replace(/<[^>]*>/g, '')
+      .replace(/!\[.*?\]\(.*?\)/g, '')
+      .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')
+      .replace(/[#*_~`>]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return clean.slice(0, 200) + (clean.length > 200 ? '...' : '');
+  }, [entry]);
+
+  useDocumentMeta(
+    entry
+      ? {
+          title: entry.title,
+          description: ogDescription,
+          ogImage,
+          ogType: 'article',
+          twitterCard: ogImage ? 'summary_large_image' : 'summary',
+        }
+      : {},
+  );
 
   if (isLoading) {
     return (

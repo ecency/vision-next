@@ -29,6 +29,13 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Sync prop username when it arrives (e.g. from parent useEffect reading URL params)
+  useEffect(() => {
+    if (propUsername && propUsername !== username) {
+      setUsername(propUsername);
+    }
+  }, [propUsername]);
+
   useEffect(() => {
     if (queryType) {
       setType(queryType);

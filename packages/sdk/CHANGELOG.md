@@ -1,5 +1,60 @@
 # Changelog
 
+## 2.0.33
+
+### Patch Changes
+
+- Real time comment indicator (#720)
+
+## 2.0.32
+
+### Patch Changes
+
+- Manage/add keys improved (#717)
+
+## 2.0.30
+
+### Patch Changes
+
+- Bad actors in SDK (#708)
+
+## 2.0.28
+
+### Patch Changes
+
+- Metamask integration, Signup simplified, Login changes (#705)
+
+## 2.0.27
+
+### Patch Changes
+
+- Search improvements (#703)
+
+## 2.0.25
+
+### Patch Changes
+
+- AI Assists (#700)
+
+## 2.0.24
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
+## 2.0.22
+
+### Patch Changes
+
+- Expiring delegations (#694)
+- Improve adapter (#693)
+
+## 2.0.21
+
+### Patch Changes
+
+- Fallback of RPC selection (#692)
+
 ## 2.0.20
 
 ### Patch Changes

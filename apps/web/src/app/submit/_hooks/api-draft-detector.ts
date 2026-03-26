@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import { PollsContext } from "./polls-manager";
 import { Draft } from "@/entities";
-import { getDraftsQueryOptions } from "@ecency/sdk";
+import { getDraftsQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useLocation } from "react-use";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
@@ -33,6 +33,7 @@ export function useApiDraftDetector(
   });
   const onDraftLoadedRef = useRef(onDraftLoaded);
   const onInvalidDraftRef = useRef(onInvalidDraft);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
     onDraftLoadedRef.current = onDraftLoaded;
@@ -47,7 +48,7 @@ export function useApiDraftDetector(
     }
 
     // If not found, check the infinite query cache (for paginated drafts)
-    const infiniteQueryKey = ["posts", "drafts", "infinite", activeUser?.username, 10];
+    const infiniteQueryKey = QueryKeys.posts.draftsInfinite(activeUser?.username, 10);
     const infiniteQueryData = queryClient.getQueryData<{
       pages: Array<{ data: Draft[] }>;
     }>(infiniteQueryKey);
@@ -65,13 +66,22 @@ export function useApiDraftDetector(
   }, [draftId, draftsQuery.data, activeUser?.username, queryClient]);
 
   useEffect(() => {
-    if (existingDraft) {
+    hasLoadedRef.current = false;
+  }, [draftId]);
+
+  useEffect(() => {
+    if (existingDraft && !hasLoadedRef.current) {
       onDraftLoadedRef.current(existingDraft);
       setActivePoll(existingDraft.meta?.poll);
+      hasLoadedRef.current = true;
     }
   }, [existingDraft, setActivePoll]);
 
   useEffect(() => {
+    // Only check for invalid draft if we haven't already loaded it successfully.
+    // This prevents stale cache updates (from concurrent auto-save responses or
+    // server refetch with replication lag) from incorrectly triggering "no draft found".
+    if (hasLoadedRef.current) return;
     if (draftId && draftsQuery.data.length > 0 && !existingDraft) {
       onInvalidDraftRef.current();
     }
@@ -80,6 +90,7 @@ export function useApiDraftDetector(
   useEffect(() => {
     // location change. only occurs once a draft picked on drafts dialog
     if (location.pathname !== previousLocation?.pathname) {
+      hasLoadedRef.current = false;
       queryClient.invalidateQueries({
         queryKey: draftsQueryOptions.queryKey
       });

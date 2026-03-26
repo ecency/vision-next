@@ -5,11 +5,9 @@ import { Badge } from "@ui/badge";
 import { Button } from "@ui/button";
 import { Draft } from "@/entities";
 import fallbackImage from "../../../../public/assets/fallback.png";
-import noImage from "@/assets/img/noimage.svg";
 import { getCommunityCache } from "@/core/caches";
 import { dateToFormatted, dateToFullRelative } from "@/utils";
 import Image from "next/image";
-import { classNameObject } from "@ui/util";
 import i18next from "i18next";
 import { UilCopy, UilEditAlt, UilTrash } from "@tooni/iconscout-unicons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +22,7 @@ interface Props {
 export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
   const tags = draft.tags ? draft.tags.split(/[ ,]+/) : [];
   const tag = tags[0] || "";
-  const img = catchPostImage(draft.body, 600, 500) || noImage.src;
+  const img = catchPostImage(draft.body, 600, 500);
   const summary = postBodySummary(draft.body, 200);
 
   const { data: community } = useQuery(getCommunityCache(tag));
@@ -66,20 +64,27 @@ export function DraftListItem({ draft, editFn, deleteFn, cloneFn }: Props) {
       </div>
       <div className="grid gap-4 p-2 grid-cols-1 md:grid-cols-[150px_1fr]">
         <div className="w-full flex flex-col items-center justify-center border rounded-2xl aspect-[4/3] overflow-hidden">
-          <Image
-            alt={draft.title}
-            src={img}
-            width={500}
-            height={500}
-            onError={(e: React.SyntheticEvent) => {
-              const target = e.target as HTMLImageElement;
-              target.src = fallbackImage.src;
-            }}
-            className={classNameObject({
-              "w-full h-auto": img !== noImage.src,
-              "w-[40px] h-auto": img === noImage.src
-            })}
-          />
+          {img ? (
+            <Image
+              alt={draft.title}
+              src={img}
+              width={500}
+              height={500}
+              onError={(e: React.SyntheticEvent) => {
+                const target = e.target as HTMLImageElement;
+                target.src = fallbackImage.src;
+              }}
+              className="w-full h-auto"
+            />
+          ) : (
+            <Image
+              alt={draft.title}
+              src="/assets/noimage.svg"
+              width={64}
+              height={64}
+              className="w-[40px] h-auto"
+            />
+          )}
         </div>
         <div>
           <div className="text-gray-charcoal dark:text-white text-lg font-semibold">

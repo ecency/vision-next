@@ -60,7 +60,15 @@ type TranslationKey =
   | 'reblog_to_followers'
   | 'error_loading'
   | 'retry'
-  | 'community_not_found';
+  | 'community_not_found'
+  | 'page_not_found'
+  | 'page_not_found_description'
+  | 'back_to_blog'
+  | 'edit_post'
+  | 'updating'
+  | 'update'
+  | 'editor_start_writing'
+  | 'editor_post_title';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -125,6 +133,14 @@ const translations: Record<string, Translations> = {
     error_loading: 'Something went wrong. Please try again.',
     retry: 'Retry',
     community_not_found: 'Community not found.',
+    page_not_found: 'Page not found',
+    page_not_found_description: 'The page you are looking for does not exist.',
+    back_to_blog: 'Back to blog',
+    edit_post: 'Edit',
+    updating: 'Updating...',
+    update: 'Update',
+    editor_start_writing: 'Start writing...',
+    editor_post_title: 'Post title...',
   },
   es: {
     loading: 'Cargando...',
@@ -186,6 +202,14 @@ const translations: Record<string, Translations> = {
     error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
     retry: 'Reintentar',
     community_not_found: 'Comunidad no encontrada.',
+    page_not_found: 'Página no encontrada',
+    page_not_found_description: 'La página que buscas no existe.',
+    back_to_blog: 'Volver al blog',
+    edit_post: 'Editar',
+    updating: 'Actualizando...',
+    update: 'Actualizar',
+    editor_start_writing: 'Empieza a escribir...',
+    editor_post_title: 'Título de la publicación...',
   },
   de: {
     loading: 'Lädt...',
@@ -247,6 +271,14 @@ const translations: Record<string, Translations> = {
     error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
     retry: 'Erneut versuchen',
     community_not_found: 'Community nicht gefunden.',
+    page_not_found: 'Seite nicht gefunden',
+    page_not_found_description: 'Die gesuchte Seite existiert nicht.',
+    back_to_blog: 'Zurück zum Blog',
+    edit_post: 'Bearbeiten',
+    updating: 'Aktualisierung...',
+    update: 'Aktualisieren',
+    editor_start_writing: 'Beginne zu schreiben...',
+    editor_post_title: 'Beitragstitel...',
   },
   fr: {
     loading: 'Chargement...',
@@ -308,6 +340,14 @@ const translations: Record<string, Translations> = {
     error_loading: "Une erreur s'est produite. Veuillez réessayer.",
     retry: 'Réessayer',
     community_not_found: 'Communauté introuvable.',
+    page_not_found: 'Page non trouvée',
+    page_not_found_description: "La page que vous recherchez n'existe pas.",
+    back_to_blog: 'Retour au blog',
+    edit_post: 'Modifier',
+    updating: 'Mise à jour...',
+    update: 'Mettre à jour',
+    editor_start_writing: 'Commencez à écrire...',
+    editor_post_title: "Titre de l'article...",
   },
   ko: {
     loading: '로딩 중...',
@@ -369,6 +409,14 @@ const translations: Record<string, Translations> = {
     error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
     retry: '다시 시도',
     community_not_found: '커뮤니티를 찾을 수 없습니다.',
+    page_not_found: '페이지를 찾을 수 없습니다',
+    page_not_found_description: '찾으시는 페이지가 존재하지 않습니다.',
+    back_to_blog: '블로그로 돌아가기',
+    edit_post: '편집',
+    updating: '업데이트 중...',
+    update: '업데이트',
+    editor_start_writing: '글을 작성하세요...',
+    editor_post_title: '게시물 제목...',
   },
   ru: {
     loading: 'Загрузка...',
@@ -430,6 +478,14 @@ const translations: Record<string, Translations> = {
     error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
     retry: 'Повторить',
     community_not_found: 'Сообщество не найдено.',
+    page_not_found: 'Страница не найдена',
+    page_not_found_description: 'Запрашиваемая страница не существует.',
+    back_to_blog: 'Вернуться в блог',
+    edit_post: 'Редактировать',
+    updating: 'Обновление...',
+    update: 'Обновить',
+    editor_start_writing: 'Начните писать...',
+    editor_post_title: 'Заголовок поста...',
   },
 };
 

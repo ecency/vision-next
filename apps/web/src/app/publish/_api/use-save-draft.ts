@@ -1,5 +1,5 @@
 import { addDraft, updateDraft, QueryKeys } from "@ecency/sdk";
-import { DraftMetadata, RewardType } from "@/entities";
+import { Draft, DraftMetadata, RewardType } from "@/entities";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { error, success, info } from "@/features/shared";
 import { postBodySummary } from "@ecency/render-helper";
@@ -13,6 +13,7 @@ import { formatError } from "@/api/format-error";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ensureValidToken } from "@/utils";
+import { getCreatedDraft } from "../_utils/get-created-draft";
 
 type SaveDraftOptions = {
   showToast?: boolean;
@@ -36,7 +37,6 @@ export function useSaveDraftApi(draftId?: string) {
     selectedThumbnail,
     poll,
     postLinks,
-    publishingVideo,
     location
   } = usePublishState();
 
@@ -67,10 +67,6 @@ export function useSaveDraftApi(draftId?: string) {
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
 
-      if (publishingVideo) {
-        metaBuilder.withVideo(title!, content!, publishingVideo);
-      }
-
       const meta = metaBuilder.build();
       const draftMeta: DraftMetadata = {
         ...meta,
@@ -97,6 +93,8 @@ export function useSaveDraftApi(draftId?: string) {
         queryClient.setQueryData(QueryKeys.posts.drafts(username), resp.drafts);
         queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
       } else {
+        const previousDrafts =
+          queryClient.getQueryData<Draft[]>(QueryKeys.posts.drafts(username)) ?? [];
         const resp = await addDraft(
           token,
           title!,
@@ -109,7 +107,7 @@ export function useSaveDraftApi(draftId?: string) {
         }
 
         const { drafts } = resp;
-        const draft = drafts[drafts?.length - 1];
+        const draft = getCreatedDraft(previousDrafts, drafts);
 
         queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
         queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
@@ -140,10 +138,12 @@ export function useSaveDraftApi(draftId?: string) {
               );
             }
           }
-          router.push(`/publish/drafts/${draft._id}`);
+          if (draft) {
+            router.push(`/publish/drafts/${draft._id}`);
+          }
         }
 
-        return drafts[drafts.length - 1]._id;
+        return draft?._id;
       }
 
       recordActivity();

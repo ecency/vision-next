@@ -127,7 +127,9 @@ describe("BoostDialog", () => {
     expect(screen.getByText("7 g.days - 500 POINTS")).toBeInTheDocument();
   });
 
-  test("progresses to step 2 when the next button is clicked", () => {
+  test("submits and transitions to success when the next button is clicked", async () => {
+    mockBoostPlus.mockResolvedValueOnce(true);
+
     renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
@@ -137,44 +139,23 @@ describe("BoostDialog", () => {
       target: { value: "anotheruser" }
     });
 
-    // Click the next button
+    // Click the next button (now directly triggers signing)
     fireEvent.click(screen.getByText("g.next"));
 
-    // Check if it progresses to step 2 (sign-title appears in both header and button)
-    const signTitles = screen.getAllByText("trx-common.sign-title");
-    expect(signTitles.length).toBe(2);
-    expect(screen.getByText("trx-common.sign-sub-title")).toBeInTheDocument();
-  });
-
-  test("handles signing process and transitions to step 3", async () => {
-    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
-      container: document.getElementById("modal-dialog-container")
-    });
-
-    // Simulate step 2 completion
-    fireEvent.change(screen.getByPlaceholderText("Search by username"), {
-      target: { value: "anotheruser" }
-    });
-    fireEvent.click(screen.getByText("g.next"));
-
-    // Mock the SDK mutation to resolve successfully
-    mockBoostPlus.mockResolvedValueOnce(true);
-
-    // Click the Sign button (sign-title appears in both header and button, target the button)
-    fireEvent.click(screen.getByRole("button", { name: "trx-common.sign-title" }));
+    // Check if it transitions to success
     await screen.findByText("trx-common.success-title");
-
-    // Check if it transitions to step 3
     expect(screen.getByText("trx-common.success-title")).toBeInTheDocument();
     expect(screen.getByText("trx-common.success-sub-title")).toBeInTheDocument();
   });
 
   test("finishes and calls onHide when finish button is clicked", async () => {
+    mockBoostPlus.mockResolvedValueOnce(true);
+
     renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
       container: document.getElementById("modal-dialog-container")
     });
 
-    // Progress to step 3
+    // Set account and submit
     fireEvent.change(screen.getByPlaceholderText("Search by username"), {
       target: { value: "anotheruser" }
     });
@@ -183,13 +164,7 @@ describe("BoostDialog", () => {
       fireEvent.click(screen.getByText("g.next"));
     });
 
-    mockBoostPlus.mockResolvedValueOnce(true);
-
-    act(() => {
-      fireEvent.click(screen.getByRole("button", { name: "trx-common.sign-title" }));
-    });
-
-    // Ensure step 3 is visible
+    // Ensure success step is visible
     await waitFor(() => {
       expect(screen.getByText("trx-common.success-title")).toBeInTheDocument();
     });
@@ -201,6 +176,56 @@ describe("BoostDialog", () => {
 
     // Check if onHide is called
     expect(onHideMock).toHaveBeenCalled();
+  });
+
+  test("disables the next button when account is not selected", () => {
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    // No account set — button should be disabled
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+  });
+
+  test("disables the next button when account is already boosted", async () => {
+    queryClient.setQueryData(["boost-account"], {
+      expires: new Date(Date.now() + 86400000).toISOString()
+    });
+
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    // Set an account
+    fireEvent.change(screen.getByPlaceholderText("Search by username"), {
+      target: { value: "boosteduser" }
+    });
+
+    // Button should be disabled because account is already boosted
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+    expect(mockBoostPlus).not.toHaveBeenCalled();
+  });
+
+  test("disables the next button when funds are insufficient", () => {
+    queryClient.setQueryData(["points"], {
+      points: "50",
+      uPoints: "0",
+      transactions: []
+    });
+
+    renderWithQueryClient(<BoostDialog onHide={onHideMock} />, {
+      container: document.getElementById("modal-dialog-container")
+    });
+
+    fireEvent.change(screen.getByPlaceholderText("Search by username"), {
+      target: { value: "someuser" }
+    });
+
+    const nextButton = screen.getByRole("button", { name: /g\.next/i });
+    expect(nextButton).toBeDisabled();
+    expect(mockBoostPlus).not.toHaveBeenCalled();
   });
 
   test("shows balance error message if funds are insufficient", () => {

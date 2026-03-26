@@ -303,7 +303,7 @@ export const QueryKeys = {
   // Search
   // ===========================================================================
   search: {
-    topics: (q: string) => ["search", "topics", q],
+    topics: (q: string, limit: number) => ["search", "topics", q, limit],
     path: (q: string) => ["search", "path", q],
     account: (q: string, limit: number) =>
       ["search", "account", q, limit],
@@ -498,10 +498,19 @@ export const QueryKeys = {
   },
 
   // ===========================================================================
+  // Bad Actors
+  // ===========================================================================
+  badActors: {
+    list: () => ["bad-actors", "list"],
+    _prefix: ["bad-actors"],
+  },
+
+  // ===========================================================================
   // AI
   // ===========================================================================
   ai: {
     prices: () => ["ai", "prices"] as const,
+    assistPrices: (username?: string) => ["ai", "assist-prices", username] as const,
     _prefix: ["ai"],
   },
 } as const;

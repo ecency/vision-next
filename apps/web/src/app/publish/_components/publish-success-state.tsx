@@ -4,13 +4,76 @@ import { motion } from "framer-motion";
 import i18next from "i18next";
 import Link from "next/link";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import {
+  makeShareUrlReddit,
+  makeShareUrlTwitter,
+  makeShareUrlFacebook,
+  makeShareUrlLinkedin,
+  makeShareUrlDiscord
+} from "@/utils/url-share";
+import {
+  facebookSvg,
+  discordSvg,
+  linkedinSvg,
+  redditSvg,
+  twitterSvg
+} from "@ui/svg";
+
+interface EntryInfo {
+  title: string;
+  author: string;
+  permlink: string;
+  category: string;
+}
 
 interface Props {
   step: "published" | "scheduled";
   setEditStep: () => void;
+  entryInfo?: EntryInfo;
 }
 
-export function PublishSuccessState({ step, setEditStep }: Props) {
+const SHARE_BUTTONS = [
+  { id: "twitter", icon: twitterSvg, label: "Twitter", makeFn: makeShareUrlTwitter },
+  { id: "reddit", icon: redditSvg, label: "Reddit", makeFn: makeShareUrlReddit },
+  { id: "facebook", icon: facebookSvg, label: "Facebook", makeFn: makeShareUrlFacebook },
+  { id: "linkedin", icon: linkedinSvg, label: "LinkedIn", makeFn: makeShareUrlLinkedin },
+  { id: "discord", icon: discordSvg, label: "Discord", makeFn: makeShareUrlDiscord }
+] as const;
+
+function ShareBar({ entryInfo }: { entryInfo: EntryInfo }) {
+  const { category, author, permlink, title } = entryInfo;
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="text-sm opacity-50">
+        {i18next.t("publish.share-your-post", { defaultValue: "Share your post" })}
+      </div>
+      <div className="flex items-center gap-3">
+        {SHARE_BUTTONS.map(({ id, icon, label, makeFn }) => {
+          const needsTitle = makeFn.length === 4;
+          const url = needsTitle
+            ? (makeFn as typeof makeShareUrlTwitter)(category, author, permlink, title)
+            : (makeFn as typeof makeShareUrlFacebook)(category, author, permlink);
+
+          return (
+            <a
+              key={id}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={label}
+              className="text-blue-dark-sky hover:opacity-70 transition-opacity [&_svg]:w-7 [&_svg]:h-7"
+            >
+              {icon}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function PublishSuccessState({ step, setEditStep, entryInfo }: Props) {
   const { activeUser } = useActiveAccount();
   const profileHref = activeUser ? `/@${activeUser.username}/posts` : "/";
 
@@ -34,6 +97,8 @@ export function PublishSuccessState({ step, setEditStep }: Props) {
             {step === "scheduled" && i18next.t("publish.scheduled-hint")}
           </div>
         </div>
+
+        {step === "published" && entryInfo && <ShareBar entryInfo={entryInfo} />}
 
         <div className="flex items-center gap-4">
           <Link href="/publish">

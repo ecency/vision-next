@@ -104,7 +104,7 @@ var TWITCH_REGEX = /https?:\/\/(?:www.)?twitch.tv\/(?:(videos)\/)?([a-zA-Z0-9][\
 var DAPPLR_REGEX = /^(https?:)?\/\/[a-z]*\.dapplr.in\/file\/dapplr-videos\/.*/i;
 var TRUVVL_REGEX = /^https?:\/\/embed.truvvl.com\/(@[\w.\d-]+)\/(.*)/i;
 var LBRY_REGEX = /^(https?:)?\/\/lbry.tv\/\$\/embed\/[^?#]+(?:$|[?#])/i;
-var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^/?#]+(?:$|[?#])/i;
+var ODYSEE_REGEX = /^(https?:)?\/\/odysee\.com\/(?:\$|%24)\/embed\/[^?#]+(?:$|[?#])/i;
 var SKATEHIVE_IPFS_REGEX = /^https?:\/\/ipfs\.skatehive\.app\/ipfs\/([^/?#]+)/i;
 var ARCH_REGEX = /^(https?:)?\/\/archive.org\/embed\/[^/?#]+(?:$|[?#])/i;
 var SPEAK_REGEX = /(?:https?:\/\/(?:(?:play\.)?3speak\.([a-z]+)\/watch\?v=)|(?:(?:play\.)?3speak\.([a-z]+)\/embed\?v=))([A-Za-z0-9_\-\.\/]+)(&.*)?/i;
@@ -398,7 +398,7 @@ function img(el, state) {
   }
   const cls = el.getAttribute("class") || "";
   const shouldReplace = !cls.includes("no-replace");
-  const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
+  const hasAlreadyProxied = src.startsWith("https://images.ecency.com/p/") || src.startsWith("https://images.ecency.com/u/") || /^https:\/\/images\.ecency\.com\/\d+x\d+\//.test(src);
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);
     if (proxified) {
@@ -1044,7 +1044,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
 }
 
 // src/methods/iframe.method.ts
-function iframe(el, parentDomain = "ecency.com") {
+function iframe(el, parentDomain = "ecency.com", forApp = false) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -1088,7 +1088,10 @@ function iframe(el, parentDomain = "ecency.com") {
       normalizedSrc = `${normalizedSrc}&mode=iframe`;
     }
     const hasAutoplay = /[?&]autoplay=/.test(normalizedSrc);
-    const s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    let s = hasAutoplay ? normalizedSrc : `${normalizedSrc}&autoplay=true`;
+    if (forApp && !/[?&]layout=/.test(s)) {
+      s = `${s}&layout=mobile`;
+    }
     el.setAttribute("src", s);
     el.setAttribute("class", "speak-iframe");
     return;
@@ -1237,12 +1240,28 @@ function linkify(content, forApp) {
     }
   );
   content = content.replace(
-    /((^|\s)(\/|)@[\w.\d-]+)\/(\S+)/gi,
-    (match, u, p1, p2, p3) => {
+    /(^|\s)\/([a-z0-9-]+)\/@([\w.\d-]+)\/(\S+)/gi,
+    (match, preceding, tag, author, p3) => {
+      const authorLower = author.toLowerCase();
+      if (!isValidUsername(authorLower)) return match;
+      const permlink = sanitizePermlink(p3);
+      if (!isValidPermlink(permlink)) return match;
+      if (SECTION_LIST.includes(permlink)) {
+        const attrs = forApp ? `href="https://ecency.com/@${authorLower}/${permlink}"` : `href="/@${authorLower}/${permlink}"`;
+        return `${preceding}<a class="markdown-profile-link" ${attrs}>@${authorLower}/${permlink}</a>`;
+      } else {
+        const attrs = forApp ? `data-author="${authorLower}" data-tag="${tag}" data-permlink="${permlink}"` : `href="/${tag}/@${authorLower}/${permlink}"`;
+        return `${preceding}<a class="markdown-post-link" ${attrs}>@${authorLower}/${permlink}</a>`;
+      }
+    }
+  );
+  content = content.replace(
+    /((^|\s)\/@[\w.\d-]+)\/(\S+)/gi,
+    (match, u, _p1, p3) => {
       const uu = u.trim().toLowerCase().replace("/@", "").replace("@", "");
       const permlink = sanitizePermlink(p3);
       if (!isValidPermlink(permlink)) return match;
-      if (SECTION_LIST.some((v) => p3.includes(v))) {
+      if (SECTION_LIST.includes(permlink)) {
         const attrs = forApp ? `href="https://ecency.com/@${uu}/${permlink}"` : `href="/@${uu}/${permlink}"`;
         return ` <a class="markdown-profile-link" ${attrs}>@${uu}/${permlink}</a>`;
       } else {
@@ -1261,11 +1280,21 @@ function linkify(content, forApp) {
 }
 
 // src/methods/text.method.ts
+function hasAncestor(node, tagNames) {
+  let current = node.parentNode;
+  while (current) {
+    if (tagNames.includes(current.nodeName.toLowerCase())) {
+      return true;
+    }
+    current = current.parentNode;
+  }
+  return false;
+}
 function text(node, forApp) {
   if (!node || !node.parentNode) {
     return;
   }
-  if (["a", "code"].includes(node.parentNode.nodeName.toLowerCase())) {
+  if (hasAncestor(node, ["a", "code", "pre"])) {
     return;
   }
   const nodeValue = node.nodeValue || "";
@@ -1354,7 +1383,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       a(child, forApp, parentDomain, seoContext);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
-      iframe(child, parentDomain);
+      iframe(child, parentDomain, forApp);
     }
     if (child.nodeName === "#text") {
       text(child, forApp);

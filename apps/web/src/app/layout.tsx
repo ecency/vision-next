@@ -7,7 +7,7 @@ import { Theme } from "@/enums";
 import { BannerManager } from "@/features/banners";
 import React from "react";
 import Script from "next/script";
-import localFont from "next/font/local";
+import { Inter, Lora } from "next/font/google";
 import { Metadata } from "next";
 import defaults from "@/defaults.json";
 
@@ -33,33 +33,15 @@ export const metadata: Metadata = {
   },
 };
 
-const inter = localFont({
-  src: [
-    { path: "../../public/fonts/inter/Inter-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/inter/Inter-Italic.ttf", weight: "400", style: "italic" },
-
-    { path: "../../public/fonts/inter/Inter-Light.ttf", weight: "300", style: "normal" },
-    { path: "../../public/fonts/inter/Inter-LightItalic.ttf", weight: "300", style: "italic" },
-
-    { path: "../../public/fonts/inter/Inter-SemiBold.ttf", weight: "600", style: "normal" },
-    { path: "../../public/fonts/inter/Inter-SemiBoldItalic.ttf", weight: "600", style: "italic" },
-
-    { path: "../../public/fonts/inter/Inter-Bold.ttf", weight: "700", style: "normal" },
-    { path: "../../public/fonts/inter/Inter-BoldItalic.ttf", weight: "700", style: "italic" },
-
-    { path: "../../public/fonts/inter/Inter-Medium.ttf", weight: "500", style: "normal" },
-    { path: "../../public/fonts/inter/Inter-MediumItalic.ttf", weight: "500", style: "italic" }
-  ],
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
-  display: "swap",
-  preload: true // Enable preloading for critical fonts
+  display: "swap"
 });
 
-const lora = localFont({
-  src: [
-    { path: "../../public/fonts/lora/Lora-Regular.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/lora/Lora-Bold.ttf", weight: "700", style: "normal" }
-  ],
+const lora = Lora({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "700"],
   variable: "--font-lora",
   display: "swap"
 });
@@ -75,26 +57,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Loaded from external file to comply with CSP policies.
           See /public/scripts/config-stub.js for details.
         */}
+        <script src="/scripts/chunk-reload.js" />
         <script src="/scripts/config-stub.js" />
-        {/* Preload critical fonts for LCP optimization */}
-        <link
-          rel="preload"
-          href="/fonts/inter/Inter-Regular.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/inter/Inter-Bold.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin="anonymous"
-        />
         {/* Preload hero image for LCP optimization (WebP format - 12KB vs 29KB PNG) */}
         <link
           rel="preload"
-          href="https://images.ecency.com/assets/illustration-earn-money.webp"
+          href="https://ecency.com/assets/illustration-earn-money.webp"
           as="image"
           type="image/webp"
           imageSizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"

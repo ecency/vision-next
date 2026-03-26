@@ -4,13 +4,24 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { linkify } from './linkify.method'
 import {createImageHTML} from "./img.method";
 
+function hasAncestor(node: Node, tagNames: string[]): boolean {
+  let current = node.parentNode
+  while (current) {
+    if (tagNames.includes(current.nodeName.toLowerCase())) {
+      return true
+    }
+    current = current.parentNode
+  }
+  return false
+}
+
 export function text(node: HTMLElement | null, forApp: boolean): void {
   if (!node || !node.parentNode) {
     return
   }
 
-  // Case-insensitive check
-  if (['a', 'code'].includes(node.parentNode.nodeName.toLowerCase())) {
+  // Skip text nodes inside links, inline code, or code blocks (check all ancestors)
+  if (hasAncestor(node, ['a', 'code', 'pre'])) {
     return
   }
 

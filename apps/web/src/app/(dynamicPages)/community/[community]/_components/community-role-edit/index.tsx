@@ -29,7 +29,7 @@ export function CommunityRoleEditDialog({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [user, setUser] = useState(propsUser);
-  const [role, setRole] = useState(propsRole);
+  const [role, setRole] = useState(propsRole || roles[0] || "");
   const [userError, setUserError] = useState("");
   const queryClient = useQueryClient();
 

@@ -1,5 +1,29 @@
 # @ecency/render-helper
 
+## 2.4.25
+
+### Patch Changes
+
+- Notification and iframe (#719)
+
+## 2.4.24
+
+### Patch Changes
+
+- Fix odysee embeds (#710)
+
+## 2.4.23
+
+### Patch Changes
+
+- Fix wrapping on render helper (#699)
+
+## 2.4.22
+
+### Patch Changes
+
+- Render helper proxy fix (#698)
+
 ## 2.4.21
 
 ### Patch Changes

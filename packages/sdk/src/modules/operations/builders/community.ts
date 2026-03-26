@@ -64,7 +64,9 @@ export function buildSetRoleOp(
   role: string
 ): Operation {
   if (!username || !community || !account || !role) {
-    throw new Error("[SDK][buildSetRoleOp] Missing required parameters");
+    throw new Error(
+      `[SDK][buildSetRoleOp] Missing required parameters: username=${username}, community=${community}, account=${account}, role=${role}`
+    );
   }
 
   return [

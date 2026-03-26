@@ -20,6 +20,8 @@ import { ensureValidToken } from "@/utils";
 import { error } from "@/features/shared";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActiveAccount } from "@/core/hooks";
+import { useGlobalStore } from "@/core/global-store";
+import { VideoUpload } from "@/features/shared/video-upload-threespeak";
 
 interface Props {
   className?: string;
@@ -38,6 +40,7 @@ const WaveFormComponent = ({
   entry
 }: Props) => {
   const { username: activeUsername, account, isLoading: isAccountLoading } = useActiveAccount();
+  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -49,6 +52,7 @@ const WaveFormComponent = ({
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
+  const [showVideoUpload, setShowVideoUpload] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const hasAppliedSharedText = useRef(false);
@@ -268,6 +272,7 @@ const WaveFormComponent = ({
           textareaRef={textareaRef}
           selectedImage={image}
           clearSelectedImage={clearImage}
+          clearVideo={clearVideo}
           placeholder={placeholder}
           characterLimit={characterLimit}
           onPasteImage={formInteractivityDisabled ? undefined : handlePasteImage}
@@ -286,12 +291,20 @@ const WaveFormComponent = ({
           isEdit={!!entry}
           disabled={formInteractivityDisabled}
           suggestedPrompt={text?.trim() || undefined}
+          hasVideo={!!video}
           onAddImage={(url, name) => {
             setImage(url);
             setImageName(name);
           }}
           onEmojiPick={handleEmojiPick}
           onAddVideo={setVideo}
+          onShowVideoUpload={() => {
+            if (!activeUsername) {
+              toggleUIProp("login");
+              return;
+            }
+            setShowVideoUpload(true);
+          }}
           submit={
             <Button
               onClick={() =>
@@ -332,6 +345,14 @@ const WaveFormComponent = ({
               {entry && i18next.t("decks.threads-form.save")}
             </Button>
           }
+        />
+        <VideoUpload
+          show={showVideoUpload}
+          setShow={setShowVideoUpload}
+          isShort={true}
+          onVideoUploaded={(embedUrl) => {
+            setVideo(embedUrl);
+          }}
         />
       </div>
     </div>

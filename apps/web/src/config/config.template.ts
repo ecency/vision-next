@@ -113,6 +113,9 @@ const CONFIG = {
       },
       aiImageGenerator: {
         enabled: true
+      },
+      aiAssist: {
+        enabled: true
       }
     },
     service: {

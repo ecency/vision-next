@@ -11,10 +11,21 @@ import { AuthUpgradeDialog } from "@/features/shared/auth-upgrade";
 import { PushNotificationsProvider } from "@/features/push-notifications";
 import { UserActivityRecorder } from "@/features/user-activity";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { UIManager } from "@ui/core";
+import dynamic from "next/dynamic";
 import { PropsWithChildren, useEffect, useState } from "react";
 import { ProgressProvider } from "@bprogress/next/app";
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? dynamic(
+        () =>
+          import("@tanstack/react-query-devtools").then((m) => ({
+            default: m.ReactQueryDevtools
+          })),
+        { ssr: false }
+      )
+    : () => null;
 
 /**
  * Defers rendering children until after initial page load for LCP optimization
@@ -56,8 +67,7 @@ export function ClientProviders(props: PropsWithChildren) {
           <PushNotificationsProvider>{props.children}</PushNotificationsProvider>
         </UIManager>
       </ProgressProvider>
-      {/* Only include React Query DevTools in development for LCP optimization */}
-      {process.env.NODE_ENV === "development" && <ReactQueryDevtools initialIsOpen={false} />}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

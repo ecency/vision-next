@@ -1,6 +1,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
+import { MetaMaskSignButton } from "@/features/shared";
 import { AssetOperation, CONFIG, useWalletOperation } from "@ecency/sdk";
 import type { AuthContextV2 } from "@ecency/sdk";
 import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
@@ -12,8 +13,9 @@ import Image from "next/image";
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
 import { shouldUseHiveAuth, broadcastWithHiveAuth } from "@/utils/client";
-import { getUser } from "@/utils";
 import * as keychain from "@/utils/keychain";
+import { getLoginType } from "@/utils/user-token";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
 
 interface Props {
   asset: string;
@@ -36,6 +38,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const keychainLabel = useHiveAuth
     ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
     : i18next.t("key-or-hot.with-keychain");
+  const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
 
@@ -52,6 +55,11 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
 
         if (method === "key" && key) {
           return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
+        }
+
+        if (method === "metamask") {
+          const adapter = getWebBroadcastAdapter();
+          return adapter.broadcastWithKeychain!(activeUser.username, operations, authority as any);
         }
 
         if (method === "hivesigner") {
@@ -143,70 +151,84 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
           exit={{ opacity: 0, height: 0 }}
           className="border-t border-[--border-color] grid grid-cols-2 p-4 gap-4 items-start overflow-hidden"
         >
-          <div className="col-span-2">
-            <div className="uppercase text-xs pb-2 font-semibold text-gray-600 dark:text-gray-400">
-              sign with private key
+          {isMetaMaskUser ? (
+            <div className="col-span-2 flex justify-center">
+              <MetaMaskSignButton
+                onClick={() => {
+                  signMethodRef.current = { method: "metamask" };
+                  sign(data as any);
+                  setStep("signing");
+                }}
+              />
             </div>
+          ) : (
+            <>
+              <div className="col-span-2">
+                <div className="uppercase text-xs pb-2 font-semibold text-gray-600 dark:text-gray-400">
+                  sign with private key
+                </div>
 
-            <InputGroup
-              append={
-                <Button size="sm" icon={<UilLock />} onClick={signKey}>
-                  {i18next.t("market.sign")}
-                </Button>
-              }
-            >
-              <FormControl
-                value={signingKey ?? ""}
-                type="password"
-                placeholder="Key"
-                onChange={(e) => setSigningKey(e.target.value)}
-              />
-            </InputGroup>
-          </div>
-          <Button
-            size="lg"
-            outline={true}
-            appearance="hivesigner"
-            onClick={() => {
-              signMethodRef.current = { method: "hivesigner" };
-              sign(data as any);
-              setStep("signing");
-            }}
-            icon={
-              <Image
-                width={100}
-                height={100}
-                src="/assets/hive-signer.svg"
-                className="w-4 h-4"
-                alt="hivesigner"
-              />
-            }
-          >
-            {i18next.t("key-or-hot.with-hivesigner")}
-          </Button>
+                <InputGroup
+                  append={
+                    <Button size="sm" icon={<UilLock />} onClick={signKey}>
+                      {i18next.t("market.sign")}
+                    </Button>
+                  }
+                >
+                  <FormControl
+                    value={signingKey ?? ""}
+                    type="password"
+                    placeholder="Key"
+                    onChange={(e) => setSigningKey(e.target.value)}
+                  />
+                </InputGroup>
+              </div>
+              <Button
+                size="lg"
+                outline={true}
+                appearance="hivesigner"
+                onClick={() => {
+                  signMethodRef.current = { method: "hivesigner" };
+                  sign(data as any);
+                  setStep("signing");
+                }}
+                icon={
+                  <Image
+                    width={100}
+                    height={100}
+                    src="/assets/hive-signer.svg"
+                    className="w-4 h-4"
+                    alt="hivesigner"
+                  />
+                }
+              >
+                {i18next.t("key-or-hot.with-hivesigner")}
+              </Button>
 
-          <Button
-            outline={true}
-            appearance="secondary"
-            size="lg"
-            disabled={!canUseKeychain}
-            onClick={() => {
-              signMethodRef.current = { method: useHiveAuth ? "hiveauth" : "keychain" };
-              sign(data as any);
-              setStep("signing");
-            }}
-            icon={
-              <Image
-                width={100}
-                height={100}
-                src={keychainIcon}
-                className="w-4 h-4"
-                alt={keychainAlt}
-              />
-            }
-          >
-            {keychainLabel}
-          </Button>
+              <Button
+                outline={true}
+                appearance="secondary"
+                size="lg"
+                disabled={!canUseKeychain}
+                onClick={() => {
+                  signMethodRef.current = { method: useHiveAuth ? "hiveauth" : "keychain" };
+                  sign(data as any);
+                  setStep("signing");
+                }}
+                icon={
+                  <Image
+                    width={100}
+                    height={100}
+                    src={keychainIcon}
+                    className="w-4 h-4"
+                    alt={keychainAlt}
+                  />
+                }
+              >
+                {keychainLabel}
+              </Button>
+            </>
+          )}
         </motion.div>
       )}
       {step === "signing" && <WalletOperationSigning />}

@@ -1,5 +1,4 @@
 import i18n from "i18next";
-import i18next from "i18next";
 
 import dayjs from "@/utils/dayjs";
 import * as ls from "@/utils/local-storage";
@@ -75,94 +74,73 @@ export const langOptions = [
   }
 ];
 
+// Only bundle en-US; all other locales are loaded on demand
 const enUs = require("./locales/en-US.json");
-const esES = require("./locales/es-ES.json");
-const frFR = require("./locales/fr-FR.json");
-const deDE = require("./locales/de-DE.json");
-const hiIN = require("./locales/hi-IN.json");
-const jaJP = require("./locales/ja-JP.json");
-const itIT = require("./locales/it-IT.json");
-const idID = require("./locales/id-ID.json");
-const ptPT = require("./locales/pt-PT.json");
-const nlNL = require("./locales/nl-NL.json");
-const srCS = require("./locales/sr-CS.json");
-const plPL = require("./locales/pl-PL.json");
-const ukUA = require("./locales/uk-UA.json");
-const bgBG = require("./locales/bg-BG.json");
-const ruRU = require("./locales/ru-RU.json");
-const uzUZ = require("./locales/uz-UZ.json");
-const zhCN = require("./locales/zh-CN.json");
 
-export async function initI18next() {
-  const resources = {
-    ["en-US"]: {
-      translation: enUs
-    },
-    ["es-ES"]: {
-      translation: esES
-    },
-    ["fr-FR"]: {
-      translation: frFR
-    },
-    ["de-DE"]: {
-      translation: deDE
-    },
-    ["hi-IN"]: {
-      translation: hiIN
-    },
-    ["ja-JP"]: {
-      translation: jaJP
-    },
-    ["it-IT"]: {
-      translation: itIT
-    },
-    ["id-ID"]: {
-      translation: idID
-    },
-    ["pt-PT"]: {
-      translation: ptPT
-    },
-    ["nl-NL"]: {
-      translation: nlNL
-    },
-    ["sr-CS"]: {
-      translation: srCS
-    },
-    ["pl-PL"]: {
-      translation: plPL
-    },
-    ["uk-UA"]: {
-      translation: ukUA
-    },
-    ["bg-BG"]: {
-      translation: bgBG
-    },
-    ["ru-RU"]: {
-      translation: ruRU
-    },
-    ["uz-UZ"]: {
-      translation: uzUZ
-    },
-    ["zh-CN"]: {
-      translation: zhCN
-    }
-  };
+const localeLoaders: Record<string, () => Promise<any>> = {
+  "es-ES": () => import("./locales/es-ES.json"),
+  "fr-FR": () => import("./locales/fr-FR.json"),
+  "de-DE": () => import("./locales/de-DE.json"),
+  "hi-IN": () => import("./locales/hi-IN.json"),
+  "ja-JP": () => import("./locales/ja-JP.json"),
+  "it-IT": () => import("./locales/it-IT.json"),
+  "id-ID": () => import("./locales/id-ID.json"),
+  "pt-PT": () => import("./locales/pt-PT.json"),
+  "nl-NL": () => import("./locales/nl-NL.json"),
+  "sr-CS": () => import("./locales/sr-CS.json"),
+  "pl-PL": () => import("./locales/pl-PL.json"),
+  "uk-UA": () => import("./locales/uk-UA.json"),
+  "bg-BG": () => import("./locales/bg-BG.json"),
+  "ru-RU": () => import("./locales/ru-RU.json"),
+  "uz-UZ": () => import("./locales/uz-UZ.json"),
+  "zh-CN": () => import("./locales/zh-CN.json")
+};
 
-  await i18n.init({
-    resources,
-    fallbackLng: "en-US",
-    interpolation: {
-      escapeValue: false
-    }
-  });
+export async function loadLocale(lang: string) {
+  if (lang === "en-US" || !localeLoaders[lang]) return;
+  if (i18n.hasResourceBundle(lang, "translation")) return;
 
-  await i18next.changeLanguage(ls.get("lang") || ls.get("current-language"));
-
-  i18n.on("languageChanged", function (lang) {
-    dayjs.locale(lang);
-  });
+  const module = await localeLoaders[lang]();
+  i18n.addResourceBundle(lang, "translation", module.default || module);
 }
 
-initI18next();
+const supportedCodes = new Set(langOptions.map((l) => l.code));
+
+let initI18nextPromise: Promise<void> | null = null;
+
+export function initI18next(): Promise<void> {
+  if (initI18nextPromise) return initI18nextPromise;
+
+  initI18nextPromise = (async () => {
+    await i18n.init({
+      resources: {
+        ["en-US"]: {
+          translation: enUs
+        }
+      },
+      fallbackLng: "en-US",
+      interpolation: {
+        escapeValue: false
+      }
+    });
+
+    i18n.on("languageChanged", async function (lang) {
+      await loadLocale(lang);
+      dayjs.locale(lang);
+    });
+
+    // Load the user's preferred locale on demand
+    const raw = ls.get("lang") || ls.get("current-language");
+    const userLang = raw && supportedCodes.has(raw) ? raw : "en-US";
+    if (userLang !== "en-US") {
+      await loadLocale(userLang);
+    }
+    await i18n.changeLanguage(userLang);
+  })();
+
+  return initI18nextPromise;
+}
+
+initI18next().catch((err) => console.error("[i18n] init failed:", err));
 
 export * from "./navigation-locale-watcher";

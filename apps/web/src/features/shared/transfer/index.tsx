@@ -11,7 +11,6 @@ import {
 } from "@/features/shared/transfer/transfer-shared-state";
 import { Account } from "@/entities";
 import { TransferStep2 } from "@/features/shared/transfer/transfer-step-2";
-import { TransferStep3 } from "@/features/shared/transfer/transfer-step-3";
 import { TransferStep4 } from "@/features/shared/transfer/transfer-step-4";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { withFeatureFlag } from "@/core/react-query";
@@ -74,8 +73,7 @@ function TransferC({ onHide, handleClickAway, account }: Props) {
         <div className="transfer-dialog-content">
           {step === 1 && <TransferStep1 titleLngKey={titleLngKey} />}
           {step === 2 && <TransferStep2 titleLngKey={titleLngKey} />}
-          {step === 3 && <TransferStep3 onHide={onHide} />}
-          {step === 4 && (
+          {step === 3 && (
             <TransferStep4
               account={account}
               onFinish={() => {

@@ -51,6 +51,135 @@ import { error, success } from '@/features/shared/feedback/feedback-events';
  *
  * @see {@link PlatformAdapter} for the full interface definition
  */
+const HIVE_SNAP_ID = 'npm:@hiveio/metamask-snap';
+
+const KEY_ROLE_MAP: Record<string, string> = {
+  posting: 'posting',
+  active: 'active',
+  owner: 'owner',
+  memo: 'memo',
+};
+
+const NAI_MAP: Record<string, { nai: string; precision: number }> = {
+  HIVE: { nai: '@@000000021', precision: 3 },
+  TESTS: { nai: '@@000000021', precision: 3 },
+  HBD: { nai: '@@000000013', precision: 3 },
+  TBD: { nai: '@@000000013', precision: 3 },
+  VESTS: { nai: '@@000000037', precision: 6 },
+};
+
+/** Field names that hold Hive asset values across all operation types. */
+const ASSET_FIELDS = new Set([
+  'amount', 'fee', 'vesting_shares', 'reward_hive', 'reward_hbd', 'reward_vests',
+  'hbd_amount', 'hive_amount', 'amount_to_sell', 'min_to_receive', 'daily_pay',
+  'max_accepted_payout', 'balance', 'hbd_balance',
+]);
+
+/**
+ * Convert a dhive string amount ("1.500 HIVE") to wax NAI format.
+ * Returns original value if it doesn't match the pattern.
+ */
+function stringAmountToNai(value: string): unknown {
+  const match = value.match(/^(\d+\.\d+)\s+(HIVE|HBD|VESTS|TESTS|TBD)$/);
+  if (!match) return value;
+  const { nai, precision } = NAI_MAP[match[2]];
+  const parts = match[1].split('.');
+  const amount = parts[0] + parts[1].padEnd(precision, '0').slice(0, precision);
+  return { amount, precision, nai };
+}
+
+/**
+ * Convert asset fields in an operation value from dhive string format to wax NAI format.
+ * Only converts fields in the ASSET_FIELDS whitelist to avoid corrupting string fields like memo.
+ */
+function convertOpAssets(opValue: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(opValue)) {
+    if (ASSET_FIELDS.has(key) && typeof val === 'string') {
+      result[key] = stringAmountToNai(val);
+    } else {
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+/**
+ * Convert a dhive Operation tuple to wax protobuf-JSON format.
+ * dhive: ["vote", { voter: "alice", ... }]
+ * wax:   { type: "vote_operation", value: { voter: "alice", ... } }
+ */
+function dhiveOpToWaxFormat(op: Operation): { type: string; value: Record<string, unknown> } {
+  const arr = op as unknown as [string, Record<string, unknown>];
+  return {
+    type: `${arr[0]}_operation`,
+    value: convertOpAssets(arr[1]),
+  };
+}
+
+/**
+ * Broadcast Hive operations via MetaMask's Hive snap.
+ * Signs the transaction using hive_signTransaction, then broadcasts.
+ */
+async function broadcastWithMetaMaskSnap(
+  username: string,
+  ops: Operation[],
+  keyType: 'posting' | 'active' | 'owner' | 'memo',
+): Promise<TransactionConfirmation> {
+  if (!window.ethereum) {
+    throw new Error('MetaMask not found');
+  }
+
+  // Build a transaction using dhive
+  const props = await CONFIG.hiveClient.database.getDynamicGlobalProperties();
+  const refBlockNum = props.head_block_number & 0xFFFF;
+  const refBlockPrefix = Buffer.from(props.head_block_id, 'hex').readUInt32LE(4);
+  const expiration = new Date(Date.now() + 60000).toISOString().slice(0, 19);
+
+  // dhive operations in tuple format for broadcasting
+  const transaction = {
+    ref_block_num: refBlockNum,
+    ref_block_prefix: refBlockPrefix,
+    expiration,
+    operations: ops,
+    extensions: []
+  };
+
+  // Wax (used by the snap) expects protobuf-JSON format for operations
+  const waxTransaction = {
+    ref_block_num: refBlockNum,
+    ref_block_prefix: refBlockPrefix,
+    expiration,
+    operations: ops.map(dhiveOpToWaxFormat),
+    extensions: []
+  };
+
+  const role = KEY_ROLE_MAP[keyType] ?? 'posting';
+
+  // Sign via Hive snap (send wax format)
+  const result = await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: HIVE_SNAP_ID,
+      request: {
+        method: 'hive_signTransaction',
+        params: {
+          transaction: JSON.stringify(waxTransaction),
+          keys: [{ role, accountIndex: 0 }]
+        }
+      }
+    }
+  }) as { signatures: string[] };
+
+  // Broadcast the signed transaction (dhive format)
+  const signedTx = {
+    ...transaction,
+    signatures: result.signatures
+  };
+
+  return CONFIG.hiveClient.broadcast.send(signedTx as any);
+}
+
 /**
  * Singleton adapter instance. Safe to reuse because all methods read from
  * localStorage / window at call time — no state is captured at creation.
@@ -82,12 +211,15 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return undefined;
       }
 
-      // Map loginType to SDK auth method (same mapping as getLoginType)
-      const authType = user.loginType === 'privateKey' ? 'key' : user.loginType;
+      // Map loginType to SDK auth method
+      // MetaMask routes through keychain broadcast path (snap handles signing)
+      const authType = user.loginType === 'privateKey' ? 'key'
+        : user.loginType === 'metamask' ? 'keychain'
+        : user.loginType;
 
       return {
         name: user.username,
-        authType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'key'
+        authType,
       };
     },
 
@@ -98,7 +230,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Return null for non-key auth methods (HiveSigner/Keychain/HiveAuth)
       // This signals to SDK that it should use those platform-specific broadcast methods
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
         return null;
       }
 
@@ -113,7 +245,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
       // Return null for non-key auth methods (they handle active operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
         return null;
       }
 
@@ -125,7 +257,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getOwnerKey(username: string) {
       // Return null for non-key auth methods (they handle owner operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
         return null;
       }
 
@@ -137,7 +269,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getMemoKey(username: string) {
       // Return null for non-key auth methods (they handle memo operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
         return null;
       }
 
@@ -181,6 +313,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
             if (!postingKey) return null;
           }
           return 'key';
+        case 'metamask':
+          // MetaMask users sign via Hive snap — use keychain-like broadcast path
+          return 'keychain';
         default:
           return null;
       }
@@ -207,6 +342,12 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       ops: Operation[],
       keyType: 'posting' | 'active' | 'owner' | 'memo',
     ): Promise<TransactionConfirmation> {
+      // MetaMask users route through Hive snap for transaction signing
+      const loginType = getLoginType(username);
+      if (loginType === 'metamask') {
+        return broadcastWithMetaMaskSnap(username, ops, keyType);
+      }
+
       // Check if Keychain is available
       if (typeof window === 'undefined' || !(window as any).hive_keychain) {
         throw new Error('Hive Keychain extension not found. Please install it from the Chrome/Firefox store.');
@@ -379,6 +520,8 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       );
 
       // Broadcast based on selected method
+      // Use the adapter's own broadcast methods so MetaMask/Keychain routing is consistent
+      const self = getWebBroadcastAdapter();
       switch (method) {
         case 'key': {
           const activeKey = getTempActiveKey();
@@ -391,19 +534,8 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
           break;
         }
         case 'keychain': {
-          if (typeof window === 'undefined' || !(window as any).hive_keychain) {
-            throw new Error('Hive Keychain extension not found');
-          }
-          const keychain = (window as any).hive_keychain;
-          await new Promise<void>((resolve, reject) => {
-            keychain.requestBroadcast(username, [op], 'active', (response: any) => {
-              if (response.success) {
-                resolve();
-              } else {
-                reject(new Error(response.message || 'Keychain broadcast failed'));
-              }
-            });
-          });
+          // Delegates to broadcastWithKeychain which handles MetaMask snap routing
+          await self.broadcastWithKeychain!(username, [op], 'active');
           break;
         }
         case 'hiveauth': {

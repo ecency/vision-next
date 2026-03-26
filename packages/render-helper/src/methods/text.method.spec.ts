@@ -259,7 +259,9 @@ describe('text() method - Text Node Processing', () => {
         const postLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
           link.getAttribute('class') === 'markdown-post-link'
         )
-        expect(postLinks.length).toBe(1)
+        // Bare @author/permlink should no longer be treated as internal post links
+        // Only /@author/permlink (with leading /) should match
+        expect(postLinks.length).toBe(0)
       })
 
       it('should convert /@author/permlink to post links', () => {
@@ -279,7 +281,7 @@ describe('text() method - Text Node Processing', () => {
       it('should set correct attributes for web mode', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post')
+        const textNode = doc.createTextNode('See /@alice/my-post')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
@@ -293,7 +295,7 @@ describe('text() method - Text Node Processing', () => {
       it('should set correct attributes for app mode', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post')
+        const textNode = doc.createTextNode('See /@alice/my-post')
         parent.appendChild(textNode)
 
         text(textNode as any, true)
@@ -308,7 +310,7 @@ describe('text() method - Text Node Processing', () => {
       it('should sanitize permlinks with query params', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post?foo=bar')
+        const textNode = doc.createTextNode('See /@alice/my-post?foo=bar')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
@@ -368,7 +370,7 @@ describe('text() method - Text Node Processing', () => {
       it('should handle post links and mentions', () => {
         const parent = doc.createElement('p')
         doc.body?.appendChild(parent)
-        const textNode = doc.createTextNode('See @alice/my-post by @alice')
+        const textNode = doc.createTextNode('See /@alice/my-post by @bob')
         parent.appendChild(textNode)
 
         text(textNode as any, false)
@@ -810,6 +812,49 @@ describe('text() method - Text Node Processing', () => {
 
       // Should not process because parent is <code>
       expect(parent.textContent).toBe(originalText)
+    })
+
+    it('should skip processing when ancestor is <code> tag (nested)', () => {
+      const code = doc.createElement('code')
+      const em = doc.createElement('em')
+      doc.body?.appendChild(code)
+      code.appendChild(em)
+      const textNode = doc.createTextNode('@aws-sdk')
+      em.appendChild(textNode)
+
+      text(textNode as any, false)
+
+      // Should not process because ancestor is <code>
+      // Check no anchor was inserted (textContent alone won't catch a wrapped <a>)
+      expect(em.textContent).toBe('@aws-sdk')
+      expect(code.getElementsByTagName('a').length).toBe(0)
+    })
+
+    it('should skip processing when ancestor is <pre> tag', () => {
+      const pre = doc.createElement('pre')
+      const code = doc.createElement('code')
+      doc.body?.appendChild(pre)
+      pre.appendChild(code)
+      const textNode = doc.createTextNode('@hiveio #hashtag')
+      code.appendChild(textNode)
+
+      text(textNode as any, false)
+
+      // Should not process because ancestor is <pre>
+      expect(code.textContent).toBe('@hiveio #hashtag')
+      expect(pre.getElementsByTagName('a').length).toBe(0)
+    })
+
+    it('should skip processing when text is inside <pre> without <code>', () => {
+      const pre = doc.createElement('pre')
+      doc.body?.appendChild(pre)
+      const textNode = doc.createTextNode('@mention')
+      pre.appendChild(textNode)
+
+      text(textNode as any, false)
+
+      expect(pre.textContent).toBe('@mention')
+      expect(pre.getElementsByTagName('a').length).toBe(0)
     })
 
     it('should handle empty text nodes', () => {

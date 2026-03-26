@@ -15,12 +15,12 @@ import { EcencyAnalytics } from "@ecency/sdk";
 export function PromotePost() {
   const { activeUser } = useActiveAccount();
 
-  const [step, setStep] = useState<"intro" | "setup" | "sign" | "success">("intro");
+  const [step, setStep] = useState<"intro" | "setup" | "success">("intro");
   const [path, setPath] = useState("");
   const [duration, setDuration] = useState(0);
 
   const { mutateAsync: promote, isPending } = usePromoteMutation();
-  const { mutateAsync: next } = usePreCheckPromote(path, () => setStep("sign"));
+  const { mutateAsync: preCheck } = usePreCheckPromote(() => {});
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-promote"
@@ -51,25 +51,13 @@ export function PromotePost() {
           onSuccess={async (path, duration) => {
             setPath(path);
             setDuration(duration);
-            await next();
+            await preCheck(path);
+            const [author, permlink] = path.replace("@", "").split("/");
+            await promote({ author, permlink, duration });
+            recordActivity().catch(() => {});
+            setStep("success");
           }}
         />
-      )}
-      {step === "sign" && (
-        <div>
-          <Button
-            disabled={isPending}
-            isLoading={isPending}
-            onClick={async () => {
-              const [author, permlink] = path.replace("@", "").split("/");
-              await promote({ author, permlink, duration });
-              recordActivity();
-              setStep("success");
-            }}
-          >
-            {i18next.t("trx-common.sign-title")}
-          </Button>
-        </div>
       )}
       {step === "success" && <PromoteSuccess />}
     </div>
