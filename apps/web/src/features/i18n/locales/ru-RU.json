@@ -1212,7 +1212,8 @@
     "permissions": "Открыть разрешения",
     "image-server": "Сервер изображений",
     "image-server-default": "Ecency изображения (по умолчанию)",
-    "image-server-hiveblog": "Изображения улей (Альтернатива)"
+    "image-server-hiveblog": "Изображения улей (Альтернатива)",
+    "image-server-nocdn": "Эктические изображения (без CDN)"
   },
   "settings": {
     "dm-privacy": {
