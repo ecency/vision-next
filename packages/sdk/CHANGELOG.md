@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.33
+
+### Patch Changes
+
+- Real time comment indicator (#720)
+
 ## 2.0.32
 
 ### Patch Changes
