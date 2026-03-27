@@ -87,7 +87,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
             <EntryPageCrossPostHeader entry={entry} />
             <span itemScope itemType="http://schema.org/Article">
               <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-              <EntryPageContentClient entry={entry} category={category} />
+              <EntryPageContentClient entry={entry} />
               <EntryPageDiscussionsWrapper
                 entry={entry}
                 category={category}

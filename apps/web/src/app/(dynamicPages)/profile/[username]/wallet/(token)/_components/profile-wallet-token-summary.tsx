@@ -202,9 +202,9 @@ export function ProfileWalletTokenSummary() {
       </div>
         <div className={`grid ${gridClassName} gap-2 md:gap-4`}>
           {cards.map((card) => (
-            <div key={card.label} className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl">
+            <div key={card.label} className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl overflow-hidden">
               <div className="text-sm text-gray-600 dark:text-gray-400">{card.label}</div>
-              <div className="text-xl font-bold">{card.value}</div>
+              <div className="text-xl font-bold truncate">{card.value}</div>
             </div>
           ))}
         </div>

@@ -2,25 +2,11 @@
 
 import { Entry } from "@/entities";
 import { EntryPageBodyViewer } from "./entry-page-body-viewer";
-import { EntryPageEditHistory } from "./entry-page-edit-history";
-import { useContext } from "react";
-import { EntryPageContext } from "./context";
-import ClientEntryPageNsfwRevealing from "./client-entry-page-nsfwrevealing";
 
 interface Props {
   entry: Entry;
-  category: string;
 }
 
-export function EntryPageContentClient({ entry, category }: Props) {
-  const { showIfNsfw } = useContext(EntryPageContext);
-
-  return (
-    <>
-      <ClientEntryPageNsfwRevealing entry={entry} showIfNsfw={showIfNsfw}>
-        <EntryPageBodyViewer entry={entry} />
-      </ClientEntryPageNsfwRevealing>
-      <EntryPageEditHistory entry={entry} />
-    </>
-  );
+export function EntryPageContentClient({ entry }: Props) {
+  return <EntryPageBodyViewer entry={entry} />;
 }
