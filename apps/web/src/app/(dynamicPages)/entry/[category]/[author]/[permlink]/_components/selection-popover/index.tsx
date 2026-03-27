@@ -98,8 +98,10 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         return;
       }
       if (showTranslation) {
-        const target = e.target as HTMLElement;
-        if (target.closest(".selection-translate-modal")) {
+        const node = e.target;
+        const target =
+          node instanceof Element ? node : node instanceof Node ? node.parentElement : null;
+        if (target?.closest(".selection-translate-modal")) {
           return;
         }
       }
@@ -130,8 +132,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         return;
       }
       if (showTranslation) {
+        const node = e?.target ?? document.activeElement;
         const target =
-          (e?.target as HTMLElement | null) || document.activeElement;
+          node instanceof Element ? node : node instanceof Node ? node.parentElement : null;
         if (target?.closest(".selection-translate-modal")) {
           return;
         }

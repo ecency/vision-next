@@ -12,9 +12,7 @@ import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
 import { EntryPageStaticBody } from "./entry-page-static-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
-import { EntryPageNsfwRevealing } from "./entry-page-nsfw-revealing";
-import { useContext } from "react";
-import { EntryPageContext } from "./context";
+import { EntryPageNsfwBodyWrapper } from "./entry-page-nsfw-body-wrapper";
 
 interface Props {
   entry: Entry;
@@ -24,7 +22,6 @@ interface Props {
 export function EntryPageContentSSR({ entry, isRawContent }: Props) {
   const location = useEntryLocation(entry);
   const postPoll = useEntryPollExtractor(entry);
-  const { showIfNsfw } = useContext(EntryPageContext);
   const path = makeEntryPath(entry.category, entry.author, entry.permlink);
   const isComment = !!entry.parent_author;
   const urlParts = path.split("#");
@@ -61,7 +58,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
         <EntryPageMainInfo entry={entry} />
       </div>
       {/* SSR static body - wrapped with NSFW check */}
-      <EntryPageNsfwRevealing entry={entry} showIfNsfw={showIfNsfw}>
+      <EntryPageNsfwBodyWrapper entry={entry}>
         {!isRawContent && (
           <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
             <EntryPageStaticBody entry={entry} />
@@ -76,7 +73,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
             {entry.body}
           </pre>
         )}
-      </EntryPageNsfwRevealing>
+      </EntryPageNsfwBodyWrapper>
       <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link
