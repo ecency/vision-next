@@ -2323,7 +2323,7 @@
       "how-dhf-work-header": "¿Cómo funciona DHF?",
       "how-dhf-work-body": "<p>Cualquiera puede crear una propuesta y convencer a la comunidad de que vote sobre su propuesta para obtener fondos. Antes de crear la propuesta, debería hacerse una publicación normal en la cadena de bloques y se recomienda recoger comentarios de respuestas antes de crear la propuesta. La creación de propuestas tiene una cuota de 10 HBD + 1 HBD por cada día que dura más de 60 días.</p><p>Una vez que la propuesta alcance cierto umbral de votos contabilizados, comenzará a recibir fondos cada hora. Si la propuesta cae por debajo del umbral, el sistema detendrá la financiación de dicha propuesta. Puedes votar tantas propuestas como quieras, no hay límites. La propuesta no puede ser editada, pero puede ser eliminada o retirada por el creador.</p>",
       "when-claim-rewards-header": "¿Cuándo puedo reclamar mis recompensas?",
-      "when-claim-rewards-body": "<p>Las publicaciones y comentarios permanecen activos durante 7 días y las recompensas son fluctuadas dependiendo de los votos y el precio de mercado del token, es por eso que las recompensas se aproximan como recompensa pendiente. Cuando el periodo termine, la recompensa pendiente cambia a la recompensa real y usted puede reclamar las recompensas ganadas. En su Cartera, haga clic en el botón Reclamar recompensas para añadir los tokens a su cuenta.</p>",
+      "when-claim-rewards-body": "<p>Las publicaciones y comentarios generan ganancias por 7 días. Durante este período, las ganancias fluctúan en función de los votos y las condiciones del mercado; por eso se muestran como estimadas. Después de 7 días, tus ganancias finales están listas para recoger. Ve a tu billetera y pulsa Recoger para añadirlas a tu saldo.</p>",
       "what-are-rc-header": "¿Qué son los Créditos de Recursos?",
       "what-are-rc-body": "<p>La transacción en la cadena de bloques de Hive tiene cero comisiones, se utiliza la limitación de tasa de transacción para proteger la cadena de bloques de ataques de spam. Cada acción que hagas en la cadena de bloques consumirá una pequeña cantidad de Créditos de Recursos. Esto incluye publicar, comentar, votar, transferir tokens, etc. Ver contenido no consume créditos de recursos.</p><p>Cada usuario tiene una cantidad limitada de Créditos de Recursos para usar cada semana. Cuantas más transacciones haga un usuario, menos créditos de recursos le quedarán (hasta que recarguen). Los usuarios con más HIVE POWER tendrán más créditos de recursos.</p><p>Si te quedas sin créditos de Recursos, no podrás hacer ninguna transacción con la cadena de bloques hasta que tus Créditos de Recurso recarguen (sucede automáticamente) o adquirirás HIVE POWER adicional para aumentar tu saldo de Crédito de Recursos, o puedes <a href=\"/faq#how-boost-account\">solicitar que la cuenta de Optimización de Ecency</a> te proporcione una delegación temporal.</p>",
       "how-boost-account-header": "¿Cómo solicitar el impulso de la cuenta?",
@@ -3207,10 +3207,10 @@
       "note": "El interés se calcula continuamente en {{apr}}% APR.",
       "claim-button": "Reclamar interés"
     },
-    "claim-rewards": "Reclamar recompensas",
+    "claim-rewards": "Recoger ganancias",
     "claim-rewards-with-amount": "Reclamar {{amount}} {{token}}",
     "claim-rewards-loading": "Reclamando...",
-    "claim-rewards-success": "{{amount}} {{token}} reclamado con éxito",
+    "claim-rewards-success": "¡Reclamado {{amount}} {{token}}!",
     "hp-delegation-promo": {
       "tag": "+10% de impulso APR",
       "title": "Deja que Ecency haga curaduría con tu Hive Power",
