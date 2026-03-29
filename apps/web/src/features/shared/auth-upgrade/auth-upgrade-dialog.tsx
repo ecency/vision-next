@@ -9,7 +9,7 @@ import Image from "next/image";
 import { PrivateKey } from "@hiveio/dhive";
 import { MetaMaskSignButton } from "../metamask-sign-button";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseHiveAuth, shouldUseKeychainMobile } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { useIsMobile } from "@/utils";
@@ -53,9 +53,16 @@ export function AuthUpgradeDialog() {
   const handleKeychainOrHiveAuth = useCallback(() => {
     setRequest(null);
     const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
+    const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
     // On mobile without Keychain extension, use HiveAuth for app-based signing
     const isMobile = typeof window !== "undefined" && window.innerWidth < 570;
     const forceHiveAuth = isMobile && !isKeychainInAppBrowser() && !(window as any).hive_keychain;
+    // For keychain-mobile users, resolve as "keychain" — the adapter's
+    // broadcastWithKeychain detects keychain-mobile and opens hive:// deep link
+    if (useKcMobile) {
+      resolveAuthUpgrade("keychain");
+      return;
+    }
     resolveAuthUpgrade((useHiveAuth || forceHiveAuth) ? "hiveauth" : "keychain");
   }, [activeUser?.username]);
 
@@ -73,14 +80,18 @@ export function AuthUpgradeDialog() {
     : "active";
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  // On mobile, always show HiveAuth so users can sign via Keychain/HiveAuth apps
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
+  // On mobile, always show signing option so users can sign via Keychain/HiveAuth apps
   const showHiveAuthOnMobile = isMobileBrowser && !isKeychainInAppBrowser();
-  const showKeychainBtn = !isMetaMaskUser && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser() || showHiveAuthOnMobile);
-  const useHiveAuthIcon = useHiveAuth || showHiveAuthOnMobile;
-  const keychainIcon = useHiveAuthIcon ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainLabel = useHiveAuthIcon
-    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
-    : i18next.t("key-or-hot.with-keychain");
+  const showKeychainBtn = !isMetaMaskUser && (!isMobileBrowser || useHiveAuth || useKcMobile || isKeychainInAppBrowser() || showHiveAuthOnMobile);
+  const useHiveAuthIcon = useHiveAuth || (showHiveAuthOnMobile && !useKcMobile);
+  const keychainIcon = useKcMobile ? "/assets/keychain.png"
+    : useHiveAuthIcon ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainLabel = useKcMobile
+    ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
+    : useHiveAuthIcon
+      ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+      : i18next.t("key-or-hot.with-keychain");
 
   return (
     <Modal show={true} centered={true} onHide={handleClose}>

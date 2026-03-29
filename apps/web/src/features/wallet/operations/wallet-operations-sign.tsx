@@ -12,8 +12,7 @@ import hs from "hivesigner";
 import Image from "next/image";
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
-import { shouldUseHiveAuth, broadcastWithHiveAuth } from "@/utils/client";
-import * as keychain from "@/utils/keychain";
+import { shouldUseHiveAuth, shouldUseKeychainMobile, broadcastWithHiveAuth } from "@/utils/client";
 import { getLoginType } from "@/utils/user-token";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
 
@@ -32,12 +31,15 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  const canUseKeychain = hasKeyChain || useHiveAuth;
-  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
-  const keychainLabel = useHiveAuth
-    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
-    : i18next.t("key-or-hot.with-keychain");
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
+  const canUseKeychain = hasKeyChain || useHiveAuth || useKcMobile;
+  const keychainIcon = (useHiveAuth && !useKcMobile) ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainAlt = (useHiveAuth && !useKcMobile) ? "hiveauth" : "keychain";
+  const keychainLabel = useKcMobile
+    ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
+    : useHiveAuth
+      ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+      : i18next.t("key-or-hot.with-keychain");
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
@@ -81,21 +83,14 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         }
 
         if (method === "keychain" || hasKeyChain) {
-          let keychainAuthority: "Active" | "Posting" | "Owner" | "Memo";
-          if (authority === "active") {
-            keychainAuthority = "Active";
-          } else if (authority === "posting") {
-            keychainAuthority = "Posting";
-          } else if (authority === "owner") {
-            keychainAuthority = "Owner";
-          } else if (authority === "memo") {
-            keychainAuthority = "Memo";
-          } else {
-            throw new Error(`[SDK][Auth] – invalid authority "${authority}" for keychain`);
-          }
-          return keychain
-            .broadcast(activeUser.username, operations, keychainAuthority)
-            .then((result: any) => result.result);
+          // Route through adapter's broadcastWithKeychain which handles
+          // keychain-mobile deep links, MetaMask snap, and browser extension
+          const adapter = getWebBroadcastAdapter();
+          const kType = authority === "active" ? "active"
+            : authority === "posting" ? "posting"
+            : authority === "owner" ? "owner"
+            : "memo" as const;
+          return adapter.broadcastWithKeychain!(activeUser.username, operations, kType);
         }
 
         throw new Error("[SDK][Wallets] – missing broadcaster");
@@ -211,7 +206,8 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                 size="lg"
                 disabled={!canUseKeychain}
                 onClick={() => {
-                  signMethodRef.current = { method: useHiveAuth ? "hiveauth" : "keychain" };
+                  const method = useKcMobile ? "keychain" : useHiveAuth ? "hiveauth" : "keychain";
+                  signMethodRef.current = { method };
                   sign(data as any);
                   setStep("signing");
                 }}

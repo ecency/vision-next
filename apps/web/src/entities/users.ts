@@ -7,7 +7,7 @@ export interface UserKeys {
   memo?: string;
 }
 
-export type LoginType = "hivesigner" | "keychain" | "hiveauth" | "privateKey" | "metamask";
+export type LoginType = "hivesigner" | "keychain" | "hiveauth" | "privateKey" | "metamask" | "keychain-mobile";
 
 export interface User {
   username: string;

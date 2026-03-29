@@ -9,6 +9,7 @@ import {
   type Authority,
 } from '@ecency/sdk';
 import hs from 'hivesigner';
+import { encodeOps as encodeHiveUriOps } from 'hive-uri';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import * as ls from '@/utils/local-storage';
 import { broadcastWithHiveAuth } from '@/utils/hive-auth';
@@ -180,6 +181,42 @@ async function broadcastWithMetaMaskSnap(
   return CONFIG.hiveClient.broadcast.send(signedTx as any);
 }
 
+const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = 'ecency_keychain-mobile-pending-sign';
+
+/**
+ * Broadcast Hive operations via Keychain Mobile deep link (hive://sign/ops/).
+ * Keychain handles signing AND broadcasting. The page navigates away, so this
+ * returns a never-resolving promise. The callback page handles the result.
+ */
+function broadcastWithKeychainMobileDeepLink(
+  username: string,
+  ops: Operation[],
+  keyType: 'posting' | 'active',
+): Promise<TransactionConfirmation> {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Keychain Mobile deep links are only available in a browser environment.'));
+  }
+
+  // Store the return path so the callback page can redirect back
+  localStorage.setItem(KEYCHAIN_MOBILE_SIGN_STORAGE_KEY, JSON.stringify({
+    returnPath: window.location.pathname + window.location.search,
+    timestamp: Date.now(),
+  }));
+
+  // Encode operations as hive:// URI using hive-uri library
+  const hiveUri = encodeHiveUriOps(ops, {
+    signer: username,
+    callback: `${window.location.origin}/auth/keychain-sign?id={{id}}&sig={{sig}}`,
+    authority: keyType,
+  });
+
+  // Navigate to the deep link - OS will open Keychain/Ecency app.
+  // Page navigates away; the tx result arrives via /auth/keychain-sign callback
+  // on a new page load. Same pattern as HiveSigner hot-sign (hs.sendOperations).
+  window.location.href = hiveUri;
+  return new Promise(() => {});
+}
+
 /**
  * Singleton adapter instance. Safe to reuse because all methods read from
  * localStorage / window at call time — no state is captured at creation.
@@ -213,8 +250,10 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
       // Map loginType to SDK auth method
       // MetaMask routes through keychain broadcast path (snap handles signing)
+      // keychain-mobile has no direct SDK broadcast method - relies on HiveSigner token or auth upgrade
       const authType = user.loginType === 'privateKey' ? 'key'
         : user.loginType === 'metamask' ? 'keychain'
+        : user.loginType === 'keychain-mobile' ? undefined
         : user.loginType;
 
       return {
@@ -230,7 +269,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Return null for non-key auth methods (HiveSigner/Keychain/HiveAuth)
       // This signals to SDK that it should use those platform-specific broadcast methods
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -245,7 +284,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
       // Return null for non-key auth methods (they handle active operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -257,7 +296,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getOwnerKey(username: string) {
       // Return null for non-key auth methods (they handle owner operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -269,7 +308,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getMemoKey(username: string) {
       // Return null for non-key auth methods (they handle memo operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -295,7 +334,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       }
 
       // Map web login types to SDK auth methods
-      // LoginType = 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+      // LoginType = 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey' | 'metamask' | 'keychain-mobile'
       switch (loginType) {
         case 'hivesigner':
           return 'hivesigner';
@@ -303,6 +342,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
           return 'keychain';
         case 'hiveauth':
           return 'hiveauth'; // HiveAuth has its own broadcast method (QR code + mobile app flow)
+        case 'keychain-mobile':
+          // Keychain Mobile: route through keychain broadcast path
+          // SDK will try HiveSigner token first for posting ops (if posting auth granted),
+          // then fall back to broadcastWithKeychain which handles deep links
+          return 'keychain';
         case 'privateKey':
           // For key-based logins, verify the required key is actually available.
           // An active-key-only user shouldn't return 'key' for posting ops —
@@ -348,7 +392,15 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return broadcastWithMetaMaskSnap(username, ops, keyType);
       }
 
-      // Check if Keychain is available
+      // Keychain Mobile: use hive:// deep link when browser extension is not available
+      if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !(window as any).hive_keychain) {
+        if (keyType !== 'posting' && keyType !== 'active') {
+          throw new Error(`Keychain Mobile deep links do not support "${keyType}" authority.`);
+        }
+        return broadcastWithKeychainMobileDeepLink(username, ops, keyType);
+      }
+
+      // Check if Keychain browser extension is available
       if (typeof window === 'undefined' || !(window as any).hive_keychain) {
         throw new Error('Hive Keychain extension not found. Please install it from the Chrome/Firefox store.');
       }

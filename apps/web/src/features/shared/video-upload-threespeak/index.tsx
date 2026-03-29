@@ -320,7 +320,8 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         </Button>
         <Button
           className="ml-3"
-          disabled={!canContinue}
+          disabled={!canContinue || isExtractingThumbnail || isThumbnailUploading}
+          isLoading={isExtractingThumbnail || isThumbnailUploading}
           onClick={() => {
             props.onVideoUploaded(videoData!.embedUrl, thumbnailUrl || undefined);
             props.setShow(false);

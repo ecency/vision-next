@@ -11,7 +11,7 @@ import { useDeleteUserFromList, useUserSelect } from "./hooks";
 function LoginTypeBadge({ loginType }: { loginType?: LoginType }) {
   const src =
     loginType === "metamask" ? "/assets/metamask-fox.svg" :
-    loginType === "keychain" ? "/assets/keychain.png" :
+    loginType === "keychain" || loginType === "keychain-mobile" ? "/assets/keychain.png" :
     loginType === "hivesigner" ? "/assets/hive-signer.svg" :
     loginType === "hiveauth" ? "/assets/hive-auth.svg" :
     null;
