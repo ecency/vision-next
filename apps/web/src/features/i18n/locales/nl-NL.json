@@ -297,7 +297,22 @@
     "my-users": "Mijn gebruikers",
     "metamask-not-found": "MetaMask is niet gevonden. Installeer MetaMask browserextensie.",
     "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden."
+    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Sleutelhanger Mobiel",
+    "keychain-mobile-missing-sig": "Handtekening uit Sleutelhanger ontbreekt. Probeer het opnieuw.",
+    "keychain-mobile-no-pending": "Geen login gevonden. Probeer opnieuw aan te melden.",
+    "keychain-mobile-invalid-data": "Ongeldige inloggegevens. Probeer het opnieuw.",
+    "keychain-mobile-expired": "Aanvraag is verlopen. Probeer het opnieuw.",
+    "keychain-mobile-error": "Inloggen mislukt. Probeer het opnieuw.",
+    "keychain-mobile-title": "Inloggen voltooid...",
+    "keychain-mobile-title-error": "Inloggen mislukt",
+    "keychain-mobile-message": "Verifiëren van je handtekening en log je in...",
+    "keychain-sign-missing-result": "Geen transactieresultaat ontvangen van Sleutelhanger.",
+    "keychain-sign-processing": "Verwerken...",
+    "keychain-sign-success": "Transactie ondertekend",
+    "keychain-sign-redirecting": "Je wordt teruggestuurd...",
+    "keychain-sign-error-title": "Ondertekenen mislukt"
   },
   "sign-up": {
     "header": "Web3 gemeenschappen belonen",
