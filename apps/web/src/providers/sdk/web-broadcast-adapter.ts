@@ -216,17 +216,11 @@ function broadcastWithKeychainMobileDeepLink(
     authority: keyType,
   });
 
-  // Navigate to the deep link - OS will open Keychain/Ecency app
+  // Navigate to the deep link - OS will open Keychain/Ecency app.
+  // Page navigates away; the tx result arrives via /auth/keychain-sign callback
+  // on a new page load. Same pattern as HiveSigner hot-sign (hs.sendOperations).
   window.location.href = hiveUri;
-
-  // Page navigates away. Resolve after a short delay so callers that
-  // are still mounted (e.g. grantPostingAuthority) can run cleanup.
-  // The actual tx result comes via the /auth/keychain-sign callback page.
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({} as TransactionConfirmation);
-    }, 3000);
-  });
+  return new Promise(() => {});
 }
 
 /**

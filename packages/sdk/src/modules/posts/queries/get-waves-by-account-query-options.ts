@@ -30,9 +30,6 @@ export function getWavesByAccountQueryOptions(host: string, username?: string) {
 
         const response = await fetch(url.toString(), {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
           signal,
         });
 

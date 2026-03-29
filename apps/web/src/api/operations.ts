@@ -17,7 +17,7 @@ import {
   getPostingKey,
   hotSign
 } from "@/utils";
-import { broadcastWithHiveAuth, shouldUseHiveAuth, shouldUseKeychainMobile } from "@/utils/hive-auth";
+import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
@@ -257,8 +257,11 @@ function sendWithHiveAuthOrHiveSigner(
 ) {
   const loginType = getLoginType(username);
 
-  // Keychain Mobile: route through the adapter which handles hive:// deep links
-  if (loginType === "keychain-mobile" || shouldUseKeychainMobile(username)) {
+  // Keychain Mobile: route through the adapter which handles hive:// deep links.
+  // The adapter's broadcastWithKeychain detects keychain-mobile login type and
+  // opens a hive:// deep link. If the user has a valid access token with posting
+  // authority, the SDK's smart auth strategy will use that first (no deep link needed).
+  if (loginType === "keychain-mobile") {
     const adapter = getWebBroadcastAdapter();
     return adapter.broadcastWithKeychain!(username, operations, authority);
   }
