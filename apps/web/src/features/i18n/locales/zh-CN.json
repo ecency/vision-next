@@ -297,7 +297,22 @@
     "my-users": "我的用户",
     "metamask-not-found": "找不到 MetaMask。请安装 MetaMask 浏览器扩展。",
     "metamask-no-keys": "无法从 MetaMask snap 获取 Hive 密钥",
-    "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。"
+    "metamask-key-mismatch": "MetaMask Hive 密钥与此账户不匹配。请确保您在注册时使用相同的 MetaMask 钱包。",
+    "keychain": "Keychain",
+    "keychain-mobile": "Keychain 手机",
+    "keychain-mobile-missing-sig": "缺少来自钥匙串的签名。请再试一次。",
+    "keychain-mobile-no-pending": "找不到未决登录。请重新登录。",
+    "keychain-mobile-invalid-data": "登录数据无效。请重试。",
+    "keychain-mobile-expired": "登录请求已过期。请重试。",
+    "keychain-mobile-error": "登录失败。请重试。",
+    "keychain-mobile-title": "正在完成登录...",
+    "keychain-mobile-title-error": "登录失败",
+    "keychain-mobile-message": "验证您的签名并登录...",
+    "keychain-sign-missing-result": "没有收到来自密钥链的交易结果。",
+    "keychain-sign-processing": "正在处理...",
+    "keychain-sign-success": "交易签名",
+    "keychain-sign-redirecting": "重定向您...",
+    "keychain-sign-error-title": "签名失败"
   },
   "sign-up": {
     "header": "奖励Web3社区",
