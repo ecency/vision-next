@@ -297,7 +297,22 @@
     "my-users": "Мої користувачі",
     "metamask-not-found": "MetaMask не знайдено. Будь ласка, встановіть розширення браузера MetaMask.",
     "metamask-no-keys": "Не вдалося отримати ключі вуликів від прив'язки MetaMask",
-    "metamask-key-mismatch": "Ключі Hive MetaMask не співпадають з цим обліковим записом. Переконайтеся, що ви використовуєте той же гаманець MetaMask що використовується під час реєстрації."
+    "metamask-key-mismatch": "Ключі Hive MetaMask не співпадають з цим обліковим записом. Переконайтеся, що ви використовуєте той же гаманець MetaMask що використовується під час реєстрації.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Мобільний Keychain",
+    "keychain-mobile-missing-sig": "Відсутній підпис з Keychain. Спробуйте ще раз.",
+    "keychain-mobile-no-pending": "Не знайдено жодного облікового запису. Будь ласка, спробуйте увійти знову.",
+    "keychain-mobile-invalid-data": "Невірні дані входу. Будь ласка, спробуйте ще раз.",
+    "keychain-mobile-expired": "Час запиту на вхід закінчився. Будь ласка, спробуйте ще раз.",
+    "keychain-mobile-error": "Увійти не вдалося. Будь ласка, спробуйте ще раз.",
+    "keychain-mobile-title": "Завершення входу...",
+    "keychain-mobile-title-error": "Помилка входу",
+    "keychain-mobile-message": "Перевірка підпису і входу в систему...",
+    "keychain-sign-missing-result": "Не отримано результат транзакції від Keychain.",
+    "keychain-sign-processing": "Йде обробка...",
+    "keychain-sign-success": "Транзакція пройшла успішно",
+    "keychain-sign-redirecting": "Перенаправлення вас назад...",
+    "keychain-sign-error-title": "Помилка реєстрації"
   },
   "sign-up": {
     "header": "Винагорода Web3 спільнот",
