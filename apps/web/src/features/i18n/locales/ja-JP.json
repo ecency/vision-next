@@ -297,7 +297,22 @@
     "my-users": "マイユーザー",
     "metamask-not-found": "MetaMask が見つかりません。ブラウザ拡張機能をインストールしてください。",
     "metamask-no-keys": "MetaMaskスナップからハイブキーを取得できませんでした",
-    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。"
+    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。",
+    "keychain": "Keychain",
+    "keychain-mobile": "キーチェーンモバイル",
+    "keychain-mobile-missing-sig": "キーチェーンから署名がありません。もう一度やり直してください。",
+    "keychain-mobile-no-pending": "保留中のログインが見つかりませんでした。もう一度ログインしてみてください。",
+    "keychain-mobile-invalid-data": "無効なログインデータです。もう一度やり直してください。",
+    "keychain-mobile-expired": "ログインリクエストの有効期限が切れました。もう一度やり直してください。",
+    "keychain-mobile-error": "ログインに失敗しました。もう一度やり直してください。",
+    "keychain-mobile-title": "ログイン完了...",
+    "keychain-mobile-title-error": "ログインに失敗しました",
+    "keychain-mobile-message": "署名を確認してログインしています...",
+    "keychain-sign-missing-result": "キーチェーンから受け取ったトランザクションの結果はありません。",
+    "keychain-sign-processing": "処理中...",
+    "keychain-sign-success": "取引が署名されました",
+    "keychain-sign-redirecting": "あなたをリダイレクトしています...",
+    "keychain-sign-error-title": "署名に失敗しました"
   },
   "sign-up": {
     "header": "Web3コミュニティの報酬",
