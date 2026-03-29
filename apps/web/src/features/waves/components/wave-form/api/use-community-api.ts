@@ -18,6 +18,7 @@ interface Body {
   host: string;
   raw: string;
   editingEntry?: Entry;
+  videoThumbnail?: string;
 }
 
 export function useCommunityApi() {
@@ -29,7 +30,7 @@ export function useCommunityApi() {
 
   return useMutation({
     mutationKey: ["wave-community-api"],
-    mutationFn: async ({ host, raw, editingEntry }: Body) => {
+    mutationFn: async ({ host, raw, editingEntry, videoThumbnail }: Body) => {
       if (!username) {
         throw new Error("No user");
       }
@@ -60,7 +61,7 @@ export function useCommunityApi() {
       const permlink = editingEntry?.permlink ?? createPermlink("", true);
       const options = makeCommentOptions(author, permlink, "default");
 
-      const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared
+      const builder = EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
         .extractFromBody(raw)
@@ -68,8 +69,13 @@ export function useCommunityApi() {
           hostTag,
           ...(raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"])
         ])
-        .withPoll(activePoll)
-        .build();
+        .withPoll(activePoll);
+
+      if (videoThumbnail) {
+        await builder.withSelectedThumbnail(videoThumbnail);
+      }
+
+      const jsonMeta = builder.build();
 
       // Build SDK comment payload
       const commentPayload: CommentPayload = {
