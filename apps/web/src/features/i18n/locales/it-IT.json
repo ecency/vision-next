@@ -297,7 +297,22 @@
     "my-users": "Gestisci le mie utenze",
     "metamask-not-found": "MetaMaschera non trovata. Installare l'estensione del browser MetaMask.",
     "metamask-no-keys": "Impossibile ottenere le chiavi Hive dallo snap di MetaMask",
-    "metamask-key-mismatch": "Le chiavi MetaMask Hive non corrispondono a questo account. Assicurati di usare lo stesso portafoglio MetaMask usato durante la registrazione."
+    "metamask-key-mismatch": "Le chiavi MetaMask Hive non corrispondono a questo account. Assicurati di usare lo stesso portafoglio MetaMask usato durante la registrazione.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Portachiavi Mobile",
+    "keychain-mobile-missing-sig": "Firma mancante dal portachiavi. Per favore riprova.",
+    "keychain-mobile-no-pending": "Nessun login in attesa trovato. Riprova ad accedere nuovamente.",
+    "keychain-mobile-invalid-data": "Dati di accesso non validi. Riprova.",
+    "keychain-mobile-expired": "Richiesta di accesso scaduta. Per favore riprova.",
+    "keychain-mobile-error": "Accesso non riuscito. Riprova.",
+    "keychain-mobile-title": "Completamento Login...",
+    "keychain-mobile-title-error": "Accesso Fallito",
+    "keychain-mobile-message": "Verifica della tua firma e registrazione in corso...",
+    "keychain-sign-missing-result": "Nessun risultato della transazione ricevuto da Keychain.",
+    "keychain-sign-processing": "Elaborazione...",
+    "keychain-sign-success": "Transazione Firmata",
+    "keychain-sign-redirecting": "Reindirizzandoti indietro...",
+    "keychain-sign-error-title": "Firma Non Riuscita"
   },
   "sign-up": {
     "header": "Ricompensando Comunità Web3",
