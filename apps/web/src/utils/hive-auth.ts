@@ -1362,6 +1362,25 @@ export function shouldUseHiveAuth(username?: string): boolean {
   return isMobileBrowser() && !hasKeychain && !isKeychainInAppBrowser();
 }
 
+/**
+ * Detects whether the user should use Keychain Mobile deep link flow.
+ * Returns true on mobile browsers without the Keychain browser extension,
+ * or for users who previously logged in via keychain-mobile or hiveauth.
+ */
+export function shouldUseKeychainMobile(username?: string): boolean {
+  if (typeof window === "undefined") return false;
+
+  if (username) {
+    const loginType = getLoginType(username);
+    if (loginType) {
+      return loginType === "keychain-mobile" || loginType === "hiveauth";
+    }
+  }
+
+  const hasKeychain = Boolean((window as any).hive_keychain);
+  return isMobileBrowser() && !hasKeychain && !isKeychainInAppBrowser();
+}
+
 export async function signWithHiveAuth(
   username: string,
   message: string,

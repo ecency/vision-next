@@ -144,6 +144,10 @@ export const QueryKeys = {
       ["posts", "waves", "following", host, username],
     wavesTrendingTags: (host: string, hours: number) =>
       ["posts", "waves", "trending-tags", host, hours],
+    wavesByAccount: (host: string, username: string) =>
+      ["posts", "waves", "by-account", host, username],
+    wavesTrendingAuthors: (host: string) =>
+      ["posts", "waves", "trending-authors", host],
     _prefix: ["posts"],
   },
 

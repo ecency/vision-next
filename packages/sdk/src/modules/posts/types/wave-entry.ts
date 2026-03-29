@@ -13,3 +13,8 @@ export interface WaveTrendingTag {
   tag: string;
   posts: number;
 }
+
+export interface WaveTrendingAuthor {
+  author: string;
+  posts: number;
+}

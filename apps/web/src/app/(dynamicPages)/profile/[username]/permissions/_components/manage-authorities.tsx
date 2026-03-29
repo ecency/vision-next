@@ -10,7 +10,7 @@ import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseHiveAuth, shouldUseKeychainMobile } from "@/utils/client";
 import { getSdkAuthContext, getUser } from "@/utils";
 
 export function ManageAuthorities() {
@@ -40,6 +40,7 @@ export function ManageAuthorities() {
     getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
 
   const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);
@@ -106,7 +107,7 @@ export function ManageAuthorities() {
             onHot={() => revoke({ type: "hivesigner", accountName: revokingAccount })}
             onKc={() =>
               revoke({
-                type: useHiveAuth ? "hiveauth" : "keychain",
+                type: useKcMobile ? "keychain" : useHiveAuth ? "hiveauth" : "keychain",
                 accountName: revokingAccount
               })
             }

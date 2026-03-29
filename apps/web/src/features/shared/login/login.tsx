@@ -14,7 +14,7 @@ import { LoginUsersList } from "./login-users-list";
 import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseKeychainMobile } from "@/utils/client";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -40,11 +40,7 @@ export default function Login() {
 
   const {
     mutateAsync: loginByKeychain,
-    isPending: isLoginByKeychainPending,
-    retryCountdown,
-    isRetryScheduled: isLoginRetryScheduled,
-    retryAttempt,
-    maxAttempts
+    isPending: isLoginByKeychainPending
   } = useLoginByKeychain(username);
 
   const handleKeychainLogin = () => {
@@ -61,34 +57,10 @@ export default function Login() {
     isPending: isLoginByMetaMaskPending
   } = useLoginByMetaMask(username);
 
-  const useHiveAuth = shouldUseHiveAuth();
-  const keychainMethodLabel = useHiveAuth ? "HiveAuth" : "Keychain";
-  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
-
-  const keychainButtonLabel = (() => {
-    if (isLoginRetryScheduled && retryCountdown !== null) {
-      return (
-        <span className="flex items-center gap-1">
-          <span>{keychainMethodLabel}</span>
-          <span className="font-mono text-xs leading-none">
-            {retryCountdown}
-          </span>
-          {retryAttempt > 0 ? (
-            <span className="text-xs leading-none text-[--text-muted]">
-              {retryAttempt}/{maxAttempts}
-            </span>
-          ) : null}
-        </span>
-      );
-    }
-
-    if (isLoginByKeychainPending && retryAttempt > 0) {
-      return `${keychainMethodLabel} (${retryAttempt}/${maxAttempts})`;
-    }
-
-    return keychainMethodLabel;
-  })();
+  const useKeychainMobile = shouldUseKeychainMobile();
+  const keychainMethodLabel = useKeychainMobile ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" }) : "Keychain";
+  const keychainIcon = "/assets/keychain.png";
+  const keychainAlt = "keychain";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
@@ -189,7 +161,7 @@ export default function Login() {
               size="lg"
               onClick={() => !!username && handleKeychainLogin()}
               disabled={!username || isLoginByKeychainPending}
-              isLoading={isLoginByKeychainPending && !isLoginRetryScheduled}
+              isLoading={isLoginByKeychainPending}
               icon={
                 <Image
                   width={100}
@@ -200,7 +172,7 @@ export default function Login() {
                 />
               }
             >
-              {keychainButtonLabel}
+              {keychainMethodLabel}
             </Button>
 
             {typeof window !== "undefined" && window.ethereum?.isMetaMask && (

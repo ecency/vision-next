@@ -10,7 +10,7 @@ import Image from "next/image";
 import { OrDivider } from "../or-divider";
 import { MetaMaskSignButton } from "../metamask-sign-button";
 import "./index.scss";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseHiveAuth, shouldUseKeychainMobile } from "@/utils/client";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { getLoginType } from "@/utils/user-token";
 
@@ -28,13 +28,16 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
   const { activeUser } = useActiveAccount();
   const isMobileBrowser = useIsMobile();
   const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
-  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser());
-  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
-  const keychainLabel = useHiveAuth
-    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
-    : i18next.t("key-or-hot.with-keychain");
+  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useHiveAuth || useKcMobile || isKeychainInAppBrowser());
+  const keychainIcon = (useHiveAuth && !useKcMobile) ? "/assets/hive-auth.svg" : "/assets/keychain.png";
+  const keychainAlt = (useHiveAuth && !useKcMobile) ? "hiveauth" : "keychain";
+  const keychainLabel = useKcMobile
+    ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
+    : useHiveAuth
+      ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+      : i18next.t("key-or-hot.with-keychain");
 
   if (isMetaMaskUser && onMetaMask && !keyOnly) {
     return (
