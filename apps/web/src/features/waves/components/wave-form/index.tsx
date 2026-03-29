@@ -355,9 +355,7 @@ const WaveFormComponent = ({
           isShort={true}
           onVideoUploaded={(embedUrl, thumbnailUrl) => {
             setVideo(embedUrl);
-            if (thumbnailUrl) {
-              setVideoThumbnail(thumbnailUrl);
-            }
+            setVideoThumbnail(thumbnailUrl ?? "");
           }}
         />
       </div>
