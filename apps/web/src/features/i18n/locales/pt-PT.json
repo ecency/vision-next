@@ -297,7 +297,22 @@
     "my-users": "Meus usuários",
     "metamask-not-found": "MetaMask não encontrada. Por favor instale a extensão de navegador MetaMascote.",
     "metamask-no-keys": "Não foi possível obter as chaves do Hive da snap de MetaMask",
-    "metamask-key-mismatch": "Chaves MetaMask Hive não coincidem com esta conta. Certifique-se de estar usando a mesma carteira MetaMask usada durante a inscrição."
+    "metamask-key-mismatch": "Chaves MetaMask Hive não coincidem com esta conta. Certifique-se de estar usando a mesma carteira MetaMask usada durante a inscrição.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Celular do Keychain",
+    "keychain-mobile-missing-sig": "Assinatura faltando do Keychain. Por favor, tente novamente.",
+    "keychain-mobile-no-pending": "Nenhum login pendente encontrado. Por favor, tente entrar novamente.",
+    "keychain-mobile-invalid-data": "Dados de login inválidos. Por favor, tente novamente.",
+    "keychain-mobile-expired": "Pedido de login expirado. Por favor, tente novamente.",
+    "keychain-mobile-error": "Falha no login. Por favor, tente novamente.",
+    "keychain-mobile-title": "Completando Login...",
+    "keychain-mobile-title-error": "Login Falhou",
+    "keychain-mobile-message": "Verificando sua assinatura e logando em você...",
+    "keychain-sign-missing-result": "Nenhum resultado de transação recebido do Keychain.",
+    "keychain-sign-processing": "Processandochar@@0",
+    "keychain-sign-success": "Transação assinada",
+    "keychain-sign-redirecting": "Redirecionando você de volta...",
+    "keychain-sign-error-title": "Falha na assinatura"
   },
   "sign-up": {
     "header": "Comunidades da Web3 que Valem a Pena",
