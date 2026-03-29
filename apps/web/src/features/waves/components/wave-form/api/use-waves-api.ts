@@ -31,12 +31,14 @@ export function useWavesApi() {
       entry,
       raw,
       editingEntry,
-      host
+      host,
+      videoThumbnail
     }: {
       entry: Entry;
       raw: string;
       editingEntry?: WaveEntry;
       host?: string;
+      videoThumbnail?: string;
     }) => {
       if (!username) {
         throw new Error("[Wave][Thread-base][API] – No active user");
@@ -66,12 +68,18 @@ export function useWavesApi() {
       }
       const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
 
-      const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared
+      const builder = EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
+        .extractFromBody(raw)
         .withTags(tags)
-        .withPoll(activePoll)
-        .build();
+        .withPoll(activePoll);
+
+      if (videoThumbnail) {
+        await builder.withSelectedThumbnail(videoThumbnail);
+      }
+
+      const jsonMeta = builder.build();
 
       // Build SDK comment payload
       const commentPayload: CommentPayload = {

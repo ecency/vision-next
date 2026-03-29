@@ -13,12 +13,14 @@ export function useWaveCreateReply() {
     mutationFn: async ({
       editingEntry,
       parent,
-      raw
+      raw,
+      videoThumbnail
     }: {
       parent: Entry;
       raw: string;
       editingEntry?: WaveEntry;
-    }) => generalApiRequest({ entry: parent, raw, editingEntry }),
+      videoThumbnail?: string;
+    }) => generalApiRequest({ entry: parent, raw, editingEntry, videoThumbnail }),
     onSuccess: () => success(i18next.t("waves.success-reply")),
     onError: (e) => error(...formatError(e))
   });

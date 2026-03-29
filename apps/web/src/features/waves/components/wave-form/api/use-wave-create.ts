@@ -21,16 +21,18 @@ export function useWaveCreate() {
     mutationFn: async ({
       host,
       raw,
-      editingEntry
+      editingEntry,
+      videoThumbnail
     }: {
       host: string;
       raw: string;
       editingEntry?: WaveEntry;
+      videoThumbnail?: string;
     }) => {
       if (host === "dbuzz") {
         return {
           host,
-          entry: (await communityBasedApiRequest({ host, raw, editingEntry })) as WaveEntry
+          entry: (await communityBasedApiRequest({ host, raw, editingEntry, videoThumbnail })) as WaveEntry
         };
       }
 
@@ -45,7 +47,7 @@ export function useWaveCreate() {
       const entry = hostEntries[0];
       return {
         host,
-        entry: (await generalApiRequest({ entry, raw, editingEntry, host })) as WaveEntry,
+        entry: (await generalApiRequest({ entry, raw, editingEntry, host, videoThumbnail })) as WaveEntry,
         isEditing: !!editingEntry
       };
     },

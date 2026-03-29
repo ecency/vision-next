@@ -52,6 +52,7 @@ const WaveFormComponent = ({
   const [image, setImage, clearImage] = useLocalStorage<string>(PREFIX + "_wf_i", "");
   const [imageName, setImageName, clearImageName] = useLocalStorage<string>(PREFIX + "_wf_in", "");
   const [video, setVideo, clearVideo] = useLocalStorage<string>(PREFIX + "_wf_v", "");
+  const [videoThumbnail, setVideoThumbnail, clearVideoThumbnail] = useLocalStorage<string>(PREFIX + "_wf_vt", "");
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -132,7 +133,8 @@ const WaveFormComponent = ({
     clearImageName();
     clearActivePoll();
     clearVideo();
-  }, [clearActivePoll, clearImage, clearImageName, clearVideo, setText]);
+    clearVideoThumbnail();
+  }, [clearActivePoll, clearImage, clearImageName, clearVideo, clearVideoThumbnail, setText]);
 
   const { mutateAsync: submit, isPending } = useWaveSubmit(entry, replySource, (item) => {
     clear();
@@ -314,7 +316,8 @@ const WaveFormComponent = ({
                   imageName: imageName!!,
                   image: image!!,
                   host: threadHost!!,
-                  video: video!!
+                  video: video!!,
+                  videoThumbnail: videoThumbnail!!
                 })
               }
               disabled={submitDisabled}
@@ -350,8 +353,11 @@ const WaveFormComponent = ({
           show={showVideoUpload}
           setShow={setShowVideoUpload}
           isShort={true}
-          onVideoUploaded={(embedUrl) => {
+          onVideoUploaded={(embedUrl, thumbnailUrl) => {
             setVideo(embedUrl);
+            if (thumbnailUrl) {
+              setVideoThumbnail(thumbnailUrl);
+            }
           }}
         />
       </div>
