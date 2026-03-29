@@ -191,16 +191,10 @@ const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = 'ecency_keychain-mobile-pending-sign';
 function broadcastWithKeychainMobileDeepLink(
   username: string,
   ops: Operation[],
-  keyType: 'posting' | 'active' | 'owner' | 'memo',
+  keyType: 'posting' | 'active',
 ): Promise<TransactionConfirmation> {
   if (typeof window === 'undefined') {
     return Promise.reject(new Error('Keychain Mobile deep links are only available in a browser environment.'));
-  }
-
-  if (keyType !== 'posting' && keyType !== 'active') {
-    return Promise.reject(new Error(
-      `Keychain Mobile deep links do not support "${keyType}" authority. Only posting and active are supported.`
-    ));
   }
 
   // Store the return path so the callback page can redirect back
@@ -400,6 +394,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
       // Keychain Mobile: use hive:// deep link when browser extension is not available
       if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !(window as any).hive_keychain) {
+        if (keyType !== 'posting' && keyType !== 'active') {
+          throw new Error(`Keychain Mobile deep links do not support "${keyType}" authority.`);
+        }
         return broadcastWithKeychainMobileDeepLink(username, ops, keyType);
       }
 

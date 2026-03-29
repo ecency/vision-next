@@ -21,8 +21,9 @@ export function PromotePost() {
   const [path, setPath] = useState("");
   const [duration, setDuration] = useState(0);
 
-  const { mutateAsync: promote, isPending } = usePromoteMutation();
-  const { mutateAsync: preCheck } = usePreCheckPromote(() => {});
+  const { mutateAsync: promote, isPending: isPromotePending } = usePromoteMutation();
+  const { mutateAsync: preCheck, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
+  const isPending = isPromotePending || isPreCheckPending;
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-promote"
@@ -56,6 +57,11 @@ export function PromotePost() {
             setDuration(duration);
             try {
               await preCheck(path);
+            } catch {
+              // preCheck's own onError handler already shows the toast
+              return;
+            }
+            try {
               const [author, permlink] = path.replace("@", "").split("/");
               await promote({ author, permlink, duration });
               recordActivity().catch(() => {});
