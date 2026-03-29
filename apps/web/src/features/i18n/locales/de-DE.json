@@ -297,7 +297,22 @@
     "my-users": "Meine Benutzer",
     "metamask-not-found": "MetaMaske nicht gefunden. Bitte installieren Sie die MetaMask-Browser-Erweiterung.",
     "metamask-no-keys": "Konnte Hive-Schlüssel vom MetaMasken-Einrasten nicht abrufen",
-    "metamask-key-mismatch": "MetaMask Hive-Schlüssel stimmen nicht mit diesem Konto überein. Stellen Sie sicher, dass Sie die gleiche MetaMask Wallet verwenden, die während der Registrierung verwendet wird."
+    "metamask-key-mismatch": "MetaMask Hive-Schlüssel stimmen nicht mit diesem Konto überein. Stellen Sie sicher, dass Sie die gleiche MetaMask Wallet verwenden, die während der Registrierung verwendet wird.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Schlüsselbund Mobile",
+    "keychain-mobile-missing-sig": "Fehlende Signatur in Keychain. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-no-pending": "Kein ausstehender Login gefunden. Bitte versuchen Sie sich erneut einzuloggen.",
+    "keychain-mobile-invalid-data": "Ungültige Login-Daten. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-expired": "Anmeldeanfrage ist abgelaufen. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-error": "Login fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-title": "Login wird abgeschlossen...",
+    "keychain-mobile-title-error": "Login fehlgeschlagen",
+    "keychain-mobile-message": "Überprüfe deine Signatur und logge dich ein...",
+    "keychain-sign-missing-result": "Kein Transaktionsergebnis von Keychain erhalten.",
+    "keychain-sign-processing": "Verarbeitung...",
+    "keychain-sign-success": "Transaktion signiert",
+    "keychain-sign-redirecting": "Weiterleitung...",
+    "keychain-sign-error-title": "Signieren fehlgeschlagen"
   },
   "sign-up": {
     "header": "Belohnende Web3 Communitys",
