@@ -5,7 +5,8 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 vi.mock("@/core/hooks/use-active-account");
 vi.mock("@/utils/client", () => ({
-  shouldUseHiveAuth: vi.fn(() => false)
+  shouldUseHiveAuth: vi.fn(() => false),
+  shouldUseKeychainMobile: vi.fn(() => false)
 }));
 vi.mock("@/utils/keychain", () => ({
   isKeychainInAppBrowser: vi.fn(() => false)
