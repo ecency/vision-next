@@ -297,7 +297,22 @@
     "my-users": "Moi użytkownicy",
     "metamask-not-found": "MetaMask nie został znaleziony. Proszę zainstalować rozszerzenie przeglądarki MetaMask",
     "metamask-no-keys": "Nie można uzyskać kluczy ulowych z MetaMask",
-    "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji."
+    "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Komórka Keychain",
+    "keychain-mobile-missing-sig": "Brakuje podpisu z Keychain. Spróbuj ponownie.",
+    "keychain-mobile-no-pending": "Nie znaleziono logowania. Spróbuj zalogować się ponownie.",
+    "keychain-mobile-invalid-data": "Nieprawidłowe dane logowania. Spróbuj ponownie.",
+    "keychain-mobile-expired": "Żądanie logowania wygasło. Spróbuj ponownie.",
+    "keychain-mobile-error": "Logowanie nie powiodło się. Spróbuj ponownie.",
+    "keychain-mobile-title": "Ukończenie logowania...",
+    "keychain-mobile-title-error": "Logowanie nie powiodło się",
+    "keychain-mobile-message": "Sprawdzanie podpisu i logowanie się...",
+    "keychain-sign-missing-result": "Nie otrzymano wyniku transakcji z Keychain.",
+    "keychain-sign-processing": "Przetwarzanie...",
+    "keychain-sign-success": "Podpisano transakcję",
+    "keychain-sign-redirecting": "Przekierowanie cię z powrotem...",
+    "keychain-sign-error-title": "Podpisywanie nie powiodło się"
   },
   "sign-up": {
     "header": "Nagroda społeczności Web3",
