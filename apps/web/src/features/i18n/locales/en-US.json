@@ -297,7 +297,22 @@
     "my-users": "My users",
     "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
     "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Keychain Mobile",
+    "keychain-mobile-missing-sig": "Missing signature from Keychain. Please try again.",
+    "keychain-mobile-no-pending": "No pending login found. Please try logging in again.",
+    "keychain-mobile-invalid-data": "Invalid login data. Please try again.",
+    "keychain-mobile-expired": "Login request expired. Please try again.",
+    "keychain-mobile-error": "Login failed. Please try again.",
+    "keychain-mobile-title": "Completing Login...",
+    "keychain-mobile-title-error": "Login Failed",
+    "keychain-mobile-message": "Verifying your signature and logging you in...",
+    "keychain-sign-missing-result": "No transaction result received from Keychain.",
+    "keychain-sign-processing": "Processing...",
+    "keychain-sign-success": "Transaction Signed",
+    "keychain-sign-redirecting": "Redirecting you back...",
+    "keychain-sign-error-title": "Signing Failed"
   },
   "sign-up": {
     "header": "Rewarding Communities",

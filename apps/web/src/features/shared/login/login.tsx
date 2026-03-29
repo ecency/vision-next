@@ -58,7 +58,7 @@ export default function Login() {
   } = useLoginByMetaMask(username);
 
   const useKeychainMobile = shouldUseKeychainMobile();
-  const keychainMethodLabel = useKeychainMobile ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" }) : "Keychain";
+  const keychainMethodLabel = useKeychainMobile ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" }) : i18next.t("login.keychain", { defaultValue: "Keychain" });
   const keychainIcon = "/assets/keychain.png";
   const keychainAlt = "keychain";
 

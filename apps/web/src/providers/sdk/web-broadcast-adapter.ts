@@ -181,7 +181,7 @@ async function broadcastWithMetaMaskSnap(
   return CONFIG.hiveClient.broadcast.send(signedTx as any);
 }
 
-const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = 'keychain-mobile-pending-sign';
+const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = 'ecency_keychain-mobile-pending-sign';
 
 /**
  * Broadcast Hive operations via Keychain Mobile deep link (hive://sign/ops/).
@@ -193,27 +193,40 @@ function broadcastWithKeychainMobileDeepLink(
   ops: Operation[],
   keyType: 'posting' | 'active' | 'owner' | 'memo',
 ): Promise<TransactionConfirmation> {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Keychain Mobile deep links are only available in a browser environment.'));
+  }
+
+  if (keyType !== 'posting' && keyType !== 'active') {
+    return Promise.reject(new Error(
+      `Keychain Mobile deep links do not support "${keyType}" authority. Only posting and active are supported.`
+    ));
+  }
+
   // Store the return path so the callback page can redirect back
   localStorage.setItem(KEYCHAIN_MOBILE_SIGN_STORAGE_KEY, JSON.stringify({
     returnPath: window.location.pathname + window.location.search,
     timestamp: Date.now(),
   }));
 
-  // Map keyType to hive-uri authority parameter
-  const authority = keyType === 'posting' ? 'posting' : 'active';
-
   // Encode operations as hive:// URI using hive-uri library
   const hiveUri = encodeHiveUriOps(ops, {
     signer: username,
     callback: `${window.location.origin}/auth/keychain-sign?id={{id}}&sig={{sig}}`,
-    authority,
+    authority: keyType,
   });
 
   // Navigate to the deep link - OS will open Keychain/Ecency app
   window.location.href = hiveUri;
 
-  // Return a never-resolving promise since the page navigates away
-  return new Promise(() => {});
+  // Page navigates away. Resolve after a short delay so callers that
+  // are still mounted (e.g. grantPostingAuthority) can run cleanup.
+  // The actual tx result comes via the /auth/keychain-sign callback page.
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({} as TransactionConfirmation);
+    }, 3000);
+  });
 }
 
 /**
@@ -392,7 +405,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       }
 
       // Keychain Mobile: use hive:// deep link when browser extension is not available
-      if (loginType === 'keychain-mobile' && (typeof window === 'undefined' || !(window as any).hive_keychain)) {
+      if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !(window as any).hive_keychain) {
         return broadcastWithKeychainMobileDeepLink(username, ops, keyType);
       }
 

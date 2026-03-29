@@ -28,7 +28,7 @@ export function getWavesTrendingAuthorsQueryOptions(host: string) {
         return data.map(({ author, posts }) => ({ author, posts }));
       } catch (error) {
         console.error("[SDK] Failed to fetch waves trending authors", error);
-        return [];
+        throw error;
       }
     },
   });

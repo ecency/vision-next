@@ -17,7 +17,8 @@ import {
   getPostingKey,
   hotSign
 } from "@/utils";
-import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
+import { broadcastWithHiveAuth, shouldUseHiveAuth, shouldUseKeychainMobile } from "@/utils/hive-auth";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
 
@@ -255,6 +256,13 @@ function sendWithHiveAuthOrHiveSigner(
   fallback: () => Promise<any> | void
 ) {
   const loginType = getLoginType(username);
+
+  // Keychain Mobile: route through the adapter which handles hive:// deep links
+  if (loginType === "keychain-mobile" || shouldUseKeychainMobile(username)) {
+    const adapter = getWebBroadcastAdapter();
+    return adapter.broadcastWithKeychain!(username, operations, authority);
+  }
+
   if (loginType === "hiveauth" || shouldUseHiveAuth(username)) {
     return broadcastWithHiveAuth(username, operations, authority).catch((err) => {
       console.error("HiveAuth broadcast failed", err);

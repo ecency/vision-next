@@ -15,7 +15,7 @@ import defaults from "@/defaults";
 import { b64uEnc } from "@/utils/b64";
 import type { KeychainMobilePendingLogin } from "@/features/shared/login/hooks/use-login-by-keychain";
 
-const KEYCHAIN_MOBILE_STORAGE_KEY = "keychain-mobile-pending-login";
+const KEYCHAIN_MOBILE_STORAGE_KEY = "ecency_keychain-mobile-pending-login";
 const PENDING_LOGIN_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
 
 export function KeychainMobileAuthPage() {
@@ -25,7 +25,7 @@ export function KeychainMobileAuthPage() {
   const addUser = useGlobalStore((state) => state.addUser);
   const setActiveUser = useGlobalStore((s) => s.setActiveUser);
 
-  const { mutateAsync: recordActivity } = useRecordUserActivity();
+  const { mutate: recordActivity } = useRecordUserActivity();
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

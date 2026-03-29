@@ -11,7 +11,7 @@ import { formatError } from "@/api/format-error";
 import { LoginType } from "@/entities";
 import { HiveSignerMessage } from "@/types";
 
-const KEYCHAIN_MOBILE_STORAGE_KEY = "keychain-mobile-pending-login";
+const KEYCHAIN_MOBILE_STORAGE_KEY = "ecency_keychain-mobile-pending-login";
 
 export interface KeychainMobilePendingLogin {
   username: string;

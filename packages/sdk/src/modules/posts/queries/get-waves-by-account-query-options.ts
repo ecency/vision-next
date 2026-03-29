@@ -3,11 +3,11 @@ import { ConfigManager, QueryKeys } from "@/modules/core";
 import { Entry, WaveEntry } from "../types";
 import { normalizeWaveEntryFromApi } from "../utils/waves-helpers";
 
-type WavesAccountEntry = Entry & {
+interface WavesAccountEntry extends Entry {
   post_id: number;
   container?: (Entry & { post_id: number }) | null;
   parent?: (Entry & { post_id: number }) | null;
-};
+}
 
 export function getWavesByAccountQueryOptions(host: string, username?: string) {
   const normalizedUsername = username?.trim().toLowerCase();
@@ -59,7 +59,7 @@ export function getWavesByAccountQueryOptions(host: string, username?: string) {
         );
       } catch (error) {
         console.error("[SDK] Failed to fetch waves for account", error);
-        return [];
+        throw error;
       }
     },
 

@@ -2,14 +2,14 @@
 
 import useMount from "react-use/lib/useMount";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import i18next from "i18next";
 import { UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import { Alert } from "@ui/alert";
 import defaults from "@/defaults";
 
-const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = "keychain-mobile-pending-sign";
+const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = "ecency_keychain-mobile-pending-sign";
 const PENDING_SIGN_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
 
 export function KeychainSignPage() {
@@ -17,6 +17,15 @@ export function KeychainSignPage() {
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) {
+        clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleCallback = useCallback(() => {
     const txId = searchParams?.get("id");
@@ -49,7 +58,7 @@ export function KeychainSignPage() {
     setStatus("success");
 
     // Redirect back after a short delay so user sees the success state
-    setTimeout(() => {
+    redirectTimerRef.current = setTimeout(() => {
       router.push(returnPath);
       router.refresh();
     }, 1500);
