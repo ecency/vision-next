@@ -294,12 +294,17 @@ export function useMessageRendering({
                   );
                 }
 
+                // If link wraps an image, render just the image with zoom (no navigation)
+                if (containsImage) {
+                  return <>{children}</>;
+                }
+
                 return (
                   <a
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className={containsImage ? "inline-block" : "text-blue-500 underline break-all"}
+                    className="text-blue-500 underline break-all"
                   >
                     {children}
                   </a>

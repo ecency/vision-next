@@ -11,6 +11,8 @@ import { PromotePostIntro, PromotePostSetup, PromoteSuccess } from "./_component
 import { usePromoteMutation } from "@/api/sdk-mutations";
 import { usePreCheckPromote } from "@/api/mutations";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { error } from "@/features/shared/feedback";
+import { formatError } from "@/api/format-error";
 
 export function PromotePost() {
   const { activeUser } = useActiveAccount();
@@ -48,14 +50,19 @@ export function PromotePost() {
       {step === "intro" && <PromotePostIntro onContinue={() => setStep("setup")} />}
       {step === "setup" && (
         <PromotePostSetup
+          isPending={isPending}
           onSuccess={async (path, duration) => {
             setPath(path);
             setDuration(duration);
-            await preCheck(path);
-            const [author, permlink] = path.replace("@", "").split("/");
-            await promote({ author, permlink, duration });
-            recordActivity().catch(() => {});
-            setStep("success");
+            try {
+              await preCheck(path);
+              const [author, permlink] = path.replace("@", "").split("/");
+              await promote({ author, permlink, duration });
+              recordActivity().catch(() => {});
+              setStep("success");
+            } catch (e) {
+              error(...formatError(e));
+            }
           }}
         />
       )}
