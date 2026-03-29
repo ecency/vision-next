@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.34
+
+### Patch Changes
+
+- My waves, your waves and keychain mobile login (#723)
+
 ## 2.0.33
 
 ### Patch Changes
