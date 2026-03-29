@@ -297,7 +297,22 @@
     "my-users": "Мои пользователи",
     "metamask-not-found": "MetaMask не найден. Пожалуйста, установите расширение браузера MetaMask.",
     "metamask-no-keys": "Не удалось получить Hive keys от MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive keys не соответствуют этой учетной записи. Убедитесь, что вы используете тот же MetaMask кошелек, который используется при регистрации."
+    "metamask-key-mismatch": "MetaMask Hive keys не соответствуют этой учетной записи. Убедитесь, что вы используете тот же MetaMask кошелек, который используется при регистрации.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Мобильный Keychain",
+    "keychain-mobile-missing-sig": "Отсутствует подпись из связки ключей. Пожалуйста, попробуйте еще раз.",
+    "keychain-mobile-no-pending": "Вход не найден. Попробуйте войти снова.",
+    "keychain-mobile-invalid-data": "Неверные данные для входа. Пожалуйста, попробуйте еще раз.",
+    "keychain-mobile-expired": "Запрос на вход истек. Пожалуйста, попробуйте еще раз.",
+    "keychain-mobile-error": "Ошибка входа. Пожалуйста, попробуйте еще раз.",
+    "keychain-mobile-title": "Завершение авторизации...",
+    "keychain-mobile-title-error": "Ошибка входа",
+    "keychain-mobile-message": "Проверка подписи и вход в систему...",
+    "keychain-sign-missing-result": "Нет результатов транзакции от Keychain.",
+    "keychain-sign-processing": "Обработка...",
+    "keychain-sign-success": "Транзакция подписана",
+    "keychain-sign-redirecting": "Перенаправляем вас обратно...",
+    "keychain-sign-error-title": "Не удалось подписать"
   },
   "sign-up": {
     "header": "Вознаграждающие сообщества",
