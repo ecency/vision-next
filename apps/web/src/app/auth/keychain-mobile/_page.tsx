@@ -86,7 +86,8 @@ export function KeychainMobileAuthPage() {
       router.push(`/@${user.username}/feed`);
     } catch (e) {
       Sentry.captureException(e);
-      setErrorMessage(i18next.t("login.keychain-mobile-error", { defaultValue: "Login failed. Please try again." }));
+      const detail = e instanceof Error ? e.message : String(e);
+      setErrorMessage(`${i18next.t("login.keychain-mobile-error", { defaultValue: "Login failed. Please try again." })}\n${detail}`);
     }
   }, [
     addUser,

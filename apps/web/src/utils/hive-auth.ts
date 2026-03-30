@@ -1373,7 +1373,7 @@ export function shouldUseKeychainMobile(username?: string): boolean {
   if (username) {
     const loginType = getLoginType(username);
     if (loginType) {
-      return loginType === "keychain-mobile" || loginType === "hiveauth";
+      return loginType === "keychain-mobile";
     }
   }
 

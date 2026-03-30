@@ -10,6 +10,7 @@ import { error } from "../../feedback";
 import { formatError } from "@/api/format-error";
 import { LoginType } from "@/entities";
 import { HiveSignerMessage } from "@/types";
+import { encodeMsg } from "hive-uri";
 
 const KEYCHAIN_MOBILE_STORAGE_KEY = "ecency_keychain-mobile-pending-login";
 
@@ -17,10 +18,6 @@ export interface KeychainMobilePendingLogin {
   username: string;
   messageObj: HiveSignerMessage;
   timestamp: number;
-}
-
-function base64UrlEncode(str: string): string {
-  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 export function useLoginByKeychain(username: string) {
@@ -61,16 +58,15 @@ export function useLoginByKeychain(username: string) {
         };
         localStorage.setItem(KEYCHAIN_MOBILE_STORAGE_KEY, JSON.stringify(pendingLogin));
 
-        // Construct callback URL with signature template
+        // Use hive-uri library to build the deep link with proper encoding
         const callbackUrl = `${window.location.origin}/auth/keychain-mobile?sig={{sig}}`;
-        const encodedCallback = base64UrlEncode(callbackUrl);
-
-        // Encode the message for the hive:// URI path
-        const message = JSON.stringify(messageObj);
-        const encodedMessage = base64UrlEncode(message);
+        const deepLink = encodeMsg(JSON.stringify(messageObj), {
+          signer: username,
+          authority: "posting",
+          callback: callbackUrl
+        });
 
         // Open the deep link - this will switch to Keychain/Ecency mobile app
-        const deepLink = `hive://sign/msg/${encodedMessage}?s=${encodeURIComponent(username)}&a=posting&cb=${encodedCallback}`;
         window.location.href = deepLink;
         return;
       }
