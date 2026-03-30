@@ -108,7 +108,7 @@ export async function LandingPage() {
           <div className="inner">
             <AssetPicture
               basePath="illustration-earn-money"
-              alt="earn-money"
+              alt={t("landing-page.earn-money")}
               width={373}
               height={442}
               priority
@@ -140,7 +140,7 @@ export async function LandingPage() {
             <div className="image-wrapper">
               <AssetPicture
                 basePath="illustration-true-ownership"
-                alt="whale"
+                alt={t("landing-page.true-ownership")}
                 className="landing-floating-image"
                 width={577}
                 height={446}
@@ -158,7 +158,7 @@ export async function LandingPage() {
             <div className="img-wrapper">
               <AssetPicture
                 basePath="illustration-decentralization"
-                alt="decentralization"
+                alt={t("landing-page.decentralization")}
                 className="decentralization-img"
                 width={481}
                 height={382}
@@ -190,7 +190,7 @@ export async function LandingPage() {
             <div className="img-wrapper">
               <AssetPicture
                 basePath="illustration-open-source"
-                alt="mechanic"
+                alt={t("landing-page.open-source")}
                 className="mechanic"
                 width={571}
                 height={460}
@@ -206,13 +206,13 @@ export async function LandingPage() {
         <div className="part-top">
           <div className="inner">
             <div className="fish-container">
-              <AssetPicture basePath="fish-3" alt="fish" className="fish three" />
-              <AssetPicture basePath="fish-5" alt="fish" className="fish five" />
-              <AssetPicture basePath="fish-4" alt="fish" className="fish four" />
+              <AssetPicture basePath="fish-3" alt="" className="fish three" />
+              <AssetPicture basePath="fish-5" alt="" className="fish five" />
+              <AssetPicture basePath="fish-4" alt="" className="fish four" />
             </div>
             <div className="fish-container">
-              <AssetPicture basePath="fish-1" alt="fish" className="fish one" />
-              <AssetPicture basePath="fish-2" alt="fish" className="fish two" />
+              <AssetPicture basePath="fish-1" alt="" className="fish one" />
+              <AssetPicture basePath="fish-2" alt="" className="fish two" />
             </div>
             <ul>
               <li>
@@ -240,21 +240,21 @@ export async function LandingPage() {
           <div className="inner">
             <span />
             <span />
-            <AssetPicture basePath="phone-download-tiny" alt="phone" className="phone-bg phone-dark-pc" />
-            <AssetPicture basePath="phone-download-tiny" alt="phone" className="phone-bg phone-dark-tablet" />
-            <AssetPicture basePath="phone-download-tiny" alt="phone" className="phone-bg phone-light-pc" />
-            <AssetPicture basePath="phone-download-tiny" alt="phone" className="phone-bg phone-light-tablet" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-pc" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-tablet" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-pc" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-tablet" />
 
-            <AssetPicture basePath="bubble-left-top" alt="bubble" className="bubble-bg bubble-left-top" />
-            <AssetPicture basePath="bubble-left-bottom" alt="bubble" className="bubble-bg bubble-left-bottom" />
-            <AssetPicture basePath="bubble-center" alt="bubble" className="bubble-bg bubble-center" />
-            <AssetPicture basePath="bubble-right-top" alt="bubble" className="bubble-bg bubble-right-top" />
-            <AssetPicture basePath="bubble-right-bottom" alt="bubble" className="bubble-bg bubble-right-bottom" />
+            <AssetPicture basePath="bubble-left-top" alt="" className="bubble-bg bubble-left-top" />
+            <AssetPicture basePath="bubble-left-bottom" alt="" className="bubble-bg bubble-left-bottom" />
+            <AssetPicture basePath="bubble-center" alt="" className="bubble-bg bubble-center" />
+            <AssetPicture basePath="bubble-right-top" alt="" className="bubble-bg bubble-right-top" />
+            <AssetPicture basePath="bubble-right-bottom" alt="" className="bubble-bg bubble-right-bottom" />
 
-            <AssetPicture basePath="left-fishes" alt="fishes" className="download-fishes left-fishes" />
-            <AssetPicture basePath="download-dark-fishes" alt="fish" className="download-fishes right-dark-fishes" />
-            <AssetPicture basePath="fish-1" alt="fish" className="download-fishes right-small" />
-            <AssetPicture basePath="fish-2" alt="fish" className="download-fishes right-big" />
+            <AssetPicture basePath="left-fishes" alt="" className="download-fishes left-fishes" />
+            <AssetPicture basePath="download-dark-fishes" alt="" className="download-fishes right-dark-fishes" />
+            <AssetPicture basePath="fish-1" alt="" className="download-fishes right-small" />
+            <AssetPicture basePath="fish-2" alt="" className="download-fishes right-big" />
 
             <div className="text-group">
               <h2>{t("landing-page.download-our-application")}</h2>
@@ -284,12 +284,12 @@ export async function LandingPage() {
               <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-history-p-one") }} />
               <p>{t("landing-page.our-history-p-two")}</p>
             </div>
-            <AssetPicture basePath="our-history" alt="Our History" className="our-history" />
+            <AssetPicture basePath="our-history" alt={t("landing-page.our-history")} className="our-history" />
           </div>
         </div>
         <div className="part-bottom">
           <div className="inner">
-            <AssetPicture basePath="our-vision" alt="Our Vision" className="our-vision" />
+            <AssetPicture basePath="our-vision" alt={t("landing-page.our-vision")} className="our-vision" />
 
             <div className="text-group pb-0 sm:pb-5 md:pb-0">
               <h2>{t("landing-page.our-vision")}</h2>
@@ -317,15 +317,15 @@ export async function LandingPage() {
             </div>
 
             <div className="image-container">
-              <AssetPicture basePath="our-team" alt="Our Team" className="our-team together" />
-              <AssetPicture basePath="fish-senior" alt="Senior Fish" className="our-team senior" />
-              <AssetPicture basePath="fish-junior" alt="Junior Fish" className="our-team junior" />
+              <AssetPicture basePath="our-team" alt={t("landing-page.our-team")} className="our-team together" />
+              <AssetPicture basePath="fish-senior" alt="" className="our-team senior" />
+              <AssetPicture basePath="fish-junior" alt="" className="our-team junior" />
             </div>
           </div>
         </div>
         <div className="part-bottom sm:pt-5 lg:pt-[auto]">
           <span className="left-fishes" />
-          <AssetPicture basePath="footer-main-fish" alt="Big fish" className="main-fish" />
+          <AssetPicture basePath="footer-main-fish" alt="" className="main-fish" />
           <div className="inner">
             <div className="links-and-form">
               <div className="links">

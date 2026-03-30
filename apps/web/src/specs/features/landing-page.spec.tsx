@@ -69,11 +69,13 @@ describe("LandingHeroActions", () => {
   it("scrolls to earn-money section on click", () => {
     const mockScrollIntoView = vi.fn();
     const mockElement = { scrollIntoView: mockScrollIntoView };
-    vi.spyOn(document, "getElementById").mockReturnValue(mockElement as any);
+    const spy = vi.spyOn(document, "getElementById").mockReturnValue(mockElement as any);
 
     render(<LandingHeroActions />);
     fireEvent.click(screen.getByRole("button", { name: "Scroll to Earn Money" }));
     expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: "smooth" });
+
+    spy.mockRestore();
   });
 });
 
