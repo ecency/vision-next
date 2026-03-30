@@ -6,6 +6,7 @@ import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useOptionalUploadTracker } from "@/app/publish/_hooks";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 
 interface Props {
   show: boolean;
@@ -67,7 +68,8 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
       });
 
       try {
-        const { url } = await upload({ file: items[i].file, signal: abortController.signal });
+        const convertedFile = await convertHeicToJpeg(items[i].file);
+        const { url } = await upload({ file: convertedFile, signal: abortController.signal });
         if (cancelRef.current) {
           uploadTracker?.markFailed(uploadId);
           break;

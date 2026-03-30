@@ -5,6 +5,7 @@ import { Spinner } from "@ui/spinner";
 import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 
 interface UploadButtonProps {
   onBegin: () => void;
@@ -39,10 +40,11 @@ export function ImageUploadButton({
         return;
       }
 
-      const [file] = files;
+      let [file] = files;
       onBegin();
 
       try {
+        file = await convertHeicToJpeg(file);
         const response = await uploadImage({ file });
         onEnd(response.url);
       } catch {
