@@ -169,7 +169,7 @@ export async function LandingPage() {
               <h2>{t("landing-page.decentralization")}</h2>
               <p>
                 <span>
-                  <Link href="https://hive.io" target="_blank">
+                  <Link href="https://hive.io" target="_blank" rel="noopener noreferrer">
                     {t("landing-page.hive-blockchain")}
                   </Link>
                 </span>{" "}
@@ -370,22 +370,22 @@ export async function LandingPage() {
                 <div className="socials w-full hidden lg:block">
                   <ul className="p-0 m-0 flex justify-between w-[50%]">
                     <li>
-                      <Link href="https://youtube.com/ecency" target="_blank">
+                      <Link href="https://youtube.com/ecency" target="_blank" rel="noopener noreferrer">
                         <SvgAsset path="footer-youtube.svg" alt="youtube" />
                       </Link>
                     </li>
                     <li>
-                      <Link href="https://twitter.com/ecency_official" target="_blank">
+                      <Link href="https://twitter.com/ecency_official" target="_blank" rel="noopener noreferrer">
                         <SvgAsset path="footer-twitter.svg" alt="twitter" />
                       </Link>
                     </li>
                     <li>
-                      <Link href="https://t.me/ecency" target="_blank">
+                      <Link href="https://t.me/ecency" target="_blank" rel="noopener noreferrer">
                         <SvgAsset path="footer-telegram.svg" alt="telegram" />
                       </Link>
                     </li>
                     <li>
-                      <Link href="https://discord.me/ecency" target="_blank">
+                      <Link href="https://discord.me/ecency" target="_blank" rel="noopener noreferrer">
                         <SvgAsset path="footer-discord.svg" alt="discord" />
                       </Link>
                     </li>
