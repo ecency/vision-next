@@ -39,19 +39,22 @@ function AssetPicture({
   const webpSrc = `${baseUrl}/assets/${basePath}.webp`;
   const fallbackSrc = `${baseUrl}/assets/${basePath}.${fallbackExt}`;
 
-  // For priority images, use next/image for preload hints
+  // For priority images, use <picture> with preload hints via next/image fallback
   if (priority) {
     return (
-      <Image
-        src={webpSrc}
-        alt={alt}
-        width={width ?? 0}
-        height={height ?? 0}
-        className={className}
-        priority
-        fetchPriority="high"
-        sizes={sizes}
-      />
+      <picture>
+        <source srcSet={webpSrc} type="image/webp" />
+        <Image
+          src={fallbackSrc}
+          alt={alt}
+          width={width ?? 0}
+          height={height ?? 0}
+          className={className}
+          priority
+          fetchPriority="high"
+          sizes={sizes}
+        />
+      </picture>
     );
   }
 

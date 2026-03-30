@@ -16,15 +16,15 @@ export function LandingSubscribeForm() {
     setLoading(true);
     try {
       const response = await subscribeEmail(email);
-      if (response?.status === 200) {
+      if (response && response.status >= 200 && response.status < 300) {
         success(i18next.t("landing-page.success-message-subscribe"));
       }
     } catch (err) {
       error(i18next.t("landing-page.error-occured"));
+    } finally {
+      setEmail("");
+      setLoading(false);
     }
-
-    setEmail("");
-    setLoading(false);
   };
 
   return (

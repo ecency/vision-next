@@ -50,9 +50,9 @@ export default async function EntryPage({ params, searchParams }: Props) {
     return redirect(`/waves/${author}/${permlink}`);
   }
 
-  let account;
   if (entry?.author) {
-    account = await prefetchQuery(getAccountFullQueryOptions(entry.author));
+    // Warm the query cache for child components that read account data
+    await prefetchQuery(getAccountFullQueryOptions(entry.author));
   }
 
   if (!entry) {

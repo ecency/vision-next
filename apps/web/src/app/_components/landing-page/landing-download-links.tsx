@@ -21,17 +21,17 @@ export function LandingDownloadLinks({
 
   return (
     <>
-      <Link href={"https://ios.ecency.com/"} target="blank">
+      <Link href="https://ios.ecency.com/" target="_blank" rel="noopener noreferrer">
         <img
           src={theme === "day" ? iosIcon : iosIconWhite}
-          alt="Download for IOS"
+          alt={i18next.t("landing-page.download-for-ios")}
         />
         {i18next.t("landing-page.download-for-ios")}
       </Link>
-      <Link href={"https://android.ecency.com/"} target="blank">
+      <Link href="https://android.ecency.com/" target="_blank" rel="noopener noreferrer">
         <img
           src={theme === "day" ? androidIcon : androidIconWhite}
-          alt="Download for Android"
+          alt={i18next.t("landing-page.download-for-android")}
         />
         {i18next.t("landing-page.download-for-android")}
       </Link>

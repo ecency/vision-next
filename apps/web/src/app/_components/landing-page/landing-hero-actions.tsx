@@ -15,14 +15,16 @@ export function LandingHeroActions() {
           {i18next.t("landing-page.get-started")}
         </Link>
       </div>
-      <span
+      <button
+        type="button"
         className="scroll-down cursor-pointer"
+        aria-label="Scroll to Earn Money"
         onClick={() =>
           document.getElementById("earn-money")?.scrollIntoView({ behavior: "smooth" })
         }
       >
         {scrollDown}
-      </span>
+      </button>
     </>
   );
 }

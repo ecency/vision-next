@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import usePrevious from "react-use/lib/usePrevious";
 import * as ls from "@/utils/local-storage";
 import useMount from "react-use/lib/useMount";
@@ -10,7 +10,8 @@ import { NavbarDesktop } from "./navbar-desktop";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
 import { classNameObject } from "@ui/util";
-import { lazy, Suspense } from "react";
+import { useClientTheme } from "@/api/queries";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 const LoginDialog = lazy(() =>
   import("@/features/shared/login").then((m) => ({ default: m.LoginDialog }))
@@ -19,8 +20,6 @@ const LoginDialog = lazy(() =>
 const NotificationsDialog = lazy(() =>
   import("@/features/shared/notifications").then((m) => ({ default: m.NotificationsDialog }))
 );
-import { useClientTheme } from "@/api/queries";
-import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   step?: number;
@@ -127,7 +126,7 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
         setSmVisible={setSmVisible}
         experimental={experimental}
       />
-      <Suspense>
+      <Suspense fallback={null}>
         <LoginDialog />
         {/*Do not remove from here because it`s controlling by global store*/}
         <NotificationsDialog />
