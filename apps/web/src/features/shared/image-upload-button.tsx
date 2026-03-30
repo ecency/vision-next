@@ -10,6 +10,7 @@ import { convertHeicToJpeg } from "@/utils/convert-heic";
 interface UploadButtonProps {
   onBegin: () => void;
   onEnd: (url: string) => void;
+  onError?: () => void;
   size?: ButtonProps["size"];
   className?: string;
   appearance?: ButtonProps["appearance"];
@@ -21,6 +22,7 @@ interface UploadButtonProps {
 export function ImageUploadButton({
   onBegin,
   onEnd,
+  onError,
   size = "sm",
   className,
   appearance,
@@ -48,7 +50,7 @@ export function ImageUploadButton({
         const response = await uploadImage({ file });
         onEnd(response.url);
       } catch {
-        // Upload failed — onEnd not called, but onBegin was balanced
+        onError?.();
       }
     },
     [onBegin, onEnd, uploadImage]

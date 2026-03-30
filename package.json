@@ -67,8 +67,5 @@
       "secp256k1",
       "unrs-resolver"
     ]
-  },
-  "dependencies": {
-    "heic2any": "^0.0.4"
   }
 }

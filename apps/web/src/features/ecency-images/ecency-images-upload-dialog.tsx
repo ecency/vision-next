@@ -68,8 +68,7 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
       });
 
       try {
-        const convertedFile = await convertHeicToJpeg(items[i].file);
-        const { url } = await upload({ file: convertedFile, signal: abortController.signal });
+        const { url } = await upload({ file: items[i].file, signal: abortController.signal });
         if (cancelRef.current) {
           uploadTracker?.markFailed(uploadId);
           break;
@@ -116,16 +115,17 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
       <ModalBody>
         {!items.length && (
           <EcencyImagesUploadForm
-            onFilesPick={(files) =>
+            onFilesPick={async (files) => {
+              const converted = await Promise.all(files.map((f) => convertHeicToJpeg(f)));
               setItems((prev) => [
                 ...prev,
-                ...files.map((file) => ({
+                ...converted.map((file) => ({
                   file,
                   preview: URL.createObjectURL(file),
                   status: "pending" as const
                 }))
-              ])
-            }
+              ]);
+            }}
           />
         )}
         {items.length > 0 && (

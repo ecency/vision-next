@@ -84,6 +84,7 @@
     "emoji-mart": "^5.5.2",
     "formidable": "^3.5.4",
     "framer-motion": "^11.3.24",
+    "heic2any": "^0.0.4",
     "highcharts": "^12.1.2",
     "highcharts-react-official": "^3.2.1",
     "hive-auth-client": "^0.1.5",

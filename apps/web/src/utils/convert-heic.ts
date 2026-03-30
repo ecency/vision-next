@@ -21,14 +21,19 @@ export async function convertHeicToJpeg(file: File): Promise<File> {
     return file;
   }
 
-  const heic2any = (await import("heic2any")).default;
-  const blob = await heic2any({
-    blob: file,
-    toType: "image/jpeg",
-    quality: 0.92
-  });
+  try {
+    const heic2any = (await import("heic2any")).default;
+    const blob = await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.92
+    });
 
-  const resultBlob = Array.isArray(blob) ? blob[0] : blob;
-  const newName = file.name.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
-  return new File([resultBlob], newName, { type: "image/jpeg" });
+    const resultBlob = Array.isArray(blob) ? blob[0] : blob;
+    const newName = file.name.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
+    return new File([resultBlob], newName, { type: "image/jpeg" });
+  } catch (e) {
+    console.error("[HEIC] Conversion failed, uploading original file:", e);
+    return file;
+  }
 }

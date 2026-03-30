@@ -15,10 +15,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      heic2any:
-        specifier: ^0.0.4
-        version: 0.0.4
     devDependencies:
       '@changesets/changelog-github':
         specifier: ^0.5.0
@@ -417,6 +413,9 @@ importers:
       framer-motion:
         specifier: ^11.3.24
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      heic2any:
+        specifier: ^0.0.4
+        version: 0.0.4
       highcharts:
         specifier: ^12.1.2
         version: 12.4.0
@@ -13612,14 +13611,6 @@ snapshots:
     optionalDependencies:
       vite: 5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
-  '@vitest/mocker@2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
-    dependencies:
-      '@vitest/spy': 2.1.9
-      estree-walker: 3.0.3
-      magic-string: 0.30.19
-    optionalDependencies:
-      vite: 5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
-
   '@vitest/mocker@3.2.4(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
     dependencies:
       '@vitest/spy': 3.2.4
@@ -13676,7 +13667,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 1.2.0
-      vitest: 2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
+      vitest: 2.1.9(@types/node@20.19.19)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
   '@vitest/utils@2.1.9':
     dependencies:
@@ -18785,7 +18776,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
