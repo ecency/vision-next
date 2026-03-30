@@ -16,7 +16,7 @@ import { EcencyConfigManager } from "@/config";
  * // Server Component
  * const entry = await prefetchQuery(getPostQueryOptions(author, permlink));
  */
-export async function prefetchQuery<T>(options: UseQueryOptions<T>) {
+export async function prefetchQuery<T, TKey extends readonly unknown[] = readonly unknown[]>(options: UseQueryOptions<T, Error, T, TKey>) {
   const qc = getQueryClient();
   await qc.prefetchQuery(options as any);
   return qc.getQueryData<T>(options.queryKey!);
@@ -76,7 +76,7 @@ export function getInfiniteQueryData<TPage, TCursor>(
  *   );
  */
 export function withFeatureFlag<
-  T extends UseQueryOptions<any> | UseInfiniteQueryOptions<any>
+  T extends UseQueryOptions<any, any, any, any> | UseInfiniteQueryOptions<any, any, any, any, any>
 >(condition: EcencyConfigManager.ConfigBasedCondition, options: T): T {
   return {
     ...options,

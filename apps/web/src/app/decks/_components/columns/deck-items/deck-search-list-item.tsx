@@ -60,7 +60,7 @@ export const SearchListItem = ({
 }: SearchItemProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const { inViewport } = useInViewport(ref);
-  const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
+  const { data: entry = initialEntry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
   const router = useRouter();
 
