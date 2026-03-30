@@ -413,6 +413,9 @@ importers:
       framer-motion:
         specifier: ^11.3.24
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      heic2any:
+        specifier: ^0.0.4
+        version: 0.0.4
       highcharts:
         specifier: ^12.1.2
         version: 12.4.0
@@ -4472,6 +4475,7 @@ packages:
   '@xmldom/xmldom@0.9.8':
     resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xobotyi/scrollbar-width@1.9.5':
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
@@ -5957,6 +5961,9 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  heic2any@0.0.4:
+    resolution: {integrity: sha512-3lLnZiDELfabVH87htnRolZ2iehX9zwpRyGNz22GKXIu0fznlblf0/ftppXKNqS26dqFSeqfIBhAmAj/uSp0cA==}
 
   highcharts-react-official@3.2.3:
     resolution: {integrity: sha512-2gL8bVGe6Pf75tSe6IB5Ucd0nIOJX7ZrpttQBZVrjN2J9StdVZ12aOinXHIOFvlc6EzP8CbN13WS8NUq+9mptA==}
@@ -15545,6 +15552,8 @@ snapshots:
       function-bind: 1.1.2
 
   he@1.2.0: {}
+
+  heic2any@0.0.4: {}
 
   highcharts-react-official@3.2.3(highcharts@12.4.0)(react@18.3.1):
     dependencies:

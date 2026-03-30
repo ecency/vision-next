@@ -1049,7 +1049,7 @@ export function MattermostChannelView({ channelId }: Props) {
         {isEcencyAdmin && showAdminTools && <AdminPanel admin={channelAdmin} />}
 
         <div className="flex flex-1 min-h-0 flex-col">
-          <div className="relative flex-1 min-h-0 overflow-hidden md:min-h-[340px]">
+          <div className="relative flex-1 min-h-0 overflow-hidden pb-[72px] md:pb-0 md:min-h-[340px]">
             {isLoading && <div className="p-4 text-sm text-[--text-muted]">Loading messages…</div>}
             {error && !showJoinPrompt && <div className="p-4 text-sm text-red-500">{(error as Error).message || "Failed to load"}</div>}
             {moderationError && <div className="p-4 text-sm text-red-500">{moderationError}</div>}

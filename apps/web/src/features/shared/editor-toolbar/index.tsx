@@ -26,6 +26,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { EmojiPicker } from "@/features/ui";
@@ -222,7 +223,8 @@ export function EditorToolbar({
       .catch(() => undefined)
       .then(async () => {
         try {
-          const { url } = await uploadImage.mutateAsync({ file, signal: abortController.signal });
+          const convertedFile = await convertHeicToJpeg(file);
+          const { url } = await uploadImage.mutateAsync({ file: convertedFile, signal: abortController.signal });
           uploadTracker?.markComplete(uploadId);
           const imgTag = url.length > 0 && `![](${url})\n\n`;
           imgTag ? replaceText(tempImgTag, imgTag) : replaceText(tempImgTag, "");
@@ -234,7 +236,7 @@ export function EditorToolbar({
   };
 
   const checkFile = (filename: string) =>
-    ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filename.toLowerCase().endsWith(el));
+    ["jpg", "jpeg", "gif", "png", "webp", "heic", "heif"].some((el) => filename.toLowerCase().endsWith(el));
 
   const onDragOver = (e: DragEvent) => {
     e.preventDefault();
