@@ -13,7 +13,7 @@ import { giftOutlineSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 import { EcencyConfigManager } from "@/config";
-import { PostTipsResponse } from "@/api/queries/get-post-tips-query";
+import { PostTipsResponse } from "@ecency/sdk";
 import { Popover, PopoverContent } from "@/features/ui";
 import { formattedNumber } from "@/utils";
 

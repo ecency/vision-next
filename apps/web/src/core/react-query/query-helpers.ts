@@ -6,6 +6,11 @@ import {
   UseInfiniteQueryOptions,
   InfiniteData
 } from "@tanstack/react-query";
+import type {
+  FetchQueryOptions,
+  FetchInfiniteQueryOptions,
+  QueryKey
+} from "@tanstack/query-core";
 import { EcencyConfigManager } from "@/config";
 
 /**
@@ -16,10 +21,13 @@ import { EcencyConfigManager } from "@/config";
  * // Server Component
  * const entry = await prefetchQuery(getPostQueryOptions(author, permlink));
  */
-export async function prefetchQuery<T>(options: UseQueryOptions<T>) {
+export async function prefetchQuery<
+  T,
+  TKey extends QueryKey = QueryKey
+>(options: FetchQueryOptions<T, Error, T, TKey>) {
   const qc = getQueryClient();
-  await qc.prefetchQuery(options as any);
-  return qc.getQueryData<T>(options.queryKey!);
+  await qc.prefetchQuery(options);
+  return qc.getQueryData<T>(options.queryKey);
 }
 
 /**
@@ -31,11 +39,11 @@ export async function prefetchQuery<T>(options: UseQueryOptions<T>) {
  * const posts = await prefetchInfiniteQuery(getAccountPostsInfiniteQueryOptions(username));
  */
 export async function prefetchInfiniteQuery<TPage, TCursor>(
-  options: UseInfiniteQueryOptions<TPage, Error, TPage, readonly unknown[], TCursor>
+  options: FetchInfiniteQueryOptions<TPage, Error, TPage, QueryKey, TCursor>
 ) {
   const qc = getQueryClient();
-  await qc.prefetchInfiniteQuery(options as any);
-  return qc.getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey!);
+  await qc.prefetchInfiniteQuery(options);
+  return qc.getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey);
 }
 
 /**
@@ -46,8 +54,8 @@ export async function prefetchInfiniteQuery<TPage, TCursor>(
  * // Server or Client Component
  * const entry = getQueryData(getPostQueryOptions(author, permlink));
  */
-export function getQueryData<T>(options: Pick<UseQueryOptions<T>, "queryKey">) {
-  return getQueryClient().getQueryData<T>(options.queryKey!);
+export function getQueryData<T>(options: { queryKey: QueryKey }) {
+  return getQueryClient().getQueryData<T>(options.queryKey);
 }
 
 /**
@@ -59,9 +67,9 @@ export function getQueryData<T>(options: Pick<UseQueryOptions<T>, "queryKey">) {
  * const posts = getInfiniteQueryData(getAccountPostsInfiniteQueryOptions(username));
  */
 export function getInfiniteQueryData<TPage, TCursor>(
-  options: Pick<UseInfiniteQueryOptions<TPage>, "queryKey">
+  options: { queryKey: QueryKey }
 ) {
-  return getQueryClient().getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey!);
+  return getQueryClient().getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey);
 }
 
 /**
@@ -76,7 +84,7 @@ export function getInfiniteQueryData<TPage, TCursor>(
  *   );
  */
 export function withFeatureFlag<
-  T extends UseQueryOptions<any> | UseInfiniteQueryOptions<any>
+  T extends UseQueryOptions<any, any, any, any> | UseInfiniteQueryOptions<any, any, any, any, any>
 >(condition: EcencyConfigManager.ConfigBasedCondition, options: T): T {
   return {
     ...options,
