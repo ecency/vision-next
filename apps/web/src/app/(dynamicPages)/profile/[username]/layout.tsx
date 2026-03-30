@@ -1,26 +1,23 @@
-"use client";
-
 import { ProfileCard, ProfileMenu, ProfileSearch } from "./_components";
 import { PropsWithChildren } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import "./profile.scss";
 import { Feedback } from "@/features/shared/feedback";
 import { Navbar } from "@/features/shared/navbar";
 import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { Theme } from "@/features/shared/theme";
-import { useParams } from "next/navigation";
 import { ProfileCardLoading } from "./_components/profile-card/profile-card-loading";
+import { prefetchQuery } from "@/core/react-query";
 
-export default function ProfileLayout({ children }: PropsWithChildren) {
-  const { username } = useParams();
+interface Props extends PropsWithChildren {
+  params: Promise<{ username: string }>;
+}
 
-  const { data: account } = useQuery({
-    ...getAccountFullQueryOptions((username as string).replace("%40", "")),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false
-  });
+export default async function ProfileLayout({ children, params }: Props) {
+  const { username: usernameParam } = await params;
+  const username = usernameParam.replace("%40", "");
+
+  const account = await prefetchQuery(getAccountFullQueryOptions(username));
 
   return (
     <>
@@ -41,8 +38,8 @@ export default function ProfileLayout({ children }: PropsWithChildren) {
           </span>
         </div>
         <div className="w-full min-w-0">
-          <ProfileMenu username={(username as string).replace("%40", "")} />
-          <ProfileSearch username={(username as string).replace("%40", "")} />
+          <ProfileMenu username={username} />
+          <ProfileSearch username={username} />
 
           {children}
         </div>

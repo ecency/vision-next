@@ -78,9 +78,10 @@ export function ClientProviders(props: PropsWithChildren) {
               </EcencyConfigManager.Conditional>
               <Tracker />
               <Announcements />
-              <PushNotificationsProvider>
-                <></>
-              </PushNotificationsProvider>
+              {/* Side-effect only: WebSocket + Firebase notification setup.
+                  Does not provide context - safe to mount outside the children tree.
+                  Deferred because notification init is non-critical for LCP. */}
+              <PushNotificationsProvider />
             </Suspense>
           </DeferredRender>
         </UIManager>

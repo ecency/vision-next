@@ -3,8 +3,6 @@ import { getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
-import { getQueryClient } from "@/core/react-query";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
@@ -22,13 +20,9 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-// Entry pages require dynamic rendering for real-time blockchain data:
-// - Vote counts change every few seconds
-// - Comments appear in real-time
-// - Payout values fluctuate
-// - User-specific voting status
-// ISR would serve stale data which is harmful for blockchain UX
-export const dynamic = "force-dynamic";
+// ISR: post body/title/tags are stable after publishing.
+// Live data (votes, comments, payout) is fetched client-side after hydration.
+export const revalidate = 120;
 
 export async function generateMetadata(
   props: Props,
@@ -56,8 +50,9 @@ export default async function EntryPage({ params, searchParams }: Props) {
     return redirect(`/waves/${author}/${permlink}`);
   }
 
+  let account;
   if (entry?.author) {
-    await prefetchQuery(getAccountFullQueryOptions(entry.author));
+    account = await prefetchQuery(getAccountFullQueryOptions(entry.author));
   }
 
   if (!entry) {
@@ -79,24 +74,22 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <EntryPageContextProvider>
-        <MdHandler />
-        <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
-          <div className="the-entry">
-            <EntryPageCrossPostHeader entry={entry} />
-            <span itemScope itemType="http://schema.org/Article">
-              <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-              <EntryPageContentClient entry={entry} />
-              <EntryPageDiscussionsWrapper
-                entry={entry}
-                category={category}
-              />
-            </span>
-          </div>
+    <EntryPageContextProvider>
+      <MdHandler />
+      <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
+        <div className="the-entry">
+          <EntryPageCrossPostHeader entry={entry} />
+          <span itemScope itemType="http://schema.org/Article">
+            <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+            <EntryPageContentClient entry={entry} />
+            <EntryPageDiscussionsWrapper
+              entry={entry}
+              category={category}
+            />
+          </span>
         </div>
-        <EntryPageEditHistory entry={entry} />
-      </EntryPageContextProvider>
-    </HydrationBoundary>
+      </div>
+      <EntryPageEditHistory entry={entry} />
+    </EntryPageContextProvider>
   );
 }
