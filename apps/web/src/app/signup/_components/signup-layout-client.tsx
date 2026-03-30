@@ -1,6 +1,7 @@
 "use client";
 
-import { Feedback, Navbar } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";

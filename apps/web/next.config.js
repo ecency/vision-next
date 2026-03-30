@@ -15,8 +15,23 @@ const withPWA = require("next-pwa")({
         cacheName: 'ecency-api',
         networkTimeoutSeconds: 3,
         expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 5 * 60 // 5 minutes
+          maxEntries: 30,
+          maxAgeSeconds: 2 * 60 // 2 minutes
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // Cache CDN-proxied images (user avatars, post images)
+      urlPattern: /^https:\/\/images\.ecency\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'ecency-images-cdn',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
         },
         cacheableResponse: {
           statuses: [0, 200]

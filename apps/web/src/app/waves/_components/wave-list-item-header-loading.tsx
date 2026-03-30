@@ -1,4 +1,4 @@
-import { UserAvatarLoading } from "@/features/shared";
+import { UserAvatarLoading } from "@/features/shared/user-avatar";
 import React from "react";
 
 export function WaveListItemHeaderLoading() {

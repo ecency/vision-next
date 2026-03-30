@@ -1,9 +1,8 @@
-import { prefetchQuery } from "@/core/react-query";
+import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
-import { getQueryClient } from "@/core/react-query";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -22,13 +21,9 @@ interface Props {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-// Entry pages require dynamic rendering for real-time blockchain data:
-// - Vote counts change every few seconds
-// - Comments appear in real-time
-// - Payout values fluctuate
-// - User-specific voting status
-// ISR would serve stale data which is harmful for blockchain UX
-export const dynamic = "force-dynamic";
+// ISR: post body/title/tags are stable after publishing.
+// Live data (votes, comments, payout) is fetched client-side after hydration.
+export const revalidate = 120;
 
 export async function generateMetadata(
   props: Props,
@@ -57,6 +52,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   if (entry?.author) {
+    // Warm the query cache for child components that read account data
     await prefetchQuery(getAccountFullQueryOptions(entry.author));
   }
 

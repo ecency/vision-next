@@ -2,14 +2,11 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import {
-  Feedback,
-  Navbar,
-  PurchaseQrBuilder,
-  PurchaseTypes,
-  ScrollToTop,
-  Theme
-} from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { PurchaseQrBuilder, PurchaseTypes } from "@/features/shared/purchase-qr";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { FullAccount } from "@/entities";

@@ -16,7 +16,8 @@ import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import { MarketMode } from "@/app/market/_enums/market-mode";
 import { useRouter } from "next/navigation";
 import "../index.scss";
-import { Feedback, Navbar } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
 
 export function MarketAdvancedPage() {
   const router = useRouter();

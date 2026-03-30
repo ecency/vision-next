@@ -1,4 +1,6 @@
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { FullHeight } from "@/features/ui";
 import React, { PropsWithChildren, ReactNode } from "react";
 import Image from "next/image";

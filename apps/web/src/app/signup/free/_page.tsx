@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import i18next from "i18next";
 import { getAccountsQueryOptions, signUp } from "@ecency/sdk";
-import { error } from "@/features/shared";
+import { error } from "@/features/shared/feedback";
 import { getUsernameError, handleInvalid, handleOnInput } from "@/utils";
 import { checkSvg } from "@ui/svg";
 import { useGlobalStore } from "@/core/global-store";

@@ -1,5 +1,8 @@
-import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
-import { LandingPage } from "@/app/_components";
+import { Feedback } from "@/features/shared/feedback";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
+import { Navbar } from "@/features/shared/navbar";
+import { LandingPage } from "@/app/_components/landing-page";
 import { Metadata } from "next";
 import defaults from "@/defaults.json";
 import { getServerAppBase } from "@/utils/server-app-base";

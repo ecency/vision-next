@@ -3,7 +3,12 @@
 import { EntryPageContext } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/context";
 import { SimilarEntries } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/similar-entries";
 import defaults from "@/defaults";
-import { EditHistory, LinearProgress, Navbar, ScrollToTop, StaticNavbar, Theme } from "@/features/shared";
+import { EditHistory } from "@/features/shared/edit-history";
+import { LinearProgress } from "@/features/shared/linear-progress";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { StaticNavbar } from "@/features/shared/static-navbar";
+import { Theme } from "@/features/shared/theme";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";
 import { getDeletedEntryQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";

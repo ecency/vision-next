@@ -5,15 +5,10 @@ import "@/core/sdk-init";
 import { ClientInit } from "@/app/client-init";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
-import { Announcements } from "@/features/announcement";
-import { Tracker } from "@/features/monitoring";
-import { AuthUpgradeDialog } from "@/features/shared/auth-upgrade";
-import { PushNotificationsProvider } from "@/features/push-notifications";
-import { UserActivityRecorder } from "@/features/user-activity";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { UIManager } from "@ui/core";
 import dynamic from "next/dynamic";
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, lazy, Suspense, useEffect, useState } from "react";
 import { ProgressProvider } from "@bprogress/next/app";
 
 const ReactQueryDevtools =
@@ -26,6 +21,24 @@ const ReactQueryDevtools =
         { ssr: false }
       )
     : () => null;
+
+const AuthUpgradeDialog = lazy(() =>
+  import("@/features/shared/auth-upgrade").then((m) => ({ default: m.AuthUpgradeDialog }))
+);
+const Tracker = lazy(() =>
+  import("@/features/monitoring").then((m) => ({ default: m.Tracker }))
+);
+const Announcements = lazy(() =>
+  import("@/features/announcement").then((m) => ({ default: m.Announcements }))
+);
+const UserActivityRecorder = lazy(() =>
+  import("@/features/user-activity").then((m) => ({ default: m.UserActivityRecorder }))
+);
+const PushNotificationsProvider = lazy(() =>
+  import("@/features/push-notifications").then((m) => ({
+    default: m.PushNotificationsProvider
+  }))
+);
 
 /**
  * Defers rendering children until after initial page load for LCP optimization
@@ -53,21 +66,29 @@ export function ClientProviders(props: PropsWithChildren) {
       >
         <UIManager>
           <ClientInit />
+          {props.children}
           {/* Defer non-critical components for LCP optimization */}
           <DeferredRender>
-            <AuthUpgradeDialog />
-            <EcencyConfigManager.Conditional
-              condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
-            >
-              <UserActivityRecorder />
-            </EcencyConfigManager.Conditional>
-            <Tracker />
-            <Announcements />
+            <Suspense>
+              <AuthUpgradeDialog />
+              <EcencyConfigManager.Conditional
+                condition={({ visionFeatures }) => visionFeatures.userActivityTracking.enabled}
+              >
+                <UserActivityRecorder />
+              </EcencyConfigManager.Conditional>
+              <Tracker />
+              <Announcements />
+              {/* Side-effect only: WebSocket + Firebase notification setup.
+                  Does not provide context - safe to mount outside the children tree.
+                  Deferred because notification init is non-critical for LCP. */}
+              <PushNotificationsProvider />
+            </Suspense>
           </DeferredRender>
-          <PushNotificationsProvider>{props.children}</PushNotificationsProvider>
         </UIManager>
       </ProgressProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <Suspense>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </Suspense>
     </QueryClientProvider>
   );
 }

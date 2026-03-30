@@ -2,8 +2,7 @@ import { generateProfileMetadata } from "../_helpers";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { ProfileInsights } from "./_page";
 
@@ -30,10 +29,5 @@ export default async function InsightsPage({ params }: Props) {
     return redirect(`/@${username.replace("%40", "")}`);
   }
 
-  return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileInsights username={account.name} />
-    </HydrationBoundary>
-  );
+  return <ProfileInsights username={account.name} />;
 }
-

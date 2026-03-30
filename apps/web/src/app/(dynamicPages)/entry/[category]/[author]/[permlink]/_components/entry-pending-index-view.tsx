@@ -2,7 +2,12 @@
 
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
-import { LinearProgress, Navbar, ProfileLink, ScrollToTop, Theme, UserAvatar } from "@/features/shared";
+import { LinearProgress } from "@/features/shared/linear-progress";
+import { Navbar } from "@/features/shared/navbar";
+import { ProfileLink } from "@/features/shared/profile-link";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import { TagLink } from "@/features/shared/tag";
 import { accountReputation } from "@/utils";
 import { renderPostBody, setProxyBase } from "@ecency/render-helper";

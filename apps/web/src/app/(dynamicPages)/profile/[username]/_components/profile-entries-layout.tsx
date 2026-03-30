@@ -4,7 +4,7 @@ import { ListStyle } from "@/enums";
 import { PropsWithChildren } from "react";
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
-import { LinearProgress } from "@/features/shared";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import { isCommunity } from "@/utils";
 
 interface Props {

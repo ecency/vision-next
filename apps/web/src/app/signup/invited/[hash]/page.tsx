@@ -6,8 +6,6 @@ interface Props {
   params: Promise<{ hash: string }>;
 }
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata(
   props: unknown,
   parent: ResolvingMetadata

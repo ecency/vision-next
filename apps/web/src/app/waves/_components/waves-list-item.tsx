@@ -42,7 +42,7 @@ interface Props {
   feedType?: WavesFeedType;
 }
 
-export function WavesListItem({
+export const WavesListItem = React.memo(function WavesListItem({
   item,
   i,
   commentSlot,
@@ -332,4 +332,4 @@ export function WavesListItem({
       )}
     </motion.div>
   );
-}
+});

@@ -4,7 +4,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { CommunityListItem } from "@/app/_components";
 import { useCommunitiesCache } from "@/core/caches";
 import { Account } from "@/entities";
-import { LinearProgress } from "@/features/shared";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import {
   Dropdown,
   DropdownItem,

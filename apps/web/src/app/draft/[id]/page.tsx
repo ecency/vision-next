@@ -2,8 +2,6 @@ import { SubmitWithProvidersPage } from "@/app/submit/_page";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { Metadata, ResolvingMetadata } from "next";
 
-export const dynamic = "force-dynamic";
-
 interface Props {
   params: Promise<{
     id: string;
