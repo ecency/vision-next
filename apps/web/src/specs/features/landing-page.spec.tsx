@@ -4,10 +4,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock global store
 const mockToggleUiProp = vi.fn();
+let mockTheme = "day";
 vi.mock("@/core/global-store", () => ({
   useGlobalStore: vi.fn((selector: any) => {
     const state = {
-      theme: "day",
+      theme: mockTheme,
       toggleUiProp: mockToggleUiProp
     };
     return selector(state);
@@ -93,7 +94,9 @@ describe("LandingSubscribeForm", () => {
     render(<LandingSubscribeForm />);
     const input = screen.getByPlaceholderText("landing-page.enter-your-email-adress");
     fireEvent.change(input, { target: { value: "test@example.com" } });
-    fireEvent.submit(input.closest("form")!);
+    const form = input.closest("form");
+    expect(form).not.toBeNull();
+    fireEvent.submit(form!);
 
     await waitFor(() => {
       expect(mockSubscribeEmail).toHaveBeenCalledWith("test@example.com");
@@ -107,7 +110,9 @@ describe("LandingSubscribeForm", () => {
     render(<LandingSubscribeForm />);
     const input = screen.getByPlaceholderText("landing-page.enter-your-email-adress");
     fireEvent.change(input, { target: { value: "test@example.com" } });
-    fireEvent.submit(input.closest("form")!);
+    const form = input.closest("form");
+    expect(form).not.toBeNull();
+    fireEvent.submit(form!);
 
     await waitFor(() => {
       expect(errorFn).toHaveBeenCalledWith("landing-page.error-occured");
@@ -120,7 +125,9 @@ describe("LandingSubscribeForm", () => {
     render(<LandingSubscribeForm />);
     const input = screen.getByPlaceholderText("landing-page.enter-your-email-adress") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "test@example.com" } });
-    fireEvent.submit(input.closest("form")!);
+    const form = input.closest("form");
+    expect(form).not.toBeNull();
+    fireEvent.submit(form!);
 
     await waitFor(() => {
       expect(input.value).toBe("");
@@ -167,9 +174,19 @@ describe("LandingDownloadLinks", () => {
   });
 
   it("shows day theme icons when theme is day", () => {
+    mockTheme = "day";
     render(<LandingDownloadLinks {...props} />);
     const images = screen.getAllByRole("img");
     expect(images[0]).toHaveAttribute("src", "/icon-apple.svg");
     expect(images[1]).toHaveAttribute("src", "/icon-android.svg");
+  });
+
+  it("shows night theme icons when theme is night", () => {
+    mockTheme = "night";
+    render(<LandingDownloadLinks {...props} />);
+    const images = screen.getAllByRole("img");
+    expect(images[0]).toHaveAttribute("src", "/icon-apple-white.svg");
+    expect(images[1]).toHaveAttribute("src", "/icon-android-white.svg");
+    mockTheme = "day"; // reset
   });
 });

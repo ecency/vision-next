@@ -1,8 +1,9 @@
-import { prefetchQuery } from "@/core/react-query";
+import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { generateEntryMetadata } from "../../../_helpers";
@@ -74,22 +75,24 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   return (
-    <EntryPageContextProvider>
-      <MdHandler />
-      <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
-        <div className="the-entry">
-          <EntryPageCrossPostHeader entry={entry} />
-          <span itemScope itemType="http://schema.org/Article">
-            <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
-            <EntryPageContentClient entry={entry} />
-            <EntryPageDiscussionsWrapper
-              entry={entry}
-              category={category}
-            />
-          </span>
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <EntryPageContextProvider>
+        <MdHandler />
+        <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
+          <div className="the-entry">
+            <EntryPageCrossPostHeader entry={entry} />
+            <span itemScope itemType="http://schema.org/Article">
+              <EntryPageContentSSR entry={entry} isRawContent={isRawContent} />
+              <EntryPageContentClient entry={entry} />
+              <EntryPageDiscussionsWrapper
+                entry={entry}
+                category={category}
+              />
+            </span>
+          </div>
         </div>
-      </div>
-      <EntryPageEditHistory entry={entry} />
-    </EntryPageContextProvider>
+        <EntryPageEditHistory entry={entry} />
+      </EntryPageContextProvider>
+    </HydrationBoundary>
   );
 }

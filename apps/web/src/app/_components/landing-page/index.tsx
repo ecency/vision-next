@@ -14,6 +14,18 @@ import { LandingDownloadLinks } from "./landing-download-links";
  * Helper to build a <picture> element that serves webp with png/jpeg fallback.
  * This replaces the old client-side canUseWebp check with pure HTML content negotiation.
  */
+interface AssetPictureProps {
+  basePath: string;
+  fallbackExt?: "png" | "jpeg";
+  alt: string;
+  className?: string;
+  loading?: "lazy" | "eager";
+  width?: number;
+  height?: number;
+  sizes?: string;
+  priority?: boolean;
+}
+
 function AssetPicture({
   basePath,
   fallbackExt = "png",
@@ -24,17 +36,7 @@ function AssetPicture({
   height,
   sizes,
   priority
-}: {
-  basePath: string;
-  fallbackExt?: "png" | "jpeg";
-  alt: string;
-  className?: string;
-  loading?: "lazy" | "eager";
-  width?: number;
-  height?: number;
-  sizes?: string;
-  priority?: boolean;
-}) {
+}: AssetPictureProps) {
   const baseUrl = defaults.base;
   const webpSrc = `${baseUrl}/assets/${basePath}.webp`;
   const fallbackSrc = `${baseUrl}/assets/${basePath}.${fallbackExt}`;
@@ -269,7 +271,11 @@ export async function LandingPage() {
         </div>
       </div>
 
-      {/* History & Vision */}
+      {/* History & Vision
+          dangerouslySetInnerHTML is safe here: translation values come from
+          static JSON locale files shipped with the build (en-US.json etc.),
+          never from user input. If translations ever include user-generated
+          content, sanitize with DOMPurify before inserting. */}
       <div className="sections fifth-section" id="about">
         <div className="part-top pt-5 sm:pt-0">
           <div className="inner">
