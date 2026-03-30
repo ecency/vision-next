@@ -452,6 +452,24 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       });
     },
 
+    async broadcastWithHiveSigner(
+      username: string,
+      ops: Operation[],
+      _keyType: 'posting' | 'active' | 'owner' | 'memo',
+    ): Promise<TransactionConfirmation> {
+      // HiveSigner hot signing: redirects the browser to hivesigner.com for the
+      // user to review and sign the operation. The page navigates away, so we
+      // return a never-resolving promise — same pattern as Keychain Mobile deep
+      // links (broadcastWithKeychainMobileDeepLink) and wallet-operations-sign.
+      return new Promise(() => {
+        hs.sendOperations(
+          ops,
+          { callback: `${window.location.origin}${window.location.pathname}` },
+          () => {}
+        );
+      });
+    },
+
     async broadcastWithHiveAuth(
       username: string,
       ops: Operation[],
