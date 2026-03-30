@@ -2,7 +2,7 @@ declare module "heic2any" {
   interface Options {
     blob: Blob;
     multiple?: boolean;
-    toType?: string;
+    toType?: "image/png" | "image/jpeg" | "image/gif";
     quality?: number;
     gifInterval?: number;
   }
