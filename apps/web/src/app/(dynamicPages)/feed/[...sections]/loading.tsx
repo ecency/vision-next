@@ -1,5 +1,5 @@
-import { EntryListLoadingItem } from "@/features/shared";
-import { LinearProgress } from "@/features/shared";
+import { EntryListLoadingItem } from "@/features/shared/entry-list-loading-item";
+import { LinearProgress } from "@/features/shared/linear-progress";
 
 export default function Loading() {
   return (

@@ -1,8 +1,9 @@
 import React from "react";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Whitepaper"

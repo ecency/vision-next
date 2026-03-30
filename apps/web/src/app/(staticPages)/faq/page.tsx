@@ -1,4 +1,7 @@
-import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Metadata, ResolvingMetadata } from "next";
 import i18next from "i18next";
 import {

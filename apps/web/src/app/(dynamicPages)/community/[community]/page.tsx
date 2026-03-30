@@ -1,7 +1,8 @@
 import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
-import { EntryListContent, LinearProgress } from "@/features/shared";
+import { EntryListContent } from "@/features/shared/entry-list-content";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[community]/_components/community-content-search";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { Entry } from "@/entities";

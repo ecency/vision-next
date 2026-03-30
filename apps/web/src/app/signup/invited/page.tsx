@@ -7,7 +7,7 @@ import { b64uEnc } from "@/utils";
 import { getUsernameError, handleInvalid, handleOnInput } from "@/utils";
 import i18next from "i18next";
 import { copyContent, downloadSvg, regenerateSvg } from "@ui/svg";
-import { error, success } from "@/features/shared";
+import { error, success } from "@/features/shared/feedback";
 import { clipboard } from "@/utils/clipboard";
 import { Tooltip } from "@ui/tooltip";
 import { useDownloadKeys } from "@/features/wallet";

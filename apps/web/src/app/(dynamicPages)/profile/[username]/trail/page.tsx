@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { CurationTrail } from "../_components";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -25,10 +24,8 @@ export default async function TrailPage({ params }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileEntriesLayout username={username.replace("%40", "")} section="trail">
-        <CurationTrail account={account} section="trail" />
-      </ProfileEntriesLayout>
-    </HydrationBoundary>
+    <ProfileEntriesLayout username={username.replace("%40", "")} section="trail">
+      <CurationTrail account={account} section="trail" />
+    </ProfileEntriesLayout>
   );
 }

@@ -1,11 +1,12 @@
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Tsx } from "@/features/i18n/helper";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { Metadata, ResolvingMetadata } from "next";
 import i18next from "i18next";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   props: unknown,

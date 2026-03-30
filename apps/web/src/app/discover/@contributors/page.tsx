@@ -1,7 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { getContributorsQueryOptions } from "@/api/queries";
-import { ProfileLink, UserAvatar } from "@/features/shared";
+import { ProfileLink } from "@/features/shared/profile-link";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import React from "react";
 import { UsersTableListLayout } from "@/app/discover/_components";
 

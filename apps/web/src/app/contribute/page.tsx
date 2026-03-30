@@ -1,12 +1,13 @@
 import { Metadata } from "next";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import "@/styles/static-pages.scss";
 
 export const metadata: Metadata = {
   title: "Contribute"
 };
 
-export const dynamic = "force-dynamic";
 
 export default function Contribute() {
   return (

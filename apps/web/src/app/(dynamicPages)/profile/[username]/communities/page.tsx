@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { ProfileCommunities } from "./_page";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -26,9 +25,5 @@ export default async function ProfileCommunitiesPage({ params }: Props) {
     return notFound();
   }
 
-  return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileCommunities />
-    </HydrationBoundary>
-  );
+  return <ProfileCommunities />;
 }

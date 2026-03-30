@@ -42,6 +42,11 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: "owner must match the logged-in user" }, { status: 403 });
     }
 
+    // Mobile clients authenticate via body.code (HiveSigner token) and
+    // don't send a browser Origin header, so skip the origin restriction.
+    // Web clients use cookie auth and need origin enforcement.
+    const isMobileClient = typeof body.code === "string" && body.code.length > 0;
+
     const res = await fetch(`${embedEndpoint}/uploads/token`, {
       method: "POST",
       headers: {
@@ -52,10 +57,9 @@ export async function POST(req: NextRequest) {
         owner,
         frontend_app: "ecency",
         short: !!isShort,
-        allowed_origins: [
-          "https://ecency.com",
-          "https://alpha.ecency.com"
-        ]
+        allowed_origins: isMobileClient
+          ? []
+          : ["https://ecency.com", "https://alpha.ecency.com"]
       })
     });
 

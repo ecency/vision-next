@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Feedback, Theme } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Theme } from "@/features/shared/theme";
 import dynamic from "next/dynamic";
 
 const Decks = dynamic(

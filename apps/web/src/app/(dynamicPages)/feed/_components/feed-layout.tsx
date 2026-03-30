@@ -5,7 +5,9 @@ import React, { PropsWithChildren, useEffect, useRef, useState, useMemo } from "
 import { useGlobalStore } from "@/core/global-store";
 import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
-import { LinearProgress, UserAvatar, EntryListContent } from "@/features/shared";
+import { EntryListContent } from "@/features/shared/entry-list-content";
+import { LinearProgress } from "@/features/shared/linear-progress";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import { getPostsRankedQueryOptions, QueryKeys } from "@ecency/sdk";
 import { getQueryClient } from "@/core/react-query";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";

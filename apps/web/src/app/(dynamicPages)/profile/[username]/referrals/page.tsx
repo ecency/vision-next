@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import { ProfileReferrals } from "../_components";
-import { Redirect } from "@/features/shared";
+import { Redirect } from "@/features/shared/redirect";
 import { EcencyConfigManager } from "@/config";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -26,13 +25,11 @@ export default async function ReferralsPage({ params }: Props) {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <EcencyConfigManager.Conditional
-        condition={({ visionFeatures }) => visionFeatures.referrals.enabled}
-        fallback={<Redirect path="/" />}
-      >
-        <ProfileReferrals account={account} />
-      </EcencyConfigManager.Conditional>
-    </HydrationBoundary>
+    <EcencyConfigManager.Conditional
+      condition={({ visionFeatures }) => visionFeatures.referrals.enabled}
+      fallback={<Redirect path="/" />}
+    >
+      <ProfileReferrals account={account} />
+    </EcencyConfigManager.Conditional>
   );
 }

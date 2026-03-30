@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { MattermostChannelView } from "@/features/chat/mattermost-channel-view";
 import { useMattermostBootstrap } from "@/features/chat/mattermost-api";
 import { ChatErrorBoundary } from "@/features/chat/chat-error-boundary";
-import { LoginRequired } from "@/features/shared";
+import { LoginRequired } from "@/features/shared/login-required";
 import { useHydrated } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 

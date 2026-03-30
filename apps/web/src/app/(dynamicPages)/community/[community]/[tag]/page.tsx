@@ -1,7 +1,8 @@
 import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
-import { EntryListContent, LinearProgress } from "@/features/shared";
+import { EntryListContent } from "@/features/shared/entry-list-content";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import { dehydrate, HydrationBoundary, InfiniteData } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";

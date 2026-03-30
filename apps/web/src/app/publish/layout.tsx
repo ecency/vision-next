@@ -1,6 +1,8 @@
 "use client";
 
-import { Feedback, Navbar, Theme } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { Theme } from "@/features/shared/theme";
 import { PropsWithChildren } from "react";
 import { PublishOnboarding } from "./_components";
 import "./page.scss";

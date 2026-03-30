@@ -1,4 +1,4 @@
-import { EntryListLoadingItem } from "@/features/shared";
+import { EntryListLoadingItem } from "@/features/shared/entry-list-loading-item";
 
 export default function Loading() {
   return (

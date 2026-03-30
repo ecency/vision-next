@@ -36,15 +36,11 @@ import { Button } from "@ui/button";
 import { FormControl } from "@ui/input";
 import { PollsContext, PollsManager } from "@/app/submit/_hooks/polls-manager";
 import { FullHeight } from "@/features/ui";
-import {
-  AvailableCredits,
-  EditorToolbar,
-  error,
-  Feedback,
-  Navbar,
-  Theme,
-  toolbarEventListener
-} from "@/features/shared";
+import { AvailableCredits } from "@/features/shared/available-credits";
+import { EditorToolbar, toolbarEventListener } from "@/features/shared/editor-toolbar";
+import { error, Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { Theme } from "@/features/shared/theme";
 import i18next from "i18next";
 import { extractMetaData, isCommunity } from "@/utils";
 import { Draft, Entry, RewardType } from "@/entities";

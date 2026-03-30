@@ -1,6 +1,8 @@
 "use client";
 
-import { Feedback, Navbar, ScrollToTop } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
 import { PropsWithChildren, ReactNode, useMemo } from "react";
 import {
   WaveAuthorCard,

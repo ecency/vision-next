@@ -9,8 +9,16 @@ import { NavbarMobile } from "./navbar-mobile";
 import { NavbarDesktop } from "./navbar-desktop";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Theme } from "@/enums";
-import { LoginDialog, NotificationsDialog } from "@/features/shared";
 import { classNameObject } from "@ui/util";
+import { lazy, Suspense } from "react";
+
+const LoginDialog = lazy(() =>
+  import("@/features/shared/login").then((m) => ({ default: m.LoginDialog }))
+);
+
+const NotificationsDialog = lazy(() =>
+  import("@/features/shared/notifications").then((m) => ({ default: m.NotificationsDialog }))
+);
 import { useClientTheme } from "@/api/queries";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -119,9 +127,11 @@ export function Navbar({ setStepOne, setStepTwo, step, experimental = false }: P
         setSmVisible={setSmVisible}
         experimental={experimental}
       />
-      <LoginDialog />
-      {/*Do not remove from here because it`s controlling by global store*/}
-      <NotificationsDialog />
+      <Suspense>
+        <LoginDialog />
+        {/*Do not remove from here because it`s controlling by global store*/}
+        <NotificationsDialog />
+      </Suspense>
     </div>
   );
 }

@@ -5,12 +5,8 @@ import { usePostsFeedQuery } from "@/api/queries";
 import { Entry, SearchResponse } from "@/entities";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
-import {
-  DetectBottom,
-  EntryListContent,
-  EntryListContentLoading,
-  EntryListContentNoData
-} from "@/features/shared";
+import { DetectBottom } from "@/features/shared/detect-bottom";
+import { EntryListContent, EntryListContentLoading, EntryListContentNoData } from "@/features/shared/entry-list-content";
 import { EcencyConfigManager } from "@/config";
 import { getPromotedPostsQuery } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";

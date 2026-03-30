@@ -10,10 +10,10 @@ import { BuyWithHiveForm, BuyWithHiveSuccess } from "./_components";
 import "./_page.scss";
 import { useRef, useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
-import { TransferAsset } from "@/features/shared";
+import { TransferAsset } from "@/features/shared/transfer";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useSignTransfer } from "@/api/mutations";
-import { error } from "@/features/shared";
+import { error } from "@/features/shared/feedback";
 import { formatError } from "@/api/format-error";
 
 export function BuyPointsPage() {
