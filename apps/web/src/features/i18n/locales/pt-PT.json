@@ -2810,6 +2810,10 @@
     "no-ls-description": "Parece que você ou seu navegador desativou os dados locais do nosso site. Infelizmente, você não pode usar a maior parte dos recursos de Ecency como rascunhos, decks locais, painel de trading avançado e muito mais. Por favor, use as versões mais recentes de qualquer navegador moderno ou ative os dados locais manualmente."
   },
   "waves": {
+    "feed": {
+      "for-you": "Para você",
+      "following": "Seguinte"
+    },
     "sources": "Fontes",
     "reply-form-title": "Respondendo a",
     "hide-replies": "Ocultar respostas",
