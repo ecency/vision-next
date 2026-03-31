@@ -57,7 +57,7 @@ describe('text() method - Text Node Processing', () => {
         const links = parent.getElementsByTagName('a')
         expect(links.length).toBeGreaterThan(0)
         const tagLinks = Array.from(links).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks.length).toBe(2)
       })
@@ -71,7 +71,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks.length).toBe(0)
       })
@@ -85,7 +85,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks.length).toBe(1)
       })
@@ -99,7 +99,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks.length).toBe(1)
       })
@@ -113,7 +113,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks.length).toBe(3)
       })
@@ -127,7 +127,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks[0]?.getAttribute('href')).toBe('/trending/bitcoin')
       })
@@ -141,7 +141,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, true)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(tagLinks[0]?.getAttribute('data-tag')).toBe('bitcoin')
       })
@@ -157,7 +157,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks.length).toBe(2)
       })
@@ -171,7 +171,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks.length).toBe(1)
       })
@@ -185,7 +185,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks.length).toBe(1)
       })
@@ -199,7 +199,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks.length).toBe(1)
       })
@@ -213,7 +213,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks[0]?.getAttribute('href')).toBe('/@alice')
       })
@@ -227,7 +227,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, true)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks[0]?.getAttribute('data-author')).toBe('alice')
       })
@@ -241,7 +241,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         expect(authorLinks.length).toBe(0)
       })
@@ -358,10 +358,10 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, false)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-author-link'
+          link.getAttribute('class') === 'er-author er-author-link'
         )
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'markdown-tag-link'
+          link.getAttribute('class') === 'er-tag er-tag-link'
         )
         expect(authorLinks.length).toBe(1)
         expect(tagLinks.length).toBe(2)
@@ -974,10 +974,10 @@ describe('text() method - Text Node Processing', () => {
       text(textNode as any, true)
 
       const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'markdown-tag-link'
+        link.getAttribute('class') === 'er-tag er-tag-link'
       )
       const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'markdown-author-link'
+        link.getAttribute('class') === 'er-author er-author-link'
       )
 
       expect(tagLinks[0]?.getAttribute('data-tag')).toBeTruthy()
@@ -993,10 +993,10 @@ describe('text() method - Text Node Processing', () => {
       text(textNode as any, false)
 
       const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'markdown-tag-link'
+        link.getAttribute('class') === 'er-tag er-tag-link'
       )
       const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'markdown-author-link'
+        link.getAttribute('class') === 'er-author er-author-link'
       )
 
       expect(tagLinks[0]?.getAttribute('href')).toBeTruthy()

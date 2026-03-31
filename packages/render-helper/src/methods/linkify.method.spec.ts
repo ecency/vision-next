@@ -6,7 +6,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '#bitcoin is great'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/bitcoin"')
       expect(result).toContain('#bitcoin</a>')
     })
@@ -23,7 +23,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '<strong>Bold</strong>#technology'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/technology"')
     })
 
@@ -31,7 +31,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = 'Test #123 numbers'
       const result = linkify(content, false)
 
-      expect(result).not.toContain('class="markdown-tag-link"')
+      expect(result).not.toContain('class="er-tag er-tag-link"')
       expect(result).toBe(content)
     })
 
@@ -57,7 +57,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@username wrote this'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@username"')
       expect(result).toContain('@username</a>')
     })
@@ -107,7 +107,7 @@ describe('linkify() method - Content Linkification', () => {
       // Bare @scope/package should NOT be treated as a Hive internal link
       // Only /@user/permlink (with leading /) should be
       expect(result).not.toContain('markdown-post-link')
-      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('er-author-link')
       expect(result).toContain('@user/name')
     })
   })
@@ -173,7 +173,7 @@ describe('linkify() method - Content Linkification', () => {
 
       // Bare @scope/package must not become any kind of link
       expect(result).not.toContain('markdown-post-link')
-      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('er-author-link')
       expect(result).toContain('@hiveio/x402')
     })
 
@@ -249,7 +249,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       // Should not create a link for invalid tag
-      expect(result).not.toContain('class="markdown-tag-link"')
+      expect(result).not.toContain('class="er-tag er-tag-link"')
     })
 
     it('should handle usernames with special characters', () => {
@@ -257,7 +257,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       // Valid username should be linkified
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@user"')
     })
 
@@ -275,9 +275,9 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@alice wrote about #bitcoin'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@alice"')
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/bitcoin"')
     })
 
@@ -293,8 +293,8 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@user wrote about #crypto in /@author/post with https://example.com/image.jpg'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
       expect(result).toContain('markdown-post-link')
       expect(result).toContain('<img')
     })
@@ -316,24 +316,24 @@ describe('linkify() method - Content Linkification', () => {
       const content = '   @user   #tag   '
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
 
     it('should handle newlines', () => {
       const content = '@user\n#tag'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
 
     it('should handle very long content', () => {
       const content = 'a'.repeat(10000) + ' @user #tag'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
   })
 })
