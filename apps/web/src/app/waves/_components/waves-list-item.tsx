@@ -29,7 +29,7 @@ import {
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
 
 const INTERACTIVE_SELECTOR =
-  "a,button,input,textarea,select,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
+  "a,button,input,textarea,select,img,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
 
 interface Props {
   item: WaveEntry;
@@ -71,10 +71,10 @@ export const WavesListItem = React.memo(function WavesListItem({
         return;
       }
 
-      tagFilter.setSelectedTag(tag);
-
       if (pathname !== "/waves") {
-        router.push("/waves");
+        router.push(`/waves?tag=${encodeURIComponent(tag)}`);
+      } else {
+        tagFilter.setSelectedTag(tag);
       }
     },
     [pathname, router, tagFilter]
