@@ -76,12 +76,12 @@
       @include margin-bottom(0);
     }
 
-    > img:not(.er-author-link-image) {
+    > img:not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
       @include margin-top(1rem);
       @include margin-bottom(1rem);
     }
 
-    img:not(.er-author-link-image) {
+    img:not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
       width: 100%;
 
       @include border-radius(1rem);
@@ -96,7 +96,7 @@
     }
   }
 
-  img:not(.video-thumbnail):not(.er-author-link-image) {
+  img:not(.video-thumbnail):not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
     cursor: pointer;
     transition: 0.3s;
     width: 100%;
