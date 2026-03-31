@@ -433,7 +433,7 @@ var addLineBreakBeforePostLink = (el, forApp, isInline) => {
     el.parentNode.insertBefore(br, el);
   }
 };
-function a(el, forApp, parentDomain = "ecency.com", seoContext) {
+function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -911,21 +911,23 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
         if (el.textContent.trim() === href) {
           el.textContent = "";
         }
-        if (imgEls2.length === 1) {
-          const src = imgEls2[0].getAttribute("src");
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
-            const thumbImg = el.ownerDocument.createElement("img");
-            thumbImg.setAttribute("class", "no-replace video-thumbnail");
-            thumbImg.setAttribute("itemprop", "thumbnailUrl");
-            thumbImg.setAttribute("src", thumbnail);
-            el.appendChild(thumbImg);
-            el.removeChild(imgEls2[0]);
+        if (!renderOptions?.embedVideosDirectly) {
+          if (imgEls2.length === 1) {
+            const src = imgEls2[0].getAttribute("src");
+            if (src) {
+              const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
+              const thumbImg = el.ownerDocument.createElement("img");
+              thumbImg.setAttribute("class", "no-replace video-thumbnail");
+              thumbImg.setAttribute("itemprop", "thumbnailUrl");
+              thumbImg.setAttribute("src", thumbnail);
+              el.appendChild(thumbImg);
+              el.removeChild(imgEls2[0]);
+            }
           }
+          const play = el.ownerDocument.createElement("span");
+          play.setAttribute("class", "markdown-video-play");
+          el.appendChild(play);
         }
-        const play = el.ownerDocument.createElement("span");
-        play.setAttribute("class", "markdown-video-play");
-        el.appendChild(play);
         return;
       }
     }
@@ -1342,7 +1344,7 @@ function text(node, forApp) {
 }
 
 // src/methods/traverse.method.ts
-function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext) {
+function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (!node || !node.childNodes) {
     return;
   }
@@ -1351,7 +1353,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
     const next = child.nextSibling;
     const prev = child.previousSibling;
     if (child.nodeName.toLowerCase() === "a") {
-      a(child, forApp, parentDomain, seoContext);
+      a(child, forApp, parentDomain, seoContext, renderOptions);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
       iframe(child, parentDomain, forApp);
@@ -1366,11 +1368,11 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       p(child);
     }
     if (child.parentNode) {
-      traverse(child, forApp, depth + 1, state, parentDomain, seoContext);
+      traverse(child, forApp, depth + 1, state, parentDomain, seoContext, renderOptions);
     } else {
       const possibleReplacement = next ? next.previousSibling : node.lastChild;
       if (possibleReplacement && possibleReplacement !== prev && possibleReplacement.parentNode === node) {
-        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext);
+        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext, renderOptions);
       }
     }
     child = next;
@@ -1423,7 +1425,7 @@ function fixBlockLevelTagsInParagraphs(html) {
   html = html.replace(/<p><br>\s*<\/p>/g, "");
   return html;
 }
-function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) {
+function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
@@ -1483,7 +1485,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) 
     output = md.render(input);
     output = fixBlockLevelTagsInParagraphs(output);
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, "text/html");
-    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
+    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
@@ -1496,7 +1498,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) 
       });
       const repairedHtml = domSerializer(dom.children);
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, "text/html");
-      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
+      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
       const escapedContent = he2.encode(output || md.render(input));
@@ -1524,18 +1526,18 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency.com", seoContext) {
+function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (typeof obj === "string") {
     const cleanedStr = cleanReply(obj);
-    return markdownToHTML(cleanedStr, forApp, parentDomain, seoContext);
+    return markdownToHTML(cleanedStr, forApp, parentDomain, seoContext, renderOptions);
   }
-  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
+  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}${renderOptions?.embedVideosDirectly ? "-embed" : ""}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
   const cleanBody = cleanReply(obj.body);
-  const res = markdownToHTML(cleanBody, forApp, parentDomain, seoContext);
+  const res = markdownToHTML(cleanBody, forApp, parentDomain, seoContext, renderOptions);
   cacheSet(key, res);
   return res;
 }

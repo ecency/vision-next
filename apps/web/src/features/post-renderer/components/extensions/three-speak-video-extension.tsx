@@ -133,7 +133,10 @@ function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => vo
   };
 
   window.addEventListener("message", handleMessage);
-  return () => window.removeEventListener("message", handleMessage);
+  return () => {
+    window.removeEventListener("message", handleMessage);
+    element.classList.remove("speak-portrait", "speak-square");
+  };
 }
 
 export function ThreeSpeakVideoExtension({

@@ -66,6 +66,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
         <PostContentRenderer
           value={entry?.body ?? ""}
           images={entry?.json_metadata?.image}
+          renderOptions={{ embedVideosDirectly: true }}
           onTagClick={tagFilter ? handleTagClick : undefined}
         />
         {poll && <PollWidget entry={entry} poll={poll} isReadOnly={false} />}

@@ -1,7 +1,7 @@
 "use client";
 
 import { EcencyRenderer } from "@/features/post-renderer";
-import type { SeoContext } from "@ecency/render-helper";
+import type { RenderOptions, SeoContext } from "@ecency/render-helper";
 import { HTMLProps, memo, useCallback, useState } from "react";
 import { Tweet } from "react-tweet";
 import TransactionSigner from "./transactions/transaction-signer";
@@ -13,6 +13,7 @@ interface Props {
   seoContext?: SeoContext;
   onTagClick?: (tag: string) => void;
   images?: string[];
+  renderOptions?: RenderOptions;
 }
 
 export function PostContentRenderer({
@@ -20,6 +21,7 @@ export function PostContentRenderer({
   seoContext,
   onTagClick,
   images,
+  renderOptions,
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
   const [signingOperation, setSigningOperation] = useState<string>();
@@ -77,6 +79,7 @@ export function PostContentRenderer({
         value={value || ""}
         seoContext={seoContext}
         images={images}
+        renderOptions={renderOptions}
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}

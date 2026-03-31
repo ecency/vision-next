@@ -65,6 +65,9 @@ export function useAccountRevokePosting(
         }
         return auth.broadcast([["account_update", operationBody]], "active");
       } else {
+        if (!options.hsCallbackUrl && process.env.NODE_ENV === "development") {
+          console.warn("[SDK][Accounts] hsCallbackUrl not provided for HiveSigner revoke-posting; user will not be redirected after signing.");
+        }
         return hs.sendOperation(
           ["account_update", operationBody],
           options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},

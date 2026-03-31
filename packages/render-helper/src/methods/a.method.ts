@@ -33,7 +33,7 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { removeChildNodes } from './remove-child-nodes.method'
 import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink } from '../helper'
 import { createImageHTML } from "./img.method";
-import { SeoContext } from '../types'
+import { RenderOptions, SeoContext } from '../types'
 
 const NOFOLLOW_REPUTATION_THRESHOLD = 40;
 const FOLLOW_PAYOUT_THRESHOLD = 5;
@@ -132,7 +132,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext, renderOptions?: RenderOptions): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -781,23 +781,26 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         if (el.textContent.trim() === href) {
           el.textContent = ''
         }
-        if (imgEls.length === 1) {
-          const src = imgEls[0].getAttribute('src')
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
-            const thumbImg = el.ownerDocument.createElement('img')
-            thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-            thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-            thumbImg.setAttribute('src', thumbnail)
-            el.appendChild(thumbImg)
-            // Remove image.
-            el.removeChild(imgEls[0])
-          }
-        }
 
-        const play = el.ownerDocument.createElement('span')
-        play.setAttribute('class', 'markdown-video-play')
-        el.appendChild(play)
+        if (!renderOptions?.embedVideosDirectly) {
+          if (imgEls.length === 1) {
+            const src = imgEls[0].getAttribute('src')
+            if (src) {
+              const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
+              const thumbImg = el.ownerDocument.createElement('img')
+              thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+              thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+              thumbImg.setAttribute('src', thumbnail)
+              el.appendChild(thumbImg)
+              // Remove image.
+              el.removeChild(imgEls[0])
+            }
+          }
+
+          const play = el.ownerDocument.createElement('span')
+          play.setAttribute('class', 'markdown-video-play')
+          el.appendChild(play)
+        }
         return
       }
     }

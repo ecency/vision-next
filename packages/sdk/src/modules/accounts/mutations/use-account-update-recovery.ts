@@ -78,6 +78,9 @@ export function useAccountUpdateRecovery(
         }
         return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
+        if (!options.hsCallbackUrl && process.env.NODE_ENV === "development") {
+          console.warn("[SDK][Accounts] hsCallbackUrl not provided for HiveSigner update-recovery; user will not be redirected after signing.");
+        }
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
           options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},

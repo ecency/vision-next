@@ -20,10 +20,11 @@ export function TagLinkExtension({
         if (!element.isConnected || !element.parentNode) return;
 
         const tag = element.innerText.replace("/", "");
-        if (!tag) return;
+        const href = element.getAttribute("href");
+        if (!tag || !href) return;
 
         const link = document.createElement("a");
-        link.href = element.getAttribute("href") ?? "";
+        link.href = href;
         link.target = "_blank";
         link.rel = "noopener";
         link.classList.add(

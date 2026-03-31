@@ -2,7 +2,7 @@
 
 import React, { HTMLProps, useRef } from "react";
 import { renderPostBody } from "@ecency/render-helper";
-import type { SeoContext } from "@ecency/render-helper";
+import type { RenderOptions, SeoContext } from "@ecency/render-helper";
 import { clsx } from "clsx";
 import "../ecency-renderer.scss";
 import {
@@ -24,6 +24,7 @@ interface Props {
   onHiveOperationClick?: (op: string) => void;
   TwitterComponent?: any;
   images?: string[];
+  renderOptions?: RenderOptions;
 }
 
 export function EcencyRenderer({
@@ -33,6 +34,7 @@ export function EcencyRenderer({
   onHiveOperationClick,
   TwitterComponent = () => <div>No twitter component</div>,
   images,
+  renderOptions,
   ...other
 }: HTMLProps<HTMLDivElement> & Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -48,7 +50,7 @@ export function EcencyRenderer({
           pure ? "markdown-view-pure" : "",
           other.className
         )}
-        dangerouslySetInnerHTML={{ __html: renderPostBody(value, false, false, 'ecency.com', seoContext) }}
+        dangerouslySetInnerHTML={{ __html: renderPostBody(value, false, false, 'ecency.com', seoContext, renderOptions) }}
       />
       {!pure && (
         <React.Fragment key={value}>
