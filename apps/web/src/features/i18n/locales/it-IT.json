@@ -2810,6 +2810,10 @@
     "no-ls-description": "Sembra che tu o il tuo browser abbia disabilitato i dati locali per il nostro sito web. Purtroppo, non è possibile utilizzare la maggior parte delle funzioni Ecency come bozze, mazzi locali, cruscotto di trading avanzato e altro ancora. Si prega di utilizzare le ultime versioni di qualsiasi browser moderno o attivare i dati locali manualmente."
   },
   "waves": {
+    "feed": {
+      "for-you": "Per te",
+      "following": "Seguendo"
+    },
     "sources": "Sorgenti",
     "reply-form-title": "Rispondendo a",
     "hide-replies": "Nascondi risposte",
