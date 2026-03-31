@@ -5,6 +5,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState
 } from "react";
@@ -20,8 +21,14 @@ const WavesTagFilterContext = createContext<WavesTagFilterContextValue | undefin
 export function WavesTagFilterProvider({ children }: PropsWithChildren<{}>) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initialTag = searchParams?.get("tag") ?? null;
-  const [selectedTag, setSelectedTagState] = useState<string | null>(initialTag);
+  const urlTag = searchParams?.get("tag") ?? null;
+  const [selectedTag, setSelectedTagState] = useState<string | null>(urlTag);
+
+  useEffect(() => {
+    if (urlTag !== selectedTag) {
+      setSelectedTagState(urlTag);
+    }
+  }, [urlTag]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setSelectedTag = useCallback(
     (tag: string | null) => {

@@ -147,13 +147,6 @@
         grid-row: span 2;
       }
     }
-
-    // Single image remaining (odd count: 3 images = 1 tall left + 2 right)
-    &:has(> .markdown-image-container:first-child:nth-last-child(3)) {
-      .markdown-image-container:first-child {
-        grid-row: span 2;
-      }
-    }
   }
 
   // For embedded YouTube videos from render-helper
