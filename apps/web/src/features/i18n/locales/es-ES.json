@@ -299,7 +299,7 @@
     "metamask-no-keys": "No se pudieron obtener las claves de Hive de MetaMask",
     "metamask-key-mismatch": "Las claves de Hive en MetaMask no coinciden con esta cuenta. Asegúrese de que está usando la misma cartera de MetaMask usada durante el registro.",
     "keychain": "Keychain",
-    "keychain-mobile": "Llavero móvil",
+    "keychain-mobile": "Keychan móvil",
     "keychain-mobile-missing-sig": "Falta la firma de Keychain. Inténtalo de nuevo.",
     "keychain-mobile-no-pending": "No se encontró inicio de sesión pendiente. Intente iniciar sesión de nuevo.",
     "keychain-mobile-invalid-data": "Datos de acceso no válidos. Por favor, inténtelo de nuevo.",
@@ -311,7 +311,7 @@
     "keychain-sign-missing-result": "No se ha recibido ningún resultado de la transacción de Keychain.",
     "keychain-sign-processing": "Procesando...",
     "keychain-sign-success": "Transacción firmada",
-    "keychain-sign-redirecting": "Redirigiendo...",
+    "keychain-sign-redirecting": "Redirigiéndote de vuelta...",
     "keychain-sign-error-title": "Fallo al firmar"
   },
   "sign-up": {
