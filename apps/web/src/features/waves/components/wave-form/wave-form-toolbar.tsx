@@ -43,7 +43,7 @@ export const WaveFormToolbar = ({
   const [showAiGenerator, setShowAiGenerator] = useState(false);
 
   return (
-    <div className="flex items-center justify-between py-4">
+    <div className="flex items-center justify-between py-1.5 border-t border-[--border-color]">
       <div className="flex items-center">
         <WaveFormToolbarImagePicker onAddImage={onAddImage} disabled={disabled} />
         <WaveFormEmojiPicker onPick={onEmojiPick} disabled={disabled} />

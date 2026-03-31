@@ -4,10 +4,9 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import "./_index.scss";
 import { Entry, WaveEntry } from "@/entities";
 import { PollsContext, PollsManager, useEntryPollExtractor } from "@/features/polls";
-import { useClickAway, useLocalStorage } from "react-use";
+import { useLocalStorage } from "react-use";
 import { PREFIX } from "@/utils/local-storage";
-import { AvailableCredits, ProfileLink, UserAvatar } from "@/features/shared";
-import { WaveFormThreadSelection } from "./wave-form-thread-selection";
+import { ProfileLink, UserAvatar } from "@/features/shared";
 import { WaveFormControl } from "./wave-form-control";
 import i18next from "i18next";
 import { Button } from "@ui/button";
@@ -118,14 +117,6 @@ const WaveFormComponent = ({
       setThreadHost(contextHost);
     }
   }, [contextHost, setThreadHost, threadHost]);
-
-  const handleThreadHostChange = useCallback(
-    (nextHost: string) => {
-      setThreadHost(nextHost);
-      wavesHostContext?.setHost(nextHost);
-    },
-    [setThreadHost, wavesHostContext]
-  );
 
   const clear = useCallback(() => {
     setText("");
@@ -249,23 +240,21 @@ const WaveFormComponent = ({
   );
 
   return (
-    <div ref={rootRef} className="wave-form relative flex items-start px-4 pt-4 w-full">
+    <div ref={rootRef} className="wave-form relative flex items-start px-4 py-3 w-full">
       {!hideAvatar && activeUsername && (
         <UserAvatar
           username={activeUsername}
           size={replySource ? "deck-item" : "medium"}
         />
       )}
-      <div className="pl-4 w-full">
-        {replySource ? (
+      <div className="pl-3 w-full">
+        {replySource && (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("waves.reply-form-title")}{" "}
             <ProfileLink className="text-blue-dark-sky" username={replySource.author}>
               @{replySource.author}
             </ProfileLink>
           </div>
-        ) : (
-          <WaveFormThreadSelection host={threadHost} setHost={handleThreadHostChange} />
         )}
         <WaveFormControl
           video={video}
@@ -284,9 +273,6 @@ const WaveFormComponent = ({
           <div className="text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
             {i18next.t("g.loading")}...
           </div>
-        )}
-        {activeUsername && account && (
-          <AvailableCredits username={activeUsername} operation="comment_operation" />
         )}
 
         <WaveFormToolbar
