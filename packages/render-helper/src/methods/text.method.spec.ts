@@ -141,7 +141,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, true)
 
         const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'er-tag er-tag-link'
+          link.getAttribute('class') === 'markdown-tag-link'
         )
         expect(tagLinks[0]?.getAttribute('data-tag')).toBe('bitcoin')
       })
@@ -227,7 +227,7 @@ describe('text() method - Text Node Processing', () => {
         text(textNode as any, true)
 
         const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-          link.getAttribute('class') === 'er-author er-author-link'
+          link.getAttribute('class') === 'markdown-author-link'
         )
         expect(authorLinks[0]?.getAttribute('data-author')).toBe('alice')
       })
@@ -974,10 +974,10 @@ describe('text() method - Text Node Processing', () => {
       text(textNode as any, true)
 
       const tagLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'er-tag er-tag-link'
+        link.getAttribute('class') === 'markdown-tag-link'
       )
       const authorLinks = Array.from(parent.getElementsByTagName('a')).filter(link =>
-        link.getAttribute('class') === 'er-author er-author-link'
+        link.getAttribute('class') === 'markdown-author-link'
       )
 
       expect(tagLinks[0]?.getAttribute('data-tag')).toBeTruthy()

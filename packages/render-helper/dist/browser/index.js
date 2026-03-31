@@ -1226,6 +1226,7 @@ function linkify(content, forApp, renderOptions) {
     }
     return `${preceding}<a class="markdown-tag-link" data-tag="${tagLower}">${tag.trim()}</a>`;
   });
+  const authorPlaceholders = [];
   content = content.replace(
     /(^|[^a-zA-Z0-9_!#$%&*@＠/]|(^|[^a-zA-Z0-9_+~.-/]))[@＠]([a-z][-.a-z\d^/]+[a-z\d])/gi,
     (match, preceeding1, preceeding2, user) => {
@@ -1234,7 +1235,10 @@ function linkify(content, forApp, renderOptions) {
       if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
         if (!forApp) {
           const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`;
-          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`;
+          const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`;
+          const placeholder = `\u200C${authorPlaceholders.length}\u200C`;
+          authorPlaceholders.push({ placeholder, html });
+          return placeholder;
         }
         return `${preceedings}<a class="markdown-author-link" data-author="${userLower}">@${user}</a>`;
       } else {
@@ -1278,6 +1282,9 @@ function linkify(content, forApp, renderOptions) {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
     return createImageHTML(imglink, isLCP);
+  });
+  authorPlaceholders.forEach(({ placeholder, html }) => {
+    content = content.replace(placeholder, html);
   });
   return content;
 }

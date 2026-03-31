@@ -19,7 +19,10 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
     return `${preceding}<a class="markdown-tag-link" data-tag="${tagLower}">${tag.trim()}</a>`
   })
 
-  // User mentions
+  // User mentions - use placeholders for enhanced HTML to prevent image regex
+  // from matching URLs inside the avatar <img src="..."> attribute
+  const authorPlaceholders: { placeholder: string; html: string }[] = []
+
   content = content.replace(
     /(^|[^a-zA-Z0-9_!#$%&*@＠/]|(^|[^a-zA-Z0-9_+~.-/]))[@＠]([a-z][-.a-z\d^/]+[a-z\d])/gi,
     (match, preceeding1, preceeding2, user) => {
@@ -28,7 +31,10 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
       if (userLower.indexOf('/') === -1 && isValidUsername(user)) {
         if (!forApp) {
           const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`
-          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
+          const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
+          const placeholder = `\u200C${authorPlaceholders.length}\u200C`
+          authorPlaceholders.push({ placeholder, html })
+          return placeholder
         }
         return `${preceedings}<a class="markdown-author-link" data-author="${userLower}">@${user}</a>`
       } else {
@@ -74,12 +80,19 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
   )
 
   // Image links
+  // Process images before restoring author placeholders to avoid
+  // the image regex matching URLs inside enhanced author HTML
   let firstImageUsed = false;
 
   content = content.replace(IMG_REGEX, (imglink) => {
     const isLCP = !firstImageUsed;
     firstImageUsed = true;
     return createImageHTML(imglink, isLCP);
+  });
+
+  // Restore author placeholders
+  authorPlaceholders.forEach(({ placeholder, html }) => {
+    content = content.replace(placeholder, html);
   });
 
   return content
