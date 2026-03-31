@@ -2810,6 +2810,10 @@
     "no-ls-description": "Anscheinend haben Sie oder Ihr Browser die lokalen Daten für unsere Website deaktiviert. Leider können Sie nicht die meisten Ecency Funktionen wie Entwürfe, lokale Decks, erweiterte Handels-Dashboard und vieles mehr verwenden. Bitte verwenden Sie aktuelle Versionen eines modernen Browsers oder aktivieren Sie die lokalen Daten manuell."
   },
   "waves": {
+    "feed": {
+      "for-you": "Für dich",
+      "following": "Folgt"
+    },
     "sources": "Quellen",
     "reply-form-title": "Antworten auf",
     "hide-replies": "Antworten ausblenden",
