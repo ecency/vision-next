@@ -2810,6 +2810,10 @@
     "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in."
   },
   "waves": {
+    "feed": {
+      "for-you": "Voor jou",
+      "following": "Volgt"
+    },
     "sources": "Bronnen",
     "reply-form-title": "Reageren op",
     "hide-replies": "Antwoorden verbergen",
