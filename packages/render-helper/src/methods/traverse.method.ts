@@ -27,7 +27,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
       iframe(<HTMLElement>child, parentDomain, forApp)
     }
     if (child.nodeName === '#text') {
-      text(<HTMLElement>child, forApp)
+      text(<HTMLElement>child, forApp, renderOptions)
     }
     if (child.nodeName.toLowerCase() === 'img') {
       img(<HTMLElement>child, state)

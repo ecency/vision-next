@@ -34,7 +34,7 @@ export function applyAuthorLinks(container: HTMLElement): Root[] {
             wrapper.href = authorHref;
             wrapper.target = "_blank";
             wrapper.rel = "noopener";
-            wrapper.classList.add("ecency-renderer-author-extension", "ecency-renderer-author-extension-link");
+            wrapper.classList.add("er-author", "er-author-link");
 
             const root = createRoot(wrapper);
             root.render(<AuthorLinkRenderer author={authorHref} />);

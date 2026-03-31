@@ -3,6 +3,7 @@ import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink 
 import { proxifyImageSrc } from '../proxify-image-src'
 import { linkify } from './linkify.method'
 import {createImageHTML} from "./img.method";
+import { RenderOptions } from "../types";
 
 function hasAncestor(node: Node, tagNames: string[]): boolean {
   let current = node.parentNode
@@ -15,7 +16,7 @@ function hasAncestor(node: Node, tagNames: string[]): boolean {
   return false
 }
 
-export function text(node: HTMLElement | null, forApp: boolean): void {
+export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: RenderOptions): void {
   if (!node || !node.parentNode) {
     return
   }
@@ -26,7 +27,7 @@ export function text(node: HTMLElement | null, forApp: boolean): void {
   }
 
   const nodeValue = node.nodeValue || ''
-  const linkified = linkify(nodeValue, forApp)
+  const linkified = linkify(nodeValue, forApp, renderOptions)
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,

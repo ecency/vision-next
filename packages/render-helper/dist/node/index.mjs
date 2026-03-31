@@ -442,7 +442,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     return;
   }
   const className = el.getAttribute("class");
-  if (["markdown-author-link", "markdown-tag-link"].indexOf(className) !== -1) {
+  if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("ecency-renderer-author-extension") || className.includes("ecency-renderer-tag-extension"))) {
     return;
   }
   if (href && href.trim().toLowerCase().startsWith("javascript:")) {
@@ -782,14 +782,29 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     if (startTime) {
       el.setAttribute("data-start-time", startTime);
     }
-    const thumbImg = el.ownerDocument.createElement("img");
-    thumbImg.setAttribute("class", "no-replace video-thumbnail");
-    thumbImg.setAttribute("itemprop", "thumbnailUrl");
-    thumbImg.setAttribute("src", thumbnail);
-    const play = el.ownerDocument.createElement("span");
-    play.setAttribute("class", "markdown-video-play");
-    el.appendChild(thumbImg);
-    el.appendChild(play);
+    if (renderOptions?.embedVideosDirectly) {
+      const wrapper = el.ownerDocument.createElement("span");
+      wrapper.setAttribute("class", "ecency-renderer-youtube-extension-frame");
+      wrapper.setAttribute("style", "display:block");
+      const iframe2 = el.ownerDocument.createElement("iframe");
+      iframe2.setAttribute("class", "youtube-player");
+      iframe2.setAttribute("src", embedSrc);
+      iframe2.setAttribute("title", "YouTube video");
+      iframe2.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
+      iframe2.setAttribute("allowfullscreen", "");
+      wrapper.appendChild(iframe2);
+      el.appendChild(wrapper);
+      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube ecency-renderer-youtube-extension");
+    } else {
+      const thumbImg = el.ownerDocument.createElement("img");
+      thumbImg.setAttribute("class", "no-replace video-thumbnail");
+      thumbImg.setAttribute("itemprop", "thumbnailUrl");
+      thumbImg.setAttribute("src", thumbnail);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(thumbImg);
+      el.appendChild(play);
+    }
     return;
   }
   match = href.match(VIMEO_REGEX);
@@ -911,7 +926,20 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
         if (el.textContent.trim() === href) {
           el.textContent = "";
         }
-        if (!renderOptions?.embedVideosDirectly) {
+        if (renderOptions?.embedVideosDirectly) {
+          const wrapper = el.ownerDocument.createElement("span");
+          wrapper.setAttribute("class", "ecency-renderer-speak-extension-frame");
+          wrapper.setAttribute("style", "display:block");
+          const iframe2 = el.ownerDocument.createElement("iframe");
+          iframe2.setAttribute("class", "speak-iframe");
+          iframe2.setAttribute("src", videoHref);
+          iframe2.setAttribute("title", "3Speak video");
+          iframe2.setAttribute("allow", "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share");
+          iframe2.setAttribute("allowfullscreen", "");
+          wrapper.appendChild(iframe2);
+          el.appendChild(wrapper);
+          el.setAttribute("class", "markdown-video-link markdown-video-link-speak ecency-renderer-speak-extension");
+        } else {
           if (imgEls2.length === 1) {
             const src = imgEls2[0].getAttribute("src");
             if (src) {
@@ -1189,13 +1217,16 @@ function p(el) {
 }
 
 // src/methods/linkify.method.ts
-function linkify(content, forApp) {
+function linkify(content, forApp, renderOptions) {
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
     if (/#[\d]+$/.test(tag)) return tag;
     const preceding = /^\s|>/.test(tag) ? tag[0] : "";
     tag = tag.replace(">", "");
     const tag2 = tag.trim().substring(1);
     const tagLower = tag2.toLowerCase();
+    if (renderOptions?.embedVideosDirectly) {
+      return `${preceding}<a class="ecency-renderer-tag-extension ecency-renderer-tag-extension-link" href="/trending/${tagLower}">${tag.trim()}</a>`;
+    }
     const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`;
     return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`;
   });
@@ -1205,6 +1236,10 @@ function linkify(content, forApp) {
       const userLower = user.toLowerCase();
       const preceedings = (preceeding1 || "") + (preceeding2 || "");
       if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
+        if (renderOptions?.embedVideosDirectly) {
+          const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`;
+          return `${preceedings}<a class="ecency-renderer-author-extension ecency-renderer-author-extension-link" href="/@${userLower}" target="_blank" rel="noopener"><img class="ecency-renderer-author-extension-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="ecency-renderer-author-extension-link-content"><span class="ecency-renderer-author-extension-link-content-label">Hive account</span><span>@${userLower}</span></span></a>`;
+        }
         const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`;
         return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`;
       } else {
@@ -1263,7 +1298,7 @@ function hasAncestor(node, tagNames) {
   }
   return false;
 }
-function text(node, forApp) {
+function text(node, forApp, renderOptions) {
   if (!node || !node.parentNode) {
     return;
   }
@@ -1271,7 +1306,7 @@ function text(node, forApp) {
     return;
   }
   const nodeValue = node.nodeValue || "";
-  const linkified = linkify(nodeValue, forApp);
+  const linkified = linkify(nodeValue, forApp, renderOptions);
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,
@@ -1359,7 +1394,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       iframe(child, parentDomain, forApp);
     }
     if (child.nodeName === "#text") {
-      text(child, forApp);
+      text(child, forApp, renderOptions);
     }
     if (child.nodeName.toLowerCase() === "img") {
       img(child, state);

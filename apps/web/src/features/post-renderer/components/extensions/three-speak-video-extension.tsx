@@ -96,7 +96,7 @@ function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => vo
   if (playBtn) (playBtn as HTMLElement).style.display = "none";
 
   const wrapper = document.createElement("div");
-  wrapper.classList.add("ecency-renderer-speak-extension-frame");
+  wrapper.classList.add("er-speak-frame");
 
   const iframe = document.createElement("iframe");
   iframe.className = "speak-iframe";
@@ -109,7 +109,7 @@ function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => vo
   iframe.allowFullscreen = true;
 
   wrapper.appendChild(iframe);
-  element.classList.add("ecency-renderer-speak-extension");
+  element.classList.add("er-speak");
   element.appendChild(wrapper);
 
   // Listen for orientation from 3Speak player
@@ -157,7 +157,7 @@ export function ThreeSpeakVideoExtension({
 
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
-        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.ecency-renderer-speak-extension)"
+        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-speak:not(.er-speak)"
       ) ?? []
     );
     elements.forEach((element) => {
@@ -165,7 +165,7 @@ export function ThreeSpeakVideoExtension({
         if (!element.isConnected || !element.parentNode) return;
 
         const embedSrc = element.dataset.embedSrc ?? "";
-        const isInThread = !!element.closest(".thread-render");
+        const isInThread = !!element.closest(".waves-list-item, .thread-render");
 
         if (isInThread) {
           // Waves: synchronous DOM iframe, no play overlay
@@ -176,8 +176,8 @@ export function ThreeSpeakVideoExtension({
           injectThreeSpeakThumbnail(element, images);
 
           const container = document.createElement("div");
-          container.classList.add("ecency-renderer-speak-extension-frame");
-          element.classList.add("ecency-renderer-speak-extension");
+          container.classList.add("er-speak-frame");
+          element.classList.add("er-speak");
 
           const root = createRoot(container);
           rootsRef.current.push(root);

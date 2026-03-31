@@ -2,7 +2,7 @@
 
 import { EcencyRenderer } from "@/features/post-renderer";
 import type { RenderOptions, SeoContext } from "@ecency/render-helper";
-import { HTMLProps, memo, useCallback, useState } from "react";
+import { HTMLProps, memo, useCallback, useMemo, useState } from "react";
 import { Tweet } from "react-tweet";
 import TransactionSigner from "./transactions/transaction-signer";
 
@@ -25,6 +25,7 @@ export function PostContentRenderer({
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
   const [signingOperation, setSigningOperation] = useState<string>();
+  const stableRenderOptions = useMemo(() => renderOptions, [renderOptions?.embedVideosDirectly]);
 
   const handleHiveOperationClick = useCallback((e: string) => setSigningOperation(e), []);
 
@@ -35,7 +36,7 @@ export function PostContentRenderer({
       if (onTagClick) {
         const target = event.target as HTMLElement | null;
         const anchor = target?.closest<HTMLAnchorElement>(
-          ".markdown-tag-link, .ecency-renderer-tag-extension-link"
+          ".markdown-tag-link, .er-tag-link"
         );
 
         if (anchor) {
@@ -79,7 +80,7 @@ export function PostContentRenderer({
         value={value || ""}
         seoContext={seoContext}
         images={images}
-        renderOptions={renderOptions}
+        renderOptions={stableRenderOptions}
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}

@@ -19,7 +19,7 @@ export function TagLinkExtension({
       try {
         if (!element.isConnected || !element.parentNode) return;
 
-        const tag = element.innerText.replace("/", "");
+        const tag = element.innerText.replace(/^\//, "");
         const href = element.getAttribute("href");
         if (!tag || !href) return;
 
@@ -28,8 +28,8 @@ export function TagLinkExtension({
         link.target = "_blank";
         link.rel = "noopener";
         link.classList.add(
-          "ecency-renderer-tag-extension",
-          "ecency-renderer-tag-extension-link"
+          "er-tag",
+          "er-tag-link"
         );
         link.textContent = tag;
 

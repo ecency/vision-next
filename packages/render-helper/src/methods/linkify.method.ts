@@ -2,8 +2,9 @@ import { IMG_REGEX, SECTION_LIST } from '../consts'
 import { proxifyImageSrc } from '../proxify-image-src'
 import { isValidPermlink, isValidUsername, sanitizePermlink } from "../helper";
 import { createImageHTML } from "./img.method";
+import { RenderOptions } from "../types";
 
-export function linkify(content: string, forApp: boolean): string {
+export function linkify(content: string, forApp: boolean, renderOptions?: RenderOptions): string {
   // Tags
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, tag => {
     if (/#[\d]+$/.test(tag)) return tag // do not allow only numbers (like #1)
@@ -12,6 +13,9 @@ export function linkify(content: string, forApp: boolean): string {
     const tag2 = tag.trim().substring(1)
     const tagLower = tag2.toLowerCase()
 
+    if (renderOptions?.embedVideosDirectly) {
+      return `${preceding}<a class="er-tag er-tag-link" href="/trending/${tagLower}">${tag.trim()}</a>`
+    }
     const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`
     return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`
   })
@@ -23,6 +27,10 @@ export function linkify(content: string, forApp: boolean): string {
       const userLower = user.toLowerCase()
       const preceedings = (preceeding1 || '') + (preceeding2 || '')
       if (userLower.indexOf('/') === -1 && isValidUsername(user)) {
+        if (renderOptions?.embedVideosDirectly) {
+          const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`
+          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}" target="_blank" rel="noopener"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
+        }
         const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`
         return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`
       } else {

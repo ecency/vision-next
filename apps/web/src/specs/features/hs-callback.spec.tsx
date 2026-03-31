@@ -109,4 +109,15 @@ describe("HsCallbackPage", () => {
 
     expect(mockPush).toHaveBeenCalledWith("/");
   });
+
+  it("sanitizes javascript: protocol redirect URLs", () => {
+    mockSearchParams = new URLSearchParams({ id: "tx1", redirect: "javascript:alert(1)" });
+    render(<HsCallbackPage />);
+
+    act(() => vi.advanceTimersByTime(1000));
+    act(() => vi.advanceTimersByTime(1000));
+    act(() => vi.advanceTimersByTime(1000));
+
+    expect(mockPush).toHaveBeenCalledWith("/");
+  });
 });

@@ -24,7 +24,7 @@ export function applyHivePostLinks(
 
                 const link = el.getAttribute("href") ?? "";
                 const wrapper = document.createElement("div");
-                wrapper.classList.add("ecency-renderer-hive-post-extension");
+                wrapper.classList.add("er-post-link");
 
                 const root = createRoot(wrapper);
                 root.render(<HivePostLinkRenderer link={link} />);

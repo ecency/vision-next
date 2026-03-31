@@ -145,8 +145,12 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
 
   const className = el.getAttribute('class')
 
-  // Don't touch user and hashtag links
-  if (['markdown-author-link', 'markdown-tag-link'].indexOf(className) !== -1) {
+  // Don't touch user and hashtag links (original or enhanced)
+  if (className && (
+    ['markdown-author-link', 'markdown-tag-link'].includes(className) ||
+    className.includes('er-author') ||
+    className.includes('er-tag')
+  )) {
     return
   }
 
@@ -595,16 +599,31 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
       el.setAttribute('data-start-time', startTime);
     }
 
-    const thumbImg = el.ownerDocument.createElement('img')
-    thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-    thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-    thumbImg.setAttribute('src', thumbnail)
+    if (renderOptions?.embedVideosDirectly) {
+      const wrapper = el.ownerDocument.createElement('span')
+      wrapper.setAttribute('class', 'er-youtube-frame')
+      wrapper.setAttribute('style', 'display:block')
+      const iframe = el.ownerDocument.createElement('iframe')
+      iframe.setAttribute('class', 'youtube-player')
+      iframe.setAttribute('src', embedSrc)
+      iframe.setAttribute('title', 'YouTube video')
+      iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share')
+      iframe.setAttribute('allowfullscreen', '')
+      wrapper.appendChild(iframe)
+      el.appendChild(wrapper)
+      el.setAttribute('class', 'markdown-video-link markdown-video-link-youtube er-youtube')
+    } else {
+      const thumbImg = el.ownerDocument.createElement('img')
+      thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+      thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+      thumbImg.setAttribute('src', thumbnail)
 
-    const play = el.ownerDocument.createElement('span')
-    play.setAttribute('class', 'markdown-video-play')
+      const play = el.ownerDocument.createElement('span')
+      play.setAttribute('class', 'markdown-video-play')
 
-    el.appendChild(thumbImg)
-    el.appendChild(play)
+      el.appendChild(thumbImg)
+      el.appendChild(play)
+    }
 
     return
   }
@@ -782,7 +801,21 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
           el.textContent = ''
         }
 
-        if (!renderOptions?.embedVideosDirectly) {
+        if (renderOptions?.embedVideosDirectly) {
+          // Use span (not div) to avoid invalid nesting inside <p> tags
+          const wrapper = el.ownerDocument.createElement('span')
+          wrapper.setAttribute('class', 'er-speak-frame')
+          wrapper.setAttribute('style', 'display:block')
+          const iframe = el.ownerDocument.createElement('iframe')
+          iframe.setAttribute('class', 'speak-iframe')
+          iframe.setAttribute('src', videoHref)
+          iframe.setAttribute('title', '3Speak video')
+          iframe.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share')
+          iframe.setAttribute('allowfullscreen', '')
+          wrapper.appendChild(iframe)
+          el.appendChild(wrapper)
+          el.setAttribute('class', 'markdown-video-link markdown-video-link-speak er-speak')
+        } else {
           if (imgEls.length === 1) {
             const src = imgEls[0].getAttribute('src')
             if (src) {

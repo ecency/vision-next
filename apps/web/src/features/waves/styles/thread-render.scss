@@ -1,7 +1,9 @@
 @import "src/styles/vars_mixins";
 
-.thread-render {
+.thread-render,
+.waves-list-item {
   display: grid;
+  overflow: hidden;
 
   line-height: 1.5;
   overflow-wrap: break-word;
@@ -9,7 +11,7 @@
 
   @include font-size(0.875rem);
 
-  * {
+  *:not([class*="er-author"]):not([class*="er-tag"]) {
     @include font-size(0.875rem);
   }
 
@@ -74,12 +76,12 @@
       @include margin-bottom(0);
     }
 
-    > img {
+    > img:not(.er-author-link-image) {
       @include margin-top(1rem);
       @include margin-bottom(1rem);
     }
 
-    img {
+    img:not(.er-author-link-image) {
       width: 100%;
 
       @include border-radius(1rem);
@@ -94,24 +96,46 @@
     }
   }
 
-  img:not(.video-thumbnail) {
+  img:not(.video-thumbnail):not(.er-author-link-image) {
     cursor: pointer;
     transition: 0.3s;
-    max-width: 100%;
-    max-height: 300px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+
+    @include border-radius(1rem);
 
     &:hover {
       box-shadow: 0 6px 20px -10px rgba(0,0,0,.5);
     }
   }
 
+  // For embedded 3Speak videos (from render-helper), override the fixed 16:9
+  // container so the 3Speak player can determine its own aspect ratio
+  .markdown-video-link-speak.er-speak {
+    padding-bottom: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    overflow: visible;
+
+    .er-speak-frame,
+    .speak-iframe {
+      position: relative;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
   .markdown-video-link-speak.speak-portrait {
+    aspect-ratio: 3 / 4;
     max-width: 300px;
-    max-height: 500px;
+
+    .er-speak-frame,
+    .speak-iframe {
+      aspect-ratio: 3 / 4;
+    }
   }
 
   .youtube-shorts-iframe {
