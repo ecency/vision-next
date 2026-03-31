@@ -2810,6 +2810,10 @@
     "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente."
   },
   "waves": {
+    "feed": {
+      "for-you": "Para ti",
+      "following": "Siguiendo"
+    },
     "sources": "Fuentes",
     "reply-form-title": "Respondiendo a",
     "hide-replies": "Ocultar respuestas",
