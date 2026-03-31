@@ -147,7 +147,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
       clearTimeout(timer);
       cleanup?.();
     };
-  }, [isRawContent, isEdit, editHistory]);
+  }, [isRawContent, isEdit, editHistory, entry.json_metadata?.image]);
 
   return (
     <EntryPageViewerManager>

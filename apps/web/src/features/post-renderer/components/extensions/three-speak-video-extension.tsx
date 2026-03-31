@@ -33,7 +33,7 @@ export function ThreeSpeakVideoRenderer({
       if (thumb) (thumb as HTMLElement).style.display = "none";
       if (playBtn) (playBtn as HTMLElement).style.display = "none";
     }
-  }, [show]);
+  }, [show, container]);
 
   // Listen for 3speak-player-ready to auto-detect video orientation
   useEffect(() => {
@@ -86,6 +86,56 @@ export function ThreeSpeakVideoRenderer({
   ) : null;
 }
 
+/**
+ * For waves/thread context: creates an iframe directly via DOM (synchronous).
+ * Avoids the async createRoot.render() issue that leaves empty containers.
+ * Also listens for orientation messages from the 3Speak player.
+ */
+function embedThreeSpeakDirect(element: HTMLElement, embedSrc: string): () => void {
+  const playBtn = element.querySelector(".markdown-video-play");
+  if (playBtn) (playBtn as HTMLElement).style.display = "none";
+
+  const wrapper = document.createElement("div");
+  wrapper.classList.add("ecency-renderer-speak-extension-frame");
+
+  const iframe = document.createElement("iframe");
+  iframe.className = "speak-iframe";
+  iframe.src = embedSrc;
+  iframe.title = "3Speak video";
+  iframe.setAttribute(
+    "allow",
+    "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
+  );
+  iframe.allowFullscreen = true;
+
+  wrapper.appendChild(iframe);
+  element.classList.add("ecency-renderer-speak-extension");
+  element.appendChild(wrapper);
+
+  // Listen for orientation from 3Speak player
+  const handleMessage = (event: MessageEvent) => {
+    if (
+      event.origin !== THREE_SPEAK_EMBED_ORIGIN ||
+      event.data?.type !== "3speak-player-ready" ||
+      iframe.contentWindow !== event.source
+    ) {
+      return;
+    }
+
+    if (event.data.isVertical) {
+      element.classList.add("speak-portrait");
+    } else if (
+      event.data.aspectRatio &&
+      Math.abs(event.data.aspectRatio - 1) < 0.1
+    ) {
+      element.classList.add("speak-square");
+    }
+  };
+
+  window.addEventListener("message", handleMessage);
+  return () => window.removeEventListener("message", handleMessage);
+}
+
 export function ThreeSpeakVideoExtension({
   containerRef,
   images,
@@ -94,10 +144,13 @@ export function ThreeSpeakVideoExtension({
   images?: string[];
 }) {
   const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+  const cleanupFnsRef = useRef<(() => void)[]>([]);
 
   useEffect(() => {
     rootsRef.current.forEach(r => r.unmount());
     rootsRef.current = [];
+    cleanupFnsRef.current.forEach(fn => fn());
+    cleanupFnsRef.current = [];
 
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
@@ -106,32 +159,35 @@ export function ThreeSpeakVideoExtension({
     );
     elements.forEach((element) => {
       try {
-        // Verify element is still connected to the DOM before manipulation
-        if (!element.isConnected || !element.parentNode) {
-          console.warn("3Speak video element is not connected to DOM, skipping");
-          return;
-        }
+        if (!element.isConnected || !element.parentNode) return;
 
-        injectThreeSpeakThumbnail(element, images);
+        const embedSrc = element.dataset.embedSrc ?? "";
+        const isInThread = !!element.closest(".thread-render");
 
-        const container = document.createElement("div");
+        if (isInThread) {
+          // Waves: synchronous DOM iframe, no play overlay
+          const cleanup = embedThreeSpeakDirect(element, embedSrc);
+          cleanupFnsRef.current.push(cleanup);
+        } else {
+          // Entry pages: click-to-play with thumbnail
+          injectThreeSpeakThumbnail(element, images);
 
-        container.classList.add("ecency-renderer-speak-extension-frame");
-        element.classList.add("ecency-renderer-speak-extension");
+          const container = document.createElement("div");
+          container.classList.add("ecency-renderer-speak-extension-frame");
+          element.classList.add("ecency-renderer-speak-extension");
 
-        // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
-        const root = createRoot(container);
-        rootsRef.current.push(root);
-        root.render(
-          <ThreeSpeakVideoRenderer
-            embedSrc={element.dataset.embedSrc ?? ""}
-            container={element}
-          />
-        );
+          const root = createRoot(container);
+          rootsRef.current.push(root);
+          root.render(
+            <ThreeSpeakVideoRenderer
+              embedSrc={embedSrc}
+              container={element}
+            />
+          );
 
-        // Final safety check before appending
-        if (element.isConnected && element.parentNode) {
-          element.appendChild(container);
+          if (element.isConnected && element.parentNode) {
+            element.appendChild(container);
+          }
         }
       } catch (error) {
         console.warn("Error enhancing 3Speak video element:", error);
@@ -141,8 +197,10 @@ export function ThreeSpeakVideoExtension({
     return () => {
       rootsRef.current.forEach(r => r.unmount());
       rootsRef.current = [];
+      cleanupFnsRef.current.forEach(fn => fn());
+      cleanupFnsRef.current = [];
     };
-  }, []);
+  }, [images]);
 
   return <></>;
 }

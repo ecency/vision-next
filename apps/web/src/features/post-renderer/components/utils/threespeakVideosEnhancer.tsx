@@ -16,6 +16,7 @@ export function applyThreeSpeakVideos(container: HTMLElement, images?: string[])
     elements.forEach((el) => {
         if (el.dataset.enhanced === "true") return;
         el.dataset.enhanced = "true";
+        el.classList.add("ecency-renderer-speak-extension");
 
         injectThreeSpeakThumbnail(el, images);
 

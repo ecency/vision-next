@@ -51,7 +51,7 @@ export function EcencyRenderer({
         dangerouslySetInnerHTML={{ __html: renderPostBody(value, false, false, 'ecency.com', seoContext) }}
       />
       {!pure && (
-        <>
+        <React.Fragment key={value}>
           <ImageZoomExtension containerRef={ref} />
           <HivePostLinkExtension containerRef={ref} />
           <AuthorLinkExtension containerRef={ref} />
@@ -67,7 +67,7 @@ export function EcencyRenderer({
             containerRef={ref}
             onClick={onHiveOperationClick}
           />
-        </>
+        </React.Fragment>
       )}
     </>
   );

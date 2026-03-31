@@ -65,10 +65,9 @@ export function useAccountRevokePosting(
         }
         return auth.broadcast([["account_update", operationBody]], "active");
       } else {
-        const callback = options.hsCallbackUrl ?? `https://ecency.com/@${data.name}/permissions`;
         return hs.sendOperation(
           ["account_update", operationBody],
-          { callback },
+          options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},
           () => {}
         );
       }

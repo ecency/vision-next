@@ -21,6 +21,7 @@ export function injectThreeSpeakThumbnail(
 
   const img = document.createElement("img");
   img.className = "no-replace video-thumbnail";
+  img.alt = "";
   img.setAttribute("itemprop", "thumbnailUrl");
   img.src = thumbnail;
 

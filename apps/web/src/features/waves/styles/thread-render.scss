@@ -94,15 +94,24 @@
     }
   }
 
-  img {
+  img:not(.video-thumbnail) {
     cursor: pointer;
     transition: 0.3s;
+    max-width: 100%;
     max-height: 300px;
     object-fit: cover;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 
     &:hover {
       box-shadow: 0 6px 20px -10px rgba(0,0,0,.5);
     }
+  }
+
+  .markdown-video-link-speak.speak-portrait {
+    max-width: 300px;
+    max-height: 500px;
   }
 
   .youtube-shorts-iframe {

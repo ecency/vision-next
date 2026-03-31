@@ -11,7 +11,12 @@ export function HsCallbackPage() {
 
   const txId = params?.get("id") ?? "";
   const block = params?.get("block") ?? "";
-  const redirect = params?.get("redirect") ?? "/";
+  const rawRedirect = params?.get("redirect") ?? "/";
+
+  // Sanitize redirect to prevent open-redirect attacks
+  const redirect = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+    ? rawRedirect
+    : "/";
 
   const isSuccess = txId.length > 0 || block.length > 0;
   const [countdown, setCountdown] = useState(3);

@@ -78,10 +78,9 @@ export function useAccountUpdateRecovery(
         }
         return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
-        const callback = options.hsCallbackUrl ?? `https://ecency.com/@${data.name}/permissions`;
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
-          { callback },
+          options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},
           () => {}
         );
       }
