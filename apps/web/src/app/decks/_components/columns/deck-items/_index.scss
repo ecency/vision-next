@@ -130,7 +130,7 @@
         @include font-size(0.875rem);
       }
 
-      .markdown-tag-link, .markdown-post-link, .markdown-external-link, .markdown-author-link {
+      .markdown-tag-link, .er-tag-link, .markdown-post-link, .markdown-external-link, .markdown-author-link, .er-author-link {
         color: $primary;
         cursor: pointer;
 
@@ -139,7 +139,7 @@
         }
       }
 
-      .markdown-tag-link, .markdown-author-link, .markdown-currency {
+      .markdown-tag-link, .er-tag-link, .markdown-author-link, .er-author-link, .markdown-currency {
         font-weight: 500;
         background-color: rgba($primary, 0.1);
         text-transform: uppercase;
