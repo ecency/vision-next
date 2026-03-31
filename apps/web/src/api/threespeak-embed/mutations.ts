@@ -27,9 +27,13 @@ export function useThreeSpeakEmbedUpload() {
         );
         return result;
       } catch (e) {
+        // TUS errors expose status via originalResponse; fetch errors via .status
         const status =
           (e as any)?.originalResponse?.getStatus?.() ??
-          (e instanceof Error && "status" in e ? (e as any).status : undefined);
+          (e as any)?.status ??
+          undefined;
+
+        console.error("[3Speak] Video upload failed:", { status, error: e });
 
         if (status === 413) {
           error(i18next.t("video-upload.error-too-large"));

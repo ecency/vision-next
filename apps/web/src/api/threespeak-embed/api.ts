@@ -24,7 +24,9 @@ async function requestUploadToken(
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new Error(`[3Speak Embed] Failed to get upload token: ${response.status} ${text}`);
+    const err = new Error(`[3Speak Embed] Failed to get upload token: ${response.status} ${text}`);
+    (err as any).status = response.status;
+    throw err;
   }
 
   return response.json();
