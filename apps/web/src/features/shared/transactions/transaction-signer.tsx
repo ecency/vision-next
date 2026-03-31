@@ -19,6 +19,7 @@ import { PrivateKey } from "@hiveio/dhive";
 import { usePathname } from "next/navigation";
 import { error } from "../feedback";
 import { getSdkAuthContext, getUser } from "@/utils";
+import { buildHsCallbackUrl } from "@/utils/hs-callback";
 
 interface Props {
   show: boolean;
@@ -41,7 +42,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
       getSdkAuthContext(getUser(activeUser?.username ?? ""))
     );
   const { mutateAsync: signOperationByHivesigner } = useSignOperationByHivesigner(
-    `https://ecency.com/${pathname}`
+    buildHsCallbackUrl(pathname ?? "/")
   );
 
   const [step, setStep] = useState<"details" | "sign" | "success" | "failure">("details");

@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.26
+
+### Patch Changes
+
+- Thumbnail Waves and hivesigner fix (#728)
+
 ## 2.4.25
 
 ### Patch Changes

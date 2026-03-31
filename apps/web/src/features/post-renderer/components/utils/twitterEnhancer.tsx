@@ -47,7 +47,7 @@ export function applyTwitterEmbeds(
             if (!tweetId) return;
 
             const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-twitter-extension-frame");
+            wrapper.classList.add("er-twitter-frame");
 
             el.innerHTML = ""; // clear existing link text
             el.appendChild(wrapper);

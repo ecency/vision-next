@@ -6,6 +6,7 @@ import { setCacheSize } from './cache'
 import { SECTION_LIST } from './consts'
 import { isValidPermlink } from "./helper";
 import type { Entry } from './types/entry.interface'
+import type { RenderOptions } from './types/render-options.interface'
 import type { SeoContext } from './types/seo-context.interface'
 
 export {
@@ -19,4 +20,4 @@ export {
   isValidPermlink
 }
 
-export type { Entry, SeoContext }
+export type { Entry, RenderOptions, SeoContext }

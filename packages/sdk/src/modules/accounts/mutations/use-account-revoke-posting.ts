@@ -22,7 +22,9 @@ interface CommonPayload {
 type RevokePostingOptions = Pick<
   UseMutationOptions<unknown, Error, CommonPayload>,
   "onSuccess" | "onError"
->;
+> & {
+  hsCallbackUrl?: string;
+};
 
 export function useAccountRevokePosting(
   username: string | undefined,
@@ -63,12 +65,12 @@ export function useAccountRevokePosting(
         }
         return auth.broadcast([["account_update", operationBody]], "active");
       } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`,
-        };
+        if (!options.hsCallbackUrl && process.env.NODE_ENV === "development") {
+          console.warn("[SDK][Accounts] hsCallbackUrl not provided for HiveSigner revoke-posting; user will not be redirected after signing.");
+        }
         return hs.sendOperation(
           ["account_update", operationBody],
-          params,
+          options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},
           () => {}
         );
       }

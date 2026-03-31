@@ -395,8 +395,8 @@ $xxxl-break: "1600px";
     // All child elements absolutely positioned within container
     .video-thumbnail,
     .markdown-video-play,
-    .ecency-renderer-youtube-extension-frame,
-    .ecency-renderer-speak-extension-frame {
+    .er-youtube-frame,
+    .er-speak-frame {
       position: absolute;
       top: 0;
       left: 0;
@@ -419,8 +419,8 @@ $xxxl-break: "1600px";
       pointer-events: none;
     }
 
-    .ecency-renderer-youtube-extension-frame,
-    .ecency-renderer-speak-extension-frame {
+    .er-youtube-frame,
+    .er-speak-frame {
       z-index: 3; // On top when video plays
       display: block;
       margin: 0;

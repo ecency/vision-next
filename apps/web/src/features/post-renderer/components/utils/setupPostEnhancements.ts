@@ -1,9 +1,7 @@
 import {
     applyImageZoom,
     applyHivePostLinks,
-    applyAuthorLinks,
     applyHiveOperations,
-    applyTagLinks,
     applyYoutubeVideos,
     applyThreeSpeakVideos,
     applyWaveLikePosts,
@@ -33,21 +31,19 @@ const TwitterFallback: React.FC<{ id: string }> = ({ id }) => {
  */
 export function setupPostEnhancements(container: HTMLElement, options?: {
     onHiveOperationClick?: (op: string) => void,
-    TwitterComponent?: any
+    TwitterComponent?: any,
+    images?: string[]
 }): () => void {
     const postLinkElements = findPostLinkElements(container);
 
     const allRoots: Root[] = [
         ...applyHivePostLinks(container, postLinkElements),
-        ...applyAuthorLinks(container),
         ...applyHiveOperations(container, options?.onHiveOperationClick),
         ...applyYoutubeVideos(container),
-        ...applyThreeSpeakVideos(container),
+        ...applyThreeSpeakVideos(container, options?.images),
         ...applyWaveLikePosts(container, postLinkElements),
         ...applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback)
     ];
-
-    applyTagLinks(container);
 
     // Apply image zoom and store the promise for cleanup
     const zoomPromise = applyImageZoom(container);

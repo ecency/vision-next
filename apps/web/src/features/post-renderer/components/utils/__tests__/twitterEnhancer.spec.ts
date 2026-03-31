@@ -31,7 +31,7 @@ describe('applyTwitterEmbeds', () => {
       applyTwitterEmbeds(container, mockComponent)
 
       expect(link.dataset.enhanced).toBe('true')
-      const wrapper = link.querySelector('.ecency-renderer-twitter-extension-frame')
+      const wrapper = link.querySelector('.er-twitter-frame')
       expect(wrapper).toBeTruthy()
     })
 

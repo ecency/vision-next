@@ -12,7 +12,7 @@ export function DiscussionItemBody({ entry, isRawContent }: Props) {
   return (
     <>
       {!isRawContent ? (
-        <PostContentRenderer value={entry.body} className="!text-base" />
+        <PostContentRenderer value={entry.body} images={entry.json_metadata?.image} className="!text-base" />
       ) : (
         <pre className="item-body markdown-view mini-markdown">{entry.body}</pre>
       )}

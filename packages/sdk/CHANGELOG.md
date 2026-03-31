@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.35
+
+### Patch Changes
+
+- Thumbnail Waves and hivesigner fix (#728)
+
 ## 2.0.34
 
 ### Patch Changes

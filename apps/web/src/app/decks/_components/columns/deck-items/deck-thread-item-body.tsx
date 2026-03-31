@@ -38,7 +38,7 @@ export const DeckThreadItemBody = ({
 
   return (
     <div className="thread-item-body">
-      <PostContentRenderer value={entry.body} />
+      <PostContentRenderer value={entry.body} images={entry.json_metadata?.image} />
       {currentViewingImage &&
         portalContainer &&
         createPortal(

@@ -27,28 +27,28 @@ export function HiveOperationRenderer({ op }: Props) {
 
     return (
         <>
-      <span className="ecency-renderer-hive-operation-extension-label">
+      <span className="er-hive-op-label">
         Hive operation, click to Sign
       </span>
             {!decodedOp && op}
-            <div className="ecency-renderer-hive-operation-extension-content">
+            <div className="er-hive-op-content">
                 {decodedOp && (
                     <>
-                        <div className="ecency-renderer-hive-operation-extension-type">
+                        <div className="er-hive-op-type">
                             {decodedOpType}
                         </div>
                         {decodedOpType === "transfer" && (
-                            <div className="ecency-renderer-hive-operation-extension-transfer">
-                <span className="ecency-renderer-hive-operation-extension-transfer-highlight">
+                            <div className="er-hive-op-transfer">
+                <span className="er-hive-op-transfer-highlight">
                   {decodedOp[1].amount}
                 </span>
                                 <span> to</span>
                                 <img
                                     src={`${defaults.imageServer}/u/${decodedOp[1].to}/avatar/small`}
-                                    className="ecency-renderer-hive-operation-extension-transfer-image"
+                                    className="er-hive-op-transfer-image"
                                     alt=""
                                 />
-                                <span className="ecency-renderer-hive-operation-extension-transfer-highlight">
+                                <span className="er-hive-op-transfer-highlight">
                   {decodedOp[1].to}
                 </span>
                             </div>
@@ -89,7 +89,7 @@ export function HiveOperationExtension({
                     }
 
                     const container = document.createElement("div");
-                    container.classList.add("ecency-renderer-hive-operation-extension");
+                    container.classList.add("er-hive-op");
 
                     const op = element.innerText.replace("hive://sign/op/", "");
 

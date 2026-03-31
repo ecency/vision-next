@@ -21,7 +21,9 @@ interface CommonPayload {
 type UpdateRecoveryOptions = Pick<
   UseMutationOptions<unknown, Error, CommonPayload>,
   "onSuccess" | "onError"
->;
+> & {
+  hsCallbackUrl?: string;
+};
 
 export function useAccountUpdateRecovery(
   username: string | undefined,
@@ -76,12 +78,12 @@ export function useAccountUpdateRecovery(
         }
         return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`,
-        };
+        if (!options.hsCallbackUrl && process.env.NODE_ENV === "development") {
+          console.warn("[SDK][Accounts] hsCallbackUrl not provided for HiveSigner update-recovery; user will not be redirected after signing.");
+        }
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
-          params,
+          options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},
           () => {}
         );
       }

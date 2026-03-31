@@ -430,7 +430,7 @@ var addLineBreakBeforePostLink = (el, forApp, isInline) => {
     el.parentNode.insertBefore(br, el);
   }
 };
-function a(el, forApp, parentDomain = "ecency.com", seoContext) {
+function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (!el || !el.parentNode) {
     return;
   }
@@ -439,7 +439,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
     return;
   }
   const className = el.getAttribute("class");
-  if (["markdown-author-link", "markdown-tag-link"].indexOf(className) !== -1) {
+  if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("er-author") || className.includes("er-tag"))) {
     return;
   }
   if (href && href.trim().toLowerCase().startsWith("javascript:")) {
@@ -779,14 +779,29 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
     if (startTime) {
       el.setAttribute("data-start-time", startTime);
     }
-    const thumbImg = el.ownerDocument.createElement("img");
-    thumbImg.setAttribute("class", "no-replace video-thumbnail");
-    thumbImg.setAttribute("itemprop", "thumbnailUrl");
-    thumbImg.setAttribute("src", thumbnail);
-    const play = el.ownerDocument.createElement("span");
-    play.setAttribute("class", "markdown-video-play");
-    el.appendChild(thumbImg);
-    el.appendChild(play);
+    if (renderOptions?.embedVideosDirectly) {
+      const wrapper = el.ownerDocument.createElement("span");
+      wrapper.setAttribute("class", "er-youtube-frame");
+      wrapper.setAttribute("style", "display:block");
+      const iframe2 = el.ownerDocument.createElement("iframe");
+      iframe2.setAttribute("class", "youtube-player");
+      iframe2.setAttribute("src", embedSrc);
+      iframe2.setAttribute("title", "YouTube video");
+      iframe2.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
+      iframe2.setAttribute("allowfullscreen", "");
+      wrapper.appendChild(iframe2);
+      el.appendChild(wrapper);
+      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube er-youtube");
+    } else {
+      const thumbImg = el.ownerDocument.createElement("img");
+      thumbImg.setAttribute("class", "no-replace video-thumbnail");
+      thumbImg.setAttribute("itemprop", "thumbnailUrl");
+      thumbImg.setAttribute("src", thumbnail);
+      const play = el.ownerDocument.createElement("span");
+      play.setAttribute("class", "markdown-video-play");
+      el.appendChild(thumbImg);
+      el.appendChild(play);
+    }
     return;
   }
   match = href.match(VIMEO_REGEX);
@@ -908,21 +923,36 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext) {
         if (el.textContent.trim() === href) {
           el.textContent = "";
         }
-        if (imgEls2.length === 1) {
-          const src = imgEls2[0].getAttribute("src");
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
-            const thumbImg = el.ownerDocument.createElement("img");
-            thumbImg.setAttribute("class", "no-replace video-thumbnail");
-            thumbImg.setAttribute("itemprop", "thumbnailUrl");
-            thumbImg.setAttribute("src", thumbnail);
-            el.appendChild(thumbImg);
-            el.removeChild(imgEls2[0]);
+        if (renderOptions?.embedVideosDirectly) {
+          const wrapper = el.ownerDocument.createElement("span");
+          wrapper.setAttribute("class", "er-speak-frame");
+          wrapper.setAttribute("style", "display:block");
+          const iframe2 = el.ownerDocument.createElement("iframe");
+          iframe2.setAttribute("class", "speak-iframe");
+          iframe2.setAttribute("src", videoHref);
+          iframe2.setAttribute("title", "3Speak video");
+          iframe2.setAttribute("allow", "accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share");
+          iframe2.setAttribute("allowfullscreen", "");
+          wrapper.appendChild(iframe2);
+          el.appendChild(wrapper);
+          el.setAttribute("class", "markdown-video-link markdown-video-link-speak er-speak");
+        } else {
+          if (imgEls2.length === 1) {
+            const src = imgEls2[0].getAttribute("src");
+            if (src) {
+              const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ""), 0, 0, "match");
+              const thumbImg = el.ownerDocument.createElement("img");
+              thumbImg.setAttribute("class", "no-replace video-thumbnail");
+              thumbImg.setAttribute("itemprop", "thumbnailUrl");
+              thumbImg.setAttribute("src", thumbnail);
+              el.appendChild(thumbImg);
+              el.removeChild(imgEls2[0]);
+            }
           }
+          const play = el.ownerDocument.createElement("span");
+          play.setAttribute("class", "markdown-video-play");
+          el.appendChild(play);
         }
-        const play = el.ownerDocument.createElement("span");
-        play.setAttribute("class", "markdown-video-play");
-        el.appendChild(play);
         return;
       }
     }
@@ -1184,15 +1214,17 @@ function p(el) {
 }
 
 // src/methods/linkify.method.ts
-function linkify(content, forApp) {
+function linkify(content, forApp, renderOptions) {
   content = content.replace(/(^|\s|>)(#[-a-z\d]+)/gi, (tag) => {
     if (/#[\d]+$/.test(tag)) return tag;
     const preceding = /^\s|>/.test(tag) ? tag[0] : "";
     tag = tag.replace(">", "");
     const tag2 = tag.trim().substring(1);
     const tagLower = tag2.toLowerCase();
-    const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`;
-    return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`;
+    if (!forApp) {
+      return `${preceding}<a class="er-tag er-tag-link" href="/trending/${tagLower}">${tag.trim()}</a>`;
+    }
+    return `${preceding}<a class="markdown-tag-link" data-tag="${tagLower}">${tag.trim()}</a>`;
   });
   content = content.replace(
     /(^|[^a-zA-Z0-9_!#$%&*@＠/]|(^|[^a-zA-Z0-9_+~.-/]))[@＠]([a-z][-.a-z\d^/]+[a-z\d])/gi,
@@ -1200,8 +1232,11 @@ function linkify(content, forApp) {
       const userLower = user.toLowerCase();
       const preceedings = (preceeding1 || "") + (preceeding2 || "");
       if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
-        const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`;
-        return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`;
+        if (!forApp) {
+          const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`;
+          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`;
+        }
+        return `${preceedings}<a class="markdown-author-link" data-author="${userLower}">@${user}</a>`;
       } else {
         return match;
       }
@@ -1258,7 +1293,7 @@ function hasAncestor(node, tagNames) {
   }
   return false;
 }
-function text(node, forApp) {
+function text(node, forApp, renderOptions) {
   if (!node || !node.parentNode) {
     return;
   }
@@ -1339,7 +1374,7 @@ function text(node, forApp) {
 }
 
 // src/methods/traverse.method.ts
-function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext) {
+function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (!node || !node.childNodes) {
     return;
   }
@@ -1348,7 +1383,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
     const next = child.nextSibling;
     const prev = child.previousSibling;
     if (child.nodeName.toLowerCase() === "a") {
-      a(child, forApp, parentDomain, seoContext);
+      a(child, forApp, parentDomain, seoContext, renderOptions);
     }
     if (child.nodeName.toLowerCase() === "iframe") {
       iframe(child, parentDomain, forApp);
@@ -1363,11 +1398,11 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       p(child);
     }
     if (child.parentNode) {
-      traverse(child, forApp, depth + 1, state, parentDomain, seoContext);
+      traverse(child, forApp, depth + 1, state, parentDomain, seoContext, renderOptions);
     } else {
       const possibleReplacement = next ? next.previousSibling : node.lastChild;
       if (possibleReplacement && possibleReplacement !== prev && possibleReplacement.parentNode === node) {
-        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext);
+        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext, renderOptions);
       }
     }
     child = next;
@@ -1420,7 +1455,7 @@ function fixBlockLevelTagsInParagraphs(html) {
   html = html.replace(/<p><br>\s*<\/p>/g, "");
   return html;
 }
-function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) {
+function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   input = input.replace(new RegExp("https://leofinance.io/threads/view/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/posts/", "g"), "/@");
   input = input.replace(new RegExp("https://leofinance.io/threads/", "g"), "/@");
@@ -1480,7 +1515,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) 
     output = md.render(input);
     output = fixBlockLevelTagsInParagraphs(output);
     const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(output)}</body>`, "text/html");
-    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
+    traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
@@ -1493,7 +1528,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext) 
       });
       const repairedHtml = domSerializer(dom.children);
       const doc = DOMParser.parseFromString(`<body id="root">${removeDuplicateAttributes(repairedHtml)}</body>`, "text/html");
-      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext);
+      traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
       const escapedContent = he2.encode(output || md.render(input));
@@ -1521,18 +1556,18 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency.com", seoContext) {
+function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (typeof obj === "string") {
     const cleanedStr = cleanReply(obj);
-    return markdownToHTML(cleanedStr, forApp, parentDomain, seoContext);
+    return markdownToHTML(cleanedStr, forApp, parentDomain, seoContext, renderOptions);
   }
-  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}`;
+  const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}${renderOptions?.embedVideosDirectly ? "-embed" : ""}`;
   const item = cacheGet(key);
   if (item) {
     return item;
   }
   const cleanBody = cleanReply(obj.body);
-  const res = markdownToHTML(cleanBody, forApp, parentDomain, seoContext);
+  const res = markdownToHTML(cleanBody, forApp, parentDomain, seoContext, renderOptions);
   cacheSet(key, res);
   return res;
 }

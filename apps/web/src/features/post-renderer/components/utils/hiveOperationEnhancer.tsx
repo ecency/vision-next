@@ -28,7 +28,7 @@ export function applyHiveOperations(
                 const op = el.innerText.replace("hive://sign/op/", "");
 
                 const wrapper = document.createElement("div");
-                wrapper.classList.add("ecency-renderer-hive-operation-extension");
+                wrapper.classList.add("er-hive-op");
                 wrapper.addEventListener("click", () => onClick?.(op));
 
                 const root = createRoot(wrapper);

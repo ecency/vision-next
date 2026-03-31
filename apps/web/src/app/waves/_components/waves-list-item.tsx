@@ -301,6 +301,8 @@ export const WavesListItem = React.memo(function WavesListItem({
         ) : (
           <PostContentRenderer
             value={entry?.body ?? ""}
+            images={entry?.json_metadata?.image}
+            renderOptions={{ embedVideosDirectly: true }}
             onTagClick={tagFilter ? handleTagClick : undefined}
           />
         )}

@@ -1,8 +1,8 @@
 "use client";
 
 import { EcencyRenderer } from "@/features/post-renderer";
-import type { SeoContext } from "@ecency/render-helper";
-import { HTMLProps, memo, useCallback, useState } from "react";
+import type { RenderOptions, SeoContext } from "@ecency/render-helper";
+import { HTMLProps, memo, useCallback, useMemo, useState } from "react";
 import { Tweet } from "react-tweet";
 import TransactionSigner from "./transactions/transaction-signer";
 
@@ -12,15 +12,20 @@ interface Props {
   value: string;
   seoContext?: SeoContext;
   onTagClick?: (tag: string) => void;
+  images?: string[];
+  renderOptions?: RenderOptions;
 }
 
 export function PostContentRenderer({
   value,
   seoContext,
   onTagClick,
+  images,
+  renderOptions,
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
   const [signingOperation, setSigningOperation] = useState<string>();
+  const stableRenderOptions = useMemo(() => renderOptions, [renderOptions?.embedVideosDirectly]);
 
   const handleHiveOperationClick = useCallback((e: string) => setSigningOperation(e), []);
 
@@ -31,7 +36,7 @@ export function PostContentRenderer({
       if (onTagClick) {
         const target = event.target as HTMLElement | null;
         const anchor = target?.closest<HTMLAnchorElement>(
-          ".markdown-tag-link, .ecency-renderer-tag-extension-link"
+          ".markdown-tag-link, .er-tag-link"
         );
 
         if (anchor) {
@@ -74,6 +79,8 @@ export function PostContentRenderer({
       <MemoizedEcencyRenderer
         value={value || ""}
         seoContext={seoContext}
+        images={images}
+        renderOptions={stableRenderOptions}
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}
