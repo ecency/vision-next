@@ -123,6 +123,10 @@
       max-height: none;
       border-radius: 0;
     }
+
+    .markdown-img-caption {
+      padding: 0.25rem 0;
+    }
   }
 
   // When multiple image containers are adjacent, form a grid
@@ -130,21 +134,27 @@
     margin-top: 0;
   }
 
-  // Use CSS :has() to detect multi-image groups and apply grid to the parent <p>
-  p:has(> .markdown-image-container + .markdown-image-container) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    border-radius: 1rem;
-    overflow: hidden;
-    margin-top: 0.5rem;
+  // Multi-image grid; falls back to vertical stacking in browsers without :has()
+  @supports selector(p:has(> div)) {
+    p:has(> .markdown-image-container + .markdown-image-container) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-top: 0.5rem;
 
-    .markdown-image-container {
-      border-radius: 0;
-      margin: 0;
+      .markdown-image-container {
+        border-radius: 0;
+        margin: 0;
 
-      &:first-child:nth-last-child(3) {
-        grid-row: span 2;
+        &:first-child:nth-last-child(3) {
+          grid-row: span 2;
+        }
+
+        .markdown-img-caption {
+          display: none;
+        }
       }
     }
   }
