@@ -1188,7 +1188,9 @@ interface CommonPayload$1 {
     type: SignType$1;
     key?: PrivateKey;
 }
-type RevokePostingOptions = Pick<UseMutationOptions<unknown, Error, CommonPayload$1>, "onSuccess" | "onError">;
+type RevokePostingOptions = Pick<UseMutationOptions<unknown, Error, CommonPayload$1>, "onSuccess" | "onError"> & {
+    hsCallbackUrl?: string;
+};
 declare function useAccountRevokePosting(username: string | undefined, options: RevokePostingOptions, auth?: AuthContext): _tanstack_react_query.UseMutationResult<unknown, Error, CommonPayload$1, unknown>;
 
 type SignType = "key" | "keychain" | "hivesigner" | "ecency";
@@ -1198,7 +1200,9 @@ interface CommonPayload {
     key?: PrivateKey;
     email?: string;
 }
-type UpdateRecoveryOptions = Pick<UseMutationOptions<unknown, Error, CommonPayload>, "onSuccess" | "onError">;
+type UpdateRecoveryOptions = Pick<UseMutationOptions<unknown, Error, CommonPayload>, "onSuccess" | "onError"> & {
+    hsCallbackUrl?: string;
+};
 declare function useAccountUpdateRecovery(username: string | undefined, code: string | undefined, options: UpdateRecoveryOptions, auth?: AuthContext): _tanstack_react_query.UseMutationResult<unknown, Error, CommonPayload, unknown>;
 
 interface Payload {

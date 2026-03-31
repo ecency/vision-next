@@ -22,7 +22,9 @@ interface CommonPayload {
 type RevokePostingOptions = Pick<
   UseMutationOptions<unknown, Error, CommonPayload>,
   "onSuccess" | "onError"
->;
+> & {
+  hsCallbackUrl?: string;
+};
 
 export function useAccountRevokePosting(
   username: string | undefined,
@@ -63,12 +65,10 @@ export function useAccountRevokePosting(
         }
         return auth.broadcast([["account_update", operationBody]], "active");
       } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`,
-        };
+        const callback = options.hsCallbackUrl ?? `https://ecency.com/@${data.name}/permissions`;
         return hs.sendOperation(
           ["account_update", operationBody],
-          params,
+          { callback },
           () => {}
         );
       }

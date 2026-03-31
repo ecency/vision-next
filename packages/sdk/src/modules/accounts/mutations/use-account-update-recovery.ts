@@ -21,7 +21,9 @@ interface CommonPayload {
 type UpdateRecoveryOptions = Pick<
   UseMutationOptions<unknown, Error, CommonPayload>,
   "onSuccess" | "onError"
->;
+> & {
+  hsCallbackUrl?: string;
+};
 
 export function useAccountUpdateRecovery(
   username: string | undefined,
@@ -76,12 +78,10 @@ export function useAccountUpdateRecovery(
         }
         return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`,
-        };
+        const callback = options.hsCallbackUrl ?? `https://ecency.com/@${data.name}/permissions`;
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
-          params,
+          { callback },
           () => {}
         );
       }

@@ -64,7 +64,7 @@ export const DeckPostViewer = ({ entry: initialEntry, onClose, backTitle }: Prop
         <EntryInfo entry={entry} />
       </div>
       <div className="px-3 pb-4">
-        <PostContentRenderer value={entry.body} />
+        <PostContentRenderer value={entry.body} images={entry.json_metadata?.image} />
       </div>
       <div className="bottom-actions p-3">
         <EntryVoteBtn entry={entry} isPostSlider={false} />

@@ -23,6 +23,7 @@ interface Props {
   seoContext?: SeoContext;
   onHiveOperationClick?: (op: string) => void;
   TwitterComponent?: any;
+  images?: string[];
 }
 
 export function EcencyRenderer({
@@ -31,6 +32,7 @@ export function EcencyRenderer({
   seoContext,
   onHiveOperationClick,
   TwitterComponent = () => <div>No twitter component</div>,
+  images,
   ...other
 }: HTMLProps<HTMLDivElement> & Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -55,7 +57,7 @@ export function EcencyRenderer({
           <AuthorLinkExtension containerRef={ref} />
           <TagLinkExtension containerRef={ref} />
           <YoutubeVideoExtension containerRef={ref} />
-          <ThreeSpeakVideoExtension containerRef={ref} />
+          <ThreeSpeakVideoExtension containerRef={ref} images={images} />
           <WaveLikePostExtension containerRef={ref} />
           <TwitterExtension
             containerRef={ref}

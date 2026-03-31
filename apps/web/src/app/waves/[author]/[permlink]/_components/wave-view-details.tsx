@@ -65,6 +65,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
       <div className="p-4">
         <PostContentRenderer
           value={entry?.body ?? ""}
+          images={entry?.json_metadata?.image}
           onTagClick={tagFilter ? handleTagClick : undefined}
         />
         {poll && <PollWidget entry={entry} poll={poll} isReadOnly={false} />}

@@ -12,12 +12,14 @@ interface Props {
   value: string;
   seoContext?: SeoContext;
   onTagClick?: (tag: string) => void;
+  images?: string[];
 }
 
 export function PostContentRenderer({
   value,
   seoContext,
   onTagClick,
+  images,
   ...props
 }: Props & Omit<HTMLProps<HTMLDivElement>, "value">) {
   const [signingOperation, setSigningOperation] = useState<string>();
@@ -74,6 +76,7 @@ export function PostContentRenderer({
       <MemoizedEcencyRenderer
         value={value || ""}
         seoContext={seoContext}
+        images={images}
         {...(restProps as any)}
         onClick={handleClick}
         onHiveOperationClick={handleHiveOperationClick}

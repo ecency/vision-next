@@ -15,6 +15,7 @@ import { WalletOperationSigning } from "./wallet-operations-signing";
 import { shouldUseHiveAuth, shouldUseKeychainMobile, broadcastWithHiveAuth } from "@/utils/client";
 import { getLoginType } from "@/utils/user-token";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { buildHsCallbackUrl } from "@/utils/hs-callback";
 
 interface Props {
   asset: string;
@@ -65,11 +66,13 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         }
 
         if (method === "hivesigner") {
-          // Redirect to HiveSigner — page navigates away, promise never resolves
+          // Opens HiveSigner in a new tab for signing.
+          // After signing, user is redirected to /auth/hs-callback which shows
+          // success/error and then redirects to the wallet page.
           return new Promise(() => {
             hs.sendOperations(
               operations,
-              { callback: `https://ecency.com/@${activeUser.username}/wallet` },
+              { callback: buildHsCallbackUrl(`/@${activeUser.username}/wallet`) },
               () => {}
             );
           });

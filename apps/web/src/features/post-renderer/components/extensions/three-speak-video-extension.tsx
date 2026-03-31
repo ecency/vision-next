@@ -2,6 +2,7 @@
 
 import React, { RefObject, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { injectThreeSpeakThumbnail } from "../utils/threeSpeakThumbnail";
 
 type VideoOrientation = "landscape" | "portrait" | "square";
 
@@ -87,8 +88,10 @@ export function ThreeSpeakVideoRenderer({
 
 export function ThreeSpeakVideoExtension({
   containerRef,
+  images,
 }: {
   containerRef: RefObject<HTMLElement | null>;
+  images?: string[];
 }) {
   const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
 
@@ -108,6 +111,8 @@ export function ThreeSpeakVideoExtension({
           console.warn("3Speak video element is not connected to DOM, skipping");
           return;
         }
+
+        injectThreeSpeakThumbnail(element, images);
 
         const container = document.createElement("div");
 

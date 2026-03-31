@@ -117,9 +117,15 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   const extractFrameAsBlob = useCallback(
     (video: HTMLVideoElement): Promise<Blob | null> =>
       new Promise((resolve) => {
+        const w = video.videoWidth;
+        const h = video.videoHeight;
+        if (!w || !h) {
+          resolve(null);
+          return;
+        }
         const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        canvas.width = w;
+        canvas.height = h;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           canvas.width = 0;
@@ -127,7 +133,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
           resolve(null);
           return;
         }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, w, h);
         canvas.toBlob(
           (blob) => {
             // Release canvas GPU resources
@@ -151,33 +157,37 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
     const video = videoRef.current;
     if (!video) return;
 
-    let cancelled = false;
+    const abortController = new AbortController();
     const permlink = videoData.permlink;
 
+    const timeout = setTimeout(() => abortController.abort(), 15_000);
+
     const handleSeeked = async () => {
-      if (cancelled) return;
+      if (abortController.signal.aborted) return;
       setIsExtractingThumbnail(true);
       try {
         const blob = await extractFrameAsBlob(video);
-        if (cancelled || !blob) return;
+        if (abortController.signal.aborted || !blob) return;
 
         const file = new File([blob], "auto-thumbnail.jpg", { type: "image/jpeg" });
-        const response = await uploadThumbnailImage({ file });
-        if (cancelled || !response?.url) return;
+        const response = await uploadThumbnailImage({ file, signal: abortController.signal });
+        if (abortController.signal.aborted || !response?.url) return;
 
         setThumbnailUrl(response.url);
         try {
           await setVideoThumbnail(permlink, response.url);
         } catch {
-          // Thumbnail image uploaded successfully but metadata persistence failed — non-critical
+          // Thumbnail image uploaded successfully but metadata persistence failed - non-critical
         }
+      } catch {
+        // Extraction or upload failed/aborted - non-critical, user can still insert video
       } finally {
-        if (!cancelled) setIsExtractingThumbnail(false);
+        if (!abortController.signal.aborted) setIsExtractingThumbnail(false);
       }
     };
 
     const handleLoaded = () => {
-      if (cancelled) return;
+      if (abortController.signal.aborted) return;
       video.currentTime = Math.max(0.1, Math.min(1, video.duration * 0.25));
     };
 
@@ -190,7 +200,9 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
     }
 
     return () => {
-      cancelled = true;
+      clearTimeout(timeout);
+      abortController.abort();
+      setIsExtractingThumbnail(false);
       video.removeEventListener("seeked", handleSeeked);
       video.removeEventListener("loadeddata", handleLoaded);
     };
@@ -320,8 +332,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         </Button>
         <Button
           className="ml-3"
-          disabled={!canContinue || isExtractingThumbnail || isThumbnailUploading}
-          isLoading={isExtractingThumbnail || isThumbnailUploading}
+          disabled={!canContinue}
           onClick={() => {
             props.onVideoUploaded(videoData!.embedUrl, thumbnailUrl || undefined);
             props.setShow(false);

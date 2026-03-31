@@ -33,7 +33,8 @@ const TwitterFallback: React.FC<{ id: string }> = ({ id }) => {
  */
 export function setupPostEnhancements(container: HTMLElement, options?: {
     onHiveOperationClick?: (op: string) => void,
-    TwitterComponent?: any
+    TwitterComponent?: any,
+    images?: string[]
 }): () => void {
     const postLinkElements = findPostLinkElements(container);
 
@@ -42,7 +43,7 @@ export function setupPostEnhancements(container: HTMLElement, options?: {
         ...applyAuthorLinks(container),
         ...applyHiveOperations(container, options?.onHiveOperationClick),
         ...applyYoutubeVideos(container),
-        ...applyThreeSpeakVideos(container),
+        ...applyThreeSpeakVideos(container, options?.images),
         ...applyWaveLikePosts(container, postLinkElements),
         ...applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback)
     ];

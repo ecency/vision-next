@@ -301,6 +301,7 @@ export const WavesListItem = React.memo(function WavesListItem({
         ) : (
           <PostContentRenderer
             value={entry?.body ?? ""}
+            images={entry?.json_metadata?.image}
             onTagClick={tagFilter ? handleTagClick : undefined}
           />
         )}

@@ -10,6 +10,7 @@ import {
   useAccountUpdateRecovery
 } from "@ecency/sdk";
 import { PrivateKey } from "@hiveio/dhive";
+import { buildHsCallbackUrl } from "@/utils/hs-callback";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
@@ -70,7 +71,8 @@ export function AccountRecovery() {
     getAccessToken(activeUser?.username ?? ""),
     {
       onError: (e) => error(...formatError(e)),
-      onSuccess: () => success(i18next.t("account-recovery.success-message"))
+      onSuccess: () => success(i18next.t("account-recovery.success-message")),
+      hsCallbackUrl: buildHsCallbackUrl(`/@${activeUser?.username}/permissions`)
     },
     getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
