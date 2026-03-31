@@ -2810,6 +2810,10 @@
     "no-ls-description": "Il semble que vous ou votre navigateur avez désactivé les données locales pour notre site Web. Malheureusement, vous ne pouvez pas utiliser la plupart des fonctionnalités d'Ecency telles que les brouillons, les decks locaux, le tableau de bord de trading avancé et plus encore. Veuillez utiliser les dernières versions de n'importe quel navigateur moderne ou activer les données locales manuellement."
   },
   "waves": {
+    "feed": {
+      "for-you": "Pour vous",
+      "following": "Abonnements"
+    },
     "sources": "Sources",
     "reply-form-title": "Répondre à",
     "hide-replies": "Masquer les réponses",
