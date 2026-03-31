@@ -101,7 +101,16 @@ async function broadcastWithMethod(
         throw new Error('No adapter provided for HiveSigner auth');
       }
 
-      // Try direct API broadcast with access token first
+      // Access tokens only have posting authority — for active/owner/memo ops,
+      // go directly to platform-specific HiveSigner broadcast (e.g., redirect to hivesigner.com)
+      if (authority !== 'posting') {
+        if (adapter.broadcastWithHiveSigner) {
+          return await adapter.broadcastWithHiveSigner(username, ops, authority);
+        }
+        throw new Error(`HiveSigner access token cannot sign ${authority} operations. No platform broadcast available.`);
+      }
+
+      // Try direct API broadcast with access token first (posting ops only)
       const token = fetchedToken !== undefined
         ? fetchedToken
         : await adapter.getAccessToken(username);
@@ -113,7 +122,6 @@ async function broadcastWithMethod(
           return response.result;
         } catch (tokenError) {
           // Token broadcast failed — try platform-specific HiveSigner broadcast
-          // (e.g., mobile WebView hot signing for active ops where token lacks authority)
           if (adapter.broadcastWithHiveSigner && shouldTriggerAuthFallback(tokenError)) {
             return await adapter.broadcastWithHiveSigner(username, ops, authority);
           }
