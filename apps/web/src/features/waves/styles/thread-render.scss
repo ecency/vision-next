@@ -113,6 +113,7 @@
 
   // For embedded YouTube videos from render-helper
   .markdown-video-link-youtube.er-youtube {
+    background-color: transparent;
     border-radius: 1rem;
 
     iframe.youtube-player {
