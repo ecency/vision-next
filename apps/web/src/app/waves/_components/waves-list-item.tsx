@@ -267,7 +267,7 @@ export const WavesListItem = React.memo(function WavesListItem({
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         grid === "feed" &&
-          "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0",
+          "border-b border-[--border-color] last:border-b-0",
         grid === "masonry" && "rounded-2xl",
         isMuted && "grayscale",
         hasPromoted && grid === "masonry" && "border border-blue-dark-sky",

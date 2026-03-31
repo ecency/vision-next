@@ -111,6 +111,31 @@
     }
   }
 
+  // For embedded YouTube videos, override padding-bottom approach with modern
+  // aspect-ratio so the iframe fills the container reliably in grid layouts
+  .markdown-video-link-youtube {
+    padding-bottom: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 1rem;
+
+    .er-youtube-frame {
+      position: relative;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+
+    iframe.youtube-player {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 1rem;
+    }
+  }
+
   // For embedded 3Speak videos (from render-helper), override the fixed 16:9
   // container so the 3Speak player can determine its own aspect ratio
   .markdown-video-link-speak.er-speak {
