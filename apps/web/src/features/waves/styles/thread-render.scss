@@ -138,6 +138,16 @@
     }
   }
 
+  .markdown-video-link-speak.speak-square {
+    aspect-ratio: 1 / 1;
+    max-width: 400px;
+
+    .er-speak-frame,
+    .speak-iframe {
+      aspect-ratio: 1 / 1;
+    }
+  }
+
   .youtube-shorts-iframe {
     border-radius: 1rem;
   }

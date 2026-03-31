@@ -1,9 +1,7 @@
 import {
     applyImageZoom,
     applyHivePostLinks,
-    applyAuthorLinks,
     applyHiveOperations,
-    applyTagLinks,
     applyYoutubeVideos,
     applyThreeSpeakVideos,
     applyWaveLikePosts,
@@ -40,15 +38,12 @@ export function setupPostEnhancements(container: HTMLElement, options?: {
 
     const allRoots: Root[] = [
         ...applyHivePostLinks(container, postLinkElements),
-        ...applyAuthorLinks(container),
         ...applyHiveOperations(container, options?.onHiveOperationClick),
         ...applyYoutubeVideos(container),
         ...applyThreeSpeakVideos(container, options?.images),
         ...applyWaveLikePosts(container, postLinkElements),
         ...applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback)
     ];
-
-    applyTagLinks(container);
 
     // Apply image zoom and store the promise for cleanup
     const zoomPromise = applyImageZoom(container);

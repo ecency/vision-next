@@ -439,7 +439,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     return;
   }
   const className = el.getAttribute("class");
-  if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("ecency-renderer-author-extension") || className.includes("ecency-renderer-tag-extension"))) {
+  if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("er-author") || className.includes("er-tag"))) {
     return;
   }
   if (href && href.trim().toLowerCase().startsWith("javascript:")) {
@@ -781,7 +781,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     }
     if (renderOptions?.embedVideosDirectly) {
       const wrapper = el.ownerDocument.createElement("span");
-      wrapper.setAttribute("class", "ecency-renderer-youtube-extension-frame");
+      wrapper.setAttribute("class", "er-youtube-frame");
       wrapper.setAttribute("style", "display:block");
       const iframe2 = el.ownerDocument.createElement("iframe");
       iframe2.setAttribute("class", "youtube-player");
@@ -791,7 +791,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
       iframe2.setAttribute("allowfullscreen", "");
       wrapper.appendChild(iframe2);
       el.appendChild(wrapper);
-      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube ecency-renderer-youtube-extension");
+      el.setAttribute("class", "markdown-video-link markdown-video-link-youtube er-youtube");
     } else {
       const thumbImg = el.ownerDocument.createElement("img");
       thumbImg.setAttribute("class", "no-replace video-thumbnail");
@@ -925,7 +925,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
         }
         if (renderOptions?.embedVideosDirectly) {
           const wrapper = el.ownerDocument.createElement("span");
-          wrapper.setAttribute("class", "ecency-renderer-speak-extension-frame");
+          wrapper.setAttribute("class", "er-speak-frame");
           wrapper.setAttribute("style", "display:block");
           const iframe2 = el.ownerDocument.createElement("iframe");
           iframe2.setAttribute("class", "speak-iframe");
@@ -935,7 +935,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
           iframe2.setAttribute("allowfullscreen", "");
           wrapper.appendChild(iframe2);
           el.appendChild(wrapper);
-          el.setAttribute("class", "markdown-video-link markdown-video-link-speak ecency-renderer-speak-extension");
+          el.setAttribute("class", "markdown-video-link markdown-video-link-speak er-speak");
         } else {
           if (imgEls2.length === 1) {
             const src = imgEls2[0].getAttribute("src");
@@ -1221,11 +1221,10 @@ function linkify(content, forApp, renderOptions) {
     tag = tag.replace(">", "");
     const tag2 = tag.trim().substring(1);
     const tagLower = tag2.toLowerCase();
-    if (renderOptions?.embedVideosDirectly) {
-      return `${preceding}<a class="ecency-renderer-tag-extension ecency-renderer-tag-extension-link" href="/trending/${tagLower}">${tag.trim()}</a>`;
+    if (!forApp) {
+      return `${preceding}<a class="er-tag er-tag-link" href="/trending/${tagLower}">${tag.trim()}</a>`;
     }
-    const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`;
-    return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`;
+    return `${preceding}<a class="markdown-tag-link" data-tag="${tagLower}">${tag.trim()}</a>`;
   });
   content = content.replace(
     /(^|[^a-zA-Z0-9_!#$%&*@＠/]|(^|[^a-zA-Z0-9_+~.-/]))[@＠]([a-z][-.a-z\d^/]+[a-z\d])/gi,
@@ -1233,12 +1232,11 @@ function linkify(content, forApp, renderOptions) {
       const userLower = user.toLowerCase();
       const preceedings = (preceeding1 || "") + (preceeding2 || "");
       if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
-        if (renderOptions?.embedVideosDirectly) {
+        if (!forApp) {
           const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`;
-          return `${preceedings}<a class="ecency-renderer-author-extension ecency-renderer-author-extension-link" href="/@${userLower}" target="_blank" rel="noopener"><img class="ecency-renderer-author-extension-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="ecency-renderer-author-extension-link-content"><span class="ecency-renderer-author-extension-link-content-label">Hive account</span><span>@${userLower}</span></span></a>`;
+          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`;
         }
-        const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`;
-        return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`;
+        return `${preceedings}<a class="markdown-author-link" data-author="${userLower}">@${user}</a>`;
       } else {
         return match;
       }
@@ -1303,7 +1301,7 @@ function text(node, forApp, renderOptions) {
     return;
   }
   const nodeValue = node.nodeValue || "";
-  const linkified = linkify(nodeValue, forApp, renderOptions);
+  const linkified = linkify(nodeValue, forApp);
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,
@@ -1391,7 +1389,7 @@ function traverse(node, forApp, depth = 0, state = { firstImageFound: false }, p
       iframe(child, parentDomain, forApp);
     }
     if (child.nodeName === "#text") {
-      text(child, forApp, renderOptions);
+      text(child, forApp);
     }
     if (child.nodeName.toLowerCase() === "img") {
       img(child, state);

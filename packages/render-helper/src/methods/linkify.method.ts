@@ -13,11 +13,10 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
     const tag2 = tag.trim().substring(1)
     const tagLower = tag2.toLowerCase()
 
-    if (renderOptions?.embedVideosDirectly) {
+    if (!forApp) {
       return `${preceding}<a class="er-tag er-tag-link" href="/trending/${tagLower}">${tag.trim()}</a>`
     }
-    const attrs = forApp ? `data-tag="${tagLower}"` : `href="/trending/${tagLower}"`
-    return `${preceding}<a class="markdown-tag-link" ${attrs}>${tag.trim()}</a>`
+    return `${preceding}<a class="markdown-tag-link" data-tag="${tagLower}">${tag.trim()}</a>`
   })
 
   // User mentions
@@ -27,12 +26,11 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
       const userLower = user.toLowerCase()
       const preceedings = (preceeding1 || '') + (preceeding2 || '')
       if (userLower.indexOf('/') === -1 && isValidUsername(user)) {
-        if (renderOptions?.embedVideosDirectly) {
+        if (!forApp) {
           const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`
-          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}" target="_blank" rel="noopener"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
+          return `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
         }
-        const attrs = forApp ? `data-author="${userLower}"` : `href="/@${userLower}"`
-        return `${preceedings}<a class="markdown-author-link" ${attrs}>@${user}</a>`
+        return `${preceedings}<a class="markdown-author-link" data-author="${userLower}">@${user}</a>`
       } else {
         return match
       }
