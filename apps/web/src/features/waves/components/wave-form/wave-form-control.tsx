@@ -55,7 +55,7 @@ export const WaveFormControl = ({
         <TextareaAutosize
           disabled={disabled}
           className={clsx(
-            "w-full px-0 py-1.5 bg-transparent outline-none border-0 resize-none min-h-[2.5rem] text-[0.95rem] leading-6 placeholder:text-gray-400 dark:placeholder:text-gray-500",
+            "w-full px-0 py-1.5 bg-transparent outline-none border-0 resize-none min-h-[2.5rem] text-[0.95rem] leading-6 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:focus-visible:ring-blue-400 rounded-sm",
             disabled && "opacity-60 cursor-not-allowed"
           )}
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}

@@ -66,11 +66,11 @@ export function WavesPage() {
   const feedTabs: { key: WavesFeedType; label: string }[] = [
     {
       key: "for-you",
-      label: i18next.t("waves.feed.for-you", { defaultValue: "For you" })
+      label: i18next.t("waves.feed.for-you")
     },
     {
       key: "following",
-      label: i18next.t("waves.feed.following", { defaultValue: "Following" })
+      label: i18next.t("waves.feed.following")
     }
   ];
 
@@ -87,7 +87,7 @@ export function WavesPage() {
                 key={key}
                 type="button"
                 aria-pressed={isActive}
-                aria-disabled={isDisabled}
+                title={isDisabled ? i18next.t("g.login") : undefined}
                 className={clsx(
                   "relative flex-1 py-3.5 text-[15px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:focus-visible:ring-blue-500 hover:bg-gray-100/60 dark:hover:bg-dark-300/40",
                   isActive
