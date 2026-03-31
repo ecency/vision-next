@@ -2810,6 +2810,10 @@
     "no-ls-description": "Wygląda na to, że Ty lub Twoja przeglądarka wyłączyłeś lokalne dane dla naszej witryny. Niestety nie możesz użyć większości funkcji ecencji, takich jak szkicy, lokalne talie, zaawansowany panel handlowy i inne. Użyj najnowszych wersji dowolnej nowoczesnej przeglądarki lub włącz dane lokalne ręcznie."
   },
   "waves": {
+    "feed": {
+      "for-you": "Dla Ciebie",
+      "following": "Obserwowane"
+    },
     "sources": "Źródła",
     "reply-form-title": "Odpowiedz na",
     "hide-replies": "Ukryj odpowiedzi",
