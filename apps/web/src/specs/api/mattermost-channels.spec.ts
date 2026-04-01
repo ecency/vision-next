@@ -25,7 +25,7 @@ describe("fetchAllChannelPages", () => {
 
   it("aggregates results from multiple pages and stops on short page", async () => {
     const { fetchAllChannelPages, pageSize } = await import(
-      "@/app/api/mattermost/channels/route"
+      "@/app/api/mattermost/channels/helpers"
     );
     const fullPage = makeChannels(pageSize);
     const shortPage = makeChannels(50);
@@ -50,7 +50,7 @@ describe("fetchAllChannelPages", () => {
 
   it("stops after a single call when first page is short", async () => {
     const { fetchAllChannelPages } = await import(
-      "@/app/api/mattermost/channels/route"
+      "@/app/api/mattermost/channels/helpers"
     );
     const shortPage = makeChannels(10);
     mockMmUserFetch.mockResolvedValueOnce(shortPage);
@@ -63,7 +63,7 @@ describe("fetchAllChannelPages", () => {
 
   it("stops at maxPages even if every page is full", async () => {
     const { fetchAllChannelPages, pageSize, maxPages } = await import(
-      "@/app/api/mattermost/channels/route"
+      "@/app/api/mattermost/channels/helpers"
     );
     const fullPage = makeChannels(pageSize);
     for (let i = 0; i < maxPages; i++) {

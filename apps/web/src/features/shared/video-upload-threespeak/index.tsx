@@ -284,9 +284,9 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         <VideoUploadRecorder
           isShort={isShortResolved}
           onEmbedUrlReady={handleRecordedUpload}
-          setSelectedFile={(url) => {
+          setSelectedFile={(url, mime) => {
             setSelectedFile(url);
-            setSelectedFileType("video/webm");
+            setSelectedFileType(mime);
           }}
           onReset={() => {
             setShowRecorder(false);
@@ -297,13 +297,14 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
       ) : (
         <div className="video-source">
           {isMounted() && !selectedFile && "MediaRecorder" in window ? (
-            <div
+            <button
+              type="button"
               className="flex items-center flex-col border border-[--border-color] rounded-xl p-3 hover:bg-gray-100 dark:hover:bg-dark-default cursor-pointer duration-300"
               onClick={() => setShowRecorder(true)}
             >
               {recordVideoSvg}
               {i18next.t("video-upload.record-video")}
-            </div>
+            </button>
           ) : (
             <></>
           )}

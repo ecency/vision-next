@@ -5,6 +5,7 @@ import {
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
+import { fetchAllChannelPages, fetchAllChannelMemberPages } from "./helpers";
 
 interface MattermostChannel {
   id: string;
@@ -62,38 +63,6 @@ interface MattermostPreference {
   category: string;
   name: string;
   value: string;
-}
-
-export const pageSize = 200;
-export const maxPages = 3;
-
-export async function fetchAllChannelPages(token: string): Promise<MattermostChannel[]> {
-  const results: MattermostChannel[] = [];
-  for (let page = 0; page < maxPages; page++) {
-    const pageItems = await mmUserFetch<MattermostChannel[]>(
-      `/users/me/channels?page=${page}&per_page=${pageSize}`,
-      token
-    );
-    results.push(...pageItems);
-    if (pageItems.length < pageSize) return results;
-  }
-  return results;
-}
-
-async function fetchAllChannelMemberPages(
-  teamId: string,
-  token: string
-): Promise<MattermostChannelMemberCounts[]> {
-  const results: MattermostChannelMemberCounts[] = [];
-  for (let page = 0; page < maxPages; page++) {
-    const pageItems = await mmUserFetch<MattermostChannelMemberCounts[]>(
-      `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
-      token
-    );
-    results.push(...pageItems);
-    if (pageItems.length < pageSize) return results;
-  }
-  return results;
 }
 
 export async function GET() {
