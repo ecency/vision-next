@@ -1787,7 +1787,10 @@
     "error-generic": "動画のアップロードに失敗しました。もう一度やり直してください。",
     "title-short": "短い動画をアップロード",
     "short-badge": "Short",
-    "video-attached": "ビデオが添付されました"
+    "video-attached": "ビデオが添付されました",
+    "video-type": "ビデオの種類",
+    "type-video": "ビデオ",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
