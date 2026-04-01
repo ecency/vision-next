@@ -1,7 +1,7 @@
 .waves-page-layout {
   .entry-body {
     .medium-zoom-image:not(.medium-zoom-image--opened),
-    img:not(.ecency-renderer-wave-like-post-extension-renderer--author-avatar):not(.medium-zoom-image--opened) {
+    img:not(.ecency-renderer-wave-like-post-extension-renderer--author-avatar, .medium-zoom-image--opened) {
       margin: 0 auto;
     }
     .markdown-image-container {

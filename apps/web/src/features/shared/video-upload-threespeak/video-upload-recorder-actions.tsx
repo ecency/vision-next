@@ -24,7 +24,7 @@ export function VideoUploadRecorderActions({
 
   useEffect(() => {
     recordStarted ? stopwatch.start() : stopwatch.clear();
-  }, [recordStarted, stopwatch]);
+  }, [recordStarted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getNextCameraIndex = (index: number) => (index + 1) % cameraList.length;
 

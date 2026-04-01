@@ -96,7 +96,7 @@
     }
   }
 
-  img:not(.video-thumbnail):not(.er-author-link-image):not(.er-wave-renderer--author-avatar):not(.medium-zoom-image--opened) {
+  img:not(.video-thumbnail, .er-author-link-image, .er-wave-renderer--author-avatar, .medium-zoom-image--opened) {
     cursor: pointer;
     transition: 0.3s;
     max-width: 100%;

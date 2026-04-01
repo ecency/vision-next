@@ -19,6 +19,14 @@ export function useWaveImageGrid(
     const container = containerRef.current;
     if (!container) return;
 
+    // Clean up any previously created grids so we operate on the original DOM
+    container.querySelectorAll<HTMLElement>(".wave-image-grid").forEach((grid) => {
+      while (grid.firstChild) {
+        grid.parentNode?.insertBefore(grid.firstChild, grid);
+      }
+      grid.remove();
+    });
+
     const imageContainers = Array.from(
       container.querySelectorAll<HTMLElement>(".markdown-image-container")
     );

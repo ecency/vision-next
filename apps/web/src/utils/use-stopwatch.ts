@@ -42,6 +42,7 @@ export function useStopwatch() {
   }, []);
 
   const start = useCallback(() => {
+    if (intervalRef.current) return;
     setIsActive(true);
     intervalRef.current = setInterval(tick, 1000);
   }, [tick]);
