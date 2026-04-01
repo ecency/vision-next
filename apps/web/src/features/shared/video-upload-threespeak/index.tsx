@@ -225,10 +225,12 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
     const file = e.target.files?.[0];
     if (!file || !videoData?.permlink) return;
 
+    // Set flag immediately to abort any running auto-extractor
+    setHasManualThumbnail(true);
+
     try {
       const response = await uploadThumbnailImage({ file });
       if (response?.url) {
-        setHasManualThumbnail(true);
         setThumbnailUrl(response.url);
         try {
           await setVideoThumbnail(videoData.permlink, response.url);
@@ -237,6 +239,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         }
       }
     } catch {
+      setHasManualThumbnail(false);
       error(i18next.t("video-upload.thumbnail-upload-failed"));
     }
   };

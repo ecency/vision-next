@@ -37,8 +37,9 @@ export async function fetchAllChannelPages(token: string): Promise<MattermostCha
       `/users/me/channels?page=${page}&per_page=${pageSize}`,
       token
     );
-    results.push(...pageItems);
-    if (pageItems.length < pageSize) return results;
+    const items = Array.isArray(pageItems) ? pageItems : [];
+    results.push(...items);
+    if (items.length < pageSize) return results;
   }
   return results;
 }
@@ -53,8 +54,9 @@ export async function fetchAllChannelMemberPages(
       `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
       token
     );
-    results.push(...pageItems);
-    if (pageItems.length < pageSize) return results;
+    const items = Array.isArray(pageItems) ? pageItems : [];
+    results.push(...items);
+    if (items.length < pageSize) return results;
   }
   return results;
 }
