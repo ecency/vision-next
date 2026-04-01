@@ -15,9 +15,10 @@ interface Props {
   onEmbedUrlReady: (embedUrl: string, permlink: string) => void;
   setSelectedFile: (v: string) => void;
   onReset: () => void;
+  isShort?: boolean;
 }
 
-export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile }: Props) {
+export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile, isShort }: Props) {
   const { activeUser } = useActiveAccount();
   const [stream, setStream] = useState<MediaStream>();
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
@@ -189,7 +190,8 @@ export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile 
                       });
                       const result = await uploadVideo({
                         file,
-                        owner: activeUser.username
+                        owner: activeUser.username,
+                        isShort
                       });
                       if (result) {
                         onEmbedUrlReady(result.embedUrl, result.permlink);
