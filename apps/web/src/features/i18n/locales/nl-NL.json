@@ -1787,7 +1787,10 @@
     "error-generic": "Uploaden van video mislukt. Probeer het opnieuw.",
     "title-short": "Korte video uploaden",
     "short-badge": "Kort",
-    "video-attached": "Video toegevoegd"
+    "video-attached": "Video toegevoegd",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Kort"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
