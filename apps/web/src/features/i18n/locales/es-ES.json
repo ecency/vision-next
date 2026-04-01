@@ -1787,7 +1787,10 @@
     "error-generic": "Error al subir el video. Por favor, inténtalo de nuevo.",
     "title-short": "Subir vídeo corto",
     "short-badge": "Corto",
-    "video-attached": "Vídeo adjuntado"
+    "video-attached": "Vídeo adjuntado",
+    "video-type": "Tipo de vídeo",
+    "type-video": "Vídeo",
+    "type-short": "Corto"
   },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. Primera etiqueta es la categoría principal. Organízable.",
