@@ -1787,7 +1787,10 @@
     "error-generic": "Failed to upload video. Please try again.",
     "title-short": "Upload short video",
     "short-badge": "Short",
-    "video-attached": "Video attached"
+    "video-attached": "Video attached",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "Tagar. Tagar pertama adalah kategori utama. Mudah disortir.",
