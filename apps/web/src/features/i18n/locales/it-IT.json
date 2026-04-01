@@ -1787,7 +1787,10 @@
     "error-generic": "Impossibile caricare il video. Per favore riprova.",
     "title-short": "Carica breve video",
     "short-badge": "Breve",
-    "video-attached": "Video allegato"
+    "video-attached": "Video allegato",
+    "video-type": "Tipo video",
+    "type-video": "Video",
+    "type-short": "Breve"
   },
   "tag-selector": {
     "placeholder-empty": "Tag. Il primo tag è la categoria principale. Ordinabile.",
