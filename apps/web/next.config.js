@@ -157,6 +157,37 @@ const config = {
       }
     ]
   },
+  async headers() {
+    return [
+      {
+        // Hashed static assets (JS, CSS, media) - immutable, cache forever
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        // Fonts served by Next.js
+        source: "/_next/static/media/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        // Public static assets (images, icons, scripts)
+        source: "/assets/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        source: "/scripts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      }
+    ];
+  },
   async redirects() {
     return [
       // Legacy pages
@@ -301,6 +332,14 @@ const withSentry = withSentryConfig(config, {
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
+
+  // Tree-shake unused Sentry integrations to reduce client bundle size
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true
+  },
 
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:
