@@ -96,7 +96,7 @@
     }
   }
 
-  img:not(.video-thumbnail):not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
+  img:not(.video-thumbnail, .er-author-link-image, .er-wave-renderer--author-avatar, .medium-zoom-image--opened) {
     cursor: pointer;
     transition: 0.3s;
     max-width: 100%;
@@ -108,54 +108,6 @@
 
     &:hover {
       box-shadow: 0 6px 20px -10px rgba(0,0,0,.5);
-    }
-  }
-
-  // Multi-image grid: group adjacent .markdown-image-container into a 2-col grid
-  .markdown-image-container {
-    overflow: hidden;
-    border-radius: 1rem;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      max-height: none;
-      border-radius: 0;
-    }
-
-    .markdown-img-caption {
-      padding: 0.25rem 0;
-    }
-  }
-
-  // When multiple image containers are adjacent, form a grid
-  .markdown-image-container + .markdown-image-container {
-    margin-top: 0;
-  }
-
-  // Multi-image grid; falls back to vertical stacking in browsers without :has()
-  @supports selector(p:has(> div)) {
-    p:has(> .markdown-image-container + .markdown-image-container) {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-      border-radius: 1rem;
-      overflow: hidden;
-      margin-top: 0.5rem;
-
-      .markdown-image-container {
-        border-radius: 0;
-        margin: 0;
-
-        &:first-child:nth-last-child(3) {
-          grid-row: span 2;
-        }
-
-        .markdown-img-caption {
-          display: none;
-        }
-      }
     }
   }
 
@@ -283,5 +235,43 @@
   hr {
     margin: 1rem 0;
     @apply border-[--border-color];
+  }
+}
+
+// Multi-image grid: JS groups adjacent .markdown-image-container elements
+// into a .wave-image-grid wrapper (see use-wave-image-grid.ts).
+// Top-level so it works in both feed items and wave detail views.
+.wave-image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 2px;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  max-height: 510px;
+
+  .markdown-image-container {
+    overflow: hidden;
+    border-radius: 0;
+    margin: 0;
+    min-height: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+      margin: 0;
+    }
+
+    .markdown-img-caption {
+      display: none;
+    }
+  }
+
+  // 3 images: first spans 2 rows (tall left + 2 stacked right)
+  .markdown-image-container:first-child:nth-last-child(3) {
+    grid-row: span 2;
   }
 }

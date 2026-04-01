@@ -3,7 +3,7 @@
 import { WavesListItemHeader } from "@/app/waves/_components/waves-list-item-header";
 import { WaveActions, WaveForm } from "@/features/waves";
 import { WaveEntry } from "@/entities";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
@@ -12,6 +12,7 @@ import { PostContentRenderer } from "@/features/shared";
 import { PollWidget, useEntryPollExtractor } from "@/features/polls";
 import { usePathname, useRouter } from "next/navigation";
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
+import { useWaveImageGrid } from "@/app/waves/_hooks";
 import { getPostTipsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
@@ -22,6 +23,7 @@ interface Props {
 export function WaveViewDetails({ entry: initialEntry }: Props) {
   const { data: entry } = useQuery(EcencyEntriesCacheManagement.getEntryQuery(initialEntry));
 
+  const contentRef = useRef<HTMLDivElement>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -33,6 +35,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
   const status = "default";
 
   useMount(() => window.scrollTo(0, 0));
+  useWaveImageGrid(contentRef, entry?.body);
 
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -62,7 +65,7 @@ export function WaveViewDetails({ entry: initialEntry }: Props) {
           onClose={() => router.back()}
         />
       </div>
-      <div className="p-4">
+      <div ref={contentRef} className="p-4">
         <PostContentRenderer
           value={entry?.body ?? ""}
           images={entry?.json_metadata?.image}

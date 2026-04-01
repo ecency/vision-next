@@ -16,7 +16,7 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
-import { useMutedUsers, useWavesGrid } from "@/app/waves/_hooks";
+import { useMutedUsers, useWaveImageGrid, useWavesGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
@@ -57,6 +57,7 @@ export const WavesListItem = React.memo(function WavesListItem({
   const [grid] = useWavesGrid();
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const { inViewport } = useInViewport(rootRef);
@@ -115,6 +116,8 @@ export const WavesListItem = React.memo(function WavesListItem({
       collectPageView();
     }
   }, [collectPageView, inViewport]);
+
+  useWaveImageGrid(contentRef, isMuted ? undefined : entry?.body);
 
   const status = "default";
 
@@ -293,7 +296,7 @@ export const WavesListItem = React.memo(function WavesListItem({
         onViewFullThread={onHeaderClick}
         now={now}
       />
-      <div className="p-4">
+      <div ref={contentRef} className="p-4">
         {isMuted ? (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("waves.muted-post")}
