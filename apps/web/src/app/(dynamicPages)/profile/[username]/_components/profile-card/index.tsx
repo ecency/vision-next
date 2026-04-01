@@ -72,7 +72,7 @@ export function ProfileCard({ account }: Props) {
     >
       <Image
           className="absolute top-0 left-0 w-full h-[96px] object-cover"
-          src={imageSrc ?? (data?.profile?.cover_image?.trim() || "/assets/promote-wave-bg.jpg")}
+          src={imageSrc ?? ((typeof data?.profile?.cover_image === "string" ? data.profile.cover_image.trim() : "") || "/assets/promote-wave-bg.jpg")}
           alt=""
           width={300}
           height={200}
