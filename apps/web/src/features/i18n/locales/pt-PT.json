@@ -1787,7 +1787,10 @@
     "error-generic": "Falha ao fazer upload do vídeo. Tente novamente.",
     "title-short": "Carregar um vídeo curto",
     "short-badge": "Curto",
-    "video-attached": "Vídeo anexado"
+    "video-attached": "Vídeo anexado",
+    "video-type": "Tipo de vídeo",
+    "type-video": "Vídeo",
+    "type-short": "Curto"
   },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. A primeira etiqueta é a categoria principal. Ordenável.",
