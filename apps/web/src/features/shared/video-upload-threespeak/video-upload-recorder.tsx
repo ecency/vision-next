@@ -13,11 +13,12 @@ import { formatError } from "@/api/format-error";
 
 interface Props {
   onEmbedUrlReady: (embedUrl: string, permlink: string) => void;
-  setSelectedFile: (v: string) => void;
+  setSelectedFile: (v: string, mime: string) => void;
   onReset: () => void;
+  isShort?: boolean;
 }
 
-export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile }: Props) {
+export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile, isShort }: Props) {
   const { activeUser } = useActiveAccount();
   const [stream, setStream] = useState<MediaStream>();
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
@@ -184,12 +185,15 @@ export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile 
                     }
 
                     try {
-                      const file = new File([recordedBlob], `ecency-recorder-${v4()}.webm`, {
-                        type: "video/webm"
+                      const mime = recordedBlob.type || "video/webm";
+                      const ext = mime.includes("mp4") ? "mp4" : "webm";
+                      const file = new File([recordedBlob], `ecency-recorder-${v4()}.${ext}`, {
+                        type: mime
                       });
                       const result = await uploadVideo({
                         file,
-                        owner: activeUser.username
+                        owner: activeUser.username,
+                        isShort
                       });
                       if (result) {
                         onEmbedUrlReady(result.embedUrl, result.permlink);
@@ -198,7 +202,7 @@ export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile 
                         }
                         const fileUrl = URL.createObjectURL(file);
                         selectedFileUrlRef.current = fileUrl;
-                        setSelectedFile(fileUrl);
+                        setSelectedFile(fileUrl, mime);
                       }
                     } catch (e) {
                       error(...formatError(e));

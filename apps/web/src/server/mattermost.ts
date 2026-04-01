@@ -224,6 +224,37 @@ export async function ensureUserInChannel(userId: string, channelId: string) {
   }
 }
 
+export async function removeUserFromChannel(userId: string, channelId: string) {
+  await mmFetch(`/channels/${channelId}/members/${userId}`, {
+    method: "DELETE",
+    headers: getAdminHeaders()
+  });
+}
+
+interface MattermostChannelBasic {
+  id: string;
+  name: string;
+  type: string;
+}
+
+export async function getUserChannels(userId: string): Promise<MattermostChannelBasic[]> {
+  const teamId = getMattermostTeamId();
+  const PAGE_SIZE = 200;
+  const MAX_PAGES = 3;
+  const results: MattermostChannelBasic[] = [];
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const pageItems = await mmFetch<MattermostChannelBasic[]>(
+      `/users/${userId}/teams/${teamId}/channels?page=${page}&per_page=${PAGE_SIZE}`,
+      { headers: getAdminHeaders() }
+    );
+    results.push(...pageItems);
+    if (pageItems.length < PAGE_SIZE) break;
+  }
+
+  return results;
+}
+
 export async function findMattermostUser(username: string): Promise<MattermostUser | null> {
   try {
     return await mmFetch<MattermostUser>(`/users/username/${username}`, {

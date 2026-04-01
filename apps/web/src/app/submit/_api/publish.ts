@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
+import { enforceThreeSpeakBeneficiary, linkThreeSpeakEmbed } from "@/api/threespeak-embed";
 import { formatError } from "@/api/format-error";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { useContext } from "react";
@@ -179,6 +179,14 @@ export function usePublishApi(onClear: () => void) {
           });
         }
         recordActivity().catch(() => {});
+
+        // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+        linkThreeSpeakEmbed(cbody, {
+          hiveAuthor: author,
+          hivePermlink: permlink,
+          hiveTitle: title,
+          hiveTags: tags
+        });
 
         success(i18next.t("submit.published"));
         onClear();
