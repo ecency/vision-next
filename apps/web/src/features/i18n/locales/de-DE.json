@@ -1787,7 +1787,10 @@
     "error-generic": "Video konnte nicht hochgeladen werden. Bitte erneut versuchen.",
     "title-short": "Kurzes Video hochladen",
     "short-badge": "Kurze",
-    "video-attached": "Video hinzugefügt"
+    "video-attached": "Video hinzugefügt",
+    "video-type": "Videotyp",
+    "type-video": "Video",
+    "type-short": "Kurze"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Erster Tag ist die Hauptkategorie. Sortierbar.",
