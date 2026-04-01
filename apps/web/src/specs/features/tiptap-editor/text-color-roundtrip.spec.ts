@@ -10,8 +10,7 @@ vi.mock("@/features/tiptap-editor/extensions", () => ({
   YOUTUBE_REGEX: /$a^/
 }));
 
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 import { TEXT_COLOR_CLASS_PREFIX } from "@/app/publish/_constants/text-colors";
 import { markdownToHtml } from "@/features/tiptap-editor/functions/markdown-to-html";
@@ -25,8 +24,7 @@ type RoundTripResult = {
 };
 
 async function parseMarkdownToEditorHtml(markdown: string) {
-  const parsed = await marked.parse(markdown);
-  const sanitized = DOMPurify.sanitize(typeof parsed === "string" ? parsed : "");
+  const sanitized = simpleMarkdownToHTML(markdown);
   return parseAllExtensionsToDoc(sanitized);
 }
 

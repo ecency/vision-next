@@ -76,8 +76,7 @@ import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragment
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -697,8 +696,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             initialText={editor?.getText()?.trim() || ""}
             onApply={(output, action) => {
               if (action === "improve" || action === "check_grammar" || action === "summarize") {
-                const parsed = marked.parse(output);
-                const sanitized = DOMPurify.sanitize(parsed as string);
+                const sanitized = simpleMarkdownToHTML(output);
                 const doc = parseAllExtensionsToDoc(sanitized);
                 editor?.commands.setContent(doc);
                 setShowAiAssist(false);

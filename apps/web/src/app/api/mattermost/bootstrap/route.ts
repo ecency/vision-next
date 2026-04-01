@@ -7,6 +7,9 @@ import {
   ensureMattermostUser,
   ensurePersonalToken,
   ensureUserInTeam,
+  getMattermostUserWithProps,
+  getUserLeftChannels,
+  removeUserLeftChannel,
   withMattermostTokenCookie
 } from "@/server/mattermost";
 import { decodeToken, validateToken } from "@/utils";
@@ -108,7 +111,16 @@ export async function POST(req: Request) {
     let channelId: string | null = null;
 
     // 5) Join channels for communities the user is subscribed to
+    //    Skip channels the user has manually left (respect user choice)
     const BATCH_SIZE = 5;
+
+    let leftChannels = new Set<string>();
+    try {
+      const userWithProps = await getMattermostUserWithProps(user.id);
+      leftChannels = getUserLeftChannels(userWithProps);
+    } catch (e) {
+      console.warn("MM bootstrap: failed to load left channels", { username, error: e });
+    }
 
     // Ensure channels exist and join for all subscribed communities
     const communityEntries = Array.from(uniqueCommunityIds);
@@ -118,12 +130,15 @@ export async function POST(req: Request) {
       const batch = communityEntries.slice(i, i + BATCH_SIZE);
       const batchResults = await Promise.allSettled(
         batch.map(async ([communityId, title]) => {
+          const normalizedId = communityId.trim().toLowerCase();
+          // Skip auto-join if user manually left this channel
+          const shouldAutoJoin = !leftChannels.has(normalizedId);
           try {
             const ensuredChannelId = await ensureCommunityChannelMembership(
               user.id,
               communityId,
               title,
-              true // Auto-join subscribed communities
+              shouldAutoJoin
             );
             return { communityId, channelId: ensuredChannelId };
           } catch (err) {
@@ -142,6 +157,7 @@ export async function POST(req: Request) {
     }
 
     // For explicitly requested community, always auto-join the user
+    // and clear the left-channel record since this is an intentional join
     if (community) {
       try {
         channelId = await ensureCommunityChannelMembership(
@@ -150,6 +166,10 @@ export async function POST(req: Request) {
           communityTitle || displayName || community,
           true
         );
+        const normalizedCommunity = community.trim().toLowerCase();
+        if (leftChannels.has(normalizedCommunity)) {
+          await removeUserLeftChannel(user.id, normalizedCommunity).catch(() => {});
+        }
       } catch (e) {
         console.warn("MM bootstrap: explicit community join failed", { username, community, error: e });
       }

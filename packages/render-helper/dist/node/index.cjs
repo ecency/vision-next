@@ -1583,6 +1583,22 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
   output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
   return sanitizeHtml(output);
 }
+var mdInstance = null;
+function getMd() {
+  if (!mdInstance) {
+    mdInstance = new remarkable.Remarkable({
+      html: true,
+      breaks: true,
+      typographer: false
+    }).use(linkify$1.linkify);
+  }
+  return mdInstance;
+}
+function simpleMarkdownToHTML(input) {
+  if (!input) return "";
+  const html = getMd().render(input);
+  return sanitizeHtml(html);
+}
 var cache = new lruCache.LRUCache({ max: 60 });
 function setCacheSize(size) {
   cache = new lruCache.LRUCache({ max: size });
@@ -1798,5 +1814,6 @@ exports.proxifyImageSrc = proxifyImageSrc;
 exports.renderPostBody = markdown2Html;
 exports.setCacheSize = setCacheSize;
 exports.setProxyBase = setProxyBase;
+exports.simpleMarkdownToHTML = simpleMarkdownToHTML;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

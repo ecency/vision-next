@@ -1,8 +1,8 @@
 @import "animations";
 
 @import "./renderer.css";
-@import "react-grid-layout/css/styles.css";
-@import "react-resizable/css/styles.css";
+/* react-grid-layout and react-resizable CSS moved to page-level imports
+   in decks and market pages that actually use them */
 
 .vote-svg {
   width: 8px !important;

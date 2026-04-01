@@ -1,4 +1,7 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true"
+});
 
 const path = require("path");
 const withPWA = require("next-pwa")({
@@ -109,7 +112,9 @@ const config = {
     };
     config.resolve.alias = {
         ...(config.resolve.alias || {}),
-        sass: "sass-embedded"
+        sass: "sass-embedded",
+        // Replace full iconscout barrel (1,189 icons, 737 KB) with local file (153 icons, ~50 KB)
+        "@tooni/iconscout-unicons-react": path.resolve(__dirname, "src/features/ui/unicons.tsx")
     };
 
     // Exclude WebSocket native modules from bundling (server-side only)
@@ -305,5 +310,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const prod = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
+const prod = withBundleAnalyzer(withPWA(withSentry));
+module.exports = process.env.NODE_ENV === "production" ? prod : withBundleAnalyzer(withSentry);

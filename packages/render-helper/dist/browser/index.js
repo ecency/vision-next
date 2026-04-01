@@ -1551,6 +1551,22 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
   output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
   return sanitizeHtml(output);
 }
+var mdInstance = null;
+function getMd() {
+  if (!mdInstance) {
+    mdInstance = new Remarkable({
+      html: true,
+      breaks: true,
+      typographer: false
+    }).use(linkify$1);
+  }
+  return mdInstance;
+}
+function simpleMarkdownToHTML(input) {
+  if (!input) return "";
+  const html = getMd().render(input);
+  return sanitizeHtml(html);
+}
 var cache = new LRUCache({ max: 60 });
 function setCacheSize(size) {
   cache = new LRUCache({ max: size });
@@ -1758,6 +1774,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+export { SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -2,8 +2,7 @@ import { EcencyConfigManager } from "@/config";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
 import { Editor } from "@tiptap/core";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 import { PublishEditorHtmlWarning } from "./publish-editor-html-warning";
 import { useCallback, useState } from "react";
 
@@ -27,7 +26,7 @@ export function PublishEditorToolbarFragments({ showFragments, setShowFragments,
       editor
         ?.chain()
         .focus()
-        .insertContent(parseAllExtensionsToDoc(DOMPurify.sanitize(marked.parse(e) as string)))
+        .insertContent(parseAllExtensionsToDoc(simpleMarkdownToHTML(e)))
         .run();
       setShowFragments(false);
     },

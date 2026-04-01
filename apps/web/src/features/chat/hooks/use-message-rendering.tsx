@@ -15,7 +15,7 @@ import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/use
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
 import { Element, Text } from "domhandler";
-import { marked } from "marked";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const ECENCY_HOSTNAMES = new Set([
   "ecency.com",
@@ -128,14 +128,10 @@ export function useMessageRendering({
     [usersById]
   );
 
-  const markdownParser = useMemo(() => {
-    marked.setOptions({
-      gfm: true,
-      breaks: true
-    });
-
-    return (content: string) => (marked.parse(content) as string) || "";
-  }, []);
+  const markdownParser = useCallback(
+    (content: string) => simpleMarkdownToHTML(content),
+    []
+  );
 
   const ECENCY_POST_LINK_REGEX = useMemo(
     () => /https?:\/\/(?:www\.)?(?:ecency\.com|peakd\.com|hive\.blog)\/[^\s]*@(?:[a-zA-Z][a-zA-Z0-9.-]{1,15})\/[^\s)]+/gi,
