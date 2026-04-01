@@ -7,8 +7,6 @@ import {
   ensureMattermostUser,
   ensurePersonalToken,
   ensureUserInTeam,
-  getUserChannels,
-  removeUserFromChannel,
   withMattermostTokenCookie
 } from "@/server/mattermost";
 import { decodeToken, validateToken } from "@/utils";
@@ -109,14 +107,8 @@ export async function POST(req: Request) {
 
     let channelId: string | null = null;
 
-    // 5) Sync community channel membership with Hive subscriptions
-    // - Join channels for communities the user is subscribed to
-    // - Leave community channels the user is no longer subscribed to
-    const COMMUNITY_PATTERN = /^hive-[a-z0-9-]+$/;
+    // 5) Join channels for communities the user is subscribed to
     const BATCH_SIZE = 5;
-    const subscribedCommunityNames = new Set(
-      Array.from(uniqueCommunityIds.keys()).map((id) => id.trim().toLowerCase())
-    );
 
     // Ensure channels exist and join for all subscribed communities
     const communityEntries = Array.from(uniqueCommunityIds);
@@ -147,25 +139,6 @@ export async function POST(req: Request) {
     if (failedChannels.length > 0) {
       const failedIds = failedChannels.map(r => r.reason?.communityId ?? r.reason?.message ?? "unknown");
       console.warn("MM bootstrap: some channels failed", { username, count: failedChannels.length, failedIds });
-    }
-
-    // Leave community channels that the user is no longer subscribed to
-    try {
-      const currentChannels = await getUserChannels(user.id);
-      const communityChannelsToLeave = currentChannels.filter((ch) =>
-        ch.type === "O" &&
-        COMMUNITY_PATTERN.test(ch.name) &&
-        !subscribedCommunityNames.has(ch.name)
-      );
-
-      for (let i = 0; i < communityChannelsToLeave.length; i += BATCH_SIZE) {
-        const batch = communityChannelsToLeave.slice(i, i + BATCH_SIZE);
-        await Promise.allSettled(
-          batch.map((ch) => removeUserFromChannel(user.id, ch.id))
-        );
-      }
-    } catch (e) {
-      console.warn("MM bootstrap: community channel cleanup failed", { username, error: e });
     }
 
     // For explicitly requested community, always auto-join the user
