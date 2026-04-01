@@ -1787,7 +1787,10 @@
     "error-generic": "Nie udało się przesłać filmu. Spróbuj ponownie.",
     "title-short": "Prześlij krótkie wideo",
     "short-badge": "Krótki",
-    "video-attached": "Wideo dołączone"
+    "video-attached": "Wideo dołączone",
+    "video-type": "Typ wideo",
+    "type-video": "Wideo",
+    "type-short": "Krótki"
   },
   "tag-selector": {
     "placeholder-empty": "Tagi. Pierwszy tag jest kategorią główną. Tagi można sortować.",
