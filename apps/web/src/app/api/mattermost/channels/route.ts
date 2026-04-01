@@ -64,18 +64,18 @@ interface MattermostPreference {
   value: string;
 }
 
-const PAGE_SIZE = 200;
-const MAX_PAGES = 3;
+const pageSize = 200;
+const maxPages = 3;
 
-async function fetchAllChannelPages(token: string): Promise<MattermostChannel[]> {
+export async function fetchAllChannelPages(token: string): Promise<MattermostChannel[]> {
   const results: MattermostChannel[] = [];
-  for (let page = 0; page < MAX_PAGES; page++) {
+  for (let page = 0; page < maxPages; page++) {
     const pageItems = await mmUserFetch<MattermostChannel[]>(
-      `/users/me/channels?page=${page}&per_page=${PAGE_SIZE}`,
+      `/users/me/channels?page=${page}&per_page=${pageSize}`,
       token
     );
     results.push(...pageItems);
-    if (pageItems.length < PAGE_SIZE) break;
+    if (pageItems.length < pageSize) return results;
   }
   return results;
 }
@@ -94,13 +94,13 @@ export async function GET() {
       mmUserFetch<MattermostUser>(`/users/me`, token),
       (async () => {
         const results: MattermostChannelMemberCounts[] = [];
-        for (let page = 0; page < MAX_PAGES; page++) {
+        for (let page = 0; page < maxPages; page++) {
           const pageItems = await mmUserFetch<MattermostChannelMemberCounts[]>(
-            `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${PAGE_SIZE}`,
+            `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
             token
           );
           results.push(...pageItems);
-          if (pageItems.length < PAGE_SIZE) break;
+          if (pageItems.length < pageSize) return results;
         }
         return results;
       })(),
