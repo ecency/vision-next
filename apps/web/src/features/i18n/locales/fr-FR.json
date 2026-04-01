@@ -1787,7 +1787,10 @@
     "error-generic": "Impossible de télécharger la vidéo. Veuillez réessayer.",
     "title-short": "Charger une courte vidéo",
     "short-badge": "Courte",
-    "video-attached": "Vidéo attachée"
+    "video-attached": "Vidéo attachée",
+    "video-type": "Type de vidéo",
+    "type-video": "Vidéo",
+    "type-short": "Courte"
   },
   "tag-selector": {
     "placeholder-empty": "Mots-clés. Le premier mot-clé est la catégorie principale. Triable.",
