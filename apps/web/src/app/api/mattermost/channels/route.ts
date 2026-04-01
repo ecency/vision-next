@@ -64,14 +64,30 @@ interface MattermostPreference {
   value: string;
 }
 
-const pageSize = 200;
-const maxPages = 3;
+export const pageSize = 200;
+export const maxPages = 3;
 
 export async function fetchAllChannelPages(token: string): Promise<MattermostChannel[]> {
   const results: MattermostChannel[] = [];
   for (let page = 0; page < maxPages; page++) {
     const pageItems = await mmUserFetch<MattermostChannel[]>(
       `/users/me/channels?page=${page}&per_page=${pageSize}`,
+      token
+    );
+    results.push(...pageItems);
+    if (pageItems.length < pageSize) return results;
+  }
+  return results;
+}
+
+async function fetchAllChannelMemberPages(
+  teamId: string,
+  token: string
+): Promise<MattermostChannelMemberCounts[]> {
+  const results: MattermostChannelMemberCounts[] = [];
+  for (let page = 0; page < maxPages; page++) {
+    const pageItems = await mmUserFetch<MattermostChannelMemberCounts[]>(
+      `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
       token
     );
     results.push(...pageItems);
@@ -92,18 +108,7 @@ export async function GET() {
     const [channels, currentUser, channelMembers, categoriesResponse, preferences] = await Promise.all([
       fetchAllChannelPages(token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
-      (async () => {
-        const results: MattermostChannelMemberCounts[] = [];
-        for (let page = 0; page < maxPages; page++) {
-          const pageItems = await mmUserFetch<MattermostChannelMemberCounts[]>(
-            `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
-            token
-          );
-          results.push(...pageItems);
-          if (pageItems.length < pageSize) return results;
-        }
-        return results;
-      })(),
+      fetchAllChannelMemberPages(teamId, token),
       mmUserFetch<{ categories: MattermostChannelCategory[]; order: string[] }>(
         `/users/me/teams/${teamId}/channels/categories`,
         token

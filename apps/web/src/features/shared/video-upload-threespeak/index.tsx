@@ -45,6 +45,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   const videoRef = useRef<HTMLVideoElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const selectedFileUrlRef = useRef<string>();
+  const dialogOpenRef = useRef(false);
 
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [selectedFileType, setSelectedFileType] = useState<string>("video/mp4");
@@ -64,6 +65,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
 
   // Reset on dialog hide
   useEffect(() => {
+    dialogOpenRef.current = props.show;
     if (!props.show) {
       if (selectedFileUrlRef.current) {
         URL.revokeObjectURL(selectedFileUrlRef.current);
@@ -108,13 +110,15 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
         owner: activeUser.username,
         isShort: isShortResolved
       });
-      if (result) {
+      if (result && dialogOpenRef.current) {
         setVideoData({ embedUrl: result.embedUrl, permlink: result.permlink });
       }
     } catch {
       // Error already shown by the mutation's error handler.
       // Reset file state so the selector reappears and user can retry.
-      setSelectedFile(null);
+      if (dialogOpenRef.current) {
+        setSelectedFile(null);
+      }
     }
   };
 
@@ -338,7 +342,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
           ) : thumbnailUrl ? (
             <img
               src={thumbnailUrl}
-              alt="Thumbnail"
+              alt={i18next.t("video-upload.thumbnail")}
               className="rounded"
               style={{ maxWidth: 160, maxHeight: 90 }}
             />

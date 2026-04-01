@@ -9,10 +9,6 @@ vi.mock("@/server/mattermost", () => ({
   mmUserFetch: (...args: unknown[]) => mockMmUserFetch(...args)
 }));
 
-// pageSize and maxPages from the route module
-const pageSize = 200;
-const maxPages = 3;
-
 function makeChannels(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     id: `ch-${i}`,
@@ -28,6 +24,9 @@ describe("fetchAllChannelPages", () => {
   });
 
   it("aggregates results from multiple pages and stops on short page", async () => {
+    const { fetchAllChannelPages, pageSize } = await import(
+      "@/app/api/mattermost/channels/route"
+    );
     const fullPage = makeChannels(pageSize);
     const shortPage = makeChannels(50);
 
@@ -35,9 +34,6 @@ describe("fetchAllChannelPages", () => {
       .mockResolvedValueOnce(fullPage)
       .mockResolvedValueOnce(shortPage);
 
-    const { fetchAllChannelPages } = await import(
-      "@/app/api/mattermost/channels/route"
-    );
     const result = await fetchAllChannelPages("test-token");
 
     expect(result).toHaveLength(pageSize + 50);
@@ -53,12 +49,12 @@ describe("fetchAllChannelPages", () => {
   });
 
   it("stops after a single call when first page is short", async () => {
-    const shortPage = makeChannels(10);
-    mockMmUserFetch.mockResolvedValueOnce(shortPage);
-
     const { fetchAllChannelPages } = await import(
       "@/app/api/mattermost/channels/route"
     );
+    const shortPage = makeChannels(10);
+    mockMmUserFetch.mockResolvedValueOnce(shortPage);
+
     const result = await fetchAllChannelPages("test-token");
 
     expect(result).toHaveLength(10);
@@ -66,14 +62,14 @@ describe("fetchAllChannelPages", () => {
   });
 
   it("stops at maxPages even if every page is full", async () => {
+    const { fetchAllChannelPages, pageSize, maxPages } = await import(
+      "@/app/api/mattermost/channels/route"
+    );
     const fullPage = makeChannels(pageSize);
     for (let i = 0; i < maxPages; i++) {
       mockMmUserFetch.mockResolvedValueOnce(fullPage);
     }
 
-    const { fetchAllChannelPages } = await import(
-      "@/app/api/mattermost/channels/route"
-    );
     const result = await fetchAllChannelPages("test-token");
 
     expect(result).toHaveLength(pageSize * maxPages);
