@@ -1,5 +1,5 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
-import { getAccountFullQueryOptions, getDeletedEntryQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -14,6 +14,7 @@ import {
   MdHandler
 } from "./_components";
 import { EntryNotFoundFallback } from "./_components/entry-not-found-fallback";
+import { DeletedPostScreen } from "./_components/deleted-post-screen";
 import { EntryPageDiscussionsWrapper } from "./_components/entry-page-discussions-wrapper";
 
 interface Props {
@@ -58,9 +59,17 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   if (!entry) {
-    // Prefetch deleted entry data for SSR (component will handle loading/error states)
-    await prefetchQuery(getDeletedEntryQueryOptions(author, permlink));
+    // ?history shows deleted post content via comment-history API (client-side)
+    if (sParams.history !== undefined) {
+      return (
+        <EntryPageContextProvider>
+          <DeletedPostScreen username={author} permlink={permlink} />
+        </EntryPageContextProvider>
+      );
+    }
 
+    // EntryNotFoundFallback polls the blockchain for freshly published posts
+    // that haven't been indexed yet, then falls back to deleted post screen
     return (
       <EntryPageContextProvider>
         <div className="app-content entry-page">
