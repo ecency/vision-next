@@ -351,7 +351,7 @@ export function handleMattermostError(error: unknown) {
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
-const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
+export const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
 function isCommunityModerator(role: CommunityRole | undefined) {
   return role === ROLES.OWNER || role === ROLES.ADMIN || role === ROLES.MOD;
