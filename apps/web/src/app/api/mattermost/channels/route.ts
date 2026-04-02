@@ -108,8 +108,15 @@ export async function GET() {
         .find((category) => category.type === "direct_messages")
         ?.channel_ids || []
     );
+    // Mattermost auto-joins users to these default channels when they join
+    // the team. Hide them since no Hive user intentionally joined these.
+    const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
+
     const hasCategories = (categoriesResponse.categories || []).length > 0;
     const filteredChannels = channels.filter((channel) => {
+      // Filter out Mattermost team default channels
+      if (MATTERMOST_DEFAULT_CHANNELS.has(channel.name)) return false;
+
       if (channel.type !== "D") return true;
 
       // Extract the other user ID from channel name first
