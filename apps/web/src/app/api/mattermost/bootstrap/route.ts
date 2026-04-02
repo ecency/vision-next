@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
+import { QueryClient } from "@tanstack/react-query";
 import { Subscription } from "@/entities";
-import { getQueryClient } from "@/core/react-query";
 import {
   ensureCommunityChannelMembership,
   ensureMattermostUser,
@@ -83,11 +83,16 @@ export async function POST(req: Request) {
         );
     }
 
-    // 4) Hive subscriptions (already partly protected)
+    // 4) Hive subscriptions — use a per-request QueryClient.
+    //    Do NOT use the shared getQueryClient() here: React's cache() is
+    //    scoped to Server Components, not Route Handlers. In a long-lived
+    //    container the shared QueryClient persists across requests, serving
+    //    stale subscription data that causes auto-joining to unsubscribed communities.
     let subscriptions: Subscription[] = [];
     try {
+        const qc = new QueryClient();
         subscriptions =
-          (await getQueryClient().fetchQuery(
+          (await qc.fetchQuery(
             getAccountSubscriptionsQueryOptions(username)
           )) || [];
     } catch (error) {

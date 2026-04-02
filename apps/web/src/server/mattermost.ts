@@ -11,6 +11,7 @@ const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
 export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
 export const CHAT_LEFT_CHANNELS_PROP = "ecency_left_channels";
+const CHAT_PAT_PROP = "ecency_pat";
 
 export type DmPrivacyLevel = "all" | "followers" | "none";
 
@@ -272,34 +273,51 @@ export async function getMattermostUserWithProps(userId: string): Promise<Matter
   });
 }
 
-async function getExistingToken(userId: string): Promise<string | null> {
+/**
+ * Validate a PAT by making a lightweight /users/me call.
+ * Returns true if the token is still active and valid.
+ */
+async function isTokenValid(token: string): Promise<boolean> {
   try {
-    const tokens = await mmFetch<{ id: string; token: string; description: string }[]>(
-      `/users/${userId}/tokens`,
-      {
-        headers: getAdminHeaders()
+    await mmFetch<{ id: string }>(`/users/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
       }
-    );
-    const existing = tokens.find((t) => t.description === "ecency-auto");
-    return existing?.token || null;
-  } catch (error) {
-    return null;
+    });
+    return true;
+  } catch {
+    return false;
   }
 }
 
 async function createToken(userId: string): Promise<string> {
-  const token = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
+  const result = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
     method: "POST",
     headers: getAdminHeaders(),
     body: JSON.stringify({ description: "ecency-auto" })
   });
-  return token.token;
+  // Store the token secret in user props so we can retrieve it later.
+  // Mattermost's GET /users/{id}/tokens does NOT return the secret —
+  // it's only available at creation time.
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props: { [CHAT_PAT_PROP]: result.token } })
+  });
+  return result.token;
 }
 
 export async function ensurePersonalToken(userId: string): Promise<string> {
-  const existing = await getExistingToken(userId);
-  if (existing) {
-    return existing;
+  // Try to retrieve a previously stored PAT from user props
+  try {
+    const user = await getMattermostUserWithProps(userId);
+    const storedToken = user.props?.[CHAT_PAT_PROP];
+    if (storedToken && await isTokenValid(storedToken)) {
+      return storedToken;
+    }
+  } catch {
+    // Fall through to create a new token
   }
   return await createToken(userId);
 }
