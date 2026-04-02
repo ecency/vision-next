@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { bridgeApiCall } from "@ecency/sdk";
@@ -318,6 +318,15 @@ export function withMattermostTokenCookie(response: NextResponse, token: string)
 }
 
 export async function getMattermostTokenFromCookies(): Promise<string | null> {
+  // 1) Check X-MM-Token header first (mobile clients send token explicitly
+  //    to avoid race conditions with async cookie jar on React Native)
+  const headerStore = await headers();
+  const headerToken = headerStore.get("x-mm-token");
+  if (headerToken) {
+    return headerToken;
+  }
+
+  // 2) Fall back to httpOnly cookie (web clients)
   const cookieStore = await cookies();
   return cookieStore.get(MATTERMOST_TOKEN_COOKIE)?.value || null;
 }

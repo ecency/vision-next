@@ -1,7 +1,7 @@
 {
   "name": "@ecency/wallets",
   "private": false,
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Ecency wallets",
   "repository": {
     "type": "git",
@@ -43,7 +43,7 @@
     "react": ">=18",
     "@tanstack/react-query": ">=5",
     "@ecency/sdk": "workspace:*",
-    "@hiveio/dhive": "^1.3.5",
+    "@hiveio/dhive": "^1.3.6",
     "hivesigner": "^3.3.4",
     "@wallet-standard/app": ">=1",
     "@solana/web3.js": ">=1"

@@ -167,13 +167,6 @@ const config = {
         ]
       },
       {
-        // Fonts served by Next.js
-        source: "/_next/static/media/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
-        ]
-      },
-      {
         // Public static assets (images, icons, scripts)
         source: "/assets/:path*",
         headers: [
