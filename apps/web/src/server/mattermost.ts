@@ -276,6 +276,8 @@ export async function getMattermostUserWithProps(userId: string): Promise<Matter
 /**
  * Validate a PAT by making a lightweight /users/me call.
  * Returns true if the token is still active and valid.
+ * Only treats 401/403 as "invalid token". Rethrows other
+ * errors (5xx, network) so they surface as 502 upstream.
  */
 async function isTokenValid(token: string): Promise<boolean> {
   try {
@@ -286,8 +288,11 @@ async function isTokenValid(token: string): Promise<boolean> {
       }
     });
     return true;
-  } catch {
-    return false;
+  } catch (err) {
+    if (err instanceof MattermostError && (err.status === 401 || err.status === 403)) {
+      return false;
+    }
+    throw err;
   }
 }
 
@@ -300,24 +305,30 @@ async function createToken(userId: string): Promise<string> {
   // Store the token secret in user props so we can retrieve it later.
   // Mattermost's GET /users/{id}/tokens does NOT return the secret —
   // it's only available at creation time.
+  // Merge with existing props to avoid clobbering other fields
+  // (left_channels, DM privacy, bans, etc.)
+  const user = await getMattermostUserWithProps(userId);
+  const mergedProps = { ...(user.props || {}), [CHAT_PAT_PROP]: result.token };
   await mmFetch(`/users/${userId}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ props: { [CHAT_PAT_PROP]: result.token } })
+    body: JSON.stringify({ props: mergedProps })
   });
   return result.token;
 }
 
 export async function ensurePersonalToken(userId: string): Promise<string> {
-  // Try to retrieve a previously stored PAT from user props
-  try {
-    const user = await getMattermostUserWithProps(userId);
-    const storedToken = user.props?.[CHAT_PAT_PROP];
-    if (storedToken && await isTokenValid(storedToken)) {
+  // Try to retrieve a previously stored PAT from user props.
+  // Only fall through to createToken on auth errors (401/403).
+  // Rethrow other errors (5xx, network) so they surface upstream.
+  const user = await getMattermostUserWithProps(userId);
+  const storedToken = user.props?.[CHAT_PAT_PROP];
+  if (storedToken) {
+    // isTokenValid rethrows non-auth errors
+    if (await isTokenValid(storedToken)) {
       return storedToken;
     }
-  } catch {
-    // Fall through to create a new token
+    // Token exists but is invalid (revoked/expired) — fall through to create
   }
   return await createToken(userId);
 }
