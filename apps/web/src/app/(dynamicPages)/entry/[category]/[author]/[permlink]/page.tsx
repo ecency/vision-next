@@ -23,7 +23,8 @@ interface Props {
 
 // ISR: post body/title/tags are stable after publishing.
 // Live data (votes, comments, payout) is fetched client-side after hydration.
-export const revalidate = 120;
+// 5 min revalidation - edge cache (Cloudflare Worker) also caches anonymous HTML for 5 min.
+export const revalidate = 300;
 
 export async function generateMetadata(
   props: Props,

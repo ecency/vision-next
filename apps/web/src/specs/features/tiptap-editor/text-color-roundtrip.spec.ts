@@ -10,8 +10,7 @@ vi.mock("@/features/tiptap-editor/extensions", () => ({
   YOUTUBE_REGEX: /$a^/
 }));
 
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 import { TEXT_COLOR_CLASS_PREFIX } from "@/app/publish/_constants/text-colors";
 import { markdownToHtml } from "@/features/tiptap-editor/functions/markdown-to-html";
@@ -25,9 +24,8 @@ type RoundTripResult = {
 };
 
 async function parseMarkdownToEditorHtml(markdown: string) {
-  const parsed = await marked.parse(markdown);
-  const sanitized = DOMPurify.sanitize(typeof parsed === "string" ? parsed : "");
-  return parseAllExtensionsToDoc(sanitized);
+  const html = simpleMarkdownToHTML(markdown);
+  return parseAllExtensionsToDoc(html);
 }
 
 async function runEditorRoundTrip(initialHtml: string): Promise<RoundTripResult> {
@@ -153,11 +151,11 @@ describe("editor formatting persistence", () => {
       postEditHtml
     } = await runEditorRoundTrip(initialHtml);
 
-    [markdownAfterSave, reopenedHtml, markdownAfterPublishing, postEditHtml].forEach(
-      (content) => {
-        expect(content).toContain('data-align="right"');
-      }
-    );
+    // Turndown outputs data-align, parseAllExtensionsToDoc converts it to style.textAlign
+    expect(markdownAfterSave).toContain('data-align="right"');
+    expect(reopenedHtml).toContain("text-align");
+    expect(markdownAfterPublishing).toContain('data-align="right"');
+    expect(postEditHtml).toContain("text-align");
   });
 
   it("keeps centered image alignment wrappers across the editor lifecycle", async () => {

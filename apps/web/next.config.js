@@ -1,4 +1,7 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true"
+});
 
 const path = require("path");
 const withPWA = require("next-pwa")({
@@ -109,7 +112,9 @@ const config = {
     };
     config.resolve.alias = {
         ...(config.resolve.alias || {}),
-        sass: "sass-embedded"
+        sass: "sass-embedded",
+        // Replace full iconscout barrel (1,189 icons, 737 KB) with local file (153 icons, ~50 KB)
+        "@tooni/iconscout-unicons-react": path.resolve(__dirname, "src/features/ui/unicons.tsx")
     };
 
     // Exclude WebSocket native modules from bundling (server-side only)
@@ -151,6 +156,37 @@ const config = {
         port: ""
       }
     ]
+  },
+  async headers() {
+    return [
+      {
+        // Hashed static assets (JS, CSS, media) - immutable, cache forever
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        // Fonts served by Next.js
+        source: "/_next/static/media/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        // Public static assets (images, icons, scripts)
+        source: "/assets/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        source: "/scripts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      }
+    ];
   },
   async redirects() {
     return [
@@ -297,6 +333,14 @@ const withSentry = withSentryConfig(config, {
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
 
+  // Tree-shake unused Sentry integrations to reduce client bundle size
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true
+  },
+
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:
   // https://docs.sentry.io/product/crons/
@@ -305,5 +349,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const prod = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
+const prod = withBundleAnalyzer(withPWA(withSentry));
+module.exports = process.env.NODE_ENV === "production" ? prod : withBundleAnalyzer(withSentry);

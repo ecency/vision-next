@@ -52,7 +52,7 @@ export function markdownToHtml(html: string | undefined) {
     .addRule("centeredText", {
       filter: function (node) {
         const styles = node.getAttribute("style");
-        const align = extractTextAlignValue(styles);
+        const align = extractTextAlignValue(styles) || node.getAttribute("data-align");
 
         return (
           CENTERED_TEXT_RULE_NODES.includes(node.nodeName) &&
@@ -63,7 +63,7 @@ export function markdownToHtml(html: string | undefined) {
       replacement: function (_, node) {
         const element = node as HTMLElement;
         const styles = element.getAttribute("style");
-        const align = extractTextAlignValue(styles) ?? "auto";
+        const align = extractTextAlignValue(styles) || element.getAttribute("data-align") || "auto";
 
         const child = element.firstElementChild as HTMLElement | null;
         const onlyImage =

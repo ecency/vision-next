@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.28
+
+### Patch Changes
+
+- Performance improvements, bundle optimization (#734)
+
 ## 2.4.26
 
 ### Patch Changes

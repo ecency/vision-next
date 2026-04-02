@@ -16,8 +16,9 @@ interface Props {
   params: Promise<{ community: string }>;
 }
 
-// Enable ISR with 60 second revalidation for better performance
-export const revalidate = 60;
+// ISR: community metadata is stable. Live post lists fetched client-side.
+// 5 min revalidation aligned with edge cache TTL.
+export const revalidate = 300;
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;

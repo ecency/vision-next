@@ -148,6 +148,15 @@ export function parseAllExtensionsToDoc(value?: string) {
     }
   });
 
+  // Convert data-align attributes to style.textAlign for TipTap's TextAlign extension
+  (Array.from(tree.querySelectorAll("[data-align]")) as HTMLElement[]).forEach((el) => {
+    const align = el.getAttribute("data-align");
+    if (align && !el.style.textAlign) {
+      el.style.textAlign = align;
+    }
+    el.removeAttribute("data-align");
+  });
+
   // Ensure list items have a paragraph before nested lists to satisfy ProseMirror schema
   (Array.from(tree.querySelectorAll("li")) as HTMLElement[]).forEach((li) => {
     const first = li.firstElementChild;

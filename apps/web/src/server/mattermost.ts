@@ -10,6 +10,7 @@ const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
 export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
+export const CHAT_LEFT_CHANNELS_PROP = "ecency_left_channels";
 
 export type DmPrivacyLevel = "all" | "followers" | "none";
 
@@ -350,7 +351,7 @@ export function handleMattermostError(error: unknown) {
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
-const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
+export const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
 function isCommunityModerator(role: CommunityRole | undefined) {
   return role === ROLES.OWNER || role === ROLES.ADMIN || role === ROLES.MOD;
@@ -426,6 +427,41 @@ export function getUserDmPrivacy(user: Pick<MattermostUserWithProps, "props">): 
     return dmPrivacy;
   }
   return "all"; // default: allow all DMs
+}
+
+export function getUserLeftChannels(user: Pick<MattermostUserWithProps, "props">): Set<string> {
+  const raw = user.props?.[CHAT_LEFT_CHANNELS_PROP];
+  if (!raw) return new Set();
+  try {
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function addUserLeftChannel(userId: string, channelName: string) {
+  const user = await getMattermostUserWithProps(userId);
+  const leftChannels = getUserLeftChannels(user);
+  leftChannels.add(channelName);
+  const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+}
+
+export async function removeUserLeftChannel(userId: string, channelName: string) {
+  const user = await getMattermostUserWithProps(userId);
+  const leftChannels = getUserLeftChannels(user);
+  if (!leftChannels.delete(channelName)) return;
+  const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
 }
 
 async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
