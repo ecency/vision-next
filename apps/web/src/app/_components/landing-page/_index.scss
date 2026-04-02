@@ -239,14 +239,11 @@
       }
     }
     .get-started {
+      display: flex;
       width: 140px;
       height: 56px;
       background-color: $blue;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
       justify-content: center;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
       align-items: center;
       @apply text-white;
       border-radius: 30px;

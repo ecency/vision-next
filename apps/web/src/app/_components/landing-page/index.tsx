@@ -216,11 +216,11 @@ export async function LandingPage() {
             </div>
             <ul>
               <li>
-                <h3>108M</h3>
+                <h3>130M+</h3>
                 <p>{t("landing-page.posts")}</p>
               </li>
               <li>
-                <h3>600K</h3>
+                <h3>14M+</h3>
                 <p>{t("landing-page.unique-visitors")}</p>
               </li>
             </ul>
@@ -230,7 +230,7 @@ export async function LandingPage() {
                 <p>{t("landing-page.points-distrubuted")}</p>
               </li>
               <li>
-                <h3>100K</h3>
+                <h3>200K+</h3>
                 <p>{t("landing-page.new-users")}</p>
               </li>
             </ul>
