@@ -176,7 +176,8 @@
     "home": "Home",
     "waves": "Waves",
     "communities": "Communities",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "Search",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
     },
-    "listen": "Listen"
+    "listen": "Listen",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "Edit History",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with anyone.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",

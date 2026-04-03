@@ -87,6 +87,7 @@ export function NavbarDesktop({
                 appearance="gray-link"
                 className="relative"
                 icon={<UilComment width={20} height={20} />}
+                aria-label={i18next.t("chat.title")}
               />
               {!unread?.truncated && unread?.totalUnread ? (
                 <span className="navbar-chat-badge notranslate">
