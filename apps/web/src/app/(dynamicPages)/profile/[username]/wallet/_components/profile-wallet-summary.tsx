@@ -9,15 +9,19 @@ import {
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import i18next from "i18next";
 
 import clsx from "clsx";
 import { TOKEN_COLORS_MAP } from "@/features/wallet";
 import { StyledTooltip } from "@/features/ui";
+import { ProfileWalletCollectAllButton } from "./profile-wallet-collect-all-button";
+import { ProfileWalletPendingEarnings } from "./profile-wallet-pending-earnings";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();
   const currency = useGlobalStore((state) => state.currency);
+  const [showDetails, setShowDetails] = useState(false);
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency || "usd")
   );
@@ -98,75 +102,92 @@ export function ProfileWalletSummary() {
     <div className="bg-white rounded-xl p-3 mb-4 flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="text-gray-600 dark:text-gray-400 text-sm">Balance</div>
-        <div className="text-xl font-bold text-blue-dark-sky">
-          {queriesResult.some((q) => q.isPending) ? (
-            <div className="w-[80px] rounded-lg animate-pulse h-[28px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-          ) : (
-            <FormattedCurrency value={totalBalance} skipConversion />
-          )}
+        <div className="flex items-center gap-3">
+          <ProfileWalletCollectAllButton />
+          <div className="text-xl font-bold text-blue-dark-sky">
+            {queriesResult.some((q) => q.isPending) ? (
+              <div className="w-[80px] rounded-lg animate-pulse h-[28px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+            ) : (
+              <FormattedCurrency value={totalBalance} skipConversion />
+            )}
+          </div>
         </div>
       </div>
-      <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-0.5">
-        {assetsParts.length === 0 && (
-          <>
-            <div className="w-[40%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-            <div className="w-[30%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-            <div className="w-[30%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-          </>
-        )}
-        {assetsParts.length > 1 &&
-          assetsParts.map(({ asset, percent, usdValue }) => (
-            <StyledTooltip
-              style={{ width: `${percent}%` }}
-              key={asset}
-              content={
-                <div className="flex items-center gap-1">
+      <ProfileWalletPendingEarnings />
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer self-start"
+      >
+        {showDetails
+          ? i18next.t("wallet.hide-details", { defaultValue: "Hide details" })
+          : i18next.t("wallet.show-details", { defaultValue: "Show details" })
+        }
+      </button>
+      {showDetails && (
+        <>
+          <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-0.5">
+            {assetsParts.length === 0 && (
+              <>
+                <div className="w-[40%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+                <div className="w-[30%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+                <div className="w-[30%] rounded-lg animate-pulse h-[36px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+              </>
+            )}
+            {assetsParts.length > 1 &&
+              assetsParts.map(({ asset, percent, usdValue }) => (
+                <StyledTooltip
+                  style={{ width: `${percent}%` }}
+                  key={asset}
+                  content={
+                    <div className="flex items-center gap-1">
+                      {usdValue && usdValue > 0 && (
+                        <>
+                          <FormattedCurrency value={usdValue} />
+                          <span>-</span>
+                        </>
+                      )}
+                      <span>{asset}</span>
+                    </div>
+                  }
+                >
+                  <motion.div
+                    className={clsx(
+                      "p-2",
+                      TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
+                    )}
+                    initial={{ opacity: 0, width: "0%" }}
+                    animate={{ opacity: 1, width: "100%" }}
+                  />
+                </StyledTooltip>
+              ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {assetsParts.length > 1 &&
+              assetsParts.map(({ asset, percent, usdValue }, i) => (
+                <motion.div
+                  className="flex items-center gap-1 text-xs"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0, transition: { delay: i * 0.1 } }}
+                  key={asset}
+                >
+                  <div
+                    className={clsx(
+                      "w-3 h-3 rounded-full",
+                      TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
+                    )}
+                  />
                   {usdValue && usdValue > 0 && (
                     <>
                       <FormattedCurrency value={usdValue} />
-                      <span>–</span>
+                      <span>-</span>
                     </>
                   )}
                   <span>{asset}</span>
-                </div>
-              }
-            >
-              <motion.div
-                className={clsx(
-                  "p-2",
-                  TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
-                )}
-                initial={{ opacity: 0, width: "0%" }}
-                animate={{ opacity: 1, width: "100%" }}
-              />
-            </StyledTooltip>
-          ))}
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {assetsParts.length > 1 &&
-          assetsParts.map(({ asset, percent, usdValue }, i) => (
-            <motion.div
-              className="flex items-center gap-1 text-xs"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0, transition: { delay: i * 0.1 } }}
-              key={asset}
-            >
-              <div
-                className={clsx(
-                  "w-3 h-3 rounded-full",
-                  TOKEN_COLORS_MAP[asset] ?? "bg-gradient-to-r from-[#fcc920] to-[#fcc920]/60"
-                )}
-              />
-              {usdValue && usdValue > 0 && (
-                <>
-                  <FormattedCurrency value={usdValue} />
-                  <span>–</span>
-                </>
-              )}
-              <span>{asset}</span>
-            </motion.div>
-          ))}
-      </div>
+                </motion.div>
+              ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

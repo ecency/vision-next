@@ -5,14 +5,14 @@
 import * as Sentry from "@sentry/nextjs";
 import appPackage from "./package.json";
 
-Sentry.init({
+// Defer Sentry initialization until after first user interaction or 5s idle.
+// This moves ~1s of JS evaluation off the critical rendering path.
+const SENTRY_CONFIG: Sentry.BrowserOptions = {
   dsn: "https://8a5c1659d1c2ba3385be28dc7235ce56@o4507985141956608.ingest.de.sentry.io/4507985146609744",
 
   enabled: process.env.NODE_ENV === "production",
   release: appPackage.version,
 
-  // Disable performance tracing to reduce client bundle size (~100-150 KB).
-  // Only error/exception capture is needed for our use case.
   tracesSampleRate: 0,
   integrations: (defaults) =>
     defaults.filter((i) => i.name !== "BrowserTracing"),
@@ -30,16 +30,49 @@ Sentry.init({
     "Cannot set property ethereum of #<Window> which has only a getter",
     "window.ethereum._handleChainChanged is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
-    // iOS Safari cross-origin security errors from post-renderer library
     "null is not an object (evaluating 'a.parentNode')",
     "null is not an object (evaluating 'b.parentNode')",
     "null is not an object (evaluating 'c.parentNode')"
   ],
-  // Filter out errors originating from browser extension
   denyUrls: [
     /sui\.js/,
     /extensionServiceWorker\.js$/,
     /chrome-extension:\/\//
   ]
-});
-Sentry.setTag("source", "client");
+};
+
+if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
+  // Buffer errors that happen before Sentry initializes
+  const earlyErrors: { error: unknown; timestamp: number }[] = [];
+  const earlyHandler = (event: ErrorEvent) => {
+    earlyErrors.push({ error: event.error, timestamp: Date.now() });
+  };
+  const earlyRejectionHandler = (event: PromiseRejectionEvent) => {
+    earlyErrors.push({ error: event.reason, timestamp: Date.now() });
+  };
+  window.addEventListener("error", earlyHandler);
+  window.addEventListener("unhandledrejection", earlyRejectionHandler);
+
+  const init = () => {
+    // Remove early listeners before Sentry hooks its own
+    window.removeEventListener("error", earlyHandler);
+    window.removeEventListener("unhandledrejection", earlyRejectionHandler);
+
+    Sentry.init(SENTRY_CONFIG);
+    Sentry.setTag("source", "client");
+
+    // Flush buffered errors
+    for (const { error } of earlyErrors) {
+      Sentry.captureException(error);
+    }
+  };
+
+  if ("requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(init, { timeout: 5000 });
+  } else {
+    setTimeout(init, 3000);
+  }
+} else {
+  Sentry.init(SENTRY_CONFIG);
+  Sentry.setTag("source", "client");
+}

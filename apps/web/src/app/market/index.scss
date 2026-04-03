@@ -759,3 +759,17 @@ thead, .pagination {
         top: 10px;
     }
 }
+
+.cursor-drag {
+  cursor: grab;
+}
+
+.react-draggable-dragging {
+  .cursor-drag {
+    cursor: grabbing;
+  }
+}
+
+.react-grid-item.react-grid-placeholder {
+  background-color: $primary;
+}

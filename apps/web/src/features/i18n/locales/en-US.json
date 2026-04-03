@@ -1246,6 +1246,13 @@
   },
   "wallet": {
     "unclaimed-rewards": "Earnings to collect",
+    "collect-all": "Collect all",
+    "collect-all-ok": "All earnings collected!",
+    "show-details": "Show details",
+    "hide-details": "Hide details",
+    "claimable-label": "Ready to collect:",
+    "potential-label": "Potential earnings:",
+    "potential-hint": "from active posts and comments",
     "claim-reward-balance": "Collect earnings",
     "claim-reward-balance-ok": "Earnings collected!",
     "estimated": "Estimated Wallet Value",
