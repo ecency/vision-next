@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { UserDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import { ShortListItemSkeleton } from "./deck-items";
 import { DeckGridContext } from "../deck-manager";

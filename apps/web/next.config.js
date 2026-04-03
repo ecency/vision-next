@@ -96,7 +96,7 @@ const config = {
     externalDir: true
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     config.infrastructureLogging = { level: "error" };
     config.stats = "errors-only";
     config.module.rules.push({
@@ -110,6 +110,20 @@ const config = {
       ...config.resolve.fallback,
       fs: false
     };
+
+    // Replace Next.js built-in polyfills with an empty module on the client.
+    // polyfill-module.js ships ~1.5KB of polyfills (Array.prototype.at/flat/flatMap,
+    // Object.fromEntries, Object.hasOwn, String.prototype.trimStart/trimEnd, etc.)
+    // that are natively supported in all modern browsers (Chrome 90+, Safari 15+,
+    // Firefox 90+, Edge 90+). PageSpeed flags these as "Legacy JavaScript".
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /[\\/]next[\\/]dist[\\/]build[\\/]polyfills[\\/]polyfill-module\.js$/,
+          path.resolve(__dirname, "src/empty-polyfill.js")
+        )
+      );
+    }
     config.resolve.alias = {
         ...(config.resolve.alias || {}),
         sass: "sass-embedded",

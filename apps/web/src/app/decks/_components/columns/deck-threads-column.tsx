@@ -4,7 +4,7 @@ import { DeckThreadItemViewer } from "./content-viewer";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { WavesDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../deck-manager";
 import {
   DeckThreadsColumnManagerContext,

@@ -1,4 +1,4 @@
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { GenericDeckColumn } from "./generic-deck-column";
 import { UserDeckGridItem } from "../types";

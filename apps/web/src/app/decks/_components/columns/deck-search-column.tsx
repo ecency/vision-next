@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { ListItemSkeleton, SearchListItem } from "./deck-items";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import { SearchDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../deck-manager";
 import { DeckPostViewer } from "./content-viewer";
 import { DeckSearchColumnSettings } from "./deck-column-settings/deck-search-column-settings";

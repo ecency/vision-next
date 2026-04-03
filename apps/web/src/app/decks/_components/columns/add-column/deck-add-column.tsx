@@ -3,7 +3,7 @@ import React, { useContext, useState } from "react";
 import { DeckGridItem } from "../../types";
 import "./_deck-add-column.scss";
 import { DeckAddColumnTypeSettings } from "./deck-add-column-type-settings";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../../deck-manager";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import {
