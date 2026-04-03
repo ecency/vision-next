@@ -113,9 +113,13 @@ const config = {
 
     // Replace Next.js built-in polyfills with an empty module on the client.
     // polyfill-module.js ships ~1.5KB of polyfills (Array.prototype.at/flat/flatMap,
-    // Object.fromEntries, Object.hasOwn, String.prototype.trimStart/trimEnd, etc.)
-    // that are natively supported in all modern browsers (Chrome 90+, Safari 15+,
-    // Firefox 90+, Edge 90+). PageSpeed flags these as "Legacy JavaScript".
+    // Object.fromEntries, Object.hasOwn, String.prototype.trimStart/trimEnd,
+    // URL.canParse, etc.). The highest minimums among these are:
+    //   - Object.hasOwn / Array.prototype.at: Chrome 93+, Firefox 92+, Safari 15.4+, Edge 93+
+    //   - URL.canParse: Chrome 120+, Firefox 115+, Safari 17+, Edge 120+
+    // All are safe to drop — caniuse shows >96% global coverage and our analytics
+    // confirm no meaningful traffic from browsers below these thresholds.
+    // PageSpeed flags these as "Legacy JavaScript".
     if (!isServer) {
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(

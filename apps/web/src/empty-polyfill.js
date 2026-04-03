@@ -1,2 +1,2 @@
-// Intentionally empty — modern browsers natively support all features
-// that Next.js polyfill-module.js would patch.
+// Intentionally empty — replaces Next.js polyfill-module.js.
+// See next.config.js NormalModuleReplacementPlugin comment for browser minimums.
