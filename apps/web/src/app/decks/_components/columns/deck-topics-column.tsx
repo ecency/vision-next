@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { HotListItem, ShortListItemSkeleton } from "./deck-items";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import { ReloadableDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../deck-manager";
 import { DeckTopicsContentViewer } from "./content-viewer/deck-topics-content-viewer";
 import useLocalStorage from "react-use/lib/useLocalStorage";
