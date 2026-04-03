@@ -87,7 +87,7 @@ export function ProfileWalletCollectAllButton() {
     }
   }, [
     isOwnProfile, hasUnclaimedRewards, hasPendingPoints,
-    accountData, claimRewards, claimPoints
+    accountData, claimRewards, claimPoints, queryClient, username
   ]);
 
   if (!isOwnProfile || !hasAnythingToCollect) {
