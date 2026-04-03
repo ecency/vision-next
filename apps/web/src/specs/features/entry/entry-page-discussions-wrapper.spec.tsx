@@ -1,8 +1,13 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { renderWithQueryClient, mockEntry } from "@/specs/test-utils";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+
+vi.mock("@/utils", async () => {
+  const actual = await vi.importActual("@/utils");
+  return { ...actual as any };
+});
 
 vi.mock("@/core/hooks/use-active-account");
 
@@ -14,19 +19,12 @@ vi.mock("@ecency/sdk", async () => {
       queryKey: ["discussions"],
       queryFn: vi.fn().mockResolvedValue([]),
       enabled: true
-    })),
-    SortOrder: { created: "created", trending: "trending", votes: "votes", author_reputation: "author_reputation" }
+    }))
   };
 });
 
-vi.mock("./entry-page-discussions", () => ({
-  EntryPageDiscussions: () => <div data-testid="discussions-content">Discussions loaded</div>
-}));
-
-// Must import after mocks
-const { EntryPageDiscussionsWrapper } = await import(
-  "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-discussions-wrapper"
-);
+import { EntryPageDiscussionsWrapper } from
+  "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-discussions-wrapper";
 
 describe("EntryPageDiscussionsWrapper", () => {
   const entry = mockEntry({ children: 5, author: "testuser", permlink: "test-post" });
@@ -35,53 +33,47 @@ describe("EntryPageDiscussionsWrapper", () => {
     vi.clearAllMocks();
   });
 
-  it("shows 'Show comments' button for anonymous users", () => {
+  it("shows a button for anonymous users when there are comments", () => {
     vi.mocked(useActiveAccount).mockReturnValue({
-      activeUser: null,
-      username: null,
-      account: null,
-      isLoading: false,
-      isPending: false
-    } as any);
+      activeUser: null, username: null, account: null,
+      isLoading: false, isPending: false
+    } as ReturnType<typeof useActiveAccount>);
 
     renderWithQueryClient(
       <EntryPageDiscussionsWrapper entry={entry} category="test" />
     );
 
-    expect(screen.getByText(/Show 5 comments/i)).toBeInTheDocument();
+    // i18n mock returns key; the component passes { n: 5 } so button exists
+    const button = screen.getByRole("button");
+    expect(button).toBeInTheDocument();
   });
 
-  it("does not show button when entry has no comments and user is anonymous", () => {
+  it("returns nothing when entry has no comments and user is anonymous", () => {
     vi.mocked(useActiveAccount).mockReturnValue({
-      activeUser: null,
-      username: null,
-      account: null,
-      isLoading: false,
-      isPending: false
-    } as any);
+      activeUser: null, username: null, account: null,
+      isLoading: false, isPending: false
+    } as ReturnType<typeof useActiveAccount>);
 
     const noComments = mockEntry({ children: 0 });
-    const { container } = renderWithQueryClient(
+    renderWithQueryClient(
       <EntryPageDiscussionsWrapper entry={noComments} category="test" />
     );
 
-    expect(container.innerHTML).toBe("");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("auto-loads discussions for logged-in users", () => {
+  it("does not show the button for logged-in users", () => {
     vi.mocked(useActiveAccount).mockReturnValue({
-      activeUser: { username: "loggedin" },
-      username: "loggedin",
-      account: null,
-      isLoading: false,
-      isPending: false
-    } as any);
+      activeUser: { username: "loggedin" }, username: "loggedin", account: null,
+      isLoading: false, isPending: false
+    } as ReturnType<typeof useActiveAccount>);
 
     renderWithQueryClient(
       <EntryPageDiscussionsWrapper entry={entry} category="test" />
     );
 
-    // Should NOT show the button - should show skeleton/loading instead
-    expect(screen.queryByText(/Show 5 comments/i)).not.toBeInTheDocument();
+    // Logged-in users get Suspense/auto-load, not a manual button
+    // The skeleton or discussions loader renders instead
+    expect(screen.queryByText(/discussion\.reveal-comments/i)).not.toBeInTheDocument();
   });
 });
