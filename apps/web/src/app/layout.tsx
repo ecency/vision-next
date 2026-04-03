@@ -58,19 +58,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           See /public/scripts/config-stub.js for details.
         */}
         <script src="/scripts/chunk-reload.js" />
-        <script src="/scripts/config-stub.js" />
-        {/* Preload hero image for LCP optimization (WebP format - 12KB vs 29KB PNG) */}
-        <link
-          rel="preload"
-          href="https://ecency.com/assets/illustration-earn-money.webp"
-          as="image"
-          type="image/webp"
-          imageSizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
-        />
+        <script async src="/scripts/config-stub.js" />
         <link rel="dns-prefetch" href="https://images.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
         <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://o4507985141956608.ingest.de.sentry.io" crossOrigin="anonymous" />
       </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>

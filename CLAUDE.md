@@ -509,11 +509,27 @@ describe('MyComponent', () => {
 **Global Mocks** (`setup-any-spec.ts`):
 - External packages (@ecency/sdk, @ecency/wallets, @ecency/render-helper)
 - i18next (returns keys as-is)
-- Common utilities
+- `@/utils` (only exports `random` and `getAccessToken`)
+- `@/core/hooks/use-active-account` (returns null active user)
+- uuid, react-tweet
 
 **Per-Test Mocks**:
 - API queries/mutations specific to the component
 - Component-specific dependencies
+
+**Important: `@/utils` Global Mock Limitation**
+
+The global mock for `@/utils` only provides `random` and `getAccessToken`. If your component imports other utilities (e.g., `parseAsset`, `dateToFormattedUtc`, `formatNumber`), the test will fail with "No export is defined on the mock." Fix by adding a local re-mock with `importActual` at the top of your test file:
+
+```typescript
+vi.mock("@/utils", async () => ({
+  ...(await vi.importActual("@/utils")),
+  random: vi.fn(),
+  getAccessToken: vi.fn(() => "mock-token")
+}));
+```
+
+This preserves all real utility exports while keeping the globally-mocked functions stubbed.
 
 ### Component Testing Patterns
 

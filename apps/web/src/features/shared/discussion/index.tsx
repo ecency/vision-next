@@ -206,6 +206,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
                           value={order}
                           onChange={(e: any) => setOrder(e.target.value)}
                           disabled={isLoading}
+                          aria-label={i18next.t("discussion.order")}
                       >
                         <option value="trending">
                           {i18next.t("discussion.order-trending")}

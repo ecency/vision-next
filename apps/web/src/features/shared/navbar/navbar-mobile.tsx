@@ -59,17 +59,18 @@ export function NavbarMobile({
         appearance="gray-link"
         icon={<UilHomeAlt width={20} height={20} />}
         onClick={() => setMainBarExpanded(true)}
+        aria-label={i18next.t("g.menu", { defaultValue: "Menu" })}
       />
-      <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} />
+      <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} aria-label={i18next.t("navbar.waves")} />
       <div key={`mobile-chat-${activeUser?.username || "anon"}`} className="relative">
-        <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} />
+        <Button href="/chats" appearance="gray-link" icon={<UilComment width={20} height={20} />} aria-label={i18next.t("navbar.chats")} />
         {!unread?.truncated && unread?.totalUnread ? (
           <span className="absolute -top-1 -right-1 inline-flex min-w-[18px] justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-black dark:text-white shadow">
             {unread.totalUnread}
           </span>
         ) : null}
       </div>
-      <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} />
+      <Button href="/publish" appearance="gray-link" icon={<UilEditAlt width={20} height={20} />} aria-label={i18next.t("navbar.post")} />
 
       {activeUser ? (
         <>
