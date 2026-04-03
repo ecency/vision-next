@@ -1,4 +1,4 @@
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { GenericDeckColumn } from "./generic-deck-column";
 import React, { useEffect, useState } from "react";
 import { FormControl } from "@ui/input";
