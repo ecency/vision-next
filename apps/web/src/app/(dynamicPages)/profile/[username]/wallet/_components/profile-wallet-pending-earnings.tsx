@@ -13,6 +13,7 @@ import { useMemo } from "react";
 import { parseAsset, vestsToHp, formatNumber } from "@/utils";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import i18next from "i18next";
+import { ProfileWalletCollectAllButton } from "./profile-wallet-collect-all-button";
 
 export function ProfileWalletPendingEarnings() {
   const { username: rawUsername } = useParams();
@@ -110,17 +111,18 @@ export function ProfileWalletPendingEarnings() {
           {rewards.hasPoints && (
             <span>{formatNumber(rewards.pendingPoints, 1)} Points</span>
           )}
+          <ProfileWalletCollectAllButton />
         </div>
       )}
       {potentialEarnings > 0 && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span className="font-medium text-gray-600 dark:text-gray-300">
-            {i18next.t("wallet.potential-label", { defaultValue: "Potential earnings:" })}
+            {i18next.t("wallet.potential-label", { defaultValue: "Pending earnings:" })}
           </span>
           <span>
             <FormattedCurrency value={potentialEarnings} fixAt={2} />
             <span className="ml-1 opacity-60">
-              {i18next.t("wallet.potential-hint", { defaultValue: "from active posts" })}
+              {i18next.t("wallet.potential-hint", { defaultValue: "from active posts and comments" })}
             </span>
           </span>
         </div>

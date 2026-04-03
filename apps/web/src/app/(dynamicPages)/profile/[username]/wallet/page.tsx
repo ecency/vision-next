@@ -1,7 +1,6 @@
 import {
   ProfileWalletExternalBanner,
-  ProfileWalletTokenPicker,
-  ProfileWalletTokensList
+  ProfileWalletTokenPicker
 } from "./_components";
 import { ProfileWalletSummaryWrapper } from "./_components/profile-wallet-summary-wrapper";
 import { Button } from "@/features/ui";
@@ -30,7 +29,6 @@ export default async function WalletPage(props: Props) {
   return (
     <>
       <ProfileWalletExternalBanner />
-      <ProfileWalletSummaryWrapper />
       <div className="flex justify-end mb-2 gap-2">
         <Button
           size="sm"
@@ -44,7 +42,7 @@ export default async function WalletPage(props: Props) {
         </Button>
         <ProfileWalletTokenPicker />
       </div>
-      <ProfileWalletTokensList />
+      <ProfileWalletSummaryWrapper />
     </>
   );
 }

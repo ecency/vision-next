@@ -9,19 +9,21 @@ import {
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import i18next from "i18next";
+import useLocalStorage from "react-use/lib/useLocalStorage";
 
 import clsx from "clsx";
 import { TOKEN_COLORS_MAP } from "@/features/wallet";
 import { StyledTooltip } from "@/features/ui";
-import { ProfileWalletCollectAllButton } from "./profile-wallet-collect-all-button";
 import { ProfileWalletPendingEarnings } from "./profile-wallet-pending-earnings";
+import { ProfileWalletTokensList } from "./profile-wallet-tokens-list";
+import { PREFIX } from "@/utils/local-storage";
 
 export function ProfileWalletSummary() {
   const { username } = useParams();
   const currency = useGlobalStore((state) => state.currency);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useLocalStorage(PREFIX + "_wallet_details", true);
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency || "usd")
   );
@@ -78,7 +80,7 @@ export function ProfileWalletSummary() {
 
             if (shouldAggregateToOther) {
               otherSection.percent += item.percent;
-              otherSection.usdValue += item.usdValue ?? 0;
+              otherSection.usdValue! += item.usdValue ?? 0;
 
               return [
                 ...acc.filter(({ asset }) => asset !== "Other"),
@@ -99,24 +101,23 @@ export function ProfileWalletSummary() {
   );
 
   return (
-    <div className="bg-white rounded-xl p-3 mb-4 flex flex-col gap-4">
+    <div className="bg-white dark:bg-dark-200 rounded-xl p-3 mb-4 flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="text-gray-600 dark:text-gray-400 text-sm">Balance</div>
-        <div className="flex items-center gap-3">
-          <ProfileWalletCollectAllButton />
-          <div className="text-xl font-bold text-blue-dark-sky">
-            {queriesResult.some((q) => q.isPending) ? (
-              <div className="w-[80px] rounded-lg animate-pulse h-[28px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
-            ) : (
-              <FormattedCurrency value={totalBalance} skipConversion />
-            )}
-          </div>
+        <div className="text-xl font-bold text-blue-dark-sky">
+          {queriesResult.some((q) => q.isPending) ? (
+            <div className="w-[80px] rounded-lg animate-pulse h-[28px] bg-blue-dark-sky-040 dark:bg-blue-dark-grey" />
+          ) : (
+            <FormattedCurrency value={totalBalance} skipConversion />
+          )}
         </div>
       </div>
       <ProfileWalletPendingEarnings />
       <button
         onClick={() => setShowDetails(!showDetails)}
         className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer self-start"
+        aria-expanded={showDetails}
+        aria-controls="wallet-details"
       >
         {showDetails
           ? i18next.t("wallet.hide-details", { defaultValue: "Hide details" })
@@ -124,7 +125,7 @@ export function ProfileWalletSummary() {
         }
       </button>
       {showDetails && (
-        <>
+        <div id="wallet-details">
           <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-0.5">
             {assetsParts.length === 0 && (
               <>
@@ -163,7 +164,7 @@ export function ProfileWalletSummary() {
           </div>
           <div className="flex flex-wrap gap-2">
             {assetsParts.length > 1 &&
-              assetsParts.map(({ asset, percent, usdValue }, i) => (
+              assetsParts.map(({ asset, usdValue }, i) => (
                 <motion.div
                   className="flex items-center gap-1 text-xs"
                   initial={{ opacity: 0, y: -4 }}
@@ -186,7 +187,8 @@ export function ProfileWalletSummary() {
                 </motion.div>
               ))}
           </div>
-        </>
+          <ProfileWalletTokensList />
+        </div>
       )}
     </div>
   );

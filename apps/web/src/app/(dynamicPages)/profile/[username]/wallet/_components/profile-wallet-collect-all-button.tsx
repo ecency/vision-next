@@ -5,7 +5,7 @@ import { error, success } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions, useClaimPoints, getPointsQueryOptions } from "@ecency/sdk";
 import { useClaimRewardsMutation } from "@/api/sdk-mutations";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useCallback, useMemo, useState } from "react";
 import { getAccessToken } from "@/utils";
@@ -14,11 +14,13 @@ import { HiveWallet } from "@/utils";
 import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";
 import { useParams } from "next/navigation";
+import { invalidateWalletQueries } from "@/features/wallet/utils/invalidate-wallet-queries";
 
 export function ProfileWalletCollectAllButton() {
   const { username: rawUsername } = useParams();
   const username = (rawUsername as string).replace("%40", "");
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
   const isOwnProfile = activeUser?.username === username;
   const [isCollecting, setIsCollecting] = useState(false);
 
@@ -74,6 +76,9 @@ export function ProfileWalletCollectAllButton() {
 
       if (results.length > 0) {
         success(results.join(" "));
+        queryClient.invalidateQueries({ queryKey: getAccountFullQueryOptions(username).queryKey });
+        queryClient.invalidateQueries({ queryKey: getPointsQueryOptions(username).queryKey });
+        invalidateWalletQueries(queryClient, username);
       }
     } catch (e) {
       error(...formatError(e));

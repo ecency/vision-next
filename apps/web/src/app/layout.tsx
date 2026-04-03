@@ -57,7 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Loaded from external file to comply with CSP policies.
           See /public/scripts/config-stub.js for details.
         */}
-        <script async src="/scripts/chunk-reload.js" />
+        <script src="/scripts/chunk-reload.js" />
         <script async src="/scripts/config-stub.js" />
         <link rel="dns-prefetch" href="https://images.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />

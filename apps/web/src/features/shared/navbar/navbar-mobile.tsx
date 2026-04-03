@@ -59,7 +59,7 @@ export function NavbarMobile({
         appearance="gray-link"
         icon={<UilHomeAlt width={20} height={20} />}
         onClick={() => setMainBarExpanded(true)}
-        aria-label={i18next.t("navbar.home")}
+        aria-label={i18next.t("g.menu", { defaultValue: "Menu" })}
       />
       <Button href="/waves" appearance="gray-link" icon={<UilWater width={20} height={20} />} aria-label={i18next.t("navbar.waves")} />
       <div key={`mobile-chat-${activeUser?.username || "anon"}`} className="relative">
