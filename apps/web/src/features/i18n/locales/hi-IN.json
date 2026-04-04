@@ -176,7 +176,8 @@
     "home": "होम",
     "waves": "तरंगें",
     "communities": "समुदाय",
-    "chats": "चैट्स"
+    "chats": "चैट्स",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "खोजें",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "अपनी पोस्ट को बढ़ावा देने और व्यापक प्रचार पाने के लिए इसेंसी पर्क्स का उपयोग करें।",
       "try-now": "अब कोशिश करो"
     },
-    "listen": "सुनें"
+    "listen": "सुनें",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "इतिहास संपादित करें",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "title": "Chats",
     "no-admin": "No admin or moderator for this community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Public key",
