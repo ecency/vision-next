@@ -176,7 +176,8 @@
     "home": "Startseite",
     "waves": "Wellen",
     "communities": "Communities",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Navigationsmenü umschalten"
   },
   "search": {
     "placeholder": "Suchen",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Verwenden Sie Ecency Perks, um Ihren Beitrag zu fördern und eine größere Exposition zu erhalten.",
       "try-now": "Jetzt versuchen"
     },
-    "listen": "Hören"
+    "listen": "Hören",
+    "tts-settings": "Text-zu-Sprache Einstellungen"
   },
   "edit-history": {
     "title": "L",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Ihre Wiederherstellungs-E-Mail wurde erfolgreich aktualisiert"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Starte Direktnachrichten oder betrete Kanäle, um mit der Ecency Community zu chatten.",
     "loading-chats": "Lade Chats…",
     "start-dm-button": "Start DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Beitreten",
     "joining-channel": "Beitritt…",
     "no-additional-channels": "Keine zusätzlichen Kanäle gefunden.",
-    "title": "Chats",
     "no-admin": "Kein Administrator oder Moderator für diesen Community-Chat.",
     "view-community-channel": "Community-Chat",
     "public-key": "Öffentlicher Schlüssel",
