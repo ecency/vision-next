@@ -257,8 +257,20 @@ export function useMattermostJoinChannel() {
       return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async (_data, channelId) => {
+      // Mark channel as viewed immediately after joining to prevent historical
+      // messages from inflating unread counts (mobile parity)
+      try {
+        const viewRes = await fetch(`/api/mattermost/channels/${channelId}/view`, { method: "POST" });
+        if (!viewRes.ok) {
+          console.warn(`Failed to mark joined channel ${channelId} as viewed (${viewRes.status})`);
+        }
+      } catch {
+        // Non-critical - unread badge will correct on next poll
+      }
+
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"], exact: false }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);

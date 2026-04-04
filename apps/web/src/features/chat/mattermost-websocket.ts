@@ -731,19 +731,29 @@ export class MattermostWebSocket {
     }>({ queryKey: ["mattermost-unread"] }, (data) => {
       if (!data?.channels) return data;
       if (data.truncated) return data;
-      const channels = data.channels.map((channel) => {
-        if (channel.channelId !== channelId) return channel;
-        return { ...channel, message_count: channel.message_count + 1 };
-      });
 
       const target = data.channels.find((channel) => channel.channelId === channelId);
       if (!target) return data;
 
       const isDm = target.type === "D";
+      // Compute effective unread before and after to get the delta
+      const oldEffective = isDm
+        ? target.message_count
+        : Math.max(target.mention_count, target.message_count) + (target.thread_unread ?? 0);
+      const newMessageCount = target.message_count + 1;
+      const newEffective = isDm
+        ? newMessageCount
+        : Math.max(target.mention_count, newMessageCount) + (target.thread_unread ?? 0);
+
+      const channels = data.channels.map((channel) => {
+        if (channel.channelId !== channelId) return channel;
+        return { ...channel, message_count: newMessageCount };
+      });
+
       return {
         ...data,
         channels,
-        totalUnread: isDm ? data.totalUnread + 1 : data.totalUnread,
+        totalUnread: data.totalUnread + (newEffective - oldEffective),
         totalDMs: isDm ? data.totalDMs + 1 : data.totalDMs
       };
     });
@@ -766,21 +776,24 @@ export class MattermostWebSocket {
       const target = data.channels.find((channel) => channel.channelId === channelId);
       if (!target) return data;
 
-      const mentionDelta = target.mention_count;
-      const messageDelta = target.message_count;
       const isDm = target.type === "D";
+      // Compute effective unread being cleared using the same formula as the route
+      const effectiveDelta = isDm
+        ? target.message_count
+        : Math.max(target.mention_count, target.message_count) + (target.thread_unread ?? 0);
 
       const channels = data.channels.map((channel) => {
         if (channel.channelId !== channelId) return channel;
-        return { ...channel, mention_count: 0, message_count: 0 };
+        return { ...channel, mention_count: 0, message_count: 0, thread_unread: 0 };
       });
 
       return {
         ...data,
         channels,
-        totalMentions: Math.max(0, data.totalMentions - mentionDelta),
-        totalDMs: Math.max(0, data.totalDMs - (isDm ? messageDelta : 0)),
-        totalUnread: Math.max(0, data.totalUnread - mentionDelta - (isDm ? messageDelta : 0))
+        totalMentions: Math.max(0, data.totalMentions - target.mention_count),
+        totalDMs: Math.max(0, data.totalDMs - (isDm ? target.message_count : 0)),
+        totalThreads: Math.max(0, (data.totalThreads ?? 0) - (isDm ? 0 : (target.thread_unread ?? 0))),
+        totalUnread: Math.max(0, data.totalUnread - effectiveDelta)
       };
     });
   }

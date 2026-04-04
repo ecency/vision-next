@@ -24,6 +24,10 @@ interface MattermostChannelMember {
   channel_id: string;
   mention_count: number;
   msg_count: number;
+  last_viewed_at?: number;
+  notify_props?: {
+    mark_unread?: string;
+  };
 }
 
 interface MattermostThread {
@@ -198,6 +202,32 @@ export async function GET() {
 
     const channelsWithCounts = filteredChannels.map((channel) => {
       const member = memberByChannelId[channel.id];
+
+      // Muted channels: zero out all counts (mobile parity).
+      // Muted channels are hidden from the channel list so showing their
+      // unreads in the badge would be misleading.
+      const isMuted = member?.notify_props?.mark_unread === "mention";
+      if (isMuted) {
+        return {
+          channelId: channel.id,
+          type: channel.type,
+          mention_count: 0,
+          message_count: 0,
+          thread_unread: 0
+        };
+      }
+
+      // Skip never-viewed channels to prevent historical message flood (mobile parity)
+      if (member?.last_viewed_at == null) {
+        return {
+          channelId: channel.id,
+          type: channel.type,
+          mention_count: 0,
+          message_count: 0,
+          thread_unread: 0
+        };
+      }
+
       const unreadMessages = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
       return {
         channelId: channel.id,
@@ -207,6 +237,16 @@ export async function GET() {
         thread_unread: threadUnreadByChannel[channel.id] || 0
       };
     });
+
+    // Per-channel effective unread: for DMs use message_count, for channels
+    // use max(mentions, messages) + threads to avoid double-counting
+    // (mentions are a subset of messages)
+    const totalUnread = channelsWithCounts.reduce((sum, channel) => {
+      if (channel.type === "D") {
+        return sum + channel.message_count;
+      }
+      return sum + Math.max(channel.mention_count, channel.message_count) + channel.thread_unread;
+    }, 0);
 
     const totalMentions = channelsWithCounts
       .filter((channel) => channel.type !== "D")
@@ -240,7 +280,7 @@ export async function GET() {
       totalMentions,
       totalDMs,
       totalThreads,
-      totalUnread: totalMentions + totalDMs + totalThreads,
+      totalUnread,
       truncated
     });
   } catch (error) {
