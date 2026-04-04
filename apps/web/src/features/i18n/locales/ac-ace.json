@@ -176,7 +176,8 @@
     "home": "Home",
     "waves": "Waves",
     "communities": "Komunitaeh",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "Mita",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
     },
-    "listen": "Listen"
+    "listen": "Listen",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "Riwayat edit",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "title": "Chats",
     "no-admin": "No admin or moderator for this community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Public key",
