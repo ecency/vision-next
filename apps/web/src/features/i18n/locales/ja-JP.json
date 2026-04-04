@@ -176,7 +176,8 @@
     "home": "ホーム",
     "waves": "波",
     "communities": "コミュニティ",
-    "chats": "チャット"
+    "chats": "チャット",
+    "toggle-menu": "ナビゲーションメニューの切り替え"
   },
   "search": {
     "placeholder": "検索",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Ecency Perksを使用して、投稿を宣伝し、露出を広げましょう。",
       "try-now": "今すぐ試す"
     },
-    "listen": "Listen"
+    "listen": "Listen",
+    "tts-settings": "テキスト読み上げの設定"
   },
   "edit-history": {
     "title": "編集履歴",
@@ -2186,6 +2188,7 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
+    "title": "チャット",
     "page-title": "Ecencyコミュニティとチャットするために、ダイレクトメッセージを開始するか、チャンネルに参加してください。",
     "loading-chats": "Loading chats…",
     "start-dm-button": "DMを開始",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "参加する",
     "joining-channel": "Joining…",
     "no-additional-channels": "追加のチャンネルが見つかりませんでした。",
-    "title": "チャット",
     "no-admin": "このコミュニティチャットの管理者またはモデレータはいません。",
     "view-community-channel": "コミュニティチャット",
     "public-key": "公開キー",
