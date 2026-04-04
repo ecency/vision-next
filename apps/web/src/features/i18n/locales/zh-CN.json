@@ -176,7 +176,8 @@
     "home": "首页",
     "waves": "浪潮",
     "communities": "社区",
-    "chats": "聊天"
+    "chats": "聊天",
+    "toggle-menu": "切换导航菜单"
   },
   "search": {
     "placeholder": "搜索",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "使用生态增益来宣传你的帖子并获得更广泛的曝光。",
       "try-now": "现在试试"
     },
-    "listen": "监听"
+    "listen": "监听",
+    "tts-settings": "文字转语音设置"
   },
   "edit-history": {
     "title": "编辑历史记录",
@@ -2186,6 +2188,7 @@
     "update-success-message": "您的恢复电子邮件已成功更新"
   },
   "chat": {
+    "title": "聊天",
     "page-title": "开始直接消息或加入频道以便与生态社区进行聊天。",
     "loading-chats": "加载聊天…",
     "start-dm-button": "启动 DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "加入",
     "joining-channel": "正在加入…",
     "no-additional-channels": "未找到其他频道。",
-    "title": "聊天",
     "no-admin": "没有这个社区聊天的管理员或版主。",
     "view-community-channel": "社区聊天",
     "public-key": "公钥",
