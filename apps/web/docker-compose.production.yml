@@ -36,6 +36,7 @@ services:
         order: start-first
     environment:
       - USE_PRIVATE
+      - INTERNAL_API_HOST=http://vapi:4000
       - HIVESIGNER_SECRET
       - NODE_ENV
       - PLAUSIBLE_API_KEY

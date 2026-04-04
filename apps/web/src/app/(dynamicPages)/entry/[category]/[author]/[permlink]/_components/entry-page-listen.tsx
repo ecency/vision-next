@@ -152,6 +152,7 @@ export function EntryPageListen({ entry }: Props) {
                 icon={<UilSetting />}
                 noPadding={true}
                 className="!h-4"
+                aria-label={i18next.t("entry.tts-settings")}
               />
             </TextToSpeechSettingsDialog>
           </div>
