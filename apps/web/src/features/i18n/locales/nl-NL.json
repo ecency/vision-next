@@ -176,7 +176,8 @@
     "home": "Startpagina",
     "waves": "Golven",
     "communities": "Gemeenschappen",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Navigatiemenu in-/uitschakelen"
   },
   "search": {
     "placeholder": "Zoeken",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Gebruik Ecency Voordelen om je post te promoten en bredere blootstelling te krijgen.",
       "try-now": "Probeer het nu"
     },
-    "listen": "Luister"
+    "listen": "Luister",
+    "tts-settings": "Instellingen tekst-naar-spraak"
   },
   "edit-history": {
     "title": "Geschiedenis bewerken",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
     "loading-chats": "Chats laden…",
     "start-dm-button": "Start DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Deelnemen",
     "joining-channel": "Joining…",
     "no-additional-channels": "Geen extra kanalen gevonden.",
-    "title": "Chats",
     "no-admin": "Geen admin of moderator voor deze community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Publieke sleutel",
