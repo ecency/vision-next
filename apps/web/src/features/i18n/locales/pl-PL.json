@@ -176,7 +176,8 @@
     "home": "Strona główna",
     "waves": "Fale",
     "communities": "Społeczności",
-    "chats": "Czaty"
+    "chats": "Czaty",
+    "toggle-menu": "Przełącz menu nawigacji"
   },
   "search": {
     "placeholder": "Szukaj",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Użyj Umiejętności Ecencji aby promować swój post i zyskać szerszą ekspozycję.",
       "try-now": "Spróbuj teraz"
     },
-    "listen": "Słuchaj"
+    "listen": "Słuchaj",
+    "tts-settings": "Ustawienia tekstu na mowę"
   },
   "edit-history": {
     "title": "Edytuj historię",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Twój e-mail odzyskiwania został pomyślnie zaktualizowany"
   },
   "chat": {
+    "title": "Czaty",
     "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby rozmawiać ze społecznością Ecency.",
     "loading-chats": "Ładowanie czatów…",
     "start-dm-button": "Rozpocznij DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Dołącz",
     "joining-channel": "Dołączanie do…",
     "no-additional-channels": "Nie znaleziono dodatkowych kanałów.",
-    "title": "Czaty",
     "no-admin": "Brak administratora lub moderatora dla tego czatu społecznościowego.",
     "view-community-channel": "Czat Społeczności",
     "public-key": "Klucz publiczny",
