@@ -90,7 +90,7 @@
     "highcharts-react-official": "^3.2.1",
     "hive-auth-client": "^0.1.5",
     "hive-uri": "^0.2.5",
-    "hivesigner": "^3.3.4",
+    "hivesigner": "^4.0.0",
     "html-react-parser": "^5.0.7",
     "i18next": "^23.11.5",
     "intl": "^1.2.5",
