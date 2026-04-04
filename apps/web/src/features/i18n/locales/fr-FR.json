@@ -176,7 +176,8 @@
     "home": "Accueil",
     "waves": "Vagues",
     "communities": "Communautés",
-    "chats": "Discussions"
+    "chats": "Discussions",
+    "toggle-menu": "Activer/désactiver le menu de navigation"
   },
   "search": {
     "placeholder": "Rechercher",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Utilisez Ecency Perks pour promouvoir votre publication et augmenter votre visibilité.",
       "try-now": "Essayer maintenant"
     },
-    "listen": "Écouter"
+    "listen": "Écouter",
+    "tts-settings": "Paramètres de synthèse vocale"
   },
   "edit-history": {
     "title": "Modifier l'historique",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Votre e-mail de récupération a été mis à jour avec succès"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Lancez des messages directs ou rejoignez des canaux pour discuter avec la communauté Ecency.",
     "loading-chats": "Chargement des chats…",
     "start-dm-button": "Démarrer DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Rejoindre",
     "joining-channel": "Rejoindre…",
     "no-additional-channels": "Aucune chaîne supplémentaire trouvée.",
-    "title": "Chats",
     "no-admin": "Aucun administrateur ou modérateur pour ce chat communautaire.",
     "view-community-channel": "Chat de la communauté",
     "public-key": "Clé publique",
