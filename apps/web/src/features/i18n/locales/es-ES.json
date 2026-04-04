@@ -176,7 +176,8 @@
     "home": "Inicio",
     "waves": "Olas",
     "communities": "Comunidades",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Cambiar menú de navegación"
   },
   "search": {
     "placeholder": "Buscar",
@@ -923,7 +924,8 @@
       "promotion-subtitle": "Utilice las ventajas de Ecency (Ecency Perks) para promocionar su publicación y obtener una exposición más amplia.",
       "try-now": "Prueba ahora"
     },
-    "listen": "Escuchar"
+    "listen": "Escuchar",
+    "tts-settings": "Configuración de texto a voz"
   },
   "edit-history": {
     "title": "Editar historial",
@@ -2186,6 +2188,7 @@
     "update-success-message": "Tu email de recuperación ha sido actualizado correctamente"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Iniciar mensajes directos o unirse a canales para chatear con cualquiera.",
     "loading-chats": "Cargando chats…",
     "start-dm-button": "Iniciar DM",
@@ -2217,7 +2220,6 @@
     "join-channel-action": "Unirse",
     "joining-channel": "Uniéndose…",
     "no-additional-channels": "No se encontraron canales adicionales.",
-    "title": "Chats",
     "no-admin": "No hay administrador o moderador para este chat de la comunidad.",
     "view-community-channel": "Ver canal comunitario",
     "public-key": "Clave pública",
