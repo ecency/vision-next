@@ -61,18 +61,11 @@ export async function signX402Payment(
     }
 
     case 'manual': {
-      // Dynamic import dhive only when needed (keeps bundle small for other methods)
-      const { PrivateKey, cryptoUtils } = await import('@hiveio/dhive');
-      const chainId = Buffer.from(
-        'beeab0de00000000000000000000000000000000000000000000000000000000',
-        'hex'
-      );
+      // Dynamic import hive-tx only when needed (keeps bundle small for other methods)
+      const { Transaction, PrivateKey } = await import('@ecency/hive-tx');
       const privKey = PrivateKey.fromString(options!.activeKey!);
-      const signed = cryptoUtils.signTransaction(
-        transaction as any,
-        privKey,
-        chainId
-      );
+      const tx = new Transaction({ transaction: transaction as any });
+      const signed = tx.sign(privKey);
       signedTx = signed as unknown as Record<string, unknown>;
       break;
     }

@@ -85,9 +85,9 @@ export function useAccountUpdate(
         [
           "account_update2",
           {
-            account: username,
+            account: username!,
             json_metadata: "",
-            extensions: [],
+            extensions: [] as [],
             posting_json_metadata: JSON.stringify({
               profile,
             }),

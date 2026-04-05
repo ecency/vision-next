@@ -9,7 +9,7 @@ import {
   getAccountRecoveriesQueryOptions,
   useAccountUpdateRecovery
 } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { buildHsCallbackUrl } from "@/utils/hs-callback";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQuery } from "@tanstack/react-query";

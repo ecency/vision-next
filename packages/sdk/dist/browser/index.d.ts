@@ -1,9 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { InfiniteData, UseMutationOptions, MutationKey, QueryClient, QueryKey, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
-import * as _hiveio_dhive from '@hiveio/dhive';
-import { Operation, TransactionConfirmation, Authority as Authority$1, SMTAsset, PrivateKey, AuthorityType, PublicKey, Client, OperationName, VirtualOperationName } from '@hiveio/dhive';
-import * as _hiveio_dhive_lib_chain_rc from '@hiveio/dhive/lib/chain/rc';
-import { RCAccount } from '@hiveio/dhive/lib/chain/rc';
+import { Operation, PrivateKey, Authority as Authority$1, PublicKey, OperationName, utils } from '@ecency/hive-tx';
+export { AccountCreateOperation, AssetSymbol, BroadcastResult, CustomJsonOperation, Memo, Operation, OperationName, PrivateKey, PublicKey, Signature, callREST, callRPC, callRPCBroadcast, callWithQuorum, config as hiveTxConfig, utils as hiveTxUtils } from '@ecency/hive-tx';
 
 interface AiGenerationPrice {
     aspect_ratio: string;
@@ -97,6 +95,79 @@ interface DynamicProps$1 {
         rewardFund: Record<string, any>;
     };
 }
+
+/**
+ * Compatibility layer for migrating from @hiveio/dhive to @ecency/hive-tx.
+ *
+ * Re-exports hive-tx APIs and provides helper functions that bridge the
+ * API differences between dhive and hive-tx.
+ */
+
+/** Compatible with dhive's TransactionConfirmation from broadcast_transaction_synchronous */
+interface TransactionConfirmation {
+    id: string;
+    block_num: number;
+    trx_num: number;
+    expired: boolean;
+}
+/** Authority role type used in key management */
+type AuthorityType = "owner" | "active" | "posting" | "memo";
+/** SMT asset format (NAI representation) used in transaction history */
+interface SMTAsset {
+    amount: string;
+    precision: number;
+    nai: string;
+}
+/** RC account data from rc_api.find_rc_accounts */
+interface RCAccount {
+    account: string;
+    rc_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
+    max_rc: string | number;
+    max_rc_creation_adjustment: {
+        amount: string;
+        precision: number;
+        nai: string;
+    };
+    delegated_rc: number;
+    received_delegated_rc: number;
+}
+/**
+ * Compute SHA-256 hash of a string or Uint8Array.
+ * Drop-in replacement for dhive's `cryptoUtils.sha256()`.
+ */
+declare function sha256(input: string | Uint8Array): Uint8Array;
+/** Check if a string is a valid WIF-encoded private key. */
+declare function isWif(key: string): boolean;
+/**
+ * Sign and broadcast operations, returning a dhive-compatible TransactionConfirmation.
+ *
+ * Uses broadcast_transaction_synchronous so the response includes block_num/trx_num,
+ * matching the shape that the rest of the codebase expects from dhive's
+ * `client.broadcast.sendOperations()`.
+ */
+declare function broadcastOperations(ops: Operation[], key: PrivateKey): Promise<TransactionConfirmation>;
+interface ManaResult {
+    current_mana: number;
+    max_mana: number;
+    percentage: number;
+}
+/** Calculate voting power mana (equivalent to dhive client.rc.calculateVPMana) */
+declare function calculateVPMana(account: any): ManaResult;
+/** Calculate RC mana (equivalent to dhive client.rc.calculateRCMana) */
+declare function calculateRCMana(rcAccount: RCAccount): ManaResult;
+/**
+ * Configure hive-tx nodes. Call this from ConfigManager.setHiveNodes().
+ * Replaces dhive's `new Client(nodes, options)`.
+ */
+declare function setHiveTxNodes(nodes: string[], timeout?: number): void;
+/**
+ * Initialize hive-tx with default node configuration.
+ * Called once during SDK init.
+ */
+declare function initHiveTx(nodes: string[], timeout?: number): void;
 
 /**
  * Platform-specific adapter for SDK mutations.
@@ -1166,9 +1237,668 @@ interface Payload$2 {
     keysToRevoke?: string[];
     keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>;
 }
-declare function dedupeAndSortKeyAuths(existing: AuthorityType["key_auths"], additions: [string, number][]): AuthorityType["key_auths"];
+declare function dedupeAndSortKeyAuths(existing: Authority$1["key_auths"], additions: [string, number][]): Authority$1["key_auths"];
 type UpdateKeyAuthsOptions = Pick<UseMutationOptions<unknown, Error, Payload$2>, "onSuccess" | "onError">;
-declare function useAccountUpdateKeyAuths(username: string, options?: UpdateKeyAuthsOptions): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, Payload$2, unknown>;
+declare function useAccountUpdateKeyAuths(username: string, options?: UpdateKeyAuthsOptions): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, Payload$2, unknown>;
+
+/**
+ * Authority levels for Hive blockchain operations.
+ * - posting: Social operations (voting, commenting, reblogging)
+ * - active: Financial and account management operations
+ * - owner: Critical security operations (key changes, account recovery)
+ * - memo: Memo encryption/decryption (rarely used for signing)
+ */
+type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
+/**
+ * Maps operation types to their required authority level.
+ *
+ * This mapping is used to determine which key is needed to sign a transaction,
+ * enabling smart auth fallback and auth upgrade UI.
+ *
+ * @remarks
+ * - Most social operations (vote, comment, reblog) require posting authority
+ * - Financial operations (transfer, withdraw) require active authority
+ * - Account management operations require active authority
+ * - Security operations (password change, account recovery) require owner authority
+ * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
+ */
+declare const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel>;
+/**
+ * Determines authority required for a custom_json operation.
+ *
+ * Custom JSON operations can require either posting or active authority
+ * depending on which field is populated:
+ * - required_auths (active authority)
+ * - required_posting_auths (posting authority)
+ *
+ * @param customJsonOp - The custom_json operation to inspect
+ * @returns 'active' if requires active authority, 'posting' if requires posting authority
+ *
+ * @example
+ * ```typescript
+ * // Reblog operation (posting authority)
+ * const reblogOp: Operation = ['custom_json', {
+ *   required_auths: [],
+ *   required_posting_auths: ['alice'],
+ *   id: 'reblog',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(reblogOp); // Returns 'posting'
+ *
+ * // Some active authority custom_json
+ * const activeOp: Operation = ['custom_json', {
+ *   required_auths: ['alice'],
+ *   required_posting_auths: [],
+ *   id: 'some_active_op',
+ *   json: '...'
+ * }];
+ * getCustomJsonAuthority(activeOp); // Returns 'active'
+ * ```
+ */
+declare function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel;
+/**
+ * Determines authority required for a proposal operation.
+ *
+ * Proposal operations (create_proposal, update_proposal) typically require
+ * active authority as they involve financial commitments and funding allocations.
+ *
+ * @param proposalOp - The proposal operation to inspect
+ * @returns 'active' authority requirement
+ *
+ * @remarks
+ * Unlike custom_json, proposal operations don't have explicit required_auths fields.
+ * They always use the creator's authority, which defaults to active for financial
+ * operations involving the DAO treasury.
+ *
+ * @example
+ * ```typescript
+ * const proposalOp: Operation = ['create_proposal', {
+ *   creator: 'alice',
+ *   receiver: 'bob',
+ *   subject: 'My Proposal',
+ *   permlink: 'my-proposal',
+ *   start: '2026-03-01T00:00:00',
+ *   end: '2026-04-01T00:00:00',
+ *   daily_pay: '100.000 HBD',
+ *   extensions: []
+ * }];
+ * getProposalAuthority(proposalOp); // Returns 'active'
+ * ```
+ */
+declare function getProposalAuthority(proposalOp: Operation): AuthorityLevel;
+/**
+ * Determines the required authority level for any operation.
+ *
+ * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
+ * detection for custom_json operations.
+ *
+ * @param op - The operation to check
+ * @returns 'posting' or 'active' authority requirement
+ *
+ * @example
+ * ```typescript
+ * const voteOp: Operation = ['vote', { voter: 'alice', author: 'bob', permlink: 'post', weight: 10000 }];
+ * getOperationAuthority(voteOp); // Returns 'posting'
+ *
+ * const transferOp: Operation = ['transfer', { from: 'alice', to: 'bob', amount: '1.000 HIVE', memo: '' }];
+ * getOperationAuthority(transferOp); // Returns 'active'
+ * ```
+ */
+declare function getOperationAuthority(op: Operation): AuthorityLevel;
+/**
+ * Determines the highest authority level required for a list of operations.
+ *
+ * Useful when broadcasting multiple operations together - the highest authority
+ * level required by any operation determines what key is needed for the batch.
+ *
+ * Authority hierarchy: owner > active > posting > memo
+ *
+ * @param ops - Array of operations
+ * @returns Highest authority level required ('owner', 'active', or 'posting')
+ *
+ * @example
+ * ```typescript
+ * const ops: Operation[] = [
+ *   ['vote', { ... }],        // posting
+ *   ['comment', { ... }],     // posting
+ * ];
+ * getRequiredAuthority(ops); // Returns 'posting'
+ *
+ * const mixedOps: Operation[] = [
+ *   ['comment', { ... }],     // posting
+ *   ['transfer', { ... }],    // active
+ * ];
+ * getRequiredAuthority(mixedOps); // Returns 'active'
+ *
+ * const securityOps: Operation[] = [
+ *   ['transfer', { ... }],               // active
+ *   ['change_recovery_account', { ... }], // owner
+ * ];
+ * getRequiredAuthority(securityOps); // Returns 'owner'
+ * ```
+ */
+declare function getRequiredAuthority(ops: Operation[]): AuthorityLevel;
+
+/**
+ * React Query mutation hook for broadcasting Hive operations.
+ * Supports multiple authentication methods with automatic fallback.
+ *
+ * @template T - Type of the mutation payload
+ * @param mutationKey - React Query mutation key for cache management
+ * @param username - Hive username (required for broadcast)
+ * @param operations - Function that converts payload to Hive operations
+ * @param onSuccess - Success callback after broadcast completes
+ * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
+ * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Authentication Flow:**
+ *
+ * 1. **With AuthContextV2 + adapter + enableFallback** (recommended for new code):
+ *    - Tries auth methods in fallbackChain order
+ *    - Smart fallback: only retries on auth errors, not RC/network errors
+ *    - Uses platform adapter for storage, UI, and broadcasting
+ *
+ * 2. **With legacy AuthContext** (backward compatible):
+ *    - Tries auth.broadcast() first (custom implementation)
+ *    - Falls back to postingKey if available
+ *    - Falls back to accessToken (HiveSigner) if available
+ *    - Throws if no auth method available
+ *
+ * **Backward Compatibility:**
+ * - All existing code using AuthContext will continue to work
+ * - AuthContextV2 extends AuthContext, so it's a drop-in replacement
+ * - enableFallback defaults to false if no adapter provided
+ *
+ * @example
+ * ```typescript
+ * // New pattern with platform adapter and fallback
+ * const mutation = useBroadcastMutation(
+ *   ['vote'],
+ *   username,
+ *   (payload) => [voteOperation(payload)],
+ *   () => console.log('Success!'),
+ *   {
+ *     adapter: myAdapter,
+ *     enableFallback: true,
+ *     fallbackChain: ['keychain', 'key', 'hivesigner']
+ *   },
+ *   'posting'
+ * );
+ *
+ * // Legacy pattern (still works)
+ * const mutation = useBroadcastMutation(
+ *   ['vote'],
+ *   username,
+ *   (payload) => [voteOperation(payload)],
+ *   () => console.log('Success!'),
+ *   { postingKey: 'wif-key' }
+ * );
+ * ```
+ */
+declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: AuthorityLevel, options?: {
+    onMutate?: UseMutationOptions<unknown, Error, T>["onMutate"];
+    onError?: UseMutationOptions<unknown, Error, T>["onError"];
+    onSettled?: UseMutationOptions<unknown, Error, T>["onSettled"];
+}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
+
+declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
+
+declare const CONFIG: {
+    privateApiHost: string;
+    imageHost: string;
+    hiveNodes: string[];
+    heliusApiKey: string | undefined;
+    queryClient: QueryClient;
+    plausibleHost: string;
+    spkNode: string;
+    dmcaAccounts: string[];
+    dmcaTags: string[];
+    dmcaPatterns: string[];
+    dmcaTagRegexes: RegExp[];
+    dmcaPatternRegexes: RegExp[];
+    _dmcaInitialized: boolean;
+};
+type DmcaListsInput = {
+    accounts?: string[];
+    tags?: string[];
+    posts?: string[];
+};
+declare namespace ConfigManager {
+    function setQueryClient(client: QueryClient): void;
+    /**
+     * Set the private API host
+     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
+     */
+    function setPrivateApiHost(host: string): void;
+    /**
+     * Get a validated base URL for API requests
+     * Returns a valid base URL that can be used with new URL(path, baseUrl)
+     *
+     * Priority:
+     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
+     * 2. window.location.origin if in browser (production with relative URLs)
+     * 3. 'https://ecency.com' as fallback for SSR (production default)
+     *
+     * @returns A valid base URL string
+     * @throws Never throws - always returns a valid URL
+     */
+    function getValidatedBaseUrl(): string;
+    /**
+     * Set the image host
+     * @param host - The image host URL (e.g., "https://images.ecency.com")
+     */
+    function setImageHost(host: string): void;
+    /**
+     * Set Hive RPC nodes, replacing the default list and updating hive-tx config.
+     * @param nodes - Array of Hive RPC node URLs
+     */
+    function setHiveNodes(nodes: string[]): void;
+    /**
+     * Set DMCA filtering lists
+     * @param lists - DMCA lists object containing accounts/tags/posts arrays
+     */
+    function setDmcaLists(lists?: DmcaListsInput): void;
+}
+
+/**
+ * Chain error handling utilities
+ * Extracted from web's operations.ts and mobile's dhive.ts error handling patterns
+ */
+declare enum ErrorType {
+    COMMON = "common",
+    INFO = "info",
+    INSUFFICIENT_RESOURCE_CREDITS = "insufficient_resource_credits",
+    MISSING_AUTHORITY = "missing_authority",
+    TOKEN_EXPIRED = "token_expired",
+    NETWORK = "network",
+    TIMEOUT = "timeout",
+    VALIDATION = "validation"
+}
+interface ParsedChainError {
+    message: string;
+    type: ErrorType;
+    originalError?: any;
+}
+/**
+ * Parses Hive blockchain errors into standardized format.
+ * Extracted from web's operations.ts and mobile's dhive.ts error handling.
+ *
+ * @param error - The error object or string from a blockchain operation
+ * @returns Parsed error with user-friendly message and categorized type
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await vote(...);
+ * } catch (error) {
+ *   const parsed = parseChainError(error);
+ *   console.log(parsed.message); // "Insufficient Resource Credits. Please wait or power up."
+ *   console.log(parsed.type); // ErrorType.INSUFFICIENT_RESOURCE_CREDITS
+ * }
+ * ```
+ */
+declare function parseChainError(error: any): ParsedChainError;
+/**
+ * Formats error for display to user.
+ * Returns tuple of [message, type] for backward compatibility with existing code.
+ *
+ * This function maintains compatibility with the old formatError signature from
+ * web's operations.ts (line 59-84) and mobile's dhive.ts error handling.
+ *
+ * @param error - The error object or string
+ * @returns Tuple of [user-friendly message, error type]
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await transfer(...);
+ * } catch (error) {
+ *   const [message, type] = formatError(error);
+ *   showToast(message, type);
+ * }
+ * ```
+ */
+declare function formatError(error: any): [string, ErrorType];
+/**
+ * Checks if error indicates missing authority and should trigger auth fallback.
+ * Used by the SDK's useBroadcastMutation to determine if it should retry with
+ * an alternate authentication method.
+ *
+ * @param error - The error object or string
+ * @returns true if auth fallback should be attempted
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await broadcast(operations);
+ * } catch (error) {
+ *   if (shouldTriggerAuthFallback(error)) {
+ *     // Try with alternate auth method
+ *     await broadcastWithHiveAuth(operations);
+ *   }
+ * }
+ * ```
+ */
+declare function shouldTriggerAuthFallback(error: any): boolean;
+/**
+ * Checks if error is a resource credits (RC) error.
+ * Useful for showing specific UI feedback about RC issues.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is related to insufficient RC
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await vote(...);
+ * } catch (error) {
+ *   if (isResourceCreditsError(error)) {
+ *     showRCWarning(); // Show specific RC education/power up UI
+ *   }
+ * }
+ * ```
+ */
+declare function isResourceCreditsError(error: any): boolean;
+/**
+ * Checks if error is informational (not critical).
+ * Informational errors typically don't need retry logic.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is informational
+ */
+declare function isInfoError(error: any): boolean;
+/**
+ * Checks if error is network-related and should be retried.
+ *
+ * @param error - The error object or string
+ * @returns true if the error is network-related
+ */
+declare function isNetworkError(error: any): boolean;
+
+declare function makeQueryClient(): QueryClient;
+declare const getQueryClient: () => QueryClient;
+declare namespace EcencyQueriesManager {
+    function getQueryData<T>(queryKey: QueryKey): T | undefined;
+    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
+    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
+    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
+    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
+        prefetch: () => Promise<T | undefined>;
+        getData: () => T | undefined;
+        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
+        fetchAndGet: () => Promise<T>;
+    };
+    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
+        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
+        getData: () => InfiniteData<T, unknown> | undefined;
+        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
+        fetchAndGet: () => Promise<InfiniteData<T, P>>;
+    };
+}
+
+declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps$1, Error, DynamicProps$1, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps$1, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: DynamicProps$1;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+interface RewardFund {
+    id: number;
+    name: string;
+    reward_balance: string;
+    recent_claims: string;
+    last_update: string;
+    content_constant: string;
+    percent_curation_rewards: number;
+    percent_content_rewards: number;
+    author_reward_curve: string;
+    curation_reward_curve: string;
+}
+/**
+ * Get reward fund information from the blockchain
+ * @param fundName - Name of the reward fund (default: 'post')
+ */
+declare function getRewardFundQueryOptions(fundName?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<RewardFund, Error, RewardFund, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<RewardFund, string[], never> | undefined;
+} & {
+    queryKey: string[] & {
+        [dataTagSymbol]: RewardFund;
+        [dataTagErrorSymbol]: Error;
+    };
+};
+
+declare const QueryKeys: {
+    readonly posts: {
+        readonly entry: (entryPath: string) => string[];
+        readonly postHeader: (author: string, permlink?: string) => (string | undefined)[];
+        readonly content: (author: string, permlink: string) => string[];
+        readonly contentReplies: (author: string, permlink: string) => string[];
+        readonly accountPosts: (username: string, filter: string, limit: number, observer: string) => (string | number)[];
+        readonly accountPostsPage: (username: string, filter: string, startAuthor: string, startPermlink: string, limit: number, observer: string) => (string | number)[];
+        readonly userPostVote: (username: string, author: string, permlink: string) => string[];
+        readonly reblogs: (username: string, limit: number) => (string | number)[];
+        readonly entryActiveVotes: (author?: string, permlink?: string) => (string | undefined)[];
+        readonly rebloggedBy: (author: string, permlink: string) => string[];
+        readonly tips: (author: string, permlink: string) => string[];
+        readonly normalize: (author: string, permlink: string) => string[];
+        readonly drafts: (activeUsername?: string) => (string | undefined)[];
+        readonly draftsInfinite: (activeUsername?: string, limit?: number) => unknown[];
+        readonly schedules: (activeUsername?: string) => (string | undefined)[];
+        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => unknown[];
+        readonly fragments: (username?: string) => (string | undefined)[];
+        readonly fragmentsInfinite: (username?: string, limit?: number) => unknown[];
+        readonly images: (username?: string) => (string | undefined)[];
+        readonly galleryImages: (activeUsername?: string) => (string | undefined)[];
+        readonly imagesInfinite: (username?: string, limit?: number) => unknown[];
+        readonly promoted: (type: string) => string[];
+        readonly _promotedPrefix: readonly ["posts", "promoted"];
+        readonly accountPostsBlogPrefix: (username: string) => readonly ["posts", "account-posts", string, "blog"];
+        readonly postsRanked: (sort: string, tag: string, limit: number, observer: string) => (string | number)[];
+        readonly postsRankedPage: (sort: string, startAuthor: string, startPermlink: string, limit: number, tag: string, observer: string) => (string | number)[];
+        readonly discussions: (author: string, permlink: string, order: string, observer: string) => string[];
+        readonly discussion: (author: string, permlink: string, observer: string) => string[];
+        readonly deletedEntry: (entryPath: string) => string[];
+        readonly commentHistory: (author: string, permlink: string, onlyMeta: boolean) => (string | boolean)[];
+        readonly trendingTags: () => string[];
+        readonly trendingTagsWithStats: (limit: number) => (string | number)[];
+        readonly wavesByHost: (host: string) => string[];
+        readonly wavesByTag: (host: string, tag: string) => string[];
+        readonly wavesFollowing: (host: string, username: string) => string[];
+        readonly wavesTrendingTags: (host: string, hours: number) => (string | number)[];
+        readonly wavesByAccount: (host: string, username: string) => string[];
+        readonly wavesTrendingAuthors: (host: string) => string[];
+        readonly _prefix: readonly ["posts"];
+    };
+    readonly accounts: {
+        readonly full: (username?: string) => (string | undefined)[];
+        readonly list: (...usernames: string[]) => string[];
+        readonly friends: (following: string, mode: string, followType: string, limit: number) => (string | number)[];
+        readonly searchFriends: (username: string, mode: string, query: string) => string[];
+        readonly subscriptions: (username: string) => string[];
+        readonly followCount: (username: string) => string[];
+        readonly recoveries: (username: string) => string[];
+        readonly pendingRecovery: (username: string) => string[];
+        readonly checkWalletPending: (username: string, code: string | null) => (string | null)[];
+        readonly mutedUsers: (username: string) => string[];
+        readonly following: (follower: string, startFollowing: string, followType: string, limit: number) => (string | number)[];
+        readonly followers: (following: string, startFollower: string, followType: string, limit: number) => (string | number)[];
+        readonly search: (query: string, excludeList?: string[]) => (string | string[] | undefined)[];
+        readonly profiles: (accounts: string[], observer: string) => (string | string[])[];
+        readonly lookup: (query: string, limit: number) => (string | number)[];
+        readonly transactions: (username: string, group: string, limit: number) => (string | number)[];
+        readonly favorites: (activeUsername?: string) => (string | undefined)[];
+        readonly favoritesInfinite: (activeUsername?: string, limit?: number) => unknown[];
+        readonly checkFavorite: (activeUsername: string, targetUsername: string) => string[];
+        readonly relations: (reference: string, target: string) => string[];
+        readonly bots: () => string[];
+        readonly voteHistory: (username: string, limit: number) => (string | number)[];
+        readonly reputations: (query: string, limit: number) => (string | number)[];
+        readonly bookmarks: (activeUsername?: string) => (string | undefined)[];
+        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => unknown[];
+        readonly referrals: (username: string) => string[];
+        readonly referralsStats: (username: string) => string[];
+        readonly _prefix: readonly ["accounts"];
+    };
+    readonly notifications: {
+        readonly announcements: () => string[];
+        readonly list: (activeUsername?: string, filter?: string) => (string | undefined)[];
+        readonly unreadCount: (activeUsername?: string) => (string | undefined)[];
+        readonly settings: (activeUsername?: string) => (string | undefined)[];
+        readonly _prefix: readonly ["notifications"];
+    };
+    readonly core: {
+        readonly rewardFund: (fundName: string) => string[];
+        readonly dynamicProps: () => string[];
+        readonly chainProperties: () => string[];
+        readonly _prefix: readonly ["core"];
+    };
+    readonly communities: {
+        readonly single: (name?: string, observer?: string) => (string | undefined)[];
+        /** Prefix key for matching all observer variants of a community */
+        readonly singlePrefix: (name: string) => readonly ["community", "single", string];
+        readonly context: (username: string, communityName: string) => string[];
+        readonly rewarded: () => string[];
+        readonly list: (sort: string, query: string, limit: number) => (string | number)[];
+        readonly subscribers: (communityName: string) => string[];
+        readonly accountNotifications: (account: string, limit: number) => (string | number)[];
+    };
+    readonly proposals: {
+        readonly list: () => string[];
+        readonly proposal: (id: number) => (string | number)[];
+        readonly votes: (proposalId: number, voter: string, limit: number) => (string | number)[];
+        readonly votesPrefix: (proposalId: number) => readonly ["proposals", "votes", number];
+        readonly votesByUser: (voter: string) => string[];
+    };
+    readonly search: {
+        readonly topics: (q: string, limit: number) => (string | number)[];
+        readonly path: (q: string) => string[];
+        readonly account: (q: string, limit: number) => (string | number)[];
+        readonly results: (q: string, sort: string, hideLow: boolean, since?: string, scrollId?: string, votes?: number) => (string | number | boolean | undefined)[];
+        readonly controversialRising: (what: string, tag: string) => string[];
+        readonly similarEntries: (author: string, permlink: string, query: string) => string[];
+        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number) => (string | number | boolean | undefined)[];
+    };
+    readonly witnesses: {
+        readonly list: (limit: number) => (string | number)[];
+        readonly votes: (username: string | undefined) => (string | undefined)[];
+        readonly proxy: () => string[];
+    };
+    readonly wallet: {
+        readonly outgoingRcDelegations: (username: string, limit: number) => (string | number)[];
+        readonly vestingDelegations: (username: string, limit: number) => (string | number)[];
+        readonly withdrawRoutes: (account: string) => string[];
+        readonly incomingRc: (username: string) => string[];
+        readonly conversionRequests: (account: string) => string[];
+        readonly receivedVestingShares: (username: string) => string[];
+        readonly savingsWithdraw: (account: string) => string[];
+        readonly openOrders: (user: string) => string[];
+        readonly collateralizedConversionRequests: (account: string) => string[];
+        readonly recurrentTransfers: (username: string) => string[];
+        readonly portfolio: (username: string, onlyEnabled: string, currency: string) => string[];
+    };
+    readonly assets: {
+        readonly hiveGeneralInfo: (username: string) => string[];
+        readonly hiveTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hiveWithdrawalRoutes: (username: string) => string[];
+        readonly hiveMetrics: (bucketSeconds: number) => (string | number)[];
+        readonly hbdGeneralInfo: (username: string) => string[];
+        readonly hbdTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly hivePowerGeneralInfo: (username: string) => string[];
+        readonly hivePowerDelegates: (username: string) => string[];
+        readonly hivePowerDelegatings: (username: string) => string[];
+        readonly hivePowerTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
+        readonly pointsGeneralInfo: (username: string) => string[];
+        readonly pointsTransactions: (username: string, type: string) => string[];
+        readonly ecencyAssetInfo: (username: string, asset: string, currency: string) => string[];
+    };
+    readonly market: {
+        readonly statistics: () => string[];
+        readonly orderBook: (limit: number) => (string | number)[];
+        readonly history: (seconds: number, startDate: number, endDate: number) => (string | number)[];
+        readonly feedHistory: () => string[];
+        readonly hiveHbdStats: () => string[];
+        readonly data: (coin: string, vsCurrency: string, fromTs: number, toTs: number) => (string | number)[];
+        readonly tradeHistory: (limit: number, start: number, end: number) => (string | number)[];
+        readonly currentMedianHistoryPrice: () => string[];
+    };
+    readonly analytics: {
+        readonly discoverCuration: (duration: string) => string[];
+        readonly pageStats: (url: string, dimensions: string, metrics: string, dateRange: string) => string[];
+        readonly discoverLeaderboard: (duration: string) => string[];
+    };
+    readonly promotions: {
+        readonly promotePrice: () => string[];
+        readonly boostPlusPrices: () => string[];
+        readonly boostPlusAccounts: (account: string) => string[];
+    };
+    readonly resourceCredits: {
+        readonly account: (username: string) => string[];
+        readonly stats: () => string[];
+    };
+    readonly points: {
+        readonly points: (username: string, filter: number) => (string | number)[];
+        readonly _prefix: (username: string) => string[];
+    };
+    readonly operations: {
+        readonly chainProperties: () => string[];
+    };
+    readonly games: {
+        readonly statusCheck: (gameType: string, username: string) => string[];
+    };
+    readonly badActors: {
+        readonly list: () => string[];
+        readonly _prefix: readonly ["bad-actors"];
+    };
+    readonly ai: {
+        readonly prices: () => readonly ["ai", "prices"];
+        readonly assistPrices: (username?: string) => readonly ["ai", "assist-prices", string | undefined];
+        readonly _prefix: readonly ["ai"];
+    };
+};
+
+declare function encodeObj(o: any): string;
+declare function decodeObj(o: any): any;
+
+declare enum Symbol {
+    HIVE = "HIVE",
+    HBD = "HBD",
+    VESTS = "VESTS",
+    SPK = "SPK"
+}
+declare enum NaiMap {
+    "@@000000021" = "HIVE",
+    "@@000000013" = "HBD",
+    "@@000000037" = "VESTS"
+}
+interface Asset {
+    amount: number;
+    symbol: Symbol;
+}
+declare function parseAsset(sval: string | SMTAsset): Asset;
+
+declare function getBoundFetch(): typeof fetch;
+
+declare function isCommunity(value: unknown): boolean;
+
+/**
+ * Type guard to check if response is wrapped with pagination metadata
+ */
+declare function isWrappedResponse<T>(response: any): response is WrappedResponse<T>;
+/**
+ * Normalize response to wrapped format for backwards compatibility
+ * If the backend returns old format (array), convert it to wrapped format
+ */
+declare function normalizeToWrappedResponse<T>(response: T[] | WrappedResponse<T>, limit: number): WrappedResponse<T>;
+
+declare function vestsToHp(vests: number, hivePerMVests: number): number;
+
+declare function isEmptyDate(s: string | undefined): boolean;
 
 interface Payload$1 {
     newPassword: string;
@@ -1180,7 +1910,7 @@ interface Payload$1 {
  * Seed based password cannot be updated here, it will be in an account always for now
  */
 type UpdatePasswordOptions = Pick<UseMutationOptions<unknown, Error, Payload$1>, "onSuccess" | "onError">;
-declare function useAccountUpdatePassword(username: string, options?: UpdatePasswordOptions): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, Payload$1, unknown>;
+declare function useAccountUpdatePassword(username: string, options?: UpdatePasswordOptions): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, Payload$1, unknown>;
 
 type SignType$1 = "key" | "keychain" | "hivesigner";
 interface CommonPayload$1 {
@@ -1218,14 +1948,14 @@ interface Payload {
  * signing is sufficient.
  */
 type RevokeKeyOptions = Pick<UseMutationOptions<unknown, Error, Payload>, "onSuccess" | "onError">;
-declare function useAccountRevokeKey(username: string | undefined, options?: RevokeKeyOptions): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, Payload, unknown>;
+declare function useAccountRevokeKey(username: string | undefined, options?: RevokeKeyOptions): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, Payload, unknown>;
 
 /**
  * Check whether an authority would still meet its weight_threshold
  * after removing the given keys. This prevents revoking keys that
  * would leave an authority unable to sign (especially for multisig).
  */
-declare function canRevokeFromAuthority(auth: AuthorityType, revokingKeyStrs: Set<string>): boolean;
+declare function canRevokeFromAuthority(auth: Authority$1, revokingKeyStrs: Set<string>): boolean;
 /**
  * Build an account_update operation that removes the given public keys
  * from the relevant authorities.
@@ -1239,9 +1969,9 @@ declare function canRevokeFromAuthority(auth: AuthorityType, revokingKeyStrs: Se
 declare function buildRevokeKeysOp(accountData: FullAccount, revokingKeys: PublicKey[]): {
     account: string;
     json_metadata: string;
-    owner: AuthorityType | undefined;
-    active: AuthorityType;
-    posting: AuthorityType;
+    owner: Authority$1 | undefined;
+    active: Authority$1;
+    posting: Authority$1;
     memo_key: string;
 };
 
@@ -2290,666 +3020,6 @@ declare function getAccountSubscriptionsQueryOptions(username: string | undefine
     };
 };
 
-/**
- * Authority levels for Hive blockchain operations.
- * - posting: Social operations (voting, commenting, reblogging)
- * - active: Financial and account management operations
- * - owner: Critical security operations (key changes, account recovery)
- * - memo: Memo encryption/decryption (rarely used for signing)
- */
-type AuthorityLevel = 'posting' | 'active' | 'owner' | 'memo';
-/**
- * Maps operation types to their required authority level.
- *
- * This mapping is used to determine which key is needed to sign a transaction,
- * enabling smart auth fallback and auth upgrade UI.
- *
- * @remarks
- * - Most social operations (vote, comment, reblog) require posting authority
- * - Financial operations (transfer, withdraw) require active authority
- * - Account management operations require active authority
- * - Security operations (password change, account recovery) require owner authority
- * - custom_json requires dynamic detection based on required_auths vs required_posting_auths
- */
-declare const OPERATION_AUTHORITY_MAP: Record<string, AuthorityLevel>;
-/**
- * Determines authority required for a custom_json operation.
- *
- * Custom JSON operations can require either posting or active authority
- * depending on which field is populated:
- * - required_auths (active authority)
- * - required_posting_auths (posting authority)
- *
- * @param customJsonOp - The custom_json operation to inspect
- * @returns 'active' if requires active authority, 'posting' if requires posting authority
- *
- * @example
- * ```typescript
- * // Reblog operation (posting authority)
- * const reblogOp: Operation = ['custom_json', {
- *   required_auths: [],
- *   required_posting_auths: ['alice'],
- *   id: 'reblog',
- *   json: '...'
- * }];
- * getCustomJsonAuthority(reblogOp); // Returns 'posting'
- *
- * // Some active authority custom_json
- * const activeOp: Operation = ['custom_json', {
- *   required_auths: ['alice'],
- *   required_posting_auths: [],
- *   id: 'some_active_op',
- *   json: '...'
- * }];
- * getCustomJsonAuthority(activeOp); // Returns 'active'
- * ```
- */
-declare function getCustomJsonAuthority(customJsonOp: Operation): AuthorityLevel;
-/**
- * Determines authority required for a proposal operation.
- *
- * Proposal operations (create_proposal, update_proposal) typically require
- * active authority as they involve financial commitments and funding allocations.
- *
- * @param proposalOp - The proposal operation to inspect
- * @returns 'active' authority requirement
- *
- * @remarks
- * Unlike custom_json, proposal operations don't have explicit required_auths fields.
- * They always use the creator's authority, which defaults to active for financial
- * operations involving the DAO treasury.
- *
- * @example
- * ```typescript
- * const proposalOp: Operation = ['create_proposal', {
- *   creator: 'alice',
- *   receiver: 'bob',
- *   subject: 'My Proposal',
- *   permlink: 'my-proposal',
- *   start: '2026-03-01T00:00:00',
- *   end: '2026-04-01T00:00:00',
- *   daily_pay: '100.000 HBD',
- *   extensions: []
- * }];
- * getProposalAuthority(proposalOp); // Returns 'active'
- * ```
- */
-declare function getProposalAuthority(proposalOp: Operation): AuthorityLevel;
-/**
- * Determines the required authority level for any operation.
- *
- * Uses the OPERATION_AUTHORITY_MAP for standard operations, and dynamic
- * detection for custom_json operations.
- *
- * @param op - The operation to check
- * @returns 'posting' or 'active' authority requirement
- *
- * @example
- * ```typescript
- * const voteOp: Operation = ['vote', { voter: 'alice', author: 'bob', permlink: 'post', weight: 10000 }];
- * getOperationAuthority(voteOp); // Returns 'posting'
- *
- * const transferOp: Operation = ['transfer', { from: 'alice', to: 'bob', amount: '1.000 HIVE', memo: '' }];
- * getOperationAuthority(transferOp); // Returns 'active'
- * ```
- */
-declare function getOperationAuthority(op: Operation): AuthorityLevel;
-/**
- * Determines the highest authority level required for a list of operations.
- *
- * Useful when broadcasting multiple operations together - the highest authority
- * level required by any operation determines what key is needed for the batch.
- *
- * Authority hierarchy: owner > active > posting > memo
- *
- * @param ops - Array of operations
- * @returns Highest authority level required ('owner', 'active', or 'posting')
- *
- * @example
- * ```typescript
- * const ops: Operation[] = [
- *   ['vote', { ... }],        // posting
- *   ['comment', { ... }],     // posting
- * ];
- * getRequiredAuthority(ops); // Returns 'posting'
- *
- * const mixedOps: Operation[] = [
- *   ['comment', { ... }],     // posting
- *   ['transfer', { ... }],    // active
- * ];
- * getRequiredAuthority(mixedOps); // Returns 'active'
- *
- * const securityOps: Operation[] = [
- *   ['transfer', { ... }],               // active
- *   ['change_recovery_account', { ... }], // owner
- * ];
- * getRequiredAuthority(securityOps); // Returns 'owner'
- * ```
- */
-declare function getRequiredAuthority(ops: Operation[]): AuthorityLevel;
-
-/**
- * React Query mutation hook for broadcasting Hive operations.
- * Supports multiple authentication methods with automatic fallback.
- *
- * @template T - Type of the mutation payload
- * @param mutationKey - React Query mutation key for cache management
- * @param username - Hive username (required for broadcast)
- * @param operations - Function that converts payload to Hive operations
- * @param onSuccess - Success callback after broadcast completes
- * @param auth - Authentication context (supports both legacy AuthContext and new AuthContextV2)
- * @param authority - Key authority to use ('posting' | 'active' | 'owner' | 'memo'), defaults to 'posting'
- *
- * @returns React Query mutation result
- *
- * @remarks
- * **Authentication Flow:**
- *
- * 1. **With AuthContextV2 + adapter + enableFallback** (recommended for new code):
- *    - Tries auth methods in fallbackChain order
- *    - Smart fallback: only retries on auth errors, not RC/network errors
- *    - Uses platform adapter for storage, UI, and broadcasting
- *
- * 2. **With legacy AuthContext** (backward compatible):
- *    - Tries auth.broadcast() first (custom implementation)
- *    - Falls back to postingKey if available
- *    - Falls back to accessToken (HiveSigner) if available
- *    - Throws if no auth method available
- *
- * **Backward Compatibility:**
- * - All existing code using AuthContext will continue to work
- * - AuthContextV2 extends AuthContext, so it's a drop-in replacement
- * - enableFallback defaults to false if no adapter provided
- *
- * @example
- * ```typescript
- * // New pattern with platform adapter and fallback
- * const mutation = useBroadcastMutation(
- *   ['vote'],
- *   username,
- *   (payload) => [voteOperation(payload)],
- *   () => console.log('Success!'),
- *   {
- *     adapter: myAdapter,
- *     enableFallback: true,
- *     fallbackChain: ['keychain', 'key', 'hivesigner']
- *   },
- *   'posting'
- * );
- *
- * // Legacy pattern (still works)
- * const mutation = useBroadcastMutation(
- *   ['vote'],
- *   username,
- *   (payload) => [voteOperation(payload)],
- *   () => console.log('Success!'),
- *   { postingKey: 'wif-key' }
- * );
- * ```
- */
-declare function useBroadcastMutation<T>(mutationKey: MutationKey | undefined, username: string | undefined, operations: (payload: T) => Operation[], onSuccess?: UseMutationOptions<unknown, Error, T>["onSuccess"], auth?: AuthContextV2, authority?: AuthorityLevel, options?: {
-    onMutate?: UseMutationOptions<unknown, Error, T>["onMutate"];
-    onError?: UseMutationOptions<unknown, Error, T>["onError"];
-    onSettled?: UseMutationOptions<unknown, Error, T>["onSettled"];
-}): _tanstack_react_query.UseMutationResult<unknown, Error, T, unknown>;
-
-declare function broadcastJson<T>(username: string | undefined, id: string, payload: T, auth?: AuthContext): Promise<any>;
-
-declare const CONFIG: {
-    privateApiHost: string;
-    imageHost: string;
-    hiveClient: Client;
-    heliusApiKey: string | undefined;
-    queryClient: QueryClient;
-    plausibleHost: string;
-    spkNode: string;
-    dmcaAccounts: string[];
-    dmcaTags: string[];
-    dmcaPatterns: string[];
-    dmcaTagRegexes: RegExp[];
-    dmcaPatternRegexes: RegExp[];
-    _dmcaInitialized: boolean;
-};
-type DmcaListsInput = {
-    accounts?: string[];
-    tags?: string[];
-    posts?: string[];
-};
-declare namespace ConfigManager {
-    function setQueryClient(client: QueryClient): void;
-    /**
-     * Set the private API host
-     * @param host - The private API host URL (e.g., "https://ecency.com" or "" for relative URLs)
-     */
-    function setPrivateApiHost(host: string): void;
-    /**
-     * Get a validated base URL for API requests
-     * Returns a valid base URL that can be used with new URL(path, baseUrl)
-     *
-     * Priority:
-     * 1. CONFIG.privateApiHost if set (dev/staging or explicit config)
-     * 2. window.location.origin if in browser (production with relative URLs)
-     * 3. 'https://ecency.com' as fallback for SSR (production default)
-     *
-     * @returns A valid base URL string
-     * @throws Never throws - always returns a valid URL
-     */
-    function getValidatedBaseUrl(): string;
-    /**
-     * Set the image host
-     * @param host - The image host URL (e.g., "https://images.ecency.com")
-     */
-    function setImageHost(host: string): void;
-    /**
-     * Set Hive RPC nodes, replacing the default list and creating a new dhive Client.
-     * The first node in the array will be used as the primary; others are failover.
-     * @param nodes - Array of Hive RPC node URLs
-     */
-    function setHiveNodes(nodes: string[]): void;
-    /**
-     * Set DMCA filtering lists
-     * @param lists - DMCA lists object containing accounts/tags/posts arrays
-     */
-    function setDmcaLists(lists?: DmcaListsInput): void;
-}
-
-/**
- * Chain error handling utilities
- * Extracted from web's operations.ts and mobile's dhive.ts error handling patterns
- */
-declare enum ErrorType {
-    COMMON = "common",
-    INFO = "info",
-    INSUFFICIENT_RESOURCE_CREDITS = "insufficient_resource_credits",
-    MISSING_AUTHORITY = "missing_authority",
-    TOKEN_EXPIRED = "token_expired",
-    NETWORK = "network",
-    TIMEOUT = "timeout",
-    VALIDATION = "validation"
-}
-interface ParsedChainError {
-    message: string;
-    type: ErrorType;
-    originalError?: any;
-}
-/**
- * Parses Hive blockchain errors into standardized format.
- * Extracted from web's operations.ts and mobile's dhive.ts error handling.
- *
- * @param error - The error object or string from a blockchain operation
- * @returns Parsed error with user-friendly message and categorized type
- *
- * @example
- * ```typescript
- * try {
- *   await vote(...);
- * } catch (error) {
- *   const parsed = parseChainError(error);
- *   console.log(parsed.message); // "Insufficient Resource Credits. Please wait or power up."
- *   console.log(parsed.type); // ErrorType.INSUFFICIENT_RESOURCE_CREDITS
- * }
- * ```
- */
-declare function parseChainError(error: any): ParsedChainError;
-/**
- * Formats error for display to user.
- * Returns tuple of [message, type] for backward compatibility with existing code.
- *
- * This function maintains compatibility with the old formatError signature from
- * web's operations.ts (line 59-84) and mobile's dhive.ts error handling.
- *
- * @param error - The error object or string
- * @returns Tuple of [user-friendly message, error type]
- *
- * @example
- * ```typescript
- * try {
- *   await transfer(...);
- * } catch (error) {
- *   const [message, type] = formatError(error);
- *   showToast(message, type);
- * }
- * ```
- */
-declare function formatError(error: any): [string, ErrorType];
-/**
- * Checks if error indicates missing authority and should trigger auth fallback.
- * Used by the SDK's useBroadcastMutation to determine if it should retry with
- * an alternate authentication method.
- *
- * @param error - The error object or string
- * @returns true if auth fallback should be attempted
- *
- * @example
- * ```typescript
- * try {
- *   await broadcast(operations);
- * } catch (error) {
- *   if (shouldTriggerAuthFallback(error)) {
- *     // Try with alternate auth method
- *     await broadcastWithHiveAuth(operations);
- *   }
- * }
- * ```
- */
-declare function shouldTriggerAuthFallback(error: any): boolean;
-/**
- * Checks if error is a resource credits (RC) error.
- * Useful for showing specific UI feedback about RC issues.
- *
- * @param error - The error object or string
- * @returns true if the error is related to insufficient RC
- *
- * @example
- * ```typescript
- * try {
- *   await vote(...);
- * } catch (error) {
- *   if (isResourceCreditsError(error)) {
- *     showRCWarning(); // Show specific RC education/power up UI
- *   }
- * }
- * ```
- */
-declare function isResourceCreditsError(error: any): boolean;
-/**
- * Checks if error is informational (not critical).
- * Informational errors typically don't need retry logic.
- *
- * @param error - The error object or string
- * @returns true if the error is informational
- */
-declare function isInfoError(error: any): boolean;
-/**
- * Checks if error is network-related and should be retried.
- *
- * @param error - The error object or string
- * @returns true if the error is network-related
- */
-declare function isNetworkError(error: any): boolean;
-
-declare function makeQueryClient(): QueryClient;
-declare const getQueryClient: () => QueryClient;
-declare namespace EcencyQueriesManager {
-    function getQueryData<T>(queryKey: QueryKey): T | undefined;
-    function getInfiniteQueryData<T>(queryKey: QueryKey): InfiniteData<T, unknown> | undefined;
-    function prefetchQuery<T>(options: UseQueryOptions<T>): Promise<T | undefined>;
-    function prefetchInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): Promise<InfiniteData<T, unknown> | undefined>;
-    function generateClientServerQuery<T>(options: UseQueryOptions<T>): {
-        prefetch: () => Promise<T | undefined>;
-        getData: () => T | undefined;
-        useClientQuery: () => _tanstack_react_query.UseQueryResult<_tanstack_react_query.NoInfer<T>, Error>;
-        fetchAndGet: () => Promise<T>;
-    };
-    function generateClientServerInfiniteQuery<T, P>(options: UseInfiniteQueryOptions<T, Error, InfiniteData<T>, QueryKey, P>): {
-        prefetch: () => Promise<InfiniteData<T, unknown> | undefined>;
-        getData: () => InfiniteData<T, unknown> | undefined;
-        useClientQuery: () => _tanstack_react_query.UseInfiniteQueryResult<InfiniteData<T, unknown>, Error>;
-        fetchAndGet: () => Promise<InfiniteData<T, P>>;
-    };
-}
-
-declare function getDynamicPropsQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<DynamicProps$1, Error, DynamicProps$1, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<DynamicProps$1, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: DynamicProps$1;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-interface RewardFund {
-    id: number;
-    name: string;
-    reward_balance: string;
-    recent_claims: string;
-    last_update: string;
-    content_constant: string;
-    percent_curation_rewards: number;
-    percent_content_rewards: number;
-    author_reward_curve: string;
-    curation_reward_curve: string;
-}
-/**
- * Get reward fund information from the blockchain
- * @param fundName - Name of the reward fund (default: 'post')
- */
-declare function getRewardFundQueryOptions(fundName?: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<RewardFund, Error, RewardFund, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<RewardFund, string[], never> | undefined;
-} & {
-    queryKey: string[] & {
-        [dataTagSymbol]: RewardFund;
-        [dataTagErrorSymbol]: Error;
-    };
-};
-
-declare const QueryKeys: {
-    readonly posts: {
-        readonly entry: (entryPath: string) => string[];
-        readonly postHeader: (author: string, permlink?: string) => (string | undefined)[];
-        readonly content: (author: string, permlink: string) => string[];
-        readonly contentReplies: (author: string, permlink: string) => string[];
-        readonly accountPosts: (username: string, filter: string, limit: number, observer: string) => (string | number)[];
-        readonly accountPostsPage: (username: string, filter: string, startAuthor: string, startPermlink: string, limit: number, observer: string) => (string | number)[];
-        readonly userPostVote: (username: string, author: string, permlink: string) => string[];
-        readonly reblogs: (username: string, limit: number) => (string | number)[];
-        readonly entryActiveVotes: (author?: string, permlink?: string) => (string | undefined)[];
-        readonly rebloggedBy: (author: string, permlink: string) => string[];
-        readonly tips: (author: string, permlink: string) => string[];
-        readonly normalize: (author: string, permlink: string) => string[];
-        readonly drafts: (activeUsername?: string) => (string | undefined)[];
-        readonly draftsInfinite: (activeUsername?: string, limit?: number) => unknown[];
-        readonly schedules: (activeUsername?: string) => (string | undefined)[];
-        readonly schedulesInfinite: (activeUsername?: string, limit?: number) => unknown[];
-        readonly fragments: (username?: string) => (string | undefined)[];
-        readonly fragmentsInfinite: (username?: string, limit?: number) => unknown[];
-        readonly images: (username?: string) => (string | undefined)[];
-        readonly galleryImages: (activeUsername?: string) => (string | undefined)[];
-        readonly imagesInfinite: (username?: string, limit?: number) => unknown[];
-        readonly promoted: (type: string) => string[];
-        readonly _promotedPrefix: readonly ["posts", "promoted"];
-        readonly accountPostsBlogPrefix: (username: string) => readonly ["posts", "account-posts", string, "blog"];
-        readonly postsRanked: (sort: string, tag: string, limit: number, observer: string) => (string | number)[];
-        readonly postsRankedPage: (sort: string, startAuthor: string, startPermlink: string, limit: number, tag: string, observer: string) => (string | number)[];
-        readonly discussions: (author: string, permlink: string, order: string, observer: string) => string[];
-        readonly discussion: (author: string, permlink: string, observer: string) => string[];
-        readonly deletedEntry: (entryPath: string) => string[];
-        readonly commentHistory: (author: string, permlink: string, onlyMeta: boolean) => (string | boolean)[];
-        readonly trendingTags: () => string[];
-        readonly trendingTagsWithStats: (limit: number) => (string | number)[];
-        readonly wavesByHost: (host: string) => string[];
-        readonly wavesByTag: (host: string, tag: string) => string[];
-        readonly wavesFollowing: (host: string, username: string) => string[];
-        readonly wavesTrendingTags: (host: string, hours: number) => (string | number)[];
-        readonly wavesByAccount: (host: string, username: string) => string[];
-        readonly wavesTrendingAuthors: (host: string) => string[];
-        readonly _prefix: readonly ["posts"];
-    };
-    readonly accounts: {
-        readonly full: (username?: string) => (string | undefined)[];
-        readonly list: (...usernames: string[]) => string[];
-        readonly friends: (following: string, mode: string, followType: string, limit: number) => (string | number)[];
-        readonly searchFriends: (username: string, mode: string, query: string) => string[];
-        readonly subscriptions: (username: string) => string[];
-        readonly followCount: (username: string) => string[];
-        readonly recoveries: (username: string) => string[];
-        readonly pendingRecovery: (username: string) => string[];
-        readonly checkWalletPending: (username: string, code: string | null) => (string | null)[];
-        readonly mutedUsers: (username: string) => string[];
-        readonly following: (follower: string, startFollowing: string, followType: string, limit: number) => (string | number)[];
-        readonly followers: (following: string, startFollower: string, followType: string, limit: number) => (string | number)[];
-        readonly search: (query: string, excludeList?: string[]) => (string | string[] | undefined)[];
-        readonly profiles: (accounts: string[], observer: string) => (string | string[])[];
-        readonly lookup: (query: string, limit: number) => (string | number)[];
-        readonly transactions: (username: string, group: string, limit: number) => (string | number)[];
-        readonly favorites: (activeUsername?: string) => (string | undefined)[];
-        readonly favoritesInfinite: (activeUsername?: string, limit?: number) => unknown[];
-        readonly checkFavorite: (activeUsername: string, targetUsername: string) => string[];
-        readonly relations: (reference: string, target: string) => string[];
-        readonly bots: () => string[];
-        readonly voteHistory: (username: string, limit: number) => (string | number)[];
-        readonly reputations: (query: string, limit: number) => (string | number)[];
-        readonly bookmarks: (activeUsername?: string) => (string | undefined)[];
-        readonly bookmarksInfinite: (activeUsername?: string, limit?: number) => unknown[];
-        readonly referrals: (username: string) => string[];
-        readonly referralsStats: (username: string) => string[];
-        readonly _prefix: readonly ["accounts"];
-    };
-    readonly notifications: {
-        readonly announcements: () => string[];
-        readonly list: (activeUsername?: string, filter?: string) => (string | undefined)[];
-        readonly unreadCount: (activeUsername?: string) => (string | undefined)[];
-        readonly settings: (activeUsername?: string) => (string | undefined)[];
-        readonly _prefix: readonly ["notifications"];
-    };
-    readonly core: {
-        readonly rewardFund: (fundName: string) => string[];
-        readonly dynamicProps: () => string[];
-        readonly chainProperties: () => string[];
-        readonly _prefix: readonly ["core"];
-    };
-    readonly communities: {
-        readonly single: (name?: string, observer?: string) => (string | undefined)[];
-        /** Prefix key for matching all observer variants of a community */
-        readonly singlePrefix: (name: string) => readonly ["community", "single", string];
-        readonly context: (username: string, communityName: string) => string[];
-        readonly rewarded: () => string[];
-        readonly list: (sort: string, query: string, limit: number) => (string | number)[];
-        readonly subscribers: (communityName: string) => string[];
-        readonly accountNotifications: (account: string, limit: number) => (string | number)[];
-    };
-    readonly proposals: {
-        readonly list: () => string[];
-        readonly proposal: (id: number) => (string | number)[];
-        readonly votes: (proposalId: number, voter: string, limit: number) => (string | number)[];
-        readonly votesPrefix: (proposalId: number) => readonly ["proposals", "votes", number];
-        readonly votesByUser: (voter: string) => string[];
-    };
-    readonly search: {
-        readonly topics: (q: string, limit: number) => (string | number)[];
-        readonly path: (q: string) => string[];
-        readonly account: (q: string, limit: number) => (string | number)[];
-        readonly results: (q: string, sort: string, hideLow: boolean, since?: string, scrollId?: string, votes?: number) => (string | number | boolean | undefined)[];
-        readonly controversialRising: (what: string, tag: string) => string[];
-        readonly similarEntries: (author: string, permlink: string, query: string) => string[];
-        readonly api: (q: string, sort: string, hideLow: boolean, since?: string, votes?: number) => (string | number | boolean | undefined)[];
-    };
-    readonly witnesses: {
-        readonly list: (limit: number) => (string | number)[];
-        readonly votes: (username: string | undefined) => (string | undefined)[];
-        readonly proxy: () => string[];
-    };
-    readonly wallet: {
-        readonly outgoingRcDelegations: (username: string, limit: number) => (string | number)[];
-        readonly vestingDelegations: (username: string, limit: number) => (string | number)[];
-        readonly withdrawRoutes: (account: string) => string[];
-        readonly incomingRc: (username: string) => string[];
-        readonly conversionRequests: (account: string) => string[];
-        readonly receivedVestingShares: (username: string) => string[];
-        readonly savingsWithdraw: (account: string) => string[];
-        readonly openOrders: (user: string) => string[];
-        readonly collateralizedConversionRequests: (account: string) => string[];
-        readonly recurrentTransfers: (username: string) => string[];
-        readonly portfolio: (username: string, onlyEnabled: string, currency: string) => string[];
-    };
-    readonly assets: {
-        readonly hiveGeneralInfo: (username: string) => string[];
-        readonly hiveTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
-        readonly hiveWithdrawalRoutes: (username: string) => string[];
-        readonly hiveMetrics: (bucketSeconds: number) => (string | number)[];
-        readonly hbdGeneralInfo: (username: string) => string[];
-        readonly hbdTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
-        readonly hivePowerGeneralInfo: (username: string) => string[];
-        readonly hivePowerDelegates: (username: string) => string[];
-        readonly hivePowerDelegatings: (username: string) => string[];
-        readonly hivePowerTransactions: (username: string, limit: number, filterKey: string) => (string | number)[];
-        readonly pointsGeneralInfo: (username: string) => string[];
-        readonly pointsTransactions: (username: string, type: string) => string[];
-        readonly ecencyAssetInfo: (username: string, asset: string, currency: string) => string[];
-    };
-    readonly market: {
-        readonly statistics: () => string[];
-        readonly orderBook: (limit: number) => (string | number)[];
-        readonly history: (seconds: number, startDate: number, endDate: number) => (string | number)[];
-        readonly feedHistory: () => string[];
-        readonly hiveHbdStats: () => string[];
-        readonly data: (coin: string, vsCurrency: string, fromTs: number, toTs: number) => (string | number)[];
-        readonly tradeHistory: (limit: number, start: number, end: number) => (string | number)[];
-        readonly currentMedianHistoryPrice: () => string[];
-    };
-    readonly analytics: {
-        readonly discoverCuration: (duration: string) => string[];
-        readonly pageStats: (url: string, dimensions: string, metrics: string, dateRange: string) => string[];
-        readonly discoverLeaderboard: (duration: string) => string[];
-    };
-    readonly promotions: {
-        readonly promotePrice: () => string[];
-        readonly boostPlusPrices: () => string[];
-        readonly boostPlusAccounts: (account: string) => string[];
-    };
-    readonly resourceCredits: {
-        readonly account: (username: string) => string[];
-        readonly stats: () => string[];
-    };
-    readonly points: {
-        readonly points: (username: string, filter: number) => (string | number)[];
-        readonly _prefix: (username: string) => string[];
-    };
-    readonly operations: {
-        readonly chainProperties: () => string[];
-    };
-    readonly games: {
-        readonly statusCheck: (gameType: string, username: string) => string[];
-    };
-    readonly badActors: {
-        readonly list: () => string[];
-        readonly _prefix: readonly ["bad-actors"];
-    };
-    readonly ai: {
-        readonly prices: () => readonly ["ai", "prices"];
-        readonly assistPrices: (username?: string) => readonly ["ai", "assist-prices", string | undefined];
-        readonly _prefix: readonly ["ai"];
-    };
-};
-
-declare function encodeObj(o: any): string;
-declare function decodeObj(o: any): any;
-
-declare enum Symbol {
-    HIVE = "HIVE",
-    HBD = "HBD",
-    VESTS = "VESTS",
-    SPK = "SPK"
-}
-declare enum NaiMap {
-    "@@000000021" = "HIVE",
-    "@@000000013" = "HBD",
-    "@@000000037" = "VESTS"
-}
-interface Asset {
-    amount: number;
-    symbol: Symbol;
-}
-declare function parseAsset(sval: string | SMTAsset): Asset;
-
-declare function getBoundFetch(): typeof fetch;
-
-declare function isCommunity(value: unknown): boolean;
-
-/**
- * Type guard to check if response is wrapped with pagination metadata
- */
-declare function isWrappedResponse<T>(response: any): response is WrappedResponse<T>;
-/**
- * Normalize response to wrapped format for backwards compatibility
- * If the backend returns old format (array), convert it to wrapped format
- */
-declare function normalizeToWrappedResponse<T>(response: T[] | WrappedResponse<T>, limit: number): WrappedResponse<T>;
-
-declare function vestsToHp(vests: number, hivePerMVests: number): number;
-
-declare function isEmptyDate(s: string | undefined): boolean;
-
 declare function getBookmarksQueryOptions(activeUsername: string | undefined, code: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AccountBookmark[], Error, AccountBookmark[], (string | undefined)[]>, "queryFn"> & {
     queryFn?: _tanstack_react_query.QueryFunction<AccountBookmark[], (string | undefined)[], never> | undefined;
 } & {
@@ -3379,7 +3449,7 @@ declare function downVotingPower(account: FullAccount): number;
 declare function rcPower(account: RCAccount): number;
 declare function votingValue(account: FullAccount, dynamicProps: DynamicProps$1, votingPowerValue: number, weight?: number): number;
 
-declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<_hiveio_dhive.TransactionConfirmation, Error, {
+declare function useSignOperationByKey(username: string | undefined): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, {
     operation: Operation;
     keyOrSeed: string;
 }, unknown>;
@@ -3392,11 +3462,11 @@ declare function useSignOperationByHivesigner(callbackUri?: string): _tanstack_r
     operation: Operation;
 }, unknown>;
 
-declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<_hiveio_dhive.ChainProperties, Error, _hiveio_dhive.ChainProperties, string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<_hiveio_dhive.ChainProperties, string[], never> | undefined;
+declare function getChainPropertiesQueryOptions(): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<any, Error, any, string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<any, string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: _hiveio_dhive.ChainProperties;
+        [dataTagSymbol]: any;
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -4724,11 +4794,11 @@ declare function getRcStatsQueryOptions(): _tanstack_react_query.OmitKeyof<_tans
     };
 };
 
-declare function getAccountRcQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<_hiveio_dhive_lib_chain_rc.RCAccount[], Error, _hiveio_dhive_lib_chain_rc.RCAccount[], string[]>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<_hiveio_dhive_lib_chain_rc.RCAccount[], string[], never> | undefined;
+declare function getAccountRcQueryOptions(username: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<RCAccount[], Error, RCAccount[], string[]>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<RCAccount[], string[], never> | undefined;
 } & {
     queryKey: string[] & {
-        [dataTagSymbol]: _hiveio_dhive_lib_chain_rc.RCAccount[];
+        [dataTagSymbol]: RCAccount[];
         [dataTagErrorSymbol]: Error;
     };
 };
@@ -5923,7 +5993,12 @@ type HiveTransaction = Transaction;
 
 type HiveOperationGroup = "" | "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
 
-type HiveOperationName = OperationName | VirtualOperationName;
+/**
+ * All operation names (including virtual operations) extracted from hive-tx utils.
+ * In hive-tx, utils.operations includes both real and virtual operations,
+ * so there is no separate VirtualOperationName type.
+ */
+type HiveOperationName = keyof typeof utils.operations;
 type HiveOperationFilterValue = HiveOperationGroup | HiveOperationName;
 type HiveOperationFilter = HiveOperationFilterValue | HiveOperationFilterValue[];
 type HiveOperationFilterKey = string;
@@ -6817,7 +6892,7 @@ declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]
 
 declare const HIVE_OPERATION_LIST: HiveOperationName[];
 
-declare const HIVE_OPERATION_ORDERS: Record<HiveOperationName, number>;
+declare const HIVE_OPERATION_ORDERS: Record<"vote" | "comment" | "transfer" | "transfer_to_vesting" | "withdraw_vesting" | "account_create" | "account_create_with_delegation" | "account_update" | "account_update2" | "account_witness_vote" | "account_witness_proxy" | "convert" | "collateralized_convert" | "custom" | "custom_json" | "claim_account" | "create_claimed_account" | "claim_reward_balance" | "delegate_vesting_shares" | "delete_comment" | "comment_options" | "set_withdraw_vesting_route" | "witness_update" | "witness_set_properties" | "decline_voting_rights" | "reset_account" | "set_reset_account" | "transfer_to_savings" | "transfer_from_savings" | "cancel_transfer_from_savings" | "limit_order_create" | "limit_order_create2" | "limit_order_cancel" | "feed_publish" | "escrow_transfer" | "escrow_dispute" | "escrow_release" | "escrow_approve" | "recover_account" | "request_account_recovery" | "change_recovery_account" | "recurrent_transfer" | "create_proposal" | "update_proposal" | "update_proposal_votes" | "remove_proposal" | "curation_reward" | "author_reward" | "comment_benefactor_reward" | "fill_order" | "producer_reward" | "interest" | "fill_convert_request" | "fill_collateralized_convert_request" | "return_vesting_delegation" | "proposal_pay" | "comment_payout_update" | "comment_reward" | "fill_recurrent_transfer" | "fill_vesting_withdraw" | "effective_comment_vote" | "pow" | "report_over_production" | "pow2" | "custom_binary" | "liquidity_reward" | "shutdown_witness" | "fill_transfer_from_savings" | "hardfork" | "clear_null_account_balance" | "sps_fund" | "hardfork_hive" | "hardfork_hive_restore" | "delayed_voting" | "consolidate_treasury_balance" | "ineffective_delete_comment" | "sps_convert" | "expired_account_notification" | "changed_recovery_account" | "transfer_to_vesting_completed" | "pow_reward" | "vesting_shares_split" | "account_created" | "system_warning" | "failed_recurrent_transfer" | "limit_order_cancelled" | "producer_missed" | "proposal_fee" | "collateralized_convert_immediate_conversion" | "escrow_approved" | "escrow_rejected" | "proxy_cleared" | "declined_voting_rights", number>;
 declare const HIVE_OPERATION_NAME_BY_ID: Record<number, HiveOperationName>;
 
 /**
@@ -7448,18 +7523,16 @@ declare function getSubscribers(community: string): Promise<Subscription[] | nul
 declare function getRelationshipBetweenAccounts(follower: string, following: string): Promise<AccountRelationship | null>;
 declare function getProfiles(accounts: string[], observer?: string): Promise<Profile[]>;
 
-/** Maximum number of alternate nodes to try during verification */
-declare const MAX_ALTERNATE_NODES = 2;
 /**
  * When the primary node returns null for a get_post call,
- * verify against up to 2 alternate nodes before concluding
- * the post is truly deleted. This guards against sync lag
- * where a single node temporarily returns null for valid content.
+ * verify by querying multiple random nodes. If any node
+ * returns the post, it exists (the first node was lagging).
  *
- * @param primaryNode - Snapshot of CONFIG.hiveClient.currentAddress captured
- *   before the primary request, so failover can't change which node we exclude.
+ * Uses callWithQuorum(quorum=1) which shuffles and queries
+ * nodes in batches. Since it shuffles, it's unlikely to hit
+ * the same node that just returned null first.
  */
-declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string, primaryNode?: string): Promise<Entry$1 | null>;
+declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string): Promise<Entry$1 | null>;
 
 declare function signUp(username: string, email: string, referral: string): Promise<ApiResponse<Record<string, unknown>>>;
 declare function subscribeEmail(email: string): Promise<ApiResponse<Record<string, unknown>>>;
@@ -8110,4 +8183,4 @@ declare function getBadActorsQueryOptions(): _tanstack_react_query.OmitKeyof<_ta
     };
 };
 
-export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AiAssistParams, type AiAssistPrice, type AiAssistResponse, type AiGenerationPrice, type AiGenerationRequest, type AiGenerationResponse, type AiImagePowerTier, type AiImagePriceResponse, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type ApiWeeklyEarningsNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BoostPlusPayload, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CreateAccountPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateRcPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GenerateImageParams, type GetGameStatus, type GetRecoveriesEmailResponse, type GrantPostingPermissionPayload, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCancelPayload, type LimitOrderCreate, type LimitOrderCreatePayload, type LockLarynxPayload, MAX_ALTERNATE_NODES, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PinPostPayload, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetLastReadPayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type VestingDelegationExpiration, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingAuthor, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessProxyPayload, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokeKeysOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, canRevokeFromAuthority, checkFavoriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAiAssistPriceQueryOptions, getAiGeneratePriceQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBadActorsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavoritesInfiniteQueryOptions, getFavoritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationExpirationsQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByAccountQueryOptions, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingAuthorsQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchPath, searchQueryOptions, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, uploadImageWithSignature, useAccountFavoriteAdd, useAccountFavoriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useAiAssist, useBookmarkAdd, useBookmarkDelete, useBoostPlus, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCreateAccount, useCrossPost, useDelegateEngineToken, useDelegateRc, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useGenerateImage, useGrantPostingPermission, useLimitOrderCancel, useLimitOrderCreate, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePinPost, usePowerLarynx, usePromote, useProposalCreate, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetLastRead, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessProxy, useWitnessVote, usrActivity, validatePostCreating, verifyPostOnAlternateNode, vestsToHp, votingPower, votingValue };
+export { ACCOUNT_OPERATION_GROUPS, ALL_ACCOUNT_OPERATIONS, ALL_NOTIFY_TYPES, type AccountBookmark, type AccountFavorite, type AccountFollowStats, type AccountKeys, type AccountNotification, type AccountProfile, type AccountRelationship, type AccountReputation, type AiAssistParams, type AiAssistPrice, type AiAssistResponse, type AiGenerationPrice, type AiGenerationRequest, type AiGenerationResponse, type AiImagePowerTier, type AiImagePriceResponse, type Announcement, type ApiBookmarkNotification, type ApiDelegationsNotification, type ApiFavoriteNotification, type ApiFollowNotification, type ApiInactiveNotification, type ApiMentionNotification, type ApiNotification, type ApiNotificationSetting, type ApiReblogNotification, type ApiReferralNotification, type ApiReplyNotification, type ApiResponse, type ApiSpinNotification, type ApiTransferNotification, type ApiVoteNotification, type ApiWeeklyEarningsNotification, type Asset, AssetOperation, type AuthContext, type AuthContextV2, type AuthMethod, type AuthorReward, type Authority, type AuthorityLevel, type AuthorityType, type Beneficiary, type BlogEntry, type BoostPlusAccountPrice, type BoostPlusPayload, type BuildProfileMetadataArgs, BuySellTransactionType, CONFIG, type CancelTransferFromSavings, type CantAfford, type CheckUsernameWalletsPendingResponse, type ClaimAccountPayload, type ClaimEngineRewardsPayload, type ClaimInterestPayload, type ClaimRewardBalance, type ClaimRewardsPayload, type CollateralizedConversionRequest, type CollateralizedConvert, type CommentBenefactor, type CommentPayload, type CommentPayoutUpdate, type CommentReward, type Communities, type Community, type CommunityProps, type CommunityRewardsRegisterPayload, type CommunityRole, type CommunityTeam, type CommunityType, ConfigManager, type ConversionRequest, type ConvertPayload, type CreateAccountPayload, type CrossPostPayload, type CurationDuration, type CurationItem, type CurationReward, type CurrencyRates, type DelegateEngineTokenPayload, type DelegateRcPayload, type DelegateVestingShares, type DelegateVestingSharesPayload, type DelegatedVestingShare, type DeleteCommentPayload, type DeletedEntry, type Draft, type DraftMetadata, type DraftsWrappedResponse, type DynamicProps$1 as DynamicProps, index as EcencyAnalytics, EcencyQueriesManager, type EffectiveCommentVote, type EngineMarketOrderPayload, EntriesCacheManagement, type Entry$1 as Entry, type EntryBeneficiaryRoute, type EntryHeader, type EntryStat, type EntryVote, ErrorType, type FeedHistoryItem, type FillCollateralizedConvertRequest, type FillConvertRequest, type FillOrder, type FillRecurrentTransfers, type FillVestingWithdraw, type Follow, type FollowPayload, type Fragment, type FriendSearchResult, type FriendsPageParam, type FriendsRow, type FullAccount, type GameClaim, type GeneralAssetInfo, type GeneralAssetTransaction, type GenerateImageParams, type GetGameStatus, type GetRecoveriesEmailResponse, type GrantPostingPermissionPayload, HIVE_ACCOUNT_OPERATION_GROUPS, HIVE_OPERATION_LIST, HIVE_OPERATION_NAME_BY_ID, HIVE_OPERATION_ORDERS, type HiveBasedAssetSignType, type HiveEngineMarketResponse, type HiveEngineMetric, type HiveEngineOpenOrder, type HiveEngineOrderBookEntry, HiveEngineToken, type HiveEngineTokenBalance, type HiveEngineTokenInfo, type HiveEngineTokenMetadataResponse, type HiveEngineTokenStatus, type HiveEngineTransaction, type HiveHbdStats, type HiveMarketMetric, type HiveOperationFilter, type HiveOperationFilterKey, type HiveOperationFilterValue, type HiveOperationGroup, type HiveOperationName, HiveSignerIntegration, type HiveTransaction, type HsTokenRenewResponse, type IncomingRcDelegation, type IncomingRcResponse, type Interest, type JsonMetadata, type JsonPollMetadata, type Keys, type LeaderBoardDuration, type LeaderBoardItem, type LimitOrderCancel, type LimitOrderCancelPayload, type LimitOrderCreate, type LimitOrderCreatePayload, type LockLarynxPayload, type MarketCandlestickDataItem, type MarketData, type MarketStatistics, type MedianHistoryPrice, type MutePostPayload, NaiMap, NotificationFilter, NotificationViewType, type Notifications, NotifyTypes, OPERATION_AUTHORITY_MAP, type OpenOrdersData, type OperationGroup, OrderIdPrefix, type OrdersData, type OrdersDataItem, type PageStatsResponse, type PaginationMeta, type ParsedChainError, type Payer, type PinPostPayload, type PlatformAdapter, type PointTransaction, PointTransactionType, type Points, type PointsResponse, type PortfolioResponse, type PortfolioWalletItem, type PostTip, type PostTipsResponse, type PowerLarynxPayload, type ProducerReward, type Profile, type ProfileTokens, type PromotePayload, type PromotePrice, type Proposal, type ProposalCreatePayload, type ProposalPay, type ProposalVote, type ProposalVotePayload, type ProposalVoteRow, QueryKeys, type RCAccount, ROLES, type RcDirectDelegation, type RcDirectDelegationsResponse, type RcStats, type Reblog, type ReblogPayload, type ReceivedVestingShare, type RecordActivityOptions, type Recoveries, type RecurrentTransfer, type RecurrentTransfers, type ReferralItem, type ReferralItems, type ReferralStat, type ReturnVestingDelegation, type RewardFund, type RewardedCommunity, type SMTAsset, type SavingsWithdrawRequest, type Schedule, type SearchResponse, type SearchResult, type SetCommunityRolePayload, type SetLastReadPayload, type SetWithdrawRoute, type SetWithdrawVestingRoutePayload, SortOrder, type SpkApiWallet, type SpkMarkets, type StakeEngineTokenPayload, type StatsResponse, type SubscribeCommunityPayload, type Subscription, Symbol, type ThreadItemEntry, ThreeSpeakIntegration, type ThreeSpeakVideo, type Token, type TokenMetadata, type Transaction, type TransactionConfirmation, type Transfer, type TransferEngineTokenPayload, type TransferFromSavingsPayload, type TransferLarynxPayload, type TransferPayload, type TransferPointPayload, type TransferSpkPayload, type TransferToSavings, type TransferToSavingsPayload, type TransferToVesting, type TransferToVestingPayload, type TransformedSpkMarkets, type TrendingTag, type UndelegateEngineTokenPayload, type UnfollowPayload, type UnstakeEngineTokenPayload, type UnsubscribeCommunityPayload, type UpdateCommunityPayload, type UpdateProposalVotes, type UpdateReplyPayload, type User, type UserImage, type ValidatePostCreatingOptions, type VestingDelegationExpiration, type Vote, type VoteHistoryPage, type VoteHistoryPageParam, type VotePayload, type VoteProxy, type WalletMetadataCandidate, type WalletOperationPayload, type WaveEntry, type WaveTrendingAuthor, type WaveTrendingTag, type WithdrawRoute, type WithdrawVesting, type WithdrawVestingPayload, type Witness, type WitnessProxyPayload, type WitnessVotePayload, type WrappedResponse, type WsBookmarkNotification, type WsDelegationsNotification, type WsFavoriteNotification, type WsFollowNotification, type WsInactiveNotification, type WsMentionNotification, type WsNotification, type WsReblogNotification, type WsReferralNotification, type WsReplyNotification, type WsSpinNotification, type WsTransferNotification, type WsVoteNotification, addDraft, addImage, addOptimisticDiscussionEntry, addSchedule, bridgeApiCall, broadcastJson, broadcastOperations, buildAccountCreateOp, buildAccountUpdate2Op, buildAccountUpdateOp, buildActiveCustomJsonOp, buildBoostOp, buildBoostOpWithPoints, buildBoostPlusOp, buildCancelTransferFromSavingsOp, buildChangeRecoveryAccountOp, buildClaimAccountOp, buildClaimInterestOps, buildClaimRewardBalanceOp, buildCollateralizedConvertOp, buildCommentOp, buildCommentOptionsOp, buildCommunityRegistrationOp, buildConvertOp, buildCreateClaimedAccountOp, buildDelegateRcOp, buildDelegateVestingSharesOp, buildDeleteCommentOp, buildEngineClaimOp, buildEngineOp, buildFlagPostOp, buildFollowOp, buildGrantPostingPermissionOp, buildIgnoreOp, buildLimitOrderCancelOp, buildLimitOrderCreateOp, buildLimitOrderCreateOpWithType, buildMultiPointTransferOps, buildMultiTransferOps, buildMutePostOp, buildMuteUserOp, buildPinPostOp, buildPointTransferOp, buildPostingCustomJsonOp, buildProfileMetadata, buildPromoteOp, buildProposalCreateOp, buildProposalVoteOp, buildReblogOp, buildRecoverAccountOp, buildRecurrentTransferOp, buildRemoveProposalOp, buildRequestAccountRecoveryOp, buildRevokeKeysOp, buildRevokePostingPermissionOp, buildSetLastReadOps, buildSetRoleOp, buildSetWithdrawVestingRouteOp, buildSpkCustomJsonOp, buildSubscribeOp, buildTransferFromSavingsOp, buildTransferOp, buildTransferToSavingsOp, buildTransferToVestingOp, buildUnfollowOp, buildUnignoreOp, buildUnsubscribeOp, buildUpdateCommunityOp, buildUpdateProposalOp, buildVoteOp, buildWithdrawVestingOp, buildWitnessProxyOp, buildWitnessVoteOp, calculateRCMana, calculateVPMana, canRevokeFromAuthority, checkFavoriteQueryOptions, checkUsernameWalletsPendingQueryOptions, decodeObj, dedupeAndSortKeyAuths, deleteDraft, deleteImage, deleteSchedule, downVotingPower, encodeObj, extractAccountProfile, formatError, formattedNumber, getAccountFullQueryOptions, getAccountNotificationsInfiniteQueryOptions, getAccountPendingRecoveryQueryOptions, getAccountPosts, getAccountPostsInfiniteQueryOptions, getAccountPostsQueryOptions, getAccountRcQueryOptions, getAccountRecoveriesQueryOptions, getAccountReputationsQueryOptions, getAccountSubscriptionsQueryOptions, getAccountVoteHistoryInfiniteQueryOptions, getAccountWalletAssetInfoQueryOptions, getAccountsQueryOptions, getAiAssistPriceQueryOptions, getAiGeneratePriceQueryOptions, getAllHiveEngineTokensQueryOptions, getAnnouncementsQueryOptions, getBadActorsQueryOptions, getBookmarksInfiniteQueryOptions, getBookmarksQueryOptions, getBoostPlusAccountPricesQueryOptions, getBoostPlusPricesQueryOptions, getBotsQueryOptions, getBoundFetch, getChainPropertiesQueryOptions, getCollateralizedConversionRequestsQueryOptions, getCommentHistoryQueryOptions, getCommunities, getCommunitiesQueryOptions, getCommunity, getCommunityContextQueryOptions, getCommunityPermissions, getCommunityQueryOptions, getCommunitySubscribersQueryOptions, getCommunityType, getContentQueryOptions, getContentRepliesQueryOptions, getControversialRisingInfiniteQueryOptions, getConversionRequestsQueryOptions, getCurrencyRate, getCurrencyRates, getCurrencyTokenRate, getCurrentMedianHistoryPriceQueryOptions, getCustomJsonAuthority, getDeletedEntryQueryOptions, getDiscoverCurationQueryOptions, getDiscoverLeaderboardQueryOptions, getDiscussion, getDiscussionQueryOptions, getDiscussionsQueryOptions, getDraftsInfiniteQueryOptions, getDraftsQueryOptions, getDynamicPropsQueryOptions, getEntryActiveVotesQueryOptions, getFavoritesInfiniteQueryOptions, getFavoritesQueryOptions, getFeedHistoryQueryOptions, getFollowCountQueryOptions, getFollowersQueryOptions, getFollowingQueryOptions, getFragmentsInfiniteQueryOptions, getFragmentsQueryOptions, getFriendsInfiniteQueryOptions, getGalleryImagesQueryOptions, getGameStatusCheckQueryOptions, getHbdAssetGeneralInfoQueryOptions, getHbdAssetTransactionsQueryOptions, getHiveAssetGeneralInfoQueryOptions, getHiveAssetMetricQueryOptions, getHiveAssetTransactionsQueryOptions, getHiveAssetWithdrawalRoutesQueryOptions, getHiveEngineBalancesWithUsdQueryOptions, getHiveEngineMetrics, getHiveEngineOpenOrders, getHiveEngineOrderBook, getHiveEngineTokenGeneralInfoQueryOptions, getHiveEngineTokenMetrics, getHiveEngineTokenTransactions, getHiveEngineTokenTransactionsQueryOptions, getHiveEngineTokensBalances, getHiveEngineTokensBalancesQueryOptions, getHiveEngineTokensMarket, getHiveEngineTokensMarketQueryOptions, getHiveEngineTokensMetadata, getHiveEngineTokensMetadataQueryOptions, getHiveEngineTokensMetricsQueryOptions, getHiveEngineTradeHistory, getHiveEngineUnclaimedRewards, getHiveEngineUnclaimedRewardsQueryOptions, getHiveHbdStatsQueryOptions, getHivePoshLinksQueryOptions, getHivePowerAssetGeneralInfoQueryOptions, getHivePowerAssetTransactionsQueryOptions, getHivePowerDelegatesInfiniteQueryOptions, getHivePowerDelegatingsQueryOptions, getHivePrice, getImagesInfiniteQueryOptions, getImagesQueryOptions, getIncomingRcQueryOptions, getLarynxAssetGeneralInfoQueryOptions, getLarynxPowerAssetGeneralInfoQueryOptions, getMarketData, getMarketDataQueryOptions, getMarketHistoryQueryOptions, getMarketStatisticsQueryOptions, getMutedUsersQueryOptions, getNormalizePostQueryOptions, getNotificationSetting, getNotifications, getNotificationsInfiniteQueryOptions, getNotificationsSettingsQueryOptions, getNotificationsUnreadCountQueryOptions, getOpenOrdersQueryOptions, getOperationAuthority, getOrderBookQueryOptions, getOutgoingRcDelegationsInfiniteQueryOptions, getPageStatsQueryOptions, getPointsAssetGeneralInfoQueryOptions, getPointsAssetTransactionsQueryOptions, getPointsQueryOptions, getPortfolioQueryOptions, getPost, getPostHeader, getPostHeaderQueryOptions, getPostQueryOptions, getPostTipsQueryOptions, getPostsRanked, getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions, getProfiles, getProfilesQueryOptions, getPromotePriceQueryOptions, getPromotedPost, getPromotedPostsQuery, getProposalAuthority, getProposalQueryOptions, getProposalVotesInfiniteQueryOptions, getProposalsQueryOptions, getQueryClient, getRcStatsQueryOptions, getRebloggedByQueryOptions, getReblogsQueryOptions, getReceivedVestingSharesQueryOptions, getRecurrentTransfersQueryOptions, getReferralsInfiniteQueryOptions, getReferralsStatsQueryOptions, getRelationshipBetweenAccounts, getRelationshipBetweenAccountsQueryOptions, getRequiredAuthority, getRewardFundQueryOptions, getRewardedCommunitiesQueryOptions, getSavingsWithdrawFromQueryOptions, getSchedulesInfiniteQueryOptions, getSchedulesQueryOptions, getSearchAccountQueryOptions, getSearchAccountsByUsernameQueryOptions, getSearchApiInfiniteQueryOptions, getSearchFriendsQueryOptions, getSearchPathQueryOptions, getSearchTopicsQueryOptions, getSimilarEntriesQueryOptions, getSpkAssetGeneralInfoQueryOptions, getSpkMarkets, getSpkMarketsQueryOptions, getSpkWallet, getSpkWalletQueryOptions, getStatsQueryOptions, getSubscribers, getSubscriptions, getTradeHistoryQueryOptions, getTransactionsInfiniteQueryOptions, getTrendingTagsQueryOptions, getTrendingTagsWithStatsQueryOptions, getUserPostVoteQueryOptions, getUserProposalVotesQueryOptions, getVestingDelegationExpirationsQueryOptions, getVestingDelegationsQueryOptions, getVisibleFirstLevelThreadItems, getWavesByAccountQueryOptions, getWavesByHostQueryOptions, getWavesByTagQueryOptions, getWavesFollowingQueryOptions, getWavesTrendingAuthorsQueryOptions, getWavesTrendingTagsQueryOptions, getWithdrawRoutesQueryOptions, getWitnessesInfiniteQueryOptions, hsTokenRenew, initHiveTx, isCommunity, isEmptyDate, isInfoError, isNetworkError, isResourceCreditsError, isWif, isWrappedResponse, lookupAccountsQueryOptions, makeQueryClient, mapThreadItemsToWaveEntries, markNotifications, moveSchedule, normalizePost, normalizeToWrappedResponse, normalizeWaveEntryFromApi, onboardEmail, parseAccounts, parseAsset, parseChainError, parseProfileMetadata, powerRechargeTime, rcPower, removeOptimisticDiscussionEntry, resolveHiveOperationFilters, resolvePost, restoreDiscussionSnapshots, restoreEntryInCache, rewardSpk, roleMap, saveNotificationSetting, search, searchPath, searchQueryOptions, setHiveTxNodes, sha256, shouldTriggerAuthFallback, signUp, sortDiscussions, subscribeEmail, toEntryArray, updateDraft, updateEntryInCache, uploadImage, uploadImageWithSignature, useAccountFavoriteAdd, useAccountFavoriteDelete, useAccountRelationsUpdate, useAccountRevokeKey, useAccountRevokePosting, useAccountUpdate, useAccountUpdateKeyAuths, useAccountUpdatePassword, useAccountUpdateRecovery, useAddDraft, useAddFragment, useAddImage, useAddSchedule, useAiAssist, useBookmarkAdd, useBookmarkDelete, useBoostPlus, useBroadcastMutation, useClaimAccount, useClaimEngineRewards, useClaimInterest, useClaimPoints, useClaimRewards, useComment, useConvert, useCreateAccount, useCrossPost, useDelegateEngineToken, useDelegateRc, useDelegateVestingShares, useDeleteComment, useDeleteDraft, useDeleteImage, useDeleteSchedule, useEditFragment, useEngineMarketOrder, useFollow, useGameClaim, useGenerateImage, useGrantPostingPermission, useLimitOrderCancel, useLimitOrderCreate, useLockLarynx, useMarkNotificationsRead, useMoveSchedule, useMutePost, usePinPost, usePowerLarynx, usePromote, useProposalCreate, useProposalVote, useReblog, useRecordActivity, useRegisterCommunityRewards, useRemoveFragment, useSetCommunityRole, useSetLastRead, useSetWithdrawVestingRoute, useSignOperationByHivesigner, useSignOperationByKey, useSignOperationByKeychain, useStakeEngineToken, useSubscribeCommunity, useTransfer, useTransferEngineToken, useTransferFromSavings, useTransferLarynx, useTransferPoint, useTransferSpk, useTransferToSavings, useTransferToVesting, useUndelegateEngineToken, useUnfollow, useUnstakeEngineToken, useUnsubscribeCommunity, useUpdateCommunity, useUpdateDraft, useUpdateReply, useUploadImage, useVote, useWalletOperation, useWithdrawVesting, useWitnessProxy, useWitnessVote, usrActivity, validatePostCreating, verifyPostOnAlternateNode, vestsToHp, votingPower, votingValue };

@@ -3,6 +3,7 @@ import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 import { getPostsRanked } from "@/modules/bridge";
+import { callRPC } from "@/modules/core/hive-tx";
 
 type PageParam = {
   author: string | undefined;
@@ -34,7 +35,7 @@ export function getPostsRankedInfiniteQueryOptions(
         sanitizedTag = "";
       }
 
-      const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {
+      const response = await callRPC("bridge.get_ranked_posts", {
         sort,
         start_author: pageParam.author,
         start_permlink: pageParam.permlink,

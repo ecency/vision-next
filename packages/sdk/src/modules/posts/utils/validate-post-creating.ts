@@ -1,5 +1,5 @@
-import { CONFIG } from "@/modules/core";
 import { Entry } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export type ValidatePostCreatingOptions = {
   delays?: number[];
@@ -10,7 +10,7 @@ const DEFAULT_VALIDATE_POST_DELAYS = [3000, 3000, 3000];
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getContent(author: string, permlink: string): Promise<Entry> {
-  return CONFIG.hiveClient.call("condenser_api", "get_content", [
+  return callRPC("condenser_api.get_content", [
     author,
     permlink,
   ]) as Promise<Entry>;

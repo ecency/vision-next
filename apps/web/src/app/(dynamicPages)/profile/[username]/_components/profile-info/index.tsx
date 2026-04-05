@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import dayjs from "@/utils/dayjs";
-import { RCAccount } from "@hiveio/dhive/lib/chain/rc";
+import type { RCAccount } from "@ecency/sdk";
 import "./_index.scss";
 import { Account, FullAccount } from "@/entities";
 import { DEFAULT_DYNAMIC_PROPS } from "@/consts/default-dynamic-props";

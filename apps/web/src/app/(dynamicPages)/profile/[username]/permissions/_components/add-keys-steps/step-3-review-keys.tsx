@@ -109,8 +109,6 @@ export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBa
         return { label: "Keychain", className: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" };
       case "hivesigner":
         return { label: "HiveSigner", className: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" };
-      case "hiveauth":
-        return { label: "HiveAuth", className: "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300" };
       case "privateKey":
         return { label: i18next.t("permissions.add-keys.step3.derivation-private-key", { defaultValue: "Private Key" }), className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400" };
       default:

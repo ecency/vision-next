@@ -1,4 +1,5 @@
-import { AuthorityType, PublicKey } from "@hiveio/dhive";
+import { PublicKey } from "@ecency/hive-tx";
+import type { Authority } from "@ecency/hive-tx";
 import { FullAccount } from "../types";
 
 /**
@@ -7,7 +8,7 @@ import { FullAccount } from "../types";
  * would leave an authority unable to sign (especially for multisig).
  */
 export function canRevokeFromAuthority(
-  auth: AuthorityType,
+  auth: Authority,
   revokingKeyStrs: Set<string>
 ): boolean {
   const remainingWeight = auth.key_auths
@@ -39,13 +40,13 @@ export function buildRevokeKeysOp(
 ) {
   const revokingKeyStrs = new Set(revokingKeys.map((k) => k.toString()));
 
-  const hasAnyKeyInAuth = (auth: AuthorityType) =>
+  const hasAnyKeyInAuth = (auth: Authority) =>
     auth.key_auths.some(
       ([key]: [string | PublicKey, number]) => revokingKeyStrs.has(String(key))
     );
 
-  const prepareAuth = (auth: AuthorityType): AuthorityType => {
-    const clone: AuthorityType = JSON.parse(JSON.stringify(auth));
+  const prepareAuth = (auth: Authority): Authority => {
+    const clone: Authority = JSON.parse(JSON.stringify(auth));
     clone.key_auths = clone.key_auths.filter(
       ([key]) => !revokingKeyStrs.has(key.toString())
     );

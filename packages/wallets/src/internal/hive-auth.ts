@@ -1,4 +1,5 @@
-import type { Operation, TransactionConfirmation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
+import type { TransactionConfirmation } from "@ecency/sdk";
 
 type HiveAuthKeyType = "posting" | "active";
 

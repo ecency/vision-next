@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("@hiveio/dhive", () => {
+vi.mock("@ecency/hive-tx", () => {
   let callCount = 0;
   return {
     PrivateKey: {

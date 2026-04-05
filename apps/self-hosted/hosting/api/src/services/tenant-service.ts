@@ -3,13 +3,14 @@
  */
 
 import { db } from '../db/client';
-import { Client } from '@hiveio/dhive';
+import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
 import { Tenant, TenantRow, mapTenantFromDb } from '../../types';
 
 // Re-export Tenant type for backward compatibility
 export type { Tenant } from '../../types';
 
-const hiveClient = new Client(process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog']);
+// Configure hive-tx nodes
+hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 
 export const TenantService = {
@@ -233,8 +234,8 @@ export const TenantService = {
    */
   async verifyHiveAccount(username: string): Promise<boolean> {
     try {
-      const accounts = await hiveClient.database.getAccounts([username]);
-      return accounts.length > 0;
+      const accounts = await callRPC('condenser_api.get_accounts', [[username]]) as any[];
+      return Array.isArray(accounts) && accounts.length > 0;
     } catch {
       return false;
     }

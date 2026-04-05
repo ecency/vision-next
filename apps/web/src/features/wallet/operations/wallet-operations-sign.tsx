@@ -2,9 +2,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { Button, FormControl, InputGroup } from "@/features/ui";
 import { MetaMaskSignButton } from "@/features/shared";
-import { AssetOperation, CONFIG, useWalletOperation } from "@ecency/sdk";
+import { AssetOperation, broadcastOperations, useWalletOperation } from "@ecency/sdk";
 import type { AuthContextV2 } from "@ecency/sdk";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import { isWif } from "@ecency/sdk";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
 import i18next from "i18next";
@@ -12,7 +13,7 @@ import hs from "hivesigner";
 import Image from "next/image";
 import { useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { WalletOperationSigning } from "./wallet-operations-signing";
-import { shouldUseHiveAuth, shouldUseKeychainMobile, broadcastWithHiveAuth } from "@/utils/client";
+import { shouldUseKeychainMobile } from "@/utils/client";
 import { getLoginType } from "@/utils/user-token";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { buildHsCallbackUrl } from "@/utils/hs-callback";
@@ -31,16 +32,11 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
   const hasKeyChain = useGlobalStore((state) => state.hasKeyChain);
   const signingKey = useGlobalStore((state) => state.signingKey);
   const setSigningKey = useGlobalStore((state) => state.setSigningKey);
-  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
-  const canUseKeychain = hasKeyChain || useHiveAuth || useKcMobile;
-  const keychainIcon = (useHiveAuth && !useKcMobile) ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainAlt = (useHiveAuth && !useKcMobile) ? "hiveauth" : "keychain";
+  const canUseKeychain = hasKeyChain || useKcMobile;
   const keychainLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
-    : useHiveAuth
-      ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
-      : i18next.t("key-or-hot.with-keychain");
+    : i18next.t("key-or-hot.with-keychain");
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
 
   const [step, setStep] = useState<"sign" | "signing">("sign");
@@ -57,7 +53,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         const { method, key } = signMethodRef.current;
 
         if (method === "key" && key) {
-          return CONFIG.hiveClient.broadcast.sendOperations(operations, key);
+          return broadcastOperations(operations, key);
         }
 
         if (method === "metamask") {
@@ -78,13 +74,6 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
           });
         }
 
-        if (method === "hiveauth" || useHiveAuth) {
-          if (authority === "active" || authority === "posting") {
-            return broadcastWithHiveAuth(activeUser.username, operations, authority);
-          }
-          throw new Error(`[SDK][Auth] – unsupported authority "${authority}" for HiveAuth`);
-        }
-
         if (method === "keychain" || hasKeyChain) {
           // Route through adapter's broadcastWithKeychain which handles
           // keychain-mobile deep links, MetaMask snap, and browser extension
@@ -99,7 +88,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
         throw new Error("[SDK][Wallets] – missing broadcaster");
       }
     };
-  }, [activeUser, useHiveAuth, hasKeyChain]);
+  }, [activeUser, hasKeyChain]);
 
   const {
     mutateAsync: sign,
@@ -130,7 +119,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
     }
 
     let key: PrivateKey;
-    if (cryptoUtils.isWif(signingKey)) {
+    if (isWif(signingKey)) {
       key = PrivateKey.fromString(signingKey);
     } else {
       key = PrivateKey.fromLogin(activeUser.username, signingKey);
@@ -209,7 +198,7 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                 size="lg"
                 disabled={!canUseKeychain}
                 onClick={() => {
-                  const method = useKcMobile ? "keychain" : useHiveAuth ? "hiveauth" : "keychain";
+                  const method = "keychain";
                   signMethodRef.current = { method };
                   sign(data as any);
                   setStep("signing");
@@ -218,9 +207,9 @@ export function WalletOperationSign({ data, onSignError, onSignSuccess, asset, o
                   <Image
                     width={100}
                     height={100}
-                    src={keychainIcon}
+                    src="/assets/keychain.png"
                     className="w-4 h-4"
-                    alt={keychainAlt}
+                    alt="keychain"
                   />
                 }
               >

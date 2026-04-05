@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { TrendingTag } from "@/modules/posts/types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getSearchTopicsQueryOptions(q: string, limit = 10) {
   const normalized = q.trim();
@@ -8,7 +9,7 @@ export function getSearchTopicsQueryOptions(q: string, limit = 10) {
   return queryOptions({
     queryKey: QueryKeys.search.topics(normalized, limit),
     queryFn: async (): Promise<string[]> => {
-      const tags = (await CONFIG.hiveClient.database.call("get_trending_tags", [
+      const tags = (await callRPC("condenser_api.get_trending_tags", [
         normalized,
         limit + 1,
       ])) as TrendingTag[];

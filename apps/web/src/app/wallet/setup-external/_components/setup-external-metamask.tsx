@@ -15,7 +15,8 @@ import {
   type WalletAddressMap
 } from "@ecency/wallets";
 import { getAccountFullQueryOptions, checkUsernameWalletsPendingQueryOptions } from "@ecency/sdk";
-import { Client, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import { broadcastOperations } from "@ecency/sdk";
 import {
   UilArrowLeft,
   UilArrowUpRight,
@@ -255,21 +256,20 @@ function SetupExternalMetamaskInner({ username, onBack }: Props & { username: st
         const updatedActive = addKeyToAuth(accountData.active, hivePublicKeys["active"]);
         const updatedPosting = addKeyToAuth(accountData.posting, hivePublicKeys["posting"]);
 
-        const hiveClient = new Client([
-          "https://api.hive.blog",
-          "https://api.deathwing.me",
-          "https://rpc.mahdiyari.info"
-        ]);
-
-        await hiveClient.broadcast.updateAccount(
-          {
-            account: username,
-            json_metadata: accountData.json_metadata ?? "",
-            owner: updatedOwner,
-            active: updatedActive,
-            posting: updatedPosting,
-            memo_key: hivePublicKeys["memo"] ?? accountData.memo_key
-          },
+        await broadcastOperations(
+          [
+            [
+              "account_update",
+              {
+                account: username,
+                json_metadata: accountData.json_metadata ?? "",
+                owner: updatedOwner,
+                active: updatedActive,
+                posting: updatedPosting,
+                memo_key: hivePublicKeys["memo"] ?? accountData.memo_key
+              }
+            ]
+          ],
           currentKey
         );
 

@@ -1,8 +1,8 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { ProposalVote } from "../types";
 import { FullAccount } from "@/modules/accounts";
 import { parseAccounts } from "@/modules/accounts/utils";
+import { callRPC } from "@/modules/core/hive-tx";
 
 // One page = array of enriched vote rows
 export type ProposalVoteRow = {
@@ -34,7 +34,7 @@ export function getProposalVotesInfiniteQueryOptions(
     queryFn: async ({ pageParam }: { pageParam: Cursor }) => {
       const startParam = pageParam ?? voter;
 
-      const response = (await CONFIG.hiveClient.call("condenser_api", "list_proposal_votes", [
+      const response = (await callRPC("condenser_api.list_proposal_votes", [
         [proposalId, startParam],
         limit,
         "by_proposal_voter",
@@ -44,7 +44,7 @@ export function getProposalVotesInfiniteQueryOptions(
         .filter((x) => x.proposal?.proposal_id === proposalId)
         .map((x) => ({ id: x.id, voter: x.voter }));
 
-      const rawAccounts = await CONFIG.hiveClient.database.getAccounts(list.map((l) => l.voter));
+      const rawAccounts = await callRPC("condenser_api.get_accounts", [list.map((l) => l.voter)]);
       const accounts = parseAccounts(rawAccounts);
 
       const page: ProposalVoteRow[] = list.map((i) => ({

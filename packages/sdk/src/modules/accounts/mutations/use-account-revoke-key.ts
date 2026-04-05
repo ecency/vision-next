@@ -1,12 +1,12 @@
-import { PrivateKey, PublicKey } from "@hiveio/dhive";
+import { PrivateKey, PublicKey } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
-import { CONFIG } from "@/modules/core";
 import { buildRevokeKeysOp } from "./build-revoke-keys-op";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 interface Payload {
   currentKey: PrivateKey;
@@ -44,7 +44,7 @@ export function useAccountRevokeKey(
       const revokingKeys = Array.isArray(revokingKey) ? revokingKey : [revokingKey];
       const op = buildRevokeKeysOp(accountData, revokingKeys);
 
-      return CONFIG.hiveClient.broadcast.updateAccount(op, currentKey);
+      return broadcastOperations([["account_update", op]], currentKey);
     },
     ...options,
   });

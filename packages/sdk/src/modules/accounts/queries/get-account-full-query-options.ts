@@ -1,4 +1,3 @@
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import {
   AccountFollowStats,
@@ -7,6 +6,7 @@ import {
 } from "../types";
 import { parseProfileMetadata } from "@/modules/accounts";
 import { queryOptions } from "@tanstack/react-query";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
@@ -16,9 +16,9 @@ export function getAccountFullQueryOptions(username: string | undefined) {
         throw new Error("[SDK] Username is empty");
       }
 
-      const response = (await CONFIG.hiveClient.database.getAccounts([
+      const response = (await callRPC("condenser_api.get_accounts", [[
         username,
-      ])) as any[];
+      ]])) as any[];
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
@@ -27,19 +27,12 @@ export function getAccountFullQueryOptions(username: string | undefined) {
 
       let follow_stats: AccountFollowStats | undefined;
       try {
-        follow_stats = await CONFIG.hiveClient.database.call(
-          "get_follow_count",
-          [username]
-        );
+        follow_stats = await callRPC("condenser_api.get_follow_count", [username]);
       } catch (e) {}
 
       let reputationValue = 0;
       try {
-        const reputation = (await CONFIG.hiveClient.call(
-          "condenser_api",
-          "get_account_reputations",
-          [username, 1]
-        )) as AccountReputation[];
+        const reputation = (await callRPC("condenser_api.get_account_reputations", [username, 1])) as AccountReputation[];
         reputationValue = reputation[0]?.reputation ?? 0;
       } catch (e) {}
 

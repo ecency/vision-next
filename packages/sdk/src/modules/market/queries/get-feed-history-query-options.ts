@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export interface FeedHistoryItem {
   id: number;
@@ -34,7 +34,7 @@ export function getFeedHistoryQueryOptions() {
     queryKey: ["market", "feed-history"],
     queryFn: async () => {
       try {
-        const feedHistory = await CONFIG.hiveClient.database.call("get_feed_history");
+        const feedHistory = await callRPC("condenser_api.get_feed_history", []);
         return feedHistory as FeedHistoryItem;
       } catch (error) {
         throw error;

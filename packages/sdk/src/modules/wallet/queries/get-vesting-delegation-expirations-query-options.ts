@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { VestingDelegationExpiration } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get expiring vesting delegations for an account.
@@ -19,11 +19,7 @@ export function getVestingDelegationExpirationsQueryOptions(username?: string) {
     queryKey: ["wallet", "vesting-delegation-expirations", username],
     queryFn: async () => {
       if (!username) return [];
-      const result = await CONFIG.hiveClient.call(
-        "database_api",
-        "find_vesting_delegation_expirations",
-        { account: username }
-      ) as { delegations: VestingDelegationExpiration[] };
+      const result = await callRPC("database_api.find_vesting_delegation_expirations", { account: username }) as { delegations: VestingDelegationExpiration[] };
       return result.delegations;
     },
     enabled: !!username,

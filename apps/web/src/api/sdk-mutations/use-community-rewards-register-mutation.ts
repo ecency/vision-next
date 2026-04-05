@@ -9,7 +9,7 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
  *
  * Wraps the SDK's useRegisterCommunityRewards mutation with web-specific logic:
  * - Integrates with web global store for current user
- * - Uses web broadcast adapter for auth (HiveSigner, Keychain, HiveAuth, private keys)
+ * - Uses web broadcast adapter for auth (HiveSigner, Keychain, private keys)
  * - Automatically invalidates community cache and points balance after registration
  *
  * @returns Mutation result with community rewards registration function from SDK

@@ -1,6 +1,6 @@
-import { utils } from "@hiveio/dhive";
+import { utils } from "@ecency/hive-tx";
 import { HiveOperationGroup } from "../types";
-const ops = utils.operationOrders;
+const ops = utils.operations;
 
 export const HIVE_ACCOUNT_OPERATION_GROUPS: Record<
   HiveOperationGroup,

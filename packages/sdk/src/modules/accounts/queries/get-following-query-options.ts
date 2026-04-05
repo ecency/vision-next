@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Follow } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get list of accounts that a user is following
@@ -20,7 +20,7 @@ export function getFollowingQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.accounts.following(follower, startFollowing, followType, limit),
     queryFn: () =>
-      CONFIG.hiveClient.database.call("get_following", [
+      callRPC("condenser_api.get_following", [
         follower,
         startFollowing,
         followType,

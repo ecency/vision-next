@@ -51,8 +51,6 @@ export function ManageKey({ keyName, onRevoke }: Props) {
         return { label: "Keychain", className: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" };
       case "hivesigner":
         return { label: "HiveSigner", className: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" };
-      case "hiveauth":
-        return { label: "HiveAuth", className: "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300" };
       default:
         return null;
     }

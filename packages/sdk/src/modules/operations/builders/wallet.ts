@@ -1,4 +1,4 @@
-import { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 /**
  * Wallet Operations

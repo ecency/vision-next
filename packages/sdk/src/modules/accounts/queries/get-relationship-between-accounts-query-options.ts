@@ -1,6 +1,7 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { AccountRelationship } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getRelationshipBetweenAccountsQueryOptions(
   reference: string,
@@ -12,11 +13,7 @@ export function getRelationshipBetweenAccountsQueryOptions(
     refetchOnMount: false,
     refetchInterval: 3_600_000,
     queryFn: async () => {
-      return (await CONFIG.hiveClient.call(
-        "bridge",
-        "get_relationship_between_accounts",
-        [reference, target]
-      )) as AccountRelationship;
+      return (await callRPC("bridge.get_relationship_between_accounts", [reference, target])) as AccountRelationship;
     },
   });
 }

@@ -1,14 +1,14 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { isCommunity } from "@/modules/core/utils";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { TrendingTag } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getTrendingTagsWithStatsQueryOptions(limit = 250) {
   return infiniteQueryOptions({
     queryKey: QueryKeys.posts.trendingTagsWithStats(limit),
     queryFn: async ({ pageParam: { afterTag } }) =>
-      CONFIG.hiveClient.database
-        .call("get_trending_tags", [afterTag, limit])
+      callRPC("condenser_api.get_trending_tags", [afterTag, limit])
         .then((tags: TrendingTag[]) =>
           tags.filter((tag) => tag.name !== "").filter((tag) => !isCommunity(tag.name))
         ),
