@@ -1,8 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleIndexRedirect, isIndexRedirect } from "@/features/next-middleware";
 
+const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
+
 export function middleware(request: NextRequest) {
-  if (request.method !== "GET") return;
+  const { pathname } = request.nextUrl;
+  const method = request.method;
+
+  // Reject write methods on page routes up-front. Without this, an unhandled
+  // POST/PUT/DELETE/PATCH to a page URL (most commonly POST / from bots or
+  // from the landing-page subscribe form falling back to native submit when
+  // JS fails) still engages the Next.js request pipeline — reading the body,
+  // stepping through rewrites, invoking render code — and can pin the event
+  // loop for minutes under slow-loris style bodies. Returning 405 from the
+  // Edge middleware short-circuits before any body is read.
+  //
+  // Carve-outs:
+  //   - /api/*       — route handlers that explicitly accept write methods
+  //   - /pl/*        — Plausible analytics proxy (see next.config.js rewrites)
+  //   - next-action  — reserved for future Next.js Server Actions
+  const isWriteMethod =
+    method === "POST" || method === "PUT" || method === "DELETE" || method === "PATCH";
+  if (isWriteMethod) {
+    const isApiRoute = pathname.startsWith("/api/");
+    const isPlausibleProxy = pathname.startsWith("/pl/");
+    const isServerAction = request.headers.has("next-action");
+    if (!isApiRoute && !isPlausibleProxy && !isServerAction) {
+      return new NextResponse(null, {
+        status: 405,
+        headers: METHOD_NOT_ALLOWED_HEADERS
+      });
+    }
+  }
+
+  if (method !== "GET") return;
 
   if (isIndexRedirect(request)) {
     return handleIndexRedirect(request);

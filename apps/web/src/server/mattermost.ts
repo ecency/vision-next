@@ -60,28 +60,57 @@ function getAdminHeaders() {
   } as const;
 }
 
+// Upstream Mattermost calls can hang indefinitely when the MM server is slow
+// or down. Unbounded, they pin the Node event loop (and the response buffers,
+// RPC clients, and closures they hold) until the container is healthcheck-killed.
+// A hard per-call timeout gives every call a bounded lifetime while still
+// honouring a caller-supplied AbortSignal (e.g. request-scoped cancellation).
+const MM_FETCH_TIMEOUT_MS = Number(process.env.MM_FETCH_TIMEOUT_MS) || 10_000;
+
 async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const base = requireEnv(MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
-  const res = await fetch(`${base}${path}`, {
-    ...init,
-    headers: {
-      ...(init?.headers || {}),
-      Accept: "application/json"
+
+  const timeoutSignal = AbortSignal.timeout(MM_FETCH_TIMEOUT_MS);
+  const signal = init?.signal
+    ? AbortSignal.any([init.signal, timeoutSignal])
+    : timeoutSignal;
+
+  try {
+    const res = await fetch(`${base}${path}`, {
+      ...init,
+      headers: {
+        ...(init?.headers || {}),
+        Accept: "application/json"
+      },
+      signal
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
     }
-  });
 
-  if (!res.ok) {
     const text = await res.text();
-    throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
+
+    if (!text) {
+      return undefined as T;
+    }
+
+    return JSON.parse(text) as T;
+  } catch (err) {
+    // AbortSignal.timeout aborts with a DOMException whose name is "TimeoutError";
+    // this can fire during either the initial fetch or the body read. Either way,
+    // surface it as a MattermostError so handleMattermostError maps it to 504
+    // Gateway Timeout rather than leaking a generic 500. Caller-originated aborts
+    // (AbortError) are left alone so request-scoped cancellation still propagates.
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new MattermostError(
+        `Mattermost request timed out after ${MM_FETCH_TIMEOUT_MS}ms (${path})`,
+        504
+      );
+    }
+    throw err;
   }
-
-  const text = await res.text();
-
-  if (!text) {
-    return undefined as T;
-  }
-
-  return JSON.parse(text) as T;
 }
 
 export async function reactivateMattermostUser(userId: string): Promise<void> {
