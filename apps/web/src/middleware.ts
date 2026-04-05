@@ -1,9 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import {
   buildCacheControlHeader,
+  getCachedPostCreatedMs,
   getCachePolicyForPath,
+  getEntryTierForAge,
   handleIndexRedirect,
-  isIndexRedirect
+  isIndexRedirect,
+  parseEntryUrl,
+  refreshPostCreatedMs
 } from "@/features/next-middleware";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 
@@ -11,7 +15,7 @@ const CACHE_HEADERS_ENABLED = process.env.ENABLE_HTML_CACHE_HEADERS === "true";
 
 const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
 
-export function middleware(request: NextRequest) {
+export function middleware(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
@@ -83,17 +87,42 @@ export function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
-  applyCacheHeaders(request, response, path);
+  applyCacheHeaders(request, response, path, event);
   return response;
 }
 
-function applyCacheHeaders(request: NextRequest, response: NextResponse, path: string) {
+function applyCacheHeaders(
+  request: NextRequest,
+  response: NextResponse,
+  path: string,
+  event: NextFetchEvent
+) {
   if (!CACHE_HEADERS_ENABLED) return;
 
-  const policy = getCachePolicyForPath(path);
-  if (!policy) return;
+  const basePolicy = getCachePolicyForPath(path);
+  if (!basePolicy) return;
 
   const isLoggedIn = request.cookies.has(ACTIVE_USER_COOKIE_NAME);
+
+  // For entry pages, try to refine TTL based on post age. Cache-miss here is
+  // non-blocking: we set the default entry tier immediately and populate the
+  // cache in the background for the next request.
+  let policy = basePolicy;
+  if (basePolicy.tier === "entry" && !isLoggedIn) {
+    const parsed = parseEntryUrl(path);
+    if (parsed) {
+      const createdMs = getCachedPostCreatedMs(parsed.author, parsed.permlink);
+      if (typeof createdMs === "number") {
+        policy = getEntryTierForAge(Date.now() - createdMs);
+      } else if (createdMs === undefined) {
+        // Not in cache — kick off background fetch, keep the default tier
+        // for this response. Next request benefits from the cached value.
+        event.waitUntil(refreshPostCreatedMs(parsed.author, parsed.permlink));
+      }
+      // createdMs === null means negative-cached; keep default tier
+    }
+  }
+
   response.headers.set("Cache-Control", buildCacheControlHeader(policy, isLoggedIn));
   response.headers.set("x-cache-tier", isLoggedIn ? "logged-in" : policy.tier);
   // NOTE: we deliberately do NOT emit `Vary: Cookie`. That would fragment the

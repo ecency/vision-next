@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildCacheControlHeader, getCachePolicyForPath } from "@/features/next-middleware";
+import {
+  buildCacheControlHeader,
+  getCachePolicyForPath,
+  getEntryTierForAge,
+  parseEntryUrl
+} from "@/features/next-middleware";
+
+const DAY = 86400_000;
 
 describe("getCachePolicyForPath", () => {
   describe("no-cache paths", () => {
@@ -45,7 +52,6 @@ describe("getCachePolicyForPath", () => {
       "/privacy-policy",
       "/terms-of-service",
       "/whitepaper",
-      "/guest-post",
       "/mobile"
     ])("returns static tier for %s", (path) => {
       const policy = getCachePolicyForPath(path);
@@ -127,11 +133,19 @@ describe("getCachePolicyForPath", () => {
       expect(policy).toEqual({ tier: "profile", sMaxAge: 300, staleWhileRevalidate: 3600 });
     });
 
-    it.each(["posts", "blog", "comments", "replies", "communities", "trail", "insights", "feed"])(
+    it.each(["posts", "blog", "comments", "replies", "communities", "insights"])(
       "returns profile tier for /@alice/%s",
       (section) => {
         const policy = getCachePolicyForPath(`/@alice/${section}`);
         expect(policy?.tier).toBe("profile");
+      }
+    );
+
+    it.each(["feed", "trail"])(
+      "returns profile-feed tier for /@alice/%s (aggregates content from other users)",
+      (section) => {
+        const policy = getCachePolicyForPath(`/@alice/${section}`);
+        expect(policy).toEqual({ tier: "profile-feed", sMaxAge: 60, staleWhileRevalidate: 300 });
       }
     );
   });
@@ -201,5 +215,132 @@ describe("buildCacheControlHeader", () => {
       false
     );
     expect(header).toBe("private, no-store");
+  });
+});
+
+describe("getEntryTierForAge", () => {
+  it("returns entry-fresh for posts under 1 day old", () => {
+    expect(getEntryTierForAge(0)).toEqual({
+      tier: "entry-fresh",
+      sMaxAge: 60,
+      staleWhileRevalidate: 300
+    });
+    expect(getEntryTierForAge(DAY - 1)).toEqual({
+      tier: "entry-fresh",
+      sMaxAge: 60,
+      staleWhileRevalidate: 300
+    });
+  });
+
+  it("returns entry-week for posts 1-7 days old", () => {
+    expect(getEntryTierForAge(DAY)).toEqual({
+      tier: "entry-week",
+      sMaxAge: 3600,
+      staleWhileRevalidate: 86400
+    });
+    expect(getEntryTierForAge(6 * DAY)).toEqual({
+      tier: "entry-week",
+      sMaxAge: 3600,
+      staleWhileRevalidate: 86400
+    });
+  });
+
+  it("returns entry-month for posts 7-30 days old", () => {
+    expect(getEntryTierForAge(7 * DAY)).toEqual({
+      tier: "entry-month",
+      sMaxAge: 86400,
+      staleWhileRevalidate: 604800
+    });
+    expect(getEntryTierForAge(29 * DAY)).toEqual({
+      tier: "entry-month",
+      sMaxAge: 86400,
+      staleWhileRevalidate: 604800
+    });
+  });
+
+  it("returns entry-archive for posts 30-60 days old", () => {
+    expect(getEntryTierForAge(30 * DAY)).toEqual({
+      tier: "entry-archive",
+      sMaxAge: 2592000,
+      staleWhileRevalidate: 604800
+    });
+    expect(getEntryTierForAge(59 * DAY)).toEqual({
+      tier: "entry-archive",
+      sMaxAge: 2592000,
+      staleWhileRevalidate: 604800
+    });
+  });
+
+  it("returns entry-ancient for posts over 60 days old", () => {
+    expect(getEntryTierForAge(60 * DAY)).toEqual({
+      tier: "entry-ancient",
+      sMaxAge: 2592000,
+      staleWhileRevalidate: 5184000
+    });
+    expect(getEntryTierForAge(365 * DAY)).toEqual({
+      tier: "entry-ancient",
+      sMaxAge: 2592000,
+      staleWhileRevalidate: 5184000
+    });
+  });
+
+  it("treats negative age (future-dated) as fresh", () => {
+    expect(getEntryTierForAge(-1000).tier).toBe("entry-fresh");
+  });
+});
+
+describe("parseEntryUrl", () => {
+  it("parses /:category/@author/:permlink", () => {
+    expect(parseEntryUrl("/photography/@alice/my-post")).toEqual({
+      author: "alice",
+      permlink: "my-post"
+    });
+  });
+
+  it("parses /:category/@author/:permlink/:sub", () => {
+    expect(parseEntryUrl("/photography/@alice/my-post/comments")).toEqual({
+      author: "alice",
+      permlink: "my-post"
+    });
+  });
+
+  it("parses /@author/:permlink (short form)", () => {
+    expect(parseEntryUrl("/@alice/my-post-slug")).toEqual({
+      author: "alice",
+      permlink: "my-post-slug"
+    });
+  });
+
+  it("returns null for profile root /@author", () => {
+    expect(parseEntryUrl("/@alice")).toBeNull();
+  });
+
+  it.each([
+    "posts",
+    "blog",
+    "comments",
+    "replies",
+    "communities",
+    "insights",
+    "rss",
+    "wallet",
+    "settings",
+    "feed",
+    "trail"
+  ])("returns null for profile section /@alice/%s", (section) => {
+    expect(parseEntryUrl(`/@alice/${section}`)).toBeNull();
+  });
+
+  it("returns null for non-entry paths", () => {
+    expect(parseEntryUrl("/discover")).toBeNull();
+    expect(parseEntryUrl("/")).toBeNull();
+    expect(parseEntryUrl("/hot/photography")).toBeNull();
+  });
+
+  it("handles trailing slash", () => {
+    expect(parseEntryUrl("/photography/@alice/my-post/")).toEqual({
+      author: "alice",
+      permlink: "my-post"
+    });
   });
 });

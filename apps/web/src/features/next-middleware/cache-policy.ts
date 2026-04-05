@@ -4,11 +4,9 @@
  * Returns the Cache-Control tier that should be applied to a given pathname,
  * or null if no policy applies (middleware will leave the response untouched).
  *
- * Entry (post) pages use a single conservative tier from the URL alone.
- * Per-post-age refinement (30d for old posts, etc.) should be done at the
- * Cloudflare worker layer, which can fetch post metadata on cache-miss and
- * rewrite Cache-Control based on the post's created date. See
- * docs/cache/cloudflare-worker.md.
+ * Entry (post) pages use a conservative default tier derived from URL alone.
+ * When the post's created date is known (via post-age-cache), the tier is
+ * refined by age — see `getEntryTierForAge` and `post-age-cache.ts`.
  *
  * All TTLs are expressed for shared caches (Nginx, Cloudflare):
  *   - max-age=0          → browsers always revalidate HTML
@@ -46,6 +44,20 @@ const NO_CACHE_PREFIXES = [
 /** Profile subsections that must never be edge-cached. */
 const NO_CACHE_PROFILE_SECTIONS = new Set(["wallet", "settings", "permissions", "referrals"]);
 
+/**
+ * Profile subsections that aggregate content from OTHER users (not the
+ * profile owner's authored content). Update faster than profile-owned
+ * sections and get the feed tier instead of the profile tier.
+ *
+ * - `feed`  rewrites to the personalized feed route (/feed/feed/:author),
+ *           which falls back to the ecency observer for anonymous viewers.
+ *           Content is deterministic per URL for anon, but it's a feed of
+ *           posts from followed users and should refresh on feed cadence.
+ * - `trail` shows the user's curation trail (votes on others' posts),
+ *           which also updates faster than authored content.
+ */
+const PROFILE_FEED_SECTIONS = new Set(["feed", "trail"]);
+
 /** Static content pages — effectively permanent. */
 const STATIC_PAGES = new Set([
   "/faq",
@@ -55,7 +67,6 @@ const STATIC_PAGES = new Set([
   "/privacy-policy",
   "/terms-of-service",
   "/whitepaper",
-  "/guest-post",
   "/mobile"
 ]);
 
@@ -135,6 +146,9 @@ export function getCachePolicyForPath(pathname: string): CachePolicy | null {
     if (section && NO_CACHE_PROFILE_SECTIONS.has(section)) {
       return { tier: NO_CACHE_TIER, sMaxAge: 0, staleWhileRevalidate: 0 };
     }
+    if (section && PROFILE_FEED_SECTIONS.has(section)) {
+      return { tier: "profile-feed", sMaxAge: 60, staleWhileRevalidate: 300 };
+    }
     return { tier: "profile", sMaxAge: 300, staleWhileRevalidate: 3600 };
   }
 
@@ -168,4 +182,85 @@ export function buildCacheControlHeader(policy: CachePolicy, isLoggedIn: boolean
     return "private, no-store";
   }
   return `public, max-age=0, s-maxage=${policy.sMaxAge}, stale-while-revalidate=${policy.staleWhileRevalidate}`;
+}
+
+const DAY_MS = 86400_000;
+
+/**
+ * Refine the entry-page tier based on post age.
+ *
+ * Older posts change much less and tolerate far longer caching. On Hive,
+ * posts are frozen (payout-wise) after 7 days; comments can still accrue
+ * indefinitely but are rare on archived content. Anonymous viewers may see
+ * up to (s-maxage + swr) of staleness, which is the deliberate tradeoff for
+ * the hit-ratio wins.
+ *
+ * Tiers (agreed with user 2026-04-05):
+ *   < 1d     : 60s / 300s     (active editing, voting)
+ *   1-7d     : 1h  / 1d        (in payout window)
+ *   7-30d    : 1d  / 7d        (paid out, comments still active)
+ *   30-60d   : 30d / 7d        (stable archive)
+ *   > 60d    : 30d / 60d       (ancient — softer cap than 1y for bounded staleness)
+ */
+export function getEntryTierForAge(ageMs: number): CachePolicy {
+  if (ageMs < 0) {
+    // Future-dated (shouldn't happen) — treat as fresh
+    return { tier: "entry-fresh", sMaxAge: 60, staleWhileRevalidate: 300 };
+  }
+  const ageDays = ageMs / DAY_MS;
+  if (ageDays < 1) {
+    return { tier: "entry-fresh", sMaxAge: 60, staleWhileRevalidate: 300 };
+  }
+  if (ageDays < 7) {
+    return { tier: "entry-week", sMaxAge: 3600, staleWhileRevalidate: 86400 };
+  }
+  if (ageDays < 30) {
+    return { tier: "entry-month", sMaxAge: 86400, staleWhileRevalidate: 604800 };
+  }
+  if (ageDays < 60) {
+    return { tier: "entry-archive", sMaxAge: 2592000, staleWhileRevalidate: 604800 };
+  }
+  return { tier: "entry-ancient", sMaxAge: 2592000, staleWhileRevalidate: 5184000 };
+}
+
+/**
+ * Extract author and permlink from an entry-page URL.
+ *
+ * Matches:
+ *   /:category/@author/:permlink          → {category, author, permlink}
+ *   /:category/@author/:permlink/:sub     → {category, author, permlink}
+ *   /@author/:permlink                    → {author, permlink} (rewrites to /entry/created/...)
+ *
+ * Excludes profile sections (/@author/posts, /@author/wallet, etc.) which
+ * have exactly 2 segments where the second is a known section.
+ */
+export function parseEntryUrl(
+  path: string
+): { author: string; permlink: string } | null {
+  // Strip trailing slash
+  const p = path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  const segments = p.split("/").filter(Boolean);
+
+  // /:category/@author/:permlink[/...]
+  if (segments.length >= 3 && segments[1].startsWith("@")) {
+    const author = segments[1].slice(1);
+    const permlink = segments[2];
+    if (author && permlink) return { author, permlink };
+  }
+
+  // /@author/:permlink (rewrites to entry)
+  if (segments.length === 2 && segments[0].startsWith("@")) {
+    const second = segments[1];
+    if (
+      NO_CACHE_PROFILE_SECTIONS.has(second) ||
+      PROFILE_FEED_SECTIONS.has(second) ||
+      ["posts", "blog", "comments", "replies", "communities", "insights", "rss", "rss.xml"].includes(second)
+    ) {
+      return null; // profile section, not an entry
+    }
+    const author = segments[0].slice(1);
+    if (author) return { author, permlink: second };
+  }
+
+  return null;
 }
