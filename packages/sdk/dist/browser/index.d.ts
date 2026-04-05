@@ -7525,13 +7525,12 @@ declare function getProfiles(accounts: string[], observer?: string): Promise<Pro
 
 /**
  * When the primary node returns null for a get_post call,
- * verify using quorum consensus across multiple nodes before
- * concluding the post is truly deleted.
+ * verify by querying multiple random nodes. If any node
+ * returns the post, it exists (the first node was lagging).
  *
- * Uses callWithQuorum which queries random nodes and requires
- * agreement from at least 2 nodes - if 2 nodes agree the post
- * exists, we trust it. If 2 agree it's null, it's really gone.
- * This is stronger than the old "try 2 alternate nodes" approach.
+ * Uses callWithQuorum(quorum=1) which shuffles and queries
+ * nodes in batches. Since it shuffles, it's unlikely to hit
+ * the same node that just returned null first.
  */
 declare function verifyPostOnAlternateNode(author: string, permlink: string, observer: string): Promise<Entry$1 | null>;
 

@@ -21,13 +21,26 @@ vi.mock("i18next", () => ({
   }
 }));
 
+vi.mock("@ecency/hive-tx", () => ({
+  PrivateKey: { fromString: vi.fn(), fromLogin: vi.fn(), from: vi.fn() },
+  PublicKey: { fromString: vi.fn(), from: vi.fn() },
+  Signature: { from: vi.fn() },
+  Transaction: vi.fn(),
+  Memo: { encode: vi.fn(), decode: vi.fn() },
+  callRPC: vi.fn(),
+  callRPCBroadcast: vi.fn(),
+  callREST: vi.fn(),
+  callWithQuorum: vi.fn(),
+  config: { nodes: [], timeout: 1000, address_prefix: "STM" },
+  utils: { operations: {}, makeBitMaskFilter: vi.fn() },
+}));
+
 vi.mock("@ecency/sdk", () => ({
   ConfigManager: { setQueryClient: vi.fn() },
   CONFIG: {
-    hiveClient: {
-      database: { call: vi.fn() },
-      broadcast: { sendOperations: vi.fn() }
-    }
+    hiveNodes: [],
+    privateApiHost: "https://ecency.com",
+    imageHost: "https://images.ecency.com",
   },
   getBookmarksQueryOptions: vi.fn(),
   getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ['account'], queryFn: vi.fn() })),
@@ -45,7 +58,20 @@ vi.mock("@ecency/sdk", () => ({
   buildProfileMetadata: vi.fn(),
   parseProfileMetadata: vi.fn(),
   canRevokeFromAuthority: vi.fn(() => true),
-  buildRevokeKeysOp: vi.fn(() => ({}))
+  buildRevokeKeysOp: vi.fn(() => ({})),
+  // hive-tx compat layer re-exports
+  broadcastOperations: vi.fn(),
+  isWif: vi.fn(() => false),
+  sha256: vi.fn(() => new Uint8Array(32)),
+  calculateVPMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
+  calculateRCMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
+  callRPC: vi.fn(),
+  hiveTxUtils: { operations: {}, makeBitMaskFilter: vi.fn() },
+  hiveTxConfig: { nodes: [], timeout: 1000, address_prefix: "STM" },
+  initHiveTx: vi.fn(),
+  setHiveTxNodes: vi.fn(),
+  dedupeAndSortKeyAuths: vi.fn((...args: any[]) => args[0] || []),
+  buildGrantPostingPermissionOp: vi.fn(),
 }));
 
 vi.mock("@/features/post-renderer", () => ({

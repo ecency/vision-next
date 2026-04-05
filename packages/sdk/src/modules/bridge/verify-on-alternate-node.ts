@@ -3,13 +3,12 @@ import { Entry } from "@/modules/posts/types";
 
 /**
  * When the primary node returns null for a get_post call,
- * verify using quorum consensus across multiple nodes before
- * concluding the post is truly deleted.
+ * verify by querying multiple random nodes. If any node
+ * returns the post, it exists (the first node was lagging).
  *
- * Uses callWithQuorum which queries random nodes and requires
- * agreement from at least 2 nodes - if 2 nodes agree the post
- * exists, we trust it. If 2 agree it's null, it's really gone.
- * This is stronger than the old "try 2 alternate nodes" approach.
+ * Uses callWithQuorum(quorum=1) which shuffles and queries
+ * nodes in batches. Since it shuffles, it's unlikely to hit
+ * the same node that just returned null first.
  */
 export async function verifyPostOnAlternateNode(
   author: string,
@@ -21,7 +20,7 @@ export async function verifyPostOnAlternateNode(
       author,
       permlink,
       observer,
-    }, 2);
+    }, 1);
 
     if (
       response &&
@@ -32,7 +31,7 @@ export async function verifyPostOnAlternateNode(
       return response as Entry;
     }
   } catch {
-    // Quorum couldn't be reached or all nodes failed
+    // All nodes failed or returned null
   }
 
   return null;

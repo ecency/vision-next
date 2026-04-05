@@ -28,7 +28,7 @@ const DEFAULT_HIVE_NODES = [
   "https://rpc.mahdiyari.info",
 ];
 
-const DEFAULT_HIVE_TIMEOUT = 20000;
+const DEFAULT_HIVE_TIMEOUT = 1000;
 
 // Initialize hive-tx with default nodes
 initHiveTx(DEFAULT_HIVE_NODES, DEFAULT_HIVE_TIMEOUT);

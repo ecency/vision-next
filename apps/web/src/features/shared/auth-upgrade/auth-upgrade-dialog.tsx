@@ -66,9 +66,7 @@ export function AuthUpgradeDialog() {
 
   if (!request) return null;
 
-  const authority = (request.authority === "owner" || request.authority === "active")
-    ? request.authority
-    : "active";
+  const authority = (request.authority || "active") as "posting" | "active" | "owner";
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const showKeychainBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser());

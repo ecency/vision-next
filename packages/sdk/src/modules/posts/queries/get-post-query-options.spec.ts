@@ -1,19 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getPostQueryOptions } from './get-post-query-options'
-import { CONFIG } from '@/modules/core'
 import { verifyPostOnAlternateNode } from '@/modules/bridge/verify-on-alternate-node'
 
-// Mock CONFIG
-vi.mock('@/modules/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/modules/core')>()
+const mockCallRPC = vi.hoisted(() => vi.fn());
+
+vi.mock('@/modules/core/hive-tx', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/modules/core/hive-tx')>()
   return {
     ...actual,
-    CONFIG: {
-      hiveClient: {
-        call: vi.fn(),
-        currentAddress: 'https://api.hive.blog'
-      }
-    }
+    callRPC: mockCallRPC,
   }
 })
 
@@ -103,7 +98,7 @@ describe('getPostQueryOptions', () => {
       const result = await options.queryFn()
 
       expect(result).toBeNull()
-      expect(CONFIG.hiveClient.call).not.toHaveBeenCalled()
+      expect(mockCallRPC).not.toHaveBeenCalled()
     })
 
     it('should return null for permlink "undefined"', async () => {
@@ -111,51 +106,51 @@ describe('getPostQueryOptions', () => {
       const result = await options.queryFn()
 
       expect(result).toBeNull()
-      expect(CONFIG.hiveClient.call).not.toHaveBeenCalled()
+      expect(mockCallRPC).not.toHaveBeenCalled()
     })
 
-    it('should call hive client with correct parameters', async () => {
+    it('should call callRPC with correct parameters', async () => {
       const mockResponse = {
         author: 'testauthor',
         permlink: 'test-permlink',
         title: 'Test Post',
         body: 'Test content'
       }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockResponse)
+      mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink', 'observer')
       await options.queryFn()
 
-      expect(CONFIG.hiveClient.call).toHaveBeenCalledWith('bridge', 'get_post', {
+      expect(mockCallRPC).toHaveBeenCalledWith('bridge.get_post', {
         author: 'testauthor',
         permlink: 'test-permlink',
         observer: 'observer'
       })
     })
 
-    it('should call hive client with empty observer by default', async () => {
+    it('should call callRPC with empty observer by default', async () => {
       const mockResponse = { author: 'test', permlink: 'test' }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockResponse)
+      mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
       await options.queryFn()
 
-      expect(CONFIG.hiveClient.call).toHaveBeenCalledWith('bridge', 'get_post', {
+      expect(mockCallRPC).toHaveBeenCalledWith('bridge.get_post', {
         author: 'testauthor',
         permlink: 'test-permlink',
         observer: ''
       })
     })
 
-    it('should return null when hive client returns null and verification also returns null', async () => {
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(null)
+    it('should return null when callRPC returns null and verification also returns null', async () => {
+      mockCallRPC.mockResolvedValue(null)
       vi.mocked(verifyPostOnAlternateNode).mockResolvedValue(null)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
       const result = await options.queryFn()
 
       expect(result).toBeNull()
-      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '', 'https://api.hive.blog')
+      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
     })
 
     it('should return verified entry when primary returns null but alternate node has it', async () => {
@@ -165,19 +160,19 @@ describe('getPostQueryOptions', () => {
         post_id: 123,
         title: 'Found on alternate'
       }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(null)
+      mockCallRPC.mockResolvedValue(null)
       vi.mocked(verifyPostOnAlternateNode).mockResolvedValue(verifiedEntry as any)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
       const result = await options.queryFn()
 
       expect(result).toEqual(verifiedEntry)
-      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '', 'https://api.hive.blog')
+      expect(verifyPostOnAlternateNode).toHaveBeenCalledWith('testauthor', 'test-permlink', '')
     })
 
     it('should not call verification when primary returns data', async () => {
       const mockResponse = { author: 'testauthor', permlink: 'test-permlink' }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockResponse)
+      mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
       await options.queryFn()
@@ -190,7 +185,7 @@ describe('getPostQueryOptions', () => {
         author: 'testauthor',
         permlink: 'test-permlink'
       }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockResponse)
+      mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink', '', 5)
       const result = await options.queryFn()
@@ -204,7 +199,7 @@ describe('getPostQueryOptions', () => {
         author: 'testauthor',
         permlink: 'test-permlink'
       }
-      vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockResponse)
+      mockCallRPC.mockResolvedValue(mockResponse)
 
       const options = getPostQueryOptions('testauthor', 'test-permlink')
       const result = await options.queryFn()
