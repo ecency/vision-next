@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
 ## 2.0.35
 
 ### Patch Changes

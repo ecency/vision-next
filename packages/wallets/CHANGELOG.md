@@ -1,5 +1,16 @@
 # @ecency/wallets
 
+## 3.0.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.0
+
 ## 2.0.5
 
 ### Patch Changes
