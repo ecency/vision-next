@@ -1,4 +1,4 @@
-import { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 /**
  * Account Operations
@@ -73,7 +73,7 @@ export function buildAccountUpdate2Op(
       account,
       json_metadata: jsonMetadata || "",
       posting_json_metadata: postingJsonMetadata,
-      extensions: extensions || [],
+      extensions: (extensions || []) as [],
     },
   ];
 }
@@ -134,10 +134,9 @@ export function buildAccountCreateOp(
       posting,
       memo_key: keys.memoPublicKey,
       json_metadata: "",
-      extensions: [],
       fee,
     },
-  ];
+  ] satisfies Operation;
 }
 
 /**
@@ -184,7 +183,7 @@ export function buildCreateClaimedAccountOp(
       posting,
       memo_key: keys.memoPublicKey,
       json_metadata: "",
-      extensions: [],
+      extensions: [] as [],
     },
   ];
 }
@@ -205,7 +204,7 @@ export function buildClaimAccountOp(creator: string, fee: string): Operation {
     {
       creator,
       fee,
-      extensions: [],
+      extensions: [] as [],
     },
   ];
 }
@@ -326,7 +325,7 @@ export function buildChangeRecoveryAccountOp(
     {
       account_to_recover: accountToRecover,
       new_recovery_account: newRecoveryAccount,
-      extensions,
+      extensions: extensions as [],
     },
   ];
 }
@@ -355,7 +354,7 @@ export function buildRequestAccountRecoveryOp(
       recovery_account: recoveryAccount,
       account_to_recover: accountToRecover,
       new_owner_authority: newOwnerAuthority,
-      extensions,
+      extensions: extensions as [],
     },
   ];
 }
@@ -384,7 +383,7 @@ export function buildRecoverAccountOp(
       account_to_recover: accountToRecover,
       new_owner_authority: newOwnerAuthority,
       recent_owner_authority: recentOwnerAuthority,
-      extensions,
+      extensions: extensions as [],
     },
   ];
 }

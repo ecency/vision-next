@@ -26,7 +26,7 @@ import { EXCHANGE_ACCOUNTS } from "@/consts";
 import { useTransferSharedState } from "./transfer-shared-state";
 import { useDebounceTransferAccountData } from "./use-debounce-transfer-account-data";
 import { amountFormatCheck } from "@/utils/amount-format-check";
-import { cryptoUtils } from "@hiveio/dhive";
+import { isWif } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { TransferStep1To } from "@/features/shared/transfer/transfer-step-1-to";
 
@@ -299,7 +299,7 @@ export function TransferStep1({ titleLngKey }: Props) {
   const memoChanged = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>): void => {
       const { value: memo } = e.target;
-      const mError = cryptoUtils.isWif(memo.trim());
+      const mError = isWif(memo.trim());
       if (mError) setMemoError(i18next.t("transfer.memo-error").toUpperCase());
       setMemo(memo);
     },

@@ -1,7 +1,7 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { AccountNotification } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 type NotifPage = AccountNotification[];
 type NotifCursor = number | null;
@@ -22,7 +22,7 @@ export function getAccountNotificationsInfiniteQueryOptions(
 
     queryFn: async ({ pageParam }: { pageParam: NotifCursor }) => {
       try {
-        const response = await CONFIG.hiveClient.call("bridge", "account_notifications", {
+        const response = await callRPC("bridge.account_notifications", {
           account,
           limit,
           last_id: pageParam ?? undefined,

@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get list of usernames who reblogged a specific post
@@ -12,11 +13,7 @@ export function getRebloggedByQueryOptions(author?: string, permlink?: string) {
         return [];
       }
 
-      const response = (await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_reblogged_by",
-        [author, permlink]
-      )) as string[];
+      const response = (await callRPC("condenser_api.get_reblogged_by", [author, permlink])) as string[];
 
       return Array.isArray(response) ? response : [];
     },

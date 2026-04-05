@@ -1,13 +1,9 @@
 import * as keychain from "@/utils/keychain";
-import {
-  CustomJsonOperation,
-  Operation,
-  OperationName,
-  PrivateKey,
-  TransactionConfirmation
-} from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Operation, OperationName, CustomJsonOperation } from "@ecency/hive-tx";
+import type { TransactionConfirmation } from "@ecency/sdk";
 import { Parameters } from "hive-uri";
-import { CONFIG, usrActivity } from "@ecency/sdk";
+import { broadcastOperations, callRPC, usrActivity } from "@ecency/sdk";
 import { BuySellHiveTransactionType, ErrorTypes, OrderIdPrefix } from "@/enums";
 import i18next from "i18next";
 import {
@@ -17,12 +13,10 @@ import {
   getPostingKey,
   hotSign
 } from "@/utils";
-import { broadcastWithHiveAuth, shouldUseHiveAuth } from "@/utils/hive-auth";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { Account, CommentOptions, FullAccount, MetaData } from "@/entities";
 import { buildProfileMetadata, parseProfileMetadata } from "@ecency/sdk";
 
-const hiveClient = CONFIG.hiveClient;
 
 const handleChainError = (strErr: string): [string | null, ErrorTypes] => {
   if (/You may only post once every/.test(strErr)) {
@@ -144,7 +138,7 @@ const broadcastCustomJSON = (
   keychainLabel: string = "Custom json"
 ): Promise<TransactionConfirmation> => {
   const payload = JSON.stringify(json);
-  const operation: CustomJsonOperation[1] = {
+  const operation: CustomJsonOperation = {
     id,
     required_auths: authority === "active" ? [username] : [],
     required_posting_auths: authority === "posting" ? [username] : [],
@@ -155,7 +149,7 @@ const broadcastCustomJSON = (
     const postingKey = getPostingKey(username);
     if (postingKey) {
       const privateKey = PrivateKey.fromString(postingKey);
-      return hiveClient.broadcast.json(operation, privateKey);
+      return broadcastOperations([["custom_json", operation]], privateKey);
     }
   }
 
@@ -163,7 +157,7 @@ const broadcastCustomJSON = (
 
   ensureBoundWindowFetch();
 
-  return sendWithHiveAuthOrHiveSigner(username, [customJsonOperation], authority, async () => {
+  return sendWithFallback(username, [customJsonOperation], authority, async (): Promise<TransactionConfirmation> => {
     const loginType = getLoginType(username);
     if (loginType === "keychain") {
       return keychain
@@ -225,10 +219,10 @@ export const broadcastPostingOperations = (
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
 
-    return hiveClient.broadcast.sendOperations(operations, privateKey);
+    return broadcastOperations(operations, privateKey);
   }
 
-  return sendWithHiveAuthOrHiveSigner(username, operations, "posting", async () => {
+  return sendWithFallback(username, operations, "posting", async (): Promise<TransactionConfirmation> => {
     const loginType = getLoginType(username);
     if (loginType === "keychain") {
       return keychain.broadcast(username, operations, "Posting").then((r: any) => r.result);
@@ -249,12 +243,12 @@ export const broadcastPostingOperations = (
   });
 };
 
-function sendWithHiveAuthOrHiveSigner(
+function sendWithFallback(
   username: string,
   operations: Operation[],
   authority: "posting" | "active",
-  fallback: () => Promise<any> | void
-) {
+  fallback: () => Promise<any>
+): Promise<TransactionConfirmation> {
   const loginType = getLoginType(username);
 
   // Keychain Mobile: route through the adapter which handles hive:// deep links.
@@ -264,13 +258,6 @@ function sendWithHiveAuthOrHiveSigner(
   if (loginType === "keychain-mobile") {
     const adapter = getWebBroadcastAdapter();
     return adapter.broadcastWithKeychain!(username, operations, authority);
-  }
-
-  if (loginType === "hiveauth" || shouldUseHiveAuth(username)) {
-    return broadcastWithHiveAuth(username, operations, authority).catch((err) => {
-      console.error("HiveAuth broadcast failed", err);
-      return fallback();
-    });
   }
 
   return fallback();
@@ -324,7 +311,7 @@ export const comment = async (
   const opArray: Operation[] = [["comment", params]];
 
   if (options) {
-    const e: Operation = ["comment_options", options];
+    const e: Operation = ["comment_options", options as any];
     opArray.push(e);
   }
 
@@ -425,7 +412,7 @@ export const transfer = (
     memo
   };
 
-  return hiveClient.broadcast.transfer(args, key);
+  return broadcastOperations([["transfer", args]], key);
 };
 
 export const transferPoint = (
@@ -449,7 +436,7 @@ export const transferPoint = (
     required_posting_auths: []
   };
 
-  return hiveClient.broadcast.json(op, key);
+  return broadcastOperations([["custom_json", op]], key);
 };
 
 export const limitOrderCreate = (
@@ -488,7 +475,7 @@ export const limitOrderCreate = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const limitOrderCancel = (
@@ -504,7 +491,7 @@ export const limitOrderCancel = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const limitOrderCreateHot = (
@@ -544,7 +531,7 @@ export const limitOrderCreateHot = (
   const params: Parameters = {
     callback: `https://ecency.com/market${idPrefix === OrderIdPrefix.SWAP ? "#swap" : ""}`
   };
-  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+  return sendWithFallback(owner, [op], "active", () =>
     withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
@@ -559,7 +546,7 @@ export const limitOrderCancelHot = (owner: string, orderid: number) => {
   ];
 
   const params: Parameters = { callback: `https://ecency.com/market` };
-  return sendWithHiveAuthOrHiveSigner(owner, [op], "active", () =>
+  return sendWithFallback(owner, [op], "active", () =>
     withHiveSigner((hs) => hs.sendOperation(op, params, () => {}))
   );
 };
@@ -627,7 +614,7 @@ export const convert = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const claimInterest = (
@@ -656,7 +643,7 @@ export const claimInterest = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op, cop], key);
+  return broadcastOperations([op, cop], key);
 };
 
 export const delegateRC = (
@@ -689,7 +676,7 @@ export const withdrawVesting = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const witnessVote = (
@@ -707,7 +694,7 @@ export const witnessVote = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const witnessProxy = (
@@ -723,7 +710,7 @@ export const witnessProxy = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const witnessProxyHot = (account: string, proxy: string) => {
@@ -767,7 +754,7 @@ export const proposalCreate = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const proposalCreateHot = (account: string, payload: ProposalCreatePayload) => {
@@ -818,7 +805,7 @@ export const proposalVote = (
     }
   ];
 
-  return hiveClient.broadcast.sendOperations([op], key);
+  return broadcastOperations([op], key);
 };
 
 export const subscribe = (
@@ -851,7 +838,7 @@ export const promote = (
     required_posting_auths: []
   };
 
-  return hiveClient.broadcast.json(op, key);
+  return broadcastOperations([["custom_json", op]], key);
 };
 
 export const boost = (
@@ -875,7 +862,7 @@ export const boost = (
     required_posting_auths: []
   };
 
-  return hiveClient.broadcast.json(op, key);
+  return broadcastOperations([["custom_json", op]], key);
 };
 
 export const updateProfile = (
@@ -896,7 +883,7 @@ export const updateProfile = (
     account: account.name,
     json_metadata: "",
     posting_json_metadata: JSON.stringify({ profile }),
-    extensions: []
+    extensions: [] as []
   };
 
   const opArray: Operation[] = [["account_update2", params]];
@@ -919,14 +906,19 @@ export const grantPostingPermission = (key: PrivateKey, account: FullAccount, pA
   // important!
   newPosting.account_auths.sort((a, b) => (a[0] > b[0] ? 1 : -1));
 
-  return hiveClient.broadcast.updateAccount(
-    {
-      account: account.name,
-      posting: newPosting,
-      active: undefined,
-      memo_key: account.memo_key,
-      json_metadata: account.json_metadata
-    },
+  return broadcastOperations(
+    [
+      [
+        "account_update",
+        {
+          account: account.name,
+          posting: newPosting,
+          active: undefined,
+          memo_key: account.memo_key,
+          json_metadata: account.json_metadata
+        }
+      ]
+    ],
     key
   );
 };
@@ -1084,7 +1076,7 @@ export const createAccountHs = async (data: any, creator_account: string, hash: 
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+      return sendWithFallback(creator_account, [operation], "active", () =>
         withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
       );
     } catch (err: any) {
@@ -1111,7 +1103,7 @@ export const createAccountKey = async (
       active: false
     };
 
-    let tokens: any = await hiveClient.database.getAccounts([creator_account]);
+    let tokens: any = await callRPC("condenser_api.get_accounts", [[creator_account]]);
     tokens = tokens[0]?.pending_claimed_accounts;
 
     let op_name: OperationName = "account_create";
@@ -1149,7 +1141,7 @@ export const createAccountKey = async (
 
     try {
       // With Private Key
-      return await hiveClient.broadcast.sendOperations(ops, creator_key);
+      return await broadcastOperations(ops, creator_key);
     } catch (err: any) {
       console.log(err.message);
       return err.jse_info.name;
@@ -1171,7 +1163,7 @@ export const createAccountWithCreditKc = async (data: any, creator_account: stri
       active: false
     };
 
-    let tokens: any = await hiveClient.database.getAccounts([creator_account]);
+    let tokens: any = await callRPC("condenser_api.get_accounts", [[creator_account]]);
     tokens = tokens[0]?.pending_claimed_accounts;
 
     let fee = null;
@@ -1234,7 +1226,7 @@ export const createAccountWithCreditHs = async (
       active: false
     };
 
-    let tokens: any = await hiveClient.database.getAccounts([creator_account]);
+    let tokens: any = await callRPC("condenser_api.get_accounts", [[creator_account]]);
     tokens = tokens[0]?.pending_claimed_accounts;
 
     let fee = null;
@@ -1275,7 +1267,7 @@ export const createAccountWithCreditHs = async (
       const params: Parameters = {
         callback: `https://ecency.com/onboard-friend/confirming/${hash}?tid={{id}}`
       };
-      return sendWithHiveAuthOrHiveSigner(creator_account, [operation], "active", () =>
+      return sendWithFallback(creator_account, [operation], "active", () =>
         withHiveSigner((hs) => hs.sendOperation(operation, params, () => {}))
       );
     } catch (err: any) {
@@ -1302,7 +1294,7 @@ export const createAccountWithCreditKey = async (
       active: false
     };
 
-    let tokens: any = await hiveClient.database.getAccounts([creator_account]);
+    let tokens: any = await callRPC("condenser_api.get_accounts", [[creator_account]]);
     tokens = tokens[0]?.pending_claimed_accounts;
 
     let fee = null;
@@ -1341,7 +1333,7 @@ export const createAccountWithCreditKey = async (
 
     try {
       // With Private Key
-      return await hiveClient.broadcast.sendOperations(ops, creator_key);
+      return await broadcastOperations(ops, creator_key);
     } catch (err: any) {
       console.log(err.message);
       return err.jse_info.name;
@@ -1356,18 +1348,14 @@ export const claimAccount = async (account: FullAccount, key: PrivateKey) => {
     throw new Error("[Account claiming] Active/owner key is not provided");
   }
 
-  return hiveClient.broadcast.sendOperations(
+  return broadcastOperations(
     [
       [
         "claim_account",
         {
-          fee: {
-            amount: "0",
-            precision: 3,
-            nai: "@@000000021"
-          },
+          fee: "0.000 HIVE",
           creator: account.name,
-          extensions: []
+          extensions: [] as []
         }
       ]
     ],
@@ -1376,17 +1364,22 @@ export const claimAccount = async (account: FullAccount, key: PrivateKey) => {
 };
 
 export const boostPlus = (key: PrivateKey, user: string, account: string, duration: number) =>
-  hiveClient.broadcast.json(
-    {
-      id: "ecency_boost_plus",
-      json: JSON.stringify({
-        user,
-        account,
-        duration
-      }),
-      required_auths: [user],
-      required_posting_auths: []
-    },
+  broadcastOperations(
+    [
+      [
+        "custom_json",
+        {
+          id: "ecency_boost_plus",
+          json: JSON.stringify({
+            user,
+            account,
+            duration
+          }),
+          required_auths: [user],
+          required_posting_auths: []
+        }
+      ]
+    ],
     key
   );
 

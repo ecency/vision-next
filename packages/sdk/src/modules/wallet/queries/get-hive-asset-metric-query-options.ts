@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import type { HiveMarketMetric } from "../types";
-import { CONFIG } from "@/modules/core/config";
+import { callRPC } from "@/modules/core/hive-tx";
 
 function formatDate(date: Date): string {
   const pad = (n: number) => n.toString().padStart(2, "0");
@@ -15,10 +15,7 @@ export function getHiveAssetMetricQueryOptions(bucketSeconds = 86_400) {
   return infiniteQueryOptions({
     queryKey: ["assets", "hive", "metrics", bucketSeconds],
     queryFn: async ({ pageParam: [startDate, endDate] }) => {
-      const apiData: HiveMarketMetric[] = await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_market_history",
-        [bucketSeconds, formatDate(startDate), formatDate(endDate)]
+      const apiData: HiveMarketMetric[] = await callRPC("condenser_api.get_market_history", [bucketSeconds, formatDate(startDate), formatDate(endDate)]
       );
 
       return apiData.map(({ hive, non_hive, open }) => ({

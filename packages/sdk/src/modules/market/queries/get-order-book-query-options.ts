@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { OrdersData } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get the internal HIVE/HBD market order book
@@ -11,7 +11,7 @@ export function getOrderBookQueryOptions(limit = 500) {
   return queryOptions({
     queryKey: ["market", "order-book", limit],
     queryFn: () =>
-      CONFIG.hiveClient.call("condenser_api", "get_order_book", [
+      callRPC("condenser_api.get_order_book", [
         limit,
       ]) as Promise<OrdersData>,
   });

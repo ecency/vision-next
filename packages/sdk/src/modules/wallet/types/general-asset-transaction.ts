@@ -1,4 +1,4 @@
-import { OperationName } from "@hiveio/dhive";
+import type { OperationName } from "@ecency/hive-tx";
 
 export interface GeneralAssetTransaction {
   id: number | string;

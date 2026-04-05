@@ -9,7 +9,8 @@ import {
   buildRevokeKeysOp,
   canRevokeFromAuthority
 } from "@ecency/sdk";
-import { PrivateKey, PublicKey, type Operation } from "@hiveio/dhive";
+import { PrivateKey, PublicKey } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/hive-tx";
 import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
 import {
   UilArrowLeft,

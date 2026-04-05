@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { CommunityRole } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getCommunityContextQueryOptions(
   username: string | undefined,
@@ -10,14 +11,10 @@ export function getCommunityContextQueryOptions(
     queryKey: QueryKeys.communities.context(username!, communityName!),
     enabled: !!username && !!communityName,
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.call(
-        "bridge",
-        "get_community_context",
-        {
+      const response = await callRPC("bridge.get_community_context", {
           account: username,
           name: communityName,
-        }
-      );
+        });
 
       return {
         role: response?.role ?? "guest",

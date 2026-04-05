@@ -9,7 +9,7 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
  *
  * Wraps the SDK's useComment mutation with web-specific logic:
  * - Integrates with web global store for current user
- * - Uses web broadcast adapter for auth (HiveSigner, Keychain, HiveAuth, private keys)
+ * - Uses web broadcast adapter for auth (HiveSigner, Keychain, private keys)
  * - Automatically invalidates feed/blog caches after posting
  * - Automatically invalidates parent post cache after replying
  * - Records user activity points (type 100 for posts, 110 for replies)

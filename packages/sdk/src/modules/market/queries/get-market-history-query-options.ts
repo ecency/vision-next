@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { MarketCandlestickDataItem } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get HIVE/HBD market history (candlestick data)
@@ -21,7 +21,7 @@ export function getMarketHistoryQueryOptions(
   return queryOptions({
     queryKey: ["market", "history", seconds, startDate.getTime(), endDate.getTime()],
     queryFn: () =>
-      CONFIG.hiveClient.call("condenser_api", "get_market_history", [
+      callRPC("condenser_api.get_market_history", [
         seconds,
         formatDate(startDate),
         formatDate(endDate),

@@ -1,5 +1,5 @@
-import { CONFIG } from "@/modules/core/config";
-import { utils } from "@hiveio/dhive";
+import { callRPC } from "@ecency/hive-tx";
+import { utils } from "@ecency/hive-tx";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { HIVE_ACCOUNT_OPERATION_GROUPS } from "../consts";
 import type {
@@ -14,7 +14,7 @@ import type {
 import type { HiveTransaction } from "../types";
 import { parseAsset } from "@/modules/core/utils";
 
-const operationOrders = utils.operationOrders;
+const operationOrders = utils.operations;
 
 function isHiveOperationName(value: string): value is HiveOperationName {
   return Object.prototype.hasOwnProperty.call(operationOrders, value);
@@ -107,9 +107,8 @@ export function getHiveAssetTransactionsQueryOptions(
       lastPage ? +(lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
 
     queryFn: async ({ pageParam }) => {
-      const response = await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_account_history",
+      const response = await callRPC(
+        "condenser_api.get_account_history",
         [username, pageParam, limit, ...filterArgs]
       );
 

@@ -13,7 +13,6 @@ function LoginTypeBadge({ loginType }: { loginType?: LoginType }) {
     loginType === "metamask" ? "/assets/metamask-fox.svg" :
     loginType === "keychain" || loginType === "keychain-mobile" ? "/assets/keychain.png" :
     loginType === "hivesigner" ? "/assets/hive-signer.svg" :
-    loginType === "hiveauth" ? "/assets/hive-auth.svg" :
     null;
 
   return (

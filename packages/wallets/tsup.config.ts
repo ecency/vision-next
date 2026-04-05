@@ -11,7 +11,7 @@ const shared = {
         "react/jsx-runtime",
         "@tanstack/react-query",
         "@ecency/sdk",
-        "@hiveio/dhive",
+        "@ecency/hive-tx",
         "hivesigner",
         "lru-cache",
         "scheduler",

@@ -1,4 +1,4 @@
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 /**
  * Authority levels for Hive blockchain operations.

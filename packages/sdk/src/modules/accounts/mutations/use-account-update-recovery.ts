@@ -1,5 +1,5 @@
 import { CONFIG, getBoundFetch } from "@/modules/core";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
@@ -8,6 +8,7 @@ import {
 import hs from "hivesigner";
 import { getAccountFullQueryOptions } from "../queries";
 import type { AuthContext } from "@/modules/core/types";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 type SignType = "key" | "keychain" | "hivesigner" | "ecency";
 
@@ -45,7 +46,7 @@ export function useAccountUpdateRecovery(
       const operationBody = {
         account_to_recover: data.name,
         new_recovery_account: accountName,
-        extensions: [],
+        extensions: [] as [],
       };
 
       if (type === "ecency") {
@@ -68,7 +69,7 @@ export function useAccountUpdateRecovery(
           }),
         });
       } else if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.sendOperations(
+        return broadcastOperations(
           [["change_recovery_account", operationBody]],
           key
         );

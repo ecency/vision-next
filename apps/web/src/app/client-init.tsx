@@ -3,7 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
-import { CONFIG, getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
@@ -35,8 +35,6 @@ export function ClientInit() {
     initKeychain();
     initI18next();
     loadUsers();
-
-    (window as any).dHiveClient = CONFIG.hiveClient;
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
     if (activeUsername) {

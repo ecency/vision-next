@@ -1,7 +1,7 @@
-import { utils } from "@hiveio/dhive";
+import { utils } from "@ecency/hive-tx";
 import type { HiveOperationName } from "../types";
 
-const operationOrders = utils.operationOrders as Record<
+const operationOrders = utils.operations as Record<
   HiveOperationName,
   number
 >;

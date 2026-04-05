@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
+import { callRPC } from "@/modules/core/hive-tx";
 import { RcDirectDelegation, RcDirectDelegationsResponse } from "../types/rc-direct-delegation";
 
 type RcPage = RcDirectDelegation[];
@@ -17,8 +17,7 @@ export function getOutgoingRcDelegationsInfiniteQueryOptions(username: string, l
     initialPageParam: null as RcCursor,
 
     queryFn: async ({ pageParam }: { pageParam: RcCursor }) => {
-      const response = await CONFIG.hiveClient
-        .call("rc_api", "list_rc_direct_delegations", {
+      const response = await callRPC("rc_api.list_rc_direct_delegations", {
           start: [username, pageParam ?? ""],
           limit,
         })

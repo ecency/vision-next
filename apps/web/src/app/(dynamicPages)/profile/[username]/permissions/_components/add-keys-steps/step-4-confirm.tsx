@@ -5,14 +5,16 @@ import { error, success, KeyOrHot } from "@/features/shared";
 import { Button } from "@/features/ui";
 import { getAccountFullQueryOptions, dedupeAndSortKeyAuths } from "@ecency/sdk";
 import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
-import { PrivateKey, type AuthorityType, type Operation } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/hive-tx";
+import type { Authority } from "@ecency/hive-tx";
 import { UilArrowLeft, UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import { useMemo, useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
-import { CONFIG } from "@ecency/sdk";
+import { broadcastOperations } from "@ecency/sdk";
 
 type KeyAuthority = "owner" | "active" | "posting" | "memo";
 
@@ -56,7 +58,7 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
     };
 
     const prepareAuth = (keyName: "owner" | "active" | "posting") => {
-      const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
+      const auth: Authority = JSON.parse(JSON.stringify(accountData[keyName]));
       const keysToRevoke = keysToRevokeByAuthority[keyName] || [];
       const existingKeys = auth.key_auths.filter(
         ([key]) => !keysToRevoke.includes(key.toString())
@@ -110,7 +112,7 @@ export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, 
     setIsApplying(true);
     try {
       const op = buildAccountUpdateOp();
-      await CONFIG.hiveClient.broadcast.sendOperations([op], privateKey);
+      await broadcastOperations([op], privateKey);
       await handleSuccess();
     } catch (err: any) {
       setIsApplying(false);

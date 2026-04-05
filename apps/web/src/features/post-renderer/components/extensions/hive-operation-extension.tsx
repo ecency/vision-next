@@ -3,7 +3,7 @@
 import React, { RefObject, useEffect, useMemo, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import "./hive-operation-extension.scss";
-import { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 import defaults from "@/defaults";
 
 interface Props {

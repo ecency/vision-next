@@ -25,7 +25,7 @@ import {
   useUpdateCommunity
 } from "@ecency/sdk";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
-import { cryptoUtils } from "@hiveio/dhive";
+import { sha256 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -45,7 +45,7 @@ function generateUsername(type: CommunityTypes) {
 }
 
 function generateWif() {
-  return "P" + base58.encode(cryptoUtils.sha256(random()));
+  return "P" + base58.encode(sha256(random()));
 }
 
 export function CreateCommunityPage() {

@@ -3,8 +3,9 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { Operation, PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
-import { CONFIG } from "@/modules/core";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/hive-tx";
+import { broadcastOperations, type TransactionConfirmation } from "@/modules/core/hive-tx";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";
 import type { AuthorityLevel } from "@/modules/operations/authority-map";
@@ -86,7 +87,7 @@ async function broadcastWithMethod(
 
       // Attempt broadcast with key
       const privateKey = PrivateKey.fromString(key);
-      return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
+      return await broadcastOperations(ops, privateKey);
     }
 
     case 'hiveauth': {
@@ -567,7 +568,7 @@ export function useBroadcastMutation<T>(
 
         const privateKey = PrivateKey.fromString(postingKey);
 
-        return CONFIG.hiveClient.broadcast.sendOperations(
+        return broadcastOperations(
           ops,
           privateKey
         );

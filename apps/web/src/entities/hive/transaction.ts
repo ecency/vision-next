@@ -1,4 +1,4 @@
-import { SMTAsset } from "@hiveio/dhive";
+import type { SMTAsset } from "@ecency/sdk";
 
 interface BaseTransaction {
   num: number;

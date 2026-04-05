@@ -5,7 +5,7 @@
  * and processes subscription payments automatically.
  */
 
-import { Client } from '@hiveio/dhive';
+import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
@@ -20,7 +20,8 @@ const CONFIG = {
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
 };
 
-const hiveClient = new Client(CONFIG.HIVE_API_NODES);
+// Configure hive-tx nodes
+hiveTxConfig.nodes = CONFIG.HIVE_API_NODES;
 
 class PaymentListener {
   private lastProcessedBlock: number = 0;
@@ -95,7 +96,7 @@ class PaymentListener {
   }
 
   private async processBlock(blockNum: number) {
-    const block = await hiveClient.database.getBlock(blockNum);
+    const block = await callRPC('condenser_api.get_block', [blockNum]) as any;
     if (!block || !block.transactions) return;
 
     // transaction_ids array contains the IDs - tx.transaction_id is undefined
@@ -367,7 +368,7 @@ class PaymentListener {
   }
 
   private async getHeadBlockNumber(): Promise<number> {
-    const props = await hiveClient.database.getDynamicGlobalProperties();
+    const props = await callRPC('condenser_api.get_dynamic_global_properties', []) as any;
     return props.head_block_number;
   }
 

@@ -75,7 +75,7 @@ export const SignMethods = ({
     }
   };
 
-  // HIVE/HBD pairs: unified SDK mutation (handles Key/HS/KC/HiveAuth automatically)
+  // HIVE/HBD pairs: unified SDK mutation (handles Key/HS/KC automatically)
   const onHiveSwap = async () => {
     setLoading(true);
     try {

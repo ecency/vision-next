@@ -1,4 +1,4 @@
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 
 /**
  * Generate a Hive master password (P5... format).

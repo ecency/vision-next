@@ -9,7 +9,7 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
  *
  * Wraps the SDK's useUpdateReply mutation with web-specific logic:
  * - Integrates with web global store for current user
- * - Uses web broadcast adapter for auth (HiveSigner, Keychain, HiveAuth, private keys)
+ * - Uses web broadcast adapter for auth (HiveSigner, Keychain, private keys)
  * - Automatically invalidates parent post cache after update
  * - Automatically invalidates discussions cache (all sort orders)
  * - Automatically invalidates RC cache

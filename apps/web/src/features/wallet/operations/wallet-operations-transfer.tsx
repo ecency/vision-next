@@ -17,7 +17,7 @@ import * as yup from "yup";
 import { WalletOperationCard } from "./wallet-opearation-card";
 import { WalletOperationAmountForm } from "./wallet-operation-amount-form";
 import { formatNumber } from "@/utils";
-import { CONFIG } from "@ecency/sdk";
+import { callRPC } from "@ecency/sdk";
 import { hpToVests } from "@/features/shared/transfer/hp-to-vests";
 
 interface Props {
@@ -161,8 +161,8 @@ export function WalletOperationsTransfer({
       enabled: shouldFetchExistingDelegation,
       queryFn: async () => {
         try {
-          const delegations = (await CONFIG.hiveClient.database.call(
-            "get_vesting_delegations",
+          const delegations = (await callRPC(
+            "condenser_api.get_vesting_delegations",
             [username, sanitizedTo, 1]
           )) as { delegatee: string; vesting_shares: string }[];
 

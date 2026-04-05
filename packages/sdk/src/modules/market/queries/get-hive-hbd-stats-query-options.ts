@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { HiveHbdStats, MarketCandlestickDataItem, MarketStatistics } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get combined HIVE/HBD statistics including price, 24h change, and volume
@@ -10,11 +10,7 @@ export function getHiveHbdStatsQueryOptions() {
     queryKey: ["market", "hive-hbd-stats"],
     queryFn: async () => {
       // Get current market statistics
-      const stats = (await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_ticker",
-        []
-      )) as MarketStatistics;
+      const stats = (await callRPC("condenser_api.get_ticker", [])) as MarketStatistics;
 
       // Get 24h market history
       const now = new Date();
@@ -24,10 +20,7 @@ export function getHiveHbdStatsQueryOptions() {
         return date.toISOString().replace(/\.\d{3}Z$/, "");
       };
 
-      const dayChange = (await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_market_history",
-        [86400, formatDate(oneDayAgo), formatDate(now)]
+      const dayChange = (await callRPC("condenser_api.get_market_history", [86400, formatDate(oneDayAgo), formatDate(now)]
       )) as MarketCandlestickDataItem[];
 
       // Calculate stats

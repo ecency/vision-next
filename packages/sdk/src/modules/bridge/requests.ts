@@ -1,4 +1,5 @@
 import { CONFIG } from "@/modules/core";
+import { callRPC } from "@/modules/core/hive-tx";
 import { AccountRelationship, Profile } from "@/modules/accounts/types";
 import { Community } from "@/modules/communities/types/community";
 import { Subscription } from "@/modules/communities/types/subscription";
@@ -8,7 +9,7 @@ import { filterDmcaEntry } from "@/modules/posts/utils/filter-dmca-entries";
 type BridgeParams = Record<string, unknown> | unknown[];
 
 export function bridgeApiCall<T>(endpoint: string, params: BridgeParams): Promise<T> {
-  return CONFIG.hiveClient.call("bridge", endpoint, params) as Promise<T>;
+  return callRPC(`bridge.${endpoint}`, params) as Promise<T>;
 }
 
 export async function resolvePost(

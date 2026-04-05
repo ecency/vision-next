@@ -1,5 +1,6 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getAccountPendingRecoveryQueryOptions(
   username: string | undefined
@@ -8,10 +9,6 @@ export function getAccountPendingRecoveryQueryOptions(
     enabled: !!username,
     queryKey: QueryKeys.accounts.pendingRecovery(username!),
     queryFn: () =>
-      CONFIG.hiveClient.call(
-        "database_api",
-        "find_change_recovery_account_requests",
-        { accounts: [username] }
-      ),
+      callRPC("database_api.find_change_recovery_account_requests", { accounts: [username] }),
   });
 }

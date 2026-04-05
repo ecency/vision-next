@@ -5,7 +5,7 @@ import * as R from 'remeda';
 import { LRUCache } from 'lru-cache';
 import { mnemonicToSeedSync } from 'bip39';
 import { HDKey } from '@scure/bip32';
-import { PrivateKey } from '@hiveio/dhive';
+import { PrivateKey } from '@ecency/hive-tx';
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {

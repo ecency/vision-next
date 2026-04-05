@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Follow, Profile, FriendSearchResult } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 const SEARCH_LIMIT = 30;
 
@@ -25,10 +25,8 @@ export function getSearchFriendsQueryOptions(
       if (!query) return [];
 
       const start = query.slice(0, -1);
-      const response = (await CONFIG.hiveClient.database.call(
-        mode === "following" ? "get_following" : "get_followers",
-        [username, start, "blog", 1000]
-      )) as Follow[];
+      const method = mode === "following" ? "get_following" : "get_followers";
+      const response = (await callRPC(`condenser_api.${method}`, [username, start, "blog", 1000])) as Follow[];
 
       const accountNames = response
         .map((e) => (mode === "following" ? e.following : e.follower))
@@ -36,7 +34,7 @@ export function getSearchFriendsQueryOptions(
         .slice(0, SEARCH_LIMIT);
 
       // Get profiles via bridge API
-      const accounts = (await CONFIG.hiveClient.call("bridge", "get_profiles", {
+      const accounts = (await callRPC("bridge.get_profiles", {
         accounts: accountNames,
         observer: undefined,
       })) as Profile[];

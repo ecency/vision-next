@@ -1,7 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { getProfiles } from "@/modules/bridge";
 import { Profile } from "@/modules/accounts/types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getSearchAccountQueryOptions(q: string, limit = 5) {
   const normalized = q.trim();
@@ -9,7 +10,7 @@ export function getSearchAccountQueryOptions(q: string, limit = 5) {
   return queryOptions({
     queryKey: QueryKeys.search.account(normalized, limit),
     queryFn: async (): Promise<Profile[]> => {
-      const usernames = (await CONFIG.hiveClient.database.call("lookup_accounts", [
+      const usernames = (await callRPC("condenser_api.lookup_accounts", [
         normalized,
         limit,
       ])) as string[];

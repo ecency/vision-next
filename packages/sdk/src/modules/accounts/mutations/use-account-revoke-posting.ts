@@ -1,5 +1,4 @@
-import { CONFIG } from "@/modules/core";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
@@ -10,6 +9,7 @@ import { getAccountFullQueryOptions } from "../queries";
 import { FullAccount } from "../types";
 import hs from "hivesigner";
 import type { AuthContext } from "@/modules/core/types";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 type SignType = "key" | "keychain" | "hivesigner";
 
@@ -58,7 +58,7 @@ export function useAccountRevokePosting(
       };
 
       if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.updateAccount(operationBody, key);
+        return broadcastOperations([["account_update", operationBody]], key);
       } else if (type === "keychain") {
         if (!auth?.broadcast) {
           throw new Error("[SDK][Accounts] – missing keychain broadcaster");

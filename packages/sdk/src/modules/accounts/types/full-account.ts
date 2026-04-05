@@ -1,4 +1,4 @@
-import { Authority } from "@hiveio/dhive";
+import type { Authority } from "@ecency/hive-tx";
 import { AccountFollowStats } from "./account-follow-stats";
 import { AccountProfile } from "./account-profile";
 

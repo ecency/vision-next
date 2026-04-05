@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Subscription } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get list of subscribers for a community
@@ -12,7 +12,7 @@ export function getCommunitySubscribersQueryOptions(communityName: string) {
   return queryOptions({
     queryKey: QueryKeys.communities.subscribers(communityName),
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.call("bridge", "list_subscribers", {
+      const response = await callRPC("bridge.list_subscribers", {
         community: communityName,
       });
       return (response as Subscription[] | null) ?? [];

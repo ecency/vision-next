@@ -1,6 +1,6 @@
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getSearchAccountsByUsernameQueryOptions(
   query: string,
@@ -11,10 +11,7 @@ export function getSearchAccountsByUsernameQueryOptions(
     queryKey: QueryKeys.accounts.search(query, excludeList),
     enabled: !!query,
     queryFn: async () => {
-      const response = (await CONFIG.hiveClient.database.call(
-        "lookup_accounts",
-        [query, limit]
-      )) as string[];
+      const response = (await callRPC("condenser_api.lookup_accounts", [query, limit])) as string[];
       return response.filter((item) =>
         excludeList.length > 0 ? !excludeList.includes(item) : true
       );

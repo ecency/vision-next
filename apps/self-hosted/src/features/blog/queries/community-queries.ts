@@ -1,4 +1,4 @@
-import { CONFIG, type Entry } from '@ecency/sdk';
+import { callRPC, type Entry } from '@ecency/sdk';
 import {
   infiniteQueryOptions,
   queryOptions,
@@ -15,7 +15,7 @@ export function getCommunityQueryOptions(communityId: string) {
     queryKey: ['community', communityId],
     enabled: !!communityId,
     queryFn: async () => {
-      const result = await CONFIG.hiveClient.call('bridge', 'get_community', {
+      const result = await callRPC('bridge.get_community', {
         name: communityId,
         observer: '',
       });
@@ -37,7 +37,7 @@ export function getCommunityPostsInfiniteQueryOptions(
     enabled: !!communityId,
     initialPageParam: { start_author: '', start_permlink: '' },
     queryFn: async ({ pageParam }) => {
-      const result = await CONFIG.hiveClient.call('bridge', 'get_ranked_posts', {
+      const result = await callRPC('bridge.get_ranked_posts', {
         sort,
         tag: communityId,
         start_author: pageParam.start_author,
@@ -68,7 +68,7 @@ export function getCommunitySubscribersQueryOptions(communityId: string) {
     queryKey: ['community-subscribers', communityId],
     enabled: !!communityId,
     queryFn: async () => {
-      const result = await CONFIG.hiveClient.call('bridge', 'list_subscribers', {
+      const result = await callRPC('bridge.list_subscribers', {
         community: communityId,
       });
       return (result as Array<unknown>)?.length || 0;

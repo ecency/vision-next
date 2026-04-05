@@ -1,10 +1,10 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { utils } from "@hiveio/dhive";
-import { CONFIG } from "@/modules/core/config";
+import { utils } from "@ecency/hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
+import { callRPC } from "@/modules/core/hive-tx";
 
-const ops = utils.operationOrders;
+const ops = utils.operations;
 
 export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
   transfers: [
@@ -115,13 +115,13 @@ export function getTransactionsInfiniteQueryOptions(
       }
 
       const response = (await (filters
-        ? CONFIG.hiveClient.call("condenser_api", "get_account_history", [
+        ? callRPC("condenser_api.get_account_history", [
             username,
             pageParam,
             limit,
             ...filters,
           ])
-        : CONFIG.hiveClient.call("condenser_api", "get_account_history", [
+        : callRPC("condenser_api.get_account_history", [
             username,
             pageParam,
             limit,
