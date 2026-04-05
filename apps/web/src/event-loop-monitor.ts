@@ -24,6 +24,7 @@
  */
 
 import diagnosticsChannel from "node:diagnostics_channel";
+import os from "node:os";
 import { monitorEventLoopDelay } from "node:perf_hooks";
 
 type ActiveRequest = {
@@ -54,6 +55,16 @@ export function initEventLoopMonitor(): void {
   const lagThresholdMs = Number(process.env.EVENT_LOOP_LAG_THRESHOLD_MS ?? 1000);
   const sampleIntervalMs = Number(process.env.EVENT_LOOP_SAMPLE_INTERVAL_MS ?? 1000);
   const slowRequestMs = Number(process.env.EVENT_LOOP_SLOW_REQUEST_MS ?? 500);
+
+  // In Docker/Swarm, HOSTNAME is the container ID (e.g. vision_web.2.abc123...).
+  // Swarm also exposes the service task slot/name via env vars — include them
+  // so a spike line alone tells you which replica to investigate.
+  const host =
+    process.env.HOSTNAME ||
+    process.env.HOST ||
+    (typeof os.hostname === "function" ? os.hostname() : "unknown");
+  const taskName = process.env.TASK_NAME || process.env.SERVICE_NAME;
+  const containerTag = taskName ? `${taskName}@${host}` : host;
 
   const startChannel = diagnosticsChannel.channel("http.server.request.start");
   const finishChannel = diagnosticsChannel.channel("http.server.response.finish");
@@ -122,6 +133,7 @@ export function initEventLoopMonitor(): void {
       console.warn(
         "[EventLoopLag] SPIKE " +
           JSON.stringify({
+            container: containerTag,
             windowMs: sampleIntervalMs,
             maxMs: Math.round(maxMs),
             p99Ms: Math.round(histogram.percentile(99) / 1e6),
@@ -139,6 +151,6 @@ export function initEventLoopMonitor(): void {
   timer.unref();
 
   console.log(
-    `[EventLoopLag] monitor initialized (threshold=${lagThresholdMs}ms, interval=${sampleIntervalMs}ms, slowReq=${slowRequestMs}ms)`
+    `[EventLoopLag] monitor initialized container=${containerTag} (threshold=${lagThresholdMs}ms, interval=${sampleIntervalMs}ms, slowReq=${slowRequestMs}ms)`
   );
 }
