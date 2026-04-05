@@ -75,5 +75,5 @@ COPY --from=base /var/app/apps/web/.next ./apps/web/.next
 COPY --from=base /var/app/node_modules ./node_modules
 COPY --from=base /var/app/apps/web/node_modules ./apps/web/node_modules
 
-HEALTHCHECK --interval=15s --timeout=5s CMD node /var/app/apps/web/healthCheck.js
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD node /var/app/apps/web/healthCheck.js
 CMD ["pnpm", "start"]
