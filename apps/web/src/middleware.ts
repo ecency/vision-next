@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleIndexRedirect, isIndexRedirect } from "@/features/next-middleware";
+import {
+  buildCacheControlHeader,
+  getCachePolicyForPath,
+  handleIndexRedirect,
+  isIndexRedirect
+} from "@/features/next-middleware";
+import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
+
+const CACHE_HEADERS_ENABLED = process.env.ENABLE_HTML_CACHE_HEADERS === "true";
 
 const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
 
@@ -74,5 +82,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(nextUrl);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  applyCacheHeaders(request, response, path);
+  return response;
+}
+
+function applyCacheHeaders(request: NextRequest, response: NextResponse, path: string) {
+  if (!CACHE_HEADERS_ENABLED) return;
+
+  const policy = getCachePolicyForPath(path);
+  if (!policy) return;
+
+  const isLoggedIn = request.cookies.has(ACTIVE_USER_COOKIE_NAME);
+  response.headers.set("Cache-Control", buildCacheControlHeader(policy, isLoggedIn));
+  response.headers.set("x-cache-tier", isLoggedIn ? "logged-in" : policy.tier);
+  // NOTE: we deliberately do NOT emit `Vary: Cookie`. That would fragment the
+  // edge cache on every cookie (analytics, locale, experiments) and cripple
+  // hit ratio. Auth bifurcation happens at the infra layer:
+  //   - Nginx: cache key includes $cookie_active_user
+  //   - CF worker: explicitly bypasses cache when active_user cookie present
+  // See docs/cache/nginx.md and docs/cache/cloudflare-worker.md.
 }
