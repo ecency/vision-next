@@ -69,6 +69,23 @@ const MAX_RECENT_SLOW = 20;
 
 let initialized = false;
 
+// Strip the query string from a request URL before we record it anywhere.
+//
+// Some routes carry credentials in query params that must never end up in
+// stderr logs:
+//   - /auth?code=<HiveSigner auth code>  (exchanges for access/refresh tokens)
+//   - /api/mattermost/websocket?token=<bearer token>
+// We discard the entire query rather than maintaining an allowlist — the
+// path alone is enough for diagnosing stalls, and new secret-bearing params
+// shouldn't silently leak if someone adds them later.
+export function sanitizeUrl(url: string): string {
+  const qIdx = url.indexOf("?");
+  const hashIdx = url.indexOf("#");
+  const cutAt =
+    qIdx === -1 ? hashIdx : hashIdx === -1 ? qIdx : Math.min(qIdx, hashIdx);
+  return cutAt === -1 ? url : url.slice(0, cutAt);
+}
+
 // Synchronous stderr write that bypasses Node's streams. Crucial: if the
 // container is killed by the healthcheck before the async stream flushes,
 // buffered output is lost. fs.writeSync(2, …) calls write(2) directly.
@@ -195,7 +212,7 @@ export function initEventLoopMonitor(): void {
     const entry: ActiveRequest = {
       id,
       method: request.method ?? "UNKNOWN",
-      url: request.url ?? "unknown",
+      url: sanitizeUrl(request.url ?? "unknown"),
       startTime: Date.now()
     };
     activeRequests.set(request, entry);

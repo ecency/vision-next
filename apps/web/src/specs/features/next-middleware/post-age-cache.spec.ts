@@ -5,15 +5,19 @@ import {
   refreshPostCreatedMs
 } from "@/features/next-middleware";
 
-describe("post-age-cache", () => {
-  const originalFetch = global.fetch;
+vi.mock("@ecency/hive-tx", () => ({
+  callRPC: vi.fn()
+}));
 
+import { callRPC } from "@ecency/hive-tx";
+
+describe("post-age-cache", () => {
   beforeEach(() => {
     __resetPostAgeCacheForTests();
+    vi.mocked(callRPC).mockReset();
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
     vi.restoreAllMocks();
   });
 
@@ -22,19 +26,23 @@ describe("post-age-cache", () => {
   });
 
   it("caches createdMs after successful refresh", async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ result: { created: "2025-01-15T12:00:00" } })
-    }) as unknown as typeof fetch;
+    vi.mocked(callRPC).mockResolvedValue({ created: "2025-01-15T12:00:00" });
 
     await refreshPostCreatedMs("alice", "post");
 
-    const expected = Date.parse("2025-01-15T12:00:00Z");
-    expect(getCachedPostCreatedMs("alice", "post")).toBe(expected);
+    expect(getCachedPostCreatedMs("alice", "post")).toBe(Date.parse("2025-01-15T12:00:00Z"));
   });
 
-  it("negative-caches on fetch failure", async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error("network")) as unknown as typeof fetch;
+  it("passes correct RPC method, params, timeout, retries", async () => {
+    vi.mocked(callRPC).mockResolvedValue({ created: "2025-01-15T12:00:00" });
+
+    await refreshPostCreatedMs("alice", "post");
+
+    expect(callRPC).toHaveBeenCalledWith("condenser_api.get_content", ["alice", "post"], 2000, 2);
+  });
+
+  it("negative-caches on RPC failure", async () => {
+    vi.mocked(callRPC).mockRejectedValue(new Error("all nodes failed"));
 
     await refreshPostCreatedMs("alice", "post");
 
@@ -42,21 +50,15 @@ describe("post-age-cache", () => {
   });
 
   it("negative-caches when created field is missing", async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ result: {} })
-    }) as unknown as typeof fetch;
+    vi.mocked(callRPC).mockResolvedValue({});
 
     await refreshPostCreatedMs("alice", "post");
 
     expect(getCachedPostCreatedMs("alice", "post")).toBeNull();
   });
 
-  it("negative-caches when HTTP status is not OK", async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      json: async () => ({})
-    }) as unknown as typeof fetch;
+  it("negative-caches when result is null", async () => {
+    vi.mocked(callRPC).mockResolvedValue(null);
 
     await refreshPostCreatedMs("alice", "post");
 
@@ -64,48 +66,33 @@ describe("post-age-cache", () => {
   });
 
   it("de-duplicates concurrent fetches for the same post", async () => {
-    let resolveFetch: (v: unknown) => void;
-    const pending = new Promise((resolve) => {
-      resolveFetch = resolve;
+    let resolve: (v: unknown) => void;
+    const pending = new Promise((r) => {
+      resolve = r;
     });
-    const fetchMock = vi.fn().mockReturnValue(
-      pending.then(() => ({
-        ok: true,
-        json: async () => ({ result: { created: "2025-01-15T12:00:00" } })
-      }))
+    vi.mocked(callRPC).mockReturnValue(
+      pending.then(() => ({ created: "2025-01-15T12:00:00" })) as ReturnType<typeof callRPC>
     );
-    global.fetch = fetchMock as unknown as typeof fetch;
 
     const p1 = refreshPostCreatedMs("alice", "post");
     const p2 = refreshPostCreatedMs("alice", "post");
     const p3 = refreshPostCreatedMs("alice", "post");
 
-    resolveFetch!(undefined);
+    resolve!(undefined);
     await Promise.all([p1, p2, p3]);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(callRPC).toHaveBeenCalledTimes(1);
   });
 
   it("separates cache entries by author/permlink", async () => {
-    global.fetch = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ result: { created: "2025-01-01T00:00:00" } })
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ result: { created: "2025-06-01T00:00:00" } })
-      }) as unknown as typeof fetch;
+    vi.mocked(callRPC)
+      .mockResolvedValueOnce({ created: "2025-01-01T00:00:00" })
+      .mockResolvedValueOnce({ created: "2025-06-01T00:00:00" });
 
     await refreshPostCreatedMs("alice", "post-a");
     await refreshPostCreatedMs("bob", "post-b");
 
-    expect(getCachedPostCreatedMs("alice", "post-a")).toBe(
-      Date.parse("2025-01-01T00:00:00Z")
-    );
-    expect(getCachedPostCreatedMs("bob", "post-b")).toBe(
-      Date.parse("2025-06-01T00:00:00Z")
-    );
+    expect(getCachedPostCreatedMs("alice", "post-a")).toBe(Date.parse("2025-01-01T00:00:00Z"));
+    expect(getCachedPostCreatedMs("bob", "post-b")).toBe(Date.parse("2025-06-01T00:00:00Z"));
   });
 });

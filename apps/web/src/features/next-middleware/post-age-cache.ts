@@ -19,12 +19,19 @@
  *   - Negative caching: failed lookups are cached briefly (5 min) to avoid
  *     hammering the upstream API with retries for posts that don't exist
  *     or return malformed responses.
+ *   - Uses `callRPC` from @ecency/hive-tx directly (not via the SDK) to
+ *     keep the edge middleware bundle minimal — importing the SDK would
+ *     pull in React Query and other deps that don't apply here. hive-tx
+ *     brings built-in node failover across 7 Hive RPC nodes with per-node
+ *     health tracking and rate-limit awareness.
  */
+
+import { callRPC } from "@ecency/hive-tx";
 
 const MAX_ENTRIES = 2000;
 const NEGATIVE_CACHE_TTL_MS = 5 * 60_000;
 const FETCH_TIMEOUT_MS = 2000;
-const HIVE_RPC_URL = "https://api.hive.blog";
+const FETCH_RETRIES = 2;
 
 interface CacheEntry {
   createdMs: number | null; // null = negative cache (fetch failed or not found)
@@ -91,40 +98,27 @@ async function fetchPostCreatedMs(
   author: string,
   permlink: string
 ): Promise<number | null> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
   try {
-    const res = await fetch(HIVE_RPC_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        method: "condenser_api.get_content",
-        params: [author, permlink],
-        id: 1
-      }),
-      signal: controller.signal
-    });
+    const result = (await callRPC(
+      "condenser_api.get_content",
+      [author, permlink],
+      FETCH_TIMEOUT_MS,
+      FETCH_RETRIES
+    )) as { created?: string } | null | undefined;
 
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as { result?: { created?: string } };
-    const createdStr = data.result?.created;
+    const createdStr = result?.created;
     if (!createdStr) return null;
 
     // Hive returns "YYYY-MM-DDTHH:MM:SS" without timezone (UTC assumed)
     const ms = Date.parse(createdStr + "Z");
     return Number.isFinite(ms) ? ms : null;
   } catch (err) {
-    // Timeout, network error, malformed JSON, etc. — all fall back to
-    // negative cache, middleware uses conservative default tier.
+    // Timeout, network error, all nodes failed, etc. — fall back to
+    // negative cache; middleware uses the conservative default tier.
     if (process.env.NODE_ENV !== "production") {
       console.warn("[post-age-cache] fetch failed", author, permlink, err);
     }
     return null;
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 
