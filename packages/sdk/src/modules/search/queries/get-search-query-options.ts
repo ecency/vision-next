@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 export function searchQueryOptions(
@@ -32,6 +32,7 @@ export function searchQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
       });
 
       if (!response.ok) {
@@ -111,6 +112,7 @@ export function getControversialRisingInfiniteQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
       });
 
       if (!response.ok) {

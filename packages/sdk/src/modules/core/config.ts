@@ -33,6 +33,9 @@ const DEFAULT_HIVE_TIMEOUT = 1000;
 // Initialize hive-tx with default nodes
 initHiveTx(DEFAULT_HIVE_NODES, DEFAULT_HIVE_TIMEOUT);
 
+/** Timeout for internal API calls (search, private API). */
+export const INTERNAL_API_TIMEOUT_MS = 10_000;
+
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",

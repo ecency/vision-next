@@ -93,7 +93,6 @@
     "hivesigner": "^4.0.0",
     "html-react-parser": "^5.0.7",
     "i18next": "^23.11.5",
-    "intl": "^1.2.5",
     "js-base64": "^3.7.8",
     "js-cookie": "^3.0.5",
     "js-md5": "^0.7.3",

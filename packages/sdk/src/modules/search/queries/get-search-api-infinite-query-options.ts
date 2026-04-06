@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 export function getSearchApiInfiniteQueryOptions(
@@ -39,6 +39,7 @@ export function getSearchApiInfiniteQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
       });
 
       if (!response.ok) {

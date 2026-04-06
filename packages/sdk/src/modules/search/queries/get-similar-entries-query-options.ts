@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 interface Entry {
@@ -61,6 +61,7 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
       });
 
       if (!response.ok) {

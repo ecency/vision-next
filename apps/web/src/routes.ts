@@ -7,8 +7,6 @@ const routes = {
   HOME: `/`,
   ABOUT: `/about`,
   MOBILE: `/mobile`,
-  GUESTS: `/guest-posts`,
-  CONTRIBUTE: `/contribute`,
   FAQ: `/faq`,
   SIGN_UP: `/signup`,
   ONBOARD: `/onboard-friend/:type/:secret?`,
