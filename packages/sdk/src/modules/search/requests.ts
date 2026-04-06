@@ -1,4 +1,4 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS, getBoundFetch } from "@/modules/core";
 import { SearchResponse } from "./types/search-response";
 
 type RequestError = Error & { status?: number; data?: unknown };
@@ -65,7 +65,7 @@ export async function search(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
   });
 
   return parseJsonResponse<SearchResponse>(response);
@@ -79,7 +79,7 @@ export async function searchPath(q: string): Promise<string[]> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ q }),
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
   });
 
   const data = await parseJsonResponse<string[]>(response);

@@ -11,6 +11,10 @@ import {
 } from "@/features/next-middleware";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 
+// Short TTL for first-ever request to an entry page before post age is known.
+// Prevents over-caching a fresh post (60s vs. the default 1h entry tier).
+const ENTRY_COLD_MISS_POLICY = { tier: "entry-unknown", sMaxAge: 60, staleWhileRevalidate: 300 };
+
 const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
 
 export function middleware(request: NextRequest, event: NextFetchEvent) {
@@ -43,7 +47,7 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
     }
   }
 
-  if (method !== "GET") return;
+  if (method !== "GET" && method !== "HEAD") return;
 
   if (isIndexRedirect(request)) {
     return handleIndexRedirect(request);
@@ -111,8 +115,10 @@ function applyCacheHeaders(
       if (typeof createdMs === "number") {
         policy = getEntryTierForAge(Date.now() - createdMs);
       } else if (createdMs === undefined) {
-        // Not in cache — kick off background fetch, keep the default tier
-        // for this response. Next request benefits from the cached value.
+        // Not in cache — use a short TTL so if the post is fresh, we don't
+        // over-cache it. Background fetch populates the cache for the next
+        // request, which will use the real age-based tier.
+        policy = ENTRY_COLD_MISS_POLICY;
         event.waitUntil(refreshPostCreatedMs(parsed.author, parsed.permlink));
       }
       // createdMs === null means negative-cached; keep default tier
