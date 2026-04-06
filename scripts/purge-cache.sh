@@ -14,6 +14,8 @@
 #   CF_ZONE_ID   - Cloudflare zone ID for ecency.com
 #   CF_API_TOKEN - Cloudflare API token with Cache Purge permission
 #
+# Requires: jq (for safe JSON construction)
+#
 # Cloudflare allows up to 30 URLs per purge request. This script batches
 # automatically if you pass more.
 #
@@ -24,6 +26,11 @@
 #      from the CF edge cache
 #
 set -euo pipefail
+
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is required but not installed" >&2
+  exit 1
+fi
 
 if [[ -z "${CF_ZONE_ID:-}" || -z "${CF_API_TOKEN:-}" ]]; then
   echo "Error: CF_ZONE_ID and CF_API_TOKEN must be set" >&2
@@ -48,20 +55,24 @@ while [[ $idx -lt $total ]]; do
 
   batch=("${urls[@]:$idx:$((end - idx))}")
 
-  # Build JSON array of URLs
-  json_files=$(printf '"%s",' "${batch[@]}")
-  json_files="[${json_files%,}]"
-  payload="{\"files\":${json_files}}"
+  # Build JSON payload safely via jq (handles quotes, backslashes, unicode)
+  json_files=$(printf '%s\n' "${batch[@]}" | jq -R . | jq -s .)
+  payload=$(jq -n --argjson files "$json_files" '{"files": $files}')
 
   echo "Purging batch: ${batch[*]}"
 
-  response=$(curl -sS -X POST \
+  response=$(curl -sS --fail-with-body \
+    --connect-timeout 5 --max-time 15 \
+    -X POST \
     "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
     -H "Authorization: Bearer ${CF_API_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d "${payload}")
+    -d "${payload}") || {
+      echo "Purge request failed (curl error or HTTP error): ${response:-<no body>}" >&2
+      exit 1
+    }
 
-  success=$(echo "$response" | grep -o '"success":[^,}]*' | head -n1 | cut -d: -f2 | tr -d ' ')
+  success=$(echo "$response" | jq -r '.success // "null"' 2>/dev/null || echo "null")
   if [[ "$success" != "true" ]]; then
     echo "Purge failed: $response" >&2
     exit 1
