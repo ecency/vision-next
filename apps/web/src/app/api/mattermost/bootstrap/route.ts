@@ -116,14 +116,16 @@ async function handleBootstrap(req: Request): Promise<NextResponse> {
     //    container the shared QueryClient persists across requests, serving
     //    stale subscription data that causes auto-joining to unsubscribed communities.
     let subscriptions: Subscription[] = [];
+    const qc = new QueryClient();
     try {
-        const qc = new QueryClient();
         subscriptions =
           (await qc.fetchQuery(
             getAccountSubscriptionsQueryOptions(username)
           )) || [];
     } catch (error) {
         console.error("MM bootstrap: Unable to load Hive/Ecency subscriptions", error);
+    } finally {
+        qc.clear();
     }
 
     const communityIds = subscriptions
