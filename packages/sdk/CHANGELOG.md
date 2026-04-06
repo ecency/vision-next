@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2
+
+### Patch Changes
+
+- Fix bootstrap (#741)
+
 ## 2.1.1
 
 ### Patch Changes
