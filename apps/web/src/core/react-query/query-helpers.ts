@@ -1,3 +1,4 @@
+import { isServer } from "@tanstack/react-query";
 import { getQueryClient } from "./index";
 import {
   useQuery,
@@ -13,9 +14,34 @@ import type {
 } from "@tanstack/query-core";
 import { EcencyConfigManager } from "@/config";
 
+// Hard ceiling on any single SSR prefetch. Must be under nginx's
+// proxy_read_timeout (typically 15s) so the render completes before
+// nginx closes the connection. When this fires, the prefetch is skipped
+// and client-side React Query will refetch on hydration.
+const SSR_PREFETCH_TIMEOUT_MS = 10_000;
+
+/**
+ * Race a promise against a timeout. Resolves to undefined on timeout
+ * instead of rejecting, so SSR renders gracefully degrade.
+ */
+function withSsrTimeout<T>(promise: Promise<T>): Promise<T | undefined> {
+  if (!isServer) return promise;
+  return Promise.race([
+    promise,
+    new Promise<undefined>((resolve) =>
+      setTimeout(resolve, SSR_PREFETCH_TIMEOUT_MS)
+    )
+  ]);
+}
+
 /**
  * Prefetch a query on the server and return cached data.
  * Replaces the old `.prefetch()` method from EcencyQueriesManager.
+ *
+ * On the server, each prefetch is bounded by SSR_PREFETCH_TIMEOUT_MS.
+ * If the RPC call hangs, the prefetch is skipped and client-side
+ * React Query will refetch after hydration - preventing zombie SSR
+ * renders that run for minutes after nginx closes the connection.
  *
  * @example
  * // Server Component
@@ -26,7 +52,7 @@ export async function prefetchQuery<
   TKey extends QueryKey = QueryKey
 >(options: FetchQueryOptions<T, Error, T, TKey>) {
   const qc = getQueryClient();
-  await qc.prefetchQuery(options);
+  await withSsrTimeout(qc.prefetchQuery(options));
   return qc.getQueryData<T>(options.queryKey);
 }
 
@@ -42,7 +68,7 @@ export async function prefetchInfiniteQuery<TPage, TCursor>(
   options: FetchInfiniteQueryOptions<TPage, Error, TPage, QueryKey, TCursor>
 ) {
   const qc = getQueryClient();
-  await qc.prefetchInfiniteQuery(options);
+  await withSsrTimeout(qc.prefetchInfiniteQuery(options));
   return qc.getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey);
 }
 

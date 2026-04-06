@@ -14,8 +14,35 @@ import {
 } from "@/server/mattermost";
 import { decodeToken, validateToken } from "@/utils";
 
+// Hard ceiling on the entire bootstrap handler. Individual mmFetch calls
+// have their own 10s timeout, but a user with 50 communities chains
+// 10+ batches sequentially. Without a total cap, worst case is 100s+.
+const BOOTSTRAP_TIMEOUT_MS = 30_000;
+
 export async function POST(req: Request) {
   try {
+    return await Promise.race([
+      handleBootstrap(req),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new BootstrapTimeoutError()), BOOTSTRAP_TIMEOUT_MS)
+      )
+    ]);
+  } catch (error) {
+    if (error instanceof BootstrapTimeoutError) {
+      console.warn("MM bootstrap: timed out after 30s");
+      return NextResponse.json({ error: "bootstrap timed out" }, { status: 504 });
+    }
+    console.error("MM bootstrap: unexpected top-level error", error);
+    const message = error instanceof Error ? error.message : "unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+class BootstrapTimeoutError extends Error {
+  constructor() { super("bootstrap timeout"); }
+}
+
+async function handleBootstrap(req: Request): Promise<NextResponse> {
     // 1) Parse body safely
     let body: any;
     try {
@@ -89,14 +116,16 @@ export async function POST(req: Request) {
     //    container the shared QueryClient persists across requests, serving
     //    stale subscription data that causes auto-joining to unsubscribed communities.
     let subscriptions: Subscription[] = [];
+    const qc = new QueryClient();
     try {
-        const qc = new QueryClient();
         subscriptions =
           (await qc.fetchQuery(
             getAccountSubscriptionsQueryOptions(username)
           )) || [];
     } catch (error) {
         console.error("MM bootstrap: Unable to load Hive/Ecency subscriptions", error);
+    } finally {
+        qc.clear();
     }
 
     const communityIds = subscriptions
@@ -187,9 +216,4 @@ export async function POST(req: Request) {
         token: personalToken
     });
     return withMattermostTokenCookie(response, personalToken);
-    } catch (error) {
-        console.error("MM bootstrap: unexpected top-level error", error);
-        const message = error instanceof Error ? error.message : "unknown error";
-        return NextResponse.json({ error: message }, { status: 500 });
-    }
 }

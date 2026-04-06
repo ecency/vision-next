@@ -213,8 +213,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
       '@ecency/hive-tx':
-        specifier: ^7.1.1
-        version: 7.1.1
+        specifier: ^7.2.0
+        version: 7.2.0
       '@ecency/render-helper':
         specifier: workspace:*
         version: link:../../packages/render-helper
@@ -788,8 +788,8 @@ importers:
   packages/sdk:
     dependencies:
       '@ecency/hive-tx':
-        specifier: ^7.1.1
-        version: 7.1.1
+        specifier: ^7.2.0
+        version: 7.2.0
       '@noble/hashes':
         specifier: ^2.0.1
         version: 2.0.1
@@ -1800,6 +1800,10 @@ packages:
 
   '@ecency/hive-tx@7.1.1':
     resolution: {integrity: sha512-uQ+m31UQe26ZlCxyZLESL5JVzHHl19HT88zPQCJx6hlQ8hD63SNzu3/Pke4v93+ShhBHZgzPPzzdGE6ETdF+sA==}
+    engines: {node: '>=20'}
+
+  '@ecency/hive-tx@7.2.0':
+    resolution: {integrity: sha512-SfgsL1MyCsxD3Kc4TPsSKnt0MbugsfK92FE5xrFiXG/HtREIPjDWpJNN1hRLjDMQRmli8VV2aHSFewvBHEM/fA==}
     engines: {node: '>=20'}
 
   '@emnapi/core@1.5.0':
@@ -11022,6 +11026,13 @@ snapshots:
       tslib: 2.8.1
 
   '@ecency/hive-tx@7.1.1':
+    dependencies:
+      '@noble/ciphers': 2.1.1
+      '@noble/curves': 2.0.1
+      '@noble/hashes': 2.0.1
+      bs58: 6.0.0
+
+  '@ecency/hive-tx@7.2.0':
     dependencies:
       '@noble/ciphers': 2.1.1
       '@noble/curves': 2.0.1
