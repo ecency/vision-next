@@ -32,6 +32,7 @@ export function searchQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10_000),
       });
 
       if (!response.ok) {
@@ -111,6 +112,7 @@ export function getControversialRisingInfiniteQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10_000),
       });
 
       if (!response.ok) {

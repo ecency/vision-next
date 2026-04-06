@@ -65,6 +65,7 @@ export async function search(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(10_000),
   });
 
   return parseJsonResponse<SearchResponse>(response);
@@ -78,6 +79,7 @@ export async function searchPath(q: string): Promise<string[]> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ q }),
+    signal: AbortSignal.timeout(10_000),
   });
 
   const data = await parseJsonResponse<string[]>(response);

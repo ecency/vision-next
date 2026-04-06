@@ -61,6 +61,7 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10_000),
       });
 
       if (!response.ok) {

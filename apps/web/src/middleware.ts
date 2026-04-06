@@ -11,8 +11,6 @@ import {
 } from "@/features/next-middleware";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 
-const CACHE_HEADERS_ENABLED = process.env.ENABLE_HTML_CACHE_HEADERS === "true";
-
 const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
 
 export function middleware(request: NextRequest, event: NextFetchEvent) {
@@ -97,8 +95,6 @@ function applyCacheHeaders(
   path: string,
   event: NextFetchEvent
 ) {
-  if (!CACHE_HEADERS_ENABLED) return;
-
   const basePolicy = getCachePolicyForPath(path);
   if (!basePolicy) return;
 
