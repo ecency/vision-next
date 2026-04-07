@@ -12,10 +12,7 @@ import Link from "next/link";
 export default async function CommunitiesList() {
   const ecencyCommunity = await prefetchQuery(getCommunityCache("hive-125125"));
 
-  await getQueryClient().prefetchQuery(getCommunitiesQueryOptions("hot", "", 5));
-  const communities = getQueryClient().getQueryData<Communities>(
-    getCommunitiesQueryOptions("hot", "", 5).queryKey
-  );
+  const communities = await prefetchQuery(getCommunitiesQueryOptions("hot", "", 5));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

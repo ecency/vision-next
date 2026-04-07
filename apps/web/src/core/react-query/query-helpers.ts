@@ -73,6 +73,30 @@ export async function prefetchInfiniteQuery<TPage, TCursor>(
 }
 
 /**
+ * Server-safe fetchQuery with SSR timeout.
+ * Unlike prefetchQuery (which swallows errors), this returns data directly.
+ * On timeout, returns undefined instead of hanging.
+ */
+export async function fetchQuery<T, TKey extends QueryKey = QueryKey>(
+  options: FetchQueryOptions<T, Error, T, TKey>
+): Promise<T | undefined> {
+  const qc = getQueryClient();
+  return withSsrTimeout(qc.fetchQuery(options));
+}
+
+/**
+ * Server-safe fetchInfiniteQuery with SSR timeout.
+ * Returns the infinite query data, or undefined on timeout.
+ */
+export async function fetchInfiniteQuery<TPage, TCursor>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: FetchInfiniteQueryOptions<TPage, Error, TPage, any, TCursor>
+): Promise<InfiniteData<TPage, TCursor> | undefined> {
+  const qc = getQueryClient();
+  return withSsrTimeout(qc.fetchInfiniteQuery(options as any));
+}
+
+/**
  * Get cached query data synchronously.
  * Replaces the old `.getData()` method from EcencyQueriesManager.
  *

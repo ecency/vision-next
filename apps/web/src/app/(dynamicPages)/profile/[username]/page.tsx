@@ -1,6 +1,6 @@
 import { ProfileEntriesList, ProfileSearchContent } from "./_components";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
-import { prefetchQuery, getQueryClient } from "@/core/react-query";
+import { prefetchQuery, getQueryClient, fetchInfiniteQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
@@ -40,7 +40,7 @@ export default async function Page({ params, searchParams }: Props) {
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;
 
   if (searchParam && searchParam !== "") {
-    const searchPages = await getQueryClient().fetchInfiniteQuery(
+    const searchPages = await fetchInfiniteQuery(
       getSearchApiInfiniteQueryOptions(
         `${searchParam} author:${username} type:post`,
         "newest",

@@ -3,7 +3,7 @@ import { prefetchGetPostsFeedQuery } from "@/api/queries";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { getQueryClient, prefetchQuery, fetchInfiniteQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions, getSearchApiInfiniteQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -36,7 +36,7 @@ export default async function Page({ params, searchParams }: Props) {
   let initialFeed: InfiniteData<Entry[], unknown> | undefined;
 
   if (searchParam && searchParam !== "") {
-    const searchPages = await getQueryClient().fetchInfiniteQuery(
+    const searchPages = await fetchInfiniteQuery(
       getSearchApiInfiniteQueryOptions(
         `${searchParam} author:${username} type:post`,
         "newest",
