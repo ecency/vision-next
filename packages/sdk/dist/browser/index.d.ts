@@ -7510,11 +7510,11 @@ interface BoostPlusPayload {
 declare function useBoostPlus(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, BoostPlusPayload, unknown>;
 
 type BridgeParams = Record<string, unknown> | unknown[];
-declare function bridgeApiCall<T>(endpoint: string, params: BridgeParams): Promise<T>;
-declare function resolvePost(post: Entry$1, observer: string, num?: number): Promise<Entry$1>;
-declare function getPostsRanked(sort: string, start_author?: string, start_permlink?: string, limit?: number, tag?: string, observer?: string): Promise<Entry$1[] | null>;
-declare function getAccountPosts(sort: string, account: string, start_author?: string, start_permlink?: string, limit?: number, observer?: string): Promise<Entry$1[] | null>;
-declare function getPost(author?: string, permlink?: string, observer?: string, num?: number): Promise<Entry$1 | undefined>;
+declare function bridgeApiCall<T>(endpoint: string, params: BridgeParams, signal?: AbortSignal): Promise<T>;
+declare function resolvePost(post: Entry$1, observer: string, num?: number, signal?: AbortSignal): Promise<Entry$1>;
+declare function getPostsRanked(sort: string, start_author?: string, start_permlink?: string, limit?: number, tag?: string, observer?: string, signal?: AbortSignal): Promise<Entry$1[] | null>;
+declare function getAccountPosts(sort: string, account: string, start_author?: string, start_permlink?: string, limit?: number, observer?: string, signal?: AbortSignal): Promise<Entry$1[] | null>;
+declare function getPost(author?: string, permlink?: string, observer?: string, num?: number, signal?: AbortSignal): Promise<Entry$1 | undefined>;
 declare function getPostHeader(author?: string, permlink?: string): Promise<Entry$1 | null>;
 declare function getDiscussion(author: string, permlink: string, observer?: string): Promise<Record<string, Entry$1> | null>;
 declare function getCommunity(name: string, observer?: string | undefined): Promise<Community | null>;

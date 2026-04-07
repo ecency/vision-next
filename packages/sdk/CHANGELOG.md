@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.3
+
+### Patch Changes
+
+- Abort stuck queries (#744)
+
 ## 2.1.2
 
 ### Patch Changes
