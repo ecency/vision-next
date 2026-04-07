@@ -24,7 +24,15 @@ export async function POST(req: Request) {
   const timer = setTimeout(() => ac.abort(), BOOTSTRAP_TIMEOUT_MS);
 
   try {
-    return await handleBootstrap(req, ac.signal);
+    // Promise.race guarantees a hard 30s response deadline.
+    // The AbortController additionally cancels the underlying work
+    // so handleBootstrap doesn't zombie after the timeout fires.
+    return await Promise.race([
+      handleBootstrap(req, ac.signal),
+      new Promise<never>((_, reject) => {
+        ac.signal.addEventListener("abort", () => reject(new DOMException("bootstrap timeout", "AbortError")), { once: true });
+      })
+    ]);
   } catch (error) {
     if (ac.signal.aborted) {
       console.warn("MM bootstrap: timed out after 30s");
