@@ -20,29 +20,25 @@ import { decodeToken, validateToken } from "@/utils";
 const BOOTSTRAP_TIMEOUT_MS = 30_000;
 
 export async function POST(req: Request) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), BOOTSTRAP_TIMEOUT_MS);
+
   try {
-    return await Promise.race([
-      handleBootstrap(req),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new BootstrapTimeoutError()), BOOTSTRAP_TIMEOUT_MS)
-      )
-    ]);
+    return await handleBootstrap(req, ac.signal);
   } catch (error) {
-    if (error instanceof BootstrapTimeoutError) {
+    if (ac.signal.aborted) {
       console.warn("MM bootstrap: timed out after 30s");
       return NextResponse.json({ error: "bootstrap timed out" }, { status: 504 });
     }
     console.error("MM bootstrap: unexpected top-level error", error);
     const message = error instanceof Error ? error.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-class BootstrapTimeoutError extends Error {
-  constructor() { super("bootstrap timeout"); }
-}
-
-async function handleBootstrap(req: Request): Promise<NextResponse> {
+async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextResponse> {
     // 1) Parse body safely
     let body: any;
     try {
@@ -110,6 +106,8 @@ async function handleBootstrap(req: Request): Promise<NextResponse> {
         );
     }
 
+    signal.throwIfAborted();
+
     // 4) Hive subscriptions — use a per-request QueryClient.
     //    Do NOT use the shared getQueryClient() here: React's cache() is
     //    scoped to Server Components, not Route Handlers. In a long-lived
@@ -156,11 +154,14 @@ async function handleBootstrap(req: Request): Promise<NextResponse> {
       console.warn("MM bootstrap: failed to load left channels", { username, error: e });
     }
 
+    signal.throwIfAborted();
+
     // Ensure channels exist and join for all subscribed communities
     const communityEntries = Array.from(uniqueCommunityIds);
     const channelResults: PromiseSettledResult<{ communityId: string; channelId: string }>[] = [];
 
     for (let i = 0; i < communityEntries.length; i += BATCH_SIZE) {
+      signal.throwIfAborted();
       const batch = communityEntries.slice(i, i + BATCH_SIZE);
       const batchResults = await Promise.allSettled(
         batch.map(async ([communityId, title]) => {

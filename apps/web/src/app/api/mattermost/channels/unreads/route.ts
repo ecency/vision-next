@@ -185,8 +185,14 @@ export async function GET() {
       }
     });
 
-    // Filter out excluded DM channels
-    const filteredChannels = allChannels.filter((ch) => !excludedDmChannelIds.has(ch.id));
+    // Mattermost auto-joins users to these default channels when they join
+    // a team. The UI hides them, so exclude their unreads from the badge.
+    const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
+
+    // Filter out excluded DM channels and hidden default channels
+    const filteredChannels = allChannels.filter(
+      (ch) => !excludedDmChannelIds.has(ch.id) && !MATTERMOST_DEFAULT_CHANNELS.has(ch.name ?? "")
+    );
 
     const memberByChannelId = members.reduce<Record<string, MattermostChannelMember>>((acc, member) => {
       acc[member.channel_id] = member;
