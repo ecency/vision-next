@@ -131,7 +131,7 @@ describe('getPostsRankedQueryOptions', () => {
     const options = getPostsRankedQueryOptions('created', '', '', 20, 'hive', 'obs')
     const result = await options.queryFn()
 
-    expect(mockGetPostsRanked).toHaveBeenCalledWith('created', '', '', 20, 'hive', 'obs')
+    expect(mockGetPostsRanked).toHaveBeenCalledWith('created', '', '', 20, 'hive', 'obs', undefined)
     expect(result).toEqual(mockEntries)
   })
 

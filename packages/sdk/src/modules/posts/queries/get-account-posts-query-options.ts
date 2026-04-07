@@ -74,7 +74,7 @@ export function getAccountPostsQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.accountPostsPage(username ?? "", filter, start_author, start_permlink, limit, observer),
     enabled: !!username && enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal } = {} as any) => {
       if (!username) {
         return [];
       }
@@ -85,7 +85,8 @@ export function getAccountPostsQueryOptions(
         start_author,
         start_permlink,
         limit,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

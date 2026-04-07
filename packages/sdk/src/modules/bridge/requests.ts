@@ -15,7 +15,8 @@ export function bridgeApiCall<T>(endpoint: string, params: BridgeParams, signal?
 export async function resolvePost(
   post: Entry,
   observer: string,
-  num?: number
+  num?: number,
+  signal?: AbortSignal
 ): Promise<Entry> {
   const { json_metadata: json } = post;
 
@@ -25,7 +26,8 @@ export async function resolvePost(
         json.original_author,
         json.original_permlink,
         observer,
-        num
+        num,
+        signal
       );
       if (resp) {
         return {
@@ -43,9 +45,9 @@ export async function resolvePost(
   return { ...post, num };
 }
 
-async function resolvePosts(posts: Entry[], observer: string): Promise<Entry[]> {
+async function resolvePosts(posts: Entry[], observer: string, signal?: AbortSignal): Promise<Entry[]> {
   const validatedPosts = posts.map(validateEntry);
-  const resolved = await Promise.all(validatedPosts.map((p) => resolvePost(p, observer)));
+  const resolved = await Promise.all(validatedPosts.map((p) => resolvePost(p, observer, undefined, signal)));
   return filterDmcaEntry(resolved) as Entry[];
 }
 
@@ -68,7 +70,7 @@ export async function getPostsRanked(
   }, signal);
 
   if (resp) {
-    return resolvePosts(resp, observer);
+    return resolvePosts(resp, observer, signal);
   }
 
   return resp;
@@ -97,7 +99,7 @@ export async function getAccountPosts(
   }, signal);
 
   if (resp) {
-    return resolvePosts(resp, observer);
+    return resolvePosts(resp, observer, signal);
   }
 
   return resp;
@@ -191,17 +193,18 @@ export async function getPost(
   author: string = "",
   permlink: string = "",
   observer: string = "",
-  num?: number
+  num?: number,
+  signal?: AbortSignal
 ): Promise<Entry | undefined> {
   const resp = await bridgeApiCall<Entry | null>("get_post", {
     author,
     permlink,
     observer,
-  });
+  }, signal);
 
   if (resp) {
     const validatedEntry = validateEntry(resp);
-    const post = await resolvePost(validatedEntry, observer, num);
+    const post = await resolvePost(validatedEntry, observer, num, signal);
     return filterDmcaEntry(post) as Entry;
   }
 
