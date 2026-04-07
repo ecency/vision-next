@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ProfileCommunities } from "./_page";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
