@@ -27,7 +27,7 @@ export function getAccountPostsInfiniteQueryOptions(
       hasNextPage: true,
     } as PageParam,
 
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       if (!pageParam?.hasNextPage || !username) return [];
 
       const response = await getAccountPosts(
@@ -36,7 +36,8 @@ export function getAccountPostsInfiniteQueryOptions(
         pageParam.author ?? "",
         pageParam.permlink ?? "",
         limit,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];
@@ -73,7 +74,7 @@ export function getAccountPostsQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.accountPostsPage(username ?? "", filter, start_author, start_permlink, limit, observer),
     enabled: !!username && enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal } = {} as any) => {
       if (!username) {
         return [];
       }
@@ -84,7 +85,8 @@ export function getAccountPostsQueryOptions(
         start_author,
         start_permlink,
         limit,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

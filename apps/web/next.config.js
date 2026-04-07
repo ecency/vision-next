@@ -93,7 +93,25 @@ const config = {
   typescript: { ignoreBuildErrors: true },
   transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/render-helper"],
   experimental: {
-    externalDir: true
+    externalDir: true,
+    optimizePackageImports: [
+      "@tiptap/core",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/pm",
+      "highcharts",
+      "emoji-mart",
+      "@emoji-mart/data",
+      "@emoji-mart/react",
+      "react-virtualized",
+      "date-fns",
+      "remeda",
+      "@floating-ui/react-dom",
+      "@react-spring/web",
+      "framer-motion",
+      "@sentry/nextjs",
+      "@sentry/browser",
+    ]
   },
 
   webpack: (config, { isServer, webpack }) => {

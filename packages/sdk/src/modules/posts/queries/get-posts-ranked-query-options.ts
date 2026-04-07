@@ -25,7 +25,7 @@ export function getPostsRankedInfiniteQueryOptions(
 ) {
   return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
     queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
-    queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: PageParam; signal: AbortSignal }) => {
       if (!pageParam.hasNextPage) {
         return [];
       }
@@ -42,7 +42,7 @@ export function getPostsRankedInfiniteQueryOptions(
         limit,
         tag: sanitizedTag,
         observer,
-      });
+      }, undefined, undefined, signal);
 
       if (response === null || response === undefined) {
         return [];
@@ -101,7 +101,7 @@ export function getPostsRankedQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.postsRankedPage(sort, start_author, start_permlink, limit, tag, observer),
     enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal } = {} as any) => {
       let sanitizedTag = tag;
       if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
         sanitizedTag = "";
@@ -113,7 +113,8 @@ export function getPostsRankedQueryOptions(
         start_permlink,
         limit,
         sanitizedTag,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

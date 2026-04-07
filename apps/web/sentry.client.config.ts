@@ -58,12 +58,16 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
     window.removeEventListener("error", earlyHandler);
     window.removeEventListener("unhandledrejection", earlyRejectionHandler);
 
-    Sentry.init(SENTRY_CONFIG);
-    Sentry.setTag("source", "client");
+    try {
+      Sentry.init(SENTRY_CONFIG);
+      Sentry.setTag("source", "client");
 
-    // Flush buffered errors
-    for (const { error } of earlyErrors) {
-      Sentry.captureException(error);
+      // Flush buffered errors
+      for (const { error } of earlyErrors) {
+        Sentry.captureException(error);
+      }
+    } catch (e) {
+      console.warn("Sentry init failed, error tracking disabled:", e);
     }
   };
 
@@ -73,6 +77,10 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
     setTimeout(init, 3000);
   }
 } else {
-  Sentry.init(SENTRY_CONFIG);
-  Sentry.setTag("source", "client");
+  try {
+    Sentry.init(SENTRY_CONFIG);
+    Sentry.setTag("source", "client");
+  } catch (e) {
+    console.warn("Sentry init failed, error tracking disabled:", e);
+  }
 }
