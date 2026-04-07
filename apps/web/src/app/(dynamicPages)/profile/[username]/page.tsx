@@ -8,6 +8,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
+import type { SearchResponse } from "@ecency/sdk";
 import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
@@ -31,7 +32,7 @@ export default async function Page({ params, searchParams }: Props) {
 
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
-    searchParam && searchParam !== ""
+    searchParam
       ? fetchInfiniteQuery(
           getSearchApiInfiniteQueryOptions(
             `${searchParam} author:${username} type:post`,
@@ -40,7 +41,7 @@ export default async function Page({ params, searchParams }: Props) {
           )
         )
       : Promise.resolve(undefined),
-    searchParam && searchParam !== ""
+    searchParam
       ? Promise.resolve(undefined)
       : prefetchGetPostsFeedQuery("posts", `@${username}`)
   ]);
@@ -52,11 +53,13 @@ export default async function Page({ params, searchParams }: Props) {
     ));
   }
 
-  const results = (searchPages?.pages?.[0] as any)?.results ?? [];
+  const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;
+  // SDK SearchResult is a subset of the app's SearchResult; the API returns the full shape
+  const results = (firstPage?.results ?? []) as unknown as SearchResult[];
   const searchData = results.length > 0
     ? results
         .slice()
-        .sort((a: any, b: any) => Date.parse(b.created_at) - Date.parse(a.created_at))
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
     : undefined;
   const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 

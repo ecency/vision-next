@@ -28,7 +28,7 @@ export default async function Page({ params, searchParams }: Props) {
   const username = usernameParam.replace("%40", "");
   const [account, searchPages, prefetchedFeed] = await Promise.all([
     prefetchQuery(getAccountFullQueryOptions(username)),
-    searchParam && searchParam !== ""
+    searchParam
       ? fetchInfiniteQuery(
           getSearchApiInfiniteQueryOptions(
             `${searchParam} author:${username} type:post`,
@@ -37,7 +37,7 @@ export default async function Page({ params, searchParams }: Props) {
           )
         )
       : Promise.resolve(undefined),
-    searchParam && searchParam !== ""
+    searchParam
       ? Promise.resolve(undefined)
       : prefetchGetPostsFeedQuery(section, `@${username}`)
   ]);
