@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG, INTERNAL_API_TIMEOUT_MS } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS, withTimeoutSignal } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 export function getSearchApiInfiniteQueryOptions(
@@ -11,7 +11,7 @@ export function getSearchApiInfiniteQueryOptions(
 ) {
   return infiniteQueryOptions({
     queryKey: ["search", "api", q, sort, hideLow, since, votes],
-    queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: string | undefined; signal: AbortSignal }) => {
       interface SearchApiPayload {
         q: string;
         sort: string;
@@ -39,7 +39,7 @@ export function getSearchApiInfiniteQueryOptions(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
+        signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
       });
 
       if (!response.ok) {

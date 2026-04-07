@@ -26,37 +26,41 @@ export default async function Page({ params, searchParams }: Props) {
   const { query: searchParam } = await searchParams;
 
   const username = usernameParam.replace("%40", "");
-  const account = await prefetchQuery(getAccountFullQueryOptions(username));
-  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
-    username,
-    account?.profile.pinned
-  ));
+  const [account, searchPages, prefetchedFeed] = await Promise.all([
+    prefetchQuery(getAccountFullQueryOptions(username)),
+    searchParam && searchParam !== ""
+      ? fetchInfiniteQuery(
+          getSearchApiInfiniteQueryOptions(
+            `${searchParam} author:${username} type:post`,
+            "newest",
+            false
+          )
+        )
+      : Promise.resolve(undefined),
+    searchParam && searchParam !== ""
+      ? Promise.resolve(undefined)
+      : prefetchGetPostsFeedQuery(section, `@${username}`)
+  ]);
 
-  let searchData: SearchResult[] | undefined = undefined;
-  let initialFeed: InfiniteData<Entry[], unknown> | undefined;
-
-  if (searchParam && searchParam !== "") {
-    const searchPages = await fetchInfiniteQuery(
-      getSearchApiInfiniteQueryOptions(
-        `${searchParam} author:${username} type:post`,
-        "newest",
-        false
-      )
-    );
-
-    const firstPage: SearchResponse | undefined = searchPages?.pages?.[0];
-    const results: SearchResult[] =
-        (firstPage as any)?.results ??
-        (firstPage as any)?.items ??
-        [];
-
-    searchData = results
-        .slice()
-        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
-  } else {
-    const prefetched = await prefetchGetPostsFeedQuery(section, `@${username}`);
-    initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;
+  if (account?.profile.pinned) {
+    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
+      username,
+      account.profile.pinned
+    ));
   }
+
+  const firstPage: SearchResponse | undefined = searchPages?.pages?.[0] as SearchResponse | undefined;
+  const results: SearchResult[] =
+      (firstPage as any)?.results ??
+      (firstPage as any)?.items ??
+      [];
+
+  const searchData = results.length > 0
+    ? results
+        .slice()
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    : undefined;
+  const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 
   if (!account || !["", "posts", "comments", "replies", "blog"].includes(section)) {
     return notFound();

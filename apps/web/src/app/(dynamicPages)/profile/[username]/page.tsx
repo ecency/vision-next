@@ -29,33 +29,35 @@ export default async function Page({ params, searchParams }: Props) {
   const username = usernameParam.replace("%40", "");
   const { query: searchParam } = await searchParams;
 
-  const account = await prefetchQuery(getAccountFullQueryOptions(username));
+  const [account, searchPages, prefetchedFeed] = await Promise.all([
+    prefetchQuery(getAccountFullQueryOptions(username)),
+    searchParam && searchParam !== ""
+      ? fetchInfiniteQuery(
+          getSearchApiInfiniteQueryOptions(
+            `${searchParam} author:${username} type:post`,
+            "newest",
+            false
+          )
+        )
+      : Promise.resolve(undefined),
+    searchParam && searchParam !== ""
+      ? Promise.resolve(undefined)
+      : prefetchGetPostsFeedQuery("posts", `@${username}`)
+  ]);
 
-  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
-    username,
-    account?.profile.pinned
-  ));
-
-  let searchData: SearchResult[] | undefined = undefined;
-  let initialFeed: InfiniteData<Entry[], unknown> | undefined;
-
-  if (searchParam && searchParam !== "") {
-    const searchPages = await fetchInfiniteQuery(
-      getSearchApiInfiniteQueryOptions(
-        `${searchParam} author:${username} type:post`,
-        "newest",
-        false
-      )
-    );
-    if (searchPages?.pages?.[0]?.results) {
-      searchData = searchPages.pages[0].results.sort(
-        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-      );
-    }
-  } else {
-    const prefetched = await prefetchGetPostsFeedQuery("posts", `@${username}`);
-    initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;
+  if (account?.profile.pinned) {
+    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
+      username,
+      account.profile.pinned
+    ));
   }
+
+  const searchData = searchPages?.pages?.[0]?.results
+    ? searchPages.pages[0].results.sort(
+        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
+      )
+    : undefined;
+  const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 
   if (!account) {
     return notFound();

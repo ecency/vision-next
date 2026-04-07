@@ -31,8 +31,10 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  const proposal = await prefetchQuery(getProposalQueryOptions(+id));
-  const basic = await PagesMetadataGenerator.getForPage("proposals");
+  const [proposal, basic] = await Promise.all([
+    prefetchQuery(getProposalQueryOptions(+id)),
+    PagesMetadataGenerator.getForPage("proposals")
+  ]);
   return {
     ...basic,
     title: `${basic.title} | ${proposal?.subject}`,
