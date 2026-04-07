@@ -10,12 +10,15 @@ export function withTimeoutSignal(timeoutMs: number, signal?: AbortSignal): Abor
 
   const ac = new AbortController();
   const onAbort = () => {
-    ac.abort();
+    const reason = signal.aborted ? signal.reason : timeoutSignal.reason;
+    ac.abort(reason);
     signal.removeEventListener("abort", onAbort);
     timeoutSignal.removeEventListener("abort", onAbort);
   };
-  if (signal.aborted || timeoutSignal.aborted) {
-    ac.abort();
+  if (signal.aborted) {
+    ac.abort(signal.reason);
+  } else if (timeoutSignal.aborted) {
+    ac.abort(timeoutSignal.reason);
   } else {
     signal.addEventListener("abort", onAbort, { once: true });
     timeoutSignal.addEventListener("abort", onAbort, { once: true });

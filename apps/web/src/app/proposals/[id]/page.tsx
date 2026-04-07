@@ -35,10 +35,13 @@ export async function generateMetadata(
     prefetchQuery(getProposalQueryOptions(+id)),
     PagesMetadataGenerator.getForPage("proposals")
   ]);
+  if (!proposal) {
+    return basic;
+  }
   return {
     ...basic,
-    title: `${basic.title} | ${proposal?.subject}`,
-    description: proposal?.creator ?? basic.description
+    title: `${basic.title} | ${proposal.subject}`,
+    description: proposal.creator ?? basic.description
   };
 }
 

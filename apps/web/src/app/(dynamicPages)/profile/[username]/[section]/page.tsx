@@ -49,11 +49,8 @@ export default async function Page({ params, searchParams }: Props) {
     ));
   }
 
-  const firstPage: SearchResponse | undefined = searchPages?.pages?.[0] as SearchResponse | undefined;
-  const results: SearchResult[] =
-      (firstPage as any)?.results ??
-      (firstPage as any)?.items ??
-      [];
+  const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;
+  const results: SearchResult[] = firstPage?.results ?? [];
 
   const searchData = results.length > 0
     ? results

@@ -52,10 +52,11 @@ export default async function Page({ params, searchParams }: Props) {
     ));
   }
 
-  const searchData = searchPages?.pages?.[0]?.results
-    ? searchPages.pages[0].results.sort(
-        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-      )
+  const results = (searchPages?.pages?.[0] as any)?.results ?? [];
+  const searchData = results.length > 0
+    ? results
+        .slice()
+        .sort((a: any, b: any) => Date.parse(b.created_at) - Date.parse(a.created_at))
     : undefined;
   const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 

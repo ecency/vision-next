@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { CONFIG, INTERNAL_API_TIMEOUT_MS, withTimeoutSignal } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS, withTimeoutSignal, QueryKeys } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 export function searchQueryOptions(
@@ -11,7 +11,7 @@ export function searchQueryOptions(
   votes?: number
 ) {
   return queryOptions({
-    queryKey: ["search", q, sort, hideLow, since, scroll_id, votes],
+    queryKey: QueryKeys.search.results(q, sort, hideLow, since, scroll_id, votes),
     queryFn: async ({ signal }) => {
       const data: {
         q: string;
@@ -55,7 +55,7 @@ export function getControversialRisingInfiniteQueryOptions(
   enabled = true
 ) {
   return infiniteQueryOptions<SearchResponse, Error, SearchResponse, (string | number)[], PageParam>({
-    queryKey: ["search", "controversial-rising", what, tag],
+    queryKey: QueryKeys.search.controversialRising(what, tag),
     initialPageParam: { sid: undefined, hasNextPage: true } as PageParam,
 
     queryFn: async ({ pageParam, signal }: { pageParam: PageParam; signal: AbortSignal }) => {

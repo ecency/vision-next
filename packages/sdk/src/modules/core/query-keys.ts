@@ -314,7 +314,7 @@ export const QueryKeys = {
     results: (
       q: string,
       sort: string,
-      hideLow: boolean,
+      hideLow: boolean | string,
       since?: string,
       scrollId?: string,
       votes?: number

@@ -46,7 +46,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
         </span>
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}
-          {communityData && <CommunityCover account={account!} community={communityData} />}
+          {communityData && account && <CommunityCover account={account} community={communityData} />}
           {children}
         </div>
       </div>
