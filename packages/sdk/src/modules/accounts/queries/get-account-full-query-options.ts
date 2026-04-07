@@ -11,14 +11,14 @@ import { callRPC } from "@/modules/core/hive-tx";
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
     queryKey: QueryKeys.accounts.full(username),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!username) {
         throw new Error("[SDK] Username is empty");
       }
 
       const response = (await callRPC("condenser_api.get_accounts", [[
         username,
-      ]])) as any[];
+      ]], undefined, undefined, signal)) as any[];
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
@@ -28,9 +28,9 @@ export function getAccountFullQueryOptions(username: string | undefined) {
       // Run follow count and reputation in parallel — both are independent
       // of each other and only need the username (not the account response).
       const [follow_stats, reputationValue] = await Promise.all([
-        callRPC("condenser_api.get_follow_count", [username])
+        callRPC("condenser_api.get_follow_count", [username], undefined, undefined, signal)
           .catch((): undefined => undefined) as Promise<AccountFollowStats | undefined>,
-        callRPC("condenser_api.get_account_reputations", [username, 1])
+        callRPC("condenser_api.get_account_reputations", [username, 1], undefined, undefined, signal)
           .then((r) => ((r as AccountReputation[])[0]?.reputation ?? 0))
           .catch(() => 0)
       ]);

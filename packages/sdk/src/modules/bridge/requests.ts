@@ -8,8 +8,8 @@ import { filterDmcaEntry } from "@/modules/posts/utils/filter-dmca-entries";
 
 type BridgeParams = Record<string, unknown> | unknown[];
 
-export function bridgeApiCall<T>(endpoint: string, params: BridgeParams): Promise<T> {
-  return callRPC(`bridge.${endpoint}`, params) as Promise<T>;
+export function bridgeApiCall<T>(endpoint: string, params: BridgeParams, signal?: AbortSignal): Promise<T> {
+  return callRPC(`bridge.${endpoint}`, params, undefined, undefined, signal) as Promise<T>;
 }
 
 export async function resolvePost(
@@ -55,7 +55,8 @@ export async function getPostsRanked(
   start_permlink: string = "",
   limit: number = 20,
   tag: string = "",
-  observer: string = ""
+  observer: string = "",
+  signal?: AbortSignal
 ): Promise<Entry[] | null> {
   const resp = await bridgeApiCall<Entry[] | null>("get_ranked_posts", {
     sort,
@@ -64,7 +65,7 @@ export async function getPostsRanked(
     limit,
     tag,
     observer,
-  });
+  }, signal);
 
   if (resp) {
     return resolvePosts(resp, observer);
@@ -79,7 +80,8 @@ export async function getAccountPosts(
   start_author: string = "",
   start_permlink: string = "",
   limit: number = 20,
-  observer: string = ""
+  observer: string = "",
+  signal?: AbortSignal
 ): Promise<Entry[] | null> {
   if (CONFIG.dmcaAccounts.includes(account)) {
     return [];
@@ -92,7 +94,7 @@ export async function getAccountPosts(
     start_permlink,
     limit,
     observer,
-  });
+  }, signal);
 
   if (resp) {
     return resolvePosts(resp, observer);

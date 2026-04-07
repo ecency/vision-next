@@ -27,7 +27,7 @@ export function getAccountPostsInfiniteQueryOptions(
       hasNextPage: true,
     } as PageParam,
 
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       if (!pageParam?.hasNextPage || !username) return [];
 
       const response = await getAccountPosts(
@@ -36,7 +36,8 @@ export function getAccountPostsInfiniteQueryOptions(
         pageParam.author ?? "",
         pageParam.permlink ?? "",
         limit,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

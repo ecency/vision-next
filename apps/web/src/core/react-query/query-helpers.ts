@@ -21,17 +21,35 @@ import { EcencyConfigManager } from "@/config";
 const SSR_PREFETCH_TIMEOUT_MS = 10_000;
 
 /**
- * Race a promise against a timeout. Resolves to undefined on timeout
- * instead of rejecting, so SSR renders gracefully degrade.
+ * Race a promise against a timeout with real cancellation.
+ *
+ * When the timeout fires, cancels the in-progress React Query fetch via
+ * `cancelQueries()`, which aborts the signal passed to the queryFn. If
+ * the queryFn forwards that signal to `callRPC` (hive-tx >=7.3.0) or
+ * `fetch()`, the underlying TCP connection is torn down immediately
+ * instead of running as a zombie until it naturally completes.
+ *
+ * Resolves to undefined on timeout so SSR renders gracefully degrade.
  */
-function withSsrTimeout<T>(promise: Promise<T>): Promise<T | undefined> {
+function withSsrTimeout<T>(
+  promise: Promise<T>,
+  queryKey?: QueryKey
+): Promise<T | undefined> {
   if (!isServer) return promise;
-  return Promise.race([
-    promise,
-    new Promise<undefined>((resolve) =>
-      setTimeout(resolve, SSR_PREFETCH_TIMEOUT_MS)
-    )
-  ]);
+
+  return new Promise<T | undefined>((resolve) => {
+    const timer = setTimeout(() => {
+      // Cancel the in-flight query — sends abort signal to queryFn
+      if (queryKey) {
+        getQueryClient().cancelQueries({ queryKey });
+      }
+      resolve(undefined);
+    }, SSR_PREFETCH_TIMEOUT_MS);
+
+    promise
+      .then((result) => { clearTimeout(timer); resolve(result); })
+      .catch(() => { clearTimeout(timer); resolve(undefined); });
+  });
 }
 
 /**
@@ -52,7 +70,7 @@ export async function prefetchQuery<
   TKey extends QueryKey = QueryKey
 >(options: FetchQueryOptions<T, Error, T, TKey>) {
   const qc = getQueryClient();
-  await withSsrTimeout(qc.prefetchQuery(options));
+  await withSsrTimeout(qc.prefetchQuery(options), options.queryKey);
   return qc.getQueryData<T>(options.queryKey);
 }
 
@@ -68,7 +86,7 @@ export async function prefetchInfiniteQuery<TPage, TCursor>(
   options: FetchInfiniteQueryOptions<TPage, Error, TPage, QueryKey, TCursor>
 ) {
   const qc = getQueryClient();
-  await withSsrTimeout(qc.prefetchInfiniteQuery(options));
+  await withSsrTimeout(qc.prefetchInfiniteQuery(options), options.queryKey);
   return qc.getQueryData<InfiniteData<TPage, TCursor>>(options.queryKey);
 }
 
@@ -81,7 +99,7 @@ export async function fetchQuery<T, TKey extends QueryKey = QueryKey>(
   options: FetchQueryOptions<T, Error, T, TKey>
 ): Promise<T | undefined> {
   const qc = getQueryClient();
-  return withSsrTimeout(qc.fetchQuery(options));
+  return withSsrTimeout(qc.fetchQuery(options), options.queryKey);
 }
 
 /**
@@ -93,7 +111,7 @@ export async function fetchInfiniteQuery<TPage, TCursor>(
   options: FetchInfiniteQueryOptions<TPage, Error, TPage, any, TCursor>
 ): Promise<InfiniteData<TPage, TCursor> | undefined> {
   const qc = getQueryClient();
-  return withSsrTimeout(qc.fetchInfiniteQuery(options as any));
+  return withSsrTimeout(qc.fetchInfiniteQuery(options as any), options.queryKey);
 }
 
 /**

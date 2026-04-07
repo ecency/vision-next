@@ -57,7 +57,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
     const options = getAccountPostsInfiniteQueryOptions('testuser', 'posts', 20, 'obs')
     const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
 
-    expect(mockGetAccountPosts).toHaveBeenCalledWith('posts', 'testuser', '', '', 20, 'obs')
+    expect(mockGetAccountPosts).toHaveBeenCalledWith('posts', 'testuser', '', '', 20, 'obs', expect.anything())
     expect(result).toEqual(mockEntries)
   })
 
@@ -89,7 +89,7 @@ describe('getAccountPostsInfiniteQueryOptions', () => {
       hasNextPage: true
     }))
 
-    expect(mockGetAccountPosts).toHaveBeenCalledWith('blog', 'testuser', 'prev-author', 'prev-permlink', 10, 'obs')
+    expect(mockGetAccountPosts).toHaveBeenCalledWith('blog', 'testuser', 'prev-author', 'prev-permlink', 10, 'obs', expect.anything())
   })
 
   it('should be disabled when username is undefined', () => {

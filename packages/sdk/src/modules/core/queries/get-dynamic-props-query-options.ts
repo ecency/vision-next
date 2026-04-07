@@ -13,12 +13,12 @@ export function getDynamicPropsQueryOptions() {
     queryKey: QueryKeys.core.dynamicProps(),
     refetchInterval: DYNAMIC_PROPS_REFRESH_MS,
     staleTime: DYNAMIC_PROPS_REFRESH_MS,
-    queryFn: async (): Promise<DynamicProps> => {
+    queryFn: async ({ signal }): Promise<DynamicProps> => {
       // Get raw blockchain data without transformation
-      const rawGlobalDynamic: any = await callRPC("condenser_api.get_dynamic_global_properties", []);
-      const rawFeedHistory: any = await callRPC("condenser_api.get_feed_history", []);
-      const rawChainProps: any = await callRPC("condenser_api.get_chain_properties", []);
-      const rawRewardFund: any = await callRPC("condenser_api.get_reward_fund", ["post"]);
+      const rawGlobalDynamic: any = await callRPC("condenser_api.get_dynamic_global_properties", [], undefined, undefined, signal);
+      const rawFeedHistory: any = await callRPC("condenser_api.get_feed_history", [], undefined, undefined, signal);
+      const rawChainProps: any = await callRPC("condenser_api.get_chain_properties", [], undefined, undefined, signal);
+      const rawRewardFund: any = await callRPC("condenser_api.get_reward_fund", ["post"], undefined, undefined, signal);
 
       // Calculate derived values for backward compatibility
       // parseAsset handles both string format ("200905388484 HIVE") and NAI format ({ amount, nai, precision })

@@ -25,7 +25,7 @@ export function getPostsRankedInfiniteQueryOptions(
 ) {
   return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
     queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
-    queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: PageParam; signal: AbortSignal }) => {
       if (!pageParam.hasNextPage) {
         return [];
       }
@@ -42,7 +42,7 @@ export function getPostsRankedInfiniteQueryOptions(
         limit,
         tag: sanitizedTag,
         observer,
-      });
+      }, undefined, undefined, signal);
 
       if (response === null || response === undefined) {
         return [];
