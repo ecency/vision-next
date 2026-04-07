@@ -4,7 +4,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { CommunitiesList } from "./_components";
 import "./page.scss";
-import { getQueryClient } from "@/core/react-query";
+import { getQueryClient, prefetchQuery } from "@/core/react-query";
 
 export const revalidate = 300; // 5 minutes
 
@@ -22,7 +22,7 @@ interface Props {
 export default async function Communities({ searchParams }: Props) {
   const { sort, q } = await searchParams;
 
-  await getQueryClient().prefetchQuery(getCommunitiesQueryOptions(sort ?? "rank", q ?? ""));
+  await prefetchQuery(getCommunitiesQueryOptions(sort ?? "rank", q ?? ""));
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>

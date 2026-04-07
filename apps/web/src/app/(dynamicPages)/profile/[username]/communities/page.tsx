@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ProfileCommunities } from "./_page";
-import { getQueryClient } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
@@ -18,8 +18,7 @@ export default async function ProfileCommunitiesPage({ params }: Props) {
   const { username } = await params;
 
   const query = getAccountFullQueryOptions(username.replace("%40", ""));
-  await getQueryClient().prefetchQuery(query);
-  const account = getQueryClient().getQueryData(query.queryKey);
+  const account = await prefetchQuery(query);
 
   if (!account) {
     return notFound();
