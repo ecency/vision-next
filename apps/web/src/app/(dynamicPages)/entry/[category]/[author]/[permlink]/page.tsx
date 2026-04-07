@@ -1,5 +1,6 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { catchPostImage } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -84,8 +85,15 @@ export default async function EntryPage({ params, searchParams }: Props) {
     );
   }
 
+  // Preload the post's primary image as the likely LCP element.
+  // catchPostImage extracts from json_metadata.image or body, proxied via images.ecency.com.
+  const lcpImage = catchPostImage(entry, 600, 500, "match");
+
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
+      {lcpImage && (
+        <link rel="preload" as="image" href={lcpImage} fetchPriority="high" />
+      )}
       <EntryPageContextProvider>
         <MdHandler />
         <div className="app-content entry-page bg-fixed bg-contain bg-gradient-to-tr from-blue-dark-sky/20 to-white dark:from-dark-default dark:to-black">
