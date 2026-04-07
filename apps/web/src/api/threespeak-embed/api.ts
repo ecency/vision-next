@@ -77,6 +77,7 @@ export async function uploadVideoEmbed(
 
     const upload = new tus.Upload(file, {
       endpoint,
+      chunkSize: 50 * 1024 * 1024, // 50MB — each PATCH completes quickly; retries resume from last chunk
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
         Authorization: `Bearer ${token}`
