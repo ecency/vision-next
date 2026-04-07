@@ -1,7 +1,7 @@
 {
   "name": "@ecency/sdk",
   "private": false,
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Ecency SDK",
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
   "peerDependencies": {
     "react": ">=18",
     "@tanstack/react-query": ">=5",
-    "@ecency/hive-tx": "^7.3.2",
+    "@ecency/hive-tx": "^7.3.3",
     "hivesigner": "^4.0.0"
   },
   "peerDependenciesMeta": {

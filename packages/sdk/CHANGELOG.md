@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.4
+
+### Patch Changes
+
+- Fix refresh token signature stringify (#745)
+
 ## 2.1.3
 
 ### Patch Changes
