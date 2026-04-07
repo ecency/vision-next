@@ -9,7 +9,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
 import type { InfiniteData } from "@tanstack/react-query";
-import type { SearchResponse } from "@/entities";
+import type { SearchResponse } from "@ecency/sdk";
 
 interface Props {
   params: Promise<{ username: string; section: string }>;
@@ -50,7 +50,8 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;
-  const results: SearchResult[] = firstPage?.results ?? [];
+  // SDK SearchResult is a subset of the app's SearchResult; the API returns the full shape
+  const results = (firstPage?.results ?? []) as unknown as SearchResult[];
 
   const searchData = results.length > 0
     ? results
