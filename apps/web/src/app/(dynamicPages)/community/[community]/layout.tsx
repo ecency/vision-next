@@ -16,10 +16,12 @@ interface Props {
 
 export default async function CommunityPageLayout({ children, params }: PropsWithChildren<Props>) {
   const { community, tag } = await params;
-  const communityData = await prefetchQuery(getCommunityCache(community));
-  const account = await prefetchQuery(getAccountFullQueryOptions(community));
   const metaUrl = `/${tag}/${community}`;
-  const base = await getServerAppBase();
+  const [communityData, account, base] = await Promise.all([
+    prefetchQuery(getCommunityCache(community)),
+    prefetchQuery(getAccountFullQueryOptions(community)),
+    getServerAppBase()
+  ]);
 
   return (
     <>
@@ -44,7 +46,7 @@ export default async function CommunityPageLayout({ children, params }: PropsWit
         </span>
         <div className="content-side">
           {communityData && <CommunityMenu community={communityData} />}
-          {communityData && <CommunityCover account={account!} community={communityData} />}
+          {communityData && account && <CommunityCover account={account} community={communityData} />}
           {children}
         </div>
       </div>

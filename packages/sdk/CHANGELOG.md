@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.5
+
+### Patch Changes
+
+- Parallelize requests, improve abort logic (#746)
+
 ## 2.1.4
 
 ### Patch Changes

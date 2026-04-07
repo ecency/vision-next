@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG, INTERNAL_API_TIMEOUT_MS } from "@/modules/core";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS, withTimeoutSignal, QueryKeys } from "@/modules/core";
 import { SearchResponse } from "../types/search-response";
 
 interface Entry {
@@ -47,8 +47,8 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
   const query = buildQuery(entry);
 
   return queryOptions({
-    queryKey: ["search", "similar-entries", entry.author, entry.permlink, query],
-    queryFn: async () => {
+    queryKey: QueryKeys.search.similarEntries(entry.author, entry.permlink, query),
+    queryFn: async ({ signal }) => {
       const data = {
         q: query,
         sort: "newest",
@@ -61,7 +61,7 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        signal: AbortSignal.timeout(INTERNAL_API_TIMEOUT_MS),
+        signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
       });
 
       if (!response.ok) {

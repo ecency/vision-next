@@ -314,11 +314,14 @@ export const QueryKeys = {
     results: (
       q: string,
       sort: string,
-      hideLow: boolean,
+      hideLow: boolean | string,
       since?: string,
       scrollId?: string,
       votes?: number
-    ) => ["search", q, sort, hideLow, since, scrollId, votes],
+    ) => {
+      const normalizedHideLow = typeof hideLow === "string" ? hideLow === "1" || hideLow === "true" : hideLow;
+      return ["search", q, sort, normalizedHideLow, since, scrollId, votes] as const;
+    },
     controversialRising: (what: string, tag: string) =>
       ["search", "controversial-rising", what, tag],
     similarEntries: (author: string, permlink: string, query: string) =>

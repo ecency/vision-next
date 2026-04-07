@@ -8,6 +8,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { Entry, SearchResult } from "@/entities";
+import type { SearchResponse } from "@ecency/sdk";
 import type { InfiniteData } from "@tanstack/react-query";
 
 interface Props {
@@ -29,33 +30,38 @@ export default async function Page({ params, searchParams }: Props) {
   const username = usernameParam.replace("%40", "");
   const { query: searchParam } = await searchParams;
 
-  const account = await prefetchQuery(getAccountFullQueryOptions(username));
+  const [account, searchPages, prefetchedFeed] = await Promise.all([
+    prefetchQuery(getAccountFullQueryOptions(username)),
+    searchParam
+      ? fetchInfiniteQuery(
+          getSearchApiInfiniteQueryOptions(
+            `${searchParam} author:${username} type:post`,
+            "newest",
+            false
+          )
+        )
+      : Promise.resolve(undefined),
+    searchParam
+      ? Promise.resolve(undefined)
+      : prefetchGetPostsFeedQuery("posts", `@${username}`)
+  ]);
 
-  await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
-    username,
-    account?.profile.pinned
-  ));
-
-  let searchData: SearchResult[] | undefined = undefined;
-  let initialFeed: InfiniteData<Entry[], unknown> | undefined;
-
-  if (searchParam && searchParam !== "") {
-    const searchPages = await fetchInfiniteQuery(
-      getSearchApiInfiniteQueryOptions(
-        `${searchParam} author:${username} type:post`,
-        "newest",
-        false
-      )
-    );
-    if (searchPages?.pages?.[0]?.results) {
-      searchData = searchPages.pages[0].results.sort(
-        (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)
-      );
-    }
-  } else {
-    const prefetched = await prefetchGetPostsFeedQuery("posts", `@${username}`);
-    initialFeed = prefetched as InfiniteData<Entry[], unknown> | undefined;
+  if (account?.profile.pinned) {
+    await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(
+      username,
+      account.profile.pinned
+    ));
   }
+
+  const firstPage = searchPages?.pages?.[0] as SearchResponse | undefined;
+  // SDK SearchResult is a subset of the app's SearchResult; the API returns the full shape
+  const results = (firstPage?.results ?? []) as unknown as SearchResult[];
+  const searchData = results.length > 0
+    ? results
+        .slice()
+        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    : undefined;
+  const initialFeed = prefetchedFeed as InfiniteData<Entry[], unknown> | undefined;
 
   if (!account) {
     return notFound();

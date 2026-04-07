@@ -31,12 +31,17 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  const proposal = await prefetchQuery(getProposalQueryOptions(+id));
-  const basic = await PagesMetadataGenerator.getForPage("proposals");
+  const [proposal, basic] = await Promise.all([
+    prefetchQuery(getProposalQueryOptions(+id)),
+    PagesMetadataGenerator.getForPage("proposals")
+  ]);
+  if (!proposal) {
+    return basic;
+  }
   return {
     ...basic,
-    title: `${basic.title} | ${proposal?.subject}`,
-    description: proposal?.creator ?? basic.description
+    title: `${basic.title} | ${proposal.subject}`,
+    description: proposal.creator ?? basic.description
   };
 }
 
