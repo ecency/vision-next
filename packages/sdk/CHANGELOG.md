@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.6
+
+### Patch Changes
+
+- Waves X embed fix on Decks (#747)
+
 ## 2.1.5
 
 ### Patch Changes
