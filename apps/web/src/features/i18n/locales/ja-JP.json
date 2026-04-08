@@ -1905,7 +1905,8 @@
     "mark-read": "既読にする",
     "mute": "通知をオフにする",
     "unmute": "通知通知をオンにする",
-    "settings": "設定",
+    "settings": "サウンド/ポップアップ設定",
+    "new-notifications-batch": "{{count}} 新しい通知",
     "select": "通知を選択",
     "unselect": "通知の選択を解除",
     "mark-selected-read": "選択したものを既読にする"
