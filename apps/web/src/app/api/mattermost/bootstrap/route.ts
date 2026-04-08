@@ -221,7 +221,9 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
         const normalizedCommunity = community.trim().toLowerCase();
         if (leftChannels.has(normalizedCommunity)) {
           signal.throwIfAborted();
-          await removeUserLeftChannel(user.id, normalizedCommunity, signal).catch(() => {});
+          await removeUserLeftChannel(user.id, normalizedCommunity, signal).catch((e) => {
+            console.warn("MM bootstrap: failed to clear left-channel record", { username, community: normalizedCommunity, error: e });
+          });
         }
       } catch (e) {
         console.warn("MM bootstrap: explicit community join failed", { username, community, error: e });
