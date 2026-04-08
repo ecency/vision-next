@@ -1905,7 +1905,8 @@
     "mark-read": "Marcar como Lido",
     "mute": "Desativar alertas de notificação",
     "unmute": "Ativar alertas de notificação",
-    "settings": "Ajustes",
+    "settings": "Configurações de Som/Popup",
+    "new-notifications-batch": "{{count}} novas notificações",
     "select": "Selecionar notificação",
     "unselect": "Desmarcar notificação",
     "mark-selected-read": "Marcar selecionados como lidos"
