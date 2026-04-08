@@ -31,13 +31,21 @@ export async function POST(req: Request) {
     return await Promise.race([
       handleBootstrap(req, signal),
       new Promise<never>((_, reject) => {
+        if (signal.aborted) {
+          reject(new DOMException("bootstrap aborted", "AbortError"));
+          return;
+        }
         signal.addEventListener("abort", () => reject(new DOMException("bootstrap aborted", "AbortError")), { once: true });
       })
     ]);
   } catch (error) {
-    if (signal.aborted) {
+    if (ac.signal.aborted) {
       console.warn("MM bootstrap: timed out after 30s");
       return NextResponse.json({ error: "bootstrap timed out" }, { status: 504 });
+    }
+    if (req.signal.aborted) {
+      console.warn("MM bootstrap: client disconnected");
+      return NextResponse.json({ error: "client disconnected" }, { status: 499 });
     }
     console.error("MM bootstrap: unexpected top-level error", error);
     const message = error instanceof Error ? error.message : "unknown error";
@@ -166,6 +174,7 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
       const userWithProps = await getMattermostUserWithProps(user.id, signal);
       leftChannels = getUserLeftChannels(userWithProps);
     } catch (e) {
+      if (signal.aborted) throw e;
       console.warn("MM bootstrap: failed to load left channels", { username, error: e });
     }
 
