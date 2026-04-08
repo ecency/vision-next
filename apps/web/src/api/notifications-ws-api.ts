@@ -3,10 +3,14 @@ import { ActiveUser, WsNotification } from "@/entities";
 import { NotifyTypes } from "@/enums";
 import i18next from "i18next";
 import { playNotificationSound, requestNotificationPermission } from "@/utils";
+import { info } from "@/features/shared/feedback/feedback-events";
+import logo from "@/assets/img/logo-circle.svg";
 
 declare var window: Window & {
   nws?: WebSocket;
 };
+
+const BURST_WINDOW_MS = 500;
 
 export class NotificationsWebSocket {
   private activeUser: ActiveUser | null = null;
@@ -15,6 +19,8 @@ export class NotificationsWebSocket {
   private onMessageCallback: (() => void) | null = null;
   private enabledNotifyTypes: NotifyTypes[] = [];
   private isConnected = false;
+  private pendingMessages: string[] = [];
+  private burstTimer: ReturnType<typeof setTimeout> | null = null;
 
   private static getBody(data: WsNotification) {
     const { source } = data;
@@ -129,6 +135,12 @@ export class NotificationsWebSocket {
   }
 
   public disconnect() {
+    if (this.burstTimer) {
+      clearTimeout(this.burstTimer);
+      this.burstTimer = null;
+    }
+    this.pendingMessages.length = 0;
+
     if (window.nws !== undefined && this.isConnected) {
       window.nws.close();
       window.nws = undefined;
@@ -189,20 +201,73 @@ export class NotificationsWebSocket {
 
   private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
-  private async playSound() {
+  private async requestPermissionAndPlaySound(): Promise<NotificationPermission | "unsupported"> {
     if (!("Notification" in window)) {
-      return;
+      return "unsupported";
     }
     const permission = await requestNotificationPermission();
-    if (permission !== "granted") return;
+    if (permission === "granted") {
+      playNotificationSound();
+    }
+    return permission;
+  }
 
-    playNotificationSound();
+  private async flushPendingNotifications() {
+    const messages = this.pendingMessages.splice(0);
+    if (messages.length === 0) return;
+
+    const toastBody = messages.length === 1
+      ? messages[0]
+      : i18next.t("notifications.new-notifications-batch", { count: messages.length });
+
+    const permission = await this.requestPermissionAndPlaySound();
+    if (permission === "granted") {
+      // Browser Notification API - no in-app toast to avoid duplication
+      const notification = new Notification(i18next.t("notification.popup-title"), {
+        body: toastBody,
+        icon: logo,
+      });
+
+      notification.onclick = () => {
+        if (!this.hasUiNotifications) {
+          this.toggleUiProp("notifications");
+        }
+      };
+    } else {
+      // No browser permission - show in-app toast instead
+      info(toastBody);
+
+      // Open the notifications panel if it's not already visible
+      if (!this.hasUiNotifications) {
+        this.toggleUiProp("notifications");
+      }
+    }
+  }
+
+  private queueNotification(msg: string) {
+    this.pendingMessages.push(msg);
+
+    // Start a fixed-window timer on the first message only.
+    // Subsequent messages within the window are batched without resetting the timer.
+    if (!this.burstTimer) {
+      this.burstTimer = setTimeout(() => {
+        this.burstTimer = null;
+        this.flushPendingNotifications().catch((e) => console.warn("notification flush failed", e));
+      }, BURST_WINDOW_MS);
+    }
   }
 
   private async onMessageReceive(evt: MessageEvent) {
-    const logo = require("../assets/img/logo-circle.svg");
-
-    const data = JSON.parse(evt.data);
+    let data: WsNotification;
+    try {
+      const parsed: unknown = JSON.parse(evt.data);
+      if (!parsed || typeof parsed !== "object" || !("type" in parsed) || !("source" in parsed)) {
+        return;
+      }
+      data = parsed as WsNotification;
+    } catch {
+      return;
+    }
     const msg = NotificationsWebSocket.getBody(data);
 
     // Always trigger data refresh regardless of notification display settings
@@ -221,22 +286,7 @@ export class NotificationsWebSocket {
     if (!msg || !this.hasNotifications || !allowedToNotify) {
       return;
     }
-    const permission = await requestNotificationPermission();
-    if (permission === "granted") {
-      await this.playSound();
 
-      const notification = new Notification(i18next.t("notification.popup-title"), {
-        body: msg,
-        icon: logo,
-      });
-
-      notification.onclick = () => {
-        if (!this.hasUiNotifications) {
-          this.toggleUiProp("notifications");
-        }
-      };
-    } else if (this.hasUiNotifications) {
-      this.toggleUiProp("notifications");
-    }
+    this.queueNotification(msg);
   }
 }
