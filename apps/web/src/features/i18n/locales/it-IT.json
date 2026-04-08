@@ -1905,7 +1905,8 @@
     "mark-read": "Segna come letto",
     "mute": "Disattiva gli avvisi di notifica",
     "unmute": "Attiva gli avvisi di notifica",
-    "settings": "Impostazioni",
+    "settings": "Impostazioni Suono/Popup",
+    "new-notifications-batch": "{{count}} nuove notifiche",
     "select": "Seleziona notifica",
     "unselect": "Deseleziona notifica",
     "mark-selected-read": "Segna selezionato come letto"
