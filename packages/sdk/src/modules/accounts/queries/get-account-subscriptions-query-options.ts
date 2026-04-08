@@ -10,10 +10,10 @@ export function getAccountSubscriptionsQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.accounts.subscriptions(username!),
     enabled: !!username,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const response = await callRPC("bridge.list_all_subscriptions", {
           account: username,
-        });
+        }, undefined, undefined, signal);
       return (response ?? []) as Subscriptions;
     },
   });

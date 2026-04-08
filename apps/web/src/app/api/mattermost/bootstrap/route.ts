@@ -22,21 +22,30 @@ const BOOTSTRAP_TIMEOUT_MS = 30_000;
 export async function POST(req: Request) {
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), BOOTSTRAP_TIMEOUT_MS);
+  const signal = AbortSignal.any([req.signal, ac.signal]);
 
   try {
     // Promise.race guarantees a hard 30s response deadline.
     // The AbortController additionally cancels the underlying work
     // so handleBootstrap doesn't zombie after the timeout fires.
     return await Promise.race([
-      handleBootstrap(req, ac.signal),
+      handleBootstrap(req, signal),
       new Promise<never>((_, reject) => {
-        ac.signal.addEventListener("abort", () => reject(new DOMException("bootstrap timeout", "AbortError")), { once: true });
+        if (signal.aborted) {
+          reject(new DOMException("bootstrap aborted", "AbortError"));
+          return;
+        }
+        signal.addEventListener("abort", () => reject(new DOMException("bootstrap aborted", "AbortError")), { once: true });
       })
     ]);
   } catch (error) {
     if (ac.signal.aborted) {
       console.warn("MM bootstrap: timed out after 30s");
       return NextResponse.json({ error: "bootstrap timed out" }, { status: 504 });
+    }
+    if (req.signal.aborted) {
+      console.warn("MM bootstrap: client disconnected");
+      return NextResponse.json({ error: "client disconnected" }, { status: 499 });
     }
     console.error("MM bootstrap: unexpected top-level error", error);
     const message = error instanceof Error ? error.message : "unknown error";
@@ -99,9 +108,9 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
     let user;
     let personalToken: string;
     try {
-        user = await ensureMattermostUser(username);
-        await ensureUserInTeam(user.id);
-        personalToken = await ensurePersonalToken(user.id);
+        user = await ensureMattermostUser(username, signal);
+        await ensureUserInTeam(user.id, signal);
+        personalToken = await ensurePersonalToken(user.id, signal);
     } catch (e) {
         console.error("MM bootstrap: MM user/team/token error", {
           username,
@@ -123,11 +132,17 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
     //    stale subscription data that causes auto-joining to unsubscribed communities.
     let subscriptions: Subscription[] = [];
     const qc = new QueryClient();
+    const subscriptionsQuery = getAccountSubscriptionsQueryOptions(username);
     try {
-        subscriptions =
-          (await qc.fetchQuery(
-            getAccountSubscriptionsQueryOptions(username)
-          )) || [];
+        const abortSubscriptions = () => {
+          qc.cancelQueries({ queryKey: subscriptionsQuery.queryKey });
+        };
+        signal.addEventListener("abort", abortSubscriptions, { once: true });
+        try {
+          subscriptions = (await qc.fetchQuery(subscriptionsQuery)) || [];
+        } finally {
+          signal.removeEventListener("abort", abortSubscriptions);
+        }
     } catch (error) {
         console.error("MM bootstrap: Unable to load Hive/Ecency subscriptions", error);
     } finally {
@@ -156,9 +171,10 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
 
     let leftChannels = new Set<string>();
     try {
-      const userWithProps = await getMattermostUserWithProps(user.id);
+      const userWithProps = await getMattermostUserWithProps(user.id, signal);
       leftChannels = getUserLeftChannels(userWithProps);
     } catch (e) {
+      if (signal.aborted) throw e;
       console.warn("MM bootstrap: failed to load left channels", { username, error: e });
     }
 
@@ -181,7 +197,8 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
               user.id,
               communityId,
               title,
-              shouldAutoJoin
+              shouldAutoJoin,
+              signal
             );
             return { communityId, channelId: ensuredChannelId };
           } catch (err) {
@@ -207,11 +224,15 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
           user.id,
           community,
           communityTitle || displayName || community,
-          true
+          true,
+          signal
         );
         const normalizedCommunity = community.trim().toLowerCase();
         if (leftChannels.has(normalizedCommunity)) {
-          await removeUserLeftChannel(user.id, normalizedCommunity).catch(() => {});
+          signal.throwIfAborted();
+          await removeUserLeftChannel(user.id, normalizedCommunity, signal).catch((e) => {
+            console.warn("MM bootstrap: failed to clear left-channel record", { username, community: normalizedCommunity, error: e });
+          });
         }
       } catch (e) {
         console.warn("MM bootstrap: explicit community join failed", { username, community, error: e });

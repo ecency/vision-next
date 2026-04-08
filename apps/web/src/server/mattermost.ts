@@ -113,20 +113,22 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-export async function reactivateMattermostUser(userId: string): Promise<void> {
+export async function reactivateMattermostUser(userId: string, signal?: AbortSignal): Promise<void> {
   await mmFetch(`/users/${userId}/active`, {
     method: "PUT",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ active: true })
+    body: JSON.stringify({ active: true }),
+    signal
   });
 }
 
-export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
+export async function ensureMattermostUser(username: string, signal?: AbortSignal): Promise<MattermostUser> {
   // Step 1: Try to find existing user (only suppress 404)
   let user: MattermostUser | null = null;
   try {
     user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
   } catch (error) {
     if (error instanceof MattermostError && error.status === 404) {
@@ -139,7 +141,7 @@ export async function ensureMattermostUser(username: string): Promise<Mattermost
   // Step 2: If found, reactivate if needed (errors surface to caller)
   if (user) {
     if (user.delete_at > 0) {
-      await reactivateMattermostUser(user.id);
+      await reactivateMattermostUser(user.id, signal);
       user.delete_at = 0;
     }
     return user;
@@ -155,21 +157,24 @@ export async function ensureMattermostUser(username: string): Promise<Mattermost
       email,
       password: randomBytes(32).toString("base64url") + "!Aa1",
       allow_marketing: false
-    })
+    }),
+    signal
   });
 }
 
-export async function ensureUserInTeam(userId: string) {
+export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   try {
     await mmFetch(`/teams/${teamId}/members/${userId}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
   } catch (error) {
     await mmFetch(`/teams/${teamId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
-      body: JSON.stringify({ team_id: teamId, user_id: userId })
+      body: JSON.stringify({ team_id: teamId, user_id: userId }),
+      signal
     });
   }
 }
@@ -201,13 +206,15 @@ function normalizeCommunityId(community: string) {
 
 export async function ensureChannelForCommunity(
   community: string,
-  displayName?: string
+  displayName?: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   const channelName = normalizeCommunityId(community);
   try {
     const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
     return existing.id;
   } catch (error) {
@@ -219,7 +226,8 @@ export async function ensureChannelForCommunity(
         name: channelName,
         display_name: displayName || community,
         type: "O"
-      })
+      }),
+      signal
     });
     return created.id;
   }
@@ -229,20 +237,22 @@ export async function ensureCommunityChannelMembership(
   userId: string,
   community: string,
   displayName?: string,
-  autoJoin: boolean = false
+  autoJoin: boolean = false,
+  signal?: AbortSignal
 ) {
-  const channelId = await ensureChannelForCommunity(community, displayName);
+  const channelId = await ensureChannelForCommunity(community, displayName, signal);
   if (autoJoin) {
-    await ensureUserInChannel(userId, channelId);
+    await ensureUserInChannel(userId, channelId, signal);
   }
   return channelId;
 }
 
-export async function ensureUserInChannel(userId: string, channelId: string) {
+export async function ensureUserInChannel(userId: string, channelId: string, signal?: AbortSignal) {
   try {
     // Check if user is currently a member
     await mmFetch(`/channels/${channelId}/members/${userId}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
     // User is already a member, nothing to do
   } catch (error) {
@@ -250,7 +260,8 @@ export async function ensureUserInChannel(userId: string, channelId: string) {
     await mmFetch(`/channels/${channelId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
-      body: JSON.stringify({ channel_id: channelId, user_id: userId })
+      body: JSON.stringify({ channel_id: channelId, user_id: userId }),
+      signal
     });
   }
 }
@@ -296,9 +307,10 @@ export async function findMattermostUser(username: string): Promise<MattermostUs
   }
 }
 
-export async function getMattermostUserWithProps(userId: string): Promise<MattermostUserWithProps> {
+export async function getMattermostUserWithProps(userId: string, signal?: AbortSignal): Promise<MattermostUserWithProps> {
   return await mmFetch<MattermostUserWithProps>(`/users/${userId}`, {
-    headers: getAdminHeaders()
+    headers: getAdminHeaders(),
+    signal
   });
 }
 
@@ -308,13 +320,14 @@ export async function getMattermostUserWithProps(userId: string): Promise<Matter
  * Only treats 401/403 as "invalid token". Rethrows other
  * errors (5xx, network) so they surface as 502 upstream.
  */
-async function isTokenValid(token: string): Promise<boolean> {
+async function isTokenValid(token: string, signal?: AbortSignal): Promise<boolean> {
   try {
     await mmFetch<{ id: string }>(`/users/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
-      }
+      },
+      signal
     });
     return true;
   } catch (err) {
@@ -325,41 +338,43 @@ async function isTokenValid(token: string): Promise<boolean> {
   }
 }
 
-async function createToken(userId: string): Promise<string> {
+async function createToken(userId: string, signal?: AbortSignal): Promise<string> {
   const result = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
     method: "POST",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ description: "ecency-auto" })
+    body: JSON.stringify({ description: "ecency-auto" }),
+    signal
   });
   // Store the token secret in user props so we can retrieve it later.
   // Mattermost's GET /users/{id}/tokens does NOT return the secret —
   // it's only available at creation time.
   // Merge with existing props to avoid clobbering other fields
   // (left_channels, DM privacy, bans, etc.)
-  const user = await getMattermostUserWithProps(userId);
+  const user = await getMattermostUserWithProps(userId, signal);
   const mergedProps = { ...(user.props || {}), [CHAT_PAT_PROP]: result.token };
   await mmFetch(`/users/${userId}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ props: mergedProps })
+    body: JSON.stringify({ props: mergedProps }),
+    signal
   });
   return result.token;
 }
 
-export async function ensurePersonalToken(userId: string): Promise<string> {
+export async function ensurePersonalToken(userId: string, signal?: AbortSignal): Promise<string> {
   // Try to retrieve a previously stored PAT from user props.
   // Only fall through to createToken on auth errors (401/403).
   // Rethrow other errors (5xx, network) so they surface upstream.
-  const user = await getMattermostUserWithProps(userId);
+  const user = await getMattermostUserWithProps(userId, signal);
   const storedToken = user.props?.[CHAT_PAT_PROP];
   if (storedToken) {
     // isTokenValid rethrows non-auth errors
-    if (await isTokenValid(storedToken)) {
+    if (await isTokenValid(storedToken, signal)) {
       return storedToken;
     }
     // Token exists but is invalid (revoked/expired) — fall through to create
   }
-  return await createToken(userId);
+  return await createToken(userId, signal);
 }
 
 export function withMattermostTokenCookie(response: NextResponse, token: string) {
@@ -519,15 +534,16 @@ export async function addUserLeftChannel(userId: string, channelName: string) {
   });
 }
 
-export async function removeUserLeftChannel(userId: string, channelName: string) {
-  const user = await getMattermostUserWithProps(userId);
+export async function removeUserLeftChannel(userId: string, channelName: string, signal?: AbortSignal) {
+  const user = await getMattermostUserWithProps(userId, signal);
   const leftChannels = getUserLeftChannels(user);
   if (!leftChannels.delete(channelName)) return;
   const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
   await mmFetch(`/users/${userId}/patch`, {
     method: "PUT",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ props })
+    body: JSON.stringify({ props }),
+    signal
   });
 }
 

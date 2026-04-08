@@ -353,9 +353,17 @@
 .ecency-renderer-speak-extension .speak-iframe {
   width: 100%;
 }
+.ecency-renderer-twitter-extension {
+  max-width: 100%;
+  overflow: hidden;
+}
 .ecency-renderer-twitter-extension::after {
   content: none !important;
 }
 .ecency-renderer-twitter-extension a::after {
   content: none;
+}
+.er-twitter-frame {
+  max-width: 100%;
+  overflow: hidden;
 }
