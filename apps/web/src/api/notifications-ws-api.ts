@@ -4,6 +4,7 @@ import { NotifyTypes } from "@/enums";
 import i18next from "i18next";
 import { playNotificationSound, requestNotificationPermission } from "@/utils";
 import { info } from "@/features/shared/feedback/feedback-events";
+import logo from "@/assets/img/logo-circle.svg";
 
 declare var window: Window & {
   nws?: WebSocket;
@@ -224,7 +225,6 @@ export class NotificationsWebSocket {
     const permission = await requestNotificationPermission();
     if (permission === "granted") {
       // Browser Notification API - no in-app toast to avoid duplication
-      const logo = require("../assets/img/logo-circle.svg");
       const notification = new Notification(i18next.t("notification.popup-title"), {
         body: toastBody,
         icon: logo,
@@ -249,13 +249,14 @@ export class NotificationsWebSocket {
   private queueNotification(msg: string) {
     this.pendingMessages.push(msg);
 
-    if (this.burstTimer) {
-      clearTimeout(this.burstTimer);
+    // Start a fixed-window timer on the first message only.
+    // Subsequent messages within the window are batched without resetting the timer.
+    if (!this.burstTimer) {
+      this.burstTimer = setTimeout(() => {
+        this.burstTimer = null;
+        this.flushPendingNotifications();
+      }, BURST_WINDOW_MS);
     }
-    this.burstTimer = setTimeout(() => {
-      this.burstTimer = null;
-      this.flushPendingNotifications();
-    }, BURST_WINDOW_MS);
   }
 
   private async onMessageReceive(evt: MessageEvent) {
