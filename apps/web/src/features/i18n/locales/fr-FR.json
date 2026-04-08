@@ -1905,7 +1905,8 @@
     "mark-read": "Marquer comme lu",
     "mute": "Désactiver les alertes de notification",
     "unmute": "Activer les alertes de notification",
-    "settings": "Réglages",
+    "settings": "Réglages son/popup",
+    "new-notifications-batch": "{{count}} nouvelles notifications",
     "select": "Sélectionner une notification",
     "unselect": "Désélectionner la notification",
     "mark-selected-read": "Marquer comme lu"
