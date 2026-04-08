@@ -1905,7 +1905,8 @@
     "mark-read": "标为已读",
     "mute": "关闭通知",
     "unmute": "开启通知",
-    "settings": "设置",
+    "settings": "声音/opup 设置",
+    "new-notifications-batch": "{{count}} new notifications",
     "select": "选择通知",
     "unselect": "取消选择通知",
     "mark-selected-read": "标记选中为已读"
