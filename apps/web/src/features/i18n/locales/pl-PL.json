@@ -1905,7 +1905,8 @@
     "mark-read": "Oznacz jako przeczytane",
     "mute": "Wyłącz powiadomienia",
     "unmute": "Włącz powiadomienia",
-    "settings": "Ustawienia",
+    "settings": "Ustawienia dźwięku/wyskakujące okienko",
+    "new-notifications-batch": "{{count}} nowe powiadomienia",
     "select": "Wybierz powiadomienie",
     "unselect": "Odznacz powiadomienie",
     "mark-selected-read": "Oznacz jako przeczytane"
