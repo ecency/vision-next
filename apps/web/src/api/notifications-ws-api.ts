@@ -252,7 +252,7 @@ export class NotificationsWebSocket {
     if (!this.burstTimer) {
       this.burstTimer = setTimeout(() => {
         this.burstTimer = null;
-        this.flushPendingNotifications();
+        this.flushPendingNotifications().catch((e) => console.warn("notification flush failed", e));
       }, BURST_WINDOW_MS);
     }
   }
