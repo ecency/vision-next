@@ -1905,7 +1905,8 @@
     "mark-read": "पढ़ा हुआ मार्क करें",
     "mute": "अधिसूचना अलर्ट बंद करें",
     "unmute": "अधिसूचना अलर्ट चालू करें",
-    "settings": "सेटिंग्स",
+    "settings": "Sound/Popup Settings",
+    "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",
     "mark-selected-read": "Mark selected as read"
