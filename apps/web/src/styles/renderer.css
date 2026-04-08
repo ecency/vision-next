@@ -367,3 +367,11 @@
   max-width: 100%;
   overflow: hidden;
 }
+/* Constrain enhanced content within waves/deck columns */
+.waves-list-item .er-post-link,
+.waves-list-item .ecency-renderer-wave-like-post-extension-renderer,
+.thread-render .er-post-link,
+.thread-render .ecency-renderer-wave-like-post-extension-renderer {
+  max-width: 100%;
+  overflow: hidden;
+}

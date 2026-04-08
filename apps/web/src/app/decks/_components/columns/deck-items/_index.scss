@@ -105,6 +105,8 @@
     &-body {
       @include padding(1rem);
       @include padding-top(0);
+      overflow: hidden;
+      min-width: 0;
     }
 
     &-show-replies {
