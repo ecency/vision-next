@@ -1905,7 +1905,8 @@
     "mark-read": "Markeren als gelezen",
     "mute": "Meldingen uitschakelen",
     "unmute": "Meldingen inschakelen",
-    "settings": "Instellingen",
+    "settings": "Geluid/Popup Instellingen",
+    "new-notifications-batch": "{{count}} nieuwe meldingen",
     "select": "Selecteer melding",
     "unselect": "Melding deselecteren",
     "mark-selected-read": "Markeer als gelezen"
