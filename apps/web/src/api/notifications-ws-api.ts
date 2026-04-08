@@ -201,14 +201,15 @@ export class NotificationsWebSocket {
 
   private toggleUiProp: (type: "login" | "notifications", value?: boolean) => void = () => {};
 
-  private async playSound() {
+  private async requestPermissionAndPlaySound(): Promise<NotificationPermission | "unsupported"> {
     if (!("Notification" in window)) {
-      return;
+      return "unsupported";
     }
     const permission = await requestNotificationPermission();
-    if (permission !== "granted") return;
-
-    playNotificationSound();
+    if (permission === "granted") {
+      playNotificationSound();
+    }
+    return permission;
   }
 
   private async flushPendingNotifications() {
@@ -219,10 +220,7 @@ export class NotificationsWebSocket {
       ? messages[0]
       : i18next.t("notifications.new-notifications-batch", { count: messages.length });
 
-    // Single sound for the entire burst
-    await this.playSound();
-
-    const permission = await requestNotificationPermission();
+    const permission = await this.requestPermissionAndPlaySound();
     if (permission === "granted") {
       // Browser Notification API - no in-app toast to avoid duplication
       const notification = new Notification(i18next.t("notification.popup-title"), {
@@ -260,7 +258,16 @@ export class NotificationsWebSocket {
   }
 
   private async onMessageReceive(evt: MessageEvent) {
-    const data = JSON.parse(evt.data);
+    let data: WsNotification;
+    try {
+      const parsed: unknown = JSON.parse(evt.data);
+      if (!parsed || typeof parsed !== "object" || !("type" in parsed) || !("source" in parsed)) {
+        return;
+      }
+      data = parsed as WsNotification;
+    } catch {
+      return;
+    }
     const msg = NotificationsWebSocket.getBody(data);
 
     // Always trigger data refresh regardless of notification display settings
