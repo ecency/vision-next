@@ -963,7 +963,8 @@
     "start-conversation": "Inizia conversazione",
     "join-hint": "Diventa parte della grande comunità di Hive e guadagna ricompense per attività",
     "new-comment": "{{n}} nuovo commento - tocca per caricare",
-    "new-comments": "{{n}} nuovi commenti - tocca per caricare"
+    "new-comments": "{{n}} nuovi commenti - tocca per caricare",
+    "load-error": "Impossibile caricare i commenti. Tocca per riprovare"
   },
   "community": {
     "page-description": "Argomenti {{f}}",
