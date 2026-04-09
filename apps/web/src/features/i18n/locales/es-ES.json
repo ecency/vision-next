@@ -962,9 +962,9 @@
     "no-conversation": "Aún no hay conversación, se el primero en responder",
     "start-conversation": "Iniciar conversación",
     "join-hint": "Únete a la conversación y gana por tus contribuciones",
-    "new-comment": "{{n}} new comment - tap to load",
+    "new-comment": "{{n}} nuevo comentario: toca para cargar",
     "new-comments": "{{n}} nuevos comentarios - toque para cargar",
-    "load-error": "Error al cargar los comentarios. Toque para reintentar"
+    "load-error": "Error al cargar los comentarios. Da un toque para reintentar"
   },
   "community": {
     "page-description": "{{f}} temas",
@@ -3296,7 +3296,7 @@
       "revoke-select-description": "Elija qué claves eliminar de su cuenta. Debe mantener al menos una clave por autoridad.",
       "revoke-confirm-title": "Confirmar revocación",
       "revoke-confirm-description": "Firma con tu clave de propietario para eliminar las claves seleccionadas de tu cuenta.",
-      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-count": "Se revocarán {{count}} claves",
       "revoke-success": "Claves revocadas con éxito",
       "revoke-step-select": "Seleccionar claves",
       "revoke-step-sign": "Firmar"
