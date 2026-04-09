@@ -963,7 +963,8 @@
     "start-conversation": "Suhbatni boshlash",
     "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} mavzular",
