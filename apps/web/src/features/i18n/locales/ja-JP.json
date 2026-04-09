@@ -963,7 +963,8 @@
     "start-conversation": "会話を開始",
     "join-hint": "巨大なハイブコミュニティの一員になって、アクティビティで報酬を獲得しましょう",
     "new-comment": "{{n}} 新しいコメント - タップして読み込む",
-    "new-comments": "{{n}} 新しいコメント - タップして読み込む"
+    "new-comments": "{{n}} 新しいコメント - タップして読み込む",
+    "load-error": "コメントの読み込みに失敗しました。タップして再試行してください"
   },
   "community": {
     "page-description": "{{f}} トピック",
