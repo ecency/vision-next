@@ -963,7 +963,8 @@
     "start-conversation": "Iniciar conversa",
     "join-hint": "Torne-se parte de uma enorme comunidade de Colmeia e ganhe recompensas por atividades",
     "new-comment": "{{n}} novo comentário - toque para carregar",
-    "new-comments": "{{n}} novos comentários - toque para carregar"
+    "new-comments": "{{n}} novos comentários - toque para carregar",
+    "load-error": "Falha ao carregar os comentários. Toque para tentar novamente"
   },
   "community": {
     "page-description": "{{f}} tópicos",
