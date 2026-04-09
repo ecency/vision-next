@@ -32,13 +32,51 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
     "null is not an object (evaluating 'a.parentNode')",
     "null is not an object (evaluating 'b.parentNode')",
-    "null is not an object (evaluating 'c.parentNode')"
+    "null is not an object (evaluating 'c.parentNode')",
+    "CopyDataProperties is not a function"
   ],
   denyUrls: [
     /sui\.js/,
     /extensionServiceWorker\.js$/,
     /chrome-extension:\/\//
-  ]
+  ],
+
+  beforeSend(event) {
+    const message = event.exception?.values?.[0]?.value ?? "";
+    const stackStr = JSON.stringify(
+      event.exception?.values?.[0]?.stacktrace?.frames ?? []
+    );
+
+    // React SSR streaming hydration issue triggered by browser extensions
+    // ($RS is React's internal resumable script marker)
+    if (
+      message.includes("Cannot read properties of null (reading 'parentNode')") &&
+      stackStr.includes("$RS")
+    ) {
+      return null;
+    }
+
+    // Chrome 112 botnet traffic - undefined document access from synthetic handler
+    if (
+      message.includes(
+        "Cannot read properties of undefined (reading 'document')"
+      ) &&
+      stackStr.includes("HTMLDocument.c")
+    ) {
+      return null;
+    }
+
+    // Network issues corrupting JS chunk downloads
+    if (
+      /^SyntaxError/.test(event.exception?.values?.[0]?.type ?? "") &&
+      /Unexpected (end of input|token)/.test(message) &&
+      /chunks?[/\\-]/.test(stackStr)
+    ) {
+      return null;
+    }
+
+    return event;
+  }
 };
 
 if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {

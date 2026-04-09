@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from "react-virtualized";
 import { DeckProps, GenericDeckColumn } from "./generic-deck-column";
 import { noContentSvg } from "../icons";
@@ -42,24 +42,33 @@ export const GenericDeckWithDataColumn = ({
   const [visibleData, setVisibleData] = useState<DataItem[]>([]);
   const [newComingData, setNewComingData] = useState<DataItem[]>([]);
 
-  const cache = new CellMeasurerCache({
-    defaultHeight: 431,
-    fixedWidth: true,
-    defaultWidth: Math.min(400, window.innerWidth)
-  });
+  const cache = useMemo(
+    () =>
+      new CellMeasurerCache({
+        defaultHeight: 431,
+        fixedWidth: true,
+        defaultWidth: Math.min(400, window.innerWidth)
+      }),
+    []
+  );
 
   useEffect(() => {
-    if (
-      newDataComingCondition
+    setVisibleData((prev) => {
+      const shouldReplace = newDataComingCondition
         ? newDataComingCondition(data)
-        : visibleData.length === 0 || data.length === 0
-    ) {
-      setVisibleData(data);
-    } else {
-      const newData = data.filter(({ id }) => !visibleData.some((vd) => vd.id === id));
-      setNewComingData(newData);
-    }
-  }, [data, newDataComingCondition, visibleData]);
+        : prev.length === 0 || data.length === 0;
+
+      if (shouldReplace) {
+        return data;
+      }
+
+      const newData = data.filter(({ id }) => !prev.some((vd) => vd.id === id));
+      if (newData.length > 0) {
+        setNewComingData(newData);
+      }
+      return prev;
+    });
+  }, [data, newDataComingCondition]);
 
   const virtualScrollContent = (
     <AutoSizer>
