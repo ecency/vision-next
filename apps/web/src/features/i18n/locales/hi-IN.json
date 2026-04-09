@@ -963,7 +963,8 @@
     "start-conversation": "चर्चा शुरू करें",
     "join-hint": "विशाल हाइव समुदाय का हिस्सा बनें और गतिविधि के लिए पुरस्कार अर्जित करें",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} विषय",
