@@ -963,7 +963,8 @@
     "start-conversation": "Start conversation",
     "join-hint": "Become part of huge Hive community and earn rewards for activity",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} topik",
