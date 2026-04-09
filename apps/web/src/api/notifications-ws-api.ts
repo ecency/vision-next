@@ -203,6 +203,8 @@ export class NotificationsWebSocket {
 
   private async requestPermissionAndPlaySound(): Promise<NotificationPermission | "unsupported"> {
     if (!("Notification" in window)) {
+      // Still play sound even without Notification API support
+      playNotificationSound();
       return "unsupported";
     }
     const permission = await requestNotificationPermission();
@@ -261,14 +263,13 @@ export class NotificationsWebSocket {
     let data: WsNotification;
     try {
       const parsed: unknown = JSON.parse(evt.data);
-      if (!parsed || typeof parsed !== "object" || !("type" in parsed) || !("source" in parsed)) {
+      if (!parsed || typeof parsed !== "object" || !("type" in parsed)) {
         return;
       }
       data = parsed as WsNotification;
     } catch {
       return;
     }
-    const msg = NotificationsWebSocket.getBody(data);
 
     // Always trigger data refresh regardless of notification display settings
     try {
@@ -277,6 +278,7 @@ export class NotificationsWebSocket {
       console.error("notifications websocket callback failed", error);
     }
 
+    const msg = NotificationsWebSocket.getBody(data);
     const messageNotifyType = this.getNotificationType(data.type);
     const allowedToNotify =
       messageNotifyType && this.enabledNotifyTypes.length > 0
