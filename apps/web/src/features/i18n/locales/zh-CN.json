@@ -963,7 +963,8 @@
     "start-conversation": "开始对话",
     "join-hint": "成为大型Hive 社区的一部分并获得活动奖励",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "加载评论失败。点击重试"
   },
   "community": {
     "page-description": "{{f}} 个主题",
