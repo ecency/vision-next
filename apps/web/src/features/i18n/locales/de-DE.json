@@ -963,7 +963,8 @@
     "start-conversation": "Konversation beginnen",
     "join-hint": "Werde Teil der riesigen Hive-Community und erhalte Belohnungen für Aktivitäten",
     "new-comment": "{{n}} neuer Kommentar - tippen zum Laden",
-    "new-comments": "{{n}} neue Kommentare - tippen zum Laden"
+    "new-comments": "{{n}} neue Kommentare - tippen zum Laden",
+    "load-error": "Fehler beim Laden der Kommentare. Zum wiederholen tippen"
   },
   "community": {
     "page-description": "{{f}} Themen",
