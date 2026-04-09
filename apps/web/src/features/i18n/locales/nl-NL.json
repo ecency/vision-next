@@ -963,7 +963,8 @@
     "start-conversation": "Gesprek beginnen",
     "join-hint": "Word onderdeel van een grote Hive gemeenschap en verdien beloningen voor activiteit",
     "new-comment": "{{n}} nieuwe reactie - tik om te laden",
-    "new-comments": "{{n}} nieuwe reacties - tik om te laden"
+    "new-comments": "{{n}} nieuwe reacties - tik om te laden",
+    "load-error": "Laden van reacties mislukt. Tik om opnieuw te proberen"
   },
   "community": {
     "page-description": "{{f}} onderwerpen",
