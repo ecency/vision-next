@@ -963,7 +963,8 @@
     "start-conversation": "Démarrer la conversation",
     "join-hint": "Faites partie de la grande communauté Hive et gagnez des récompenses pour l'activité",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Impossible de charger les commentaires. Appuyez pour réessayer"
   },
   "community": {
     "page-description": "{{f}} sujets",
