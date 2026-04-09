@@ -32,11 +32,12 @@ function pageToEntries(p: Page): Entry[] {
 export default async function CommunityPostsPage({ params }: Props) {
   const { community, tag } = await params;
 
-  const communityData = await prefetchQuery(getCommunityCache(community));
-  if (!communityData) return notFound();
+  const [communityData, data] = await Promise.all([
+    prefetchQuery(getCommunityCache(community)),
+    prefetchGetPostsFeedQuery(tag, community)
+  ]);
 
-  // no cast needed if prefetchGetPostsFeedQuery is typed
-  const data = await prefetchGetPostsFeedQuery(tag, community); // InfiniteData<Page, unknown> | undefined
+  if (!communityData) return notFound();
 
   if (!data || !Array.isArray(data.pages) || data.pages.length === 0) {
     return null;

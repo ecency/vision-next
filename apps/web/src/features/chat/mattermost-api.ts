@@ -515,7 +515,7 @@ export function useMattermostUnread(enabled: boolean) {
     enabled: enabled && Boolean(username),
     refetchInterval: 60000,
     refetchOnWindowFocus: false,
-    staleTime: 30000,
+    staleTime: 60000,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels/unreads");
 

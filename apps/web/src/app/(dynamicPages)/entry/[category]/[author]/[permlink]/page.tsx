@@ -45,18 +45,18 @@ export default async function EntryPage({ params, searchParams }: Props) {
   const isRawContent = sParams.raw !== undefined;
 
   const author = username.replace("%40", "");
-  const entry = await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink));
+  const [entry] = await Promise.all([
+    prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(author, permlink)),
+    // Warm the query cache for child components that read account data.
+    // Use author from URL params so this runs in parallel with the entry fetch.
+    prefetchQuery(getAccountFullQueryOptions(author))
+  ]);
 
   if (
     permlink.startsWith("wave-") ||
     (permlink.startsWith("re-ecencywaves-") && entry?.parent_author === "ecency.waves")
   ) {
     return redirect(`/waves/${author}/${permlink}`);
-  }
-
-  if (entry?.author) {
-    // Warm the query cache for child components that read account data
-    await prefetchQuery(getAccountFullQueryOptions(entry.author));
   }
 
   if (!entry) {
