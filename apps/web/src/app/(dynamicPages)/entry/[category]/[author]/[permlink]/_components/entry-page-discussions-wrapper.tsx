@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { Entry } from "@/entities";
 import { EntryPageDiscussions } from "./entry-page-discussions";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getDiscussionsQueryOptions, SortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
@@ -18,7 +18,21 @@ interface Props {
 function DiscussionsLoader({ entry, category }: Props) {
   const { username: activeUsername } = useActiveAccount();
 
-  useSuspenseQuery(getDiscussionsQueryOptions(entry, SortOrder.created, true, activeUsername ?? undefined));
+  const { isLoading, isError, refetch } = useQuery(getDiscussionsQueryOptions(entry, SortOrder.created, true, activeUsername ?? undefined));
+
+  if (isLoading) {
+    return <DiscussionsSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-4 my-4 flex justify-center">
+        <Button icon={<UilComment />} onClick={() => refetch()}>
+          {i18next.t("discussion.load-error", { defaultValue: "Failed to load comments. Tap to retry" })}
+        </Button>
+      </div>
+    );
+  }
 
   return <EntryPageDiscussions entry={entry} category={category} />;
 }
@@ -53,9 +67,5 @@ export function EntryPageDiscussionsWrapper({ entry, category }: Props) {
     ) : null;
   }
 
-  return (
-    <Suspense fallback={<DiscussionsSkeleton />}>
-      <DiscussionsLoader entry={entry} category={category} />
-    </Suspense>
-  );
+  return <DiscussionsLoader entry={entry} category={category} />;
 }
