@@ -963,7 +963,8 @@
     "start-conversation": "Rozpocznij rozmowę",
     "join-hint": "Zostań częścią wielkiej społeczności Uli i zarabiaj nagrody za aktywność",
     "new-comment": "{{n}} nowy komentarz - dotknij, aby załadować",
-    "new-comments": "{{n}} nowe komentarze - dotknij, aby załadować"
+    "new-comments": "{{n}} nowe komentarze - dotknij, aby załadować",
+    "load-error": "Nie udało się załadować komentarzy. Dotknij, aby ponowić"
   },
   "community": {
     "page-description": "{{f}} tematów",
