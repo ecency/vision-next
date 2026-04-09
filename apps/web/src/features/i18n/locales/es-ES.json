@@ -963,7 +963,8 @@
     "start-conversation": "Iniciar conversación",
     "join-hint": "Únete a la conversación y gana por tus contribuciones",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} nuevos comentarios - toque para cargar"
+    "new-comments": "{{n}} nuevos comentarios - toque para cargar",
+    "load-error": "Error al cargar los comentarios. Toque para reintentar"
   },
   "community": {
     "page-description": "{{f}} temas",
