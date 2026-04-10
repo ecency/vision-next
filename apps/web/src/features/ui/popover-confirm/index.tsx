@@ -47,7 +47,7 @@ export function PopoverConfirm({
   const clonedChildren = cloneElement(children, {
     onClick: (e: React.MouseEvent) => {
       originalOnClick?.(e);
-      setShow(!show);
+      setShow((prev) => !prev);
     }
   });
 
