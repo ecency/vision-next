@@ -13,10 +13,13 @@ export function injectThreeSpeakThumbnail(
   if (!images?.length) return;
   if (element.querySelector(".video-thumbnail")) return;
 
+  const stringImages = images.filter((img): img is string => typeof img === "string");
+  if (!stringImages.length) return;
+
   const embedSrc = element.dataset.embedSrc ?? "";
   const videoId = extractVideoId(embedSrc);
 
-  const thumbnail = findBestThumbnail(images, videoId);
+  const thumbnail = findBestThumbnail(stringImages, videoId);
   if (!thumbnail) return;
 
   const img = document.createElement("img");
@@ -55,17 +58,18 @@ function findBestThumbnail(
 ): string | undefined {
   if (!images.length) return undefined;
 
-  const permlink = videoId.split("/")[1] ?? "";
+  const safeVideoId = typeof videoId === "string" ? videoId : "";
+  const permlink = safeVideoId.split("/")[1] ?? "";
 
   // Prefer image that matches the video permlink
   if (permlink) {
-    const match = images.find((img) => img.includes(permlink));
+    const match = images.find((img) => typeof img === "string" && img.includes(permlink));
     if (match) return match;
   }
 
   // Then prefer images from 3Speak CDN
   const cdnMatch = images.find((img) =>
-    THREESPEAK_CDN_PATTERNS.some((pattern) => img.includes(pattern))
+    typeof img === "string" && THREESPEAK_CDN_PATTERNS.some((pattern) => img.includes(pattern))
   );
   if (cdnMatch) return cdnMatch;
 
