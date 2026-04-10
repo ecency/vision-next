@@ -25,7 +25,7 @@ interface Props {
 }
 
 export function FeedbackMessage({ feedback, onClose }: Props) {
-  const timeoutRef = useRef<any>();
+  const timeoutRef = useRef<any>(null);
   // Use global store directly instead of useActiveAccount() to avoid QueryClient dependency
   // We only need the username for the purchase link, not the full account data
   const activeUser = useGlobalStore((s) => s.activeUser);

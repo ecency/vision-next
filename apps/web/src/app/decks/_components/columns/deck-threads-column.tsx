@@ -75,7 +75,7 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
   const previousEditingEntry = usePrevious(currentEditingEntry);
 
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
-  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useMount(() => {
     register(id);

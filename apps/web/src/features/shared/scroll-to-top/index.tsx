@@ -9,7 +9,7 @@ import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 
 export function ScrollToTop() {
-  const timerRef = useRef<any>();
+  const timerRef = useRef<any>(undefined);
   const buttonRef = useRef<HTMLDivElement | null>(null);
 
   useMount(() => {

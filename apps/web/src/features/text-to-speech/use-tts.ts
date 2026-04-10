@@ -3,7 +3,7 @@ import { PREFIX } from "@/utils/local-storage";
 import { useEffect, useRef, useState } from "react";
 
 export function useTts(text: string) {
-  const speechRef = useRef<SpeechSynthesisUtterance>();
+  const speechRef = useRef<SpeechSynthesisUtterance | undefined>(undefined);
 
   const [hasStarted, setHasStarted] = useState(false);
   const [hasPaused, setHasPaused] = useState(false);

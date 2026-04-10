@@ -25,7 +25,7 @@ export function Step3ReviewKeys({ mode = "add", initialSelectedKey, onNext, onBa
   const { activeUser } = useActiveAccount();
   const [selectedKeys, setSelectedKeys] = useState<SelectedKeysMap>(new Map());
   const getDerivation = useKeyDerivationStore((state) => state.getDerivation);
-  const seededKeyRef = useRef<string | undefined>();
+  const seededKeyRef = useRef<string | undefined>(undefined);
 
   const username = activeUser?.username;
 

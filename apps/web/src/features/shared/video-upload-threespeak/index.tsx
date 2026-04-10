@@ -44,7 +44,7 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
-  const selectedFileUrlRef = useRef<string>();
+  const selectedFileUrlRef = useRef<string | undefined>(undefined);
   const dialogOpenRef = useRef(false);
 
   const [selectedFile, setSelectedFile] = useState<string | null>(null);

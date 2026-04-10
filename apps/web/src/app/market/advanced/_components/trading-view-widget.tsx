@@ -21,7 +21,7 @@ export const TradingViewWidget = ({ widgetTypeChanged }: Props) => {
   const theme = useGlobalStore((s) => s.theme);
 
   const { ref: chartContainerRef, width, height } = useResizeDetector();
-  const chartRef = useRef<IChartApi>();
+  const chartRef = useRef<IChartApi | null>(null);
 
   const [bucketSeconds, setBucketSeconds] = useLocalStorage<number>(PREFIX + "_amml_tv_bs", 300);
   const [candleStickSeries, setCandleStickSeries] = useState<ISeriesApi<"Candlestick">>();
