@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import { Button } from "@ui/button";
 import { Accordion, AccordionCollapse, AccordionToggle } from "@ui/accordion";
 import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";

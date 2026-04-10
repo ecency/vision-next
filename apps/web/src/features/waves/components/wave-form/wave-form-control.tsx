@@ -12,7 +12,7 @@ import { clsx } from "clsx";
 interface Props {
   text: string;
   setText: (v: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   video: string | undefined;
   selectedImage: string | undefined;
   clearSelectedImage: () => void;

@@ -19,8 +19,8 @@ export function HiveEngineChart() {
   const isSpkLayerToken = isSpkLayerTokenSymbol(tokenSymbol);
   const { ref: chartContainerRef } = useResizeDetector();
 
-  const chartRef = useRef<IChartApi>();
-  const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick">>();
+  const chartRef = useRef<IChartApi | null>(null);
+  const candleStickSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
   const { data } = useQuery({
     ...getHiveEngineTokensMetricsQueryOptions(tokenSymbol ?? "", "hourly"),

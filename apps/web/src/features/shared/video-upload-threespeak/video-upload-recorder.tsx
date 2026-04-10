@@ -28,8 +28,8 @@ export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile,
   const [currentCamera, setCurrentCamera] = useState<MediaDeviceInfo>();
 
   const ref = useRef<HTMLVideoElement | null>(null);
-  const recordedVideoUrlRef = useRef<string>();
-  const selectedFileUrlRef = useRef<string>();
+  const recordedVideoUrlRef = useRef<string | undefined>(undefined);
+  const selectedFileUrlRef = useRef<string | undefined>(undefined);
   const dataAvailableHandlerRef = useRef<((event: BlobEvent) => void) | null>(null);
   const previousMediaRecorderRef = useRef<MediaRecorder | null>(null);
 

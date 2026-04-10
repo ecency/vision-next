@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, JSX, useEffect, useRef, useState } from "react";
 import { catchPostImage, postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { useInViewport } from "react-in-viewport";
 import { commentSvg, voteSvg } from "../../icons";

@@ -112,7 +112,7 @@ export const HiveMarketRateListener = ({
   const [buyOrderBook, setBuyOrderBook] = useState<OrdersDataItem[]>([]);
   const [sellOrderBook, setSellOrderBook] = useState<OrdersDataItem[]>([]);
 
-  const updateIntervalRef = useRef<ReturnType<typeof setInterval>>();
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const fetchOrderBookRef = useRef<() => Promise<void>>(async () => {});
   const isFetchingRef = useRef(false);
 

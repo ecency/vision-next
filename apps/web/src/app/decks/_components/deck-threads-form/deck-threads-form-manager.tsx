@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, JSX, useState } from "react";
 import { getAccountPostsQueryOptions } from "@ecency/sdk";
 import { useDataLimit } from "@/utils/data-limit";
 import { useCommunityApi, useThreadsApi } from "./api";

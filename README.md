@@ -68,6 +68,100 @@ const { mutateAsync } = useWalletOperation(username, asset, operation, auth);
 
 ***
 
+## HTML Edge Caching
+
+The web app emits `Cache-Control` headers from Next.js middleware, and the CDN
+(Cloudflare) and reverse proxy (Nginx) respect them. Next.js is the single
+source of truth for cache policy — do not override it at the infra layer.
+
+### Key files
+
+- `apps/web/src/features/next-middleware/cache-policy.ts` — route-pattern TTLs
+- `apps/web/src/middleware.ts` — header injection
+- `apps/web/src/features/next-middleware/post-age-cache.ts` — per-post-age TTL refinement
+- `scripts/purge-cache.sh` — manual DMCA/moderation invalidation
+
+### Important notes
+
+**Logged-in users never see cached HTML.** Any request carrying the
+`active_user` cookie receives `Cache-Control: private, no-store`. Nginx and
+the CF worker bypass cache entirely for these requests.
+
+**No `Vary: Cookie`.** Auth bifurcation happens at the infra layer (Nginx
+cache key includes `$cookie_active_user`; CF worker bypasses on the cookie).
+Emitting `Vary: Cookie` would fragment the edge cache on every unrelated
+cookie (analytics, locale, experiments) and destroy hit ratio.
+
+**Post pages use age-based TTLs.** Fresh posts (< 1 day) cache for 1 minute;
+posts older than 60 days cache for 30 days. The middleware starts with a
+conservative 1h tier, then refines once the post's `created` date is known
+via a background-populated in-memory cache (per edge isolate).
+
+**Observability header.** Every response carries `x-cache-tier: <tier>` (or
+`logged-in`) so CF analytics, Nginx logs, and DevTools reveal which policy
+was applied. Use this to verify cache behavior without inspecting
+`Cache-Control` directly.
+
+### DMCA / moderation invalidation
+
+CF edge serves cached HTML for up to the `s-maxage` window (1h for post
+pages, 24h for static pages). For takedowns:
+
+1. Update `apps/web/public/dmca/dmca-*.json`, commit, deploy
+2. Run `./scripts/purge-cache.sh <affected-urls>` to drop pre-takedown HTML
+   from the CF edge cache
+
+Without step 2, CF continues serving the old content until `s-maxage`
+expires.
+
+### Verifying cache behavior
+
+```bash
+# Anonymous — should HIT after the first request
+curl -sI https://ecency.com/discover | grep -iE 'cache|tier'
+
+# Logged-in — should always BYPASS
+curl -sI --cookie "active_user=alice" https://ecency.com/discover | grep -iE 'cache|tier'
+```
+
+Expected headers on an anonymous hit:
+
+```http
+Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=3600
+X-Cache-Tier: list
+X-Cache-Status: HIT
+CF-Cache-Status: HIT
+```
+
+### Infra configuration
+
+Nginx and CF worker configs live in the infra repo, not here. The rules are
+simple: **respect origin `Cache-Control`**, **bypass on `active_user`
+cookie**, and **preserve `x-cache-tier`** in the response headers.
+
+
+| Tier | `s-maxage` | `stale-while-revalidate` | Routes |
+|---|---|---|---|
+| `static` | 24h | 7d | `/faq`, `/about`, `/child-safety`, `/contributors`, `/privacy-policy`, `/terms-of-service`, `/whitepaper`, `/mobile` |
+| `home` | 5m | 1h | `/` |
+| `list` | 5m | 1h | `/discover`, `/communities`, `/witnesses`, `/tags` |
+| `list-proposals` | 10m | 1h | `/proposals` |
+| `feed` | 1m | 5m | `/hot`, `/trending`, `/payout`, `/muted`, `/promoted` + tags |
+| `feed-created` | 30s | 2m | `/created`, `/tags/:tag` |
+| `community` | 1m | 5m | `/:tag/hive-xxxxx` |
+| `profile` | 5m | 1h | `/@author`, `/@author/posts`, `/blog`, `/comments`, `/replies`, `/communities`, `/insights` |
+| `profile-feed` | 1m | 5m | `/@author/feed`, `/@author/trail` (aggregates other users' content) |
+| `entry` | 1h | 1d | post pages (default — used until post age is known) |
+| `entry-fresh` | 1m | 5m | posts < 1 day old |
+| `entry-week` | 1h | 1d | posts 1-7 days old |
+| `entry-month` | 1d | 7d | posts 7-30 days old |
+| `entry-archive` | 30d | 7d | posts 30-60 days old |
+| `entry-ancient` | 30d | 60d | posts > 60 days old |
+| `no-cache` | 0 | 0 | `/publish`, `/chats`, `/auth/*`, `/wallet`, `/@author/settings`, etc. |
+
+
+***
+
 ## Build instructions
 
 ##### Requirements

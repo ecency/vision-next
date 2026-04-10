@@ -5,17 +5,19 @@ import { Popover, PopoverContent, PopoverTitle } from "@ui/popover";
 import i18next from "i18next";
 import { cloneElement, ReactElement, useState } from "react";
 
+type ChildClickHandler = (e: React.MouseEvent) => void;
+
 interface Props {
   titleText?: string;
   okText?: string;
   okVariant?: "primary" | "danger";
   cancelText?: string;
-  children: ReactElement;
+  children: ReactElement<{ onClick?: ChildClickHandler }>;
   onConfirm?: () => void;
   onCancel?: () => void;
   trigger?: any;
   placement?: any;
-  containerRef?: React.RefObject<HTMLElement>;
+  containerRef?: React.RefObject<HTMLElement | null>;
 }
 export function PopoverConfirm({
   titleText,
@@ -41,8 +43,12 @@ export function PopoverConfirm({
     onCancel?.();
   };
 
+  const originalOnClick = children.props.onClick;
   const clonedChildren = cloneElement(children, {
-    onClick: () => setShow(!show)
+    onClick: (e: React.MouseEvent) => {
+      originalOnClick?.(e);
+      setShow((prev) => !prev);
+    }
   });
 
   return (

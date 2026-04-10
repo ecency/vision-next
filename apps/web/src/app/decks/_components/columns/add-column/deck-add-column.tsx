@@ -1,5 +1,5 @@
 import { DeckHeader } from "../../header/deck-header";
-import React, { useContext, useState } from "react";
+import React, { JSX, useContext, useState } from "react";
 import { DeckGridItem } from "../../types";
 import "./_deck-add-column.scss";
 import { DeckAddColumnTypeSettings } from "./deck-add-column-type-settings";
