@@ -105,7 +105,7 @@ was applied. Use this to verify cache behavior without inspecting
 ### DMCA / moderation invalidation
 
 CF edge serves cached HTML for up to the `s-maxage` window (1h for post
-pages, 7d for static pages). For takedowns:
+pages, 24h for static pages). For takedowns:
 
 1. Update `apps/web/public/dmca/dmca-*.json`, commit, deploy
 2. Run `./scripts/purge-cache.sh <affected-urls>` to drop pre-takedown HTML
@@ -126,11 +126,11 @@ curl -sI --cookie "active_user=alice" https://ecency.com/discover | grep -iE 'ca
 
 Expected headers on an anonymous hit:
 
-```
+```http
 Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=3600
 X-Cache-Tier: list
-X-Cache-Status: HIT     # from Nginx
-CF-Cache-Status: HIT    # from Cloudflare
+X-Cache-Status: HIT
+CF-Cache-Status: HIT
 ```
 
 ### Infra configuration

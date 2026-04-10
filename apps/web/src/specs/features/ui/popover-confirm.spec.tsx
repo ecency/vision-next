@@ -29,12 +29,8 @@ vi.mock("@ui/popover", () => {
   };
 });
 
-// The component under test imports i18next for button labels.
-vi.mock("i18next", () => ({
-  default: {
-    t: (key: string) => key
-  }
-}));
+// Note: i18next is globally mocked in setup-any-spec.ts to return the key
+// as-is, which is what this spec relies on for the default button labels.
 
 import { PopoverConfirm } from "@/features/ui/popover-confirm";
 
