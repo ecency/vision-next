@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 import xss from "xss";
 import i18next from "i18next";
 

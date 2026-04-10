@@ -1,5 +1,5 @@
 import { useResizeDetector } from "react-resize-detector";
-import React, { useEffect, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { IdentifiableEntry } from "../deck-threads-manager";
 import { DeckThreadItemBody } from "./deck-thread-item-body";
 import { useInViewport } from "react-in-viewport";

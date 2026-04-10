@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, JSX, useState } from "react";
 import useDebounce from "react-use/lib/useDebounce";
 
 export * from "./identifiable-entry";

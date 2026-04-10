@@ -1,4 +1,4 @@
-import React, { DetailedHTMLProps, TableHTMLAttributes } from "react";
+import React, { DetailedHTMLProps, JSX, TableHTMLAttributes } from "react";
 import { classNameObject, useFilteredProps } from "../util";
 
 export function Tr(

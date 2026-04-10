@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from "react-virtualized";
 import { DeckProps, GenericDeckColumn } from "./generic-deck-column";
 import { noContentSvg } from "../icons";

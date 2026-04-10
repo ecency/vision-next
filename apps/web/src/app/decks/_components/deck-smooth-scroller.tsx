@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { JSX, useCallback, useContext, useEffect, useRef, useState } from "react";
 import useQueue from "react-use/lib/useQueue";
 import { DeckGridContext } from "./deck-manager";
 

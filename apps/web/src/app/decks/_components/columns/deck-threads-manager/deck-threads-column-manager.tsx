@@ -1,4 +1,4 @@
-import React, { createContext, FunctionComponent, PropsWithChildren } from "react";
+import React, { createContext, FunctionComponent, JSX, PropsWithChildren } from "react";
 import { ThreadItemEntry } from "./identifiable-entry";
 import { communityThreadsQuery } from "./community-api";
 import { threadsQuery } from "./threads-api";

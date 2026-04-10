@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 import { DEFAULT_LAYOUT } from "./consts";
 import { DeckGrid, DeckGridItem, DeckGrids } from "./types";
 import * as uuid from "uuid";

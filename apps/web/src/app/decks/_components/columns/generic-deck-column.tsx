@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { JSX, useContext } from "react";
 import { DeckGridContext } from "../deck-manager";
 import { DeckHeader } from "../header/deck-header";
 import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";

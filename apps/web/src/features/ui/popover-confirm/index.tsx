@@ -15,7 +15,7 @@ interface Props {
   onCancel?: () => void;
   trigger?: any;
   placement?: any;
-  containerRef?: React.RefObject<HTMLElement>;
+  containerRef?: React.RefObject<HTMLElement | null>;
 }
 export function PopoverConfirm({
   titleText,
@@ -41,7 +41,7 @@ export function PopoverConfirm({
     onCancel?.();
   };
 
-  const clonedChildren = cloneElement(children, {
+  const clonedChildren = cloneElement(children as ReactElement<Record<string, unknown>>, {
     onClick: () => setShow(!show)
   });
 
