@@ -1,5 +1,14 @@
 # @ecency/wallets
 
+## 3.0.7
+
+### Patch Changes
+
+- React 19 upgrade (#751)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.7
+
 ## 3.0.6
 
 ### Patch Changes
