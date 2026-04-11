@@ -2636,6 +2636,8 @@
     "download-for-windows": "Download für Computer",
     "download-for-ios": "Für IOS herunterladen",
     "download-for-android": "Für Android herunterladen",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Mobile App erhalten",
     "our-history": "Unsere Geschichte",
     "our-history-p-one": "<b>Ecency</b> (früher Esteem) startete 2016 Gründer <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> begann mit der Implementierung einer mobilen Anwendung, die die Art und Weise, wie Sie interagieren und erstellen, revolutionieren würde kompilieren, online engagieren. Mit der Zeit wuchs zu etwas viel größer.",
     "our-history-p-two": "Seitdem haben wir uns weiter für Web 3 entwickelt. und verbessern Sie unser blockchain-basiertes soziales Netzwerk, um sicherzustellen, dass Apps so zugänglich wie möglich sind, sicher und in vielen Sprachen spricht die Welt.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Lokale Daten können nicht verwendet werden",
-    "no-ls-description": "Anscheinend haben Sie oder Ihr Browser die lokalen Daten für unsere Website deaktiviert. Leider können Sie nicht die meisten Ecency Funktionen wie Entwürfe, lokale Decks, erweiterte Handels-Dashboard und vieles mehr verwenden. Bitte verwenden Sie aktuelle Versionen eines modernen Browsers oder aktivieren Sie die lokalen Daten manuell."
+    "no-ls-description": "Anscheinend haben Sie oder Ihr Browser die lokalen Daten für unsere Website deaktiviert. Leider können Sie nicht die meisten Ecency Funktionen wie Entwürfe, lokale Decks, erweiterte Handels-Dashboard und vieles mehr verwenden. Bitte verwenden Sie aktuelle Versionen eines modernen Browsers oder aktivieren Sie die lokalen Daten manuell.",
+    "install-title": "Install Ecency",
+    "install-description": "Ecency auf Ihrem Homescreen für ein schnelleres Vollbilderlebnis hinzufügen.",
+    "install-cta": "Installieren",
+    "install-dismiss": "Nicht jetzt",
+    "install-ios-hint": "Tippen Sie auf die Schaltfläche Teilen und wählen Sie \"Zum Startbildschirm hinzufügen\", um Ecency zu installieren."
   },
   "waves": {
     "feed": {
