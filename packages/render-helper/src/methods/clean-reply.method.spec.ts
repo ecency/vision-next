@@ -186,6 +186,32 @@ describe('cleanReply() method - Reply Cleaning', () => {
       expect(result).not.toContain('Liketu')
     })
 
+    it('should remove the "<sub>[via Apps from](...)</sub>" auto-footer', () => {
+      const input = 'Nice comment\n\n<sub>[via Apps from](https://linktr.ee/sagarkothari88)</sub>'
+      const result = cleanReply(input)
+
+      expect(result.trim()).toBe('Nice comment')
+      expect(result).not.toContain('via Apps from')
+    })
+
+    it('should remove the "via Apps from" footer when wrapped in <center>', () => {
+      const input = 'Content here\n\n<center><sub>[via Apps from](https://linktr.ee/sagarkothari88)</sub></center>'
+      const result = cleanReply(input)
+
+      expect(result.trim()).toBe('Content here')
+      expect(result).not.toContain('via Apps from')
+    })
+
+    it('should preserve legitimate mentions of linktr.ee URLs in post body', () => {
+      // The filter must not strip lines that simply reference the URL, only
+      // the exact auto-footer format produced by the originating app.
+      const input = 'Check out this creator: https://linktr.ee/sagarkothari88 — great work'
+      const result = cleanReply(input)
+
+      expect(result).toContain('https://linktr.ee/sagarkothari88')
+      expect(result).toContain('great work')
+    })
+
     it('should handle Inbox mentions', () => {
       const input = 'Reply content here'
       const result = cleanReply(input)
