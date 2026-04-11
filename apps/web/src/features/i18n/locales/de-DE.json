@@ -176,7 +176,8 @@
     "home": "Startseite",
     "waves": "Wellen",
     "communities": "Communities",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Navigationsmenü umschalten"
   },
   "search": {
     "placeholder": "Suchen",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "Wallet",
-    "unclaimed-reward-notice": "Sie haben Einnahmen zu sammeln!",
+    "unclaimed-reward-notice": "Du hast nicht abgeholte Belohnungen",
     "points": "Punkte",
-    "unclaimed-points-notice": "Du hast Punkte zu sammeln!",
+    "unclaimed-points-notice": "Du hast noch nicht abgeholte Punkte",
     "notifications": "Benachrichtigungen",
     "profile": "Profil",
     "profile-menu": "Profilmenü",
@@ -297,13 +298,28 @@
     "my-users": "Meine Benutzer",
     "metamask-not-found": "MetaMaske nicht gefunden. Bitte installieren Sie die MetaMask-Browser-Erweiterung.",
     "metamask-no-keys": "Konnte Hive-Schlüssel vom MetaMasken-Einrasten nicht abrufen",
-    "metamask-key-mismatch": "MetaMask Hive-Schlüssel stimmen nicht mit diesem Konto überein. Stellen Sie sicher, dass Sie die gleiche MetaMask Wallet verwenden, die während der Registrierung verwendet wird."
+    "metamask-key-mismatch": "MetaMask Hive-Schlüssel stimmen nicht mit diesem Konto überein. Stellen Sie sicher, dass Sie die gleiche MetaMask Wallet verwenden, die während der Registrierung verwendet wird.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Schlüsselbund Mobile",
+    "keychain-mobile-missing-sig": "Fehlende Signatur in Keychain. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-no-pending": "Kein ausstehender Login gefunden. Bitte versuchen Sie sich erneut einzuloggen.",
+    "keychain-mobile-invalid-data": "Ungültige Login-Daten. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-expired": "Anmeldeanfrage ist abgelaufen. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-error": "Login fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "keychain-mobile-title": "Login wird abgeschlossen...",
+    "keychain-mobile-title-error": "Login fehlgeschlagen",
+    "keychain-mobile-message": "Überprüfe deine Signatur und logge dich ein...",
+    "keychain-sign-missing-result": "Kein Transaktionsergebnis von Keychain erhalten.",
+    "keychain-sign-processing": "Verarbeitung...",
+    "keychain-sign-success": "Transaktion signiert",
+    "keychain-sign-redirecting": "Weiterleitung...",
+    "keychain-sign-error-title": "Signieren fehlgeschlagen"
   },
   "sign-up": {
-    "header": "Belohnungsgemeinschaften",
-    "description": "Redefreiheit, Wahres Eigentum, finanzielle Freiheit!",
-    "description-2": "Treten Sie einer Plattform bei, die vollständig von ihrer Community betrieben wird. Mit einem Konto erhalten Sie Zugriff auf das gesamte Ökosystem.",
-    "bottom-description": "Ein Konto, eine Brieftasche um alles zu verwalten.",
+    "header": "Belohnende Web3 Communitys",
+    "description": "Redefreiheit, echte Inhaberschaft, finanzielle Freiheit!",
+    "description-2": "Hive-Macht viele Apps und wird komplett dezentralisiert von Gemeinschaftsmitgliedern auf der ganzen Welt. Mit einem Konto haben Sie direkten Zugriff auf das Ökosystem.",
+    "bottom-description": "Ein Konto, eine Wallet, um alles in der Blockchain zu erledigen.",
     "learn-more": "Erfahren Sie mehr über die Vorteile in unserer <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Wähle einen Benutzernamen",
     "email": "E-Mail Adresse eingeben",
@@ -447,8 +463,8 @@
     "vote-remove": "Bei der Abstimmung von 0% entstimmt sich der Inhalt.",
     "vote-warning": "Abstimmung wird geändert...",
     "no-replies": "Noch keine Antworten. Klicken, um zu antworten.",
-    "old-post-error": "Der Verdienstzeitraum dieses Beitrags ist beendet.",
-    "old-post-error-suggestion": "Sie können den Autor immer noch direkt tippen. "
+    "old-post-error": "Die Abstimmung über Inhalte nach der Auszahlung generiert keine neuen Belohnungen.",
+    "old-post-error-suggestion": "Tippen Sie den Autor. "
   },
   "nsfw": {
     "reveal": "Diesen Beitrag anzeigen",
@@ -513,18 +529,18 @@
     "submit-label": "Bestätigen",
     "published": "Beitrag veröffentlicht",
     "no-subscription": "Du hast kein Gemeinschaftsabonnement, um Beiträge zu überqueren.",
-    "info": "Einnahmen werden automatisch für Cross-Posts abgelehnt. Diskussionen unter Cross-Posts folgen den Richtlinien der Host-Community."
+    "info": "Die Belohnungen werden automatisch für den Cross-Post abgelehnt und die Diskussionen unter Cross-Post werden unterschiedlich sein und den verschiedenen Community-Richtlinien folgen."
   },
   "entry-payout": {
-    "reward": "Einnahmen",
+    "reward": "Belohnung",
     "full-power": "Power erhöhen mit 100%",
-    "pending-payout": "Geschätzte Einnahmen",
+    "pending-payout": "Ausstehende Vergütung",
     "promoted": "Beworben",
-    "author-payout": "Autoreneinnahmen",
-    "curators-payout": "Einnahmen der Unterstützer",
+    "author-payout": "Autoren Auszahlung",
+    "curators-payout": "Kuratoren Auszahlung",
     "payout-date": "Auszahlung",
     "beneficiary": "Begünstigter",
-    "breakdown": "Details",
+    "breakdown": "Breakdown",
     "max-accepted": "Max. akzeptiert"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "Tokenaustausch",
-    "description": "Tausch und tausche sofort Token. Um mehr zu erfahren, lesen Sie unsere <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Dezentralisierter Austausch zum Kauf und Verkauf von Token in Hive-Blockchain. Um mehr zu erfahren, lesen Sie unsere <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Letzter Preis",
     "volume": "24 Std. Volumen",
     "bid": "Gebot",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "Verwenden Sie Ecency Perks, um Ihren Beitrag zu fördern und eine größere Exposition zu erhalten.",
       "try-now": "Jetzt versuchen"
     },
-    "listen": "Hören"
+    "listen": "Hören",
+    "tts-settings": "Text-zu-Sprache Einstellungen"
   },
   "edit-history": {
     "title": "L",
@@ -941,11 +958,13 @@
     "reveal-muted": "Stummgeschalteter Autor - Kommentar anzeigen",
     "reveal-muted-long-description": "Zeige zusätzliche Antworten, einschließlich solcher, die beleidigende Inhalte enthalten können",
     "reveal": "Kommentar anzeigen",
+    "reveal-comments": "{{n}} Kommentare anzeigen",
     "no-conversation": "Es gibt noch keine Konversation. Sei der Erste, der antwortet!",
     "start-conversation": "Konversation beginnen",
-    "join-hint": "Nehmen Sie an der Unterhaltung teil und verdienen Sie für Ihre Beiträge",
+    "join-hint": "Werde Teil der riesigen Hive-Community und erhalte Belohnungen für Aktivitäten",
     "new-comment": "{{n}} neuer Kommentar - tippen zum Laden",
-    "new-comments": "{{n}} neue Kommentare - tippen zum Laden"
+    "new-comments": "{{n}} neue Kommentare - tippen zum Laden",
+    "load-error": "Fehler beim Laden der Kommentare. Zum wiederholen tippen"
   },
   "community": {
     "page-description": "{{f}} Themen",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "Aktualisierung der DM-Privatsphäre-Einstellungen fehlgeschlagen"
   },
   "wallet": {
-    "unclaimed-rewards": "Einnahmen zu sammeln",
-    "claim-reward-balance": "Einnahmen sammeln",
-    "claim-reward-balance-ok": "Einnahmen gesammelt!",
+    "unclaimed-rewards": "Nicht abgeholte Belohnungen",
+    "collect-all": "Alle sammeln",
+    "collect-all-ok": "Alle Einnahmen gesammelt!",
+    "show-details": "Details anzeigen",
+    "hide-details": "Details ausblenden",
+    "claimable-label": "Bereit zum Sammeln:",
+    "potential-label": "Potenzielle Einnahmen:",
+    "potential-hint": "von aktiven Beiträgen und Kommentaren",
+    "claim-reward-balance": "Belohnung abholen",
+    "claim-reward-balance-ok": "Belohnung abgeholt",
     "estimated": "Geschätzter Wallet-Wert",
     "estimated-points": "Geschätzter Punktewert",
     "estimated-description": "Der geschätzte Wert basiert auf einem 7-Tage-Durchschnittswert von HIVE.",
     "estimated-description-points": "Der geschätzte Wert basiert auf dem Kaufwert der Punkte.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIV ist Ihr flüssiger Saldo - Transfer, Handel oder stecken Sie ihn jederzeit ein.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive-Macht ist dein Einfluss. Je mehr du hältst, desto mehr sind deine Stimmen wichtig und desto mehr verdient. Einsatz HIVE, um sie zu steigern, entgehen über 13 Wochen.",
+    "hive-power-description": "Hive Power sind Einfluss-Token, die durch langfristiges Halten und Abstimmen über Inhalte mehr Macht erlangen. Je mehr Hive Power man besitzt, desto mehr kann man die Belohnungen anderer beeinflussen und durch genaue Abstimmungen selbst Belohnungen verdienen. Hive Power ist der gehaltene HIVE-Token, der für 13 Wochen \"gestaked\" werden kann und danach wieder freigegeben wird.",
     "hive-power-apr-rate": "APR Zinssatz für Hive Power beträgt {{value}}%",
     "hive-dollars-apr-rate": "APR-Zinssatz für HBD ($) beträgt {{value}}%",
     "hive-dollars-apr-claim": "Geschätzte Zinsen seit der letzten Auszahlung {{value}}:",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "Nächster Power-Down Betrag",
     "hive-power-total": "Gesamte HIVE Power",
     "hive-dollars": "HIVE Dollars",
-    "hive-dollars-description": "Stabile Token an jeweils etwa $1.00 gekoppelt.",
+    "hive-dollars-description": "Tokens mit einem Wert von $1.00 HIVE.",
     "savings": "ERSPARTES",
     "savings-description": "Der Kontostand unterliegt einer Wartezeit von 3 Tagen, bevor eine Auszahlung erfolgen kann.",
     "next-power-down": "Der nächste Power Down ist am {{time}}, (~{{amount}}, noch {{weeks}} Wochen verbleibend)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "Reserviert für Offene Bestellung im Markt",
     "spk": {
       "claim": {
-        "title": "Sammeln",
-        "unclaimed-rewards": "Einnahmen zu sammeln"
+        "title": "Beanspruchen",
+        "unclaimed-rewards": "Nicht beanspruchte Belohnungen"
       },
       "delegate": {
         "title": "Delegieren",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "PUNKTE KAUFEN",
     "unclaimed-points": "Unbeanspruchte Punkte",
-    "claim-reward-points": "Punkte sammeln",
+    "claim-reward-points": "Belohnung beanspruchen",
     "main-description": "Punkte können für In-App-Dienste verwendet werden, wie zum Beispiel Werbung, Boost, Geschenke. Verdienen Sie sie nur durch Ecency Apps und verbessern Sie Ihre Erfahrung.",
     "earn-points": "Wie man mehr Punkte verdient",
     "post-desc": "Du kannst Punkte sammeln, indem du regelmäßig post. Das Posting gibt dir 15 Punkte.",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "Benutzername",
     "to-not-found": "Der Benutzer dem Du die Mittel überweisen möchtest, existiert nicht!",
     "to-bad-actor": "Sei vorsichtig beim Senden an dieses Konto. Bitte überprüfe die Rechtschreibung auf mögliche Phishing-Versuche.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Betrag",
     "amount-placeholder": "Menge",
     "wrong-amount": "Falsche Menge",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "Token abstecken",
     "type-tokens_issue": "Ticket Token",
     "type-comments_beneficiaryReward": "Wohltätige Belohnung",
-    "type-claim_reward_balance": "Erfasste Einnahmen",
+    "type-claim_reward_balance": "Belohnungen abholen",
     "type-transfer": "Überweisen",
     "type-tokens_transfer": "Überweisung",
     "type-transfer_to_vesting": "Power Up",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "Collateralized Conversion",
     "type-collateralized_convert-detail": "Anfrage-Id: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Vorschlags-Id: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Übertragung von Ersparnissen",
     "type-limit_order_create": "Neuer Handel erstellt",
+    "type-limit_order_create2": "Neuer Handel erstellt",
     "type-limit_order_cancel": "Offener Handel abgebrochen",
     "type-effective_comment_vote": "Effektive Abstimmung",
     "type-account_witness_proxy": "Governance-Proxy-Update",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "Erzähle deine Geschichte...",
     "reward": "Belohnung",
     "take-tour": "Tour machen",
-    "reward-hint": "Wählen Sie, wie Sie Ihre Einnahmen erhalten",
+    "reward-hint": "Setze die Autor-Belohnungsrate für flüssige und staked Token",
     "reward-default": "Standard 50% / 50%",
-    "reward-sp": "100% abstecken",
-    "reward-dp": "Einnahmen ablehnen",
+    "reward-sp": "100% Power-Up",
+    "reward-dp": "Auf die Auszahlung verzichten",
     "preview": "Vorschau",
     "publish": "Veröffentlichen",
     "update": "Aktualisieren",
@@ -1770,7 +1798,10 @@
     "error-generic": "Video konnte nicht hochgeladen werden. Bitte erneut versuchen.",
     "title-short": "Kurzes Video hochladen",
     "short-badge": "Kurze",
-    "video-attached": "Video hinzugefügt"
+    "video-attached": "Video hinzugefügt",
+    "video-type": "Videotyp",
+    "type-video": "Video",
+    "type-short": "Kurze"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Erster Tag ist die Hauptkategorie. Sortierbar.",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} hat dir {{amount}} gesendet",
     "delegations": "{{source}} hat dir {{amount}} delegiert",
     "checkins": "Sie haben diese Woche {{count}} Tag{{suffix}} eingecheckt. Weiter so!",
-    "payouts": "Ihre Inhalts-Einnahmen sind bereit.",
+    "payouts": "Ihre Inhaltsauszahlung ist bereit.",
     "payouts-amount": "Sie haben {{amount}} Auszahlung erhalten.",
     "payouts-amount-usd": "Sie haben ${{amount_usd}} verdient ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "Als gelesen markieren",
     "mute": "Benachrichtigungen ausschalten",
     "unmute": "Benachrichtigungen aktivieren",
-    "settings": "Einstellungen",
+    "settings": "Sounde/Popupeinstellungen",
+    "new-notifications-batch": "{{count}} neue Benachrichtigungen",
     "select": "Benachrichtigung auswählen",
     "unselect": "Benachrichtigung abwählen",
     "mark-selected-read": "Ausgewählte als gelesen markieren"
@@ -2158,6 +2190,7 @@
     "update-success-message": "Ihre Wiederherstellungs-E-Mail wurde erfolgreich aktualisiert"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Starte Direktnachrichten oder betrete Kanäle, um mit der Ecency Community zu chatten.",
     "loading-chats": "Lade Chats…",
     "start-dm-button": "Start DM",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "Beitreten",
     "joining-channel": "Beitritt…",
     "no-additional-channels": "Keine zusätzlichen Kanäle gefunden.",
-    "title": "Chats",
     "no-admin": "Kein Administrator oder Moderator für diesen Community-Chat.",
     "view-community-channel": "Community-Chat",
     "public-key": "Öffentlicher Schlüssel",
@@ -2256,9 +2288,9 @@
         "create-title": "Von überall veröffentlichen",
         "create-description": "Entwerfen von Beiträgen, teilen Sie Aktualisierungen und Antworten auf Kommentare mit dem gleichen leistungsstarken Editor, den Sie auf dem Desktop verwenden.",
         "wallet-title": "Wallet auf einen Blick",
-        "wallet-description": "Prüfen Sie Salden, sammeln Sie Einnahmen und verwalten Sie Ihre Token mit nur ein paar Tipps.",
+        "wallet-description": "Prüfen Sie Salden, fordern Sie Prämien ein und verwalten Sie Hive-Power oder HBD mit nur wenigen Tipps.",
         "notifications-title": "Nie eine Erwähnung verpassen",
-        "notifications-description": "Push-Benachrichtigungen markieren neue Follower, Erwähnungen und Ergebnisse, damit Sie pünktlich feiern können."
+        "notifications-description": "Push-Benachrichtigungen markieren neue Follower, Erwähnungen und Belohnungen, damit du pünktlich feiern kannst."
       },
       "features-title": "Entworfen für Ersteller und Gemeinschaften",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>In Wallet-Seite (im oberen Kopfbereich der Webseite und Desktop-App, untere Navigationsleiste der mobilen App), Sie können Kurierbelohnungen (die Belohnungen, die für hochbewertete Beiträge und Kommentare erhalten wurden) und Autorenbelohnungen (die Belohnungen, die Sie durch Ihre eigenen Beiträge und Kommentare erhalten)</p><p>sehen. Sie können auch die gleichen Informationen für andere Benutzer einsehen, indem Sie ihr Wallet-Profil besuchen.</p>",
       "how-dhf-work-header": "Wie funktioniert DHF?",
       "how-dhf-work-body": "<p>Jeder kann einen Vorschlag erstellen und die Community davon überzeugen, über ihren Vorschlag abzustimmen, um Geld zu erhalten. Bevor Sie einen Vorschlag erstellen, sollte der normale Beitrag auf Blockchain veröffentlicht werden und es wird empfohlen, Feedback zu sammeln, bevor Sie einen Vorschlag erstellen. Die Kosten für die Erstellung von Vorschlägen belaufen sich auf 10 HBD + 1 HBD pro Tag über 60 Tage.</p><p>Sobald der Vorschlag einen bestimmten Schwellenwert für talentierte Stimmen erreicht hat, wird er jede Stunde Geld erhalten. Wenn der Vorschlag unter die Schwelle fällt, wird das System die Finanzierung für diesen Vorschlag einstellen. Du kannst so viele Vorschläge abstimmen, wie du möchtest, es gibt keine Grenzen. Der Vorschlag kann nicht bearbeitet werden, kann aber vom Ersteller gelöscht oder zurückgezogen werden.</p>",
-      "when-claim-rewards-header": "Wann kann ich meine Einnahmen einziehen?",
-      "when-claim-rewards-body": "<p>Beiträge und Kommentare verdienen 7 Tage. Während dieser Zeit schwanken die Erträge basierend auf Stimmen und Marktbedingungen - deshalb zeigen sie wie geschätzt. Nach 7 Tagen sind Ihre Endergebnisse zum Sammeln bereit. Gehen Sie zu Ihrer Wallet und tippen Sie auf Sammeln, um sie Ihrem Guthaben hinzuzufügen.</p>",
+      "when-claim-rewards-header": "Wann kann ich meine Belohnung beanspruchen?",
+      "when-claim-rewards-body": "<p>Beiträge und Kommentare bleiben 7 Tage lang aktiv und die Belohnungen sind abhängig von den Bewertungen und Marktpreisen des Tokens schwankend das ist der Grund, warum die Belohnungen als ausstehende Belohnung annähert werden. Wenn die Periode abgelaufen ist, ändert sich die Belohnung und du kannst verdiente Belohnungen beanspruchen. Klicken Sie in Ihrer Brieftasche auf die Schaltfläche Belohnung beanspruchen, um die Token zu Ihrem Konto hinzuzufügen.</p>",
       "what-are-rc-header": "Was sind Ressourcen-Credits?",
       "what-are-rc-body": "<p>Transaktionen auf der Hive-Blockchain haben Null-Gebühren. Transaktionsgeschwindigkeitsbegrenzung wird verwendet, um die Blockchain vor Spam-Attacken zu schützen. Jede Aktion, die Sie in der Blockchain durchführen, verbraucht eine kleine Menge an Ressourcen-Credits. Dies beinhaltet Posting, Kommentare, Abstimmung, Übertragung von Token usw. Das Betrachten von Inhalten verbraucht keine Ressourcen-Credits.</p><p>Jeder Benutzer hat jede Woche eine begrenzte Anzahl an Ressourcen-Credits. Je mehr Transaktionen ein Benutzer tätigt, desto weniger Ressourcen-Credits wird er übrig haben (bis er wieder aufladt). Benutzer mit mehr HIVE POWER werden mehr Ressourcen-Credits haben.</p><p>Wenn Sie keine Ressourcen mehr haben, Sie werden nicht in der Lage sein, mit der Blockchain zu handeln, bis Ihre Ressourcen-Credits aufgeladen werden (geschieht automatisch) oder Sie zusätzliche HIVE-POWER erwerben, um Ihr Ressourcen-Guthaben zu erhöhen, oder Sie können <a href=\"/faq#how-boost-account\">das Konto von Ecency</a> anfordern, um temporäre Übertragung zu erhalten.</p>",
       "how-boost-account-header": "Wie beantragen Sie das Boosten des Kontos?",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "Download für Computer",
     "download-for-ios": "Für IOS herunterladen",
     "download-for-android": "Für Android herunterladen",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Mobile App erhalten",
     "our-history": "Unsere Geschichte",
     "our-history-p-one": "<b>Ecency</b> (früher Esteem) startete 2016 Gründer <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> begann mit der Implementierung einer mobilen Anwendung, die die Art und Weise, wie Sie interagieren und erstellen, revolutionieren würde kompilieren, online engagieren. Mit der Zeit wuchs zu etwas viel größer.",
     "our-history-p-two": "Seitdem haben wir uns weiter für Web 3 entwickelt. und verbessern Sie unser blockchain-basiertes soziales Netzwerk, um sicherzustellen, dass Apps so zugänglich wie möglich sind, sicher und in vielen Sprachen spricht die Welt.",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Lokale Daten können nicht verwendet werden",
-    "no-ls-description": "Anscheinend haben Sie oder Ihr Browser die lokalen Daten für unsere Website deaktiviert. Leider können Sie nicht die meisten Ecency Funktionen wie Entwürfe, lokale Decks, erweiterte Handels-Dashboard und vieles mehr verwenden. Bitte verwenden Sie aktuelle Versionen eines modernen Browsers oder aktivieren Sie die lokalen Daten manuell."
+    "no-ls-description": "Anscheinend haben Sie oder Ihr Browser die lokalen Daten für unsere Website deaktiviert. Leider können Sie nicht die meisten Ecency Funktionen wie Entwürfe, lokale Decks, erweiterte Handels-Dashboard und vieles mehr verwenden. Bitte verwenden Sie aktuelle Versionen eines modernen Browsers oder aktivieren Sie die lokalen Daten manuell.",
+    "install-title": "Install Ecency",
+    "install-description": "Ecency auf Ihrem Homescreen für ein schnelleres Vollbilderlebnis hinzufügen.",
+    "install-cta": "Installieren",
+    "install-dismiss": "Nicht jetzt",
+    "install-ios-hint": "Tippen Sie auf die Schaltfläche Teilen und wählen Sie \"Zum Startbildschirm hinzufügen\", um Ecency zu installieren."
   },
   "waves": {
+    "feed": {
+      "for-you": "Für dich",
+      "following": "Folgt"
+    },
     "sources": "Quellen",
     "reply-form-title": "Antworten auf",
     "hide-replies": "Antworten ausblenden",
@@ -3207,10 +3250,10 @@
       "note": "Die Zinsen werden kontinuierlich bei {{apr}}% APR berechnet.",
       "claim-button": "Interesse beanspruchen"
     },
-    "claim-rewards": "Einnahmen sammeln",
-    "claim-rewards-with-amount": "Sammle {{amount}} {{token}}",
-    "claim-rewards-loading": "Sammeln...",
-    "claim-rewards-success": "{{amount}} {{token}} gesammelt!",
+    "claim-rewards": "Belohnung beanspruchen",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Beanspruchen...",
+    "claim-rewards-success": "{{amount}} {{token}} erfolgreich abgeholt",
     "hp-delegation-promo": {
       "tag": "+10% APR Boost",
       "title": "Lasst Ökologie mit deiner Bienenstärke kurieren",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Authentifizieren",
-        "generate-seed": "Passwort generieren",
+        "generate-seed": "Seed generieren",
         "review-keys": "Überprüfungsschlüssel",
         "confirm": "Bestätigen"
       },
       "step1": {
         "title": "Neues Schlüsselset hinzufügen",
-        "info1": "Ein neues Master-Passwort wird für Ihr Konto generiert",
+        "info1": "Eine neue Seed-Phrase wird für Ihr Konto generiert",
         "info2": "Sie können mehrere Schlüsselsets gleichzeitig aktiv halten",
         "info3": "Du hast die Möglichkeit, alte Schlüssel in den nächsten Schritten zu widerrufen",
         "authenticate": "Authentifizieren um fortzufahren",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "Wichtig: Speichere deinen neuen Seed Phrase",
-        "warning1": "Dies ist ein NEUES Master-Passwort, anders als Ihre ursprünglichen Anmeldeinformationen",
+        "warning1": "Dies ist eine NEUE Seed-Phrase, die sich von Ihrem ursprünglichen Account-Seed unterscheidet",
         "warning2": "Speichern Sie es separat - Sie müssen sich mit diesen Schlüsseln anmelden",
-        "warning3": "Laden Sie die Schlüsseldatei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
+        "warning3": "Laden Sie die Seed-Datei herunter und speichern Sie sie sicher, bevor Sie fortfahren"
       },
       "step3": {
         "title": "Vorhandene Schlüssel überprüfen",

@@ -176,7 +176,8 @@
     "home": "Home",
     "waves": "Waves",
     "communities": "Komunitas",
-    "chats": "Obrolan"
+    "chats": "Obrolan",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "Cari",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "Dompet",
-    "unclaimed-reward-notice": "You have earnings to collect!",
+    "unclaimed-reward-notice": "Anda memiliki hadiah yang belum diambil",
     "points": "Poin",
-    "unclaimed-points-notice": "You have points to collect!",
+    "unclaimed-points-notice": "Anda memiliki poin yang belum diambil",
     "notifications": "Notifikasi",
     "profile": "Profil",
     "profile-menu": "Menu profil",
@@ -297,13 +298,28 @@
     "my-users": "My users",
     "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
     "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Keychain Mobile",
+    "keychain-mobile-missing-sig": "Missing signature from Keychain. Please try again.",
+    "keychain-mobile-no-pending": "No pending login found. Please try logging in again.",
+    "keychain-mobile-invalid-data": "Invalid login data. Please try again.",
+    "keychain-mobile-expired": "Login request expired. Please try again.",
+    "keychain-mobile-error": "Login failed. Please try again.",
+    "keychain-mobile-title": "Completing Login...",
+    "keychain-mobile-title-error": "Login Failed",
+    "keychain-mobile-message": "Verifying your signature and logging you in...",
+    "keychain-sign-missing-result": "No transaction result received from Keychain.",
+    "keychain-sign-processing": "Processing...",
+    "keychain-sign-success": "Transaction Signed",
+    "keychain-sign-redirecting": "Redirecting you back...",
+    "keychain-sign-error-title": "Signing Failed"
   },
   "sign-up": {
-    "header": "Rewarding Communities",
-    "description": "Free speech, True ownership, Financial freedom!",
-    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
-    "bottom-description": "One account, one wallet to manage everything.",
+    "header": "Rewarding Web3 Communities",
+    "description": "Freespeech, True ownership, Financial freedom!",
+    "description-2": "Hive powers many apps and is run completely decentralized by community members all around the world. With an account, you have direct access to the ecosystem.",
+    "bottom-description": "One account, one wallet to manage everything on Blockchain.",
     "learn-more": "Pelajari selengkapnya tentang keuntungan di <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Pilih nama pengguna",
     "email": "Masukkan alamat email Anda",
@@ -447,8 +463,8 @@
     "vote-remove": "Voting 0% unvotes the content.",
     "vote-warning": "Changing vote...",
     "no-replies": "Belum ada respon. Klik untuk merespon.",
-    "old-post-error": "This post's earning period has ended.",
-    "old-post-error-suggestion": "You can still tip the author directly. "
+    "old-post-error": "Voting on Content after their payout does not generate any new rewards.",
+    "old-post-error-suggestion": "Try tipping the author. "
   },
   "nsfw": {
     "reveal": "Hapus postingan ini",
@@ -513,18 +529,18 @@
     "submit-label": "Korfirmasi",
     "published": "Postingan yang diterbitkan",
     "no-subscription": "Anda belum bergabung ke satu komunitas pun untuk menyilangkan postingan.",
-    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
+    "info": "Reward secara otomatis ditolak untuk lintas posting dan diskusi dalam postingan silang akan berbeda dan akan mengikuti pedoman komunitas yang berbeda."
   },
   "entry-payout": {
-    "reward": "Earnings",
+    "reward": "Imbalan",
     "full-power": "Lakukan Power Up 100%",
-    "pending-payout": "Estimated Earnings",
+    "pending-payout": "Pembayaran yang Ditunda",
     "promoted": "Dipromosikan",
-    "author-payout": "Author Earnings",
-    "curators-payout": "Supporters' Earnings",
+    "author-payout": "Pembayaran Penulis",
+    "curators-payout": "Pembayaran Kurator",
     "payout-date": "Pembayaran",
     "beneficiary": "Penerima",
-    "breakdown": "Details",
+    "breakdown": "Kerusakan",
     "max-accepted": "Jumlah maksimum yang diterima"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "Token exchange",
-    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Last Price",
     "volume": "24h volume",
     "bid": "Bid",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "Use Ecency Perks to promote your post and gain wider exposure.",
       "try-now": "Try now"
     },
-    "listen": "Listen"
+    "listen": "Listen",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "Riwayat Penyuntingan",
@@ -941,11 +958,13 @@
     "reveal-muted": "Penulis diheningkan - Perlihatkan komentar",
     "reveal-muted-long-description": "Tunjukkan balasan tambahan, termasuk hal-hal yang mungkin berisi konten berlawan",
     "reveal": "Ungkapkan komentar",
+    "reveal-comments": "Show {{n}} comments",
     "no-conversation": "No conversation yet, be first to reply",
     "start-conversation": "Start conversation",
-    "join-hint": "Join the conversation and earn for your contributions",
+    "join-hint": "Become part of huge Hive community and earn rewards for activity",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} topik",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "Earnings to collect",
-    "claim-reward-balance": "Collect earnings",
-    "claim-reward-balance-ok": "Earnings collected!",
+    "unclaimed-rewards": "Reward yang belum diklaim",
+    "collect-all": "Collect all",
+    "collect-all-ok": "All earnings collected!",
+    "show-details": "Show details",
+    "hide-details": "Hide details",
+    "claimable-label": "Ready to collect:",
+    "potential-label": "Potential earnings:",
+    "potential-hint": "from active posts and comments",
+    "claim-reward-balance": "Klaim Jumlah Reward",
+    "claim-reward-balance-ok": "Jumlah Reward Diklaim",
     "estimated": "Estimasi Nilai Dompet",
     "estimated-points": "Estimasi Nilai Poin",
     "estimated-description": "Harga estimasi berdasarkan nilai rata-rata HIVE dalam 7 hari.",
     "estimated-description-points": "Nilai estimasi berdasarkan nilai pembayaran Poin.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "KEKUATAN HIVE",
-    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
+    "hive-power-description": "Hive Power are influence tokens that earn more power for holding long term and voting on content. The more Hive Power one holds, the more one can influence other’s rewards and earn rewards for accurate voting. Hive Power is staked HIVE token that can be unstaked in 13 weeks.",
     "hive-power-apr-rate": "Suku bunga APR untuk Hive Power adalah {{value}} %",
     "hive-dollars-apr-rate": "Suku bunga APR untuk HBD adalah {{value}} %",
     "hive-dollars-apr-claim": "Estimated interest since last payment {{value}}:",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "Jumlah power down berikutnya",
     "hive-power-total": "Jumlah Hive Power",
     "hive-dollars": "HIVE DOLLAR",
-    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
+    "hive-dollars-description": "Token nilainya kira-kira 1 Dolar HIVE.",
     "savings": "SIMPANAN",
     "savings-description": "Jumlah Saldo masa tunggu pengambilan selama 3 hari.",
     "next-power-down": "The next power down is {{time}}, (~{{amount}}, {{weeks}} weeks remaining)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "Reserved for Open order in Market",
     "spk": {
       "claim": {
-        "title": "Collect",
-        "unclaimed-rewards": "Earnings to collect"
+        "title": "Claim",
+        "unclaimed-rewards": "Unclaimed rewards"
       },
       "delegate": {
         "title": "Delegate",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "BELI POIN",
     "unclaimed-points": "Poin yang belum diklaim",
-    "claim-reward-points": "Collect points",
+    "claim-reward-points": "Klaim poin reward",
     "main-description": "Poin dapat digunakan untuk layanan dalam aplikasi, seperti Promosi, Peningkatan nilai postingan, Pemberian Hadiah. Hasilkan poin hanya dengan menggunakan aplikasi Ecency dan tingkatkan pengalaman Anda.",
     "earn-points": "Bagaimana memperoleh lebih banyak Poin",
     "post-desc": "Anda dapat memperoleh poin lewat postingan secara teratur. Sebuah postingan memberikan Anda 15 poin.",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "nama pengguna",
     "to-not-found": "Pengguna yang anda coba transfer dana tidak ditemukan!",
     "to-bad-actor": "Berhati-hatilah mengirim ke akun ini. Periksa kembali ejaan Anda untuk kemungkinan phising.",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Jumlah",
     "amount-placeholder": "jumlah",
     "wrong-amount": "Nilai jumlah dana yang salah",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "Collected earnings",
+    "type-claim_reward_balance": "Klaim reward",
     "type-transfer": "Transfer",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "Peningkatan kekuatan",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "Konversi yang dijamin",
     "type-collateralized_convert-detail": "Permintaan id: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Id proposal:<strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Transfer from savings",
     "type-limit_order_create": "New trade created",
+    "type-limit_order_create2": "New trade created",
     "type-limit_order_cancel": "Open trade cancelled",
     "type-effective_comment_vote": "Vote efektif",
     "type-account_witness_proxy": "Governance proxy update",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "Tell your story...",
     "reward": "Reward",
     "take-tour": "Take a tour",
-    "reward-hint": "Choose how you receive your earnings",
+    "reward-hint": "Tetapkan rasio imbalan penulis untuk token cair dan yang disimpan",
     "reward-default": "Default 50% / 50%",
-    "reward-sp": "Stake 100%",
-    "reward-dp": "Decline Earnings",
+    "reward-sp": "Power Up 100%",
+    "reward-dp": "Menolak pembayaran",
     "preview": "Tinjauan",
     "publish": "Terbitkan",
     "update": "Perbaharui",
@@ -1770,7 +1798,10 @@
     "error-generic": "Failed to upload video. Please try again.",
     "title-short": "Upload short video",
     "short-badge": "Short",
-    "video-attached": "Video attached"
+    "video-attached": "Video attached",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "Tagar. Tagar pertama adalah kategori utama. Mudah disortir.",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} mengirimkan Anda {{amount}}",
     "delegations": "{{source}} delegated you {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content earnings are ready.",
+    "payouts": "Your content payout is ready.",
     "payouts-amount": "You received {{amount}} payout.",
     "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "Tandai sebagai telah dibaca",
     "mute": "Matikan pemberitahun notifikasi",
     "unmute": "Hidupkan pemberitahuan notifikasi",
-    "settings": "Pengaturan",
+    "settings": "Sound/Popup Settings",
+    "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",
     "mark-selected-read": "Mark selected as read"
@@ -2158,6 +2190,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "title": "Chats",
     "no-admin": "No admin or moderator for this community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Public key",
@@ -2256,9 +2288,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
+        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>In Wallet page (in top header on website and desktop app, bottom navigation bar on mobile app), you can see Curation rewards (the rewards earned for upvoting posts and comments) and Author rewards (the rewards earned by your own posts and comments)</p><p>You can also view the same information for other users by visiting their wallet profile.</p>",
       "how-dhf-work-header": "Bagaimana Cara kerja DHF?",
       "how-dhf-work-body": "<p>Siapapun dapat membuat proposal dan meyakinkan komunitas untuk memberikan suara pada proposal mereka untuk mendapatkan dana. Sebelum membuat proposal, posting normal harus dipublikasikan di blockchain dan disarankan untuk mengumpulkan umpan balik sebelum membuat proposal. Pembuatan proposal dikenakan biaya 10 HBD + 1 HBD untuk setiap hari berlangsung selama 60 hari.</p><p>Setelah proposal mencapai ambang tertentu dari suara yang dihitung, itu akan mulai menerima dana setiap jam. Jika proposal berada di bawah ambang batas, sistem akan menghentikan pendanaan untuk proposal tersebut. Anda dapat memilih proposal sebanyak yang Anda inginkan, tidak ada batasan. Proposal tidak dapat diedit, tetapi dapat dihapus / ditarik oleh pembuatnya.</p>",
-      "when-claim-rewards-header": "When can I collect my earnings?",
-      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
+      "when-claim-rewards-header": "Kapan saya bisa klaim rewards?",
+      "when-claim-rewards-body": "<p>Posting dan komentar tetap aktif selama 7 hari dan hadiah berfluktuasi tergantung pada suara dan harga pasar token, itulah sebabnya hadiah diperkirakan sebagai hadiah yang tertunda. Ketika periode berakhir, hadiah yang tertunda berubah menjadi hadiah sebenarnya dan Anda dapat mengklaim hadiah yang diperoleh. Di Wallet Anda, klik tombol Klaim Hadiah untuk menambahkan token ke akun Anda.</p>",
       "what-are-rc-header": "Apa itu Resource Credit (Kredit Sumber Daya)?",
       "what-are-rc-body": "<p><p> Bertransaksi di blockchain Hive tidak memiliki biaya, pembatasan nilai transaksi digunakan untuk melindungi blockchain dari serangan spam. Setiap tindakan yang Anda lakukan di blockchain akan menghabiskan sejumlah kecil Kredit Sumber Daya (Resource Credit). Ini termasuk memposting, berkomentar, memberi suara, mentransfer token, dll. Melihat konten tidak menghabiskan Kredit Sumber Daya. </p> <p> Setiap pengguna memiliki Kredit Sumber Daya dalam jumlah terbatas untuk digunakan setiap minggu. Semakin banyak transaksi yang dilakukan pengguna, semakin sedikit Kredit Sumber Daya yang tersisa (sampai ia mengisi ulang). Pengguna dengan lebih banyak HIVE POWER akan memiliki lebih banyak Kredit Sumber Daya. </p> <p> Jika Anda kehabisan Kredit Sumber Daya, Anda tidak akan dapat bertransaksi dengan blockchain sampai Kredit Sumber Daya Anda terisi ulang (terjadi secara otomatis) atau Anda memperoleh HIVE POWER tambahan untuk meningkatkan saldo Resource Credit Anda atau Anda dapat <a href=\"/faq#how-boost-account\"> meminta akun Boosting dari Ecency </a> untuk menerima delegasi sementara. </p></p>",
       "how-boost-account-header": "Bagaimana meminta peningkatan akun?",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "Unduh untuk Komputer",
     "download-for-ios": "Unduh untuk IOS",
     "download-for-android": "Unduh untuk Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Get mobile app",
     "our-history": "Sejarah Kami",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "Sejak itu kami terus membangun untuk Web 3.0 dan meningkatkan jaringan sosial berbasis blockchain kami, memastikan aplikasi dapat diakses semudah mungkin, aman, dan dalam banyak bahasa yang digunakan dunia.",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
-    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually.",
+    "install-title": "Install Ecency",
+    "install-description": "Add Ecency to your home screen for a faster, full-screen experience.",
+    "install-cta": "Install",
+    "install-dismiss": "Not now",
+    "install-ios-hint": "Tap the Share button and choose \"Add to Home Screen\" to install Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "For you",
+      "following": "Following"
+    },
     "sources": "Sources",
     "reply-form-title": "Replying to",
     "hide-replies": "Hide replies",
@@ -3162,13 +3205,13 @@
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
       "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, BNB and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
       "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Create & link to Hive account",
-      "create-wallet-description": "Create a wallet for BTC, ETH, BNB and SOL. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
       "import-wallet-title": "Import existing wallet",
       "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
       "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
@@ -3207,10 +3250,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Collect earnings",
-    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
-    "claim-rewards-loading": "Collecting...",
-    "claim-rewards-success": "Collected {{amount}} {{token}}!",
+    "claim-rewards": "Claim rewards",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Claiming...",
+    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Password",
+        "generate-seed": "Generate Seed",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new master password will be generated for your account",
+        "info1": "A new seed phrase will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW master password, different from your original credentials",
+        "warning1": "This is a NEW seed phrase, different from your original account seed",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the keys file and store it securely before continuing"
+        "warning3": "Download the seed file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",

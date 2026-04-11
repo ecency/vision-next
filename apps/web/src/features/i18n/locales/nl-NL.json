@@ -176,7 +176,8 @@
     "home": "Startpagina",
     "waves": "Golven",
     "communities": "Gemeenschappen",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Navigatiemenu in-/uitschakelen"
   },
   "search": {
     "placeholder": "Zoeken",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "Portemonnee",
-    "unclaimed-reward-notice": "Je hebt winst om te verzamelen!",
+    "unclaimed-reward-notice": "Je hebt niet-opgeëiste beloningen",
     "points": "Punten",
-    "unclaimed-points-notice": "Je hebt punten om te verzamelen!",
+    "unclaimed-points-notice": "Je hebt niet-opgeëiste punten",
     "notifications": "Meldingen",
     "profile": "Profiel",
     "profile-menu": "Profiel menu",
@@ -297,13 +298,28 @@
     "my-users": "Mijn gebruikers",
     "metamask-not-found": "MetaMask is niet gevonden. Installeer MetaMask browserextensie.",
     "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden."
+    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Sleutelhanger Mobiel",
+    "keychain-mobile-missing-sig": "Handtekening uit Sleutelhanger ontbreekt. Probeer het opnieuw.",
+    "keychain-mobile-no-pending": "Geen login gevonden. Probeer opnieuw aan te melden.",
+    "keychain-mobile-invalid-data": "Ongeldige inloggegevens. Probeer het opnieuw.",
+    "keychain-mobile-expired": "Aanvraag is verlopen. Probeer het opnieuw.",
+    "keychain-mobile-error": "Inloggen mislukt. Probeer het opnieuw.",
+    "keychain-mobile-title": "Inloggen voltooid...",
+    "keychain-mobile-title-error": "Inloggen mislukt",
+    "keychain-mobile-message": "Verifiëren van je handtekening en log je in...",
+    "keychain-sign-missing-result": "Geen transactieresultaat ontvangen van Sleutelhanger.",
+    "keychain-sign-processing": "Verwerken...",
+    "keychain-sign-success": "Transactie ondertekend",
+    "keychain-sign-redirecting": "Je wordt teruggestuurd...",
+    "keychain-sign-error-title": "Ondertekenen mislukt"
   },
   "sign-up": {
-    "header": "Beloning Gemeenschappen",
-    "description": "Vrije meningsuiting, echt eigendom, financiële vrijheid!",
-    "description-2": "Word lid van een platform dat volledig beheerd wordt door de community. Een account geeft je toegang tot het hele ecosysteem.",
-    "bottom-description": "Eén account, één portemonnee om alles te beheren.",
+    "header": "Web3 gemeenschappen belonen",
+    "description": "Freespeech, Ware eigendom, financiële vrijheid!",
+    "description-2": "Hive krachten veel apps en wordt volledig gedecentraliseerd door gemeenschapsleden over de hele wereld. Met een account heb je directe toegang tot het ecosysteem.",
+    "bottom-description": "Eén rekening, één portemonnee om alles in Blockchain te beheren.",
     "learn-more": "Lees meer over de voordelen in onze <a href=\"/faq#how-to-join\">FAQ</a>",
     "username": "Kies een gebruikersnaam",
     "email": "Vul jouw email adres in",
@@ -447,8 +463,8 @@
     "vote-remove": "Stemmen met 0% maakt je stem ongedaan",
     "vote-warning": "Stem aanpassen...",
     "no-replies": "Nog geen reacties. Klik om te antwoorden.",
-    "old-post-error": "De verdien periode van deze post is afgelopen.",
-    "old-post-error-suggestion": "Je kunt de auteur nog steeds rechtstreeks tikken. "
+    "old-post-error": "Stemmen op inhoud na uitbetaling genereert geen nieuwe beloningen.",
+    "old-post-error-suggestion": "Probeer de auteur te tikken. "
   },
   "nsfw": {
     "reveal": "Bekijk dit bericht",
@@ -513,18 +529,18 @@
     "submit-label": "Bevestig",
     "published": "Artikel gepubliceerd",
     "no-subscription": "Je hebt geen community abonnement om over te steken.",
-    "info": "De inkomsten worden automatisch geweigerd voor kruisberichten. Discussies onder kruisposten volgen de richtlijnen van de gastgemeenschap."
+    "info": "Beloningen worden automatisch geweigerd voor de kruis post en discussies onder kruis post zullen anders zijn en zullen verschillende communityrichtlijnen volgen."
   },
   "entry-payout": {
-    "reward": "Inkomsten",
+    "reward": "Beloning",
     "full-power": "Power Up 100%",
-    "pending-payout": "Geschatte opbrengst",
+    "pending-payout": "Uitbetaling In Behandeling",
     "promoted": "Gesponsord",
-    "author-payout": "Auteur winst",
-    "curators-payout": "Supporters inkomsten",
+    "author-payout": "Auteur Uitbetaling",
+    "curators-payout": "Curator Uitbetaling",
     "payout-date": "Uitbetaling",
     "beneficiary": "Begunstigde",
-    "breakdown": "Beschrijving",
+    "breakdown": "Uiteenzetting",
     "max-accepted": "Max geaccepteerd"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "Token uitwisseling",
-    "description": "Wissel en verwissel tokens meteen. Voor meer informatie, lees onze <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Gedecentraliseerde ruil om tokens te kopen en verkopen op Hive blockchain. Lees onze <a href=\"/faq#how-exchange-work\">FAQ</a> voor meer informatie.",
     "last-price": "Laatste prijs",
     "volume": "24u volume",
     "bid": "Bod",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "Gebruik Ecency Voordelen om je post te promoten en bredere blootstelling te krijgen.",
       "try-now": "Probeer het nu"
     },
-    "listen": "Luister"
+    "listen": "Luister",
+    "tts-settings": "Instellingen tekst-naar-spraak"
   },
   "edit-history": {
     "title": "Geschiedenis bewerken",
@@ -941,11 +958,13 @@
     "reveal-muted": "Genegeerde auteur - Bekijk reactie",
     "reveal-muted-long-description": "Toon aanvullende antwoorden, inclusief die welke aanstootgevende inhoud kunnen bevatten",
     "reveal": "Toon reactie",
+    "reveal-comments": "Toon {{n}} opmerkingen",
     "no-conversation": "Nog geen gesprek, wees de eerste om te reageren",
     "start-conversation": "Gesprek beginnen",
-    "join-hint": "Neem deel aan het gesprek en verdien uw bijdragen",
+    "join-hint": "Word onderdeel van een grote Hive gemeenschap en verdien beloningen voor activiteit",
     "new-comment": "{{n}} nieuwe reactie - tik om te laden",
-    "new-comments": "{{n}} nieuwe reacties - tik om te laden"
+    "new-comments": "{{n}} nieuwe reacties - tik om te laden",
+    "load-error": "Laden van reacties mislukt. Tik om opnieuw te proberen"
   },
   "community": {
     "page-description": "{{f}} onderwerpen",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "Bijwerken DM privacy-instellingen mislukt"
   },
   "wallet": {
-    "unclaimed-rewards": "Verdiensten om te verzamelen",
-    "claim-reward-balance": "Winst verzamelen",
-    "claim-reward-balance-ok": "Winst verzameld!",
+    "unclaimed-rewards": "Niet opgeëiste beloningen",
+    "collect-all": "Verzamel alles",
+    "collect-all-ok": "Alle inkomsten verzameld!",
+    "show-details": "Details weergeven",
+    "hide-details": "Details verbergen",
+    "claimable-label": "Klaar om te verzamelen:",
+    "potential-label": "Potentiële inkomsten:",
+    "potential-hint": "van actieve berichten en reacties",
+    "claim-reward-balance": "Eis Beloningsbalans op",
+    "claim-reward-balance-ok": "Beloningsbalans opgeëist",
     "estimated": "Geschatte accountwaarde",
     "estimated-points": "Geschatte Punten Waarde",
     "estimated-description": "De geschatte waarde is gebaseerd op een 7-daags gemiddelde waarde van Hive.",
     "estimated-description-points": "De geschatte waarde is gebaseerd op aankoop waarde van punten.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE is je liquide saldo - overdracht, handel of stak het altijd uit.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "HIVE POWER",
-    "hive-power-description": "Hive Power is jouw invloed. Hoe meer je invloed, hoe meer je stem telt en hoe meer je verdient. Neem hiv uit om het te laten groeien, geen belang meer dan dertien weken.",
+    "hive-power-description": "HIVE Power is een invloed token. Door deze vast te houden neemt het in hoeveelheid toe en geeft het meer stem invloed. Hoe meer HIVE Power iemand heeft, hoe meer invloed deze heeft op de beloningen van anderen en hoe hoger jouw verdiensten zijn bij het waarderen van anderen hun publicaties. Hive Power is staked HIVE token die opgeheven kan worden na 13 weken.",
     "hive-power-apr-rate": "Effectieve rente voor Hive Power is {{value}}%",
     "hive-dollars-apr-rate": "Effectieve rente voor HBD($) is {{value}}%",
     "hive-dollars-apr-claim": "Geschatte rente sinds laatste betaling {{value}}:",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "Volgende power down hoeveelheid",
     "hive-power-total": "Totale HIVE Power",
     "hive-dollars": "HIVE DOLLARS",
-    "hive-dollars-description": "Stabiele tokens gekoppeld aan ruwweg $1.00 per stuk.",
+    "hive-dollars-description": "Tokens zijn ongeveer $1.00 in HIVE waard.",
     "savings": "SPAARPOT",
     "savings-description": "Opname van saldo onderhevig aan wachttijd van 3 dagen.",
     "next-power-down": "De volgende power down is {{time}}, (~{{amount}}, {{weeks}} weken resterend)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "Gereserveerd voor Open order in de markt",
     "spk": {
       "claim": {
-        "title": "Verzamelen",
-        "unclaimed-rewards": "Verdiensten om te verzamelen"
+        "title": "Opeisen",
+        "unclaimed-rewards": "Niet opgeëiste beloningen"
       },
       "delegate": {
         "title": "Toewijzen",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "Punten kopen",
     "unclaimed-points": "Niet-opgeëiste punten",
-    "claim-reward-points": "Verzamel punten",
+    "claim-reward-points": "Beloningspunten opeisen",
     "main-description": "Punten kunnen gebruikt worden voor in-app diensten, zoals promotie, Boost, Gifting. Verdien ze gewoon door gebruik te maken van Ecency apps en verbeter jouw ervaring.",
     "earn-points": "Hoe meer punten te verdienen",
     "post-desc": "Je kunt punten verdienen door regelmatig te posten. Het posten geeft je 15 punten.",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "gebruikersnaam",
     "to-not-found": "De gebruiker naar wie je probeert over te schrijven bestaat niet!",
     "to-bad-actor": "Wees voorzichtig met verzenden naar dit account. Controleer je spelling extra goed voor mogelijke phishing.",
-    "external-wallets-label": "Portemonnee (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Portemonnee (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Aantal",
     "amount-placeholder": "aantal",
     "wrong-amount": "Verkeerde hoeveelheid waarde",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "Tokens uitzetten",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beloning begunstigde",
-    "type-claim_reward_balance": "Verzamelde winst",
+    "type-claim_reward_balance": "Beloningen opeisen",
     "type-transfer": "Overschrijving",
     "type-tokens_transfer": "Overschrijving",
     "type-transfer_to_vesting": "Power up",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "Gekleurde conversie",
     "type-collateralized_convert-detail": "Verzoek id: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Voorstel id: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Overmaken van spaargeld",
     "type-limit_order_create": "Nieuwe transactie aangemaakt",
+    "type-limit_order_create2": "Nieuwe transactie aangemaakt",
     "type-limit_order_cancel": "Open trade geannuleerd",
     "type-effective_comment_vote": "Effectieve stem",
     "type-account_witness_proxy": "Governance proxy update",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "Vertel je verhaal...",
     "reward": "Beloning",
     "take-tour": "Neem een rondleiding",
-    "reward-hint": "Kies hoe u uw inkomsten ontvangt",
+    "reward-hint": "Stel de auteur beloningsratio in voor vloeibare en ongebruikte tokens",
     "reward-default": "Standaard 50% / 50%",
-    "reward-sp": "Zet 100% uit",
-    "reward-dp": "Vergelijken afwijzen",
+    "reward-sp": "Power Up 100%",
+    "reward-dp": "Uitbetaling Afwijzen",
     "preview": "Voorvertoning",
     "publish": "Publiceren",
     "update": "Vernieuwen",
@@ -1770,7 +1798,10 @@
     "error-generic": "Uploaden van video mislukt. Probeer het opnieuw.",
     "title-short": "Korte video uploaden",
     "short-badge": "Kort",
-    "video-attached": "Video toegevoegd"
+    "video-attached": "Video toegevoegd",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Kort"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} heeft jou {{amount}} gestuurd",
     "delegations": "{{source}} heeft u gedelegeerd {{amount}}",
     "checkins": "Je hebt deze week {{count}} dag{{suffix}} gecontroleerd. Ga zo door!",
-    "payouts": "Uw inkomsten zijn klaar.",
+    "payouts": "De uitbetaling van uw inhoud is klaar.",
     "payouts-amount": "Je hebt {{amount}} uitbetaling ontvangen.",
     "payouts-amount-usd": "Je hebt ${{amount_usd}} verdiend ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "Markeren als gelezen",
     "mute": "Meldingen uitschakelen",
     "unmute": "Meldingen inschakelen",
-    "settings": "Instellingen",
+    "settings": "Geluid/Popup Instellingen",
+    "new-notifications-batch": "{{count}} nieuwe meldingen",
     "select": "Selecteer melding",
     "unselect": "Melding deselecteren",
     "mark-selected-read": "Markeer als gelezen"
@@ -2158,6 +2190,7 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
     "loading-chats": "Chats laden…",
     "start-dm-button": "Start DM",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "Deelnemen",
     "joining-channel": "Joining…",
     "no-additional-channels": "Geen extra kanalen gevonden.",
-    "title": "Chats",
     "no-admin": "Geen admin of moderator voor deze community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Publieke sleutel",
@@ -2256,9 +2288,9 @@
         "create-title": "Publiceer van overal",
         "create-description": "Concept berichten, deel updates en antwoord op reacties met dezelfde krachtige editor die u op het bureaublad gebruikt.",
         "wallet-title": "Portemonnee in een oogopslag",
-        "wallet-description": "Controleer saldo's, verzamel inkomsten en beheer uw tokens met slechts een paar tikken.",
+        "wallet-description": "Controleer saldo's, claim beloningen en beheer Hive Power of HBD met slechts een paar tikken.",
         "notifications-title": "Mis nooit een vermelding",
-        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en verdiensten zodat u op tijd kunt vieren."
+        "notifications-description": "Push-meldingen markeren nieuwe volgers, vermeldingen en beloningen, zodat u op tijd kunt vieren."
       },
       "features-title": "Ontworpen voor makers en gemeenschappen",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>In Portemonnee pagina (in bovenste koptekst van de website en de desktopapp, onderste navigatiebalk op mobiele app), je kan Curation rewards (de beloningen verdiend voor het upstemmen van posts en reacties) en Auteur beloningen (de beloningen verdiend met je eigen berichten en reacties)</p><p>Je kan dezelfde informatie ook bekijken voor andere gebruikers door naar hun portemonnee profiel te gaan.</p>",
       "how-dhf-work-header": "Hoe werkt DHF?",
       "how-dhf-work-body": "<p>Iedereen kan een voorstel maken en de gemeenschap overtuigen om op zijn voorstel te stemmen om geld te krijgen. Voordat u een voorstel maakt, moet de normale post worden gepubliceerd op blockchain en wordt aanbevolen om feedback te verzamelen voordat u een voorstel doet. De creatie van het voorstel kost 10 HBD + 1 HBD voor elke dag meer dan 60 dagen.</p><p>Zodra het voorstel een bepaalde drempel van stemmen voor tallied bereikt, zal het elk uur geld ontvangen. Als het voorstel onder de drempel komt, zal het systeem de financiering van dat voorstel tegenhouden. Je kunt zo veel voorstellen stemmen als je wilt, er zijn geen grenzen. Voorstel kan niet worden bewerkt, maar kan worden verwijderd/ingetrokken door de maker.</p>",
-      "when-claim-rewards-header": "Wanneer kan ik mijn inkomsten ophalen?",
-      "when-claim-rewards-body": "<p>Berichten en reacties verdienen voor 7 dagen. Gedurende deze periode fluctueren de inkomsten op basis van stemmen en marktomstandigheden - dat is waarom ze worden getoond zoals ingeschat. Na 7 dagen zijn je laatste inkomsten beschikbaar. Ga naar je Wallet en tik op Verzamelen om ze toe te voegen aan je saldo.</p>",
+      "when-claim-rewards-header": "Wanneer kan ik mijn beloningen opeisen?",
+      "when-claim-rewards-body": "<p>berichten en commentaren blijven actief voor 7 dagen en beloningen zijn fluctueren, afhankelijk van de stemmen en de marktprijs van token, Daarom worden de beloningen geschat als beloningen in afwachting van beloning. Wanneer de periode voorbij is, in afwachting van het veranderen van de beloning naar werkelijke beloning en u kunt verdiende beloningen opeisen. Klik in uw Portemonnee op de knop Beloningen Ophalen om de tokens aan uw account toe te voegen.</p>",
       "what-are-rc-header": "Wat zijn Grondstoffenkrediet?",
       "what-are-rc-body": "<p>Transacties op de Hive blockchain hebben geen kosten, de transactie tariefbeperking wordt gebruikt om de blockchain te beschermen tegen spam aanvallen. Elke actie die je neemt op de blockchain zal een kleine hoeveelheid aan Grondstoffen Credits verbruiken. Dit omvat het plaatsen van berichten, stemmen, het overdragen van tokens, enz. Inhoud verbruikt geen Resource Credits.</p><p>Elke gebruiker heeft een beperkt aantal Resource Credits om elke week te gebruiken. Hoe meer transacties een gebruiker doet, hoe minder Resource credits ze over zullen hebben (tot ze herladen). Gebruikers met meer HIVE POWER zullen meer Resource credits hebben.</p><p>Als je geen Resource credits meer hebt, je kan geen transacties uitvoeren met de blockchain totdat je Resource Credits betaald worden (automatisch) of je extra HIVE POWER krijgt om je Resource Credit saldo te verhogen of je kunt <a href=\"/faq#how-boost-account\">een Boosting account aanvragen bij Ecency</a> om een tijdelijke delegatie te ontvangen.</p>",
       "how-boost-account-header": "Hoe vraag ik om uw account boosten?",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "Download voor Computer",
     "download-for-ios": "Download voor IOS",
     "download-for-android": "Download voor Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Download de mobiele app",
     "our-history": "Onze geschiedenis",
     "our-history-p-one": "<b>Ecency</b> (voorheen Esteem) begon in 2016, oprichter <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> is begonnen met het implementeren van een mobiele applicatie die de manier waarop je interactie zou ontwikkelen en creëren zou revolutioniseren. bouw, neem online aan. De tijd groeide naar iets veel groter.",
     "our-history-p-two": "Sindsdien zijn we nog steeds bezig met het bouwen van Web 3. en verbeter ons op blockchain gebaseerd sociaal netwerk, zodat apps zo toegankelijk mogelijk zijn, veilig en in veel talen spreekt de wereld over.",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",
-    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in."
+    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in.",
+    "install-title": "Install Ecency",
+    "install-description": "Voeg Ecency toe aan je beginscherm voor een snellere, volledig-schermervaring.",
+    "install-cta": "Installeren",
+    "install-dismiss": "Niet nu",
+    "install-ios-hint": "Tik op de deelknop en kies \"Toevoegen aan Startscherm\" om Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "Voor jou",
+      "following": "Volgt"
+    },
     "sources": "Bronnen",
     "reply-form-title": "Reageren op",
     "hide-replies": "Antwoorden verbergen",
@@ -3207,10 +3250,10 @@
       "note": "De rente wordt continu berekend op {{apr}}% APR.",
       "claim-button": "Opvordering rente"
     },
-    "claim-rewards": "Winst verzamelen",
-    "claim-rewards-with-amount": "Verzamel {{amount}} {{token}}",
-    "claim-rewards-loading": "Verzamelen...",
-    "claim-rewards-success": "Verzamelde {{amount}} {{token}}!",
+    "claim-rewards": "Beloningen opeisen",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Ophalen...",
+    "claim-rewards-success": "Succesvol geclaimd {{amount}} {{token}}",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Laat Ecency curate met je Korf Kracht",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Verifiëren",
-        "generate-seed": "Wachtwoord genereren",
+        "generate-seed": "Genereer Seed",
         "review-keys": "Beoordeel sleutels",
         "confirm": "Bevestigen"
       },
       "step1": {
         "title": "Nieuwe sleutelset toevoegen",
-        "info1": "Er zal een nieuw hoofdwachtwoord worden gegenereerd voor uw account",
+        "info1": "Er wordt een nieuwe herstelzin gegenereerd voor uw account",
         "info2": "Je kunt meerdere sleutelsets tegelijk actief houden",
         "info3": "Je hebt de optie om oude sleutels in de volgende stappen in te trekken",
         "authenticate": "Verifieer om verder te gaan",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "Belangrijk: Sla je nieuwe zin op",
-        "warning1": "Dit is een nieuw hoofdwachtwoord, anders dan je originele inloggegevens",
+        "warning1": "Dit is een nieuwe herstelzin die afwijkt van uw oorspronkelijke account seed",
         "warning2": "Sla het afzonderlijk op - u moet inloggen met deze sleutels",
-        "warning3": "Download het sleutelbestand en sla het veilig op alvorens verder te gaan"
+        "warning3": "Download het seed bestand en sla het veilig op alvorens verder te gaan"
       },
       "step3": {
         "title": "Bestaande sleutels controleren",

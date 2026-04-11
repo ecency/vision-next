@@ -176,7 +176,8 @@
     "home": "ホーム",
     "waves": "波",
     "communities": "コミュニティ",
-    "chats": "チャット"
+    "chats": "チャット",
+    "toggle-menu": "ナビゲーションメニューの切り替え"
   },
   "search": {
     "placeholder": "検索",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "ウォレット",
-    "unclaimed-reward-notice": "受け取る収入があります！",
+    "unclaimed-reward-notice": "未請求の報酬があります",
     "points": "制御点",
-    "unclaimed-points-notice": "受け取るポイントがあります！",
+    "unclaimed-points-notice": "請求されていないポイントがあります",
     "notifications": "通知",
     "profile": "プロフィール",
     "profile-menu": "プロファイルメニュー",
@@ -297,13 +298,28 @@
     "my-users": "マイユーザー",
     "metamask-not-found": "MetaMask が見つかりません。ブラウザ拡張機能をインストールしてください。",
     "metamask-no-keys": "MetaMaskスナップからハイブキーを取得できませんでした",
-    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。"
+    "metamask-key-mismatch": "MetaMask Hiveキーがこのアカウントと一致しません。サインアップ時に使用されているのと同じMetaMaskウォレットを使用していることを確認してください。",
+    "keychain": "Keychain",
+    "keychain-mobile": "キーチェーンモバイル",
+    "keychain-mobile-missing-sig": "キーチェーンから署名がありません。もう一度やり直してください。",
+    "keychain-mobile-no-pending": "保留中のログインが見つかりませんでした。もう一度ログインしてみてください。",
+    "keychain-mobile-invalid-data": "無効なログインデータです。もう一度やり直してください。",
+    "keychain-mobile-expired": "ログインリクエストの有効期限が切れました。もう一度やり直してください。",
+    "keychain-mobile-error": "ログインに失敗しました。もう一度やり直してください。",
+    "keychain-mobile-title": "ログイン完了...",
+    "keychain-mobile-title-error": "ログインに失敗しました",
+    "keychain-mobile-message": "署名を確認してログインしています...",
+    "keychain-sign-missing-result": "キーチェーンから受け取ったトランザクションの結果はありません。",
+    "keychain-sign-processing": "処理中...",
+    "keychain-sign-success": "取引が署名されました",
+    "keychain-sign-redirecting": "あなたをリダイレクトしています...",
+    "keychain-sign-error-title": "署名に失敗しました"
   },
   "sign-up": {
-    "header": "コミュニティの報酬",
-    "description": "言論の自由, 真の所有権, 金融の自由!",
-    "description-2": "コミュニティ全体が運営するプラットフォームに参加しましょう。一つのアカウントでは、エコシステム全体にアクセスできます。",
-    "bottom-description": "1つのアカウント、1つのウォレットですべてを管理できます。",
+    "header": "Web3コミュニティの報酬",
+    "description": "フリーピーチ、真の所有権、金融の自由！",
+    "description-2": "Hiveは多くのアプリをサポートし、世界中のコミュニティメンバーによって完全に分散して実行されています。 アカウントでは、エコシステムに直接アクセスできます。",
+    "bottom-description": "1つのアカウント、1つのウォレットでブロックチェーン上のすべてを管理できます。",
     "learn-more": "<a href=\"/faq#how-to-join\"></a> のメリットについての詳細はこちらformat@@2",
     "username": "ユーザー名を選択",
     "email": "メールアドレスを入力してください",
@@ -447,8 +463,8 @@
     "vote-remove": "投票 0% でコンテンツの投票を解除します。",
     "vote-warning": "投票を変更中...",
     "no-replies": "まだ応答がありません。クリックして応答します。",
-    "old-post-error": "この投稿の収益は終了しました。",
-    "old-post-error-suggestion": "作者に直接チップを渡すこともできます。 "
+    "old-post-error": "支払い後にコンテンツに投票すると、新たな報酬は発生しません。",
+    "old-post-error-suggestion": "著者をひっくり返してみてください。 "
   },
   "nsfw": {
     "reveal": "この投稿を表示",
@@ -513,18 +529,18 @@
     "submit-label": "確認する",
     "published": "公開された投稿",
     "no-subscription": "投稿を行うためのコミュニティサブスクリプションがありません。",
-    "info": "クロスポストの収益は自動的に減少します。クロスポストの下でのディスカッションはホストコミュニティのガイドラインに従ってください。"
+    "info": "報酬はクロスポストのために自動的に拒否され、クロスポストの下での議論は異なり、異なるコミュニティガイドラインに従います。"
   },
   "entry-payout": {
-    "reward": "収益",
+    "reward": "Recompensa",
     "full-power": "パワーアップ100%",
-    "pending-payout": "推定収益",
+    "pending-payout": "保留中の支払い",
     "promoted": "プロモート",
-    "author-payout": "投稿者の収益",
-    "curators-payout": "サポーターの収益",
+    "author-payout": "著者支払い額",
+    "curators-payout": "キュレーターの支払い額",
     "payout-date": "支払い額",
     "beneficiary": "受取人",
-    "breakdown": "詳細",
+    "breakdown": "破壊",
     "max-accepted": "承認された最大数"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "トークン交換",
-    "description": "トークンを交換して交換します。詳細については、 <a href=\"/faq#how-exchange-work\">FAQ</a> をご覧ください。",
+    "description": "Hiveブロックチェーンでトークンを購入して売却するための分散型取引所。 詳細については、 <a href=\"/faq#how-exchange-work\">FAQ</a> をご覧ください。",
     "last-price": "最終価格",
     "volume": "24時間音量",
     "bid": "Bid",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "Ecency Perksを使用して、投稿を宣伝し、露出を広げましょう。",
       "try-now": "今すぐ試す"
     },
-    "listen": "Listen"
+    "listen": "Listen",
+    "tts-settings": "テキスト読み上げの設定"
   },
   "edit-history": {
     "title": "編集履歴",
@@ -941,11 +958,13 @@
     "reveal-muted": "ミュートされた著者 - コメントを明らかにする",
     "reveal-muted-long-description": "不適切な内容を含む追加の返信を表示する",
     "reveal": "コメントを表示",
+    "reveal-comments": "{{n}} コメントを表示",
     "no-conversation": "会話はまだありません。最初に返信してください",
     "start-conversation": "会話を開始",
-    "join-hint": "会話に参加して貢献して獲得する",
+    "join-hint": "巨大なハイブコミュニティの一員になって、アクティビティで報酬を獲得しましょう",
     "new-comment": "{{n}} 新しいコメント - タップして読み込む",
-    "new-comments": "{{n}} 新しいコメント - タップして読み込む"
+    "new-comments": "{{n}} 新しいコメント - タップして読み込む",
+    "load-error": "コメントの読み込みに失敗しました。タップして再試行してください"
   },
   "community": {
     "page-description": "{{f}} トピック",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "DM のプライバシー設定を更新できませんでした"
   },
   "wallet": {
-    "unclaimed-rewards": "収集する収益",
-    "claim-reward-balance": "収益を収集",
-    "claim-reward-balance-ok": "収入を集めました！",
+    "unclaimed-rewards": "未請求の報酬",
+    "collect-all": "すべてを集める",
+    "collect-all-ok": "すべての収入が集められました！",
+    "show-details": "詳細を表示",
+    "hide-details": "詳細を隠す",
+    "claimable-label": "受け取る準備ができました：",
+    "potential-label": "潜在的な収入:",
+    "potential-hint": "from active posts and comments",
+    "claim-reward-balance": "報酬残高を請求する",
+    "claim-reward-balance-ok": "報酬残高が請求されました",
     "estimated": "ウォレットの推定値",
     "estimated-points": "推定された点数の値",
     "estimated-description": "推定値はHIVEの7日間の平均値に基づいています。",
     "estimated-description-points": "推定値は、ポイントの購入額に基づいています。",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVEは、いつでも転送、取引、またはステークするあなたの液体バランスです。",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "Hive POWER",
-    "hive-power-description": "Hive Powerはあなたの影響力です。保持すればするほど、より多くの票が重要になり、獲得するほどです。 それを成長させるためにHIVEをステークし、13週間以上かけてステークします。",
+    "hive-power-description": "Hive Powerは、長期保持とコンテンツへの投票により多くの力を得る影響力トークンです。 Hiveパワーが多ければ多いほど、他のプレイヤーの報酬に影響を与え、正確な投票で報酬を獲得できます。 Hive Powerは、13週間でステーク解除できるHIVEトークンをステークされます。",
     "hive-power-apr-rate": "Hive PowerのAPR利率は {{value}} %です",
     "hive-dollars-apr-rate": "HBD($)のAPR利率は {{value}} %です",
     "hive-dollars-apr-claim": "前回の支払い {{value}}以降の利息の推定：",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "次のパワーダウン量",
     "hive-power-total": "合計ハイブパワー",
     "hive-dollars": "Hive DOLLARS",
-    "hive-dollars-description": "安定したトークンはそれぞれ約$ 1.00に固定されています。",
+    "hive-dollars-description": "約$ 1.00のHIVEの価値があるトークン。",
     "savings": "保存",
     "savings-description": "3日間の待機期間の引き出しの対象となる残高。",
     "next-power-down": "次のパワーダウンは {{time}}, (~{{amount}}, {{weeks}} 週間残り)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "市場でのオープン注文の予約",
     "spk": {
       "claim": {
-        "title": "回収する",
-        "unclaimed-rewards": "収集する収益"
+        "title": "Claim",
+        "unclaimed-rewards": "未請求の報酬"
       },
       "delegate": {
         "title": "Delegate",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "ポイントを購入",
     "unclaimed-points": "未請求ポイント",
-    "claim-reward-points": "ポイントを収集",
+    "claim-reward-points": "報酬ポイントを請求する",
     "main-description": "ポイントはプロモーション、ブースト、ギフトなどのアプリ内サービスに使用できます。Ecencyアプリを使用して獲得し、あなたの経験を向上させるだけで獲得できます。",
     "earn-points": "もっとポイントを獲得する方法は？",
     "post-desc": "定期的に投稿することでポイントを獲得できます。投稿には15ポイントが与えられます。",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "ユーザー名",
     "to-not-found": "送金先のユーザーが存在しません！",
     "to-bad-actor": "このアカウントに送金する際は注意してください。フィッシングの可能性があるためスペルを再確認してください。",
-    "external-wallets-label": "ウォレット (BTC、ETH、BNB、SOL)",
+    "external-wallets-label": "ウォレット (BTC、ETH、SOL、BNB、TRX、TON、APT)",
     "amount": "金額",
     "amount-placeholder": "数量",
     "wrong-amount": "間違った金額",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "ステークトークン",
     "type-tokens_issue": "課題トークン",
     "type-comments_beneficiaryReward": "受取人の報酬",
-    "type-claim_reward_balance": "収集された収益",
+    "type-claim_reward_balance": "報酬を要求する",
     "type-transfer": "送金",
     "type-tokens_transfer": "送金",
     "type-transfer_to_vesting": "パワーアップ",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "Collateralized convert",
     "type-collateralized_convert-detail": "リクエスト ID: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "提案ID: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "貯蓄口座から送金",
     "type-limit_order_create": "新しい取引が作成されました",
+    "type-limit_order_create2": "新しい取引が作成されました",
     "type-limit_order_cancel": "取引をキャンセルしました",
     "type-effective_comment_vote": "有効な投票",
     "type-account_witness_proxy": "ガバナンスのプロキシを更新",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "あなたの物語を伝えてください...",
     "reward": "Recompensa",
     "take-tour": "ツアーに参加する",
-    "reward-hint": "収益の受け取り方を選択してください",
+    "reward-hint": "液体およびステークトークンの著者報酬比率を設定",
     "reward-default": "既定の 50% / 50%",
-    "reward-sp": "ステーク100%",
-    "reward-dp": "収益の拒否",
+    "reward-sp": "パワーアップ100%",
+    "reward-dp": "支払いを拒否する",
     "preview": "プレビュー",
     "publish": "公開",
     "update": "更新",
@@ -1770,7 +1798,10 @@
     "error-generic": "動画のアップロードに失敗しました。もう一度やり直してください。",
     "title-short": "短い動画をアップロード",
     "short-badge": "Short",
-    "video-attached": "ビデオが添付されました"
+    "video-attached": "ビデオが添付されました",
+    "video-type": "ビデオの種類",
+    "type-video": "ビデオ",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "タグ。最初のタグはメインカテゴリです。ソート可能です。",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} が {{amount}}を送信しました",
     "delegations": "{{source}} があなたに {{amount}}を委任しました",
     "checkins": "あなたは今週 {{count}} 日{{suffix}} にチェックインしました。続けてください！",
-    "payouts": "コンテンツ収入の準備ができました。",
+    "payouts": "コンテンツの支払いの準備ができました。",
     "payouts-amount": "{{amount}} の支払いを受け取りました。",
     "payouts-amount-usd": "${{amount_usd}} ({{amount}}) を獲得しました。",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "既読にする",
     "mute": "通知をオフにする",
     "unmute": "通知通知をオンにする",
-    "settings": "設定",
+    "settings": "サウンド/ポップアップ設定",
+    "new-notifications-batch": "{{count}} 新しい通知",
     "select": "通知を選択",
     "unselect": "通知の選択を解除",
     "mark-selected-read": "選択したものを既読にする"
@@ -2158,6 +2190,7 @@
     "update-success-message": "リカバリ用のメールアドレスが正常に更新されました"
   },
   "chat": {
+    "title": "チャット",
     "page-title": "Ecencyコミュニティとチャットするために、ダイレクトメッセージを開始するか、チャンネルに参加してください。",
     "loading-chats": "Loading chats…",
     "start-dm-button": "DMを開始",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "参加する",
     "joining-channel": "Joining…",
     "no-additional-channels": "追加のチャンネルが見つかりませんでした。",
-    "title": "チャット",
     "no-admin": "このコミュニティチャットの管理者またはモデレータはいません。",
     "view-community-channel": "コミュニティチャット",
     "public-key": "公開キー",
@@ -2256,9 +2288,9 @@
         "create-title": "どこからでも公開",
         "create-description": "ドラフト投稿、アップデートを共有し、デスクトップで使用するのと同じ強力なエディタでコメントに返信します。",
         "wallet-title": "ウォレットを一目で確認する",
-        "wallet-description": "残高を確認し、収益を収集し、わずか数タップでトークンを管理します。",
+        "wallet-description": "残高を確認し、報酬を請求し、わずか数タップでハイブパワーまたはHBDを管理します。",
         "notifications-title": "メンションをお見逃しなく",
-        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、収益を強調表示するので、時間通りに祝うことができます。"
+        "notifications-description": "プッシュ通知は新しいフォロワー、メンション、報酬を強調表示するので、時間通りに祝うことができます。"
       },
       "features-title": "クリエイターやコミュニティ向けにデザインされた",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>In Wallet page (in top header on website and desktop app, bottom navigation bar on mobile app), you can see Curation rewards (the rewards earned for upvoting posts and comments) and Author rewards (the rewards earned by your own posts and comments)</p><p>You can also view the same information for other users by visiting their wallet profile.</p>",
       "how-dhf-work-header": "DHFはどのように機能しますか？",
       "how-dhf-work-body": "<p>Anyone can create a proposal and convince community to vote on their proposal to get funded. Before creating proposal, normal post should be published on blockchain and it is recommended to gather feedback before creating proposal. Proposal creation has fee of 10 HBD + 1 HBD for each day it lasts over 60 days.</p><p>Once proposal reaches certain threshold of tallied votes, it will start receiving funds each hour. If proposal falls below threshold, system will halt funding for that proposal. You can vote as many proposals as you want, there are no limits. Proposal cannot be edited, but can be deleted/withdrawn by creator.</p>",
-      "when-claim-rewards-header": "収入はいつ集められますか。",
-      "when-claim-rewards-body": "<p>投稿とコメントは7日間獲得します。 この期間中、収益は投票と市場の状況に基づいて変動します。 7日後、最終的な収入を受け取る準備ができました。ウォレットにアクセスし、format@@0をタップして残高に追加します。</p>",
+      "when-claim-rewards-header": "報酬はいつ受け取れますか?",
+      "when-claim-rewards-body": "<p>Posts and comments remain active for 7 days and rewards are fluctuates depending on votes and market price of token, that is why rewards are approximated as pending reward. When the period is over, pending reward changes to actual reward and you are able to claim earned rewards. In your Wallet, click the Claim Rewards button to add the tokens to your account.</p>",
       "what-are-rc-header": "資源クレジットとは何ですか？",
       "what-are-rc-body": "<p>Transacting on the Hive blockchain has zero fees, transaction rate-limiting is employed to safeguard the blockchain from spam attacks. Every action that you take on the blockchain will consume a small amount of Resource Credits. This includes posting, commenting, voting, transferring tokens, etc. Viewing content does not consume Resource Credits.</p><p>Every user has a limited amount of Resource Credits to use each week. The more transactions a user does, the less Resource Credits they will have left (until they recharge). Users with more HIVE POWER will have more Resource Credits.</p><p>If you run out of Resource Credits, you will be unable to transact with the blockchain until your Resource Credits recharge (happens automatically) or you acquire additional HIVE POWER to increase your Resource Credit balance or you can <a href=\"/faq#how-boost-account\">request Boosting account from Ecency</a> to receive temporary delegation.</p>",
       "how-boost-account-header": "アカウントのブーストをリクエストする方法は？",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "コンピュータ用にダウンロード",
     "download-for-ios": "IOS用にダウンロード",
     "download-for-android": "Android用にダウンロード",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "モバイルアプリを取得する",
     "our-history": "沿革",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "それ以来、私たちは Web 3 用のビルドを続けています。 ブロックチェーンベースのソーシャルネットワークを改善し、可能な限りアプリにアクセスできるようにし、世界中の多くの言語で安全にアクセスできるようにします。",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "ローカルデータを使用できません",
-    "no-ls-description": "あなたまたはあなたのブラウザが当社のウェブサイトのローカルデータを無効にしているようです。 残念ながら、ドラフト、ローカルデッキ、高度な取引ダッシュボードなどのEcency機能のほとんどを使用することはできません。 最新のブラウザの最新バージョンを使用するか、ローカルデータを手動でオンにしてください。"
+    "no-ls-description": "あなたまたはあなたのブラウザが当社のウェブサイトのローカルデータを無効にしているようです。 残念ながら、ドラフト、ローカルデッキ、高度な取引ダッシュボードなどのEcency機能のほとんどを使用することはできません。 最新のブラウザの最新バージョンを使用するか、ローカルデータを手動でオンにしてください。",
+    "install-title": "Install Ecency",
+    "install-description": "より速く、全画面の経験のためにあなたのホーム画面にEcency を追加しなさい。",
+    "install-cta": "インストール",
+    "install-dismiss": "今はしない",
+    "install-ios-hint": "共有ボタンをタップし、「ホーム画面に追加」を選択してEcancyをインストールします。"
   },
   "waves": {
+    "feed": {
+      "for-you": "あなたのために",
+      "following": "フォロー中"
+    },
     "sources": "ソース",
     "reply-form-title": "返信先",
     "hide-replies": "返信を非表示",
@@ -3161,16 +3204,16 @@
     "delegations-outgoing": "委任状",
     "delegations-incoming": "委任を受信する",
     "external-wallets-offer": {
-      "title": "暗号化ウォレットをリンクする",
-      "description": "MetaMaskを接続するか、BTC、ETH、BNB、SOLのウォレットアドレスを入力して、Hiveエコシステム内で暗号を管理および監視します。",
-      "hint": "ウォレットアドレスはHiveアカウントのメタデータとEcencyに保存されています",
+      "title": "暗号通貨をEcencyに届けよう",
+      "description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットをTrustやExodusなどのアプリから直接作成またはインポートします Hiveエコシステム内でシームレスに使用し始めます。",
+      "hint": "作成およびインポートされたトークンの情報はEcency and Hiveアカウントのメタデータに保存されます",
       "dismiss": "たぶん後で"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Hiveアカウントの作成とリンク",
-      "create-wallet-description": "BTC、ETH、BNB、SOLのMetaMaskウォレットをリンクしてください。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
-      "import-wallet-title": "既存のウォレットを見る",
-      "import-wallet-description": "残高を監視するためにウォレットアドレスを入力してください。",
+      "create-wallet-description": "BTC、ETH、BNB、SOL、TRX、APT、TON用のウォレットを作成します。 これらの資産はHiveアカウントにリンクされ、Ecanceで簡単に資金を管理できます。",
+      "import-wallet-title": "既存のウォレットをインポート",
+      "import-wallet-description": "Trust、Exodus、または他の互換性のあるアプリから既存のウォレットをインポートします。 アセットはHiveアカウントに接続されるため、Ecanceで簡単に資金を管理できます。",
       "create-wallet-tokens-description": "トークンアドレスを確認してください。ウォレットページで後で確認できます。",
       "linking": "Hiveアカウントにトークンをリンクしています...",
       "linking-hint": "HiveとEcencyはあなたの財布の公開アドレスのみを使用します。個人情報は保存されません。",
@@ -3207,10 +3250,10 @@
       "note": "利息は {{apr}}%のAPRで継続的に計算されます。",
       "claim-button": "利息を受け取る"
     },
-    "claim-rewards": "収益を収集",
-    "claim-rewards-with-amount": "{{amount}} {{token}} を集める",
-    "claim-rewards-loading": "収集中...",
-    "claim-rewards-success": "{{amount}} {{token}} を集めました！",
+    "claim-rewards": "報酬を要求する",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "請求しています...",
+    "claim-rewards-success": "{{amount}} {{token}} の請求に成功しました",
     "hp-delegation-promo": {
       "tag": "APRブースト+10%",
       "title": "ハイブパワーでEcancyキュレーションをする",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "認証",
-        "generate-seed": "パスワードの生成",
+        "generate-seed": "シードを生成",
         "review-keys": "鍵の確認",
         "confirm": "確認する"
       },
       "step1": {
         "title": "新しいキーセットの追加",
-        "info1": "新しいマスターパスワードがあなたのアカウントに生成されます",
+        "info1": "新しいシードフレーズがあなたのアカウントに生成されます",
         "info2": "複数のキーセットを同時にアクティブにすることができます",
         "info3": "次のステップで古いキーを取り消すオプションがあります",
         "authenticate": "続行するには認証してください",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "重要：新しいシードフレーズを保存する",
-        "warning1": "これは新しいマスターパスワードです。元の資格情報とは異なります。",
+        "warning1": "これは元のアカウントのシードとは異なる新しいシードフレーズです。",
         "warning2": "別々に保存してください - これらのキーでログインするにはそれが必要です",
-        "warning3": "続行する前にキーファイルをダウンロードし、安全に保存してください"
+        "warning3": "シードファイルをダウンロードして、続行する前に安全に保存してください"
       },
       "step3": {
         "title": "既存の鍵を確認",

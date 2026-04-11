@@ -176,7 +176,8 @@
     "home": "Strona główna",
     "waves": "Fale",
     "communities": "Społeczności",
-    "chats": "Czaty"
+    "chats": "Czaty",
+    "toggle-menu": "Przełącz menu nawigacji"
   },
   "search": {
     "placeholder": "Szukaj",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "Portfel",
-    "unclaimed-reward-notice": "Masz zarobki do pobrania!",
+    "unclaimed-reward-notice": "Masz nieodebrane wynagrodzenie",
     "points": "Punkty",
-    "unclaimed-points-notice": "Masz punkty do zebrania!",
+    "unclaimed-points-notice": "Masz nieodebrane punkty",
     "notifications": "Powiadomienia",
     "profile": "Profil",
     "profile-menu": "Menu profilu",
@@ -297,13 +298,28 @@
     "my-users": "Moi użytkownicy",
     "metamask-not-found": "MetaMask nie został znaleziony. Proszę zainstalować rozszerzenie przeglądarki MetaMask",
     "metamask-no-keys": "Nie można uzyskać kluczy ulowych z MetaMask",
-    "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji."
+    "metamask-key-mismatch": "Klucze MetaMask Hive nie pasują do tego konta. Upewnij się, że używasz tego samego portfela MetaMask użytego podczas rejestracji.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Komórka Keychain",
+    "keychain-mobile-missing-sig": "Brakuje podpisu z Keychain. Spróbuj ponownie.",
+    "keychain-mobile-no-pending": "Nie znaleziono logowania. Spróbuj zalogować się ponownie.",
+    "keychain-mobile-invalid-data": "Nieprawidłowe dane logowania. Spróbuj ponownie.",
+    "keychain-mobile-expired": "Żądanie logowania wygasło. Spróbuj ponownie.",
+    "keychain-mobile-error": "Logowanie nie powiodło się. Spróbuj ponownie.",
+    "keychain-mobile-title": "Ukończenie logowania...",
+    "keychain-mobile-title-error": "Logowanie nie powiodło się",
+    "keychain-mobile-message": "Sprawdzanie podpisu i logowanie się...",
+    "keychain-sign-missing-result": "Nie otrzymano wyniku transakcji z Keychain.",
+    "keychain-sign-processing": "Przetwarzanie...",
+    "keychain-sign-success": "Podpisano transakcję",
+    "keychain-sign-redirecting": "Przekierowanie cię z powrotem...",
+    "keychain-sign-error-title": "Podpisywanie nie powiodło się"
   },
   "sign-up": {
-    "header": "Społeczności Nagrodowe",
-    "description": "Wolność słowa, prawdziwa własność, wolność finansowa!",
-    "description-2": "Dołącz do platformy zarządzanej w całości przez jego społeczność. Jedno konto daje Ci dostęp do całego ekosystemu.",
-    "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkiego.",
+    "header": "Nagroda społeczności Web3",
+    "description": "Freespeech, Prawdziwa własność, swoboda finansowa!",
+    "description-2": "Ul potęguje wiele aplikacji i jest całkowicie zdecentralizowany przez członków społeczności na całym świecie. Z kontem masz bezpośredni dostęp do ekosystemu.",
+    "bottom-description": "Jedno konto, jeden portfel do zarządzania wszystkimi w Blockchain.",
     "learn-more": "Dowiedz się więcej o korzyściach w <a href=\"/faq#how-to-join\">sekcji pytań i odpowiedzi</a>",
     "username": "Wybierz nazwę użytkownika",
     "email": "Podaj swój adres e-mail",
@@ -447,8 +463,8 @@
     "vote-remove": "Głosowanie 0% odebrało od głosu.",
     "vote-warning": "Zmiana głosu...",
     "no-replies": "Brak odpowiedzi. Kliknij aby odpowiedzieć.",
-    "old-post-error": "Okres zarobkowy tego posta zakończył się.",
-    "old-post-error-suggestion": "Nadal możesz poradzić autorowi. "
+    "old-post-error": "Głosowanie na zawartość po wypłacie nie daje żadnych nowych nagród.",
+    "old-post-error-suggestion": "Spróbuj wywrócić autora. "
   },
   "nsfw": {
     "reveal": "Pokaż ten post",
@@ -513,18 +529,18 @@
     "submit-label": "Zatwierdź",
     "published": "Wpis został opublikowany",
     "no-subscription": "Nie należysz do żadnej społeczności, w której można udostępnić wpis.",
-    "info": "Zyski są automatycznie odrzucane dla postów. Dyskusje pod różnymi postami przebiegają zgodnie z wytycznymi społeczności hosta."
+    "info": "Nagrody są automatycznie odrzucane dla udostępnionego wpisu. Osobne będą również komentarze tego wpisu i będą podlegać wytycznym społeczności docelowej."
   },
   "entry-payout": {
-    "reward": "Zyski",
+    "reward": "Nagroda",
     "full-power": "Zwiększ moc 100%",
-    "pending-payout": "Szacowane zarobki",
+    "pending-payout": "Oczekująca wypłata",
     "promoted": "Promowane",
-    "author-payout": "Zyski autora",
-    "curators-payout": "Zyski Sojuszników",
+    "author-payout": "Wypłata Autorska",
+    "curators-payout": "Wypłata Kuratorska",
     "payout-date": "Wypłata",
     "beneficiary": "Beneficjant",
-    "breakdown": "Szczegóły",
+    "breakdown": "Podział",
     "max-accepted": "Maksymalna zaakceptowana"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "Wymiana tokenów",
-    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "Decentralized exchange to Buy and Sell tokens on Hive blockchain. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
     "last-price": "Ostatnia cena",
     "volume": "24h głośność",
     "bid": "Bid",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "Użyj Umiejętności Ecencji aby promować swój post i zyskać szerszą ekspozycję.",
       "try-now": "Spróbuj teraz"
     },
-    "listen": "Słuchaj"
+    "listen": "Słuchaj",
+    "tts-settings": "Ustawienia tekstu na mowę"
   },
   "edit-history": {
     "title": "Edytuj historię",
@@ -941,11 +958,13 @@
     "reveal-muted": "Wyciszony autor - Ujawnij komentarz",
     "reveal-muted-long-description": "Pokaż dodatkowe odpowiedzi, w tym te, które mogą zawierać obraźliwe treści",
     "reveal": "Pokaż komentarz",
+    "reveal-comments": "Pokaż komentarze {{n}}",
     "no-conversation": "Brak konwersacji, najpierw odpowiedz.",
     "start-conversation": "Rozpocznij rozmowę",
-    "join-hint": "Dołącz do rozmowy i zarabiaj za swój wkład",
+    "join-hint": "Zostań częścią wielkiej społeczności Uli i zarabiaj nagrody za aktywność",
     "new-comment": "{{n}} nowy komentarz - dotknij, aby załadować",
-    "new-comments": "{{n}} nowe komentarze - dotknij, aby załadować"
+    "new-comments": "{{n}} nowe komentarze - dotknij, aby załadować",
+    "load-error": "Nie udało się załadować komentarzy. Dotknij, aby ponowić"
   },
   "community": {
     "page-description": "{{f}} tematów",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "Nie udało się zaktualizować ustawień prywatności DM"
   },
   "wallet": {
-    "unclaimed-rewards": "Zyski do zebrania",
-    "claim-reward-balance": "Zbieraj zarobki",
-    "claim-reward-balance-ok": "Zgromadzone zarobki!",
+    "unclaimed-rewards": "Nieodebrane wynagrodzenie",
+    "collect-all": "Zbierz wszystko",
+    "collect-all-ok": "Wszystkie zebrane zarobki!",
+    "show-details": "Pokaż szczegóły",
+    "hide-details": "Ukryj szczegóły",
+    "claimable-label": "Gotowy do kolekcji:",
+    "potential-label": "Potencjalne zarobki:",
+    "potential-hint": "z aktywnych postów i komentarzy",
+    "claim-reward-balance": "Odbierz wynagrodzenie",
+    "claim-reward-balance-ok": "Wynagrodzenie odebrane",
     "estimated": "Szacowana wartość portfela",
     "estimated-points": "Szacowana wartość Punktów",
     "estimated-description": "Wartość jest szacowana na podstawie średniej wartości HIVE z 7 dni.",
     "estimated-description-points": "Szacowana wartość opiera się na wartości zakupu Punktów.",
     "hive": "HIVE",
     "hbd": "HBD",
-    "hive-description": "HIVE to Twoje płynne saldo - przelew, handluj lub zastawiaj je w dowolnym momencie.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "MOC HIVE",
-    "hive-power-description": "Moc Uli to twój wpływ. Im więcej masz na siebie, tym więcej głosów ma znaczenie i tym więcej zarabiasz. Należy przyjąć HIVE, aby go zwiększyć, bez udziału w ciągu 13 tygodni.",
+    "hive-power-description": "Moc uliczna to tokeny wpływające, które zarabiają więcej mocy za długotrwałe trzymanie i głosowanie nad treścią. Im więcej Mocy Uli, tym więcej może wpływać na nagrody innych i zdobywać nagrody za dokładne głosowanie. Moc Hive jest zablokowany token HIVE, który może być niewykorzystany w ciągu 13 tygodni.",
     "hive-power-apr-rate": "Stopa procentowa APR dla Mocy Hive wynosi {{value}}%",
     "hive-dollars-apr-rate": "Stopa procentowa APR dla HBD($) wynosi {{value}}%",
     "hive-dollars-apr-claim": "Szacowane odsetki od ostatniej płatności {{value}}:",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "Następny spadek mocy jest za",
     "hive-power-total": "Całkowita Moc Hive",
     "hive-dollars": "HIVE DOLLARY",
-    "hive-dollars-description": "Stabilne tokeny ustawione do około $1.00 każdy.",
+    "hive-dollars-description": "Tokeny warte około 1,00 USD z HIVE.",
     "savings": "OSZCZĘDNOŚCI",
     "savings-description": "Saldo z 3-dniowym okresem oczekiwania na wypłatę.",
     "next-power-down": "Następnym spadkiem zasilania jest {{time}}(~{{amount}}, {{weeks}} tygodni pozostało)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "Zarezerwowane dla Otwartego Zamówienia w Rynku",
     "spk": {
       "claim": {
-        "title": "Zbierz",
-        "unclaimed-rewards": "Zyski do zebrania"
+        "title": "Claim",
+        "unclaimed-rewards": "Nieodebrane nagrody"
       },
       "delegate": {
         "title": "Delegat",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "KUP PUNKTY",
     "unclaimed-points": "Nieodebrane punkty",
-    "claim-reward-points": "Zbierz punkty",
+    "claim-reward-points": "Odbierz punkty lojalnościowe",
     "main-description": "Punkty mogą być używane do usług w aplikacji, takich jak Promote, Boost, Podarunek. Zarabiaj je tylko za pomocą aplikacji Ecency i poprawiaj swoje doświadczenia.",
     "earn-points": "Jak zarobić więcej punktów",
     "post-desc": "Możesz zdobywać punkt poprzez regularne publikowanie. Postowanie daje ci 15 punktów.",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "nazwa użytkownika",
     "to-not-found": "Użytkownik, do którego próbujesz przesłać środki, nie istnieje!",
     "to-bad-actor": "Zachowaj ostrożność podczas wysyłania na to konto. Dokładnie sprawdź pisownię pod kątem możliwych wyłudzeń danych.",
-    "external-wallets-label": "Portfel (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Portfel (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "Ilość",
     "amount-placeholder": "ilość",
     "wrong-amount": "Nieprawidłowa wartość kwoty",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "Tokeny tyczenia",
     "type-tokens_issue": "Tokeny wydania",
     "type-comments_beneficiaryReward": "Nagroda dla beneficjenta",
-    "type-claim_reward_balance": "Zgromadzone zarobki",
+    "type-claim_reward_balance": "Odbierz wynagrodzenia",
     "type-transfer": "Przelew",
     "type-tokens_transfer": "Przelew",
     "type-transfer_to_vesting": "Zasil",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "Zabezpieczona konwersja",
     "type-collateralized_convert-detail": "Żądanie id: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Wniosek id: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Przenieś z oszczędności",
     "type-limit_order_create": "Utworzono nową transakcję",
+    "type-limit_order_create2": "Utworzono nową transakcję",
     "type-limit_order_cancel": "Otwarta transakcja anulowana",
     "type-effective_comment_vote": "Skuteczne głosowanie",
     "type-account_witness_proxy": "Aktualizacja proxy zarządzania",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "Powiedz swoją historię...",
     "reward": "Nagroda",
     "take-tour": "Zabierz wycieczkę",
-    "reward-hint": "Wybierz sposób, w jaki otrzymujesz swoje zarobki",
+    "reward-hint": "Ustaw współczynnik nagród autorskich dla płynnych i zastawionych tokenów",
     "reward-default": "Domyślnie 50% / 50%",
-    "reward-sp": "Tycz 100%",
-    "reward-dp": "Odrzuć zarobki",
+    "reward-sp": "Zwiększ moc 100%",
+    "reward-dp": "Odmów wynagrodzenia",
     "preview": "Podgląd",
     "publish": "Publikuj",
     "update": "Aktualizuj",
@@ -1770,7 +1798,10 @@
     "error-generic": "Nie udało się przesłać filmu. Spróbuj ponownie.",
     "title-short": "Prześlij krótkie wideo",
     "short-badge": "Krótki",
-    "video-attached": "Wideo dołączone"
+    "video-attached": "Wideo dołączone",
+    "video-type": "Typ wideo",
+    "type-video": "Wideo",
+    "type-short": "Krótki"
   },
   "tag-selector": {
     "placeholder-empty": "Tagi. Pierwszy tag jest kategorią główną. Tagi można sortować.",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} wysłał(a) Ci {{amount}}",
     "delegations": "{{source}} przekazał Ci {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Twoje zyski z treści są gotowe.",
+    "payouts": "Wypłata treści jest gotowa.",
     "payouts-amount": "Otrzymałeś(aś) wypłatę {{amount}}.",
     "payouts-amount-usd": "Zarobiłeś ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "Oznacz jako przeczytane",
     "mute": "Wyłącz powiadomienia",
     "unmute": "Włącz powiadomienia",
-    "settings": "Ustawienia",
+    "settings": "Ustawienia dźwięku/wyskakujące okienko",
+    "new-notifications-batch": "{{count}} nowe powiadomienia",
     "select": "Wybierz powiadomienie",
     "unselect": "Odznacz powiadomienie",
     "mark-selected-read": "Oznacz jako przeczytane"
@@ -2158,6 +2190,7 @@
     "update-success-message": "Twój e-mail odzyskiwania został pomyślnie zaktualizowany"
   },
   "chat": {
+    "title": "Czaty",
     "page-title": "Rozpocznij bezpośrednie wiadomości lub dołącz do kanałów, aby rozmawiać ze społecznością Ecency.",
     "loading-chats": "Ładowanie czatów…",
     "start-dm-button": "Rozpocznij DM",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "Dołącz",
     "joining-channel": "Dołączanie do…",
     "no-additional-channels": "Nie znaleziono dodatkowych kanałów.",
-    "title": "Czaty",
     "no-admin": "Brak administratora lub moderatora dla tego czatu społecznościowego.",
     "view-community-channel": "Czat Społeczności",
     "public-key": "Klucz publiczny",
@@ -2256,9 +2288,9 @@
         "create-title": "Opublikuj z dowolnego miejsca",
         "create-description": "Szkic postów, udostępniaj aktualizacje i odpowiadaj na komentarze z tym samym potężnym edytorem, którego używasz na komputerze.",
         "wallet-title": "Portfel na rzut oka",
-        "wallet-description": "Sprawdź salda, zbieraj zyski i zarządzaj tokenami za pomocą kilku kliknięć.",
+        "wallet-description": "Sprawdź salda, odbierz nagrody i zarządzaj Mością Uroczną lub HBD tylko kilkoma dotknięciami.",
         "notifications-title": "Nigdy nie przegap wzmianki",
-        "notifications-description": "Powiadomienia wyróżniają nowych obserwujących, wzmianki i zarobki, aby móc świętować na czas."
+        "notifications-description": "Powiadomienia wyróżniają nowych obserwujących, wzmianki i nagrody, dzięki czemu możesz świętować na czas."
       },
       "features-title": "Zaprojektowane dla twórców i społeczności",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>Na stronie Wallet (w górnym nagłówku w witrynie internetowej i aplikacji komputerowej, dolny pasek nawigacyjny w aplikacji mobilnej), możesz zobaczyć nagrody za kurację (nagrody zdobyte za upvote posty i komentarze) oraz nagrody autora (nagrody zdobyte przez własne posty i komentarze)</p><p>Możesz również zobaczyć te same informacje dla innych użytkowników, odwiedzając ich profil portfela.</p>",
       "how-dhf-work-header": "Jak działa DHF?",
       "how-dhf-work-body": "<p>Każdy może przedstawić własną propozycję i przekonać społeczność do głosowania na nią, by pozyskać fundusze na jej sfinansowanie. Utworzenie propozycji powinno być poprzedzone publikacją normalnego wpisu w blockchainie i zebraniem na jej temat opinii. Utworzenie propozycji wiąże się z opłatą 10 HBD + 1 HBD za każdy dzień jej trwania powyżej 60 dni.</p><p>Gdy suma głosów oddanych na daną propozycję przekroczy określony próg, propozycja zaczyna otrzymywać fundusze co godzinę. Jeśli propozycja spadnie poniżej progu, system wstrzyma jej finansowanie. Możesz głosować na dowolną liczbę propozycji bez ograniczeń. Propozycji nie można edytować, ale twórca może je usunąć/ wycofać.</p>",
-      "when-claim-rewards-header": "Kiedy mogę zbierać swoje zarobki?",
-      "when-claim-rewards-body": "<p>Wiadomości i komentarze zarabiają przez 7 dni. W tym okresie zarobki zmieniają się w zależności od głosów i warunków rynkowych - dlatego pokazują się według szacunków. Po 7 dniach Twoje ostatnie zarobki są gotowe do zebrania. Przejdź do portfela i naciśnij przycisk Zbierz aby dodać je do swojego salda.</p>",
+      "when-claim-rewards-header": "Kiedy mogę odebrać moje nagrody?",
+      "when-claim-rewards-body": "<p>Posty i komentarze pozostają aktywne przez 7 dni, a nagrody są zmienne w zależności od głosów i ceny rynkowej tokenu, Dlatego nagrody są przybliżone jako nagroda oczekująca. Po zakończeniu okresu, oczekujące zmiany nagród do faktycznej nagrody i możesz odebrać zdobyte nagrody. W swoim portfelu kliknij przycisk Odbierz Nagrody aby dodać tokeny do swojego konta.</p>",
       "what-are-rc-header": "Czym są Kredyty Zasobów?",
       "what-are-rc-body": "<p>Transakcja w łańcuchu bloków w uli ma zerowe opłaty, ograniczanie szybkości transakcji jest stosowane w celu zabezpieczenia łańcucha bloków przed atakami spamu. Każda akcja, którą podejmujesz w blockchain, zużywa niewielką ilość zasobów kredytowych. Obejmuje to publikowanie, komentowanie, głosowanie, przesyłanie tokenów itp. Oglądanie treści nie zużywa zasobów kredytowych.</p><p>Każdy użytkownik ma ograniczoną ilość środków zasobowych do wykorzystania w każdym tygodniu. Im więcej transakcji dokonuje użytkownik, tym mniej środków Zasobowych zostawią (dopóki nie doładuje). Użytkownicy z większą ilością HIVE POWER będą mieli więcej zasobów kredytowych.</p><p>Jeśli skończysz z zasobami kredytowymi, nie będziesz w stanie dokonać transakcji z blockchain, dopóki nie doładujesz środków zasobowych (nastąpi to automatycznie) lub zdobędziesz dodatkowe środki HIVE POWER w celu zwiększenia salda zasobów lub możesz <a href=\"/faq#how-boost-account\">poprosić o konto Boostingowe od Ecency</a> aby otrzymać tymczasowe delegowanie.</p>",
       "how-boost-account-header": "Jak poprosić o podbicie konta?",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "Pobierz na komputer",
     "download-for-ios": "Pobierz na IOS",
     "download-for-android": "Pobierz na Androida",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Pobierz aplikację mobilną",
     "our-history": "Nasza historia",
     "our-history-p-one": "<b>Ecencja</b> (wcześniej Esteem) rozpoczęła się w 2016 r., założyciel <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> rozpoczął wdrażanie aplikacji mobilnej, która zrewolucjonizowałaby sposób interakcji i tworzenia, buduj, angażuj się online. Z czasem wzrosło do czegoś znacznie większego.",
     "our-history-p-two": "Od tego czasu kontynuujemy budowę sieci Web 3. i ulepsza naszą sieć społecznościową opartą na blockchain, zapewniając jak największą dostępność aplikacji, bezpieczną i w wielu językach mówi świat.",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Nie można użyć lokalnych danych",
-    "no-ls-description": "Wygląda na to, że Ty lub Twoja przeglądarka wyłączyłeś lokalne dane dla naszej witryny. Niestety nie możesz użyć większości funkcji ecencji, takich jak szkicy, lokalne talie, zaawansowany panel handlowy i inne. Użyj najnowszych wersji dowolnej nowoczesnej przeglądarki lub włącz dane lokalne ręcznie."
+    "no-ls-description": "Wygląda na to, że Ty lub Twoja przeglądarka wyłączyłeś lokalne dane dla naszej witryny. Niestety nie możesz użyć większości funkcji ecencji, takich jak szkicy, lokalne talie, zaawansowany panel handlowy i inne. Użyj najnowszych wersji dowolnej nowoczesnej przeglądarki lub włącz dane lokalne ręcznie.",
+    "install-title": "Install Ecency",
+    "install-description": "Dodaj Ecencję do ekranu głównego dla szybszego korzystania z trybu pełnoekranowego.",
+    "install-cta": "Zainstaluj",
+    "install-dismiss": "Nie teraz",
+    "install-ios-hint": "Dotknij przycisku Udostępnij i wybierz \"Dodaj do ekranu głównego\", aby zainstalować Ecencję."
   },
   "waves": {
+    "feed": {
+      "for-you": "Dla Ciebie",
+      "following": "Obserwowane"
+    },
     "sources": "Źródła",
     "reply-form-title": "Odpowiedz na",
     "hide-replies": "Ukryj odpowiedzi",
@@ -3207,10 +3250,10 @@
       "note": "Odsetki są obliczane w sposób ciągły dla {{apr}}% APR.",
       "claim-button": "Odsetki"
     },
-    "claim-rewards": "Zbieraj zarobki",
-    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
-    "claim-rewards-loading": "Zbieranie...",
-    "claim-rewards-success": "Zebrano {{amount}} {{token}}!",
+    "claim-rewards": "Odbierz nagrody",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Trwa pobieranie...",
+    "claim-rewards-success": "Pomyślnie odebrano {{amount}} {{token}}",
     "hp-delegation-promo": {
       "tag": "+10% wzmocnienie APR",
       "title": "Niech Ecencja klasztoru z Twoją Moc Uliczną",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Uwierzytelnij",
-        "generate-seed": "Wygeneruj hasło",
+        "generate-seed": "Wygeneruj ziarno",
         "review-keys": "Klawisze recenzji",
         "confirm": "Potwierdź"
       },
       "step1": {
         "title": "Dodawanie nowego zestawu kluczy",
-        "info1": "Nowe hasło główne zostanie wygenerowane dla Twojego konta",
+        "info1": "Nowa fraza seed zostanie wygenerowana dla Twojego konta",
         "info2": "Możesz zachować wiele zestawów klawiszy jednocześnie",
         "info3": "Będziesz miał możliwość cofnięcia starych kluczy w kolejnych krokach",
         "authenticate": "Uwierzytelnij, aby kontynuować",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "Ważne: Zapisz swoje nowe frazę seed",
-        "warning1": "To jest nowe hasło główne, inne niż Twoje oryginalne dane logowania",
+        "warning1": "To jest NOWA fraza ziaren, inna niż oryginalny seed konta",
         "warning2": "Zapisz to osobno - będziesz potrzebował go aby zalogować się za pomocą tych kluczy",
-        "warning3": "Pobierz plik kluczy i przechowuj go bezpiecznie przed kontynuowaniem"
+        "warning3": "Pobierz plik seed i przechowuj go bezpiecznie przed kontynuowaniem"
       },
       "step3": {
         "title": "Przejrzyj istniejące klucze",

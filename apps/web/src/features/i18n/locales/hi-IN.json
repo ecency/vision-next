@@ -176,7 +176,8 @@
     "home": "होम",
     "waves": "तरंगें",
     "communities": "समुदाय",
-    "chats": "चैट्स"
+    "chats": "चैट्स",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "खोजें",
@@ -230,9 +231,9 @@
   },
   "user-nav": {
     "wallet": "वटुवा",
-    "unclaimed-reward-notice": "You have earnings to collect!",
+    "unclaimed-reward-notice": "आपके पास दावा न किए गए रिवॉर्ड्स हैं",
     "points": "अंक",
-    "unclaimed-points-notice": "You have points to collect!",
+    "unclaimed-points-notice": "आपके पास दावा न किए गए अंक हैं",
     "notifications": "सूचनाएँ",
     "profile": "प्रोफाइल",
     "profile-menu": "प्रोफ़ाइल मेनू",
@@ -297,13 +298,28 @@
     "my-users": "मेरे उपयोगकर्ता",
     "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
     "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
-    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup."
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Keychain Mobile",
+    "keychain-mobile-missing-sig": "Missing signature from Keychain. Please try again.",
+    "keychain-mobile-no-pending": "No pending login found. Please try logging in again.",
+    "keychain-mobile-invalid-data": "Invalid login data. Please try again.",
+    "keychain-mobile-expired": "Login request expired. Please try again.",
+    "keychain-mobile-error": "Login failed. Please try again.",
+    "keychain-mobile-title": "Completing Login...",
+    "keychain-mobile-title-error": "Login Failed",
+    "keychain-mobile-message": "Verifying your signature and logging you in...",
+    "keychain-sign-missing-result": "No transaction result received from Keychain.",
+    "keychain-sign-processing": "Processing...",
+    "keychain-sign-success": "Transaction Signed",
+    "keychain-sign-redirecting": "Redirecting you back...",
+    "keychain-sign-error-title": "Signing Failed"
   },
   "sign-up": {
-    "header": "Rewarding Communities",
-    "description": "Free speech, True ownership, Financial freedom!",
-    "description-2": "Join a platform run entirely by its community. One account gives you access to the whole ecosystem.",
-    "bottom-description": "One account, one wallet to manage everything.",
+    "header": "पुरस्कृत वेब3 समुदाय",
+    "description": "मुक्त भाषण, सच्चा स्वामित्व, वित्तीय स्वतंत्रता!",
+    "description-2": "हाइव कई ऐप्स को संचालित करता है और दुनिया भर के समुदाय के सदस्यों द्वारा पूरी तरह से विकेंद्रीकृत रूप से चलाया जाता है। एक खाते के साथ, आपको पूरे पारिस्थितिकी तंत्र तक सीधी पहुँच मिलती है।",
+    "bottom-description": "ब्लॉकचेन पर सब कुछ प्रबंधित करने के लिए एक खाता, एक वॉलेट।",
     "learn-more": "हमारे <a href=\"/faq#how-to-join\">FAQ</a> में लाभों के बारे में अधिक जानें",
     "username": "प्रयोक्ता नाम उठाओ",
     "email": "अपना ईमेल पता दर्ज करें",
@@ -447,8 +463,8 @@
     "vote-remove": "0% वोट देने पर सामग्री को अनवोट कर दिया जाता है।",
     "vote-warning": "वोट बदल रहा है...",
     "no-replies": "अभी तक कोई प्रतिक्रिया नहीं. प्रतिक्रिया देने के लिए क्लिक करें।",
-    "old-post-error": "This post's earning period has ended.",
-    "old-post-error-suggestion": "You can still tip the author directly. "
+    "old-post-error": "भुगतान के बाद सामग्री पर वोट करने से कोई नया पुरस्कार नहीं मिलता।",
+    "old-post-error-suggestion": "लेखक को टिप देने का प्रयास करें। "
   },
   "nsfw": {
     "reveal": "इस पोस्ट को प्रकट करें",
@@ -513,18 +529,18 @@
     "submit-label": "पुष्टी करें",
     "published": "पोस्ट प्रकाशित",
     "no-subscription": "आपके पास क्रॉस पोस्ट करने के लिए कोई सामुदायिक सदस्यता नहीं है।",
-    "info": "Earnings are automatically declined for cross posts. Discussions under cross posts follow the host community's guidelines."
+    "info": "क्रॉस पोस्ट के लिए पुरस्कार स्वतः ही अस्वीकृत हो जाएंगे तथा क्रॉस पोस्ट के अंतर्गत चर्चाएं भिन्न होंगी तथा भिन्न सामुदायिक दिशानिर्देशों का पालन करेंगी।"
   },
   "entry-payout": {
-    "reward": "Earnings",
+    "reward": "इनाम",
     "full-power": "पावर अप 100%",
-    "pending-payout": "Estimated Earnings",
+    "pending-payout": "लंबित भुगतान",
     "promoted": "प्रचारित",
-    "author-payout": "Author Earnings",
-    "curators-payout": "Supporters' Earnings",
+    "author-payout": "लेखक भुगतान",
+    "curators-payout": "अध्यक्ष्ता भुगतान",
     "payout-date": "भुगतान",
     "beneficiary": "लाभार्थी",
-    "breakdown": "Details",
+    "breakdown": "विश्लेषण",
     "max-accepted": "अधिकतम स्वीकृत"
   },
   "entry-index": {
@@ -723,7 +739,7 @@
   },
   "market": {
     "title": "टोकन एक्सचेंज",
-    "description": "Exchange and swap tokens instantly. To learn more, read our <a href=\"/faq#how-exchange-work\">FAQ</a>.",
+    "description": "हाइव ब्लॉकचेन पर टोकन खरीदने और बेचने के लिए विकेन्द्रीकृत एक्सचेंज। अधिक जानने के लिए, हमारे <a href=\"/faq#how-exchange-work\">अक्सर पूछे जाने वाले प्रश्न</a> पढ़ें।",
     "last-price": "अंतिम मूल्य",
     "volume": "24घंटे की मात्रा",
     "bid": "बोली",
@@ -908,7 +924,8 @@
       "promotion-subtitle": "अपनी पोस्ट को बढ़ावा देने और व्यापक प्रचार पाने के लिए इसेंसी पर्क्स का उपयोग करें।",
       "try-now": "अब कोशिश करो"
     },
-    "listen": "सुनें"
+    "listen": "सुनें",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "इतिहास संपादित करें",
@@ -941,11 +958,13 @@
     "reveal-muted": "म्यूट किए गए लेखक - टिप्पणी प्रकट करें",
     "reveal-muted-long-description": "अतिरिक्त उत्तर दिखाएं, जिनमें आपत्तिजनक सामग्री हो सकती है",
     "reveal": "टिप्पणी प्रकट करें",
+    "reveal-comments": "Show {{n}} comments",
     "no-conversation": "अभी तक कोई बातचीत नहीं हुई है, सबसे पहले जवाब दें",
     "start-conversation": "चर्चा शुरू करें",
-    "join-hint": "Join the conversation and earn for your contributions",
+    "join-hint": "विशाल हाइव समुदाय का हिस्सा बनें और गतिविधि के लिए पुरस्कार अर्जित करें",
     "new-comment": "{{n}} new comment - tap to load",
-    "new-comments": "{{n}} new comments - tap to load"
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} विषय",
@@ -1230,18 +1249,25 @@
     "dm-privacy-failed": "Failed to update DM privacy settings"
   },
   "wallet": {
-    "unclaimed-rewards": "Earnings to collect",
-    "claim-reward-balance": "Collect earnings",
-    "claim-reward-balance-ok": "Earnings collected!",
+    "unclaimed-rewards": "दावा न किए गए पुरस्कार",
+    "collect-all": "Collect all",
+    "collect-all-ok": "All earnings collected!",
+    "show-details": "Show details",
+    "hide-details": "Hide details",
+    "claimable-label": "Ready to collect:",
+    "potential-label": "Potential earnings:",
+    "potential-hint": "from active posts and comments",
+    "claim-reward-balance": "इनाम शेष का दावा करें",
+    "claim-reward-balance-ok": "दावा किया गया पुरस्कार शेष",
     "estimated": "अनुमानित वॉलेट मूल्य",
     "estimated-points": "अनुमानित अंक मूल्य",
     "estimated-description": "अनुमानित मूल्य हाइव के 7 दिन के औसत मूल्य पर आधारित है।",
     "estimated-description-points": "अनुमानित मूल्य अंकों के क्रय मूल्य पर आधारित है।",
     "hive": "हाइव",
     "hbd": "एचबीडी",
-    "hive-description": "HIVE is your liquid balance - transfer, trade, or stake it anytime.",
+    "hive-description": "HIVE are tradeable tokens that may be transferred at anytime.HIVE can be converted to Hive Power in a process called powering up.",
     "hive-power": "हाइव पावर",
-    "hive-power-description": "Hive Power is your influence. The more you hold, the more your votes matter and the more you earn. Stake HIVE to grow it, unstake over 13 weeks.",
+    "hive-power-description": "हाइव पावर प्रभावशाली टोकन हैं जो लंबे समय तक रखने और सामग्री पर मतदान करने के लिए अधिक शक्ति अर्जित करते हैं। एक व्यक्ति जितना अधिक हाइव पावर रखता है, उतना ही वह दूसरे के पुरस्कारों को प्रभावित कर सकता है और सटीक मतदान के लिए पुरस्कार अर्जित कर सकता है। हाइव पावर एचआईवीई टोकन है जिसे 13 सप्ताह में बिना दांव पर लगाया जा सकता है।",
     "hive-power-apr-rate": "हाइव पावर के लिए एपीआर ब्याज दर {{value}}% है",
     "hive-dollars-apr-rate": "एचबीडी($) के लिए APR ब्याज दर {{value}}% है",
     "hive-dollars-apr-claim": "पिछले भुगतान के बाद से अनुमानित ब्याज {{value}}:",
@@ -1253,7 +1279,7 @@
     "next-power-down-amount": "अगली पावर डाउन राशि",
     "hive-power-total": "कुल हाइव पावर",
     "hive-dollars": "हाइव डॉलर",
-    "hive-dollars-description": "Stable tokens pegged to roughly $1.00 each.",
+    "hive-dollars-description": "हाइव के लगभग 1.00 डॉलर मूल्य के टोकन।",
     "savings": "बचत",
     "savings-description": "शेष राशि 3 दिन की निकासी प्रतीक्षा अवधि के अधीन है।",
     "next-power-down": "अगला पावर डाउन {{time}} है, (~{{amount}}, {{weeks}} सप्ताह शेष)",
@@ -1274,8 +1300,8 @@
     "reserved-amount": "बाजार में खुले आदेश के लिए आरक्षित",
     "spk": {
       "claim": {
-        "title": "Collect",
-        "unclaimed-rewards": "Earnings to collect"
+        "title": "दावा करें",
+        "unclaimed-rewards": "दावा न किए गए पुरस्कार"
       },
       "delegate": {
         "title": "डेलीगेट​",
@@ -1366,7 +1392,7 @@
   "points": {
     "get": "अंक खरीदें",
     "unclaimed-points": "लावारिस अंक",
-    "claim-reward-points": "Collect points",
+    "claim-reward-points": "रिवॉर्ड पॉइंट्स का दावा करें",
     "main-description": "पॉइंट्स का इस्तेमाल इन-ऐप सेवाओं, जैसे प्रमोट, बूस्ट, गिफ्टिंग, के लिए किया जा सकता है। Ecency ऐप्स का इस्तेमाल करके इन्हें कमाएँ और अपने अनुभव को बेहतर बनाएँ।",
     "earn-points": "अधिक अंक कैसे अर्जित करें",
     "post-desc": "आप नियमित रूप से पोस्ट करके बिंदु अर्जित कर सकते हैं। पोस्टिंग आपको 15 अंक देती है।",
@@ -1470,7 +1496,7 @@
     "to-placeholder": "उपयोगकर्ता नाम",
     "to-not-found": "जिस उपयोगकर्ता को आप धनराशि स्थानांतरित करने का प्रयास कर रहे हैं वह मौजूद नहीं है!",
     "to-bad-actor": "इस खाते पर संदेश भेजते समय सावधानी बरतें। कृपया संभावित फ़िशिंग के लिए अपनी वर्तनी दोबारा जाँच लें।",
-    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB)",
+    "external-wallets-label": "Wallet (BTC, ETH, SOL, BNB, TRX, TON, APT)",
     "amount": "रकम",
     "amount-placeholder": "रकम",
     "wrong-amount": "गलत राशि मान",
@@ -1553,7 +1579,7 @@
     "type-tokens_stake": "Stake tokens",
     "type-tokens_issue": "Issue tokens",
     "type-comments_beneficiaryReward": "Beneficiary reward",
-    "type-claim_reward_balance": "Collected earnings",
+    "type-claim_reward_balance": "अंक अर्जित करे",
     "type-transfer": "स्थानांतरण",
     "type-tokens_transfer": "Transfer",
     "type-transfer_to_vesting": "पावर उप",
@@ -1586,7 +1612,9 @@
     "type-collateralized_convert": "संपार्श्विक रूपांतरण",
     "type-collateralized_convert-detail": "अनुरोध आईडी:<strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "प्रस्ताव आईडी: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Transfer from savings",
     "type-limit_order_create": "नया व्यापार बनाया",
+    "type-limit_order_create2": "New trade created",
     "type-limit_order_cancel": "खुला व्यापार रद्द",
     "type-effective_comment_vote": "प्रभावी वोट",
     "type-account_witness_proxy": "शासन प्रॉक्सी अपडेट",
@@ -1710,10 +1738,10 @@
     "body-placeholder": "अपनी कहानी सुनाएं...",
     "reward": "इनाम",
     "take-tour": "Take a tour",
-    "reward-hint": "Choose how you receive your earnings",
+    "reward-hint": "तरल और पके हुए टोकन के लिए लेखक इनाम अनुपात सेट करें",
     "reward-default": "वितथ रूप से ५०%/५०%",
-    "reward-sp": "Stake 100%",
-    "reward-dp": "Decline Earnings",
+    "reward-sp": "१००% शक्तिप्रापक करें",
+    "reward-dp": "भुगतान अस्वीकार करें",
     "preview": "पूर्वावलोकन",
     "publish": "प्रकाशित करें",
     "update": "अपडेट करें",
@@ -1770,7 +1798,10 @@
     "error-generic": "Failed to upload video. Please try again.",
     "title-short": "Upload short video",
     "short-badge": "Short",
-    "video-attached": "Video attached"
+    "video-attached": "Video attached",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "टैग। पहला टैग मुख्य श्रेणी है। क्रमित करने योग्य।",
@@ -1829,7 +1860,7 @@
     "transfer": "{{source}} ने आपको {{amount}} भेजा है",
     "delegations": "{{source}} आपको डेलीगेटेड {{amount}}",
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
-    "payouts": "Your content earnings are ready.",
+    "payouts": "Your content payout is ready.",
     "payouts-amount": "You received {{amount}} payout.",
     "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
@@ -1875,7 +1906,8 @@
     "mark-read": "पढ़ा हुआ मार्क करें",
     "mute": "अधिसूचना अलर्ट बंद करें",
     "unmute": "अधिसूचना अलर्ट चालू करें",
-    "settings": "सेटिंग्स",
+    "settings": "Sound/Popup Settings",
+    "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",
     "mark-selected-read": "Mark selected as read"
@@ -2158,6 +2190,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",
@@ -2189,7 +2222,6 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "title": "Chats",
     "no-admin": "No admin or moderator for this community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Public key",
@@ -2256,9 +2288,9 @@
         "create-title": "Publish from anywhere",
         "create-description": "Draft posts, share updates and reply to comments with the same powerful editor you use on desktop.",
         "wallet-title": "Wallet at a glance",
-        "wallet-description": "Check balances, collect earnings and manage your tokens with just a couple of taps.",
+        "wallet-description": "Check balances, claim rewards and manage Hive Power or HBD with just a couple of taps.",
         "notifications-title": "Never miss a mention",
-        "notifications-description": "Push notifications highlight new followers, mentions and earnings so you can celebrate on time."
+        "notifications-description": "Push notifications highlight new followers, mentions and rewards so you can celebrate on time."
       },
       "features-title": "Designed for creators and communities",
       "features": {
@@ -2322,8 +2354,8 @@
       "how-see-rewards-body": "<p>वॉलेट पेज में (वेबसाइट और डेस्कटॉप ऐप के शीर्ष हेडर में, मोबाइल ऐप पर नीचे नेविगेशन बार में), आप क्यूरेशन रिवॉर्ड्स (अपवोटिंग पोस्ट और टिप्पणियों के लिए अर्जित पुरस्कार) और लेखक पुरस्कार (आपकी खुद की पोस्ट द्वारा अर्जित पुरस्कार) देख सकते हैं और टिप्पणियाँ)</p><p>आप अन्य उपयोगकर्ताओं की वॉलेट प्रोफ़ाइल पर जाकर भी वही जानकारी देख सकते हैं।</p>",
       "how-dhf-work-header": "डीएचएफ कैसे काम करता है?",
       "how-dhf-work-body": "<p> कोई भी एक प्रस्ताव बना सकता है और समुदाय को धन प्राप्त करने के उनके प्रस्ताव पर मतदान करने के लिए मना सकता है। प्रस्ताव बनाने से पहले, ब्लॉकचैन पर सामान्य पोस्ट प्रकाशित की जानी चाहिए और प्रस्ताव बनाने से पहले प्रतिक्रिया इकट्ठा करने की सिफारिश की जाती है। प्रस्ताव निर्माण में प्रत्येक दिन के लिए 10 HBD + 1 HBD का शुल्क है जो 60 दिनों से अधिक समय तक रहता है। </p> <p> एक बार जब प्रस्ताव लम्बे मतों की निश्चित सीमा तक पहुँच जाता है, तो उसे प्रत्येक घंटे धन प्राप्त होने लगेगा। यदि प्रस्ताव सीमा से नीचे आता है, तो सिस्टम उस प्रस्ताव के लिए धन रोक देगा। आप जितने चाहें प्रस्ताव दे सकते हैं, कोई सीमा नहीं है। प्रस्ताव संपादित नहीं किया जा सकता है, लेकिन निर्माता द्वारा हटाया / वापस लिया जा सकता है। </p>",
-      "when-claim-rewards-header": "When can I collect my earnings?",
-      "when-claim-rewards-body": "<p>Posts and comments earn for 7 days. During this period, earnings fluctuate based on votes and market conditions - that's why they show as estimated. After 7 days, your final earnings are ready to collect. Head to your Wallet and tap Collect to add them to your balance.</p>",
+      "when-claim-rewards-header": "मैं अपने पुरस्कारों कोअर्जित कब कर सकता हूं?",
+      "when-claim-rewards-body": "<p> 7 दिनों के लिए पोस्ट और टिप्पणियां सक्रिय रहती हैं और वोटों और टोकन के बाजार मूल्य के आधार पर पुरस्कारों में उतार-चढ़ाव होता है, यही कारण है कि पुरस्कार लंबित इनाम के रूप में अनुमानित हैं। जब अवधि समाप्त हो जाती है, तो लंबित इनाम वास्तविक इनाम में बदल जाता है और आप अर्जित पुरस्कारों का दावा करने में सक्षम होते हैं। अपने वॉलेट में, अपने खाते में टोकन जोड़ने के लिए दावा पुरस्कार बटन पर क्लिक करें। </p>",
       "what-are-rc-header": "संसाधन क्रेडिट क्या हैं?",
       "what-are-rc-body": "<p>हाइव ब्लॉकचैन पर लेनदेन करने पर शून्य फीस लगती है, ब्लॉकचैन को स्पैम हमलों से बचाने के लिए लेनदेन की दर सीमित होती है। ब्लॉकचेन पर आपके द्वारा की जाने वाली प्रत्येक कार्रवाई में संसाधन क्रेडिट की थोड़ी मात्रा का उपभोग होगा। इसमें पोस्टिंग, कमेंटिंग, वोटिंग, टोकन ट्रांसफर करना आदि शामिल हैं, कंटेंट देखने से रिसोर्स क्रेडिट का उपभोग नहीं होता है। </p> <p> प्रत्येक उपयोगकर्ता के पास प्रत्येक सप्ताह उपयोग करने के लिए सीमित मात्रा में रिसोर्स क्रेडिट होते हैं। उपयोगकर्ता जितना अधिक लेन-देन करता है, उसके पास उतने कम रिसोर्स क्रेडिट होते हैं (जब तक वे रिचार्ज नहीं हो जाते)। अधिक HIVE POWER वाले उपयोगकर्ताओं के पास अधिक संसाधन क्रेडिट होंगे। </p> <p> यदि आप संसाधन क्रेडिट से बाहर निकलते हैं, तो आप ब्लॉकचैन के साथ तब तक लेन-देन नहीं कर पाएंगे, जब तक कि आपके संसाधन क्रेडिट रिचार्ज (स्वचालित रूप से नहीं हो जाते) या आप अतिरिक्त HIT POWER प्राप्त कर लेते हैं अपने संसाधन क्रेडिट संतुलन को बढ़ाने के लिए या आप अस्थायी प्रतिनिधिमंडल प्राप्त करने के लिए <a href=\"/faq#how-boost-account\"> Ecency से Boosting खाते का अनुरोध करें </a> कर सकते हैं।</p>",
       "how-boost-account-header": "खाता बढ़ाने का अनुरोध कैसे करें?",
@@ -2604,6 +2636,8 @@
     "download-for-windows": "कंप्यूटर के लिए डाउनलोड करें",
     "download-for-ios": "IOS के लिए डाउनलोड करें",
     "download-for-android": "एंड्रॉइड के लिए डाउनलोड करें",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Get mobile app",
     "our-history": "हमारा इतिहास",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "तब से हम वेब 3.0 के लिए निर्माण करना जारी रखते हैं और अपने ब्लॉकचेन-आधारित सोशल नेटवर्क में सुधार करते हैं, यह सुनिश्चित करते हुए कि ऐप्स यथासंभव सुलभ, सुरक्षित और दुनिया में बोली जाने वाली कई भाषाओं में हैं।",
@@ -2790,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
-    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually.",
+    "install-title": "Install Ecency",
+    "install-description": "Add Ecency to your home screen for a faster, full-screen experience.",
+    "install-cta": "Install",
+    "install-dismiss": "Not now",
+    "install-ios-hint": "Tap the Share button and choose \"Add to Home Screen\" to install Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "For you",
+      "following": "Following"
+    },
     "sources": "Sources",
     "reply-form-title": "Replying to",
     "hide-replies": "Hide replies",
@@ -3162,13 +3205,13 @@
     "delegations-incoming": "Incoming delegations",
     "external-wallets-offer": {
       "title": "Bring your crypto to Ecency",
-      "description": "Create or import wallets for BTC, ETH, BNB and SOL directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
+      "description": "Create or import wallets for BTC, ETH, BNB, SOL, TRX, APT and TON directly from apps like Trust or Exodus, and start using them seamlessly within the Hive ecosystem.",
       "hint": "Created and imported token's information will be stored in an Ecency and Hive account metadata",
       "dismiss": "Maybe later"
     },
     "external-wallets-signup": {
       "create-wallet-title": "Create & link to Hive account",
-      "create-wallet-description": "Create a wallet for BTC, ETH, BNB and SOL. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
+      "create-wallet-description": "Create a wallet for BTC, ETH, BNB, SOL, TRX, APT and TON. These assets will be linked to your Hive account, allowing you to easily manage your funds in Ecency.",
       "import-wallet-title": "Import existing wallet",
       "import-wallet-description": "Import your existing wallet from Trust, Exodus, or other compatible apps. Your assets will be connected to your Hive account, so you can easily manage your funds in Ecency.",
       "create-wallet-tokens-description": "Check out your tokens addresses. Also you can see them later on wallet page",
@@ -3207,10 +3250,10 @@
       "note": "Interest is calculated continuously at {{apr}}% APR.",
       "claim-button": "Claim interest"
     },
-    "claim-rewards": "Collect earnings",
-    "claim-rewards-with-amount": "Collect {{amount}} {{token}}",
-    "claim-rewards-loading": "Collecting...",
-    "claim-rewards-success": "Collected {{amount}} {{token}}!",
+    "claim-rewards": "Claim rewards",
+    "claim-rewards-with-amount": "Claim {{amount}} {{token}}",
+    "claim-rewards-loading": "Claiming...",
+    "claim-rewards-success": "Successfully claimed {{amount}} {{token}}",
     "hp-delegation-promo": {
       "tag": "+10% APR boost",
       "title": "Let Ecency curate with your Hive Power",
@@ -3268,13 +3311,13 @@
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
-        "generate-seed": "Generate Password",
+        "generate-seed": "Generate Seed",
         "review-keys": "Review Keys",
         "confirm": "Confirm"
       },
       "step1": {
         "title": "Adding New Key Set",
-        "info1": "A new master password will be generated for your account",
+        "info1": "A new seed phrase will be generated for your account",
         "info2": "You can keep multiple key sets active simultaneously",
         "info3": "You'll have the option to revoke old keys in the next steps",
         "authenticate": "Authenticate to Continue",
@@ -3286,9 +3329,9 @@
       },
       "step2": {
         "warning-title": "Important: Save Your New Seed Phrase",
-        "warning1": "This is a NEW master password, different from your original credentials",
+        "warning1": "This is a NEW seed phrase, different from your original account seed",
         "warning2": "Save it separately - you'll need it to login with these keys",
-        "warning3": "Download the keys file and store it securely before continuing"
+        "warning3": "Download the seed file and store it securely before continuing"
       },
       "step3": {
         "title": "Review Existing Keys",
