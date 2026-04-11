@@ -12,6 +12,7 @@ import { EntryPageSimilarEntries } from "./entry-page-similar-entries";
 import { EntryPageStaticBody } from "./entry-page-static-body";
 import { EntryPageWarnings } from "./entry-page-warnings";
 import { EntryTags } from "./entry-tags";
+import { EntryPageNsfwBodyWrapper } from "./entry-page-nsfw-body-wrapper";
 
 interface Props {
   entry: Entry;
@@ -56,21 +57,23 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
         }
         <EntryPageMainInfo entry={entry} />
       </div>
-      {/* SSR static body */}
-      {!isRawContent && (
-        <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
-          <EntryPageStaticBody entry={entry} />
-          {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
-        </div>
-      )}
-      {isRawContent && (
-        <pre
-          id="post-body"
-          className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
-        >
-          {entry.body}
-        </pre>
-      )}
+      {/* SSR static body - wrapped with NSFW check */}
+      <EntryPageNsfwBodyWrapper entry={entry}>
+        {!isRawContent && (
+          <div className="bg-white/80 dark:bg-dark-200/90 rounded-xl p-2 md:p-4">
+            <EntryPageStaticBody entry={entry} />
+            {postPoll && <PollWidget entry={entry} poll={postPoll} isReadOnly={false} />}
+          </div>
+        )}
+        {isRawContent && (
+          <pre
+            id="post-body"
+            className="entry-body markdown-view user-selectable font-mono bg-gray-100 rounded text-sm !p-4 dark:bg-gray-900 whitespace-pre-wrap break-words"
+          >
+            {entry.body}
+          </pre>
+        )}
+      </EntryPageNsfwBodyWrapper>
       <div className="entry-footer bg-white/80 dark:bg-dark-200/90 rounded-xl flex-wrap my-4 lg:mb-8">
         {location?.coordinates && (
           <Link

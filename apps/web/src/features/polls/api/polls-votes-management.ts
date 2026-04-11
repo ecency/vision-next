@@ -7,9 +7,9 @@ export namespace PollsVotesManagement {
     data: GetPollDetailsQueryResponse,
     choiceNums: number[]
   ): GetPollDetailsQueryResponse {
-    const existingVotes = data.poll_voters?.filter((pv) => pv.name === activeUser!!.username);
+    const existingVote = data.poll_voters?.find((pv) => pv.name === activeUser!!.username);
     const existingUserChoices = data.poll_choices?.filter(
-      (pc) => !!existingVotes?.some((ev) => ev.choice_num === pc.choice_num)
+      (pc) => existingVote?.choices.includes(pc.choice_num)
     );
     const currentUserChoices = data.poll_choices?.filter((pc) =>
       choiceNums.includes(pc.choice_num)
@@ -52,13 +52,13 @@ export namespace PollsVotesManagement {
       ],
       poll_voters: [
         ...nonActiveUserVotes,
-        ...choiceNums.map((num) => ({ name: activeUser!.username, choice_num: num }))
+        { name: activeUser!.username, choices: choiceNums }
       ],
       poll_stats: {
         total_hive_hp_incl_proxied: data.poll_stats?.total_hive_hp_incl_proxied ?? 0,
         total_voting_accounts_num:
           (data.poll_stats?.total_voting_accounts_num ?? 0) +
-          (currentUserChoices.length - (existingVotes?.length ?? 0))
+          (existingVote ? 0 : 1)
       }
     };
   }

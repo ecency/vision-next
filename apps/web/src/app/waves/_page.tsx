@@ -3,9 +3,7 @@
 import { useEffect } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
-import { WavesHostSelection } from "@/app/waves/_components/waves-host-selection";
 import { WavesCreateCard, WavesListView, WavesMasonryView } from "@/app/waves/_components";
-import { WavesGridSelection } from "@/app/waves/_components/waves-grid-selection";
 import { useWavesGrid } from "@/app/waves/_hooks";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -16,8 +14,7 @@ import clsx from "clsx";
 import { WavesFeedType } from "@/app/waves/_constants";
 
 export function WavesPage() {
-  const { host, setHost } = useWavesHost();
-  const [, setWaveFormHost] = useLocalStorage<string>(PREFIX + "_wf_th", "ecency.waves");
+  const { host } = useWavesHost();
   const [grid, setGrid] = useWavesGrid();
   const { selectedTag, setSelectedTag } = useWavesTagFilter();
   const { activeUser } = useActiveAccount();
@@ -66,75 +63,50 @@ export function WavesPage() {
     setStoredFeedType(nextFeed);
   };
 
-  const handleHostChange = (nextHost: string) => {
-    setHost(nextHost);
-    setWaveFormHost(nextHost);
-    if (selectedTag) {
-      setSelectedTag(null);
-    }
-  };
-
-  useEffect(() => {
-    if (host) {
-      setWaveFormHost(host);
-    }
-  }, [host, setWaveFormHost]);
-
   const feedTabs: { key: WavesFeedType; label: string }[] = [
     {
       key: "for-you",
-      label: i18next.t("waves.feed.for-you", { defaultValue: "For you" })
+      label: i18next.t("waves.feed.for-you")
     },
     {
       key: "following",
-      label: i18next.t("waves.feed.following", { defaultValue: "Following" })
+      label: i18next.t("waves.feed.following")
     }
   ];
 
   return (
     <>
-      <div className="px-4 pt-2 pb-3">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          {/* left spacer (keeps center truly centered) */}
-          <div />
-          <div className="justify-self-center">
-            <div className="flex items-center gap-1">
-            {feedTabs.map(({ key, label }) => {
-              const isActive = feedType === key;
-              const isDisabled = key === "following" && !activeUser;
+      <div className="sticky top-0 z-10 bg-white dark:bg-dark-200 border-b border-[--border-color] rounded-t-2xl">
+        <div className="flex">
+          {feedTabs.map(({ key, label }) => {
+            const isActive = feedType === key;
+            const isDisabled = key === "following" && !activeUser;
 
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={isActive}
-                  aria-disabled={isDisabled}
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={isActive}
+                title={isDisabled ? i18next.t("g.login") : undefined}
+                className={clsx(
+                  "relative flex-1 py-3.5 text-[15px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:focus-visible:ring-blue-500 hover:bg-gray-100/60 dark:hover:bg-dark-300/40",
+                  isActive
+                    ? "font-bold text-gray-900 dark:text-white"
+                    : "font-medium text-gray-500 dark:text-gray-400",
+                  isDisabled && !isActive && "opacity-60"
+                )}
+                onClick={() => handleFeedTypeChange(key)}
+              >
+                {label}
+                <span
                   className={clsx(
-                    "relative px-4 py-3 text-sm font-semibold transition-colors duration-150 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:focus-visible:ring-blue-500",
-                    isActive
-                      ? "text-blue-500 dark:text-blue-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400",
-                    !isActive && "hover:bg-gray-100/70 dark:hover:bg-dark-300/70",
-                    isDisabled && !isActive && "opacity-60"
+                    "pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-blue-500 dark:bg-blue-400 transition-opacity duration-150",
+                    isActive ? "opacity-100" : "opacity-0"
                   )}
-                  onClick={() => handleFeedTypeChange(key)}
-                >
-                  {label}
-                  <span
-                    className={clsx(
-                      "pointer-events-none absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-500 dark:bg-blue-400 transition-opacity duration-150",
-                      isActive ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </button>
-              );
-            })}
-          </div>
-          </div>
-          <div className="justify-self-end flex items-end gap-2">
-            <WavesHostSelection host={host} setHost={handleHostChange} />
-            {!selectedTag && !isFollowing && <WavesGridSelection />}
-          </div>
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
       <WavesCreateCard />

@@ -1,21 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dateToFormatted, dateToRelative } from "@/utils";
+import { dateToFormatted, dateToFormattedUtc, dateToRelative } from "@/utils";
 
 export function TimeLabel({ created, refresh }: { created: string; refresh?: number }) {
-    const [relative, setRelative] = useState<string | null>(null);
+    const [display, setDisplay] = useState<string | null>(null);
+    const [localFormatted, setLocalFormatted] = useState<string | null>(null);
 
-    const formatted = dateToFormatted(created); // safe for SSR
+    // True UTC formatted date - identical on server and client, no hydration mismatch
+    const ssrSafe = dateToFormattedUtc(created);
 
     useEffect(() => {
-        // Runs only on client, so safe to show local relative time
-        setRelative(dateToRelative(created));
+        setDisplay(dateToRelative(created));
+        setLocalFormatted(dateToFormatted(created));
     }, [created, refresh]);
 
     return (
-        <span className="date" title={formatted}>
-      {relative ?? formatted}
+        <span className="date" title={localFormatted ?? ssrSafe}>
+      {display ?? ssrSafe}
     </span>
     );
 }

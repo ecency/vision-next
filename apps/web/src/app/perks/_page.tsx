@@ -1,9 +1,13 @@
 "use client";
 
-import { BoostDialog, LoginRequired, PurchaseQrDialog } from "@/features/shared";
+import { BoostDialog } from "@/features/shared/boost";
+import { LoginRequired } from "@/features/shared/login-required";
+import { PurchaseQrDialog } from "@/features/shared/purchase-qr";
+import { EcencyConfigManager } from "@/config";
 import { motion } from "framer-motion";
 import i18next from "i18next";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import {
   PerksBasicCard,
@@ -75,6 +79,30 @@ export function PerksPage() {
           </PerksBasicCard>
         </LoginRequired>
       </motion.div>
+
+      <EcencyConfigManager.Conditional
+        condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+      >
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35 }}
+          className="col-span-6 row-span-2 md:col-span-3"
+        >
+          <LoginRequired>
+            <Link href="/perks/ai-generator">
+              <PerksBasicCard className="min-h-[13rem] cursor-pointer p-4">
+                <div className="md:text-lg font-bold">
+                  {i18next.t("ai-image-generator.perk-card-title")}
+                </div>
+                <div className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+                  {i18next.t("ai-image-generator.perk-card-description")}
+                </div>
+              </PerksBasicCard>
+            </Link>
+          </LoginRequired>
+        </motion.div>
+      </EcencyConfigManager.Conditional>
 
       <motion.div
         initial={{ opacity: 0, x: 16 }}

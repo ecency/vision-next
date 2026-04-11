@@ -20,7 +20,7 @@ interface Props {
 
 export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUsername }: Props) => {
   const [username, setUsername] = useState(propUsername ?? "");
-  const qrImgRef = useRef<HTMLImageElement | undefined>();
+  const qrImgRef = useRef<HTMLImageElement | undefined>(undefined);
   const [isQrShow, setIsQrShow] = useState(false);
   const [type, setType] = useState(PurchaseTypes.BOOST);
   const [pointsValue, setPointsValue] = useState("999points");
@@ -28,6 +28,13 @@ export const PurchaseQrBuilder = ({ queryType, queryProductId, username: propUse
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Sync prop username when it arrives (e.g. from parent useEffect reading URL params)
+  useEffect(() => {
+    if (propUsername && propUsername !== username) {
+      setUsername(propUsername);
+    }
+  }, [propUsername]);
 
   useEffect(() => {
     if (queryType) {

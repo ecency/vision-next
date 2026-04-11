@@ -1,5 +1,5 @@
 import { CONFIG, getBoundFetch } from "@/modules/core";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
@@ -8,6 +8,7 @@ import {
 import hs from "hivesigner";
 import { getAccountFullQueryOptions } from "../queries";
 import type { AuthContext } from "@/modules/core/types";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 type SignType = "key" | "keychain" | "hivesigner" | "ecency";
 
@@ -21,7 +22,9 @@ interface CommonPayload {
 type UpdateRecoveryOptions = Pick<
   UseMutationOptions<unknown, Error, CommonPayload>,
   "onSuccess" | "onError"
->;
+> & {
+  hsCallbackUrl?: string;
+};
 
 export function useAccountUpdateRecovery(
   username: string | undefined,
@@ -43,7 +46,7 @@ export function useAccountUpdateRecovery(
       const operationBody = {
         account_to_recover: data.name,
         new_recovery_account: accountName,
-        extensions: [],
+        extensions: [] as [],
       };
 
       if (type === "ecency") {
@@ -66,7 +69,7 @@ export function useAccountUpdateRecovery(
           }),
         });
       } else if (type === "key" && key) {
-        return CONFIG.hiveClient.broadcast.sendOperations(
+        return broadcastOperations(
           [["change_recovery_account", operationBody]],
           key
         );
@@ -76,12 +79,12 @@ export function useAccountUpdateRecovery(
         }
         return auth.broadcast([["change_recovery_account", operationBody]], "owner");
       } else {
-        const params = {
-          callback: `https://ecency.com/@${data.name}/permissions`,
-        };
+        if (!options.hsCallbackUrl && process.env.NODE_ENV === "development") {
+          console.warn("[SDK][Accounts] hsCallbackUrl not provided for HiveSigner update-recovery; user will not be redirected after signing.");
+        }
         return hs.sendOperation(
           ["change_recovery_account", operationBody],
-          params,
+          options.hsCallbackUrl ? { callback: options.hsCallbackUrl } : {},
           () => {}
         );
       }

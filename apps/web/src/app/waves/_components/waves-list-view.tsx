@@ -3,7 +3,8 @@
 import {
   getWavesByHostQueryOptions,
   getWavesByTagQueryOptions,
-  getWavesFollowingQueryOptions
+  getWavesFollowingQueryOptions,
+  QueryKeys
 } from "@ecency/sdk";
 import { WavesListItem } from "@/app/waves/_components/waves-list-item";
 import { DetectBottom } from "@/features/shared";
@@ -22,7 +23,6 @@ import {
   WavesFeedType
 } from "@/app/waves/_constants";
 import { useWavesGrid } from "@/app/waves/_hooks";
-import { QueryIdentifiers } from "@/core/react-query";
 import { useWavesTagFilter } from "@/app/waves/_context";
 import { Button } from "@ui/button";
 import i18next from "i18next";
@@ -50,7 +50,7 @@ export function WavesListView({ host, feedType, username }: Props) {
   }, [feedType, host, tag, username]);
 
   const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
-  const previousErrorMessage = useRef<string>();
+  const previousErrorMessage = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!isError || !error) {
@@ -82,14 +82,14 @@ export function WavesListView({ host, feedType, username }: Props) {
   const queryClient = useQueryClient();
   const wavesQueryKey = useMemo(() => {
     if (tag) {
-      return [QueryIdentifiers.THREADS, host, "tag", tag] as const;
+      return QueryKeys.posts.wavesByTag(host, tag);
     }
 
     if (feedType === "following") {
-      return [QueryIdentifiers.THREADS, host, "following", username ?? ""] as const;
+      return QueryKeys.posts.wavesFollowing(host, username ?? "");
     }
 
-    return [QueryIdentifiers.THREADS, host] as const;
+    return QueryKeys.posts.wavesByHost(host);
   }, [feedType, host, tag, username]);
   const combinedDataFlow = useMemo(() => {
     if (!promoted || tag) {

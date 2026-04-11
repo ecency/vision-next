@@ -496,7 +496,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://peakd.com/tag/@demo/tests and https://steemit.com/test/@demo/post'
       }
-      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
+      const expected = '<p dir=\"auto\"><br /><a class=\"markdown-post-link\" data-href=\"https://peakd.com/tag/@demo/tests\" data-is-inline=\"true\" data-tag=\"tag\" data-author=\"demo\" data-permlink=\"tests\">@demo/tests</a> and <a class=\"markdown-external-link\" data-href=\"https://steemit.com/test/@demo/post\">https://steemit.com/test/@demo/post</a></p>'
 
       expect(markdown2Html(input)).toBe(expected)
     })
@@ -855,16 +855,16 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('60 - Should username with permlink', () => {
+    it('60 - Should not treat bare @scope/name as internal post link', () => {
       const input = {
         author: 'foo360',
         permlink: 'bar360',
         last_update: '2021-10-23T09:15:21',
         body: 'this is link @demo/test for internal'
       }
-      const expected = '<p dir=\"auto\"><span>this is link <a class=\"markdown-post-link\" data-author=\"demo\" data-tag=\"post\" data-permlink=\"test\">@demo/test</a> for internal</span></p>'
-
-      expect(markdown2Html(input)).toBe(expected)
+      // Bare @scope/name should NOT be linkified as a post link (could be npm package, etc.)
+      const result = markdown2Html(input)
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('61 - Should username with permlink with slash', () => {
@@ -879,16 +879,16 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('62 - Should username with permlink new line', () => {
+    it('62 - Should not treat bare @scope/name at line start as internal post link', () => {
       const input = {
         author: 'foo362',
         permlink: 'bar362',
         last_update: '2021-10-23T09:15:21',
         body: '@demo/test for internal'
       }
-      const expected = '<p dir=\"auto\"><span> <a class=\"markdown-post-link\" data-author=\"demo\" data-tag=\"post\" data-permlink=\"test\">@demo/test</a> for internal</span></p>'
-
-      expect(markdown2Html(input)).toBe(expected)
+      // Bare @scope/name should NOT be linkified as a post link
+      const result = markdown2Html(input)
+      expect(result).not.toContain('markdown-post-link')
     })
 
     it('63 - Should username with permlink with slash new line', () => {
@@ -903,12 +903,12 @@ describe('Markdown2Html', () => {
       expect(markdown2Html(input)).toBe(expected)
     })
 
-    it('64 - Should username with section link', () => {
+    it('64 - Should username with section link (requires leading /)', () => {
       const input = {
         author: 'foo364',
         permlink: 'bar364',
         last_update: '2021-10-23T09:15:21',
-        body: '@demo/wallet for internal'
+        body: '/@demo/wallet for internal'
       }
       const expected = '<p dir=\"auto\"><span> <a class=\"markdown-profile-link\" href=\"/@demo/wallet\">@demo/wallet</a> for internal</span></p>'
 
@@ -1185,7 +1185,7 @@ describe('Markdown2Html', () => {
         last_update: '2019-05-10T09:15:21',
         body: 'https://img.esteem.ws/bbq3ob1idy.png <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4">bar</a> <a href="http://external.com/loromoro">baz</a> #lorem @ipsum <a href=\'https://steemit.com/~witnesses\'>vote me</a>'
       }
-      const expected = '<p dir=\"auto\"><img class="markdown-img-link" src="https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMwgbeMkkd8SVxyfRVjiN?format=match&amp;mode=fit" loading="lazy" decoding="async" itemprop="image" /> <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-post-link" data-is-inline="false">bar</a> <a href="http://external.com/loromoro" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">baz</a><span> <a class="markdown-tag-link" href="/trending/lorem">#lorem</a> <a class="markdown-author-link" href="/@ipsum">@ipsum</a> </span><a href="https://steemit.com/~witnesses" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">vote me</a></p>'
+      const expected = '<p dir=\"auto\"><img class="markdown-img-link" src="https://images.ecency.com/p/o1AJ9qDyyJNSpZWhUgGYc3MngFqoAMwgbeMkkd8SVxyfRVjiN?format=match&amp;mode=fit" loading="lazy" decoding="async" itemprop="image" /> <a href="https://steemit.com/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">fooo</a> <a href="/esteem/@esteemapp/esteem-monthly-guest-curation-program-4" class="markdown-post-link" data-is-inline="false">bar</a> <a href="http://external.com/loromoro" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">baz</a><span> <a class="er-tag er-tag-link" href="/trending/lorem">#lorem</a> <a class="er-author er-author-link" href="/@ipsum"><img class="er-author-link-image" src="https://images.ecency.com/u/ipsum/avatar/small" alt="ipsum" itemprop="image" loading="eager" fetchpriority="high" /><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@ipsum</span></span></a> </span><a href="https://steemit.com/~witnesses" class="markdown-external-link" target="_blank" rel="nofollow ugc noopener">vote me</a></p>'
 
       expect(markdown2Html(input, false)).toBe(expected)
     })
@@ -1238,6 +1238,64 @@ describe('Markdown2Html', () => {
       const expected = '<p dir=\"auto\">hello lorem ipsum</p>'
 
       expect(markdown2Html(input)).toBe(expected)
+    })
+  })
+
+  describe('Inline code should not linkify mentions', () => {
+    it('should not create author links inside backtick-wrapped text', () => {
+      const input = '`@aws-sdk/client-s3`'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@aws-sdk/client-s3</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links inside inline code in a sentence', () => {
+      const input = '~3MB (`@aws-sdk/client-s3` only)'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@aws-sdk/client-s3</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links inside backtick-wrapped username', () => {
+      const input = '`@hiveio/dhive`'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@hiveio/dhive</code>')
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not create author links for simple mention inside backticks', () => {
+      const input = 'use `@scope` package'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>@scope</code>')
+      expect(result).not.toContain('markdown-author-link')
+    })
+
+    it('should not linkify mentions inside fenced code blocks', () => {
+      const input = '```\n@aws-sdk/client-s3\n```'
+      const result = markdown2Html(input, false)
+      // Code block wrapper must be present (content may be syntax-highlighted into spans)
+      expect(result).toContain('<pre><code>')
+      expect(result).toContain('</code></pre>')
+      expect(result).toMatch(/aws/)
+      expect(result).toMatch(/sdk/)
+      expect(result).not.toContain('markdown-author-link')
+      expect(result).not.toContain('markdown-post-link')
+    })
+
+    it('should not linkify hashtags inside inline code', () => {
+      const input = 'use `#hashtag` in code'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('<code>#hashtag</code>')
+      expect(result).not.toContain('markdown-tag-link')
+    })
+
+    it('should still linkify mentions outside of code', () => {
+      const input = '@goodkarma is great'
+      const result = markdown2Html(input, false)
+      expect(result).toContain('er-author-link')
     })
   })
 

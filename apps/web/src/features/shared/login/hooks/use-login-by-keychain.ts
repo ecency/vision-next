@@ -1,117 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLoginInApp } from "./use-login-in-app";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { addAccountAuthority, makeHsCode, signBuffer } from "@/utils";
-import { shouldUseHiveAuth, signWithHiveAuth } from "@/utils/client";
+import { makeHsCode, signBuffer } from "@/utils";
+import { shouldUseKeychainMobile } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
 import { formatError } from "@/api/format-error";
 import { LoginType } from "@/entities";
+import { HiveSignerMessage } from "@/types";
+import { encodeMsg } from "hive-uri";
 
-const MAX_ATTEMPTS = 3;
-const RETRY_DELAY_SECONDS = 5;
-const HIVE_AUTH_TIMEOUT_MS = 15000;
+const KEYCHAIN_MOBILE_STORAGE_KEY = "ecency_keychain-mobile-pending-login";
 
-class HiveAuthTimeoutError extends Error {
-  constructor(message = "HiveAuth verification timed out") {
-    super(message);
-    this.name = "HiveAuthTimeoutError";
-  }
-}
-
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  if (typeof document === "undefined") {
-    return new Promise<T>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new HiveAuthTimeoutError());
-      }, timeoutMs);
-
-      promise
-        .then((value) => {
-          clearTimeout(timer);
-          resolve(value);
-        })
-        .catch((err) => {
-          clearTimeout(timer);
-          reject(err);
-        });
-    });
-  }
-
-  return new Promise<T>((resolve, reject) => {
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    let remaining = timeoutMs;
-    let lastStarted = Date.now();
-
-    const clearTimer = () => {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-      }
-    };
-
-    const onTimeout = () => {
-      cleanup();
-      reject(new HiveAuthTimeoutError());
-    };
-
-    const startTimer = () => {
-      clearTimer();
-      lastStarted = Date.now();
-      timer = setTimeout(onTimeout, remaining);
-    };
-
-    const pauseTimer = () => {
-      if (!timer) return;
-      clearTimer();
-      remaining -= Date.now() - lastStarted;
-      if (remaining < 0) {
-        remaining = 0;
-      }
-    };
-
-    const resumeTimer = () => {
-      if (remaining <= 0) {
-        onTimeout();
-        return;
-      }
-      startTimer();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        pauseTimer();
-      } else {
-        resumeTimer();
-      }
-    };
-
-    const cleanup = () => {
-      clearTimer();
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    if (document.hidden) {
-      remaining = timeoutMs;
-    } else {
-      startTimer();
-    }
-
-    promise
-      .then((value) => {
-        cleanup();
-        resolve(value);
-      })
-      .catch((err) => {
-        cleanup();
-        reject(err);
-      });
-  });
+export interface KeychainMobilePendingLogin {
+  username: string;
+  messageObj: HiveSignerMessage;
+  timestamp: number;
 }
 
 export function useLoginByKeychain(username: string) {
@@ -120,55 +26,6 @@ export function useLoginByKeychain(username: string) {
   const queryClient = getQueryClient();
   const accountQueryOptions = getAccountFullQueryOptions(username);
   const { data: account } = useQuery(accountQueryOptions);
-
-  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null
-  );
-  const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
-  const [isRetryScheduled, setIsRetryScheduled] = useState(false);
-  const [retryAttempt, setRetryAttempt] = useState(0);
-
-  const clearCountdownInterval = useCallback(() => {
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = null;
-    }
-  }, []);
-
-  const stopCountdown = useCallback(() => {
-    clearCountdownInterval();
-    setRetryCountdown(null);
-    setIsRetryScheduled(false);
-  }, [clearCountdownInterval]);
-
-  const startCountdown = useCallback(
-    (seconds: number) => {
-      clearCountdownInterval();
-
-      return new Promise<void>((resolve) => {
-        setIsRetryScheduled(true);
-        setRetryCountdown(seconds);
-
-        let remaining = seconds;
-
-        countdownIntervalRef.current = setInterval(() => {
-          remaining -= 1;
-
-          if (remaining <= 0) {
-            clearCountdownInterval();
-            setRetryCountdown(null);
-            setIsRetryScheduled(false);
-            resolve();
-          } else {
-            setRetryCountdown(remaining);
-          }
-        }, 1000);
-      });
-    },
-    [clearCountdownInterval]
-  );
-
-  useEffect(() => () => stopCountdown(), [stopCountdown]);
 
   const mutation = useMutation({
     mutationKey: ["login-by-keychain", username, account],
@@ -179,101 +36,62 @@ export function useLoginByKeychain(username: string) {
         throw new Error(i18next.t("login.error-user-not-found"));
       }
 
-      const hasPostingPerm =
-        accountData.posting!.account_auths.filter(
-          (x) => x[0] === EcencyConfigManager.CONFIG.service.hsClientId
-        ).length > 0;
+      const useKeychainMobile = shouldUseKeychainMobile();
+      const loginMethod: LoginType = useKeychainMobile ? "keychain-mobile" : "keychain";
 
-      /*if (!hasPostingPerm) {
-        const weight = accountData.posting!.weight_threshold;
+      if (useKeychainMobile) {
+        // Deep link flow: generate message, store pending login, open hive:// URI
+        const hsClientId = EcencyConfigManager.CONFIG.service.hsClientId;
+        const timestamp = Math.floor(Date.now() / 1000);
 
-        try {
-          await addAccountAuthority(
-            username,
-            EcencyConfigManager.CONFIG.service.hsClientId,
-            "Posting",
-            weight
-          );
-        } catch (err) {
-          throw new Error(i18next.t("login.error-permission"));
-        }
-      }*/
+        const messageObj: HiveSignerMessage = {
+          signed_message: { type: "code", app: hsClientId },
+          authors: [username],
+          timestamp
+        };
 
-      stopCountdown();
-      setRetryAttempt(0);
-
-      const useHiveAuth = shouldUseHiveAuth();
-      const loginMethod: LoginType = useHiveAuth ? "hiveauth" : "keychain";
-
-      const signMessage = async (message: string) => {
-        if (useHiveAuth || shouldUseHiveAuth()) {
-          return signWithHiveAuth(username, message, accountData, "posting");
-        }
-
-        return signBuffer(username, message, "Posting").then((r) => r.result);
-      };
-
-      if (!useHiveAuth) {
-        const code = await makeHsCode(
-          EcencyConfigManager.CONFIG.service.hsClientId,
+        // Store pending login data for the callback page
+        const pendingLogin: KeychainMobilePendingLogin = {
           username,
-          signMessage
-        );
+          messageObj,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(KEYCHAIN_MOBILE_STORAGE_KEY, JSON.stringify(pendingLogin));
 
-        await loginInApp(code, null, accountData, loginMethod);
+        // Use hive-uri library to build the deep link with proper encoding
+        const callbackUrl = `${window.location.origin}/auth/keychain-mobile?sig={{sig}}`;
+        const deepLink = encodeMsg(JSON.stringify(messageObj), {
+          signer: username,
+          authority: "posting",
+          callback: callbackUrl
+        });
+
+        // Open the deep link - this will switch to Keychain/Ecency mobile app
+        window.location.href = deepLink;
         return;
       }
 
-      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-        setRetryAttempt(attempt);
-        setIsRetryScheduled(false);
-        setRetryCountdown(null);
+      // Desktop Keychain extension flow
+      const signMessage = async (message: string) => {
+        return signBuffer(username, message, "Posting").then((r) => r.result);
+      };
 
-        try {
-          const code = await withTimeout(
-            makeHsCode(
-              EcencyConfigManager.CONFIG.service.hsClientId,
-              username,
-              signMessage
-            ),
-            HIVE_AUTH_TIMEOUT_MS
-          );
+      const code = await makeHsCode(
+        EcencyConfigManager.CONFIG.service.hsClientId,
+        username,
+        signMessage
+      );
 
-          await loginInApp(code, null, accountData, loginMethod);
-          stopCountdown();
-          return;
-        } catch (err) {
-          if (err instanceof HiveAuthTimeoutError) {
-            if (attempt >= MAX_ATTEMPTS) {
-              stopCountdown();
-              throw new Error("Service failed to verify login. Please try again.");
-            }
-
-            const nextAttempt = attempt + 1;
-            setRetryAttempt(nextAttempt);
-            await startCountdown(RETRY_DELAY_SECONDS);
-            continue;
-          }
-
-          stopCountdown();
-          throw err;
-        }
-      }
-
-      throw new Error("Service failed to verify login. Please try again.");
+      await loginInApp(code, null, accountData, loginMethod);
     },
-    onError: (e) => error(...formatError(e)),
-    onSettled: () => {
-      stopCountdown();
-      setRetryAttempt(0);
-    }
+    onError: (e) => error(...formatError(e))
   });
 
   return {
     ...mutation,
-    retryCountdown,
-    isRetryScheduled,
-    retryAttempt,
-    maxAttempts: MAX_ATTEMPTS
+    retryCountdown: null,
+    isRetryScheduled: false,
+    retryAttempt: 0,
+    maxAttempts: 0
   };
 }

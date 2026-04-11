@@ -10,7 +10,8 @@
     "db:migrate": "tsx src/db/migrate.ts"
   },
   "dependencies": {
-    "@hiveio/dhive": "^1.3.0",
+    "@ecency/hive-tx": "^7.3.4",
+    "@hiveio/x402": "^0.1.2",
     "hono": "^4.4.0",
     "pg": "^8.12.0",
     "redis": "^4.6.0",

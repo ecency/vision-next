@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect } from "react";
+import React, { RefObject, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 
 export function TwitterExtension({
@@ -10,7 +10,12 @@ export function TwitterExtension({
   containerRef: RefObject<HTMLElement | null>;
   ComponentInstance: React.FC<{ id: string }>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const elements = Array.from(
         containerRef.current?.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-external-link"
@@ -38,7 +43,7 @@ export function TwitterExtension({
             if (!tweetId) return;
 
             const container = document.createElement("div");
-            container.classList.add("ecency-renderer-twitter-extension-frame");
+            container.classList.add("er-twitter-frame");
             element.classList.add("ecency-renderer-twitter-extension");
 
             element.innerHTML = "";
@@ -48,12 +53,18 @@ export function TwitterExtension({
               element.appendChild(container);
 
               const root = createRoot(container);
+              rootsRef.current.push(root);
               root.render(<ComponentInstance id={tweetId} />);
             }
           } catch (e) {
             console.warn("TwitterExtension failed to render tweet:", e);
           }
         });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, [containerRef]);
 
   return null;

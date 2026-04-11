@@ -17,14 +17,21 @@ export function getPurePostText(text: string) {
   // Remove HTML tags, including attributes (e.g., <div class="abc">)
   text = text.replace(/<[^>]+>/g, "");
 
-  // Handle CJK characters
-  text = text.replace(/[\u4E00-\u9FFF]/g, " {CJK} ");
-
   // Remove comments
   text = text.replace(/<!--[\s\S]*?-->/g, "");
 
   // Remove URLs (http:// or https://)
   text = text.replace(/https?:\/\/[^\s/$.?#].[^\s]*/g, "");
 
+  return text;
+}
+
+/**
+ * Version for word counting that tokenizes CJK characters as individual words.
+ */
+export function getPurePostTextForWordCount(text: string) {
+  text = getPurePostText(text);
+  // Treat each CJK character as a separate word for counting
+  text = text.replace(/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/g, " $& ");
   return text;
 }

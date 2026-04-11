@@ -5,6 +5,7 @@ import {
   handleMattermostError,
   mmUserFetch
 } from "@/server/mattermost";
+import { fetchAllChannelPages, fetchAllChannelMemberPages } from "./helpers";
 
 interface MattermostChannel {
   id: string;
@@ -74,9 +75,9 @@ export async function GET() {
     const teamId = getMattermostTeamId();
 
     const [channels, currentUser, channelMembers, categoriesResponse, preferences] = await Promise.all([
-      mmUserFetch<MattermostChannel[]>(`/users/me/channels?page=0&per_page=200`, token),
+      fetchAllChannelPages(token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
-      mmUserFetch<MattermostChannelMemberCounts[]>(`/users/me/teams/${teamId}/channels/members`, token),
+      fetchAllChannelMemberPages(teamId, token),
       mmUserFetch<{ categories: MattermostChannelCategory[]; order: string[] }>(
         `/users/me/teams/${teamId}/channels/categories`,
         token
@@ -107,8 +108,15 @@ export async function GET() {
         .find((category) => category.type === "direct_messages")
         ?.channel_ids || []
     );
+    // Mattermost auto-joins users to these default channels when they join
+    // the team. Hide them since no Hive user intentionally joined these.
+    const MATTERMOST_DEFAULT_CHANNELS = new Set(["town-square", "off-topic"]);
+
     const hasCategories = (categoriesResponse.categories || []).length > 0;
     const filteredChannels = channels.filter((channel) => {
+      // Filter out Mattermost team default channels
+      if (MATTERMOST_DEFAULT_CHANNELS.has(channel.name)) return false;
+
       if (channel.type !== "D") return true;
 
       // Extract the other user ID from channel name first
@@ -143,12 +151,6 @@ export async function GET() {
       },
       {}
     );
-
-    const unreadMessagesById = filteredChannels.reduce<Record<string, number>>((acc, channel) => {
-      const member = channelMembersById[channel.id];
-      acc[channel.id] = Math.max((channel.total_msg_count || 0) - (member?.msg_count || 0), 0);
-      return acc;
-    }, {});
 
     const directChannels = filteredChannels.filter((channel) => channel.type === "D");
     const usersById: Record<string, MattermostUser> = {};
@@ -243,9 +245,7 @@ export async function GET() {
         channel.mention_count ||
         0,
       message_count:
-        channel.type === "D"
-          ? Math.max((channel.total_msg_count || 0) - (channelMembersById[channel.id]?.msg_count || 0), 0)
-          : channel.message_count || 0,
+        Math.max((channel.total_msg_count || 0) - (channelMembersById[channel.id]?.msg_count || 0), 0),
       order: channelOrderFromCategories.get(channel.id),
       last_viewed_at: channelMembersById[channel.id]?.last_viewed_at
     }));

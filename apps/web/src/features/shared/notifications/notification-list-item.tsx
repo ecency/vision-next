@@ -15,6 +15,8 @@ import { NotificationVoteType } from "@/features/shared/notifications/notificati
 import { NotificationCheckinsType } from "@/features/shared/notifications/notification-types/notification-checkins-type";
 import { NotificationPayoutsType } from "@/features/shared/notifications/notification-types/notification-payouts-type";
 import { NotificationMonthlyPostsType } from "@/features/shared/notifications/notification-types/notification-monthly-posts-type";
+import { NotificationAccountUpdateType } from "@/features/shared/notifications/notification-types/notification-account-update-type";
+import { NotificationWeeklyEarningsType } from "@/features/shared/notifications/notification-types/notification-weekly-earnings-type";
 import i18next from "i18next";
 import { Tooltip } from "@ui/tooltip";
 import { classNameObject } from "@ui/util";
@@ -210,6 +212,27 @@ export const NotificationListItem = memo(function NotificationListItem({
           )}
           {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
           {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
+          {notification.type === "account_update" && (
+            <NotificationAccountUpdateType sourceLink={sourceLink} />
+          )}
+          {notification.type === "weekly_earnings" && (
+            <NotificationWeeklyEarningsType sourceLink={sourceLink} notification={notification} />
+          )}
+          {![
+            "vote", "unvote", "reply", "mention", "favorites", "bookmarks",
+            "follow", "unfollow", "ignore", "reblog", "transfer", "delegations",
+            "checkins", "checkin", "payouts", "monthly-posts", "monthly_posts",
+            "spin", "inactive", "referral", "account_update", "weekly_earnings"
+          ].includes(notification.type) && (
+            <div className="item-content">
+              <div className="first-line">
+                {sourceLink}
+                <span className="item-action opacity-75">
+                  {notification.type.replace(/[_-]/g, " ")}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {isSelect ? (

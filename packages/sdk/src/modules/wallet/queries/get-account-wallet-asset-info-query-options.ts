@@ -129,7 +129,7 @@ export function getAccountWalletAssetInfoQueryOptions(
     queryFn: async () => {
       const portfolioAssetInfo = await getPortfolioAssetInfo();
 
-      if (portfolioAssetInfo) {
+      if (portfolioAssetInfo && portfolioAssetInfo.price > 0) {
         return portfolioAssetInfo;
       }
 
@@ -159,11 +159,24 @@ export function getAccountWalletAssetInfoQueryOptions(
           assetInfo = await fetchQuery(
             getHiveEngineTokenGeneralInfoQueryOptions(username, asset)
           );
+        } else if (portfolioAssetInfo) {
+          // Unknown asset but portfolio has data — use it as-is
+          return portfolioAssetInfo;
         } else {
           throw new Error(
             `[SDK][Wallet] – unrecognized asset "${asset}"`
           );
         }
+      }
+
+      // If portfolio had rich data (parts, balance) but zero price,
+      // merge the fallback price into the portfolio data
+      if (portfolioAssetInfo && assetInfo && assetInfo.price > 0) {
+        const converted = await convertPriceToUserCurrency(assetInfo);
+        return {
+          ...portfolioAssetInfo,
+          price: converted!.price,
+        };
       }
 
       return await convertPriceToUserCurrency(assetInfo);

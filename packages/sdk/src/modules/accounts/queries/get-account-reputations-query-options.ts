@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { AccountReputation } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getAccountReputationsQueryOptions(query: string, limit = 50) {
   return queryOptions({
@@ -12,11 +12,7 @@ export function getAccountReputationsQueryOptions(query: string, limit = 50) {
         return [];
       }
 
-      return CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_account_reputations",
-        [query, limit]
-      ) as Promise<AccountReputation[]>;
+      return callRPC("condenser_api.get_account_reputations", [query, limit]) as Promise<AccountReputation[]>;
     },
   });
 }

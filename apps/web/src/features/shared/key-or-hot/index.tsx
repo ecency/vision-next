@@ -2,61 +2,73 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useIsMobile } from "@/utils";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { Button } from "@ui/button";
 import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
 import { OrDivider } from "../or-divider";
+import { MetaMaskSignButton } from "../metamask-sign-button";
 import "./index.scss";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseKeychainMobile } from "@/utils/client";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { getLoginType } from "@/utils/user-token";
 
 interface Props {
   inProgress: boolean;
   onKey: (key: PrivateKey) => void;
   onHot?: () => void;
   onKc?: () => void;
+  onMetaMask?: () => void;
   keyOnly?: boolean;
-  authority: "owner" | "active";
+  authority?: "owner" | "active";
 }
 
-export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="active" }: Props) {
+export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, authority="active" }: Props) {
   const { activeUser } = useActiveAccount();
   const isMobileBrowser = useIsMobile();
-  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
-  const canRenderKeychain = onKc && (!isMobileBrowser || useHiveAuth || isKeychainInAppBrowser());
-  const keychainIcon = useHiveAuth ? "/assets/hive-auth.svg" : "/assets/keychain.png";
-  const keychainAlt = useHiveAuth ? "hiveauth" : "keychain";
-  const keychainLabel = useHiveAuth
-    ? i18next.t("key-or-hot.with-hiveauth", { defaultValue: "Sign with HiveAuth" })
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
+  const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
+  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser());
+  const keychainLabel = useKcMobile
+    ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-keychain");
+
+  if (isMetaMaskUser && onMetaMask && !keyOnly) {
+    return (
+      <div className="key-or-hot">
+        <MetaMaskSignButton onClick={() => onMetaMask()} />
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="key-or-hot">
         <KeyInput onSign={onKey} keyType={authority}/>
-        {!keyOnly && (
+        {!keyOnly && (onHot || canRenderKeychain) && (
           <>
             <OrDivider />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button
-                size="lg"
-                outline={true}
-                appearance="hivesigner"
-                onClick={() => onHot?.()}
-                icon={
-                  <Image
-                    width={100}
-                    height={100}
-                    src="/assets/hive-signer.svg"
-                    className="w-4 h-4"
-                    alt="hivesigner"
-                  />
-                }
-              >
-                {i18next.t("key-or-hot.with-hivesigner")}
-              </Button>
+              {onHot && (
+                <Button
+                  size="lg"
+                  outline={true}
+                  appearance="hivesigner"
+                  onClick={() => onHot()}
+                  icon={
+                    <Image
+                      width={100}
+                      height={100}
+                      src="/assets/hive-signer.svg"
+                      className="w-4 h-4"
+                      alt="hivesigner"
+                    />
+                  }
+                >
+                  {i18next.t("key-or-hot.with-hivesigner")}
+                </Button>
+              )}
 
               {canRenderKeychain && (
                 <Button
@@ -68,9 +80,9 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, keyOnly, authority="a
                     <Image
                       width={100}
                       height={100}
-                      src={keychainIcon}
+                      src="/assets/keychain.png"
                       className="w-4 h-4"
-                      alt={keychainAlt}
+                      alt="keychain"
                     />
                   }
                 >

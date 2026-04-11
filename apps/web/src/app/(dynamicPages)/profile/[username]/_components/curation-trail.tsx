@@ -10,7 +10,7 @@ import {
 import { ProfileCover } from "@/app/(dynamicPages)/profile/[username]/_components/profile-cover";
 import { getAccountVoteHistoryInfiniteQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { utils } from "@hiveio/dhive";
+import { hiveTxUtils } from "@ecency/sdk";
 import { Account, Entry } from "@/entities";
 import type { UseInfiniteQueryResult, InfiniteData } from "@tanstack/react-query";
 
@@ -34,7 +34,7 @@ export function CurationTrail({ account, section }: Props) {
     const filters = useMemo(() => {
         try {
             // Try to create the bitmask filter (requires BigInt support)
-            return utils.makeBitMaskFilter([utils.operationOrders.vote]);
+            return hiveTxUtils.makeBitMaskFilter([hiveTxUtils.operations.vote]);
         } catch (error) {
             // Fallback for browsers without BigInt support (Safari < 14, older browsers)
             // Using empty array means no filter - will return all operations,

@@ -160,10 +160,10 @@ export function EntryListItemComponent({
   );
 }
 
-export function EntryListItem(props: Props) {
+export const EntryListItem = React.memo(function EntryListItem(props: Props) {
   return (
     <EntryListItemProvider>
       <EntryListItemComponent {...props} />
     </EntryListItemProvider>
   );
-}
+});

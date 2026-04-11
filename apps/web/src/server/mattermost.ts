@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { bridgeApiCall } from "@ecency/sdk";
 import { CommunityRole, ROLES } from "@ecency/sdk";
@@ -9,6 +10,8 @@ const MATTERMOST_TEAM_ID = process.env.MATTERMOST_TEAM_ID;
 const MATTERMOST_TOKEN_COOKIE = "mm_pat";
 export const CHAT_BAN_PROP = "ecency_chat_banned_until";
 export const CHAT_DM_PRIVACY_PROP = "ecency_dm_privacy";
+export const CHAT_LEFT_CHANNELS_PROP = "ecency_left_channels";
+const CHAT_PAT_PROP = "ecency_pat";
 
 export type DmPrivacyLevel = "all" | "followers" | "none";
 
@@ -16,6 +19,7 @@ export interface MattermostUser {
   id: string;
   username: string;
   email: string;
+  delete_at: number; // 0 = active, >0 = deactivated (epoch ms)
 }
 
 export interface MattermostUserWithProps extends MattermostUser {
@@ -56,61 +60,121 @@ function getAdminHeaders() {
   } as const;
 }
 
+// Upstream Mattermost calls can hang indefinitely when the MM server is slow
+// or down. Unbounded, they pin the Node event loop (and the response buffers,
+// RPC clients, and closures they hold) until the container is healthcheck-killed.
+// A hard per-call timeout gives every call a bounded lifetime while still
+// honouring a caller-supplied AbortSignal (e.g. request-scoped cancellation).
+const MM_FETCH_TIMEOUT_MS = Number(process.env.MM_FETCH_TIMEOUT_MS) || 10_000;
+
 async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const base = requireEnv(MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
-  const res = await fetch(`${base}${path}`, {
-    ...init,
-    headers: {
-      ...(init?.headers || {}),
-      Accept: "application/json"
+
+  const timeoutSignal = AbortSignal.timeout(MM_FETCH_TIMEOUT_MS);
+  const signal = init?.signal
+    ? AbortSignal.any([init.signal, timeoutSignal])
+    : timeoutSignal;
+
+  try {
+    const res = await fetch(`${base}${path}`, {
+      ...init,
+      headers: {
+        ...(init?.headers || {}),
+        Accept: "application/json"
+      },
+      signal
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
     }
-  });
 
-  if (!res.ok) {
     const text = await res.text();
-    throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
+
+    if (!text) {
+      return undefined as T;
+    }
+
+    return JSON.parse(text) as T;
+  } catch (err) {
+    // AbortSignal.timeout aborts with a DOMException whose name is "TimeoutError";
+    // this can fire during either the initial fetch or the body read. Either way,
+    // surface it as a MattermostError so handleMattermostError maps it to 504
+    // Gateway Timeout rather than leaking a generic 500. Caller-originated aborts
+    // (AbortError) are left alone so request-scoped cancellation still propagates.
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new MattermostError(
+        `Mattermost request timed out after ${MM_FETCH_TIMEOUT_MS}ms (${path})`,
+        504
+      );
+    }
+    throw err;
   }
-
-  const text = await res.text();
-
-  if (!text) {
-    return undefined as T;
-  }
-
-  return JSON.parse(text) as T;
 }
 
-export async function ensureMattermostUser(username: string): Promise<MattermostUser> {
+export async function reactivateMattermostUser(userId: string, signal?: AbortSignal): Promise<void> {
+  await mmFetch(`/users/${userId}/active`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ active: true }),
+    signal
+  });
+}
+
+export async function ensureMattermostUser(username: string, signal?: AbortSignal): Promise<MattermostUser> {
+  // Step 1: Try to find existing user (only suppress 404)
+  let user: MattermostUser | null = null;
   try {
-    return await mmFetch<MattermostUser>(`/users/username/${username}`, {
-      headers: getAdminHeaders()
+    user = await mmFetch<MattermostUser>(`/users/username/${username}`, {
+      headers: getAdminHeaders(),
+      signal
     });
   } catch (error) {
-    const email = `${username}+no-email@ecency.local`;
-    return await mmFetch<MattermostUser>(`/users`, {
-      method: "POST",
-      headers: getAdminHeaders(),
-      body: JSON.stringify({
-        username,
-        email,
-        password: `${username}${Date.now()}!Ecency`,
-        allow_marketing: false
-      })
-    });
+    if (error instanceof MattermostError && error.status === 404) {
+      // User not found — will create below
+    } else {
+      throw error;
+    }
   }
+
+  // Step 2: If found, reactivate if needed (errors surface to caller)
+  if (user) {
+    if (user.delete_at > 0) {
+      await reactivateMattermostUser(user.id, signal);
+      user.delete_at = 0;
+    }
+    return user;
+  }
+
+  // Step 3: Create new user
+  const email = `${username}+no-email@ecency.local`;
+  return await mmFetch<MattermostUser>(`/users`, {
+    method: "POST",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({
+      username,
+      email,
+      password: randomBytes(32).toString("base64url") + "!Aa1",
+      allow_marketing: false
+    }),
+    signal
+  });
 }
 
-export async function ensureUserInTeam(userId: string) {
+export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   try {
     await mmFetch(`/teams/${teamId}/members/${userId}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
   } catch (error) {
     await mmFetch(`/teams/${teamId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
-      body: JSON.stringify({ team_id: teamId, user_id: userId })
+      body: JSON.stringify({ team_id: teamId, user_id: userId }),
+      signal
     });
   }
 }
@@ -142,13 +206,15 @@ function normalizeCommunityId(community: string) {
 
 export async function ensureChannelForCommunity(
   community: string,
-  displayName?: string
+  displayName?: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const teamId = requireEnv(MATTERMOST_TEAM_ID, "MATTERMOST_TEAM_ID");
   const channelName = normalizeCommunityId(community);
   try {
     const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
     return existing.id;
   } catch (error) {
@@ -160,7 +226,8 @@ export async function ensureChannelForCommunity(
         name: channelName,
         display_name: displayName || community,
         type: "O"
-      })
+      }),
+      signal
     });
     return created.id;
   }
@@ -170,20 +237,22 @@ export async function ensureCommunityChannelMembership(
   userId: string,
   community: string,
   displayName?: string,
-  autoJoin: boolean = false
+  autoJoin: boolean = false,
+  signal?: AbortSignal
 ) {
-  const channelId = await ensureChannelForCommunity(community, displayName);
+  const channelId = await ensureChannelForCommunity(community, displayName, signal);
   if (autoJoin) {
-    await ensureUserInChannel(userId, channelId);
+    await ensureUserInChannel(userId, channelId, signal);
   }
   return channelId;
 }
 
-export async function ensureUserInChannel(userId: string, channelId: string) {
+export async function ensureUserInChannel(userId: string, channelId: string, signal?: AbortSignal) {
   try {
     // Check if user is currently a member
     await mmFetch(`/channels/${channelId}/members/${userId}`, {
-      headers: getAdminHeaders()
+      headers: getAdminHeaders(),
+      signal
     });
     // User is already a member, nothing to do
   } catch (error) {
@@ -191,9 +260,41 @@ export async function ensureUserInChannel(userId: string, channelId: string) {
     await mmFetch(`/channels/${channelId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
-      body: JSON.stringify({ channel_id: channelId, user_id: userId })
+      body: JSON.stringify({ channel_id: channelId, user_id: userId }),
+      signal
     });
   }
+}
+
+export async function removeUserFromChannel(userId: string, channelId: string) {
+  await mmFetch(`/channels/${channelId}/members/${userId}`, {
+    method: "DELETE",
+    headers: getAdminHeaders()
+  });
+}
+
+interface MattermostChannelBasic {
+  id: string;
+  name: string;
+  type: string;
+}
+
+export async function getUserChannels(userId: string): Promise<MattermostChannelBasic[]> {
+  const teamId = getMattermostTeamId();
+  const PAGE_SIZE = 200;
+  const MAX_PAGES = 3;
+  const results: MattermostChannelBasic[] = [];
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const pageItems = await mmFetch<MattermostChannelBasic[]>(
+      `/users/${userId}/teams/${teamId}/channels?page=${page}&per_page=${PAGE_SIZE}`,
+      { headers: getAdminHeaders() }
+    );
+    results.push(...pageItems);
+    if (pageItems.length < PAGE_SIZE) break;
+  }
+
+  return results;
 }
 
 export async function findMattermostUser(username: string): Promise<MattermostUser | null> {
@@ -206,42 +307,74 @@ export async function findMattermostUser(username: string): Promise<MattermostUs
   }
 }
 
-export async function getMattermostUserWithProps(userId: string): Promise<MattermostUserWithProps> {
+export async function getMattermostUserWithProps(userId: string, signal?: AbortSignal): Promise<MattermostUserWithProps> {
   return await mmFetch<MattermostUserWithProps>(`/users/${userId}`, {
-    headers: getAdminHeaders()
+    headers: getAdminHeaders(),
+    signal
   });
 }
 
-async function getExistingToken(userId: string): Promise<string | null> {
+/**
+ * Validate a PAT by making a lightweight /users/me call.
+ * Returns true if the token is still active and valid.
+ * Only treats 401/403 as "invalid token". Rethrows other
+ * errors (5xx, network) so they surface as 502 upstream.
+ */
+async function isTokenValid(token: string, signal?: AbortSignal): Promise<boolean> {
   try {
-    const tokens = await mmFetch<{ id: string; token: string; description: string }[]>(
-      `/users/${userId}/tokens`,
-      {
-        headers: getAdminHeaders()
-      }
-    );
-    const existing = tokens.find((t) => t.description === "ecency-auto");
-    return existing?.token || null;
-  } catch (error) {
-    return null;
+    await mmFetch<{ id: string }>(`/users/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      signal
+    });
+    return true;
+  } catch (err) {
+    if (err instanceof MattermostError && (err.status === 401 || err.status === 403)) {
+      return false;
+    }
+    throw err;
   }
 }
 
-async function createToken(userId: string): Promise<string> {
-  const token = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
+async function createToken(userId: string, signal?: AbortSignal): Promise<string> {
+  const result = await mmFetch<{ token: string }>(`/users/${userId}/tokens`, {
     method: "POST",
     headers: getAdminHeaders(),
-    body: JSON.stringify({ description: "ecency-auto" })
+    body: JSON.stringify({ description: "ecency-auto" }),
+    signal
   });
-  return token.token;
+  // Store the token secret in user props so we can retrieve it later.
+  // Mattermost's GET /users/{id}/tokens does NOT return the secret —
+  // it's only available at creation time.
+  // Merge with existing props to avoid clobbering other fields
+  // (left_channels, DM privacy, bans, etc.)
+  const user = await getMattermostUserWithProps(userId, signal);
+  const mergedProps = { ...(user.props || {}), [CHAT_PAT_PROP]: result.token };
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props: mergedProps }),
+    signal
+  });
+  return result.token;
 }
 
-export async function ensurePersonalToken(userId: string): Promise<string> {
-  const existing = await getExistingToken(userId);
-  if (existing) {
-    return existing;
+export async function ensurePersonalToken(userId: string, signal?: AbortSignal): Promise<string> {
+  // Try to retrieve a previously stored PAT from user props.
+  // Only fall through to createToken on auth errors (401/403).
+  // Rethrow other errors (5xx, network) so they surface upstream.
+  const user = await getMattermostUserWithProps(userId, signal);
+  const storedToken = user.props?.[CHAT_PAT_PROP];
+  if (storedToken) {
+    // isTokenValid rethrows non-auth errors
+    if (await isTokenValid(storedToken, signal)) {
+      return storedToken;
+    }
+    // Token exists but is invalid (revoked/expired) — fall through to create
   }
-  return await createToken(userId);
+  return await createToken(userId, signal);
 }
 
 export function withMattermostTokenCookie(response: NextResponse, token: string) {
@@ -258,6 +391,15 @@ export function withMattermostTokenCookie(response: NextResponse, token: string)
 }
 
 export async function getMattermostTokenFromCookies(): Promise<string | null> {
+  // 1) Check X-MM-Token header first (mobile clients send token explicitly
+  //    to avoid race conditions with async cookie jar on React Native)
+  const headerStore = await headers();
+  const headerToken = headerStore.get("x-mm-token");
+  if (headerToken) {
+    return headerToken;
+  }
+
+  // 2) Fall back to httpOnly cookie (web clients)
   const cookieStore = await cookies();
   return cookieStore.get(MATTERMOST_TOKEN_COOKIE)?.value || null;
 }
@@ -291,7 +433,7 @@ export function handleMattermostError(error: unknown) {
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
-const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
+export const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
 function isCommunityModerator(role: CommunityRole | undefined) {
   return role === ROLES.OWNER || role === ROLES.ADMIN || role === ROLES.MOD;
@@ -367,6 +509,42 @@ export function getUserDmPrivacy(user: Pick<MattermostUserWithProps, "props">): 
     return dmPrivacy;
   }
   return "all"; // default: allow all DMs
+}
+
+export function getUserLeftChannels(user: Pick<MattermostUserWithProps, "props">): Set<string> {
+  const raw = user.props?.[CHAT_LEFT_CHANNELS_PROP];
+  if (!raw) return new Set();
+  try {
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function addUserLeftChannel(userId: string, channelName: string) {
+  const user = await getMattermostUserWithProps(userId);
+  const leftChannels = getUserLeftChannels(user);
+  leftChannels.add(channelName);
+  const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props })
+  });
+}
+
+export async function removeUserLeftChannel(userId: string, channelName: string, signal?: AbortSignal) {
+  const user = await getMattermostUserWithProps(userId, signal);
+  const leftChannels = getUserLeftChannels(user);
+  if (!leftChannels.delete(channelName)) return;
+  const props = { ...(user.props || {}), [CHAT_LEFT_CHANNELS_PROP]: JSON.stringify(Array.from(leftChannels)) };
+  await mmFetch(`/users/${userId}/patch`, {
+    method: "PUT",
+    headers: getAdminHeaders(),
+    body: JSON.stringify({ props }),
+    signal
+  });
 }
 
 async function searchMattermostPostsByUserAsAdmin(username: string, page: number, perPage: number) {
@@ -679,4 +857,121 @@ export async function nukeUserCompletelyAsAdmin(username: string) {
   }
 
   return result;
+}
+
+async function hiveGetProfiles(
+  usernames: string[]
+): Promise<Array<{ name: string; active: string; created: string }>> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  let resp: Response;
+  try {
+    resp = await fetch("https://api.hive.blog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "bridge.get_profiles",
+        params: { accounts: usernames }
+      }),
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Hive API request failed (${resp.status}): ${body}`);
+  }
+
+  const data = await resp.json();
+
+  if (!data.result) {
+    throw new Error(`Hive API returned no result: ${data.error?.message || JSON.stringify(data.error) || "unknown error"}`);
+  }
+
+  return data.result;
+}
+
+export async function cleanupInactiveMattermostUsers(
+  inactiveDays: number = 60
+): Promise<{ deactivated: number; checked: number; skipped: number; errors: number }> {
+  if (!Number.isInteger(inactiveDays) || inactiveDays < 1) {
+    throw new Error(`inactiveDays must be a positive integer, got ${inactiveDays}`);
+  }
+
+  const teamId = getMattermostTeamId();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
+
+  let deactivated = 0;
+  let checked = 0;
+  let skipped = 0;
+  let errors = 0;
+  let page = 0;
+  const perPage = 200;
+  const skipUsers = new Set(["ecency"]);
+
+  while (true) {
+    // Fetch active team members page
+    const members = await mmFetch<Array<{ user_id: string }>>(
+      `/teams/${teamId}/members?page=${page}&per_page=${perPage}`,
+      { headers: getAdminHeaders() }
+    );
+    if (!members.length) break;
+
+    // Get usernames for this batch
+    const userIds = members.map((m) => m.user_id);
+    const users = await mmFetch<MattermostUser[]>(`/users/ids`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+      body: JSON.stringify(userIds)
+    });
+
+    const usernames = users
+      .filter((u) => !skipUsers.has(u.username) && u.delete_at === 0)
+      .map((u) => u.username);
+
+    if (usernames.length > 0) {
+      // Batch Hive lookup using bridge.get_profiles for accurate activity data
+      try {
+        const accounts = await hiveGetProfiles(usernames);
+        for (const account of accounts) {
+          checked++;
+
+          // Skip accounts with no activity data (epoch or missing)
+          const active = account.active;
+          if (!active || active.startsWith("1970-01-01")) {
+            skipped++;
+            continue;
+          }
+
+          const lastActiveDate = new Date(active + "Z");
+          if (isNaN(lastActiveDate.getTime())) {
+            skipped++;
+            continue;
+          }
+          if (lastActiveDate < cutoffDate) {
+            try {
+              await deactivateMattermostUserAsAdmin(account.name);
+              deactivated++;
+            } catch {
+              errors++;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("MM cleanup: Hive batch lookup failed", { batchSize: usernames.length, error: err });
+        errors += usernames.length;
+      }
+    }
+
+    if (members.length < perPage) break;
+    page++;
+  }
+
+  return { deactivated, checked, skipped, errors };
 }

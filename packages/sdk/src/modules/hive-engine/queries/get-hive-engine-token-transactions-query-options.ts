@@ -11,7 +11,6 @@ export function getHiveEngineTokenTransactionsQueryOptions(
     queryKey: ["assets", "hive-engine", symbol, "transactions", username],
     enabled: !!symbol && !!username,
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => (lastPage?.length ?? 0) + limit,
     queryFn: async ({ pageParam }) => {
       if (!symbol || !username) {
         throw new Error(
@@ -25,5 +24,9 @@ export function getHiveEngineTokenTransactionsQueryOptions(
         pageParam as number
       );
     },
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      (lastPage?.length ?? 0) === limit ? (lastPageParam as number) + limit : undefined,
+    getPreviousPageParam: (_firstPage, _allPages, firstPageParam) =>
+      (firstPageParam as number) > 0 ? (firstPageParam as number) - limit : undefined,
   });
 }

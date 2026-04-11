@@ -22,7 +22,10 @@ const CONFIG = {
     thirdPartyFeatures: {
       threeSpeak: {
         uploading: {
-          enabled: true
+          enabled: true,
+          embedEndpoint:
+            process.env.NEXT_PUBLIC_THREESPEAK_EMBED_ENDPOINT || "https://embed.3speak.tv",
+          serverApiKey: process.env.THREESPEAK_EMBED_API_KEY
         }
       }
     },
@@ -106,6 +109,12 @@ const CONFIG = {
           gMapsMapId: process.env.NEXT_PUBLIC_GMAPS_MAP_ID,
           gMapsApiKey: process.env.NEXT_PUBLIC_GMAPS_API_KEY
         }
+      },
+      aiImageGenerator: {
+        enabled: true
+      },
+      aiAssist: {
+        enabled: true
       }
     },
     service: {

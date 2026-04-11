@@ -11,9 +11,10 @@ import { PublishEditorToolbar } from "./publish-editor-toolbar";
 
 interface Props {
   editor: Editor | null;
+  allowToUploadVideo?: boolean;
 }
 
-export function PublishEditor({ editor }: Props) {
+export function PublishEditor({ editor, allowToUploadVideo = true }: Props) {
   const { title, setTitle } = usePublishState();
 
   return (
@@ -37,7 +38,7 @@ export function PublishEditor({ editor }: Props) {
         }}
       />
       <div className="publish-page-editor-toolbar-container border-y border-[--border-color] sticky top-[60px] md:top-[76px] -mx-2 z-10 bg-white">
-        <PublishEditorToolbar editor={editor} />
+        <PublishEditorToolbar editor={editor} allowToUploadVideo={allowToUploadVideo} />
       </div>
       <EditorContent
         editor={editor}

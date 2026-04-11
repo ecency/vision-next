@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { DelegatedVestingShare } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get vesting delegations for an account with infinite scroll support
@@ -19,7 +19,7 @@ export function getVestingDelegationsQueryOptions(
       // Request one extra item on subsequent pages to handle inclusive cursor
       const fetchLimit = pageParam ? limit + 1 : limit;
 
-      const result = await CONFIG.hiveClient.database.call("get_vesting_delegations", [
+      const result = await callRPC("condenser_api.get_vesting_delegations", [
         username,
         pageParam || "",
         fetchLimit,

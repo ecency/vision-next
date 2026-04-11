@@ -3,8 +3,9 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { Operation, PrivateKey, TransactionConfirmation } from "@hiveio/dhive";
-import { CONFIG } from "@/modules/core";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/hive-tx";
+import { broadcastOperations, type TransactionConfirmation } from "@/modules/core/hive-tx";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";
 import type { AuthorityLevel } from "@/modules/operations/authority-map";
@@ -86,7 +87,7 @@ async function broadcastWithMethod(
 
       // Attempt broadcast with key
       const privateKey = PrivateKey.fromString(key);
-      return await CONFIG.hiveClient.broadcast.sendOperations(ops, privateKey);
+      return await broadcastOperations(ops, privateKey);
     }
 
     case 'hiveauth': {
@@ -101,18 +102,40 @@ async function broadcastWithMethod(
         throw new Error('No adapter provided for HiveSigner auth');
       }
 
-      // Use pre-fetched token if provided, otherwise fetch it
+      // Access tokens only have posting authority — for active/owner/memo ops,
+      // go directly to platform-specific HiveSigner broadcast (e.g., redirect to hivesigner.com)
+      if (authority !== 'posting') {
+        if (adapter.broadcastWithHiveSigner) {
+          return await adapter.broadcastWithHiveSigner(username, ops, authority);
+        }
+        throw new Error(`HiveSigner access token cannot sign ${authority} operations. No platform broadcast available.`);
+      }
+
+      // Try direct API broadcast with access token first (posting ops only)
       const token = fetchedToken !== undefined
         ? fetchedToken
         : await adapter.getAccessToken(username);
 
-      if (!token) {
-        throw new Error(`No access token available for ${username}`);
+      if (token) {
+        try {
+          const client = new hs.Client({ accessToken: token });
+          const response = await client.broadcast(ops);
+          return response.result;
+        } catch (tokenError) {
+          // Token broadcast failed — try platform-specific HiveSigner broadcast
+          if (adapter.broadcastWithHiveSigner && shouldTriggerAuthFallback(tokenError)) {
+            return await adapter.broadcastWithHiveSigner(username, ops, authority);
+          }
+          throw tokenError;
+        }
       }
 
-      const client = new hs.Client({ accessToken: token });
-      const response = await client.broadcast(ops);
-      return response.result;
+      // No token available — try platform-specific HiveSigner broadcast
+      if (adapter.broadcastWithHiveSigner) {
+        return await adapter.broadcastWithHiveSigner(username, ops, authority);
+      }
+
+      throw new Error(`No access token available for ${username}`);
     }
 
     case 'keychain': {
@@ -210,6 +233,22 @@ async function broadcastWithFallback(
           }
           // Fallback to direct key signing if token auth method fails
           console.warn('[SDK] HiveSigner token auth failed, falling back to key:', error);
+        }
+      }
+
+      // OPTIMIZATION: Use HiveSigner token for keychain/MetaMask users with posting auth (faster, no popup)
+      if (
+        authority === 'posting' &&
+        hasPostingAuth &&
+        loginType === 'keychain'
+      ) {
+        try {
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        } catch (error) {
+          if (!shouldTriggerAuthFallback(error)) {
+            throw error;
+          }
+          console.warn('[SDK] HiveSigner token auth failed, falling back to keychain/snap:', error);
         }
       }
 
@@ -353,14 +392,13 @@ async function broadcastWithFallback(
             shouldSkip = true;
             skipReason = 'No adapter provided';
           } else {
-            // Pre-fetch token to check availability (will be reused in broadcast)
+            // Pre-fetch token if available (will be reused in broadcast)
             const token = await adapter.getAccessToken(username);
-            if (!token) {
-              shouldSkip = true;
-              skipReason = 'No access token available';
-            } else {
+            if (token) {
               prefetchedToken = token; // Store for reuse
             }
+            // When no token but adapter exists, don't skip —
+            // broadcastWithMethod can fall back to adapter.broadcastWithHiveSigner
           }
           break;
         case 'keychain':
@@ -530,7 +568,7 @@ export function useBroadcastMutation<T>(
 
         const privateKey = PrivateKey.fromString(postingKey);
 
-        return CONFIG.hiveClient.broadcast.sendOperations(
+        return broadcastOperations(
           ops,
           privateKey
         );

@@ -14,7 +14,9 @@ import {
   getTradeHistoryQueryOptions
 } from "@ecency/sdk";
 import { ButtonGroup } from "@/features/ui";
-import { Feedback, Navbar, Skeleton } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { Skeleton } from "@/features/shared/skeleton";
 import i18next from "i18next";
 import { HiveBarter } from "@/app/market/_components/hive-barter";
 import { ChartStats } from "@/app/market/limit/_components/chart-stats";

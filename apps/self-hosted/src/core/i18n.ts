@@ -61,20 +61,28 @@ type TranslationKey =
   | 'error_loading'
   | 'retry'
   | 'community_not_found'
-  | "tip_amount"
-  | "tip_custom"
-  | "tip_currency"
-  | "tip_private_key"
-  | "tip_wallet_address"
-  | "tip_no_wallet_address"
-  | "tip_send"
-  | "tip_sending"
-  | "tip_login_to_send"
-  | "tip_asset_not_supported"
-  | "tip_transaction_failed"
-  | "tip_qr_no_address"
-  | "tip_qr_failed"
-  | "cancel";
+  | 'page_not_found'
+  | 'page_not_found_description'
+  | 'back_to_blog'
+  | 'edit_post'
+  | 'updating'
+  | 'update'
+  | 'editor_start_writing'
+  | 'editor_post_title'
+  | 'tip_amount'
+  | 'tip_custom'
+  | 'tip_currency'
+  | 'tip_private_key'
+  | 'tip_wallet_address'
+  | 'tip_no_wallet_address'
+  | 'tip_send'
+  | 'tip_sending'
+  | 'tip_login_to_send'
+  | 'tip_asset_not_supported'
+  | 'tip_transaction_failed'
+  | 'tip_qr_no_address'
+  | 'tip_qr_failed'
+  | 'cancel';
 
 type Translations = Record<TranslationKey, string>;
 
@@ -140,20 +148,28 @@ const translations: Record<string, Translations> = {
     error_loading: 'Something went wrong. Please try again.',
     retry: 'Retry',
     community_not_found: 'Community not found.',
-	tip_amount: "Amount",
-    tip_custom: "Custom",
-    tip_currency: "Currency",
-    tip_private_key: "Active key",
-    tip_wallet_address: "Wallet address",
-    tip_no_wallet_address: "Recipient has not set up this wallet address.",
-    tip_send: "Tip",
-    tip_sending: "Sending...",
-    tip_login_to_send: "Login to send a tip",
-    tip_asset_not_supported: "This asset is not supported for tipping yet",
-    tip_transaction_failed: "Transaction failed",
-    tip_qr_no_address: "No address",
-    tip_qr_failed: "Failed to generate QR",
-    cancel: "Cancel",
+    page_not_found: 'Page not found',
+    page_not_found_description: 'The page you are looking for does not exist.',
+    back_to_blog: 'Back to blog',
+    edit_post: 'Edit',
+    updating: 'Updating...',
+    update: 'Update',
+    editor_start_writing: 'Start writing...',
+    editor_post_title: 'Post title...',
+    tip_amount: 'Amount',
+    tip_custom: 'Custom',
+    tip_currency: 'Currency',
+    tip_private_key: 'Active key',
+    tip_wallet_address: 'Wallet address',
+    tip_no_wallet_address: 'Recipient has not set up this wallet address.',
+    tip_send: 'Tip',
+    tip_sending: 'Sending...',
+    tip_login_to_send: 'Login to send a tip',
+    tip_asset_not_supported: 'This asset is not supported for tipping yet',
+    tip_transaction_failed: 'Transaction failed',
+    tip_qr_no_address: 'No address',
+    tip_qr_failed: 'Failed to generate QR',
+    cancel: 'Cancel',
   },
   es: {
     loading: 'Cargando...',
@@ -215,6 +231,28 @@ const translations: Record<string, Translations> = {
     error_loading: 'Algo salió mal. Por favor, intente de nuevo.',
     retry: 'Reintentar',
     community_not_found: 'Comunidad no encontrada.',
+    page_not_found: 'Página no encontrada',
+    page_not_found_description: 'La página que buscas no existe.',
+    back_to_blog: 'Volver al blog',
+    edit_post: 'Editar',
+    updating: 'Actualizando...',
+    update: 'Actualizar',
+    editor_start_writing: 'Empieza a escribir...',
+    editor_post_title: 'Título de la publicación...',
+    tip_amount: 'Cantidad',
+    tip_custom: 'Personalizado',
+    tip_currency: 'Moneda',
+    tip_private_key: 'Clave activa',
+    tip_wallet_address: 'Dirección de cartera',
+    tip_no_wallet_address: 'El destinatario no ha configurado esta dirección.',
+    tip_send: 'Propina',
+    tip_sending: 'Enviando...',
+    tip_login_to_send: 'Inicia sesión para enviar una propina',
+    tip_asset_not_supported: 'Este activo aún no es compatible con las propinas',
+    tip_transaction_failed: 'Transacción fallida',
+    tip_qr_no_address: 'Sin dirección',
+    tip_qr_failed: 'Error al generar el QR',
+    cancel: 'Cancelar',
   },
   de: {
     loading: 'Lädt...',
@@ -276,6 +314,28 @@ const translations: Record<string, Translations> = {
     error_loading: 'Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.',
     retry: 'Erneut versuchen',
     community_not_found: 'Community nicht gefunden.',
+    page_not_found: 'Seite nicht gefunden',
+    page_not_found_description: 'Die gesuchte Seite existiert nicht.',
+    back_to_blog: 'Zurück zum Blog',
+    edit_post: 'Bearbeiten',
+    updating: 'Aktualisierung...',
+    update: 'Aktualisieren',
+    editor_start_writing: 'Beginne zu schreiben...',
+    editor_post_title: 'Beitragstitel...',
+    tip_amount: 'Betrag',
+    tip_custom: 'Benutzerdefiniert',
+    tip_currency: 'Währung',
+    tip_private_key: 'Aktiver Schlüssel',
+    tip_wallet_address: 'Wallet-Adresse',
+    tip_no_wallet_address: 'Der Empfänger hat diese Wallet-Adresse nicht eingerichtet.',
+    tip_send: 'Trinkgeld',
+    tip_sending: 'Senden...',
+    tip_login_to_send: 'Melde dich an, um ein Trinkgeld zu senden',
+    tip_asset_not_supported: 'Dieses Asset wird für Trinkgelder noch nicht unterstützt',
+    tip_transaction_failed: 'Transaktion fehlgeschlagen',
+    tip_qr_no_address: 'Keine Adresse',
+    tip_qr_failed: 'QR-Generierung fehlgeschlagen',
+    cancel: 'Abbrechen',
   },
   fr: {
     loading: "Chargement...",
@@ -338,20 +398,28 @@ const translations: Record<string, Translations> = {
     error_loading: "Une erreur s'est produite. Veuillez réessayer.",
     retry: 'Réessayer',
     community_not_found: 'Communauté introuvable.',
-	tip_amount: "Montant",
-    tip_custom: "Personnalisé",
-    tip_currency: "Devise",
-    tip_private_key: "Clé active",
-    tip_wallet_address: "Adresse du portefeuille",
+    page_not_found: 'Page non trouvée',
+    page_not_found_description: "La page que vous recherchez n'existe pas.",
+    back_to_blog: 'Retour au blog',
+    edit_post: 'Modifier',
+    updating: 'Mise à jour...',
+    update: 'Mettre à jour',
+    editor_start_writing: 'Commencez à écrire...',
+    editor_post_title: "Titre de l'article...",
+    tip_amount: 'Montant',
+    tip_custom: 'Personnalisé',
+    tip_currency: 'Devise',
+    tip_private_key: 'Clé active',
+    tip_wallet_address: 'Adresse du portefeuille',
     tip_no_wallet_address: "Le destinataire n'a pas configuré cette adresse.",
-    tip_send: "Pourboire",
-    tip_sending: "Envoi...",
-    tip_login_to_send: "Connectez-vous pour envoyer un pourboire",
+    tip_send: 'Pourboire',
+    tip_sending: 'Envoi...',
+    tip_login_to_send: 'Connectez-vous pour envoyer un pourboire',
     tip_asset_not_supported: "Cet actif n'est pas encore pris en charge pour les pourboires",
-    tip_transaction_failed: "Échec de la transaction",
-    tip_qr_no_address: "Aucune adresse",
-    tip_qr_failed: "Échec de la génération du QR",
-    cancel: "Annuler",
+    tip_transaction_failed: 'Échec de la transaction',
+    tip_qr_no_address: 'Aucune adresse',
+    tip_qr_failed: 'Échec de la génération du QR',
+    cancel: 'Annuler',
   },
   ko: {
     loading: '로딩 중...',
@@ -413,6 +481,28 @@ const translations: Record<string, Translations> = {
     error_loading: '문제가 발생했습니다. 다시 시도해주세요.',
     retry: '다시 시도',
     community_not_found: '커뮤니티를 찾을 수 없습니다.',
+    page_not_found: '페이지를 찾을 수 없습니다',
+    page_not_found_description: '찾으시는 페이지가 존재하지 않습니다.',
+    back_to_blog: '블로그로 돌아가기',
+    edit_post: '편집',
+    updating: '업데이트 중...',
+    update: '업데이트',
+    editor_start_writing: '글을 작성하세요...',
+    editor_post_title: '게시물 제목...',
+    tip_amount: '금액',
+    tip_custom: '사용자 정의',
+    tip_currency: '통화',
+    tip_private_key: '활성 키',
+    tip_wallet_address: '지갑 주소',
+    tip_no_wallet_address: '수신자가 이 지갑 주소를 설정하지 않았습니다.',
+    tip_send: '팁',
+    tip_sending: '전송 중...',
+    tip_login_to_send: '팁을 보내려면 로그인하세요',
+    tip_asset_not_supported: '이 자산은 아직 팁으로 지원되지 않습니다',
+    tip_transaction_failed: '거래 실패',
+    tip_qr_no_address: '주소 없음',
+    tip_qr_failed: 'QR 생성 실패',
+    cancel: '취소',
   },
   ru: {
     loading: 'Загрузка...',
@@ -474,6 +564,28 @@ const translations: Record<string, Translations> = {
     error_loading: 'Что-то пошло не так. Пожалуйста, попробуйте снова.',
     retry: 'Повторить',
     community_not_found: 'Сообщество не найдено.',
+    page_not_found: 'Страница не найдена',
+    page_not_found_description: 'Запрашиваемая страница не существует.',
+    back_to_blog: 'Вернуться в блог',
+    edit_post: 'Редактировать',
+    updating: 'Обновление...',
+    update: 'Обновить',
+    editor_start_writing: 'Начните писать...',
+    editor_post_title: 'Заголовок поста...',
+    tip_amount: 'Сумма',
+    tip_custom: 'Другая',
+    tip_currency: 'Валюта',
+    tip_private_key: 'Активный ключ',
+    tip_wallet_address: 'Адрес кошелька',
+    tip_no_wallet_address: 'Получатель не настроил этот адрес кошелька.',
+    tip_send: 'Чаевые',
+    tip_sending: 'Отправка...',
+    tip_login_to_send: 'Войдите, чтобы отправить чаевые',
+    tip_asset_not_supported: 'Этот актив пока не поддерживается для чаевых',
+    tip_transaction_failed: 'Транзакция не удалась',
+    tip_qr_no_address: 'Нет адреса',
+    tip_qr_failed: 'Не удалось создать QR-код',
+    cancel: 'Отмена',
   },
 };
 

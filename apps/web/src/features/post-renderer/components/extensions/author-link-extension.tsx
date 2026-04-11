@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect } from "react";
+import React, { RefObject, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import "./author-link-extension.scss";
 
@@ -11,11 +11,11 @@ export function AuthorLinkRenderer({ author }: { author: string }) {
       <>
         <img
             src={imageSrc}
-            className="ecency-renderer-author-extension-link-image"
+            className="er-author-link-image"
             alt={author}
         />
-        <div className="ecency-renderer-author-extension-link-content">
-        <span className="ecency-renderer-author-extension-link-content-label">
+        <div className="er-author-link-content">
+        <span className="er-author-link-label">
           Hive account
         </span>
           <span>{author.toLowerCase().replace("/", "")}</span>
@@ -29,7 +29,12 @@ export function AuthorLinkExtension({
                                     }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const elements = Array.from(
         containerRef.current?.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-author-link",
@@ -55,10 +60,11 @@ export function AuthorLinkExtension({
         container.setAttribute("target", "_blank");
         container.setAttribute("rel", "noopener");
 
-        container.classList.add("ecency-renderer-author-extension");
-        container.classList.add("ecency-renderer-author-extension-link");
+        container.classList.add("er-author");
+        container.classList.add("er-author-link");
 
         const root = createRoot(container);
+        rootsRef.current.push(root);
         root.render(<AuthorLinkRenderer author={authorHref} />);
 
         // Final safety check before replacing
@@ -70,6 +76,11 @@ export function AuthorLinkExtension({
         console.warn("Error enhancing author link element:", error);
       }
     });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return null;

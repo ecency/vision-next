@@ -1,15 +1,14 @@
 import {
     applyImageZoom,
     applyHivePostLinks,
-    applyAuthorLinks,
     applyHiveOperations,
-    applyTagLinks,
     applyYoutubeVideos,
     applyThreeSpeakVideos,
     applyWaveLikePosts,
     applyTwitterEmbeds
 } from "../utils";
 import { findPostLinkElements } from "../functions";
+import { Root } from "react-dom/client";
 import React from "react";
 
 // Proper React fallback component for Twitter embeds when Tweet component fails to load
@@ -32,24 +31,26 @@ const TwitterFallback: React.FC<{ id: string }> = ({ id }) => {
  */
 export function setupPostEnhancements(container: HTMLElement, options?: {
     onHiveOperationClick?: (op: string) => void,
-    TwitterComponent?: any
+    TwitterComponent?: any,
+    images?: string[]
 }): () => void {
     const postLinkElements = findPostLinkElements(container);
 
-    applyHivePostLinks(container, postLinkElements);
-    applyAuthorLinks(container);
-    applyHiveOperations(container, options?.onHiveOperationClick);
-    applyTagLinks(container);
-    applyYoutubeVideos(container);
-    applyThreeSpeakVideos(container);
-    applyWaveLikePosts(container, postLinkElements);
-    applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback);
+    const allRoots: Root[] = [
+        ...applyHivePostLinks(container, postLinkElements),
+        ...applyHiveOperations(container, options?.onHiveOperationClick),
+        ...applyYoutubeVideos(container),
+        ...applyThreeSpeakVideos(container, options?.images),
+        ...applyWaveLikePosts(container, postLinkElements),
+        ...applyTwitterEmbeds(container, options?.TwitterComponent ?? TwitterFallback)
+    ];
 
     // Apply image zoom and store the promise for cleanup
     const zoomPromise = applyImageZoom(container);
 
     // Return cleanup function
     return () => {
+        allRoots.forEach((root) => root.unmount());
         zoomPromise.then((zoom) => {
             zoom?.detach();
         }).catch(() => {

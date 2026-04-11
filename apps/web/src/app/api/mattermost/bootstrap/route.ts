@@ -1,18 +1,61 @@
 import { NextResponse } from "next/server";
 import { getAccountSubscriptionsQueryOptions } from "@ecency/sdk";
+import { QueryClient } from "@tanstack/react-query";
 import { Subscription } from "@/entities";
-import { getQueryClient } from "@/core/react-query";
 import {
   ensureCommunityChannelMembership,
   ensureMattermostUser,
   ensurePersonalToken,
   ensureUserInTeam,
+  getMattermostUserWithProps,
+  getUserLeftChannels,
+  removeUserLeftChannel,
   withMattermostTokenCookie
 } from "@/server/mattermost";
 import { decodeToken, validateToken } from "@/utils";
 
+// Hard ceiling on the entire bootstrap handler. Individual mmFetch calls
+// have their own 10s timeout, but a user with 50 communities chains
+// 10+ batches sequentially. Without a total cap, worst case is 100s+.
+const BOOTSTRAP_TIMEOUT_MS = 30_000;
+
 export async function POST(req: Request) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), BOOTSTRAP_TIMEOUT_MS);
+  const signal = AbortSignal.any([req.signal, ac.signal]);
+
   try {
+    // Promise.race guarantees a hard 30s response deadline.
+    // The AbortController additionally cancels the underlying work
+    // so handleBootstrap doesn't zombie after the timeout fires.
+    return await Promise.race([
+      handleBootstrap(req, signal),
+      new Promise<never>((_, reject) => {
+        if (signal.aborted) {
+          reject(new DOMException("bootstrap aborted", "AbortError"));
+          return;
+        }
+        signal.addEventListener("abort", () => reject(new DOMException("bootstrap aborted", "AbortError")), { once: true });
+      })
+    ]);
+  } catch (error) {
+    if (ac.signal.aborted) {
+      console.warn("MM bootstrap: timed out after 30s");
+      return NextResponse.json({ error: "bootstrap timed out" }, { status: 504 });
+    }
+    if (req.signal.aborted) {
+      console.warn("MM bootstrap: client disconnected");
+      return NextResponse.json({ error: "client disconnected" }, { status: 499 });
+    }
+    console.error("MM bootstrap: unexpected top-level error", error);
+    const message = error instanceof Error ? error.message : "unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextResponse> {
     // 1) Parse body safely
     let body: any;
     try {
@@ -65,9 +108,9 @@ export async function POST(req: Request) {
     let user;
     let personalToken: string;
     try {
-        user = await ensureMattermostUser(username);
-        await ensureUserInTeam(user.id);
-        personalToken = await ensurePersonalToken(user.id);
+        user = await ensureMattermostUser(username, signal);
+        await ensureUserInTeam(user.id, signal);
+        personalToken = await ensurePersonalToken(user.id, signal);
     } catch (e) {
         console.error("MM bootstrap: MM user/team/token error", {
           username,
@@ -80,15 +123,30 @@ export async function POST(req: Request) {
         );
     }
 
-    // 4) Hive subscriptions (already partly protected)
+    signal.throwIfAborted();
+
+    // 4) Hive subscriptions — use a per-request QueryClient.
+    //    Do NOT use the shared getQueryClient() here: React's cache() is
+    //    scoped to Server Components, not Route Handlers. In a long-lived
+    //    container the shared QueryClient persists across requests, serving
+    //    stale subscription data that causes auto-joining to unsubscribed communities.
     let subscriptions: Subscription[] = [];
+    const qc = new QueryClient();
+    const subscriptionsQuery = getAccountSubscriptionsQueryOptions(username);
     try {
-        subscriptions =
-          (await getQueryClient().fetchQuery(
-            getAccountSubscriptionsQueryOptions(username)
-          )) || [];
+        const abortSubscriptions = () => {
+          qc.cancelQueries({ queryKey: subscriptionsQuery.queryKey });
+        };
+        signal.addEventListener("abort", abortSubscriptions, { once: true });
+        try {
+          subscriptions = (await qc.fetchQuery(subscriptionsQuery)) || [];
+        } finally {
+          signal.removeEventListener("abort", abortSubscriptions);
+        }
     } catch (error) {
         console.error("MM bootstrap: Unable to load Hive/Ecency subscriptions", error);
+    } finally {
+        qc.clear();
     }
 
     const communityIds = subscriptions
@@ -106,51 +164,79 @@ export async function POST(req: Request) {
     }
 
     let channelId: string | null = null;
+
+    // 5) Join channels for communities the user is subscribed to
+    //    Skip channels the user has manually left (respect user choice)
+    const BATCH_SIZE = 5;
+
+    let leftChannels = new Set<string>();
     try {
-        // Ensure channels exist for subscribed communities, but DON'T force membership
-        // This prevents auto-rejoining users to channels they've explicitly left
-        // Parallelize channel creation - CRITICAL for performance
-        const channelPromises = Array.from(uniqueCommunityIds).map(
-          async ([communityId, title]) => {
-            // autoJoin = false: only ensure channel exists, don't force user membership
+      const userWithProps = await getMattermostUserWithProps(user.id, signal);
+      leftChannels = getUserLeftChannels(userWithProps);
+    } catch (e) {
+      if (signal.aborted) throw e;
+      console.warn("MM bootstrap: failed to load left channels", { username, error: e });
+    }
+
+    signal.throwIfAborted();
+
+    // Ensure channels exist and join for all subscribed communities
+    const communityEntries = Array.from(uniqueCommunityIds);
+    const channelResults: PromiseSettledResult<{ communityId: string; channelId: string }>[] = [];
+
+    for (let i = 0; i < communityEntries.length; i += BATCH_SIZE) {
+      signal.throwIfAborted();
+      const batch = communityEntries.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(async ([communityId, title]) => {
+          const normalizedId = communityId.trim().toLowerCase();
+          // Skip auto-join if user manually left this channel
+          const shouldAutoJoin = !leftChannels.has(normalizedId);
+          try {
             const ensuredChannelId = await ensureCommunityChannelMembership(
               user.id,
               communityId,
               title,
-              false // Don't auto-join - users will join manually
+              shouldAutoJoin,
+              signal
             );
             return { communityId, channelId: ensuredChannelId };
+          } catch (err) {
+            throw Object.assign(err instanceof Error ? err : new Error(String(err)), { communityId });
           }
+        })
+      );
+      channelResults.push(...batchResults);
+    }
+    const failedChannels = channelResults.filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected"
+    );
+    if (failedChannels.length > 0) {
+      const failedIds = failedChannels.map(r => r.reason?.communityId ?? r.reason?.message ?? "unknown");
+      console.warn("MM bootstrap: some channels failed", { username, count: failedChannels.length, failedIds });
+    }
+
+    // For explicitly requested community, always auto-join the user
+    // and clear the left-channel record since this is an intentional join
+    if (community) {
+      try {
+        channelId = await ensureCommunityChannelMembership(
+          user.id,
+          community,
+          communityTitle || displayName || community,
+          true,
+          signal
         );
-
-        const channelResults = await Promise.all(channelPromises);
-
-        // Find the requested community's channel if specified
-        if (community) {
-          const found = channelResults.find((r) => r.communityId === community);
-          channelId = found?.channelId || null;
-
-          // If not found in subscriptions, create it and join the user
-          if (!channelId) {
-            // For explicitly requested community, DO auto-join
-            channelId = await ensureCommunityChannelMembership(
-              user.id,
-              community,
-              communityTitle || displayName || community,
-              true // Auto-join for explicitly requested community
-            );
-          }
+        const normalizedCommunity = community.trim().toLowerCase();
+        if (leftChannels.has(normalizedCommunity)) {
+          signal.throwIfAborted();
+          await removeUserLeftChannel(user.id, normalizedCommunity, signal).catch((e) => {
+            console.warn("MM bootstrap: failed to clear left-channel record", { username, community: normalizedCommunity, error: e });
+          });
         }
-    } catch (e) {
-        console.error("MM bootstrap: channel membership error", {
-          username,
-          userId: user.id,
-          error: e
-        });
-        return NextResponse.json(
-          { error: "failed to prepare channels" },
-          { status: 500 }
-        );
+      } catch (e) {
+        console.warn("MM bootstrap: explicit community join failed", { username, community, error: e });
+      }
     }
 
     const response = NextResponse.json({
@@ -160,9 +246,4 @@ export async function POST(req: Request) {
         token: personalToken
     });
     return withMattermostTokenCookie(response, personalToken);
-    } catch (error) {
-        console.error("MM bootstrap: unexpected top-level error", error);
-        const message = error instanceof Error ? error.message : "unknown error";
-        return NextResponse.json({ error: message }, { status: 500 });
-    }
 }

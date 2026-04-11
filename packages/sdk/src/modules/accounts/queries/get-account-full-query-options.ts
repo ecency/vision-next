@@ -1,4 +1,3 @@
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import {
   AccountFollowStats,
@@ -7,41 +6,34 @@ import {
 } from "../types";
 import { parseProfileMetadata } from "@/modules/accounts";
 import { queryOptions } from "@tanstack/react-query";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
     queryKey: QueryKeys.accounts.full(username),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!username) {
         throw new Error("[SDK] Username is empty");
       }
 
-      const response = (await CONFIG.hiveClient.database.getAccounts([
+      const response = (await callRPC("condenser_api.get_accounts", [[
         username,
-      ])) as any[];
+      ]], undefined, undefined, signal)) as any[];
       if (!response[0]) {
         throw new Error("[SDK] No account with given username");
       }
 
       const profile = parseProfileMetadata(response[0].posting_json_metadata);
 
-      let follow_stats: AccountFollowStats | undefined;
-      try {
-        follow_stats = await CONFIG.hiveClient.database.call(
-          "get_follow_count",
-          [username]
-        );
-      } catch (e) {}
-
-      let reputationValue = 0;
-      try {
-        const reputation = (await CONFIG.hiveClient.call(
-          "condenser_api",
-          "get_account_reputations",
-          [username, 1]
-        )) as AccountReputation[];
-        reputationValue = reputation[0]?.reputation ?? 0;
-      } catch (e) {}
+      // Run follow count and reputation in parallel — both are independent
+      // of each other and only need the username (not the account response).
+      const [follow_stats, reputationValue] = await Promise.all([
+        callRPC("condenser_api.get_follow_count", [username], undefined, undefined, signal)
+          .catch((): undefined => undefined) as Promise<AccountFollowStats | undefined>,
+        callRPC("condenser_api.get_account_reputations", [username, 1], undefined, undefined, signal)
+          .then((r) => ((r as AccountReputation[])[0]?.reputation ?? 0))
+          .catch(() => 0)
+      ]);
 
       return {
         name: response[0].name,

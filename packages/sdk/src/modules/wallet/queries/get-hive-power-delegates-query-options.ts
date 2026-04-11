@@ -1,6 +1,6 @@
-import { CONFIG } from "@/modules/core/config";
 import { queryOptions } from "@tanstack/react-query";
 import type { DelegatedVestingShare } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getHivePowerDelegatesInfiniteQueryOptions(
   username: string,
@@ -10,7 +10,7 @@ export function getHivePowerDelegatesInfiniteQueryOptions(
     queryKey: ["assets", "hive-power", "delegates", username],
     enabled: !!username,
     queryFn: () =>
-      CONFIG.hiveClient.database.call("get_vesting_delegations", [
+      callRPC("condenser_api.get_vesting_delegations", [
         username,
         "",
         limit,

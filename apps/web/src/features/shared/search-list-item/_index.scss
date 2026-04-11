@@ -5,6 +5,17 @@
   margin-top: 0;
   margin-bottom: 20px;
 
+  .item-image-placeholder {
+    @apply bg-gray-100 dark:bg-gray-800;
+
+    img.no-img {
+      width: 32px !important;
+      height: 32px !important;
+      object-fit: contain;
+      opacity: 0.35;
+    }
+  }
+
   .item-controls {
     svg {
       height: 14px !important;
@@ -28,8 +39,4 @@
       }
     }
   }
-}
-
-.no-img {
-  width: 45px;
 }

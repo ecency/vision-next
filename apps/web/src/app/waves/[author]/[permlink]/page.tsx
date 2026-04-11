@@ -6,7 +6,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { Metadata } from "next";
-import { ScrollToTop } from "@/features/shared";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
 
 interface Props {
   params: Promise<{

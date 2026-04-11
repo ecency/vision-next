@@ -28,8 +28,9 @@ function getPromotedEntriesInfiniteQuery() {
     getNextPageParam: (
       _lastPage: PromotedPage,
       _allPages: PromotedPage[],
-      _lastPageParam: PromotedCursor
-    ): PromotedCursor => "fetched"
+      lastPageParam: PromotedCursor
+    ): PromotedCursor | undefined =>
+      lastPageParam === "empty" ? "fetched" : undefined,
   });
 }
 

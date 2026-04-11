@@ -1,4 +1,4 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
@@ -27,44 +27,20 @@ export function getAccountPostsInfiniteQueryOptions(
       hasNextPage: true,
     } as PageParam,
 
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       if (!pageParam?.hasNextPage || !username) return [];
 
-      interface AccountPostsParams {
-        sort: string;
-        account: string;
-        limit: number;
-        observer?: string;
-        start_author?: string;
-        start_permlink?: string;
-      }
-
-      const rpcParams: AccountPostsParams = {
-        sort: filter,
-        account: username,
+      const response = await getAccountPosts(
+        filter,
+        username,
+        pageParam.author ?? "",
+        pageParam.permlink ?? "",
         limit,
-        ...(observer && observer.length > 0 ? { observer } : {}),
-        ...(pageParam.author ? { start_author: pageParam.author } : {}),
-        ...(pageParam.permlink ? { start_permlink: pageParam.permlink } : {}),
-      };
+        observer,
+        signal
+      );
 
-      try {
-        if (CONFIG.dmcaAccounts && CONFIG.dmcaAccounts.includes(username)) return [];
-
-        const resp = await CONFIG.hiveClient.call(
-          "bridge",
-          "get_account_posts",
-          rpcParams
-        );
-
-        if (resp && Array.isArray(resp)) {
-          return filterDmcaEntry(resp as Entry[]);
-        }
-        return [];
-      } catch (err) {
-        console.error("[SDK] get_account_posts error:", err);
-        return [];
-      }
+      return filterDmcaEntry(response ?? []) as Entry[];
     },
 
     getNextPageParam: (lastPage: Page): PageParam | undefined => {
@@ -98,7 +74,7 @@ export function getAccountPostsQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.accountPostsPage(username ?? "", filter, start_author, start_permlink, limit, observer),
     enabled: !!username && enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal } = {} as any) => {
       if (!username) {
         return [];
       }
@@ -109,7 +85,8 @@ export function getAccountPostsQueryOptions(
         start_author,
         start_permlink,
         limit,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

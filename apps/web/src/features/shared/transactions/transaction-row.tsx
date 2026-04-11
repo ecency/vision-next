@@ -132,7 +132,8 @@ export function TransactionRow({ entry, transaction: item }: Props) {
   if (
     tr.type === "transfer" ||
     tr.type === "transfer_to_vesting" ||
-    tr.type === "transfer_to_savings"
+    tr.type === "transfer_to_savings" ||
+    tr.type === "transfer_from_savings"
   ) {
     flag = true;
     // @ts-ignore
@@ -295,7 +296,7 @@ export function TransactionRow({ entry, transaction: item }: Props) {
     );
   }
 
-  if (tr.type === "limit_order_create") {
+  if (tr.type === "limit_order_create" || tr.type === "limit_order_create2") {
     flag = true;
     icon = reOrderHorizontalSvg;
 

@@ -4,7 +4,7 @@ import {
   useCreateCommunityByKeychain
 } from "@/api/mutations";
 import { KeyOrHot } from "@/features/shared";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { useCallback } from "react";
 import { CommunityCreateCardLayout } from "./community-create-card-layout";
 
@@ -14,7 +14,7 @@ interface Props {
   fee: string | undefined;
   title: string;
   about: string;
-  onSubmit: (code: string) => void;
+  onSubmit: (code: string) => Promise<void>;
 }
 
 export function CommunityCreateSignStep({ username, wif, fee, title, about, onSubmit }: Props) {
@@ -25,9 +25,9 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
   const onApi = useCallback(
     async (creatorKey: PrivateKey) => {
       const code = await submitApi({ creatorKey, fee: fee!, wif, username });
-      onSubmit(code);
+      await onSubmit(code);
     },
-    [fee, submitApi, username, wif]
+    [fee, submitApi, username, wif, onSubmit]
   );
 
   const onHs = useCallback(
@@ -37,8 +37,8 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
 
   const onKc = useCallback(async () => {
     const code = await submitKc({ username, wif, fee: fee! });
-    onSubmit(code);
-  }, [fee, submitKc, username, wif]);
+    await onSubmit(code);
+  }, [fee, submitKc, username, wif, onSubmit]);
 
   return (
     <CommunityCreateCardLayout>
@@ -47,6 +47,7 @@ export function CommunityCreateSignStep({ username, wif, fee, title, about, onSu
         onKey={(key) => onApi(key)}
         onKc={() => onKc()}
         onHot={() => onHs()}
+        onMetaMask={() => onKc()}
       />
     </CommunityCreateCardLayout>
   );

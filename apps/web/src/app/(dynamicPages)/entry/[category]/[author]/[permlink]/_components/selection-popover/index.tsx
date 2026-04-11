@@ -31,10 +31,21 @@ import { EntryPageContext } from "../context";
 import { useIsMobile } from "@/utils";
 
 // https://github.com/FezVrasta/react-popper#usage-without-a-reference-htmlelement
+// floating-ui requires `contextElement` on virtual references so internal
+// functions like getOffsetParent / getClippingRect can traverse the DOM
+// without hitting null.parentNode.
 class VirtualSelectionReference {
   selection: Selection;
+  contextElement: Element | undefined;
+
   constructor(selection: Selection) {
     this.selection = selection;
+    // Provide a real DOM element so floating-ui can derive document, offset
+    // parent, and overflow ancestors without null traversal errors.
+    this.contextElement =
+      selection.anchorNode instanceof Element
+        ? selection.anchorNode
+        : selection.anchorNode?.parentElement ?? undefined;
   }
 
   get clientWidth() {
@@ -87,8 +98,10 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         return;
       }
       if (showTranslation) {
-        const target = e.target as HTMLElement;
-        if (target.closest(".selection-translate-modal")) {
+        const node = e.target;
+        const target =
+          node instanceof Element ? node : node instanceof Node ? node.parentElement : null;
+        if (target?.closest(".selection-translate-modal")) {
           return;
         }
       }
@@ -119,8 +132,9 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
         return;
       }
       if (showTranslation) {
+        const node = e?.target ?? document.activeElement;
         const target =
-          (e?.target as HTMLElement | null) || document.activeElement;
+          node instanceof Element ? node : node instanceof Node ? node.parentElement : null;
         if (target?.closest(".selection-translate-modal")) {
           return;
         }

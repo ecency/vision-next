@@ -1,26 +1,31 @@
 import { formatError } from "@/api/format-error";
+import { updateAccountKeysCache } from "@/api/mutations/update-account-keys-cache";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { error, success } from "@/features/shared";
+import { error, success, KeyOrHot } from "@/features/shared";
 import { Button } from "@/features/ui";
-import { useAccountUpdateKeyAuths, getAccountFullQueryOptions } from "@ecency/sdk";
-import { useHiveKeysQuery } from "@ecency/wallets";
-import { PrivateKey } from "@hiveio/dhive";
+import { getAccountFullQueryOptions, dedupeAndSortKeyAuths } from "@ecency/sdk";
+import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/hive-tx";
+import type { Authority } from "@ecency/hive-tx";
 import { UilArrowLeft, UilCheckCircle, UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useKeyDerivationStore } from "../../_hooks";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getWebBroadcastAdapter } from "@/providers/sdk/web-broadcast-adapter";
+import { broadcastOperations } from "@ecency/sdk";
 
 type KeyAuthority = "owner" | "active" | "posting" | "memo";
 
 interface Props {
-  ownerKey: string;
+  masterPassword: string;
   keysToRevokeByAuthority: Record<KeyAuthority, string[]>;
   onBack: () => void;
   onSuccess: () => void;
 }
 
-export function Step4Confirm({ ownerKey, keysToRevokeByAuthority, onBack, onSuccess }: Props) {
+export function Step4Confirm({ masterPassword, keysToRevokeByAuthority, onBack, onSuccess }: Props) {
   const { activeUser } = useActiveAccount();
   const username = activeUser?.username;
 
@@ -28,79 +33,109 @@ export function Step4Confirm({ ownerKey, keysToRevokeByAuthority, onBack, onSucc
     throw new Error("Cannot confirm key update without an active user");
   }
 
-  const { data: keys } = useHiveKeysQuery(username);
+  const keys = useMemo(
+    () => deriveHiveMasterPasswordKeys(username, masterPassword),
+    [username, masterPassword]
+  );
+
   const setMultipleDerivations = useKeyDerivationStore((state) => state.setMultipleDerivations);
   const [isApplying, setIsApplying] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const hasSubmittedRef = useRef(false);
   const queryClient = useQueryClient();
 
-  const { mutateAsync: saveKeys } = useAccountUpdateKeyAuths(username, {
-    onSuccess: async () => {
-      // Store derivation info for the newly added BIP44 keys
-      if (keys) {
-        setMultipleDerivations(username, {
-          [keys.ownerPubkey]: "bip44",
-          [keys.activePubkey]: "bip44",
-          [keys.postingPubkey]: "bip44",
-          [keys.memoPubkey]: "bip44"
-        });
+  const { data: accountData } = useQuery(getAccountFullQueryOptions(username));
+
+  const buildAccountUpdateOp = (): Operation => {
+    if (!accountData) {
+      throw new Error("Account data not loaded");
+    }
+
+    const newKeys = {
+      owner: PrivateKey.fromString(keys.owner),
+      active: PrivateKey.fromString(keys.active),
+      posting: PrivateKey.fromString(keys.posting),
+      memo_key: PrivateKey.fromString(keys.memo)
+    };
+
+    const prepareAuth = (keyName: "owner" | "active" | "posting") => {
+      const auth: Authority = JSON.parse(JSON.stringify(accountData[keyName]));
+      const keysToRevoke = keysToRevokeByAuthority[keyName] || [];
+      const existingKeys = auth.key_auths.filter(
+        ([key]) => !keysToRevoke.includes(key.toString())
+      );
+      auth.key_auths = dedupeAndSortKeyAuths(
+        existingKeys,
+        [[newKeys[keyName].createPublic().toString(), 1]]
+      );
+      return auth;
+    };
+
+    return [
+      "account_update",
+      {
+        account: username,
+        json_metadata: accountData.json_metadata,
+        owner: prepareAuth("owner"),
+        active: prepareAuth("active"),
+        posting: prepareAuth("posting"),
+        memo_key: newKeys.memo_key.createPublic().toString()
       }
+    ] as unknown as Operation;
+  };
 
-      // Invalidate account query to refresh permissions page
-      await queryClient.invalidateQueries({
-        queryKey: getAccountFullQueryOptions(username).queryKey
-      });
+  const handleSuccess = async () => {
+    setMultipleDerivations(username, {
+      [keys.ownerPubkey]: "master-password",
+      [keys.activePubkey]: "master-password",
+      [keys.postingPubkey]: "master-password",
+      [keys.memoPubkey]: "master-password"
+    });
 
-      setIsComplete(true);
-      success(i18next.t("permissions.keys.key-created"));
-      setTimeout(() => onSuccess(), 1500);
-    },
-    onError: (err) => {
+    // Optimistic cache update + background refetch
+    updateAccountKeysCache(queryClient, username, {
+      addMap: {
+        owner: keys.ownerPubkey,
+        active: keys.activePubkey,
+        posting: keys.postingPubkey
+      },
+      memoKey: keys.memoPubkey,
+      revokeMap: keysToRevokeByAuthority
+    });
+
+    setIsComplete(true);
+    success(i18next.t("permissions.keys.key-created"));
+    setTimeout(() => onSuccess(), 1500);
+  };
+
+  // Sign with private key (entered directly)
+  const handleSignByKey = async (privateKey: PrivateKey) => {
+    setIsApplying(true);
+    try {
+      const op = buildAccountUpdateOp();
+      await broadcastOperations([op], privateKey);
+      await handleSuccess();
+    } catch (err: any) {
       setIsApplying(false);
       error(...formatError(err));
     }
-  });
+  };
 
-  const handleConfirm = async () => {
-    if (!keys) {
-      error(i18next.t("permissions.add-keys.step4.error-no-keys"));
-      return;
-    }
-
-    if (hasSubmittedRef.current || isApplying) {
-      return; // Prevent double submission
-    }
-
-    hasSubmittedRef.current = true;
+  // Sign with Keychain / MetaMask (adapter routes to correct method)
+  const handleSignByKeychain = async () => {
     setIsApplying(true);
-
     try {
-      await saveKeys({
-        keepCurrent: true, // Always keep current keys, keysToRevokeByAuthority handles removal
-        currentKey: PrivateKey.fromString(ownerKey),
-        keysToRevokeByAuthority,
-        keys: [
-          {
-            owner: PrivateKey.fromString(keys.owner),
-            active: PrivateKey.fromString(keys.active),
-            posting: PrivateKey.fromString(keys.posting),
-            memo_key: PrivateKey.fromString(keys.memo)
-          }
-        ]
-      });
-    } catch (err) {
-      // Error handled in onError callback
+      const op = buildAccountUpdateOp();
+      const adapter = getWebBroadcastAdapter();
+      await adapter.broadcastWithKeychain!(username, [op], "owner");
+      await handleSuccess();
+    } catch (err: any) {
+      setIsApplying(false);
+      error(...formatError(err));
     }
   };
 
-  useEffect(() => {
-    // Auto-apply once keys are available and not already applying
-    if (!keys || isApplying || hasSubmittedRef.current) {
-      return;
-    }
-    handleConfirm();
-  }, [keys, isApplying]);
+  // Sign with MetaMask (same path as keychain — adapter detects metamask)
+  const handleSignByMetaMask = handleSignByKeychain;
 
   if (isComplete) {
     return (
@@ -149,7 +184,9 @@ export function Step4Confirm({ ownerKey, keysToRevokeByAuthority, onBack, onSucc
               {i18next.t("permissions.add-keys.step4.adding")}
             </div>
             <div className="text-sm">
-              {i18next.t("permissions.add-keys.step4.new-bip44-keys")}
+              {i18next.t("permissions.add-keys.step4.new-master-password-keys", {
+                defaultValue: "4 new keys (owner, active, posting, memo) from master password"
+              })}
             </div>
           </div>
 
@@ -168,11 +205,18 @@ export function Step4Confirm({ ownerKey, keysToRevokeByAuthority, onBack, onSucc
         </div>
       </div>
 
-      <div className="flex justify-between mt-4">
+      <KeyOrHot
+        inProgress={isApplying}
+        onKey={handleSignByKey}
+        onKc={handleSignByKeychain}
+        onMetaMask={handleSignByMetaMask}
+        authority="owner"
+      />
+
+      <div className="flex justify-start mt-2">
         <Button appearance="gray-link" icon={<UilArrowLeft />} onClick={onBack}>
           {i18next.t("g.back")}
         </Button>
-        <Button onClick={handleConfirm}>{i18next.t("g.confirm")}</Button>
       </div>
     </div>
   );

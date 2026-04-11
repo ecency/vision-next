@@ -2,9 +2,9 @@ import { AVAILABLE_THREAD_HOSTS } from "@/features/waves";
 import { DeckThreadEditItem, DeckThreadItemSkeleton, ThreadItem } from "./deck-items";
 import { DeckThreadItemViewer } from "./content-viewer";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { WavesDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../deck-manager";
 import {
   DeckThreadsColumnManagerContext,
@@ -75,12 +75,16 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
   const previousEditingEntry = usePrevious(currentEditingEntry);
 
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useMount(() => {
     register(id);
     fetchData();
   });
-  useUnmount(() => detach(id));
+  useUnmount(() => {
+    detach(id);
+    clearTimeout(retryTimeoutRef.current);
+  });
 
   const fetchData = useCallback(
     async (sinceEntries?: IdentifiableEntry[], retries = 0) => {
@@ -127,7 +131,8 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
       } catch (e) {
         if (retries < MAX_ERROR_ATTEMPTS && sinceEntries) {
           setNextPageError(true);
-          setTimeout(() => {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = setTimeout(() => {
             fetchData(sinceEntries, retries + 1);
           }, ERROR_ATTEMPTS_INTERVALS[retries]);
         }

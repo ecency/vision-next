@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Spinner } from "@ui/spinner";
 import { Button } from "@ui/button";
 import { refreshSvg } from "@ui/svg";
 import i18next from "i18next";
-import useInterval from "react-use/lib/useInterval";
 
 interface Props {
   onReload: () => void;
@@ -12,14 +11,15 @@ interface Props {
 }
 
 export const DeckHeaderReloading = ({ isReloading, onReload, updateDataInterval }: Props) => {
-  const intervalLink = useRef<any>();
+  const onReloadRef = useRef(onReload);
+  useEffect(() => {
+    onReloadRef.current = onReload;
+  }, [onReload]);
 
   useEffect(() => {
-    if (intervalLink) {
-      clearInterval(intervalLink.current);
-    }
-    intervalLink.current = setInterval(onReload, updateDataInterval);
-  }, [intervalLink, onReload, updateDataInterval]);
+    const id = setInterval(() => onReloadRef.current(), updateDataInterval);
+    return () => clearInterval(id);
+  }, [updateDataInterval]);
 
   return (
     <Button

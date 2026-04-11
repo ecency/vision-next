@@ -62,12 +62,6 @@ export function getSizedTokenLogo(token: string, size = 32) {
           <Image src="/assets/logo.svg" alt="" width={20} height={20} />
         </LogoBox>
       );
-    case "APT":
-      return (
-        <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.APT.icon.src} alt="" />
-        </LogoBox>
-      );
     case "BTC":
       return (
         <LogoBox size={size}>
@@ -96,18 +90,6 @@ export function getSizedTokenLogo(token: string, size = 32) {
       return (
         <LogoBox size={size}>
           <Image width={24} height={24} src={CURRENCIES_META_DATA.SOL.icon.src} alt="" />
-        </LogoBox>
-      );
-    case "TON":
-      return (
-        <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.TON.icon.src} alt="" />
-        </LogoBox>
-      );
-    case "TRX":
-      return (
-        <LogoBox size={size}>
-          <Image width={24} height={24} src={CURRENCIES_META_DATA.TRX.icon.src} alt="" />
         </LogoBox>
       );
   }
@@ -141,13 +123,10 @@ const TOKEN_LOGO_PRESETS = [
   "LP",
   "POINTS",
   "POINT",
-  "APT",
   "BTC",
   "BNB",
   "ETH",
-  "SOL",
-  "TON",
-  "TRX"
+  "SOL"
 ] as const;
 
 export const TOKEN_LOGOS_MAP: Record<string, ReactNode> = TOKEN_LOGO_PRESETS.reduce(
@@ -172,11 +151,8 @@ export const TOKEN_COLORS_MAP: Record<string, string> = {
   LARYNX: "bg-gradient-to-r from-[#1c8798] to-[#1c8798]/60",
   LP: "bg-gradient-to-r from-[#529fab] to-[#529fab]/60",
   POINTS: "bg-gradient-to-r from-[#357ce6] to-[#357ce6]/60",
-  APT: "bg-gradient-to-r from-[#06F7F7] to-[#06F7F7]/60",
   BNB: "bg-gradient-to-r from-[#f7931a] to-[#f7931a]/60",
   BTC: "bg-gradient-to-r from-[#F0B90B] to-[#F0B90B]/60",
   ETH: "bg-gradient-to-r from-[#c6c5d4] to-[#c6c5d4]/60",
-  SOL: "bg-gradient-to-r from-[#9945FF] to-[#14F195]/60",
-  TON: "bg-gradient-to-r from-[#0098EA] to-[#0098EA]/60",
-  TRX: "bg-gradient-to-r from-[#dd2200] to-[#dd2200]/60"
+  SOL: "bg-gradient-to-r from-[#9945FF] to-[#14F195]/60"
 };

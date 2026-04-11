@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { OrdersDataItem } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 function formatDate(date: Date) {
   return date.toISOString().replace(/\.\d{3}Z$/, "");
@@ -18,7 +18,7 @@ export function getTradeHistoryQueryOptions(
   return queryOptions({
     queryKey: ["market", "trade-history", limit, start.getTime(), end.getTime()],
     queryFn: () =>
-      CONFIG.hiveClient.call("condenser_api", "get_trade_history", [
+      callRPC("condenser_api.get_trade_history", [
         formatDate(start),
         formatDate(end),
         limit,

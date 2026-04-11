@@ -7,13 +7,14 @@ import { useGlobalStore } from "@/core/global-store";
 import { appleSvg, desktopSvg, eyeBoldSvg, eyeSvg, googleSvg } from "@ui/svg";
 import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
-import { Market } from "@/app/_components/market-data/market";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { DownloadTrigger } from "@/app/_components/download-trigger";
 
-interface MarketDataProps {
-  global: Global;
-}
+const Market = dynamic(
+  () => import("@/app/_components/market-data/market").then((m) => ({ default: m.Market })),
+  { ssr: false }
+);
 
 export function MarketData() {
   const theme = useGlobalStore((s) => s.theme);

@@ -2,7 +2,6 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import { useCallback, useMemo, useState } from "react";
 import { Advanced } from "../_types";
 import useMount from "react-use/lib/useMount";
-import { useThreeSpeakManager } from "./three-speak-manager";
 import { PREFIX } from "@/utils/local-storage";
 import { BeneficiaryRoute, RewardType } from "@/entities";
 import { SUBMIT_DESCRIPTION_MAX_LENGTH } from "@/app/submit/_consts";
@@ -31,8 +30,6 @@ export function useAdvancedManager() {
     PREFIX + "_sa_rb",
     false
   );
-
-  const threeSpeakManager = useThreeSpeakManager();
 
   const applyDescription = useCallback(
     (value: string | null) => {
@@ -64,7 +61,6 @@ export function useAdvancedManager() {
       setSchedule(localAdvanced.schedule);
       setReblogSwitch(localAdvanced.reblogSwitch);
       applyDescription(localAdvanced.description);
-      threeSpeakManager.setIsNsfw(localAdvanced.isNsfw);
 
       removeLocalAdvanced();
     }

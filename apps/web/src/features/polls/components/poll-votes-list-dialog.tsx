@@ -27,8 +27,10 @@ export function PollVotesListDialog({ entry }: Props) {
     () =>
       (poll?.poll_voters ?? []).filter((vote) =>
         chosenChoice
-          ? chosenChoice ===
-            pollChoices.find((pc) => pc.choice_num === vote.choice_num)?.choice_text
+          ? vote.choices.some(
+              (cn) =>
+                chosenChoice === pollChoices.find((pc) => pc.choice_num === cn)?.choice_text
+            )
           : true
       ),
     [poll?.poll_voters, chosenChoice, pollChoices]
@@ -67,7 +69,13 @@ export function PollVotesListDialog({ entry }: Props) {
                   <div className="flex flex-col">
                     <span>{vote.name}</span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {pollChoices.find((pc) => pc.choice_num === vote.choice_num)?.choice_text}
+                      {vote.choices
+                        .map(
+                          (cn) =>
+                            pollChoices.find((pc) => pc.choice_num === cn)?.choice_text
+                        )
+                        .filter(Boolean)
+                        .join(", ")}
                     </span>
                   </div>
                 </Link>

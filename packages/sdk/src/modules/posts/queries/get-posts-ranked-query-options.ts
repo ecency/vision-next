@@ -3,6 +3,7 @@ import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 import { getPostsRanked } from "@/modules/bridge";
+import { callRPC } from "@/modules/core/hive-tx";
 
 type PageParam = {
   author: string | undefined;
@@ -24,7 +25,7 @@ export function getPostsRankedInfiniteQueryOptions(
 ) {
   return infiniteQueryOptions<Entry[], Error, Entry[], (string | number)[], PageParam>({
     queryKey: QueryKeys.posts.postsRanked(sort, tag, limit, observer),
-    queryFn: async ({ pageParam }: { pageParam: PageParam }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: PageParam; signal: AbortSignal }) => {
       if (!pageParam.hasNextPage) {
         return [];
       }
@@ -34,36 +35,42 @@ export function getPostsRankedInfiniteQueryOptions(
         sanitizedTag = "";
       }
 
-      const response = await CONFIG.hiveClient.call("bridge", "get_ranked_posts", {
+      const response = await callRPC("bridge.get_ranked_posts", {
         sort,
         start_author: pageParam.author,
         start_permlink: pageParam.permlink,
         limit,
         tag: sanitizedTag,
         observer,
-      });
+      }, undefined, undefined, signal);
 
-      if (response && Array.isArray(response)) {
-        const data = response as Entry[];
-
-        // Sort by created date unless it's "hot"
-        const sorted =
-          sort === "hot"
-            ? data
-            : data.sort(
-                (a, b) =>
-                  new Date(b.created).getTime() - new Date(a.created).getTime()
-              );
-
-        // Handle pinned entries
-        const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
-        const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
-
-        const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
-        return filterDmcaEntry(combined);
+      if (response === null || response === undefined) {
+        return [];
       }
 
-      return [];
+      if (!Array.isArray(response)) {
+        throw new Error(
+          `[SDK] get_ranked_posts returned ${typeof response} for sort=${sort}`
+        );
+      }
+
+      const data = response as Entry[];
+
+      // Sort by created date unless it's "hot"
+      const sorted =
+        sort === "hot"
+          ? data
+          : data.sort(
+              (a, b) =>
+                new Date(b.created).getTime() - new Date(a.created).getTime()
+            );
+
+      // Handle pinned entries
+      const pinnedEntry = sorted.find((s) => s.stats?.is_pinned);
+      const nonPinnedEntries = sorted.filter((s) => !s.stats?.is_pinned);
+
+      const combined = [pinnedEntry, ...nonPinnedEntries].filter((s) => !!s) as Entry[];
+      return filterDmcaEntry(combined);
     },
     enabled,
     initialPageParam: {
@@ -94,7 +101,7 @@ export function getPostsRankedQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.postsRankedPage(sort, start_author, start_permlink, limit, tag, observer),
     enabled,
-    queryFn: async () => {
+    queryFn: async ({ signal } = {} as any) => {
       let sanitizedTag = tag;
       if (CONFIG.dmcaTagRegexes.some((regex) => regex.test(tag))) {
         sanitizedTag = "";
@@ -106,7 +113,8 @@ export function getPostsRankedQueryOptions(
         start_permlink,
         limit,
         sanitizedTag,
-        observer
+        observer,
+        signal
       );
 
       return filterDmcaEntry(response ?? []) as Entry[];

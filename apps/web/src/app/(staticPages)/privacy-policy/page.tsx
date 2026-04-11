@@ -1,4 +1,6 @@
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,7 +16,9 @@ export default function Privacy() {
 
       <div className="app-content static-page privacy-page">
         <div className="static-content">
-          <h1 className="page-title">Privacy Policy</h1>
+          <h1 className="page-title" id="privacy-policy">
+            Privacy Policy
+          </h1>
           <p className="static-last-updated">Effective: August 20, 2020</p>
           <p>
             This Privacy Policy describes how this site collects, uses and discloses information,
@@ -41,7 +45,7 @@ export default function Privacy() {
             If you are visiting this site from the European Union (EU), see our Notice to EU Data
             Subjects below for our legal bases for processing and transfer of your data.
           </p>
-          <h2>WHAT WE COLLECT</h2>
+          <h2 id="what-we-collect">WHAT WE COLLECT</h2>
           <p>We get information about you in a range of ways.</p>
           <p>Information You Give Us. Information we collect from you includes:</p>
           <p>IP address;</p>
@@ -59,7 +63,7 @@ export default function Privacy() {
             wallet seed. Never trust anyone or any site that asks you to enter your private keys or
             wallet seed.
           </p>
-          <h2>USE OF PERSONAL INFORMATION</h2>
+          <h2 id="use-of-personal-information">USE OF PERSONAL INFORMATION</h2>
           <p>To provide our service we will use your personal information in the following ways:</p>
           <p>To enable you to access and use the Services</p>
           <p>To comply with law</p>
@@ -80,7 +84,7 @@ export default function Privacy() {
             out of receiving any, or all, of these communications from us by following the
             unsubscribe or instructions provided in any email send.
           </p>
-          <h2>SHARING OF PERSONAL INFORMATION</h2>
+          <h2 id="sharing-of-personal-information">SHARING OF PERSONAL INFORMATION</h2>
           <p>
             We do not share or sell the personal information that you provide us with other
             organizations without your express consent, except as described in this Privacy Policy.
@@ -115,7 +119,7 @@ export default function Privacy() {
             recipient entity or entities.
           </p>
           <p>We may also share aggregated and/or anonymized data with others for their own uses.</p>
-          <h2>INTERNATIONAL TRANSFER</h2>
+          <h2 id="international-transfer">INTERNATIONAL TRANSFER</h2>
           <p>
             The Company may have offices outside of the EU and may have affiliates and service
             providers in the United States and in other countries. Your personal information may be
@@ -127,7 +131,7 @@ export default function Privacy() {
             EU users should read the important information provided below about transfer of personal
             information outside of the European Economic Area (EEA).
           </p>
-          <h2>HOW INFORMATION IS SECURED</h2>
+          <h2 id="how-information-is-secured">HOW INFORMATION IS SECURED</h2>
           <p>
             We retain information we collect as long as it is necessary and relevant to fulfill the
             purposes outlined in this privacy policy. In addition, we retain personal information to
@@ -154,18 +158,18 @@ export default function Privacy() {
             of any password, user ID or other form of authentication involved in obtaining access to
             password protected or secure areas of any of our digital services.
           </p>
-          <h2>INFORMATION CHOICES AND CHANGES</h2>
+          <h2 id="information-choices-and-changes">INFORMATION CHOICES AND CHANGES</h2>
           <p>Accessing, Updating, Correcting, and Deleting your Information</p>
           <p>
             You may access information that you have voluntarily provided through your account on
             the Services, and review, correct, or delete it.
           </p>
-          <h2>CONTACT INFORMATION.</h2>
+          <h2 id="contact-information">CONTACT INFORMATION.</h2>
           <p>
             We welcome your comments or questions about this Policy, and you may contact us at:{" "}
             <code>info@ecency.com</code>.
           </p>
-          <h2>CHANGES TO THIS PRIVACY POLICY.</h2>
+          <h2 id="changes-to-this-privacy-policy">CHANGES TO THIS PRIVACY POLICY.</h2>
           <p>
             We may change this privacy policy at any time. We encourage you to periodically review
             this page for the latest information on our privacy practices. If we make any changes,
@@ -178,7 +182,7 @@ export default function Privacy() {
             after the posting of any modified Privacy Policy indicates your acceptance of the terms
             of the modified Privacy Policy.
           </p>
-          <h2>ELIGIBILITY</h2>
+          <h2 id="eligibility">ELIGIBILITY</h2>
           <p>
             If you are under the age of majority in your jurisdiction of residence, you may use the
             Services only with the consent of or under the supervision of your parent or legal
@@ -189,7 +193,7 @@ export default function Privacy() {
             parent or legal guardian) to inform the child that he or she cannot use the Site and
             subsequently we will delete that information.
           </p>
-          <h2>NOTICE TO CALIFORNIA RESIDENTS</h2>
+          <h2 id="notice-to-california-residents">NOTICE TO CALIFORNIA RESIDENTS</h2>
           <p>
             Under California Civil Code Section 1789.3, California users are entitled to the
             following consumer rights notice: California residents may reach the Complaint
@@ -197,24 +201,26 @@ export default function Privacy() {
             Consumer Affairs by mail at 1625 North Market Blvd., Sacramento, CA 95834, or by
             telephone at (916) 445-1254 or (800) 952-5210.
           </p>
-          <h2>NOTICE TO EU DATA SUBJECTS</h2>
-          <h4>Personal Information</h4>
+          <h2 id="notice-to-eu-data-subjects">NOTICE TO EU DATA SUBJECTS</h2>
+          <h4 id="personal-information">Personal Information</h4>
           <p>
             With respect to EU data subjects, &quot;personal information&quot; as used in this
             Privacy Policy, is equivalent to &quot;personal data&quot; as defined in the European
             Union General Data Protection Regulation (GDPR).
           </p>
-          <h4>Legal Bases for Processing</h4>
+          <h4 id="legal-bases-for-processing">Legal Bases for Processing</h4>
           <p>
             We only use your personal information as permitted by law. We are required to inform you
             of the legal bases of our processing of your personal information, which are described
             in the table below. If you have questions about the legal bases under which we process
             your personal information, contact us at info@ecency.com.
           </p>
-          <h4>Processing Purpose</h4>
-          <h4>Legal Basis</h4>
-          <h4>For compliance, fraud prevention, and safety</h4>
-          <h4>To provide our service</h4>
+          <h4 id="processing-purpose">Processing Purpose</h4>
+          <h4 id="legal-basis">Legal Basis</h4>
+          <h4 id="for-compliance-fraud-prevention-and-safety">
+            For compliance, fraud prevention, and safety
+          </h4>
+          <h4 id="to-provide-our-service">To provide our service</h4>
           <p>
             These processing activities constitute our legitimate interests. We make sure we
             consider and balance any potential impacts on you (both positive and negative) and your
@@ -223,13 +229,13 @@ export default function Privacy() {
             any adverse impact on you (unless we have your consent or are otherwise required or
             permitted to by law).
           </p>
-          <h4>With your consent</h4>
+          <h4 id="with-your-consent">With your consent</h4>
           <p>
             Where our use of your personal information is based upon your consent, you have the
             right to withdraw it anytime in the manner indicated in the Service or by contacting us
             at info@ecency.com
           </p>
-          <h4>Use for New Purposes</h4>
+          <h4 id="use-for-new-purposes">Use for New Purposes</h4>
           <p>
             We may use your personal information for reasons not described in this Privacy Policy,
             where we are permitted by law to do so and where the reason is compatible with the
@@ -238,7 +244,7 @@ export default function Privacy() {
             use. If we have relied upon your consent for a particular use of your personal
             information, we will seek your consent for any unrelated purpose.
           </p>
-          <h4>Your Rights</h4>
+          <h4 id="your-rights">Your Rights</h4>
           <p>
             Under the GDPR, you have certain rights regarding your personal information. You may ask
             us to take the following actions in relation to your personal information that we hold:

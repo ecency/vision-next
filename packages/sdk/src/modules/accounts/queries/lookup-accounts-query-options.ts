@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Lookup accounts by username prefix
@@ -12,7 +12,7 @@ export function lookupAccountsQueryOptions(query: string, limit = 50) {
   return queryOptions({
     queryKey: QueryKeys.accounts.lookup(query, limit),
     queryFn: () =>
-      CONFIG.hiveClient.database.call("lookup_accounts", [
+      callRPC("condenser_api.lookup_accounts", [
         query,
         limit,
       ]) as Promise<string[]>,

@@ -1,4 +1,4 @@
-import type { Operation } from '@hiveio/dhive';
+import type { Operation } from '@ecency/hive-tx';
 import {
   HIVESIGNER_CLIENT_ID,
   HIVESIGNER_OAUTH_URL,

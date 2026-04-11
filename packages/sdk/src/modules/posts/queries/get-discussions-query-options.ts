@@ -1,8 +1,9 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
 import { filterDmcaEntry } from "../utils/filter-dmca-entries";
 import { getDiscussion } from "@/modules/bridge";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export enum SortOrder {
   trending = "trending",
@@ -112,7 +113,7 @@ export function getDiscussionsQueryOptions(
         return [];
       }
 
-      const response = await CONFIG.hiveClient.call("bridge", "get_discussion", {
+      const response = await callRPC("bridge.get_discussion", {
         author: entry.author,
         permlink: entry.permlink,
         observer: observer || entry.author,

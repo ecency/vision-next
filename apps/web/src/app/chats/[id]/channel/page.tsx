@@ -2,8 +2,6 @@ import { PagesMetadataGenerator } from "@/features/metadata";
 import { Metadata, ResolvingMetadata } from "next";
 import { CommunityChannelClient } from "./_components/community-channel-client";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata(
   _props: unknown,
   _parent: ResolvingMetadata

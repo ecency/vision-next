@@ -22,7 +22,8 @@ app.use('*', secureHeaders());
 app.use('*', cors({
   origin: ['https://ecency.com', 'http://localhost:3000'],
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'x-payment'],
+  exposeHeaders: ['x-payment', 'x-payment-response'],
 }));
 
 // Health check

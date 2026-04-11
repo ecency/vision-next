@@ -7,9 +7,7 @@ import { getRelationshipBetweenAccountsQueryOptions, useAccountRelationsUpdate }
 import { getSdkAuthContext } from "@/utils";
 import { getUser } from "@/utils/user-token";
 import { useQuery } from "@tanstack/react-query";
-import { UilBell, UilBellSlash } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
-import { StyledTooltip } from "@ui/tooltip";
 import i18next from "i18next";
 
 interface Props {
@@ -44,23 +42,19 @@ function MuteButton({ disabled, following }: ButtonProps) {
 
   return activeUser?.username !== following ? (
     <LoginRequired>
-      <StyledTooltip
-        content={
-          data?.ignores === true ? i18next.t("entry-menu.unmute") : i18next.t("entry-menu.mute")
-        }
+      <Button
+        outline={true}
+        isLoading={isPending}
+        size="sm"
+        className="mr-1"
+        disabled={disabled}
+        onClick={() => updateRelation("toggle-ignore")}
+        appearance={data?.ignores === true ? "secondary" : "primary"}
       >
-        <Button
-          outline={true}
-          isLoading={isPending}
-          size="sm"
-          noPadding={true}
-          className="w-[32px] mr-1"
-          disabled={disabled}
-          onClick={() => updateRelation("toggle-ignore")}
-          appearance={data?.ignores === true ? "secondary" : "primary"}
-          icon={data?.ignores === true ? <UilBell /> : <UilBellSlash />}
-        />
-      </StyledTooltip>
+        {data?.ignores === true
+          ? i18next.t("entry-menu.unmute")
+          : i18next.t("entry-menu.mute")}
+      </Button>
     </LoginRequired>
   ) : (
     <></>

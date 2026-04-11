@@ -4,7 +4,7 @@ import { Button, ButtonProps } from "@ui/button";
 import { uploadSvg } from "@ui/svg";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { uploadImage } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
@@ -26,32 +26,37 @@ export function ImageUploadButton({ onBegin, onEnd, size = "sm", appearance, cla
   const [inProgress, setInProgress] = useState(false);
 
   const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      // @ts-ignore
-      const files = [...e.target.files];
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
 
-      if (files.length === 0) {
+      if (!files || files.length === 0) {
         return;
       }
 
-      const [file] = files;
+      const file = files[0];
+
+      if (!activeUser) {
+        error(i18next.t("g.login"));
+        return;
+      }
+
       onBegin();
-
       setInProgress(true);
-      let token = getAccessToken(activeUser!.username);
 
-      if (token) {
-        uploadImage(file, token)
-          .then((r) => {
-            onEnd(r.url);
-            success(i18next.t("image-upload-button.uploaded"));
-          })
-          .catch(() => {
-            error(i18next.t("g.server-error"));
-          })
-          .finally(() => setInProgress(false));
-      } else {
-        error(i18next.t("editor-toolbar.image-error-cache"));
+      try {
+        const token = await ensureValidToken(activeUser.username);
+
+        if (!token) {
+          error(i18next.t("editor-toolbar.image-error-cache"));
+          return;
+        }
+
+        const r = await uploadImage(file, token);
+        onEnd(r.url);
+        success(i18next.t("image-upload-button.uploaded"));
+      } catch {
+        error(i18next.t("g.server-error"));
+      } finally {
         setInProgress(false);
       }
     },

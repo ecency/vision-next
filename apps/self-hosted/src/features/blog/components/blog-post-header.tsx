@@ -1,10 +1,12 @@
 'use client';
 
 import type { Entry } from '@ecency/sdk';
-import { UilComment, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
+import { UilComment, UilEdit, UilHeart, UilRedo } from '@tooni/iconscout-unicons-react';
 import { useMemo } from 'react';
+import { Link } from '@tanstack/react-router';
 import { formatRelativeTime, InstanceConfigManager, t } from '@/core';
 import { UserAvatar } from '@/features/shared/user-avatar';
+import { useIsBlogOwner } from '@/features/auth/hooks';
 import { TextToSpeechButton } from './text-to-speech-button';
 
 interface Props {
@@ -51,6 +53,7 @@ function calculateReadTime(body: string): number {
 }
 
 export function BlogPostHeader({ entry }: Props) {
+  const isBlogOwner = useIsBlogOwner();
   const entryData = entry.original_entry || entry;
   const instanceType = InstanceConfigManager.getConfigValue(
     ({ configuration }) => configuration.instanceConfiguration.type ?? 'blog',
@@ -125,11 +128,22 @@ export function BlogPostHeader({ entry }: Props) {
         <span>
           {readTime} {t('minRead')}
         </span>
-        <TextToSpeechButton
-          text={entryData.body}
-          title={entryData.title}
-          className="ml-auto"
-        />
+        <span className="ml-auto flex items-center gap-2">
+          <TextToSpeechButton
+            text={entryData.body}
+            title={entryData.title}
+          />
+          {isBlogOwner && (
+            <Link
+              to="/edit/$author/$permlink"
+              params={{ author: entryData.author, permlink: entryData.permlink }}
+              className="flex items-center gap-1 px-2 py-1 rounded hover:bg-theme-secondary transition-colors text-theme-muted hover:text-theme-primary"
+            >
+              <UilEdit className="w-4 h-4" />
+              <span className="text-xs sm:text-sm">{t('edit_post')}</span>
+            </Link>
+          )}
+        </span>
       </div>
 
       {tags.length > 0 && (

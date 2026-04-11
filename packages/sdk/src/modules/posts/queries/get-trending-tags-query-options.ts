@@ -1,13 +1,13 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { TrendingTag } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getTrendingTagsQueryOptions(limit = 20) {
   return infiniteQueryOptions({
     queryKey: QueryKeys.posts.trendingTags(),
     queryFn: async ({ pageParam: { afterTag } }) =>
-      CONFIG.hiveClient.database
-        .call("get_trending_tags", [afterTag, limit])
+      callRPC("condenser_api.get_trending_tags", [afterTag, limit])
         .then((tags: TrendingTag[]) =>
           tags
             .filter((x) => x.name !== "")
@@ -15,9 +15,10 @@ export function getTrendingTagsQueryOptions(limit = 20) {
             .map((x) => x.name)
         ),
     initialPageParam: { afterTag: "" },
-    getNextPageParam: (lastPage) => ({
-      afterTag: lastPage?.[lastPage?.length - 1],
-    }),
+    getNextPageParam: (lastPage) =>
+      lastPage?.length > 0
+        ? { afterTag: lastPage[lastPage.length - 1] }
+        : undefined,
     staleTime: 60 * 60 * 1000, // 1 hour — tags change slowly
   });
 }

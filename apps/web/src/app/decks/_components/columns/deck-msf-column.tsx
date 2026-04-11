@@ -1,6 +1,6 @@
 import React from "react";
 import { GenericDeckColumn } from "./generic-deck-column";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import i18next from "i18next";
 import { SwapMode } from "@/features/market";
 

@@ -218,7 +218,7 @@ describe('profile-metadata utilities', () => {
         tokens: []
       })
 
-      expect(result.tokens).toBeUndefined()
+      expect(result.tokens).toEqual([])
     })
 
     it('should preserve tokens from existing profile when not updating', () => {

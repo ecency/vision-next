@@ -1,7 +1,6 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
 import { AccountProfile, FullAccount } from "../types";
 import {
@@ -86,9 +85,9 @@ export function useAccountUpdate(
         [
           "account_update2",
           {
-            account: username,
+            account: username!,
             json_metadata: "",
-            extensions: [],
+            extensions: [] as [],
             posting_json_metadata: JSON.stringify({
               profile,
             }),
@@ -105,7 +104,7 @@ export function useAccountUpdate(
             return data;
           }
 
-          const obj = R.clone(data);
+          const obj = JSON.parse(JSON.stringify(data)) as FullAccount;
           obj.profile = buildProfileMetadata({
             existingProfile: extractAccountProfile(data),
             profile: variables.profile,

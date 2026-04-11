@@ -57,11 +57,11 @@ export function Promote({ onHide, entry }: Props) {
   const { data: paths } = useQuery(getSearchPathQueryOptions(debouncedPathQuery));
 
   const { mutateAsync: promote, isPending: isPromoting } = usePromoteMutation();
-  const { mutateAsync: next, error: postError } = usePreCheckPromote(path, () => setStep(2));
+  const { mutateAsync: preCheck, error: postError, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
 
   const inProgress = useMemo(
-    () => isPromoting || isPricesLoading,
-    [isPromoting, isPricesLoading]
+    () => isPromoting || isPricesLoading || isPreCheckPending,
+    [isPromoting, isPricesLoading, isPreCheckPending]
   );
 
   const isValidPath = useCallback((p: string) => {
@@ -109,11 +109,12 @@ export function Promote({ onHide, entry }: Props) {
     setPathQuery(path);
   }, []);
 
-  const sign = useCallback(async () => {
+  const handleSubmit = useCallback(async () => {
+    await preCheck(path);
     const [author, permlink] = path.replace("@", "").split("/");
     await promote({ author, permlink, duration });
-    setStep(3);
-  }, [duration, path, promote]);
+    setStep(2);
+  }, [preCheck, duration, path, promote]);
 
   const finish = () => onHide();
 
@@ -197,7 +198,7 @@ export function Promote({ onHide, entry }: Props) {
                 <div className="grid grid-cols-12 mb-4">
                   <div className="col-span-12 sm:col-span-2 flex items-center" />
                   <div className="col-span-12 sm:col-span-10">
-                    <Button onClick={() => next()} disabled={!canSubmit || inProgress}>
+                    <Button onClick={handleSubmit} disabled={!canSubmit || inProgress}>
                       {i18next.t("g.next")}
                     </Button>
                   </div>
@@ -210,24 +211,6 @@ export function Promote({ onHide, entry }: Props) {
             <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
               <div className="transaction-form-header">
                 <div className="step-no">2</div>
-                <div className="box-titles">
-                  <div className="main-title">{i18next.t("trx-common.sign-title")}</div>
-                  <div className="sub-title">{i18next.t("trx-common.sign-sub-title")}</div>
-                </div>
-              </div>
-              {inProgress && <LinearProgress />}
-              <div className="transaction-form-body">
-                <Button onClick={sign} disabled={inProgress}>
-                  {i18next.t("trx-common.sign-title")}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
-              <div className="transaction-form-header">
-                <div className="step-no">3</div>
                 <div className="box-titles">
                   <div className="main-title">{i18next.t("trx-common.success-title")}</div>
                   <div className="sub-title">{i18next.t("trx-common.success-sub-title")}</div>

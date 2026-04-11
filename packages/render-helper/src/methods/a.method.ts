@@ -14,6 +14,7 @@ import {
   POST_REGEX,
   CCC_REGEX,
   SPEAK_REGEX,
+  SPEAK_AUDIO_REGEX,
   TWITCH_REGEX,
   TWITTER_REGEX,
   VIMEO_REGEX,
@@ -32,7 +33,7 @@ import { proxifyImageSrc } from '../proxify-image-src'
 import { removeChildNodes } from './remove-child-nodes.method'
 import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink } from '../helper'
 import { createImageHTML } from "./img.method";
-import { SeoContext } from '../types'
+import { RenderOptions, SeoContext } from '../types'
 
 const NOFOLLOW_REPUTATION_THRESHOLD = 40;
 const FOLLOW_PAYOUT_THRESHOLD = 5;
@@ -131,7 +132,7 @@ const addLineBreakBeforePostLink = (el: HTMLElement, forApp: boolean, isInline: 
   }
 }
 
-export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string = 'ecency.com', seoContext?: SeoContext, renderOptions?: RenderOptions): void {
   if (!el || !el.parentNode) {
     return
   }
@@ -144,8 +145,12 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
 
   const className = el.getAttribute('class')
 
-  // Don't touch user and hashtag links
-  if (['markdown-author-link', 'markdown-tag-link'].indexOf(className) !== -1) {
+  // Don't touch user and hashtag links (original or enhanced)
+  if (className && (
+    ['markdown-author-link', 'markdown-tag-link'].includes(className) ||
+    className.includes('er-author') ||
+    className.includes('er-tag')
+  )) {
     return
   }
 
@@ -594,16 +599,31 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
       el.setAttribute('data-start-time', startTime);
     }
 
-    const thumbImg = el.ownerDocument.createElement('img')
-    thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-    thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-    thumbImg.setAttribute('src', thumbnail)
+    if (renderOptions?.embedVideosDirectly) {
+      const wrapper = el.ownerDocument.createElement('span')
+      wrapper.setAttribute('class', 'er-youtube-frame')
+      wrapper.setAttribute('style', 'display:block')
+      const iframe = el.ownerDocument.createElement('iframe')
+      iframe.setAttribute('class', 'youtube-player')
+      iframe.setAttribute('src', embedSrc)
+      iframe.setAttribute('title', 'YouTube video')
+      iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share')
+      iframe.setAttribute('allowfullscreen', '')
+      wrapper.appendChild(iframe)
+      el.appendChild(wrapper)
+      el.setAttribute('class', 'markdown-video-link markdown-video-link-youtube er-youtube')
+    } else {
+      const thumbImg = el.ownerDocument.createElement('img')
+      thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+      thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+      thumbImg.setAttribute('src', thumbnail)
 
-    const play = el.ownerDocument.createElement('span')
-    play.setAttribute('class', 'markdown-video-play')
+      const play = el.ownerDocument.createElement('span')
+      play.setAttribute('class', 'markdown-video-play')
 
-    el.appendChild(thumbImg)
-    el.appendChild(play)
+      el.appendChild(thumbImg)
+      el.appendChild(play)
+    }
 
     return
   }
@@ -780,26 +800,62 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
         if (el.textContent.trim() === href) {
           el.textContent = ''
         }
-        if (imgEls.length === 1) {
-          const src = imgEls[0].getAttribute('src')
-          if (src) {
-            const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
-            const thumbImg = el.ownerDocument.createElement('img')
-            thumbImg.setAttribute('class', 'no-replace video-thumbnail')
-            thumbImg.setAttribute('itemprop', 'thumbnailUrl')
-            thumbImg.setAttribute('src', thumbnail)
-            el.appendChild(thumbImg)
-            // Remove image.
-            el.removeChild(imgEls[0])
-          }
-        }
 
-        const play = el.ownerDocument.createElement('span')
-        play.setAttribute('class', 'markdown-video-play')
-        el.appendChild(play)
+        if (renderOptions?.embedVideosDirectly) {
+          // Use span (not div) to avoid invalid nesting inside <p> tags
+          const wrapper = el.ownerDocument.createElement('span')
+          wrapper.setAttribute('class', 'er-speak-frame')
+          wrapper.setAttribute('style', 'display:block')
+          const iframe = el.ownerDocument.createElement('iframe')
+          iframe.setAttribute('class', 'speak-iframe')
+          iframe.setAttribute('src', videoHref)
+          iframe.setAttribute('title', '3Speak video')
+          iframe.setAttribute('allow', 'accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share')
+          iframe.setAttribute('allowfullscreen', '')
+          wrapper.appendChild(iframe)
+          el.appendChild(wrapper)
+          el.setAttribute('class', 'markdown-video-link markdown-video-link-speak er-speak')
+        } else {
+          if (imgEls.length === 1) {
+            const src = imgEls[0].getAttribute('src')
+            if (src) {
+              const thumbnail = proxifyImageSrc(src.replace(/\s+/g, ''), 0, 0, 'match')
+              const thumbImg = el.ownerDocument.createElement('img')
+              thumbImg.setAttribute('class', 'no-replace video-thumbnail')
+              thumbImg.setAttribute('itemprop', 'thumbnailUrl')
+              thumbImg.setAttribute('src', thumbnail)
+              el.appendChild(thumbImg)
+              // Remove image.
+              el.removeChild(imgEls[0])
+            }
+          }
+
+          const play = el.ownerDocument.createElement('span')
+          play.setAttribute('class', 'markdown-video-play')
+          el.appendChild(play)
+        }
         return
       }
     }
+  }
+
+  // Detect 3Speak Audio
+  if (href.match(SPEAK_AUDIO_REGEX) && el.textContent.trim() === href) {
+    el.setAttribute('class', 'markdown-audio-link markdown-audio-link-speak')
+    el.removeAttribute('href')
+
+    const embedSrc = /[?&]iframe=/.test(href) ? href : `${href}&iframe=1`
+    const finalSrc = /[?&]mode=/.test(embedSrc) ? embedSrc : `${embedSrc}&mode=compact`
+
+    el.textContent = ''
+
+    const ifr = el.ownerDocument.createElement('iframe')
+    ifr.setAttribute('frameborder', '0')
+    ifr.setAttribute('src', finalSrc)
+    ifr.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups')
+    el.appendChild(ifr)
+
+    return
   }
 
   // If tweets

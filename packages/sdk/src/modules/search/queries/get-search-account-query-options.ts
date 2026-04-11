@@ -1,27 +1,26 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core";
-import { AccountSearchResult } from "../types/account-search-result";
+import { QueryKeys } from "@/modules/core";
+import { getProfiles } from "@/modules/bridge";
+import { Profile } from "@/modules/accounts/types";
+import { callRPC } from "@/modules/core/hive-tx";
 
-export function getSearchAccountQueryOptions(q: string, limit = 5, random = false) {
+export function getSearchAccountQueryOptions(q: string, limit = 5) {
+  const normalized = q.trim();
+
   return queryOptions({
-    queryKey: ["search", "account", q, limit],
-    queryFn: async () => {
-      const data = { q, limit, random: +random };
+    queryKey: QueryKeys.search.account(normalized, limit),
+    queryFn: async (): Promise<Profile[]> => {
+      const usernames = (await callRPC("condenser_api.lookup_accounts", [
+        normalized,
+        limit,
+      ])) as string[];
 
-      const response = await fetch(CONFIG.privateApiHost + "/search-api/search-account", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to search accounts: ${response.status}`);
+      if (usernames.length === 0) {
+        return [];
       }
 
-      return response.json() as Promise<AccountSearchResult[]>;
+      return getProfiles(usernames);
     },
-    enabled: !!q,
+    enabled: !!normalized,
   });
 }

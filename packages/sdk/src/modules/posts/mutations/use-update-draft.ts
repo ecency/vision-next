@@ -31,9 +31,9 @@ export function useUpdateDraft(
     },
     onSuccess: () => {
       onSuccess?.();
-      getQueryClient().invalidateQueries({
-        queryKey: QueryKeys.posts.drafts(username),
-      });
+      const qc = getQueryClient();
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) });
+      qc.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
     },
     onError,
   });

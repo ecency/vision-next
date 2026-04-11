@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import './globals.css';
 import { InstanceConfigManager } from './core';
+import { getRssFeedUrl } from './utils/rss-feed-url';
 import { routeTree } from './routeTree.gen';
 
 // Get config once and extract all needed values
@@ -125,6 +126,33 @@ if (meta.keywords) {
   keywordsMeta.setAttribute('content', meta.keywords);
 }
 
+// Set base OG meta tags
+const setMetaTag = (attr: string, attrValue: string, content: string) => {
+  let tag = document.querySelector(`meta[${attr}="${attrValue}"]`) as HTMLMetaElement | null;
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute(attr, attrValue);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('content', content);
+};
+
+if (meta.title) {
+  setMetaTag('property', 'og:title', meta.title);
+  setMetaTag('property', 'og:site_name', meta.title);
+  setMetaTag('name', 'twitter:title', meta.title);
+}
+if (meta.description) {
+  setMetaTag('property', 'og:description', meta.description);
+  setMetaTag('name', 'twitter:description', meta.description);
+}
+if (meta.logo) {
+  setMetaTag('property', 'og:image', meta.logo);
+  setMetaTag('name', 'twitter:image', meta.logo);
+}
+setMetaTag('property', 'og:type', 'website');
+setMetaTag('name', 'twitter:card', 'summary');
+
 // Set favicon
 if (meta.favicon) {
   let faviconLink = document.querySelector(
@@ -136,6 +164,20 @@ if (meta.favicon) {
     document.head.appendChild(faviconLink);
   }
   faviconLink.setAttribute('href', meta.favicon);
+}
+
+// Add RSS feed auto-discovery link
+const rssUrl = getRssFeedUrl(instanceType, instanceConfiguration.username, instanceConfiguration.communityId);
+const existingRssLink = document.querySelector('link[rel="alternate"][type="application/rss+xml"]') as HTMLLinkElement | null;
+if (rssUrl) {
+  const rssLink = existingRssLink ?? document.createElement('link');
+  rssLink.setAttribute('rel', 'alternate');
+  rssLink.setAttribute('type', 'application/rss+xml');
+  rssLink.setAttribute('title', meta.title || 'RSS Feed');
+  rssLink.setAttribute('href', rssUrl);
+  if (!existingRssLink) document.head.appendChild(rssLink);
+} else if (existingRssLink) {
+  existingRssLink.remove();
 }
 
 // Render the app

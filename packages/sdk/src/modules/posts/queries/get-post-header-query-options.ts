@@ -1,12 +1,13 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Entry } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getPostHeaderQueryOptions(author: string, permlink: string) {
   return queryOptions({
     queryKey: QueryKeys.posts.postHeader(author, permlink),
     queryFn: async () => {
-      return CONFIG.hiveClient.call("bridge", "get_post_header", {
+      return callRPC("bridge.get_post_header", {
         author,
         permlink,
       }) as Promise<Entry | null>;

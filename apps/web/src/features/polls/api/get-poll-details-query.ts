@@ -19,7 +19,7 @@ export interface GetPollDetailsQueryResponse {
   }[];
   poll_stats?: { total_voting_accounts_num: number; total_hive_hp_incl_proxied: number | null };
   poll_trx_id: string;
-  poll_voters?: { name: string; choice_num: number }[];
+  poll_voters?: { name: string; choices: number[] }[];
   post_body: string;
   post_title: string;
   max_choices_voted?: number;
@@ -37,7 +37,7 @@ export function useGetPollDetailsQuery(entry?: Entry) {
     queryFn: () =>
       axios
         .get(
-          `https://polls.ecency.com/rpc/poll?author=eq.${entry!!.author}&permlink=eq.${
+          `https://polls.hivehub.dev/rpc/poll?author=eq.${entry!!.author}&permlink=eq.${
             entry!!.permlink
           }`
         )

@@ -19,7 +19,7 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(tag.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(true)
+      expect(tag.classList.contains('er-tag-enhanced')).toBe(true)
     })
 
     it('should enhance multiple tag links', () => {
@@ -36,8 +36,8 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(tag1.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(true)
-      expect(tag2.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(true)
+      expect(tag1.classList.contains('er-tag-enhanced')).toBe(true)
+      expect(tag2.classList.contains('er-tag-enhanced')).toBe(true)
     })
 
     it('should not affect non-tag links', () => {
@@ -48,7 +48,7 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(regularLink.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(false)
+      expect(regularLink.classList.contains('er-tag-enhanced')).toBe(false)
     })
   })
 
@@ -61,7 +61,7 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(tag.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(false)
+      expect(tag.classList.contains('er-tag-enhanced')).toBe(false)
     })
 
     it('should skip links in markdown-view-pure', () => {
@@ -72,7 +72,7 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(tag.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(false)
+      expect(tag.classList.contains('er-tag-enhanced')).toBe(false)
     })
   })
 
@@ -95,7 +95,7 @@ describe('applyTagLinks', () => {
 
       applyTagLinks(container)
 
-      expect(tag.classList.contains('ecency-renderer-tag-link-enhanced')).toBe(true)
+      expect(tag.classList.contains('er-tag-enhanced')).toBe(true)
     })
   })
 })

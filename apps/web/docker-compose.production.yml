@@ -22,10 +22,21 @@ services:
 
   web:
     image: ecency/vision-next:latest
+    stop_grace_period: 30s
     deploy:
       replicas: 4
+      update_config:
+        parallelism: 1
+        delay: 15s
+        order: start-first
+        failure_action: rollback
+        monitor: 30s
+      rollback_config:
+        parallelism: 1
+        order: start-first
     environment:
       - USE_PRIVATE
+      - INTERNAL_API_HOST=http://vapi:4000
       - HIVESIGNER_SECRET
       - NODE_ENV
       - PLAUSIBLE_API_KEY
@@ -35,6 +46,7 @@ services:
       - MATTERMOST_ADMIN_TOKEN
       - MATTERMOST_TEAM_ID
       - MATTERMOST_WS_ALLOWED_ORIGINS
+      - THREESPEAK_EMBED_API_KEY
     restart: always
     ports:
       - "3000:3000"

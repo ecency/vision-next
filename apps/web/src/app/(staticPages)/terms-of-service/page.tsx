@@ -1,5 +1,7 @@
 import React from "react";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -16,8 +18,10 @@ export default function TermsOfService() {
 
       <div className="app-content static-page tos-page">
         <div className="static-content">
-          <h1 className="page-title">Terms Of Service</h1>
-          <p className="static-last-updated">Last Updated August 20, 2020</p>
+          <h1 className="page-title" id="terms-of-service">
+            Terms Of Service
+          </h1>
+          <p className="static-last-updated">Last Updated March 13, 2026</p>
           <p>
             This agreement (the &quot;Agreement&quot;) between you and this site’s operators
             (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) sets out your rights to access and use
@@ -33,12 +37,12 @@ export default function TermsOfService() {
             by updating the &quot;Last Updated&quot; date above or posting notice on this site. Your
             continued use of the Service will confirm your acceptance of the changes.
           </p>
-          <h2>1. Privacy Policy</h2>
+          <h2 id="privacy-policy">1. Privacy Policy</h2>
           <p>
             Please refer to our <Link href="/privacy-policy">Privacy Policy</Link> for information
             about how we collect, use, and disclose information about you.
           </p>
-          <h2>2. Eligibility</h2>
+          <h2 id="eligibility">2. Eligibility</h2>
           <p>
             The Service is not targeted toward, nor intended for use by, anyone under the age of 13.
             You must be at least 13 years of age to access or use the Service. If you are between
@@ -46,7 +50,11 @@ export default function TermsOfService() {
             access or use the Service under the supervision of a parent or legal guardian who agrees
             to be bound by this Agreement.
           </p>
-          <h2>3. Copyright and Limited License</h2>
+          <p>
+            For our dedicated rules on child protection, prohibited child exploitation content, and
+            reporting channels, see our <Link href="/child-safety">Child Safety Standards</Link>.
+          </p>
+          <h2 id="copyright-and-limited-license">3. Copyright and Limited License</h2>
           <p>
             We may retain data, text, photographs, images, video, audio, graphics, articles,
             comments, software, code, scripts, and other content supplied by us, the Hive blockchain
@@ -61,7 +69,7 @@ export default function TermsOfService() {
             will only submit Content that you have the right to post; and that you will fully comply
             with any third-party licenses relating to Content you post.
           </p>
-          <h2>4. Trademark Policy</h2>
+          <h2 id="trademark-policy">4. Trademark Policy</h2>
           <p>
             &quot;Ecency&quot;, the Ecency logo and any other product or service names, logos or
             slogans that may appear on Ecency are trademarks of Ecency and may not be copied,
@@ -82,7 +90,9 @@ export default function TermsOfService() {
             third-party applications. The Service does not originate, host, or control user content and functions
             solely as a viewer and aggregator of content publicly available through external networks and platforms.
           </p>
-          <h2>5. Assumption of Risk, Limitations on Liability.</h2>
+          <h2 id="assumption-of-risk-limitations-on-liability">
+            5. Assumption of Risk, Limitations on Liability.
+          </h2>
           <p>
             5.1. You accept and acknowledge that there are risks associated with utilizing an
             Internet-based Hive blockchain account service including, but not limited to, the risk
@@ -131,7 +141,9 @@ export default function TermsOfService() {
             caused by negligence, fraudulent misrepresentation, or any other liability which may not
             otherwise be limited or excluded under United States law.
           </p>
-          <h2>6. Agreement to Hold this Site&apos;s Operators Harmless</h2>
+          <h2 id="agreement-to-hold-this-sites-operators-harmless">
+            6. Agreement to Hold this Site&apos;s Operators Harmless
+          </h2>
           <p>
             6.1. You agree to hold harmless this site (and its operators) from any claim, demand,
             action, damage, loss, cost, or expense, including without limitation reasonable legal
@@ -145,7 +157,9 @@ export default function TermsOfService() {
             discretion, to control any action or proceeding (at our expense) and determine whether
             we will pursue a settlement of any action or proceeding.
           </p>
-          <h2>7. No Liability for Third-Party Services and Content</h2>
+          <h2 id="no-liability-for-third-party-services-and-content">
+            7. No Liability for Third-Party Services and Content
+          </h2>
           <p>
             7.1. In using our Services, you may view content or utilize services provided by third
             parties, including links to web pages and services of such parties (“Third-Party
@@ -158,7 +172,7 @@ export default function TermsOfService() {
             your use of Third-Party Content, and your interactions with third parties, is at your
             own risk.
           </p>
-          <h2>8. Account Registration</h2>
+          <h2 id="account-registration">8. Account Registration</h2>
           <p>
             8.1. You need not use a Hive blockchain account provided by us, and you can create an
             account independently of the Service. If you would like to use part of the Service, you
@@ -181,7 +195,7 @@ export default function TermsOfService() {
             theft or loss of your property. By using the Service or accessing Hive Content, you
             acknowledge these inherent risks.
           </p>
-          <h2>9. The Services</h2>
+          <h2 id="the-services">9. The Services</h2>
           <p>
             9.1. As described in more detail below, the Services, among other things, provide
             software that facilitates the submission of Hive blockchain transaction data to the Hive
@@ -256,19 +270,21 @@ export default function TermsOfService() {
             to your Hive blockchain transactions or for collecting, reporting, withholding, or
             remitting any taxes arising from any Hive blockchain transactions.
           </p>
-          <h2>10. Fees for Using the Services</h2>
+          <h2 id="fees-for-using-the-services">10. Fees for Using the Services</h2>
           <p>
             10.1. Fees Creating an Account. We do not currently charge fees for the creation of
             Accounts, however we reserve the right to do so in future, and in such case any
             applicable fees will be displayed prior to you using any Service to which a fee applies.
           </p>
-          <h2>11. No Right to Cancel And/or Reverse Hive Transactions</h2>
+          <h2 id="no-right-to-cancel-and-or-reverse-hive-transactions">
+            11. No Right to Cancel And/or Reverse Hive Transactions
+          </h2>
           <p>
             11.1. If you use a Service to which HIVE, Hive Dollars or Hive Power is transacted, you
             will not be able to change your mind once you have confirmed that you wish to proceed
             with the Service or transaction.
           </p>
-          <h2>12. Discontinuation of Services.</h2>
+          <h2 id="discontinuation-of-services">12. Discontinuation of Services.</h2>
           <p>
             12.1. We may, in our sole discretion and without cost to you, with or without prior
             notice and at any time, modify or discontinue, temporarily or permanently, any portion
@@ -280,7 +296,7 @@ export default function TermsOfService() {
             may not be able to access HIVE, Hive Dollars and Hive Power associated with any Account
             maintained in your Account if we discontinue or deprecate the Services.
           </p>
-          <h2>13. Suspension or Termination of Service.</h2>
+          <h2 id="suspension-or-termination-of-service">13. Suspension or Termination of Service.</h2>
           <p>
             13.1. We may suspend or terminate your access to the Services in our sole discretion,
             immediately and without prior notice, and may delete or deactivate your account along
@@ -290,7 +306,7 @@ export default function TermsOfService() {
             line API or a third-party tool, and will require you to have access to your backup of
             your Account data including your Account and Private Keys.
           </p>
-          <h2>14. User Conduct</h2>
+          <h2 id="user-conduct">14. User Conduct</h2>
           <p>
             14.1. When accessing or using the Services, you agree that you will not commit any
             unlawful act, and that you are solely responsible for your conduct while using our
@@ -319,7 +335,15 @@ export default function TermsOfService() {
             14.1.6. Encourage or induce any third-party to engage in any of the activities
             prohibited under this Section.
           </p>
-          <h2>15. Copyright Complaints, the DMCA, and Takedowns</h2>
+          <p>
+            Child sexual abuse material, child sexual abuse or exploitation, grooming, solicitation
+            of minors, and related conduct are strictly prohibited. See our{" "}
+            <Link href="/child-safety">Child Safety Standards</Link> for the dedicated policy and
+            reporting contact.
+          </p>
+          <h2 id="copyright-complaints-the-dmca-and-takedowns">
+            15. Copyright Complaints, the DMCA, and Takedowns
+          </h2>
           <p>
             15.1. We will respond to legitimate requests under the Digital Millennium Copyright Act
             (&quot;DMCA&quot;), and we retain the right to remove access to user content provided
@@ -335,7 +359,7 @@ export default function TermsOfService() {
           </p>
           <p>Copyright Agent</p>
           <p>
-            <code>info@ecency.com</code>
+            <code>hello@ecency.com</code>
           </p>
           <p>Please send our Copyright Agent the following information:</p>
           <p>
@@ -398,7 +422,9 @@ export default function TermsOfService() {
             user has repeatedly been charged with infringing the copyrights or other intellectual
             property rights of others.
           </p>
-          <h2>16. Third-Party Content and Legal Complaints (Non-Copyright)</h2>
+          <h2 id="third-party-content-and-legal-complaints-non-copyright">
+            16. Third-Party Content and Legal Complaints (Non-Copyright)
+          </h2>
           <p>
             Ecency is a front-end interface and content discovery platform for decentralized networks such as the Hive blockchain. Some content displayed on the Service is published through external applications or third-party platforms and is clearly attributed to its original source.
           </p>
@@ -406,7 +432,7 @@ export default function TermsOfService() {
             Ecency does not create, modify, or host this third-party content and cannot guarantee the legality, accuracy, or appropriateness of such material. Responsibility for such content lies with the original publisher.
           </p>
           <p>
-            If you believe that content visible on Ecency is unlawful, defamatory, infringes your personal rights, or violates applicable laws (excluding copyright claims, which are addressed in Section 15), you may submit a complaint to <code>info@ecency.com</code>. Please include:
+            If you believe that content visible on Ecency is unlawful, defamatory, infringes your personal rights, or violates applicable laws (excluding copyright claims, which are addressed in Section 15), you may submit a complaint to <code>hello@ecency.com</code>. Please include:
           </p>
           <ul>
             <li>Your full name and contact information</li>
@@ -421,7 +447,12 @@ export default function TermsOfService() {
           <p>
             Content moderation decisions are made at our sole discretion and do not imply liability or admission of fault.
           </p>
-          <h2>17. Indemnity</h2>
+          <p>
+            If your complaint concerns suspected CSAM, CSAE, grooming, or threats to a minor, use
+            the dedicated process described in our{" "}
+            <Link href="/child-safety">Child Safety Standards</Link>.
+          </p>
+          <h2 id="indemnity">17. Indemnity</h2>
           <p>
             Users agree to indemnify and hold harmless Ecency, its affiliates, officers, agents,
             and employees from any claim or demand, including reasonable attorneys&apos; fees, made by
@@ -436,7 +467,7 @@ export default function TermsOfService() {
             Service, your violation of this user agreement, and/or your violation of the rights of
             any third-party or person.
           </p>
-          <h2>18. Disclaimers</h2>
+          <h2 id="disclaimers">18. Disclaimers</h2>
           <p>
             To the fullest extent permitted by applicable law, the Service and the Hive Content are
             provided on an &quot;as is&quot; and &quot;as available&quot; basis, without warranties
@@ -451,7 +482,7 @@ export default function TermsOfService() {
             implied terms in contracts with consumers, so some or all the disclaimers in this
             Section may not apply to you.
           </p>
-          <h2>19. Limitation of liability</h2>
+          <h2 id="limitation-of-liability">19. Limitation of liability</h2>
           <p>
             To the fullest extent permitted by applicable law, in no event shall this site’s
             operators or any related party, including but not limited to subsidiaries, vendors, or
@@ -476,26 +507,26 @@ export default function TermsOfService() {
             Some jurisdictions do not allow the exclusion or limitation of certain damages, so some
             or all of the exclusions and limitations in this Section may not apply to you.
           </p>
-          <h2>20. Modifications to the Service</h2>
+          <h2 id="modifications-to-the-service">20. Modifications to the Service</h2>
           <p>
             We reserve the right to modify or discontinue, temporarily or permanently, the Service,
             or any features or portions of the Service, without prior notice. You agree that we will
             not be liable for any modification, suspension, or discontinuance of the Service.
           </p>
-          <h2>21. Termination</h2>
+          <h2 id="termination">21. Termination</h2>
           <p>
             We reserve the right, without notice and in our sole discretion, to terminate your
             license to access and use of the Service, which includes this site, and to block or
             prevent your future access to, and use of, the Service that we provide.
           </p>
-          <h2>22. Severability</h2>
+          <h2 id="severability">22. Severability</h2>
           <p>
             If any term, clause, or provision of this Agreement is deemed to be unlawful, void or
             for any reason unenforceable, then that term, clause or provision shall be deemed
             severable from this Agreement and shall not affect the validity and enforceability of
             any remaining provisions.
           </p>
-          <h2>23. Changes</h2>
+          <h2 id="changes">23. Changes</h2>
           <p>
             This Agreement is the entire agreement between you and us concerning the Service. It
             supersedes all prior or contemporaneous agreements between you and us. We may modify
@@ -504,7 +535,7 @@ export default function TermsOfService() {
             archive. By continuing to use the Services after a change to this agreement, you agree
             to those changes.
           </p>
-          <h2>24. Force Majeure</h2>
+          <h2 id="force-majeure">24. Force Majeure</h2>
           <p>
             We shall not be liable for any failure or delay in performance of any obligation
             under this Agreement to the extent such failure or delay is caused by events beyond
@@ -512,7 +543,7 @@ export default function TermsOfService() {
             government actions, labor conditions, internet failures, or the unavailability of the
             Hive blockchain or any other network.
           </p>
-          <h2>25. Governing Law and Dispute Resolution</h2>
+          <h2 id="governing-law-and-dispute-resolution">25. Governing Law and Dispute Resolution</h2>
           <p>
             This Agreement and any dispute arising out of or related to it shall be governed by
             the laws of the jurisdiction in which the site’s operators are established, without
@@ -520,9 +551,58 @@ export default function TermsOfService() {
             settled through binding arbitration on an individual basis, and you waive any right to
             participate in a class action or class-wide arbitration.
           </p>
-          <h2>26. Contact Information</h2>
+          <h2 id="child-safety-standards-ecency">26. Child Safety Standards (Ecency)</h2>
           <p>
-            Notices to this site’s operators should be directed to <code>info@ecency.com</code>.
+            Ecency has zero tolerance for child sexual abuse and exploitation across all Ecency
+            products and surfaces, including web and mobile applications. You may not use the Service
+            to create, upload, share, request, promote, or store child sexual abuse material
+            (&quot;CSAM&quot;) or any content or behavior that sexually exploits, endangers, or
+            harms minors (&quot;CSAE&quot;).
+          </p>
+          <p>
+            A dedicated child safety policy page is available at{" "}
+            <Link href="/child-safety">/child-safety</Link>.
+          </p>
+          <p>
+            Prohibited conduct includes, without limitation: grooming; sexualization of minors;
+            solicitation of sexual content involving minors; trafficking or exploitation of minors;
+            and any attempt to use Ecency to facilitate or normalize abuse of children.
+          </p>
+          <p>
+            We may remove content, restrict visibility, suspend features, or terminate accounts that
+            violate these standards or applicable law. We may preserve and disclose relevant
+            information to law enforcement, child-protection organizations, and regulators when
+            required or permitted by law.
+          </p>
+          <p>
+            In line with applicable child safety laws, Ecency maintains a process to report
+            confirmed CSAM to the National Center for Missing and Exploited Children (NCMEC) or the
+            relevant regional authority, as required by law.
+          </p>
+          <p>
+            Child Safety Point of Contact: <code>safety@ecency.com</code>. To report suspected CSAM,
+            CSAE, or any threat to a minor related to Ecency, contact this address with links,
+            usernames, and supporting details so we can investigate and take action.
+          </p>
+          <p>
+            This contact is also the designated representative to receive potential child safety
+            notifications from Google Play and coordinate enforcement and review actions when
+            required.
+          </p>
+          <p>
+            Users may also submit safety complaints through available in-app reporting and moderation
+            mechanisms where provided. We review child-safety reports in good faith and prioritize
+            urgent risk-of-harm cases.
+          </p>
+          <h2 id="digital-services-act-eu-redress-options">
+            27. Digital Services Act (EU) Redress Options
+          </h2>
+          <p>If you disagree with a content moderation decision made by Ecency, you may submit a complaint through email <code>hello@ecency.com</code>, available internal review or reporting mechanisms.</p>
+          <p>Users in the European Union may also refer disputes relating to moderation decisions to a certified out-of-court dispute settlement body in accordance with Article 21 of Regulation (EU) 2022/2065 (Digital Services Act).</p>
+          <p>Nothing in this section limits your right to seek judicial redress through the courts.</p>
+          <h2 id="contact-information">28. Contact Information</h2>
+          <p>
+            Notices to this site’s operators should be directed to <code>hello@ecency.com</code>.
           </p>
         </div>
       </div>

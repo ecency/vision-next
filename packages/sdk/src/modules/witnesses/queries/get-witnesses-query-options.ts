@@ -1,6 +1,6 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { Witness } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 type WitnessPage = Witness[];
 type WitnessCursor = string;
@@ -16,7 +16,7 @@ export function getWitnessesInfiniteQueryOptions(limit: number) {
     initialPageParam: "" as WitnessCursor,
 
     queryFn: async ({ pageParam }: { pageParam: WitnessCursor }) =>
-      CONFIG.hiveClient.call("condenser_api", "get_witnesses_by_vote", [
+      callRPC("condenser_api.get_witnesses_by_vote", [
         pageParam,
         limit,
       ]) as Promise<Witness[]>,

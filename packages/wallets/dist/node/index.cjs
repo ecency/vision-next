@@ -2,21 +2,11 @@
 
 var sdk = require('@ecency/sdk');
 var reactQuery = require('@tanstack/react-query');
-var bip39 = require('bip39');
-var lruCache = require('lru-cache');
-var coinBitcoin = require('@okxweb3/coin-bitcoin');
-var coinEthereum = require('@okxweb3/coin-ethereum');
-var coinTron = require('@okxweb3/coin-tron');
-var coinTon = require('@okxweb3/coin-ton');
-var coinSolana = require('@okxweb3/coin-solana');
-var coinAptos = require('@okxweb3/coin-aptos');
-var cryptoLib = require('@okxweb3/crypto-lib');
-var dhive = require('@hiveio/dhive');
-var crypto = require('@hiveio/dhive/lib/crypto');
-var memo = require('@hiveio/dhive/lib/memo');
 var R = require('remeda');
-
-function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
+var lruCache = require('lru-cache');
+var bip39 = require('bip39');
+var bip32 = require('@scure/bip32');
+var hiveTx = require('@ecency/hive-tx');
 
 function _interopNamespace(e) {
   if (e && e.__esModule) return e;
@@ -36,7 +26,6 @@ function _interopNamespace(e) {
   return Object.freeze(n);
 }
 
-var bip39__default = /*#__PURE__*/_interopDefault(bip39);
 var R__namespace = /*#__PURE__*/_interopNamespace(R);
 
 var __defProp = Object.defineProperty;
@@ -81,9 +70,6 @@ var EcencyWalletCurrency = /* @__PURE__ */ ((EcencyWalletCurrency2) => {
   EcencyWalletCurrency2["BTC"] = "BTC";
   EcencyWalletCurrency2["ETH"] = "ETH";
   EcencyWalletCurrency2["BNB"] = "BNB";
-  EcencyWalletCurrency2["APT"] = "APT";
-  EcencyWalletCurrency2["TON"] = "TON";
-  EcencyWalletCurrency2["TRON"] = "TRX";
   EcencyWalletCurrency2["SOL"] = "SOL";
   return EcencyWalletCurrency2;
 })(EcencyWalletCurrency || {});
@@ -96,14 +82,125 @@ var EcencyWalletBasicTokens = /* @__PURE__ */ ((EcencyWalletBasicTokens2) => {
   EcencyWalletBasicTokens2["HiveDollar"] = "HBD";
   return EcencyWalletBasicTokens2;
 })(EcencyWalletBasicTokens || {});
+
+// src/modules/wallets/mutations/private-api/index.ts
+var private_api_exports = {};
+__export(private_api_exports, {
+  useCheckWalletExistence: () => useCheckWalletExistence,
+  useCreateAccountWithWallets: () => useCreateAccountWithWallets,
+  useUpdateAccountWithWallets: () => useUpdateAccountWithWallets
+});
+
+// src/modules/wallets/utils/get-bound-fetch.ts
+var cachedFetch;
+function getBoundFetch() {
+  if (!cachedFetch) {
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error("[Ecency][Wallets] - global fetch is not available");
+    }
+    cachedFetch = globalThis.fetch.bind(globalThis);
+  }
+  return cachedFetch;
+}
+function useCreateAccountWithWallets(username) {
+  const fetchApi = getBoundFetch();
+  return reactQuery.useMutation({
+    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
+    mutationFn: async ({ currency, address, hiveKeys, walletAddresses }) => {
+      const addresses = {};
+      if (walletAddresses) {
+        for (const [k, v] of Object.entries(walletAddresses)) {
+          if (v) addresses[k] = v;
+        }
+      }
+      const response = await fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          token: currency,
+          address,
+          meta: {
+            ...hiveKeys,
+            ...addresses,
+            [currency]: address
+          }
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`Account creation failed (${response.status})`);
+      }
+      return response;
+    }
+  });
+}
+function useCheckWalletExistence() {
+  return reactQuery.useMutation({
+    mutationKey: ["ecency-wallets", "check-wallet-existence"],
+    mutationFn: async ({ address, currency }) => {
+      const response = await fetch(
+        `${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-exist`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            address,
+            token: currency
+          })
+        }
+      );
+      const data = await response.json();
+      return data.length === 0;
+    }
+  });
+}
+function useUpdateAccountWithWallets(username, accessToken) {
+  const fetchApi = getBoundFetch();
+  return reactQuery.useMutation({
+    mutationKey: ["ecency-wallets", "update-account-with-wallets", username],
+    mutationFn: async ({ tokens, hiveKeys }) => {
+      const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
+      if (entries.length === 0) {
+        return new Response(null, { status: 204 });
+      }
+      const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
+      if (!accessToken) {
+        throw new Error(
+          "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
+        );
+      }
+      return fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          code: accessToken,
+          token: primaryToken,
+          address: primaryAddress,
+          status: 3,
+          meta: {
+            ...Object.fromEntries(entries),
+            ownerPublicKey: hiveKeys.ownerPublicKey,
+            activePublicKey: hiveKeys.activePublicKey,
+            postingPublicKey: hiveKeys.postingPublicKey,
+            memoPublicKey: hiveKeys.memoPublicKey
+          }
+        })
+      });
+    }
+  });
+}
 var currencyChainMap = {
   ["BTC" /* BTC */]: "btc",
   ["ETH" /* ETH */]: "eth",
   ["BNB" /* BNB */]: "bnb",
-  ["SOL" /* SOL */]: "sol",
-  ["TRX" /* TRON */]: "tron",
-  ["TON" /* TON */]: "ton",
-  ["APT" /* APT */]: "apt"
+  ["SOL" /* SOL */]: "sol"
 };
 function normalizeBalance(balance) {
   if (typeof balance === "number") {
@@ -212,19 +309,6 @@ function useGetExternalWalletBalanceQuery(currency, address) {
     }
   });
 }
-function useSeedPhrase(username) {
-  return reactQuery.useQuery({
-    queryKey: ["ecency-wallets", "seed", username],
-    queryFn: async () => bip39__default.default.generateMnemonic(128),
-    // CRITICAL: Prevent seed regeneration - cache forever
-    // Once generated, the seed must NEVER change to ensure consistency between:
-    // 1. Displayed seed phrase
-    // 2. Downloaded seed file
-    // 3. Keys sent to API for account creation
-    staleTime: Infinity,
-    gcTime: Infinity
-  });
-}
 var options = {
   max: 500,
   // how long to live in ms
@@ -245,9 +329,6 @@ var CURRENCY_TO_TOKEN_MAP = {
   ["BTC" /* BTC */]: "btc",
   ["ETH" /* ETH */]: "eth",
   ["SOL" /* SOL */]: "sol",
-  ["TON" /* TON */]: "ton",
-  ["TRX" /* TRON */]: "trx",
-  ["APT" /* APT */]: "apt",
   ["BNB" /* BNB */]: "bnb",
   HBD: "hbd",
   HIVE: "hive"
@@ -300,300 +381,6 @@ function getTokenPriceQueryOptions(currency) {
       return Number(usdQuote.price);
     },
     enabled: !!currency
-  });
-}
-
-// src/modules/wallets/utils/delay.ts
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-function getWallet(currency) {
-  switch (currency) {
-    case "BTC" /* BTC */:
-      return new coinBitcoin.BtcWallet();
-    case "ETH" /* ETH */:
-    case "BNB" /* BNB */:
-      return new coinEthereum.EthWallet();
-    case "TRX" /* TRON */:
-      return new coinTron.TrxWallet();
-    case "TON" /* TON */:
-      return new coinTon.TonWallet();
-    case "SOL" /* SOL */:
-      return new coinSolana.SolWallet();
-    case "APT" /* APT */:
-      return new coinAptos.AptosWallet();
-    default:
-      return void 0;
-  }
-}
-function mnemonicToSeedBip39(value) {
-  return bip39.mnemonicToSeedSync(value).toString("hex");
-}
-var ROLE_INDEX = {
-  owner: 0,
-  active: 1,
-  posting: 2,
-  memo: 3
-};
-function deriveHiveKey(mnemonic, role, accountIndex = 0) {
-  const seed = bip39.mnemonicToSeedSync(mnemonic);
-  const master = cryptoLib.bip32.fromSeed(seed);
-  const path = `m/44'/3054'/${accountIndex}'/0'/${ROLE_INDEX[role]}'`;
-  const child = master.derivePath(path);
-  if (!child.privateKey) {
-    throw new Error("[Ecency][Wallets] - hive key derivation failed");
-  }
-  const pk = dhive.PrivateKey.from(child.privateKey);
-  return {
-    privateKey: pk.toString(),
-    publicKey: pk.createPublic().toString()
-  };
-}
-function deriveHiveKeys(mnemonic, accountIndex = 0) {
-  const owner = deriveHiveKey(mnemonic, "owner", accountIndex);
-  const active = deriveHiveKey(mnemonic, "active", accountIndex);
-  const posting = deriveHiveKey(mnemonic, "posting", accountIndex);
-  const memo = deriveHiveKey(mnemonic, "memo", accountIndex);
-  return {
-    owner: owner.privateKey,
-    active: active.privateKey,
-    posting: posting.privateKey,
-    memo: memo.privateKey,
-    ownerPubkey: owner.publicKey,
-    activePubkey: active.publicKey,
-    postingPubkey: posting.publicKey,
-    memoPubkey: memo.publicKey
-  };
-}
-function deriveHiveMasterPasswordKey(username, masterPassword, role) {
-  const pk = dhive.PrivateKey.fromLogin(username, masterPassword, role);
-  return {
-    privateKey: pk.toString(),
-    publicKey: pk.createPublic().toString()
-  };
-}
-function deriveHiveMasterPasswordKeys(username, masterPassword) {
-  const owner = deriveHiveMasterPasswordKey(username, masterPassword, "owner");
-  const active = deriveHiveMasterPasswordKey(username, masterPassword, "active");
-  const posting = deriveHiveMasterPasswordKey(
-    username,
-    masterPassword,
-    "posting"
-  );
-  const memo = deriveHiveMasterPasswordKey(username, masterPassword, "memo");
-  return {
-    owner: owner.privateKey,
-    active: active.privateKey,
-    posting: posting.privateKey,
-    memo: memo.privateKey,
-    ownerPubkey: owner.publicKey,
-    activePubkey: active.publicKey,
-    postingPubkey: posting.publicKey,
-    memoPubkey: memo.publicKey
-  };
-}
-async function detectHiveKeyDerivation(username, seed, type = "active") {
-  const uname = username.trim().toLowerCase();
-  const account = await sdk.CONFIG.queryClient.fetchQuery(
-    sdk.getAccountFullQueryOptions(uname)
-  );
-  const auth = account[type];
-  const bip44 = deriveHiveKeys(seed);
-  const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
-  const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
-  if (matchBip44) return "bip44";
-  const legacyPub = dhive.PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
-  const matchLegacy = auth.key_auths.some(([pub]) => String(pub) === legacyPub);
-  if (matchLegacy) return "master-password";
-  return "unknown";
-}
-function signDigest(digest, privateKey) {
-  const key = dhive.PrivateKey.fromString(privateKey);
-  const buf = typeof digest === "string" ? Buffer.from(digest, "hex") : digest;
-  return key.sign(buf).toString();
-}
-function signTx(tx, privateKey, chainId) {
-  const key = dhive.PrivateKey.fromString(privateKey);
-  const chain = chainId ? Buffer.from(chainId, "hex") : void 0;
-  return crypto.cryptoUtils.signTransaction(tx, key, chain);
-}
-async function signTxAndBroadcast(client, tx, privateKey, chainId) {
-  const signed = signTx(tx, privateKey, chainId);
-  return client.broadcast.send(signed);
-}
-function encryptMemoWithKeys(privateKey, publicKey, memo$1) {
-  return memo.Memo.encode(dhive.PrivateKey.fromString(privateKey), publicKey, memo$1);
-}
-async function encryptMemoWithAccounts(client, fromPrivateKey, toAccount, memo$1) {
-  const [account] = await client.database.getAccounts([toAccount]);
-  if (!account) {
-    throw new Error("Account not found");
-  }
-  return memo.Memo.encode(dhive.PrivateKey.fromString(fromPrivateKey), account.memo_key, memo$1);
-}
-function decryptMemoWithKeys(privateKey, memo$1) {
-  return memo.Memo.decode(dhive.PrivateKey.fromString(privateKey), memo$1);
-}
-var decryptMemoWithAccounts = decryptMemoWithKeys;
-async function signExternalTx(currency, params) {
-  const wallet = getWallet(currency);
-  if (!wallet) throw new Error("Unsupported currency");
-  return wallet.signTransaction(params);
-}
-async function signExternalTxAndBroadcast(currency, params) {
-  const signed = await signExternalTx(currency, params);
-  switch (currency) {
-    case "BTC" /* BTC */: {
-      const res = await fetch("https://mempool.space/api/tx", {
-        method: "POST",
-        body: signed
-      });
-      if (!res.ok) throw new Error("Broadcast failed");
-      return res.text();
-    }
-    case "ETH" /* ETH */:
-    case "BNB" /* BNB */: {
-      const rpcUrl = currency === "ETH" /* ETH */ ? "https://rpc.ankr.com/eth" : "https://bsc-dataseed.binance.org";
-      const res = await fetch(rpcUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_sendRawTransaction",
-          params: [signed]
-        })
-      });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error.message);
-      return json.result;
-    }
-    case "SOL" /* SOL */: {
-      const res = await fetch(
-        `https://rpc.helius.xyz/?api-key=${sdk.CONFIG.heliusApiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 1,
-            method: "sendTransaction",
-            params: [signed]
-          })
-        }
-      );
-      const json = await res.json();
-      if (json.error) throw new Error(json.error.message);
-      return json.result;
-    }
-    case "TRX" /* TRON */: {
-      const res = await fetch(
-        "https://api.trongrid.io/wallet/broadcasttransaction",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: typeof signed === "string" ? signed : JSON.stringify(signed)
-        }
-      );
-      const json = await res.json();
-      if (json.result === false) throw new Error(json.message);
-      return json.txid || json.result;
-    }
-    case "TON" /* TON */: {
-      const res = await fetch("https://toncenter.com/api/v2/sendTransaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boc: signed })
-      });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error.message || json.result);
-      return json.result;
-    }
-    case "APT" /* APT */: {
-      const res = await fetch(
-        "https://fullnode.mainnet.aptoslabs.com/v1/transactions",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: typeof signed === "string" ? signed : JSON.stringify(signed)
-        }
-      );
-      if (!res.ok) throw new Error("Broadcast failed");
-      return res.json();
-    }
-    default:
-      throw new Error("Unsupported currency");
-  }
-}
-function buildPsbt(tx, network, maximumFeeRate) {
-  return coinBitcoin.buildPsbt(tx, network, maximumFeeRate);
-}
-function buildEthTx(data) {
-  return data;
-}
-function buildSolTx(data) {
-  return data;
-}
-function buildTronTx(data) {
-  return data;
-}
-function buildTonTx(data) {
-  return data;
-}
-function buildAptTx(data) {
-  return data;
-}
-function buildExternalTx(currency, tx) {
-  switch (currency) {
-    case "BTC" /* BTC */:
-      return buildPsbt(tx);
-    case "ETH" /* ETH */:
-    case "BNB" /* BNB */:
-      return buildEthTx(tx);
-    case "SOL" /* SOL */:
-      return buildSolTx(tx);
-    case "TRX" /* TRON */:
-      return buildTronTx(tx);
-    case "TON" /* TON */:
-      return buildTonTx(tx);
-    case "APT" /* APT */:
-      return buildAptTx(tx);
-    default:
-      throw new Error("Unsupported currency");
-  }
-}
-
-// src/modules/wallets/utils/get-bound-fetch.ts
-var cachedFetch;
-function getBoundFetch() {
-  if (!cachedFetch) {
-    if (typeof globalThis.fetch !== "function") {
-      throw new Error("[Ecency][Wallets] - global fetch is not available");
-    }
-    cachedFetch = globalThis.fetch.bind(globalThis);
-  }
-  return cachedFetch;
-}
-
-// src/modules/wallets/queries/use-hive-keys-query.ts
-function useHiveKeysQuery(username) {
-  const { data: seed } = useSeedPhrase(username);
-  return reactQuery.useQuery({
-    queryKey: ["ecenc\u0443-wallets", "hive-keys", username, seed],
-    staleTime: Infinity,
-    queryFn: async () => {
-      if (!seed) {
-        throw new Error("[Ecency][Wallets] - no seed to create Hive account");
-      }
-      const method = await detectHiveKeyDerivation(username, seed).catch(
-        () => "bip44"
-      );
-      const keys = method === "master-password" ? deriveHiveMasterPasswordKeys(username, seed) : deriveHiveKeys(seed);
-      return {
-        username,
-        ...keys
-      };
-    }
   });
 }
 function createFallbackTokenMetadata(symbol) {
@@ -727,7 +514,7 @@ function getAccountWalletListQueryOptions(username, currency = "usd") {
         if (tokensFromPortfolio.length > 0) {
           const visibleTokens = tokensFromPortfolio.map((token) => token?.toUpperCase?.()).filter((token) => Boolean(token)).filter(isTokenVisible);
           if (visibleTokens.length > 0) {
-            return Array.from(new Set(visibleTokens));
+            return Array.from(/* @__PURE__ */ new Set([...BASIC_TOKENS, ...visibleTokens]));
           }
         }
       } catch {
@@ -856,269 +643,8 @@ function getTokenOperationsQueryOptions(token, username, isForOwner = false, cur
     }
   });
 }
-function useWalletsCacheQuery(username) {
-  const queryClient = reactQuery.useQueryClient();
-  const queryKey = ["ecency-wallets", "wallets", username];
-  const getCachedWallets = () => queryClient.getQueryData(queryKey);
-  const createEmptyWalletMap = () => /* @__PURE__ */ new Map();
-  return reactQuery.useQuery({
-    queryKey,
-    enabled: Boolean(username),
-    initialData: () => getCachedWallets() ?? createEmptyWalletMap(),
-    queryFn: async () => getCachedWallets() ?? createEmptyWalletMap(),
-    staleTime: Infinity
-  });
-}
-var PATHS = {
-  ["BTC" /* BTC */]: "m/44'/0'/0'/0/0",
-  // Bitcoin (BIP44)
-  ["ETH" /* ETH */]: "m/44'/60'/0'/0/0",
-  // Ethereum (BIP44)
-  ["BNB" /* BNB */]: "m/44'/60'/0'/0/0",
-  // BNB Smart Chain (BIP44)
-  ["SOL" /* SOL */]: "m/44'/501'/0'/0'",
-  // Solana (BIP44)
-  ["TON" /* TON */]: "m/44'/607'/0'",
-  // TON (BIP44)
-  ["TRX" /* TRON */]: "m/44'/195'/0'/0/0",
-  // Tron (BIP44)
-  ["APT" /* APT */]: "m/44'/637'/0'/0'/0'"
-  // Aptos (BIP44)
-};
-function useWalletCreate(username, currency, importedSeed) {
-  const { data: generatedMnemonic } = useSeedPhrase(username);
-  const queryClient = reactQuery.useQueryClient();
-  const createWallet = reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "create-wallet", username, currency],
-    mutationFn: async () => {
-      const mnemonic = importedSeed || generatedMnemonic;
-      if (!mnemonic) {
-        throw new Error("[Ecency][Wallets] - No seed to create a wallet");
-      }
-      const wallet = getWallet(currency);
-      const privateKey = await wallet?.getDerivedPrivateKey({
-        mnemonic,
-        hdPath: PATHS[currency]
-      });
-      await delay(1e3);
-      const address = await wallet?.getNewAddress({
-        privateKey
-      });
-      return {
-        privateKey,
-        address: address.address,
-        publicKey: address.publicKey,
-        username,
-        currency
-      };
-    },
-    onSuccess: (info) => {
-      queryClient.setQueryData(
-        ["ecency-wallets", "wallets", info.username],
-        (data) => new Map(data ? Array.from(data.entries()) : []).set(
-          info.currency,
-          info
-        )
-      );
-    }
-  });
-  const importWallet = () => {
-  };
-  return {
-    createWallet,
-    importWallet
-  };
-}
 
-// src/modules/wallets/mutations/private-api/index.ts
-var private_api_exports = {};
-__export(private_api_exports, {
-  useCheckWalletExistence: () => useCheckWalletExistence,
-  useCreateAccountWithWallets: () => useCreateAccountWithWallets,
-  useUpdateAccountWithWallets: () => useUpdateAccountWithWallets
-});
-function useCreateAccountWithWallets(username) {
-  const { data } = useWalletsCacheQuery(username);
-  const { data: hiveKeys } = useHiveKeysQuery(username);
-  const fetchApi = getBoundFetch();
-  return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "create-account-with-wallets", username],
-    mutationFn: ({ currency, address }) => fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username,
-        token: currency,
-        address,
-        meta: {
-          ownerPublicKey: hiveKeys?.ownerPubkey,
-          activePublicKey: hiveKeys?.activePubkey,
-          postingPublicKey: hiveKeys?.postingPubkey,
-          memoPublicKey: hiveKeys?.memoPubkey,
-          ...Array.from(data?.entries() ?? []).reduce(
-            (acc, [curr, info]) => ({
-              ...acc,
-              [curr]: info.address
-            }),
-            {}
-          )
-        }
-      })
-    })
-  });
-}
-function useCheckWalletExistence() {
-  return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "check-wallet-existence"],
-    mutationFn: async ({ address, currency }) => {
-      const response = await fetch(
-        `${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-exist`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            address,
-            token: currency
-          })
-        }
-      );
-      const data = await response.json();
-      return data.length === 0;
-    }
-  });
-}
-function useUpdateAccountWithWallets(username, accessToken) {
-  const fetchApi = getBoundFetch();
-  return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "update-account-with-wallets", username],
-    mutationFn: async ({ tokens, hiveKeys }) => {
-      const entries = Object.entries(tokens).filter(([, address]) => Boolean(address));
-      if (entries.length === 0) {
-        return new Response(null, { status: 204 });
-      }
-      const [primaryToken, primaryAddress] = entries[0] ?? ["", ""];
-      if (!accessToken) {
-        throw new Error(
-          "[SDK][Wallets][PrivateApi][WalletsAdd] \u2013 access token wasn`t found"
-        );
-      }
-      return fetchApi(`${sdk.ConfigManager.getValidatedBaseUrl()}/private-api/wallets-add`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username,
-          code: accessToken,
-          token: primaryToken,
-          address: primaryAddress,
-          status: 3,
-          meta: {
-            ...Object.fromEntries(entries),
-            ownerPublicKey: hiveKeys.ownerPublicKey,
-            activePublicKey: hiveKeys.activePublicKey,
-            postingPublicKey: hiveKeys.postingPublicKey,
-            memoPublicKey: hiveKeys.memoPublicKey
-          }
-        })
-      });
-    }
-  });
-}
-
-// src/modules/wallets/functions/get-keys-from-seed.ts
-var HD_PATHS = {
-  ["BTC" /* BTC */]: ["m/84'/0'/0'/0/0"],
-  ["ETH" /* ETH */]: ["m/84'/60'/0'/0/0"],
-  // its not working for Trust, Exodus, todo: check others below
-  ["BNB" /* BNB */]: ["m/84'/60'/0'/0/0"],
-  ["SOL" /* SOL */]: ["m/84'/501'/0'/0/0"],
-  ["TRX" /* TRON */]: ["m/44'/195'/0'/0'/0'"],
-  ["APT" /* APT */]: ["m/84'/637'/0'/0/0"],
-  ["TON" /* TON */]: ["m/44'/607'/0'"]
-};
-async function getKeysFromSeed(mnemonic, wallet, currency) {
-  for (const hdPath of HD_PATHS[currency] || []) {
-    try {
-      const derivedPrivateKey = await wallet.getDerivedPrivateKey({
-        mnemonic,
-        hdPath
-      });
-      const derivedPublicKey = await wallet.getNewAddress({
-        privateKey: derivedPrivateKey,
-        addressType: currency === "BTC" /* BTC */ ? "segwit_native" : void 0
-      });
-      return [derivedPrivateKey.toString(), derivedPublicKey.address];
-    } catch (error) {
-      return [];
-    }
-  }
-  return [];
-}
-function useImportWallet(username, currency) {
-  const queryClient = reactQuery.useQueryClient();
-  const { mutateAsync: checkWalletExistence } = private_api_exports.useCheckWalletExistence();
-  return reactQuery.useMutation({
-    mutationKey: ["ecency-wallets", "import-wallet", username, currency],
-    mutationFn: async ({ privateKeyOrSeed }) => {
-      const wallet = getWallet(currency);
-      if (!wallet) {
-        throw new Error("Cannot find token for this currency");
-      }
-      const isSeed = privateKeyOrSeed.split(" ").length === 12;
-      let address;
-      let privateKey = privateKeyOrSeed;
-      if (isSeed) {
-        [privateKey, address] = await getKeysFromSeed(
-          privateKeyOrSeed,
-          wallet,
-          currency
-        );
-      } else {
-        address = (await wallet.getNewAddress({
-          privateKey: privateKeyOrSeed
-        })).address;
-      }
-      if (!address || !privateKeyOrSeed) {
-        throw new Error(
-          "Private key/seed phrase isn't matching with public key or token"
-        );
-      }
-      const hasChecked = await checkWalletExistence({
-        address,
-        currency
-      });
-      if (!hasChecked) {
-        throw new Error(
-          "This wallet has already in use by Hive account. Please, try another one"
-        );
-      }
-      return {
-        privateKey,
-        address,
-        publicKey: ""
-      };
-    },
-    onSuccess: ({ privateKey, publicKey, address }) => {
-      queryClient.setQueryData(
-        ["ecency-wallets", "wallets", username],
-        (data) => new Map(data ? Array.from(data.entries()) : []).set(currency, {
-          privateKey,
-          publicKey,
-          address,
-          username,
-          currency,
-          type: "CHAIN",
-          custom: true
-        })
-      );
-    }
-  });
-}
+// src/modules/wallets/mutations/save-wallet-information-to-metadata.ts
 function getGroupedChainTokens(tokens, defaultShow) {
   if (!tokens) {
     return {};
@@ -1193,6 +719,428 @@ function useSaveWalletInformationToMetadata(username, auth, options2) {
       });
     }
   });
+}
+
+// src/modules/wallets/utils/metamask-evm-transfer.ts
+function getEthereum() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask not found");
+  }
+  return window.ethereum;
+}
+var WEI_PER_ETH = 1000000000000000000n;
+var EVM_CHAIN_CONFIG = {
+  ["ETH" /* ETH */]: {
+    chainId: "0x1",
+    name: "Ethereum Mainnet",
+    rpcUrl: "https://rpc.ankr.com/eth",
+    explorerUrl: "https://etherscan.io/tx/"
+  },
+  ["BNB" /* BNB */]: {
+    chainId: "0x38",
+    name: "BNB Smart Chain",
+    rpcUrl: "https://bsc-dataseed.binance.org",
+    explorerUrl: "https://bscscan.com/tx/"
+  }
+};
+function getEvmChainConfig(currency) {
+  const config = EVM_CHAIN_CONFIG[currency];
+  if (!config) throw new Error(`Unsupported EVM currency: ${currency}`);
+  return config;
+}
+function getEvmExplorerUrl(currency, txHash) {
+  return `${getEvmChainConfig(currency).explorerUrl}${txHash}`;
+}
+async function ensureEvmChain(currency) {
+  const ethereum = getEthereum();
+  const { chainId, name, rpcUrl } = getEvmChainConfig(currency);
+  const currentChainId = await ethereum.request({ method: "eth_chainId" });
+  if (currentChainId === chainId) return;
+  try {
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId }]
+    });
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err && err.code === 4902) {
+      await ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId,
+          chainName: name,
+          rpcUrls: [rpcUrl],
+          nativeCurrency: {
+            name: currency === "ETH" /* ETH */ ? "Ether" : "BNB",
+            symbol: currency === "ETH" /* ETH */ ? "ETH" : "BNB",
+            decimals: 18
+          }
+        }]
+      });
+    } else {
+      throw err;
+    }
+  }
+}
+async function estimateEvmGas(from, to, valueHex, currency) {
+  const ethereum = getEthereum();
+  await ensureEvmChain(currency);
+  const [gasLimit, gasPrice] = await Promise.all([
+    ethereum.request({
+      method: "eth_estimateGas",
+      params: [{ from, to, value: valueHex }]
+    }),
+    ethereum.request({ method: "eth_gasPrice" })
+  ]);
+  const estimatedFeeWei = BigInt(gasLimit) * BigInt(gasPrice);
+  return { gasLimit, gasPrice, estimatedFeeWei };
+}
+function formatWei(wei, decimals = 6) {
+  const whole = wei / WEI_PER_ETH;
+  const rem = wei % WEI_PER_ETH;
+  if (rem === 0n) return whole.toString();
+  const scale = 10n ** BigInt(decimals);
+  const fractional = rem * scale / WEI_PER_ETH;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
+}
+var AMOUNT_REGEX = /^\d+(\.\d+)?$/;
+function parseToWei(amount) {
+  const trimmed = amount.trim();
+  if (!AMOUNT_REGEX.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || fraction && !/^\d+$/.test(fraction)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  const paddedFraction = fraction.padEnd(18, "0").slice(0, 18);
+  const wei = BigInt(whole) * WEI_PER_ETH + BigInt(paddedFraction);
+  return "0x" + wei.toString(16);
+}
+async function sendEvmTransfer(to, amountWei, currency) {
+  const ethereum = getEthereum();
+  await ensureEvmChain(currency);
+  const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+  const from = accounts[0];
+  if (!from) throw new Error("No MetaMask account connected");
+  const txHash = await ethereum.request({
+    method: "eth_sendTransaction",
+    params: [{
+      from,
+      to,
+      value: amountWei
+    }]
+  });
+  return txHash;
+}
+var SOL_EXPLORER_URL = "https://explorer.solana.com/tx/";
+var LAMPORTS_PER_SOL = 1000000000n;
+var AMOUNT_REGEX2 = /^\d+(\.\d+)?$/;
+function getSolExplorerUrl(signature) {
+  return `${SOL_EXPLORER_URL}${signature}`;
+}
+function parseToLamports(amount) {
+  const trimmed = amount.trim();
+  if (!AMOUNT_REGEX2.test(trimmed)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  const [whole, fraction = ""] = trimmed.split(".");
+  if (!/^\d+$/.test(whole) || fraction && !/^\d+$/.test(fraction)) {
+    throw new Error(`Invalid amount: "${amount}"`);
+  }
+  if (fraction.length > 9 && fraction.slice(9).replace(/0/g, "").length > 0) {
+    throw new Error(`Amount has more than 9 decimal places: "${amount}"`);
+  }
+  const paddedFraction = fraction.padEnd(9, "0").slice(0, 9);
+  return BigInt(whole) * LAMPORTS_PER_SOL + BigInt(paddedFraction);
+}
+function formatLamports(lamports, decimals = 6) {
+  const whole = lamports / LAMPORTS_PER_SOL;
+  const rem = lamports % LAMPORTS_PER_SOL;
+  if (rem === 0n) return whole.toString();
+  const scale = 10n ** BigInt(decimals);
+  const fractional = rem * scale / LAMPORTS_PER_SOL;
+  const fracStr = fractional.toString().padStart(decimals, "0").replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
+}
+async function solRpc(method, params = []) {
+  const baseUrl = sdk.ConfigManager.getValidatedBaseUrl();
+  const response = await fetch(`${baseUrl}/private-api/rpc/sol`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params })
+  });
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`SOL RPC ${method} failed: ${response.status} ${response.statusText}${text ? ` \u2014 ${text}` : ""}`);
+  }
+  const json = await response.json();
+  if (json.error) {
+    throw new Error(json.error.message || `SOL RPC ${method} failed`);
+  }
+  return json.result;
+}
+async function getMetaMaskSolanaWallet() {
+  const { getWallets } = await import('@wallet-standard/app');
+  const walletsApi = getWallets();
+  const wallets = walletsApi.get();
+  const mmWallet = wallets.find(
+    (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"] && w.features["solana:signAndSendTransaction"]
+  );
+  if (!mmWallet) {
+    throw new Error("MetaMask Solana wallet not found. Enable Solana in MetaMask settings.");
+  }
+  return mmWallet;
+}
+async function sendSolTransfer(to, amountSol) {
+  const mmWallet = await getMetaMaskSolanaWallet();
+  const connectFeature = mmWallet.features["standard:connect"];
+  await connectFeature.connect();
+  const solAccount = mmWallet.accounts?.find(
+    (acc) => acc.chains?.some((c) => c.startsWith("solana:"))
+  );
+  if (!solAccount) {
+    throw new Error("No Solana account found in MetaMask.");
+  }
+  const { PublicKey, SystemProgram, Transaction } = await import('@solana/web3.js');
+  const fromPubkey = new PublicKey(solAccount.address);
+  const toPubkey = new PublicKey(to);
+  const lamports = parseToLamports(amountSol);
+  const transaction = new Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey,
+      toPubkey,
+      lamports
+    })
+  );
+  const blockhashResult = await solRpc(
+    "getLatestBlockhash",
+    [{ commitment: "finalized" }]
+  );
+  transaction.recentBlockhash = blockhashResult.value.blockhash;
+  transaction.feePayer = fromPubkey;
+  const serializedTx = transaction.serialize({
+    requireAllSignatures: false,
+    verifySignatures: false
+  });
+  const signAndSendFeature = mmWallet.features["solana:signAndSendTransaction"];
+  if (!signAndSendFeature) {
+    throw new Error("MetaMask does not support Solana transaction signing. Please update MetaMask.");
+  }
+  const [result] = await signAndSendFeature.signAndSendTransaction({
+    account: solAccount,
+    transaction: serializedTx,
+    chain: "solana:mainnet"
+  });
+  if (typeof result.signature === "string") {
+    return result.signature;
+  }
+  const { base58 } = await import('@scure/base');
+  return base58.encode(new Uint8Array(result.signature));
+}
+function useExternalTransfer(currency) {
+  const queryClient = reactQuery.useQueryClient();
+  return reactQuery.useMutation({
+    mutationKey: ["ecency-wallets", "external-transfer", currency],
+    mutationFn: async ({ to, amount }) => {
+      switch (currency) {
+        case "ETH" /* ETH */:
+        case "BNB" /* BNB */: {
+          const valueHex = parseToWei(amount);
+          const txHash = await sendEvmTransfer(to, valueHex, currency);
+          return { txHash, currency };
+        }
+        case "SOL" /* SOL */: {
+          const signature = await sendSolTransfer(to, amount);
+          return { txHash: signature, currency };
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["ecency-wallets", "external-wallet-balance"]
+      });
+    }
+  });
+}
+var ROLE_INDEX = {
+  owner: 0,
+  active: 1,
+  posting: 2,
+  memo: 3
+};
+function deriveHiveKey(mnemonic, role, accountIndex = 0) {
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const master = bip32.HDKey.fromMasterSeed(seed);
+  const path = `m/44'/3054'/${accountIndex}'/0'/${ROLE_INDEX[role]}'`;
+  const child = master.derive(path);
+  if (!child.privateKey) {
+    throw new Error("[Ecency][Wallets] - hive key derivation failed");
+  }
+  const pk = hiveTx.PrivateKey.from(Buffer.from(child.privateKey));
+  return {
+    privateKey: pk.toString(),
+    publicKey: pk.createPublic().toString()
+  };
+}
+function deriveHiveKeys(mnemonic, accountIndex = 0) {
+  const owner = deriveHiveKey(mnemonic, "owner", accountIndex);
+  const active = deriveHiveKey(mnemonic, "active", accountIndex);
+  const posting = deriveHiveKey(mnemonic, "posting", accountIndex);
+  const memo = deriveHiveKey(mnemonic, "memo", accountIndex);
+  return {
+    owner: owner.privateKey,
+    active: active.privateKey,
+    posting: posting.privateKey,
+    memo: memo.privateKey,
+    ownerPubkey: owner.publicKey,
+    activePubkey: active.publicKey,
+    postingPubkey: posting.publicKey,
+    memoPubkey: memo.publicKey
+  };
+}
+function deriveHiveMasterPasswordKey(username, masterPassword, role) {
+  const pk = hiveTx.PrivateKey.fromLogin(username, masterPassword, role);
+  return {
+    privateKey: pk.toString(),
+    publicKey: pk.createPublic().toString()
+  };
+}
+function deriveHiveMasterPasswordKeys(username, masterPassword) {
+  const owner = deriveHiveMasterPasswordKey(username, masterPassword, "owner");
+  const active = deriveHiveMasterPasswordKey(username, masterPassword, "active");
+  const posting = deriveHiveMasterPasswordKey(
+    username,
+    masterPassword,
+    "posting"
+  );
+  const memo = deriveHiveMasterPasswordKey(username, masterPassword, "memo");
+  return {
+    owner: owner.privateKey,
+    active: active.privateKey,
+    posting: posting.privateKey,
+    memo: memo.privateKey,
+    ownerPubkey: owner.publicKey,
+    activePubkey: active.publicKey,
+    postingPubkey: posting.publicKey,
+    memoPubkey: memo.publicKey
+  };
+}
+async function detectHiveKeyDerivation(username, seed, type = "active") {
+  const uname = username.trim().toLowerCase();
+  const account = await sdk.CONFIG.queryClient.fetchQuery(
+    sdk.getAccountFullQueryOptions(uname)
+  );
+  const auth = account[type];
+  const bip44 = deriveHiveKeys(seed);
+  const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
+  const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
+  if (matchBip44) return "bip44";
+  const legacyPub = hiveTx.PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
+  const matchLegacy = auth.key_auths.some(([pub]) => String(pub) === legacyPub);
+  if (matchLegacy) return "master-password";
+  return "unknown";
+}
+
+// src/modules/wallets/utils/metamask-discovery.ts
+var CHAIN_PREFIX_MAP = {
+  "solana:": "SOL" /* SOL */,
+  "bip122:": "BTC" /* BTC */
+};
+var HIVE_SNAP_ID = "npm:@hiveio/metamask-snap";
+async function fetchMultichainAddresses() {
+  const addresses = {};
+  try {
+    const { getWallets } = await import('@wallet-standard/app');
+    const walletsApi = getWallets();
+    const wallets = walletsApi.get();
+    const mmWallets = wallets.filter(
+      (w) => w.name.toLowerCase().includes("metamask") && w.features["standard:connect"]
+    );
+    for (const mmWallet of mmWallets) {
+      try {
+        const connectFeature = mmWallet.features["standard:connect"];
+        await connectFeature.connect();
+      } catch (connectErr) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[MetaMask multichain] wallet connect failed, trying next:", connectErr);
+        }
+        continue;
+      }
+      for (const account of mmWallet.accounts ?? []) {
+        if (!account.address || !Array.isArray(account.chains)) continue;
+        for (const [prefix, currency] of Object.entries(CHAIN_PREFIX_MAP)) {
+          if (addresses[currency]) continue;
+          if (account.chains.some((c) => c.startsWith(prefix))) {
+            addresses[currency] = account.address;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("[MetaMask multichain] wallet standard discovery failed:", e);
+    }
+  }
+  return addresses;
+}
+async function fetchEvmAddress() {
+  if (typeof window === "undefined" || !window.ethereum?.isMetaMask) return void 0;
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+    return accounts?.[0] ?? void 0;
+  } catch {
+    return void 0;
+  }
+}
+async function discoverMetaMaskWallets() {
+  const addresses = {};
+  const evmAddress = await fetchEvmAddress();
+  if (evmAddress) {
+    addresses["ETH" /* ETH */] = evmAddress;
+    addresses["BNB" /* BNB */] = evmAddress;
+  }
+  const multichainAddresses = await fetchMultichainAddresses();
+  Object.assign(addresses, multichainAddresses);
+  return addresses;
+}
+async function installHiveSnap() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
+  await window.ethereum.request({
+    method: "wallet_requestSnaps",
+    params: { [HIVE_SNAP_ID]: {} }
+  });
+}
+async function getHivePublicKeys() {
+  if (typeof window === "undefined" || !window.ethereum) {
+    throw new Error("MetaMask is not available");
+  }
+  const result = await window.ethereum.request({
+    method: "wallet_invokeSnap",
+    params: {
+      snapId: HIVE_SNAP_ID,
+      request: {
+        method: "hive_getPublicKeys",
+        params: {
+          keys: [
+            { role: "owner", accountIndex: 0 },
+            { role: "active", accountIndex: 0 },
+            { role: "posting", accountIndex: 0 },
+            { role: "memo", accountIndex: 0 }
+          ]
+        }
+      }
+    }
+  });
+  const keys = result?.publicKeys;
+  if (!Array.isArray(keys)) {
+    throw new Error("Hive Snap returned invalid response \u2014 expected publicKeys array");
+  }
+  return keys;
 }
 
 // src/index.ts
@@ -1381,41 +1329,33 @@ Object.defineProperty(exports, "vestsToHp", {
 exports.EcencyWalletBasicTokens = EcencyWalletBasicTokens;
 exports.EcencyWalletCurrency = EcencyWalletCurrency;
 exports.EcencyWalletsPrivateApi = private_api_exports;
-exports.buildAptTx = buildAptTx;
-exports.buildEthTx = buildEthTx;
-exports.buildExternalTx = buildExternalTx;
-exports.buildPsbt = buildPsbt;
-exports.buildSolTx = buildSolTx;
-exports.buildTonTx = buildTonTx;
-exports.buildTronTx = buildTronTx;
-exports.decryptMemoWithAccounts = decryptMemoWithAccounts;
-exports.decryptMemoWithKeys = decryptMemoWithKeys;
-exports.delay = delay;
 exports.deriveHiveKey = deriveHiveKey;
 exports.deriveHiveKeys = deriveHiveKeys;
 exports.deriveHiveMasterPasswordKey = deriveHiveMasterPasswordKey;
 exports.deriveHiveMasterPasswordKeys = deriveHiveMasterPasswordKeys;
 exports.detectHiveKeyDerivation = detectHiveKeyDerivation;
-exports.encryptMemoWithAccounts = encryptMemoWithAccounts;
-exports.encryptMemoWithKeys = encryptMemoWithKeys;
+exports.discoverMetaMaskWallets = discoverMetaMaskWallets;
+exports.ensureEvmChain = ensureEvmChain;
+exports.estimateEvmGas = estimateEvmGas;
+exports.fetchEvmAddress = fetchEvmAddress;
+exports.fetchMultichainAddresses = fetchMultichainAddresses;
+exports.formatLamports = formatLamports;
+exports.formatWei = formatWei;
 exports.getAccountWalletListQueryOptions = getAccountWalletListQueryOptions;
 exports.getAllTokensListQueryOptions = getAllTokensListQueryOptions;
-exports.getBoundFetch = getBoundFetch;
+exports.getEvmChainConfig = getEvmChainConfig;
+exports.getEvmExplorerUrl = getEvmExplorerUrl;
+exports.getHivePublicKeys = getHivePublicKeys;
+exports.getSolExplorerUrl = getSolExplorerUrl;
 exports.getTokenOperationsQueryOptions = getTokenOperationsQueryOptions;
 exports.getTokenPriceQueryOptions = getTokenPriceQueryOptions;
-exports.getWallet = getWallet;
-exports.mnemonicToSeedBip39 = mnemonicToSeedBip39;
-exports.signDigest = signDigest;
-exports.signExternalTx = signExternalTx;
-exports.signExternalTxAndBroadcast = signExternalTxAndBroadcast;
-exports.signTx = signTx;
-exports.signTxAndBroadcast = signTxAndBroadcast;
+exports.installHiveSnap = installHiveSnap;
+exports.parseToLamports = parseToLamports;
+exports.parseToWei = parseToWei;
+exports.sendEvmTransfer = sendEvmTransfer;
+exports.sendSolTransfer = sendSolTransfer;
+exports.useExternalTransfer = useExternalTransfer;
 exports.useGetExternalWalletBalanceQuery = useGetExternalWalletBalanceQuery;
-exports.useHiveKeysQuery = useHiveKeysQuery;
-exports.useImportWallet = useImportWallet;
 exports.useSaveWalletInformationToMetadata = useSaveWalletInformationToMetadata;
-exports.useSeedPhrase = useSeedPhrase;
-exports.useWalletCreate = useWalletCreate;
-exports.useWalletsCacheQuery = useWalletsCacheQuery;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

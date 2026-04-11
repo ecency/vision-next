@@ -1,10 +1,11 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { WaveEntry } from "../types";
 import {
   getVisibleFirstLevelThreadItems,
   mapThreadItemsToWaveEntries
 } from "../utils/waves-helpers";
+import { callRPC } from "@/modules/core/hive-tx";
 
 const THREAD_CONTAINER_BATCH_SIZE = 5;
 const MAX_CONTAINERS_TO_SCAN = 50;
@@ -39,11 +40,13 @@ async function getThreads(
       ...(startPermlink ? { start_permlink: startPermlink } : {})
     };
 
-    const containers = (await CONFIG.hiveClient.call(
-      "bridge",
-      "get_account_posts",
-      rpcParams
-    )) as WaveEntry[]; // API shape is known
+    let containers: WaveEntry[];
+    try {
+      containers = (await callRPC("bridge.get_account_posts", rpcParams)) as WaveEntry[];
+    } catch (err) {
+      console.error("[SDK] getThreads get_account_posts error:", err);
+      return null;
+    }
 
     if (!containers || containers.length === 0) {
       return null;
@@ -111,6 +114,6 @@ export function getWavesByHostQueryOptions(host: string) {
       return result.entries;
     },
 
-    getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container
+    getNextPageParam: (lastPage: WavesPage): WavesCursor => lastPage?.[0]?.container,
   });
 }

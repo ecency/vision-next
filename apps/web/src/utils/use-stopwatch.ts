@@ -38,10 +38,12 @@ export function useStopwatch() {
   const clear = useCallback(() => {
     clearInterval(intervalRef.current);
     intervalRef.current = null;
+    setIsActive(false);
     setTime({ seconds: 0, minutes: 0, hours: 0 });
   }, []);
 
   const start = useCallback(() => {
+    if (intervalRef.current) return;
     setIsActive(true);
     intervalRef.current = setInterval(tick, 1000);
   }, [tick]);

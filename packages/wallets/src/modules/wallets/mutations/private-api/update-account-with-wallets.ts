@@ -1,6 +1,6 @@
 import { ConfigManager } from "@ecency/sdk";
 import { useMutation } from "@tanstack/react-query";
-import { getBoundFetch } from "@/modules/wallets/utils";
+import { getBoundFetch } from "@/modules/wallets/utils/get-bound-fetch";
 
 interface Payload {
   tokens: Record<string, string>;

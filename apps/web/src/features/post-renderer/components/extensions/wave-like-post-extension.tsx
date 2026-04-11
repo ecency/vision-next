@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useEffect, useMemo } from "react";
+import React, { RefObject, useEffect, useMemo, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { useQuery, QueryClientProvider } from "@tanstack/react-query";
 import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
@@ -10,6 +10,7 @@ import { findPostLinkElements, isWaveLikePost } from "../functions";
 import "./wave-like-post-extension.scss";
 import { EcencyRenderer } from "../ecency-renderer";
 import { Logo } from "../icons";
+import defaults from "@/defaults";
 
 export function WaveLikePostRenderer({ link }: { link: string }) {
   const [author, permlink] = useMemo(() => {
@@ -81,36 +82,36 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
   const waveLink = `/waves/${post.author}/${post.permlink}`;
 
   return (
-    <article className="ecency-renderer-wave-like-post-extension-renderer">
+    <article className="er-wave-renderer">
       <a
         href={waveLink}
         aria-label={`Open wave by @${post.author}`}
-        className="ecency-renderer-wave-like-post-extension-renderer__overlay"
+        className="er-wave-renderer__overlay"
       />
-      <div className="ecency-renderer-wave-like-post-extension-renderer--author">
+      <div className="er-wave-renderer--author">
         <img
-          src={`https://images.ecency.com/u/${post.author}/avatar/small`}
+          src={`${defaults.imageServer}/u/${post.author}/avatar/small`}
           alt={post.author}
-          className="ecency-renderer-wave-like-post-extension-renderer--author-avatar"
+          className="er-wave-renderer--author-avatar"
         />
-        <div className="ecency-renderer-wave-like-post-extension-renderer--author-content">
+        <div className="er-wave-renderer--author-content">
           <a
-            className="ecency-renderer-wave-like-post-extension-renderer--author-content-link"
+            className="er-wave-renderer--author-content-link"
             href={`/@${post.author}/posts`}
           >
             @{post.author}
           </a>
-          <div className="ecency-renderer-wave-like-post-extension-renderer--author-content-host">
+          <div className="er-wave-renderer--author-content-host">
             #{host}
           </div>
         </div>
       </div>
       <a
         href="https://ecency.com"
-        className="ecency-renderer-wave-like-post-extension-renderer--logo"
+        className="er-wave-renderer--logo"
         dangerouslySetInnerHTML={{ __html: Logo }}
       />
-      <div className="ecency-renderer-wave-like-post-extension-renderer--body">
+      <div className="er-wave-renderer--body">
         <EcencyRenderer value={post.body} />
       </div>
     </article>
@@ -122,7 +123,12 @@ export function WaveLikePostExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -141,10 +147,11 @@ export function WaveLikePostExtension({
           }
 
           const container = document.createElement("div");
-          container.classList.add("ecency-renderer-wave-like-extension");
+          container.classList.add("er-wave");
 
           // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
           const root = createRoot(container);
+          rootsRef.current.push(root);
           root.render(
             <QueryClientProvider client={queryClient}>
               <WaveLikePostRenderer link={element.getAttribute("href") ?? ""} />
@@ -159,6 +166,11 @@ export function WaveLikePostExtension({
           console.warn("Error enhancing wave-like post element:", error);
         }
       });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return <></>;

@@ -1,4 +1,5 @@
-import type { Operation, TransactionConfirmation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
+import type { TransactionConfirmation } from "@/modules/core/hive-tx";
 
 /**
  * Platform-specific adapter for SDK mutations.
@@ -289,6 +290,26 @@ export interface PlatformAdapter {
     keyType: "posting" | "active" | "owner" | "memo"
   ) => Promise<TransactionConfirmation>;
 
+  /**
+   * Broadcast operations using HiveSigner with platform-specific UI.
+   *
+   * @param username - Username to broadcast for
+   * @param ops - Operations to broadcast
+   * @param keyType - Key authority required
+   * @returns Transaction confirmation
+   *
+   * @remarks
+   * - Mobile: Opens full-screen WebView for HiveSigner hot signing
+   * - Web: May redirect to HiveSigner or use popup
+   * - When provided, used instead of direct token-based API broadcast
+   * - Required for active operations where the access token lacks authority
+   */
+  broadcastWithHiveSigner?: (
+    username: string,
+    ops: Operation[],
+    keyType: "posting" | "active" | "owner" | "memo"
+  ) => Promise<TransactionConfirmation>;
+
   // ============================================================================
   // Optional Platform Features
   // ============================================================================
@@ -297,8 +318,8 @@ export interface PlatformAdapter {
    * Record user activity for analytics (optional).
    *
    * @param activityType - Numeric activity type code
-   * @param blockNum - Block number of the activity
    * @param txId - Transaction ID
+   * @param blockNum - Block number of the activity
    *
    * @remarks
    * - Used for tracking user engagement
@@ -306,8 +327,8 @@ export interface PlatformAdapter {
    */
   recordActivity?: (
     activityType: number,
-    blockNum: number,
-    txId: string
+    txId: string,
+    blockNum?: number
   ) => Promise<void>;
 
   /**

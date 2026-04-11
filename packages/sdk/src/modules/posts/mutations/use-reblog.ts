@@ -77,23 +77,14 @@ export function useReblog(
       }
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
-      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        auth.adapter.recordActivity(130, result.block_num, result.id).catch(() => {});
+      if (auth?.adapter?.recordActivity && result?.id) {
+        auth.adapter.recordActivity(130, result.id, result?.block_num).catch(() => {});
       }
 
       // Invalidate user's blog feed so reblogged post appears/disappears
       const qc = getQueryClient();
       qc.invalidateQueries({
-        predicate: (query) => {
-          const key = query.queryKey;
-          return (
-            Array.isArray(key) &&
-            key[0] === "posts" &&
-            key[1] === "account-posts" &&
-            key[2] === username &&
-            key[3] === "blog"
-          );
-        }
+        queryKey: QueryKeys.posts.accountPostsBlogPrefix(username!),
       });
 
       // Cache invalidation

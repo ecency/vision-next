@@ -6,11 +6,4 @@ export interface Advanced {
   schedule: string | null;
   reblogSwitch: boolean;
   description: string | null;
-  // Speak Advanced
-  isThreespeak: boolean;
-  videoId: string;
-  speakPermlink: string;
-  speakAuthor: string;
-  isNsfw: boolean;
-  videoMetadata: any;
 }

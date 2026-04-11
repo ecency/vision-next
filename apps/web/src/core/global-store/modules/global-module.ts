@@ -3,12 +3,15 @@ import { AllFilter, ListStyle, Theme } from "@/enums";
 import * as ls from "@/utils/local-storage";
 import { success } from "@/features/shared";
 import i18next from "i18next";
+import { loadLocale } from "@/features/i18n";
 import { getCurrencyRate } from "@ecency/sdk";
 import { currencySymbol } from "@/utils/currency-symbol";
 import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
 import { getQueryClient } from "@/core/react-query";
+import defaults, { ALLOWED_IMAGE_SERVERS } from "@/defaults";
+import { setProxyBase } from "@ecency/render-helper";
 
 export function createGlobalState() {
   const storedCurrency = ls.get("currency");
@@ -23,6 +26,11 @@ export function createGlobalState() {
     typeof storedCurrencySymbol === "string"
       ? storedCurrencySymbol
       : currencySymbol(initialCurrency);
+  const storedImageProxy = ls.get("image_proxy");
+  const initialImageProxy =
+    storedImageProxy && ALLOWED_IMAGE_SERVERS.includes(storedImageProxy)
+      ? storedImageProxy
+      : defaults.imageServer;
 
   return {
     theme: Cookies.get("theme") || Theme.day,
@@ -38,7 +46,8 @@ export function createGlobalState() {
     newVersion: null,
     globalNotifications: true,
     nsfw: false,
-    isMobile: false
+    isMobile: false,
+    imageProxy: initialImageProxy
   };
 }
 
@@ -80,6 +89,7 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
     setLang: async (lang: string) => {
       ls.set("lang", lang);
       ls.set("current-language", lang);
+      await loadLocale(lang);
       await i18next.changeLanguage(lang);
       set({
         lang: lang ?? "en-US"
@@ -123,6 +133,15 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       set({
         nsfw: Boolean(Number(value))
       });
+      success(i18next.t("preferences.updated"));
+    },
+    setImageProxy(server: string) {
+      if (!ALLOWED_IMAGE_SERVERS.includes(server)) {
+        return;
+      }
+      ls.set("image_proxy", server);
+      setProxyBase(server);
+      set({ imageProxy: server });
       success(i18next.t("preferences.updated"));
     },
     initKeychain() {

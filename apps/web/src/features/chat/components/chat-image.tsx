@@ -46,6 +46,13 @@ export function ChatImage({ src, alt = "Shared image", className }: ChatImagePro
       alt={alt}
       className={className ?? "max-h-80 max-w-full rounded border border-[--border-color] object-contain cursor-zoom-in"}
       onLoad={() => setIsLoaded(true)}
+      onClick={(e) => {
+        // Prevent parent <a> tags from navigating away
+        e.preventDefault();
+        e.stopPropagation();
+        // medium-zoom handles its own click via the attached instance
+        zoomRef.current?.open();
+      }}
     />
   );
 }

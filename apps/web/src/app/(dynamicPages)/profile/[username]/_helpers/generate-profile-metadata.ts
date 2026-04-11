@@ -3,6 +3,9 @@ import defaults from "@/defaults";
 import { getServerAppBase } from "@/utils/server-app-base";
 import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { accountReputation } from "@/utils";
+
+const NOINDEX_REPUTATION_THRESHOLD = 40;
 
 export async function generateProfileMetadata(
   username: string,
@@ -24,9 +27,16 @@ export async function generateProfileMetadata(
     const metaImage = `${defaults.imageServer}/u/${cleanUsername}/avatar/medium`;
     const metaKeywords = [cleanUsername, `${cleanUsername}'s blog`];
     const rssSections = ["posts", "blog", ""];
+
+    const reputationScore = accountReputation(account.reputation ?? 0);
+    const postCount = account.post_count ?? 0;
+    const applyNoIndex = reputationScore < NOINDEX_REPUTATION_THRESHOLD || postCount <= 3;
+    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
+
     return {
       title: metaTitle,
       description: metaDescription,
+      robots,
       alternates: {
         canonical: `${base}${metaUrl}`,
         ...(rssSections.includes(section) && {

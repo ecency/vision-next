@@ -1,4 +1,4 @@
-import { PublicKey } from "@hiveio/dhive";
+import { PublicKey } from "@ecency/hive-tx";
 import { Account } from "@/entities";
 
 export const Keytype = {

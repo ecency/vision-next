@@ -15,10 +15,11 @@ import {
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { KeyOrHot } from "../key-or-hot";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { usePathname } from "next/navigation";
 import { error } from "../feedback";
 import { getSdkAuthContext, getUser } from "@/utils";
+import { buildHsCallbackUrl } from "@/utils/hs-callback";
 
 interface Props {
   show: boolean;
@@ -41,7 +42,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
       getSdkAuthContext(getUser(activeUser?.username ?? ""))
     );
   const { mutateAsync: signOperationByHivesigner } = useSignOperationByHivesigner(
-    `https://ecency.com/${pathname}`
+    buildHsCallbackUrl(pathname ?? "/")
   );
 
   const [step, setStep] = useState<"details" | "sign" | "success" | "failure">("details");
@@ -140,6 +141,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
           <KeyOrHot
             onKey={signByKey}
             onKc={signByKc}
+            onMetaMask={signByKc}
             onHot={() => signOperationByHivesigner({ operation: JSON.parse(decodedOp) })}
             inProgress={isSigningKey || isSigningKeychain}
           />

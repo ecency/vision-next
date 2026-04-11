@@ -1,4 +1,4 @@
-import { SMTAsset } from "@hiveio/dhive";
+import type { SMTAsset } from "@ecency/sdk";
 
 interface BaseTransaction {
   num: number;
@@ -136,6 +136,26 @@ export interface ReturnVestingDelegation extends BaseTransaction {
 export interface ProposalPay extends BaseTransaction {
   type: "proposal_pay";
   payment: string;
+  receiver: string;
+  proposal_id: number;
+}
+
+export interface TransferFromSavings extends BaseTransaction {
+  type: "transfer_from_savings";
+  amount: string;
+  memo?: string;
+  from: string;
+  to: string;
+  request_id: number;
+}
+
+export interface LimitOrderCreate2 extends BaseTransaction {
+  type: "limit_order_create2";
+  owner: string;
+  orderid: number;
+  amount_to_sell: string;
+  min_to_receive: string;
+  expiration: string;
 }
 
 export interface UpdateProposalVotes extends BaseTransaction {
@@ -233,6 +253,7 @@ export type Transaction =
   | Transfer
   | TransferToVesting
   | TransferToSavings
+  | TransferFromSavings
   | CancelTransferFromSavings
   | WithdrawVesting
   | SetWithdrawRoute
@@ -250,6 +271,7 @@ export type Transaction =
   | RecurrentTransfers
   | FillRecurrentTransfers
   | LimitOrderCreate
+  | LimitOrderCreate2
   | LimitOrderCancel
   | FillVestingWithdraw
   | EffectiveCommentVote

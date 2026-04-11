@@ -6,6 +6,7 @@ import { UilCheck } from "@tooni/iconscout-unicons-react";
 import { Spinner } from "@ui/spinner";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useOptionalUploadTracker } from "@/app/publish/_hooks";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 
 interface Props {
   show: boolean;
@@ -114,16 +115,17 @@ export function EcencyImagesUploadDialog({ show, setShow, onPick }: Props) {
       <ModalBody>
         {!items.length && (
           <EcencyImagesUploadForm
-            onFilesPick={(files) =>
+            onFilesPick={async (files) => {
+              const converted = await Promise.all(files.map((f) => convertHeicToJpeg(f)));
               setItems((prev) => [
                 ...prev,
-                ...files.map((file) => ({
+                ...converted.map((file) => ({
                   file,
                   preview: URL.createObjectURL(file),
                   status: "pending" as const
                 }))
-              ])
-            }
+              ]);
+            }}
           />
         )}
         {items.length > 0 && (

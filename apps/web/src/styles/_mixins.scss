@@ -206,8 +206,8 @@
       }
 
       margin: 0 0 10px 0;
-      max-height: 300px;
       overflow: hidden;
+      aspect-ratio: 16 / 9;
 
       @media (min-width: $sm-break) {
         align-items: center;
@@ -215,19 +215,17 @@
         display: flex;
         float: left;
         height: 85px;
-        max-height: none;
+        aspect-ratio: auto;
         justify-content: center;
         margin-right: 17px;
         width: 150px;
       }
 
       img {
-        @media (min-width: $sm-break) {
-          border-radius: 4px;
-        }
-
-        height: auto;
-        max-width: 100%;
+        border-radius: 4px;
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
       }
     }
 

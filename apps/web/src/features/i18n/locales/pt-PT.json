@@ -39,6 +39,7 @@
     "fill-community-feed": "Ingresse em comunidades para preencher este feed.",
     "save": "Guardar",
     "try-again": "Tente novamente",
+    "soon": "Em breve",
     "show": "Mostrar",
     "on": "Ligado",
     "off": "Desligar",
@@ -103,7 +104,9 @@
     "import": "Importação",
     "clear": "Limpar",
     "play": "Reproduzir",
-    "pause": "Suspender"
+    "pause": "Suspender",
+    "start": "Iniciar",
+    "updated": "Atualizado"
   },
   "validation": {
     "required": "Campo obrigatório",
@@ -173,7 +176,8 @@
     "home": "Início",
     "waves": "Ondas",
     "communities": "Comunidades",
-    "chats": "Conversas"
+    "chats": "Conversas",
+    "toggle-menu": "Alternar menu de navegação"
   },
   "search": {
     "placeholder": "Procurar",
@@ -239,6 +243,7 @@
     "schedules": "Agendamentos",
     "fragments": "Trechos",
     "settings": "Configurações",
+    "mobile-login": "Faça login no celular",
     "logout": "Sair",
     "just-logout": "Apenas sair",
     "logout-and-clear": "Sair e Limpar dados locais",
@@ -290,7 +295,25 @@
     "use-key": "Usar tecla/senha",
     "seed-info": "Nós não armazenamos a sua frase de semente e chaves geradas",
     "sign-in": "Iniciar sessão",
-    "my-users": "Meus usuários"
+    "my-users": "Meus usuários",
+    "metamask-not-found": "MetaMask não encontrada. Por favor instale a extensão de navegador MetaMascote.",
+    "metamask-no-keys": "Não foi possível obter as chaves do Hive da snap de MetaMask",
+    "metamask-key-mismatch": "Chaves MetaMask Hive não coincidem com esta conta. Certifique-se de estar usando a mesma carteira MetaMask usada durante a inscrição.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Celular do Keychain",
+    "keychain-mobile-missing-sig": "Assinatura faltando do Keychain. Por favor, tente novamente.",
+    "keychain-mobile-no-pending": "Nenhum login pendente encontrado. Por favor, tente entrar novamente.",
+    "keychain-mobile-invalid-data": "Dados de login inválidos. Por favor, tente novamente.",
+    "keychain-mobile-expired": "Pedido de login expirado. Por favor, tente novamente.",
+    "keychain-mobile-error": "Falha no login. Por favor, tente novamente.",
+    "keychain-mobile-title": "Completando Login...",
+    "keychain-mobile-title-error": "Login Falhou",
+    "keychain-mobile-message": "Verificando sua assinatura e logando em você...",
+    "keychain-sign-missing-result": "Nenhum resultado de transação recebido do Keychain.",
+    "keychain-sign-processing": "Processandochar@@0",
+    "keychain-sign-success": "Transação assinada",
+    "keychain-sign-redirecting": "Redirecionando você de volta...",
+    "keychain-sign-error-title": "Falha na assinatura"
   },
   "sign-up": {
     "header": "Comunidades da Web3 que Valem a Pena",
@@ -399,7 +422,10 @@
     "votes": "Votos:",
     "transfers": "Transferências:",
     "reblogs-follows": "Reblogs/Seguindo:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "Delegação RC falhou",
+    "invalid-link": "Link de integração inválido",
+    "delegate-placeholder": "Digite o valor para delegar (Bn)"
   },
   "trending-tags": {
     "title": "Tópicos"
@@ -447,7 +473,7 @@
     "settings-2": "visualizar preferências"
   },
   "bookmark-btn": {
-    "add": "Adicionar aos favoritos",
+    "add": "Favorito — seja notificado sobre novos comentários",
     "added": "Adicionado aos favoritos",
     "delete": "Remover de Favoritos",
     "deleted": "Removido dos favoritos"
@@ -464,6 +490,7 @@
   },
   "entry-tip": {
     "title": "Dica",
+    "tip": "Tip",
     "send-tip": "Enviar uma dica",
     "count": "{{count}} tip",
     "count_plural": "Dicas de {{count}}"
@@ -867,6 +894,8 @@
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
     "deleted-content": "Esta publicação foi excluída por {{author}}",
     "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
+    "indexing-blockchain": "Sua postagem foi publicada na blockchain e está sendo indexada. Isso geralmente leva alguns segundos.",
+    "indexing-slow": "A indexação está demorando mais do que o esperado. Tente atualizar a página em alguns instantes.",
     "untitled": "Sem Título",
     "comments-hidden": "O autor desta publicação foi silenciado por você.",
     "address-copy": "Copiar link",
@@ -895,7 +924,8 @@
       "promotion-subtitle": "Use habilidades de Ecency para promover seu poste e ganhar uma exposição mais ampla.",
       "try-now": "Experimente agora"
     },
-    "listen": "Ouvir"
+    "listen": "Ouvir",
+    "tts-settings": "Configurações de conversão de texto"
   },
   "edit-history": {
     "title": "Editar Histórico",
@@ -909,6 +939,8 @@
     "body-placeholder": "Escreva a sua resposta aqui",
     "preview": "Pré-visualizar",
     "success": "Sua resposta foi criada com sucesso!",
+    "delete-success": "Comentário apagado com sucesso",
+    "delete-error-hint": "Não foi possível apagar o comentário. Por favor, tente novamente",
     "retry-hint": "Seu texto está preservado abaixo - por favor, tente novamente",
     "rc-error-hint": "Créditos de Recurso Insuficientes - seu texto é preservado abaixo"
   },
@@ -926,9 +958,13 @@
     "reveal-muted": "Autor silenciado - Revelar comentário",
     "reveal-muted-long-description": "Mostrar respostas adicionais, incluindo aquelas que contém conteúdo ofensivo",
     "reveal": "Revelar comentário",
+    "reveal-comments": "Mostrar comentários {{n}}",
     "no-conversation": "Ainda não há conversa. Seja o primeiro a comentar",
     "start-conversation": "Iniciar conversa",
-    "join-hint": "Torne-se parte de uma enorme comunidade de Colmeia e ganhe recompensas por atividades"
+    "join-hint": "Torne-se parte de uma enorme comunidade de Colmeia e ganhe recompensas por atividades",
+    "new-comment": "{{n}} novo comentário - toque para carregar",
+    "new-comments": "{{n}} novos comentários - toque para carregar",
+    "load-error": "Falha ao carregar os comentários. Toque para tentar novamente"
   },
   "community": {
     "page-description": "{{f}} tópicos",
@@ -1039,7 +1075,12 @@
     "default-beneficiary": "Beneficiário padrão",
     "default-beneficiary-username": "Usuário do Hive",
     "default-beneficiary-reward": "Recompensa (em %)",
-    "default-beneficiary-docs": "Ver documentos"
+    "default-beneficiary-docs": "Ver documentos",
+    "finalize-title": "Finalizar configuração da comunidade",
+    "finalize-description": "Esta conta de comunidade foi criada mas a configuração não foi concluída.",
+    "finalize-admin-label": "Usuário Admin",
+    "finalize-admin-hint": "A conta da Hive que irá gerenciar esta comunidade",
+    "finalize-success": "A configuração da comunidade foi concluída com sucesso!"
   },
   "community-rewards-registration": {
     "body-text": "Registre sua comunidade para obter PONTOS da Ecency",
@@ -1189,7 +1230,11 @@
     "updated": "Preferências atualizadas!",
     "permissions-title": "Chaves e permissões",
     "permissions-hint": "Gerencie suas chaves, controle permissões sobre os aplicativos",
-    "permissions": "Abrir permissões"
+    "permissions": "Abrir permissões",
+    "image-server": "Servidor de imagem",
+    "image-server-default": "Imagens de Ecency (Padrão)",
+    "image-server-hiveblog": "Imagens de Colméia (Alternativa)",
+    "image-server-nocdn": "Imagens de Ecency (Sem CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1205,6 +1250,13 @@
   },
   "wallet": {
     "unclaimed-rewards": "Recompensas não reclamadas",
+    "collect-all": "Coletar tudo",
+    "collect-all-ok": "Todos os ganhos coletados!",
+    "show-details": "Exibir detalhes",
+    "hide-details": "Ocultar detalhes",
+    "claimable-label": "Pronto para coletar:",
+    "potential-label": "Ganhos potenciais:",
+    "potential-hint": "de postagens ativas e comentários",
     "claim-reward-balance": "Solicitar o saldo das recompensas",
     "claim-reward-balance-ok": "Saldo das recompensas resgatado",
     "estimated": "Valor Estimado da Carteira",
@@ -1560,7 +1612,9 @@
     "type-collateralized_convert": "Conversão de colateral",
     "type-collateralized_convert-detail": "Id de solicitação: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Id da proposta: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Transferir da poupança",
     "type-limit_order_create": "Nova ordem criada",
+    "type-limit_order_create2": "Nova operação criada",
     "type-limit_order_cancel": "Ordem cancelada",
     "type-effective_comment_vote": "Voto efetivo",
     "type-account_witness_proxy": "Atualização de proxy governamental",
@@ -1577,7 +1631,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Assinar com HiveAuth",
     "invalid-key": "Formato de chave inválido. Por favor, verifique caracteres inválidos.",
-    "key-error": "Falha ao processar a chave. Por favor, verifique se está correta."
+    "key-error": "Falha ao processar a chave. Por favor, verifique se está correta.",
+    "sign-with-metamask": "Assine com MetaMask"
   },
   "hive-auth": {
     "pending-request": "Pedido de HiveAuth pendente. Corresponda a ID {{id}} na sua carteira."
@@ -1712,7 +1767,6 @@
     "empty-tags-alert": "Insira as etiquetas da postagem",
     "empty-body-alert": "Insira o corpo da postagem",
     "description": "Breve descrição",
-    "should-be-only-one-unpublished": "A publicação deve conter apenas um vídeo novo. Por favor, remova os demais.",
     "updating": "Atualizando..",
     "publishing": "Publicando..",
     "saving": "Salvando...",
@@ -1724,15 +1778,8 @@
     "record-video": "Gravar um vídeo",
     "choose-thumbnail": "Definir uma miniatura (opcional)",
     "continue": "Continuar",
-    "encode": "Enviar para carregamento",
-    "success": "Video succesfully uploaded",
-    "finished": "Concluído",
     "upload-video": "Enviar um vídeo",
-    "video-gallery": "Galeria de vídeos",
     "preview": "Pré-visualizar",
-    "to-gallery": "Ir para a galeria",
-    "congrats": "Parabéns",
-    "publishing": "Não atualize essa página. Aguarde alguns segundos para que o vídeo seja processado",
     "no-record-permission": "A permissão para gravar vídeo está desativada",
     "confirm-and-upload": "Confirmar e enviar para o 3Speak",
     "uploading": "Enviando..{{n}}/{{total}}",
@@ -1740,30 +1787,21 @@
     "reset": "Reiniciar",
     "source": "Origem do vídeo",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Vídeos com menos de 15 segundos de duração serão ignorados pelo 3Speak."
-  },
-  "video-gallery": {
-    "all": "Todos",
-    "title": "Galeria de vídeos",
-    "published": "Publicado",
-    "encoding": "Carregando",
-    "encoded": "Carregado",
-    "failed": "Falhou",
-    "status-encoded": "Pronto para publicar",
-    "status-encoding": "Carregando",
-    "status-published": "Publicado",
-    "status-failed": "Falha na codificação",
-    "status-deleted": "Excluído",
-    "info-created": "Criado:",
-    "status": "Estado:",
-    "info-views": "Visualizações:",
-    "info-duration": "Duração:",
-    "info-size": "Tamanho do arquivo:",
-    "insert-video": "Inserir",
-    "insert-nsfw": "Inserir como NSFW",
-    "only-one-video": "Apenas um vídeo pode ser publicado em uma postagem",
-    "refresh": "Atualize para obter o estado de carregamento",
-    "video-info": "Os vídeos são armazenados e mantidos pela rede SPK, podendo ter alguns custos de armazenamento e codificação."
+    "insert-video": "Inserir vídeo",
+    "file-too-large": "O tamanho do arquivo excede o limite de 1 GB. Por favor, escolha um vídeo menor.",
+    "extracting-thumbnail": "Extraindo miniatura…",
+    "thumbnail-upload-failed": "Falha ao carregar as miniaturas. Tente novamente.",
+    "error-too-large": "Arquivo de vídeo muito grande. Por favor, use um arquivo menor.",
+    "error-too-many": "Muitas solicitações de envio. Por favor, aguarde um momento e tente novamente.",
+    "error-unavailable": "O serviço de envio está temporariamente indisponível. Por favor, tente novamente mais tarde.",
+    "error-auth": "Falha de autenticação. Entre em contato com o suporte.",
+    "error-generic": "Falha ao fazer upload do vídeo. Tente novamente.",
+    "title-short": "Carregar um vídeo curto",
+    "short-badge": "Curto",
+    "video-attached": "Vídeo anexado",
+    "video-type": "Tipo de vídeo",
+    "type-video": "Vídeo",
+    "type-short": "Curto"
   },
   "tag-selector": {
     "placeholder-empty": "Etiquetas. A primeira etiqueta é a categoria principal. Ordenável.",
@@ -1800,7 +1838,9 @@
     "user-error": "{{n}} não é um usuário válido.",
     "validation-percentage": "Porcentagem é necessária.",
     "validation-username": "O nome de usuário é necessário.",
-    "user-exists-error": "{{n}} já está na lista"
+    "user-exists-error": "{{n}} já está na lista",
+    "threespeak-locked": "Necessário para hospedagem de vídeo 3Speak",
+    "required": "Obrigatório"
   },
   "post-scheduler": {
     "title": "Agendar",
@@ -1822,8 +1862,11 @@
     "checkins": "Você fez o check-in de {{count}} dia{{suffix}} esta semana. Continue assim!",
     "payouts": "Seu pagamento de conteúdo está pronto.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "Você ganhou ${{total}} esta semana - ${{author}} das publicações, ${{curation}} da curadoria.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "Todas as notificações",
@@ -1856,12 +1899,15 @@
     "spin-str": "Hora de ganhar mais pontos, jogue o Giro no Aplicativo Móvel da Ecency",
     "inactive-str": "Seja ativo! Escreva uma publicação, continue a ganhar",
     "referral-str": "entrou com o convite. Dê boas-vindas",
+    "account-update-str": "As chaves da sua conta ou perfil foram atualizados",
+    "weekly-earnings-title": "Resumo de ganhos semanais para @{{username}}",
     "refresh": "Atualizar",
     "mark-all-read": "Marcar todas como lidas",
     "mark-read": "Marcar como Lido",
     "mute": "Desativar alertas de notificação",
     "unmute": "Ativar alertas de notificação",
-    "settings": "Ajustes",
+    "settings": "Configurações de Som/Popup",
+    "new-notifications-batch": "{{count}} novas notificações",
     "select": "Selecionar notificação",
     "unselect": "Desmarcar notificação",
     "mark-selected-read": "Marcar selecionados como lidos"
@@ -2063,10 +2109,12 @@
     "move": "Mover para Rascunhos"
   },
   "bookmarks": {
-    "title": "Marcadores"
+    "title": "Marcadores",
+    "hint": "Você receberá notificações quando um conteúdo favorito receber uma resposta."
   },
   "favorites": {
-    "title": "Favoritos"
+    "title": "Favoritos",
+    "hint": "Você receberá notificações quando um autor favorito publicar conteúdo novo."
   },
   "fragments": {
     "title": "Trechos",
@@ -2142,6 +2190,7 @@
     "update-success-message": "Seu e-mail de recuperação foi atualizado com sucesso"
   },
   "chat": {
+    "title": "Bate-papo",
     "page-title": "Inicia mensagens diretas ou entra em canais para conversar com a comunidade de Ecency",
     "loading-chats": "Carregando bate-papos…",
     "start-dm-button": "Iniciar MD",
@@ -2173,7 +2222,6 @@
     "join-channel-action": "Juntar-se",
     "joining-channel": "Juntando-se a…",
     "no-additional-channels": "Nenhum canal adicional encontrado.",
-    "title": "Bate-papo",
     "no-admin": "Nenhum administrador ou moderador para este chat da comunidade.",
     "view-community-channel": "View community channel",
     "public-key": "Chave pública",
@@ -2588,6 +2636,8 @@
     "download-for-windows": "Baixar para Computador",
     "download-for-ios": "Baixar para iOS",
     "download-for-android": "Baixar para Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Obtenha o aplicativo móvel",
     "our-history": "Nossa História",
     "our-history-p-one": "<b>Ecency</b> (previamente Esteem) começou em 2016, O fundador <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> começou a implementar uma aplicação móvel que revolucionaria a maneira como você interage e cria, construa, envolva-se online. Com o tempo cresceu para algo muito maior.",
     "our-history-p-two": "Desde então, temos continuado a construir para a Web 3.0 e melhorar nossa rede social em blockchain. Nos certificamos para que os aplicativos estejam seguros, acessíveis e traduzidos para as mais diversas línguas do mundo.",
@@ -2621,6 +2671,12 @@
     "grid": "Grade",
     "classic": "Clássico",
     "deck": "Prancha"
+  },
+  "my-favorites-widget": {
+    "title": "Meus Favoritos",
+    "empty": "Você ainda não adicionou nenhum autor favorito",
+    "empty-cta": "Descubra autores",
+    "view-all": "Visualizar tudo"
   },
   "top-communities": {
     "title": "Principais comunidades",
@@ -2718,7 +2774,6 @@
     "vote": "Voto",
     "account-age-hint": "Apenas contas mais antigas do que {{n}} dias são permitidas",
     "preview-mode": "Modo de pré-visualização",
-    "videos-collision-error": "Enquetes e vídeos do 3Speak não podem ser colocados na mesma publicação, uma vez requerem formas diferentes de postagens. Por favor, escolha apenas um deles.",
     "number_of_votes": "Por número de votos",
     "tokens": "Por tokens",
     "view-votes": "Ver votos",
@@ -2769,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Não é possível usar dados locais",
-    "no-ls-description": "Parece que você ou seu navegador desativou os dados locais do nosso site. Infelizmente, você não pode usar a maior parte dos recursos de Ecency como rascunhos, decks locais, painel de trading avançado e muito mais. Por favor, use as versões mais recentes de qualquer navegador moderno ou ative os dados locais manualmente."
+    "no-ls-description": "Parece que você ou seu navegador desativou os dados locais do nosso site. Infelizmente, você não pode usar a maior parte dos recursos de Ecency como rascunhos, decks locais, painel de trading avançado e muito mais. Por favor, use as versões mais recentes de qualquer navegador moderno ou ative os dados locais manualmente.",
+    "install-title": "Install Ecency",
+    "install-description": "Adicione Ecency à sua tela inicial para uma experiência de tela cheia mais rápida.",
+    "install-cta": "Instale",
+    "install-dismiss": "Agora não",
+    "install-ios-hint": "Toque no botão Compartilhar e escolha \"Adicionar à tela inicial\" para instalar o Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "Para você",
+      "following": "Seguinte"
+    },
     "sources": "Fontes",
     "reply-form-title": "Respondendo a",
     "hide-replies": "Ocultar respostas",
@@ -2802,6 +2866,32 @@
   "events": {
     "muted": "User has muted",
     "unmuted": "User has unmuted"
+  },
+  "signup-options": {
+    "free": {
+      "title": "Conta Gratuita",
+      "description": "Obtenha uma conta da Hive com verificação básica por e-mail.",
+      "button": "Obtenha uma conta gratuita",
+      "label": "Gratuito"
+    },
+    "premium": {
+      "title": "Conta Premium",
+      "description": "Conta instantânea com créditos de recursos 3x e 300 pontos de identidade.",
+      "button": "Obter Premium - US$ 2,99",
+      "label": "Prêmio"
+    },
+    "wallet": {
+      "title": "Carteira Criptografada",
+      "description": "Crie uma conta instantaneamente usando MetaMask. Nenhuma frase de semente é necessária.",
+      "button": "Conectar Carteira",
+      "label": "Carteira"
+    },
+    "invited": {
+      "title": "Convidado por um amigo",
+      "description": "Um amigo com uma conta na Hive pode criar uma para você sem custo.",
+      "button": "Seja convidado",
+      "label": "Convidado"
+    }
   },
   "signup-email": {
     "title": "Cadastre-se com E-mail",
@@ -2844,7 +2934,13 @@
       "topup": "Por favor, recarregue sua carteira com alguma quantidade de tokens",
       "topup-description": "Quando seu saldo de carteira muda, a página será detectada automaticamente e permitirá que Você continue a criar a conta",
       "validation-success": "Nós validamos sua carteira",
-      "address-copied": "Endereço copiado"
+      "address-copied": "Endereço copiado",
+      "minimum-required": "Pelo menos {{minimum}} é necessário para validar.",
+      "estimated-value": "Valor estimado: ${{value}}",
+      "checking-balance": "Verificando o saldo da sua carteira...",
+      "balance-fetch-error": "Não foi possível atualizar seu saldo da carteira. Nós continuaremos tentando novamente.",
+      "price-unavailable": "Os dados de preços estão temporariamente indisponíveis. Por favor, tente novamente em instantes.",
+      "price-required": "Os dados de preço são necessários para validar que seu saldo atende ao mínimo {{minimum}} . Vamos continuar verificando seu saldo, por favor tente novamente em instantes."
     },
     "import": {
       "title": "Importar carteira própria",
@@ -2862,6 +2958,33 @@
       "creating": "Criando conta do Hive...",
       "validating": "Preparando a sua conta...",
       "success": "Sua conta foi criada. Aproveite o Hive e a Ecency!"
+    },
+    "metamask": {
+      "title": "Conectar a MetaMask",
+      "description": "Conecte sua carteira MetaMask para verificar sua identidade e criar uma conta no Hive.",
+      "not-found": "MetaMask não detectado. Por favor instale a extensão MetaMascote.",
+      "connect-button": "Conectar a MetaMask",
+      "connect-hint": "Nós verificaremos o seu saldo da carteira para verificar sua identidade. Nenhum saldo será transferido.",
+      "connect-error": "Falha ao conectar com MetaMask. Por favor, tente novamente.",
+      "connected": "Máscara conectada",
+      "chain-unsupported": "Esta cadeia ainda não é suportada por conexão direta. Em breve.",
+      "address-in-use": "Este endereço de carteira já está associado a uma conta de Hive.",
+      "sign-and-continue": "Assinar e Continuar",
+      "sign-rejected": "A assinatura foi rejeitada. Tente novamente.",
+      "installing-snap": "Instalando o heap da Hive...",
+      "getting-keys": "Derivando chaves da Colmeia da sua carteira...",
+      "create-error": "Falha ao criar a conta. Por favor, tente novamente.",
+      "success-hint": "Você pode entrar em Ecaência usando sua carteira MetaMask com o snap!",
+      "enter-address": "Digite o seu endereço {{chain}}",
+      "enter-address-hint": "Copie o endereço da sua carteira MetaMask para esta cadeia.",
+      "login-with-metamask": "Faça login com MetaMask",
+      "logging-in": "Conectando com MetaMask...",
+      "address-label": "Endereço {{chain}}:",
+      "checking-multichain": "Verificando endereços multicorrente do MetaMask ...",
+      "chain-not-available": "A cadeia selecionada não está disponível no MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -2910,7 +3033,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Carregar e colar",
-    "three-speak-gallery": "A partir das 3Falas",
     "video-by-link": "Adicionar vídeo por link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Link do vídeo",
@@ -2943,6 +3065,19 @@
     "upload-started": "Enviando imagem...",
     "back-to-old": "Back to Classic View",
     "clear": "Limpar",
+    "import": "Importar da URL",
+    "import-title": "Importar artigo",
+    "import-subtitle": "Você terá a chance de revisar e editar antes de publicar.",
+    "import-hint": "Cole uma URL para importar o conteúdo do artigo para o editor. Suporta postagens de Hive e artigos da web externos.",
+    "import-ownership-notice": "Por favor, apenas importe conteúdo que você possui ou tem permissão para republicar.",
+    "import-failed": "Falha ao importar artigo. Por favor, verifique o URL e tente novamente.",
+    "import-error-invalid-url": "URL inválida. Por favor, insira um endereço web válido.",
+    "import-error-fetch-failed": "Não foi possível alcançar o site. Por favor, verifique o URL e tente novamente.",
+    "import-error-not-html": "A URL não aponta para uma página da web.",
+    "import-error-too-large": "A página é muito grande para importar.",
+    "import-error-extract-failed": "Não foi possível extrair o conteúdo do artigo da página.",
+    "import-error-not-found": "Postagem não encontrada. Por favor, verifique a URL.",
+    "importing": "Importando...",
     "reward-settings": "Configurações de recompensa",
     "beneficiaries": "Beneficiários",
     "meta-information": "Meta Informação",
@@ -2977,19 +3112,12 @@
     "get-help": "Obter ajuda",
     "loading-post-title": "Carregando sua postagem...",
     "loading-post-hint": "Apenas título, conteúdo, tags e meta informação podem ser alteradas após a publicação da postagem",
-    "upload-video-error-hint": "O vídeo só pode ser carregado ao criar uma publicação que não seja editada",
     "no-post-title": "Não foi possível encontrar o post",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Abrir publicação original",
     "updated-title": "A postagem foi atualizada!",
     "updated-hint": "Conteúdo da postagem foi atualizado. As alterações serão visíveis em poucos minutos.",
     "back-to-post": "Voltar à postagem",
-    "video-gallery": {
-      "no-data": "Ainda não há vídeos",
-      "no-data-hint": "Altere o filtro ou publique seu primeiro vídeo com 3Speak",
-      "no-data-button": "Enviar agora"
-    },
-    "video-availability": "O vídeo estará disponível após a publicação",
     "title-placeholder": "Qual é o título?",
     "html-warning": {
       "title": "Código HTML puro detectado",
@@ -3022,6 +3150,42 @@
     "hint": "Text-to-Speech usa ferramentas integradas do navegador para converter conteúdo de texto em fala. A lista de vozes, a disponibilidade e a qualidade depende apenas de seu navegador e dispositivo.",
     "playground": "Parquinho",
     "voices": "Vozes"
+  },
+  "external-transfer": {
+    "title": "Enviar {{token}}",
+    "recipient-label": "Endereço do destinatário",
+    "error-invalid-address": "Endereço {{chain}} inválido",
+    "amount-label": "Quantidade",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Taxa de rede estimada",
+    "max-evm-hint": "Taxas de rede são pagas a partir de {{token}}. MetaMask pode ajustar o valor para a reserva de gás.",
+    "error-address-mismatch": "A conta MetaMask conectada não coincide com seu endereço de carteira vinculado. Troque de conta no MetaMask.",
+    "error-exceeds-balance": "Montante excede o saldo disponível",
+    "review": "Revisar transferência",
+    "sending": "Enviando",
+    "value": "Valor",
+    "to-label": "Para",
+    "confirm-metamask": "Confirmar com MetaMask",
+    "signing": "Aguardando confirmação do MetaMascote...",
+    "success": "Transferência enviada!",
+    "success-hint": "Sua transação foi enviada para a rede. Pode demorar alguns minutos para confirmar.",
+    "view-explorer": "Ver no explorador",
+    "failed": "Falha na transferência",
+    "cancelled": "Transação cancelada pelo usuário.",
+    "try-again": "Tente novamente"
+  },
+  "mobile-login-qr": {
+    "title": "Fazer login no aplicativo móvel",
+    "warning-title": "Este código QR contém as suas credenciais de sessão",
+    "warning-1": "Não escanear em espaços públicos onde outros podem ver sua tela",
+    "warning-2": "Não compartilhe ou captura de tela do código QR",
+    "warning-3": "Desativar gravação ou espelhamento de tela antes de revelar",
+    "reveal-button": "Entendo, revelar o código QR",
+    "generating": "Gerando código QR seguro...",
+    "instructions": "Abra o aplicativo móvel de Ecency e toque no QR scanner e digitalize este código para entrar.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Não foi possível gerar o login QR. Por favor, tente desconectar e fazer o login novamente.",
+    "error-generate": "Falha ao gerar o código QR. Por favor, tente novamente."
   },
   "profile-wallet": {
     "pick-tokens": "Escolher tokens para mostrar",
@@ -3128,6 +3292,22 @@
       "title": "Revogar chave do Hive",
       "hint": "Você pode revogar qualquer chave do Hive usando uma das chaves/senha mestra do proprietário/semente"
     },
+    "manage-keys": {
+      "title": "Gerenciar chaves",
+      "choose-title": "O que você gostaria de fazer?",
+      "add-title": "Adicionar Novas Chaves",
+      "add-description": "Gerar uma nova senha mestra e adicionar chaves à sua conta",
+      "revoke-title": "Revogar chaves",
+      "revoke-description": "Remova as chaves de que você não precisa mais de sua conta",
+      "revoke-select-title": "Selecione chaves para revogar",
+      "revoke-select-description": "Escolha quais chaves serão removidas de sua conta. Você deve manter pelo menos uma chave por autoridade.",
+      "revoke-confirm-title": "Confirmar Revogação",
+      "revoke-confirm-description": "Faça login com sua chave de proprietário para remover as chaves selecionadas da sua conta.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Chaves revogadas com sucesso",
+      "revoke-step-select": "Selecione as chaves",
+      "revoke-step-sign": "Assinar"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Autenticar",
@@ -3217,5 +3397,84 @@
         "step-link-description": "Finalize a carteira vinculada à conta de Ecency"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Gere imagens a partir de descrições de texto usando AI. Os custos são deduzidos a partir de seus pontos de Ecência.",
+    "toolbar-button": "Imagem de IA",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Criar imagens a partir de prompts de texto usando AI, alimentado por seus Pontos de Ecência",
+    "prompt-label": "Descreva a imagem que você deseja criar",
+    "prompt-placeholder": "Um belo pôr do sol sobre montanhas com nuvens roxas...",
+    "prompt-chars-remaining": "{{count}} caracteres restantes",
+    "select-aspect-ratio": "Proporção da imagem",
+    "cost-label": "Custo",
+    "balance-label": "Saldo",
+    "generate-button": "Gerar Imagem",
+    "generating": "Gerando sua imagem...",
+    "result-title": "Imagem Gerada",
+    "insert-button": "Inserir na publicação",
+    "download-button": "BAIXAR",
+    "generate-again": "Gerar Novamente",
+    "history-title": "Gerações recentes",
+    "history-empty": "Nenhuma história de geração ainda",
+    "success": "Imagem gerada com sucesso!",
+    "error-insufficient-points": "Pontos insuficientes. Você precisa de {{required}} , mas tem {{available}}.",
+    "error-content-policy": "Seu prompt foi rejeitado pela política de conteúdo. Pontos não foram reembolsados. Por favor, tente um prompt diferente.",
+    "error-rate-limit": "Muitas solicitações de geração. Por favor, aguarde um momento e tente novamente.",
+    "error-auth": "A autenticação expirou. Atualize a página e tente novamente.",
+    "error-generic": "Falha ao gerar a imagem. Por favor, tente novamente.",
+    "error-prompt-required": "Por favor, insira um prompt",
+    "error-prompt-too-long": "O pedido deve ter 1000 caracteres ou menos",
+    "points-unit": "PONTOS",
+    "save-to-gallery": "Salvar na Galeria",
+    "save-to-gallery-success": "Imagem salva em sua galeria!",
+    "save-to-gallery-error": "Falha ao salvar a imagem na galeria. Tente novamente.",
+    "use-suggestion": "Uso: {{suggestion}}",
+    "select-power": "Reforço de qualidade"
+  },
+  "ai-assist": {
+    "title": "Assistente de Escrita IA",
+    "toolbar-button": "Assistência IA",
+    "balance-label": "Saldo",
+    "points-unit": "PONTOS",
+    "free-label": "Gratuito",
+    "free-remaining": "{{count}} restante grátis hoje",
+    "cost-label": "Custo",
+    "hint": "Escreva o seu conteúdo primeiro, depois use o Auxiliar de AI para aprimorá-lo.",
+    "action-label": "O que você gostaria de fazer?",
+    "text-label": "Seu conteúdo",
+    "text-placeholder": "Cole ou digite seu conteúdo de rascunho aqui...",
+    "chars-remaining": "{{count}} caracteres restantes",
+    "min-chars": "Mínimo de {{count}} caracteres necessários",
+    "action-improve": "Melhorar Escrita",
+    "action-improve-desc": "gramática polonesa, clareza e estilo",
+    "action-suggest_tags": "Sugerir Tags",
+    "action-suggest_tags-desc": "Obtenha tags relevantes para a sua publicação",
+    "action-generate_title": "Gerar Título",
+    "action-generate_title-desc": "Criar opções de título convincente",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Verificar gramática",
+    "action-check_grammar-desc": "Corrigir gramática e ortografia",
+    "submit-button": "Executar assistência IA",
+    "submitting": "Processandochar@@0",
+    "result-title": "Resultado",
+    "apply-button": "Aplicar à publicação",
+    "copy-button": "copiar",
+    "copied": "Copiado!",
+    "try-again": "Tente novamente",
+    "try-another": "Tente outra ação",
+    "show-changes": "Mostrar alterações",
+    "hide-changes": "Ocultar alterações",
+    "hide-translation": "Ocultar tradução",
+    "success": "Assistência de IA concluída!",
+    "error-insufficient-points": "Pontos insuficientes. Você precisa de {{required}} , mas tem {{available}}.",
+    "error-content-policy": "O conteúdo viola a política. Os pontos não foram reembolsados.",
+    "error-rate-limit": "Muitas solicitações. Por favor, aguarde um momento e tente novamente.",
+    "error-auth": "A autenticação expirou. Atualize a página e tente novamente.",
+    "error-generic": "Assistência de IA falhou. Por favor, tente novamente.",
+    "error-text-too-short": "Seu texto é muito curto. Mínimo de {{count}} caracteres."
   }
 }

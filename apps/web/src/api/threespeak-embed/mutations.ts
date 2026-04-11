@@ -1,0 +1,57 @@
+"use client";
+
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { uploadVideoEmbed } from "./api";
+import { VideoUploadResult } from "./types";
+import { error } from "@/features/shared";
+import i18next from "i18next";
+
+export function useThreeSpeakEmbedUpload() {
+  const [completed, setCompleted] = useState<number>(0);
+
+  const mutation = useMutation({
+    mutationKey: ["threeSpeakEmbedUpload"],
+    mutationFn: async ({
+      file,
+      owner,
+      isShort = false
+    }: {
+      file: File;
+      owner: string;
+      isShort?: boolean;
+    }): Promise<VideoUploadResult> => {
+      try {
+        const result = await uploadVideoEmbed(file, owner, isShort, (percentage) =>
+          setCompleted(percentage)
+        );
+        return result;
+      } catch (e) {
+        // TUS errors expose status via originalResponse; fetch errors via .status
+        const status =
+          (e as any)?.originalResponse?.getStatus?.() ??
+          (e as any)?.status ??
+          undefined;
+
+        console.error("[3Speak] Video upload failed:", { status, error: e });
+
+        if (status === 413) {
+          error(i18next.t("video-upload.error-too-large"));
+        } else if (status === 429) {
+          error(i18next.t("video-upload.error-too-many"));
+        } else if (status === 503) {
+          error(i18next.t("video-upload.error-unavailable"));
+        } else if (status === 401 || status === 403) {
+          error(i18next.t("video-upload.error-auth"));
+        } else {
+          error(i18next.t("video-upload.error-generic"));
+        }
+        throw e;
+      } finally {
+        setCompleted(0);
+      }
+    }
+  });
+
+  return { ...mutation, completed, setCompleted };
+}

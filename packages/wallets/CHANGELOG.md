@@ -1,5 +1,234 @@
 # @ecency/wallets
 
+## 3.0.7
+
+### Patch Changes
+
+- React 19 upgrade (#751)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.7
+
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.6
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.5
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.4
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.2
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.1
+
+## 3.0.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.0
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.35
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.34
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.33
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.32
+
+## 2.0.1
+
+### Patch Changes
+
+- Fix sol rpc (#716)
+
+## 2.0.0
+
+### Major Changes
+
+- QR login and Metamask transfers (#715)
+
+## 1.5.55
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.30
+
+## 1.5.54
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.28
+
+## 1.5.53
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.27
+
+## 1.5.52
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.25
+
+## 1.5.51
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.24
+
+## 1.5.50
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.22
+
+## 1.5.49
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.21
+
+## 1.5.48
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.20
+
+## 1.5.47
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.19
+
+## 1.5.46
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.18
+
+## 1.5.45
+
+### Patch Changes
+
+- Version bumps (#678)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.17
+
+## 1.5.44
+
+### Patch Changes
+
+- Server fallbacks, image saving (#677)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.16
+
+## 1.5.43
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.15
+
+## 1.5.42
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.14
+
+## 1.5.41
+
+### Patch Changes
+
+- Better memory optimizations (#674)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.13
+
+## 1.5.40
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.12
+
+## 1.5.39
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.11
+
 ## 1.5.38
 
 ### Patch Changes

@@ -6,25 +6,20 @@ import { error } from "../feedback";
 import { v4 } from "uuid";
 import { useUnmount } from "react-use";
 import { Button } from "@ui/button";
-import { useThreeSpeakVideoUpload } from "@/api/threespeak";
+import { useThreeSpeakEmbedUpload } from "@/api/threespeak-embed";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 import i18next from "i18next";
 import { formatError } from "@/api/format-error";
 
 interface Props {
-  setVideoUrl: (v: string) => void;
-  setFilevName: (v: string) => void;
-  setFilevSize: (v: number) => void;
-  setSelectedFile: (v: string) => void;
+  onEmbedUrlReady: (embedUrl: string, permlink: string) => void;
+  setSelectedFile: (v: string, mime: string) => void;
   onReset: () => void;
+  isShort?: boolean;
 }
 
-export function VideoUploadRecorder({
-  setVideoUrl,
-  setFilevName,
-  setFilevSize,
-  onReset,
-  setSelectedFile
-}: Props) {
+export function VideoUploadRecorder({ onEmbedUrlReady, onReset, setSelectedFile, isShort }: Props) {
+  const { activeUser } = useActiveAccount();
   const [stream, setStream] = useState<MediaStream>();
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder>();
   const [recordedVideoSrc, setRecordedVideoSrc] = useState<string>();
@@ -33,8 +28,8 @@ export function VideoUploadRecorder({
   const [currentCamera, setCurrentCamera] = useState<MediaDeviceInfo>();
 
   const ref = useRef<HTMLVideoElement | null>(null);
-  const recordedVideoUrlRef = useRef<string>();
-  const selectedFileUrlRef = useRef<string>();
+  const recordedVideoUrlRef = useRef<string | undefined>(undefined);
+  const selectedFileUrlRef = useRef<string | undefined>(undefined);
   const dataAvailableHandlerRef = useRef<((event: BlobEvent) => void) | null>(null);
   const previousMediaRecorderRef = useRef<MediaRecorder | null>(null);
 
@@ -43,20 +38,18 @@ export function VideoUploadRecorder({
     completed,
     isPending: isLoading,
     isSuccess
-  } = useThreeSpeakVideoUpload("video");
+  } = useThreeSpeakEmbedUpload();
 
   useMount(() => initStreamSafe());
 
   useUnmount(() => {
     stream?.getTracks().forEach((track) => track.stop());
-    // Clean up blob URLs
     if (recordedVideoUrlRef.current) {
       URL.revokeObjectURL(recordedVideoUrlRef.current);
     }
     if (selectedFileUrlRef.current) {
       URL.revokeObjectURL(selectedFileUrlRef.current);
     }
-    // Remove event listener
     if (mediaRecorder && dataAvailableHandlerRef.current) {
       mediaRecorder.removeEventListener("dataavailable", dataAvailableHandlerRef.current);
     }
@@ -73,7 +66,6 @@ export function VideoUploadRecorder({
       setNoPermission(false);
 
       try {
-        // Clean up old blob URL before creating new one
         if (recordedVideoUrlRef.current) {
           URL.revokeObjectURL(recordedVideoUrlRef.current);
           recordedVideoUrlRef.current = undefined;
@@ -83,18 +75,20 @@ export function VideoUploadRecorder({
           video: currentCamera ? { deviceId: currentCamera.deviceId } : true,
           audio: true
         });
-        const mediaRecorder = new MediaRecorder(stream, {
-          mimeType
-        });
+        const mediaRecorder = new MediaRecorder(stream, { mimeType });
 
-        // Remove old event listener from previous MediaRecorder if it exists
         if (previousMediaRecorderRef.current && dataAvailableHandlerRef.current) {
-          previousMediaRecorderRef.current.removeEventListener("dataavailable", dataAvailableHandlerRef.current);
+          previousMediaRecorderRef.current.removeEventListener(
+            "dataavailable",
+            dataAvailableHandlerRef.current
+          );
         }
 
-        // Create new event handler
         const dataAvailableHandler = (event: BlobEvent) => {
           if (event.data.size > 0) {
+            if (recordedVideoUrlRef.current) {
+              URL.revokeObjectURL(recordedVideoUrlRef.current);
+            }
             const blobUrl = URL.createObjectURL(event.data);
             recordedVideoUrlRef.current = blobUrl;
             setRecordedVideoSrc(blobUrl);
@@ -148,7 +142,6 @@ export function VideoUploadRecorder({
             ?.getTracks()
             .filter(({ kind }) => kind === "video")
             .forEach((track) => track.stop());
-
           setCurrentCamera(camera);
         }}
       />
@@ -183,28 +176,33 @@ export function VideoUploadRecorder({
                 <Button
                   disabled={isLoading}
                   onClick={async () => {
-                    if (!recordedBlob) {
+                    if (!recordedBlob || !activeUser) return;
+
+                    const maxFileSizeBytes = 1 * 1024 * 1024 * 1024; // 1 GB
+                    if (recordedBlob.size > maxFileSizeBytes) {
+                      error(i18next.t("video-upload.file-too-large"));
                       return;
                     }
 
                     try {
-                      const file = new File([recordedBlob], `ecency-recorder-${v4()}.webm`, {
-                        type: "video/webm"
+                      const mime = recordedBlob.type || "video/webm";
+                      const ext = mime.includes("mp4") ? "mp4" : "webm";
+                      const file = new File([recordedBlob], `ecency-recorder-${v4()}.${ext}`, {
+                        type: mime
                       });
                       const result = await uploadVideo({
-                        file
+                        file,
+                        owner: activeUser.username,
+                        isShort
                       });
                       if (result) {
-                        setVideoUrl(result.fileUrl);
-                        setFilevName(result.fileName);
-                        setFilevSize(result.fileSize);
-                        // Clean up old selected file URL before creating new one
+                        onEmbedUrlReady(result.embedUrl, result.permlink);
                         if (selectedFileUrlRef.current) {
                           URL.revokeObjectURL(selectedFileUrlRef.current);
                         }
                         const fileUrl = URL.createObjectURL(file);
                         selectedFileUrlRef.current = fileUrl;
-                        setSelectedFile(fileUrl);
+                        setSelectedFile(fileUrl, mime);
                       }
                     } catch (e) {
                       error(...formatError(e));

@@ -1,7 +1,7 @@
 import { Fragment } from "@/entities";
 import i18next from "i18next";
 import { FragmentForm } from "./fragment-form";
-import { useEditFragment, useRemoveFragment } from "@ecency/sdk";
+import { useEditFragment } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useCallback } from "react";
 import { getAccessToken } from "@/utils";
@@ -18,7 +18,6 @@ export function EditFragment({ item, onUpdate, onCancel }: Props) {
   const accessToken = activeUser ? getAccessToken(activeUser.username) : undefined;
   const { mutateAsync: updateFragment, isPending: isUpdateLoading } = useEditFragment(
     username,
-    item.id,
     accessToken
   );
 
@@ -28,10 +27,10 @@ export function EditFragment({ item, onUpdate, onCancel }: Props) {
 
   const submit = useCallback(
     async (title: string, body: string) => {
-      await updateFragment({ title, body });
+      await updateFragment({ fragmentId: item.id, title, body });
       onUpdate();
     },
-    [onUpdate, updateFragment]
+    [onUpdate, updateFragment, item.id]
   );
 
   return (

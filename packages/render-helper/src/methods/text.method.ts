@@ -3,19 +3,31 @@ import { extractYtStartTime, isValidPermlink, isValidUsername, sanitizePermlink 
 import { proxifyImageSrc } from '../proxify-image-src'
 import { linkify } from './linkify.method'
 import {createImageHTML} from "./img.method";
+import { RenderOptions } from "../types";
 
-export function text(node: HTMLElement | null, forApp: boolean): void {
+function hasAncestor(node: Node, tagNames: string[]): boolean {
+  let current = node.parentNode
+  while (current) {
+    if (tagNames.includes(current.nodeName.toLowerCase())) {
+      return true
+    }
+    current = current.parentNode
+  }
+  return false
+}
+
+export function text(node: HTMLElement | null, forApp: boolean, renderOptions?: RenderOptions): void {
   if (!node || !node.parentNode) {
     return
   }
 
-  // Case-insensitive check
-  if (['a', 'code'].includes(node.parentNode.nodeName.toLowerCase())) {
+  // Skip text nodes inside links, inline code, or code blocks (check all ancestors)
+  if (hasAncestor(node, ['a', 'code', 'pre'])) {
     return
   }
 
   const nodeValue = node.nodeValue || ''
-  const linkified = linkify(nodeValue, forApp)
+  const linkified = linkify(nodeValue, forApp, renderOptions)
   if (linkified !== nodeValue) {
     const doc = DOMParser.parseFromString(
       `<span class="wr">${linkified}</span>`,

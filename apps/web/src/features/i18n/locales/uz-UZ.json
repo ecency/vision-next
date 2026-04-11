@@ -39,6 +39,7 @@
     "fill-community-feed": "Lentani to'ldirish uchun ko'proq guruhlarni kuzatishingiz mumkin.",
     "save": "Saqlash",
     "try-again": "Yana urinib ko'rish",
+    "soon": "Soon",
     "show": "Ko'rsatish",
     "on": "Yoqish",
     "off": "O'chirish",
@@ -103,7 +104,9 @@
     "import": "Import",
     "clear": "Clear",
     "play": "O‘ynash",
-    "pause": "To‘xtatib turish"
+    "pause": "To‘xtatib turish",
+    "start": "Start",
+    "updated": "Updated"
   },
   "validation": {
     "required": "To'ldirish shart",
@@ -173,7 +176,8 @@
     "home": "Home",
     "waves": "Waves",
     "communities": "Guruhlar",
-    "chats": "Chatlar"
+    "chats": "Chatlar",
+    "toggle-menu": "Toggle navigation menu"
   },
   "search": {
     "placeholder": "Izlash",
@@ -239,6 +243,7 @@
     "schedules": "Rejalar",
     "fragments": "Fragmentlar",
     "settings": "Sozlamalar",
+    "mobile-login": "Log in to Mobile",
     "logout": "Chiqish",
     "just-logout": "Just logout",
     "logout-and-clear": "Logout & Clear local data",
@@ -290,7 +295,25 @@
     "use-key": "Kalit/paroldan foydalanish",
     "seed-info": "Biz sizning seed-frazangizni va yaratilgan kalitlaringizni saqlamaymiz",
     "sign-in": "Kirish",
-    "my-users": "Mening foydalanuvchilarim"
+    "my-users": "Mening foydalanuvchilarim",
+    "metamask-not-found": "MetaMask not found. Please install MetaMask browser extension.",
+    "metamask-no-keys": "Could not get Hive keys from MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive keys do not match this account. Make sure you are using the same MetaMask wallet used during signup.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Keychain Mobile",
+    "keychain-mobile-missing-sig": "Missing signature from Keychain. Please try again.",
+    "keychain-mobile-no-pending": "No pending login found. Please try logging in again.",
+    "keychain-mobile-invalid-data": "Invalid login data. Please try again.",
+    "keychain-mobile-expired": "Login request expired. Please try again.",
+    "keychain-mobile-error": "Login failed. Please try again.",
+    "keychain-mobile-title": "Completing Login...",
+    "keychain-mobile-title-error": "Login Failed",
+    "keychain-mobile-message": "Verifying your signature and logging you in...",
+    "keychain-sign-missing-result": "No transaction result received from Keychain.",
+    "keychain-sign-processing": "Processing...",
+    "keychain-sign-success": "Transaction Signed",
+    "keychain-sign-redirecting": "Redirecting you back...",
+    "keychain-sign-error-title": "Signing Failed"
   },
   "sign-up": {
     "header": "MukofotlovchiWeb3 Guruhlari",
@@ -399,7 +422,10 @@
     "votes": "Ovozlar:",
     "transfers": "O'tkazmalar:",
     "reblogs-follows": "Rebloglar/Obunalar:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegation failed",
+    "invalid-link": "Invalid onboarding link",
+    "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
     "title": "Mavzular"
@@ -447,7 +473,7 @@
     "settings-2": "ko‘rinish sozlamalari"
   },
   "bookmark-btn": {
-    "add": "Saqlanganlarga qo'shish",
+    "add": "Bookmark — get notified about new comments",
     "added": "Saqlanganlarga qo'shildi",
     "delete": "Saqlanganlardan olib tashlash",
     "deleted": "Saqlanganlardan olib tashlandi"
@@ -464,6 +490,7 @@
   },
   "entry-tip": {
     "title": "Sovg'a",
+    "tip": "Tip",
     "send-tip": "Send a tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -867,6 +894,8 @@
     "deleted-content-warning": "Bu kontent muallif tomonidan o'chirilgan. Siz uni Blokcheyndan ko'rishingiz mumkin ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "indexing-blockchain": "Your post has been published to the blockchain and is being indexed. This usually takes a few seconds.",
+    "indexing-slow": "Indexing is taking longer than expected. Try refreshing the page in a few moments.",
     "untitled": "Untitled",
     "comments-hidden": "Bu post muallifini ovozsiz qilgansiz.",
     "address-copy": "Linkni nusxalash",
@@ -895,7 +924,8 @@
       "promotion-subtitle": "Postingizni targ‘ib qilish va kengroq auditoriyaga yetib borish uchun Ecency Imtiyozlaridan foydalaning.",
       "try-now": "Hoziroq sinab ko'rish"
     },
-    "listen": "Tinglash"
+    "listen": "Tinglash",
+    "tts-settings": "Text-to-speech settings"
   },
   "edit-history": {
     "title": "Tarixni Tahrirlash",
@@ -909,6 +939,8 @@
     "body-placeholder": "Xabarni kiriting",
     "preview": "Ko'rish",
     "success": "Sizning javobingiz muvaffaqiyatli yaratildi!",
+    "delete-success": "Comment deleted successfully",
+    "delete-error-hint": "Could not delete comment. Please try again",
     "retry-hint": "Your text is preserved below - please try again",
     "rc-error-hint": "Insufficient Resource Credits - your text is preserved below"
   },
@@ -926,9 +958,13 @@
     "reveal-muted": "Bloklangan muallif- Izhohni ko'rsatish",
     "reveal-muted-long-description": "Barcha jumladan nojo'ya javoblarni ham ko'rsatish",
     "reveal": "Izhohni ko'rsatish",
+    "reveal-comments": "Show {{n}} comments",
     "no-conversation": "Hali suhbat yo‘q, birinchi bo‘lib javob yozing",
     "start-conversation": "Suhbatni boshlash",
-    "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling"
+    "join-hint": "Katta Hive hamjamiyatining bir qismiga aylaning va faktivligingiz uchun mukofotlar oling",
+    "new-comment": "{{n}} new comment - tap to load",
+    "new-comments": "{{n}} new comments - tap to load",
+    "load-error": "Failed to load comments. Tap to retry"
   },
   "community": {
     "page-description": "{{f}} mavzular",
@@ -1039,7 +1075,12 @@
     "default-beneficiary": "Doimiy benefitsiar",
     "default-beneficiary-username": "Hive foydalanuvchi nomi",
     "default-beneficiary-reward": "Mukofot (foizda)",
-    "default-beneficiary-docs": "Hujjatlarni ko‘rish"
+    "default-beneficiary-docs": "Hujjatlarni ko‘rish",
+    "finalize-title": "Finalize community setup",
+    "finalize-description": "This community account was created but the setup wasn't completed. Complete it now.",
+    "finalize-admin-label": "Admin username",
+    "finalize-admin-hint": "The Hive account that will manage this community",
+    "finalize-success": "Community setup completed successfully!"
   },
   "community-rewards-registration": {
     "body-text": "Ecency POINTS olish uchun guruhingizni roʻyxatdan oʻtkazing",
@@ -1189,7 +1230,11 @@
     "updated": "Sozlamalar yangilandi!",
     "permissions-title": "Keys & permissions",
     "permissions-hint": "Manage your keys, control permissions over applications",
-    "permissions": "Open permissions"
+    "permissions": "Open permissions",
+    "image-server": "Image server",
+    "image-server-default": "Ecency images (Default)",
+    "image-server-hiveblog": "Hive images (Alternative)",
+    "image-server-nocdn": "Ecency images (No CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1205,6 +1250,13 @@
   },
   "wallet": {
     "unclaimed-rewards": "Olinmagan mukofotlar",
+    "collect-all": "Collect all",
+    "collect-all-ok": "All earnings collected!",
+    "show-details": "Show details",
+    "hide-details": "Hide details",
+    "claimable-label": "Ready to collect:",
+    "potential-label": "Potential earnings:",
+    "potential-hint": "from active posts and comments",
     "claim-reward-balance": "Olingan mukofotlar miqdori",
     "claim-reward-balance-ok": "Mukofot balansi olingan",
     "estimated": "Hamyonning Taxminiy Qiymati",
@@ -1560,7 +1612,9 @@
     "type-collateralized_convert": "Xavfsiz konvertatsiya",
     "type-collateralized_convert-detail": "So'rov identifikatori:<strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Taklif identifikatori:<strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Transfer from savings",
     "type-limit_order_create": "Yangi savdo yaratildi",
+    "type-limit_order_create2": "New trade created",
     "type-limit_order_cancel": "Ochiq savdo bekor qiindi",
     "type-effective_comment_vote": "Samarali ovoz",
     "type-account_witness_proxy": "Boshqaruv proksi yangilanishi",
@@ -1577,7 +1631,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Sign with HiveAuth",
     "invalid-key": "Invalid key format. Please check for invalid characters.",
-    "key-error": "Failed to process the key. Please verify it is correct."
+    "key-error": "Failed to process the key. Please verify it is correct.",
+    "sign-with-metamask": "Sign with MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth request pending. Match ID {{id}} in your wallet."
@@ -1635,7 +1690,7 @@
     "unMute": "Blokdan ochish"
   },
   "favorite-btn": {
-    "add": "Sevimlilarga qo'shish",
+    "add": "Favorite — get notified about new posts",
     "added": "Sevimlilarga qo'shildi",
     "delete": "Sevimlilardan olib tashlash",
     "deleted": "Sevimlilardan olib tashlandi"
@@ -1712,7 +1767,6 @@
     "empty-tags-alert": "Post teglarini kiriting",
     "empty-body-alert": "Post matnini kiriting",
     "description": "Qisqa Tasvir",
-    "should-be-only-one-unpublished": "Post should contain only one unpublished video. Please, remove other ones.",
     "updating": "Updating..",
     "publishing": "Publishing..",
     "saving": "Saving..",
@@ -1724,15 +1778,8 @@
     "record-video": "Record a video",
     "choose-thumbnail": "Set a thumbnail(optional)",
     "continue": "Continue",
-    "encode": "Send for encoding",
-    "success": "Video succesfully uploaded",
-    "finished": "Finished",
     "upload-video": "Upload video",
-    "video-gallery": "Video gallery",
     "preview": "Preview",
-    "to-gallery": "Go to gallery",
-    "congrats": "Congratulations",
-    "publishing": "Don't refresh this page, wait for few seconds for video to process",
     "no-record-permission": "You don't have permission to record video",
     "confirm-and-upload": "Confirm and upload to 3Speak",
     "uploading": "Uploading..{{n}}/{{total}}",
@@ -1740,30 +1787,21 @@
     "reset": "Reset",
     "source": "Video source",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Video less than 15 seconds in duration will be ignored by 3Speak."
-  },
-  "video-gallery": {
-    "all": "All",
-    "title": "Video gallery",
-    "published": "Published",
-    "encoding": "Encoding",
-    "encoded": "Encoded",
-    "failed": "Failed",
-    "status-encoded": "Ready for posting",
-    "status-encoding": "Encoding",
-    "status-published": "Published",
-    "status-failed": "Encoding failed",
-    "status-deleted": "Deleted",
-    "info-created": "Created:",
-    "status": "Status:",
-    "info-views": "Views:",
-    "info-duration": "Duration:",
-    "info-size": "File size:",
-    "insert-video": "Insert",
-    "insert-nsfw": "Insert as NSFW",
-    "only-one-video": "Only one video can be published in one post",
-    "refresh": "Refresh to get updated status",
-    "video-info": "Videos are stored and powered by SPK network, might have some storage and encoding fees."
+    "insert-video": "Insert video",
+    "file-too-large": "File size exceeds the 1 GB limit. Please choose a smaller video.",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "Failed to upload thumbnail. Please try again.",
+    "error-too-large": "Video file is too large. Please use a smaller file.",
+    "error-too-many": "Too many upload requests. Please wait a moment and try again.",
+    "error-unavailable": "Upload service is temporarily unavailable. Please try again later.",
+    "error-auth": "Authentication failed. Please contact support.",
+    "error-generic": "Failed to upload video. Please try again.",
+    "title-short": "Upload short video",
+    "short-badge": "Short",
+    "video-attached": "Video attached",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Short"
   },
   "tag-selector": {
     "placeholder-empty": "Teglar. Birinchi teg asosiy toifadir. Uni saralash mumkin.",
@@ -1800,7 +1838,9 @@
     "user-error": "{{n}} foydalanuvchi mavjud emas.",
     "validation-percentage": "Foizni ko'rsating.",
     "validation-username": "Foydalanuvchi nomini ko'rsating.",
-    "user-exists-error": "{{n}} allaqachon ro'yxatda"
+    "user-exists-error": "{{n}} allaqachon ro'yxatda",
+    "threespeak-locked": "Required for 3Speak video hosting",
+    "required": "Required"
   },
   "post-scheduler": {
     "title": "Jadval",
@@ -1822,8 +1862,11 @@
     "checkins": "You checked in {{count}} day{{suffix}} this week. Keep it up!",
     "payouts": "Your content payout is ready.",
     "payouts-amount": "You received {{amount}} payout.",
+    "payouts-amount-usd": "You earned ${{amount_usd}} ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!"
+    "monthly-posts": "You created {{count}} post{{suffix}} this month. Keep it up!",
+    "weekly-earnings": "You earned ${{total}} this week - ${{author}} from posts, ${{curation}} from curation.",
+    "weekly-earnings-short": "You earned ${{total}} this week from your posts and curation."
   },
   "notifications": {
     "type-all": "Barcha xabarnomalar",
@@ -1856,12 +1899,15 @@
     "spin-str": "Koʻproq ball toʻplash vaqti keldi, Ecency Mobile ilovasida Spin oʻynang",
     "inactive-str": "Faol bo'ling! Post yozing, daromad olishda davom eting",
     "referral-str": "joined with referral, welcome them",
+    "account-update-str": "Your account keys or profile were updated",
+    "weekly-earnings-title": "Weekly earnings summary for @{{username}}",
     "refresh": "Yangilash",
     "mark-all-read": "Hammasini o'qilgan deb belgilash",
     "mark-read": "O'qilgan deb belgilash",
     "mute": "Xabarnomalarni o'chirish",
     "unmute": "Xabarnomalarni yoqish",
-    "settings": "Sozlamalar",
+    "settings": "Sound/Popup Settings",
+    "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",
     "mark-selected-read": "Mark selected as read"
@@ -2063,10 +2109,12 @@
     "move": "Qoralamalarga qo'shish"
   },
   "bookmarks": {
-    "title": "Saqlanganlar"
+    "title": "Saqlanganlar",
+    "hint": "You'll receive notifications when bookmarked content receives a reply."
   },
   "favorites": {
-    "title": "Sevimlilar"
+    "title": "Sevimlilar",
+    "hint": "You'll receive notifications when a favorite author publishes new content."
   },
   "fragments": {
     "title": "Snippetlar",
@@ -2142,6 +2190,7 @@
     "update-success-message": "Your Recovery email has been updated successfully"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Start direct messages or join channels to chat with the Ecency community.",
     "loading-chats": "Loading chats…",
     "start-dm-button": "Start DM",
@@ -2173,7 +2222,6 @@
     "join-channel-action": "Join",
     "joining-channel": "Joining…",
     "no-additional-channels": "No additional channels found.",
-    "title": "Chats",
     "no-admin": "No admin or moderator for this community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Public key",
@@ -2588,6 +2636,8 @@
     "download-for-windows": "Kompyuter uchun yuklab olish",
     "download-for-ios": "IOS uchun yuklab olish",
     "download-for-android": "Android uchun yuklab olish",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Get mobile app",
     "our-history": "Bizning Tarix",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "O'shandan beri biz Web 3.0 uchun qurish va blokcheynga asoslangan ijtimoiy tarmog'imizni yaxshilashda davom etmoqdamiz, ilovalar imkon qadar foydalanish mumkin xavfsiz va dunyo so'zlashadigan ko'p tillarda bo'lishiga harakat qilamiz.",
@@ -2621,6 +2671,12 @@
     "grid": "Panjara",
     "classic": "Klassik",
     "deck": "Ustun"
+  },
+  "my-favorites-widget": {
+    "title": "My Favorites",
+    "empty": "You haven't added any favorite authors yet",
+    "empty-cta": "Discover authors",
+    "view-all": "View all"
   },
   "top-communities": {
     "title": "Eng yaxshi guruhlar",
@@ -2718,7 +2774,6 @@
     "vote": "Vote",
     "account-age-hint": "Only accounts older than {{n}} days allowed",
     "preview-mode": "Preview mode",
-    "videos-collision-error": "Polls and 3speak videos cannot be published in same post since there are different kind of posts. Please choose only one of them.",
     "number_of_votes": "By number of votes",
     "tokens": "By tokens",
     "view-votes": "View votes",
@@ -2769,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
-    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually.",
+    "install-title": "Install Ecency",
+    "install-description": "Add Ecency to your home screen for a faster, full-screen experience.",
+    "install-cta": "Install",
+    "install-dismiss": "Not now",
+    "install-ios-hint": "Tap the Share button and choose \"Add to Home Screen\" to install Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "For you",
+      "following": "Following"
+    },
     "sources": "Sources",
     "reply-form-title": "Replying to",
     "hide-replies": "Hide replies",
@@ -2802,6 +2866,32 @@
   "events": {
     "muted": "User has muted",
     "unmuted": "User has unmuted"
+  },
+  "signup-options": {
+    "free": {
+      "title": "Free Account",
+      "description": "Get a Hive account with basic email verification.",
+      "button": "Get Free Account",
+      "label": "Free"
+    },
+    "premium": {
+      "title": "Premium Account",
+      "description": "Instant account with 3x resource credits and 300 Ecency Points.",
+      "button": "Get Premium - $2.99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Create account instantly using MetaMask. No seed phrases needed.",
+      "button": "Connect Wallet",
+      "label": "Wallet"
+    },
+    "invited": {
+      "title": "Invited by a Friend",
+      "description": "A friend with a Hive account can create one for you at no cost.",
+      "button": "Get Invited",
+      "label": "Invited"
+    }
   },
   "signup-email": {
     "title": "Signup with Email",
@@ -2844,7 +2934,13 @@
       "topup": "Please, top-up your wallet with some amount of tokens",
       "topup-description": "When your wallet balance changes, page will detect automatically and let You continue account creation",
       "validation-success": "We have validated your wallet",
-      "address-copied": "Address copied"
+      "address-copied": "Address copied",
+      "minimum-required": "At least {{minimum}} required to validate.",
+      "estimated-value": "Estimated value: ${{value}}",
+      "checking-balance": "Checking your wallet balance...",
+      "balance-fetch-error": "Could not refresh your wallet balance. We will keep retrying automatically.",
+      "price-unavailable": "Price data is temporarily unavailable. Please retry in a moment.",
+      "price-required": "Price data is required to validate that your balance meets the {{minimum}} minimum. We will keep checking your balance, please retry in a moment."
     },
     "import": {
       "title": "Import own wallet",
@@ -2862,6 +2958,33 @@
       "creating": "Creating Hive account...",
       "validating": "Preparing your account...",
       "success": "Your account created. Enjoy the Hive and Ecency!"
+    },
+    "metamask": {
+      "title": "Connect MetaMask",
+      "description": "Connect your MetaMask wallet to verify your identity and create a Hive account.",
+      "not-found": "MetaMask not detected. Please install MetaMask extension.",
+      "connect-button": "Connect MetaMask",
+      "connect-hint": "We will check your wallet balance to verify your identity. No funds will be transferred.",
+      "connect-error": "Failed to connect MetaMask. Please try again.",
+      "connected": "MetaMask connected",
+      "chain-unsupported": "This chain is not yet supported for direct connection. Coming soon.",
+      "address-in-use": "This wallet address is already associated with a Hive account.",
+      "sign-and-continue": "Sign & Continue",
+      "sign-rejected": "Signature was rejected. Please try again.",
+      "installing-snap": "Installing Hive wallet snap...",
+      "getting-keys": "Deriving Hive keys from your wallet...",
+      "create-error": "Account creation failed. Please try again.",
+      "success-hint": "You can sign into Ecency using your MetaMask wallet with the Hive snap.",
+      "enter-address": "Enter your {{chain}} address",
+      "enter-address-hint": "Copy the address from your MetaMask wallet for this chain.",
+      "login-with-metamask": "Login with MetaMask",
+      "logging-in": "Signing you in with MetaMask...",
+      "address-label": "{{chain}} address:",
+      "checking-multichain": "Checking MetaMask multichain addresses...",
+      "chain-not-available": "Selected chain is not available in MetaMask"
+    },
+    "balance": {
+      "label": "Balance:"
     }
   },
   "publish": {
@@ -2910,7 +3033,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Upload and paste",
-    "three-speak-gallery": "From 3Speak",
     "video-by-link": "Add video by link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
@@ -2943,6 +3065,19 @@
     "upload-started": "Uploading image...",
     "back-to-old": "Back to Classic View",
     "clear": "Clear",
+    "import": "Import from URL",
+    "import-title": "Import article",
+    "import-subtitle": "You will have a chance to review and edit before publishing.",
+    "import-hint": "Paste a URL to import article content into the editor. Supports Hive posts and external web articles.",
+    "import-ownership-notice": "Please only import content that you own or have permission to republish.",
+    "import-failed": "Failed to import article. Please check the URL and try again.",
+    "import-error-invalid-url": "Invalid URL. Please enter a valid web address.",
+    "import-error-fetch-failed": "Could not reach the website. Please check the URL and try again.",
+    "import-error-not-html": "The URL does not point to a web page.",
+    "import-error-too-large": "The page is too large to import.",
+    "import-error-extract-failed": "Could not extract article content from the page.",
+    "import-error-not-found": "Post not found. Please check the URL.",
+    "importing": "Importing...",
     "reward-settings": "Reward settings",
     "beneficiaries": "Beneficiaries",
     "meta-information": "Meta information",
@@ -2977,19 +3112,12 @@
     "get-help": "Get help",
     "loading-post-title": "Loading your post...",
     "loading-post-hint": "Only title, content, tags and meta information could be changed after post publication",
-    "upload-video-error-hint": "Video could be uploaded only while creating post not editing",
     "no-post-title": "Cannot find the post",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Open original post",
     "updated-title": "Post has updated!",
     "updated-hint": "Post content has updated. Changes will be visible in few minutes.",
     "back-to-post": "Back to post",
-    "video-gallery": {
-      "no-data": "No videos yet",
-      "no-data-hint": "Change filter or publish your first video with 3Speak",
-      "no-data-button": "Upload now"
-    },
-    "video-availability": "Video will be available after publishing",
     "title-placeholder": "What is the title?",
     "html-warning": {
       "title": "Pure HTML code detected",
@@ -3022,6 +3150,42 @@
     "hint": "Text-to-Speech uses browser`s built-in tools for converting text content to speech. Voices list, availability and quality depends only on your browser and device.",
     "playground": "Playground",
     "voices": "Voices"
+  },
+  "external-transfer": {
+    "title": "Send {{token}}",
+    "recipient-label": "Recipient address",
+    "error-invalid-address": "Invalid {{chain}} address",
+    "amount-label": "Amount",
+    "balance": "Balance: {{balance}}",
+    "estimated-fee": "Estimated network fee",
+    "max-evm-hint": "Network fees are paid from {{token}}. MetaMask may adjust the amount to reserve gas.",
+    "error-address-mismatch": "Connected MetaMask account does not match your linked wallet address. Please switch accounts in MetaMask.",
+    "error-exceeds-balance": "Amount exceeds available balance",
+    "review": "Review transfer",
+    "sending": "Sending",
+    "value": "Value",
+    "to-label": "To",
+    "confirm-metamask": "Confirm with MetaMask",
+    "signing": "Waiting for MetaMask confirmation...",
+    "success": "Transfer submitted!",
+    "success-hint": "Your transaction has been submitted to the network. It may take a few minutes to confirm.",
+    "view-explorer": "View on explorer",
+    "failed": "Transfer failed",
+    "cancelled": "Transaction cancelled by user.",
+    "try-again": "Try again"
+  },
+  "mobile-login-qr": {
+    "title": "Log in to Mobile App",
+    "warning-title": "This QR code contains your session credentials",
+    "warning-1": "Do not scan in public spaces where others can see your screen",
+    "warning-2": "Do not share or screenshot the QR code",
+    "warning-3": "Disable screen recording or mirroring before revealing",
+    "reveal-button": "I understand, reveal QR code",
+    "generating": "Generating secure QR code...",
+    "instructions": "Open Ecency mobile app, tap the QR scanner, and scan this code to log in.",
+    "logged-in-as": "Logged in as @{{username}}",
+    "error-no-token": "Unable to generate login QR. Please try logging out and back in.",
+    "error-generate": "Failed to generate QR code. Please try again."
   },
   "profile-wallet": {
     "pick-tokens": "Pick tokens to show",
@@ -3128,6 +3292,22 @@
       "title": "Revoke Hive key",
       "hint": "You can revoke any Hive key using one of the owner keys/master password/seed"
     },
+    "manage-keys": {
+      "title": "Manage Keys",
+      "choose-title": "What would you like to do?",
+      "add-title": "Add New Keys",
+      "add-description": "Generate a new master password and add keys to your account",
+      "revoke-title": "Revoke Keys",
+      "revoke-description": "Remove keys you no longer need from your account",
+      "revoke-select-title": "Select Keys to Revoke",
+      "revoke-select-description": "Choose which keys to remove from your account. You must keep at least one key per authority.",
+      "revoke-confirm-title": "Confirm Revocation",
+      "revoke-confirm-description": "Sign with your owner key to remove the selected keys from your account.",
+      "revoke-count": "{{count}} key(s) will be revoked",
+      "revoke-success": "Keys revoked successfully",
+      "revoke-step-select": "Select Keys",
+      "revoke-step-sign": "Sign"
+    },
     "add-keys": {
       "stepper": {
         "authenticate": "Authenticate",
@@ -3217,5 +3397,84 @@
         "step-link-description": "Finalize wallet linking to Ecency account"
       }
     }
+  },
+  "ai-image-generator": {
+    "title": "AI Image Generator",
+    "page-title": "AI Image Generator",
+    "page-description": "Generate images from text descriptions using AI. Costs are deducted from your Ecency Points.",
+    "toolbar-button": "AI Image",
+    "perk-card-title": "AI Image Generator",
+    "perk-card-description": "Create images from text prompts using AI, powered by your Ecency Points",
+    "prompt-label": "Describe the image you want to create",
+    "prompt-placeholder": "A beautiful sunset over mountains with purple clouds...",
+    "prompt-chars-remaining": "{{count}} characters remaining",
+    "select-aspect-ratio": "Aspect ratio",
+    "cost-label": "Cost",
+    "balance-label": "Balance",
+    "generate-button": "Generate Image",
+    "generating": "Generating your image...",
+    "result-title": "Generated Image",
+    "insert-button": "Insert into post",
+    "download-button": "Download",
+    "generate-again": "Generate Again",
+    "history-title": "Recent Generations",
+    "history-empty": "No generation history yet",
+    "success": "Image generated successfully!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Your prompt was rejected by content policy. Points were not refunded. Please try a different prompt.",
+    "error-rate-limit": "Too many generation requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "Image generation failed. Please try again.",
+    "error-prompt-required": "Please enter a prompt",
+    "error-prompt-too-long": "Prompt must be 1000 characters or fewer",
+    "points-unit": "POINTS",
+    "save-to-gallery": "Save to Gallery",
+    "save-to-gallery-success": "Image saved to your gallery!",
+    "save-to-gallery-error": "Failed to save image to gallery. Please try again.",
+    "use-suggestion": "Use: {{suggestion}}",
+    "select-power": "Quality boost"
+  },
+  "ai-assist": {
+    "title": "AI Writing Assistant",
+    "toolbar-button": "AI Assist",
+    "balance-label": "Balance",
+    "points-unit": "POINTS",
+    "free-label": "Free",
+    "free-remaining": "{{count}} free left today",
+    "cost-label": "Cost",
+    "hint": "Write your content first, then use AI Assist to polish and improve it.",
+    "action-label": "What would you like to do?",
+    "text-label": "Your content",
+    "text-placeholder": "Paste or type your draft content here...",
+    "chars-remaining": "{{count}} characters remaining",
+    "min-chars": "Minimum {{count}} characters required",
+    "action-improve": "Improve Writing",
+    "action-improve-desc": "Polish grammar, clarity, and style",
+    "action-suggest_tags": "Suggest Tags",
+    "action-suggest_tags-desc": "Get relevant tags for your post",
+    "action-generate_title": "Generate Title",
+    "action-generate_title-desc": "Create compelling title options",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Check Grammar",
+    "action-check_grammar-desc": "Fix grammar and spelling",
+    "submit-button": "Run AI Assist",
+    "submitting": "Processing...",
+    "result-title": "Result",
+    "apply-button": "Apply to post",
+    "copy-button": "Copy",
+    "copied": "Copied!",
+    "try-again": "Try Again",
+    "try-another": "Try Another Action",
+    "show-changes": "Show changes",
+    "hide-changes": "Hide changes",
+    "hide-translation": "Hide translation",
+    "success": "AI assist completed!",
+    "error-insufficient-points": "Insufficient points. You need {{required}} but have {{available}}.",
+    "error-content-policy": "Content violates policy. Points were not refunded.",
+    "error-rate-limit": "Too many requests. Please wait a moment and try again.",
+    "error-auth": "Authentication expired. Please refresh the page and try again.",
+    "error-generic": "AI assist failed. Please try again.",
+    "error-text-too-short": "Your text is too short. Minimum {{count}} characters required."
   }
 }

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { ProposalVote } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Fetches ALL proposal votes for a specific user in a single query.
@@ -17,7 +17,7 @@ export function getUserProposalVotesQueryOptions(voter: string) {
         return [];
       }
 
-      const response = (await CONFIG.hiveClient.call("database_api", "list_proposal_votes", {
+      const response = (await callRPC("database_api.list_proposal_votes", {
         start: [voter],
         limit: 1000,
         order: "by_voter_proposal",

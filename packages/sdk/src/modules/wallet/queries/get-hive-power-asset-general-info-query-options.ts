@@ -1,5 +1,5 @@
-import { CONFIG } from "@/modules/core/config";
 import type { DynamicProps } from "@/modules/core";
+import { callRPC } from "@/modules/core/hive-tx";
 import { getAccountFullQueryOptions } from "@/modules/accounts";
 import { getDynamicPropsQueryOptions, getQueryClient } from "@/modules/core";
 import type { FullAccount } from "@/modules/accounts";
@@ -61,8 +61,7 @@ export function getHivePowerAssetGeneralInfoQueryOptions(username: string) {
         };
       }
 
-      const marketTicker = (await CONFIG.hiveClient
-        .call("condenser_api", "get_ticker", [])
+      const marketTicker = (await callRPC("condenser_api.get_ticker", [])
         .catch(() => undefined)) as { latest?: string } | undefined;
 
       const marketPrice = Number.parseFloat(marketTicker?.latest ?? "");

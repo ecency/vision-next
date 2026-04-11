@@ -455,6 +455,41 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       expect(el.getAttribute('class')).toBe('speak-iframe')
     })
+
+    it('should add layout=mobile when forApp is true', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', true)
+
+      expect(el.getAttribute('src')).toContain('&layout=mobile')
+    })
+
+    it('should not add layout=mobile when forApp is false', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', false)
+
+      expect(el.getAttribute('src')).not.toContain('layout=mobile')
+    })
+
+    it('should not duplicate layout param if already present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123&layout=mobile')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', true)
+
+      const src = el.getAttribute('src')!
+      const matches = src.match(/layout=/g)
+      expect(matches).toHaveLength(1)
+    })
   })
 
   describe('Spotify Iframes', () => {
@@ -743,6 +778,30 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       expect(hasChildWithTag(parent, 'iframe')).toBe(true)
     })
+
+    it('should handle Odysee embed with multi-segment path (@user/video)', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://odysee.com/$/embed/@rodrigopanajotti:6/como-o-skatista-se-sente-depois-de-andar:4483afbf0f0a1c39e4f88bae4f00fcfed3a0870e?r=6T4RwZHsDQ5vpfHvtaLmLT9Dq26qzkoy')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('frameborder')).toBe('0')
+    })
+
+    it('should handle Odysee embed with multi-segment path and no query string', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://odysee.com/$/embed/@channel:a/video-title:b')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('frameborder')).toBe('0')
+    })
   })
 
   describe('Skatehive IPFS Iframes', () => {
@@ -975,6 +1034,98 @@ describe('iframe() method - Iframe Sanitization', () => {
       iframe(el)
 
       expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+    })
+  })
+
+  describe('3Speak Audio Iframes', () => {
+    it('should allow audio.3speak.tv embed with permlink', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('class')).toBe('speak-audio-iframe')
+      expect(el.getAttribute('frameborder')).toBe('0')
+      expect(el.getAttribute('sandbox')).toBe('allow-scripts allow-same-origin allow-popups')
+    })
+
+    it('should allow audio.3speak.tv embed with IPFS CID', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?cid=QmdMsEXyDe5Z4S3n8THfYgFP1iH3ngCeCytdHnndzqdZAK')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('class')).toBe('speak-audio-iframe')
+    })
+
+    it('should add iframe=1 parameter if not present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('iframe=1')
+    })
+
+    it('should not duplicate iframe parameter if already present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&iframe=1')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      const iframeMatches = src.match(/iframe=/g)
+      expect(iframeMatches).toHaveLength(1)
+    })
+
+    it('should add mode=compact if no mode specified', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=compact')
+    })
+
+    it('should not override existing mode parameter', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&mode=minimal')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=minimal')
+      expect(src).not.toContain('mode=compact')
+    })
+
+    it('should handle audio.3speak.tv with mode=full', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://audio.3speak.tv/play?a=m6crhwqw&mode=full')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      const src = el.getAttribute('src')!
+      expect(src).toContain('mode=full')
+      const modeMatches = src.match(/mode=/g)
+      expect(modeMatches).toHaveLength(1)
     })
   })
 

@@ -3,6 +3,7 @@ import { useDebounce } from "react-use";
 import { useSaveDraftApi } from "../_api";
 import { usePublishState } from "./use-publish-state";
 import { useDraftTabCoordinator } from "./use-draft-tab-coordinator";
+import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 /**
  * This hook auto-save publish page content to draft whenever post changes
@@ -11,6 +12,7 @@ import { useDraftTabCoordinator } from "./use-draft-tab-coordinator";
 export function usePublishAutosave() {
   const [draftId, setDraftId] = useState<string>();
   const [lastSaved, setLastSaved] = useState<Date>();
+  const { activeUser } = useActiveAccount();
 
   const {
     title,
@@ -22,7 +24,6 @@ export function usePublishAutosave() {
     selectedThumbnail,
     poll,
     postLinks,
-    publishingVideo,
     location
   } = usePublishState();
 
@@ -31,6 +32,10 @@ export function usePublishAutosave() {
 
   useDebounce(
     async () => {
+      if (!activeUser?.username) {
+        return;
+      }
+
       if (!title?.trim() && !content?.trim()) {
         return;
       }
@@ -58,7 +63,6 @@ export function usePublishAutosave() {
       selectedThumbnail,
       poll,
       postLinks,
-      publishingVideo,
       location,
       isActiveTab
     ]

@@ -9,6 +9,7 @@ import {
 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilBookmark } from "@tooni/iconscout-unicons-react";
+import { NotificationBadgeIcon } from "../notification-badge-icon";
 import { Button } from "@ui/button";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
@@ -56,12 +57,18 @@ export function BookmarkBtn({ entry }: Props) {
     () => error(i18next.t("g.server-error"))
   );
 
+  const bookmarkIcon = (
+    <NotificationBadgeIcon>
+      <UilBookmark />
+    </NotificationBadgeIcon>
+  );
+
   if (!activeUser) {
     // Show button that triggers login when clicked
     return (
       <div className="bookmark-btn" onClick={() => toggleUiProp("login")}>
         <Tooltip content={i18next.t("bookmark-btn.add")}>
-          <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+          <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
         </Tooltip>
       </div>
     );
@@ -74,7 +81,11 @@ export function BookmarkBtn({ entry }: Props) {
         onClick={() => deleteBookmark(bookmarkId)}
       >
         <Tooltip content={i18next.t("bookmark-btn.delete")}>
-          <Button appearance="gray-link" size="sm" icon={<UilBookmark color="green" />} />
+          <Button
+            appearance="gray-link"
+            size="sm"
+            icon={bookmarkIcon}
+          />
         </Tooltip>
       </div>
     );
@@ -86,7 +97,7 @@ export function BookmarkBtn({ entry }: Props) {
       onClick={() => addBookmark({ author: entry.author, permlink: entry.permlink })}
     >
       <Tooltip content={i18next.t("bookmark-btn.add")}>
-        <Button appearance="gray-link" size="sm" icon={<UilBookmark />} />
+        <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
       </Tooltip>
     </div>
   );

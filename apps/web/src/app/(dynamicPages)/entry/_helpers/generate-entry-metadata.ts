@@ -34,7 +34,10 @@ export async function generateEntryMetadata(
   const cleanPermlink = safeDecodeURIComponent(permlink).trim();
   const base = await getServerAppBase();
   if (!username || !cleanPermlink || cleanPermlink === "undefined" || !isValidPermlink(cleanPermlink)) {
-    console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
+    // Only warn for plausible permlinks — skip file extensions (browser/extension source map requests)
+    if (!/\.\w{2,4}$/.test(cleanPermlink)) {
+      console.warn("generateEntryMetadata: Missing author or permlink", { username, permlink });
+    }
     return {};
   }
   try {
@@ -73,7 +76,7 @@ export async function generateEntryMetadata(
     const summary =
       entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
 
-    const image = catchPostImage(entry, 600, 500, "match");
+    const image = catchPostImage(entry, 1200, 630, "match");
     const urlParts = entry.url.split("#");
     const fullUrl = isComment && urlParts[1] ? `${base}/${urlParts[1]}` : `${base}${entry.url}`;
     const authorUrl = `${base}/@${entry.author}`;

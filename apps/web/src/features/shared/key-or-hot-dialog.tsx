@@ -1,7 +1,7 @@
 "use client";
 
 import React, { PropsWithChildren, useState } from "react";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { KeyOrHot } from "@/features/shared/key-or-hot";
@@ -11,6 +11,7 @@ interface Props {
   onKey?: (key: PrivateKey) => void;
   onHot?: () => void;
   onKc?: () => void;
+  onMetaMask?: () => void;
   onToggle?: () => void;
 }
 
@@ -19,6 +20,7 @@ export function KeyOrHotDialog({
   onKey,
   onHot,
   onKc,
+  onMetaMask,
   popOver = false,
   onToggle
 }: PropsWithChildren<Props>) {
@@ -61,6 +63,10 @@ export function KeyOrHotDialog({
                 if (onKc) {
                   onKc();
                 }
+              }}
+              onMetaMask={() => {
+                toggleKeyDialog();
+                onMetaMask?.();
               }}
               inProgress={false}
             />

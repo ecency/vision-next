@@ -41,7 +41,11 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
 
   const cls = el.getAttribute("class") || "";
   const shouldReplace = !cls.includes("no-replace");
-  const hasAlreadyProxied = src.startsWith("https://images.ecency.com");
+  // Only skip re-proxification for URLs already going through proxy/avatar/cover routes
+  // Direct upload URLs (e.g. /DQm...) should still be proxified for resizing & format optimization
+  const hasAlreadyProxied = src.startsWith("https://images.ecency.com/p/")
+    || src.startsWith("https://images.ecency.com/u/")
+    || /^https:\/\/images\.ecency\.com\/\d+x\d+\//.test(src);
 
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);

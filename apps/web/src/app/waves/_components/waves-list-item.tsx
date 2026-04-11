@@ -16,7 +16,7 @@ import { Modal, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useInViewport } from "react-in-viewport";
 import { useCollectPageViewEvent } from "@/api/mutations";
-import { useMutedUsers, useWavesGrid } from "@/app/waves/_hooks";
+import { useMutedUsers, useWaveImageGrid, useWavesGrid } from "@/app/waves/_hooks";
 import { PostContentRenderer } from "@/features/shared";
 import { useQuery } from "@tanstack/react-query";
 import { getPromotedPostsQuery } from "@ecency/sdk";
@@ -29,7 +29,7 @@ import {
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
 
 const INTERACTIVE_SELECTOR =
-  "a,button,input,textarea,select,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
+  "a,button,input,textarea,select,img,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
 
 interface Props {
   item: WaveEntry;
@@ -42,7 +42,7 @@ interface Props {
   feedType?: WavesFeedType;
 }
 
-export function WavesListItem({
+export const WavesListItem = React.memo(function WavesListItem({
   item,
   i,
   commentSlot,
@@ -57,6 +57,7 @@ export function WavesListItem({
   const [grid] = useWavesGrid();
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const { inViewport } = useInViewport(rootRef);
@@ -71,10 +72,10 @@ export function WavesListItem({
         return;
       }
 
-      tagFilter.setSelectedTag(tag);
-
       if (pathname !== "/waves") {
-        router.push("/waves");
+        router.push(`/waves?tag=${encodeURIComponent(tag)}`);
+      } else {
+        tagFilter.setSelectedTag(tag);
       }
     },
     [pathname, router, tagFilter]
@@ -115,6 +116,8 @@ export function WavesListItem({
       collectPageView();
     }
   }, [collectPageView, inViewport]);
+
+  useWaveImageGrid(contentRef, isMuted ? undefined : entry?.body);
 
   const status = "default";
 
@@ -267,7 +270,7 @@ export function WavesListItem({
       className={clsx(
         "waves-list-item bg-white dark:bg-dark-200 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
         grid === "feed" &&
-          "first:rounded-t-2xl last:rounded-b-2xl border-b border-[--border-color] last:border-b-0",
+          "border-b border-[--border-color] last:border-b-0",
         grid === "masonry" && "rounded-2xl",
         isMuted && "grayscale",
         hasPromoted && grid === "masonry" && "border border-blue-dark-sky",
@@ -293,7 +296,7 @@ export function WavesListItem({
         onViewFullThread={onHeaderClick}
         now={now}
       />
-      <div className="p-4">
+      <div ref={contentRef} className="p-4">
         {isMuted ? (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {i18next.t("waves.muted-post")}
@@ -301,6 +304,8 @@ export function WavesListItem({
         ) : (
           <PostContentRenderer
             value={entry?.body ?? ""}
+            images={entry?.json_metadata?.image}
+            renderOptions={{ embedVideosDirectly: true }}
             onTagClick={tagFilter ? handleTagClick : undefined}
           />
         )}
@@ -332,4 +337,4 @@ export function WavesListItem({
       )}
     </motion.div>
   );
-}
+});

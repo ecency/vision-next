@@ -6,6 +6,21 @@ import { getAccessToken, getRefreshToken } from "@/utils";
 import { useGlobalStore } from "@/core/global-store";
 import { hsTokenRenew } from "@ecency/sdk";
 
+/** Safely parse JSON from a fetch response, falling back to a readable error */
+async function safeJson<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Response was HTML error page, plain text, or empty
+    throw new Error(
+      res.ok
+        ? "Invalid response from chat server"
+        : `Chat server error (${res.status})`
+    );
+  }
+}
+
 interface MattermostChannel {
   id: string;
   name: string;
@@ -117,11 +132,11 @@ export function useMattermostBootstrap(community?: string) {
       }
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to initialize chat");
       }
 
-      return (await res.json()) as { ok: boolean; userId: string; channelId?: string | null };
+      return (await safeJson(res)) as { ok: boolean; userId: string; channelId?: string | null };
     }
   });
 }
@@ -139,10 +154,10 @@ export function useMattermostChannels(enabled: boolean) {
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels");
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load channels");
       }
-      return (await res.json()) as { channels: MattermostChannel[] };
+      return (await safeJson(res)) as { channels: MattermostChannel[] };
     }
   });
 }
@@ -159,11 +174,11 @@ export function useMattermostFavoriteChannel() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to update favorite");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -186,11 +201,11 @@ export function useMattermostMuteChannel() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to update mute state");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -211,20 +226,11 @@ export function useMattermostLeaveChannel() {
       });
 
       if (!res.ok) {
-        let message = "Unable to leave channel";
-        try {
-          const data = await res.json();
-          message = data?.error || message;
-        } catch {
-          const text = await res.text();
-          if (text) {
-            message = text.startsWith("<") ? message : text;
-          }
-        }
-        throw new Error(message);
+        const data = await safeJson<{ error?: string }>(res).catch(() => null);
+        throw new Error(data?.error || `Unable to leave channel (${res.status})`);
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       // Invalidate all mattermost-channels queries (matches ["mattermost-channels", username])
@@ -244,15 +250,27 @@ export function useMattermostJoinChannel() {
       const res = await fetch(`/api/mattermost/channels/${channelId}/join`, { method: "POST" });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to join channel");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async (_data, channelId) => {
+      // Mark channel as viewed immediately after joining to prevent historical
+      // messages from inflating unread counts (mobile parity)
+      try {
+        const viewRes = await fetch(`/api/mattermost/channels/${channelId}/view`, { method: "POST" });
+        if (!viewRes.ok) {
+          console.warn(`Failed to mark joined channel ${channelId} as viewed (${viewRes.status})`);
+        }
+      } catch {
+        // Non-critical - unread badge will correct on next poll
+      }
+
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ["mattermost-unread"], exact: false }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts", channelId], exact: false }),
         queryClient.invalidateQueries({ queryKey: ["mattermost-posts-infinite", channelId], exact: false })
       ]);
@@ -270,11 +288,11 @@ export function useMattermostUserSearch(term: string, enabled: boolean) {
       const res = await fetch(`/api/mattermost/users/search?q=${encodeURIComponent(query)}`);
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to search users");
       }
 
-      return (await res.json()) as { users: MattermostUser[] };
+      return (await safeJson(res)) as { users: MattermostUser[] };
     }
   });
 }
@@ -293,11 +311,11 @@ export function useMattermostChannelSearch(term: string, enabled: boolean) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to search channels");
       }
 
-      return (await res.json()) as { channels: MattermostChannelSummary[] };
+      return (await safeJson(res)) as { channels: MattermostChannelSummary[] };
     }
   });
 }
@@ -316,11 +334,11 @@ export function useMattermostMessageSearch(term: string, enabled: boolean) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to search messages");
       }
 
-      return (await res.json()) as MattermostPostSearchResponse;
+      return (await safeJson(res)) as MattermostPostSearchResponse;
     }
   });
 }
@@ -341,11 +359,11 @@ export function useMattermostAdminBanUser() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to update ban");
       }
 
-      return (await res.json()) as { bannedUntil: number | null };
+      return (await safeJson(res)) as { bannedUntil: number | null };
     }
   });
 }
@@ -360,11 +378,11 @@ export function useMattermostAdminDeleteUserPosts() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to delete posts");
       }
 
-      return (await res.json()) as { deleted: number };
+      return (await safeJson(res)) as { deleted: number };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -386,11 +404,11 @@ export function useMattermostAdminDeleteUserDmPosts() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to delete DM posts");
       }
 
-      return (await res.json()) as { deleted: number; dmOnly: boolean; timedOut?: boolean };
+      return (await safeJson(res)) as { deleted: number; dmOnly: boolean; timedOut?: boolean };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -412,11 +430,11 @@ export function useMattermostAdminDeactivateUser() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to deactivate account");
       }
 
-      return (await res.json()) as { deactivated: boolean; username: string };
+      return (await safeJson(res)) as { deactivated: boolean; username: string };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -439,11 +457,11 @@ export function useMattermostAdminDeleteUserAccount() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to delete account");
       }
 
-      return (await res.json()) as { deleted: boolean; deactivated?: boolean; username: string };
+      return (await safeJson(res)) as { deleted: boolean; deactivated?: boolean; username: string };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -466,11 +484,11 @@ export function useMattermostAdminNukeUser() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to nuke user");
       }
 
-      return (await res.json()) as {
+      return (await safeJson(res)) as {
         username: string;
         deletedPublicPosts: number;
         deletedDmPosts: number;
@@ -497,7 +515,7 @@ export function useMattermostUnread(enabled: boolean) {
     enabled: enabled && Boolean(username),
     refetchInterval: 60000,
     refetchOnWindowFocus: false,
-    staleTime: 30000,
+    staleTime: 60000,
     queryFn: async () => {
       const res = await fetch("/api/mattermost/channels/unreads");
 
@@ -513,11 +531,11 @@ export function useMattermostUnread(enabled: boolean) {
       }
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load unread counts");
       }
 
-      return (await res.json()) as MattermostUnreadSummary;
+      return (await safeJson(res)) as MattermostUnreadSummary;
     }
   });
 }
@@ -530,11 +548,11 @@ export function useMattermostMarkChannelViewed() {
       const res = await fetch(`/api/mattermost/channels/${channelId}/view`, { method: "POST" });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to mark channel as read");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async (_data, channelId) => {
       await Promise.all([
@@ -615,11 +633,11 @@ export function useMattermostPosts(
         : `/api/mattermost/channels/${channelId}/posts`;
       const res = await fetch(url);
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load messages");
       }
 
-      return (await res.json()) as MattermostPostsResponse;
+      return (await safeJson(res)) as MattermostPostsResponse;
     }
   });
 }
@@ -640,11 +658,11 @@ export function useMattermostPostsInfinite(
 
       const res = await fetch(url);
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load messages");
       }
 
-      return (await res.json()) as MattermostPostsResponse;
+      return (await safeJson(res)) as MattermostPostsResponse;
     },
     getNextPageParam: (lastPage) => {
       // Return the oldest post ID if there are more messages
@@ -673,11 +691,11 @@ export function useMattermostPostsAround(
       );
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data = await safeJson<{ error?: string }>(res).catch(() => null);
         throw new Error(data?.error || "Unable to load messages");
       }
 
-      return (await res.json()) as MattermostPostsResponse;
+      return (await safeJson(res)) as MattermostPostsResponse;
     }
   });
 }
@@ -692,11 +710,11 @@ export function useMattermostDeletePost(channelId: string | undefined) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to delete message");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -732,20 +750,11 @@ export function useMattermostSendMessage(channelId: string | undefined, options?
       });
 
       if (!res.ok) {
-        let message = "Unable to send message";
-        try {
-          const data = await res.json();
-          message = data?.error || message;
-        } catch {
-          const text = await res.text();
-          if (text) {
-            message = text.startsWith("<") ? "Unable to send message" : text;
-          }
-        }
-        throw new Error(message);
+        const data = await safeJson<{ error?: string }>(res).catch(() => null);
+        throw new Error(data?.error || `Unable to send message (${res.status})`);
       }
 
-      return (await res.json()) as { post: MattermostPost };
+      return (await safeJson(res)) as { post: MattermostPost };
     },
     onSuccess: () => {
       // Skip invalidation when WebSocket is active - it handles updates via "posted" event
@@ -770,11 +779,11 @@ export function useMattermostDirectChannel() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to start direct message");
       }
 
-      return (await res.json()) as { channelId: string };
+      return (await safeJson(res)) as { channelId: string };
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["mattermost-channels"], exact: false });
@@ -830,11 +839,11 @@ export function useMattermostReactToPost(channelId: string | undefined) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to update reaction");
       }
 
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -857,11 +866,11 @@ export function useMattermostUpdatePost(channelId: string | undefined) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to update message");
       }
 
-      return (await res.json()) as { post: MattermostPost };
+      return (await safeJson(res)) as { post: MattermostPost };
     },
     onSuccess: () => {
       // Don't await - WebSocket handles real-time updates, this is just a fallback
@@ -880,10 +889,10 @@ export function useMattermostPinnedPosts(channelId: string | undefined) {
     queryFn: async () => {
       const res = await fetch(`/api/mattermost/channels/${channelId}/pinned`);
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to load pinned messages");
       }
-      return (await res.json()) as { posts: MattermostPost[]; users: Record<string, MattermostUser> };
+      return (await safeJson(res)) as { posts: MattermostPost[]; users: Record<string, MattermostUser> };
     }
   });
 }
@@ -897,10 +906,10 @@ export function useMattermostPinPost(channelId: string | undefined) {
         method: "POST"
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to pin message");
       }
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -921,10 +930,10 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
         method: "DELETE"
       });
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Unable to unpin message");
       }
-      return (await res.json()) as { ok: boolean };
+      return (await safeJson(res)) as { ok: boolean };
     },
     onSuccess: async () => {
       await Promise.all([
@@ -939,16 +948,19 @@ export function useMattermostUnpinPost(channelId: string | undefined) {
 export type DmPrivacyLevel = "all" | "followers" | "none";
 
 export function useDmPrivacyQuery() {
+  const { activeUser } = useActiveAccount();
+
   return useQuery({
     queryKey: ["mattermost", "dm-privacy"],
+    enabled: Boolean(activeUser),
     queryFn: async () => {
       const res = await fetch("/api/mattermost/me/dm-privacy");
       if (!res.ok) {
-        const data = await res.json();
+        const data = await safeJson<{ error?: string }>(res);
         throw new Error(data?.error || "Failed to fetch DM privacy");
       }
-      const data = await res.json();
-      return data.privacy as DmPrivacyLevel;
+      const data = await safeJson<{ privacy: DmPrivacyLevel }>(res);
+      return data.privacy;
     },
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
@@ -966,11 +978,11 @@ export function useUpdateDmPrivacy() {
       });
 
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update DM privacy");
+        const data = await safeJson<{ error?: string }>(res);
+        throw new Error(data?.error || "Failed to update DM privacy");
       }
 
-      return await res.json();
+      return await safeJson<{ ok: boolean }>(res);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mattermost", "dm-privacy"], exact: false });

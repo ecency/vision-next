@@ -1,7 +1,7 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 /**
  * Beneficiary account and weight.
@@ -188,8 +188,8 @@ export function useComment(
       const activityType = isPost ? 100 : 110;
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
-      if (auth?.adapter?.recordActivity && result?.block_num && result?.id) {
-        auth.adapter.recordActivity(activityType, result.block_num, result.id).catch(() => {});
+      if (auth?.adapter?.recordActivity && result?.id) {
+        auth.adapter.recordActivity(activityType, result.id, result?.block_num).catch(() => {});
       }
 
       // Cache invalidation (always runs regardless of recordActivity outcome)

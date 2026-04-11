@@ -1,145 +1,131 @@
-"use client";
-
-import htmlParse from "html-react-parser";
 import "./_index.scss";
-import "@/styles/static-pages.scss"; // Page-specific styles for LCP optimization
-import { FormEvent, useRef, useState } from "react";
-import { apiBase } from "@/api/helper";
-import { useGlobalStore } from "@/core/global-store";
-import { subscribeEmail } from "@ecency/sdk";
-import { error, LinearProgress, success } from "@/features/shared";
+import "@/styles/static-pages.scss";
 import i18next from "i18next";
 import Link from "next/link";
-import { scrollDown } from "@ui/svg";
-import { handleInvalid, handleOnInput } from "@/utils";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import defaults from "@/defaults";
+import { initI18next } from "@/features/i18n";
+import defaults from "@/defaults.json";
+import { LandingHeroActions } from "./landing-hero-actions";
+import { LandingSubscribeForm } from "./landing-subscribe-form";
+import { LandingSignInLink } from "./landing-sign-in-link";
+import { LandingDownloadLinks } from "./landing-download-links";
 
-export function LandingPage() {
-  const router = useRouter();
+/**
+ * Helper to build a <picture> element that serves webp with png/jpeg fallback.
+ * This replaces the old client-side canUseWebp check with pure HTML content negotiation.
+ */
+interface AssetPictureProps {
+  basePath: string;
+  fallbackExt?: "png" | "jpeg";
+  alt: string;
+  className?: string;
+  loading?: "lazy" | "eager";
+  width?: number;
+  height?: number;
+  sizes?: string;
+  priority?: boolean;
+}
 
-  const canUseWebp = useGlobalStore((s) => s.canUseWebp);
-  const theme = useGlobalStore((s) => s.theme);
-  const toggleUIProp = useGlobalStore((s) => s.toggleUiProp);
+function AssetPicture({
+  basePath,
+  fallbackExt = "png",
+  alt,
+  className,
+  loading,
+  width,
+  height,
+  sizes,
+  priority
+}: AssetPictureProps) {
+  const baseUrl = defaults.base;
+  const webpSrc = `${baseUrl}/assets/${basePath}.webp`;
+  const fallbackSrc = `${baseUrl}/assets/${basePath}.${fallbackExt}`;
 
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  // For priority images, use <picture> with preload hints via next/image fallback
+  if (priority) {
+    return (
+      <picture>
+        <source srcSet={webpSrc} type="image/webp" />
+        <Image
+          src={fallbackSrc}
+          alt={alt}
+          width={width ?? 0}
+          height={height ?? 0}
+          className={className}
+          priority
+          fetchPriority="high"
+          sizes={sizes}
+        />
+      </picture>
+    );
+  }
 
-  const EarnMoney = apiBase(`/assets/illustration-earn-money.${canUseWebp ? "webp" : "png"}`);
-  const WhaleCatchsFish = apiBase(
-    `/assets/illustration-true-ownership.${canUseWebp ? "webp" : "png"}`
+  return (
+    <picture>
+      <source srcSet={webpSrc} type="image/webp" />
+      <img
+        src={fallbackSrc}
+        alt={alt}
+        className={className}
+        loading={loading ?? "lazy"}
+        width={width}
+        height={height}
+        sizes={sizes}
+      />
+    </picture>
   );
-  const Decentralization = apiBase(
-    `/assets/illustration-decentralization.${canUseWebp ? "webp" : "png"}`
-  );
-  const MechanicFish = apiBase(`/assets/illustration-open-source.${canUseWebp ? "webp" : "png"}`);
-  const FishOne = apiBase(`/assets/fish-1.${canUseWebp ? "webp" : "png"}`);
-  const FishTwo = apiBase(`/assets/fish-2.${canUseWebp ? "webp" : "png"}`);
-  const FishThree = apiBase(`/assets/fish-3.${canUseWebp ? "webp" : "png"}`);
-  const FishFour = apiBase(`/assets/fish-4.${canUseWebp ? "webp" : "png"}`);
-  const FishFive = apiBase(`/assets/fish-5.${canUseWebp ? "webp" : "png"}`);
-  const JuniorFish = apiBase(`/assets/fish-junior.${canUseWebp ? "webp" : "png"}`);
-  const SeniorFish = apiBase(`/assets/fish-senior.${canUseWebp ? "webp" : "png"}`);
-  const DownloadAndroid = apiBase(`/assets/icon-android.${canUseWebp ? "webp" : "png"}`);
-  const OurHistory = apiBase(`/assets/our-history.${canUseWebp ? "webp" : "png"}`);
-  const OurTeam = apiBase(`/assets/our-team.${canUseWebp ? "webp" : "png"}`);
-  const OurVision = apiBase(`/assets/our-vision.${canUseWebp ? "webp" : "png"}`);
-  const FooterMainFish = apiBase(`/assets/footer-main-fish.${canUseWebp ? "webp" : "png"}`);
-  const LeftFishes = apiBase(`/assets/left-fishes.${canUseWebp ? "webp" : "png"}`);
-  const DownloadAndroidWhite = apiBase(`/assets/icon-android-white.svg`);
-  const DownloadIPhone = apiBase(`/assets/icon-apple.svg`);
-  const DownloadIPhoneWhite = apiBase(`/assets/icon-apple-white.svg`);
-  const DownloadWindows = apiBase(`/assets/icon-windows.svg`);
-  const DownloadWindowsWhite = apiBase(`/assets/icon-windows-white.svg`);
-  const FooterYoutube = apiBase(`/assets/footer-youtube.svg`);
-  const FooterTwitter = apiBase(`/assets/footer-twitter.svg`);
-  const FooterTelegram = apiBase(`/assets/footer-telegram.svg`);
-  const FooterDiscord = apiBase(`/assets/footer-discord.svg`);
-  const PhoneDarkPc = apiBase(`/assets/phone-download-tiny.${canUseWebp ? "webp" : "png"}`);
+}
 
-  const BubbleLeftTop = apiBase(`/assets/bubble-left-top.${canUseWebp ? "webp" : "png"}`);
-  const BubbleLeftBottom = apiBase(`/assets/bubble-left-bottom.${canUseWebp ? "webp" : "png"}`);
-  const BubbleRightTop = apiBase(`/assets/bubble-right-top.${canUseWebp ? "webp" : "png"}`);
-  const BubbleLRightBottom = apiBase(`/assets/bubble-right-bottom.${canUseWebp ? "webp" : "png"}`);
-  const BubbleLCenter = apiBase(`/assets/bubble-center.${canUseWebp ? "webp" : "png"}`);
-  const DownloadDarkFishes = apiBase(`/assets/download-dark-fishes.${canUseWebp ? "webp" : "png"}`);
+function SvgAsset({ path, alt, className }: { path: string; alt: string; className?: string }) {
+  return <img src={`${defaults.base}/assets/${path}`} alt={alt} className={className} loading="lazy" />;
+}
 
-  const FounderImg = apiBase(`/assets/good-karma.${canUseWebp ? "webp" : "jpeg"}`);
-  const DevopsImg = apiBase(`/assets/talhasch.${canUseWebp ? "webp" : "jpeg"}`);
-  const DesignGuru = apiBase(`/assets/dunsky.${canUseWebp ? "webp" : "jpeg"}`);
-
-  const earnMoneyRef = useRef<HTMLDivElement>(null);
-
-  const handleSubsccribe = async (e: FormEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await subscribeEmail(email);
-      if (response?.status === 200) {
-        success(i18next.t("landing-page.success-message-subscribe"));
-      }
-    } catch (err) {
-      error(i18next.t("landing-page.error-occured"));
-    }
-
-    setEmail("");
-    setLoading(false);
-  };
+export async function LandingPage() {
+  await initI18next();
+  const t = i18next.t.bind(i18next);
+  const baseUrl = defaults.base;
 
   return (
     <div className="landing-wrapper" id="landing-wrapper">
       <div className="top-bg" />
       <div className="tob-bg-algae" />
       <div className="tob-bg-fishes" />
+
+      {/* Hero Section */}
       <div className="sections first-section">
         <div className="text-container text-center">
-          <h1>{i18next.t("landing-page.welcome-text")}</h1>
+          <h1>{t("landing-page.welcome-text")}</h1>
           <div className="flex flex-wrap justify-center items-center">
-            <p className="mb-3 w-88">{i18next.t("landing-page.what-is-ecency")}</p>
+            <p className="mb-3 w-88">{t("landing-page.what-is-ecency")}</p>
           </div>
-          <div className="flex justify-center items-center mt-10">
-            <button className="get-started mr-5" onClick={() => router.push("/hot")}>
-              {i18next.t("landing-page.explore")}
-            </button>
-            <button className="get-started ml-5">
-              <Link className="link-btn" href="/signup?referral=ecency">
-                {i18next.t("landing-page.get-started")}
-              </Link>
-            </button>
-          </div>
-          <span
-            className="scroll-down cursor-pointer"
-            onClick={() => earnMoneyRef.current?.scrollIntoView({ behavior: "smooth" })}
-          >
-            {scrollDown}
-          </span>
+          <LandingHeroActions />
         </div>
       </div>
-      <div className="sections second-section" id="earn-money" ref={earnMoneyRef}>
+
+      {/* Earn Money & True Ownership */}
+      <div className="sections second-section" id="earn-money">
         <div className="part-top">
           <div className="inner">
-            <Image
-              src={EarnMoney}
-              alt="earn-money"
+            <AssetPicture
+              basePath="illustration-earn-money"
+              alt={t("landing-page.earn-money")}
               width={373}
               height={442}
               priority
-              fetchPriority="high"
               sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 360px, 373px"
               className="mx-auto sm:m-0"
             />
             <div className="text-group visible">
-              <h2>{i18next.t("landing-page.earn-money")}</h2>
+              <h2>{t("landing-page.earn-money")}</h2>
               <p className="mt-2 w-88 mb-5 sm:mb-0">
-                {i18next.t("landing-page.earn-money-block-chain-based")}
+                {t("landing-page.earn-money-block-chain-based")}
                 <span>
-                  <Link href="/signup?referral=ecency">{i18next.t("landing-page.join-us")}</Link>
+                  <Link href="/signup?referral=ecency">{t("landing-page.join-us")}</Link>
                 </span>
-                {i18next.t("landing-page.various-digital-tokens")}
+                {t("landing-page.various-digital-tokens")}
               </p>
               <Link className="link-read-more" href="/faq">
-                {i18next.t("landing-page.read-more")}
+                {t("landing-page.read-more")}
               </Link>
             </div>
           </div>
@@ -148,17 +134,16 @@ export function LandingPage() {
         <div className="part-bottom">
           <div className="inner">
             <div className="text-group">
-              <h2>{i18next.t("landing-page.true-ownership")}</h2>
-              <p className="mt-2 w-88">{i18next.t("landing-page.true-ownership-desc")}</p>
+              <h2>{t("landing-page.true-ownership")}</h2>
+              <p className="mt-2 w-88">{t("landing-page.true-ownership-desc")}</p>
             </div>
             <div className="image-wrapper">
-              <Image
+              <AssetPicture
+                basePath="illustration-true-ownership"
+                alt={t("landing-page.true-ownership")}
                 className="landing-floating-image"
-                src={WhaleCatchsFish}
-                alt="whale"
                 width={577}
                 height={446}
-                loading="lazy"
                 sizes="(max-width: 768px) 342px, (max-width: 1024px) 499px, 577px"
               />
             </div>
@@ -166,29 +151,29 @@ export function LandingPage() {
         </div>
       </div>
 
+      {/* Decentralization & Open Source */}
       <div className="sections third-section">
         <div className="part-top sm:pt-5 lg:pt-0">
           <div className="inner">
             <div className="img-wrapper">
-              <Image
+              <AssetPicture
+                basePath="illustration-decentralization"
+                alt={t("landing-page.decentralization")}
                 className="decentralization-img"
-                src={Decentralization}
-                alt="decentralization"
                 width={481}
                 height={382}
-                loading="lazy"
                 sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vw, 33vw"
               />
             </div>
             <div className="text-group visible mw-full">
-              <h2>{i18next.t("landing-page.decentralization")}</h2>
+              <h2>{t("landing-page.decentralization")}</h2>
               <p>
                 <span>
-                  <Link href={"https://hive.io"} target="_blank">
-                    {i18next.t("landing-page.hive-blockchain")}
+                  <Link href="https://hive.io" target="_blank" rel="noopener noreferrer">
+                    {t("landing-page.hive-blockchain")}
                   </Link>
                 </span>{" "}
-                {i18next.t("landing-page.decentralization-desc")}
+                {t("landing-page.decentralization-desc")}
               </p>
             </div>
           </div>
@@ -196,20 +181,19 @@ export function LandingPage() {
         <div className="part-bottom">
           <div className="inner">
             <div className="text-group">
-              <h2>{i18next.t("landing-page.open-source")}</h2>
-              <p>{i18next.t("landing-page.open-source-desc")}</p>
+              <h2>{t("landing-page.open-source")}</h2>
+              <p>{t("landing-page.open-source-desc")}</p>
               <Link href="/signup?referral=ecency" className="no-break">
-                {i18next.t("landing-page.feel-free-join")}
+                {t("landing-page.feel-free-join")}
               </Link>
             </div>
             <div className="img-wrapper">
-              <Image
+              <AssetPicture
+                basePath="illustration-open-source"
+                alt={t("landing-page.open-source")}
                 className="mechanic"
-                src={MechanicFish}
-                alt="mechanic"
                 width={571}
                 height={460}
-                loading="lazy"
                 sizes="(max-width: 768px) 90vw, (max-width: 1024px) 327px, 571px"
               />
             </div>
@@ -217,36 +201,37 @@ export function LandingPage() {
         </div>
       </div>
 
+      {/* Stats & Download */}
       <div className="sections fourth-section">
         <div className="part-top">
           <div className="inner">
             <div className="fish-container">
-              <img className="fish three" src={FishThree} alt="earn-money" loading="lazy" />
-              <img className="fish five" src={FishFive} alt="earn-money" loading="lazy" />
-              <img className="fish four" src={FishFour} alt="earn-money" loading="lazy" />
+              <AssetPicture basePath="fish-3" alt="" className="fish three" />
+              <AssetPicture basePath="fish-5" alt="" className="fish five" />
+              <AssetPicture basePath="fish-4" alt="" className="fish four" />
             </div>
             <div className="fish-container">
-              <img className="fish one" src={FishOne} alt="earn-money" loading="lazy" />
-              <img className="fish two" src={FishTwo} alt="earn-money" loading="lazy" />
+              <AssetPicture basePath="fish-1" alt="" className="fish one" />
+              <AssetPicture basePath="fish-2" alt="" className="fish two" />
             </div>
             <ul>
               <li>
-                <h3>108M</h3>
-                <p>{i18next.t("landing-page.posts")}</p>
+                <h3>130M+</h3>
+                <p>{t("landing-page.posts")}</p>
               </li>
               <li>
-                <h3>600K</h3>
-                <p>{i18next.t("landing-page.unique-visitors")}</p>
+                <h3>14M+</h3>
+                <p>{t("landing-page.unique-visitors")}</p>
               </li>
             </ul>
             <ul>
               <li>
                 <h3>446M</h3>
-                <p>{i18next.t("landing-page.points-distrubuted")}</p>
+                <p>{t("landing-page.points-distrubuted")}</p>
               </li>
               <li>
-                <h3>100K</h3>
-                <p>{i18next.t("landing-page.new-users")}</p>
+                <h3>200K+</h3>
+                <p>{t("landing-page.new-users")}</p>
               </li>
             </ul>
           </div>
@@ -255,229 +240,156 @@ export function LandingPage() {
           <div className="inner">
             <span />
             <span />
-            <img
-              src={PhoneDarkPc}
-              alt="dark phone image"
-              className="phone-bg phone-dark-pc"
-              loading="lazy"
-            />
-            <img
-              src={PhoneDarkPc}
-              alt="dark phone image"
-              className="phone-bg phone-dark-tablet"
-              loading="lazy"
-            />
-            <img
-              src={PhoneDarkPc}
-              alt="light phone image"
-              className="phone-bg phone-light-pc"
-              loading="lazy"
-            />
-            <img
-              src={PhoneDarkPc}
-              alt="light phone image"
-              className="phone-bg phone-light-tablet"
-              loading="lazy"
-            />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-pc" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-dark-tablet" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-pc" />
+            <AssetPicture basePath="phone-download-tiny" alt="" className="phone-bg phone-light-tablet" />
 
-            <img
-              src={BubbleLeftTop}
-              alt="bubble"
-              className="bubble-bg bubble-left-top"
-              loading="lazy"
-            />
-            <img
-              src={BubbleLeftBottom}
-              alt="bubble"
-              className="bubble-bg bubble-left-bottom"
-              loading="lazy"
-            />
-            <img
-              src={BubbleLCenter}
-              alt="bubble"
-              className="bubble-bg bubble-center"
-              loading="lazy"
-            />
-            <img
-              src={BubbleRightTop}
-              alt="bubble"
-              className="bubble-bg bubble-right-top"
-              loading="lazy"
-            />
-            <img
-              src={BubbleLRightBottom}
-              alt="bubble"
-              className="bubble-bg bubble-right-bottom"
-              loading="lazy"
-            />
+            <AssetPicture basePath="bubble-left-top" alt="" className="bubble-bg bubble-left-top" />
+            <AssetPicture basePath="bubble-left-bottom" alt="" className="bubble-bg bubble-left-bottom" />
+            <AssetPicture basePath="bubble-center" alt="" className="bubble-bg bubble-center" />
+            <AssetPicture basePath="bubble-right-top" alt="" className="bubble-bg bubble-right-top" />
+            <AssetPicture basePath="bubble-right-bottom" alt="" className="bubble-bg bubble-right-bottom" />
 
-            <img
-              src={LeftFishes}
-              alt="fishes"
-              className="download-fishes left-fishes"
-              loading="lazy"
-            />
-            <img
-              src={DownloadDarkFishes}
-              alt="fish"
-              className="download-fishes right-dark-fishes"
-              loading="lazy"
-            />
-            <img src={FishOne} alt="fish" className="download-fishes right-small" loading="lazy" />
-            <img src={FishTwo} alt="fish" className="download-fishes right-big" loading="lazy" />
+            <AssetPicture basePath="left-fishes" alt="" className="download-fishes left-fishes" />
+            <AssetPicture basePath="download-dark-fishes" alt="" className="download-fishes right-dark-fishes" />
+            <AssetPicture basePath="fish-1" alt="" className="download-fishes right-small" />
+            <AssetPicture basePath="fish-2" alt="" className="download-fishes right-big" />
 
             <div className="text-group">
-              <h2>{i18next.t("landing-page.download-our-application")}</h2>
-              <p className="mt-4">{i18next.t("landing-page.download-our-application-desc-1")}</p>
-              <p>{i18next.t("landing-page.download-our-application-desc-2")}</p>
-              <Link href={"https://ios.ecency.com/"} target="blank">
-                <img
-                  src={theme === "day" ? DownloadIPhone : DownloadIPhoneWhite}
-                  alt="Download for IOS"
-                />
-                {i18next.t("landing-page.download-for-ios")}
-              </Link>
-              <Link href={"https://android.ecency.com/"} target="blank">
-                <img
-                  src={theme === "day" ? DownloadAndroid : DownloadAndroidWhite}
-                  alt="Download for Android"
-                />
-                {i18next.t("landing-page.download-for-android")}
-              </Link>
+              <h2>{t("landing-page.download-our-application")}</h2>
+              <p className="mt-4">{t("landing-page.download-our-application-desc-1")}</p>
+              <p>{t("landing-page.download-our-application-desc-2")}</p>
+              <LandingDownloadLinks
+                iosIcon={`${baseUrl}/assets/icon-apple.svg`}
+                iosIconWhite={`${baseUrl}/assets/icon-apple-white.svg`}
+                androidIcon={`${baseUrl}/assets/icon-android.png`}
+                androidIconWhite={`${baseUrl}/assets/icon-android-white.svg`}
+              />
             </div>
           </div>
         </div>
       </div>
 
+      {/* History & Vision
+          dangerouslySetInnerHTML is safe here: translation values come from
+          static JSON locale files shipped with the build (en-US.json etc.),
+          never from user input. If translations ever include user-generated
+          content, sanitize with DOMPurify before inserting. */}
       <div className="sections fifth-section" id="about">
         <div className="part-top pt-5 sm:pt-0">
           <div className="inner">
             <div className="text-group sm:mt-5 lg:mt-0">
-              <h2>{i18next.t("landing-page.our-history")}</h2>
-              <p>{htmlParse(i18next.t("landing-page.our-history-p-one"))}</p>
-              <p>{i18next.t("landing-page.our-history-p-two")}</p>
+              <h2>{t("landing-page.our-history")}</h2>
+              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-history-p-one") }} />
+              <p>{t("landing-page.our-history-p-two")}</p>
             </div>
-            <img className="our-history" src={OurHistory} alt="Our History" loading="lazy" />
+            <AssetPicture basePath="our-history" alt={t("landing-page.our-history")} className="our-history" />
           </div>
         </div>
         <div className="part-bottom">
           <div className="inner">
-            <img className="our-vision" src={OurVision} alt="Our Vision" loading="lazy" />
+            <AssetPicture basePath="our-vision" alt={t("landing-page.our-vision")} className="our-vision" />
 
             <div className="text-group pb-0 sm:pb-5 md:pb-0">
-              <h2>{i18next.t("landing-page.our-vision")}</h2>
-              <p>{htmlParse(i18next.t("landing-page.our-vision-p-one"))}</p>
-              <p>{htmlParse(i18next.t("landing-page.our-vision-p-two"))}</p>
+              <h2>{t("landing-page.our-vision")}</h2>
+              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-vision-p-one") }} />
+              <p dangerouslySetInnerHTML={{ __html: t("landing-page.our-vision-p-two") }} />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Team & Footer */}
       <div className="sections sixth-section">
         <div className="part-top">
           <div className="inner">
             <div className="text-group">
-              <h2>{i18next.t("landing-page.our-team")}</h2>
+              <h2>{t("landing-page.our-team")}</h2>
               <ul>
                 <li className="last-element">
                   <Link href="/contributors">
-                    {i18next.t("landing-page.community-contributors")}
+                    {t("landing-page.community-contributors")}
                   </Link>
-                  <Link href="/witnesses">{i18next.t("landing-page.blockchain-witnesses")}</Link>
+                  <Link href="/witnesses">{t("landing-page.blockchain-witnesses")}</Link>
                 </li>
               </ul>
             </div>
 
             <div className="image-container">
-              <img className="our-team together" src={OurTeam} alt="Our Team" loading="lazy" />
-              <img className="our-team senior" src={SeniorFish} alt="Senior Fish" />
-              <img className="our-team junior" src={JuniorFish} alt="Junior Fish" loading="lazy" />
+              <AssetPicture basePath="our-team" alt={t("landing-page.our-team")} className="our-team together" />
+              <AssetPicture basePath="fish-senior" alt="" className="our-team senior" />
+              <AssetPicture basePath="fish-junior" alt="" className="our-team junior" />
             </div>
           </div>
         </div>
         <div className="part-bottom sm:pt-5 lg:pt-[auto]">
           <span className="left-fishes" />
-          <img src={FooterMainFish} alt="Big fish" loading="lazy" className="main-fish" />
+          <AssetPicture basePath="footer-main-fish" alt="" className="main-fish" />
           <div className="inner">
             <div className="links-and-form">
               <div className="links">
                 <ul className="first-column">
                   <li>
-                    <Link href="#about">{i18next.t("landing-page.about")}</Link>
+                    <Link href="#about">{t("landing-page.about")}</Link>
                   </li>
                   <li>
-                    <Link href="/faq">{i18next.t("landing-page.faq")}</Link>
+                    <Link href="/faq">{t("landing-page.faq")}</Link>
                   </li>
                   <li>
                     <Link href="/terms-of-service">
-                      {i18next.t("landing-page.terms-of-service")}
+                      {t("landing-page.terms-of-service")}
                     </Link>
                   </li>
                   <li>
-                    <Link href="/privacy-policy">{i18next.t("landing-page.privacy-policy")}</Link>
+                    <Link href="/privacy-policy">{t("landing-page.privacy-policy")}</Link>
                   </li>
                 </ul>
                 <ul className="second-column">
                   <li>
-                    <Link href="/discover">{i18next.t("landing-page.discover")}</Link>
+                    <Link href="/discover">{t("landing-page.discover")}</Link>
                   </li>
                   <li>
-                    <p onClick={() => toggleUIProp("login")}>{i18next.t("landing-page.sign-in")}</p>
+                    <LandingSignInLink />
                   </li>
                   <li>
-                    <Link href="/communities">{i18next.t("landing-page.communities")}</Link>
+                    <Link href="/communities">{t("landing-page.communities")}</Link>
                   </li>
                   <li>
-                    <Link href="/faq">{i18next.t("landing-page.help")}</Link>
+                    <Link href="/faq">{t("landing-page.help")}</Link>
+                  </li>
+                  <li>
+                    <Link href="/mobile">{t("landing-page.get-mobile-app")}</Link>
                   </li>
                 </ul>
               </div>
 
-              <div className="subscribe-form" onSubmit={handleSubsccribe}>
-                <h2>{i18next.t("landing-page.subscribe-us")}</h2>
-                <form>
-                  <input
-                    type="email"
-                    placeholder={i18next.t("landing-page.enter-your-email-adress")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required={true}
-                    onInvalid={(e: any) => handleInvalid(e, "landing-page.", "validation-email")}
-                    onInput={handleOnInput}
-                  />
-                  <button disabled={loading}>
-                    {loading ? (
-                      <span>
-                        <LinearProgress />
-                      </span>
-                    ) : (
-                      i18next.t("landing-page.send")
-                    )}
-                  </button>
-                </form>
+              <div className="subscribe-form">
+                <h2>{t("landing-page.subscribe-us")}</h2>
+                <LandingSubscribeForm />
 
-                <p>{i18next.t("landing-page.subscribe-paragraph")}</p>
+                <p>{t("landing-page.subscribe-paragraph")}</p>
 
                 <div className="socials w-full hidden lg:block">
                   <ul className="p-0 m-0 flex justify-between w-[50%]">
                     <li>
-                      <Link href={"https://youtube.com/ecency"} target="_blank">
-                        <img src={FooterYoutube} alt="youtube" />
+                      <Link href="https://youtube.com/ecency" target="_blank" rel="noopener noreferrer">
+                        <SvgAsset path="footer-youtube.svg" alt="youtube" />
                       </Link>
                     </li>
                     <li>
-                      <Link href={"https://twitter.com/ecency_official"} target="_blank">
-                        <img src={FooterTwitter} alt="twitter" />
+                      <Link href="https://twitter.com/ecency_official" target="_blank" rel="noopener noreferrer">
+                        <SvgAsset path="footer-twitter.svg" alt="twitter" />
                       </Link>
                     </li>
                     <li>
-                      <Link href={"https://t.me/ecency"} target="_blank">
-                        <img src={FooterTelegram} alt="telegram" />
+                      <Link href="https://t.me/ecency" target="_blank" rel="noopener noreferrer">
+                        <SvgAsset path="footer-telegram.svg" alt="telegram" />
                       </Link>
                     </li>
                     <li>
-                      <Link href={"https://discord.me/ecency"} target="_blank">
-                        <img src={FooterDiscord} alt="discord" />
+                      <Link href="https://discord.me/ecency" target="_blank" rel="noopener noreferrer">
+                        <SvgAsset path="footer-discord.svg" alt="discord" />
                       </Link>
                     </li>
                   </ul>
@@ -488,7 +400,7 @@ export function LandingPage() {
               <Link href="#">
                 <Image width={100} height={100} src={defaults.logo} alt="ecency logo" />
               </Link>
-              <p className="copy-right">{i18next.t("landing-page.copy-rights")}</p>
+              <p className="copy-right">{t("landing-page.copy-rights")}</p>
             </div>
           </div>
         </div>

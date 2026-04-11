@@ -1,55 +1,38 @@
 import { Stepper } from "@/features/shared";
 import {
-  UilLock,
-  UilMoneyInsert,
-  UilUnlock,
   UilUser,
-  UilWallet
+  UilWallet,
+  UilCheckCircle
 } from "@tooni/iconscout-unicons-react";
 
-export enum SignupByWalletStepperSteps {
+export enum MetamaskSignupStep {
   INTRO,
-  SEED,
-  CI, // Create/Import
-  VALIDATION,
-  VALIDATE_FUNDS,
+  CONNECT,
   CREATE_ACCOUNT
 }
 
 interface Props {
-  step: SignupByWalletStepperSteps;
+  step: MetamaskSignupStep;
 }
 
 const steps = [
   {
-    step: SignupByWalletStepperSteps.INTRO,
-    title: "Introduction",
-    icon: <UilWallet />,
-    description: "Select Hive username"
-  },
-  {
-    step: SignupByWalletStepperSteps.SEED,
-    title: "Seed phrase",
-    icon: <UilLock />,
-    description: "Generate and backup seed phrase for all wallets and Hive"
-  },
-  {
-    step: SignupByWalletStepperSteps.VALIDATION,
-    title: "Validate",
-    icon: <UilUnlock />,
-    description: "Verify that you have backed up seed phrase"
-  },
-  {
-    step: SignupByWalletStepperSteps.VALIDATE_FUNDS,
-    title: "Validate funds",
-    icon: <UilMoneyInsert />,
-    description: "Top-up one of wallets to validate"
-  },
-  {
-    step: SignupByWalletStepperSteps.CREATE_ACCOUNT,
-    title: "Finish",
+    step: MetamaskSignupStep.INTRO,
+    title: "Username",
     icon: <UilUser />,
-    description: "Finalize Hive account creation"
+    description: "Select your Hive username"
+  },
+  {
+    step: MetamaskSignupStep.CONNECT,
+    title: "Connect & Verify",
+    icon: <UilWallet />,
+    description: "Connect MetaMask and verify wallet balance"
+  },
+  {
+    step: MetamaskSignupStep.CREATE_ACCOUNT,
+    title: "Create Account",
+    icon: <UilCheckCircle />,
+    description: "Finalize your Hive account"
   }
 ];
 

@@ -4,7 +4,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import base58 from "bs58";
 
-import { useCommunitySetUserRole, useHsLoginRefresh, useUpdateCommunity } from "@/api/mutations";
+import { useHsLoginRefresh } from "@/api/mutations";
 import {
   CommunityCreateAccountStep,
   CommunityCreateCardLayout,
@@ -17,8 +17,15 @@ import {
 import { useGlobalStore } from "@/core/global-store";
 import { CommunityTypes } from "@/enums";
 import { delay, getAccessToken, parseAsset, random } from "@/utils";
-import { EcencyAnalytics, getChainPropertiesQueryOptions, useAccountUpdate } from "@ecency/sdk";
-import { cryptoUtils } from "@hiveio/dhive";
+import {
+  EcencyAnalytics,
+  getChainPropertiesQueryOptions,
+  useAccountUpdate,
+  useSetCommunityRole,
+  useUpdateCommunity
+} from "@ecency/sdk";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { sha256 } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilSpinner } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
@@ -38,7 +45,7 @@ function generateUsername(type: CommunityTypes) {
 }
 
 function generateWif() {
-  return "P" + base58.encode(cryptoUtils.sha256(random()));
+  return "P" + base58.encode(sha256(random()));
 }
 
 export function CreateCommunityPage() {
@@ -76,8 +83,12 @@ export function CreateCommunityPage() {
       : undefined
   );
   const { mutateAsync: hsTokenRenew } = useHsLoginRefresh();
-  const { mutateAsync: updateCommunity } = useUpdateCommunity(username);
-  const { mutateAsync: setUserRole } = useCommunitySetUserRole(username);
+
+  // Use SDK hooks directly (not web wrappers) because this flow broadcasts AS the
+  // community account, not as activeUser. Web wrappers hardcode activeUser as broadcaster.
+  const adapter = getWebBroadcastAdapter();
+  const { mutateAsync: updateCommunity } = useUpdateCommunity(username, username, { adapter });
+  const { mutateAsync: setUserRole } = useSetCommunityRole(username, username, { adapter });
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "community-created" as any
@@ -135,7 +146,7 @@ export function CreateCommunityPage() {
       // set admin role
       setProgress(i18next.t("communities-create.progress-role", { u: activeUser.username }));
       await setUserRole({
-        user: username,
+        account: activeUser.username,
         role: "admin"
       });
 
@@ -143,15 +154,12 @@ export function CreateCommunityPage() {
       setProgress(i18next.t("communities-create.progress-props"));
 
       await updateCommunity({
-        username,
-        payload: {
-          title,
-          about,
-          lang: "en",
-          description: "",
-          flag_text: "",
-          is_nsfw: false
-        }
+        title,
+        about,
+        lang: "en",
+        description: "",
+        flag_text: "",
+        is_nsfw: false
       });
 
       if (defaultBeneficiary.username && defaultBeneficiary.reward) {
@@ -181,7 +189,6 @@ export function CreateCommunityPage() {
       updateCommunity,
       title,
       about,
-      updateAccount,
       defaultBeneficiary,
       recordActivity,
       waitForCommunityToken

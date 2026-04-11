@@ -124,6 +124,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
             setSigningOperation(op);
           },
           TwitterComponent: Tweet,
+          images: entry.json_metadata?.image,
         });
       } catch (e) {
         // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
@@ -146,7 +147,7 @@ export function EntryPageBodyViewer({ entry }: Props) {
       clearTimeout(timer);
       cleanup?.();
     };
-  }, [isRawContent, isEdit, editHistory]);
+  }, [isRawContent, isEdit, editHistory, entry.json_metadata?.image]);
 
   return (
     <EntryPageViewerManager>

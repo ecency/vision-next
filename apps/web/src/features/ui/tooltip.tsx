@@ -5,7 +5,7 @@ import { flip, useFloating } from "@floating-ui/react-dom";
 import { safeAutoUpdate } from "@ui/util";
 import clsx from "clsx";
 import { motion } from "framer-motion";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { JSX, ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface Props {

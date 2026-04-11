@@ -13,7 +13,7 @@ import { giftOutlineSvg } from "@ui/svg";
 import useMount from "react-use/lib/useMount";
 import useUnmount from "react-use/lib/useUnmount";
 import { EcencyConfigManager } from "@/config";
-import { PostTipsResponse } from "@/api/queries/get-post-tips-query";
+import { PostTipsResponse } from "@ecency/sdk";
 import { Popover, PopoverContent } from "@/features/ui";
 import { formattedNumber } from "@/utils";
 
@@ -23,6 +23,7 @@ interface Props {
   setTipDialogMounted?: (d: boolean) => void;
   handleClickAway?: () => void;
   postTips?: PostTipsResponse;
+  inlineTipButton?: boolean;
 }
 
 export function EntryTipBtn({
@@ -30,7 +31,8 @@ export function EntryTipBtn({
   setTipDialogMounted,
   handleClickAway,
   account,
-  postTips
+  postTips,
+  inlineTipButton
 }: Props) {
   const { activeUser } = useActiveAccount();
 
@@ -53,6 +55,17 @@ export function EntryTipBtn({
     setShowPopover(false);
     setDialog(true);
   };
+
+  const inlineTipBtn = (
+    <button
+      type="button"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-dark-sky text-white text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
+      onClick={openTransferDialog}
+    >
+      {giftOutlineSvg}
+      {i18next.t("entry-tip.tip")}
+    </button>
+  );
 
   const tipButton = (
     <div
@@ -77,7 +90,9 @@ export function EntryTipBtn({
   return (
     <>
       <LoginRequired>
-        {tipCount > 0 ? (
+        {inlineTipButton ? (
+          inlineTipBtn
+        ) : tipCount > 0 ? (
           <Popover directContent={tipButton} behavior="click" show={showPopover} setShow={setShowPopover}>
             <PopoverContent>
               <div className="tip-popover">

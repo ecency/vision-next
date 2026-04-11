@@ -1,9 +1,10 @@
 import { vi } from "vitest";
 import { TextDecoder, TextEncoder } from "util";
 
-global.TextEncoder = TextEncoder;
-// @ts-ignore
-global.TextDecoder = TextDecoder;
+// Polyfill for jsdom environment — use defineProperty because jsdom v26
+// shadows simple global assignments with its own window descriptors.
+Object.defineProperty(globalThis, "TextEncoder", { value: TextEncoder, writable: true, configurable: true });
+Object.defineProperty(globalThis, "TextDecoder", { value: TextDecoder, writable: true, configurable: true });
 
 // Mock uuid to avoid crypto dependency issues
 vi.mock("uuid", () => ({
@@ -20,13 +21,26 @@ vi.mock("i18next", () => ({
   }
 }));
 
+vi.mock("@ecency/hive-tx", () => ({
+  PrivateKey: { fromString: vi.fn(), fromLogin: vi.fn(), from: vi.fn() },
+  PublicKey: { fromString: vi.fn(), from: vi.fn() },
+  Signature: { from: vi.fn() },
+  Transaction: vi.fn(),
+  Memo: { encode: vi.fn(), decode: vi.fn() },
+  callRPC: vi.fn(),
+  callRPCBroadcast: vi.fn(),
+  callREST: vi.fn(),
+  callWithQuorum: vi.fn(),
+  config: { nodes: [], timeout: 1000, address_prefix: "STM" },
+  utils: { operations: {}, makeBitMaskFilter: vi.fn() },
+}));
+
 vi.mock("@ecency/sdk", () => ({
   ConfigManager: { setQueryClient: vi.fn() },
   CONFIG: {
-    hiveClient: {
-      database: { call: vi.fn() },
-      broadcast: { sendOperations: vi.fn() }
-    }
+    hiveNodes: [],
+    privateApiHost: "https://ecency.com",
+    imageHost: "https://images.ecency.com",
   },
   getBookmarksQueryOptions: vi.fn(),
   getAccountFullQueryOptions: vi.fn(() => ({ queryKey: ['account'], queryFn: vi.fn() })),
@@ -39,9 +53,25 @@ vi.mock("@ecency/sdk", () => ({
   })),
   useBookmarkAdd: vi.fn(),
   useBookmarkDelete: vi.fn(),
+  useAccountRevokeKey: vi.fn(() => ({ mutateAsync: vi.fn() })),
   usrActivity: vi.fn(),
   buildProfileMetadata: vi.fn(),
-  parseProfileMetadata: vi.fn()
+  parseProfileMetadata: vi.fn(),
+  canRevokeFromAuthority: vi.fn(() => true),
+  buildRevokeKeysOp: vi.fn(() => ({})),
+  // hive-tx compat layer re-exports
+  broadcastOperations: vi.fn(),
+  isWif: vi.fn(() => false),
+  sha256: vi.fn(() => new Uint8Array(32)),
+  calculateVPMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
+  calculateRCMana: vi.fn(() => ({ percentage: 10000, current_mana: 0, max_mana: 0 })),
+  callRPC: vi.fn(),
+  hiveTxUtils: { operations: {}, makeBitMaskFilter: vi.fn() },
+  hiveTxConfig: { nodes: [], timeout: 1000, address_prefix: "STM" },
+  initHiveTx: vi.fn(),
+  setHiveTxNodes: vi.fn(),
+  dedupeAndSortKeyAuths: vi.fn((...args: any[]) => args[0] || []),
+  buildGrantPostingPermissionOp: vi.fn(),
 }));
 
 vi.mock("@/features/post-renderer", () => ({
@@ -59,9 +89,6 @@ vi.mock("@ecency/wallets", () => ({
     BTC: "BTC",
     ETH: "ETH",
     BNB: "BNB",
-    APT: "APT",
-    TON: "TON",
-    TRON: "TRX",
     SOL: "SOL"
   }
 }));

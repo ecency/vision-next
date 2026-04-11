@@ -2,13 +2,29 @@
 
 import i18next from "i18next";
 import { ManageKey } from "./manage-key";
-import { Button, Modal, ModalBody, ModalHeader } from "@/features/ui";
+import { Button } from "@/features/ui";
 import { useState } from "react";
-import { ManageKeysAddKeys } from "./manage-keys-add-keys";
+import { ManageKeysDialog } from "./manage-keys-dialog";
 import { UilPlus } from "@tooni/iconscout-unicons-react";
 
 export function ManageKeys() {
-  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [initialRevokeKey, setInitialRevokeKey] = useState<string | undefined>();
+
+  const handleOpenAdd = () => {
+    setInitialRevokeKey(undefined);
+    setShowDialog(true);
+  };
+
+  const handleOpenRevoke = (publicKey: string) => {
+    setInitialRevokeKey(publicKey);
+    setShowDialog(true);
+  };
+
+  const handleClose = () => {
+    setShowDialog(false);
+    setInitialRevokeKey(undefined);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-4 rounded-xl p-4 bg-white/80 dark:bg-dark-200/90 text-gray-900 dark:text-white pb-4">
@@ -26,23 +42,22 @@ export function ManageKeys() {
           size="sm"
           className="whitespace-nowrap"
           icon={<UilPlus />}
-          onClick={() => setShowChangePassword(true)}
+          onClick={handleOpenAdd}
         >
           {i18next.t("permissions.keys.add-key")}
         </Button>
       </div>
 
-      <ManageKey keyName="owner" />
-      <ManageKey keyName="active" />
-      <ManageKey keyName="posting" />
-      <ManageKey keyName="memo" />
+      <ManageKey keyName="owner" onRevoke={handleOpenRevoke} />
+      <ManageKey keyName="active" onRevoke={handleOpenRevoke} />
+      <ManageKey keyName="posting" onRevoke={handleOpenRevoke} />
+      <ManageKey keyName="memo" onRevoke={handleOpenRevoke} />
 
-      <Modal show={showChangePassword} onHide={() => setShowChangePassword(false)} centered={true}>
-        <ModalHeader closeButton={true}>{i18next.t("password-update.title")}</ModalHeader>
-        <ModalBody>
-          <ManageKeysAddKeys onSuccess={() => setShowChangePassword(false)} />
-        </ModalBody>
-      </Modal>
+      <ManageKeysDialog
+        show={showDialog}
+        onHide={handleClose}
+        initialRevokeKey={initialRevokeKey}
+      />
     </div>
   );
 }

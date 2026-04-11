@@ -8,15 +8,15 @@ vi.mock('../imageZoomEnhancer', () => ({
 }))
 
 vi.mock('../hivePostLinkEnhancer', () => ({
-  applyHivePostLinks: vi.fn(),
+  applyHivePostLinks: vi.fn(() => []),
 }))
 
 vi.mock('../hiveAuthorLinkEnhancer', () => ({
-  applyAuthorLinks: vi.fn(),
+  applyAuthorLinks: vi.fn(() => []),
 }))
 
 vi.mock('../hiveOperationEnhancer', () => ({
-  applyHiveOperations: vi.fn(),
+  applyHiveOperations: vi.fn(() => []),
 }))
 
 vi.mock('../tagLinkEnhancer', () => ({
@@ -24,19 +24,19 @@ vi.mock('../tagLinkEnhancer', () => ({
 }))
 
 vi.mock('../youtubeVideosEnhancer', () => ({
-  applyYoutubeVideos: vi.fn(),
+  applyYoutubeVideos: vi.fn(() => []),
 }))
 
 vi.mock('../threespeakVideosEnhancer', () => ({
-  applyThreeSpeakVideos: vi.fn(),
+  applyThreeSpeakVideos: vi.fn(() => []),
 }))
 
 vi.mock('../waveLinkEnhancer', () => ({
-  applyWaveLikePosts: vi.fn(),
+  applyWaveLikePosts: vi.fn(() => []),
 }))
 
 vi.mock('../twitterEnhancer', () => ({
-  applyTwitterEmbeds: vi.fn(),
+  applyTwitterEmbeds: vi.fn(() => []),
 }))
 
 vi.mock('../../functions', () => ({
@@ -50,8 +50,8 @@ describe('setupPostEnhancements', () => {
     container = document.createElement('div')
     container.classList.add('markdown-view')
     vi.clearAllMocks()
-    // Reset all mocks to not throw
-    vi.mocked(utils.applyImageZoom).mockImplementation(() => {})
+    // Reset all mocks to not throw - applyImageZoom returns a Promise
+    vi.mocked(utils.applyImageZoom).mockResolvedValue(null)
   })
 
   describe('basic enhancement flow', () => {
@@ -154,16 +154,18 @@ describe('setupPostEnhancements', () => {
   })
 
   describe('enhancement order', () => {
-    it('should apply image zoom before other enhancements', () => {
+    it('should apply image zoom after link enhancements', () => {
       const callOrder: string[] = []
 
       const { applyImageZoom, applyHivePostLinks } = utils
-      vi.mocked(applyImageZoom).mockImplementation(() => callOrder.push('imageZoom'))
-      vi.mocked(applyHivePostLinks).mockImplementation(() => callOrder.push('postLinks'))
+      vi.mocked(applyImageZoom).mockImplementation(() => { callOrder.push('imageZoom'); return Promise.resolve(null); })
+      vi.mocked(applyHivePostLinks).mockImplementation(() => { callOrder.push('postLinks'); return []; })
 
       setupPostEnhancements(container)
 
-      expect(callOrder[0]).toBe('imageZoom')
+      const postLinksIndex = callOrder.indexOf('postLinks')
+      const imageZoomIndex = callOrder.indexOf('imageZoom')
+      expect(postLinksIndex).toBeLessThan(imageZoomIndex)
     })
 
     it('should find post links before applying link enhancements', async () => {
@@ -176,7 +178,7 @@ describe('setupPostEnhancements', () => {
         callOrder.push('findLinks')
         return []
       })
-      vi.mocked(applyHivePostLinks).mockImplementation(() => callOrder.push('applyLinks'))
+      vi.mocked(applyHivePostLinks).mockImplementation(() => { callOrder.push('applyLinks'); return []; })
 
       setupPostEnhancements(container)
 
@@ -188,16 +190,16 @@ describe('setupPostEnhancements', () => {
 
   describe('error resilience', () => {
     it('should throw if one enhancer throws', () => {
-      const { applyImageZoom, applyAuthorLinks } = utils
-      vi.mocked(applyImageZoom).mockImplementation(() => {
-        throw new Error('Image zoom failed')
+      const { applyHivePostLinks, applyImageZoom } = utils
+      vi.mocked(applyHivePostLinks).mockImplementation(() => {
+        throw new Error('Post links failed')
       })
 
       // Should throw and stop execution
-      expect(() => setupPostEnhancements(container)).toThrow('Image zoom failed')
+      expect(() => setupPostEnhancements(container)).toThrow('Post links failed')
 
       // Subsequent enhancers should not be called due to throw
-      expect(applyAuthorLinks).not.toHaveBeenCalled()
+      expect(applyImageZoom).not.toHaveBeenCalled()
     })
   })
 
@@ -226,6 +228,31 @@ describe('setupPostEnhancements', () => {
 
     it('should handle empty options object', () => {
       expect(() => setupPostEnhancements(container, {})).not.toThrow()
+    })
+  })
+
+  describe('cleanup', () => {
+    it('should unmount React roots when cleanup is called', () => {
+      const mockRoot = { unmount: vi.fn(), render: vi.fn() }
+      vi.mocked(utils.applyHivePostLinks).mockReturnValue([mockRoot as any])
+
+      const cleanup = setupPostEnhancements(container)
+      cleanup()
+
+      expect(mockRoot.unmount).toHaveBeenCalled()
+    })
+
+    it('should detach image zoom when cleanup is called', async () => {
+      const mockZoom = { detach: vi.fn() }
+      vi.mocked(utils.applyImageZoom).mockResolvedValue(mockZoom as any)
+
+      const cleanup = setupPostEnhancements(container)
+      cleanup()
+
+      // Flush microtasks so the zoom promise resolves
+      await Promise.resolve()
+
+      expect(mockZoom.detach).toHaveBeenCalled()
     })
   })
 

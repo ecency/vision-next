@@ -3,7 +3,8 @@
 import { MarketMode } from "@/app/market/_enums/market-mode";
 import { ModeSelector } from "@/app/market/_components/mode-selector";
 import React from "react";
-import { Feedback, Navbar } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
 import { Tsx } from "@/features/i18n/helper";
 import { SwapMode } from "@/features/market";
 import i18next from "i18next";

@@ -346,7 +346,7 @@ export function Search({ containerClassName }: Props) {
       if (matchesKeyword("signup", "sign-up", "register")) {
         addAction({
           label: i18next.t("search.action-signup-email"),
-          onSelect: () => router.push("/signup/email")
+          onSelect: () => router.push("/signup/free")
         });
         addAction({
           label: i18next.t("search.action-signup-crypto"),

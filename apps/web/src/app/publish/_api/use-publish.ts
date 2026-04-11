@@ -1,6 +1,7 @@
 import { validatePostCreating } from "@ecency/sdk";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
+import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
-import { updateSpeakVideoInfo } from "@/api/threespeak";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
@@ -11,7 +12,6 @@ import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { success } from "@/features/shared";
 import {
   createPermlink,
-  ensureValidPermlink,
   isCommunity,
   makeCommentOptions,
   tempEntry
@@ -39,7 +39,6 @@ export function usePublishApi() {
     beneficiaries,
     isReblogToCommunity,
     poll,
-    publishingVideo,
     postLinks,
     location
   } = usePublishState();
@@ -48,10 +47,6 @@ export function usePublishApi() {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username ?? undefined,
     "post-created"
-  );
-  const { mutateAsync: recordUploadVideoActivity } = EcencyAnalytics.useRecordActivity(
-    username ?? undefined,
-    "video-published"
   );
   const { mutateAsync: commentMutation } = useCommentMutation();
   const { mutateAsync: reblogMutation } = useReblogMutation();
@@ -120,15 +115,6 @@ export function usePublishApi() {
       }
 
       const [parentPermlink] = tags!;
-      const videoMetadata = publishingVideo
-        ? {
-            ...publishingVideo,
-            permlink: ensureValidPermlink(
-              publishingVideo.permlink,
-              title || publishingVideo.title
-            )
-          }
-        : undefined;
 
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
@@ -143,32 +129,12 @@ export function usePublishApi() {
         .withLocation(location)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
-        .withVideo(title!, metaDescription!, videoMetadata)
         .withPoll(poll)
         .build();
 
-      // If post has one unpublished video need to modify
-      //    json metadata which matches to 3Speak
-      if (videoMetadata) {
-        // Permlink should be got from 3speak video metadata
-        permlink = videoMetadata.permlink;
-        // Update speak video with title, body and tags
-        await updateSpeakVideoInfo(
-          username,
-          content!,
-          videoMetadata._id,
-          title!,
-          tags ?? [],
-          // isNsfw,
-          false
-        );
-      }
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cleanBody);
 
-      if (jsonMeta.type === "video" && poll) {
-        throw new Error(i18next.t("polls.videos-collision-error"));
-      }
-
-      const options = makeCommentOptions(author, permlink, reward as RewardType, beneficiaries);
+      const options = makeCommentOptions(author, permlink, reward as RewardType, finalBeneficiaries);
 
       await commentMutation({
         author,
@@ -220,11 +186,16 @@ export function usePublishApi() {
         });
       }
 
-      // Record all user activity
+      // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+      linkThreeSpeakEmbed(cleanBody, {
+        hiveAuthor: author,
+        hivePermlink: permlink,
+        hiveTitle: title,
+        hiveTags: tags
+      });
+
+      // Record user activity
       recordActivity().catch(() => {});
-      if (publishingVideo) {
-        recordUploadVideoActivity().catch(() => {});
-      }
 
       success(i18next.t("submit.published"));
       if (isCommunity(tags?.[0]) && isReblogToCommunity) {

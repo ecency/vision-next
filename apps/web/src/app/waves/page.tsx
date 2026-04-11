@@ -4,7 +4,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/core/react-query";
 import { EcencyConfigManager } from "@/config";
 import { notFound } from "next/navigation";
-import { ScrollToTop } from "@/features/shared";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
 
 export const metadata: Metadata = {
   title: "Waves | Ecency",

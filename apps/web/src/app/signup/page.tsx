@@ -6,8 +6,6 @@ import { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata(
   props: unknown,
   parent: ResolvingMetadata
@@ -15,52 +13,64 @@ export async function generateMetadata(
   return PagesMetadataGenerator.getForPage("signup");
 }
 
-const options = [
+const options: { key: string; image: string; href: string; desktopOnly?: boolean }[] = [
   {
-    title: i18next.t("signup-email.title"),
-    description: i18next.t("signup-email.description"),
-    buttonText: i18next.t("signup-email.buttonText"),
+    key: "free",
     image: "/assets/undraw-mailbox.svg",
-    href: "/signup/email",
-    label: i18next.t("signup-email.label")
+    href: "/signup/free"
   },
   {
-    title: i18next.t("signup-wallets.title"),
-    description: i18next.t("signup-wallets.description"),
+    key: "premium",
+    image: "/assets/undraw-credit-card.svg",
+    href: "/signup/premium"
+  },
+  {
+    key: "wallet",
     image: "/assets/undraw-crypto-wallet.svg",
-    buttonText: i18next.t("signup-wallets.buttonText"),
     href: "/signup/wallet",
-    label: i18next.t("signup-wallets.label")
+    desktopOnly: true
+  },
+  {
+    key: "invited",
+    image: "/assets/undraw-gifts.svg",
+    href: "/signup/invited"
   }
 ];
 
-export default function Page({
+export default async function Page({
   searchParams
 }: {
-  searchParams?: { referral?: string };
+  searchParams?: Promise<{ referral?: string }>;
 }) {
-  const referral = typeof searchParams?.referral === "string" ? searchParams.referral : "";
+  const params = await searchParams;
+  const referral = typeof params?.referral === "string" ? params.referral : "";
 
   const getHref = (href: string) => (referral ? `${href}?referral=${encodeURIComponent(referral)}` : href);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-6">
       {options.map((option) => (
-        <div key={option.title} className="bg-white rounded-2xl p-6 flex flex-col justify-between">
-          <div className="uppercase opacity-50 font-bold text-sm">{option.label}</div>
+        <div key={option.key} className={`bg-white dark:bg-dark-200 rounded-2xl p-6 flex flex-col justify-between ${option.desktopOnly ? "hidden md:flex" : ""}`}>
+          <div className="uppercase opacity-50 font-bold text-sm">
+            {i18next.t(`signup-options.${option.key}.label`)}
+          </div>
           <div className="flex flex-col gap-4">
             <Image
               src={option.image}
               alt=""
               width={400}
               height={400}
-              className="max-w-[200px] md:max-w-[300px] mx-auto my-6"
+              className="max-w-[160px] md:max-w-[200px] mx-auto my-6"
             />
-            <div className="text-xl font-bold">{option.title}</div>
-            <div className="text-gray-600 dark:text-gray-400">{option.description}</div>
+            <div className="text-xl font-bold">
+              {i18next.t(`signup-options.${option.key}.title`)}
+            </div>
+            <div className="text-gray-600 dark:text-gray-400 text-sm">
+              {i18next.t(`signup-options.${option.key}.description`)}
+            </div>
             <Link href={getHref(option.href)}>
-              <Button size="lg" icon={<UilArrowRight />}>
-                {option.buttonText}
+              <Button size="lg" icon={<UilArrowRight />} className="w-full">
+                {i18next.t(`signup-options.${option.key}.button`)}
               </Button>
             </Link>
           </div>

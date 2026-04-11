@@ -1,6 +1,6 @@
 "use client";
 
-import React, { RefObject, useCallback, useEffect, useState } from "react";
+import React, { RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { clsx } from "clsx";
 import { getYoutubeEmbedUrl } from "../utils/getYoutubeEmbedUrl";
@@ -18,7 +18,7 @@ export function YoutubeVideoRenderer({
     const handler = () => setShow(true);
     container.addEventListener("click", handler);
     return () => container.removeEventListener("click", handler);
-  }, []);
+  }, [container]);
 
   useEffect(() => {
     if (show) {
@@ -27,7 +27,7 @@ export function YoutubeVideoRenderer({
       if (thumb) (thumb as HTMLElement).style.display = "none";
       if (playBtn) (playBtn as HTMLElement).style.display = "none";
     }
-  }, [show]);
+  }, [show, container]);
 
   return show ? (
     <iframe
@@ -46,10 +46,15 @@ export function YoutubeVideoExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    for (const r of rootsRef.current) { r.unmount(); }
+    rootsRef.current = [];
+
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
-        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.ecency-renderer-youtube-extension)",
+        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.er-youtube)",
       ) ?? [],
     );
     elements.forEach((element) => {
@@ -66,11 +71,12 @@ export function YoutubeVideoExtension({
         element.dataset.embedSrc = embedSrc;
         const container = document.createElement("div");
 
-        container.classList.add("ecency-renderer-youtube-extension-frame");
-        element.classList.add("ecency-renderer-youtube-extension");
+        container.classList.add("er-youtube-frame");
+        element.classList.add("er-youtube");
 
         // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
         const root = createRoot(container);
+        rootsRef.current.push(root);
         root.render(<YoutubeVideoRenderer embedSrc={embedSrc} container={element} />);
 
         // Final safety check before appending
@@ -81,7 +87,12 @@ export function YoutubeVideoExtension({
         console.warn("Error enhancing YouTube video element:", error);
       }
     });
-  }, []);
 
-  return <></>;
+    return () => {
+      for (const r of rootsRef.current) { r.unmount(); }
+      rootsRef.current = [];
+    };
+  }, [containerRef]);
+
+  return null;
 }

@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as BlogRouteRouteImport } from './routes/blog/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthorPermlinkRouteImport } from './routes/$author.$permlink'
+import { Route as EditAuthorPermlinkRouteImport } from './routes/edit.$author.$permlink'
 import { Route as CategoryAuthorPermlinkRouteImport } from './routes/$category.$author.$permlink'
 
 const SearchRoute = SearchRouteImport.update({
@@ -47,6 +48,11 @@ const AuthorPermlinkRoute = AuthorPermlinkRouteImport.update({
   path: '/$author/$permlink',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditAuthorPermlinkRoute = EditAuthorPermlinkRouteImport.update({
+  id: '/edit/$author/$permlink',
+  path: '/edit/$author/$permlink',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoryAuthorPermlinkRoute = CategoryAuthorPermlinkRouteImport.update({
   id: '/$category/$author/$permlink',
   path: '/$category/$author/$permlink',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  '/edit/$author/$permlink': typeof EditAuthorPermlinkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  '/edit/$author/$permlink': typeof EditAuthorPermlinkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/$author/$permlink': typeof AuthorPermlinkRoute
   '/$category/$author/$permlink': typeof CategoryAuthorPermlinkRoute
+  '/edit/$author/$permlink': typeof EditAuthorPermlinkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
+    | '/edit/$author/$permlink'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
+    | '/edit/$author/$permlink'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$author/$permlink'
     | '/$category/$author/$permlink'
+    | '/edit/$author/$permlink'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   AuthorPermlinkRoute: typeof AuthorPermlinkRoute
   CategoryAuthorPermlinkRoute: typeof CategoryAuthorPermlinkRoute
+  EditAuthorPermlinkRoute: typeof EditAuthorPermlinkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthorPermlinkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/edit/$author/$permlink': {
+      id: '/edit/$author/$permlink'
+      path: '/edit/$author/$permlink'
+      fullPath: '/edit/$author/$permlink'
+      preLoaderRoute: typeof EditAuthorPermlinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$category/$author/$permlink': {
       id: '/$category/$author/$permlink'
       path: '/$category/$author/$permlink'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   AuthorPermlinkRoute: AuthorPermlinkRoute,
   CategoryAuthorPermlinkRoute: CategoryAuthorPermlinkRoute,
+  EditAuthorPermlinkRoute: EditAuthorPermlinkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

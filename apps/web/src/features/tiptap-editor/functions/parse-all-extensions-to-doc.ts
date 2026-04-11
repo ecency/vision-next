@@ -1,4 +1,3 @@
-import { ThreeSpeakVideo } from "@ecency/sdk";
 import {
   HIVE_POST_PURE_REGEX,
   LOOM_REGEX,
@@ -7,7 +6,7 @@ import {
   YOUTUBE_REGEX
 } from "../extensions";
 
-export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeSpeakVideo) {
+export function parseAllExtensionsToDoc(value?: string) {
   const tree = document.createElement("body");
   tree.innerHTML = value ?? "";
 
@@ -18,15 +17,10 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       const image = el.querySelector("img");
       const newEl = document.createElement("div");
 
-      const isPublishingVideo =
-        el.getAttribute("href") ===
-        (publishingVideo &&
-          `https://3speak.tv/watch?v=${publishingVideo.owner}/${publishingVideo.permlink}`);
-
       newEl.dataset.threeSpeakVideo = "";
       newEl.setAttribute("src", el.getAttribute("href") ?? "");
       newEl.setAttribute("thumbnail", image?.getAttribute("src") ?? "");
-      newEl.setAttribute("status", isPublishingVideo ? "publish_manual" : "published");
+      newEl.setAttribute("status", "published");
 
       el.parentElement?.replaceChild(newEl, el);
     });
@@ -110,8 +104,9 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle mentions
   // We cannot use :has selector because some browsers like Safari 15 doesn't support it well
-  (Array.from(tree.querySelectorAll("*:not(a)")) as HTMLElement[])
-    .filter((el) => !el.querySelector("a") && USER_MENTION_PURE_REGEX.test(el.innerText))
+  // Skip code/pre elements so backtick-wrapped text like `@aws-sdk` stays as plain text
+  (Array.from(tree.querySelectorAll("*:not(a):not(code):not(pre)")) as HTMLElement[])
+    .filter((el) => !el.closest("code") && !el.closest("pre") && !el.querySelector("a") && USER_MENTION_PURE_REGEX.test(el.innerText))
     .forEach((el) => {
       el.innerHTML = el.innerHTML.replace(
         USER_MENTION_PURE_REGEX,
@@ -121,8 +116,9 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
 
   // Handle tags
   // We cannot use :has selector because some browsers like Safari 15 doesn't support it well
-  (Array.from(tree.querySelectorAll("*:not(a)")) as HTMLElement[])
-    .filter((el) => !el.querySelector("a") && TAG_MENTION_PURE_REGEX.test(el.innerText))
+  // Skip code/pre elements so backtick-wrapped text like `#tag` stays as plain text
+  (Array.from(tree.querySelectorAll("*:not(a):not(code):not(pre)")) as HTMLElement[])
+    .filter((el) => !el.closest("code") && !el.closest("pre") && !el.querySelector("a") && TAG_MENTION_PURE_REGEX.test(el.innerText))
     .forEach((el) => {
       el.innerHTML = el.innerHTML.replace(
         TAG_MENTION_PURE_REGEX,
@@ -150,6 +146,15 @@ export function parseAllExtensionsToDoc(value?: string, publishingVideo?: ThreeS
       p.appendChild(img);
       el.parentElement?.replaceChild(p, el);
     }
+  });
+
+  // Convert data-align attributes to style.textAlign for TipTap's TextAlign extension
+  (Array.from(tree.querySelectorAll("[data-align]")) as HTMLElement[]).forEach((el) => {
+    const align = el.getAttribute("data-align");
+    if (align && !el.style.textAlign) {
+      el.style.textAlign = align;
+    }
+    el.removeAttribute("data-align");
   });
 
   // Ensure list items have a paragraph before nested lists to satisfy ProseMirror schema

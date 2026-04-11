@@ -25,7 +25,7 @@ import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { checkSvg, dotsHorizontal, settingsSvg, volumeOffSvg } from "@ui/svg";
-import { MouseEvent, useCallback, useMemo, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { useChatAdminStore } from "@/features/chat/chat-admin-store";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -39,6 +39,7 @@ export function ChatsClient() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const shareText = searchParams?.get("text")?.trim();
+  const dmTarget = searchParams?.get("dm")?.trim();
   const isShareMode = Boolean(shareText);
 
   const { data: bootstrap, isLoading, error, refetch: refetchBootstrap } = useMattermostBootstrap();
@@ -199,6 +200,22 @@ export function ChatsClient() {
       channelSearchResults?.channels?.filter((channel) => !existingIds.has(channel.id)) || []
     );
   }, [channelSearchResults?.channels, channels?.channels]);
+
+  // Auto-start DM when navigating from profile (?dm=username)
+  const dmInitiated = useRef<string | null>(null);
+  useEffect(() => {
+    if (dmTarget && bootstrap?.ok && dmInitiated.current !== dmTarget) {
+      dmInitiated.current = dmTarget;
+      directChannelMutation.mutate(dmTarget, {
+        onSuccess: (data) => {
+          router.replace(buildChannelUrl(data.channelId));
+        },
+        onError: () => {
+          dmInitiated.current = null;
+        }
+      });
+    }
+  }, [dmTarget, bootstrap?.ok]);
 
   const startDirectMessage = (username: string) => {
     const target = username.trim();

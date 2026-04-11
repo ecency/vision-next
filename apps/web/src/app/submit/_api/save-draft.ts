@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { BeneficiaryRoute, Draft, DraftMetadata, RewardType } from "@/entities";
-import { ThreeSpeakVideo } from "@/api/threespeak";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { addDraft, updateDraft } from "@ecency/sdk";
 import i18next from "i18next";
@@ -14,10 +12,10 @@ import { postBodySummary } from "@ecency/render-helper";
 import { EcencyAnalytics } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ensureValidToken } from "@/utils";
+import { getCreatedDraft } from "@/app/publish/_utils/get-created-draft";
 
 export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();
-  const { videos } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const router = useRouter();
@@ -38,8 +36,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
       beneficiaries,
       reward,
       description,
-      selectedThumbnail,
-      videoMetadata
+      selectedThumbnail
     }: {
       title: string;
       body: string;
@@ -49,7 +46,6 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
       reward: RewardType;
       description: string | null;
       selectedThumbnail?: string;
-      videoMetadata?: ThreeSpeakVideo;
     }) => {
       const tagJ = tags.join(" ");
 
@@ -67,7 +63,6 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
         ...meta,
         beneficiaries: beneficiaries ?? [],
         rewardType: reward ?? "default",
-        videos,
         poll: activePoll
       };
 
@@ -100,24 +95,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
             modified: new Date().toISOString()
           };
 
-          // Update the draft in the infinite query cache
-          queryClient.setQueryData(
-            ["posts", "drafts", "infinite", username, 10],
-            (oldData: any) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any) => ({
-                  ...page,
-                  data: page.data.map((d: Draft) =>
-                    d._id === editingDraft._id ? updatedDraft : d
-                  )
-                }))
-              };
-            }
-          );
-
-          // Also update the regular query cache
+          // Update regular query cache
           queryClient.setQueryData(
             QueryKeys.posts.drafts(username),
             (oldDrafts: Draft[] | undefined) => {
@@ -125,36 +103,25 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
               return oldDrafts.map((d) => (d._id === editingDraft._id ? updatedDraft : d));
             }
           );
+          // Invalidate infinite query so drafts list refetches fresh data
+          queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
 
           clearActivePoll();
           return { draft: updatedDraft, isNew: false };
         } else {
+          const previousDrafts =
+            queryClient.getQueryData<Draft[]>(QueryKeys.posts.drafts(username)) ?? [];
           const resp = await addDraft(token, title, body, tagJ, draftMeta);
           success(i18next.t("submit.draft-saved"));
 
           recordActivity();
 
           const { drafts } = resp;
-          const draft = drafts[drafts?.length - 1];
+          const draft = getCreatedDraft(previousDrafts, drafts);
 
-          // Update both regular and infinite query caches
+          // Update regular query cache and invalidate infinite query
           queryClient.setQueryData(QueryKeys.posts.drafts(username), drafts);
-
-          // Update infinite query cache to include the new draft in the first page
-          queryClient.setQueryData(
-            ["posts", "drafts", "infinite", username, 10],
-            (oldData: any) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                pages: oldData.pages.map((page: any, index: number) =>
-                  index === 0
-                    ? { ...page, data: [draft, ...page.data] }
-                    : page
-                )
-              };
-            }
-          );
+          queryClient.invalidateQueries({ queryKey: QueryKeys.posts.draftsInfinite(username) });
 
           // Update URL without navigation to reflect that we're now editing a draft
           router.replace(`/draft/${draft._id}`, { scroll: false });

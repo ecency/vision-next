@@ -1,6 +1,9 @@
 import {catchPostImage, renderPostBody, setProxyBase} from "@ecency/render-helper";
 import React from "react";
-import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import i18next from "i18next";
 import Link from "next/link";
 import { ProposalListItem } from "../_components";
@@ -28,12 +31,17 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { id } = await params;
-  const proposal = await prefetchQuery(getProposalQueryOptions(+id));
-  const basic = await PagesMetadataGenerator.getForPage("proposals");
+  const [proposal, basic] = await Promise.all([
+    prefetchQuery(getProposalQueryOptions(+id)),
+    PagesMetadataGenerator.getForPage("proposals")
+  ]);
+  if (!proposal) {
+    return basic;
+  }
   return {
     ...basic,
-    title: `${basic.title} | ${proposal?.subject}`,
-    description: proposal?.creator ?? basic.description
+    title: `${basic.title} | ${proposal.subject}`,
+    description: proposal.creator ?? basic.description
   };
 }
 

@@ -95,7 +95,7 @@ export function useLoginInApp(username: string) {
       // redirection based on path name
       if (pathname?.startsWith("/signup/wallet")) {
         router.push(`/@${token.username}`);
-      } else if (pathname?.startsWith("/signup/email")) {
+      } else if (pathname?.startsWith("/signup/free") || pathname?.startsWith("/signup/premium") || pathname?.startsWith("/signup/email")) {
         router.push(`/@${token.username}/feed`);
       } else {
         // Refresh the page to fetch new account data

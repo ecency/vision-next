@@ -1,4 +1,4 @@
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import React from "react";
 
 /**
@@ -7,7 +7,8 @@ import React from "react";
 export function applyTwitterEmbeds(
     container: HTMLElement,
     ComponentInstance: React.FC<{ id: string }>
-) {
+): Root[] {
+    const roots: Root[] = [];
     const elements = Array.from(
         container.querySelectorAll<HTMLElement>(
             ".markdown-view:not(.markdown-view-pure) .markdown-external-link"
@@ -46,15 +47,18 @@ export function applyTwitterEmbeds(
             if (!tweetId) return;
 
             const wrapper = document.createElement("div");
-            wrapper.classList.add("ecency-renderer-twitter-extension-frame");
+            wrapper.classList.add("er-twitter-frame");
 
             el.innerHTML = ""; // clear existing link text
             el.appendChild(wrapper);
 
             const root = createRoot(wrapper);
             root.render(<ComponentInstance id={tweetId} />);
+            roots.push(root);
         } catch (e) {
             console.warn("applyTwitterEmbeds failed to render tweet:", e);
         }
     });
+
+    return roots;
 }

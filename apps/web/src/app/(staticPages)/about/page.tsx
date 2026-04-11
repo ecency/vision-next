@@ -1,5 +1,7 @@
 import { faqKeysGeneral } from "@/consts";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Tsx } from "@/features/i18n/helper";
 import i18next from "i18next";
 import Link from "next/link";

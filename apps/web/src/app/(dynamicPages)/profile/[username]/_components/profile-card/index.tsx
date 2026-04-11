@@ -5,7 +5,7 @@ import { EcencyConfigManager } from "@/config";
 import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
-import { FavouriteBtn } from "@/features/shared/favorite-btn";
+import { FavoriteBtn } from "@/features/shared/favorite-btn";
 import { Badge } from "@/features/ui";
 import { accountReputation, dateToFormatted } from "@/utils";
 import {
@@ -17,6 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import {
   UilCalendarAlt,
+  UilCommentDots,
   UilGlobe,
   UilLocationPoint,
   UilRss
@@ -31,6 +32,7 @@ import { ProfileInfo } from "../profile-info";
 import { ResourceCreditsInfo } from "../rc-info";
 import "./_index.scss";
 import { ProfileCardExtraProperty } from "./profile-card-extra-property";
+import { FinalizeCommunityBanner } from "../finalize-community-banner";
 import { useActiveAccount } from "@/core/hooks";
 
 interface Props {
@@ -58,7 +60,7 @@ export function ProfileCard({ account }: Props) {
   const [showFollowing, setShowFollowing] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>();
   const moderatedCommunities = useMemo(
-    () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin") ?? [],
+    () => subscriptions?.filter((x) => x[2] === "mod" || x[2] === "admin" || x[2] === "owner") ?? [],
     [subscriptions]
   );
 
@@ -70,7 +72,7 @@ export function ProfileCard({ account }: Props) {
     >
       <Image
           className="absolute top-0 left-0 w-full h-[96px] object-cover"
-          src={imageSrc ?? (data?.profile?.cover_image?.trim() || "/assets/promote-wave-bg.jpg")}
+          src={imageSrc ?? (data?.profile?.cover_image ? `${defaults.imageServer}/u/${data.name}/cover` : "/assets/promote-wave-bg.jpg")}
           alt=""
           width={300}
           height={200}
@@ -144,8 +146,18 @@ export function ProfileCard({ account }: Props) {
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.favourites.enabled}
           >
-            <FavouriteBtn targetUsername={account?.name} />
+            <FavoriteBtn targetUsername={account?.name} />
           </EcencyConfigManager.Conditional>
+          {activeUsername && (
+            <Link
+              href={`/chats?dm=${encodeURIComponent(account?.name ?? "")}`}
+              className="flex items-center justify-center w-9 h-9 rounded-full border border-[--border-color] hover:border-blue-dark-sky hover:text-blue-dark-sky transition-colors"
+              title={i18next.t("profile.message", { defaultValue: "Message" })}
+              aria-label={i18next.t("profile.message", { defaultValue: "Message" })}
+            >
+              <UilCommentDots className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       )}
 
@@ -172,6 +184,7 @@ export function ProfileCard({ account }: Props) {
             <Link
               target="_external"
               rel="nofollow ugc noopener"
+              className="break-all"
               href={`https://${data?.profile.website.replace(/^(https?|ftp):\/\//, "")}`}
             >
               {data?.profile.website}
@@ -206,6 +219,8 @@ export function ProfileCard({ account }: Props) {
           ))}
         </div>
       )}
+
+      <FinalizeCommunityBanner username={account.name} />
     </motion.div>
   );
 }

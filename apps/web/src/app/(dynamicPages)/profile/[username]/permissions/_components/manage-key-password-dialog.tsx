@@ -11,7 +11,8 @@ import {
 } from "@/features/ui";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
-import { cryptoUtils, PublicKey } from "@hiveio/dhive";
+import { PublicKey } from "@ecency/hive-tx";
+import { isWif } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";
 import { useCallback, useRef, useState } from "react";
@@ -54,7 +55,7 @@ export function ManageKeyPasswordDialog({ show, setShow }: Props) {
       return;
     } catch (e) {}
 
-    if (cryptoUtils.isWif(raw)) {
+    if (isWif(raw)) {
       error(i18next.t("permissions.keys.error-private-key-reveal"));
     } else {
       const keys = deriveHiveMasterPasswordKeys(activeUser!.username, raw);

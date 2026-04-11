@@ -1,7 +1,7 @@
 import { broadcast } from "@/features/auth";
 import { getQueryClient } from "@ecency/sdk";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 import type { TippingAsset } from "../types";
 
 const ASSETS_WITH_USD_PRICE: TippingAsset[] = ["HIVE", "HBD"];

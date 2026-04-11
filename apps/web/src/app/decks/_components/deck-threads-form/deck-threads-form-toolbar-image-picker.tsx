@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 import { Button } from "@ui/button";
 import { UilImage, UilLink, UilUpload } from "@tooni/iconscout-unicons-react";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { uploadImage } from "@ecency/sdk";
 import { error } from "@/features/shared";
 import i18next from "i18next";
@@ -20,7 +20,7 @@ interface Props {
 export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
   const { activeUser } = useActiveAccount();
 
-  const fileInputRef = useRef<any>();
+  const fileInputRef = useRef<any>(null);
 
   const [imagePickInitiated, setImagePickInitiated] = useState(false);
   const [galleryPickInitiated, setGalleryPickInitiated] = useState(false);
@@ -62,7 +62,7 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
     const username = activeUser?.username!;
     let imageUrl: string;
     try {
-      let token = getAccessToken(username);
+      let token = await ensureValidToken(username);
       if (token) {
         const resp = await uploadImage(file, token);
         imageUrl = resp.url;

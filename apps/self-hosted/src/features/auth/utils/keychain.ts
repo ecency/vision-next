@@ -1,5 +1,5 @@
-import type { Operation } from '@hiveio/dhive';
-import type { KeychainResponse } from '../types';
+import type { Operation } from '@ecency/hive-tx';
+import type { KeychainResponse, KeychainSignTxResponse } from '../types';
 
 type AuthorityType = 'Owner' | 'Active' | 'Posting' | 'Memo';
 
@@ -17,6 +17,13 @@ interface HiveKeychain {
     operations: Operation[],
     authType: AuthorityType,
     callback: (response: KeychainResponse) => void,
+    rpc?: string | null
+  ) => void;
+  requestSignTx?: (
+    account: string,
+    tx: Record<string, unknown>,
+    authType: AuthorityType,
+    callback: (response: KeychainSignTxResponse) => void,
     rpc?: string | null
   ) => void;
 }
@@ -102,6 +109,47 @@ export function broadcast(
       clearTimeout(timeout);
       if (!resp.success) {
         reject(new Error(resp.error || 'Operation cancelled'));
+        return;
+      }
+      resolve(resp);
+    });
+  });
+}
+
+/**
+ * Sign a transaction without broadcasting (for x402 payments)
+ * Requires Keychain extension with requestSignTx support
+ */
+export function signTx(
+  account: string,
+  tx: Record<string, unknown>,
+  authType: AuthorityType = 'Active'
+): Promise<KeychainSignTxResponse> {
+  return new Promise<KeychainSignTxResponse>((resolve, reject) => {
+    const keychain = window.hive_keychain;
+
+    if (!keychain) {
+      reject(new Error('Hive Keychain extension is unavailable or disabled.'));
+      return;
+    }
+
+    if (!keychain.requestSignTx) {
+      reject(new Error('Hive Keychain version does not support requestSignTx. Please update your Keychain extension.'));
+      return;
+    }
+
+    let finished = false;
+    const timeout = setTimeout(() => {
+      if (!finished) {
+        reject(new Error('Hive Keychain response timeout'));
+      }
+    }, 60000);
+
+    keychain.requestSignTx(account, tx, authType, (resp) => {
+      finished = true;
+      clearTimeout(timeout);
+      if (!resp.success) {
+        reject(new Error(resp.error || 'Transaction signing cancelled'));
         return;
       }
       resolve(resp);

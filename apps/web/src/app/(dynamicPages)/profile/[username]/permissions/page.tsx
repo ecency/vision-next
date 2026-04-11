@@ -1,8 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
 import { ProfilePermissions } from "./_components";
@@ -32,9 +31,5 @@ export default async function PermissionsPage({ params }: Props) {
     return redirect(`/@${username.replace("%40", "")}`);
   }
 
-  return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfilePermissions />
-    </HydrationBoundary>
-  );
+  return <ProfilePermissions />;
 }

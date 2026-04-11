@@ -2,8 +2,12 @@ import { TrendingTagsCard } from "@/app/_components/trending-tags-card";
 import { EntryIndexMenu } from "@/app/_components/entry-index-menu";
 import React, { PropsWithChildren } from "react";
 import { TopCommunitiesWidget } from "@/app/_components/top-communities-widget";
+import { MyFavoritesWidget } from "@/app/_components/my-favorites-widget";
 import "./[...sections]/entry-index.scss";
-import { Feedback, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 
 export default function FeedLayout({ children }: PropsWithChildren) {
   return (
@@ -23,6 +27,7 @@ export default function FeedLayout({ children }: PropsWithChildren) {
           {children}
         </div>
         <div className="side-menu">
+          <MyFavoritesWidget />
           <TopCommunitiesWidget />
         </div>
       </div>

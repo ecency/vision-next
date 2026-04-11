@@ -40,13 +40,19 @@ export function markdownToHtml(html: string | undefined) {
     return "";
   }
 
+  // Strip TipTap mention/tag nodes to plain text before Turndown processes HTML.
+  // Turndown normally strips inline spans, but custom rules using outerHTML (e.g. tables)
+  // would preserve the raw <span data-type="mention"> markup in the output.
+  html = html.replace(/<span[^>]*data-type="mention"[^>]*>([^<]*)<\/span>/gi, "$1");
+  html = html.replace(/<span[^>]*data-type="tag"[^>]*>([^<]*)<\/span>/gi, "$1");
+
   return new Turndown({
     codeBlockStyle: "fenced"
   })
     .addRule("centeredText", {
       filter: function (node) {
         const styles = node.getAttribute("style");
-        const align = extractTextAlignValue(styles);
+        const align = extractTextAlignValue(styles) || node.getAttribute("data-align");
 
         return (
           CENTERED_TEXT_RULE_NODES.includes(node.nodeName) &&
@@ -57,7 +63,7 @@ export function markdownToHtml(html: string | undefined) {
       replacement: function (_, node) {
         const element = node as HTMLElement;
         const styles = element.getAttribute("style");
-        const align = extractTextAlignValue(styles) ?? "auto";
+        const align = extractTextAlignValue(styles) || element.getAttribute("data-align") || "auto";
 
         const child = element.firstElementChild as HTMLElement | null;
         const onlyImage =

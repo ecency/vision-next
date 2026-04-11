@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { addSchedule, getPostHeaderQueryOptions } from "@ecency/sdk";
-import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryMetadataManagement } from "@/features/entry-management";
@@ -16,7 +16,6 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 export function useScheduleApi(onClear: () => void) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
-  const { buildBody } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const { clearAll } = usePollsCreationManagement();
@@ -85,7 +84,9 @@ export function useScheduleApi(onClear: () => void) {
         .withPoll(activePoll)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = jsonMetaBuilder.build();
-      let options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries ?? [], body);
+
+      let options = makeCommentOptions(author, permlink, reward, finalBeneficiaries);
       if (!options) {
         options = {
           allow_curation_rewards: true,
@@ -106,7 +107,7 @@ export function useScheduleApi(onClear: () => void) {
           token,
           permlink,
           title,
-          buildBody(body),
+          body,
           jsonMeta,
           options,
           schedule,

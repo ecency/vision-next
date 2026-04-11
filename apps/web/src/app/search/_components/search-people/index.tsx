@@ -12,7 +12,8 @@ export function SearchPeople() {
   const params = useSearchParams();
 
   const q = useMemo(
-    () => new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "",
+    () =>
+      (new SearchQuery(params?.get("q") ?? "").search.split(" ")[0]?.replace("@", "") ?? "").toLowerCase(),
     [params]
   );
   const { data: results, isLoading } = useQuery(getSearchAccountQueryOptions(q));
@@ -37,6 +38,8 @@ export function SearchPeople() {
               <div className="list-body">
                 {results?.map((i) => {
                   const username = i.name;
+                  const fullName = i.metadata?.profile?.name ?? "";
+                  const about = i.metadata?.profile?.about ?? "";
                   return (
                     <div className="list-item" key={username}>
                       <div className="item-header">
@@ -45,15 +48,15 @@ export function SearchPeople() {
                         </ProfileLink>
                         <div className="item-title">
                           <ProfileLink username={username}>
-                            <span className="item-name notranslate">{i.full_name}</span>
+                            <span className="item-name notranslate">{fullName}</span>
                           </ProfileLink>
                           <span className="item-sub-title">
                             {"@"}
-                            {i.name}
+                            {username}
                           </span>
                         </div>
                       </div>
-                      <div className="item-about">{truncate(i.about, 120)}</div>
+                      <div className="item-about">{truncate(about, 120)}</div>
                     </div>
                   );
                 })}

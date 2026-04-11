@@ -2,7 +2,10 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getTrendingTagsWithStatsQueryOptions } from "@ecency/sdk";
-import { LinearProgress, Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { LinearProgress } from "@/features/shared/linear-progress";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Table, Td, Th, Tr } from "@ui/table";
 import { Button } from "@ui/button";
 import i18next from "i18next";

@@ -19,7 +19,7 @@ import {
   buildEngineOp,
   buildEngineClaimOp,
 } from "@/modules/operations/builders";
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 export interface WalletOperationPayload {
   from: string;

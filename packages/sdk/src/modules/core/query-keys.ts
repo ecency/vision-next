@@ -16,6 +16,15 @@
  * queryClient.invalidateQueries({ queryKey: QueryKeys.posts.drafts(username) })
  * ```
  */
+/** Strip trailing undefined values so the key works as a prefix for partialMatchKey */
+function key(...parts: unknown[]): unknown[] {
+  let end = parts.length;
+  while (end > 0 && parts[end - 1] === undefined) {
+    end--;
+  }
+  return parts.slice(0, end);
+}
+
 export const QueryKeys = {
   // ===========================================================================
   // Posts
@@ -67,21 +76,24 @@ export const QueryKeys = {
     drafts: (activeUsername?: string) =>
       ["posts", "drafts", activeUsername],
     draftsInfinite: (activeUsername?: string, limit?: number) =>
-      ["posts", "drafts", "infinite", activeUsername, limit],
+      key("posts", "drafts", "infinite", activeUsername, limit),
     schedules: (activeUsername?: string) =>
       ["posts", "schedules", activeUsername],
     schedulesInfinite: (activeUsername?: string, limit?: number) =>
-      ["posts", "schedules", "infinite", activeUsername, limit],
+      key("posts", "schedules", "infinite", activeUsername, limit),
     fragments: (username?: string) =>
       ["posts", "fragments", username],
     fragmentsInfinite: (username?: string, limit?: number) =>
-      ["posts", "fragments", "infinite", username, limit],
+      key("posts", "fragments", "infinite", username, limit),
     images: (username?: string) => ["posts", "images", username],
     galleryImages: (activeUsername?: string) =>
       ["posts", "gallery-images", activeUsername],
     imagesInfinite: (username?: string, limit?: number) =>
-      ["posts", "images", "infinite", username, limit],
+      key("posts", "images", "infinite", username, limit),
     promoted: (type: string) => ["posts", "promoted", type],
+    _promotedPrefix: ["posts", "promoted"],
+    accountPostsBlogPrefix: (username: string) =>
+      ["posts", "account-posts", username, "blog"] as const,
     postsRanked: (
       sort: string,
       tag: string,
@@ -132,6 +144,10 @@ export const QueryKeys = {
       ["posts", "waves", "following", host, username],
     wavesTrendingTags: (host: string, hours: number) =>
       ["posts", "waves", "trending-tags", host, hours],
+    wavesByAccount: (host: string, username: string) =>
+      ["posts", "waves", "by-account", host, username],
+    wavesTrendingAuthors: (host: string) =>
+      ["posts", "waves", "trending-authors", host],
     _prefix: ["posts"],
   },
 
@@ -198,14 +214,14 @@ export const QueryKeys = {
       ["accounts", "lookup", query, limit],
     transactions: (username: string, group: string, limit: number) =>
       ["accounts", "transactions", username, group, limit],
-    favourites: (activeUsername?: string) =>
-      ["accounts", "favourites", activeUsername],
-    favouritesInfinite: (activeUsername?: string, limit?: number) =>
-      ["accounts", "favourites", "infinite", activeUsername, limit],
-    checkFavourite: (activeUsername: string, targetUsername: string) =>
+    favorites: (activeUsername?: string) =>
+      ["accounts", "favorites", activeUsername],
+    favoritesInfinite: (activeUsername?: string, limit?: number) =>
+      key("accounts", "favorites", "infinite", activeUsername, limit),
+    checkFavorite: (activeUsername: string, targetUsername: string) =>
       [
         "accounts",
-        "favourites",
+        "favorites",
         "check",
         activeUsername,
         targetUsername,
@@ -220,7 +236,7 @@ export const QueryKeys = {
     bookmarks: (activeUsername?: string) =>
       ["accounts", "bookmarks", activeUsername],
     bookmarksInfinite: (activeUsername?: string, limit?: number) =>
-      ["accounts", "bookmarks", "infinite", activeUsername, limit],
+      key("accounts", "bookmarks", "infinite", activeUsername, limit),
     referrals: (username: string) =>
       ["accounts", "referrals", username],
     referralsStats: (username: string) =>
@@ -291,18 +307,21 @@ export const QueryKeys = {
   // Search
   // ===========================================================================
   search: {
-    topics: (q: string) => ["search", "topics", q],
+    topics: (q: string, limit: number) => ["search", "topics", q, limit],
     path: (q: string) => ["search", "path", q],
     account: (q: string, limit: number) =>
       ["search", "account", q, limit],
     results: (
       q: string,
       sort: string,
-      hideLow: boolean,
+      hideLow: boolean | string,
       since?: string,
       scrollId?: string,
       votes?: number
-    ) => ["search", q, sort, hideLow, since, scrollId, votes],
+    ) => {
+      const normalizedHideLow = typeof hideLow === "string" ? hideLow === "1" || hideLow === "true" : hideLow;
+      return ["search", q, sort, normalizedHideLow, since, scrollId, votes] as const;
+    },
     controversialRising: (what: string, tag: string) =>
       ["search", "controversial-rising", what, tag],
     similarEntries: (author: string, permlink: string, query: string) =>
@@ -467,6 +486,7 @@ export const QueryKeys = {
   points: {
     points: (username: string, filter: number) =>
       ["points", username, filter],
+    _prefix: (username: string) => ["points", username],
   },
 
   // ===========================================================================
@@ -482,5 +502,22 @@ export const QueryKeys = {
   games: {
     statusCheck: (gameType: string, username: string) =>
       ["games", "status-check", gameType, username],
+  },
+
+  // ===========================================================================
+  // Bad Actors
+  // ===========================================================================
+  badActors: {
+    list: () => ["bad-actors", "list"],
+    _prefix: ["bad-actors"],
+  },
+
+  // ===========================================================================
+  // AI
+  // ===========================================================================
+  ai: {
+    prices: () => ["ai", "prices"] as const,
+    assistPrices: (username?: string) => ["ai", "assist-prices", username] as const,
+    _prefix: ["ai"],
   },
 } as const;

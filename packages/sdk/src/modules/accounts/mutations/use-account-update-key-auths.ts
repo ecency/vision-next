@@ -1,12 +1,12 @@
-import { CONFIG } from "@/modules/core";
-import { AuthorityType, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Authority } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import * as R from "remeda";
 import { getAccountFullQueryOptions } from "../queries";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 export interface Keys {
   owner: PrivateKey;
@@ -24,9 +24,9 @@ interface Payload {
 }
 
 export function dedupeAndSortKeyAuths(
-  existing: AuthorityType["key_auths"],
+  existing: Authority["key_auths"],
   additions: [string, number][]
-): AuthorityType["key_auths"] {
+): Authority["key_auths"] {
   const merged = new Map<string, number>();
 
   existing.forEach(([key, weight]) => {
@@ -75,7 +75,7 @@ export function useAccountUpdateKeyAuths(
       }
 
       const prepareAuth = (keyName: keyof Keys) => {
-        const auth: AuthorityType = R.clone(accountData[keyName]);
+        const auth: Authority = JSON.parse(JSON.stringify(accountData[keyName]));
 
         // Get keys to revoke for this specific authority
         const keysToRevokeForAuthority = keysToRevokeByAuthority[keyName] || [];
@@ -104,8 +104,8 @@ export function useAccountUpdateKeyAuths(
         return auth;
       };
 
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
+      return broadcastOperations(
+        [["account_update", {
           account: username,
           json_metadata: accountData.json_metadata,
           owner: prepareAuth("owner"),
@@ -113,7 +113,7 @@ export function useAccountUpdateKeyAuths(
           posting: prepareAuth("posting"),
           // Always use new memo key when adding new keys
           memo_key: keys[0].memo_key.createPublic().toString(),
-        },
+        }]],
         currentKey
       );
     },

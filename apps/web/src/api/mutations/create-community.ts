@@ -4,10 +4,14 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { makeHsCode } from "@/utils";
 import { EcencyConfigManager } from "@/config";
-import { AccountCreateOperation, Authority, cryptoUtils, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import type { Authority, Operation } from "@ecency/hive-tx";
+import { sha256 } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { getLoginType } from "@/utils/user-token";
 import hs from "hivesigner";
-import { CONFIG } from "@ecency/sdk";
+import { broadcastOperations } from "@ecency/sdk";
 
 function makeOperation(
   creator: string,
@@ -15,7 +19,7 @@ function makeOperation(
   username: string,
   auths: { ownerAuthority: Authority; activeAuthority: Authority; postingAuthority: Authority },
   memoKey: PrivateKey
-): AccountCreateOperation {
+): Operation {
   return [
     "account_create",
     {
@@ -41,11 +45,20 @@ function makeAuthorities({
   postingKey: PrivateKey;
 }) {
   return {
-    ownerAuthority: Authority.from(ownerKey.createPublic()),
-    activeAuthority: Authority.from(activeKey.createPublic()),
+    ownerAuthority: {
+      weight_threshold: 1,
+      account_auths: [],
+      key_auths: [[ownerKey.createPublic().toString(), 1]]
+    } as Authority,
+    activeAuthority: {
+      weight_threshold: 1,
+      account_auths: [],
+      key_auths: [[activeKey.createPublic().toString(), 1]]
+    } as Authority,
     postingAuthority: {
-      ...Authority.from(postingKey.createPublic()),
-      account_auths: [["ecency.app", 1]]
+      weight_threshold: 1,
+      account_auths: [["ecency.app", 1]],
+      key_auths: [[postingKey.createPublic().toString(), 1]]
     } as Authority
   };
 }
@@ -88,11 +101,11 @@ export function useCreateCommunityByApi() {
       const keys = makePrivateKeys(username, wif);
       const auths = makeAuthorities(keys);
       const operation = makeOperation(activeUser.username, fee, username, auths, keys.memoKey);
-      await CONFIG.hiveClient.broadcast.sendOperations([operation], creatorKey);
+      await broadcastOperations([operation], creatorKey);
 
       // create hive signer code from active private key
       const signer = (message: string): Promise<string> => {
-        const hash = cryptoUtils.sha256(message);
+        const hash = sha256(message);
         return new Promise((resolve) => resolve(keys.activeKey.sign(hash).toString()));
       };
       return await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
@@ -123,7 +136,7 @@ export function useCreateCommunityByHivesigner() {
 
       // create hive signer code from active private key to use after redirection from hivesigner
       const signer = (message: string): Promise<string> => {
-        const hash = cryptoUtils.sha256(message);
+        const hash = sha256(message);
         return new Promise<string>((resolve) => resolve(keys.activeKey.sign(hash).toString()));
       };
       const code = await makeHsCode(
@@ -145,6 +158,7 @@ export function useCreateCommunityByHivesigner() {
 
 export function useCreateCommunityByKeychain() {
   const { activeUser } = useActiveAccount();
+  const adapter = getWebBroadcastAdapter();
 
   return useMutation({
     mutationKey: ["createCommunity", "keychain"],
@@ -154,7 +168,7 @@ export function useCreateCommunityByKeychain() {
       }
 
       const keys = makePrivateKeys(username, wif);
-      const operation = [
+      const operation: Operation = [
         "account_create",
         {
           fee,
@@ -180,18 +194,29 @@ export function useCreateCommunityByKeychain() {
         }
       ];
 
-      await keychain.broadcast(activeUser!.username, [operation], "Active");
+      // Use adapter to broadcast — handles Keychain and MetaMask snap
+      const loginType = getLoginType(activeUser.username);
+      // Covers 'keychain' and 'metamask' — adapter routes MetaMask to snap automatically
+      await adapter.broadcastWithKeychain!(activeUser.username, [operation], "active");
 
-      // Add account to keychain
-      await keychain.addAccount(username, {
-        active: keys.activeKey.toString(),
-        posting: keys.postingKey.toString(),
-        memo: keys.memoKey.toString()
-      });
+      // Add community account to Keychain extension (only for actual Keychain users, non-critical)
+      if (loginType === "keychain") {
+        try {
+          await keychain.addAccount(username, {
+            active: keys.activeKey.toString(),
+            posting: keys.postingKey.toString(),
+            memo: keys.memoKey.toString()
+          });
+        } catch {
+          // Keychain addAccount is optional — we already have keys in memory
+        }
+      }
 
-      // create hive signer code from active private key
-      const signer = (message: string): Promise<string> =>
-        keychain.signBuffer(username, message, "Active").then((r) => r.result);
+      // create hive signer code from active private key directly (avoids extra popup)
+      const signer = (message: string): Promise<string> => {
+        const hash = sha256(message);
+        return new Promise((resolve) => resolve(keys.activeKey.sign(hash).toString()));
+      };
       return await makeHsCode(EcencyConfigManager.CONFIG.service.hsClientId, username, signer);
     },
     onError: (e) => error(...formatError(e))

@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { FormControl } from "@ui/input";
@@ -67,8 +67,8 @@ export function BoostDialog({ onHide }: Props) {
     [alreadyBoostAccount]
   );
   const canSubmit = useMemo(
-    () => !balanceError || !isAlreadyBoosted,
-    [balanceError, isAlreadyBoosted]
+    () => !balanceError && !isAlreadyBoosted && account.length > 0 && duration > 0,
+    [balanceError, isAlreadyBoosted, account, duration]
   );
 
   const inProgress = isBoostPending;
@@ -79,11 +79,16 @@ export function BoostDialog({ onHide }: Props) {
     }
   }, [prices]);
 
-  const next = () => setStep(step + 1);
-
-  const sign = useCallback(async () => {
-    await boostPlus({ account, duration });
-    setStep(3);
+  const isSubmittingRef = useRef(false);
+  const handleSubmit = useCallback(async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    try {
+      await boostPlus({ account, duration });
+      setStep(2);
+    } finally {
+      isSubmittingRef.current = false;
+    }
   }, [account, duration, boostPlus]);
 
   const finish = () => onHide();
@@ -158,7 +163,7 @@ export function BoostDialog({ onHide }: Props) {
                 <div className="grid grid-cols-12 mb-4">
                   <div className="col-span-12 sm:col-span-2 flex items-center" />
                   <div className="col-span-12 sm:col-span-10">
-                    <Button onClick={next} disabled={!canSubmit || inProgress}>
+                    <Button onClick={handleSubmit} disabled={!canSubmit || inProgress}>
                       {i18next.t("g.next")}
                     </Button>
                   </div>
@@ -171,24 +176,6 @@ export function BoostDialog({ onHide }: Props) {
             <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
               <div className="transaction-form-header">
                 <div className="step-no">2</div>
-                <div className="box-titles">
-                  <div className="main-title">{i18next.t("trx-common.sign-title")}</div>
-                  <div className="sub-title">{i18next.t("trx-common.sign-sub-title")}</div>
-                </div>
-              </div>
-              {inProgress && <LinearProgress />}
-              <div className="transaction-form-body">
-                <Button onClick={sign} disabled={inProgress}>
-                  {i18next.t("trx-common.sign-title")}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className={`transaction-form ${inProgress ? "in-progress" : ""}`}>
-              <div className="transaction-form-header">
-                <div className="step-no">3</div>
                 <div className="box-titles">
                   <div className="main-title">{i18next.t("trx-common.success-title")}</div>
                   <div className="sub-title">{i18next.t("trx-common.success-sub-title")}</div>

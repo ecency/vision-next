@@ -1,7 +1,7 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Follow, Profile, FriendsRow } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export interface FriendsPageParam {
   startFollowing: string;
@@ -38,17 +38,15 @@ export function getFriendsInfiniteQueryOptions(
     queryFn: async ({ pageParam }: { pageParam: FriendsPageParam }) => {
       const { startFollowing } = pageParam;
 
-      const response = (await CONFIG.hiveClient.database.call(
-        mode === "following" ? "get_following" : "get_followers",
-        [following, startFollowing === "" ? null : startFollowing, followType, limit]
-      )) as Follow[];
+      const method = mode === "following" ? "get_following" : "get_followers";
+      const response = (await callRPC(`condenser_api.${method}`, [following, startFollowing === "" ? null : startFollowing, followType, limit])) as Follow[];
 
       const accountNames = response.map((e) =>
         mode === "following" ? e.following : e.follower
       );
 
       // Get profiles via bridge API
-      const accounts = (await CONFIG.hiveClient.call("bridge", "get_profiles", {
+      const accounts = (await callRPC("bridge.get_profiles", {
         accounts: accountNames,
         observer: undefined,
       })) as Profile[];

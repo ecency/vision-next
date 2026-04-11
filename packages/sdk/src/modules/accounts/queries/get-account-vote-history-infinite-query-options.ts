@@ -3,6 +3,7 @@ import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import { Entry } from "@/modules/posts/types";
 import { getPostQueryOptions } from "@/modules/posts/queries";
+import { callRPC } from "@/modules/core/hive-tx";
 
 interface VoteOperationDetails {
   voter: string;
@@ -84,11 +85,7 @@ export function getAccountVoteHistoryInfiniteQueryOptions<F>(
     queryFn: async ({ pageParam }: { pageParam: VoteHistoryPageParam }) => {
       const { start } = pageParam;
 
-      const response = (await CONFIG.hiveClient.call(
-        "condenser_api",
-        "get_account_history",
-        [username, start, limit, ...filters]
-      )) as AccountVoteHistoryRecord[];
+      const response = (await callRPC("condenser_api.get_account_history", [username, start, limit, ...filters])) as AccountVoteHistoryRecord[];
 
       const mappedResults: VoteHistoryResult[] = response.map(([num, historyObj]) => ({
         ...historyObj.op[1],

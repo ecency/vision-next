@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect } from "react";
 import { ConfigManager } from "@ecency/sdk";
 import { queryClient } from "@/consts/react-query";
 import { FloatingMenu } from "@/features/floating-menu";
@@ -13,6 +13,7 @@ import {
   getUser,
 } from "@/features/auth/storage";
 import { authenticationStore } from "@/store";
+import { t } from "@/core";
 
 // Check if we're in development mode
 const isDev = process.env.NODE_ENV === "development";
@@ -32,6 +33,7 @@ ConfigManager.setQueryClient(queryClient);
 
 export const Route = createRootRoute({
   component: RootComponent,
+  notFoundComponent: NotFound,
   beforeLoad: () => {
     const storedUser = getUser();
     const storedHiveAuth = getHiveAuthSession();
@@ -73,6 +75,33 @@ function RootComponent() {
         </AuthProvider>
       </ErrorBoundary>
     </QueryClientProvider>
+  );
+}
+
+function NotFound() {
+  useEffect(() => {
+    const prev = document.title;
+    document.title = t("page_not_found");
+    return () => {
+      document.title = prev;
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-theme-primary flex items-center justify-center">
+      <div className="text-center px-4">
+        <h1 className="text-6xl font-bold mb-4 heading-theme">404</h1>
+        <p className="text-xl mb-2 text-theme-primary">{t("page_not_found")}</p>
+        <p className="text-theme-muted mb-8">{t("page_not_found_description")}</p>
+        <Link
+          to="/blog"
+          search={{ filter: "posts" }}
+          className="inline-block px-6 py-2 rounded-lg bg-black text-white hover:bg-black/80 transition-colors font-medium"
+        >
+          {t("back_to_blog")}
+        </Link>
+      </div>
+    </div>
   );
 }
 

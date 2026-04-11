@@ -88,7 +88,9 @@ export function useDeepLinking({
     const isMembershipError =
       errorMessage.includes('unauthorized') ||
       errorMessage.includes('forbidden') ||
-      errorMessage.includes('403');
+      errorMessage.includes('403') ||
+      errorMessage.includes('404') ||
+      errorMessage.includes('no channel member');
 
     if (isMembershipError) {
       setShowJoinPromptRef.current(true);

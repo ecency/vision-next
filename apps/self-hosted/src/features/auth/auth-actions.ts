@@ -1,6 +1,6 @@
 "use client";
 
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 import { authenticationStore } from "@/store";
 import type { AuthMethod, AuthUser } from "./types";
 import {

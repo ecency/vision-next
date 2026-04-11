@@ -1,6 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import * as ls from "@/utils/local-storage";
-import dayjs from "@/utils/dayjs";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { chevronDownSvgForSlider, chevronUpSvgForSlider } from "@ui/svg";
@@ -82,12 +81,7 @@ export function EntryVoteDialog({
   const [showRemove, setShowRemove] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
-  const days = useMemo(() => {
-    const createdDate = entry.created;
-    const past = dayjs(createdDate);
-    const now = dayjs();
-    return now.diff(past, "day", true);
-  }, [entry]);
+  const isPaidOut = entry.is_paidout;
 
   const upSliderChanged = useCallback(
     (value: number) => {
@@ -185,18 +179,19 @@ export function EntryVoteDialog({
 
   return (
     <>
-      {mode === "up" && (
+      {!isPaidOut && mode === "up" && (
         <>
-          <div className={`voting-controls voting-controls-up ${days > 7.0 ? "disable" : ""}`}>
-            <Button
-              noPadding={true}
-              className="w-8"
-              size="xs"
-              icon={isVotingLoading ? <Spinner /> : chevronUpSvgForSlider}
-              onClick={upVoteClicked}
-              disabled={isVotingLoading}
-              outline={true}
-            />
+          <div className="voting-controls voting-controls-up">
+            {isVotingLoading ? <Spinner /> : (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                icon={chevronUpSvgForSlider}
+                onClick={upVoteClicked}
+                outline={true}
+              />
+            )}
             <div className="estimated">
               <FormattedCurrency value={estimate(upSliderVal)} fixAt={3} />
             </div>
@@ -205,15 +200,17 @@ export function EntryVoteDialog({
               <InputVote value={upSliderVal} setValue={(x) => upSliderChanged(x)} />
             </div>
             <div className="percentage" />
-            <Button
-              noPadding={true}
-              className="w-8"
-              appearance="danger"
-              outline={true}
-              size="xs"
-              icon={chevronDownSvgForSlider}
-              onClick={() => setMode("down")}
-            />
+            {!isVotingLoading && (
+              <Button
+                noPadding={true}
+                className="w-8"
+                appearance="danger"
+                outline={true}
+                size="xs"
+                icon={chevronDownSvgForSlider}
+                onClick={() => setMode("down")}
+              />
+            )}
           </div>
           {wrongValueUp && (
             <div className="vote-error">
@@ -233,17 +230,19 @@ export function EntryVoteDialog({
         </>
       )}
 
-      {mode === "down" && (
+      {!isPaidOut && mode === "down" && (
         <>
-          <div className={`voting-controls voting-controls-down ${days > 7.0 ? "disable" : ""}`}>
-            <Button
-              noPadding={true}
-              className="w-8"
-              size="xs"
-              icon={chevronUpSvgForSlider}
-              onClick={() => setMode("up")}
-              outline={true}
-            />
+          <div className="voting-controls voting-controls-down">
+            {!isVotingLoading && (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                icon={chevronUpSvgForSlider}
+                onClick={() => setMode("up")}
+                outline={true}
+              />
+            )}
             <div className="estimated">
               <FormattedCurrency value={estimate(downSliderVal)} fixAt={3} />
             </div>
@@ -256,16 +255,17 @@ export function EntryVoteDialog({
             </div>
             <div className="space" />
             <div className="percentage" />
-            <Button
-              noPadding={true}
-              className="w-8"
-              size="xs"
-              appearance="danger"
-              outline={true}
-              icon={isVotingLoading ? <Spinner /> : chevronDownSvgForSlider}
-              onClick={downVoteClicked}
-              disabled={isVotingLoading}
-            />
+            {isVotingLoading ? <Spinner /> : (
+              <Button
+                noPadding={true}
+                className="w-8"
+                size="xs"
+                appearance="danger"
+                outline={true}
+                icon={chevronDownSvgForSlider}
+                onClick={downVoteClicked}
+              />
+            )}
           </div>
 
           {wrongValueDown && (
@@ -286,16 +286,17 @@ export function EntryVoteDialog({
         </>
       )}
 
-      {days >= 7.0 && (
+      {isPaidOut && (
         <div className="vote-error error-message">
           <span>{i18next.t("entry-list-item.old-post-error")}</span>
           <span>{i18next.t("entry-list-item.old-post-error-suggestion")}</span>
-          <div className="tipping-icon inline-flex">
+          <div className="tipping-icon inline-flex ml-1">
             <EntryTipBtn
               account={account}
               entry={entry}
               setTipDialogMounted={setTipDialogMounted}
               handleClickAway={handleClickAway}
+              inlineTipButton={true}
             />
           </div>
         </div>

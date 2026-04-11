@@ -6,6 +6,7 @@ import { openInNewSvg } from "@ui/svg";
 import { dateToRelative } from "@/utils";
 import { WitnessTransformed } from "@/entities";
 import Image from "next/image";
+import defaults from "@/defaults";
 
 interface Props {
   row: WitnessTransformed;
@@ -32,7 +33,7 @@ export const WitnessCard = ({ row, witness }: Props) => {
           <Image
             width={1000}
             height={1000}
-            src={`https://images.ecency.com/u/${
+            src={`${defaults.imageServer}/u/${
               row.name
             }/avatar/medium`}
             alt=""

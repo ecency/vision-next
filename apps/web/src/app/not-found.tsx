@@ -4,7 +4,7 @@ import { initI18next } from "@/features/i18n";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 import { SentryIssueReporterDialog } from "@/features/issue-reporter";
-import { Feedback } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
 import defaults from "@/defaults";
 import { NotFoundBackButton } from "./not-found-back-button";
 

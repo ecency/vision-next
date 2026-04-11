@@ -21,12 +21,12 @@ import {
 } from "@/assets/img/svg";
 import "./_index.scss";
 import { UilPanelAdd } from "@tooni/iconscout-unicons-react";
-import { ThreeSpeakVideo } from "@/api/threespeak";
 import { PollsCreation, PollSnapshot } from "@/features/polls";
 import { useGlobalStore } from "@/core/global-store";
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { insertOrReplace, replace } from "@/utils";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 import { Tooltip } from "@ui/tooltip";
 import i18next from "i18next";
 import { EmojiPicker } from "@/features/ui";
@@ -35,7 +35,6 @@ import { classNameObject } from "@ui/util";
 import { GalleryDialog } from "@/features/shared/gallery";
 import { FragmentsDialog } from "@/features/shared/fragments";
 import { VideoUpload } from "@/features/shared/video-upload-threespeak";
-import { VideoGallery } from "@/features/shared/video-gallery";
 import { AddImage } from "@/features/shared/editor-toolbar/add-image";
 import { AddLink } from "@/features/shared/editor-toolbar/add-link";
 import { AddImageMobile } from "@/features/shared/editor-toolbar/add-image-mobile";
@@ -45,10 +44,8 @@ import { useOptionalUploadTracker } from "@/app/publish/_hooks";
 
 interface Props {
   sm?: boolean;
-  setVideoEncoderBeneficiary?: (video: any) => void;
-  toggleNsfwC?: () => void;
   comment: boolean;
-  setVideoMetadata?: (v: ThreeSpeakVideo) => void;
+  onVideoUploaded?: (embedUrl: string) => void;
   onAddPoll?: (poll: PollSnapshot) => void;
   existingPoll?: PollSnapshot;
   onDeletePoll?: () => void;
@@ -68,9 +65,7 @@ export const toolbarEventListener = (event: Event, eventType: string) => {
 export function EditorToolbar({
   sm,
   comment,
-  setVideoMetadata,
-  setVideoEncoderBeneficiary,
-  toggleNsfwC,
+  onVideoUploaded,
   onAddPoll,
   existingPoll,
   onDeletePoll,
@@ -93,7 +88,6 @@ export function EditorToolbar({
   const [gif, setGif] = useState(false);
   const [emoji, setEmoji] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
-  const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showPollsCreation, setShowPollsCreation] = useState(false);
 
   const toolbarId = useMemo(() => v4(), []);
@@ -229,7 +223,8 @@ export function EditorToolbar({
       .catch(() => undefined)
       .then(async () => {
         try {
-          const { url } = await uploadImage.mutateAsync({ file, signal: abortController.signal });
+          const convertedFile = await convertHeicToJpeg(file);
+          const { url } = await uploadImage.mutateAsync({ file: convertedFile, signal: abortController.signal });
           uploadTracker?.markComplete(uploadId);
           const imgTag = url.length > 0 && `![](${url})\n\n`;
           imgTag ? replaceText(tempImgTag, imgTag) : replaceText(tempImgTag, "");
@@ -241,7 +236,7 @@ export function EditorToolbar({
   };
 
   const checkFile = (filename: string) =>
-    ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filename.toLowerCase().endsWith(el));
+    ["jpg", "jpeg", "gif", "png", "webp", "heic", "heif"].some((el) => filename.toLowerCase().endsWith(el));
 
   const onDragOver = (e: DragEvent) => {
     e.preventDefault();
@@ -425,46 +420,24 @@ export function EditorToolbar({
             </div>
           </Tooltip>
         )}
-        {!comment && (
+        {!comment && onVideoUploaded && (
           <EcencyConfigManager.Conditional
             condition={({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.enabled}
           >
             <Tooltip content={i18next.t("video-upload.upload-video")}>
-              <div className="editor-tool" role="none">
+              <button
+                type="button"
+                className="editor-tool"
+                onClick={() => activeUser && setShowVideoUpload(true)}
+                disabled={!activeUser}
+              >
+                {videoSvg}
                 <VideoUpload
-                  className="new-feature"
                   show={showVideoUpload}
                   setShow={(v) => setShowVideoUpload(v)}
-                  setShowGallery={(v) => setShowVideoGallery(v)}
-                >
-                  {videoSvg}
-                  {activeUser && (
-                    <div className="sub-tool-menu">
-                      <div className="sub-tool-menu-item" onClick={() => setShowVideoUpload(true)}>
-                        {i18next.t("video-upload.upload-video")}
-                      </div>
-
-                      <div
-                        className="sub-tool-menu-item"
-                        onClick={(e: React.MouseEvent<HTMLElement>) => {
-                          e.stopPropagation();
-                          setShowVideoGallery(true);
-                        }}
-                      >
-                        {i18next.t("video-upload.video-gallery")}
-                      </div>
-                    </div>
-                  )}
-                </VideoUpload>
-                <VideoGallery
-                  showGallery={showVideoGallery}
-                  setShowGallery={(v) => setShowVideoGallery(v)}
-                  insertText={insertText}
-                  setVideoEncoderBeneficiary={setVideoEncoderBeneficiary}
-                  toggleNsfwC={toggleNsfwC}
-                  setVideoMetadata={setVideoMetadata}
+                  onVideoUploaded={(embedUrl) => onVideoUploaded(embedUrl)}
                 />
-              </div>
+              </button>
             </Tooltip>
           </EcencyConfigManager.Conditional>
         )}

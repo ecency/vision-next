@@ -1,4 +1,5 @@
-import { Feedback, Navbar } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
 import { PropsWithChildren } from "react";
 import { PerksHeader } from "./components";
 

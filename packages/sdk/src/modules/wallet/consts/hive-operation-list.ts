@@ -1,6 +1,6 @@
-import { utils } from "@hiveio/dhive";
+import { utils } from "@ecency/hive-tx";
 import type { HiveOperationName } from "../types";
 
 export const HIVE_OPERATION_LIST = Object.keys(
-  utils.operationOrders
+  utils.operations
 ) as HiveOperationName[];

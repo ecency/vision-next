@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, JSX, useState } from "react";
 import "./_index.scss";
 import { Modal, ModalBody } from "@ui/modal";
 import useMount from "react-use/lib/useMount";

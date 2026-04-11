@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getBotsQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
-import { useQuery } from "@tanstack/react-query";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  getBotsQueryOptions,
+  getDiscussionsQueryOptions,
+  getPostHeaderQueryOptions,
+  SortOrder as SDKSortOrder
+} from "@ecency/sdk";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
@@ -29,8 +34,20 @@ interface Props {
   onTopLevelCommentsChange?: (hasComments: boolean) => void;
 }
 
+function NewCommentsButton({ count, onClick }: { count: number; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full my-3 py-2.5 px-4 rounded-lg bg-blue-dark-sky/10 dark:bg-blue-dark-sky/20 text-blue-dark-sky hover:bg-blue-dark-sky/20 dark:hover:bg-blue-dark-sky/30 transition-colors text-sm font-medium cursor-pointer text-center"
+    >
+      {i18next.t(count === 1 ? "discussion.new-comment" : "discussion.new-comments", { n: count })}
+    </button>
+  );
+}
+
 export function Discussion({ parent, community, isRawContent, hideControls, onTopLevelCommentsChange }: Props) {
   const { activeUser } = useActiveAccount();
+  const queryClient = useQueryClient();
   const [order, setOrder] = useState(SortOrder.created);
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
   const processedCommentsRef = useRef<Set<string>>(new Set());
@@ -43,14 +60,46 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
     parentIdRef.current = currentParentId;
   }
 
-  const { data: allComments = [], isLoading } = useQuery(
-    getDiscussionsQueryOptions(
-      parent,
-      order as unknown as SDKSortOrder,
-      true,
-      activeUser?.username
-    )
+  const discussionsQueryOptions = getDiscussionsQueryOptions(
+    parent,
+    order as unknown as SDKSortOrder,
+    true,
+    activeUser?.username
   );
+
+  const { data: allComments = [], isLoading } = useQuery(discussionsQueryOptions);
+
+  // Poll post header every 30s to detect new comments
+  const loadedCountRef = useRef(parent.children);
+  const [newCommentCount, setNewCommentCount] = useState(0);
+
+  const { data: postHeader } = useQuery({
+    ...getPostHeaderQueryOptions(parent.author, parent.permlink),
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+  });
+
+  useEffect(() => {
+    if (postHeader && postHeader.children > loadedCountRef.current) {
+      setNewCommentCount(postHeader.children - loadedCountRef.current);
+    }
+  }, [postHeader]);
+
+  // Reset baseline when discussions are refetched (allComments changes)
+  useEffect(() => {
+    if (allComments.length > 0) {
+      loadedCountRef.current = allComments.length;
+      setNewCommentCount(0);
+    }
+  }, [allComments.length]);
+
+  const handleLoadNewComments = useCallback(() => {
+    if (postHeader) {
+      loadedCountRef.current = postHeader.children;
+    }
+    setNewCommentCount(0);
+    queryClient.invalidateQueries({ queryKey: discussionsQueryOptions.queryKey });
+  }, [queryClient, discussionsQueryOptions.queryKey, postHeader]);
 
   const { data: botsList } = useQuery(getBotsQueryOptions());
 
@@ -137,6 +186,10 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
             </div>
         )}
 
+        {topLevelComments.length === 0 && newCommentCount > 0 && (
+            <NewCommentsButton count={newCommentCount} onClick={handleLoadNewComments} />
+        )}
+
         {topLevelComments.length > 0 && (
             <div className="discussion" id="discussion">
               <div className="discussion-header">
@@ -153,6 +206,7 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
                           value={order}
                           onChange={(e: any) => setOrder(e.target.value)}
                           disabled={isLoading}
+                          aria-label={i18next.t("discussion.order")}
                       >
                         <option value="trending">
                           {i18next.t("discussion.order-trending")}
@@ -170,6 +224,10 @@ export function Discussion({ parent, community, isRawContent, hideControls, onTo
                     </div>
                 )}
               </div>
+
+              {newCommentCount > 0 && (
+                <NewCommentsButton count={newCommentCount} onClick={handleLoadNewComments} />
+              )}
 
               <DiscussionList
                   root={parent}

@@ -58,7 +58,7 @@ export function ProfileSearch({ username }: Props) {
     <div
       className={clsx(
         "bg-white p-2 md:p-4",
-        listStyle === ListStyle.grid ? "rounded-xl mb-4" : " rounded-t-xl"
+        listStyle === ListStyle.grid ? "sm:rounded-xl mb-4" : "sm:rounded-t-xl"
       )}
     >
       <SearchBox

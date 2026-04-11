@@ -1,6 +1,6 @@
 "use client"; // Error boundaries must be Client Components
 
-import { Feedback } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
 import Image from "next/image";
 import i18next from "i18next";
 import Link from "next/link";

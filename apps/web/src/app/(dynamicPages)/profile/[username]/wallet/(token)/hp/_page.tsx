@@ -30,7 +30,7 @@ export function HpPage() {
 
   const cleanUsername = (username as string).replace("%40", "");
 
-  const { data, refetch, isFetching, status } = useInfiniteQuery(
+  const { data, refetch, isFetching } = useInfiniteQuery(
     getHivePowerAssetTransactionsQueryOptions(
       cleanUsername,
       1000,
@@ -52,8 +52,7 @@ export function HpPage() {
     [uniqueTransactionsList]
   );
 
-  const showSpinner =
-    status === "loading" || (isFetching && sortedTransactions.length === 0);
+  const showSpinner = isFetching && sortedTransactions.length === 0;
 
   useMount(() => refetch());
 

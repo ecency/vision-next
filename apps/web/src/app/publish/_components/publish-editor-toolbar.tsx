@@ -1,7 +1,8 @@
 "use client";
 
+import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { EcencyConfigManager } from "@/config";
-import { error, LoginRequired } from "@/features/shared";
+import { LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
 
 const PublishGifPickerDialog = dynamic(
@@ -68,11 +69,14 @@ import {
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
 import i18next from "i18next";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { usePublishState, usePublishVideoAttach } from "../_hooks";
+import { usePublishState } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
+import { AiImageIcon } from "@/features/shared/ai-image-icon";
+import { UilEditAlt } from "@tooni/iconscout-unicons-react";
+import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -91,6 +95,20 @@ const PublishImageByLinkDialog = dynamic(
 const PublishEditorGeoTagDialog = dynamic(
   () => import("./publish-editor-geo-tag/publish-editor-geo-tag-dialog").then((m) => ({
     default: m.PublishEditorGeoTagDialog
+  })),
+  { ssr: false }
+);
+
+const AiImageGeneratorDialog = dynamic(
+  () => import("@/features/shared/ai-image-generator").then((m) => ({
+    default: m.AiImageGeneratorDialog
+  })),
+  { ssr: false }
+);
+
+const AiAssistDialog = dynamic(
+  () => import("@/features/shared/ai-assist").then((m) => ({
+    default: m.AiAssistDialog
   })),
   { ssr: false }
 );
@@ -178,13 +196,12 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
+  const [showAiGenerator, setShowAiGenerator] = useState(false);
+  const [showAiAssist, setShowAiAssist] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
-
-  const attachVideo = usePublishVideoAttach(editor);
 
   const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
 
@@ -374,6 +391,71 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
+        <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
+          <Button
+            appearance="gray-link"
+            size="sm"
+            onClick={() => setShowGifPicker(true)}
+          >
+            {i18next.t("publish.action-bar.gif")}
+          </Button>
+        </StyledTooltip>
+
+        <StyledTooltip content={i18next.t("publish.action-bar.video")}>
+          <LoginRequired>
+            <Dropdown>
+              <DropdownToggle>
+                <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
+              </DropdownToggle>
+              <DropdownMenu>
+                {allowToUploadVideo && !publishState.hasThreeSpeakVideo && (
+                  <DropdownItemWithIcon
+                    icon={<UilUpload />}
+                    label={i18next.t("publish.three-speak-upload")}
+                    onClick={() => setShowVideoUpload(true)}
+                  />
+                )}
+                <DropdownItemWithIcon
+                  icon={<UilLink />}
+                  label={i18next.t("publish.from-link")}
+                  onClick={() => setShowVideoLink(true)}
+                />
+              </DropdownMenu>
+            </Dropdown>
+          </LoginRequired>
+        </StyledTooltip>
+
+        <StyledTooltip content={i18next.t("publish.action-bar.poll")}>
+          <Button
+            appearance="gray-link"
+            size="sm"
+            onClick={() => {
+              publishState.createDefaultPoll();
+              setTimeout(
+                () =>
+                  document
+                    .getElementById("publish-active-poll")
+                    ?.scrollIntoView({ behavior: "smooth" }),
+                100
+              );
+            }}
+            icon={<UilPanelAdd />}
+          />
+        </StyledTooltip>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.publish.geoPicker.enabled}
+        >
+          <StyledTooltip content={i18next.t("publish.action-bar.geotag")}>
+            <Button
+              appearance="gray-link"
+              size="sm"
+              onClick={() => setShowGeoTag(true)}
+              icon={<UilMap className={clsx(publishState.location && "text-green-hover")} />}
+            />
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
         <div className="relative">
           <StyledTooltip content={i18next.t("publish.action-bar.emoji")}>
             <Button
@@ -419,77 +501,45 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           </Dropdown>
         </StyledTooltip>
 
-        <StyledTooltip content={i18next.t("publish.action-bar.gif")}>
-          <Button
-            appearance="gray-link"
-            size="sm"
-            onClick={() => setShowGifPicker(true)}
-          >
-            {i18next.t("publish.action-bar.gif")}
-          </Button>
-        </StyledTooltip>
-
-        <StyledTooltip content={i18next.t("publish.action-bar.video")}>
-          <LoginRequired>
-            <Dropdown>
-              <DropdownToggle>
-                <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItemWithIcon
-                  disabled={!allowToUploadVideo}
-                  icon={<UilUpload />}
-                  label={i18next.t("publish.three-speak-upload")}
-                  onClick={() => {
-                    if (allowToUploadVideo) {
-                      setShowVideoUpload(true);
-                    } else {
-                      error(i18next.t("publish.upload-video-error-hint"));
-                    }
-                  }}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilVideo />}
-                  label={i18next.t("publish.three-speak-gallery")}
-                  onClick={() => setShowVideoGallery(true)}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilLink />}
-                  label={i18next.t("publish.from-link")}
-                  onClick={() => setShowVideoLink(true)}
-                />
-              </DropdownMenu>
-            </Dropdown>
-          </LoginRequired>
-        </StyledTooltip>
-
-        <StyledTooltip content={i18next.t("publish.action-bar.poll")}>
-          <Button
-            appearance="gray-link"
-            size="sm"
-            onClick={() => {
-              publishState.createDefaultPoll();
-              setTimeout(
-                () =>
-                  document
-                    .getElementById("publish-active-poll")
-                    ?.scrollIntoView({ behavior: "smooth" }),
-                100
-              );
-            }}
-            icon={<UilPanelAdd />}
-          />
-        </StyledTooltip>
         <EcencyConfigManager.Conditional
-          condition={({ visionFeatures }) => visionFeatures.publish.geoPicker.enabled}
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled || visionFeatures.aiAssist?.enabled}
         >
-          <StyledTooltip content={i18next.t("publish.action-bar.geotag")}>
-            <Button
-              appearance="gray-link"
-              size="sm"
-              onClick={() => setShowGeoTag(true)}
-              icon={<UilMap className={clsx(publishState.location && "text-green-hover")} />}
-            />
+          <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
+        </EcencyConfigManager.Conditional>
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiImageGenerator.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-image-generator.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={<AiImageIcon />}
+                onClick={() => setShowAiGenerator(true)}
+              />
+            </LoginRequired>
+          </StyledTooltip>
+        </EcencyConfigManager.Conditional>
+
+        <EcencyConfigManager.Conditional
+          condition={({ visionFeatures }) => visionFeatures.aiAssist?.enabled}
+        >
+          <StyledTooltip content={i18next.t("ai-assist.toolbar-button")}>
+            <LoginRequired>
+              <Button
+                appearance="gray-link"
+                size="sm"
+                icon={
+                  <span className="relative inline-flex">
+                    <UilEditAlt />
+                    <span className="absolute -top-1.5 -right-2.5 text-[8px] font-bold leading-none bg-blue-dark-sky text-white rounded px-0.5 py-px">
+                      AI
+                    </span>
+                  </span>
+                }
+                onClick={() => setShowAiAssist(true)}
+              />
+            </LoginRequired>
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
 
@@ -567,25 +617,39 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           }}
         />
 
-        <PublishEditorVideoGallery
-          hasAlreadyPublishingVideo={!!publishState.publishingVideo}
-          filterOnly={allowToUploadVideo ? undefined : "published"}
-          show={showVideoGallery}
-          setShow={setShowVideoGallery}
-          onUpload={() => {
-            setShowVideoGallery(false);
-            setShowVideoUpload(true);
-          }}
-          onAdd={(video, isNsfw) => {
-            attachVideo(video, isNsfw);
-            setShowVideoGallery(false);
-          }}
-        />
-
         <VideoUpload
           show={showVideoUpload}
           setShow={setShowVideoUpload}
-          setShowGallery={setShowVideoGallery}
+          onVideoUploaded={(embedUrl, videoThumbnailUrl) => {
+            if (editor) {
+              editor
+                .chain()
+                .focus()
+                .set3SpeakVideo({
+                  src: embedUrl,
+                  thumbnail: videoThumbnailUrl || "",
+                  status: "published"
+                })
+                .run();
+            }
+
+            // Add video thumbnail to post metadata so feed cards show it
+            if (videoThumbnailUrl) {
+              publishState.setEntryImages((prev) =>
+                prev.includes(videoThumbnailUrl) ? prev : [...prev, videoThumbnailUrl]
+              );
+            }
+
+            // Add required 3Speak beneficiary (hasThreeSpeakVideo derives from content automatically)
+            publishState.setBeneficiaries((prev) => {
+              if (prev.some((b) => isThreeSpeakBeneficiary(b.account))) {
+                return prev;
+              }
+              return [...prev, { account: "threespeakfund", weight: 1100 }];
+            });
+
+            setShowVideoUpload(false);
+          }}
         />
 
         <PublishEditorVideoByLinkDialog
@@ -606,6 +670,66 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             setShowVideoLink(false);
           }}
         />
+        {showAiGenerator && (
+          <AiImageGeneratorDialog
+            show={showAiGenerator}
+            setShow={setShowAiGenerator}
+            suggestedPrompt={publishState.title?.trim() || undefined}
+            onInsert={(url) => {
+              editor
+                ?.chain()
+                .focus()
+                .insertContent([
+                  { type: "image", attrs: { src: url } },
+                  { type: "paragraph" },
+                  { type: "paragraph" },
+                ])
+                .run();
+              setShowAiGenerator(false);
+            }}
+          />
+        )}
+        {showAiAssist && (
+          <AiAssistDialog
+            show={showAiAssist}
+            setShow={setShowAiAssist}
+            initialText={editor?.getText()?.trim() || ""}
+            onApply={(output, action) => {
+              if (action === "improve" || action === "check_grammar" || action === "summarize") {
+                const sanitized = simpleMarkdownToHTML(output);
+                const doc = parseAllExtensionsToDoc(sanitized);
+                editor?.commands.setContent(doc);
+                setShowAiAssist(false);
+              } else if (action === "generate_title") {
+                publishState.setTitle(output.trim());
+                setShowAiAssist(false);
+              } else if (action === "suggest_tags") {
+                try {
+                  const tags = JSON.parse(output);
+                  if (Array.isArray(tags)) {
+                    const valid = tags.filter((t): t is string => typeof t === "string" && t.trim().length > 0).map((t) => t.trim());
+                    if (valid.length > 0) {
+                      const tagNodes: any[] = [];
+                      valid.forEach((t, i) => {
+                        if (i > 0) tagNodes.push({ type: "text", text: " " });
+                        tagNodes.push({ type: "tag", attrs: { id: t, label: t } });
+                      });
+                      editor?.chain().focus("end").insertContent([
+                        { type: "paragraph" },
+                        { type: "paragraph", content: tagNodes }
+                      ]).run();
+                      setShowAiAssist(false);
+                      return;
+                    }
+                  }
+                } catch {
+                  // parse failed
+                }
+                error(i18next.t("ai-assist.error-generic"));
+              }
+            }}
+          />
+        )}
         {showGeoTag && (
           <PublishEditorGeoTagDialog
             show={showGeoTag}

@@ -36,6 +36,10 @@ export interface SignTransferPayload {
   to: string;
   amount: string;
   memo: string;
+  /** Overrides the hook-level asset for this call. Use when the desired asset
+   *  may differ from the one captured by the hook (e.g. after a state update
+   *  that hasn't triggered a re-render yet). */
+  asset?: TransferAsset;
 }
 
 /**
@@ -80,21 +84,22 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
 
   return {
     isPending,
-    mutateAsync: async ({ to, amount, memo }: SignTransferPayload) => {
-      const fullAmount = `${(+amount).toFixed(3)} ${asset}`;
+    mutateAsync: async ({ to, amount, memo, asset: overrideAsset }: SignTransferPayload) => {
+      const effectiveAsset = overrideAsset ?? asset;
+      const fullAmount = `${(+amount).toFixed(3)} ${effectiveAsset}`;
       const requestId = Date.now() >>> 0;
 
       switch (mode) {
         case "transfer":
-          if (asset === "POINT") {
+          if (effectiveAsset === "POINT") {
             await transferPoint.mutateAsync({ to, amount: fullAmount, memo });
-          } else if (asset === "SPK") {
+          } else if (effectiveAsset === "SPK") {
             await transferSpk.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
-          } else if (asset === "LARYNX") {
+          } else if (effectiveAsset === "LARYNX") {
             await transferLarynx.mutateAsync({ to, amount: parseFloat(amount) * 1000 });
-          } else if (asset !== "HIVE" && asset !== "HBD") {
+          } else if (effectiveAsset !== "HIVE" && effectiveAsset !== "HBD") {
             // Hive Engine token
-            await transferEngine.mutateAsync({ to, quantity: amount, symbol: asset, memo });
+            await transferEngine.mutateAsync({ to, quantity: amount, symbol: effectiveAsset, memo });
           } else {
             await transfer.mutateAsync({ to, amount: fullAmount, memo });
           }
@@ -112,7 +117,7 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
           await convert.mutateAsync({
             amount: fullAmount,
             requestId,
-            collateralized: asset === "HIVE",
+            collateralized: effectiveAsset === "HIVE",
           });
           break;
 

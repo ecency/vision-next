@@ -27,6 +27,7 @@ export default function PublishPage() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published" | "no-draft">(
     "edit"
   );
+  const [publishedEntry, setPublishedEntry] = useState<{ title: string; author: string; permlink: string; category: string } | undefined>();
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
   const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
@@ -34,7 +35,6 @@ export default function PublishPage() {
     setTitle,
     setContent,
     setTags,
-    setPublishingVideo,
     setLocation,
     setReward,
     setBeneficiaries,
@@ -54,7 +54,6 @@ export default function PublishPage() {
       setTags(draft.tags_arr);
 
       setEditorContent(draft.body);
-      setPublishingVideo(draft.meta?.video);
       setLocation(draft.meta?.location);
       setReward(draft.meta?.rewardType ?? "default");
       setBeneficiaries(draft.meta?.beneficiaries ?? []);
@@ -94,7 +93,8 @@ export default function PublishPage() {
         {step === "validation" && (
           <PublishValidatePost
             onClose={() => setStep("edit")}
-            onSuccess={(step) => {
+            onSuccess={(step, entryInfo) => {
+              setPublishedEntry(entryInfo);
               setStep(step);
             }}
           />
@@ -103,6 +103,7 @@ export default function PublishPage() {
           <PublishSuccessState
             step={step as "published" | "scheduled"}
             setEditStep={() => setStep("edit")}
+            entryInfo={publishedEntry}
           />
         )}
         {step === "no-draft" && <PublishDraftsNoDraft />}

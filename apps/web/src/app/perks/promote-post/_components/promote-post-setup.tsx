@@ -15,9 +15,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onSuccess: (path: string, duration: number) => void;
+  isPending?: boolean;
 }
 
-export function PromotePostSetup({ onSuccess }: Props) {
+export function PromotePostSetup({ onSuccess, isPending }: Props) {
   const { activeUser } = useActiveAccount();
 
   const [path, setPath] = useState(activeUser ? `${activeUser.username}/` : "");
@@ -126,7 +127,8 @@ export function PromotePostSetup({ onSuccess }: Props) {
         <div className="flex md:col-span-2 justify-end">
           <Button
             size="sm"
-            disabled={!path || isAmountMoreThanBalance}
+            disabled={!path || isAmountMoreThanBalance || isPending}
+            isLoading={isPending}
             onClick={() => onSuccess(path, selectedDuration)}
           >
             {i18next.t("g.continue")}

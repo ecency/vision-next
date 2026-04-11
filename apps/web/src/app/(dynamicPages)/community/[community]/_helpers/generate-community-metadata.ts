@@ -7,18 +7,20 @@ import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 
 export async function generateCommunityMetadata(communityName: string, tag: string) {
-  const community = await prefetchQuery(getCommunityCache(communityName));
-  const account = await prefetchQuery(getAccountFullQueryOptions(communityName));
+  const [community, account, base] = await Promise.all([
+    prefetchQuery(getCommunityCache(communityName)),
+    prefetchQuery(getAccountFullQueryOptions(communityName)),
+    getServerAppBase()
+  ]);
   if (community && account) {
-    const base = await getServerAppBase();
-    const title = `${community!!.title.trim()} community ${tag} list`;
+    const title = `${community.title.trim()} community ${tag} list`;
     const description = i18next.t("community.page-description", {
-      f: `${capitalize(tag)} ${community!!.title.trim()}`
+      f: `${capitalize(tag)} ${community.title.trim()}`
     });
-    const metaRss = `${base}/${tag}/${community!!.name}/rss.xml`;
-    const metaCanonical = `${base}/created/${community!!.name}`;
+    const metaRss = `${base}/${tag}/${community.name}/rss.xml`;
+    const metaCanonical = `${base}/created/${community.name}`;
 
-    const metaImage = `${defaults.imageServer}/u/${community!!.name}/avatar/medium`;
+    const metaImage = `${defaults.imageServer}/u/${community.name}/avatar/medium`;
     return {
       title,
       description,
@@ -31,7 +33,7 @@ export async function generateCommunityMetadata(communityName: string, tag: stri
       openGraph: {
         title,
         description,
-        url: `/${tag}/${community!!.name}`,
+        url: `/${tag}/${community.name}`,
         images: [metaImage],
       },
       twitter: {

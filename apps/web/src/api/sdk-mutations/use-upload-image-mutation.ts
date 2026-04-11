@@ -2,7 +2,7 @@
 
 import { useAddImage, useUploadImage } from "@ecency/sdk";
 import { useActiveUsername } from "@/core/hooks/use-active-username";
-import { getAccessToken } from "@/utils";
+import { ensureValidToken } from "@/utils";
 import { useMutation } from "@tanstack/react-query";
 import { error, success } from "@/features/shared";
 import i18next from "i18next";
@@ -43,7 +43,7 @@ export function useUploadImageMutation() {
           throw new Error("Cannot add image without an active user");
         }
 
-        const token = getAccessToken(username);
+        const token = await ensureValidToken(username);
         if (!token) {
           throw new Error("Token missed");
         }
@@ -73,9 +73,8 @@ export function useUploadImageMutation() {
         throw new Error("Cannot upload image without an active user");
       }
 
-      const token = getAccessToken(username);
+      const token = await ensureValidToken(username);
       if (!token) {
-        error(i18next.t("editor-toolbar.image-error-cache"));
         throw new Error("Token missed");
       }
 

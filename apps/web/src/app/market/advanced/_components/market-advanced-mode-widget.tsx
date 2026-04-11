@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { JSX, useState } from "react";
 import { MarketAdvancedModeWidgetHeader } from "./market-advanced-mode-widget-header";
 import { Widget } from "@/app/market/advanced/_advanced-mode/types/layout.type";
 import i18next from "i18next";

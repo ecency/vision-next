@@ -2,7 +2,9 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import { error, LoginRequired, PurchaseQrDialog, PurchaseTypes, success } from "@/features/shared";
+import { error, success } from "@/features/shared/feedback";
+import { LoginRequired } from "@/features/shared/login-required";
+import { PurchaseQrDialog, PurchaseTypes } from "@/features/shared/purchase-qr";
 import { getPointsQueryOptions, useClaimPoints } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import i18next from "i18next";

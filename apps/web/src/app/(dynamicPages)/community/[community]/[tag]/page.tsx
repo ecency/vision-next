@@ -1,7 +1,8 @@
 import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
-import { EntryListContent, LinearProgress } from "@/features/shared";
+import { EntryListContent } from "@/features/shared/entry-list-content";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import { dehydrate, HydrationBoundary, InfiniteData } from "@tanstack/react-query";
 import { getQueryClient, prefetchQuery } from "@/core/react-query";
 import { Metadata, ResolvingMetadata } from "next";
@@ -31,11 +32,12 @@ function pageToEntries(p: Page): Entry[] {
 export default async function CommunityPostsPage({ params }: Props) {
   const { community, tag } = await params;
 
-  const communityData = await prefetchQuery(getCommunityCache(community));
-  if (!communityData) return notFound();
+  const [communityData, data] = await Promise.all([
+    prefetchQuery(getCommunityCache(community)),
+    prefetchGetPostsFeedQuery(tag, community)
+  ]);
 
-  // no cast needed if prefetchGetPostsFeedQuery is typed
-  const data = await prefetchGetPostsFeedQuery(tag, community); // InfiniteData<Page, unknown> | undefined
+  if (!communityData) return notFound();
 
   if (!data || !Array.isArray(data.pages) || data.pages.length === 0) {
     return null;

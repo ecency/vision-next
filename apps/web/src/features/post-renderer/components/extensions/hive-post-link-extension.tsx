@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
@@ -103,24 +104,24 @@ export function HivePostLinkRenderer({ link }: { link: string }) {
   return (
     <a
       href={enhancedHref}
-      className="ecency-renderer-hive-post-extension-link"
+      className="er-post-link-link"
       target="_blank"
       rel="noopener"
     >
       {data ? (
         <>
           <div
-            className="ecency-renderer-hive-post-extension-link-image"
+            className="er-post-link-link-image"
             style={{ backgroundImage: `url(${data.image})` }}
           />
-          <div className="ecency-renderer-hive-post-extension-link-text-content">
-            <div className="ecency-renderer-hive-post-extension-link-type">
+          <div className="er-post-link-link-text-content">
+            <div className="er-post-link-link-type">
               Hive post
             </div>
-            <div className="ecency-renderer-hive-post-extension-link-title">
+            <div className="er-post-link-link-title">
               {data.title}
             </div>
-            <div className="ecency-renderer-hive-post-extension-link-description">
+            <div className="er-post-link-link-description">
               {data.description + "..."}
             </div>
           </div>
@@ -137,7 +138,12 @@ export function HivePostLinkExtension({
 }: {
   containerRef: RefObject<HTMLElement | null>;
 }) {
+  const rootsRef = useRef<ReturnType<typeof createRoot>[]>([]);
+
   useEffect(() => {
+    rootsRef.current.forEach(r => r.unmount());
+    rootsRef.current = [];
+
     const container = containerRef.current;
     if (!container) {
       return;
@@ -170,10 +176,11 @@ export function HivePostLinkExtension({
           (element as HTMLElement).dataset.enhanced = "true";
 
           const container = document.createElement("div");
-          container.classList.add("ecency-renderer-hive-post-extension");
+          container.classList.add("er-post-link");
 
           const href = element.getAttribute("href") ?? "";
           const root = createRoot(container);
+          rootsRef.current.push(root);
           root.render(<HivePostLinkRenderer link={href} />);
 
           // Final safety check before replacing
@@ -184,6 +191,11 @@ export function HivePostLinkExtension({
           console.warn("Error enhancing Hive post link element:", error);
         }
       });
+
+    return () => {
+      rootsRef.current.forEach(r => r.unmount());
+      rootsRef.current = [];
+    };
   }, []);
 
   return null;

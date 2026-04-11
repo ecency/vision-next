@@ -1,4 +1,8 @@
-import { Navbar, ProfileLink, ScrollToTop, Theme, UserAvatar } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ProfileLink } from "@/features/shared/profile-link";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
+import { UserAvatar } from "@/features/shared/user-avatar";
 import i18next from "i18next";
 import "./page.scss";
 import { Tsx } from "@/features/i18n/helper";
@@ -8,7 +12,8 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata, ResolvingMetadata } from "next";
 import { PagesMetadataGenerator } from "@/features/metadata";
 
-export const dynamic = "force-dynamic";
+// ISR: contributor list changes rarely, revalidate hourly
+export const revalidate = 3600;
 
 export async function generateMetadata(
   props: unknown,

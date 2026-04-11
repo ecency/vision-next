@@ -1,5 +1,180 @@
 # Changelog
 
+## 2.1.7
+
+### Patch Changes
+
+- React 19 upgrade (#751)
+
+## 2.1.6
+
+### Patch Changes
+
+- Waves X embed fix on Decks (#747)
+
+## 2.1.5
+
+### Patch Changes
+
+- Parallelize requests, improve abort logic (#746)
+
+## 2.1.4
+
+### Patch Changes
+
+- Fix refresh token signature stringify (#745)
+
+## 2.1.3
+
+### Patch Changes
+
+- Abort stuck queries (#744)
+
+## 2.1.2
+
+### Patch Changes
+
+- Fix bootstrap (#741)
+
+## 2.1.1
+
+### Patch Changes
+
+- Cache (#740)
+
+## 2.1.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
+## 2.0.35
+
+### Patch Changes
+
+- Thumbnail Waves and hivesigner fix (#728)
+
+## 2.0.34
+
+### Patch Changes
+
+- My waves, your waves and keychain mobile login (#723)
+
+## 2.0.33
+
+### Patch Changes
+
+- Real time comment indicator (#720)
+
+## 2.0.32
+
+### Patch Changes
+
+- Manage/add keys improved (#717)
+
+## 2.0.30
+
+### Patch Changes
+
+- Bad actors in SDK (#708)
+
+## 2.0.28
+
+### Patch Changes
+
+- Metamask integration, Signup simplified, Login changes (#705)
+
+## 2.0.27
+
+### Patch Changes
+
+- Search improvements (#703)
+
+## 2.0.25
+
+### Patch Changes
+
+- AI Assists (#700)
+
+## 2.0.24
+
+### Patch Changes
+
+- Fix fragments and sdk (#697)
+
+## 2.0.22
+
+### Patch Changes
+
+- Expiring delegations (#694)
+- Improve adapter (#693)
+
+## 2.0.21
+
+### Patch Changes
+
+- Fallback of RPC selection (#692)
+
+## 2.0.20
+
+### Patch Changes
+
+- SDK fix activity (#684)
+
+## 2.0.19
+
+### Patch Changes
+
+- Fix defaults and null case (#683)
+
+## 2.0.18
+
+### Patch Changes
+
+- Image generation (#680)
+
+## 2.0.17
+
+### Patch Changes
+
+- Version bumps (#678)
+
+## 2.0.16
+
+### Patch Changes
+
+- Server fallbacks, image saving (#677)
+
+## 2.0.15
+
+### Patch Changes
+
+- Improve account update and chat cleanup (#676)
+
+## 2.0.14
+
+### Patch Changes
+
+- Query max pages (#675)
+
+## 2.0.13
+
+### Patch Changes
+
+- Better memory optimizations (#674)
+
+## 2.0.12
+
+### Patch Changes
+
+- Fix invalidation (#672)
+
+## 2.0.11
+
+### Patch Changes
+
+- My favorites widget (#670)
+
 ## 2.0.10
 
 ### Patch Changes

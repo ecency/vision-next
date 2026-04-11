@@ -1,7 +1,7 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 import type { Beneficiary } from "./use-comment";
 
 /**
@@ -163,9 +163,9 @@ export function useUpdateReply(
     },
     async (_result: any, variables) => {
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
-      if (auth?.adapter?.recordActivity && _result?.block_num && _result?.id) {
-        auth.adapter.recordActivity(110, _result.block_num, _result.id).catch((error) => {
-          console.error("[SDK][Posts][useUpdateReply] recordActivity failed", {
+      if (auth?.adapter?.recordActivity && _result?.id) {
+        auth.adapter.recordActivity(110, _result.id, _result?.block_num).catch((error) => {
+          console.debug("[SDK][Posts][useUpdateReply] recordActivity failed", {
             activityType: 110,
             blockNum: _result.block_num,
             transactionId: _result.id,

@@ -6,7 +6,7 @@ import React, { ReactNode } from "react";
 import { WaveEntry } from "@/entities";
 import "./wave-actions.scss";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { PostTipsResponse } from "@/api/queries/get-post-tips-query";
+import { PostTipsResponse } from "@ecency/sdk";
 
 interface Props {
   status: string;
