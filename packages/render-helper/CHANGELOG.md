@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.30
+
+### Patch Changes
+
+- Dom parser improvement (#753)
+
 ## 2.4.29
 
 ### Patch Changes

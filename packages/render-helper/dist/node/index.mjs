@@ -202,8 +202,11 @@ function createDoc(html) {
     return null;
   }
   const cleanedHtml = removeDuplicateAttributes(html);
-  const doc = DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, "text/html");
-  return doc;
+  try {
+    return DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, "text/html");
+  } catch {
+    return null;
+  }
 }
 function makeEntryCacheKey(entry) {
   return `${entry.author}-${entry.permlink}-${entry.last_update}-${entry.updated}`;
