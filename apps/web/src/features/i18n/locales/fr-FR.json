@@ -2636,6 +2636,8 @@
     "download-for-windows": "Télécharger pour Ordinateur",
     "download-for-ios": "Télécharger pour IOS",
     "download-for-android": "Télécharger pour Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Téléchargez l'application mobile",
     "our-history": "Notre histoire",
     "our-history-p-one": "<b>Ecency</b> (anciennement Esteem) a commencé en 2016, fondateur <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> a commencé à implémenter une application mobile qui révolutionnerait la façon dont vous interagissez et créez, construire, engager en ligne. Le temps est passé à quelque chose de plus grand.",
     "our-history-p-two": "Depuis, nous continuons à construire pour le Web 3. et d'améliorer notre réseau social basé sur la blockchain, en veillant à ce que les applications soient aussi accessibles que possible, sécurisées et dans de nombreuses langues le monde parle.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Impossible d'utiliser les données locales",
-    "no-ls-description": "Il semble que vous ou votre navigateur avez désactivé les données locales pour notre site Web. Malheureusement, vous ne pouvez pas utiliser la plupart des fonctionnalités d'Ecency telles que les brouillons, les decks locaux, le tableau de bord de trading avancé et plus encore. Veuillez utiliser les dernières versions de n'importe quel navigateur moderne ou activer les données locales manuellement."
+    "no-ls-description": "Il semble que vous ou votre navigateur avez désactivé les données locales pour notre site Web. Malheureusement, vous ne pouvez pas utiliser la plupart des fonctionnalités d'Ecency telles que les brouillons, les decks locaux, le tableau de bord de trading avancé et plus encore. Veuillez utiliser les dernières versions de n'importe quel navigateur moderne ou activer les données locales manuellement.",
+    "install-title": "Install Ecency",
+    "install-description": "Ajoutez Ecency à votre écran d'accueil pour une expérience plus rapide et en plein écran.",
+    "install-cta": "Installer",
+    "install-dismiss": "Pas maintenant",
+    "install-ios-hint": "Appuyez sur le bouton Partager et choisissez \"Ajouter à l'écran d'accueil\" pour installer Ecency."
   },
   "waves": {
     "feed": {
