@@ -7,7 +7,8 @@
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait",
-  "start_url": "https://ecency.com/",
+  "start_url": "/",
+  "scope": "/",
   "categories": ["social"],
   "icons": [
     {

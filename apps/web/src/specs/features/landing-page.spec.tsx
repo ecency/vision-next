@@ -165,14 +165,27 @@ describe("LandingDownloadLinks", () => {
     androidIconWhite: "/icon-android-white.svg"
   };
 
-  it("renders download links with correct targets and security attrs", () => {
+  it("renders iOS and Android links with correct targets and security attrs", () => {
     render(<LandingDownloadLinks {...props} />);
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(2);
-    links.forEach((link) => {
-      expect(link).toHaveAttribute("target", "_blank");
+    const externalLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("target") === "_blank");
+    // iOS and Android are the only external links; the PWA install entry
+    // is an internal /mobile link.
+    expect(externalLinks).toHaveLength(2);
+    externalLinks.forEach((link) => {
       expect(link).toHaveAttribute("rel", "noopener noreferrer");
     });
+  });
+
+  it("renders the internal PWA install link pointing to /mobile", () => {
+    render(<LandingDownloadLinks {...props} />);
+    const pwaLink = screen.getByRole("link", {
+      name: /landing-page\.install-web-app/
+    });
+    expect(pwaLink).toHaveAttribute("href", "/mobile");
+    // The PWA link must not have target=_blank since it's an in-app route.
+    expect(pwaLink).not.toHaveAttribute("target");
   });
 
   it("shows day theme icons when theme is day", () => {

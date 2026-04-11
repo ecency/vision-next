@@ -13,6 +13,10 @@ import { useMount } from "react-use";
 import { installConsoleRecorder } from "@/utils/console-msg";
 import { setProxyBase } from "@ecency/render-helper";
 import { ALLOWED_IMAGE_SERVERS } from "@/defaults";
+// Side-effect import: attaches a global beforeinstallprompt listener as early
+// as possible in client bootstrap so the event is captured even if the user
+// lands on a page without an install CTA and navigates elsewhere later.
+import "@/features/pwa-install";
 
 export function ClientInit() {
   const { activeUser } = useActiveAccount();

@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.29
+
+### Patch Changes
+
+- Improve PWA (#752)
+
 ## 2.4.28
 
 ### Patch Changes

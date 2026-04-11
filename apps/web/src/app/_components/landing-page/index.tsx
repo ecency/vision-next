@@ -263,7 +263,7 @@ export async function LandingPage() {
               <LandingDownloadLinks
                 iosIcon={`${baseUrl}/assets/icon-apple.svg`}
                 iosIconWhite={`${baseUrl}/assets/icon-apple-white.svg`}
-                androidIcon={`${baseUrl}/assets/icon-android.svg`}
+                androidIcon={`${baseUrl}/assets/icon-android.png`}
                 androidIconWhite={`${baseUrl}/assets/icon-android-white.svg`}
               />
             </div>
@@ -357,6 +357,9 @@ export async function LandingPage() {
                   </li>
                   <li>
                     <Link href="/faq">{t("landing-page.help")}</Link>
+                  </li>
+                  <li>
+                    <Link href="/mobile">{t("landing-page.get-mobile-app")}</Link>
                   </li>
                 </ul>
               </div>

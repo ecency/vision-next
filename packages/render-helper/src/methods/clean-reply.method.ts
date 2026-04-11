@@ -24,6 +24,7 @@ export function cleanReply(s: string): string {
     .filter(item => item.toLowerCase().includes('<sup><sub>posted via [inji.com]') === false)
     .filter(item => item.toLowerCase().includes('view this post on [liketu]') === false)
     .filter(item => item.toLowerCase().includes('[via Inbox]') === false)
+    .filter(item => item.toLowerCase().includes('<sub>[via apps from](') === false)
     .join('\n') : '')
     .replace('Posted via <a href="https://d.buzz" data-link="promote-link">D.Buzz</a>', '')
     .replace('<div class="pull-right"><a href="/@hive.engage">![](https://i.imgur.com/XsrNmcl.png)</a></div>', '')
