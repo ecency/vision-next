@@ -8,11 +8,25 @@ import { BannerManager } from "@/features/banners";
 import React from "react";
 import Script from "next/script";
 import { Inter, Lora } from "next/font/google";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import defaults from "@/defaults.json";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaults.base),
+  applicationName: defaults.name,
+  appleWebApp: {
+    capable: true,
+    title: defaults.name,
+    statusBarStyle: "default"
+  },
+  icons: {
+    icon: [
+      { url: "/assets/logo-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/logo-384x384.png", sizes: "384x384", type: "image/png" },
+      { url: "/assets/logo-512x512.png", sizes: "512x512", type: "image/png" }
+    ],
+    apple: [{ url: "/assets/logo-192x192.png", sizes: "192x192", type: "image/png" }]
+  },
   openGraph: {
     siteName: defaults.name,
     images: [
@@ -31,6 +45,13 @@ export const metadata: Metadata = {
     creator: defaults.twitterHandle,
     images: ["/og.jpg"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#131111" }
+  ]
 };
 
 const inter = Inter({

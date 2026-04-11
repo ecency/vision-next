@@ -6,6 +6,12 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
+  // Activate a new SW as soon as it finishes installing, and take control of
+  // open clients immediately. Combined with the client-side update listener
+  // in <PWAInstallPrompt>, users get fresh assets on the next navigation
+  // without needing to fully close all tabs.
+  skipWaiting: true,
+  clientsClaim: true,
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
   // Advanced caching strategies for better performance
