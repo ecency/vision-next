@@ -2636,6 +2636,8 @@
     "download-for-windows": "Kompyuter uchun yuklab olish",
     "download-for-ios": "IOS uchun yuklab olish",
     "download-for-android": "Android uchun yuklab olish",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Get mobile app",
     "our-history": "Bizning Tarix",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "O'shandan beri biz Web 3.0 uchun qurish va blokcheynga asoslangan ijtimoiy tarmog'imizni yaxshilashda davom etmoqdamiz, ilovalar imkon qadar foydalanish mumkin xavfsiz va dunyo so'zlashadigan ko'p tillarda bo'lishiga harakat qilamiz.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Unable to use local data",
-    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually."
+    "no-ls-description": "It seems You or your browser has disabled local data for our website. Unfortunately, You can't use the most of Ecency features such as drafts, local decks, advanced trading dashboard and more. Please, use latest versions of any modern browser or turn on local data manually.",
+    "install-title": "Install Ecency",
+    "install-description": "Add Ecency to your home screen for a faster, full-screen experience.",
+    "install-cta": "Install",
+    "install-dismiss": "Not now",
+    "install-ios-hint": "Tap the Share button and choose \"Add to Home Screen\" to install Ecency."
   },
   "waves": {
     "feed": {
