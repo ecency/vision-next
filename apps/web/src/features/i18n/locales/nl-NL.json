@@ -2636,6 +2636,8 @@
     "download-for-windows": "Download voor Computer",
     "download-for-ios": "Download voor IOS",
     "download-for-android": "Download voor Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Download de mobiele app",
     "our-history": "Onze geschiedenis",
     "our-history-p-one": "<b>Ecency</b> (voorheen Esteem) begon in 2016, oprichter <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> is begonnen met het implementeren van een mobiele applicatie die de manier waarop je interactie zou ontwikkelen en creëren zou revolutioniseren. bouw, neem online aan. De tijd groeide naar iets veel groter.",
     "our-history-p-two": "Sindsdien zijn we nog steeds bezig met het bouwen van Web 3. en verbeter ons op blockchain gebaseerd sociaal netwerk, zodat apps zo toegankelijk mogelijk zijn, veilig en in veel talen spreekt de wereld over.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",
-    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in."
+    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in.",
+    "install-title": "Install Ecency",
+    "install-description": "Voeg Ecency toe aan je beginscherm voor een snellere, volledig-schermervaring.",
+    "install-cta": "Installeren",
+    "install-dismiss": "Niet nu",
+    "install-ios-hint": "Tik op de deelknop en kies \"Toevoegen aan Startscherm\" om Ecency."
   },
   "waves": {
     "feed": {
