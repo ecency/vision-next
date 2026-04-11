@@ -4,7 +4,6 @@ import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
 import type { Operation } from "@ecency/hive-tx";
 import type { TippingAsset } from "../types";
 
-const ASSETS_WITH_USD_PRICE: TippingAsset[] = ["HIVE", "HBD"];
 export interface ExecuteTipParams {
   from: string;
   to: string;
@@ -15,49 +14,38 @@ export interface ExecuteTipParams {
 
 /**
  * Execute tip: transfer HIVE, HBD, or POINTS.
- * Uses current auth (keychain or hivesigner) to broadcast.
- * Fetches token price in USD via getTokenPriceQueryOptions for conversion.
+ * Uses current auth (keychain, hivesigner, hiveauth) to broadcast.
+ * `amount` is a USD value that is converted to the asset amount via its USD price.
  */
 export async function executeTip(params: ExecuteTipParams): Promise<void> {
   const { from, to, amount, asset, memo } = params;
 
-  let realAmount = 0;
-  const num = parseFloat(amount);
-  if (!Number.isFinite(num) || num <= 0) {
+  const usdAmount = parseFloat(amount);
+  if (!Number.isFinite(usdAmount) || usdAmount <= 0) {
     throw new Error("Invalid amount");
   }
-  const formatted = num.toFixed(3);
 
-  // Ensure USD price is loaded for supported assets (conversion relative to USD)
-  const queryClient = getQueryClient();
-
-  const info = await queryClient.ensureQueryData(
+  const info = await getQueryClient().ensureQueryData(
     getAccountWalletAssetInfoQueryOptions(to, asset),
   );
-  realAmount = num / (info?.price ?? 0);
+  const price = info?.price;
+  if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
+    throw new Error(`Missing USD price for ${asset}`);
+  }
+
+  // Hive chain requires transfer amounts formatted with exactly 3 decimals.
+  const assetAmount = (usdAmount / price).toFixed(3);
 
   let operations: Operation[];
 
-  if (asset === "HIVE") {
+  if (asset === "HIVE" || asset === "HBD") {
     operations = [
       [
         "transfer",
         {
           from,
           to,
-          amount: `${realAmount} HIVE`,
-          memo,
-        },
-      ],
-    ];
-  } else if (asset === "HBD") {
-    operations = [
-      [
-        "transfer",
-        {
-          from,
-          to,
-          amount: `${realAmount} HBD`,
+          amount: `${assetAmount} ${asset}`,
           memo,
         },
       ],
@@ -71,7 +59,7 @@ export async function executeTip(params: ExecuteTipParams): Promise<void> {
           json: JSON.stringify({
             sender: from,
             receiver: to,
-            amount: `${realAmount} POINT`,
+            amount: `${assetAmount} POINT`,
             memo,
           }),
           required_auths: [from],
