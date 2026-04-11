@@ -2636,6 +2636,8 @@
     "download-for-windows": "コンピュータ用にダウンロード",
     "download-for-ios": "IOS用にダウンロード",
     "download-for-android": "Android用にダウンロード",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "モバイルアプリを取得する",
     "our-history": "沿革",
     "our-history-p-one": "<b>Ecency</b> (previously Esteem) started out in 2016, founder <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> started implementing a mobile application that would revolutionize the way you interact and create, build, engage online. With time grew to something much bigger.",
     "our-history-p-two": "それ以来、私たちは Web 3 用のビルドを続けています。 ブロックチェーンベースのソーシャルネットワークを改善し、可能な限りアプリにアクセスできるようにし、世界中の多くの言語で安全にアクセスできるようにします。",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "ローカルデータを使用できません",
-    "no-ls-description": "あなたまたはあなたのブラウザが当社のウェブサイトのローカルデータを無効にしているようです。 残念ながら、ドラフト、ローカルデッキ、高度な取引ダッシュボードなどのEcency機能のほとんどを使用することはできません。 最新のブラウザの最新バージョンを使用するか、ローカルデータを手動でオンにしてください。"
+    "no-ls-description": "あなたまたはあなたのブラウザが当社のウェブサイトのローカルデータを無効にしているようです。 残念ながら、ドラフト、ローカルデッキ、高度な取引ダッシュボードなどのEcency機能のほとんどを使用することはできません。 最新のブラウザの最新バージョンを使用するか、ローカルデータを手動でオンにしてください。",
+    "install-title": "Install Ecency",
+    "install-description": "より速く、全画面の経験のためにあなたのホーム画面にEcency を追加しなさい。",
+    "install-cta": "インストール",
+    "install-dismiss": "今はしない",
+    "install-ios-hint": "共有ボタンをタップし、「ホーム画面に追加」を選択してEcancyをインストールします。"
   },
   "waves": {
     "feed": {
