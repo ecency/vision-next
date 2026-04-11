@@ -2636,6 +2636,8 @@
     "download-for-windows": "Pobierz na komputer",
     "download-for-ios": "Pobierz na IOS",
     "download-for-android": "Pobierz na Androida",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Pobierz aplikację mobilną",
     "our-history": "Nasza historia",
     "our-history-p-one": "<b>Ecencja</b> (wcześniej Esteem) rozpoczęła się w 2016 r., założyciel <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> rozpoczął wdrażanie aplikacji mobilnej, która zrewolucjonizowałaby sposób interakcji i tworzenia, buduj, angażuj się online. Z czasem wzrosło do czegoś znacznie większego.",
     "our-history-p-two": "Od tego czasu kontynuujemy budowę sieci Web 3. i ulepsza naszą sieć społecznościową opartą na blockchain, zapewniając jak największą dostępność aplikacji, bezpieczną i w wielu językach mówi świat.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Nie można użyć lokalnych danych",
-    "no-ls-description": "Wygląda na to, że Ty lub Twoja przeglądarka wyłączyłeś lokalne dane dla naszej witryny. Niestety nie możesz użyć większości funkcji ecencji, takich jak szkicy, lokalne talie, zaawansowany panel handlowy i inne. Użyj najnowszych wersji dowolnej nowoczesnej przeglądarki lub włącz dane lokalne ręcznie."
+    "no-ls-description": "Wygląda na to, że Ty lub Twoja przeglądarka wyłączyłeś lokalne dane dla naszej witryny. Niestety nie możesz użyć większości funkcji ecencji, takich jak szkicy, lokalne talie, zaawansowany panel handlowy i inne. Użyj najnowszych wersji dowolnej nowoczesnej przeglądarki lub włącz dane lokalne ręcznie.",
+    "install-title": "Install Ecency",
+    "install-description": "Dodaj Ecencję do ekranu głównego dla szybszego korzystania z trybu pełnoekranowego.",
+    "install-cta": "Zainstaluj",
+    "install-dismiss": "Nie teraz",
+    "install-ios-hint": "Dotknij przycisku Udostępnij i wybierz \"Dodaj do ekranu głównego\", aby zainstalować Ecencję."
   },
   "waves": {
     "feed": {
