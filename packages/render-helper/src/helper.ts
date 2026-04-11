@@ -48,9 +48,20 @@ export function createDoc(html: string): Document | null {
   // This is needed because markdownToHTML can generate multiple top-level elements
   // (e.g., <center>...</center><hr />) which DOMParser doesn't accept without a wrapper
   // Using <body> instead of <div> prevents conflicts with <div> elements in the content
-  const doc = DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, 'text/html')
-
-  return doc
+  //
+  // @xmldom/xmldom 0.9+ always throws a ParseError from its internal fatalError() path
+  // (see dom-parser.js:490) for severely malformed HTML — e.g., mismatched tags like
+  // <body>...<p>...</body> — regardless of the onError handler returning undefined.
+  // The onError handler only gets to observe; the throw still happens.
+  //
+  // Wrap in try/catch so that pathologically-malformed post bodies degrade gracefully
+  // (no image preload hint) instead of crashing the SSR render of /entry/[...]. Both
+  // callers in catch-post-image.ts already handle a null return.
+  try {
+    return DOMParser.parseFromString(`<body>${cleanedHtml}</body>`, 'text/html')
+  } catch {
+    return null
+  }
 }
 
 export function makeEntryCacheKey(entry: any): string {
