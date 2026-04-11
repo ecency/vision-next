@@ -438,27 +438,37 @@ describe('Helper Functions', () => {
     // onError handler can't suppress the throw — only a try/catch in
     // createDoc can. Before the fix, this crashed SSR for /entry/[...] pages.
     // See Sentry ECENCY-NEXT-1C86.
-    it('should return null (not throw) on mismatched body/p tags', () => {
+    //
+    // The contract these tests lock in is: createDoc must return `Document | null`
+    // for any input, never throw. Whether a particular malformed snippet parses
+    // successfully (Document) or fails (null) depends on xmldom's recovery
+    // heuristics, which may improve across versions — we deliberately allow
+    // either outcome as long as the return shape matches the type.
+    const expectDocumentOrNull = (result: ReturnType<typeof createDoc>) => {
+      if (result === null) return
+      expect(typeof result.getElementsByTagName).toBe('function')
+    }
+
+    it('should not throw on mismatched body/p tags', () => {
       // The content ends with an opening <p> that has no closing tag.
       // Parsing <body>...<p></body> triggers xmldom's fatalError path.
-      expect(() => createDoc('<p>oops<p>hello')).not.toThrow()
-      const doc = createDoc('<p>oops<p>hello')
-      // Either a recovered Document or null is acceptable; crucially it must not throw.
-      if (doc !== null) {
-        expect(typeof doc.getElementsByTagName).toBe('function')
-      }
+      const input = '<p>oops<p>hello'
+      expect(() => createDoc(input)).not.toThrow()
+      expectDocumentOrNull(createDoc(input))
     })
 
-    it('should return null (not throw) on deeply malformed HTML', () => {
+    it('should not throw on deeply malformed HTML', () => {
       // Nested unclosed tags — another pattern xmldom reports as fatal.
       const input = '<div><p><span><a><b><i>no closing tags here'
       expect(() => createDoc(input)).not.toThrow()
+      expectDocumentOrNull(createDoc(input))
     })
 
-    it('should return null (not throw) on invalid XML characters', () => {
+    it('should not throw on invalid XML characters', () => {
       // Unescaped < followed by non-tag content is a classic fatal-error case.
       const input = '<div>less than < something</div>'
       expect(() => createDoc(input)).not.toThrow()
+      expectDocumentOrNull(createDoc(input))
     })
   })
 
