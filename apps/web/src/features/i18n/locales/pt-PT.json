@@ -2636,6 +2636,8 @@
     "download-for-windows": "Baixar para Computador",
     "download-for-ios": "Baixar para iOS",
     "download-for-android": "Baixar para Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Obtenha o aplicativo móvel",
     "our-history": "Nossa História",
     "our-history-p-one": "<b>Ecency</b> (previamente Esteem) começou em 2016, O fundador <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> começou a implementar uma aplicação móvel que revolucionaria a maneira como você interage e cria, construa, envolva-se online. Com o tempo cresceu para algo muito maior.",
     "our-history-p-two": "Desde então, temos continuado a construir para a Web 3.0 e melhorar nossa rede social em blockchain. Nos certificamos para que os aplicativos estejam seguros, acessíveis e traduzidos para as mais diversas línguas do mundo.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "Não é possível usar dados locais",
-    "no-ls-description": "Parece que você ou seu navegador desativou os dados locais do nosso site. Infelizmente, você não pode usar a maior parte dos recursos de Ecency como rascunhos, decks locais, painel de trading avançado e muito mais. Por favor, use as versões mais recentes de qualquer navegador moderno ou ative os dados locais manualmente."
+    "no-ls-description": "Parece que você ou seu navegador desativou os dados locais do nosso site. Infelizmente, você não pode usar a maior parte dos recursos de Ecency como rascunhos, decks locais, painel de trading avançado e muito mais. Por favor, use as versões mais recentes de qualquer navegador moderno ou ative os dados locais manualmente.",
+    "install-title": "Install Ecency",
+    "install-description": "Adicione Ecency à sua tela inicial para uma experiência de tela cheia mais rápida.",
+    "install-cta": "Instale",
+    "install-dismiss": "Agora não",
+    "install-ios-hint": "Toque no botão Compartilhar e escolha \"Adicionar à tela inicial\" para instalar o Ecency."
   },
   "waves": {
     "feed": {
