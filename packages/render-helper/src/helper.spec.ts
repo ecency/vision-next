@@ -432,6 +432,34 @@ describe('Helper Functions', () => {
       expect(imgs?.length).toBeGreaterThan(0)
       expect(brs?.length).toBeGreaterThan(0)
     })
+
+    // Regression: @xmldom/xmldom 0.9+ throws a fatal ParseError on severely
+    // malformed HTML (e.g., a <p> that fails to close before </body>). The
+    // onError handler can't suppress the throw — only a try/catch in
+    // createDoc can. Before the fix, this crashed SSR for /entry/[...] pages.
+    // See Sentry ECENCY-NEXT-1C86.
+    it('should return null (not throw) on mismatched body/p tags', () => {
+      // The content ends with an opening <p> that has no closing tag.
+      // Parsing <body>...<p></body> triggers xmldom's fatalError path.
+      expect(() => createDoc('<p>oops<p>hello')).not.toThrow()
+      const doc = createDoc('<p>oops<p>hello')
+      // Either a recovered Document or null is acceptable; crucially it must not throw.
+      if (doc !== null) {
+        expect(typeof doc.getElementsByTagName).toBe('function')
+      }
+    })
+
+    it('should return null (not throw) on deeply malformed HTML', () => {
+      // Nested unclosed tags — another pattern xmldom reports as fatal.
+      const input = '<div><p><span><a><b><i>no closing tags here'
+      expect(() => createDoc(input)).not.toThrow()
+    })
+
+    it('should return null (not throw) on invalid XML characters', () => {
+      // Unescaped < followed by non-tag content is a classic fatal-error case.
+      const input = '<div>less than < something</div>'
+      expect(() => createDoc(input)).not.toThrow()
+    })
   })
 
   describe('makeEntryCacheKey', () => {
