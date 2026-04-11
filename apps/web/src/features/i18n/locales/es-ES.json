@@ -2636,6 +2636,8 @@
     "download-for-windows": "Descargar para ordenador",
     "download-for-ios": "Descargar para IOS",
     "download-for-android": "Descargar para Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Obtener aplicación móvil",
     "our-history": "Nuestra historia",
     "our-history-p-one": "<b>Ecency</b> (anteriormente Esteem) comenzó en 2016, su fundador, <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov</a></span>, comenzó en ese entonces a implementar una aplicación móvil que revolucionaría la forma en que se interactúa y crea contenido, procurando construir e involucrarse en línea. Con el tiempo creció hasta convertirse en algo mucho más grande.",
     "our-history-p-two": "Desde entonces hemos estado construyendo para la Web 3. y mejorar nuestra red social basada en blockchain, asegurándose de que las aplicaciones sean lo más accesibles posible, seguras y en muchos de los idiomas hablados en el mundo.",
@@ -2822,7 +2824,12 @@
   },
   "banners": {
     "no-ls-title": "No se puede utilizar datos locales",
-    "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente."
+    "no-ls-description": "Parece que usted, o su navegador, ha deshabilitado los datos locales de nuestro sitio web. Desafortunadamente, no puedes usar la mayoría de características de Ecency, como borradores, mazos locales, tablero avanzado de operaciones y más. Por favor, utilice las últimas versiones de cualquier navegador moderno, o active los datos locales manualmente.",
+    "install-title": "Install Ecency",
+    "install-description": "Añade Ecencia a tu pantalla de inicio para una experiencia más rápida y de pantalla completa.",
+    "install-cta": "Instalar",
+    "install-dismiss": "No ahora",
+    "install-ios-hint": "Pulse el botón Compartir y seleccione \"Añadir a la pantalla de inicio\" para instalar Ecency."
   },
   "waves": {
     "feed": {
