@@ -73,3 +73,35 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
 
   return `${proxyBase}/p/${b58url}?${qs}`
 }
+
+// Widths chosen to align with sizes already cached by the image proxy
+// (600 used by OG/deck thumbnails, 800 by self-hosted thumbnails)
+const SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
+
+/**
+ * Builds a srcset string with multiple width variants for responsive images.
+ * Uses the image proxy's width parameter to serve appropriately sized images.
+ */
+export function buildSrcSet(url?: string): string {
+  if (!url || typeof url !== 'string') return '';
+
+  // For already-proxied URLs, extract the hash and rebuild with widths
+  const escapedBase = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const proxyPattern = new RegExp(`^${escapedBase}/p/([^?]+)`);
+  const match = url.match(proxyPattern);
+
+  if (match) {
+    return SRCSET_WIDTHS
+      .map(w => `${proxyBase}/p/${match[1]}?format=match&mode=fit&width=${w} ${w}w`)
+      .join(', ');
+  }
+
+  // For non-proxied URLs, proxify at each width
+  return SRCSET_WIDTHS
+    .map(w => {
+      const proxied = proxifyImageSrc(url, w);
+      return proxied ? `${proxied} ${w}w` : '';
+    })
+    .filter(Boolean)
+    .join(', ');
+}

@@ -1,4 +1,4 @@
-import { proxifyImageSrc } from "../proxify-image-src";
+import { proxifyImageSrc, buildSrcSet } from "../proxify-image-src";
 
 export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void {
   const src = el.getAttribute("src") || "";
@@ -51,6 +51,17 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
     const proxified = proxifyImageSrc(decodedSrc);
     if (proxified) {
       el.setAttribute("src", proxified);
+      const srcset = buildSrcSet(decodedSrc);
+      if (srcset) {
+        el.setAttribute("srcset", srcset);
+        el.setAttribute("sizes", "(max-width: 768px) 100vw, 700px");
+      }
+    }
+  } else if (hasAlreadyProxied) {
+    const srcset = buildSrcSet(src);
+    if (srcset) {
+      el.setAttribute("srcset", srcset);
+      el.setAttribute("sizes", "(max-width: 768px) 100vw, 700px");
     }
   }
 }
@@ -59,11 +70,14 @@ export function createImageHTML(src: string, isLCP: boolean): string {
   const proxified = proxifyImageSrc(src);
   if (!proxified) return '';
 
+  const srcset = buildSrcSet(src);
   const loading = isLCP ? 'eager' : 'lazy';
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
+  const srcsetAttr = srcset ? `srcset="${srcset}" sizes="(max-width: 768px) 100vw, 700px"` : '';
   return `<img
     class="markdown-img-link"
     src="${proxified}"
+    ${srcsetAttr}
     loading="${loading}"
     ${fetch}
     itemprop="image"
