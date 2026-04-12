@@ -65,10 +65,14 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
       }
     }
   } else if (shouldReplace && hasAlreadyProxied) {
-    const srcset = buildSrcSet(src);
-    if (srcset) {
-      el.setAttribute("srcset", srcset);
-      el.setAttribute("sizes", IMAGE_SIZES);
+    // Only /p/ URLs have extractable hashes for srcset; /u/ and /WxH/ routes
+    // are avatar/cover URLs that shouldn't get responsive srcset
+    if (src.startsWith(`${base}/p/`)) {
+      const srcset = buildSrcSet(src);
+      if (srcset) {
+        el.setAttribute("srcset", srcset);
+        el.setAttribute("sizes", IMAGE_SIZES);
+      }
     }
   }
 }
