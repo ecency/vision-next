@@ -7,6 +7,10 @@ export function setProxyBase(p: string): void {
   proxyBase = p
 }
 
+export function getProxyBase(): string {
+  return proxyBase
+}
+
 export function extractPHash(url: string): string | null {
   if (url.startsWith(`${proxyBase}/p/`)) {
     const [hash] = url.split('/p/')[1].split('?')
@@ -91,8 +95,9 @@ export function buildSrcSet(url?: string): string {
   const match = url.match(proxyPattern);
 
   if (match) {
+    const phash = extractPHash(url) || match[1];
     return SRCSET_WIDTHS
-      .map(w => `${proxyBase}/p/${match[1]}?format=match&mode=fit&width=${w} ${w}w`)
+      .map(w => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`)
       .join(', ');
   }
 

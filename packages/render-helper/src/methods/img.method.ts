@@ -1,4 +1,6 @@
-import { proxifyImageSrc, buildSrcSet } from "../proxify-image-src";
+import { proxifyImageSrc, buildSrcSet, getProxyBase } from "../proxify-image-src";
+
+const IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 
 export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void {
   const src = el.getAttribute("src") || "";
@@ -16,6 +18,8 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
     el.removeAttribute("src");
+    el.removeAttribute("srcset");
+    el.removeAttribute("sizes");
     return;
   }
 
@@ -24,6 +28,8 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
   const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
     el.removeAttribute("src");
+    el.removeAttribute("srcset");
+    el.removeAttribute("sizes");
     return;
   }
 
@@ -43,9 +49,10 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
   const shouldReplace = !cls.includes("no-replace");
   // Only skip re-proxification for URLs already going through proxy/avatar/cover routes
   // Direct upload URLs (e.g. /DQm...) should still be proxified for resizing & format optimization
-  const hasAlreadyProxied = src.startsWith("https://images.ecency.com/p/")
-    || src.startsWith("https://images.ecency.com/u/")
-    || /^https:\/\/images\.ecency\.com\/\d+x\d+\//.test(src);
+  const base = getProxyBase();
+  const hasAlreadyProxied = src.startsWith(`${base}/p/`)
+    || src.startsWith(`${base}/u/`)
+    || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
 
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);
@@ -54,14 +61,14 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
       const srcset = buildSrcSet(decodedSrc);
       if (srcset) {
         el.setAttribute("srcset", srcset);
-        el.setAttribute("sizes", "(max-width: 768px) 100vw, 700px");
+        el.setAttribute("sizes", IMAGE_SIZES);
       }
     }
-  } else if (hasAlreadyProxied) {
+  } else if (shouldReplace && hasAlreadyProxied) {
     const srcset = buildSrcSet(src);
     if (srcset) {
       el.setAttribute("srcset", srcset);
-      el.setAttribute("sizes", "(max-width: 768px) 100vw, 700px");
+      el.setAttribute("sizes", IMAGE_SIZES);
     }
   }
 }
@@ -73,7 +80,7 @@ export function createImageHTML(src: string, isLCP: boolean): string {
   const srcset = buildSrcSet(src);
   const loading = isLCP ? 'eager' : 'lazy';
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
-  const srcsetAttr = srcset ? `srcset="${srcset}" sizes="(max-width: 768px) 100vw, 700px"` : '';
+  const srcsetAttr = srcset ? `srcset="${srcset}" sizes="${IMAGE_SIZES}"` : '';
   return `<img
     class="markdown-img-link"
     src="${proxified}"

@@ -137,6 +137,17 @@ describe('buildSrcSet', () => {
     expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=1280 1280w`)
   })
 
+  it('should normalize legacy proxied URLs with file extensions', () => {
+    setProxyBase('https://images.ecency.com')
+    const hash = 'RGgukq5E6HBNvuPpuJoWwfXPpi5ckcLESTB3nmmnMt8YnPwgHbJegFaUzokkErqT8JVe4zPL7GD3gy6aaZQERs3MF5KAGJQ1AL4MmhLWfmceyk6XXSqWaECh1YXC7aV'
+    const input = `https://images.ecency.com/p/${hash}.png?format=match&mode=fit`
+    const result = buildSrcSet(input)
+
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=320 320w`)
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=1280 1280w`)
+    expect(result).not.toContain('.png')
+  })
+
   it('should use custom proxy base for already-proxied URLs', () => {
     setProxyBase('https://images.hive.blog')
     const hash = 'someHash123'

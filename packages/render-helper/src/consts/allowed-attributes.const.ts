@@ -24,6 +24,8 @@ export const ALLOWED_ATTRIBUTES: XSSWhiteList = {
   ],
   'img': [
     'src',
+    'srcset',
+    'sizes',
     'alt',
     'class',
     'loading',
