@@ -54,7 +54,7 @@ services:
   # ==========================================================================
   payment-listener:
     image: ecency/hosting-api:${TAG:?TAG environment variable is required}
-    command: ["node", "dist/payment-listener.js"]
+    command: ["npx", "tsx", "src/payment-listener.ts"]
     # Reuses API image with different entrypoint
     container_name: ecency-hosting-payments
     restart: unless-stopped

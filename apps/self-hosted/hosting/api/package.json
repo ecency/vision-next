@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "start:listener": "node dist/payment-listener.js",
+    "start": "tsx src/index.ts",
+    "start:listener": "tsx src/payment-listener.ts",
     "db:migrate": "tsx src/db/migrate.ts",
     "test": "vitest run"
   },
