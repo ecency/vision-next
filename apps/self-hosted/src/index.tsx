@@ -7,15 +7,6 @@ import { InstanceConfigManager } from './core';
 import { getRssFeedUrl } from './utils/rss-feed-url';
 import { routeTree } from './routeTree.gen';
 
-// Get config once and extract all needed values
-const config = InstanceConfigManager.getConfig();
-const { general, instanceConfiguration } = config.configuration;
-
-// Set up image proxy base URL
-// This must be done before any content rendering
-const imageProxyBase = general.imageProxy || 'https://images.ecency.com';
-setProxyBase(imageProxyBase);
-
 const router = createRouter({ routeTree });
 
 declare module '@tanstack/react-router' {
@@ -24,17 +15,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
-// Apply background styles
-const backgroundClasses = general.styles.background;
-if (backgroundClasses) {
-  backgroundClasses.split(' ').forEach((className) => {
-    if (className) document.body.classList.add(className);
-  });
-}
+function applyConfig() {
+  const config = InstanceConfigManager.getConfig();
+  const { general, instanceConfiguration } = config.configuration;
 
-// Apply theme
-const applyTheme = (theme: string) => {
-  if (theme === 'system') {
+  // Set up image proxy base URL
+  const imageProxyBase = general.imageProxy || 'https://images.ecency.com';
+  setProxyBase(imageProxyBase);
+
+  // Apply background styles
+  const backgroundClasses = general.styles.background;
+  if (backgroundClasses) {
+    backgroundClasses.split(' ').forEach((className) => {
+      if (className) document.body.classList.add(className);
+    });
+  }
+
+  // Apply theme
+  const configuredTheme = general.theme;
+  if (configuredTheme === 'system') {
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches;
@@ -43,150 +42,149 @@ const applyTheme = (theme: string) => {
       prefersDark ? 'dark' : 'light',
     );
   } else {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', configuredTheme);
   }
-};
 
-const configuredTheme = general.theme;
-applyTheme(configuredTheme);
+  // Apply style template
+  const styleTemplate = general.styleTemplate ?? 'medium';
+  document.documentElement.setAttribute('data-style-template', styleTemplate);
 
-// Apply style template
-const styleTemplate = general.styleTemplate ?? 'medium';
-document.documentElement.setAttribute('data-style-template', styleTemplate);
-
-// Apply sidebar placement
-const sidebarConfig = instanceConfiguration.layout.sidebar;
-const sidebarPlacement = sidebarConfig.placement ?? 'right';
-document.documentElement.setAttribute(
-  'data-sidebar-placement',
-  sidebarPlacement,
-);
-
-// Apply list type
-const listType = instanceConfiguration.layout.listType ?? 'grid';
-document.documentElement.setAttribute('data-list-type', listType);
-
-// Apply instance type
-const instanceType = instanceConfiguration.type ?? 'blog';
-document.documentElement.setAttribute('data-instance-type', instanceType);
-
-// Apply sidebar section visibility
-document.documentElement.setAttribute(
-  'data-show-followers',
-  sidebarConfig.followers?.enabled !== false ? 'true' : 'false',
-);
-document.documentElement.setAttribute(
-  'data-show-following',
-  sidebarConfig.following?.enabled !== false ? 'true' : 'false',
-);
-document.documentElement.setAttribute(
-  'data-show-hive-info',
-  sidebarConfig.hiveInformation?.enabled !== false ? 'true' : 'false',
-);
-
-// Listen for system theme changes when theme is set to "system"
-if (configuredTheme === 'system') {
-  window
-    .matchMedia('(prefers-color-scheme: dark)')
-    .addEventListener('change', (e) => {
-      document.documentElement.setAttribute(
-        'data-theme',
-        e.matches ? 'dark' : 'light',
-      );
-    });
-}
-
-// Apply SEO meta tags
-const meta = instanceConfiguration.meta;
-
-// Set document title
-if (meta.title) {
-  document.title = meta.title;
-}
-
-// Set meta description
-if (meta.description) {
-  let descriptionMeta = document.querySelector('meta[name="description"]');
-  if (!descriptionMeta) {
-    descriptionMeta = document.createElement('meta');
-    descriptionMeta.setAttribute('name', 'description');
-    document.head.appendChild(descriptionMeta);
-  }
-  descriptionMeta.setAttribute('content', meta.description);
-}
-
-// Set meta keywords
-if (meta.keywords) {
-  let keywordsMeta = document.querySelector('meta[name="keywords"]');
-  if (!keywordsMeta) {
-    keywordsMeta = document.createElement('meta');
-    keywordsMeta.setAttribute('name', 'keywords');
-    document.head.appendChild(keywordsMeta);
-  }
-  keywordsMeta.setAttribute('content', meta.keywords);
-}
-
-// Set base OG meta tags
-const setMetaTag = (attr: string, attrValue: string, content: string) => {
-  let tag = document.querySelector(`meta[${attr}="${attrValue}"]`) as HTMLMetaElement | null;
-  if (!tag) {
-    tag = document.createElement('meta');
-    tag.setAttribute(attr, attrValue);
-    document.head.appendChild(tag);
-  }
-  tag.setAttribute('content', content);
-};
-
-if (meta.title) {
-  setMetaTag('property', 'og:title', meta.title);
-  setMetaTag('property', 'og:site_name', meta.title);
-  setMetaTag('name', 'twitter:title', meta.title);
-}
-if (meta.description) {
-  setMetaTag('property', 'og:description', meta.description);
-  setMetaTag('name', 'twitter:description', meta.description);
-}
-if (meta.logo) {
-  setMetaTag('property', 'og:image', meta.logo);
-  setMetaTag('name', 'twitter:image', meta.logo);
-}
-setMetaTag('property', 'og:type', 'website');
-setMetaTag('name', 'twitter:card', 'summary');
-
-// Set favicon
-if (meta.favicon) {
-  let faviconLink = document.querySelector(
-    'link[rel="icon"]',
-  ) as HTMLLinkElement;
-  if (!faviconLink) {
-    faviconLink = document.createElement('link');
-    faviconLink.setAttribute('rel', 'icon');
-    document.head.appendChild(faviconLink);
-  }
-  faviconLink.setAttribute('href', meta.favicon);
-}
-
-// Add RSS feed auto-discovery link
-const rssUrl = getRssFeedUrl(instanceType, instanceConfiguration.username, instanceConfiguration.communityId);
-const existingRssLink = document.querySelector('link[rel="alternate"][type="application/rss+xml"]') as HTMLLinkElement | null;
-if (rssUrl) {
-  const rssLink = existingRssLink ?? document.createElement('link');
-  rssLink.setAttribute('rel', 'alternate');
-  rssLink.setAttribute('type', 'application/rss+xml');
-  rssLink.setAttribute('title', meta.title || 'RSS Feed');
-  rssLink.setAttribute('href', rssUrl);
-  if (!existingRssLink) document.head.appendChild(rssLink);
-} else if (existingRssLink) {
-  existingRssLink.remove();
-}
-
-// Render the app
-const rootElement = document.getElementById('root')!;
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
-    <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>,
+  // Apply sidebar placement
+  const sidebarConfig = instanceConfiguration.layout.sidebar;
+  const sidebarPlacement = sidebarConfig.placement ?? 'right';
+  document.documentElement.setAttribute(
+    'data-sidebar-placement',
+    sidebarPlacement,
   );
+
+  // Apply list type
+  const listType = instanceConfiguration.layout.listType ?? 'grid';
+  document.documentElement.setAttribute('data-list-type', listType);
+
+  // Apply instance type
+  const instanceType = instanceConfiguration.type ?? 'blog';
+  document.documentElement.setAttribute('data-instance-type', instanceType);
+
+  // Apply sidebar section visibility
+  document.documentElement.setAttribute(
+    'data-show-followers',
+    sidebarConfig.followers?.enabled !== false ? 'true' : 'false',
+  );
+  document.documentElement.setAttribute(
+    'data-show-following',
+    sidebarConfig.following?.enabled !== false ? 'true' : 'false',
+  );
+  document.documentElement.setAttribute(
+    'data-show-hive-info',
+    sidebarConfig.hiveInformation?.enabled !== false ? 'true' : 'false',
+  );
+
+  // Listen for system theme changes when theme is set to "system"
+  if (configuredTheme === 'system') {
+    window
+      .matchMedia('(prefers-color-scheme: dark)')
+      .addEventListener('change', (e) => {
+        document.documentElement.setAttribute(
+          'data-theme',
+          e.matches ? 'dark' : 'light',
+        );
+      });
+  }
+
+  // Apply SEO meta tags
+  const meta = instanceConfiguration.meta;
+
+  if (meta.title) {
+    document.title = meta.title;
+  }
+
+  if (meta.description) {
+    let descriptionMeta = document.querySelector('meta[name="description"]');
+    if (!descriptionMeta) {
+      descriptionMeta = document.createElement('meta');
+      descriptionMeta.setAttribute('name', 'description');
+      document.head.appendChild(descriptionMeta);
+    }
+    descriptionMeta.setAttribute('content', meta.description);
+  }
+
+  if (meta.keywords) {
+    let keywordsMeta = document.querySelector('meta[name="keywords"]');
+    if (!keywordsMeta) {
+      keywordsMeta = document.createElement('meta');
+      keywordsMeta.setAttribute('name', 'keywords');
+      document.head.appendChild(keywordsMeta);
+    }
+    keywordsMeta.setAttribute('content', meta.keywords);
+  }
+
+  const setMetaTag = (attr: string, attrValue: string, content: string) => {
+    let tag = document.querySelector(`meta[${attr}="${attrValue}"]`) as HTMLMetaElement | null;
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute(attr, attrValue);
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+  };
+
+  if (meta.title) {
+    setMetaTag('property', 'og:title', meta.title);
+    setMetaTag('property', 'og:site_name', meta.title);
+    setMetaTag('name', 'twitter:title', meta.title);
+  }
+  if (meta.description) {
+    setMetaTag('property', 'og:description', meta.description);
+    setMetaTag('name', 'twitter:description', meta.description);
+  }
+  if (meta.logo) {
+    setMetaTag('property', 'og:image', meta.logo);
+    setMetaTag('name', 'twitter:image', meta.logo);
+  }
+  setMetaTag('property', 'og:type', 'website');
+  setMetaTag('name', 'twitter:card', 'summary');
+
+  if (meta.favicon) {
+    let faviconLink = document.querySelector(
+      'link[rel="icon"]',
+    ) as HTMLLinkElement;
+    if (!faviconLink) {
+      faviconLink = document.createElement('link');
+      faviconLink.setAttribute('rel', 'icon');
+      document.head.appendChild(faviconLink);
+    }
+    faviconLink.setAttribute('href', meta.favicon);
+  }
+
+  // Add RSS feed auto-discovery link
+  const rssUrl = getRssFeedUrl(instanceType, instanceConfiguration.username, instanceConfiguration.communityId);
+  const existingRssLink = document.querySelector('link[rel="alternate"][type="application/rss+xml"]') as HTMLLinkElement | null;
+  if (rssUrl) {
+    const rssLink = existingRssLink ?? document.createElement('link');
+    rssLink.setAttribute('rel', 'alternate');
+    rssLink.setAttribute('type', 'application/rss+xml');
+    rssLink.setAttribute('title', meta.title || 'RSS Feed');
+    rssLink.setAttribute('href', rssUrl);
+    if (!existingRssLink) document.head.appendChild(rssLink);
+  } else if (existingRssLink) {
+    existingRssLink.remove();
+  }
 }
+
+async function main() {
+  // Fetch runtime config before rendering
+  await InstanceConfigManager.initialize();
+  applyConfig();
+
+  const rootElement = document.getElementById('root')!;
+  if (!rootElement.innerHTML) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(
+      <StrictMode>
+        <RouterProvider router={router} />
+      </StrictMode>,
+    );
+  }
+}
+
+main();
