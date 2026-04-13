@@ -101,9 +101,7 @@ export function UserAvatar({
     }
 
     // Build avatar URL from image proxy
-    const useWebp = hasMounted && canUseWebp;
-    const webpPath = useWebp ? '/webp' : '';
-    return `${imageProxyBase}${webpPath}/u/${username}/avatar/${apiSize}`;
+    return `${imageProxyBase}/u/${username}/avatar/${apiSize}`;
   }, [src, imageProxyBase, username, apiSize, canUseWebp, hasMounted]);
 
   const handleKeyDown = useCallback(
