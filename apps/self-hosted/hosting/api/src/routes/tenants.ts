@@ -254,7 +254,7 @@ tenantRoutes.post('/subscribe',
 // Validation runs before paywall so we don't settle payment for invalid requests
 tenantRoutes.post('/:username/upgrade',
   async (c, next) => {
-    const username = c.req.param('username');
+    const username = c.req.param('username')!;
     const tenant = await TenantService.getByUsername(username);
     if (!tenant) {
       return c.json({ error: 'Tenant not found' }, 404);

@@ -4,7 +4,7 @@
 
 import { db } from '../db/client';
 import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
-import { Tenant, TenantRow, mapTenantFromDb } from '../../types';
+import { Tenant, TenantRow, mapTenantFromDb } from '../types';
 
 // Re-export Tenant type for backward compatibility
 export type { Tenant } from '../types';

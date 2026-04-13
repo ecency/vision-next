@@ -36,6 +36,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/self-hosted/package.json ./apps/self-hosted/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY packages/render-helper/package.json ./packages/render-helper/
+COPY packages/ui/package.json ./packages/ui/
 COPY packages/wallets/package.json ./packages/wallets/
 
 # Install dependencies
@@ -58,6 +59,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/self-hosted/node_modules ./apps/self-hosted/node_modules
 COPY --from=deps /app/packages/sdk/node_modules ./packages/sdk/node_modules
 COPY --from=deps /app/packages/render-helper/node_modules ./packages/render-helper/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 COPY --from=deps /app/packages/wallets/node_modules ./packages/wallets/node_modules
 
 # Copy source code
@@ -76,6 +78,7 @@ RUN if [ -n "$CONFIG_JSON_B64" ]; then \
 # Build shared packages first
 RUN pnpm --filter @ecency/sdk build && \
     pnpm --filter @ecency/render-helper build && \
+    pnpm --filter @ecency/ui build && \
     pnpm --filter @ecency/wallets build
 
 # Build the self-hosted app

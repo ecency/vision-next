@@ -67,7 +67,7 @@ export default {
 };
 
 // For node environments
-if (typeof Bun === 'undefined') {
+if (typeof (globalThis as any).Bun === 'undefined') {
   const { serve } = await import('@hono/node-server');
   serve({ fetch: app.fetch, port });
   console.log(`Ecency Hosting API running on http://localhost:${port}`);

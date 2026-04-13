@@ -25,18 +25,18 @@ pool.on('error', (err) => {
 
 // Helper for single queries
 export const db = {
-  query: <T = any>(text: string, params?: any[]): Promise<pg.QueryResult<T>> => {
-    return pool.query(text, params);
+  query: <T extends pg.QueryResultRow = any>(text: string, params?: any[]): Promise<pg.QueryResult<T>> => {
+    return pool.query<T>(text, params);
   },
-  
+
   // Get single row or null
-  queryOne: async <T = any>(text: string, params?: any[]): Promise<T | null> => {
+  queryOne: async <T extends pg.QueryResultRow = any>(text: string, params?: any[]): Promise<T | null> => {
     const result = await pool.query<T>(text, params);
     return result.rows[0] || null;
   },
-  
+
   // Get all rows
-  queryAll: async <T = any>(text: string, params?: any[]): Promise<T[]> => {
+  queryAll: async <T extends pg.QueryResultRow = any>(text: string, params?: any[]): Promise<T[]> => {
     const result = await pool.query<T>(text, params);
     return result.rows;
   },
