@@ -81,7 +81,7 @@ export function createImageHTML(src: string, isLCP: boolean): string {
   const proxified = proxifyImageSrc(src);
   if (!proxified) return '';
 
-  const base = getProxyBase();
+  const base = getProxyBase().replace(/\/+$/, '');
   const isAlreadyProxied = src.startsWith(`${base}/u/`)
     || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
   const srcset = isAlreadyProxied ? '' : buildSrcSet(src);
