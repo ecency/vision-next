@@ -14,7 +14,7 @@ services:
       - "127.0.0.1:3100:80"
     volumes:
       - "./nginx-multi-tenant.conf:/etc/nginx/conf.d/default.conf:ro"
-      - "tenant-configs:/usr/share/nginx/html/configs:ro"
+      - "tenant-configs:/usr/share/nginx/html/configs"
       - "./default-config.json:/usr/share/nginx/html/configs/default.json:ro"
     networks:
       - ecency-hosting
