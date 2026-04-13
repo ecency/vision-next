@@ -118,23 +118,17 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
           PAYMENT_ACCOUNT: ${{ secrets.HOSTING_PAYMENT_ACCOUNT }}
-          ACME_EMAIL: ${{ secrets.HOSTING_ACME_EMAIL }}
-          CF_API_EMAIL: ${{ secrets.CF_API_EMAIL }}
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
         with:
-          host: ${{ secrets.SSH_HOST_HOSTING_STAGING }}
+          host: ${{ secrets.SSH_HOST_EU }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT,ACME_EMAIL,CF_API_EMAIL,CF_API_KEY
+          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT
           script: |
             IMAGE_TAG="sha-${DEPLOY_SHA::7}"
             export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
             export JWT_SECRET=$JWT_SECRET
             export PAYMENT_ACCOUNT=$PAYMENT_ACCOUNT
-            export ACME_EMAIL=$ACME_EMAIL
-            export CF_API_EMAIL=$CF_API_EMAIL
-            export CF_API_KEY=$CF_API_KEY
             cd ~/hosting
             docker pull ecency/self-hosted:$IMAGE_TAG
             docker pull ecency/hosting-api:$IMAGE_TAG
@@ -152,23 +146,17 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
           PAYMENT_ACCOUNT: ${{ secrets.HOSTING_PAYMENT_ACCOUNT }}
-          ACME_EMAIL: ${{ secrets.HOSTING_ACME_EMAIL }}
-          CF_API_EMAIL: ${{ secrets.CF_API_EMAIL }}
-          CF_API_KEY: ${{ secrets.CF_API_KEY }}
         with:
-          host: ${{ secrets.SSH_HOST_HOSTING }}
+          host: ${{ secrets.SSH_HOST_EU }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT,ACME_EMAIL,CF_API_EMAIL,CF_API_KEY
+          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT
           script: |
             IMAGE_TAG="sha-${DEPLOY_SHA::7}"
             export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
             export JWT_SECRET=$JWT_SECRET
             export PAYMENT_ACCOUNT=$PAYMENT_ACCOUNT
-            export ACME_EMAIL=$ACME_EMAIL
-            export CF_API_EMAIL=$CF_API_EMAIL
-            export CF_API_KEY=$CF_API_KEY
             cd ~/hosting
             docker pull ecency/self-hosted:$IMAGE_TAG
             docker pull ecency/hosting-api:$IMAGE_TAG
