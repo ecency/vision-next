@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { HostingSignup } from '@/features/hosting/components/hosting-signup';
 
-const HOSTING_API_URL =
-  process.env.PUBLIC_HOSTING_API_URL || 'https://api.blogs.ecency.com/hosting';
+const HOSTING_API_URL = 'https://api.blogs.ecency.com/hosting';
 
 export const Route = createFileRoute('/hosting')({
   component: HostingPage,
