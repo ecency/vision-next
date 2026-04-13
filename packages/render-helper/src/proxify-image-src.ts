@@ -7,6 +7,10 @@ export function setProxyBase(p: string): void {
   proxyBase = p
 }
 
+export function getProxyBase(): string {
+  return proxyBase
+}
+
 export function extractPHash(url: string): string | null {
   if (url.startsWith(`${proxyBase}/p/`)) {
     const [hash] = url.split('/p/')[1].split('?')
@@ -72,4 +76,37 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
   const b58url = multihash.toB58String(Buffer.from(realUrl.toString()))
 
   return `${proxyBase}/p/${b58url}?${qs}`
+}
+
+// Widths chosen to align with sizes already cached by the image proxy
+// (600 used by OG/deck thumbnails, 800 by self-hosted thumbnails)
+const SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
+
+/**
+ * Builds a srcset string with multiple width variants for responsive images.
+ * Uses the image proxy's width parameter to serve appropriately sized images.
+ */
+export function buildSrcSet(url?: string): string {
+  if (!url || typeof url !== 'string') return '';
+
+  // For already-proxied URLs, extract the hash and rebuild with widths
+  const escapedBase = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const proxyPattern = new RegExp(`^${escapedBase}/p/([^?]+)`);
+  const match = url.match(proxyPattern);
+
+  if (match) {
+    const phash = extractPHash(url) || match[1];
+    return SRCSET_WIDTHS
+      .map(w => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`)
+      .join(', ');
+  }
+
+  // For non-proxied URLs, proxify at each width
+  return SRCSET_WIDTHS
+    .map(w => {
+      const proxied = proxifyImageSrc(url, w);
+      return proxied ? `${proxied} ${w}w` : '';
+    })
+    .filter(Boolean)
+    .join(', ');
 }

@@ -18,6 +18,11 @@ export function sanitizeHtml(html: string): string {
 
       if (name.startsWith('on')) return ''; // 🛡 event handlers
       if (tag === 'img' && name === 'src' && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith('javascript:'))) return '';
+      // Validate srcset: reject if any candidate URL uses a non-http(s) protocol
+      if (tag === 'img' && name === 'srcset') {
+        const candidates = decoded.split(',').map(c => c.trim().split(/\s+/)[0]);
+        if (candidates.some(url => !/^https?:\/\//.test(url))) return '';
+      }
       if (
         tag === 'video' && ['src', 'poster'].includes(name) &&
         (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith('javascript:'))

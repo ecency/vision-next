@@ -66,20 +66,25 @@ export function useRecordActivity(
       const url = options?.url ?? locationInfo.url;
       const domain = options?.domain ?? locationInfo.domain;
 
-      await fetchApi(CONFIG.plausibleHost + "/api/event", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: activityType,
-          url,
-          domain,
-          props: {
-            username,
+      try {
+        await fetchApi(CONFIG.plausibleHost + "/api/event", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }),
-      });
+          body: JSON.stringify({
+            name: activityType,
+            url,
+            domain,
+            props: {
+              username,
+            },
+          }),
+        });
+      } catch {
+        // Analytics is fire-and-forget - network failures, ad blockers,
+        // and CORS issues should not bubble up as user-facing errors
+      }
     },
   });
 }

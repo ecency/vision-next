@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.31
+
+### Patch Changes
+
+- LCP image src set (#755)
+
 ## 2.4.30
 
 ### Patch Changes
