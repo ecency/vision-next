@@ -58,12 +58,12 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
   return c.json({
     domain,
     verification: {
-      method: verification.verification_method,
+      method: verification.verificationMethod,
       type: 'CNAME',
-      name: verification.verification_token,
+      name: verification.verificationToken,
       value: username + '.' + (process.env.BASE_DOMAIN || 'blogs.ecency.com'),
       instructions: `Add a CNAME record pointing ${domain} to ${username}.${process.env.BASE_DOMAIN || 'blogs.ecency.com'}`,
-      expiresAt: verification.expires_at,
+      expiresAt: verification.expiresAt,
     },
   }, 201);
 });
