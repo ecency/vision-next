@@ -1,4 +1,4 @@
-import { XMLSerializer } from '@xmldom/xmldom'
+import { XMLSerializer } from '../consts'
 
 export function getSerializedInnerHTML(node: Node): string {
   const serializer = new XMLSerializer()
