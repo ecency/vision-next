@@ -58,6 +58,12 @@ importers:
       '@ecency/wallets':
         specifier: workspace:*
         version: link:../../packages/wallets
+      '@floating-ui/dom':
+        specifier: ^1.7.4
+        version: 1.7.4
+      '@floating-ui/react-dom':
+        specifier: ^2.1.6
+        version: 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-query':
         specifier: ^5.90.2
         version: 5.90.2(react@19.2.3)
@@ -124,6 +130,9 @@ importers:
       motion:
         specifier: ^12.23.22
         version: 12.26.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
       qrcode.react:
         specifier: ^4.2.0
         version: 4.2.0(react@19.2.3)
@@ -176,6 +185,9 @@ importers:
       '@types/node':
         specifier: ^24.6.0
         version: 24.10.8
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.5
       '@types/react':
         specifier: ^19.1.16
         version: 19.2.8
@@ -6122,15 +6134,17 @@ packages:
 
   glob@10.4.5:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@9.3.5:
     resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
     engines: {node: '>=16 || 14 >=14.17'}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@13.24.0:
     resolution: {integrity: sha512-AhO5QUcj8llrbG09iWhPU2B204J1xnPeL8kQmVorSsy+Sjj1sk8gIyh6cUocGmH4L0UuhAJy+hJMRA4mgA4mFQ==}
@@ -13564,7 +13578,7 @@ snapshots:
 
   '@types/qrcode@1.5.5':
     dependencies:
-      '@types/node': 22.18.8
+      '@types/node': 24.10.8
 
   '@types/react-dom@19.2.3(@types/react@19.2.8)':
     dependencies:
@@ -13901,6 +13915,14 @@ snapshots:
     optionalDependencies:
       vite: 5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
+  '@vitest/mocker@2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.19
+    optionalDependencies:
+      vite: 5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
+
   '@vitest/mocker@3.2.4(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
     dependencies:
       '@vitest/spy': 3.2.4
@@ -13957,7 +13979,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 1.2.0
-      vitest: 2.1.9(@types/node@20.19.19)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
+      vitest: 2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
   '@vitest/utils@2.1.9':
     dependencies:
@@ -18857,7 +18879,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
