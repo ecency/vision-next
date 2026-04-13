@@ -66,15 +66,9 @@ function BlogSidebarContent({ username }: { username: string }) {
       {data?.follow_stats && (
         <div className="flex gap-6 mb-4">
           <div className="flex flex-col sidebar-followers-section">
-            <div className="text-xs text-theme-muted">{t("followers")}</div>
+            <div className="text-xs text-theme-muted">{t("subscribers")}</div>
             <div className="text-sm font-medium text-theme-primary">
               {data.follow_stats.follower_count}
-            </div>
-          </div>
-          <div className="flex flex-col sidebar-following-section">
-            <div className="text-xs text-theme-muted">{t("following")}</div>
-            <div className="text-sm font-medium text-theme-primary">
-              {data.follow_stats.following_count}
             </div>
           </div>
         </div>
