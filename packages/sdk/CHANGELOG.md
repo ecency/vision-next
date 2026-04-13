@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.8
+
+### Patch Changes
+
+- LCP image src set (#755)
+
 ## 2.1.7
 
 ### Patch Changes

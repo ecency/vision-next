@@ -54,6 +54,11 @@ declare function setProxyBase(p: string): void;
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
  */
 declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string): string;
+/**
+ * Builds a srcset string with multiple width variants for responsive images.
+ * Uses the image proxy's width parameter to serve appropriately sized images.
+ */
+declare function buildSrcSet(url?: string): string;
 
 declare function setCacheSize(size: number): void;
 
@@ -71,4 +76,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };
+export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };

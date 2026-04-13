@@ -123,6 +123,8 @@ var ALLOWED_ATTRIBUTES = {
   ],
   "img": [
     "src",
+    "srcset",
+    "sizes",
     "alt",
     "class",
     "loading",
@@ -278,6 +280,10 @@ function sanitizeHtml(html) {
       const decodedLower = decoded.toLowerCase();
       if (name.startsWith("on")) return "";
       if (tag === "img" && name === "src" && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
+      if (tag === "img" && name === "srcset") {
+        const candidates = decoded.split(",").map((c) => c.trim().split(/\s+/)[0]);
+        if (candidates.some((url) => !/^https?:\/\//.test(url))) return "";
+      }
       if (tag === "video" && ["src", "poster"].includes(name) && (!/^https?:\/\//.test(decodedLower) || decodedLower.startsWith("javascript:"))) return "";
       if (tag === "img" && ["dynsrc", "lowsrc"].includes(name)) return "";
       if (tag === "span" && name === "class" && decoded.toLowerCase().trim() === "wr") return "";
@@ -291,6 +297,9 @@ function sanitizeHtml(html) {
 var proxyBase = "https://images.ecency.com";
 function setProxyBase(p2) {
   proxyBase = p2;
+}
+function getProxyBase() {
+  return proxyBase;
 }
 function extractPHash(url) {
   if (url.startsWith(`${proxyBase}/p/`)) {
@@ -339,8 +348,24 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
   const b58url = multihash.toB58String(Buffer.from(realUrl.toString()));
   return `${proxyBase}/p/${b58url}?${qs}`;
 }
+var SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
+function buildSrcSet(url) {
+  if (!url || typeof url !== "string") return "";
+  const escapedBase = proxyBase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const proxyPattern = new RegExp(`^${escapedBase}/p/([^?]+)`);
+  const match = url.match(proxyPattern);
+  if (match) {
+    const phash = extractPHash(url) || match[1];
+    return SRCSET_WIDTHS.map((w) => `${proxyBase}/p/${phash}?format=match&mode=fit&width=${w} ${w}w`).join(", ");
+  }
+  return SRCSET_WIDTHS.map((w) => {
+    const proxied = proxifyImageSrc(url, w);
+    return proxied ? `${proxied} ${w}w` : "";
+  }).filter(Boolean).join(", ");
+}
 
 // src/methods/img.method.ts
+var IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 function img(el, state) {
   const src = el.getAttribute("src") || "";
   const decodedSrc = decodeURIComponent(
@@ -350,11 +375,15 @@ function img(el, state) {
   const isInvalid = !src || decodedSrc.startsWith("javascript") || decodedSrc.startsWith("vbscript") || decodedSrc === "x";
   if (isInvalid) {
     el.removeAttribute("src");
+    el.removeAttribute("srcset");
+    el.removeAttribute("sizes");
     return;
   }
   const isRelative = !/^https?:\/\//i.test(decodedSrc) && !decodedSrc.startsWith("/");
   if (isRelative) {
     el.removeAttribute("src");
+    el.removeAttribute("srcset");
+    el.removeAttribute("sizes");
     return;
   }
   el.setAttribute("itemprop", "image");
@@ -369,22 +398,41 @@ function img(el, state) {
   }
   const cls = el.getAttribute("class") || "";
   const shouldReplace = !cls.includes("no-replace");
-  const hasAlreadyProxied = src.startsWith("https://images.ecency.com/p/") || src.startsWith("https://images.ecency.com/u/") || /^https:\/\/images\.ecency\.com\/\d+x\d+\//.test(src);
+  const base = getProxyBase().replace(/\/+$/, "");
+  const hasAlreadyProxied = src.startsWith(`${base}/p/`) || src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);
     if (proxified) {
       el.setAttribute("src", proxified);
+      const srcset = buildSrcSet(decodedSrc);
+      if (srcset) {
+        el.setAttribute("srcset", srcset);
+        el.setAttribute("sizes", IMAGE_SIZES);
+      }
+    }
+  } else if (shouldReplace && hasAlreadyProxied) {
+    if (src.startsWith(`${base}/p/`)) {
+      const srcset = buildSrcSet(src);
+      if (srcset) {
+        el.setAttribute("srcset", srcset);
+        el.setAttribute("sizes", IMAGE_SIZES);
+      }
     }
   }
 }
 function createImageHTML(src, isLCP) {
   const proxified = proxifyImageSrc(src);
   if (!proxified) return "";
+  const base = getProxyBase().replace(/\/+$/, "");
+  const isAlreadyProxied = src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
+  const srcset = isAlreadyProxied ? "" : buildSrcSet(src);
   const loading = isLCP ? "eager" : "lazy";
   const fetch = isLCP ? 'fetchpriority="high"' : 'decoding="async"';
+  const srcsetAttr = srcset ? `srcset="${srcset}" sizes="${IMAGE_SIZES}"` : "";
   return `<img
     class="markdown-img-link"
     src="${proxified}"
+    ${srcsetAttr}
     loading="${loading}"
     ${fetch}
     itemprop="image"
@@ -1777,6 +1825,6 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
-export { SECTION_LIST, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };
+export { SECTION_LIST, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
