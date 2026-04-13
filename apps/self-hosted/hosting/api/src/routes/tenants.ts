@@ -103,7 +103,7 @@ tenantRoutes.post('/', zValidator('json', createTenantSchema), async (c) => {
   
   const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '1.000';
+  const monthlyPrice = process.env.MONTHLY_PRICE_HBD || '0.100';
   
   void AuditService.log({
     tenantId: tenant.id,
@@ -186,7 +186,7 @@ tenantRoutes.post('/subscribe',
           txId,
           blockNum,
           payer,
-          parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000'),
+          parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100'),
           `x402:subscribe:${body.username}`,
         ]
       );
@@ -309,7 +309,7 @@ tenantRoutes.post('/:username/upgrade',
           txId,
           blockNum,
           payer,
-          parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '3.000'),
+          parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
           `x402:upgrade:${username}`,
         ]
       );

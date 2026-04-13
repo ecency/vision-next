@@ -64,7 +64,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - HIVE_API_URL=${HIVE_API_URL:-https://api.hive.blog}
       - PAYMENT_ACCOUNT=${PAYMENT_ACCOUNT:-ecency.hosting}
-      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-1.000}
+      - MONTHLY_PRICE_HBD=${MONTHLY_PRICE_HBD:-0.100}
     networks:
       - ecency-hosting
     depends_on:

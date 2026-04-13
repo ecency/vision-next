@@ -441,8 +441,8 @@ export function HostingSignup({
             Pricing
           </h4>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <li>Standard: 1 HBD/month - Subdomain included</li>
-            <li>Pro: 3 HBD/month - Custom domain support</li>
+            <li>Standard: 0.1 HBD/month - Subdomain included</li>
+            <li>Pro: 0.5 HBD/month - Custom domain support</li>
           </ul>
         </div>
       )}

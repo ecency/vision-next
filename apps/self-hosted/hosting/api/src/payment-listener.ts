@@ -15,8 +15,8 @@ import { AuditService } from './services/audit-service';
 // Configuration
 const CONFIG = {
   PAYMENT_ACCOUNT: process.env.PAYMENT_ACCOUNT || 'ecency.hosting',
-  MONTHLY_PRICE_HBD: parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000'),
-  PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '3.000'),
+  MONTHLY_PRICE_HBD: parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100'),
+  PRO_UPGRADE_PRICE_HBD: parseFloat(process.env.PRO_UPGRADE_PRICE_HBD || '0.500'),
   HIVE_API_NODES: (process.env.HIVE_API_URL || 'https://api.hive.blog').split(','),
   POLL_INTERVAL_MS: 3000, // 3 seconds (1 block)
 };

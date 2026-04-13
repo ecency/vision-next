@@ -445,8 +445,8 @@ Don't want to manage your own infrastructure? Let Ecency host your blog.
 
 | Plan | Price | Features |
 |------|-------|----------|
-| **Standard** | 1 HBD/month | Custom subdomain, SSL, CDN, 99.9% uptime |
-| **Pro** | 3 HBD/month | Custom domain, priority support, analytics |
+| **Standard** | 0.1 HBD/month | Custom subdomain, SSL, CDN, 99.9% uptime |
+| **Pro** | 0.5 HBD/month | Custom domain, priority support, analytics |
 
 ### How It Works
 

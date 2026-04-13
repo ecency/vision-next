@@ -1,10 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InstanceConfigManager } from '@/core';
+import { authenticationStore } from '@/store';
 import { configFieldsMap } from '../config-fields';
 import { FLOATING_MENU_THEME } from '../constants';
 import type { ConfigValue } from '../types';
 import { downloadJson, updateNestedPath } from '../utils';
 import { ConfigEditor } from './config-editor';
+
+const HOSTING_API_URL = 'https://api.blogs.ecency.com/hosting';
+
+function isManagedHosting(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.location.hostname.endsWith('.blogs.ecency.com');
+}
+
+function getTenantUsername(): string | null {
+  if (typeof window === 'undefined') return null;
+  const hostname = window.location.hostname;
+  const match = hostname.match(/^([a-z0-9-]+)\.blogs\.ecency\.com$/);
+  return match?.[1] ?? null;
+}
 
 interface OriginalState {
   theme: string;
@@ -177,8 +192,11 @@ export function FloatingMenuWindow({
     return InstanceConfigManager.getConfig() as unknown as Record<string, ConfigValue>;
   });
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const originalStateRef = useRef<OriginalState | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const managed = useMemo(() => isManagedHosting(), []);
 
   // Focus the dialog when it opens for keyboard accessibility
   useEffect(() => {
@@ -209,6 +227,38 @@ export function FloatingMenuWindow({
 
   const handleDownload = useCallback(() => {
     downloadJson(config, 'config.json');
+  }, [config]);
+
+  const handleSave = useCallback(async () => {
+    const username = getTenantUsername();
+    const user = authenticationStore.getState().user;
+    if (!username || !user?.accessToken) {
+      setSaveStatus('error');
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveStatus('idle');
+    try {
+      const response = await fetch(`${HOSTING_API_URL}/v1/tenants/${encodeURIComponent(username)}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        body: JSON.stringify({ config }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save');
+      }
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } finally {
+      setIsSaving(false);
+    }
   }, [config]);
 
   const handleTogglePreview = useCallback(() => {
@@ -418,17 +468,38 @@ export function FloatingMenuWindow({
                 </svg>
                 {isPreviewMode ? 'Exit Preview' : 'Preview'}
               </button>
-              <button
-                onClick={handleDownload}
-                className="text-sm font-sans px-3 py-1.5 text-gray-300 hover:text-gray-100 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                style={{
-                  backgroundColor: FLOATING_MENU_THEME.buttonBackground,
-                }}
-                type="button"
-                aria-label="Download configuration"
-              >
-                Download
-              </button>
+              {managed ? (
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className={`text-sm font-sans px-3 py-1.5 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    saveStatus === 'success'
+                      ? 'text-emerald-400'
+                      : saveStatus === 'error'
+                        ? 'text-red-400'
+                        : 'text-gray-300 hover:text-gray-100'
+                  }`}
+                  style={{
+                    backgroundColor: FLOATING_MENU_THEME.buttonBackground,
+                  }}
+                  type="button"
+                  aria-label="Save configuration"
+                >
+                  {isSaving ? 'Saving...' : saveStatus === 'success' ? 'Saved!' : saveStatus === 'error' ? 'Failed' : 'Save'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleDownload}
+                  className="text-sm font-sans px-3 py-1.5 text-gray-300 hover:text-gray-100 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    backgroundColor: FLOATING_MENU_THEME.buttonBackground,
+                  }}
+                  type="button"
+                  aria-label="Download configuration"
+                >
+                  Download
+                </button>
+              )}
               <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"

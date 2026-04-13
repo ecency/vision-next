@@ -3,7 +3,7 @@
   "configuration": {
     "general": {
       "theme": "system",
-      "styleTemplate": "medium",
+      "styleTemplate": "modern-gradient",
       "language": "en",
       "timezone": "UTC",
       "dateFormat": "YYYY-MM-DD",
@@ -23,7 +23,7 @@
       "meta": {
         "title": "My Hive Blog",
         "description": "Powered by Ecency",
-        "logo": "",
+        "logo": "https://ecency.com/assets/fish-junior.png",
         "favicon": "https://ecency.com/favicon.ico",
         "keywords": "hive, blog, blockchain"
       },

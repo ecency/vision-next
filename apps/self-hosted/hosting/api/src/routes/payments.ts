@@ -42,7 +42,7 @@ paymentRoutes.get('/instructions/:username', async (c) => {
   const months = parseInt(c.req.query('months') || '1', 10);
 
   const paymentAccount = process.env.PAYMENT_ACCOUNT || 'ecency.hosting';
-  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '1.000');
+  const monthlyPrice = parseFloat(process.env.MONTHLY_PRICE_HBD || '0.100');
   const totalAmount = (monthlyPrice * months).toFixed(3);
 
   return c.json({
