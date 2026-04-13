@@ -269,7 +269,7 @@ tenantRoutes.post('/:username/upgrade',
   },
   proUpgradePaywall,
   async (c) => {
-    const username = c.req.param('username');
+    const username = c.req.param('username')!;
     const payer = c.get('payer');
     const txId = c.get('txId');
 
