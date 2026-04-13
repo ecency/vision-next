@@ -9,6 +9,7 @@ export * from "./use-account-update-password";
 export * from "./use-account-revoke-posting";
 export * from "./use-account-update-recovery";
 export * from "./use-account-revoke-key";
+export * from "./build-revoke-keys-op";
 export * from "./use-claim-account";
 export * from "./use-grant-posting-permission";
 export * from "./use-create-account";

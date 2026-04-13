@@ -1,7 +1,9 @@
 @import "src/styles/vars_mixins";
 
-.thread-render {
+.thread-render,
+.waves-list-item {
   display: grid;
+  overflow: hidden;
 
   line-height: 1.5;
   overflow-wrap: break-word;
@@ -9,11 +11,11 @@
 
   @include font-size(0.875rem);
 
-  * {
+  *:not([class*="er-author"]):not([class*="er-tag"]) {
     @include font-size(0.875rem);
   }
 
-  .markdown-tag-link, .markdown-post-link, .markdown-external-link, .markdown-author-link {
+  .markdown-tag-link, .er-tag-link, .markdown-post-link, .markdown-external-link, .markdown-author-link, .er-author-link {
     color: $primary;
     cursor: pointer;
 
@@ -22,7 +24,7 @@
     }
   }
 
-  .markdown-tag-link, .markdown-author-link, .markdown-currency {
+  .markdown-tag-link, .er-tag-link, .markdown-author-link, .er-author-link, .markdown-currency {
     font-weight: 500;
     background-color: rgba($primary, 0.1);
     text-transform: uppercase;
@@ -74,13 +76,13 @@
       @include margin-bottom(0);
     }
 
-    > img {
+    > img:not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
       @include margin-top(1rem);
       @include margin-bottom(1rem);
     }
 
-    img {
-      width: 100%;
+    img:not(.er-author-link-image):not(.er-wave-renderer--author-avatar) {
+      max-width: 100%;
 
       @include border-radius(1rem);
 
@@ -94,14 +96,65 @@
     }
   }
 
-  img {
+  img:not(.video-thumbnail, .er-author-link-image, .er-wave-renderer--author-avatar, .medium-zoom-image--opened) {
     cursor: pointer;
     transition: 0.3s;
-    max-height: 300px;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 510px;
+    object-fit: contain;
+    display: block;
+
+    @include border-radius(1rem);
 
     &:hover {
       box-shadow: 0 6px 20px -10px rgba(0,0,0,.5);
+    }
+  }
+
+  // For embedded YouTube videos from render-helper
+  .markdown-video-link-youtube.er-youtube {
+    background-color: transparent;
+    border-radius: 1rem;
+
+    iframe.youtube-player {
+      border-radius: 1rem;
+    }
+  }
+
+  // For embedded 3Speak videos (from render-helper), override the fixed 16:9
+  // container so the 3Speak player can determine its own aspect ratio
+  .markdown-video-link-speak.er-speak {
+    padding-bottom: 0;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    overflow: visible;
+
+    .er-speak-frame,
+    .speak-iframe {
+      position: relative;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  .markdown-video-link-speak.speak-portrait {
+    aspect-ratio: 3 / 5;
+    max-width: 300px;
+
+    .er-speak-frame,
+    .speak-iframe {
+      aspect-ratio: 3 / 5;
+    }
+  }
+
+  .markdown-video-link-speak.speak-square {
+    aspect-ratio: 1 / 1;
+    max-width: 400px;
+
+    .er-speak-frame,
+    .speak-iframe {
+      aspect-ratio: 1 / 1;
     }
   }
 
@@ -182,5 +235,43 @@
   hr {
     margin: 1rem 0;
     @apply border-[--border-color];
+  }
+}
+
+// Multi-image grid: JS groups adjacent .markdown-image-container elements
+// into a .wave-image-grid wrapper (see use-wave-image-grid.ts).
+// Top-level so it works in both feed items and wave detail views.
+.wave-image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 2px;
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  max-height: 510px;
+
+  .markdown-image-container {
+    overflow: hidden;
+    border-radius: 0;
+    margin: 0;
+    min-height: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+      margin: 0;
+    }
+
+    .markdown-img-caption {
+      display: none;
+    }
+  }
+
+  // 3 images: first spans 2 rows (tall left + 2 stacked right)
+  .markdown-image-container:first-child:nth-last-child(3) {
+    grid-row: span 2;
   }
 }

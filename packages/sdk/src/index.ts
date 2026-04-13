@@ -21,3 +21,4 @@ export * from "./modules/private-api";
 export * from "./modules/auth";
 export * from "./modules/hive-engine";
 export * from "./modules/spk";
+export * from "./modules/bad-actors";

@@ -1,6 +1,8 @@
 "use client";
 
-import { BoostDialog, LoginRequired, PurchaseQrDialog } from "@/features/shared";
+import { BoostDialog } from "@/features/shared/boost";
+import { LoginRequired } from "@/features/shared/login-required";
+import { PurchaseQrDialog } from "@/features/shared/purchase-qr";
 import { EcencyConfigManager } from "@/config";
 import { motion } from "framer-motion";
 import i18next from "i18next";

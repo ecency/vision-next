@@ -4,7 +4,7 @@ import { DeckThreadItemViewer } from "./content-viewer";
 import { GenericDeckWithDataColumn } from "./generic-deck-with-data-column";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { WavesDeckGridItem } from "../types";
-import { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
+import { DraggableProvidedDragHandleProps } from "@hello-pangea/dnd";
 import { DeckGridContext } from "../deck-manager";
 import {
   DeckThreadsColumnManagerContext,
@@ -75,7 +75,7 @@ const DeckThreadsColumnComponent = ({ id, settings, draggable }: Props) => {
   const previousEditingEntry = usePrevious(currentEditingEntry);
 
   const { updateColumnIntervalMs } = useContext(DeckGridContext);
-  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useMount(() => {
     register(id);

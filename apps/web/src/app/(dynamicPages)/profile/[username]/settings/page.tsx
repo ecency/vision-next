@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, prefetchQuery } from "@/core/react-query";
+import { prefetchQuery } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { Metadata, ResolvingMetadata } from "next";
 import { generateProfileMetadata } from "@/app/(dynamicPages)/profile/[username]/_helpers";
@@ -29,9 +28,5 @@ export default async function SettingsPage({ params }: Props) {
     return redirect(`/@${username.replace("%40", "")}`);
   }
 
-  return (
-    <HydrationBoundary state={dehydrate(getQueryClient())}>
-      <ProfileSettings />
-    </HydrationBoundary>
-  );
+  return <ProfileSettings />;
 }

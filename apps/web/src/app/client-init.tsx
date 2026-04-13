@@ -3,7 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useGlobalStore } from "@/core/global-store";
 import { useQuery } from "@tanstack/react-query";
-import { CONFIG, getAccountFullQueryOptions } from "@ecency/sdk";
+import { getAccountFullQueryOptions } from "@ecency/sdk";
 import { initI18next } from "@/features/i18n";
 import * as ls from "@/utils/local-storage";
 import Cookies from "js-cookie";
@@ -13,6 +13,10 @@ import { useMount } from "react-use";
 import { installConsoleRecorder } from "@/utils/console-msg";
 import { setProxyBase } from "@ecency/render-helper";
 import { ALLOWED_IMAGE_SERVERS } from "@/defaults";
+// Side-effect import: attaches a global beforeinstallprompt listener as early
+// as possible in client bootstrap so the event is captured even if the user
+// lands on a page without an install CTA and navigates elsewhere later.
+import "@/features/pwa-install";
 
 export function ClientInit() {
   const { activeUser } = useActiveAccount();
@@ -35,8 +39,6 @@ export function ClientInit() {
     initKeychain();
     initI18next();
     loadUsers();
-
-    (window as any).dHiveClient = CONFIG.hiveClient;
 
     const activeUsername = ls.get("active_user") ?? Cookies.get("active_user");
     if (activeUsername) {

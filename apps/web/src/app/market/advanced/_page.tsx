@@ -8,6 +8,8 @@ import useLocalStorage from "react-use/lib/useLocalStorage";
 import { PREFIX } from "@/utils/local-storage";
 import { DEFAULT_LAYOUT } from "./_advanced-mode/consts/default-layouts.const";
 import GridLayout from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import { useState } from "react";
 import { MarketAsset } from "@/api/market-pair";
 import { DAY_CHANGE_DEFAULT } from "./_advanced-mode/consts/day-change.const";
@@ -16,7 +18,8 @@ import { OpenOrdersData, OrdersData, Transaction } from "@/entities";
 import { MarketMode } from "@/app/market/_enums/market-mode";
 import { useRouter } from "next/navigation";
 import "../index.scss";
-import { Feedback, Navbar } from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
 
 export function MarketAdvancedPage() {
   const router = useRouter();

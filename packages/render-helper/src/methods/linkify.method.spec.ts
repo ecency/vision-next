@@ -6,7 +6,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '#bitcoin is great'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/bitcoin"')
       expect(result).toContain('#bitcoin</a>')
     })
@@ -23,7 +23,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = '<strong>Bold</strong>#technology'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/technology"')
     })
 
@@ -31,7 +31,7 @@ describe('linkify() method - Content Linkification', () => {
       const content = 'Test #123 numbers'
       const result = linkify(content, false)
 
-      expect(result).not.toContain('class="markdown-tag-link"')
+      expect(result).not.toContain('class="er-tag er-tag-link"')
       expect(result).toBe(content)
     })
 
@@ -57,9 +57,10 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@username wrote this'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@username"')
-      expect(result).toContain('@username</a>')
+      expect(result).toContain('er-author-link-image')
+      expect(result).toContain('@username</span>')
     })
 
     it('should linkify user mentions after spaces', () => {
@@ -100,19 +101,21 @@ describe('linkify() method - Content Linkification', () => {
       expect(result).toContain('href="/@user-name"')
     })
 
-    it('should linkify internal post links with @author/permlink', () => {
+    it('should not linkify bare @scope/package as any link type', () => {
       const content = '@user/name is post link'
       const result = linkify(content, false)
 
-      // This is actually a valid post link format
-      expect(result).toContain('markdown-post-link')
-      expect(result).toContain('href="/post/@user/name"')
+      // Bare @scope/package should NOT be treated as a Hive internal link
+      // Only /@user/permlink (with leading /) should be
+      expect(result).not.toContain('markdown-post-link')
+      expect(result).not.toContain('er-author-link')
+      expect(result).toContain('@user/name')
     })
   })
 
   describe('internal post links', () => {
-    it('should linkify internal post links with @author/permlink format', () => {
-      const content = 'Check @author/my-post here'
+    it('should linkify internal post links with /@author/permlink format', () => {
+      const content = 'Check /@author/my-post here'
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-post-link"')
@@ -127,7 +130,7 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should use data attributes for app mode', () => {
-      const content = '@bob/cool-post'
+      const content = '/@bob/cool-post'
       const result = linkify(content, true)
 
       expect(result).toContain('data-author="bob"')
@@ -136,7 +139,7 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should handle profile section links', () => {
-      const content = 'Visit @user/wallet for details'
+      const content = 'Visit /@user/wallet for details'
       const result = linkify(content, false)
 
       expect(result).toContain('class="markdown-profile-link"')
@@ -144,25 +147,52 @@ describe('linkify() method - Content Linkification', () => {
     })
 
     it('should use full URL for app mode with profile sections', () => {
-      const content = '@user/wallet'
+      const content = '/@user/wallet'
       const result = linkify(content, true)
 
       expect(result).toContain('href="https://ecency.com/@user/wallet"')
     })
 
     it('should sanitize permlinks with query params', () => {
-      const content = '@author/post?param=value'
+      const content = '/@author/post?param=value'
       const result = linkify(content, false)
 
       expect(result).toContain('href="/post/@author/post"')
     })
 
     it('should not linkify invalid permlinks', () => {
-      const content = '@author/invalid_permlink'
+      const content = '/@author/invalid_permlink'
       const result = linkify(content, false)
 
       // Invalid permlink should not be linkified
       expect(result).toBe(content)
+    })
+
+    it('should not linkify npm-style scoped packages like @hiveio/x402', () => {
+      const content = 'Install @hiveio/x402 for payments'
+      const result = linkify(content, false)
+
+      // Bare @scope/package must not become any kind of link
+      expect(result).not.toContain('markdown-post-link')
+      expect(result).not.toContain('er-author-link')
+      expect(result).toContain('@hiveio/x402')
+    })
+
+    it('should linkify /category/@user/permlink format', () => {
+      const content = 'Check /hive-173115/@alice/my-great-post here'
+      const result = linkify(content, false)
+
+      expect(result).toContain('class="markdown-post-link"')
+      expect(result).toContain('href="/hive-173115/@alice/my-great-post"')
+    })
+
+    it('should linkify /category/@user/permlink in app mode with data attributes', () => {
+      const content = '/hive-173115/@bob/cool-post'
+      const result = linkify(content, true)
+
+      expect(result).toContain('data-author="bob"')
+      expect(result).toContain('data-tag="hive-173115"')
+      expect(result).toContain('data-permlink="cool-post"')
     })
   })
 
@@ -220,7 +250,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       // Should not create a link for invalid tag
-      expect(result).not.toContain('class="markdown-tag-link"')
+      expect(result).not.toContain('class="er-tag er-tag-link"')
     })
 
     it('should handle usernames with special characters', () => {
@@ -228,7 +258,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       // Valid username should be linkified
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@user"')
     })
 
@@ -246,14 +276,14 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@alice wrote about #bitcoin'
       const result = linkify(content, false)
 
-      expect(result).toContain('class="markdown-author-link"')
+      expect(result).toContain('class="er-author er-author-link"')
       expect(result).toContain('href="/@alice"')
-      expect(result).toContain('class="markdown-tag-link"')
+      expect(result).toContain('class="er-tag er-tag-link"')
       expect(result).toContain('href="/trending/bitcoin"')
     })
 
     it('should handle mentions and post links', () => {
-      const content = '@alice check @bob/my-article'
+      const content = '@alice check /@bob/my-article'
       const result = linkify(content, false)
 
       expect(result).toContain('href="/@alice"')
@@ -264,8 +294,8 @@ describe('linkify() method - Content Linkification', () => {
       const content = '@user wrote about #crypto in /@author/post with https://example.com/image.jpg'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
       expect(result).toContain('markdown-post-link')
       expect(result).toContain('<img')
     })
@@ -287,24 +317,24 @@ describe('linkify() method - Content Linkification', () => {
       const content = '   @user   #tag   '
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
 
     it('should handle newlines', () => {
       const content = '@user\n#tag'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
 
     it('should handle very long content', () => {
       const content = 'a'.repeat(10000) + ' @user #tag'
       const result = linkify(content, false)
 
-      expect(result).toContain('markdown-author-link')
-      expect(result).toContain('markdown-tag-link')
+      expect(result).toContain('er-author-link')
+      expect(result).toContain('er-tag-link')
     })
   })
 })

@@ -28,7 +28,7 @@ export function HivePage() {
     HIVE_TOKEN_OPERATION_FILTERS
   );
 
-  const { data, refetch, isFetching, status } = useInfiniteQuery(
+  const { data, refetch, isFetching } = useInfiniteQuery(
     getHiveAssetTransactionsQueryOptions(
       (username as string).replace("%40", ""),
       1000,
@@ -50,8 +50,7 @@ export function HivePage() {
     [uniqueTransactionsList]
   );
 
-  const showSpinner =
-    status === "loading" || (isFetching && sortedTransactions.length === 0);
+  const showSpinner = isFetching && sortedTransactions.length === 0;
 
   useMount(() => refetch());
 

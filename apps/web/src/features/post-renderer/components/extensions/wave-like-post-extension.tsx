@@ -82,36 +82,36 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
   const waveLink = `/waves/${post.author}/${post.permlink}`;
 
   return (
-    <article className="ecency-renderer-wave-like-post-extension-renderer">
+    <article className="er-wave-renderer">
       <a
         href={waveLink}
         aria-label={`Open wave by @${post.author}`}
-        className="ecency-renderer-wave-like-post-extension-renderer__overlay"
+        className="er-wave-renderer__overlay"
       />
-      <div className="ecency-renderer-wave-like-post-extension-renderer--author">
+      <div className="er-wave-renderer--author">
         <img
           src={`${defaults.imageServer}/u/${post.author}/avatar/small`}
           alt={post.author}
-          className="ecency-renderer-wave-like-post-extension-renderer--author-avatar"
+          className="er-wave-renderer--author-avatar"
         />
-        <div className="ecency-renderer-wave-like-post-extension-renderer--author-content">
+        <div className="er-wave-renderer--author-content">
           <a
-            className="ecency-renderer-wave-like-post-extension-renderer--author-content-link"
+            className="er-wave-renderer--author-content-link"
             href={`/@${post.author}/posts`}
           >
             @{post.author}
           </a>
-          <div className="ecency-renderer-wave-like-post-extension-renderer--author-content-host">
+          <div className="er-wave-renderer--author-content-host">
             #{host}
           </div>
         </div>
       </div>
       <a
         href="https://ecency.com"
-        className="ecency-renderer-wave-like-post-extension-renderer--logo"
+        className="er-wave-renderer--logo"
         dangerouslySetInnerHTML={{ __html: Logo }}
       />
-      <div className="ecency-renderer-wave-like-post-extension-renderer--body">
+      <div className="er-wave-renderer--body">
         <EcencyRenderer value={post.body} />
       </div>
     </article>
@@ -147,7 +147,7 @@ export function WaveLikePostExtension({
           }
 
           const container = document.createElement("div");
-          container.classList.add("ecency-renderer-wave-like-extension");
+          container.classList.add("er-wave");
 
           // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
           const root = createRoot(container);

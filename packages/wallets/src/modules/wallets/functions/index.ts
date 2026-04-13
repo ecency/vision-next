@@ -1,1 +1,1 @@
-export * from "./get-keys-from-seed";
+// Seed-based key derivation removed — MetaMask handles external chain keys

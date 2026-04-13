@@ -1,4 +1,4 @@
-import { proxifyImageSrc, setProxyBase, getLatestUrl, extractPHash } from './proxify-image-src'
+import { proxifyImageSrc, buildSrcSet, setProxyBase, getLatestUrl, extractPHash } from './proxify-image-src'
 
 describe('getLatestUrl', () => {
   describe('with single proxification', () => {
@@ -93,5 +93,68 @@ describe('proxifyImageSrc', () => {
 
       expect(proxifyImageSrc(input)).toBe(expected)
     })
+  })
+})
+
+describe('buildSrcSet', () => {
+  beforeEach(() => {
+    setProxyBase('https://images.ecency.com')
+  })
+
+  it('should return empty string for falsy input', () => {
+    expect(buildSrcSet('')).toBe('')
+    expect(buildSrcSet(undefined)).toBe('')
+  })
+
+  it('should generate srcset with width descriptors for a raw image URL', () => {
+    const result = buildSrcSet('https://i.imgur.com/muESb0B.png')
+
+    expect(result).toContain('320w')
+    expect(result).toContain('600w')
+    expect(result).toContain('800w')
+    expect(result).toContain('1024w')
+    expect(result).toContain('1280w')
+    expect(result.split(', ')).toHaveLength(5)
+  })
+
+  it('should include width parameter in each srcset entry', () => {
+    const result = buildSrcSet('https://i.imgur.com/muESb0B.png')
+    const entries = result.split(', ')
+
+    for (const entry of entries) {
+      expect(entry).toMatch(/width=\d+/)
+      expect(entry).toContain('format=match')
+      expect(entry).toContain('mode=fit')
+    }
+  })
+
+  it('should handle already-proxied URLs by extracting hash', () => {
+    const hash = '2bP4pJr4wVimqCWjYimXJe2cnCgnJdyHYxb4dfF6gmC'
+    const input = `https://images.ecency.com/p/${hash}?format=match&mode=fit`
+    const result = buildSrcSet(input)
+
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=320 320w`)
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=1280 1280w`)
+  })
+
+  it('should normalize legacy proxied URLs with file extensions', () => {
+    setProxyBase('https://images.ecency.com')
+    const hash = 'RGgukq5E6HBNvuPpuJoWwfXPpi5ckcLESTB3nmmnMt8YnPwgHbJegFaUzokkErqT8JVe4zPL7GD3gy6aaZQERs3MF5KAGJQ1AL4MmhLWfmceyk6XXSqWaECh1YXC7aV'
+    const input = `https://images.ecency.com/p/${hash}.png?format=match&mode=fit`
+    const result = buildSrcSet(input)
+
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=320 320w`)
+    expect(result).toContain(`/p/${hash}?format=match&mode=fit&width=1280 1280w`)
+    expect(result).not.toContain('.png')
+  })
+
+  it('should use custom proxy base for already-proxied URLs', () => {
+    setProxyBase('https://images.hive.blog')
+    const hash = 'someHash123'
+    const input = `https://images.hive.blog/p/${hash}?format=match&mode=fit`
+    const result = buildSrcSet(input)
+
+    expect(result).toContain('https://images.hive.blog/p/someHash123')
+    expect(result).not.toContain('images.ecency.com')
   })
 })

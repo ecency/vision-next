@@ -43,7 +43,7 @@ export function TwitterExtension({
             if (!tweetId) return;
 
             const container = document.createElement("div");
-            container.classList.add("ecency-renderer-twitter-extension-frame");
+            container.classList.add("er-twitter-frame");
             element.classList.add("ecency-renderer-twitter-extension");
 
             element.innerHTML = "";

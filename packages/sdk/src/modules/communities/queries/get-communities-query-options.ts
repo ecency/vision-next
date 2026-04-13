@@ -1,6 +1,7 @@
-import { CONFIG, QueryKeys } from "@/modules/core";
+import { QueryKeys } from "@/modules/core";
 import { queryOptions } from "@tanstack/react-query";
 import { Communities } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getCommunitiesQueryOptions(
   sort: string,
@@ -13,17 +14,13 @@ export function getCommunitiesQueryOptions(
     queryKey: QueryKeys.communities.list(sort, query ?? "", limit),
     enabled,
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.call(
-        "bridge",
-        "list_communities",
-        {
+      const response = await callRPC("bridge.list_communities", {
           last: "",
           limit,
           sort: sort === "hot" ? "rank" : sort,
           query: query ? query : null,
           observer,
-        }
-      );
+        });
       return (
         response
           ? sort === "hot"

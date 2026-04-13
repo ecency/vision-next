@@ -353,9 +353,25 @@
 .ecency-renderer-speak-extension .speak-iframe {
   width: 100%;
 }
+.ecency-renderer-twitter-extension {
+  max-width: 100%;
+  overflow: hidden;
+}
 .ecency-renderer-twitter-extension::after {
   content: none !important;
 }
 .ecency-renderer-twitter-extension a::after {
   content: none;
+}
+.er-twitter-frame {
+  max-width: 100%;
+  overflow: hidden;
+}
+/* Constrain enhanced content within waves/deck columns */
+.waves-list-item .er-post-link,
+.waves-list-item .ecency-renderer-wave-like-post-extension-renderer,
+.thread-render .er-post-link,
+.thread-render .ecency-renderer-wave-like-post-extension-renderer {
+  max-width: 100%;
+  overflow: hidden;
 }

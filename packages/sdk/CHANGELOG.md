@@ -1,5 +1,101 @@
 # Changelog
 
+## 2.1.8
+
+### Patch Changes
+
+- LCP image src set (#755)
+
+## 2.1.7
+
+### Patch Changes
+
+- React 19 upgrade (#751)
+
+## 2.1.6
+
+### Patch Changes
+
+- Waves X embed fix on Decks (#747)
+
+## 2.1.5
+
+### Patch Changes
+
+- Parallelize requests, improve abort logic (#746)
+
+## 2.1.4
+
+### Patch Changes
+
+- Fix refresh token signature stringify (#745)
+
+## 2.1.3
+
+### Patch Changes
+
+- Abort stuck queries (#744)
+
+## 2.1.2
+
+### Patch Changes
+
+- Fix bootstrap (#741)
+
+## 2.1.1
+
+### Patch Changes
+
+- Cache (#740)
+
+## 2.1.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
+## 2.0.35
+
+### Patch Changes
+
+- Thumbnail Waves and hivesigner fix (#728)
+
+## 2.0.34
+
+### Patch Changes
+
+- My waves, your waves and keychain mobile login (#723)
+
+## 2.0.33
+
+### Patch Changes
+
+- Real time comment indicator (#720)
+
+## 2.0.32
+
+### Patch Changes
+
+- Manage/add keys improved (#717)
+
+## 2.0.30
+
+### Patch Changes
+
+- Bad actors in SDK (#708)
+
+## 2.0.28
+
+### Patch Changes
+
+- Metamask integration, Signup simplified, Login changes (#705)
+
+## 2.0.27
+
+### Patch Changes
+
+- Search improvements (#703)
+
 ## 2.0.25
 
 ### Patch Changes

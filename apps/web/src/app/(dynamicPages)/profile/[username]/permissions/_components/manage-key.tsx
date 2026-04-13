@@ -8,19 +8,21 @@ import { useState } from "react";
 import { useCopyToClipboard } from "react-use";
 import { ManageKeyPasswordDialog } from "./manage-key-password-dialog";
 import { useRevealedKeysStore, useKeyDerivationStore } from "../_hooks";
-import { ManageKeyRevokeDialog } from "./manage-key-revoke-dialog";
+import { getLoginType } from "@/utils/user-token";
 
 type Keys = Record<string, [string, number][]>;
 
 interface Props {
   keyName: string;
+  onRevoke: (publicKey: string) => void;
 }
 
-export function ManageKey({ keyName }: Props) {
+export function ManageKey({ keyName, onRevoke }: Props) {
   const { activeUser } = useActiveAccount();
 
   const { data: accountData } = useQuery({
-    ...getAccountFullQueryOptions(activeUser?.username!),
+    ...getAccountFullQueryOptions(activeUser?.username ?? ""),
+    enabled: !!activeUser?.username,
     select: (resp) =>
       ({
         posting: resp.posting.key_auths,
@@ -35,13 +37,37 @@ export function ManageKey({ keyName }: Props) {
 
   const [_, copy] = useCopyToClipboard();
 
+  const isMetamask = getLoginType(activeUser?.username ?? "") === "metamask";
+
   const [showReveal, setShowReveal] = useState(false);
-  const [showRevoke, setShowRevoke] = useState(false);
-  const [revokingKey, setRevokingKey] = useState("");
+
+  const loginType = getLoginType(activeUser?.username ?? "");
+
+  const getLoginTypeBadge = () => {
+    switch (loginType) {
+      case "metamask":
+        return { label: "MetaMask", className: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300" };
+      case "keychain":
+        return { label: "Keychain", className: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" };
+      case "hivesigner":
+        return { label: "HiveSigner", className: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" };
+      default:
+        return null;
+    }
+  };
 
   const getDerivationBadge = (publicKey: string) => {
     const method = getDerivation(activeUser?.username ?? "", publicKey);
-    if (method === "unknown") return null;
+
+    if (method === "unknown") {
+      const badge = getLoginTypeBadge();
+      if (!badge) return null;
+      return (
+        <span className={`text-xs px-2 py-0.5 rounded-full ${badge.className}`}>
+          {badge.label}
+        </span>
+      );
+    }
 
     return (
       <span
@@ -76,42 +102,15 @@ export function ManageKey({ keyName }: Props) {
                 className="grid grid-cols-[1fr_max-content] items-center font-mono gap-2 truncate"
               >
                 <div className="truncate">{key[0]}</div>
-                <Button
-                  noPadding={true}
-                  appearance="gray-link"
-                  size="sm"
-                  icon={<UilCopy />}
-                  onClick={() => copy(key[0])}
-                />
-              </StyledTooltip>
-
-              <div className="grid grid-cols-[1fr_max-content] gap-2 items-center font-mono truncate">
-                <StyledTooltip className="truncate" content={i18next.t("chat.private-key")}>
-                  {keys[key[0]]
-                    ? keys[key[0]]
-                    : "************************************************************************"}
-                </StyledTooltip>
                 <div className="flex gap-2">
-                  {keys[key[0]] && (
-                    <Button
-                      noPadding={true}
-                      appearance="gray-link"
-                      size="sm"
-                      icon={<UilCopy />}
-                      onClick={() => copy(keys[key[0]])}
-                    />
-                  )}
-                  {!keys[key[0]] && (
-                    <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
-                      <Button
-                        noPadding={true}
-                        appearance="gray-link"
-                        size="sm"
-                        icon={<UilEye />}
-                        onClick={() => setShowReveal(true)}
-                      />
-                    </StyledTooltip>
-                  )}
+                  <Button
+                    noPadding={true}
+                    appearance="gray-link"
+                    size="sm"
+                    icon={<UilCopy />}
+                    aria-label={i18next.t("manage-authorities.copy")}
+                    onClick={() => copy(key[0])}
+                  />
                   {accountData?.[keyName].length > 1 && (
                     <StyledTooltip content={i18next.t("manage-authorities.revoke")}>
                       <Button
@@ -119,21 +118,50 @@ export function ManageKey({ keyName }: Props) {
                         appearance="gray-link"
                         size="sm"
                         icon={<UilTrash />}
-                        onClick={() => {
-                          setShowRevoke(true);
-                          setRevokingKey(keys[key[0]]);
-                        }}
+                        aria-label={i18next.t("manage-authorities.revoke")}
+                        onClick={() => onRevoke(key[0])}
                       />
                     </StyledTooltip>
                   )}
                 </div>
-              </div>
+              </StyledTooltip>
+
+              {!isMetamask && (
+                <div className="grid grid-cols-[1fr_max-content] gap-2 items-center font-mono truncate">
+                  <StyledTooltip className="truncate" content={i18next.t("chat.private-key")}>
+                    {keys[key[0]]
+                      ? keys[key[0]]
+                      : "************************************************************************"}
+                  </StyledTooltip>
+                  <div className="flex gap-2">
+                    {keys[key[0]] && (
+                      <Button
+                        noPadding={true}
+                        appearance="gray-link"
+                        size="sm"
+                        icon={<UilCopy />}
+                        onClick={() => copy(keys[key[0]])}
+                      />
+                    )}
+                    {!keys[key[0]] && (
+                      <StyledTooltip content={i18next.t("manage-authorities.reveal-private-key")}>
+                        <Button
+                          noPadding={true}
+                          appearance="gray-link"
+                          size="sm"
+                          icon={<UilEye />}
+                          onClick={() => setShowReveal(true)}
+                        />
+                      </StyledTooltip>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
       <ManageKeyPasswordDialog show={showReveal} setShow={setShowReveal} />
-      <ManageKeyRevokeDialog show={showRevoke} setShow={setShowRevoke} revokingKey={revokingKey} />
     </>
   );
 }

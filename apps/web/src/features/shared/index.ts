@@ -49,6 +49,7 @@ export * from "./wallet-badge";
 export * from "./buy-sell-hive";
 export * from "./boost";
 export * from "./key-or-hot";
+export * from "./metamask-sign-button";
 export * from "./image-upload-button";
 export * from "./notifications";
 export * from "./gallery";

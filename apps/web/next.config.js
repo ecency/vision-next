@@ -1,8 +1,17 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true"
+});
 
 const path = require("path");
 const withPWA = require("next-pwa")({
   dest: "public",
+  // Activate a new SW as soon as it finishes installing, and take control of
+  // open clients immediately. Combined with the client-side update listener
+  // in <PWAInstallPrompt>, users get fresh assets on the next navigation
+  // without needing to fully close all tabs.
+  skipWaiting: true,
+  clientsClaim: true,
   // Raise the max size to precache large chunks:
   maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
   // Advanced caching strategies for better performance
@@ -15,8 +24,23 @@ const withPWA = require("next-pwa")({
         cacheName: 'ecency-api',
         networkTimeoutSeconds: 3,
         expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 5 * 60 // 5 minutes
+          maxEntries: 30,
+          maxAgeSeconds: 2 * 60 // 2 minutes
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // Cache CDN-proxied images (user avatars, post images)
+      urlPattern: /^https:\/\/images\.ecency\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'ecency-images-cdn',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
         },
         cacheableResponse: {
           statuses: [0, 200]
@@ -75,10 +99,28 @@ const config = {
   typescript: { ignoreBuildErrors: true },
   transpilePackages: ["@ecency/sdk", "@ecency/wallets", "@ecency/render-helper"],
   experimental: {
-    externalDir: true
+    externalDir: true,
+    optimizePackageImports: [
+      "@tiptap/core",
+      "@tiptap/react",
+      "@tiptap/starter-kit",
+      "@tiptap/pm",
+      "highcharts",
+      "emoji-mart",
+      "@emoji-mart/data",
+      "@emoji-mart/react",
+      "react-virtualized",
+      "date-fns",
+      "remeda",
+      "@floating-ui/react-dom",
+      "@react-spring/web",
+      "framer-motion",
+      "@sentry/nextjs",
+      "@sentry/browser",
+    ]
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
     config.infrastructureLogging = { level: "error" };
     config.stats = "errors-only";
     config.module.rules.push({
@@ -92,9 +134,29 @@ const config = {
       ...config.resolve.fallback,
       fs: false
     };
+
+    // Replace Next.js built-in polyfills with an empty module on the client.
+    // polyfill-module.js ships ~1.5KB of polyfills (Array.prototype.at/flat/flatMap,
+    // Object.fromEntries, Object.hasOwn, String.prototype.trimStart/trimEnd,
+    // URL.canParse, etc.). The highest minimums among these are:
+    //   - Object.hasOwn / Array.prototype.at: Chrome 93+, Firefox 92+, Safari 15.4+, Edge 93+
+    //   - URL.canParse: Chrome 120+, Firefox 115+, Safari 17+, Edge 120+
+    // All are safe to drop — caniuse shows >96% global coverage and our analytics
+    // confirm no meaningful traffic from browsers below these thresholds.
+    // PageSpeed flags these as "Legacy JavaScript".
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /[\\/]next[\\/]dist[\\/]build[\\/]polyfills[\\/]polyfill-module\.js$/,
+          path.resolve(__dirname, "src/empty-polyfill.js")
+        )
+      );
+    }
     config.resolve.alias = {
         ...(config.resolve.alias || {}),
-        sass: "sass-embedded"
+        sass: "sass-embedded",
+        // Replace full iconscout barrel (1,189 icons, 737 KB) with local file (153 icons, ~50 KB)
+        "@tooni/iconscout-unicons-react": path.resolve(__dirname, "src/features/ui/unicons.tsx")
     };
 
     // Exclude WebSocket native modules from bundling (server-side only)
@@ -136,6 +198,30 @@ const config = {
         port: ""
       }
     ]
+  },
+  async headers() {
+    return [
+      {
+        // Hashed static assets (JS, CSS, media) - immutable, cache forever
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        // Public static assets (images, icons, scripts)
+        source: "/assets/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      },
+      {
+        source: "/scripts/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }
+        ]
+      }
+    ];
   },
   async redirects() {
     return [
@@ -282,6 +368,14 @@ const withSentry = withSentryConfig(config, {
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
 
+  // Tree-shake unused Sentry integrations to reduce client bundle size
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true
+  },
+
   // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
   // See the following for more information:
   // https://docs.sentry.io/product/crons/
@@ -290,5 +384,5 @@ const withSentry = withSentryConfig(config, {
 });
 
 /** @type {import('next').NextConfig} */
-const prod = withPWA(withSentry);
-module.exports = process.env.NODE_ENV === "production" ? prod : withSentry;
+const prod = withBundleAnalyzer(withPWA(withSentry));
+module.exports = process.env.NODE_ENV === "production" ? prod : withBundleAnalyzer(withSentry);

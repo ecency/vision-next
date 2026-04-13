@@ -8,7 +8,7 @@ import i18next from "i18next";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import * as yup from "yup";
-import { lookupAccountsQueryOptions } from "@ecency/sdk";
+import { getBadActorsQueryOptions, lookupAccountsQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 
 const form = yup.object({
@@ -44,8 +44,16 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
     return () => clearTimeout(handler);
   }, [normalizedUsername]);
 
+  const { data: badActors } = useQuery(getBadActorsQueryOptions());
   const { data: suggestions = [], isFetching } = useQuery(
     lookupAccountsQueryOptions(debouncedUsername, debouncedUsername.length > 0 ? 5 : 0)
+  );
+  const badActorWarning = useMemo(
+    () =>
+      debouncedUsername && badActors?.has(debouncedUsername)
+        ? i18next.t("transfer.to-bad-actor")
+        : "",
+    [badActors, debouncedUsername]
   );
   const showSuggestions = isFocused && normalizedUsername.length > 0;
   const submit = methods.handleSubmit(({ username }) => onUsernameSubmit?.(username));
@@ -145,6 +153,17 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
             className="text-red text-xs px-3 pt-0.5"
           >
             {error}
+          </motion.div>
+        )}
+        {badActorWarning && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            key="bad-actor-warning"
+            className="text-warning-default text-xs px-3 pt-0.5"
+          >
+            {badActorWarning}
           </motion.div>
         )}
       </AnimatePresence>

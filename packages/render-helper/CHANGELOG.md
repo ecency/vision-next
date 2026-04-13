@@ -1,5 +1,47 @@
 # @ecency/render-helper
 
+## 2.4.31
+
+### Patch Changes
+
+- LCP image src set (#755)
+
+## 2.4.30
+
+### Patch Changes
+
+- Dom parser improvement (#753)
+
+## 2.4.29
+
+### Patch Changes
+
+- Improve PWA (#752)
+
+## 2.4.28
+
+### Patch Changes
+
+- Performance improvements, bundle optimization (#734)
+
+## 2.4.26
+
+### Patch Changes
+
+- Thumbnail Waves and hivesigner fix (#728)
+
+## 2.4.25
+
+### Patch Changes
+
+- Notification and iframe (#719)
+
+## 2.4.24
+
+### Patch Changes
+
+- Fix odysee embeds (#710)
+
 ## 2.4.23
 
 ### Patch Changes

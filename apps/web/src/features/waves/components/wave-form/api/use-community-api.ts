@@ -12,11 +12,13 @@ import { DBUZZ_COMMUNITY } from "@/features/waves";
 import { useActiveAccount } from "@/core/hooks";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
+import { enforceThreeSpeakBeneficiary, hasThreeSpeakEmbed } from "@/api/threespeak-embed/beneficiary";
 
 interface Body {
   host: string;
   raw: string;
   editingEntry?: Entry;
+  videoThumbnail?: string;
 }
 
 export function useCommunityApi() {
@@ -28,7 +30,7 @@ export function useCommunityApi() {
 
   return useMutation({
     mutationKey: ["wave-community-api"],
-    mutationFn: async ({ host, raw, editingEntry }: Body) => {
+    mutationFn: async ({ host, raw, editingEntry, videoThumbnail }: Body) => {
       if (!username) {
         throw new Error("No user");
       }
@@ -59,7 +61,7 @@ export function useCommunityApi() {
       const permlink = editingEntry?.permlink ?? createPermlink("", true);
       const options = makeCommentOptions(author, permlink, "default");
 
-      const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared
+      const builder = EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
         .extractFromBody(raw)
@@ -67,8 +69,13 @@ export function useCommunityApi() {
           hostTag,
           ...(raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"])
         ])
-        .withPoll(activePoll)
-        .build();
+        .withPoll(activePoll);
+
+      if (videoThumbnail) {
+        await builder.withSelectedThumbnail(videoThumbnail);
+      }
+
+      const jsonMeta = builder.build();
 
       // Build SDK comment payload
       const commentPayload: CommentPayload = {
@@ -103,6 +110,14 @@ export function useCommunityApi() {
           allowCurationRewards: options.allow_curation_rewards,
           beneficiaries: extractBeneficiaries(options.extensions)
         };
+      }
+
+      // Add 3Speak beneficiary when the wave contains a video embed
+      if (hasThreeSpeakEmbed(cleanedRaw) && commentPayload.options) {
+        commentPayload.options.beneficiaries = enforceThreeSpeakBeneficiary(
+          commentPayload.options.beneficiaries ?? [],
+          cleanedRaw
+        );
       }
 
       await sdkComment(commentPayload);

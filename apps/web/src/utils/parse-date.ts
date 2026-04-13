@@ -61,6 +61,15 @@ export const dateToFormatted = (d?: string, format: string = "LLLL"): string => 
   return dayjs.utc(normalized).local().format(format);
 };
 
+export const dateToFormattedUtc = (d?: string, format: string = "YYYY-MM-DD HH:mm"): string => {
+  const normalized = normalizeDateString(d);
+  if (!normalized) {
+    return "";
+  }
+
+  return dayjs.utc(normalized).format(format);
+};
+
 export const dayDiff = (d: string) => {
   const isTimeZoned = d.indexOf(".") !== -1 || d.indexOf("+") !== -1 ? d : `${d}.000Z`;
   const _MS_PER_DAY = 1000 * 60 * 60 * 24;

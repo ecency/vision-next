@@ -30,8 +30,8 @@ const form = yup.object({
     .trim(),
   about: yup.string().required(i18next.t("validation.required")).trim(),
   lang: yup.string().required(i18next.t("validation.required")).trim(),
-  description: yup.string().required(i18next.t("validation.required")).trim(),
-  rules: yup.string().required(i18next.t("validation.required")).trim(),
+  description: yup.string().trim().default(""),
+  rules: yup.string().trim().default(""),
   nsfw: yup.boolean().required(i18next.t("validation.required")),
   defaultBeneficiaryUsername: yup.string().trim().optional(),
   defaultBeneficiaryReward: yup.number().optional().positive().min(1).max(100)
@@ -63,7 +63,7 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
   const { mutateAsync: updateCommunity, isPending } = useUpdateCommunity(community.name);
 
   useEffect(() => {
-    if (communityOwnerAccount) {
+    if (communityOwnerAccount?.posting_json_metadata) {
       try {
         const meta = JSON.parse(communityOwnerAccount.posting_json_metadata);
         const beneficiary = (meta?.profile ?? meta)?.beneficiary;
@@ -76,11 +76,12 @@ export function CommunitySettingsDialog({ onHide, community }: Props) {
         if (weight !== undefined) {
           methods.setValue("defaultBeneficiaryReward", weight / 100);
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
+        // Account may have invalid or empty posting_json_metadata
       }
     }
-  }, [communityOwnerAccount, methods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [communityOwnerAccount]);
 
   const onSubmit = methods.handleSubmit(
     async ({

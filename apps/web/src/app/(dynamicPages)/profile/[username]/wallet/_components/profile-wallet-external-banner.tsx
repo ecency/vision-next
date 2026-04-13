@@ -1,7 +1,7 @@
 "use client";
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getAccessToken } from "@/utils/user-token";
+import { getAccessToken, getLoginType } from "@/utils/user-token";
 import { Button } from "@/features/ui";
 import {
   checkUsernameWalletsPendingQueryOptions,
@@ -53,6 +53,7 @@ export function ProfileWalletExternalBanner() {
   const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === cleanUsername;
   const accessToken = isOwnProfile ? getAccessToken(cleanUsername) : undefined;
+  const isMetaMaskUser = isOwnProfile && getLoginType(cleanUsername) === "metamask";
 
   const { data } = useQuery({
     ...getAccountFullQueryOptions(cleanUsername),
@@ -64,34 +65,56 @@ export function ProfileWalletExternalBanner() {
     enabled: isOwnProfile && Boolean(cleanUsername) && Boolean(accessToken)
   });
 
+  // Check if profile already has chain tokens in posting_json_metadata
+  const hasOnChainTokens = useMemo(
+    () =>
+      Array.isArray(data?.profile?.tokens) &&
+      data.profile.tokens.some(({ symbol }) =>
+        Object.values(EcencyWalletCurrency).includes(symbol as any)
+      ),
+    [data]
+  );
+
   if (!isOwnProfile || isDismissed) {
     return <></>;
   }
 
-  if (walletCheckData?.exist) {
+  // If tokens are already in posting_json_metadata, nothing to do
+  if (hasOnChainTokens) {
     return <></>;
   }
 
-  if (
-    Array.isArray(data?.profile?.tokens) &&
-    data.profile.tokens.some(({ symbol }) =>
-      Object.values(EcencyWalletCurrency).includes(symbol as any)
-    )
-  ) {
+  // For MetaMask users: always show banner if posting_json_metadata doesn't have tokens yet,
+  // even if backend knows about wallets (from signup). They need to link to save on-chain.
+  // For non-MetaMask users: show if backend also doesn't have wallets.
+  if (!isMetaMaskUser && walletCheckData?.exist) {
     return <></>;
   }
 
   return (
-    <div className="bg-white rounded-xl p-3 mb-4 flex flex-col md:flex-row items-center gap-4 lg:gap-6">
+    <div className="bg-white dark:bg-dark-200 rounded-xl p-3 mb-4 flex flex-col md:flex-row items-center gap-4 lg:gap-6">
       <Image src="/assets/undraw-digital-currency.svg" alt="" width={300} height={300} />
       <div className="flex flex-col items-start gap-2 lg:gap-4 flex-1">
-        <h3 className="text-2xl">{i18next.t("profile-wallet.external-wallets-offer.title")}</h3>
+        <h3 className="text-2xl">
+          {isMetaMaskUser
+            ? i18next.t("wallet.link-metamask.banner-title", {
+                defaultValue: "Link your MetaMask wallets"
+              })
+            : i18next.t("profile-wallet.external-wallets-offer.title")}
+        </h3>
         <div className="opacity-75">
-          {i18next.t("profile-wallet.external-wallets-offer.description")}
+          {isMetaMaskUser
+            ? i18next.t("wallet.link-metamask.banner-description", {
+                defaultValue:
+                  "Save your ETH, BNB, and SOL addresses to your Hive profile to view balances and enable transactions."
+              })
+            : i18next.t("profile-wallet.external-wallets-offer.description")}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Button href="/wallet/setup-external" size="lg" icon={<UilArrowRight />}>
-            {i18next.t("intro.c2a")}
+            {isMetaMaskUser
+              ? i18next.t("wallet.link-metamask.title", { defaultValue: "Link MetaMask" })
+              : i18next.t("intro.c2a")}
           </Button>
           <Button
             appearance="secondary"

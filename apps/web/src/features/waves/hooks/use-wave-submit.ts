@@ -18,6 +18,7 @@ interface Body {
   image: string;
   imageName: string;
   video: string;
+  videoThumbnail: string;
   host: string;
 }
 
@@ -39,7 +40,7 @@ export function useWaveSubmit(
 
   return useMutation({
     mutationKey: ["wave-form-submit", username, replySource, editingEntry],
-    mutationFn: async ({ text, image, imageName, video, host }: Body) => {
+    mutationFn: async ({ text, image, imageName, video, videoThumbnail, host }: Body) => {
       // Check if user is logged in
       if (!username) {
         toggleUIProp("login");
@@ -99,13 +100,15 @@ export function useWaveSubmit(
         threadItem = (await createReply({
           parent: replySource,
           raw: content,
-          editingEntry: editingEntry
+          editingEntry: editingEntry,
+          videoThumbnail: videoThumbnail || undefined
         })) as WaveEntry;
       } else {
         const { entry } = await create({
           host,
           raw: content,
-          editingEntry
+          editingEntry,
+          videoThumbnail: videoThumbnail || undefined
         });
         threadItem = entry;
       }

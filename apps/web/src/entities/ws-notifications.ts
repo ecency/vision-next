@@ -108,6 +108,7 @@ export interface WsPayoutsNotification extends BaseWsNotification {
   type: "payouts";
   extra?: {
     amount?: string;
+    amount_usd?: string;
     title?: string | null;
     permlink?: string;
   };
@@ -141,6 +142,15 @@ export interface WsReferralNotification extends BaseWsNotification {
   type: "referral";
 }
 
+export interface WsWeeklyEarningsNotification extends BaseWsNotification {
+  type: "weekly_earnings";
+  extra?: {
+    total_usd?: string;
+    author_usd?: string;
+    curation_usd?: string;
+  };
+}
+
 export type WsNotification =
   | WsVoteNotification
   | WsMentionNotification
@@ -158,7 +168,8 @@ export type WsNotification =
   | WsCheckinsNotification
   | WsPayoutsNotification
   | WsMonthlyPostsNotification
-  | WsMonthlyPostsUnderscoreNotification;
+  | WsMonthlyPostsUnderscoreNotification
+  | WsWeeklyEarningsNotification;
 
 // HTTP api notification _types
 
@@ -279,6 +290,7 @@ export interface ApiCheckinNotification extends BaseAPiNotification {
 export interface ApiPayoutsNotification extends BaseAPiNotification {
   type: "payouts";
   amount?: string;
+  amount_usd?: string;
   title?: string | null;
   author: string;
   permlink: string;
@@ -288,6 +300,19 @@ export interface ApiMonthlyPostsNotification extends BaseAPiNotification {
   type: "monthly-posts" | "monthly_posts";
   count?: number;
   title?: string | null;
+}
+
+export interface ApiAccountUpdateNotification extends BaseAPiNotification {
+  type: "account_update";
+  account: string;
+  changes?: string[];
+}
+
+export interface ApiWeeklyEarningsNotification extends BaseAPiNotification {
+  type: "weekly_earnings";
+  total_usd?: string;
+  author_usd?: string;
+  curation_usd?: string;
 }
 
 export interface ApiNotificationSetting {
@@ -313,7 +338,9 @@ export type ApiNotification =
   | ApiCheckinNotification
   | ApiCheckinsNotification
   | ApiPayoutsNotification
-  | ApiMonthlyPostsNotification;
+  | ApiMonthlyPostsNotification
+  | ApiAccountUpdateNotification
+  | ApiWeeklyEarningsNotification;
 
 export interface Notifications {
   filter: NotificationFilter | null;

@@ -1,11 +1,8 @@
-import { deriveHiveKeys } from "@ecency/wallets";
-import { generateMnemonic } from "bip39";
+import { deriveHiveMasterPasswordKeys } from "@ecency/wallets";
+import { generateMasterPassword } from "./master-password";
 
-export const getKeysFromSeed = (seed: string) => {
-  return deriveHiveKeys(seed);
+export const getKeysFromMasterPassword = (username: string, masterPassword: string) => {
+  return deriveHiveMasterPasswordKeys(username, masterPassword);
 };
 
-export const generateSeed = async () => {
-  return generateMnemonic(128);
-};
-
+export { generateMasterPassword };

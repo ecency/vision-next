@@ -1,4 +1,4 @@
-import { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 import { useMutation } from "@tanstack/react-query";
 import type { AuthContext } from "@/modules/core/types";
 

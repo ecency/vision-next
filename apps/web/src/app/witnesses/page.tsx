@@ -1,5 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import "./page.scss";
 import { prefetchInfiniteQuery } from "@/core/react-query";
 import { getWitnessesInfiniteQueryOptions } from "@ecency/sdk";

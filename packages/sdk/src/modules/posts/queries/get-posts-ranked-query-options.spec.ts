@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getPostsRankedInfiniteQueryOptions, getPostsRankedQueryOptions } from './get-posts-ranked-query-options'
 import { CONFIG } from '@/modules/core'
 
+const mockCallRPC = vi.hoisted(() => vi.fn());
 const mockGetPostsRanked = vi.hoisted(() => vi.fn());
 
 vi.mock('@/modules/core', async (importOriginal) => {
@@ -10,9 +11,16 @@ vi.mock('@/modules/core', async (importOriginal) => {
     ...actual,
     CONFIG: {
       ...actual.CONFIG,
-      hiveClient: { call: vi.fn() },
       dmcaTagRegexes: []
     }
+  }
+})
+
+vi.mock('@/modules/core/hive-tx', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/modules/core/hive-tx')>()
+  return {
+    ...actual,
+    callRPC: mockCallRPC,
   }
 })
 
@@ -49,7 +57,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
   })
 
   it('should return [] when RPC returns null', async () => {
-    vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(null)
+    mockCallRPC.mockResolvedValue(null)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
@@ -58,7 +66,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
   })
 
   it('should throw when RPC returns non-null non-array', async () => {
-    vi.mocked(CONFIG.hiveClient.call).mockResolvedValue('unexpected')
+    mockCallRPC.mockResolvedValue('unexpected')
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     await expect(
@@ -73,7 +81,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
       { author: 'b', permlink: 'pinned', created: '2026-01-02T00:00:00', stats: { is_pinned: true } },
       { author: 'a', permlink: 'newest', created: '2026-01-03T00:00:00', stats: null }
     ]
-    vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockEntries)
+    mockCallRPC.mockResolvedValue(mockEntries)
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
@@ -91,7 +99,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
       { author: 'a', permlink: 'p1', created: '2026-01-01T00:00:00', stats: null },
       { author: 'b', permlink: 'p2', created: '2026-01-03T00:00:00', stats: null }
     ]
-    vi.mocked(CONFIG.hiveClient.call).mockResolvedValue(mockEntries)
+    mockCallRPC.mockResolvedValue(mockEntries)
 
     const options = getPostsRankedInfiniteQueryOptions('hot', 'hive')
     const result = await options.queryFn(makeInfiniteContext(options, { hasNextPage: true }))
@@ -102,7 +110,7 @@ describe('getPostsRankedInfiniteQueryOptions', () => {
   })
 
   it('should propagate network errors', async () => {
-    vi.mocked(CONFIG.hiveClient.call).mockRejectedValue(new Error('network'))
+    mockCallRPC.mockRejectedValue(new Error('network'))
 
     const options = getPostsRankedInfiniteQueryOptions('created', 'hive')
     await expect(
@@ -123,7 +131,7 @@ describe('getPostsRankedQueryOptions', () => {
     const options = getPostsRankedQueryOptions('created', '', '', 20, 'hive', 'obs')
     const result = await options.queryFn()
 
-    expect(mockGetPostsRanked).toHaveBeenCalledWith('created', '', '', 20, 'hive', 'obs')
+    expect(mockGetPostsRanked).toHaveBeenCalledWith('created', '', '', 20, 'hive', 'obs', undefined)
     expect(result).toEqual(mockEntries)
   })
 

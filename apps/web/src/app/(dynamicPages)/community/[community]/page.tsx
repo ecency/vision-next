@@ -1,7 +1,8 @@
 import { getCommunityCache } from "@/core/caches";
 import { notFound } from "next/navigation";
 import { prefetchGetPostsFeedQuery } from "@/api/queries";
-import { EntryListContent, LinearProgress } from "@/features/shared";
+import { EntryListContent } from "@/features/shared/entry-list-content";
+import { LinearProgress } from "@/features/shared/linear-progress";
 import { CommunityContentSearch } from "@/app/(dynamicPages)/community/[community]/_components/community-content-search";
 import { ProfileEntriesLayout } from "@/app/(dynamicPages)/profile/[username]/_components/profile-entries-layout";
 import { Entry } from "@/entities";
@@ -15,8 +16,9 @@ interface Props {
   params: Promise<{ community: string }>;
 }
 
-// Enable ISR with 60 second revalidation for better performance
-export const revalidate = 60;
+// ISR: community metadata is stable. Live post lists fetched client-side.
+// 5 min revalidation aligned with edge cache TTL.
+export const revalidate = 300;
 
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;

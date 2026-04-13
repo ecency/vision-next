@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
  *
  * Wraps the SDK's useProposalVote mutation with web-specific logic:
  * - Integrates with web global store for current user
- * - Uses web broadcast adapter for auth (HiveSigner, Keychain, HiveAuth, private keys)
+ * - Uses web broadcast adapter for auth (HiveSigner, Keychain, private keys)
  * - Polls blockchain for confirmation (preserves UX from legacy mutation)
  * - Automatically invalidates proposal votes cache after vote
  * - Uses update_proposal_votes operation with active authority

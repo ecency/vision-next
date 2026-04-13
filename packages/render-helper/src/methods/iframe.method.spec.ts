@@ -455,6 +455,41 @@ describe('iframe() method - Iframe Sanitization', () => {
 
       expect(el.getAttribute('class')).toBe('speak-iframe')
     })
+
+    it('should add layout=mobile when forApp is true', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', true)
+
+      expect(el.getAttribute('src')).toContain('&layout=mobile')
+    })
+
+    it('should not add layout=mobile when forApp is false', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', false)
+
+      expect(el.getAttribute('src')).not.toContain('layout=mobile')
+    })
+
+    it('should not duplicate layout param if already present', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://3speak.co/embed?v=video123&layout=mobile')
+      parent.appendChild(el)
+
+      iframe(el, 'ecency.com', true)
+
+      const src = el.getAttribute('src')!
+      const matches = src.match(/layout=/g)
+      expect(matches).toHaveLength(1)
+    })
   })
 
   describe('Spotify Iframes', () => {
@@ -742,6 +777,30 @@ describe('iframe() method - Iframe Sanitization', () => {
       iframe(el)
 
       expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+    })
+
+    it('should handle Odysee embed with multi-segment path (@user/video)', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://odysee.com/$/embed/@rodrigopanajotti:6/como-o-skatista-se-sente-depois-de-andar:4483afbf0f0a1c39e4f88bae4f00fcfed3a0870e?r=6T4RwZHsDQ5vpfHvtaLmLT9Dq26qzkoy')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('frameborder')).toBe('0')
+    })
+
+    it('should handle Odysee embed with multi-segment path and no query string', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('iframe')
+      el.setAttribute('src', 'https://odysee.com/$/embed/@channel:a/video-title:b')
+      parent.appendChild(el)
+
+      iframe(el)
+
+      expect(hasChildWithTag(parent, 'iframe')).toBe(true)
+      expect(el.getAttribute('frameborder')).toBe('0')
     })
   })
 

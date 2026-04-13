@@ -1,7 +1,5 @@
-import { CONFIG, getBoundFetch } from "@/modules/core";
-import { AccountSearchResult } from "./types/account-search-result";
+import { CONFIG, INTERNAL_API_TIMEOUT_MS, getBoundFetch, withTimeoutSignal } from "@/modules/core";
 import { SearchResponse } from "./types/search-response";
-import { TagSearchResult } from "./types/tag-search-result";
 
 type RequestError = Error & { status?: number; data?: unknown };
 
@@ -39,7 +37,8 @@ export async function search(
   hideLow: string,
   since?: string,
   scroll_id?: string,
-  votes?: number
+  votes?: number,
+  signal?: AbortSignal
 ): Promise<SearchResponse> {
   const data: {
     q: string;
@@ -67,48 +66,13 @@ export async function search(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
   });
 
   return parseJsonResponse<SearchResponse>(response);
 }
 
-export async function searchAccount(
-  q: string = "",
-  limit: number = 20,
-  random: number = 1
-): Promise<AccountSearchResult[]> {
-  const data = { q, limit, random };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-account", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  return parseJsonResponse<AccountSearchResult[]>(response);
-}
-
-export async function searchTag(
-  q: string = "",
-  limit: number = 20,
-  random: number = 0
-): Promise<TagSearchResult[]> {
-  const data = { q, limit, random };
-  const fetchApi = getBoundFetch();
-  const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-tag", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  return parseJsonResponse<TagSearchResult[]>(response);
-}
-
-export async function searchPath(q: string): Promise<string[]> {
+export async function searchPath(q: string, signal?: AbortSignal): Promise<string[]> {
   const fetchApi = getBoundFetch();
   const response = await fetchApi(CONFIG.privateApiHost + "/search-api/search-path", {
     method: "POST",
@@ -116,6 +80,7 @@ export async function searchPath(q: string): Promise<string[]> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ q }),
+    signal: withTimeoutSignal(INTERNAL_API_TIMEOUT_MS, signal),
   });
 
   const data = await parseJsonResponse<string[]>(response);

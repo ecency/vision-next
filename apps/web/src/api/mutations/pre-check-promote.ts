@@ -9,13 +9,13 @@ import { formatError } from "../format-error";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getAccessToken } from "@/utils";
 
-export function usePreCheckPromote(path: string, onSuccess: () => void) {
+export function usePreCheckPromote(onSuccess: () => void) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["preCheckPromote"],
-    mutationFn: async () => {
+    mutationFn: async (path: string) => {
       const [author, permlink] = path.replace("@", "").split("/");
 
       // Check if post is valid - always fetch fresh data

@@ -92,10 +92,10 @@ export const EntryMenu = ({
 
   return (
     <div className="entry-menu" ref={menuRef}>
-      <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} />
+      <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} aria-label={i18next.t("entry-menu.share")} />
       <Dropdown show={dropdownOpen} setShow={setDropdownOpen}>
         <DropdownToggle>
-          <Button appearance="gray-link" size="sm" icon={dotsHorizontal} />
+          <Button appearance="gray-link" size="sm" icon={dotsHorizontal} aria-label="Menu" />
         </DropdownToggle>
         <DropdownMenu align="right">
           {menuItems.map((item, i) => (

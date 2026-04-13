@@ -2,7 +2,6 @@
 
 import React, {useMemo} from "react";
 import defaults from "@/defaults";
-import {proxifyImageSrc, setProxyBase} from "@ecency/render-helper";
 import "./_index.scss";
 import {Account} from "@/entities";
 import {FollowControls} from "@/features/shared";
@@ -13,8 +12,6 @@ import {EcencyConfigManager} from "@/config";
 import {ProfileFilter, Theme} from "@/enums";
 import {usePathname} from "next/navigation";
 import {useClientTheme} from "@/api/queries";
-
-setProxyBase(defaults.imageServer);
 
 interface Props {
   account: Account;
@@ -35,7 +32,7 @@ export function ProfileCover({ account }: Props) {
   if (account) {
     bgImage = theme === Theme.day ? coverFallbackDay : coverFallbackNight;
     if (account.profile?.cover_image) {
-      bgImage = proxifyImageSrc(account.profile.cover_image, 0, 0);
+      bgImage = `${defaults.imageServer}/u/${account.name}/cover`;
     }
   }
 

@@ -1,4 +1,4 @@
-import type { Operation, Transaction } from '@hiveio/dhive';
+import type { Operation } from '@ecency/hive-tx';
 import type { KeychainResponse, KeychainSignTxResponse } from '../types';
 
 type AuthorityType = 'Owner' | 'Active' | 'Posting' | 'Memo';
@@ -21,7 +21,7 @@ interface HiveKeychain {
   ) => void;
   requestSignTx?: (
     account: string,
-    tx: Transaction,
+    tx: Record<string, unknown>,
     authType: AuthorityType,
     callback: (response: KeychainSignTxResponse) => void,
     rpc?: string | null
@@ -122,7 +122,7 @@ export function broadcast(
  */
 export function signTx(
   account: string,
-  tx: Transaction,
+  tx: Record<string, unknown>,
   authType: AuthorityType = 'Active'
 ): Promise<KeychainSignTxResponse> {
   return new Promise<KeychainSignTxResponse>((resolve, reject) => {

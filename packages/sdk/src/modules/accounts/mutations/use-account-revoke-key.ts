@@ -1,28 +1,25 @@
-import { AuthorityType, PrivateKey, PublicKey } from "@hiveio/dhive";
+import { PrivateKey, PublicKey } from "@ecency/hive-tx";
 import {
   useMutation,
   useQuery,
   type UseMutationOptions,
 } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
-import { CONFIG } from "@/modules/core";
-import { Keys } from "./use-account-update-key-auths";
+import { buildRevokeKeysOp } from "./build-revoke-keys-op";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 
 interface Payload {
   currentKey: PrivateKey;
-  revokingKey: PublicKey;
+  /** Keys to revoke. Accepts a single key or an array. */
+  revokingKey: PublicKey | PublicKey[];
 }
 
 /**
- * This hook provides functionality to revoke a key from an account on the Hive blockchain.
- * It leverages React Query's `useMutation` for managing the mutation state and executing
- * the operation efficiently.
+ * Revoke one or more keys from an account on the Hive blockchain.
  *
- * @param username The username of the Hive account from which the key should be revoked.
- *                 Pass `undefined` if the username is unknown or not set yet.
- *
- * @returns The mutation object from `useMutation`, including methods to trigger the key
- *          revocation and access its state (e.g., loading, success, error).
+ * When revoking keys that exist only in active/posting authorities,
+ * the owner field is omitted from the operation so active-level
+ * signing is sufficient.
  */
 type RevokeKeyOptions = Pick<
   UseMutationOptions<unknown, Error, Payload>,
@@ -40,31 +37,14 @@ export function useAccountRevokeKey(
     mutationFn: async ({ currentKey, revokingKey }: Payload) => {
       if (!accountData) {
         throw new Error(
-          "[SDK][Update password] – cannot update keys for anon user"
+          "[SDK][Revoke key] – cannot update keys for anon user"
         );
       }
 
-      const prepareAuth = (keyName: keyof Keys) => {
-        const auth: AuthorityType = JSON.parse(JSON.stringify(accountData[keyName]));
+      const revokingKeys = Array.isArray(revokingKey) ? revokingKey : [revokingKey];
+      const op = buildRevokeKeysOp(accountData, revokingKeys);
 
-        auth.key_auths = auth.key_auths.filter(
-          ([key]) => key !== revokingKey.toString()
-        );
-
-        return auth;
-      };
-
-      return CONFIG.hiveClient.broadcast.updateAccount(
-        {
-          account: accountData.name,
-          json_metadata: accountData.json_metadata,
-          owner: prepareAuth("owner"),
-          active: prepareAuth("active"),
-          posting: prepareAuth("posting"),
-          memo_key: accountData.memo_key,
-        },
-        currentKey
-      );
+      return broadcastOperations([["account_update", op]], currentKey);
     },
     ...options,
   });

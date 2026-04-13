@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import { isWif } from "@ecency/sdk";
 import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";
 import { useGlobalStore } from "@/core/global-store";
@@ -30,7 +31,7 @@ export const SignByKey = ({ onKey, onBack, isLoading }: Props) => {
   const generateKey = () => {
     let pKey: PrivateKey;
 
-    if (cryptoUtils.isWif(key)) {
+    if (isWif(key)) {
       // wif
       try {
         pKey = PrivateKey.fromString(key);

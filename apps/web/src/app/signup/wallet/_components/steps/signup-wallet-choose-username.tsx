@@ -22,7 +22,7 @@ export function SignupWalletChooseUsername({ initialUsername, onAvailableUsernam
     isSuccess,
     isPending
   } = useQuery(getAccountsQueryOptions([username.toLowerCase()]));
-  const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(username.toLowerCase()));
+  const { data } = useQuery(checkUsernameWalletsPendingQueryOptions(username.toLowerCase(), undefined));
 
   const existingAccount = useMemo(() => foundAccounts?.[0], [foundAccounts]);
   const usernameError = useMemo(() => {

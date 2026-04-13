@@ -360,6 +360,8 @@ $xxxl-break: "1600px";
   .markdown-post-link,
   .markdown-author-link,
   .markdown-tag-link,
+  .er-author-link,
+  .er-tag-link,
   .markdown-community-link,
   .markdown-witnesses-link {
     cursor: pointer;
@@ -395,8 +397,8 @@ $xxxl-break: "1600px";
     // All child elements absolutely positioned within container
     .video-thumbnail,
     .markdown-video-play,
-    .ecency-renderer-youtube-extension-frame,
-    .ecency-renderer-speak-extension-frame {
+    .er-youtube-frame,
+    .er-speak-frame {
       position: absolute;
       top: 0;
       left: 0;
@@ -419,8 +421,8 @@ $xxxl-break: "1600px";
       pointer-events: none;
     }
 
-    .ecency-renderer-youtube-extension-frame,
-    .ecency-renderer-speak-extension-frame {
+    .er-youtube-frame,
+    .er-speak-frame {
       z-index: 3; // On top when video plays
       display: block;
       margin: 0;
@@ -448,7 +450,7 @@ $xxxl-break: "1600px";
   // 3Speak auto-detected portrait videos (3:4 aspect ratio)
   .markdown-video-link-speak.speak-portrait {
     padding-bottom: 0;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 3 / 5;
     height: auto;
     max-width: 450px;
   }

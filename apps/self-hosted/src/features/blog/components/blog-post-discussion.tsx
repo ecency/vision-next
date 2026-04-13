@@ -1,6 +1,6 @@
 'use client';
 
-import { CONFIG, type Entry } from '@ecency/sdk';
+import { callRPC, type Entry } from '@ecency/sdk';
 import { useQuery } from '@tanstack/react-query';
 import { UilComment } from '@tooni/iconscout-unicons-react';
 import { useMemo, useState } from 'react';
@@ -66,15 +66,11 @@ export function BlogPostDiscussion({ entry, isRawContent }: Props) {
   const { data: allComments = [], isLoading } = useQuery({
     queryKey: ['discussions', entryData.author, entryData.permlink, order],
     queryFn: async () => {
-      const response = await CONFIG.hiveClient.call(
-        'bridge',
-        'get_discussion',
-        {
-          author: entryData.author,
-          permlink: entryData.permlink,
-          observer: entryData.author,
-        },
-      );
+      const response = await callRPC('bridge.get_discussion', {
+        author: entryData.author,
+        permlink: entryData.permlink,
+        observer: entryData.author,
+      });
 
       if (response && typeof response === 'object') {
         const comments = Object.values(response) as Entry[];

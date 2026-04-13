@@ -1,4 +1,5 @@
 import { EcencyEntriesCacheManagement } from "@/core/caches";
+import { prefetchQuery } from "@/core/react-query";
 import { catchPostImage, postBodySummary, renderPostBody } from "@ecency/render-helper";
 import type { SeoContext } from "@ecency/render-helper";
 import { accountReputation } from "@/utils";
@@ -26,10 +27,12 @@ export async function GET(request: NextRequest, { params }: Props) {
   try {
     const { author, permlink } = await params;
 
-    const entryRaw = await EcencyEntriesCacheManagement.getEntryQueryByPath(
+    const entryRaw = await prefetchQuery(
+      EcencyEntriesCacheManagement.getEntryQueryByPath(
         author.replace("%40", "").replace("@", ""),
         permlink
-    ).fetchAndGet();
+      )
+    );
 
     if (!isEntry(entryRaw)) {
       throw new Error("Entry not found");

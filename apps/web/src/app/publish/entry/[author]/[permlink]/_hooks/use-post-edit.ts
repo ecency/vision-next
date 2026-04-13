@@ -48,9 +48,14 @@ export function usePostEdit(entry: Entry | undefined) {
       }
 
       const { author, permlink, category, json_metadata } = entry;
+      if (!body || !body.trim()) {
+        throw new Error(i18next.t("submit.empty-body-alert"));
+      }
+
       const newBody = EntryBodyManagement.EntryBodyManager.shared
         .builder()
         .buildPatchFrom(entry, body);
+
       const metaBuilder = await EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .extend(entry)

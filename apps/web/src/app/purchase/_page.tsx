@@ -2,14 +2,11 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import {
-  Feedback,
-  Navbar,
-  PurchaseQrBuilder,
-  PurchaseTypes,
-  ScrollToTop,
-  Theme
-} from "@/features/shared";
+import { Feedback } from "@/features/shared/feedback";
+import { Navbar } from "@/features/shared/navbar";
+import { PurchaseQrBuilder, PurchaseTypes } from "@/features/shared/purchase-qr";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { FullAccount } from "@/entities";
@@ -62,8 +59,8 @@ export function Purchase() {
       <Navbar />
 
       <div className="app-content container">
-        <div className="flex items-center w-full justify-center">
-          <div className="w-[50%] border border-[--border-color] rounded-2xl p-4">
+        <div className="flex items-center w-full justify-center px-4">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[50%] border border-[--border-color] rounded-2xl p-4">
             <PurchaseQrBuilder username={username} queryType={type} queryProductId={productId} />
           </div>
         </div>

@@ -50,7 +50,7 @@ export function WavesListView({ host, feedType, username }: Props) {
   }, [feedType, host, tag, username]);
 
   const { data, fetchNextPage, isError, error, hasNextPage, refetch } = useInfiniteQuery(queryOptions);
-  const previousErrorMessage = useRef<string>();
+  const previousErrorMessage = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!isError || !error) {

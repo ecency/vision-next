@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { useThreeSpeakManager } from "../_hooks";
+import React from "react";
 import { SubmitPollPreview } from "./submit-poll-preview";
 import { TagLink } from "@/features/shared/tag";
 import { PostBodyLazyRenderer } from "@/app/submit/_components/post-body-lazy-renderer";
@@ -11,10 +10,6 @@ interface Props {
 }
 
 export function SubmitPreviewContent({ title, tags, body }: Props) {
-  const { buildBody } = useThreeSpeakManager();
-
-  const modifiedBody = useMemo(() => buildBody(body), [body, buildBody]);
-
   return (
     <>
       <div className="preview-title">{title}</div>
@@ -32,7 +27,7 @@ export function SubmitPreviewContent({ title, tags, body }: Props) {
       </div>
 
       <div className="preview-body markdown-view">
-        <PostBodyLazyRenderer rawBody={modifiedBody} />
+        <PostBodyLazyRenderer rawBody={body} />
         <SubmitPollPreview />
       </div>
     </>

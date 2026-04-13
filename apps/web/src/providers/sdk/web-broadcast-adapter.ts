@@ -1,17 +1,19 @@
-import { Operation, TransactionConfirmation, PrivateKey } from '@hiveio/dhive';
+import type { Operation, Authority } from '@ecency/hive-tx';
+import { PrivateKey } from '@ecency/hive-tx';
+import type { TransactionConfirmation } from '@ecency/sdk';
 import {
   PlatformAdapter,
   getQueryClient,
   getAccountFullQueryOptions,
-  CONFIG,
+  broadcastOperations,
+  callRPC,
   buildGrantPostingPermissionOp,
   usrActivity,
-  type Authority,
 } from '@ecency/sdk';
 import hs from 'hivesigner';
+import { encodeOps as encodeHiveUriOps } from 'hive-uri';
 import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/user-token';
 import * as ls from '@/utils/local-storage';
-import { broadcastWithHiveAuth } from '@/utils/hive-auth';
 import { requestAuthUpgrade, getTempActiveKey, clearTempActiveKey } from '@/features/shared/auth-upgrade';
 import { error, success } from '@/features/shared/feedback/feedback-events';
 
@@ -51,6 +53,172 @@ import { error, success } from '@/features/shared/feedback/feedback-events';
  *
  * @see {@link PlatformAdapter} for the full interface definition
  */
+const HIVE_SNAP_ID = 'npm:@hiveio/metamask-snap';
+
+const KEY_ROLE_MAP: Record<string, string> = {
+  posting: 'posting',
+  active: 'active',
+  owner: 'owner',
+  memo: 'memo',
+};
+
+const NAI_MAP: Record<string, { nai: string; precision: number }> = {
+  HIVE: { nai: '@@000000021', precision: 3 },
+  TESTS: { nai: '@@000000021', precision: 3 },
+  HBD: { nai: '@@000000013', precision: 3 },
+  TBD: { nai: '@@000000013', precision: 3 },
+  VESTS: { nai: '@@000000037', precision: 6 },
+};
+
+/** Field names that hold Hive asset values across all operation types. */
+const ASSET_FIELDS = new Set([
+  'amount', 'fee', 'vesting_shares', 'reward_hive', 'reward_hbd', 'reward_vests',
+  'hbd_amount', 'hive_amount', 'amount_to_sell', 'min_to_receive', 'daily_pay',
+  'max_accepted_payout', 'balance', 'hbd_balance',
+]);
+
+/**
+ * Convert a dhive string amount ("1.500 HIVE") to wax NAI format.
+ * Returns original value if it doesn't match the pattern.
+ */
+function stringAmountToNai(value: string): unknown {
+  const match = value.match(/^(\d+\.\d+)\s+(HIVE|HBD|VESTS|TESTS|TBD)$/);
+  if (!match) return value;
+  const { nai, precision } = NAI_MAP[match[2]];
+  const parts = match[1].split('.');
+  const amount = parts[0] + parts[1].padEnd(precision, '0').slice(0, precision);
+  return { amount, precision, nai };
+}
+
+/**
+ * Convert asset fields in an operation value from dhive string format to wax NAI format.
+ * Only converts fields in the ASSET_FIELDS whitelist to avoid corrupting string fields like memo.
+ */
+function convertOpAssets(opValue: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(opValue)) {
+    if (ASSET_FIELDS.has(key) && typeof val === 'string') {
+      result[key] = stringAmountToNai(val);
+    } else {
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+/**
+ * Convert a dhive Operation tuple to wax protobuf-JSON format.
+ * dhive: ["vote", { voter: "alice", ... }]
+ * wax:   { type: "vote_operation", value: { voter: "alice", ... } }
+ */
+function dhiveOpToWaxFormat(op: Operation): { type: string; value: Record<string, unknown> } {
+  const arr = op as unknown as [string, Record<string, unknown>];
+  return {
+    type: `${arr[0]}_operation`,
+    value: convertOpAssets(arr[1]),
+  };
+}
+
+/**
+ * Broadcast Hive operations via MetaMask's Hive snap.
+ * Signs the transaction using hive_signTransaction, then broadcasts.
+ */
+async function broadcastWithMetaMaskSnap(
+  username: string,
+  ops: Operation[],
+  keyType: 'posting' | 'active' | 'owner' | 'memo',
+): Promise<TransactionConfirmation> {
+  if (!window.ethereum) {
+    throw new Error('MetaMask not found');
+  }
+
+  // Fetch dynamic global properties
+  const props = await callRPC("condenser_api.get_dynamic_global_properties", []) as any;
+  const refBlockNum = props.head_block_number & 0xFFFF;
+  const refBlockPrefix = Buffer.from(props.head_block_id, 'hex').readUInt32LE(4);
+  const expiration = new Date(Date.now() + 60000).toISOString().slice(0, 19);
+
+  // dhive operations in tuple format for broadcasting
+  const transaction = {
+    ref_block_num: refBlockNum,
+    ref_block_prefix: refBlockPrefix,
+    expiration,
+    operations: ops,
+    extensions: []
+  };
+
+  // Wax (used by the snap) expects protobuf-JSON format for operations
+  const waxTransaction = {
+    ref_block_num: refBlockNum,
+    ref_block_prefix: refBlockPrefix,
+    expiration,
+    operations: ops.map(dhiveOpToWaxFormat),
+    extensions: []
+  };
+
+  const role = KEY_ROLE_MAP[keyType] ?? 'posting';
+
+  // Sign via Hive snap (send wax format)
+  const result = await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: {
+      snapId: HIVE_SNAP_ID,
+      request: {
+        method: 'hive_signTransaction',
+        params: {
+          transaction: JSON.stringify(waxTransaction),
+          keys: [{ role, accountIndex: 0 }]
+        }
+      }
+    }
+  }) as { signatures: string[] };
+
+  // Broadcast the signed transaction (dhive format)
+  const signedTx = {
+    ...transaction,
+    signatures: result.signatures
+  };
+
+  const broadcastResult = await callRPC("condenser_api.broadcast_transaction_synchronous", [signedTx]) as TransactionConfirmation;
+  return broadcastResult;
+}
+
+const KEYCHAIN_MOBILE_SIGN_STORAGE_KEY = 'ecency_keychain-mobile-pending-sign';
+
+/**
+ * Broadcast Hive operations via Keychain Mobile deep link (hive://sign/ops/).
+ * Keychain handles signing AND broadcasting. The page navigates away, so this
+ * returns a never-resolving promise. The callback page handles the result.
+ */
+function broadcastWithKeychainMobileDeepLink(
+  username: string,
+  ops: Operation[],
+  keyType: 'posting' | 'active',
+): Promise<TransactionConfirmation> {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Keychain Mobile deep links are only available in a browser environment.'));
+  }
+
+  // Store the return path so the callback page can redirect back
+  localStorage.setItem(KEYCHAIN_MOBILE_SIGN_STORAGE_KEY, JSON.stringify({
+    returnPath: window.location.pathname + window.location.search,
+    timestamp: Date.now(),
+  }));
+
+  // Encode operations as hive:// URI using hive-uri library
+  const hiveUri = encodeHiveUriOps(ops, {
+    signer: username,
+    callback: `${window.location.origin}/auth/keychain-sign?id={{id}}&sig={{sig}}`,
+    authority: keyType,
+  });
+
+  // Navigate to the deep link - OS will open Keychain/Ecency app.
+  // Page navigates away; the tx result arrives via /auth/keychain-sign callback
+  // on a new page load. Same pattern as HiveSigner hot-sign (hs.sendOperations).
+  window.location.href = hiveUri;
+  return new Promise(() => {});
+}
+
 /**
  * Singleton adapter instance. Safe to reuse because all methods read from
  * localStorage / window at call time — no state is captured at creation.
@@ -82,12 +250,17 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return undefined;
       }
 
-      // Map loginType to SDK auth method (same mapping as getLoginType)
-      const authType = user.loginType === 'privateKey' ? 'key' : user.loginType;
+      // Map loginType to SDK auth method
+      // MetaMask routes through keychain broadcast path (snap handles signing)
+      // keychain-mobile has no direct SDK broadcast method - relies on HiveSigner token or auth upgrade
+      const authType = user.loginType === 'privateKey' ? 'key'
+        : user.loginType === 'metamask' ? 'keychain'
+        : user.loginType === 'keychain-mobile' ? undefined
+        : user.loginType;
 
       return {
         name: user.username,
-        authType, // 'hivesigner' | 'keychain' | 'hiveauth' | 'key'
+        authType,
       };
     },
 
@@ -95,10 +268,10 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       // Use existing helper - it handles localStorage access and decoding
       const postingKey = getPostingKey(username);
 
-      // Return null for non-key auth methods (HiveSigner/Keychain/HiveAuth)
+      // Return null for non-key auth methods (HiveSigner/Keychain)
       // This signals to SDK that it should use those platform-specific broadcast methods
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -113,7 +286,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
 
       // Return null for non-key auth methods (they handle active operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -125,7 +298,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getOwnerKey(username: string) {
       // Return null for non-key auth methods (they handle owner operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -137,7 +310,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async getMemoKey(username: string) {
       // Return null for non-key auth methods (they handle memo operations via their own methods)
       const loginType = getLoginType(username);
-      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'hiveauth') {
+      if (loginType === 'hivesigner' || loginType === 'keychain' || loginType === 'metamask' || loginType === 'keychain-mobile') {
         return null;
       }
 
@@ -163,14 +336,17 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       }
 
       // Map web login types to SDK auth methods
-      // LoginType = 'hivesigner' | 'keychain' | 'hiveauth' | 'privateKey'
+      // LoginType = 'hivesigner' | 'keychain' | 'privateKey' | 'metamask' | 'keychain-mobile'
       switch (loginType) {
         case 'hivesigner':
           return 'hivesigner';
         case 'keychain':
           return 'keychain';
-        case 'hiveauth':
-          return 'hiveauth'; // HiveAuth has its own broadcast method (QR code + mobile app flow)
+        case 'keychain-mobile':
+          // Keychain Mobile: route through keychain broadcast path
+          // SDK will try HiveSigner token first for posting ops (if posting auth granted),
+          // then fall back to broadcastWithKeychain which handles deep links
+          return 'keychain';
         case 'privateKey':
           // For key-based logins, verify the required key is actually available.
           // An active-key-only user shouldn't return 'key' for posting ops —
@@ -181,6 +357,9 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
             if (!postingKey) return null;
           }
           return 'key';
+        case 'metamask':
+          // MetaMask users sign via Hive snap — use keychain-like broadcast path
+          return 'keychain';
         default:
           return null;
       }
@@ -207,7 +386,21 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       ops: Operation[],
       keyType: 'posting' | 'active' | 'owner' | 'memo',
     ): Promise<TransactionConfirmation> {
-      // Check if Keychain is available
+      // MetaMask users route through Hive snap for transaction signing
+      const loginType = getLoginType(username);
+      if (loginType === 'metamask') {
+        return broadcastWithMetaMaskSnap(username, ops, keyType);
+      }
+
+      // Keychain Mobile: use hive:// deep link when browser extension is not available
+      if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !(window as any).hive_keychain) {
+        if (keyType !== 'posting' && keyType !== 'active') {
+          throw new Error(`Keychain Mobile deep links do not support "${keyType}" authority.`);
+        }
+        return broadcastWithKeychainMobileDeepLink(username, ops, keyType);
+      }
+
+      // Check if Keychain browser extension is available
       if (typeof window === 'undefined' || !(window as any).hive_keychain) {
         throw new Error('Hive Keychain extension not found. Please install it from the Chrome/Firefox store.');
       }
@@ -259,19 +452,22 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
       });
     },
 
-    async broadcastWithHiveAuth(
+    async broadcastWithHiveSigner(
       username: string,
       ops: Operation[],
-      keyType: 'posting' | 'active' | 'owner' | 'memo',
+      _keyType: 'posting' | 'active' | 'owner' | 'memo',
     ): Promise<TransactionConfirmation> {
-      // HiveAuth only supports posting and active keys
-      if (keyType !== 'posting' && keyType !== 'active') {
-        throw new Error(`HiveAuth does not support ${keyType} authority. Use posting or active only.`);
-      }
-
-      // Use existing HiveAuth utility from web app
-      // This handles QR code generation, mobile app communication, and session management
-      return await broadcastWithHiveAuth(username, ops, keyType);
+      // HiveSigner hot signing: redirects the browser to hivesigner.com for the
+      // user to review and sign the operation. The page navigates away, so we
+      // return a never-resolving promise — same pattern as Keychain Mobile deep
+      // links (broadcastWithKeychainMobileDeepLink) and wallet-operations-sign.
+      return new Promise(() => {
+        hs.sendOperations(
+          ops,
+          { callback: `${window.location.origin}${window.location.pathname}` },
+          () => {}
+        );
+      });
     },
 
     // ============================================================================
@@ -334,7 +530,7 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
     async showAuthUpgradeUI(
       requiredAuthority: 'posting' | 'active',
       operation: string,
-    ): Promise<'hiveauth' | 'hivesigner' | 'keychain' | 'key' | false> {
+    ): Promise<'hivesigner' | 'keychain' | 'key' | false> {
       return requestAuthUpgrade(requiredAuthority, operation);
     },
 
@@ -376,9 +572,11 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         1,
         accountData.memo_key,
         accountData.json_metadata || '',
-      );
+      ) as Operation;
 
       // Broadcast based on selected method
+      // Use the adapter's own broadcast methods so MetaMask/Keychain routing is consistent
+      const self = getWebBroadcastAdapter();
       switch (method) {
         case 'key': {
           const activeKey = getTempActiveKey();
@@ -386,28 +584,13 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
             throw new Error('Active key not provided');
           }
           const privateKey = PrivateKey.fromString(activeKey);
-          await CONFIG.hiveClient.broadcast.sendOperations([op], privateKey);
+          await broadcastOperations([op], privateKey);
           clearTempActiveKey();
           break;
         }
         case 'keychain': {
-          if (typeof window === 'undefined' || !(window as any).hive_keychain) {
-            throw new Error('Hive Keychain extension not found');
-          }
-          const keychain = (window as any).hive_keychain;
-          await new Promise<void>((resolve, reject) => {
-            keychain.requestBroadcast(username, [op], 'active', (response: any) => {
-              if (response.success) {
-                resolve();
-              } else {
-                reject(new Error(response.message || 'Keychain broadcast failed'));
-              }
-            });
-          });
-          break;
-        }
-        case 'hiveauth': {
-          await broadcastWithHiveAuth(username, [op], 'active');
+          // Delegates to broadcastWithKeychain which handles MetaMask snap routing
+          await self.broadcastWithKeychain!(username, [op], 'active');
           break;
         }
         case 'hivesigner': {

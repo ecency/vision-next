@@ -1,6 +1,7 @@
 "use client";
 
 import { NoLocalStorageBanner } from "@/features/banners/no-local-storage-banner";
+import { PwaInstallBanner } from "@/features/banners/pwa-install-banner";
 import { useMemo } from "react";
 
 export function BannerManager() {
@@ -12,6 +13,7 @@ export function BannerManager() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[9999]">
       {!hasLocalStorage && <NoLocalStorageBanner />}
+      <PwaInstallBanner />
     </div>
   );
 }

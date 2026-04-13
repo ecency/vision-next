@@ -1,5 +1,5 @@
-import { CONFIG } from "@/modules/core/config";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import { broadcastOperations } from "@/modules/core/hive-tx";
 import hs from "hivesigner";
 import type { AuthContext } from "@/modules/core/types";
 
@@ -29,8 +29,8 @@ export async function broadcastJson<T>(
   if (postingKey) {
     const privateKey = PrivateKey.fromString(postingKey);
 
-    return CONFIG.hiveClient.broadcast.json(
-      jjson,
+    return broadcastOperations(
+      [["custom_json", jjson]],
       privateKey
     );
   }

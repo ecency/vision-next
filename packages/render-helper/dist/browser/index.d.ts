@@ -9,6 +9,11 @@ interface Entry {
     json_metadata?: any;
 }
 
+interface RenderOptions {
+    /** When true, video embeds (3Speak, YouTube, etc.) render as iframes directly without a play button overlay. */
+    embedVideosDirectly?: boolean;
+}
+
 /**
  * SEO context for controlling rel attributes on external links in user-generated content.
  *
@@ -28,8 +33,9 @@ interface SeoContext {
  * @param _webp - @deprecated Ignored. Format is now handled server-side via Accept header content negotiation.
  * @param parentDomain - Parent domain for iframe embed parameters
  * @param seoContext - Optional SEO context for structured data
+ * @param renderOptions - Optional rendering options (e.g. embedVideosDirectly)
  */
-declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext): string;
+declare function markdown2Html(obj: Entry | string, forApp?: boolean, _webp?: boolean, parentDomain?: string, seoContext?: SeoContext, renderOptions?: RenderOptions): string;
 
 declare function catchPostImage(obj: Entry | string, width?: number, height?: number, format?: string): string | null;
 
@@ -48,6 +54,11 @@ declare function setProxyBase(p: string): void;
  * @param _format - @deprecated Ignored. Always uses 'match' — format is handled server-side via Accept header.
  */
 declare function proxifyImageSrc(url?: string, width?: number, height?: number, _format?: string): string;
+/**
+ * Builds a srcset string with multiple width variants for responsive images.
+ * Uses the image proxy's width parameter to serve appropriately sized images.
+ */
+declare function buildSrcSet(url?: string): string;
 
 declare function setCacheSize(size: number): void;
 
@@ -55,4 +66,14 @@ declare const SECTION_LIST: string[];
 
 declare function isValidPermlink(permlink: string): boolean;
 
-export { type Entry, SECTION_LIST, type SeoContext, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase };
+/**
+ * Lightweight markdown-to-HTML conversion with sanitization.
+ * Unlike the full `markdownToHTML`, this skips Hive-specific transforms
+ * (image proxying, link internalizing, DOM traversal, etc.).
+ *
+ * Intended for editor input (TipTap), chat messages, and other contexts
+ * where simple markdown rendering is sufficient.
+ */
+declare function simpleMarkdownToHTML(input: string): string;
+
+export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };

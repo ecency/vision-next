@@ -11,11 +11,11 @@ export function AuthorLinkRenderer({ author }: { author: string }) {
       <>
         <img
             src={imageSrc}
-            className="ecency-renderer-author-extension-link-image"
+            className="er-author-link-image"
             alt={author}
         />
-        <div className="ecency-renderer-author-extension-link-content">
-        <span className="ecency-renderer-author-extension-link-content-label">
+        <div className="er-author-link-content">
+        <span className="er-author-link-label">
           Hive account
         </span>
           <span>{author.toLowerCase().replace("/", "")}</span>
@@ -60,8 +60,8 @@ export function AuthorLinkExtension({
         container.setAttribute("target", "_blank");
         container.setAttribute("rel", "noopener");
 
-        container.classList.add("ecency-renderer-author-extension");
-        container.classList.add("ecency-renderer-author-extension-link");
+        container.classList.add("er-author");
+        container.classList.add("er-author-link");
 
         const root = createRoot(container);
         rootsRef.current.push(root);

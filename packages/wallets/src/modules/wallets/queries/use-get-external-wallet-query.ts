@@ -7,9 +7,6 @@ const currencyChainMap: Record<EcencyWalletCurrency, string> = {
   [EcencyWalletCurrency.ETH]: "eth",
   [EcencyWalletCurrency.BNB]: "bnb",
   [EcencyWalletCurrency.SOL]: "sol",
-  [EcencyWalletCurrency.TRON]: "tron",
-  [EcencyWalletCurrency.TON]: "ton",
-  [EcencyWalletCurrency.APT]: "apt",
 };
 
 interface PrivateApiBalanceResponse {

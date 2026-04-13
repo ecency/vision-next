@@ -54,7 +54,7 @@ export function YoutubeVideoExtension({
 
     const elements = Array.from(
       containerRef.current?.querySelectorAll<HTMLElement>(
-        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.ecency-renderer-youtube-extension)",
+        ".markdown-view:not(.markdown-view-pure) .markdown-video-link-youtube:not(.er-youtube)",
       ) ?? [],
     );
     elements.forEach((element) => {
@@ -71,8 +71,8 @@ export function YoutubeVideoExtension({
         element.dataset.embedSrc = embedSrc;
         const container = document.createElement("div");
 
-        container.classList.add("ecency-renderer-youtube-extension-frame");
-        element.classList.add("ecency-renderer-youtube-extension");
+        container.classList.add("er-youtube-frame");
+        element.classList.add("er-youtube");
 
         // Use createRoot instead of hydrateRoot (no server-rendered content to hydrate)
         const root = createRoot(container);

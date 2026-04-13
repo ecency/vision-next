@@ -85,7 +85,7 @@
     }
   }
 
-  .markdown-author-link .user-avatar::before, .markdown-author-link .user-avatar::after {
+  .markdown-author-link .user-avatar, .er-author-link .user-avatar::before, .markdown-author-link .user-avatar::after {
     content: none !important;
   }
 }

@@ -1,5 +1,135 @@
 # @ecency/wallets
 
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.8
+
+## 3.0.7
+
+### Patch Changes
+
+- React 19 upgrade (#751)
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.7
+
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.6
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.5
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.4
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.3
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.2
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.1
+
+## 3.0.0
+
+### Minor Changes
+
+- Hive-tx migration/test (#739)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.1.0
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.35
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.34
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.33
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.32
+
+## 2.0.1
+
+### Patch Changes
+
+- Fix sol rpc (#716)
+
+## 2.0.0
+
+### Major Changes
+
+- QR login and Metamask transfers (#715)
+
+## 1.5.55
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.30
+
+## 1.5.54
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.28
+
+## 1.5.53
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @ecency/sdk@2.0.27
+
 ## 1.5.52
 
 ### Patch Changes

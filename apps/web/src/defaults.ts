@@ -26,7 +26,8 @@ const defaultImageServer = process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.
 
 export const ALLOWED_IMAGE_SERVERS = [
   "https://images.ecency.com",
-  "https://images.hive.blog"
+  "https://images.hive.blog",
+  "https://img.ecency.com"
 ];
 
 const defaults = {
@@ -35,7 +36,7 @@ const defaults = {
   chatBase: process.env.NEXT_PUBLIC_CHAT_BASE || baseDefaults.chatBase,
   get imageServer(): string {
     const override = ls.get("image_proxy");
-    if (override && ALLOWED_IMAGE_SERVERS.includes(override)) {
+    if (override && ALLOWED_IMAGE_SERVERS.includes(override) && override !== defaultImageServer) {
       return override;
     }
     return defaultImageServer;

@@ -1,5 +1,5 @@
 import { CONFIG, FullAccount, getAccountFullQueryOptions } from "@ecency/sdk";
-import { PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
 import { deriveHiveKeys } from "./derive-hive-bip44-keys";
 
 export type HiveKeyDerivation = "bip44" | "master-password" | "unknown";

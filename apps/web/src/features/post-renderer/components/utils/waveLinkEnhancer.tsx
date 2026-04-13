@@ -31,7 +31,7 @@ export function applyWaveLikePosts(
                 const link = el.getAttribute("href") ?? "";
 
                 const wrapper = document.createElement("div");
-                wrapper.classList.add("ecency-renderer-wave-like-extension");
+                wrapper.classList.add("er-wave");
 
                 const root = createRoot(wrapper);
                 root.render(

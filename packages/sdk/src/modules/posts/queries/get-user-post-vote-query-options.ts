@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { QueryKeys } from "@/modules/core";
 import type { Vote } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get a specific user's vote on a post
@@ -19,7 +19,7 @@ export function getUserPostVoteQueryOptions(
   return queryOptions({
     queryKey: QueryKeys.posts.userPostVote(username!, author!, permlink!),
     queryFn: async () => {
-      const result = await CONFIG.hiveClient.call("database_api", "list_votes", {
+      const result = await callRPC("database_api.list_votes", {
         start: [username, author, permlink],
         limit: 1,
         order: "by_voter_comment"

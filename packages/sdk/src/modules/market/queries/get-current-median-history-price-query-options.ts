@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export interface MedianHistoryPrice {
   base: string;
@@ -15,9 +15,7 @@ export function getCurrentMedianHistoryPriceQueryOptions() {
     queryKey: ["market", "current-median-history-price"],
     queryFn: async () => {
       try {
-        const price = await CONFIG.hiveClient.database.call(
-          "get_current_median_history_price"
-        );
+        const price = await callRPC("condenser_api.get_current_median_history_price", []);
         return price as MedianHistoryPrice;
       } catch (error) {
         throw error;

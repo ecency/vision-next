@@ -1,61 +1,37 @@
-import { Client } from "@hiveio/dhive";
-import { CONFIG } from "@/modules/core";
+import { callWithQuorum } from "@ecency/hive-tx";
 import { Entry } from "@/modules/posts/types";
-
-/** Maximum number of alternate nodes to try during verification */
-export const MAX_ALTERNATE_NODES = 2;
 
 /**
  * When the primary node returns null for a get_post call,
- * verify against up to 2 alternate nodes before concluding
- * the post is truly deleted. This guards against sync lag
- * where a single node temporarily returns null for valid content.
+ * verify by querying multiple random nodes. If any node
+ * returns the post, it exists (the first node was lagging).
  *
- * @param primaryNode - Snapshot of CONFIG.hiveClient.currentAddress captured
- *   before the primary request, so failover can't change which node we exclude.
+ * Uses callWithQuorum(quorum=1) which shuffles and queries
+ * nodes in batches. Since it shuffles, it's unlikely to hit
+ * the same node that just returned null first.
  */
 export async function verifyPostOnAlternateNode(
   author: string,
   permlink: string,
-  observer: string,
-  primaryNode?: string
+  observer: string
 ): Promise<Entry | null> {
-  const allNodes = CONFIG.hiveClient.address;
+  try {
+    const response = await callWithQuorum("bridge.get_post", {
+      author,
+      permlink,
+      observer,
+    }, 1);
 
-  // If we can't determine the node list, we can't verify
-  if (!Array.isArray(allNodes) || allNodes.length < 2) {
-    return null;
-  }
-
-  // Filter out the node that just returned null
-  const nodeToExclude = primaryNode ?? CONFIG.hiveClient.currentAddress;
-  const alternateNodes = nodeToExclude
-    ? allNodes.filter((node) => node !== nodeToExclude)
-    : [...allNodes];
-
-  const nodesToTry = alternateNodes.slice(0, MAX_ALTERNATE_NODES);
-
-  for (const node of nodesToTry) {
-    try {
-      const client = new Client(node, { timeout: 10000 });
-      const response = await client.call("bridge", "get_post", {
-        author,
-        permlink,
-        observer,
-      });
-
-      if (
-        response &&
-        typeof response === "object" &&
-        (response as Entry).author === author &&
-        (response as Entry).permlink === permlink
-      ) {
-        return response as Entry;
-      }
-    } catch {
-      // Node failed — try next one
-      continue;
+    if (
+      response &&
+      typeof response === "object" &&
+      (response as Entry).author === author &&
+      (response as Entry).permlink === permlink
+    ) {
+      return response as Entry;
     }
+  } catch {
+    // All nodes failed or returned null
   }
 
   return null;

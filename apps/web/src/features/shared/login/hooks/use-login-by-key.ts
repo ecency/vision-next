@@ -1,10 +1,11 @@
 import i18next from "i18next";
 import { error } from "../../feedback";
-import { cryptoUtils, PrivateKey, PublicKey } from "@hiveio/dhive";
+import { PrivateKey, PublicKey } from "@ecency/hive-tx";
+import { isWif, sha256 } from "@ecency/sdk";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CONFIG, getAccountFullQueryOptions, useGrantPostingPermission } from "@ecency/sdk";
+import { broadcastOperations, getAccountFullQueryOptions, useGrantPostingPermission } from "@ecency/sdk";
 import { EcencyConfigManager } from "@/config";
 import { formatError } from "@/api/format-error";
 import { makeHsCode } from "@/utils";
@@ -13,7 +14,7 @@ import { useGlobalStore } from "@/core/global-store";
 import { useRef } from "react";
 
 async function signer(message: string, privateKey: PrivateKey) {
-  const hash = cryptoUtils.sha256(message);
+  const hash = sha256(message);
   return new Promise<string>((resolve) => resolve(privateKey.sign(hash).toString()));
 }
 
@@ -36,7 +37,7 @@ export function useLoginByKey(
       if (!key) {
         throw new Error("No active key available for granting posting permission");
       }
-      return CONFIG.hiveClient.broadcast.sendOperations(ops, key);
+      return broadcastOperations(ops, key);
     }
   });
 
@@ -73,7 +74,7 @@ export function useLoginByKey(
         throw new Error(i18next.t("login.error-user-not-found"));
       }
 
-      const isPlainPassword = !cryptoUtils.isWif(keyOrSeed);
+      const isPlainPassword = !isWif(keyOrSeed);
 
       let privateKey: PrivateKey;
       let postingKey: PrivateKey | null = null;

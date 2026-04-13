@@ -86,6 +86,10 @@ export function EntryPayoutDetail({ entry }: Props) {
           </span>
         </p>
       )}
+      <p>
+        <span className="label">{i18next.t("entry-payout.payout-date")}</span>
+        <span className="value">{payoutDate}</span>
+      </p>
       {beneficiary.length > 0 && (
         <p>
           <span className="label">{i18next.t("entry-payout.beneficiary")}</span>
@@ -99,7 +103,7 @@ export function EntryPayoutDetail({ entry }: Props) {
         </p>
       )}
       {breakdownPayout.length > 0 && (
-        <p>
+        <p className="opacity-60">
           <span className="label">{i18next.t("entry-payout.breakdown")}</span>
           <span className="value">
             {breakdownPayout.map((x, i) => (
@@ -110,10 +114,6 @@ export function EntryPayoutDetail({ entry }: Props) {
           </span>
         </p>
       )}
-      <p>
-        <span className="label">{i18next.t("entry-payout.payout-date")}</span>
-        <span className="value">{payoutDate}</span>
-      </p>
       {payoutLimitHit && (
         <p>
           <span className="label">{i18next.t("entry-payout.max-accepted")}</span>

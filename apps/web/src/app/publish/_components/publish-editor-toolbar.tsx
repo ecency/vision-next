@@ -1,7 +1,8 @@
 "use client";
 
+import { isThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { EcencyConfigManager } from "@/config";
-import { error, LoginRequired } from "@/features/shared";
+import { LoginRequired } from "@/features/shared";
 import dynamic from "next/dynamic";
 
 const PublishGifPickerDialog = dynamic(
@@ -68,16 +69,14 @@ import {
 import { DropdownContext } from "@ui/dropdown/dropdown-context";
 import i18next from "i18next";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { usePublishState, usePublishVideoAttach } from "../_hooks";
+import { usePublishState } from "../_hooks";
 import { PublishEditorTableToolbar } from "./publish-editor-table-toolbar";
-import { PublishEditorVideoGallery } from "./publish-editor-video-gallery";
 
 import { PublishEditorToolbarFragments } from "./publish-editor-toolbar-fragments";
 import { AiImageIcon } from "@/features/shared/ai-image-icon";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { parseAllExtensionsToDoc } from "@/features/tiptap-editor";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const PublishEditorVideoByLinkDialog = dynamic(
   () => import("./publish-editor-video-by-link-dialog").then((m) => ({
@@ -197,15 +196,12 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageByLink, setShowImageByLink] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showVideoUpload, setShowVideoUpload] = useState(false);
   const [showVideoLink, setShowVideoLink] = useState(false);
   const [showGeoTag, setShowGeoTag] = useState(false);
   const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [showAiAssist, setShowAiAssist] = useState(false);
   const [isFocusingTable, setIsFocusingTable] = useState(false);
-
-  const attachVideo = usePublishVideoAttach(editor);
 
   const activeTextColor = editor?.getAttributes("textStyle")?.color as string | undefined;
 
@@ -412,23 +408,13 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
               </DropdownToggle>
               <DropdownMenu>
-                <DropdownItemWithIcon
-                  disabled={!allowToUploadVideo}
-                  icon={<UilUpload />}
-                  label={i18next.t("publish.three-speak-upload")}
-                  onClick={() => {
-                    if (allowToUploadVideo) {
-                      setShowVideoUpload(true);
-                    } else {
-                      error(i18next.t("publish.upload-video-error-hint"));
-                    }
-                  }}
-                />
-                <DropdownItemWithIcon
-                  icon={<UilVideo />}
-                  label={i18next.t("publish.three-speak-gallery")}
-                  onClick={() => setShowVideoGallery(true)}
-                />
+                {allowToUploadVideo && !publishState.hasThreeSpeakVideo && (
+                  <DropdownItemWithIcon
+                    icon={<UilUpload />}
+                    label={i18next.t("publish.three-speak-upload")}
+                    onClick={() => setShowVideoUpload(true)}
+                  />
+                )}
                 <DropdownItemWithIcon
                   icon={<UilLink />}
                   label={i18next.t("publish.from-link")}
@@ -631,25 +617,39 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           }}
         />
 
-        <PublishEditorVideoGallery
-          hasAlreadyPublishingVideo={!!publishState.publishingVideo}
-          filterOnly={allowToUploadVideo ? undefined : "published"}
-          show={showVideoGallery}
-          setShow={setShowVideoGallery}
-          onUpload={() => {
-            setShowVideoGallery(false);
-            setShowVideoUpload(true);
-          }}
-          onAdd={(video, isNsfw) => {
-            attachVideo(video, isNsfw);
-            setShowVideoGallery(false);
-          }}
-        />
-
         <VideoUpload
           show={showVideoUpload}
           setShow={setShowVideoUpload}
-          setShowGallery={setShowVideoGallery}
+          onVideoUploaded={(embedUrl, videoThumbnailUrl) => {
+            if (editor) {
+              editor
+                .chain()
+                .focus()
+                .set3SpeakVideo({
+                  src: embedUrl,
+                  thumbnail: videoThumbnailUrl || "",
+                  status: "published"
+                })
+                .run();
+            }
+
+            // Add video thumbnail to post metadata so feed cards show it
+            if (videoThumbnailUrl) {
+              publishState.setEntryImages((prev) =>
+                prev.includes(videoThumbnailUrl) ? prev : [...prev, videoThumbnailUrl]
+              );
+            }
+
+            // Add required 3Speak beneficiary (hasThreeSpeakVideo derives from content automatically)
+            publishState.setBeneficiaries((prev) => {
+              if (prev.some((b) => isThreeSpeakBeneficiary(b.account))) {
+                return prev;
+              }
+              return [...prev, { account: "threespeakfund", weight: 1100 }];
+            });
+
+            setShowVideoUpload(false);
+          }}
         />
 
         <PublishEditorVideoByLinkDialog
@@ -696,8 +696,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             initialText={editor?.getText()?.trim() || ""}
             onApply={(output, action) => {
               if (action === "improve" || action === "check_grammar" || action === "summarize") {
-                const parsed = marked.parse(output);
-                const sanitized = DOMPurify.sanitize(parsed as string);
+                const sanitized = simpleMarkdownToHTML(output);
                 const doc = parseAllExtensionsToDoc(sanitized);
                 editor?.commands.setContent(doc);
                 setShowAiAssist(false);

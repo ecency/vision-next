@@ -1,5 +1,5 @@
-import { Client } from "@hiveio/dhive";
 import { QueryClient } from "@tanstack/react-query";
+import { initHiveTx } from "./hive-tx";
 
 // Safe environment variable access for browser builds
 // In browser builds, tsup will replace process.env.* with literal values at compile time
@@ -28,16 +28,18 @@ const DEFAULT_HIVE_NODES = [
   "https://rpc.mahdiyari.info",
 ];
 
-const HIVE_CLIENT_OPTIONS = {
-  timeout: 20000,
-  failoverThreshold: 2,
-  consoleOnFailover: true,
-};
+const DEFAULT_HIVE_TIMEOUT = 1000;
+
+// Initialize hive-tx with default nodes
+initHiveTx(DEFAULT_HIVE_NODES, DEFAULT_HIVE_TIMEOUT);
+
+/** Timeout for internal API calls (search, private API). */
+export const INTERNAL_API_TIMEOUT_MS = 10_000;
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
-  hiveClient: new Client(DEFAULT_HIVE_NODES, HIVE_CLIENT_OPTIONS),
+  hiveNodes: DEFAULT_HIVE_NODES,
   heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
@@ -106,8 +108,7 @@ export namespace ConfigManager {
   }
 
   /**
-   * Set Hive RPC nodes, replacing the default list and creating a new dhive Client.
-   * The first node in the array will be used as the primary; others are failover.
+   * Set Hive RPC nodes, replacing the default list and updating hive-tx config.
    * @param nodes - Array of Hive RPC node URLs
    */
   export function setHiveNodes(nodes: string[]) {
@@ -117,7 +118,8 @@ export namespace ConfigManager {
         .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
     )];
     if (!validNodes.length) return;
-    CONFIG.hiveClient = new Client(validNodes, HIVE_CLIENT_OPTIONS);
+    CONFIG.hiveNodes = validNodes;
+    initHiveTx(validNodes, DEFAULT_HIVE_TIMEOUT);
   }
 
   /**

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG, getBoundFetch, QueryKeys } from "../../core";
-import type { AiGenerationPrice } from "../types";
+import type { AiImagePriceResponse } from "../types";
 
 export function getAiGeneratePriceQueryOptions(accessToken: string) {
   return queryOptions({
@@ -19,7 +19,7 @@ export function getAiGeneratePriceQueryOptions(accessToken: string) {
         throw new Error(`Failed to fetch AI generation prices: ${response.status}`);
       }
 
-      return (await response.json()) as AiGenerationPrice[];
+      return (await response.json()) as AiImagePriceResponse;
     },
     staleTime: 300_000,
     enabled: !!accessToken,

@@ -2,10 +2,9 @@ import { postBodySummary, proxifyImageSrc } from "@ecency/render-helper";
 import { PollSnapshot } from "../../polls";
 import appPackage from "../../../../package.json";
 import { getDimensionsFromDataUrl } from "./get-dimensions-from-data-url";
-import { ensureValidPermlink, extractMetaData, makeApp } from "@/utils/posting";
+import { extractMetaData, makeApp } from "@/utils/posting";
 import { makeEntryPath } from "@/utils/make-path";
 import { Entry, MetaData } from "@/entities";
-import { ThreeSpeakVideo } from "@/api/threespeak";
 
 const DEFAULT_TAGS = ["ecency"];
 
@@ -109,53 +108,6 @@ export class EntryMetadataBuilder {
           .map((element: string) => getDimensionsFromDataUrl(proxifyImageSrc(element)))
       )
     );
-    return this;
-  }
-
-  public withVideo(
-    title: string,
-    description: string | null,
-    videoMetadata?: ThreeSpeakVideo
-  ): this {
-    if (videoMetadata) {
-      const permlink = ensureValidPermlink(
-        videoMetadata.permlink,
-        title || videoMetadata.title
-      );
-      const sanitizedVideoMetadata = { ...videoMetadata, permlink };
-
-      return this.withField("video", {
-        info: {
-          platform: "3speak",
-          title: title || videoMetadata.title,
-          author: sanitizedVideoMetadata.owner,
-          permlink: sanitizedVideoMetadata.permlink,
-          duration: sanitizedVideoMetadata.duration,
-          filesize: sanitizedVideoMetadata.size,
-          file: sanitizedVideoMetadata.filename,
-          lang: sanitizedVideoMetadata.language,
-          firstUpload: sanitizedVideoMetadata.firstUpload,
-          ipfs: null,
-          ipfsThumbnail: null,
-          video_v2: sanitizedVideoMetadata.video_v2,
-          sourceMap: [
-            {
-              type: "video",
-              url: sanitizedVideoMetadata.video_v2,
-              format: "m3u8"
-            },
-            {
-              type: "thumbnail",
-              url: sanitizedVideoMetadata.thumbUrl
-            }
-          ]
-        },
-        content: {
-          description: description || sanitizedVideoMetadata.description,
-          tags: sanitizedVideoMetadata.tags_v2
-        }
-      }).withField("type", "video");
-    }
     return this;
   }
 

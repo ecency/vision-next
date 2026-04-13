@@ -1,8 +1,7 @@
 import { Editor } from "@tiptap/core";
 import { ClipboardStrategy } from "./clipboard-strategy";
 import { parseAllExtensionsToDoc } from "../../functions";
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 export class ClipboardPluginTextStrategy implements ClipboardStrategy {
   private editor: Editor | null = null;
@@ -19,7 +18,7 @@ export class ClipboardPluginTextStrategy implements ClipboardStrategy {
         this.onHtmlPaste();
       } else {
         const parsedText = parseAllExtensionsToDoc(
-          DOMPurify.sanitize(marked.parse(pastedText) as string)
+          simpleMarkdownToHTML(pastedText)
         );
 
         this.editor?.chain().insertContent(parsedText).run();

@@ -219,6 +219,12 @@ export async function addImage(code: string | undefined, url: string): Promise<R
   return parseJsonResponse<Record<string, unknown>>(response);
 }
 
+// Upload always targets the default Ecency image server, even when
+// the user has changed their viewing proxy (e.g. images.hive.blog).
+// The /hs/ route requires a HiveSigner-compatible access token which
+// only works with images.ecency.com.
+const UPLOAD_HOST = "https://images.ecency.com";
+
 export async function uploadImage(
   file: File,
   token: string,
@@ -228,7 +234,31 @@ export async function uploadImage(
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetchApi(`${CONFIG.imageHost}/hs/${token}`, {
+  const response = await fetchApi(`${UPLOAD_HOST}/hs/${token}`, {
+    method: "POST",
+    body: formData,
+    signal,
+  });
+
+  return parseJsonResponse<{ url: string }>(response);
+}
+
+/**
+ * Upload image using posting key signature (/:username/:signature path).
+ * Works with any compatible image server (images.ecency.com, images.hive.blog).
+ * The signature is sha256("ImageSigningChallenge" + fileData) signed with the posting key.
+ */
+export async function uploadImageWithSignature(
+  file: File,
+  username: string,
+  signature: string,
+  signal?: AbortSignal
+): Promise<{ url: string }> {
+  const fetchApi = getBoundFetch();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetchApi(`${CONFIG.imageHost}/${username}/${signature}`, {
     method: "POST",
     body: formData,
     signal,

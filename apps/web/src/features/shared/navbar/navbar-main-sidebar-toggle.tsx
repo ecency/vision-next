@@ -1,5 +1,6 @@
 import { Button } from "@/features/ui";
 import { UilBars } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
 import defaults from "@/defaults";
@@ -11,7 +12,7 @@ interface Props {
 export function NavbarMainSidebarToggle({ onClick }: Props) {
   return (
     <div className="h-[40px] min-w-[40px] md:min-w-[60px] flex items-center gap-1.5 cursor-pointer relative">
-      <Button onClick={onClick} appearance="gray-link" noPadding={true} icon={<UilBars />} />
+      <Button onClick={onClick} appearance="gray-link" noPadding={true} icon={<UilBars />} aria-label={i18next.t("navbar.toggle-menu")} />
       <Link className="hidden md:block" href="/">
         <Image
           src={defaults.logo}

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { JSX, useCallback, useContext, useEffect, useRef, useState } from "react";
 import useQueue from "react-use/lib/useQueue";
 import { DeckGridContext } from "./deck-manager";
 
@@ -13,7 +13,7 @@ export const DeckSmoothScroller = ({ children }: Props) => {
   const [startTouchX, setStartTouchX] = useState<number | undefined>(undefined);
 
   const queue = useQueue<number | undefined>();
-  let wheelTimeoutRef = useRef<any>();
+  const wheelTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getColumnWidth = () => {
     const anyDeckColumn = document.querySelector(".deck");
@@ -56,7 +56,9 @@ export const DeckSmoothScroller = ({ children }: Props) => {
         }
       }
     }
-    clearTimeout(wheelTimeoutRef.current);
+    if (wheelTimeoutRef.current) {
+      clearTimeout(wheelTimeoutRef.current);
+    }
     wheelTimeoutRef.current = setTimeout(() => queue.remove(), 400);
   }, [queue.first, offset, queue]);
 

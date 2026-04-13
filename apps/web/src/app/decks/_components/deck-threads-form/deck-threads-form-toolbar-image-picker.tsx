@@ -20,7 +20,7 @@ interface Props {
 export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
   const { activeUser } = useActiveAccount();
 
-  const fileInputRef = useRef<any>();
+  const fileInputRef = useRef<any>(null);
 
   const [imagePickInitiated, setImagePickInitiated] = useState(false);
   const [galleryPickInitiated, setGalleryPickInitiated] = useState(false);

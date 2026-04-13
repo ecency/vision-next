@@ -200,6 +200,50 @@ export const configFieldsMap: Record<string, ConfigField> = {
                   },
                 },
               },
+              tipping: {
+                label: 'Tipping',
+                type: 'section',
+                description: 'Tip button in posts and sidebar',
+                fields: {
+                  general: {
+                    label: 'Sidebar (General)',
+                    type: 'section',
+                    fields: {
+                      enabled: {
+                        label: 'Enabled',
+                        type: 'boolean',
+                        description: 'Show Tip button in sidebar',
+                      },
+                      buttonLabel: {
+                        label: 'Button Label',
+                        type: 'string',
+                        description: 'Custom label for Tip button (e.g. Tip)',
+                      },
+                    },
+                  },
+                  post: {
+                    label: 'Post',
+                    type: 'section',
+                    fields: {
+                      enabled: {
+                        label: 'Enabled',
+                        type: 'boolean',
+                        description: 'Show Tip button in post footer',
+                      },
+                      buttonLabel: {
+                        label: 'Button Label',
+                        type: 'string',
+                        description: 'Custom label for Tip button (e.g. Tip)',
+                      },
+                    },
+                  },
+                  amounts: {
+                    label: 'Preset Amounts',
+                    type: 'array',
+                    description: 'Preset amounts in USD for tip buttons (e.g. 1, 5, 10)',
+                  },
+                },
+              },
               auth: {
                 label: 'Authentication',
                 type: 'section',

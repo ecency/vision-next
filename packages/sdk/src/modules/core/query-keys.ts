@@ -144,6 +144,10 @@ export const QueryKeys = {
       ["posts", "waves", "following", host, username],
     wavesTrendingTags: (host: string, hours: number) =>
       ["posts", "waves", "trending-tags", host, hours],
+    wavesByAccount: (host: string, username: string) =>
+      ["posts", "waves", "by-account", host, username],
+    wavesTrendingAuthors: (host: string) =>
+      ["posts", "waves", "trending-authors", host],
     _prefix: ["posts"],
   },
 
@@ -303,18 +307,21 @@ export const QueryKeys = {
   // Search
   // ===========================================================================
   search: {
-    topics: (q: string) => ["search", "topics", q],
+    topics: (q: string, limit: number) => ["search", "topics", q, limit],
     path: (q: string) => ["search", "path", q],
     account: (q: string, limit: number) =>
       ["search", "account", q, limit],
     results: (
       q: string,
       sort: string,
-      hideLow: boolean,
+      hideLow: boolean | string,
       since?: string,
       scrollId?: string,
       votes?: number
-    ) => ["search", q, sort, hideLow, since, scrollId, votes],
+    ) => {
+      const normalizedHideLow = typeof hideLow === "string" ? hideLow === "1" || hideLow === "true" : hideLow;
+      return ["search", q, sort, normalizedHideLow, since, scrollId, votes] as const;
+    },
     controversialRising: (what: string, tag: string) =>
       ["search", "controversial-rising", what, tag],
     similarEntries: (author: string, permlink: string, query: string) =>
@@ -495,6 +502,14 @@ export const QueryKeys = {
   games: {
     statusCheck: (gameType: string, username: string) =>
       ["games", "status-check", gameType, username],
+  },
+
+  // ===========================================================================
+  // Bad Actors
+  // ===========================================================================
+  badActors: {
+    list: () => ["bad-actors", "list"],
+    _prefix: ["bad-actors"],
   },
 
   // ===========================================================================

@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface WavesTagFilterContextValue {
   selectedTag: string | null;
@@ -10,14 +19,39 @@ interface WavesTagFilterContextValue {
 const WavesTagFilterContext = createContext<WavesTagFilterContextValue | undefined>(undefined);
 
 export function WavesTagFilterProvider({ children }: PropsWithChildren<{}>) {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const urlTag = searchParams?.get("tag") ?? null;
+  const [selectedTag, setSelectedTagState] = useState<string | null>(urlTag);
+
+  useEffect(() => {
+    if (urlTag !== selectedTag) {
+      setSelectedTagState(urlTag);
+    }
+  }, [urlTag]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setSelectedTag = useCallback(
+    (tag: string | null) => {
+      setSelectedTagState(tag);
+
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      if (tag) {
+        params.set("tag", tag);
+      } else {
+        params.delete("tag");
+      }
+      const qs = params.toString();
+      router.replace(qs ? `/waves?${qs}` : "/waves", { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   const value = useMemo(
     () => ({
       selectedTag,
       setSelectedTag
     }),
-    [selectedTag]
+    [selectedTag, setSelectedTag]
   );
 
   return (

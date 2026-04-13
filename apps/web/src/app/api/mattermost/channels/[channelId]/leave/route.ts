@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {
+  addUserLeftChannel,
+  COMMUNITY_CHANNEL_NAME_PATTERN,
   getMattermostTokenFromCookies,
   handleMattermostError,
   mmUserFetch,
@@ -42,6 +44,14 @@ export async function POST(_: Request, { params }: { params: Promise<{ channelId
       });
     } else {
       await mmUserFetch(`/channels/${channelId}/members/me`, token, { method: "DELETE" });
+
+      // Track that the user manually left this community channel
+      // so bootstrap doesn't auto-rejoin them
+      if (channel.type === "O" && COMMUNITY_CHANNEL_NAME_PATTERN.test(channel.name)) {
+        await addUserLeftChannel(currentUser.id, channel.name).catch((e) =>
+          console.warn("Failed to record left channel", { channelId, error: e })
+        );
+      }
     }
     return NextResponse.json({ ok: true });
   } catch (error) {

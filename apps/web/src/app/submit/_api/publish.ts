@@ -1,16 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { markAsPublished, updateSpeakVideoInfo } from "@/api/threespeak";
+import { enforceThreeSpeakBeneficiary, linkThreeSpeakEmbed } from "@/api/threespeak-embed";
 import { formatError } from "@/api/format-error";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
-import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { GetPollDetailsQueryResponse } from "@/features/polls/api";
 import { usePollsCreationManagement } from "@/features/polls";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
-import { createPermlink, isCommunity, makeApp, makeCommentOptions, tempEntry } from "@/utils";
-import appPackage from "../../../../package.json";
+import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
 import i18next from "i18next";
 import { error, success } from "@/features/shared";
 import * as Sentry from "@sentry/nextjs";
@@ -30,7 +28,6 @@ export function usePublishApi(onClear: () => void) {
 
   const { username, account, isLoading } = useActiveAccount();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
-  const { videos, isNsfw, buildBody } = useThreeSpeakManager();
 
   const { clearAll } = usePollsCreationManagement();
   const { updateEntryQueryData } = EcencyEntriesCacheManagement.useUpdateEntry();
@@ -62,9 +59,6 @@ export function usePublishApi(onClear: () => void) {
       beneficiaries: BeneficiaryRoute[];
       selectedThumbnail?: string;
     }) => {
-      const unpublished3SpeakVideo = Object.values(videos).find(
-        (v) => v.status === "publish_manual"
-      );
       const cbody = EntryBodyManagement.EntryBodyManager.shared.builder().buildClearBody(body);
 
       // Ensure user is logged in and account data is available
@@ -129,34 +123,12 @@ export function usePublishApi(onClear: () => void) {
         .withTags(tags)
         .withSelectedThumbnail(selectedThumbnail);
       const jsonMeta = metaBuilder
-        .withVideo(title, description, unpublished3SpeakVideo)
         .withPoll(activePoll)
         .build();
 
-      // If post have one unpublished video need to modify
-      //    json metadata which matches to 3Speak
-      if (unpublished3SpeakVideo) {
-        // Permlink should be got from 3speak video metadata
-        permlink = unpublished3SpeakVideo.permlink;
-        // update speak video with title, body and tags
-        await updateSpeakVideoInfo(
-          username,
-          buildBody(body),
-          unpublished3SpeakVideo._id,
-          title,
-          tags,
-          isNsfw
-        );
-        // set specific metadata for 3speak
-        jsonMeta.app = makeApp(appPackage.version);
-        jsonMeta.type = "video";
-      }
+      const finalBeneficiaries = enforceThreeSpeakBeneficiary(beneficiaries, cbody);
 
-      if (jsonMeta.type === "video" && activePoll) {
-        throw new Error(i18next.t("polls.videos-collision-error"));
-      }
-
-      const options = makeCommentOptions(author, permlink, reward, beneficiaries);
+      const options = makeCommentOptions(author, permlink, reward, finalBeneficiaries);
 
       try {
         await commentMutation({
@@ -165,7 +137,7 @@ export function usePublishApi(onClear: () => void) {
           parentAuthor: "",
           parentPermlink,
           title,
-          body: buildBody(cbody),
+          body: cbody,
           jsonMetadata: jsonMeta,
           ...(options
             ? {
@@ -188,7 +160,7 @@ export function usePublishApi(onClear: () => void) {
             parentAuthor: "",
             parentPermlink,
             title,
-            body: buildBody(body),
+            body,
 
             tags,
             description,
@@ -208,18 +180,19 @@ export function usePublishApi(onClear: () => void) {
         }
         recordActivity().catch(() => {});
 
+        // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+        linkThreeSpeakEmbed(cbody, {
+          hiveAuthor: author,
+          hivePermlink: permlink,
+          hiveTitle: title,
+          hiveTags: tags
+        });
+
         success(i18next.t("submit.published"));
         onClear();
         clearActivePoll();
         router.push(`/@${username}/posts`);
 
-        //Mark speak video as published
-        if (!!unpublished3SpeakVideo && username === unpublished3SpeakVideo.owner) {
-          success(i18next.t("video-upload.publishing"));
-          setTimeout(() => {
-            markAsPublished(username!, unpublished3SpeakVideo._id);
-          }, 10000);
-        }
         if (isCommunity(tags[0]) && reblogSwitch) {
           await reblogMutation({ author, permlink });
         }

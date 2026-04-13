@@ -22,6 +22,7 @@ export function ProfileLink({ afterClick, target, className, children, username 
       target={target}
       className={className}
       onClick={typeof window !== "undefined" ? clicked : undefined}
+      aria-label={`@${username}`}
     >
       {children}
     </Link>

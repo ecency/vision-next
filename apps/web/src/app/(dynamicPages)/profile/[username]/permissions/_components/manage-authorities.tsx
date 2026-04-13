@@ -6,11 +6,12 @@ import { ProfilePreview } from "@/features/shared/profile-popover/profile-previe
 import { Popover } from "@/features/ui";
 import { getAccountFullQueryOptions, useAccountRevokePosting } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
+import { buildHsCallbackUrl } from "@/utils/hs-callback";
 import { Button } from "@ui/button";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import i18next from "i18next";
 import { useCallback, useState } from "react";
-import { shouldUseHiveAuth } from "@/utils/client";
+import { shouldUseKeychainMobile } from "@/utils/client";
 import { getSdkAuthContext, getUser } from "@/utils";
 
 export function ManageAuthorities() {
@@ -35,11 +36,12 @@ export function ManageAuthorities() {
     activeUser?.username,
     {
       onError: (err) => error((err as Error).message),
-      onSuccess: () => setKeyDialog(false)
+      onSuccess: () => setKeyDialog(false),
+      hsCallbackUrl: buildHsCallbackUrl(`/@${activeUser?.username}/permissions`)
     },
     getSdkAuthContext(getUser(activeUser?.username ?? ""))
   );
-  const useHiveAuth = shouldUseHiveAuth(activeUser?.username);
+  const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
 
   const handleRevoke = useCallback((account: string) => {
     setKeyDialog(true);
@@ -106,9 +108,12 @@ export function ManageAuthorities() {
             onHot={() => revoke({ type: "hivesigner", accountName: revokingAccount })}
             onKc={() =>
               revoke({
-                type: useHiveAuth ? "hiveauth" : "keychain",
+                type: "keychain",
                 accountName: revokingAccount
               })
+            }
+            onMetaMask={() =>
+              revoke({ type: "keychain", accountName: revokingAccount })
             }
           />
         </ModalBody>

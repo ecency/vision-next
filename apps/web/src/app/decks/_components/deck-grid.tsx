@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { DragDropContext, Draggable, Droppable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
 import { DeckGridContext } from "./deck-manager";
 import { DeckAddColumn, DeckUserColumn } from "./columns";
 import {

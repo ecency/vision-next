@@ -5,8 +5,10 @@ import * as yup from "yup";
 import { InferType } from "yup";
 import i18next from "i18next";
 import { Button, FormControl } from "@/features/ui";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { getBadActorsQueryOptions } from "@ecency/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 // Define schema outside the component to prevent recreation on each render
 const schema = yup.object({
@@ -32,6 +34,7 @@ interface Props {
 
 export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: Props) {
   const { activeUser } = useActiveAccount();
+  const { data: badActors } = useQuery(getBadActorsQueryOptions());
   const methods = useForm<WithdrawRoutesFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -66,16 +69,29 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
             spellCheck="false"
             aria-invalid={!!methods.formState.errors.account}
           />
-          {methods.formState.errors.account && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-red text-xs px-3 pt-0.5"
-            >
-              {methods.formState.errors.account.message}
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {methods.formState.errors.account && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-red text-xs px-3 pt-0.5"
+              >
+                {methods.formState.errors.account.message}
+              </motion.div>
+            )}
+            {badActors?.has(methods.watch("account")?.trim().toLowerCase()) && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                key="bad-actor-warning"
+                className="text-warning-default text-xs px-3 pt-0.5"
+              >
+                {i18next.t("transfer.to-bad-actor")}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div>
           <label>{i18next.t("withdraw-routes.percent")}</label>
@@ -84,16 +100,18 @@ export function WalletOperationWithdrawRoutesForm({ onSubmit, initialValues }: P
             type="number"
             aria-invalid={!!methods.formState.errors.percent}
           />
-          {methods.formState.errors.percent && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-red text-xs px-3 pt-0.5"
-            >
-              {methods.formState.errors.percent.message}
-            </motion.div>
-          )}
+          <AnimatePresence>
+            {methods.formState.errors.percent && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-red text-xs px-3 pt-0.5"
+              >
+                {methods.formState.errors.percent.message}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div>
           <label>{i18next.t("withdraw-routes.auto-power-up")}</label>

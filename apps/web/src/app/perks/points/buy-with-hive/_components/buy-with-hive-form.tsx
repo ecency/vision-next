@@ -12,9 +12,10 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 interface Props {
   onSubmit: (amount: string, asset: string, pointsAmount: string) => void;
+  isPending?: boolean;
 }
 
-export function BuyWithHiveForm({ onSubmit }: Props) {
+export function BuyWithHiveForm({ onSubmit, isPending }: Props) {
   const { account } = useActiveAccount();
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
 
@@ -91,7 +92,7 @@ export function BuyWithHiveForm({ onSubmit }: Props) {
       <div className="flex justify-end mt-4 md:mt-6 lg:mt-8">
         <Button
           icon={<UilArrowRight />}
-          disabled={!amount || amount === "0" || isAmountMoreThanBalance}
+          disabled={!amount || amount === "0" || isAmountMoreThanBalance || isPending}
           onClick={() => onSubmit(amount, asset, pointsAmount)}
         >
           {i18next.t("g.continue")}

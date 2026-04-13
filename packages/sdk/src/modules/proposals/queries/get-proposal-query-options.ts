@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import { Proposal } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 /**
  * Get a single proposal by ID
@@ -9,7 +9,7 @@ export function getProposalQueryOptions(id: number) {
   return queryOptions({
     queryKey: ["proposals", "proposal", id],
     queryFn: async () => {
-      const r = await CONFIG.hiveClient.call("condenser_api", "find_proposals", [[id]]);
+      const r = await callRPC("condenser_api.find_proposals", [[id]]);
       const proposal = r[0];
 
       // Determine proposal status based on dates

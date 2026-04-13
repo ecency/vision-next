@@ -11,7 +11,7 @@ import { LinearProgress } from "@/features/shared";
 import { getOpenOrdersQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { AssetSymbol } from "@hiveio/dhive";
+import type { AssetSymbol } from "@ecency/hive-tx";
 
 interface Props {
   account: Account;

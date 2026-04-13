@@ -11,16 +11,19 @@ import { PromotePostIntro, PromotePostSetup, PromoteSuccess } from "./_component
 import { usePromoteMutation } from "@/api/sdk-mutations";
 import { usePreCheckPromote } from "@/api/mutations";
 import { EcencyAnalytics } from "@ecency/sdk";
+import { error } from "@/features/shared/feedback";
+import { formatError } from "@/api/format-error";
 
 export function PromotePost() {
   const { activeUser } = useActiveAccount();
 
-  const [step, setStep] = useState<"intro" | "setup" | "sign" | "success">("intro");
+  const [step, setStep] = useState<"intro" | "setup" | "success">("intro");
   const [path, setPath] = useState("");
   const [duration, setDuration] = useState(0);
 
-  const { mutateAsync: promote, isPending } = usePromoteMutation();
-  const { mutateAsync: next } = usePreCheckPromote(path, () => setStep("sign"));
+  const { mutateAsync: promote, isPending: isPromotePending } = usePromoteMutation();
+  const { mutateAsync: preCheck, isPending: isPreCheckPending } = usePreCheckPromote(() => {});
+  const isPending = isPromotePending || isPreCheckPending;
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     activeUser?.username,
     "perks-promote"
@@ -48,28 +51,26 @@ export function PromotePost() {
       {step === "intro" && <PromotePostIntro onContinue={() => setStep("setup")} />}
       {step === "setup" && (
         <PromotePostSetup
+          isPending={isPending}
           onSuccess={async (path, duration) => {
             setPath(path);
             setDuration(duration);
-            await next();
-          }}
-        />
-      )}
-      {step === "sign" && (
-        <div>
-          <Button
-            disabled={isPending}
-            isLoading={isPending}
-            onClick={async () => {
+            try {
+              await preCheck(path);
+            } catch {
+              // preCheck's own onError handler already shows the toast
+              return;
+            }
+            try {
               const [author, permlink] = path.replace("@", "").split("/");
               await promote({ author, permlink, duration });
-              recordActivity();
+              recordActivity().catch(() => {});
               setStep("success");
-            }}
-          >
-            {i18next.t("trx-common.sign-title")}
-          </Button>
-        </div>
+            } catch (e) {
+              error(...formatError(e));
+            }
+          }}
+        />
       )}
       {step === "success" && <PromoteSuccess />}
     </div>

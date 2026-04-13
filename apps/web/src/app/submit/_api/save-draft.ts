@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useThreeSpeakManager } from "../_hooks";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { BeneficiaryRoute, Draft, DraftMetadata, RewardType } from "@/entities";
-import { ThreeSpeakVideo } from "@/api/threespeak";
 import { EntryMetadataManagement } from "@/features/entry-management";
 import { addDraft, updateDraft } from "@ecency/sdk";
 import i18next from "i18next";
@@ -18,7 +16,6 @@ import { getCreatedDraft } from "@/app/publish/_utils/get-created-draft";
 
 export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
   const { username } = useActiveAccount();
-  const { videos } = useThreeSpeakManager();
   const { activePoll, clearActivePoll } = useContext(PollsContext);
 
   const router = useRouter();
@@ -39,8 +36,7 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
       beneficiaries,
       reward,
       description,
-      selectedThumbnail,
-      videoMetadata
+      selectedThumbnail
     }: {
       title: string;
       body: string;
@@ -50,7 +46,6 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
       reward: RewardType;
       description: string | null;
       selectedThumbnail?: string;
-      videoMetadata?: ThreeSpeakVideo;
     }) => {
       const tagJ = tags.join(" ");
 
@@ -68,7 +63,6 @@ export function useSaveDraftApi(onDraftCreated?: (draft: Draft) => void) {
         ...meta,
         beneficiaries: beneficiaries ?? [],
         rewardType: reward ?? "default",
-        videos,
         poll: activePoll
       };
 

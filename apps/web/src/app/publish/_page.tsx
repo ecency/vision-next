@@ -6,9 +6,11 @@ import {
   PublishMultiTabWarning
 } from "@/app/publish/_components";
 import { usePublishAutosave, usePublishEditor, usePublishState } from "@/app/publish/_hooks";
+import type { ImportResult } from "@/app/publish/_components/publish-import-dialog";
 import { isCommunity } from "@/utils";
+import routes from "@/routes";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import i18next from "i18next";
 import { PublishEditorHtmlWarning } from "./_components/publish-editor-html-warning";
 import { PublishSuccessState } from "./_components/publish-success-state";
@@ -32,12 +34,24 @@ const PublishEditor = dynamic(
 
 export default function Publish() {
   const [step, setStep] = useState<"edit" | "validation" | "scheduled" | "published">("edit");
+  const [publishedEntry, setPublishedEntry] = useState<{ title: string; author: string; permlink: string; category: string } | undefined>();
   const [showHtmlWarning, setShowHtmlWarning] = useState(false);
 
-  const { editor } = usePublishEditor(() => setShowHtmlWarning(true));
+  const { editor, setEditorContent } = usePublishEditor(() => setShowHtmlWarning(true));
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { tags, setTags } = usePublishState();
+  const { tags, setTags, setTitle, setContent, setSelectedThumbnail } = usePublishState();
+
+  const handleImport = useCallback(
+    (result: ImportResult) => {
+      setTitle(result.title);
+      setContent(result.content);
+      setEditorContent(result.content);
+      setSelectedThumbnail(result.thumbnail || "");
+      setTags(result.tags ?? []);
+    },
+    [setTitle, setContent, setEditorContent, setSelectedThumbnail, setTags]
+  );
   const appliedCommunityRef = useRef<string | null>(null);
 
   const { isActiveTab, lastSaved, draftId } = usePublishAutosave();
@@ -86,7 +100,8 @@ export default function Publish() {
           </div>
           <PublishActionBar
             onPublish={() => setStep("validation")}
-            onBackToClassic={() => router.push("/submit")}
+            onBackToClassic={() => router.push(routes.SUBMIT)}
+            onImport={handleImport}
             draftId={draftId}
           />
           <PublishEditor editor={editor} />
@@ -95,7 +110,8 @@ export default function Publish() {
       {step === "validation" && (
         <PublishValidatePost
           onClose={() => setStep("edit")}
-          onSuccess={(step) => {
+          onSuccess={(step, entryInfo) => {
+            setPublishedEntry(entryInfo);
             setStep(step);
           }}
         />
@@ -104,6 +120,7 @@ export default function Publish() {
         <PublishSuccessState
           step={step as "published" | "scheduled"}
           setEditStep={() => setStep("edit")}
+          entryInfo={publishedEntry}
         />
       )}
 

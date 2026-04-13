@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { CONFIG } from "@/modules/core";
 import { CurationDuration, CurationItem } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getDiscoverCurationQueryOptions(duration: CurationDuration) {
   return queryOptions({
@@ -19,7 +20,7 @@ export function getDiscoverCurationQueryOptions(duration: CurationDuration) {
 
       // Fetch account data for efficiency calculation
       const accounts = data.map((item) => item.account);
-      const accountsResponse = await CONFIG.hiveClient.database.getAccounts(accounts);
+      const accountsResponse = await callRPC("condenser_api.get_accounts", [accounts]);
 
       // Calculate efficiency for each curator
       for (let index = 0; index < accountsResponse.length; index++) {

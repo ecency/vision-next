@@ -13,6 +13,8 @@ import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getDiscussionsQueryOptions, SortOrder as SDKSortOrder } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks";
 import { SortOrder } from "@/enums";
+import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed/beneficiary";
+import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 
 export function useWavesApi() {
   const queryClient = useQueryClient();
@@ -29,12 +31,14 @@ export function useWavesApi() {
       entry,
       raw,
       editingEntry,
-      host
+      host,
+      videoThumbnail
     }: {
       entry: Entry;
       raw: string;
       editingEntry?: WaveEntry;
       host?: string;
+      videoThumbnail?: string;
     }) => {
       if (!username) {
         throw new Error("[Wave][Thread-base][API] – No active user");
@@ -64,12 +68,18 @@ export function useWavesApi() {
       }
       const tags = raw.match(/\#[a-zA-Z0-9]+/g)?.map((tag) => tag.replace("#", "")) ?? ["ecency"];
 
-      const jsonMeta = EntryMetadataManagement.EntryMetadataManager.shared
+      const builder = EntryMetadataManagement.EntryMetadataManager.shared
         .builder()
         .default()
+        .extractFromBody(raw)
         .withTags(tags)
-        .withPoll(activePoll)
-        .build();
+        .withPoll(activePoll);
+
+      if (videoThumbnail) {
+        await builder.withSelectedThumbnail(videoThumbnail);
+      }
+
+      const jsonMeta = builder.build();
 
       // Build SDK comment payload
       const commentPayload: CommentPayload = {
@@ -84,6 +94,17 @@ export function useWavesApi() {
         rootPermlink: entry.permlink
       };
 
+      // Add 3Speak beneficiary when the wave contains a video embed
+      const beneficiaries = enforceThreeSpeakBeneficiary([], raw);
+      if (beneficiaries.length > 0) {
+        commentPayload.options = {
+          beneficiaries: beneficiaries.map((b) => ({
+            account: b.account,
+            weight: b.weight
+          }))
+        };
+      }
+
       await sdkComment(commentPayload);
       if (!editingEntry) {
         // For newly created waves we still confirm blockchain propagation but
@@ -93,6 +114,14 @@ export function useWavesApi() {
           delays: [750, 1500, 2250]
         });
       }
+
+      // Link video to Hive post so it appears in 3Speak feeds (fire-and-forget)
+      linkThreeSpeakEmbed(raw, {
+        hiveAuthor: username,
+        hivePermlink: permlink,
+        hiveTags: tags,
+        isEditing: !!editingEntry
+      });
 
       const tempReply = editingEntry
         ? {

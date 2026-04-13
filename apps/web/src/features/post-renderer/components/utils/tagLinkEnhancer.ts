@@ -3,7 +3,7 @@ export function applyTagLinks(container: HTMLElement) {
         ".markdown-view:not(.markdown-view-pure) .markdown-tag-link"
     );
     tags.forEach(tag => {
-        tag.classList.add("ecency-renderer-tag-link-enhanced");
+        tag.classList.add("er-tag-enhanced");
         // more DOM changes if needed
     });
 }

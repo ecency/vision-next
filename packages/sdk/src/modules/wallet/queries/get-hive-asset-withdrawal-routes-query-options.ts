@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "@/modules/core/config";
 import type { WithdrawRoute } from "../types";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export function getHiveAssetWithdrawalRoutesQueryOptions(
   username: string | undefined
@@ -8,7 +8,7 @@ export function getHiveAssetWithdrawalRoutesQueryOptions(
   return queryOptions({
     queryKey: ["assets", "hive", "withdrawal-routes", username],
     queryFn: () =>
-      CONFIG.hiveClient.database.call("get_withdraw_routes", [
+      callRPC("condenser_api.get_withdraw_routes", [
         username,
         "outgoing",
       ]) as Promise<WithdrawRoute[]>,

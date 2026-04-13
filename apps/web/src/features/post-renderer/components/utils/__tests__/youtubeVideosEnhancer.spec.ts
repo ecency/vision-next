@@ -38,7 +38,7 @@ describe('applyYoutubeVideos', () => {
       applyYoutubeVideos(container)
 
       expect(link.dataset.enhanced).toBe('true')
-      const wrapper = link.querySelector('.ecency-renderer-youtube-extension-frame')
+      const wrapper = link.querySelector('.er-youtube-frame')
       expect(wrapper).toBeTruthy()
     })
 
@@ -79,7 +79,7 @@ describe('applyYoutubeVideos', () => {
 
       applyYoutubeVideos(container)
 
-      const wrapper = link.querySelector('.ecency-renderer-youtube-extension-frame')
+      const wrapper = link.querySelector('.er-youtube-frame')
       expect(wrapper).toBeTruthy()
       expect(wrapper?.parentElement).toBe(link)
     })
@@ -110,9 +110,9 @@ describe('applyYoutubeVideos', () => {
       expect(link.innerHTML).toBe(initialHTML)
     })
 
-    it('should skip links with ecency-renderer-youtube-extension class', () => {
+    it('should skip links with er-youtube class', () => {
       const link = document.createElement('a')
-      link.classList.add('markdown-video-link-youtube', 'ecency-renderer-youtube-extension')
+      link.classList.add('markdown-video-link-youtube', 'er-youtube')
       link.href = 'https://www.youtube.com/watch?v=test'
       container.appendChild(link)
 

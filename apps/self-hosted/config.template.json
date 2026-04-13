@@ -46,7 +46,12 @@
         }
       },
       "features": {
-        "postsFilters": ["blog", "posts", "comments", "replies"],
+        "postsFilters": [
+          "blog",
+          "posts",
+          "comments",
+          "replies"
+        ],
         "likes": {
           "enabled": true
         },
@@ -60,7 +65,26 @@
         },
         "auth": {
           "enabled": true,
-          "methods": ["keychain", "hivesigner", "hiveauth"]
+          "methods": [
+            "keychain",
+            "hivesigner",
+            "hiveauth"
+          ]
+        },
+        "tipping": {
+          "general": {
+            "enabled": false,
+            "buttonLabel": "Tip"
+          },
+          "post": {
+            "enabled": false,
+            "buttonLabel": "Tip"
+          },
+          "amounts": [
+            1,
+            5,
+            10
+          ]
         }
       }
     }

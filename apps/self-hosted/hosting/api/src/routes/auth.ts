@@ -7,7 +7,8 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { Client, cryptoUtils, Signature, PublicKey } from '@hiveio/dhive';
+import { callRPC, Signature, PublicKey, config as hiveTxConfig } from '@ecency/hive-tx';
+import { createHash } from 'crypto';
 import { TenantService } from '../services/tenant-service';
 import { nanoid } from 'nanoid';
 import { createToken, verifyToken, getTokenExpiry } from '../utils/auth';
@@ -16,9 +17,8 @@ import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const authRoutes = new Hono();
 
-const hiveClient = new Client(
-  process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog']
-);
+// Configure hive-tx nodes
+hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];
 
 // Validation schemas
 const loginChallengeSchema = z.object({
@@ -39,8 +39,8 @@ authRoutes.post(
     const { username } = c.req.valid('json');
 
     // Verify Hive account exists
-    const accounts = await hiveClient.database.getAccounts([username]);
-    if (accounts.length === 0) {
+    const accounts = await callRPC('condenser_api.get_accounts', [[username]]) as any[];
+    if (!accounts || accounts.length === 0) {
       return c.json({ error: 'Hive account not found' }, 404);
     }
 
@@ -81,8 +81,8 @@ authRoutes.post(
     }
 
     // Get account public keys
-    const accounts = await hiveClient.database.getAccounts([username]);
-    if (accounts.length === 0) {
+    const accounts = await callRPC('condenser_api.get_accounts', [[username]]) as any[];
+    if (!accounts || accounts.length === 0) {
       return c.json({ error: 'Account not found' }, 404);
     }
 
@@ -91,11 +91,11 @@ authRoutes.post(
     // Verify signature against posting key
     try {
       const publicKey = PublicKey.fromString(account.posting.key_auths[0][0]);
-      const sig = Signature.fromString(signature);
-      const messageHash = cryptoUtils.sha256(challenge);
+      const sig = Signature.from(signature);
+      const messageHash = createHash('sha256').update(challenge).digest();
 
-      const recovered = sig.recover(messageHash);
-      if (!recovered.equals(publicKey)) {
+      const verified = publicKey.verify(messageHash, sig);
+      if (!verified) {
         return c.json({ error: 'Invalid signature' }, 401);
       }
     } catch (err) {

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { CONFIG } from "../config";
 import { QueryKeys } from "@/modules/core";
+import { callRPC } from "@/modules/core/hive-tx";
 
 export interface RewardFund {
   id: number;
@@ -23,7 +23,7 @@ export function getRewardFundQueryOptions(fundName = "post") {
   return queryOptions({
     queryKey: QueryKeys.core.rewardFund(fundName),
     queryFn: () =>
-      CONFIG.hiveClient.database.call("get_reward_fund", [
+      callRPC("condenser_api.get_reward_fund", [
         fundName,
       ]) as Promise<RewardFund>,
   });

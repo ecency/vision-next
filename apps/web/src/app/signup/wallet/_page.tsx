@@ -3,58 +3,52 @@
 import { EcencyWalletCurrency } from "@ecency/wallets";
 import { useState } from "react";
 import {
-  SignupByWalletStepperSteps,
-  SignupWalletAccountCreating,
-  SignupWalletIntro,
-  SignupWalletStepper
-} from "./_components";
-import { SignupWalletValidateFunds } from "./_components/steps/signup-wallet-validate-funds";
-import { WalletSeedPhrase, WalletSeedValidation } from "@/features/wallet";
+  SignupWalletStepper,
+  MetamaskSignupStep
+} from "./_components/signup-wallet-stepper";
+import { SignupWalletIntro } from "./_components/steps/signup-wallet-intro";
+import { MetamaskConnect } from "./_components/steps/metamask-connect";
+import { MetamaskAccountCreating } from "./_components/steps/metamask-account-creating";
 
-/**
- * TODO add account to keychain if there is keychain available
- */
+interface VerifiedWallet {
+  currency: EcencyWalletCurrency;
+  address: string;
+  addresses: Partial<Record<EcencyWalletCurrency, string>>;
+}
+
 export default function SignupByWalletPage() {
-  const [validatedWallet, setValidatedWallet] = useState<EcencyWalletCurrency>();
-  const [step, setStep] = useState(SignupByWalletStepperSteps.INTRO);
+  const [step, setStep] = useState(MetamaskSignupStep.INTRO);
   const [username, setUsername] = useState("");
+  const [verifiedWallet, setVerifiedWallet] = useState<VerifiedWallet>();
 
   return (
     <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 xl:gap-12 items-start">
       <SignupWalletStepper step={step} />
 
-      <div className="md:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white px-4 py-8 sm:px-6 sm:py-10 md:px-8 rounded-xl">
-        {step === SignupByWalletStepperSteps.INTRO && (
+      <div className="md:col-span-2 flex flex-col max-w-[800px] w-full justify-center bg-white dark:bg-dark-200 px-4 py-8 sm:px-6 sm:py-10 md:px-8 rounded-xl">
+        {step === MetamaskSignupStep.INTRO && (
           <SignupWalletIntro
             initialUsername={username}
             username={username}
             setUsername={setUsername}
-            onNext={() => setStep(SignupByWalletStepperSteps.SEED)}
+            onNext={() => setStep(MetamaskSignupStep.CONNECT)}
           />
         )}
-        {step === SignupByWalletStepperSteps.SEED && (
-          <WalletSeedPhrase
+        {step === MetamaskSignupStep.CONNECT && (
+          <MetamaskConnect
             username={username}
-            onValidated={() => setStep(SignupByWalletStepperSteps.VALIDATION)}
-          />
-        )}
-        {step === SignupByWalletStepperSteps.VALIDATION && (
-          <WalletSeedValidation
-            username={username}
-            onValidated={() => setStep(SignupByWalletStepperSteps.VALIDATE_FUNDS)}
-          />
-        )}
-        {step === SignupByWalletStepperSteps.VALIDATE_FUNDS && (
-          <SignupWalletValidateFunds
-            username={username}
-            onValid={(currency) => {
-              setStep(SignupByWalletStepperSteps.CREATE_ACCOUNT);
-              setValidatedWallet(currency);
+            onVerified={(currency, address, addresses) => {
+              setVerifiedWallet({ currency, address, addresses });
+              setStep(MetamaskSignupStep.CREATE_ACCOUNT);
             }}
+            onBack={() => setStep(MetamaskSignupStep.INTRO)}
           />
         )}
-        {step === SignupByWalletStepperSteps.CREATE_ACCOUNT && validatedWallet && (
-          <SignupWalletAccountCreating username={username} validatedWallet={validatedWallet} />
+        {step === MetamaskSignupStep.CREATE_ACCOUNT && verifiedWallet && (
+          <MetamaskAccountCreating
+            username={username}
+            verifiedWallet={verifiedWallet}
+          />
         )}
       </div>
     </div>

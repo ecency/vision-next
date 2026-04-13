@@ -1,4 +1,4 @@
-import { AssetSymbol } from "@hiveio/dhive";
+import type { AssetSymbol } from "@ecency/hive-tx";
 import { setImmediate as flushMicroTasks } from "timers";
 import {
   AccountSearchResult,

@@ -1,5 +1,7 @@
 import React from "react";
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -19,7 +21,7 @@ export default function TermsOfService() {
           <h1 className="page-title" id="terms-of-service">
             Terms Of Service
           </h1>
-          <p className="static-last-updated">Last Updated March 5, 2026</p>
+          <p className="static-last-updated">Last Updated March 13, 2026</p>
           <p>
             This agreement (the &quot;Agreement&quot;) between you and this site’s operators
             (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) sets out your rights to access and use
@@ -47,6 +49,10 @@ export default function TermsOfService() {
             13 and 18 years of age (or the age of legal majority where you reside), you may only
             access or use the Service under the supervision of a parent or legal guardian who agrees
             to be bound by this Agreement.
+          </p>
+          <p>
+            For our dedicated rules on child protection, prohibited child exploitation content, and
+            reporting channels, see our <Link href="/child-safety">Child Safety Standards</Link>.
           </p>
           <h2 id="copyright-and-limited-license">3. Copyright and Limited License</h2>
           <p>
@@ -329,6 +335,12 @@ export default function TermsOfService() {
             14.1.6. Encourage or induce any third-party to engage in any of the activities
             prohibited under this Section.
           </p>
+          <p>
+            Child sexual abuse material, child sexual abuse or exploitation, grooming, solicitation
+            of minors, and related conduct are strictly prohibited. See our{" "}
+            <Link href="/child-safety">Child Safety Standards</Link> for the dedicated policy and
+            reporting contact.
+          </p>
           <h2 id="copyright-complaints-the-dmca-and-takedowns">
             15. Copyright Complaints, the DMCA, and Takedowns
           </h2>
@@ -434,6 +446,11 @@ export default function TermsOfService() {
           </p>
           <p>
             Content moderation decisions are made at our sole discretion and do not imply liability or admission of fault.
+          </p>
+          <p>
+            If your complaint concerns suspected CSAM, CSAE, grooming, or threats to a minor, use
+            the dedicated process described in our{" "}
+            <Link href="/child-safety">Child Safety Standards</Link>.
           </p>
           <h2 id="indemnity">17. Indemnity</h2>
           <p>
@@ -541,6 +558,10 @@ export default function TermsOfService() {
             to create, upload, share, request, promote, or store child sexual abuse material
             (&quot;CSAM&quot;) or any content or behavior that sexually exploits, endangers, or
             harms minors (&quot;CSAE&quot;).
+          </p>
+          <p>
+            A dedicated child safety policy page is available at{" "}
+            <Link href="/child-safety">/child-safety</Link>.
           </p>
           <p>
             Prohibited conduct includes, without limitation: grooming; sexualization of minors;

@@ -247,19 +247,7 @@ label.font-small {
   line-height: 18px;
 }
 
-.cursor-drag {
-  cursor: grab;
-}
-
-.react-draggable-dragging {
-  .cursor-drag {
-    cursor: grabbing;
-  }
-}
-
-.react-grid-item.react-grid-placeholder {
-  background-color: $primary;
-}
+/* Grid drag/placeholder styles moved to market/advanced page */
 
 .sticky-bottom {
   position: sticky;

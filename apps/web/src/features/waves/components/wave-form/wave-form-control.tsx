@@ -12,10 +12,11 @@ import { clsx } from "clsx";
 interface Props {
   text: string;
   setText: (v: string) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement>;
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   video: string | undefined;
   selectedImage: string | undefined;
   clearSelectedImage: () => void;
+  clearVideo?: () => void;
   placeholder?: string;
   characterLimit: number;
   onPasteImage?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
@@ -27,6 +28,8 @@ export const WaveFormControl = ({
   setText,
   selectedImage,
   clearSelectedImage,
+  clearVideo,
+  video,
   characterLimit,
   placeholder,
   textareaRef,
@@ -44,13 +47,15 @@ export const WaveFormControl = ({
         : "text-gray-500 dark:text-gray-300"
   );
 
+  const showCounter = textLength > 0;
+
   return (
-    <div className="flex items-start gap-4 flex-wrap py-4">
+    <div className="flex items-start gap-4 flex-wrap py-1">
       <div className="w-full">
         <TextareaAutosize
           disabled={disabled}
           className={clsx(
-            "w-full rounded-xl px-3 py-2 lg:px-4 bg-gray-100 dark:bg-dark-default outline-none border-0 resize-none min-h-[3.5rem] text-[0.95rem] leading-6 focus-visible:ring-2 focus-visible:ring-blue-dark-sky",
+            "w-full px-0 py-1.5 bg-transparent outline-none border-0 resize-none min-h-[2.5rem] text-[0.95rem] leading-6 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 dark:focus-visible:ring-blue-400 rounded-sm",
             disabled && "opacity-60 cursor-not-allowed"
           )}
           placeholder={placeholder ?? i18next.t("decks.threads-form.input-placeholder")}
@@ -59,9 +64,11 @@ export const WaveFormControl = ({
           ref={textareaRef}
           onPaste={onPasteImage}
         />
-        <div className={counterClassName} aria-live="polite">
-          {textLength}/{characterLimit}
-        </div>
+        {showCounter && (
+          <div className={counterClassName} aria-live="polite">
+            {textLength}/{characterLimit}
+          </div>
+        )}
       </div>
       <AnimatePresence>
         {selectedImage && (
@@ -81,6 +88,32 @@ export const WaveFormControl = ({
               className="absolute top-4 right-4"
               onClick={() => clearSelectedImage()}
             />
+          </motion.div>
+        )}
+        {video && (
+          <motion.div
+            key="video"
+            initial={{ opacity: 0, scale: 0.875, height: 0 }}
+            animate={{ opacity: 1, scale: 1, height: "auto" }}
+            exit={{ opacity: 0, scale: 0.875, height: 0 }}
+            className="max-w-[320px] rounded-2xl relative overflow-hidden border border-[--border-color] mb-3 flex items-center justify-center bg-gray-100 dark:bg-dark-default p-4"
+          >
+            <Badge className="absolute top-4 left-4 text-xs uppercase">
+              {i18next.t("video-upload.short-badge")}
+            </Badge>
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400 py-4">
+              {i18next.t("video-upload.video-attached")}
+            </div>
+            {clearVideo && (
+              <Button
+                appearance="danger"
+                size="sm"
+                icon={<UilMultiply />}
+                className="absolute top-4 right-4"
+                onClick={clearVideo}
+                aria-label={i18next.t("g.clear")}
+              />
+            )}
           </motion.div>
         )}
         {activePoll && (

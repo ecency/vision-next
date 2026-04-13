@@ -3,7 +3,8 @@
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { cryptoUtils, PrivateKey } from "@hiveio/dhive";
+import { PrivateKey } from "@ecency/hive-tx";
+import { isWif } from "@ecency/sdk";
 import {
   forwardRef,
   HTMLProps,
@@ -67,7 +68,7 @@ export const KeyInput = forwardRef<
       let privateKey: PrivateKey;
 
       try {
-        if (cryptoUtils.isWif(key)) {
+        if (isWif(key)) {
           privateKey = PrivateKey.fromString(key);
         } else {
           const derivation = await detectHiveKeyDerivation(

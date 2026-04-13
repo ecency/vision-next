@@ -1,4 +1,4 @@
-import { getAccountPostsQueryOptions, getDiscussionQueryOptions } from "@ecency/sdk";
+import { getAccountPostsQueryOptions, getDiscussionQueryOptions, type Entry } from "@ecency/sdk";
 import { IdentifiableEntry, ThreadItemEntry } from "./identifiable-entry";
 import { FetchQueryOptions } from "@tanstack/query-core";
 import { ProfileFilter } from "@/enums";
@@ -37,7 +37,7 @@ export async function fetchThreads(
     return fetchThreads(host, nextThreadContainers[0]);
   }
 
-  const flattenThreadItems = Object.values(threadItems ?? {})
+  const flattenThreadItems = (Object.values(threadItems ?? {}) as Entry[])
     // Filter only parent thread items
     .filter(
       ({ parent_author, parent_permlink }) =>

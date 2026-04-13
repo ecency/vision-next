@@ -1,6 +1,8 @@
 "use client";
 
-import { Navbar, ScrollToTop, Theme } from "@/features/shared";
+import { Navbar } from "@/features/shared/navbar";
+import { ScrollToTop } from "@/features/shared/scroll-to-top";
+import { Theme } from "@/features/shared/theme";
 import { UilArrowLeft, UilArrowRight } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import i18next from "i18next";

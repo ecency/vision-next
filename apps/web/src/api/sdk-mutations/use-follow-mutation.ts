@@ -9,7 +9,7 @@ import { useActiveUsername } from "@/core/hooks/use-active-username";
  *
  * Wraps the SDK's useFollow mutation with web-specific logic:
  * - Integrates with web global store for current user
- * - Uses web broadcast adapter for auth (HiveSigner, Keychain, HiveAuth, private keys)
+ * - Uses web broadcast adapter for auth (HiveSigner, Keychain, private keys)
  * - Automatically invalidates relationship and account caches after following
  *
  * @returns Mutation result with follow function from SDK

@@ -30,6 +30,13 @@ const PublishScheduleDialog = dynamic(
   })),
   { ssr: false }
 );
+
+const PublishImportDialog = dynamic(
+  () => import("@/app/publish/_components/publish-import-dialog").then((m) => ({
+    default: m.PublishImportDialog
+  })),
+  { ssr: false }
+);
 import { StyledTooltip } from "@/features/ui";
 import { useSynchronizedLocalStorage } from "@/utils";
 import { PREFIX } from "@/utils/local-storage";
@@ -37,7 +44,7 @@ import {
   UilClock,
   UilDocumentInfo,
   UilEllipsisV,
-  UilFileEditAlt,
+  UilFileImport,
   UilMoneybag,
   UilQuestionCircle,
   UilTrash,
@@ -55,10 +62,12 @@ import { useOptionalUploadTracker } from "../_hooks/use-upload-tracker";
 import { PublishActionBarCommunity } from "./publish-action-bar-community";
 import { hasPublishContent } from "../_utils/content";
 import { Spinner } from "@ui/spinner";
+import type { ImportResult } from "./publish-import-dialog";
 
 interface Props {
   onPublish: () => void;
   onBackToClassic: () => void;
+  onImport?: (result: ImportResult) => void;
   draftId?: string;
 }
 
@@ -66,6 +75,7 @@ export function PublishActionBar({
   onPublish,
   children,
   onBackToClassic,
+  onImport,
   draftId
 }: PropsWithChildren<Props>) {
   const { schedule: scheduleDate, clearAll, title, content } = usePublishState();
@@ -74,6 +84,7 @@ export function PublishActionBar({
   const [showBeneficiaries, setShowBeneficiaries] = useState(false);
   const [showMetaInfo, setShowMetaInfo] = useState(false);
   const [schedule, setSchedule] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   const pathname = usePathname();
 
@@ -126,17 +137,16 @@ export function PublishActionBar({
               : i18next.t("publish.save-draft")}
           </Button>
         </LoginRequired>
-        {!pathname?.includes("drafts") && (
-          <StyledTooltip content={i18next.t("publish.clear")}>
+        {onImport && (
+          <StyledTooltip content={i18next.t("publish.import")}>
             <Button
               noPadding={true}
               appearance="gray-link"
-              icon={<UilTrash />}
-              onClick={clearAll}
+              icon={<UilFileImport />}
+              onClick={() => setShowImport(true)}
             />
           </StyledTooltip>
         )}
-
         <StyledTooltip content={i18next.t("publish.get-help")}>
           <Button
             noPadding={true}
@@ -172,6 +182,16 @@ export function PublishActionBar({
               icon={<UilClock />}
               label={i18next.t("publish.schedule")}
             />
+            {!pathname?.includes("drafts") && (
+              <>
+                <div className="border-b border-[--border-color] h-[1px] w-full" />
+                <DropdownItemWithIcon
+                  onClick={clearAll}
+                  icon={<UilTrash />}
+                  label={i18next.t("publish.clear")}
+                />
+              </>
+            )}
             <div className="border-b border-[--border-color] h-[1px] w-full" />
             <DropdownItemWithIcon
               label={i18next.t("publish.back-to-old")}
@@ -185,6 +205,9 @@ export function PublishActionBar({
       <PublishBeneficiariesDialog show={showBeneficiaries} setShow={setShowBeneficiaries} />
       <PublishMetaInfoDialog show={showMetaInfo} setShow={setShowMetaInfo} />
       <PublishScheduleDialog show={schedule} setShow={setSchedule} />
+      {onImport && (
+        <PublishImportDialog show={showImport} setShow={setShowImport} onImport={onImport} />
+      )}
     </motion.div>
   );
 }

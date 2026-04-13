@@ -3,9 +3,9 @@ import { iframe } from './iframe.method'
 import { img } from './img.method'
 import { p } from './p.method'
 import { text } from './text.method'
-import { SeoContext } from '../types'
+import { RenderOptions, SeoContext } from '../types'
 
-export function traverse(node: Node, forApp: boolean, depth = 0, state = { firstImageFound: false }, parentDomain: string = 'ecency.com', seoContext?: SeoContext): void {
+export function traverse(node: Node, forApp: boolean, depth = 0, state = { firstImageFound: false }, parentDomain: string = 'ecency.com', seoContext?: SeoContext, renderOptions?: RenderOptions): void {
   if (!node || !node.childNodes) {
     return
   }
@@ -21,13 +21,13 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
     const prev = child.previousSibling
 
     if (child.nodeName.toLowerCase() === 'a') {
-      a(<HTMLElement>child, forApp, parentDomain, seoContext)
+      a(<HTMLElement>child, forApp, parentDomain, seoContext, renderOptions)
     }
     if (child.nodeName.toLowerCase() === 'iframe') {
-      iframe(<HTMLElement>child, parentDomain)
+      iframe(<HTMLElement>child, parentDomain, forApp)
     }
     if (child.nodeName === '#text') {
-      text(<HTMLElement>child, forApp)
+      text(<HTMLElement>child, forApp, renderOptions)
     }
     if (child.nodeName.toLowerCase() === 'img') {
       img(<HTMLElement>child, state)
@@ -38,7 +38,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
 
     if (child.parentNode) {
       // Child is still in the DOM — recurse into it normally
-      traverse(child, forApp, depth + 1, state, parentDomain, seoContext)
+      traverse(child, forApp, depth + 1, state, parentDomain, seoContext, renderOptions)
     } else {
       // Child was removed or replaced by a handler. If a replacement was
       // inserted (e.g. text() wraps a URL in <span>, a() swaps a tweet link
@@ -47,7 +47,7 @@ export function traverse(node: Node, forApp: boolean, depth = 0, state = { first
       // captured `prev` — if they differ a new node was inserted.
       const possibleReplacement = next ? next.previousSibling : node.lastChild
       if (possibleReplacement && possibleReplacement !== prev && possibleReplacement.parentNode === node) {
-        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext)
+        traverse(possibleReplacement, forApp, depth + 1, state, parentDomain, seoContext, renderOptions)
       }
     }
 

@@ -10,6 +10,8 @@ export async function register() {
 
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("../sentry.server.config");
+    const { initEventLoopMonitor } = await import("./event-loop-monitor");
+    initEventLoopMonitor();
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {

@@ -298,10 +298,6 @@
     }
   }
 
-  &.guest-post-page {
-    justify-content: center;
-  }
-
   &.tos-page {
     h5, h6 {
       font-weight: normal;
@@ -398,13 +394,6 @@
       }
     }
   }
-  &.contribute-page {
-    li {
-      line-height: 1.7rem;
-      margin-bottom: 1rem;
-    }
-  }
-
   &.contributors-page {
     @media (min-width: $lg-break) {
       flex-direction: row;

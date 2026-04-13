@@ -1,4 +1,4 @@
-import { utils } from "@hiveio/dhive";
+import { hiveTxUtils } from "@ecency/sdk";
 
 export type OperationGroup =
   | "transfers"
@@ -7,7 +7,7 @@ export type OperationGroup =
   | "stake-operations"
   | "rewards";
 
-const ops = utils.operationOrders;
+const ops = hiveTxUtils.operations;
 
 export const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]> = {
   "transfers": [

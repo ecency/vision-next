@@ -1,7 +1,7 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
-import type { Operation } from "@hiveio/dhive";
+import type { Operation } from "@ecency/hive-tx";
 
 export interface ClaimEngineRewardsPayload {
   tokens: string[];

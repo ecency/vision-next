@@ -24,11 +24,41 @@ export function safeAutoUpdate(
 
   let cleanup: (() => void) | null = null;
   let observer: MutationObserver | null = null;
+  let disposed = false;
+
+  // Wrap the update callback to check element connectivity before each
+  // computePosition call. This closes the race window where scroll/resize
+  // events fire after an element is detached but before the MutationObserver
+  // callback runs.
+  const safeUpdate = () => {
+    if (disposed) return;
+    try {
+      const refConnected = reference instanceof Node ? reference.isConnected : true;
+      if (!refConnected || !floating.isConnected) {
+        dispose();
+        return;
+      }
+      update();
+    } catch {
+      // Swallow errors from computePosition on detached elements
+    }
+  };
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    try {
+      observer?.disconnect();
+      cleanup?.();
+    } catch {
+      // Silently handle cleanup errors
+    }
+    cleanup = null;
+    observer = null;
+  }
 
   try {
-    // Wrap autoUpdate in try-catch to handle race conditions where elements
-    // are removed between our check and when autoUpdate accesses them
-    cleanup = autoUpdate(reference, floating, update, options);
+    cleanup = autoUpdate(reference, floating, safeUpdate, options);
 
     observer = new MutationObserver(() => {
       try {
@@ -36,14 +66,10 @@ export function safeAutoUpdate(
           (reference instanceof Node && !reference.isConnected) ||
           !floating.isConnected
         ) {
-          cleanup?.();
-          observer?.disconnect();
-          cleanup = null;
-          observer = null;
+          dispose();
         }
-      } catch (error) {
+      } catch {
         // Silently handle errors during cleanup check
-        console.debug('safeAutoUpdate: Error during MutationObserver callback', error);
       }
     });
 
@@ -51,20 +77,11 @@ export function safeAutoUpdate(
       childList: true,
       subtree: true,
     });
-  } catch (error) {
+  } catch {
     // Handle initialization errors (e.g., elements removed during autoUpdate setup)
-    console.debug('safeAutoUpdate: Error during initialization', error);
-    observer?.disconnect();
-    return () => {};
+    dispose();
+    return dispose;
   }
 
-  return () => {
-    try {
-      observer?.disconnect();
-      cleanup?.();
-    } catch (error) {
-      // Silently handle cleanup errors
-      console.debug('safeAutoUpdate: Error during cleanup', error);
-    }
-  };
+  return dispose;
 }

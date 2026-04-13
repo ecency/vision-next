@@ -1,4 +1,4 @@
-import { SMTAsset } from "@hiveio/dhive";
+import type { SMTAsset } from "@/modules/core/hive-tx";
 
 export enum Symbol {
   HIVE = "HIVE",

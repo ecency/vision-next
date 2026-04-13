@@ -3,15 +3,27 @@ export interface AiGenerationPrice {
   cost: number;
 }
 
+export interface AiImagePowerTier {
+  power: number;
+  multiplier: number;
+}
+
+export interface AiImagePriceResponse {
+  prices: AiGenerationPrice[];
+  power: AiImagePowerTier[];
+}
+
 export interface AiGenerationRequest {
   prompt: string;
   aspect_ratio?: string;
+  power?: number;
 }
 
 export interface AiGenerationResponse {
   url: string;
   prompt: string;
   aspect_ratio: string;
+  power: number;
   cost: number;
   generation_id: string;
 }

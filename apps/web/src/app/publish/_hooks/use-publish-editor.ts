@@ -25,8 +25,7 @@ import Color from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
 import { AnyExtension, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import DOMPurify from "dompurify";
-import { marked } from "marked";
+import { simpleMarkdownToHTML } from "@ecency/render-helper";
 import { useCallback, useEffect, useRef } from "react";
 import { PublishEditorImageViewer } from "../_editor-extensions";
 import {
@@ -220,10 +219,9 @@ export function usePublishEditor(onHtmlPaste: () => void) {
   const setEditorContent = useCallback(
     (content: string | undefined) => {
       try {
-        const parsed = content ? marked.parse(content) : undefined;
-        const sanitized = typeof parsed === "string" ? DOMPurify.sanitize(parsed) : undefined;
+        const sanitized = content ? simpleMarkdownToHTML(content) : undefined;
         const doc = sanitized
-          ? parseAllExtensionsToDoc(sanitized, publishState.publishingVideo)
+          ? parseAllExtensionsToDoc(sanitized)
           : undefined;
         editor
           ?.chain()
@@ -235,7 +233,7 @@ export function usePublishEditor(onHtmlPaste: () => void) {
         editor?.commands.setContent("");
       }
     },
-    [editor, publishState.publishingVideo]
+    [editor]
   );
 
   // Handle editor clearing

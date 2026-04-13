@@ -39,6 +39,7 @@
     "fill-community-feed": "Je kunt meer mensen volgen om deze feed op te vullen.",
     "save": "Opslaan",
     "try-again": "Probeer opnieuw",
+    "soon": "Binnenkort",
     "show": "Toon",
     "on": "Aan",
     "off": "Uit",
@@ -103,7 +104,9 @@
     "import": "Importeren",
     "clear": "Verwijderen",
     "play": "Afspelen",
-    "pause": "Onderbreken"
+    "pause": "Onderbreken",
+    "start": "Beginnen",
+    "updated": "Bijgewerkt"
   },
   "validation": {
     "required": "Verplicht veld",
@@ -173,7 +176,8 @@
     "home": "Startpagina",
     "waves": "Golven",
     "communities": "Gemeenschappen",
-    "chats": "Chats"
+    "chats": "Chats",
+    "toggle-menu": "Navigatiemenu in-/uitschakelen"
   },
   "search": {
     "placeholder": "Zoeken",
@@ -239,6 +243,7 @@
     "schedules": "Schema's",
     "fragments": "Fragmenten",
     "settings": "Instellingen",
+    "mobile-login": "Log in op mobiel",
     "logout": "Afmelden",
     "just-logout": "Uitloggen",
     "logout-and-clear": "Uitloggen en lokale gegevens wissen",
@@ -290,7 +295,25 @@
     "use-key": "Gebruik toets/pass",
     "seed-info": "We slaan uw herstelzin niet op en genereren sleutels",
     "sign-in": "Log in",
-    "my-users": "Mijn gebruikers"
+    "my-users": "Mijn gebruikers",
+    "metamask-not-found": "MetaMask is niet gevonden. Installeer MetaMask browserextensie.",
+    "metamask-no-keys": "Kan geen Hive keys verkrijgen van MetaMask snap",
+    "metamask-key-mismatch": "MetaMask Hive sleutels komen niet overeen met dit account. Zorg ervoor dat je dezelfde MetaMask wallet gebruikt tijdens het aanmelden.",
+    "keychain": "Keychain",
+    "keychain-mobile": "Sleutelhanger Mobiel",
+    "keychain-mobile-missing-sig": "Handtekening uit Sleutelhanger ontbreekt. Probeer het opnieuw.",
+    "keychain-mobile-no-pending": "Geen login gevonden. Probeer opnieuw aan te melden.",
+    "keychain-mobile-invalid-data": "Ongeldige inloggegevens. Probeer het opnieuw.",
+    "keychain-mobile-expired": "Aanvraag is verlopen. Probeer het opnieuw.",
+    "keychain-mobile-error": "Inloggen mislukt. Probeer het opnieuw.",
+    "keychain-mobile-title": "Inloggen voltooid...",
+    "keychain-mobile-title-error": "Inloggen mislukt",
+    "keychain-mobile-message": "Verifiëren van je handtekening en log je in...",
+    "keychain-sign-missing-result": "Geen transactieresultaat ontvangen van Sleutelhanger.",
+    "keychain-sign-processing": "Verwerken...",
+    "keychain-sign-success": "Transactie ondertekend",
+    "keychain-sign-redirecting": "Je wordt teruggestuurd...",
+    "keychain-sign-error-title": "Ondertekenen mislukt"
   },
   "sign-up": {
     "header": "Web3 gemeenschappen belonen",
@@ -399,7 +422,10 @@
     "votes": "Stemmen:",
     "transfers": "Overdrachten:",
     "reblogs-follows": "Reblogs/Volgt:",
-    "rc-error": "You can not delegate below 5bn Rc"
+    "rc-error": "You can not delegate below 5bn Rc",
+    "rc-delegation-failed": "RC delegatie mislukt",
+    "invalid-link": "Ongeldige onboarding link",
+    "delegate-placeholder": "Voer bedrag in om te delegeren (Bn)"
   },
   "trending-tags": {
     "title": "Onderwerpen"
@@ -447,9 +473,9 @@
     "settings-2": "weergavevoorkeuren"
   },
   "bookmark-btn": {
-    "add": "Bladwijzer - meldingen ontvangen over nieuwe reacties",
-    "added": "Favorieten! U krijgt een bericht over nieuwe reacties op dit bericht",
-    "delete": "Bladwijzer verwijderen en meldingen stoppen",
+    "add": "Bladwijzer — krijg een melding over nieuwe reacties",
+    "added": "Toegevoegd aan bladwijzers",
+    "delete": "Verwijder uit bladwijzers",
     "deleted": "Verwijderd van bladwijzers"
   },
   "entry-reblog": {
@@ -464,6 +490,7 @@
   },
   "entry-tip": {
     "title": "Tip",
+    "tip": "Tip",
     "send-tip": "Stuur een tip",
     "count": "{{count}} tip",
     "count_plural": "{{count}} tips"
@@ -897,7 +924,8 @@
       "promotion-subtitle": "Gebruik Ecency Voordelen om je post te promoten en bredere blootstelling te krijgen.",
       "try-now": "Probeer het nu"
     },
-    "listen": "Luister"
+    "listen": "Luister",
+    "tts-settings": "Instellingen tekst-naar-spraak"
   },
   "edit-history": {
     "title": "Geschiedenis bewerken",
@@ -930,9 +958,13 @@
     "reveal-muted": "Genegeerde auteur - Bekijk reactie",
     "reveal-muted-long-description": "Toon aanvullende antwoorden, inclusief die welke aanstootgevende inhoud kunnen bevatten",
     "reveal": "Toon reactie",
+    "reveal-comments": "Toon {{n}} opmerkingen",
     "no-conversation": "Nog geen gesprek, wees de eerste om te reageren",
     "start-conversation": "Gesprek beginnen",
-    "join-hint": "Word onderdeel van een grote Hive gemeenschap en verdien beloningen voor activiteit"
+    "join-hint": "Word onderdeel van een grote Hive gemeenschap en verdien beloningen voor activiteit",
+    "new-comment": "{{n}} nieuwe reactie - tik om te laden",
+    "new-comments": "{{n}} nieuwe reacties - tik om te laden",
+    "load-error": "Laden van reacties mislukt. Tik om opnieuw te proberen"
   },
   "community": {
     "page-description": "{{f}} onderwerpen",
@@ -1043,7 +1075,12 @@
     "default-beneficiary": "Standaard begunstigde",
     "default-beneficiary-username": "Gebruikersnaam invullen",
     "default-beneficiary-reward": "Beloning(in %)",
-    "default-beneficiary-docs": "Bekijk documenten"
+    "default-beneficiary-docs": "Bekijk documenten",
+    "finalize-title": "Instellen community voltooien",
+    "finalize-description": "Dit community account is aangemaakt maar de installatie is nog niet voltooid. Voltooi het nu.",
+    "finalize-admin-label": "Admin gebruikersnaam",
+    "finalize-admin-hint": "Het Hive account dat deze gemeenschap zal beheren",
+    "finalize-success": "Community configuratie succesvol voltooid!"
   },
   "community-rewards-registration": {
     "body-text": "Registreer je community om Ecency PUNTEN te krijgen",
@@ -1196,7 +1233,8 @@
     "permissions": "Open permissies",
     "image-server": "Afbeelding server",
     "image-server-default": "Ecency afbeeldingen (standaard)",
-    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)"
+    "image-server-hiveblog": "Hive afbeeldingen (Alternatief)",
+    "image-server-nocdn": "Ecency afbeeldingen (Geen CDN)"
   },
   "settings": {
     "dm-privacy": {
@@ -1212,6 +1250,13 @@
   },
   "wallet": {
     "unclaimed-rewards": "Niet opgeëiste beloningen",
+    "collect-all": "Verzamel alles",
+    "collect-all-ok": "Alle inkomsten verzameld!",
+    "show-details": "Details weergeven",
+    "hide-details": "Details verbergen",
+    "claimable-label": "Klaar om te verzamelen:",
+    "potential-label": "Potentiële inkomsten:",
+    "potential-hint": "van actieve berichten en reacties",
     "claim-reward-balance": "Eis Beloningsbalans op",
     "claim-reward-balance-ok": "Beloningsbalans opgeëist",
     "estimated": "Geschatte accountwaarde",
@@ -1567,7 +1612,9 @@
     "type-collateralized_convert": "Gekleurde conversie",
     "type-collateralized_convert-detail": "Verzoek id: <strong>{{request}}</strong>",
     "type-update_proposal_vote-detail": "Voorstel id: <strong>{{pid}}</strong>",
+    "type-transfer_from_savings": "Overmaken van spaargeld",
     "type-limit_order_create": "Nieuwe transactie aangemaakt",
+    "type-limit_order_create2": "Nieuwe transactie aangemaakt",
     "type-limit_order_cancel": "Open trade geannuleerd",
     "type-effective_comment_vote": "Effectieve stem",
     "type-account_witness_proxy": "Governance proxy update",
@@ -1584,7 +1631,8 @@
     "with-keychain": "Sign with keychain",
     "with-hiveauth": "Meld je aan met HiveAuth",
     "invalid-key": "Ongeldige sleutelformaat. Controleer op ongeldige tekens.",
-    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is."
+    "key-error": "Fout bij het verwerken van de sleutel. Controleer of het juist is.",
+    "sign-with-metamask": "Ondertekenen met MetaMask"
   },
   "hive-auth": {
     "pending-request": "HiveAuth aanvraag in behandeling. Koppel ID {{id}} in uw portemonnee."
@@ -1642,9 +1690,9 @@
     "unMute": "Niet langer negeren"
   },
   "favorite-btn": {
-    "add": "Favoriet - ontvang meldingen over nieuwe berichten",
-    "added": "Toegevoegd aan favorieten! Je krijgt een melding wanneer ze nieuwe berichten publiceren",
-    "delete": "Favoriet verwijderen en meldingen stoppen",
+    "add": "Favoriet — krijg meldingen over nieuwe berichten",
+    "added": "Aan favorieten toegevoegd",
+    "delete": "Uit favorieten verwijderen",
     "deleted": "Verwijderd uit favorieten"
   },
   "editor-toolbar": {
@@ -1719,7 +1767,6 @@
     "empty-tags-alert": "Voer post tags in",
     "empty-body-alert": "Geef post inhoud",
     "description": "Korte beschrijving",
-    "should-be-only-one-unpublished": "Bericht mag slechts één ongepubliceerde video bevatten. Verwijder andere berichten.",
     "updating": "Bijwerken..",
     "publishing": "Publiceren..",
     "saving": "Opslaan..",
@@ -1731,15 +1778,8 @@
     "record-video": "Neem een video op",
     "choose-thumbnail": "Stel een miniatuur in (optioneel)",
     "continue": "Doorgaan",
-    "encode": "Stuur voor codering",
-    "success": "Video succesfully uploaded",
-    "finished": "Beëindigd",
     "upload-video": "Video uploaden",
-    "video-gallery": "Video galerij",
     "preview": "Voorvertoning",
-    "to-gallery": "Ga naar galerij",
-    "congrats": "Gefeliciteerd",
-    "publishing": "Deze pagina niet vernieuwen, wacht enkele seconden om video te verwerken",
     "no-record-permission": "Je hebt geen toestemming om video op te nemen",
     "confirm-and-upload": "Bevestig en upload naar 3Speak",
     "uploading": "Uploaden...{{n}}/{{total}}",
@@ -1747,30 +1787,21 @@
     "reset": "Reset",
     "source": "Video bron",
     "thumbnail": "Thumbnail",
-    "min-duration-alert": "Video minder dan 15 seconden zal worden genegeerd door 3Speak."
-  },
-  "video-gallery": {
-    "all": "Allemaal",
-    "title": "Video galerij",
-    "published": "Ingediend",
-    "encoding": "Codering",
-    "encoded": "Gecodeerd",
-    "failed": "Mislukt",
-    "status-encoded": "Klaar om te posten",
-    "status-encoding": "Codering",
-    "status-published": "Ingediend",
-    "status-failed": "Codering mislukt",
-    "status-deleted": "Verwijderd",
-    "info-created": "Aangemaakt:",
-    "status": "Status:",
-    "info-views": "Weergaven:",
-    "info-duration": "Duur:",
-    "info-size": "Bestandsgrootte:",
-    "insert-video": "Insert",
-    "insert-nsfw": "Als NSFW invoegen",
-    "only-one-video": "Er kan slechts één video in één bericht worden gepubliceerd",
-    "refresh": "Vernieuwen voor geactualiseerde status",
-    "video-info": "Video's worden opgeslagen en aangedreven door SPK netwerk, kunnen wat opslag- en codering kosten hebben."
+    "insert-video": "Video invoegen",
+    "file-too-large": "Bestandsgrootte overschrijdt de 1 GB limiet. Kies een kleinere video.",
+    "extracting-thumbnail": "Extracting thumbnail…",
+    "thumbnail-upload-failed": "Uploaden van miniatuur mislukt. Probeer het opnieuw.",
+    "error-too-large": "Videobestand is te groot. Gebruik een kleiner bestand.",
+    "error-too-many": "Te veel uploadverzoeken. Wacht even en probeer het opnieuw.",
+    "error-unavailable": "Upload service is tijdelijk niet beschikbaar. Probeer het later opnieuw.",
+    "error-auth": "Authenticatie mislukt. Neem contact op met support.",
+    "error-generic": "Uploaden van video mislukt. Probeer het opnieuw.",
+    "title-short": "Korte video uploaden",
+    "short-badge": "Kort",
+    "video-attached": "Video toegevoegd",
+    "video-type": "Video type",
+    "type-video": "Video",
+    "type-short": "Kort"
   },
   "tag-selector": {
     "placeholder-empty": "Tags. Eerste tag is hoofdcategorie. Sortablet.",
@@ -1807,7 +1838,9 @@
     "user-error": "{{n}} is geen geldige gebruiker.",
     "validation-percentage": "Percentage is vereist.",
     "validation-username": "Gebruikersnaam is niet verstrekt",
-    "user-exists-error": "{{n}} staat al in de lijst"
+    "user-exists-error": "{{n}} staat al in de lijst",
+    "threespeak-locked": "Vereist voor 3Speak video hosting",
+    "required": "vereist"
   },
   "post-scheduler": {
     "title": "Planning",
@@ -1829,8 +1862,11 @@
     "checkins": "Je hebt deze week {{count}} dag{{suffix}} gecontroleerd. Ga zo door!",
     "payouts": "De uitbetaling van uw inhoud is klaar.",
     "payouts-amount": "Je hebt {{amount}} uitbetaling ontvangen.",
+    "payouts-amount-usd": "Je hebt ${{amount_usd}} verdiend ({{amount}}).",
     "payouts-title": "{{body}} \"{{title}}\"",
-    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!"
+    "monthly-posts": "Je hebt {{count}} post{{suffix}} deze maand aangemaakt. Ga zo door!",
+    "weekly-earnings": "Je hebt ${{total}} deze week verdiend - ${{author}} van posten, ${{curation}} van curatie.",
+    "weekly-earnings-short": "Je hebt deze week ${{total}} verdiend van je berichten en curatie."
   },
   "notifications": {
     "type-all": "Alle notificaties",
@@ -1863,12 +1899,15 @@
     "spin-str": "Tijd om meer punten te verdienen, speel Spin op Ecency Mobile app",
     "inactive-str": "Wees actief! Schrijf een bericht, blijf verdienen",
     "referral-str": "Verwijzend ingeschreven, welkom hen",
+    "account-update-str": "Uw accountsleutels of profiel zijn bijgewerkt",
+    "weekly-earnings-title": "Wekelijkse inkomsten samenvatting van @{{username}}",
     "refresh": "Vernieuwen",
     "mark-all-read": "Alles markeren als gelezen",
     "mark-read": "Markeren als gelezen",
     "mute": "Meldingen uitschakelen",
     "unmute": "Meldingen inschakelen",
-    "settings": "Instellingen",
+    "settings": "Geluid/Popup Instellingen",
+    "new-notifications-batch": "{{count}} nieuwe meldingen",
     "select": "Selecteer melding",
     "unselect": "Melding deselecteren",
     "mark-selected-read": "Markeer als gelezen"
@@ -2151,6 +2190,7 @@
     "update-success-message": "Uw herstel-e-mail is met succes bijgewerkt"
   },
   "chat": {
+    "title": "Chats",
     "page-title": "Begin direct berichten of neem deel aan kanalen om te chatten met de Ecency community.",
     "loading-chats": "Chats laden…",
     "start-dm-button": "Start DM",
@@ -2182,7 +2222,6 @@
     "join-channel-action": "Deelnemen",
     "joining-channel": "Joining…",
     "no-additional-channels": "Geen extra kanalen gevonden.",
-    "title": "Chats",
     "no-admin": "Geen admin of moderator voor deze community chat.",
     "view-community-channel": "Community chat",
     "public-key": "Publieke sleutel",
@@ -2597,6 +2636,8 @@
     "download-for-windows": "Download voor Computer",
     "download-for-ios": "Download voor IOS",
     "download-for-android": "Download voor Android",
+    "install-web-app": "Install Web App (PWA)",
+    "get-mobile-app": "Download de mobiele app",
     "our-history": "Onze geschiedenis",
     "our-history-p-one": "<b>Ecency</b> (voorheen Esteem) begon in 2016, oprichter <span> <a href=\"/@good-karma\" class=\"push-link\"> Feruz Muradov </a></span> is begonnen met het implementeren van een mobiele applicatie die de manier waarop je interactie zou ontwikkelen en creëren zou revolutioniseren. bouw, neem online aan. De tijd groeide naar iets veel groter.",
     "our-history-p-two": "Sindsdien zijn we nog steeds bezig met het bouwen van Web 3. en verbeter ons op blockchain gebaseerd sociaal netwerk, zodat apps zo toegankelijk mogelijk zijn, veilig en in veel talen spreekt de wereld over.",
@@ -2733,7 +2774,6 @@
     "vote": "Stemming",
     "account-age-hint": "Alleen accounts ouder dan {{n}} dagen toegestaan",
     "preview-mode": "Preview modus",
-    "videos-collision-error": "Enquêtes en 3speak video's kunnen niet in hetzelfde bericht worden gepubliceerd, omdat er verschillende soorten berichten zijn. Kies er alsjeblieft maar één van.",
     "number_of_votes": "Op aantal stemmen",
     "tokens": "Door tokens",
     "view-votes": "Toon stemmen",
@@ -2784,9 +2824,18 @@
   },
   "banners": {
     "no-ls-title": "Kan lokale gegevens niet gebruiken",
-    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in."
+    "no-ls-description": "Het lijkt erop dat jij of je browser de lokale gegevens voor onze website heeft uitgeschakeld. Helaas kunt u de meeste functies van Ecency niet gebruiken, zoals concepten, lokale decks, geavanceerde trading dashboard en meer. Gebruik de nieuwste versies van een moderne browser of schakel lokale data handmatig in.",
+    "install-title": "Install Ecency",
+    "install-description": "Voeg Ecency toe aan je beginscherm voor een snellere, volledig-schermervaring.",
+    "install-cta": "Installeren",
+    "install-dismiss": "Niet nu",
+    "install-ios-hint": "Tik op de deelknop en kies \"Toevoegen aan Startscherm\" om Ecency."
   },
   "waves": {
+    "feed": {
+      "for-you": "Voor jou",
+      "following": "Volgt"
+    },
     "sources": "Bronnen",
     "reply-form-title": "Reageren op",
     "hide-replies": "Antwoorden verbergen",
@@ -2817,6 +2866,32 @@
   "events": {
     "muted": "User has muted",
     "unmuted": "User has unmuted"
+  },
+  "signup-options": {
+    "free": {
+      "title": "Gratis Account",
+      "description": "Neem een Hive account met basis e-mail verificatie.",
+      "button": "Ontvang een gratis account",
+      "label": "Vrij"
+    },
+    "premium": {
+      "title": "Premium account",
+      "description": "Direct account met 3x resource credits en 300 Ecency Punten.",
+      "button": "Neem Premium - $2,99",
+      "label": "Premium"
+    },
+    "wallet": {
+      "title": "Crypto Wallet",
+      "description": "Maak direct een account aan met MetaMask. Geen herstelzinnen nodig.",
+      "button": "Verbind Portemonnee",
+      "label": "Portemonnee"
+    },
+    "invited": {
+      "title": "Uitgenodigd door een vriend",
+      "description": "Een vriend met een Hive account kan er kosteloos een voor u maken.",
+      "button": "Uitgenodigd",
+      "label": "Uitgenodigd"
+    }
   },
   "signup-email": {
     "title": "Aanmelden met e-mail",
@@ -2883,6 +2958,33 @@
       "creating": "Aanmaken Hive account...",
       "validating": "Je account wordt voorbereid...",
       "success": "Je account is aangemaakt. Geniet van de Korf en Ecency!"
+    },
+    "metamask": {
+      "title": "Verbinden met MetaMask",
+      "description": "Sluit uw MetaMask portemonnee aan om uw identiteit te verifiëren en een Hive account aan te maken.",
+      "not-found": "MetaMask is niet gedetecteerd. Installeer MetaMask extensie.",
+      "connect-button": "Verbinden met MetaMask",
+      "connect-hint": "We zullen je portemonnee controleren om je identiteit te verifiëren. Er wordt geen geld overgemaakt.",
+      "connect-error": "Verbinding maken met MetaMask mislukt. Probeer het opnieuw.",
+      "connected": "MetaMask verbonden",
+      "chain-unsupported": "Deze keten wordt nog niet ondersteund voor directe verbinding. Binnenkort beschikbaar.",
+      "address-in-use": "Dit portemonnee adres is al gekoppeld aan een Hive account.",
+      "sign-and-continue": "Ondertekenen & doorgaan",
+      "sign-rejected": "Handtekening werd geweigerd. Probeer het opnieuw.",
+      "installing-snap": "Installeren van Hive wallet snap...",
+      "getting-keys": "Vervallen van de Hive keys uit uw portemonnee...",
+      "create-error": "Account aanmaken is mislukt. Probeer het opnieuw.",
+      "success-hint": "Je kunt bij Ecency inloggen met je MetaMask portemonnee met de Hive snap.",
+      "enter-address": "Voer uw {{chain}} adres in",
+      "enter-address-hint": "Kopieer het adres van uw MetaMask portemonnee voor deze keten.",
+      "login-with-metamask": "Login met MetaMask",
+      "logging-in": "Je wordt aangemeld met MetaMask...",
+      "address-label": "{{chain}} adres:",
+      "checking-multichain": "MetaMask multichain adressen controleren...",
+      "chain-not-available": "Geselecteerde keten is niet beschikbaar in MetaMask"
+    },
+    "balance": {
+      "label": "Saldo:"
     }
   },
   "publish": {
@@ -2931,7 +3033,6 @@
     "save-draft": "Save to draft",
     "update-draft": "Update draft",
     "three-speak-upload": "Uploaden en plakken",
-    "three-speak-gallery": "Van 3Speak",
     "video-by-link": "Voeg video toe via link",
     "video-link-hint": "Pass the link below and We try to identify it(YouTube, 3Speak, Twitch, Vimeo). Other one videos may be added as a regular link.",
     "video-link-label": "Video link",
@@ -2964,6 +3065,19 @@
     "upload-started": "Afbeelding uploaden...",
     "back-to-old": "Back to Classic View",
     "clear": "Verwijderen",
+    "import": "Importeer van URL",
+    "import-title": "Artikel importeren",
+    "import-subtitle": "U maakt kans om te beoordelen en bewerken voordat u publiceert.",
+    "import-hint": "Plak een URL om artikelinhoud te importeren in de editor. Ondersteunt Hive posts en externe webartikelen.",
+    "import-ownership-notice": "Importeer alleen inhoud die je hebt of die je rechten hebt om opnieuw te publiceren.",
+    "import-failed": "Kan artikel niet importeren. Controleer de URL en probeer het opnieuw.",
+    "import-error-invalid-url": "Ongeldige URL. Voer een geldig webadres in.",
+    "import-error-fetch-failed": "De website kon niet worden bereikt. Controleer de URL en probeer het opnieuw.",
+    "import-error-not-html": "De URL verwijst niet naar een webpagina.",
+    "import-error-too-large": "De pagina is te groot om te importeren.",
+    "import-error-extract-failed": "Kon artikelinhoud niet uitpakken van de pagina.",
+    "import-error-not-found": "Bericht niet gevonden. Controleer de URL.",
+    "importing": "Importeren...",
     "reward-settings": "Beloning instellingen",
     "beneficiaries": "Begunstigden",
     "meta-information": "Meta informatie",
@@ -2998,19 +3112,12 @@
     "get-help": "Hulp vragen",
     "loading-post-title": "Bericht laden...",
     "loading-post-hint": "Alleen titel, inhoud, tags en meta-informatie kunnen worden gewijzigd na publicatie",
-    "upload-video-error-hint": "Video kan alleen worden geüpload tijdens het maken van berichten die niet worden bewerkt",
     "no-post-title": "Kan het bericht niet vinden",
     "no-post-hint": "It seems post has invalid link or doesn't exists. Please, double check the address.",
     "go-to-post": "Open origineel bericht",
     "updated-title": "Bericht is bijgewerkt!",
     "updated-hint": "Inhoud van bericht is bijgewerkt. Wijzigingen worden binnen enkele minuten zichtbaar.",
     "back-to-post": "Terug naar bericht",
-    "video-gallery": {
-      "no-data": "Nog geen video's",
-      "no-data-hint": "Verander de filter of publiceer je eerste video met 3Speak",
-      "no-data-button": "Upload nu"
-    },
-    "video-availability": "Video zal beschikbaar zijn na publicatie",
     "title-placeholder": "Wat is de titel?",
     "html-warning": {
       "title": "Pure HTML code gedetecteerd",
@@ -3043,6 +3150,42 @@
     "hint": "Text-to-Speech maakt gebruik van browser`s ingebouwde tools voor het omzetten van tekst naar speech. Voiceslijst, beschikbaarheid en kwaliteit zijn alleen afhankelijk van uw browser en apparaat.",
     "playground": "Speelplaats",
     "voices": "Stemmen"
+  },
+  "external-transfer": {
+    "title": "Verzend {{token}}",
+    "recipient-label": "Adres van ontvanger",
+    "error-invalid-address": "Ongeldig {{chain}} adres",
+    "amount-label": "Hoeveelheid",
+    "balance": "Saldo: {{balance}}",
+    "estimated-fee": "Geschatte netwerkvergoeding",
+    "max-evm-hint": "Netwerkkosten worden betaald van {{token}}. MetaMask kan het bedrag aanpassen om gas te reserveren.",
+    "error-address-mismatch": "Verbonden MetaMask account komt niet overeen met je gelinkte portemonnee adres. Verander van account in MetaMask.",
+    "error-exceeds-balance": "Bedrag overschrijdt het beschikbare saldo",
+    "review": "Overboeking beoordelen",
+    "sending": "Verzenden",
+    "value": "Waarde",
+    "to-label": "tot",
+    "confirm-metamask": "Bevestigen met MetaMask",
+    "signing": "Wachten op MetaMask bevestiging...",
+    "success": "Transfer is verstuurd!",
+    "success-hint": "Uw transactie is verzonden naar het netwerk. Het kan enkele minuten duren om te bevestigen.",
+    "view-explorer": "Bekijk op verkenner",
+    "failed": "Overdracht mislukt",
+    "cancelled": "Transactie geannuleerd door gebruiker.",
+    "try-again": "Opnieuw proberen"
+  },
+  "mobile-login-qr": {
+    "title": "Log in op de mobiele app",
+    "warning-title": "Deze QR-code bevat uw sessie referenties",
+    "warning-1": "Scan niet in openbare ruimtes waar anderen jouw scherm kunnen zien",
+    "warning-2": "Deel of schermafbeelding van de QR-code niet",
+    "warning-3": "Schermopname of spiegeling uitschakelen voor onthulling",
+    "reveal-button": "Ik begrijp het, laat QR-code zien",
+    "generating": "Veilige QR code genereren...",
+    "instructions": "Open Ecency mobile app, tik op de QR scanner en scan deze code om in te loggen.",
+    "logged-in-as": "Ingelogd als @{{username}}",
+    "error-no-token": "Kan geen login-QR genereren. Probeer uit te loggen en weer in te loggen.",
+    "error-generate": "Genereren van QR-code mislukt. Probeer het opnieuw."
   },
   "profile-wallet": {
     "pick-tokens": "Kies tokens om te tonen",
@@ -3148,6 +3291,22 @@
     "revoke-key": {
       "title": "Intrekken Hive key",
       "hint": "U kunt elke Hive sleutel intrekken met behulp van een van de eigenaarssleutels/hoofdwachtwoord/seed"
+    },
+    "manage-keys": {
+      "title": "Sleutels beheren",
+      "choose-title": "Wat wil je doen?",
+      "add-title": "Voeg nieuwe sleutels toe",
+      "add-description": "Genereer een nieuw hoofdwachtwoord en voeg sleutels toe aan uw account",
+      "revoke-title": "Toetsen intrekken",
+      "revoke-description": "Verwijder sleutels die je niet meer nodig hebt van je account",
+      "revoke-select-title": "Selecteer sleutels om in te trekken",
+      "revoke-select-description": "Kies welke sleutels u uit uw account wilt verwijderen. U moet ten minste één sleutel per autoriteit bewaren.",
+      "revoke-confirm-title": "Herroepen bevestigen",
+      "revoke-confirm-description": "Meld u aan met uw eigenaarssleutel om de geselecteerde sleutels uit uw account te verwijderen.",
+      "revoke-count": "{{count}} sleutel(s) worden ingetrokken",
+      "revoke-success": "Sleutels met succes ingetrokken",
+      "revoke-step-select": "Selecteer sleutels",
+      "revoke-step-sign": "Ondertekenen"
     },
     "add-keys": {
       "stepper": {
@@ -3272,6 +3431,50 @@
     "save-to-gallery": "Opslaan in galerij",
     "save-to-gallery-success": "Afbeelding opgeslagen in uw galerij!",
     "save-to-gallery-error": "Opslaan van afbeelding naar galerij mislukt. Probeer het opnieuw.",
-    "use-suggestion": "Gebruik: {{suggestion}}"
+    "use-suggestion": "Gebruik: {{suggestion}}",
+    "select-power": "Kwaliteit boost"
+  },
+  "ai-assist": {
+    "title": "AI Schrijfassistent",
+    "toolbar-button": "AI assistentie",
+    "balance-label": "Saldo",
+    "points-unit": "PUNTEN",
+    "free-label": "Vrij",
+    "free-remaining": "{{count}} gratis resterend vandaag",
+    "cost-label": "Kosten",
+    "hint": "Schrijf eerst je inhoud, gebruik daarna AI Assistent om het te poetsen en te verbeteren.",
+    "action-label": "Wat wil je doen?",
+    "text-label": "Je inhoud",
+    "text-placeholder": "Plak of typ je kladinhoud hier...",
+    "chars-remaining": "{{count}} resterende tekens",
+    "min-chars": "Minimum aantal {{count}} tekens vereist",
+    "action-improve": "Verbeter schrijven",
+    "action-improve-desc": "Poolse grammatica, helderheid en stijl",
+    "action-suggest_tags": "Tags voorstellen",
+    "action-suggest_tags-desc": "Krijg relevante tags voor je bericht",
+    "action-generate_title": "Genereer titel",
+    "action-generate_title-desc": "Maak dwingende titel opties",
+    "action-summarize": "Summarize",
+    "action-summarize-desc": "Create a TL;DR summary",
+    "action-check_grammar": "Grammatica controleren",
+    "action-check_grammar-desc": "Repareer grammatica en spelling",
+    "submit-button": "Start AI Assistent",
+    "submitting": "Verwerken...",
+    "result-title": "Resultaat",
+    "apply-button": "Toepassen op bericht",
+    "copy-button": "Kopiëren",
+    "copied": "Gekopieerd!",
+    "try-again": "Probeer opnieuw",
+    "try-another": "Probeer een andere actie",
+    "show-changes": "Wijzigingen weergeven",
+    "hide-changes": "Wijzigingen verbergen",
+    "hide-translation": "Vertaling verbergen",
+    "success": "AI assistentie voltooid!",
+    "error-insufficient-points": "Onvoldoende punten. Je hebt {{required}} nodig maar {{available}}.",
+    "error-content-policy": "Inhoud schendt het beleid. Punten werden niet terugbetaald.",
+    "error-rate-limit": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "error-auth": "Verificatie is verlopen. Vernieuw de pagina en probeer het opnieuw.",
+    "error-generic": "AI assistentie mislukt. Probeer het opnieuw.",
+    "error-text-too-short": "Uw tekst is te kort. Minimaal {{count}} tekens zijn vereist."
   }
 }

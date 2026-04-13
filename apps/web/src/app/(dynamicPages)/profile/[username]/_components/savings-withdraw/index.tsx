@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { AssetSymbol } from "@hiveio/dhive";
+import type { AssetSymbol } from "@ecency/hive-tx";
 import "./_index.scss";
 import { Modal, ModalBody, ModalHeader, ModalTitle } from "@ui/modal";
 import { Table, Td, Th, Tr } from "@ui/table";

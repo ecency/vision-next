@@ -11,6 +11,7 @@ import { GalleryDialog } from "@/features/shared/gallery";
 import { EcencyConfigManager } from "@/config";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
+import { convertHeicToJpeg } from "@/utils/convert-heic";
 
 interface Props {
   onAddImage: (link: string, name: string) => void;
@@ -34,7 +35,7 @@ export const WaveFormToolbarImagePicker = ({ onAddImage, disabled }: Props) => {
 
   const checkFile = useCallback((filename: string) => {
     const filenameLow = filename.toLowerCase();
-    return ["jpg", "jpeg", "gif", "png", "webp"].some((el) => filenameLow.endsWith(el));
+    return ["jpg", "jpeg", "gif", "png", "webp", "heic", "heif"].some((el) => filenameLow.endsWith(el));
   }, []);
 
   const upload = useCallback(
@@ -42,9 +43,10 @@ export const WaveFormToolbarImagePicker = ({ onAddImage, disabled }: Props) => {
       const username = activeUser?.username!;
       let imageUrl: string;
       try {
+        const convertedFile = await convertHeicToJpeg(file);
         let token = await ensureValidToken(username);
         if (token) {
-          const resp = await uploadImage(file, token);
+          const resp = await uploadImage(convertedFile, token);
           imageUrl = resp.url;
           onAddImage(imageUrl, file.name);
         } else {
