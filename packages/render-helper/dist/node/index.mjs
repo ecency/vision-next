@@ -168,15 +168,16 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var isBrowser = typeof globalThis.DOMParser !== "undefined";
+var hasDOMParser = typeof globalThis.DOMParser !== "undefined";
+var hasXMLSerializer = typeof globalThis.XMLSerializer !== "undefined";
 var lenientErrorHandler = (level, msg, _context) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("[DOMParser]", level, msg);
   }
   return void 0;
 };
-var DOMParser = isBrowser ? new globalThis.DOMParser() : new DOMParser$1({ onError: lenientErrorHandler });
-var XMLSerializer = isBrowser ? globalThis.XMLSerializer : XMLSerializer$1;
+var DOMParser = hasDOMParser ? new globalThis.DOMParser() : new DOMParser$1({ onError: lenientErrorHandler });
+var XMLSerializer = hasXMLSerializer ? globalThis.XMLSerializer : XMLSerializer$1;
 
 // src/helper.ts
 function removeDuplicateAttributes(html) {

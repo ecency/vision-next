@@ -1,7 +1,7 @@
-import { DOMParser as XMLDOMParser } from '@xmldom/xmldom'
+import { DOMParser as XMLDOMParser, XMLSerializer as XMLDOMSerializer } from '@xmldom/xmldom'
 
-// Use native browser DOMParser when available, fall back to xmldom for Node.js
-const isBrowser = typeof globalThis.DOMParser !== 'undefined'
+const hasDOMParser = typeof globalThis.DOMParser !== 'undefined'
+const hasXMLSerializer = typeof globalThis.XMLSerializer !== 'undefined'
 
 // Lenient error handler for xmldom - suppresses parse errors for malformed user content
 const lenientErrorHandler = (level: 'warning' | 'error' | 'fatalError', msg: string, _context: unknown) => {
@@ -11,11 +11,12 @@ const lenientErrorHandler = (level: 'warning' | 'error' | 'fatalError', msg: str
   return undefined
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const DOMParser: any = isBrowser
-  ? new globalThis.DOMParser()
+// In browsers, use native DOMParser/XMLSerializer. In Node.js, use xmldom.
+// Both APIs are compatible for the parseFromString/serializeToString usage in this package.
+export const DOMParser = hasDOMParser
+  ? new globalThis.DOMParser() as unknown as InstanceType<typeof XMLDOMParser>
   : new XMLDOMParser({ onError: lenientErrorHandler })
 
-import { XMLSerializer as XMLDOMSerializer } from '@xmldom/xmldom'
-
-export const XMLSerializer = isBrowser ? globalThis.XMLSerializer : XMLDOMSerializer
+export const XMLSerializer = (hasXMLSerializer
+  ? globalThis.XMLSerializer
+  : XMLDOMSerializer) as unknown as typeof XMLDOMSerializer
