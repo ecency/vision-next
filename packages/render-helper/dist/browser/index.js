@@ -1,4 +1,4 @@
-import { DOMParser as DOMParser$1, XMLSerializer } from '@xmldom/xmldom';
+import { DOMParser as DOMParser$1, XMLSerializer as XMLSerializer$1 } from '@xmldom/xmldom';
 import xss from 'xss';
 import multihash from 'multihashes';
 import querystring from 'querystring';
@@ -168,14 +168,13 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var lenientErrorHandler = (level, msg, context) => {
+var hasDOMParser = typeof globalThis.DOMParser !== "undefined";
+var hasXMLSerializer = typeof globalThis.XMLSerializer !== "undefined";
+var lenientErrorHandler = (level, msg, _context) => {
   return void 0;
 };
-var DOMParser = new DOMParser$1({
-  // Use onError instead of deprecated errorHandler
-  // By providing a non-throwing error handler, parsing continues despite malformed HTML
-  onError: lenientErrorHandler
-});
+var DOMParser = hasDOMParser ? new globalThis.DOMParser() : new DOMParser$1({ onError: lenientErrorHandler });
+var XMLSerializer = hasXMLSerializer ? globalThis.XMLSerializer : XMLSerializer$1;
 
 // src/helper.ts
 function removeDuplicateAttributes(html) {
@@ -253,6 +252,8 @@ function isValidUsername(username) {
     !label.includes("..");
   });
 }
+
+// src/methods/get-inner-html.method.ts
 function getSerializedInnerHTML(node) {
   const serializer = new XMLSerializer();
   if (node.childNodes[0]) {

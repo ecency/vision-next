@@ -197,17 +197,16 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var lenientErrorHandler = (level, msg, context) => {
+var hasDOMParser = typeof globalThis.DOMParser !== "undefined";
+var hasXMLSerializer = typeof globalThis.XMLSerializer !== "undefined";
+var lenientErrorHandler = (level, msg, _context) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("[DOMParser]", level, msg);
   }
   return void 0;
 };
-var DOMParser = new xmldom.DOMParser({
-  // Use onError instead of deprecated errorHandler
-  // By providing a non-throwing error handler, parsing continues despite malformed HTML
-  onError: lenientErrorHandler
-});
+var DOMParser = hasDOMParser ? new globalThis.DOMParser() : new xmldom.DOMParser({ onError: lenientErrorHandler });
+var XMLSerializer = hasXMLSerializer ? globalThis.XMLSerializer : xmldom.XMLSerializer;
 
 // src/helper.ts
 function removeDuplicateAttributes(html) {
@@ -285,8 +284,10 @@ function isValidUsername(username) {
     !label.includes("..");
   });
 }
+
+// src/methods/get-inner-html.method.ts
 function getSerializedInnerHTML(node) {
-  const serializer = new xmldom.XMLSerializer();
+  const serializer = new XMLSerializer();
   if (node.childNodes[0]) {
     return serializer.serializeToString(node.childNodes[0]);
   }
@@ -1586,7 +1587,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
     "sub",
     "sup"
   ]);
-  const serializer = new xmldom.XMLSerializer();
+  const serializer = new XMLSerializer();
   if (!input) {
     return "";
   }

@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.32
+
+### Patch Changes
+
+- Render helper improvements (#756)
+
 ## 2.4.31
 
 ### Patch Changes
