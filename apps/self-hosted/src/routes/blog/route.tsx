@@ -29,7 +29,7 @@ function HostingBanner() {
         </p>
         <Link
           to="/hosting"
-          className="shrink-0 ml-4 px-4 py-1.5 bg-white text-blue-600 text-sm font-semibold rounded-full hover:bg-blue-50 transition-colors"
+          className="shrink-0 ml-4 px-4 py-1.5 bg-white !text-blue-600 text-sm font-semibold rounded-full hover:bg-blue-50 transition-colors"
         >
           Get Started
         </Link>

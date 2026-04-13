@@ -128,7 +128,7 @@ class ConfigStore {
       });
 
       if (!response.ok) {
-        console.info('[Config] Runtime config not found, using build-time config');
+        console.debug('[Config] Runtime config not found, using build-time config');
         return;
       }
 
@@ -138,11 +138,11 @@ class ConfigStore {
       if (runtimeConfig?.version && runtimeConfig?.configuration) {
         this.config = runtimeConfig as InstanceConfig;
         this.notifyListeners();
-        console.info('[Config] Loaded runtime config v' + runtimeConfig.version);
+        console.debug('[Config] Loaded runtime config v' + runtimeConfig.version);
       }
     } catch (error) {
       // Silent fallback to build-time config
-      console.info('[Config] Using build-time config:', error instanceof Error ? error.message : 'fetch failed');
+      console.debug('[Config] Using build-time config:', error instanceof Error ? error.message : 'fetch failed');
     }
   }
 

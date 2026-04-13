@@ -22,6 +22,7 @@ export default defineConfig({
           react: path.resolve(__dirname, 'node_modules/react'),
           'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
           '@tanstack/react-query': path.resolve(__dirname, 'node_modules/@tanstack/react-query'),
+          '@xmldom/xmldom': path.resolve(__dirname, 'src/shims/xmldom.ts'),
           '@ecency/ui': path.resolve(__dirname, '../../packages/ui/dist/index.js'),
         },
       },
