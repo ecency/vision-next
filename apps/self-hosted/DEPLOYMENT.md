@@ -62,13 +62,13 @@ Edit `config.json` with your settings:
 
 ```bash
 # Build and start
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
-Your blog is now running at `http://localhost:3000`
+Your blog is now running at `http://localhost:80`
 
 ## Configuration
 
@@ -135,9 +135,9 @@ Enable/disable features in your config:
 ```json
 {
   "layout": {
-    "listType": "list",  // or "grid"
+    "listType": "list",
     "sidebar": {
-      "placement": "right",  // or "left"
+      "placement": "right",
       "followers": { "enabled": true },
       "following": { "enabled": true },
       "hiveInformation": { "enabled": true }
@@ -152,10 +152,10 @@ Enable/disable features in your config:
 
 ```bash
 # Start in detached mode
-docker-compose up -d
+docker compose up -d
 
 # Custom port
-PORT=8080 docker-compose up -d
+PORT=8080 docker compose up -d
 ```
 
 ### Option 2: Docker Run
@@ -166,7 +166,7 @@ docker build -t myblog -f Dockerfile ../..
 
 # Run with config volume mount
 docker run -d \
-  -p 3000:80 \
+  -p 80:80 \
   -v $(pwd)/config.json:/usr/share/nginx/html/config.json:ro \
   --name myblog \
   myblog
@@ -175,14 +175,14 @@ docker run -d \
 ### Option 3: Pre-built Image
 
 ```bash
-# Pull from Docker Hub (when available)
-docker pull ecency/self-hosted:latest
+# Pull a specific version from Docker Hub
+docker pull ecency/self-hosted:sha-abc1234
 
 # Run with your config
 docker run -d \
-  -p 3000:80 \
+  -p 80:80 \
   -v $(pwd)/config.json:/usr/share/nginx/html/config.json:ro \
-  ecency/self-hosted:latest
+  ecency/self-hosted:sha-abc1234
 ```
 
 ### Option 4: Build with Config Baked In
@@ -222,87 +222,109 @@ docker build -t myblog:configured -f Dockerfile ../..
 
 ## Production Deployment
 
-### With Traefik (Automatic SSL)
+The managed hosting platform runs behind nginx with SSL terminated at the reverse proxy layer. The Docker containers bind to localhost-only ports and nginx routes traffic to them.
 
-Create `docker-compose.production.yml`:
+### With Nginx Reverse Proxy (Current Production Setup)
 
-```yaml
-services:
-  blog:
-    build:
-      context: ../..
-      dockerfile: apps/self-hosted/Dockerfile
-    restart: unless-stopped
-    volumes:
-      - ./config.json:/usr/share/nginx/html/config.json:ro
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.blog.rule=Host(`blog.yourdomain.com`)"
-      - "traefik.http.routers.blog.entrypoints=websecure"
-      - "traefik.http.routers.blog.tls.certresolver=letsencrypt"
-      - "traefik.http.services.blog.loadbalancer.server.port=80"
-
-  traefik:
-    image: traefik:v3.0
-    restart: unless-stopped
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.letsencrypt.acme.email=you@example.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "letsencrypt:/letsencrypt"
-
-volumes:
-  letsencrypt:
-```
-
-### With Caddy (Simple SSL)
-
-```bash
-# Caddyfile
-blog.yourdomain.com {
-    reverse_proxy blog:80
-}
-```
-
-### With Nginx Reverse Proxy
+The blog server container exposes port 80 internally, mapped to `127.0.0.1:3100` on the host. The hosting API exposes port 3001, mapped to `127.0.0.1:3101`.
 
 ```nginx
+# Landing page and signup (behind Cloudflare)
 server {
     listen 443 ssl http2;
-    server_name blog.yourdomain.com;
+    server_name blogs.ecency.com;
 
-    ssl_certificate /etc/ssl/certs/cert.pem;
+    ssl_certificate     /etc/ssl/certs/cert.pem;
     ssl_certificate_key /etc/ssl/private/key.pem;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://127.0.0.1:3100;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
+
+# Hosting API (DNS-only, LE wildcard cert)
+server {
+    listen 443 ssl http2;
+    server_name api.blogs.ecency.com;
+
+    ssl_certificate     /etc/letsencrypt/live/blogs.ecency.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/blogs.ecency.com/privkey.pem;
+
+    location /hosting/ {
+        proxy_pass http://127.0.0.1:3101/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3101;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+
+# Tenant blogs (DNS-only, LE wildcard cert)
+server {
+    listen 443 ssl http2;
+    server_name *.blogs.ecency.com;
+
+    ssl_certificate     /etc/letsencrypt/live/blogs.ecency.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/blogs.ecency.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:3100;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+### With Caddy (Simple SSL)
+
+```
+blog.yourdomain.com {
+    reverse_proxy 127.0.0.1:3100
+}
+```
+
+### Standalone (Single Blog)
+
+For a single self-hosted blog without the managed hosting platform:
+
+```bash
+docker run -d \
+  -p 80:80 \
+  -v $(pwd)/config.json:/usr/share/nginx/html/config.json:ro \
+  ecency/self-hosted:sha-abc1234
 ```
 
 ## Custom Domain & SSL
 
-### Cloudflare (Easiest)
+### Cloudflare (Recommended)
 
-1. Point your domain's DNS to your server IP
-2. Enable Cloudflare proxy (orange cloud)
+1. Point your domain's DNS A record to your server IP
+2. Enable Cloudflare proxy (orange cloud) for the apex domain
 3. SSL mode: Full (strict)
-4. Run without SSL on your server (Cloudflare handles it)
+4. Generate a Cloudflare origin certificate for server-side SSL
+
+For wildcard subdomains (`*.blogs.ecency.com`), use DNS-only (gray cloud) with a Let's Encrypt wildcard certificate via DNS challenge:
+
+```bash
+sudo apt install python3-certbot-dns-cloudflare
+sudo certbot certonly --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.cloudflare/credentials.ini \
+  -d 'blogs.ecency.com' -d '*.blogs.ecency.com'
+```
 
 ### Let's Encrypt (Certbot)
 
@@ -310,7 +332,7 @@ server {
 # Install certbot
 sudo apt install certbot
 
-# Get certificate
+# Get certificate for a single domain
 sudo certbot certonly --standalone -d blog.yourdomain.com
 
 # Auto-renewal is configured automatically
@@ -321,13 +343,12 @@ sudo certbot certonly --standalone -d blog.yourdomain.com
 ### Update with Docker Compose
 
 ```bash
-# Pull latest changes
-git pull
+# Pull new images and restart
+TAG=sha-abc1234 docker compose up -d
 
-# Rebuild and restart
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+# Or pull latest for your channel
+TAG=develop docker compose pull
+TAG=develop docker compose up -d
 ```
 
 ### Update Configuration Only
@@ -339,7 +360,7 @@ Since config.json is mounted as a volume, you can update it without rebuilding:
 nano config.json
 
 # Restart to pick up changes (or just refresh browser)
-docker-compose restart
+docker compose restart
 ```
 
 ## Troubleshooting
@@ -348,10 +369,10 @@ docker-compose restart
 
 ```bash
 # Check logs
-docker-compose logs blog
+docker compose logs blog-server
 
 # Check if port is in use
-lsof -i :3000
+lsof -i :3100
 ```
 
 ### Config Changes Not Reflected
@@ -361,7 +382,7 @@ lsof -i :3000
 3. Check nginx is serving the right file:
 
 ```bash
-docker-compose exec blog cat /usr/share/nginx/html/config.json
+docker compose exec blog-server cat /usr/share/nginx/html/config.json
 ```
 
 ### Build Failures
@@ -371,7 +392,7 @@ docker-compose exec blog cat /usr/share/nginx/html/config.json
 docker system prune -a
 
 # Rebuild from scratch
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ### Performance Issues
@@ -383,34 +404,35 @@ docker-compose build --no-cache
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Your Server                          │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │              Docker Container                      │  │
-│  │  ┌─────────────────────────────────────────────┐  │  │
-│  │  │                 Nginx                        │  │  │
-│  │  │  ┌────────────────────────────────────────┐ │  │  │
-│  │  │  │        Static Files (SPA)              │ │  │  │
-│  │  │  │  - index.html                          │ │  │  │
-│  │  │  │  - JS/CSS bundles                      │ │  │  │
-│  │  │  │  - config.json (runtime config)        │ │  │  │
-│  │  │  └────────────────────────────────────────┘ │  │  │
-│  │  └─────────────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────────────┘  │
-│                          │                              │
-│                          │ Port 80/443                  │
-└──────────────────────────┼──────────────────────────────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │   Internet   │
-                    └──────────────┘
-                           │
-                           ▼
-              ┌────────────────────────┐
-              │    Hive Blockchain     │
-              │  (API: api.hive.blog)  │
-              └────────────────────────┘
+                        Internet
+                           |
+                    ┌──────┴──────┐
+                    │   Nginx     │  SSL termination, routing
+                    │  (host)     │  :80/:443
+                    └──────┬──────┘
+              ┌────────────┼────────────┐
+              |            |            |
+    blogs.ecency.com  api.blogs.*  *.blogs.*
+              |            |            |
+         :3100/tcp    :3101/tcp    :3100/tcp
+              |            |            |
+  ┌───────────┴──┐  ┌─────┴─────┐  (same as blog)
+  │  Blog Server │  │ Hosting   │
+  │  (nginx SPA) │  │ API       │
+  └──────────────┘  └─────┬─────┘
+                          |
+              ┌───────────┼───────────┐
+              |                       |
+       ┌──────┴──────┐       ┌───────┴───────┐
+       │ PostgreSQL  │       │    Redis      │
+       │ (tenants,   │       │  (cache,      │
+       │  payments)  │       │   pub/sub)    │
+       └─────────────┘       └───────────────┘
+              |
+    ┌─────────┴─────────┐
+    │ Payment Listener  │  Monitors Hive blockchain
+    │ (background)      │  for HBD subscription payments
+    └───────────────────┘
 ```
 
 ---
@@ -428,20 +450,20 @@ Don't want to manage your own infrastructure? Let Ecency host your blog.
 
 ### How It Works
 
-1. **Visit** [https://blogs.ecency.com](https://blogs.ecency.com)
-2. **Connect** your Hive wallet
-3. **Configure** your blog (username, theme, features)
-4. **Pay** via HBD transfer
-5. **Go live** instantly!
+1. **Visit** [https://blogs.ecency.com/hosting](https://blogs.ecency.com/hosting)
+2. **Enter** your Hive username
+3. **Configure** your blog (title, theme, style)
+4. **Pay** via Hive Keychain or manual HBD transfer
+5. **Go live** at `username.blogs.ecency.com`
 
 ### Custom Domain Setup
 
-For custom domains, add a CNAME record:
+For custom domains (Pro plan), add a CNAME record:
 
 ```
 Type:  CNAME
 Name:  blog (or @ for root domain)
-Value: YOUR-BLOG-ID.blogs.ecency.com
+Value: YOUR-USERNAME.blogs.ecency.com
 TTL:   3600
 ```
 
@@ -451,6 +473,12 @@ TTL:   3600
 To: ecency.hosting
 Amount: 1.000 HBD
 Memo: blog:YOUR_HIVE_USERNAME
+```
+
+For multi-month subscriptions:
+
+```
+Memo: blog:YOUR_HIVE_USERNAME:6
 ```
 
 ---
