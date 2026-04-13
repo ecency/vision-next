@@ -260,13 +260,14 @@ export interface UpdateTenantRequest {
 
 // GET /v1/tenants/:username/status
 export interface TenantStatusResponse {
-  username: string;
+  exists: boolean;
+  username?: string;
   subscriptionStatus: string;
-  subscriptionPlan: string;
-  daysRemaining: number | null;
-  customDomain: string | null;
-  customDomainVerified: boolean;
-  blogUrl: string;
+  subscriptionPlan?: string;
+  daysRemaining?: number | null;
+  customDomain?: string | null;
+  customDomainVerified?: boolean;
+  blogUrl?: string;
 }
 
 // POST /v1/domains/verify - Initiate domain verification

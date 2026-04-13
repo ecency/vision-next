@@ -118,7 +118,12 @@ export function HostingSignup({
         }),
       });
 
-      if (!data.paymentInstructions || !data.tenant?.blogUrl) {
+      if (
+        !data.paymentInstructions?.to ||
+        !data.paymentInstructions?.amount ||
+        !data.paymentInstructions?.memo ||
+        !data.tenant?.blogUrl
+      ) {
         throw new Error('Invalid response from server. Please try again.');
       }
 
@@ -211,10 +216,11 @@ export function HostingSignup({
       {step === 'username' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Hive Username
             </label>
             <input
+              id="hosting-username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase())}
@@ -241,10 +247,11 @@ export function HostingSignup({
       {step === 'configure' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Blog Title
             </label>
             <input
+              id="hosting-title"
               type="text"
               value={config.title}
               onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
@@ -253,10 +260,11 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
+              id="hosting-description"
               value={config.description}
               onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
               rows={2}
@@ -265,10 +273,11 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-style" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Style Template
             </label>
             <select
+              id="hosting-style"
               value={config.styleTemplate}
               onChange={(e) => setConfig((prev) => ({ ...prev, styleTemplate: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -282,10 +291,11 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-theme" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Theme
             </label>
             <select
+              id="hosting-theme"
               value={config.theme}
               onChange={(e) =>
                 setConfig((prev) => ({ ...prev, theme: e.target.value as 'light' | 'dark' | 'system' }))

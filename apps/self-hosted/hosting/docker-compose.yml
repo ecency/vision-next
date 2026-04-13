@@ -7,7 +7,7 @@ services:
   # Blog Server - Serves static SPA with multi-tenant config routing
   # ==========================================================================
   blog-server:
-    image: ecency/self-hosted:${TAG:-latest}
+    image: ecency/self-hosted:${TAG:?TAG environment variable is required}
     container_name: ecency-hosting-blog
     restart: unless-stopped
     ports:
@@ -28,7 +28,7 @@ services:
   # Hosting API - Tenant management, subscriptions, config generation
   # ==========================================================================
   hosting-api:
-    image: ecency/hosting-api:${TAG:-latest}
+    image: ecency/hosting-api:${TAG:?TAG environment variable is required}
     container_name: ecency-hosting-api
     restart: unless-stopped
     ports:
@@ -53,7 +53,7 @@ services:
   # HBD Payment Listener - Monitors blockchain for subscription payments
   # ==========================================================================
   payment-listener:
-    image: ecency/hosting-api:${TAG:-latest}
+    image: ecency/hosting-api:${TAG:?TAG environment variable is required}
     command: ["node", "dist/payment-listener.js"]
     # Reuses API image with different entrypoint
     container_name: ecency-hosting-payments
