@@ -260,13 +260,14 @@ export interface UpdateTenantRequest {
 
 // GET /v1/tenants/:username/status
 export interface TenantStatusResponse {
-  username: string;
+  exists: boolean;
+  username?: string;
   subscriptionStatus: string;
-  subscriptionPlan: string;
-  daysRemaining: number | null;
-  customDomain: string | null;
-  customDomainVerified: boolean;
-  blogUrl: string;
+  subscriptionPlan?: string;
+  daysRemaining?: number | null;
+  customDomain?: string | null;
+  customDomainVerified?: boolean;
+  blogUrl?: string;
 }
 
 // POST /v1/domains/verify - Initiate domain verification
@@ -318,7 +319,8 @@ export function parseMemo(memo: string): ParsedMemo {
   if (parts[0] === 'blog' && username !== '') {
     // Trim months string before parsing to avoid whitespace issues
     const monthsStr = parts[2]?.trim() || '1';
-    const months = parseInt(monthsStr, 10) || 1;
+    const parsed = parseInt(monthsStr, 10);
+    const months = parsed > 0 ? parsed : 1;
     return {
       action: 'blog',
       username,

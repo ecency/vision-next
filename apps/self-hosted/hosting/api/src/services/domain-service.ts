@@ -11,7 +11,7 @@ import {
   type DomainVerification,
   type DomainVerificationRow,
   mapDomainVerificationFromDb,
-} from '../../types';
+} from '../types';
 
 const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 

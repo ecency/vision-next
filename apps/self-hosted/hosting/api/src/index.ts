@@ -19,8 +19,20 @@ const app = new Hono();
 // Middleware
 app.use('*', logger());
 app.use('*', secureHeaders());
+const baseDomain = process.env.BASE_DOMAIN || 'blogs.ecency.com';
 app.use('*', cors({
-  origin: ['https://ecency.com', 'http://localhost:3000'],
+  origin: (origin) => {
+    const allowed = [
+      'https://ecency.com',
+      'https://alpha.ecency.com',
+      `https://${baseDomain}`,
+      'http://localhost:3000',
+    ];
+    if (allowed.includes(origin)) return origin;
+    // Allow any subdomain of the base domain (tenant blogs)
+    if (origin.endsWith(`.${baseDomain}`) && origin.startsWith('https://')) return origin;
+    return null;
+  },
   allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
   allowHeaders: ['Content-Type', 'Authorization', 'x-payment'],
   exposeHeaders: ['x-payment', 'x-payment-response'],

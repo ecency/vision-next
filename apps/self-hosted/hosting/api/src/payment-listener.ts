@@ -9,7 +9,8 @@ import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
-import { parseMemo, type ParsedMemo } from '../types';
+import { parseMemo, type ParsedMemo } from './types';
+import { AuditService } from './services/audit-service';
 
 // Configuration
 const CONFIG = {
@@ -290,9 +291,15 @@ class PaymentListener {
         );
       });
 
-      // 5. Generate config file AFTER transaction commits successfully
+      // 5. Post-commit side effects (only if transaction succeeded)
       if (updatedTenant) {
         await ConfigService.generateConfigFile(updatedTenant);
+
+        void AuditService.log({
+          tenantId: updatedTenant.id,
+          eventType: 'payment.processed',
+          eventData: { username, months, amount, trxId: transfer.trxId },
+        });
       }
     } catch (error) {
       console.error('[PaymentListener] Failed to process subscription for', username, error);
@@ -320,6 +327,12 @@ class PaymentListener {
 
       await TenantService.upgradeToPro(username);
       await this.logPayment(transfer, amount, 'processed', 0, null, 'Upgraded to Pro');
+
+      void AuditService.log({
+        tenantId: tenant.id,
+        eventType: 'payment.upgrade',
+        eventData: { username, amount, trxId: transfer.trxId },
+      });
 
       console.log('[PaymentListener] Upgraded', username, 'to Pro plan');
     } catch (error) {

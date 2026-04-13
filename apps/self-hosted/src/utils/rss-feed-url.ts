@@ -8,9 +8,9 @@ export function getRssFeedUrl(
   communityId: string | undefined
 ): string | null {
   if (instanceType === "community") {
-    if (!communityId) return null;
-    return `https://ecency.com/created/${communityId}/rss`;
+    if (!communityId?.trim()) return null;
+    return `https://ecency.com/created/${communityId.trim()}/rss`;
   }
-  if (!username) return null;
-  return `https://ecency.com/@${username}/rss`;
+  if (!username?.trim()) return null;
+  return `https://ecency.com/@${username.trim()}/rss`;
 }

@@ -13,6 +13,7 @@ import { TenantService } from '../services/tenant-service';
 import { nanoid } from 'nanoid';
 import { createToken, verifyToken, getTokenExpiry } from '../utils/auth';
 import { challengeStore } from '../utils/redis';
+import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const authRoutes = new Hono();
 
@@ -109,6 +110,13 @@ authRoutes.post(
     const expiresInMs = 24 * 60 * 60 * 1000; // 24 hours
     const token = createToken(username, expiresInMs);
     const expiresAt = getTokenExpiry(token);
+
+    void AuditService.log({
+      eventType: 'auth.login',
+      eventData: { username },
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+      userAgent: c.req.header('user-agent'),
+    });
 
     return c.json({
       token,

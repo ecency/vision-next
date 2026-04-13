@@ -8,7 +8,8 @@
     "check": "biome check --write",
     "dev": "rsbuild dev --open",
     "format": "biome format --write",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ecency/hive-tx": "^7.3.4",
@@ -66,6 +67,7 @@
     "@types/speakingurl": "^13.0.6",
     "@types/turndown": "^5.0.0",
     "tailwindcss": "^4.1.13",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
   }
 }

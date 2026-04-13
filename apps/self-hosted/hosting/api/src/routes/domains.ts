@@ -8,6 +8,7 @@ import { zValidator } from '@hono/zod-validator';
 import { TenantService } from '../services/tenant-service';
 import { DomainService } from '../services/domain-service';
 import { authMiddleware } from '../middleware/auth';
+import { AuditService, parseClientIp } from '../services/audit-service';
 
 export const domainRoutes = new Hono();
 
@@ -46,15 +47,23 @@ domainRoutes.post('/', authMiddleware, zValidator('json', addDomainSchema), asyn
   await TenantService.setCustomDomain(username, domain);
   const verification = await DomainService.createVerification(username, domain);
 
+  void AuditService.log({
+    tenantId: tenant.id,
+    eventType: 'domain.added',
+    eventData: { domain, username },
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({
     domain,
     verification: {
-      method: verification.verification_method,
+      method: verification.verificationMethod,
       type: 'CNAME',
-      name: verification.verification_token,
+      name: verification.verificationToken,
       value: username + '.' + (process.env.BASE_DOMAIN || 'blogs.ecency.com'),
       instructions: `Add a CNAME record pointing ${domain} to ${username}.${process.env.BASE_DOMAIN || 'blogs.ecency.com'}`,
-      expiresAt: verification.expires_at,
+      expiresAt: verification.expiresAt,
     },
   }, 201);
 });
@@ -89,6 +98,14 @@ domainRoutes.post('/verify', authMiddleware, async (c) => {
   await TenantService.verifyCustomDomain(username);
   await DomainService.markVerified(username, tenant.customDomain);
 
+  void AuditService.log({
+    tenantId: tenant.id,
+    eventType: 'domain.verified',
+    eventData: { domain: tenant.customDomain, username },
+    ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+    userAgent: c.req.header('user-agent'),
+  });
+
   return c.json({
     verified: true,
     domain: tenant.customDomain,
@@ -102,7 +119,17 @@ domainRoutes.delete('/', authMiddleware, async (c) => {
   const username = authUser.username;
 
   try {
+    const tenant = await TenantService.getByUsername(username);
     await TenantService.removeCustomDomain(username);
+
+    void AuditService.log({
+      tenantId: tenant?.id ?? null,
+      eventType: 'domain.removed',
+      eventData: { username },
+      ipAddress: parseClientIp(c.req.header('x-forwarded-for')),
+      userAgent: c.req.header('user-agent'),
+    });
+
     return c.json({ message: 'Custom domain removed' });
   } catch (error: any) {
     if (error.message === 'Tenant not found') {

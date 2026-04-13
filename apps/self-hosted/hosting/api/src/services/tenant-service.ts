@@ -7,7 +7,7 @@ import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
 import { Tenant, TenantRow, mapTenantFromDb } from '../../types';
 
 // Re-export Tenant type for backward compatibility
-export type { Tenant } from '../../types';
+export type { Tenant } from '../types';
 
 // Configure hive-tx nodes
 hiveTxConfig.nodes = process.env.HIVE_API_URL?.split(',') || ['https://api.hive.blog'];

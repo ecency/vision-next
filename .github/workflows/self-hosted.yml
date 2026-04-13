@@ -1,0 +1,163 @@
+name: Self-Hosted CI/CD
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'apps/self-hosted/**'
+      - 'packages/**'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.18.1
+          run_install: false
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          CI: true
+      - name: Run self-hosted tests
+        run: pnpm --filter @ecency/self-hosted test
+      # Hosting API is a standalone npm project (not part of pnpm workspace)
+      # with its own Dockerfile and independent dependency tree
+      - name: Run hosting API tests
+        run: cd apps/self-hosted/hosting/api && npm install && npm test
+
+  build-blog:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Determine tags
+        id: tag
+        run: |
+          SHA_TAG="sha-${GITHUB_SHA::7}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            CHANNEL_TAG="latest"
+          else
+            CHANNEL_TAG="develop"
+          fi
+          echo "sha=$SHA_TAG" >> $GITHUB_OUTPUT
+          echo "channel=$CHANNEL_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and push blog image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/self-hosted/Dockerfile
+          push: true
+          tags: |
+            ecency/self-hosted:${{ steps.tag.outputs.sha }}
+            ecency/self-hosted:${{ steps.tag.outputs.channel }}
+
+  build-api:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Determine tags
+        id: tag
+        run: |
+          SHA_TAG="sha-${GITHUB_SHA::7}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            CHANNEL_TAG="latest"
+          else
+            CHANNEL_TAG="develop"
+          fi
+          echo "sha=$SHA_TAG" >> $GITHUB_OUTPUT
+          echo "channel=$CHANNEL_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/self-hosted/hosting/api
+          file: ./apps/self-hosted/hosting/api/Dockerfile
+          push: true
+          tags: |
+            ecency/hosting-api:${{ steps.tag.outputs.sha }}
+            ecency/hosting-api:${{ steps.tag.outputs.channel }}
+
+  deploy-staging:
+    needs: [build-blog, build-api]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v1
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
+          PAYMENT_ACCOUNT: ${{ secrets.HOSTING_PAYMENT_ACCOUNT }}
+        with:
+          host: ${{ secrets.SSH_HOST_EU }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT
+          script: |
+            IMAGE_TAG="sha-${DEPLOY_SHA::7}"
+            export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+            export JWT_SECRET=$JWT_SECRET
+            export PAYMENT_ACCOUNT=$PAYMENT_ACCOUNT
+            cd ~/hosting
+            docker pull ecency/self-hosted:$IMAGE_TAG
+            docker pull ecency/hosting-api:$IMAGE_TAG
+            TAG=$IMAGE_TAG docker compose up -d
+
+  deploy:
+    needs: [build-blog, build-api]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to production
+        uses: appleboy/ssh-action@v1
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+          POSTGRES_PASSWORD: ${{ secrets.HOSTING_POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.HOSTING_JWT_SECRET }}
+          PAYMENT_ACCOUNT: ${{ secrets.HOSTING_PAYMENT_ACCOUNT }}
+        with:
+          host: ${{ secrets.SSH_HOST_EU }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: DEPLOY_SHA,POSTGRES_PASSWORD,JWT_SECRET,PAYMENT_ACCOUNT
+          script: |
+            IMAGE_TAG="sha-${DEPLOY_SHA::7}"
+            export POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+            export JWT_SECRET=$JWT_SECRET
+            export PAYMENT_ACCOUNT=$PAYMENT_ACCOUNT
+            cd ~/hosting
+            docker pull ecency/self-hosted:$IMAGE_TAG
+            docker pull ecency/hosting-api:$IMAGE_TAG
+            TAG=$IMAGE_TAG docker compose up -d
