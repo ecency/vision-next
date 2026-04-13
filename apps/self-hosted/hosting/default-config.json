@@ -41,7 +41,7 @@
             "enabled": true
           },
           "hiveInformation": {
-            "enabled": true
+            "enabled": false
           }
         }
       },
