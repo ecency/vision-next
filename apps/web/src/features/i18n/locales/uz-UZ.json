@@ -1906,7 +1906,7 @@
     "mark-read": "O'qilgan deb belgilash",
     "mute": "Xabarnomalarni o'chirish",
     "unmute": "Xabarnomalarni yoqish",
-    "settings": "Sound/Popup Settings",
+    "settings": "Sozlamalar",
     "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",

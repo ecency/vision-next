@@ -1906,7 +1906,7 @@
     "mark-read": "Okundu Olarak İşaretle",
     "mute": "Bildirimleri devre dışı bırak",
     "unmute": "Bildirimleri aç",
-    "settings": "Sound/Popup Settings",
+    "settings": "Settings",
     "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",

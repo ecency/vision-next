@@ -1906,7 +1906,7 @@
     "mark-read": "Mark as Read",
     "mute": "Turn off notification alerts",
     "unmute": "Turn on notification alerts",
-    "settings": "Sound/Popup Settings",
+    "settings": "Settings",
     "new-notifications-batch": "{{count}} new notifications",
     "select": "Select notification",
     "unselect": "Unselect notification",
