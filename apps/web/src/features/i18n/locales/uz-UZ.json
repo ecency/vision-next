@@ -24,6 +24,7 @@
     "or": "Yoki",
     "muted-message": "O'chirilgan muallif, mazmunni oshkor qilish",
     "modmuted-message": "Guruh Moderatorlari o'chirilgan, Kontentni ko'rsatish",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Server xatosi tugayli jarayon tugallanmadi",
     "day": "kun",
     "days": "kunlar",
