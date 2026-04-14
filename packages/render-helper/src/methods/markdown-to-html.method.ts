@@ -4,7 +4,6 @@ import { removeDuplicateAttributes } from '../helper'
 import { DOMParser, XMLSerializer, ENTITY_REGEX } from '../consts'
 import { Remarkable } from 'remarkable'
 import { linkify } from 'remarkable/linkify'
-import he from 'he'
 import * as htmlparser2 from 'htmlparser2'
 import * as domSerializerModule from 'dom-serializer'
 import { RenderOptions, SeoContext } from '../types'
@@ -211,10 +210,10 @@ export function markdownToHTML(input: string, forApp: boolean, parentDomain: str
 
       output = serializer.serializeToString(doc)
     } catch (fallbackError) {
-      // If repair + re-parsing fails, HTML-escape to preserve content visibility
-      // This prevents XSS while still showing users what they wrote
-      const escapedContent = he.encode(output || md.render(input))
-      output = `<p dir="auto">${escapedContent}</p>`
+      // If DOM parsing fails, sanitize the Remarkable HTML output directly.
+      // This skips the traverse() image proxy/link rewriting but preserves
+      // readable HTML content instead of showing escaped tags.
+      output = sanitizeHtml(output || md.render(input))
     }
   }
 
@@ -227,7 +226,13 @@ export function markdownToHTML(input: string, forApp: boolean, parentDomain: str
     })
   }
 
-  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, '')
+  output = output
+    .replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, '')
+    // Strip full HTML document wrapper (native browser DOMParser wraps in <html><head><body>)
+    .replace(/^<\?xml[^?]*\?>/, '')
+    .replace(/^<!DOCTYPE[^>]*>/i, '')
+    .replace(/<\/?html[^>]*>/g, '')
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/g, '')
     .replace('<body id="root">', '')
     .replace('</body>', '')
     .trim()

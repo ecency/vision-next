@@ -6,10 +6,10 @@ var multihash = require('multihashes');
 var querystring = require('querystring');
 var remarkable = require('remarkable');
 var linkify$1 = require('remarkable/linkify');
-var he2 = require('he');
 var htmlparser2 = require('htmlparser2');
 var domSerializerModule = require('dom-serializer');
 var lruCache = require('lru-cache');
+var he = require('he');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -34,9 +34,9 @@ function _interopNamespace(e) {
 var xss__default = /*#__PURE__*/_interopDefault(xss);
 var multihash__default = /*#__PURE__*/_interopDefault(multihash);
 var querystring__default = /*#__PURE__*/_interopDefault(querystring);
-var he2__default = /*#__PURE__*/_interopDefault(he2);
 var htmlparser2__namespace = /*#__PURE__*/_interopNamespace(htmlparser2);
 var domSerializerModule__namespace = /*#__PURE__*/_interopNamespace(domSerializerModule);
+var he__default = /*#__PURE__*/_interopDefault(he);
 
 // src/consts/white-list.const.ts
 var WHITE_LIST = [
@@ -197,16 +197,13 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var hasDOMParser = typeof globalThis.DOMParser !== "undefined";
-var hasXMLSerializer = typeof globalThis.XMLSerializer !== "undefined";
-var lenientErrorHandler = (level, msg, _context) => {
-  if (process.env.NODE_ENV === "development") {
-    console.warn("[DOMParser]", level, msg);
-  }
-  return void 0;
-};
-var DOMParser = hasDOMParser ? new globalThis.DOMParser() : new xmldom.DOMParser({ onError: lenientErrorHandler });
-var XMLSerializer = hasXMLSerializer ? globalThis.XMLSerializer : xmldom.XMLSerializer;
+function createParser() {
+  return new xmldom.DOMParser({
+    onError(level, msg) {
+    }
+  });
+}
+var DOMParser = createParser();
 
 // src/helper.ts
 function removeDuplicateAttributes(html) {
@@ -287,7 +284,7 @@ function isValidUsername(username) {
 
 // src/methods/get-inner-html.method.ts
 function getSerializedInnerHTML(node) {
-  const serializer = new XMLSerializer();
+  const serializer = new xmldom.XMLSerializer();
   if (node.childNodes[0]) {
     return serializer.serializeToString(node.childNodes[0]);
   }
@@ -1587,7 +1584,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
     "sub",
     "sup"
   ]);
-  const serializer = new XMLSerializer();
+  const serializer = new xmldom.XMLSerializer();
   if (!input) {
     return "";
   }
@@ -1622,8 +1619,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
       traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
-      const escapedContent = he2__default.default.encode(output || md.render(input));
-      output = `<p dir="auto">${escapedContent}</p>`;
+      output = sanitizeHtml(output || md.render(input));
     }
   }
   if (forApp && output && entityPlaceholders.length > 0) {
@@ -1632,7 +1628,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
       output = output.split(placeholder).join(entity);
     });
   }
-  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
+  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace(/^<\?xml[^?]*\?>/, "").replace(/^<!DOCTYPE[^>]*>/i, "").replace(/<\/?html[^>]*>/g, "").replace(/<head[^>]*>[\s\S]*?<\/head>/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
   return sanitizeHtml(output);
 }
 var mdInstance = null;
@@ -1694,7 +1690,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    const decodedImage = he2__default.default.decode(meta.image);
+    const decodedImage = he__default.default.decode(meta.image);
     if (isGifLink(decodedImage)) {
       return proxifyImageSrc(decodedImage, 0, 0, format);
     }
@@ -1702,7 +1698,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     if (typeof meta.image[0] === "string") {
-      const decodedImage = he2__default.default.decode(meta.image[0]);
+      const decodedImage = he__default.default.decode(meta.image[0]);
       if (isGifLink(decodedImage)) {
         return proxifyImageSrc(decodedImage, 0, 0, format);
       }
@@ -1724,7 +1720,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     if (!src) {
       return null;
     }
-    const decodedSrc = he2__default.default.decode(src);
+    const decodedSrc = he__default.default.decode(src);
     if (isGifLink(decodedSrc)) {
       return proxifyImageSrc(decodedSrc, 0, 0, format);
     }
@@ -1745,7 +1741,7 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
       if (!src) {
         return null;
       }
-      const decodedSrc = he2__default.default.decode(src);
+      const decodedSrc = he__default.default.decode(src);
       if (isGifLink(decodedSrc)) {
         return proxifyImageSrc(decodedSrc, 0, 0, format);
       }
@@ -1838,7 +1834,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
-    text2 = he2__default.default.decode(text2);
+    text2 = he__default.default.decode(text2);
   }
   return text2;
 }

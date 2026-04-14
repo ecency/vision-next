@@ -1,13 +1,13 @@
-import { DOMParser as DOMParser$1, XMLSerializer as XMLSerializer$1 } from '@xmldom/xmldom';
+import { DOMParser as DOMParser$1, XMLSerializer } from '@xmldom/xmldom';
 import xss from 'xss';
 import multihash from 'multihashes';
 import querystring from 'querystring';
 import { Remarkable } from 'remarkable';
 import { linkify as linkify$1 } from 'remarkable/linkify';
-import he2 from 'he';
 import * as htmlparser2 from 'htmlparser2';
 import * as domSerializerModule from 'dom-serializer';
 import { LRUCache } from 'lru-cache';
+import he from 'he';
 
 // src/consts/white-list.const.ts
 var WHITE_LIST = [
@@ -168,16 +168,13 @@ var ALLOWED_ATTRIBUTES = {
   "del": [],
   "ins": []
 };
-var hasDOMParser = typeof globalThis.DOMParser !== "undefined";
-var hasXMLSerializer = typeof globalThis.XMLSerializer !== "undefined";
-var lenientErrorHandler = (level, msg, _context) => {
-  if (process.env.NODE_ENV === "development") {
-    console.warn("[DOMParser]", level, msg);
-  }
-  return void 0;
-};
-var DOMParser = hasDOMParser ? new globalThis.DOMParser() : new DOMParser$1({ onError: lenientErrorHandler });
-var XMLSerializer = hasXMLSerializer ? globalThis.XMLSerializer : XMLSerializer$1;
+function createParser() {
+  return new DOMParser$1({
+    onError(level, msg) {
+    }
+  });
+}
+var DOMParser = createParser();
 
 // src/helper.ts
 function removeDuplicateAttributes(html) {
@@ -1593,8 +1590,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
       traverse(doc, forApp, 0, { firstImageFound: false }, parentDomain, seoContext, renderOptions);
       output = serializer.serializeToString(doc);
     } catch (fallbackError) {
-      const escapedContent = he2.encode(output || md.render(input));
-      output = `<p dir="auto">${escapedContent}</p>`;
+      output = sanitizeHtml(output || md.render(input));
     }
   }
   if (forApp && output && entityPlaceholders.length > 0) {
@@ -1603,7 +1599,7 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
       output = output.split(placeholder).join(entity);
     });
   }
-  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
+  output = output.replace(/ xmlns="http:\/\/www.w3.org\/1999\/xhtml"/g, "").replace(/^<\?xml[^?]*\?>/, "").replace(/^<!DOCTYPE[^>]*>/i, "").replace(/<\/?html[^>]*>/g, "").replace(/<head[^>]*>[\s\S]*?<\/head>/g, "").replace('<body id="root">', "").replace("</body>", "").trim();
   return sanitizeHtml(output);
 }
 var mdInstance = null;
@@ -1665,7 +1661,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
   }
   if (meta && typeof meta.image === "string" && meta.image.length > 0) {
-    const decodedImage = he2.decode(meta.image);
+    const decodedImage = he.decode(meta.image);
     if (isGifLink(decodedImage)) {
       return proxifyImageSrc(decodedImage, 0, 0, format);
     }
@@ -1673,7 +1669,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
   }
   if (meta && meta.image && !!meta.image.length && meta.image[0]) {
     if (typeof meta.image[0] === "string") {
-      const decodedImage = he2.decode(meta.image[0]);
+      const decodedImage = he.decode(meta.image[0]);
       if (isGifLink(decodedImage)) {
         return proxifyImageSrc(decodedImage, 0, 0, format);
       }
@@ -1695,7 +1691,7 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     if (!src) {
       return null;
     }
-    const decodedSrc = he2.decode(src);
+    const decodedSrc = he.decode(src);
     if (isGifLink(decodedSrc)) {
       return proxifyImageSrc(decodedSrc, 0, 0, format);
     }
@@ -1716,7 +1712,7 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
       if (!src) {
         return null;
       }
-      const decodedSrc = he2.decode(src);
+      const decodedSrc = he.decode(src);
       if (isGifLink(decodedSrc)) {
         return proxifyImageSrc(decodedSrc, 0, 0, format);
       }
@@ -1809,7 +1805,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     text2 = joint(text2.split(" "), length);
   }
   if (text2) {
-    text2 = he2.decode(text2);
+    text2 = he.decode(text2);
   }
   return text2;
 }
