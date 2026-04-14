@@ -114,6 +114,22 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: apps/self-hosted/hosting
+
+      - name: Sync hosting config to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST_EU }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "apps/self-hosted/hosting/docker-compose.yml,apps/self-hosted/hosting/nginx-multi-tenant.conf,apps/self-hosted/hosting/default-config.json,apps/self-hosted/hosting/db/*"
+          target: ~/hosting
+          strip_components: 3
+          overwrite: true
+
       - name: Deploy to staging
         uses: appleboy/ssh-action@v1
         env:
@@ -142,6 +158,22 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: apps/self-hosted/hosting
+
+      - name: Sync hosting config to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST_EU }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "apps/self-hosted/hosting/docker-compose.yml,apps/self-hosted/hosting/nginx-multi-tenant.conf,apps/self-hosted/hosting/default-config.json,apps/self-hosted/hosting/db/*"
+          target: ~/hosting
+          strip_components: 3
+          overwrite: true
+
       - name: Deploy to production
         uses: appleboy/ssh-action@v1
         env:
