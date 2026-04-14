@@ -24,6 +24,7 @@
     "or": "OU",
     "muted-message": "Autor silenciado, Revelar conteúdo",
     "modmuted-message": "Moderadores da comunidade silenciados. Revelar conteúdo",
+    "hidden-message": "Rejeitado por usuários, Revelar conteúdo",
     "server-error": "O processo não foi concluído devido a um erro no servidor",
     "day": "dia",
     "days": "dias",

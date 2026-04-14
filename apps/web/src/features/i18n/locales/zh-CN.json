@@ -24,6 +24,7 @@
     "or": "其他登录方式",
     "muted-message": "屏蔽作者、显示内容",
     "modmuted-message": "社区管理员静音，显示内容",
+    "hidden-message": "用户投反对票，显示内容",
     "server-error": "由于服务器出错，无法完成操作。",
     "day": "天",
     "days": "天",

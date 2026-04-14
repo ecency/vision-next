@@ -24,6 +24,7 @@
     "or": "Oppure",
     "muted-message": "Autore silenziato, Mostra il contenuto",
     "modmuted-message": "Moderatori della comunità disattivati, Rivela il contenuto",
+    "hidden-message": "Downvote dagli utenti, Rivela il contenuto",
     "server-error": "Errore del server",
     "day": "giorno",
     "days": "giorni",

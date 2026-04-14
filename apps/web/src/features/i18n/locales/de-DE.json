@@ -24,6 +24,7 @@
     "or": "ODER",
     "muted-message": "Stumm geschalteter Author, Nachricht anzeigen",
     "modmuted-message": "Community-Moderatoren stumm, Inhalte enthüllen",
+    "hidden-message": "Von Benutzern herunterbewertet, Inhalte anzeigen",
     "server-error": "Der Vorgang konnte aufgrund eines Server-Fehlers nicht durchgeführt werden",
     "day": "tag",
     "days": "tage",

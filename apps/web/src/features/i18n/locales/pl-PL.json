@@ -24,6 +24,7 @@
     "or": "LUB",
     "muted-message": "Wyciszony autor, Ujawnij zawartość",
     "modmuted-message": "Wyciszeni moderatorzy społeczności, ujawniaj treści",
+    "hidden-message": "Zagłosowane przez użytkowników, Ujawnij zawartość",
     "server-error": "Nie można dokończyć procesu z powodu błędu serwera",
     "day": "dzień",
     "days": "dni",

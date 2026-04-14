@@ -24,6 +24,7 @@
     "or": "ИЛИ",
     "muted-message": "Заглушен автор, Покажи коментара",
     "modmuted-message": "Модератор на общността го заглуши, Покажи съдържание",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Заявката неможе да бъде завършена поради грешка в сървъра",
     "day": "ден",
     "days": "дни",

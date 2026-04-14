@@ -24,6 +24,7 @@
     "or": "OU",
     "muted-message": "Auteur en sourdine, révéler le contenu",
     "modmuted-message": "Modérateurs de la communauté mis en sourdine, dévoiler le contenu",
+    "hidden-message": "Rétro-voté par les utilisateurs, révèle le contenu",
     "server-error": "Le processus n'a pas pu aboutir en raison d'une erreur du serveur",
     "day": "jour",
     "days": "jours",
