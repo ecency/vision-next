@@ -24,6 +24,7 @@
     "or": "OF",
     "muted-message": "Verborgen auteur, bekijk inhoud",
     "modmuted-message": "Weggestemd door gemeenschaps moderator , klik hier om het te lezen",
+    "hidden-message": "Downvote door gebruikers, Reveale inhoud",
     "server-error": "Proces kon niet worden voltooid vanwege een serverfout",
     "day": "dag",
     "days": "dagen",
