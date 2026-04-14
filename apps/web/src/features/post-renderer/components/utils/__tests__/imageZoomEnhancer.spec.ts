@@ -73,6 +73,18 @@ describe('applyImageZoom', () => {
       expect(caption).toBeNull()
     })
 
+    it('should skip alt text if it is a generic placeholder', () => {
+      const img = document.createElement('img')
+      img.src = 'test.jpg'
+      img.alt = 'Alt'
+      container.appendChild(img)
+
+      applyImageZoom(document.body)
+
+      const caption = container.querySelector('.markdown-img-caption')
+      expect(caption).toBeNull()
+    })
+
     it('should prioritize title over data-caption', () => {
       const img = document.createElement('img')
       img.src = 'test.jpg'

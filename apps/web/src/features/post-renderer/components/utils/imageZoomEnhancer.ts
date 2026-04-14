@@ -61,8 +61,11 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             const isAltFilename = alt
                 ? /^[\w,\s-]+\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(alt)
                 : false;
+            const isAltPlaceholder = alt
+                ? /^(alt|image|img|photo|picture|screenshot)$/i.test(alt)
+                : false;
 
-            const captionText = title || dataCaption || (!isAltFilename ? alt : "");
+            const captionText = title || dataCaption || (!isAltFilename && !isAltPlaceholder ? alt : "");
 
             if (captionText) {
                 const caption = document.createElement("div");
