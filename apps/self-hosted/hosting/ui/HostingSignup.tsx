@@ -160,7 +160,7 @@ export function HostingSignup({
   return (
     <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-        Create Your Hive Blog
+        Create Your Dedicated Blog/Page
       </h2>
 
       {error && (

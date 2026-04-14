@@ -78,19 +78,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Loaded from external file to comply with CSP policies.
           See /public/scripts/config-stub.js for details.
         */}
-        <script src="/scripts/chunk-reload.js" />
+        <script async src="/scripts/chunk-reload.js" />
         <script async src="/scripts/config-stub.js" />
         <link rel="dns-prefetch" href="https://images.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
+        <link rel="dns-prefetch" href="https://hapi.ecency.com" />
         <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://o4507985141956608.ingest.de.sentry.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://hapi.ecency.com" crossOrigin="anonymous" />
       </head>
       <Script defer data-domain="ecency.com" data-api="/pl/api/event" src="/pl/js/script.js" />
       <body className={theme === Theme.night ? "dark" : ""}>
         <BannerManager />
         <HiringConsoleLog />
-        <Providers>{children}</Providers>
+        <Providers><main id="main-content">{children}</main></Providers>
         <div id="modal-overlay-container" />
         <div id="modal-dialog-container" />
         <div id="popper-container" />

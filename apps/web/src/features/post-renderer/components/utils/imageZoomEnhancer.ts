@@ -66,7 +66,13 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             const parentAlign = validAligns.includes(rawAlign) ? rawAlign : "";
             wrapper.style.textAlign = parentAlign === "left" ? "" : (parentAlign || "center");
 
-            const clonedImage = el.cloneNode(true) as HTMLElement;
+            const clonedImage = el.cloneNode(true) as HTMLImageElement;
+
+            // Set explicit width/height to reduce CLS if not already present
+            if (el instanceof HTMLImageElement && !clonedImage.getAttribute("width") && el.naturalWidth > 0) {
+                clonedImage.setAttribute("width", String(el.naturalWidth));
+                clonedImage.setAttribute("height", String(el.naturalHeight));
+            }
 
             const title = el.getAttribute("title")?.trim();
             const dataCaption = el.getAttribute("data-caption")?.trim();

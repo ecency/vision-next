@@ -61,7 +61,12 @@
         flex-shrink: 0;
 
         .author-avatar {
-          margin-right: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 44px;
+          min-height: 44px;
+          margin-right: 4px;
         }
 
         .author {
@@ -143,6 +148,12 @@
         @media (min-width: $sm-break) {
           margin-right: 12px;
         }
+      }
+
+      > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
       }
     }
 
