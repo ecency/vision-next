@@ -38,7 +38,12 @@ export function TwitterExtension({
             const href = element.getAttribute("href");
             if (!href) return;
 
-            const url = new URL(href);
+            let url;
+            try {
+              url = new URL(href);
+            } catch {
+              return;
+            }
             const tweetId = url.pathname.split("/").pop();
             if (!tweetId) return;
 

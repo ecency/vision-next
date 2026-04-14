@@ -44,10 +44,17 @@ export function HivePostLinkRenderer({ link }: { link: string }) {
     image?: string;
   }>();
 
-  const url = useMemo(() => new URL(link, "https://ecency.com"), [link]);
-  const cacheKey = url.pathname.toLowerCase();
+  const url = useMemo(() => {
+    try {
+      return new URL(link, "https://ecency.com");
+    } catch {
+      return null;
+    }
+  }, [link]);
+  const cacheKey = url?.pathname.toLowerCase() ?? "";
 
   const fetchData = useCallback(async () => {
+    if (!cacheKey) return;
     if (simpleCache.has(cacheKey)) {
       setData(simpleCache.get(cacheKey));
       return;
@@ -96,10 +103,10 @@ export function HivePostLinkRenderer({ link }: { link: string }) {
   }, [fetchData]);
 
   const enhancedHref = useMemo(() => {
-    const u = new URL(url.href);
-    const referral = u.searchParams.get("referral");
-    return `${u.pathname}${referral ? `?referral=${referral}` : ""}${u.hash}`;
-  }, [url]);
+    if (!url) return link;
+    const referral = url.searchParams.get("referral");
+    return `${url.pathname}${referral ? `?referral=${referral}` : ""}${url.hash}`;
+  }, [url, link]);
 
   return (
     <a

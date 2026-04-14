@@ -19,15 +19,20 @@ export function transform(list: Witness[], rankState: number): WitnessTransforme
     const { last_hbd_exchange_update: priceAge } = x;
 
     let parsedUrl;
-    const oUrl = new URL(url, "https://ecency.com");
-    const ex = pathToRegexp(routes.ENTRY).exec(oUrl.pathname);
+    try {
+      const oUrl = new URL(url, "https://ecency.com");
+      const ex = pathToRegexp(routes.ENTRY).exec(oUrl.pathname);
 
-    if (ex) {
-      parsedUrl = {
-        category: ex[1],
-        author: ex[2].replace("@", ""),
-        permlink: ex[3]
-      };
+      if (ex) {
+        parsedUrl = {
+          category: ex[1],
+          author: ex[2].replace("@", ""),
+          permlink: ex[3]
+        };
+      }
+    } catch {
+      // Witness supplied an invalid URL (e.g. "http://" with no host).
+      // Leave parsedUrl undefined; the row still renders with raw url.
     }
 
     return {

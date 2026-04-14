@@ -6,7 +6,12 @@ export class ClipboardPluginImageLinkStrategy implements ClipboardStrategy {
 
   handle(event: ClipboardEvent): boolean | void {
     const uri = event.clipboardData!.getData("text/plain");
-    const url = new URL(uri);
+    let url;
+    try {
+      url = new URL(uri);
+    } catch {
+      return;
+    }
     if (
       url.pathname.endsWith("jpg") ||
       url.pathname.endsWith("png") ||
