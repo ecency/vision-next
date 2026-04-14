@@ -6,6 +6,9 @@ import { diff_match_patch } from "diff-match-patch";
 
 const dmp = new diff_match_patch();
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 interface CommentHistoryListItemDiff {
   title: string;
   titleDiff?: string;
@@ -47,10 +50,10 @@ export function useHistoryList(entry: Entry) {
 
       t.push({
         v: historyData.list[l].v,
-        title: historyData.list[l].title,
+        title: escapeHtml(historyData.list[l].title),
         body: h,
         timestamp: historyData.list[l].timestamp,
-        tags: Array.isArray(historyData.list[l].tags)?historyData.list[l].tags.join(", "):""
+        tags: escapeHtml(Array.isArray(historyData.list[l].tags)?historyData.list[l].tags.join(", "):"")
       });
     }
 
@@ -58,7 +61,7 @@ export function useHistoryList(entry: Entry) {
       const p = l > 0 ? l - 1 : l;
 
       t[l].titleDiff = makeDiff(t[p].title, t[l].title);
-      t[l].bodyDiff = makeDiff(t[p].body, t[l].body);
+      t[l].bodyDiff = makeDiff(escapeHtml(t[p].body), escapeHtml(t[l].body));
       t[l].tagsDiff = makeDiff(t[p].tags, t[l].tags);
     }
 

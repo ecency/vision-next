@@ -6,7 +6,7 @@ import { SearchResult } from "@/entities";
 import { EntryLink, FormattedCurrency, ProfileLink, UserAvatar } from "@/features/shared";
 import { TagLink } from "../tag";
 import { commentSvg, peopleSvg } from "@ui/svg";
-import { accountReputation, dateToFormatted, dateToRelative } from "@/utils";
+import { accountReputation, dateToFormatted, dateToRelative, transformMarkedContent } from "@/utils";
 import Image from "next/image";
 
 setProxyBase(defaults.imageServer);
@@ -29,14 +29,14 @@ export function SearchListItem({ res }: Props) {
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
   const img = useMemo(() => catchPostImage(res.body, 600, 500), [res.body]);
 
-  const title = useMemo(() => {
-    const raw = res.title_marked ? res.title_marked : res.title;
-    return raw.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
-  }, [res]);
-  const summary = useMemo(() => {
-    const raw = res.body_marked ? res.body_marked : postBodySummary(res.body, 200);
-    return raw.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
-  }, [res]);
+  const title = useMemo(
+    () => transformMarkedContent(res.title_marked ? res.title_marked : res.title),
+    [res]
+  );
+  const summary = useMemo(
+    () => transformMarkedContent(res.body_marked ? res.body_marked : postBodySummary(res.body, 200)),
+    [res]
+  );
 
   return (
     <div className="search-list-item">
@@ -81,10 +81,10 @@ export function SearchListItem({ res }: Props) {
         </div>
         <div className="item-summary">
           <EntryLink entry={entry}>
-            <div className="item-title" dangerouslySetInnerHTML={{ __html: title }} />
+            <div className="item-title">{title}</div>
           </EntryLink>
           <EntryLink entry={entry}>
-            <div className="break-all" dangerouslySetInnerHTML={{ __html: summary }} />
+            <div className="break-all">{summary}</div>
           </EntryLink>
         </div>
         <div className="item-controls">
