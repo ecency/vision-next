@@ -19,6 +19,7 @@ import {
   createReplyPermlink,
   dateToFormatted,
   dateToFullRelative,
+  isHiddenPost,
   makeJsonMetaDataReply
 } from "@/utils";
 import {
@@ -107,8 +108,8 @@ export const DiscussionItem = memo(function DiscussionItem({
   const isOwnRoot = useMemo(() => activeUser?.username === root.author, [activeUser, root]);
   const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
   const isHidden = useMemo(
-    () => entry.net_rshares < -7000000000 && entry.active_votes.length > 3,
-    [entry]
+    () => isHiddenPost(entry.net_rshares, entry.active_votes.length),
+    [entry.net_rshares, entry.active_votes.length]
   );
   const isMuted = useMemo(
     () => entry.stats?.gray === true && entry.net_rshares >= 0 && entry.author_reputation >= 0,
