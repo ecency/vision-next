@@ -107,7 +107,7 @@ export const DiscussionItem = memo(function DiscussionItem({
   const isOwnRoot = useMemo(() => activeUser?.username === root.author, [activeUser, root]);
   const isOwnReply = useMemo(() => activeUser?.username === entry.author, [activeUser, entry]);
   const isHidden = useMemo(
-    () => entry.net_rshares < -7000000000 && entry.active_votes.length > 3,
+    () => entry.net_rshares < -10000000000 && entry.active_votes.length > 3,
     [entry]
   );
   const isMuted = useMemo(

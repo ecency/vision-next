@@ -9,7 +9,7 @@ interface Props {
 
 export function EntryPageWarnings({ entry }: Props) {
   const isMuted = !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0;
-  const isHidden = entry?.net_rshares < -7000000000 && entry?.active_votes?.length > 3; // 1000 HP
+  const isHidden = entry?.net_rshares < -10000000000 && entry?.active_votes?.length > 3;
   const isLowReputation =
     !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0;
 

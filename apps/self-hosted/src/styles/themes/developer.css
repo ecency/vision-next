@@ -48,8 +48,8 @@
   --theme-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
 
   /* Link style */
-  --theme-link-decoration: none;
-  --theme-link-decoration-color: transparent;
+  --theme-link-decoration: underline;
+  --theme-link-decoration-color: rgba(137, 180, 250, 0.4);
   --theme-link-decoration-hover: #89b4fa;
 
   /* Tag style - Code-like */

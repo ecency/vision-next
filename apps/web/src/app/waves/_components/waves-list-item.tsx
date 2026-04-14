@@ -102,7 +102,7 @@ export const WavesListItem = React.memo(function WavesListItem({
 
   const isHidden = useMemo(
     () =>
-      (entry?.net_rshares ?? 0) < -7000000000 &&
+      (entry?.net_rshares ?? 0) < -10000000000 &&
       (entry?.active_votes?.length ?? 0) > 3,
     [entry?.net_rshares, entry?.active_votes?.length]
   );

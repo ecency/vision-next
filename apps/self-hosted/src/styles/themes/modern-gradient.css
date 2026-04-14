@@ -50,8 +50,8 @@
     0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 10px rgba(0, 0, 0, 0.08);
 
   /* Link style */
-  --theme-link-decoration: none;
-  --theme-link-decoration-color: transparent;
+  --theme-link-decoration: underline;
+  --theme-link-decoration-color: color-mix(in srgb, var(--theme-accent) 40%, transparent);
   --theme-link-decoration-hover: var(--theme-accent);
 
   /* Tag style - Gradient-friendly */

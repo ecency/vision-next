@@ -2,7 +2,6 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
-import Image from "next/image";
 import i18next from "i18next";
 import React, { useEffect, useMemo, useState } from "react";
 import { Entry } from "@/entities";
@@ -29,6 +28,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
 
   const [showMuted, setShowMuted] = useState(false);
   const [showModMuted, setShowModMuted] = useState(false);
+  const [showHidden, setShowHidden] = useState(false);
   const { data: mutedUsers } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
 
   const location = useEntryLocation(entryProp);
@@ -41,7 +41,7 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   const isCrossPost = useMemo(() => !!entry.original_entry, [entry.original_entry]);
   const entryActiveVotesLength = entry.active_votes?.length ?? 0;
   const isHidden = useMemo(
-    () => (entry.net_rshares ?? 0) < -7000000000 && entryActiveVotesLength > 3,
+    () => (entry.net_rshares ?? 0) < -10000000000 && entryActiveVotesLength > 3,
     [entry.net_rshares, entryActiveVotesLength]
   );
   const nsfw = useMemo(
@@ -62,70 +62,74 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   }, [isPostMuted]);
 
   useEffect(() => {
-    setShowModMuted((entry.stats?.gray ?? false) || isHidden);
-  }, [entry, isHidden]);
+    setShowModMuted(entry.stats?.gray ?? false);
+  }, [entry]);
+
+  useEffect(() => {
+    setShowHidden(isHidden);
+  }, [isHidden]);
 
   if (nsfw && !showNsfw && !globalNsfw) {
     return <></>;
   }
 
-  const shouldShowMutedOverlay = showModMuted || showMuted;
+  const shouldShowMutedOverlay = showModMuted || showHidden || showMuted;
 
-  return shouldShowMutedOverlay ? (
+  const mutedMessage = showModMuted
+    ? i18next.t("g.modmuted-message")
+    : showHidden
+      ? i18next.t("g.hidden-message")
+      : i18next.t("g.muted-message");
+
+  const handleReveal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (showModMuted) setShowModMuted(false);
+    if (showHidden) setShowHidden(false);
+    if (showMuted) setShowMuted(false);
+  };
+
+  return (
     <>
-      <div className="item-image item-image-nsfw">
-        <Image
-          width={600}
-          height={600}
-          className="w-full"
-          src="/assets/nsfw.png"
-          alt={entry.title}
-        />
-      </div>
-      <div className="item-summary">
-        <div className="item-nsfw-options mt-2">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              showModMuted ? setShowModMuted(false) : setShowMuted(false);
-            }}
-          >
-            {showModMuted ? i18next.t("g.modmuted-message") : i18next.t("g.muted-message")}
+      {shouldShowMutedOverlay && (
+        <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 mb-1.5">
+          <span className="inline-block w-3.5 h-3.5 rounded-full bg-orange-400/20 text-orange-500 dark:bg-orange-500/20 dark:text-orange-400 text-center leading-[14px] font-bold text-[10px]">
+            !
+          </span>
+          <a href="#" className="hover:underline" onClick={handleReveal}>
+            {mutedMessage}
           </a>
         </div>
-      </div>
-    </>
-  ) : (
-    <>
-      {(!nsfw || showNsfw || globalNsfw) && (
-        <EntryListItemThumbnail
-          entryProp={entryProp}
-          isCrossPost={isCrossPost}
-          noImage="/assets/noimage.png"
-          entry={entry}
-        />
       )}
-      <div className="item-summary overflow-x-hidden">
-        <EntryLink entry={isCrossPost ? entryProp : entry}>
-          <div className="item-title !mb-0">{entry.title}</div>
-        </EntryLink>
-        {location?.coordinates && (
-          <Link
-            href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
-            target="_external"
-            rel="noopener"
-            className="text-sm"
-          >
-            <UilMapPinAlt className="w-4 h-4 mr-1" />
-            {location.address}
-          </Link>
+      <div className={shouldShowMutedOverlay ? "opacity-50" : ""}>
+        {(!nsfw || showNsfw || globalNsfw) && (
+          <EntryListItemThumbnail
+            entryProp={entryProp}
+            isCrossPost={isCrossPost}
+            noImage="/assets/noimage.png"
+            entry={entry}
+          />
         )}
-        <EntryLink entry={isCrossPost ? entryProp : entry}>
-          <div className="item-body">
-            {entry.json_metadata?.description || postBodySummary(entry, 200)}
-          </div>
-        </EntryLink>
+        <div className="item-summary overflow-x-hidden">
+          <EntryLink entry={isCrossPost ? entryProp : entry}>
+            <div className="item-title !mb-0">{entry.title}</div>
+          </EntryLink>
+          {location?.coordinates && (
+            <Link
+              href={`https://maps.google.com/?q=${location.coordinates.lat},${location.coordinates.lng}`}
+              target="_external"
+              rel="noopener"
+              className="text-sm"
+            >
+              <UilMapPinAlt className="w-4 h-4 mr-1" />
+              {location.address}
+            </Link>
+          )}
+          <EntryLink entry={isCrossPost ? entryProp : entry}>
+            <div className="item-body">
+              {entry.json_metadata?.description || postBodySummary(entry, 200)}
+            </div>
+          </EntryLink>
+        </div>
       </div>
     </>
   );
