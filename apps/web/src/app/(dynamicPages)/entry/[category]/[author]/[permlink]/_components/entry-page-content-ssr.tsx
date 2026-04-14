@@ -95,7 +95,7 @@ export function EntryPageContentSSR({ entry, isRawContent }: Props) {
       <EntryPageSimilarEntries entry={entry} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
     </>
   );

@@ -29,11 +29,14 @@ export function SearchListItem({ res }: Props) {
   const reputation = useMemo(() => accountReputation(res.author_rep), [res]);
   const img = useMemo(() => catchPostImage(res.body, 600, 500), [res.body]);
 
-  const title = useMemo(() => (res.title_marked ? res.title_marked : res.title), [res]);
-  const summary = useMemo(
-    () => (res.body_marked ? res.body_marked : postBodySummary(res.body, 200)),
-    [res]
-  );
+  const title = useMemo(() => {
+    const raw = res.title_marked ? res.title_marked : res.title;
+    return raw.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
+  }, [res]);
+  const summary = useMemo(() => {
+    const raw = res.body_marked ? res.body_marked : postBodySummary(res.body, 200);
+    return raw.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
+  }, [res]);
 
   return (
     <div className="search-list-item">
