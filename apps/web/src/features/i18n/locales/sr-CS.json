@@ -24,6 +24,7 @@
     "or": "ILI",
     "muted-message": "Muted author, Reveal content",
     "modmuted-message": "Community Moderators muted, Reveal content",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Proces nije završen zbog greške na serveru",
     "day": "dan",
     "days": "dana/i",
