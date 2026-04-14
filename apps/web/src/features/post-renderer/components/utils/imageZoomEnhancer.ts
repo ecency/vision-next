@@ -52,6 +52,20 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
             const wrapper = document.createElement("div");
             wrapper.classList.add("markdown-image-container");
 
+            // Preserve alignment from parent element, default to center
+            const parent = el.parentElement;
+            const validAligns = ["left", "center", "right", "justify"];
+            const rawAlign = parent
+                ? (parent.tagName === "CENTER"
+                    ? "center"
+                    : parent.getAttribute("dir")
+                    || parent.getAttribute("data-align")
+                    || parent.style.textAlign
+                    || "")
+                : "";
+            const parentAlign = validAligns.includes(rawAlign) ? rawAlign : "";
+            wrapper.style.textAlign = parentAlign === "left" ? "" : (parentAlign || "center");
+
             const clonedImage = el.cloneNode(true) as HTMLElement;
 
             const title = el.getAttribute("title")?.trim();

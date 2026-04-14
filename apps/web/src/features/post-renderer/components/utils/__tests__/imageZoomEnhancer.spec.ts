@@ -274,4 +274,62 @@ describe('applyImageZoom', () => {
       }
     })
   })
+
+  describe('alignment preservation', () => {
+    it('should center images inside <center> tags', () => {
+      const center = document.createElement('center')
+      const img = document.createElement('img')
+      img.src = 'test.jpg'
+      center.appendChild(img)
+      container.appendChild(center)
+
+      applyImageZoom(document.body)
+
+      const wrapper = container.querySelector('.markdown-image-container') as HTMLElement
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.style.textAlign).toBe('center')
+    })
+
+    it('should preserve right alignment from parent', () => {
+      const p = document.createElement('p')
+      p.setAttribute('dir', 'right')
+      const img = document.createElement('img')
+      img.src = 'test.jpg'
+      p.appendChild(img)
+      container.appendChild(p)
+
+      applyImageZoom(document.body)
+
+      const wrapper = container.querySelector('.markdown-image-container') as HTMLElement
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.style.textAlign).toBe('right')
+    })
+
+    it('should default to center when no alignment is specified', () => {
+      const img = document.createElement('img')
+      img.src = 'test.jpg'
+      container.appendChild(img)
+
+      applyImageZoom(document.body)
+
+      const wrapper = container.querySelector('.markdown-image-container') as HTMLElement
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.style.textAlign).toBe('center')
+    })
+
+    it('should not center when parent explicitly sets left alignment', () => {
+      const p = document.createElement('p')
+      p.setAttribute('dir', 'left')
+      const img = document.createElement('img')
+      img.src = 'test.jpg'
+      p.appendChild(img)
+      container.appendChild(p)
+
+      applyImageZoom(document.body)
+
+      const wrapper = container.querySelector('.markdown-image-container') as HTMLElement
+      expect(wrapper).toBeTruthy()
+      expect(wrapper.style.textAlign).toBe('')
+    })
+  })
 })
