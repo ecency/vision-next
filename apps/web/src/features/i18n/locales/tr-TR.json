@@ -24,6 +24,7 @@
     "or": "VEYA",
     "muted-message": "Engellenen yazar, İçeriği görüntüle",
     "modmuted-message": "Topluluk Yöneticisi Tarafından Susturuldu, İçeriği Göster",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Sunucu hatası nedeniyle işleminiz tamamlanamamıştır",
     "day": "gün",
     "days": "gün",
