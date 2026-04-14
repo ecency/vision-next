@@ -24,6 +24,7 @@
     "or": "OR",
     "muted-message": "Muted author, Reveal content",
     "modmuted-message": "Community Moderators muted, Reveal content",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Process could not be completed due to server error",
     "day": "day",
     "days": "days",
