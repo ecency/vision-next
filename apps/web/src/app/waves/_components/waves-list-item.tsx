@@ -27,6 +27,7 @@ import {
   WavesFeedType
 } from "@/app/waves/_constants";
 import { useOptionalWavesTagFilter } from "@/app/waves/_context";
+import { isHiddenPost } from "@/utils";
 
 const INTERACTIVE_SELECTOR =
   "a,button,input,textarea,select,img,[role='button'],[role='link'],[role='menuitem'],[contenteditable='true']";
@@ -101,9 +102,7 @@ export const WavesListItem = React.memo(function WavesListItem({
   );
 
   const isHidden = useMemo(
-    () =>
-      (entry?.net_rshares ?? 0) < -10000000000 &&
-      (entry?.active_votes?.length ?? 0) > 3,
+    () => isHiddenPost(entry?.net_rshares, entry?.active_votes?.length ?? 0),
     [entry?.net_rshares, entry?.active_votes?.length]
   );
 

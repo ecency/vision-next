@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import { Tsx } from "@/features/i18n/helper";
 import { Entry } from "@/entities";
+import { isHiddenPost } from "@/utils";
 import { EntryPageMightContainsMutedCommentsWarning } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-might-contains-muted-comments-warning";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 
 export function EntryPageWarnings({ entry }: Props) {
   const isMuted = !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation >= 0;
-  const isHidden = entry?.net_rshares < -10000000000 && entry?.active_votes?.length > 3;
+  const isHidden = isHiddenPost(entry?.net_rshares, entry?.active_votes?.length ?? 0);
   const isLowReputation =
     !!entry.stats?.gray && entry.net_rshares >= 0 && entry.author_reputation < 0;
 

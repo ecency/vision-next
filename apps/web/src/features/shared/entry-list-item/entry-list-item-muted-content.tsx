@@ -15,7 +15,7 @@ import { getMutedUsersQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { UilMapPinAlt } from "@tooni/iconscout-unicons-react";
-import { useEntryLocation } from "@/utils";
+import { isHiddenPost, useEntryLocation } from "@/utils";
 
 interface Props {
   entry: Entry;
@@ -26,9 +26,6 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   const globalNsfw = useGlobalStore((s) => s.nsfw);
   const { showNsfw } = EcencyClientServerBridge.useSafeContext(EntryListItemContext);
 
-  const [showMuted, setShowMuted] = useState(false);
-  const [showModMuted, setShowModMuted] = useState(false);
-  const [showHidden, setShowHidden] = useState(false);
   const { data: mutedUsers } = useQuery(getMutedUsersQueryOptions(activeUser?.username));
 
   const location = useEntryLocation(entryProp);
@@ -39,10 +36,10 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   );
   const entry = useMemo(() => entryProp.original_entry || entryProp, [entryProp]);
   const isCrossPost = useMemo(() => !!entry.original_entry, [entry.original_entry]);
-  const entryActiveVotesLength = entry.active_votes?.length ?? 0;
+  const isModMuted = useMemo(() => entry.stats?.gray ?? false, [entry.stats?.gray]);
   const isHidden = useMemo(
-    () => (entry.net_rshares ?? 0) < -10000000000 && entryActiveVotesLength > 3,
-    [entry.net_rshares, entryActiveVotesLength]
+    () => isHiddenPost(entry.net_rshares, entry.active_votes?.length ?? 0),
+    [entry.net_rshares, entry.active_votes?.length]
   );
   const nsfw = useMemo(
     () =>
@@ -53,6 +50,10 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
     [entry]
   );
 
+  const [showMuted, setShowMuted] = useState(isPostMuted);
+  const [showModMuted, setShowModMuted] = useState(isModMuted);
+  const [showHidden, setShowHidden] = useState(isHidden);
+
   useEffect(() => {
     setShowMuted(false);
   }, [activeUser]);
@@ -62,8 +63,8 @@ export function EntryListItemMutedContent({ entry: entryProp }: Props) {
   }, [isPostMuted]);
 
   useEffect(() => {
-    setShowModMuted(entry.stats?.gray ?? false);
-  }, [entry]);
+    setShowModMuted(isModMuted);
+  }, [isModMuted]);
 
   useEffect(() => {
     setShowHidden(isHidden);
