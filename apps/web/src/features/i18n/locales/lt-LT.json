@@ -24,6 +24,7 @@
     "or": "ARBA",
     "muted-message": "Autorius užblokuotas, atskleisti turinį",
     "modmuted-message": "Bendruomenės moderatoriai užblokavo, atskleisti turinį",
+    "hidden-message": "Downvoted by users, Reveal content",
     "server-error": "Procesas negalėjo būti įvykdytas dėl serverio klaidos",
     "day": "d.",
     "days": "d.",
