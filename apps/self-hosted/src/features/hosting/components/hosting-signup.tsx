@@ -21,6 +21,7 @@ interface PaymentInstructions {
 type Step = 'username' | 'configure' | 'payment' | 'success';
 
 const HIVE_USERNAME_RE = /^[a-z][a-z0-9.-]*$/;
+const HIVE_COMMUNITY_RE = /^hive-\d+$/;
 const BLOCKCHAIN_CONFIRMATION_DELAY_MS = 5000;
 
 function isValidHttpUrl(url: string): boolean {
@@ -59,6 +60,7 @@ export function HostingSignup({
     theme: 'system' as 'light' | 'dark' | 'system',
     styleTemplate: 'medium' as string,
     type: 'blog' as 'blog' | 'community',
+    communityId: '',
     title: '',
     description: '',
   });
@@ -66,6 +68,13 @@ export function HostingSignup({
   const statusUrl = `${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`;
 
   const checkUsername = useCallback(async () => {
+    if (config.type === 'community') {
+      if (!config.communityId || !HIVE_COMMUNITY_RE.test(config.communityId)) {
+        setError('Community ID must be in the format hive-XXXXXX');
+        return;
+      }
+    }
+
     if (!username || username.length < 3) {
       setError('Username must be at least 3 characters');
       return;
@@ -88,7 +97,10 @@ export function HostingSignup({
       }
 
       // Move to configure step
-      setConfig((prev) => ({ ...prev, title: `${username}'s Blog` }));
+      setConfig((prev) => ({
+        ...prev,
+        title: prev.type === 'community' ? `${prev.communityId} Community` : `${username}'s Blog`,
+      }));
       setStep('configure');
     } catch (err: any) {
       setError(err.message || 'Failed to check username. Please try again.');
@@ -112,6 +124,7 @@ export function HostingSignup({
             theme: config.theme,
             styleTemplate: config.styleTemplate,
             type: config.type,
+            ...(config.type === 'community' ? { communityId: config.communityId } : {}),
             title: config.title,
             description: config.description,
           },
@@ -216,6 +229,36 @@ export function HostingSignup({
       {step === 'username' && (
         <div className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Instance Type
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfig((prev) => ({ ...prev, type: 'blog', communityId: '' }))}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md border transition-colors ${
+                  config.type === 'blog'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                Personal Blog
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfig((prev) => ({ ...prev, type: 'community' }))}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md border transition-colors ${
+                  config.type === 'community'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                Community
+              </button>
+            </div>
+          </div>
+
+          <div>
             <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Hive Username
             </label>
@@ -228,14 +271,35 @@ export function HostingSignup({
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               disabled={isLoading}
             />
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Your blog will be at: {username || 'username'}.blogs.ecency.com
-            </p>
           </div>
+
+          {config.type === 'community' && (
+            <div>
+              <label htmlFor="hosting-community" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Community ID
+              </label>
+              <input
+                id="hosting-community"
+                type="text"
+                value={config.communityId}
+                onChange={(e) => setConfig((prev) => ({ ...prev, communityId: e.target.value.toLowerCase() }))}
+                placeholder="hive-123456"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={isLoading}
+              />
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                The Hive community to display posts from
+              </p>
+            </div>
+          )}
+
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Your {config.type === 'community' ? 'community page' : 'blog'} will be at: {username || 'username'}.blogs.ecency.com
+          </p>
 
           <button
             onClick={checkUsername}
-            disabled={isLoading || !username}
+            disabled={isLoading || !username || (config.type === 'community' && !config.communityId)}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
             {isLoading ? 'Checking...' : 'Continue'}
@@ -320,7 +384,7 @@ export function HostingSignup({
               disabled={isLoading}
               className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
             >
-              {isLoading ? 'Creating...' : 'Create Blog'}
+              {isLoading ? 'Creating...' : config.type === 'community' ? 'Create Community Page' : 'Create Blog'}
             </button>
           </div>
         </div>
@@ -401,11 +465,11 @@ export function HostingSignup({
           </div>
 
           <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-            Your Blog is Live!
+            Your {config.type === 'community' ? 'Community Page' : 'Blog'} is Live!
           </h3>
 
           <p className="text-gray-600 dark:text-gray-400">
-            Your blog has been created and is now accessible at:
+            Your {config.type === 'community' ? 'community page' : 'blog'} has been created and is now accessible at:
           </p>
 
           {blogUrl && isValidHttpUrl(blogUrl) ? (
@@ -423,7 +487,7 @@ export function HostingSignup({
                 onClick={() => window.open(blogUrl, '_blank', 'noopener,noreferrer')}
                 className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               >
-                Visit Your Blog
+                Visit Your {config.type === 'community' ? 'Community Page' : 'Blog'}
               </button>
             </>
           ) : (

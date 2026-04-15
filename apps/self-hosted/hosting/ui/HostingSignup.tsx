@@ -20,8 +20,30 @@ interface PaymentInstructions {
 
 type Step = 'username' | 'configure' | 'payment' | 'success';
 
+const HIVE_USERNAME_RE = /^[a-z][a-z0-9.-]*$/;
+const HIVE_COMMUNITY_RE = /^hive-\d+$/;
+const BLOCKCHAIN_CONFIRMATION_DELAY_MS = 5000;
+
+function isValidHttpUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+async function fetchJson(url: string, init?: RequestInit): Promise<any> {
+  const response = await fetch(url, init);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || `Request failed (${response.status})`);
+  }
+  return response.json();
+}
+
 export function HostingSignup({
-  apiBaseUrl = 'https://api.ecency.com/hosting',
+  apiBaseUrl = 'https://api.blogs.ecency.com/hosting',
   onSuccess,
   onError,
 }: HostingSignupProps) {
@@ -31,19 +53,35 @@ export function HostingSignup({
   const [error, setError] = useState<string | null>(null);
   const [paymentInstructions, setPaymentInstructions] = useState<PaymentInstructions | null>(null);
   const [blogUrl, setBlogUrl] = useState<string | null>(null);
+  const [isTransferring, setIsTransferring] = useState(false);
 
   // Config options
   const [config, setConfig] = useState({
     theme: 'system' as 'light' | 'dark' | 'system',
     styleTemplate: 'medium' as string,
     type: 'blog' as 'blog' | 'community',
+    communityId: '',
     title: '',
     description: '',
   });
 
+  const statusUrl = `${apiBaseUrl}/v1/tenants/${encodeURIComponent(username)}/status`;
+
   const checkUsername = useCallback(async () => {
+    if (config.type === 'community') {
+      if (!config.communityId || !HIVE_COMMUNITY_RE.test(config.communityId)) {
+        setError('Community ID must be in the format hive-XXXXXX');
+        return;
+      }
+    }
+
     if (!username || username.length < 3) {
       setError('Username must be at least 3 characters');
+      return;
+    }
+
+    if (username.length > 16 || !HIVE_USERNAME_RE.test(username)) {
+      setError('Username must be 3-16 characters, start with a letter, and contain only lowercase letters, numbers, dots, or hyphens');
       return;
     }
 
@@ -51,32 +89,33 @@ export function HostingSignup({
     setError(null);
 
     try {
-      // Check if username is available
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${username}/status`);
-      const data = await response.json();
+      const data = await fetchJson(statusUrl);
 
-      if (data.exists && data.subscriptionStatus === 'active') {
-        setError('This username already has an active blog');
+      if (data.exists) {
+        setError('This username is already taken');
         return;
       }
 
       // Move to configure step
-      setConfig((prev) => ({ ...prev, title: `${username}'s Blog` }));
+      setConfig((prev) => ({
+        ...prev,
+        title: prev.type === 'community' ? `${prev.communityId} Community` : `${username}'s Blog`,
+      }));
       setStep('configure');
-    } catch (err) {
-      setError('Failed to check username. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to check username. Please try again.');
       onError?.('Failed to check username');
     } finally {
       setIsLoading(false);
     }
-  }, [username, apiBaseUrl, onError]);
+  }, [username, statusUrl, onError]);
 
   const createTenant = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/v1/tenants`, {
+      const data = await fetchJson(`${apiBaseUrl}/v1/tenants`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,18 +124,22 @@ export function HostingSignup({
             theme: config.theme,
             styleTemplate: config.styleTemplate,
             type: config.type,
+            ...(config.type === 'community' ? { communityId: config.communityId } : {}),
             title: config.title,
             description: config.description,
           },
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create blog');
+      if (
+        !data.paymentInstructions?.to ||
+        !data.paymentInstructions?.amount ||
+        !data.paymentInstructions?.memo ||
+        !data.tenant?.blogUrl
+      ) {
+        throw new Error('Invalid response from server. Please try again.');
       }
 
-      const data = await response.json();
       setPaymentInstructions(data.paymentInstructions);
       setBlogUrl(data.tenant.blogUrl);
       setStep('payment');
@@ -110,26 +153,29 @@ export function HostingSignup({
 
   const checkPayment = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch(`${apiBaseUrl}/v1/tenants/${username}/status`);
-      const data = await response.json();
+      const data = await fetchJson(statusUrl);
 
       if (data.subscriptionStatus === 'active') {
         setStep('success');
-        onSuccess?.({ username, blogUrl: blogUrl! });
+        if (blogUrl) {
+          onSuccess?.({ username, blogUrl });
+        }
       } else {
         setError('Payment not yet received. Please wait a few seconds and try again.');
       }
-    } catch (err) {
-      setError('Failed to check payment status');
+    } catch (err: any) {
+      setError(err.message || 'Failed to check payment status');
     } finally {
       setIsLoading(false);
+      setIsTransferring(false);
     }
-  }, [username, blogUrl, apiBaseUrl, onSuccess]);
+  }, [username, blogUrl, statusUrl, onSuccess]);
 
   const sendPaymentWithKeychain = useCallback(async () => {
-    if (!paymentInstructions) return;
+    if (!paymentInstructions || isTransferring) return;
 
     // Check if Keychain is available
     if (typeof window === 'undefined' || !(window as any).hive_keychain) {
@@ -137,25 +183,35 @@ export function HostingSignup({
       return;
     }
 
+    setIsTransferring(true);
+    setError(null);
     const keychain = (window as any).hive_keychain;
-    const [amount] = paymentInstructions.amount.split(' ');
+    const [amountStr] = paymentInstructions.amount.split(' ');
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      setError('Invalid payment amount. Please try again.');
+      setIsTransferring(false);
+      return;
+    }
 
     keychain.requestTransfer(
       username,
       paymentInstructions.to,
-      amount,
+      amount.toFixed(3),
       paymentInstructions.memo,
       'HBD',
       (response: any) => {
         if (response.success) {
-          // Wait a bit for blockchain confirmation, then check
-          setTimeout(checkPayment, 5000);
+          setTimeout(checkPayment, BLOCKCHAIN_CONFIRMATION_DELAY_MS);
         } else {
           setError('Payment cancelled or failed');
+          setIsTransferring(false);
         }
       }
     );
-  }, [username, paymentInstructions, checkPayment]);
+  }, [username, paymentInstructions, checkPayment, isTransferring]);
+
+  const isBusy = isLoading || isTransferring;
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -173,10 +229,41 @@ export function HostingSignup({
       {step === 'username' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Instance Type
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfig((prev) => ({ ...prev, type: 'blog', communityId: '' }))}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md border transition-colors ${
+                  config.type === 'blog'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                Personal Blog
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfig((prev) => ({ ...prev, type: 'community' }))}
+                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md border transition-colors ${
+                  config.type === 'community'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                Community
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Hive Username
             </label>
             <input
+              id="hosting-username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase())}
@@ -184,14 +271,35 @@ export function HostingSignup({
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               disabled={isLoading}
             />
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Your blog will be at: {username || 'username'}.blogs.ecency.com
-            </p>
           </div>
+
+          {config.type === 'community' && (
+            <div>
+              <label htmlFor="hosting-community" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Community ID
+              </label>
+              <input
+                id="hosting-community"
+                type="text"
+                value={config.communityId}
+                onChange={(e) => setConfig((prev) => ({ ...prev, communityId: e.target.value.toLowerCase() }))}
+                placeholder="hive-123456"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={isLoading}
+              />
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                The Hive community to display posts from
+              </p>
+            </div>
+          )}
+
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Your {config.type === 'community' ? 'community page' : 'blog'} will be at: {username || 'username'}.blogs.ecency.com
+          </p>
 
           <button
             onClick={checkUsername}
-            disabled={isLoading || !username}
+            disabled={isLoading || !username || (config.type === 'community' && !config.communityId)}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
             {isLoading ? 'Checking...' : 'Continue'}
@@ -203,10 +311,11 @@ export function HostingSignup({
       {step === 'configure' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Blog Title
             </label>
             <input
+              id="hosting-title"
               type="text"
               value={config.title}
               onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
@@ -215,10 +324,11 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
+              id="hosting-description"
               value={config.description}
               onChange={(e) => setConfig((prev) => ({ ...prev, description: e.target.value }))}
               rows={2}
@@ -227,10 +337,11 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-style" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Style Template
             </label>
             <select
+              id="hosting-style"
               value={config.styleTemplate}
               onChange={(e) => setConfig((prev) => ({ ...prev, styleTemplate: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -244,13 +355,14 @@ export function HostingSignup({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="hosting-theme" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Theme
             </label>
             <select
+              id="hosting-theme"
               value={config.theme}
               onChange={(e) =>
-                setConfig((prev) => ({ ...prev, theme: e.target.value as any }))
+                setConfig((prev) => ({ ...prev, theme: e.target.value as 'light' | 'dark' | 'system' }))
               }
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
@@ -272,7 +384,7 @@ export function HostingSignup({
               disabled={isLoading}
               className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
             >
-              {isLoading ? 'Creating...' : 'Create Blog'}
+              {isLoading ? 'Creating...' : config.type === 'community' ? 'Create Community Page' : 'Create Blog'}
             </button>
           </div>
         </div>
@@ -313,14 +425,15 @@ export function HostingSignup({
 
           <button
             onClick={sendPaymentWithKeychain}
-            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors"
+            disabled={isBusy}
+            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
-            Pay with Keychain
+            {isTransferring ? 'Processing...' : 'Pay with Keychain'}
           </button>
 
           <button
             onClick={checkPayment}
-            disabled={isLoading}
+            disabled={isBusy}
             className="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             {isLoading ? 'Checking...' : 'I\'ve sent the payment'}
@@ -352,28 +465,36 @@ export function HostingSignup({
           </div>
 
           <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-            Your Blog is Live!
+            Your {config.type === 'community' ? 'Community Page' : 'Blog'} is Live!
           </h3>
 
           <p className="text-gray-600 dark:text-gray-400">
-            Your blog has been created and is now accessible at:
+            Your {config.type === 'community' ? 'community page' : 'blog'} has been created and is now accessible at:
           </p>
 
-          <a
-            href={blogUrl!}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-blue-600 dark:text-blue-400 font-medium hover:underline"
-          >
-            {blogUrl}
-          </a>
+          {blogUrl && isValidHttpUrl(blogUrl) ? (
+            <>
+              <a
+                href={blogUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-blue-600 dark:text-blue-400 font-medium hover:underline"
+              >
+                {blogUrl}
+              </a>
 
-          <button
-            onClick={() => window.open(blogUrl!, '_blank')}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
-          >
-            Visit Your Blog
-          </button>
+              <button
+                onClick={() => window.open(blogUrl, '_blank', 'noopener,noreferrer')}
+                className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+              >
+                Visit Your {config.type === 'community' ? 'Community Page' : 'Blog'}
+              </button>
+            </>
+          ) : (
+            <p className="py-3 px-4 bg-gray-100 dark:bg-gray-700 rounded-md text-gray-600 dark:text-gray-400">
+              {blogUrl}
+            </p>
+          )}
         </div>
       )}
 
@@ -384,8 +505,8 @@ export function HostingSignup({
             Pricing
           </h4>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <li>• Standard: 1 HBD/month - Subdomain included</li>
-            <li>• Pro: 3 HBD/month - Custom domain support</li>
+            <li>Standard: 0.1 HBD/month - Subdomain included</li>
+            <li>Pro: 0.5 HBD/month - Custom domain support</li>
           </ul>
         </div>
       )}
