@@ -19,7 +19,7 @@ services:
     networks:
       - ecency-hosting
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -58,6 +58,8 @@ services:
     # Reuses API image with different entrypoint
     container_name: ecency-hosting-payments
     restart: unless-stopped
+    healthcheck:
+      disable: true
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/hosting
