@@ -61,6 +61,7 @@ export function HostingSignup({
     styleTemplate: 'medium' as string,
     type: 'blog' as 'blog' | 'community',
     communityId: '',
+    billingAccount: '',
     title: '',
     description: '',
   });
@@ -73,14 +74,18 @@ export function HostingSignup({
         setError('Community ID must be in the format hive-XXXXXX');
         return;
       }
+      if (!config.billingAccount || !HIVE_USERNAME_RE.test(config.billingAccount)) {
+        setError('Please enter a valid Hive username for billing');
+        return;
+      }
     }
 
     if (!username || username.length < 3) {
-      setError('Username must be at least 3 characters');
+      setError(config.type === 'community' ? 'Community ID must be at least 3 characters' : 'Username must be at least 3 characters');
       return;
     }
 
-    if (username.length > 16 || !HIVE_USERNAME_RE.test(username)) {
+    if (config.type === 'blog' && (username.length > 16 || !HIVE_USERNAME_RE.test(username))) {
       setError('Username must be 3-16 characters, start with a letter, and contain only lowercase letters, numbers, dots, or hyphens');
       return;
     }
@@ -195,7 +200,7 @@ export function HostingSignup({
     }
 
     keychain.requestTransfer(
-      username,
+      config.type === 'community' ? config.billingAccount : username,
       paymentInstructions.to,
       amount.toFixed(3),
       paymentInstructions.memo,
@@ -258,48 +263,67 @@ export function HostingSignup({
             </div>
           </div>
 
-          <div>
-            <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Hive Username
-            </label>
-            <input
-              id="hosting-username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase())}
-              placeholder="your-username"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              disabled={isLoading}
-            />
-          </div>
-
-          {config.type === 'community' && (
+          {config.type === 'community' ? (
+            <>
+              <div>
+                <label htmlFor="hosting-community" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Community ID
+                </label>
+                <input
+                  id="hosting-community"
+                  type="text"
+                  value={config.communityId}
+                  onChange={(e) => {
+                    const val = e.target.value.toLowerCase();
+                    setConfig((prev) => ({ ...prev, communityId: val }));
+                    setUsername(val);
+                  }}
+                  placeholder="hive-123456"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  disabled={isLoading}
+                />
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Your community page will be at: {config.communityId || 'hive-123456'}.blogs.ecency.com
+                </p>
+              </div>
+              <div>
+                <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Your Hive Account (for billing)
+                </label>
+                <input
+                  id="hosting-username-billing"
+                  type="text"
+                  value={config.billingAccount ?? ''}
+                  onChange={(e) => setConfig((prev) => ({ ...prev, billingAccount: e.target.value.toLowerCase() }))}
+                  placeholder="your-username"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  disabled={isLoading}
+                />
+              </div>
+            </>
+          ) : (
             <div>
-              <label htmlFor="hosting-community" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Community ID
+              <label htmlFor="hosting-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Hive Username
               </label>
               <input
-                id="hosting-community"
+                id="hosting-username"
                 type="text"
-                value={config.communityId}
-                onChange={(e) => setConfig((prev) => ({ ...prev, communityId: e.target.value.toLowerCase() }))}
-                placeholder="hive-123456"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                placeholder="your-username"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 disabled={isLoading}
               />
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                The Hive community to display posts from
+                Your blog will be at: {username || 'username'}.blogs.ecency.com
               </p>
             </div>
           )}
 
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Your {config.type === 'community' ? 'community page' : 'blog'} will be at: {username || 'username'}.blogs.ecency.com
-          </p>
-
           <button
             onClick={checkUsername}
-            disabled={isLoading || !username || (config.type === 'community' && !config.communityId)}
+            disabled={isLoading || !username || (config.type === 'community' && (!config.communityId || !config.billingAccount))}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-md transition-colors"
           >
             {isLoading ? 'Checking...' : 'Continue'}
