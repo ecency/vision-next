@@ -1,5 +1,5 @@
-import { callRPC } from "@ecency/hive-tx";
-import { utils } from "@ecency/hive-tx";
+import { callRPC } from "../../../hive-tx";
+import { utils } from "../../../hive-tx";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import { HIVE_ACCOUNT_OPERATION_GROUPS } from "../consts";
 import type {

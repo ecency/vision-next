@@ -4,14 +4,12 @@ import { error } from "@/features/shared";
 import { formatError } from "@/api/format-error";
 import { makeHsCode } from "@/utils";
 import { EcencyConfigManager } from "@/config";
-import { PrivateKey } from "@ecency/hive-tx";
-import type { Authority, Operation } from "@ecency/hive-tx";
-import { sha256 } from "@ecency/sdk";
+import { PrivateKey, sha256, broadcastOperations } from "@ecency/sdk";
+import type { Authority, Operation } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getWebBroadcastAdapter } from "@/providers/sdk";
 import { getLoginType } from "@/utils/user-token";
 import hs from "hivesigner";
-import { broadcastOperations } from "@ecency/sdk";
 
 function makeOperation(
   creator: string,

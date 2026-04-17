@@ -6,7 +6,7 @@ import { Button } from "@ui/button";
 import { KeyInput } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { MetaMaskSignButton } from "../metamask-sign-button";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseKeychainMobile } from "@/utils/client";

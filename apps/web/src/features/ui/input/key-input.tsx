@@ -3,7 +3,7 @@
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
 import i18next from "i18next";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { isWif } from "@ecency/sdk";
 import {
   forwardRef,

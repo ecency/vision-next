@@ -1,4 +1,4 @@
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import type { HiveRole } from "./derive-hive-bip44-keys";
 
 export function deriveHiveMasterPasswordKey(

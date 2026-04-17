@@ -1,6 +1,6 @@
 import { mnemonicToSeedSync } from "bip39";
 import { HDKey } from "@scure/bip32";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 
 export type HiveRole = "owner" | "active" | "posting" | "memo";
 

@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { utils } from "@ecency/hive-tx";
+import { utils } from "../../../hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
 import { callRPC } from "@/modules/core/hive-tx";

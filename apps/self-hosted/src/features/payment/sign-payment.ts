@@ -62,9 +62,9 @@ export async function signX402Payment(
 
     case 'manual': {
       // Dynamic import hive-tx only when needed (keeps bundle small for other methods)
-      const { Transaction, PrivateKey } = await import('@ecency/hive-tx');
+      const { HiveTxTransaction, PrivateKey } = await import('@ecency/sdk');
       const privKey = PrivateKey.fromString(options!.activeKey!);
-      const tx = new Transaction({ transaction: transaction as any });
+      const tx = new HiveTxTransaction({ transaction: transaction as any });
       const signed = tx.sign(privKey);
       signedTx = signed as unknown as Record<string, unknown>;
       break;

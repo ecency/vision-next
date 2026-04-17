@@ -1,22 +1,20 @@
 /**
- * Compatibility layer for migrating from @hiveio/dhive to @ecency/hive-tx.
- *
- * Re-exports hive-tx APIs and provides helper functions that bridge the
- * API differences between dhive and hive-tx.
+ * Re-exports hive-tx APIs and provides helper functions that bridge
+ * API differences from the legacy dhive library.
  */
 
 import {
   PrivateKey,
   Transaction,
   callRPCBroadcast,
-  config as hiveTxConfig,
-} from "@ecency/hive-tx";
-import type { Operation, OperationName, OperationBody } from "@ecency/hive-tx";
+} from "../../hive-tx";
+import type { Operation, OperationName, OperationBody } from "../../hive-tx";
 import { sha256 as nobleSha256 } from "@noble/hashes/sha2.js";
 
 // ── Re-exports ─────────────────────────────────────────────────────────────
 
 export {
+  Transaction as HiveTxTransaction,
   PrivateKey,
   PublicKey,
   Signature,
@@ -27,16 +25,17 @@ export {
   callREST,
   callWithQuorum,
   utils as hiveTxUtils,
-} from "@ecency/hive-tx";
+} from "../../hive-tx";
 
 export type {
   Operation,
   OperationName,
+  OperationBody,
   AssetSymbol,
   BroadcastResult,
   AccountCreateOperation,
   CustomJsonOperation,
-} from "@ecency/hive-tx";
+} from "../../hive-tx";
 
 // ── Compat types (matching dhive shapes used throughout the codebase) ──────
 
@@ -180,22 +179,5 @@ export function calculateRCMana(rcAccount: RCAccount): ManaResult {
   );
 }
 
-// ── Node configuration ─────────────────────────────────────────────────────
-
-/**
- * Configure hive-tx nodes. Call this from ConfigManager.setHiveNodes().
- * Replaces dhive's `new Client(nodes, options)`.
- */
-export function setHiveTxNodes(nodes: string[], timeout = 20000) {
-  hiveTxConfig.nodes = nodes;
-  hiveTxConfig.timeout = timeout;
-}
-
-/**
- * Initialize hive-tx with default node configuration.
- * Called once during SDK init.
- */
-export function initHiveTx(nodes: string[], timeout = 20000) {
-  hiveTxConfig.nodes = nodes;
-  hiveTxConfig.timeout = timeout;
-}
+// setHiveTxNodes and initHiveTx removed — config is now unified.
+// Use hiveTxConfig directly or ConfigManager.setHiveNodes().

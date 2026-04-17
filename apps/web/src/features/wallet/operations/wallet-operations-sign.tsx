@@ -4,7 +4,7 @@ import { Button, FormControl, InputGroup } from "@/features/ui";
 import { MetaMaskSignButton } from "@/features/shared";
 import { AssetOperation, broadcastOperations, useWalletOperation } from "@ecency/sdk";
 import type { AuthContextV2 } from "@ecency/sdk";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { isWif } from "@ecency/sdk";
 import { UilLock } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";

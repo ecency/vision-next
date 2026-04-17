@@ -1,5 +1,4 @@
-import type { Operation } from "@ecency/hive-tx";
-import type { TransactionConfirmation } from "@ecency/sdk";
+import type { Operation, TransactionConfirmation } from "@ecency/sdk";
 import type { PlatformAdapter } from "@ecency/sdk";
 import { authenticationStore } from "@/store";
 import { queryClient } from "@/consts/react-query";

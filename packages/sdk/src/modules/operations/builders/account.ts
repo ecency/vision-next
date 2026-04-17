@@ -1,18 +1,11 @@
-import type { Operation } from "@ecency/hive-tx";
+import type { Operation, Authority } from "../../../hive-tx";
+
+export type { Authority };
 
 /**
  * Account Operations
  * Operations for managing accounts, keys, and permissions
  */
-
-/**
- * Authority structure for account operations
- */
-export interface Authority {
-  weight_threshold: number;
-  account_auths: [string, number][];
-  key_auths: [string, number][];
-}
 
 /**
  * Builds an account update operation.

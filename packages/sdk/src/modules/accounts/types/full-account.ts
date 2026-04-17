@@ -1,4 +1,4 @@
-import type { Authority } from "@ecency/hive-tx";
+import type { Authority } from "../../../hive-tx";
 import { AccountFollowStats } from "./account-follow-stats";
 import { AccountProfile } from "./account-profile";
 

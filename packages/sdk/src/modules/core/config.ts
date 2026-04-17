@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { initHiveTx } from "./hive-tx";
+import { config as hiveTxConfig } from "../../hive-tx";
 
 // Safe environment variable access for browser builds
 // In browser builds, tsup will replace process.env.* with literal values at compile time
@@ -19,27 +19,12 @@ const getHeliusApiKey = () => {
   }
 };
 
-const DEFAULT_HIVE_NODES = [
-  "https://api.hive.blog",
-  "https://api.deathwing.me",
-  "https://api.openhive.network",
-  "https://techcoderx.com",
-  "https://api.syncad.com",
-  "https://rpc.mahdiyari.info",
-];
-
-const DEFAULT_HIVE_TIMEOUT = 3000;
-
-// Initialize hive-tx with default nodes
-initHiveTx(DEFAULT_HIVE_NODES, DEFAULT_HIVE_TIMEOUT);
-
 /** Timeout for internal API calls (search, private API). */
 export const INTERNAL_API_TIMEOUT_MS = 10_000;
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
   imageHost: "https://images.ecency.com",
-  hiveNodes: DEFAULT_HIVE_NODES,
   heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
   plausibleHost: "https://pl.ecency.com",
@@ -108,7 +93,8 @@ export namespace ConfigManager {
   }
 
   /**
-   * Set Hive RPC nodes, replacing the default list and updating hive-tx config.
+   * Set Hive RPC nodes, replacing the default list.
+   * Directly updates the unified hive-tx config object.
    * @param nodes - Array of Hive RPC node URLs
    */
   export function setHiveNodes(nodes: string[]) {
@@ -118,8 +104,7 @@ export namespace ConfigManager {
         .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
     )];
     if (!validNodes.length) return;
-    CONFIG.hiveNodes = validNodes;
-    initHiveTx(validNodes, DEFAULT_HIVE_TIMEOUT);
+    hiveTxConfig.nodes = validNodes;
   }
 
   /**

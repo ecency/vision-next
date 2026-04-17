@@ -1,4 +1,4 @@
-import type { Authority } from "@ecency/hive-tx";
+import type { Authority } from "@ecency/sdk";
 
 export interface AccountProfile {
   about?: string;

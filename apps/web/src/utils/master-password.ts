@@ -1,4 +1,4 @@
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 
 /**
  * Generate a Hive master password (P5... format).

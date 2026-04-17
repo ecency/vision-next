@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import { error } from "../../feedback";
-import { PrivateKey, PublicKey } from "@ecency/hive-tx";
+import { PrivateKey, PublicKey } from "@ecency/sdk";
 import { isWif, sha256 } from "@ecency/sdk";
 import { deriveHiveKeys, detectHiveKeyDerivation } from "@ecency/wallets";
 import { FullAccount } from "@/entities";

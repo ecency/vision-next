@@ -1,4 +1,4 @@
-import { utils } from "@ecency/hive-tx";
+import { utils } from "../../../hive-tx";
 import { HiveOperationGroup } from "../types";
 const ops = utils.operations;
 

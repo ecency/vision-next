@@ -6,7 +6,6 @@ var R = require('remeda');
 var lruCache = require('lru-cache');
 var bip39 = require('bip39');
 var bip32 = require('@scure/bip32');
-var hiveTx = require('@ecency/hive-tx');
 
 function _interopNamespace(e) {
   if (e && e.__esModule) return e;
@@ -977,7 +976,7 @@ function deriveHiveKey(mnemonic, role, accountIndex = 0) {
   if (!child.privateKey) {
     throw new Error("[Ecency][Wallets] - hive key derivation failed");
   }
-  const pk = hiveTx.PrivateKey.from(Buffer.from(child.privateKey));
+  const pk = sdk.PrivateKey.from(Buffer.from(child.privateKey));
   return {
     privateKey: pk.toString(),
     publicKey: pk.createPublic().toString()
@@ -1000,7 +999,7 @@ function deriveHiveKeys(mnemonic, accountIndex = 0) {
   };
 }
 function deriveHiveMasterPasswordKey(username, masterPassword, role) {
-  const pk = hiveTx.PrivateKey.fromLogin(username, masterPassword, role);
+  const pk = sdk.PrivateKey.fromLogin(username, masterPassword, role);
   return {
     privateKey: pk.toString(),
     publicKey: pk.createPublic().toString()
@@ -1036,7 +1035,7 @@ async function detectHiveKeyDerivation(username, seed, type = "active") {
   const bip44Pub = type === "owner" ? bip44.ownerPubkey : bip44.activePubkey;
   const matchBip44 = auth.key_auths.some(([pub]) => String(pub) === bip44Pub);
   if (matchBip44) return "bip44";
-  const legacyPub = hiveTx.PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
+  const legacyPub = sdk.PrivateKey.fromLogin(uname, seed, type).createPublic().toString();
   const matchLegacy = auth.key_auths.some(([pub]) => String(pub) === legacyPub);
   if (matchLegacy) return "master-password";
   return "unknown";

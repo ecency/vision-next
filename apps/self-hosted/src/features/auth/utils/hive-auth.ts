@@ -1,4 +1,4 @@
-import type { Operation } from '@ecency/hive-tx';
+import type { Operation } from '@ecency/sdk';
 import CryptoJS from 'crypto-js';
 import { HIVEAUTH_API, HIVEAUTH_APP } from '../constants';
 import type { HiveAuthSession } from '../types';

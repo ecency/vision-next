@@ -1,5 +1,5 @@
-import { PublicKey } from "@ecency/hive-tx";
-import type { Authority } from "@ecency/hive-tx";
+import { PublicKey } from "../../../hive-tx";
+import type { Authority } from "../../../hive-tx";
 import { FullAccount } from "../types";
 
 /**

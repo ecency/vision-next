@@ -4,7 +4,7 @@ import {
   useCreateCommunityByKeychain
 } from "@/api/mutations";
 import { KeyOrHot } from "@/features/shared";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { useCallback } from "react";
 import { CommunityCreateCardLayout } from "./community-create-card-layout";
 

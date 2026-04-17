@@ -1,7 +1,7 @@
 import { broadcast } from "@/features/auth";
 import { getQueryClient } from "@ecency/sdk";
 import { getAccountWalletAssetInfoQueryOptions } from "@ecency/wallets";
-import type { Operation } from "@ecency/hive-tx";
+import type { Operation } from "@ecency/sdk";
 import type { TippingAsset } from "../types";
 
 export interface ExecuteTipParams {
