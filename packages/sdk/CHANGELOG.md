@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.2.0
+
+### Minor Changes
+
+- Unify and improve SDK (#760)
+
+## 2.1.12
+
+### Patch Changes
+
+- Unify and improve SDK (#760)
+
 ## 2.1.8
 
 ### Patch Changes

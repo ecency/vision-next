@@ -1,5 +1,5 @@
 import { CONFIG, getBoundFetch } from "@/modules/core";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "../../../hive-tx";
 import {
   useMutation,
   useQuery,

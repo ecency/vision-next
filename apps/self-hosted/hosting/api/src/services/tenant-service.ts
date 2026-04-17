@@ -3,7 +3,7 @@
  */
 
 import { db } from '../db/client';
-import { callRPC, config as hiveTxConfig } from '@ecency/hive-tx';
+import { callRPC, hiveTxConfig } from '@ecency/sdk';
 import { Tenant, TenantRow, mapTenantFromDb } from '../types';
 
 // Re-export Tenant type for backward compatibility

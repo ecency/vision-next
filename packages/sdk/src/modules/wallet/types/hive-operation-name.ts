@@ -1,4 +1,4 @@
-import { utils } from "@ecency/hive-tx";
+import { utils } from "../../../hive-tx";
 import type { HiveOperationGroup } from "./hive-operation-group";
 
 /**

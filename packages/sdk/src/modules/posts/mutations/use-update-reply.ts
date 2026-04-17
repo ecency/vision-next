@@ -1,7 +1,7 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
-import type { Operation } from "@ecency/hive-tx";
+import type { Operation } from "../../../hive-tx";
 import type { Beneficiary } from "./use-comment";
 
 /**

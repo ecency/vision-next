@@ -2,7 +2,7 @@
 
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useIsMobile } from "@/utils";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { Button } from "@ui/button";
 import { KeyInput } from "@ui/input";
 import i18next from "i18next";

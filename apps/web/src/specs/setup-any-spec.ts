@@ -21,7 +21,7 @@ vi.mock("i18next", () => ({
   }
 }));
 
-vi.mock("@ecency/hive-tx", () => ({
+vi.mock("@ecency/sdk", () => ({
   PrivateKey: { fromString: vi.fn(), fromLogin: vi.fn(), from: vi.fn() },
   PublicKey: { fromString: vi.fn(), from: vi.fn() },
   Signature: { from: vi.fn() },
@@ -68,8 +68,6 @@ vi.mock("@ecency/sdk", () => ({
   callRPC: vi.fn(),
   hiveTxUtils: { operations: {}, makeBitMaskFilter: vi.fn() },
   hiveTxConfig: { nodes: [], timeout: 1000, address_prefix: "STM" },
-  initHiveTx: vi.fn(),
-  setHiveTxNodes: vi.fn(),
   dedupeAndSortKeyAuths: vi.fn((...args: any[]) => args[0] || []),
   buildGrantPostingPermissionOp: vi.fn(),
 }));

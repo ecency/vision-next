@@ -4,7 +4,7 @@
  * Centralized, type-safe operation builders for Hive blockchain operations.
  * Extracted from mobile (dhive.ts) and web (operations.ts) implementations.
  *
- * All builders return Operation or Operation[] types from @ecency/hive-tx.
+ * All builders return Operation or Operation[] types from ../../../hive-tx.
  * They validate inputs and throw clear errors for missing/invalid parameters.
  *
  * Usage:

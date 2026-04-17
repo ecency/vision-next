@@ -1,4 +1,4 @@
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "../../../hive-tx";
 import { broadcastOperations } from "@/modules/core/hive-tx";
 import hs from "hivesigner";
 import type { AuthContext } from "@/modules/core/types";

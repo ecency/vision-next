@@ -5,14 +5,14 @@ import {
   refreshPostCreatedMs
 } from "@/features/next-middleware";
 
-// Minimal mock — importing the real @ecency/hive-tx fails in jsdom because
+// Minimal mock — importing the real @ecency/sdk fails in jsdom because
 // ByteBuffer.ts uses TextEncoder at module level (not available in jsdom).
 // Only callRPC is used by post-age-cache, so a stub is sufficient.
-vi.mock("@ecency/hive-tx", () => ({
+vi.mock("@ecency/sdk", () => ({
   callRPC: vi.fn()
 }));
 
-import { callRPC } from "@ecency/hive-tx";
+import { callRPC } from "@ecency/sdk";
 
 describe("post-age-cache", () => {
   beforeEach(() => {

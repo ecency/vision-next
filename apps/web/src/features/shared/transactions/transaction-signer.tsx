@@ -15,7 +15,7 @@ import {
 import i18next from "i18next";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { KeyOrHot } from "../key-or-hot";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { usePathname } from "next/navigation";
 import { error } from "../feedback";
 import { getSdkAuthContext, getUser } from "@/utils";

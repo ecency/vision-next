@@ -1,5 +1,5 @@
-import { PrivateKey } from "@ecency/hive-tx";
-import type { Operation } from "@ecency/hive-tx";
+import { PrivateKey } from "../../../hive-tx";
+import type { Operation } from "../../../hive-tx";
 import { isWif, broadcastOperations } from "@/modules/core/hive-tx";
 import { useMutation } from "@tanstack/react-query";
 

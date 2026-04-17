@@ -19,14 +19,12 @@
  *   - Negative caching: failed lookups are cached briefly (5 min) to avoid
  *     hammering the upstream API with retries for posts that don't exist
  *     or return malformed responses.
- *   - Uses `callRPC` from @ecency/hive-tx directly (not via the SDK) to
- *     keep the edge middleware bundle minimal — importing the SDK would
- *     pull in React Query and other deps that don't apply here. hive-tx
- *     brings built-in node failover across 7 Hive RPC nodes with per-node
- *     health tracking and rate-limit awareness.
+ *   - Uses `callRPC` from @ecency/sdk which tree-shakes to only the
+ *     RPC call logic. Brings built-in node failover across multiple Hive
+ *     RPC nodes with per-node health tracking and rate-limit awareness.
  */
 
-import { callRPC } from "@ecency/hive-tx";
+import { callRPC } from "@ecency/sdk";
 
 const MAX_ENTRIES = 2000;
 const NEGATIVE_CACHE_TTL_MS = 5 * 60_000;

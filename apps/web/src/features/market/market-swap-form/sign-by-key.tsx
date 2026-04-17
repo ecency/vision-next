@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { isWif } from "@ecency/sdk";
 import { FormControl, InputGroup } from "@ui/input";
 import { Button } from "@ui/button";

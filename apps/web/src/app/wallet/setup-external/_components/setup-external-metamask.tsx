@@ -15,7 +15,7 @@ import {
   type WalletAddressMap
 } from "@ecency/wallets";
 import { getAccountFullQueryOptions, checkUsernameWalletsPendingQueryOptions } from "@ecency/sdk";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { broadcastOperations } from "@ecency/sdk";
 import {
   UilArrowLeft,

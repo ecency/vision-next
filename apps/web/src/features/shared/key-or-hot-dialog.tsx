@@ -1,7 +1,7 @@
 "use client";
 
 import React, { PropsWithChildren, useState } from "react";
-import { PrivateKey } from "@ecency/hive-tx";
+import { PrivateKey } from "@ecency/sdk";
 import { PopoverConfirm } from "@ui/popover-confirm";
 import { Modal, ModalBody, ModalHeader } from "@ui/modal";
 import { KeyOrHot } from "@/features/shared/key-or-hot";

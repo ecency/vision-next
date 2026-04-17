@@ -1,4 +1,4 @@
-import type { Operation } from '@ecency/hive-tx';
+import type { Operation } from '@ecency/sdk';
 import type { KeychainResponse, KeychainSignTxResponse } from '../types';
 
 type AuthorityType = 'Owner' | 'Active' | 'Posting' | 'Memo';

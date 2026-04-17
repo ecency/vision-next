@@ -1,4 +1,4 @@
-import type { Operation } from "@ecency/hive-tx";
+import type { Operation } from "../../../hive-tx";
 import type { PlatformAdapter, AuthMethod } from "./platform-adapter";
 
 /**

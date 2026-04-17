@@ -1,5 +1,5 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import { utils } from "@ecency/hive-tx";
+import { utils } from "../../../hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
 import { callRPC } from "@/modules/core/hive-tx";
@@ -84,7 +84,7 @@ export function getTransactionsInfiniteQueryOptions(
         return [];
       }
 
-      let filters: number[] | undefined;
+      let filters: [string | null, string | null] | undefined;
       try {
         // Create bitmask filters (requires BigInt support in browser)
         switch (group) {

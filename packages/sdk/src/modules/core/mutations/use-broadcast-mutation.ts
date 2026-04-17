@@ -3,8 +3,8 @@ import {
   type MutationKey,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { PrivateKey } from "@ecency/hive-tx";
-import type { Operation } from "@ecency/hive-tx";
+import { PrivateKey } from "../../../hive-tx";
+import type { Operation } from "../../../hive-tx";
 import { broadcastOperations, type TransactionConfirmation } from "@/modules/core/hive-tx";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";

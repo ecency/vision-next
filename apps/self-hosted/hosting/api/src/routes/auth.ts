@@ -7,7 +7,7 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { callRPC, Signature, PublicKey, config as hiveTxConfig } from '@ecency/hive-tx';
+import { callRPC, Signature, PublicKey, hiveTxConfig } from '@ecency/sdk';
 import { createHash } from 'crypto';
 import { TenantService } from '../services/tenant-service';
 import { nanoid } from 'nanoid';

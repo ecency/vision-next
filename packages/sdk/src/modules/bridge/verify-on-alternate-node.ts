@@ -1,4 +1,4 @@
-import { callWithQuorum } from "@ecency/hive-tx";
+import { callWithQuorum } from "../../hive-tx";
 import { Entry } from "@/modules/posts/types";
 
 /**

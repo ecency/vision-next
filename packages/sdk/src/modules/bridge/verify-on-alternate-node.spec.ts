@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockCallWithQuorum = vi.hoisted(() => vi.fn());
 
-vi.mock("@ecency/hive-tx", () => ({
+vi.mock("../../hive-tx", () => ({
   callWithQuorum: mockCallWithQuorum,
 }));
 

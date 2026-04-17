@@ -1,7 +1,6 @@
-import type { Operation, Authority } from '@ecency/hive-tx';
-import { PrivateKey } from '@ecency/hive-tx';
-import type { TransactionConfirmation } from '@ecency/sdk';
+import type { Operation, Authority, TransactionConfirmation } from '@ecency/sdk';
 import {
+  PrivateKey,
   PlatformAdapter,
   getQueryClient,
   getAccountFullQueryOptions,

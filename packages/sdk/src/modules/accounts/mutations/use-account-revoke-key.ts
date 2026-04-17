@@ -1,4 +1,4 @@
-import { PrivateKey, PublicKey } from "@ecency/hive-tx";
+import { PrivateKey, PublicKey } from "../../../hive-tx";
 import {
   useMutation,
   useQuery,

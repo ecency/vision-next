@@ -1,4 +1,4 @@
-import type { Operation } from "@ecency/hive-tx";
+import type { Operation } from "../../../hive-tx";
 import { useMutation } from "@tanstack/react-query";
 import hs from "hivesigner";
 
