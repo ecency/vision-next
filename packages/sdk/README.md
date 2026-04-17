@@ -1,12 +1,14 @@
 # @ecency/sdk
 
-Framework-agnostic data layer for Hive apps with first-class React Query support.
+Full-featured Hive blockchain SDK with built-in transaction signing, RPC failover, and first-class React Query support.
 
 ## What's Inside
 
-- Query and mutation option builders powered by [@tanstack/react-query](https://tanstack.com/query)
-- Modular APIs: accounts, posts, communities, market, wallet, notifications, analytics, integrations, core, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
-- Central configuration via `CONFIG` / `ConfigManager` (RPC client, QueryClient)
+- **Built-in transaction engine** — create, sign, and broadcast Hive transactions with ECDSA secp256k1 cryptography, memo encryption, and full serialization for all 50 operation types (built on an improved version of [hive-tx](https://github.com/mahdiyari/hive-tx) by Mahdi Yari)
+- **Multi-node RPC with health tracking** — automatic failover across Hive API nodes with per-node failure tracking, rate-limit detection, stale-head awareness, and quorum-based consensus calls
+- **Query and mutation option builders** powered by [@tanstack/react-query](https://tanstack.com/query)
+- **24 domain modules**: accounts, posts, communities, market, wallet, notifications, analytics, integrations, core, auth, bridge, games, hive-engine, operations, points, private-api, promotions, proposals, resource-credits, search, spk, witnesses
+- Central configuration via `CONFIG` / `ConfigManager` (RPC nodes, QueryClient, DMCA filtering)
 
 ## Why React Query?
 
@@ -297,7 +299,7 @@ const auth: AuthContext = {
 If `auth.broadcast` is provided, the SDK will call it for posting broadcasts and
 keychain/hiveauth flows. Otherwise it falls back to:
 
-- `postingKey` (direct signing via dhive)
+- `postingKey` (direct signing via built-in transaction engine)
 - `accessToken` (Hivesigner)
 
 ## Active/Owner Key Signing
@@ -330,6 +332,8 @@ const auth = {
 ## Module Layout
 
 ```text
+src/hive-tx/            built-in transaction engine (signing, serialization, RPC, crypto)
+
 src/modules/
   accounts/           account data, relationships, mutations
   analytics/          activity tracking and stats

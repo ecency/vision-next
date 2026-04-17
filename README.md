@@ -41,9 +41,9 @@ host in `apps/web/src/core/sdk-init.ts`.
 
 Broadcasting in the SDK is platform-agnostic. The SDK can:
 
-- Use a posting key (server-side or direct key usage).
+- Sign transactions directly with private keys (built-in ECDSA secp256k1 transaction engine).
 - Use a Hivesigner access token.
-- Defer to an injected broadcaster for platform-specific signing (Keychain, HiveAuth, mobile).
+- Defer to an injected broadcaster for platform-specific signing (Keychain, HiveAuth, MetaMask Snap, mobile).
 
 In the web app, `getSdkAuthContext` wires Keychain/HiveAuth:
 

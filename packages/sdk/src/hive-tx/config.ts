@@ -41,10 +41,10 @@ export const config = {
   /**
    * Timeout in milliseconds for individual API calls.
    */
-  timeout: 3_000,
+  timeout: 5_000,
 
   /**
    * Number of retry attempts for failed API calls before throwing an error.
    */
-  retry: 8
+  retry: 1
 }
