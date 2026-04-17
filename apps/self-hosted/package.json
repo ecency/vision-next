@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ecency/hive-tx": "^7.3.4",
+    "@ecency/hive-tx": "^7.3.5",
     "@ecency/render-helper": "workspace:*",
     "@ecency/sdk": "workspace:*",
     "@ecency/ui": "workspace:*",
