@@ -267,8 +267,12 @@ function recordError(tracker: NodeHealthTracker, node: string, e: any, api?: str
     } else {
       tracker.recordFailure(node, api)
     }
-  } else {
+  } else if (e instanceof RPCError) {
+    // RPC-level errors are API-specific (e.g., disabled API)
     tracker.recordFailure(node, api)
+  } else {
+    // Transport-level failures (DNS, TLS, timeout) affect the whole node
+    tracker.recordFailure(node)
   }
 }
 
@@ -733,6 +737,11 @@ export async function callREST(
         alreadyRecorded = true
         throw new Error(`HTTP 503 Service Unavailable from ${node}`)
       }
+      if (!response.ok) {
+        restHealthTracker.recordFailure(node, api)
+        alreadyRecorded = true
+        throw new Error(`HTTP ${response.status} from ${node}`)
+      }
       restHealthTracker.recordSuccess(node, api)
       return response.json() as any
     } catch (e: any) {
@@ -769,7 +778,8 @@ export async function callREST(
 export const callWithQuorum = async <T = any>(
   method: string,
   params: any[] | object = [],
-  quorum = 2
+  quorum = 2,
+  signal?: AbortSignal
 ): Promise<T> => {
   if (!Array.isArray(config.nodes)) {
     throw new Error('config.nodes is not an Array')
@@ -797,7 +807,7 @@ export const callWithQuorum = async <T = any>(
     // Launch batch calls in parallel
     for (let i = 0; i < batchNodes.length; i++) {
       promises.push(
-        jsonRPCCall(batchNodes[i], method, params, undefined, true)
+        jsonRPCCall(batchNodes[i], method, params, undefined, true, signal)
           .then((data) => batchResults.push(data))
           .catch(() => {})
       )

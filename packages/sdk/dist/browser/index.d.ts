@@ -473,7 +473,9 @@ interface CommentOptionsOperation {
     percent_hbd: number;
     allow_votes: boolean;
     allow_curation_rewards: boolean;
-    extensions: Array<Array<Beneficiary$1>>;
+    extensions: [number, {
+        beneficiaries: Beneficiary$1[];
+    }][];
 }
 interface SetWithdrawVestingRouteOperation {
     from_account: string;
@@ -632,9 +634,9 @@ interface UpdateProposalOperation {
     daily_pay: Asset$1 | string;
     subject: string;
     permlink: string;
-    extensions: Array<Array<{
-        end_date: string | Date;
-    }>>;
+    extensions: [number, {
+        end_date: string;
+    }][];
 }
 interface UpdateProposalVotesOperation {
     voter: string;
@@ -821,7 +823,7 @@ declare function callREST(api: APIMethods, endpoint: string, params?: Record<str
  * @param params - Parameters for the API method as array or object
  * @param quorum - Default: 2 (recommended)
  */
-declare const callWithQuorum: <T = any>(method: string, params?: any[] | object, quorum?: number) => Promise<T>;
+declare const callWithQuorum: <T = any>(method: string, params?: any[] | object, quorum?: number, signal?: AbortSignal) => Promise<T>;
 
 /**
  * Unified configuration for Hive blockchain connectivity.

@@ -95,7 +95,7 @@ let uniqueNonceEntropy: number | null = null
 const uniqueNonce = (): bigint => {
   if (uniqueNonceEntropy === null) {
     const randomPrivateKey = secp256k1.utils.randomSecretKey()
-    uniqueNonceEntropy = Math.round((randomPrivateKey[0] << 8) | randomPrivateKey[1])
+    uniqueNonceEntropy = (randomPrivateKey[0] << 8) | randomPrivateKey[1]
   }
   let long = BigInt(Date.now())
   const entropy = ++uniqueNonceEntropy % 0x10000

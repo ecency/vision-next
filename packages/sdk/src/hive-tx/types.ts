@@ -199,7 +199,7 @@ export interface CommentOptionsOperation {
   percent_hbd: number
   allow_votes: boolean
   allow_curation_rewards: boolean
-  extensions: Array<Array<Beneficiary>>
+  extensions: [number, { beneficiaries: Beneficiary[] }][]
 }
 
 export interface SetWithdrawVestingRouteOperation {
@@ -376,7 +376,7 @@ export interface UpdateProposalOperation {
   daily_pay: Asset | string
   subject: string
   permlink: string
-  extensions: Array<Array<{ end_date: string | Date }>>
+  extensions: [number, { end_date: string }][]
 }
 
 export interface UpdateProposalVotesOperation {
