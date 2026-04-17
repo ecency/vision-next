@@ -446,9 +446,9 @@ export type OperationName = Operation[0]
 export type OperationBody<O extends OperationName> = Extract<Operation, [O, any]>[1]
 
 // Utility Types
-export interface WitnessSetPropertiesParams extends WitnessProps {}
+export type WitnessSetPropertiesParams = WitnessProps
 
-export type Extension = [] | [string, any] | any[]
+export type Extension = [] | [string, unknown] | [number, unknown]
 
 // Transaction Types
 export interface TransactionType {
@@ -459,13 +459,6 @@ export interface TransactionType {
   ref_block_prefix: number
   signatures: string[]
 }
-
-// API Response Types
-// export interface BroadcastResponse {
-//   id: number
-//   jsonrpc: string
-//   result: BroadcastResult
-// }
 
 export interface BroadcastError {
   id: number

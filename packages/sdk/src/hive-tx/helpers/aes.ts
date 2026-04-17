@@ -34,7 +34,7 @@ const crypt = (
   message: Uint8Array,
   checksum?: number
 ): { nonce: bigint; message: Uint8Array; checksum: number } => {
-  const nonceL = typeof nonce === 'bigint' ? nonce : BigInt(nonce)
+  const nonceL = nonce
   const S = privateKey.getSharedSecret(publicKey)
   let ebuf = new ByteBuffer(ByteBuffer.DEFAULT_CAPACITY, ByteBuffer.LITTLE_ENDIAN)
   ebuf.writeUint64(nonceL)
@@ -71,7 +71,6 @@ const cryptoJsDecrypt = (message: Uint8Array, tag: Uint8Array, iv: Uint8Array): 
   let messageBuffer = message
   const decipher = AESCBC(tag, iv)
   messageBuffer = decipher.decrypt(messageBuffer)
-  // return Uint8Array.from(messageBuffer)
   return messageBuffer
 }
 
@@ -88,14 +87,9 @@ export const cryptoJsEncrypt = (
   let messageBuffer = message
   const cipher = AESCBC(tag, iv)
   messageBuffer = cipher.encrypt(messageBuffer)
-  // return Uint8Array.from(messageBuffer)
   return messageBuffer
 }
 
-/** @return {string} unique 64 bit unsigned number string.  Being time based,
- * this is careful to never choose the same nonce twice.  This value could
- * clsbe recorded in the blockchain for a long time.
- */
 let uniqueNonceEntropy: number | null = null
 
 const uniqueNonce = (): bigint => {
@@ -104,9 +98,7 @@ const uniqueNonce = (): bigint => {
     uniqueNonceEntropy = Math.round((randomPrivateKey[0] << 8) | randomPrivateKey[1])
   }
   let long = BigInt(Date.now())
-  const entropy = ++uniqueNonceEntropy % 0xffff
+  const entropy = ++uniqueNonceEntropy % 0x10000
   long = (long << BigInt(16)) | BigInt(entropy)
   return long
 }
-
-// const toLongObj = (o) => (o ? (Long.isLong(o) ? o : Long.fromString(o)) : o)

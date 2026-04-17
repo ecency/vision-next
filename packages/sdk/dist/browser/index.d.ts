@@ -650,7 +650,7 @@ interface RemoveProposalOperation {
 type Operation = ['vote', VoteOperation] | ['comment', CommentOperation] | ['transfer', TransferOperation] | ['transfer_to_vesting', TransferToVestingOperation] | ['withdraw_vesting', WithdrawVestingOperation] | ['account_create', AccountCreateOperation] | ['account_create_with_delegation', AccountCreateWithDelegationOperation] | ['account_update', AccountUpdateOperation] | ['account_update2', AccountUpdate2Operation] | ['account_witness_vote', AccountWitnessVoteOperation] | ['account_witness_proxy', AccountWitnessProxyOperation] | ['convert', ConvertOperation] | ['collateralized_convert', CollateralizedConvertOperation] | ['custom', CustomOperation] | ['custom_json', CustomJsonOperation] | ['claim_account', ClaimAccountOperation] | ['create_claimed_account', CreateClaimedAccountOperation] | ['claim_reward_balance', ClaimRewardBalanceOperation] | ['delegate_vesting_shares', DelegateVestingSharesOperation] | ['delete_comment', DeleteCommentOperation] | ['comment_options', CommentOptionsOperation] | ['set_withdraw_vesting_route', SetWithdrawVestingRouteOperation] | ['witness_update', WitnessUpdateOperation] | ['witness_set_properties', WitnessSetPropertiesOperation] | ['decline_voting_rights', DeclineVotingRightsOperation] | ['reset_account', ResetAccountOperation] | ['set_reset_account', SetResetAccountOperation] | ['transfer_to_savings', TransferToSavingsOperation] | ['transfer_from_savings', TransferFromSavingsOperation] | ['cancel_transfer_from_savings', CancelTransferFromSavingsOperation] | ['limit_order_create', LimitOrderCreateOperation] | ['limit_order_create2', LimitOrderCreate2Operation] | ['limit_order_cancel', LimitOrderCancelOperation] | ['feed_publish', FeedPublishOperation] | ['escrow_transfer', EscrowTransferOperation] | ['escrow_dispute', EscrowDisputeOperation] | ['escrow_release', EscrowReleaseOperation] | ['escrow_approve', EscrowApproveOperation] | ['recover_account', RecoverAccountOperation] | ['request_account_recovery', RequestAccountRecoveryOperation] | ['change_recovery_account', ChangeRecoveryAccountOperation] | ['recurrent_transfer', RecurrentTransferOperation] | ['create_proposal', CreateProposalOperation] | ['update_proposal', UpdateProposalOperation] | ['update_proposal_votes', UpdateProposalVotesOperation] | ['remove_proposal', RemoveProposalOperation];
 type OperationName = Operation[0];
 type OperationBody<O extends OperationName> = Extract<Operation, [O, any]>[1];
-type Extension = [] | [string, any] | any[];
+type Extension = [] | [string, unknown] | [number, unknown];
 interface TransactionType {
     expiration: string;
     extensions: Extension[];
@@ -784,7 +784,7 @@ declare const callRPC: <T = any>(method: string, params?: any[] | object, timeou
  *
  * @internal Used by Transaction.broadcast()
  */
-declare const callRPCBroadcast: <T = any>(method: string, params?: any[] | object, timeout?: number) => Promise<T>;
+declare const callRPCBroadcast: <T = any>(method: string, params?: any[] | object, timeout?: number, signal?: AbortSignal) => Promise<T>;
 /**
  * Makes REST API calls to Hive blockchain REST endpoints with automatic retry and failover support.
  * Uses per-request retry counters, node health tracking, and timeout support.
@@ -813,7 +813,7 @@ declare const callRPCBroadcast: <T = any>(method: string, params?: any[] | objec
  * const data = await callREST('status', '/status', undefined, 10_000, 3)
  * ```
  */
-declare function callREST(api: APIMethods, endpoint: string, params?: Record<string, any>, timeout?: number, retry?: number): Promise<any>;
+declare function callREST(api: APIMethods, endpoint: string, params?: Record<string, any>, timeout?: number, retry?: number, signal?: AbortSignal): Promise<any>;
 /**
  * Make a JSONRPC call with quorum. The method will cross-check the result
  * with `quorum` number of nodes before returning the result.
@@ -1004,7 +1004,7 @@ declare const operations: {
 /**
  * Make bitmask filter to be used with get_account_history call
  */
-declare const makeBitMaskFilter: (allowedOperations: number[]) => any[];
+declare const makeBitMaskFilter: (allowedOperations: number[]) => [string | null, string | null];
 declare const buildWitnessSetProperties: (owner: string, props: WitnessProps) => ["witness_set_properties", {
     extensions: never[];
     owner: string;

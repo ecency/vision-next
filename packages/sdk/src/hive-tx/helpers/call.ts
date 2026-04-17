@@ -562,7 +562,8 @@ export const callRPC = async <T = any>(
 export const callRPCBroadcast = async <T = any>(
   method: string,
   params: any[] | object = [],
-  timeout = config.timeout
+  timeout = config.timeout,
+  signal?: AbortSignal
 ): Promise<T> => {
   if (!Array.isArray(config.nodes)) {
     throw new Error('config.nodes is not an array')
@@ -581,13 +582,19 @@ export const callRPCBroadcast = async <T = any>(
     const node = orderedNodes.find((n) => !triedNodes.has(n))
     if (!node) break
     triedNodes.add(node)
+    if (signal?.aborted) {
+      throw new Error('Aborted')
+    }
     try {
-      const res = await jsonRPCCall(node, method, params, timeout)
+      const res = await jsonRPCCall(node, method, params, timeout, false, signal)
       rpcHealthTracker.recordSuccess(node, api)
       return res as T
     } catch (e: any) {
       // RPCErrors are valid blockchain rejections - never retry
       if (e instanceof RPCError) {
+        throw e
+      }
+      if (signal?.aborted) {
         throw e
       }
       recordError(rpcHealthTracker, node, e, api)
@@ -652,7 +659,8 @@ export async function callREST(
   endpoint: string,
   params?: Record<string, any>,
   timeout = config.timeout,
-  retry = config.retry
+  retry = config.retry,
+  signal?: AbortSignal
 ): Promise<any> {
   if (!Array.isArray(config.restNodes)) {
     throw new Error('config.restNodes is not an array')
@@ -699,8 +707,13 @@ export async function callREST(
       }
     })
 
+    if (signal?.aborted) {
+      throw new Error('Aborted')
+    }
     alreadyRecorded = false
-    const { signal: restSignal, cleanup: restCleanup } = createTimeoutSignal(timeout)
+    const { signal: tSignal, cleanup: cleanupTimeout } = createTimeoutSignal(timeout)
+    const { signal: restSignal, cleanup: cleanupMerge } = mergeSignals(tSignal, signal)
+    const restCleanup = () => { cleanupTimeout(); cleanupMerge() }
     try {
       const response = await fetch(url.toString(), {
         signal: restSignal
@@ -764,8 +777,15 @@ export const callWithQuorum = async <T = any>(
   if (quorum > config.nodes.length) {
     throw new Error('quorum > config.nodes.length')
   }
-  // We call random nodes for better security
-  const shuffleNodes = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5)
+  // We call random nodes for better security (Fisher-Yates shuffle)
+  const shuffleNodes = (arr: string[]) => {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]]
+    }
+    return a
+  }
   let allNodes = shuffleNodes(config.nodes)
   let currentBatchSize = Math.min(quorum, allNodes.length)
   let allResults: any[] = []

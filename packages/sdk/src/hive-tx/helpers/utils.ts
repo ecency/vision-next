@@ -44,7 +44,7 @@ export const validateUsername = (username: string): null | string => {
     if (!/[a-z0-9]$/.test(label)) {
       return suffix + 'end with a lowercase letter or digit.'
     }
-    if (!(label.length >= 3)) {
+    if (label.length < 3) {
       return suffix + 'be longer.'
     }
   }
@@ -151,10 +151,10 @@ export const operations = {
 /**
  * Make bitmask filter to be used with get_account_history call
  */
-export const makeBitMaskFilter = (allowedOperations: number[]): any[] => {
+export const makeBitMaskFilter = (allowedOperations: number[]): [string | null, string | null] => {
   return allowedOperations
     .reduce(reduceFunction, [BigInt(0), BigInt(0)])
-    .map((value: bigint) => (value !== BigInt(0) ? value.toString() : null))
+    .map((value: bigint) => (value !== BigInt(0) ? value.toString() : null)) as [string | null, string | null]
 }
 const reduceFunction = (
   [low, high]: [bigint, bigint],
@@ -177,6 +177,7 @@ export const buildWitnessSetProperties = (
     props: <any>[]
   }
   for (const key of Object.keys(props)) {
+    if ((props as any)[key] === undefined) continue
     let type
     switch (key) {
       case 'key':

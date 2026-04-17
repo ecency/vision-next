@@ -84,7 +84,7 @@ export function getTransactionsInfiniteQueryOptions(
         return [];
       }
 
-      let filters: number[] | undefined;
+      let filters: [string | null, string | null] | undefined;
       try {
         // Create bitmask filters (requires BigInt support in browser)
         switch (group) {
