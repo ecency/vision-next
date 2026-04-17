@@ -436,6 +436,9 @@ const jsonRPCCall = async (
     if (e instanceof NodeError) {
       throw e
     }
+    if (externalSignal?.aborted) {
+      throw e
+    }
     if (shouldRetry) {
       return jsonRPCCall(url, method, params, timeout, false, externalSignal)
     }

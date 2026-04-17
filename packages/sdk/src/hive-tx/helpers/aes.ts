@@ -51,7 +51,7 @@ const crypt = (
   cbuf.append(check)
   cbuf.flip()
   const check32 = cbuf.readUint32()
-  if (checksum) {
+  if (checksum !== undefined) {
     if (check32 !== checksum) {
       throw new Error('Invalid key')
     }

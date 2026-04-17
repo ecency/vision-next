@@ -223,12 +223,6 @@ export interface WitnessSetPropertiesOperation {
   extensions: []
 }
 
-export interface AccountWitnessVoteOperation {
-  account: string
-  witness: string
-  approve: boolean
-}
-
 export interface DeclineVotingRightsOperation {
   account: string
   decline: boolean
@@ -353,13 +347,6 @@ export interface ChangeRecoveryAccountOperation {
   account_to_recover: string
   new_recovery_account: string
   extensions: []
-}
-
-export interface TransferOperation {
-  from: string
-  to: string
-  amount: Asset | string
-  memo: string
 }
 
 export interface RecurrentTransferOperation {

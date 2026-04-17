@@ -351,6 +351,12 @@ interface CommentOperation {
     body: string;
     json_metadata: string;
 }
+interface TransferOperation {
+    from: string;
+    to: string;
+    amount: Asset$1 | string;
+    memo: string;
+}
 interface TransferToVestingOperation {
     from: string;
     to: string;
@@ -399,6 +405,11 @@ interface AccountUpdate2Operation {
     json_metadata: string;
     posting_json_metadata: string;
     extensions: [];
+}
+interface AccountWitnessVoteOperation {
+    account: string;
+    witness: string;
+    approve: boolean;
 }
 interface AccountWitnessProxyOperation {
     account: string;
@@ -481,16 +492,6 @@ interface WitnessSetPropertiesOperation {
     owner: string;
     props: Array<[string, string]>;
     extensions: [];
-}
-interface AccountWitnessVoteOperation {
-    account: string;
-    witness: string;
-    approve: boolean;
-}
-interface AccountWitnessVoteOperation {
-    account: string;
-    witness: string;
-    approve: boolean;
 }
 interface DeclineVotingRightsOperation {
     account: string;
@@ -600,18 +601,6 @@ interface ChangeRecoveryAccountOperation {
     account_to_recover: string;
     new_recovery_account: string;
     extensions: [];
-}
-interface TransferOperation {
-    from: string;
-    to: string;
-    amount: Asset$1 | string;
-    memo: string;
-}
-interface TransferOperation {
-    from: string;
-    to: string;
-    amount: Asset$1 | string;
-    memo: string;
 }
 interface RecurrentTransferOperation {
     from: string;

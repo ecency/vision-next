@@ -45,7 +45,7 @@ export const validateUsername = (username: string): null | string => {
       return suffix + 'end with a lowercase letter or digit.'
     }
     if (!(label.length >= 3)) {
-      return suffix + 'be longer'
+      return suffix + 'be longer.'
     }
   }
   return null
