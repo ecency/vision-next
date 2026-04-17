@@ -2365,6 +2365,8 @@ declare const INTERNAL_API_TIMEOUT_MS = 10000;
 declare const CONFIG: {
     privateApiHost: string;
     imageHost: string;
+    /** Current Hive RPC nodes. Reads from the unified hive-tx config. */
+    readonly hiveNodes: string[];
     heliusApiKey: string | undefined;
     queryClient: QueryClient;
     plausibleHost: string;
