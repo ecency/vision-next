@@ -8,8 +8,69 @@
  */
 
 const EMPTY_BUFFER = new ArrayBuffer(0)
-const textEncoder = new TextEncoder()
-const textDecoder = new TextDecoder()
+
+// Lazy-init to avoid crashing on runtimes that lack TextEncoder/TextDecoder
+// (notably React Native with Hermes). Falls back to manual UTF-8 encode/decode.
+let _encoder: { encode(s: string): Uint8Array } | null = null
+let _decoder: { decode(b: BufferSource): string } | null = null
+
+function getEncoder(): { encode(s: string): Uint8Array } {
+  if (!_encoder) {
+    if (typeof TextEncoder !== 'undefined') {
+      _encoder = new TextEncoder()
+    } else {
+      _encoder = {
+        encode(s: string): Uint8Array {
+          // Manual UTF-8 encode fallback
+          const utf8: number[] = []
+          for (let i = 0; i < s.length; i++) {
+            let c = s.charCodeAt(i)
+            if (c < 0x80) {
+              utf8.push(c)
+            } else if (c < 0x800) {
+              utf8.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f))
+            } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < s.length) {
+              const next = s.charCodeAt(++i)
+              c = 0x10000 + ((c & 0x3ff) << 10) + (next & 0x3ff)
+              utf8.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 0x3f), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f))
+            } else {
+              utf8.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f))
+            }
+          }
+          return new Uint8Array(utf8)
+        },
+      }
+    }
+  }
+  return _encoder
+}
+
+function getDecoder(): { decode(b: BufferSource): string } {
+  if (!_decoder) {
+    if (typeof TextDecoder !== 'undefined') {
+      _decoder = new TextDecoder()
+    } else {
+      _decoder = {
+        decode(b: BufferSource): string {
+          const bytes = b instanceof ArrayBuffer ? new Uint8Array(b) : new Uint8Array((b as ArrayBufferView).buffer, (b as ArrayBufferView).byteOffset, (b as ArrayBufferView).byteLength)
+          let result = ''
+          for (let i = 0; i < bytes.length; ) {
+            const byte = bytes[i]
+            let codePoint: number
+            if (byte < 0x80) { codePoint = byte; i += 1 }
+            else if ((byte & 0xe0) === 0xc0) { codePoint = ((byte & 0x1f) << 6) | (bytes[i + 1] & 0x3f); i += 2 }
+            else if ((byte & 0xf0) === 0xe0) { codePoint = ((byte & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f); i += 3 }
+            else { codePoint = ((byte & 0x07) << 18) | ((bytes[i + 1] & 0x3f) << 12) | ((bytes[i + 2] & 0x3f) << 6) | (bytes[i + 3] & 0x3f); i += 4 }
+            if (codePoint <= 0xffff) { result += String.fromCharCode(codePoint) }
+            else { codePoint -= 0x10000; result += String.fromCharCode(0xd800 + (codePoint >> 10), 0xdc00 + (codePoint & 0x3ff)) }
+          }
+          return result
+        },
+      }
+    }
+  }
+  return _decoder
+}
 
 export class ByteBuffer {
   static LITTLE_ENDIAN = true
@@ -540,7 +601,7 @@ export class ByteBuffer {
     const relative = typeof offset === 'undefined'
     let currentOffset = relative ? this.offset : offset!
 
-    const encoded = textEncoder.encode(str)
+    const encoded = getEncoder().encode(str)
     const len = encoded.length
     const lenVarintSize = this.calculateVarint32(len)
 
@@ -574,7 +635,7 @@ export class ByteBuffer {
     offset += lenLength
 
     // TextDecoder can take Uint8Array view directly
-    const str = textDecoder.decode(new Uint8Array(this.buffer, offset, lenValue))
+    const str = getDecoder().decode(new Uint8Array(this.buffer, offset, lenValue))
     offset += lenValue
 
     if (relative) {
@@ -597,7 +658,7 @@ export class ByteBuffer {
     // Faster to view if Shared? No, Decoder takes buffer or view.
     // Making a view is cheap.
     // But DataView vs Uint8Array. TextDecoder takes BufferSource (ArrayBuffer or ArrayBufferView).
-    const str = textDecoder.decode(new Uint8Array(this.buffer, offset, length))
+    const str = getDecoder().decode(new Uint8Array(this.buffer, offset, length))
 
     if (relative) {
       this.offset += length

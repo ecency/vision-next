@@ -87,7 +87,23 @@ export class PrivateKey {
         seed = hexToBytes(seed)
       } else {
         // Convert non-hex string to Uint8Array using UTF-8 encoding
-        seed = new TextEncoder().encode(seed)
+        // Avoid top-level TextEncoder — not available on all runtimes (e.g. Hermes)
+        const bytes: number[] = []
+        for (let i = 0; i < seed.length; i++) {
+          let c = seed.charCodeAt(i)
+          if (c < 0x80) {
+            bytes.push(c)
+          } else if (c < 0x800) {
+            bytes.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f))
+          } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < seed.length) {
+            const next = seed.charCodeAt(++i)
+            c = 0x10000 + ((c & 0x3ff) << 10) + (next & 0x3ff)
+            bytes.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 0x3f), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f))
+          } else {
+            bytes.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f))
+          }
+        }
+        seed = new Uint8Array(bytes)
       }
     }
     return new PrivateKey(sha256(seed))

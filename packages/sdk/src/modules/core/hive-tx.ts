@@ -81,9 +81,29 @@ export interface RCAccount {
  * Drop-in replacement for dhive's `cryptoUtils.sha256()`.
  */
 export function sha256(input: string | Uint8Array): Uint8Array {
-  const data = typeof input === "string"
-    ? new TextEncoder().encode(input)
-    : input;
+  let data: Uint8Array;
+  if (typeof input === "string") {
+    // Inline UTF-8 encode — avoids TextEncoder which is unavailable on some
+    // runtimes (React Native / Hermes).
+    const bytes: number[] = [];
+    for (let i = 0; i < input.length; i++) {
+      let c = input.charCodeAt(i);
+      if (c < 0x80) {
+        bytes.push(c);
+      } else if (c < 0x800) {
+        bytes.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
+      } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < input.length) {
+        const next = input.charCodeAt(++i);
+        c = 0x10000 + ((c & 0x3ff) << 10) + (next & 0x3ff);
+        bytes.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 0x3f), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+      } else {
+        bytes.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+      }
+    }
+    data = new Uint8Array(bytes);
+  } else {
+    data = input;
+  }
   return nobleSha256(data);
 }
 
