@@ -108,7 +108,8 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
             </Button>
           )}
 
-          {errorType !== ErrorTypes.INFO && (
+          {errorType !== ErrorTypes.INFO &&
+            errorType !== ErrorTypes.INSUFFICIENT_RESOURCE_CREDITS && (
             <Button
               size="xs"
               appearance="gray"
