@@ -210,6 +210,20 @@ function PostPage({ author, permlink }) {
 
 **Zero manual cache management. Zero custom fetch logic. Production-ready data layer.**
 
+## Server-Side / Non-React Usage
+
+For server-side tools, CLI scripts, or any environment that doesn't use React, import from `@ecency/sdk/hive` to avoid pulling in React and React Query dependencies:
+
+```ts
+import { Transaction, PrivateKey, callRPC, config } from "@ecency/sdk/hive";
+
+// Sign and broadcast a transaction without React
+const tx = new Transaction();
+// ... build and sign
+```
+
+The `@ecency/sdk/hive` entry point exports the built-in transaction engine (signing, serialization, RPC, crypto) with zero React dependencies. This keeps your server bundle lean.
+
 ## Installation
 
 ```sh

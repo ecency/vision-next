@@ -150,9 +150,13 @@ The monorepo follows a **layered architecture** with clear separation of concern
 - ✅ Broadcast adapter pattern for platform-specific auth (web, mobile)
 - ✅ Lightweight utilities (no heavy dependencies)
 
+**Entry Points**:
+- `@ecency/sdk` - Full SDK with React Query hooks, mutations, and queries
+- `@ecency/sdk/hive` - React-free entry point exporting only the transaction engine (signing, RPC, crypto). Use this for server-side tools, CLI scripts, or non-React environments to avoid pulling in React/react-query dependencies.
+
 **Dependencies**: NONE (except peer deps: @hiveio/dhive, hivesigner, @tanstack/react-query)
 
-**Bundle Size**: ~182KB
+**Bundle Size**: ~229KB (full) / ~39KB (hive-only)
 
 **Why separate**: This package is published to npm for use by other Hive applications. It must remain focused and lightweight.
 
