@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.3
+
+### Patch Changes
+
+- Separate entry hive on SDK (#761)
+
 ## 2.2.0
 
 ### Minor Changes
