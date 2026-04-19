@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 const shared = {
-    entry: ["src/index.ts"],
+    entry: ["src/index.ts", "src/hive.ts"],
     splitting: false,
     sourcemap: true,
     treeshake: true,
@@ -22,9 +22,9 @@ const shared = {
         "node-fetch",
         "undici",
         "crypto"
-    ] as const,
+    ],
     shims: false,
-} as const;
+};
 
 export default defineConfig([
     // Browser build

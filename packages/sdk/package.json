@@ -27,6 +27,13 @@
       "import": "./dist/node/index.mjs",
       "require": "./dist/node/index.cjs",
       "default": "./dist/node/index.mjs"
+    },
+    "./hive": {
+      "types": "./dist/browser/hive.d.ts",
+      "browser": "./dist/browser/hive.js",
+      "import": "./dist/node/hive.mjs",
+      "require": "./dist/node/hive.cjs",
+      "default": "./dist/node/hive.mjs"
     }
   },
   "browser": {
