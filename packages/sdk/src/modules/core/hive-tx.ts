@@ -7,6 +7,7 @@ import {
   PrivateKey,
   Transaction,
   callRPCBroadcast,
+  type BroadcastResult,
 } from "../../hive-tx";
 import type { Operation, OperationName, OperationBody } from "../../hive-tx";
 import { sha256 as nobleSha256 } from "@noble/hashes/sha2.js";
@@ -139,6 +140,38 @@ export async function broadcastOperations(
   return callRPCBroadcast("condenser_api.broadcast_transaction_synchronous", [
     tx.transaction,
   ]);
+}
+
+/**
+ * Sign and broadcast operations without waiting for block inclusion.
+ *
+ * Uses broadcast_transaction which returns as soon as the node accepts the
+ * transaction into its mempool. Transport and RPC errors (network failures,
+ * invalid operations, expired transactions) are still thrown immediately -
+ * the only thing skipped is the wait for the transaction to appear in a block.
+ *
+ * Returns { tx_id, status: 'unknown' }. To confirm block inclusion afterward,
+ * poll transaction_status_api with the returned tx_id.
+ *
+ * Prefer this for operations where faster response matters more than
+ * immediate confirmation (e.g. votes, reblogs, follows).
+ *
+ * Use broadcastOperations() when you need block_num/trx_num confirmation
+ * (e.g. transfers, account updates, key changes).
+ */
+export async function broadcastOperationsAsync(
+  ops: Operation[],
+  key: PrivateKey
+): Promise<BroadcastResult> {
+  const tx = new Transaction();
+  for (const op of ops) {
+    await tx.addOperation(
+      op[0] as OperationName,
+      op[1] as OperationBody<OperationName>
+    );
+  }
+  tx.sign(key);
+  return tx.broadcast(false);
 }
 
 // ── Mana calculations (ported from dhive's RCAPI) ──────────────────────────

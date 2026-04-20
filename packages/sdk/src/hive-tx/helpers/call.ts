@@ -566,7 +566,7 @@ export const callRPC = async <T = any>(
 export const callRPCBroadcast = async <T = any>(
   method: string,
   params: any[] | object = [],
-  timeout = config.timeout,
+  timeout = config.broadcastTimeout,
   signal?: AbortSignal
 ): Promise<T> => {
   if (!Array.isArray(config.nodes)) {
