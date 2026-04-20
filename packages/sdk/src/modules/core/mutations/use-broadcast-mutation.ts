@@ -5,11 +5,27 @@ import {
 } from "@tanstack/react-query";
 import { PrivateKey } from "../../../hive-tx";
 import type { Operation } from "../../../hive-tx";
-import { broadcastOperations, type TransactionConfirmation } from "@/modules/core/hive-tx";
+import { broadcastOperations, broadcastOperationsAsync, type TransactionConfirmation } from "@/modules/core/hive-tx";
+import type { BroadcastResult } from "../../../hive-tx";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { shouldTriggerAuthFallback } from "@/modules/core/errors";
 import type { AuthorityLevel } from "@/modules/operations/authority-map";
 import hs from "hivesigner";
+
+/**
+ * Broadcast mode controls whether the SDK waits for block inclusion.
+ *
+ * - `'sync'` (default): Uses `broadcast_transaction_synchronous` — waits for
+ *   the transaction to be included in a block and returns `block_num`/`trx_num`.
+ *   **Use for:** transfers, account updates, key changes, delegations, conversions.
+ *
+ * - `'async'`: Uses `broadcast_transaction` — returns as soon as the node
+ *   accepts the transaction into its mempool. Transport and RPC errors are
+ *   still thrown immediately; the only thing skipped is the block-inclusion wait.
+ *   **Use for:** votes, follows/unfollows, reblogs, community subscribe/unsubscribe,
+ *   custom_json social operations where faster response matters more than confirmation.
+ */
+export type BroadcastMode = 'sync' | 'async';
 
 /**
  * Broadcasts operations using a specific auth method.
@@ -21,6 +37,7 @@ import hs from "hivesigner";
  * @param authority - Key authority to use (posting, active, owner, or memo)
  * @param fetchedKey - Optional pre-fetched key to avoid duplicate fetches
  * @param fetchedToken - Optional pre-fetched access token to avoid duplicate fetches
+ * @param broadcastMode - Whether to wait for block inclusion ('sync') or just mempool acceptance ('async')
  * @returns Transaction confirmation from the blockchain
  * @throws Error if method is not available or broadcast fails
  */
@@ -31,8 +48,9 @@ async function broadcastWithMethod(
   auth?: AuthContextV2,
   authority: AuthorityLevel = 'posting',
   fetchedKey?: string | null,
-  fetchedToken?: string | null
-): Promise<TransactionConfirmation> {
+  fetchedToken?: string | null,
+  broadcastMode: BroadcastMode = 'sync'
+): Promise<TransactionConfirmation | BroadcastResult> {
   const adapter = auth?.adapter;
 
   switch (method) {
@@ -87,6 +105,9 @@ async function broadcastWithMethod(
 
       // Attempt broadcast with key
       const privateKey = PrivateKey.fromString(key);
+      if (broadcastMode === 'async') {
+        return await broadcastOperationsAsync(ops, privateKey);
+      }
       return await broadcastOperations(ops, privateKey);
     }
 
@@ -198,8 +219,9 @@ async function broadcastWithFallback(
   username: string,
   ops: Operation[],
   auth?: AuthContextV2,
-  authority: AuthorityLevel = 'posting'
-): Promise<TransactionConfirmation> {
+  authority: AuthorityLevel = 'posting',
+  broadcastMode: BroadcastMode = 'sync'
+): Promise<TransactionConfirmation | BroadcastResult> {
   const adapter = auth?.adapter;
 
   // PREFERRED APPROACH: If adapter provides getLoginType, use smart auth strategy
@@ -224,7 +246,7 @@ async function broadcastWithFallback(
       ) {
         try {
           // Try HiveSigner API first (faster)
-          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, undefined, broadcastMode);
         } catch (error) {
           // Only fallback if this is an auth-related error
           // Otherwise, rethrow the original error (e.g., network errors, validation errors)
@@ -243,7 +265,7 @@ async function broadcastWithFallback(
         loginType === 'keychain'
       ) {
         try {
-          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, undefined, broadcastMode);
         } catch (error) {
           if (!shouldTriggerAuthFallback(error)) {
             throw error;
@@ -260,7 +282,7 @@ async function broadcastWithFallback(
       ) {
         try {
           // Try HiveSigner API first (faster)
-          return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+          return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, undefined, broadcastMode);
         } catch (error) {
           // Only fallback if this is an auth-related error
           // Otherwise, rethrow the original error (e.g., network errors, validation errors)
@@ -274,7 +296,7 @@ async function broadcastWithFallback(
 
       // Use user's actual login method
       try {
-        return await broadcastWithMethod(loginType, username, ops, auth, authority);
+        return await broadcastWithMethod(loginType, username, ops, auth, authority, undefined, undefined, broadcastMode);
       } catch (error) {
         // Check if error is due to missing authority (e.g., posting key trying active op)
         if (shouldTriggerAuthFallback(error)) {
@@ -293,7 +315,7 @@ async function broadcastWithFallback(
             // User selected a specific method - delegate to broadcastWithMethod
             // This handles all auth methods (hiveauth, hivesigner, key, keychain, custom, etc.)
             // broadcastWithMethod already contains all necessary validation and method-specific logic
-            return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+            return await broadcastWithMethod(selectedMethod, username, ops, auth, authority, undefined, undefined, broadcastMode);
           }
         }
 
@@ -306,7 +328,7 @@ async function broadcastWithFallback(
     if (authority === 'posting') {
       // For posting ops, try HiveSigner — access token is usually available for all logins
       try {
-        return await broadcastWithMethod('hivesigner', username, ops, auth, authority);
+        return await broadcastWithMethod('hivesigner', username, ops, auth, authority, undefined, undefined, broadcastMode);
       } catch (hsError) {
         if (shouldTriggerAuthFallback(hsError) && adapter.showAuthUpgradeUI) {
           const operationName = ops.length > 0 ? ops[0][0] : 'unknown';
@@ -314,7 +336,7 @@ async function broadcastWithFallback(
           if (!selectedMethod) {
             throw new Error(`No login type available for ${username}. Please log in again.`);
           }
-          return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+          return await broadcastWithMethod(selectedMethod, username, ops, auth, authority, undefined, undefined, broadcastMode);
         }
         throw hsError;
       }
@@ -325,7 +347,7 @@ async function broadcastWithFallback(
       if (!selectedMethod) {
         throw new Error(`Operation requires ${authority} authority. User declined alternate auth.`);
       }
-      return await broadcastWithMethod(selectedMethod, username, ops, auth, authority);
+      return await broadcastWithMethod(selectedMethod, username, ops, auth, authority, undefined, undefined, broadcastMode);
     }
   }
 
@@ -421,7 +443,7 @@ async function broadcastWithFallback(
       }
 
       // Method is available, attempt broadcast with pre-fetched credentials
-      return await broadcastWithMethod(method, username, ops, auth, authority, prefetchedKey, prefetchedToken);
+      return await broadcastWithMethod(method, username, ops, auth, authority, prefetchedKey, prefetchedToken, broadcastMode);
     } catch (error) {
       // Record actual error from failed broadcast attempt
       errors.set(method, error as Error);
@@ -529,8 +551,20 @@ export function useBroadcastMutation<T>(
     onMutate?: UseMutationOptions<unknown, Error, T>["onMutate"];
     onError?: UseMutationOptions<unknown, Error, T>["onError"];
     onSettled?: UseMutationOptions<unknown, Error, T>["onSettled"];
+    /**
+     * Controls whether to wait for block inclusion or just mempool acceptance.
+     *
+     * - `'sync'` (default): Waits for block inclusion, returns block_num/trx_num.
+     *   Use for transfers, delegations, account updates, key changes.
+     *
+     * - `'async'`: Returns after mempool acceptance. Faster but no block confirmation.
+     *   Use for votes, follows, reblogs, community subscribes, custom_json social ops.
+     */
+    broadcastMode?: BroadcastMode;
   }
 ) {
+  const broadcastMode = options?.broadcastMode ?? 'sync';
+
   return useMutation({
     onSuccess,
     onMutate: options?.onMutate,
@@ -548,7 +582,7 @@ export function useBroadcastMutation<T>(
 
       // New: Try auth methods in fallback chain (if enabled)
       if (auth?.enableFallback !== false && auth?.adapter) {
-        return broadcastWithFallback(username, ops, auth, authority);
+        return broadcastWithFallback(username, ops, auth, authority, broadcastMode);
       }
 
       // Legacy behavior: try methods in fixed order (backward compatible)

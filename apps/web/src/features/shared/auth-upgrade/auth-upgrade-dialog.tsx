@@ -11,9 +11,10 @@ import { MetaMaskSignButton } from "../metamask-sign-button";
 import { resolveAuthUpgrade } from "./auth-upgrade-events";
 import { shouldUseKeychainMobile } from "@/utils/client";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { isKeychainInAppBrowser } from "@/utils/keychain";
 import { useIsMobile } from "@/utils";
 import { getLoginType } from "@/utils/user-token";
+import { getDetectedExtensions, hasAnyHiveExtension } from "@/utils/hive-extensions";
+import { isKeychainInAppBrowser } from "@/utils/keychain";
 
 interface AuthUpgradeRequest {
   authority: string;
@@ -69,10 +70,11 @@ export function AuthUpgradeDialog() {
   const authority = (request.authority || "active") as "posting" | "active" | "owner";
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
-  const showKeychainBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser());
-  const keychainLabel = useKcMobile
+  const detectedExtensions = getDetectedExtensions();
+  const showExtensionBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser() || hasAnyHiveExtension());
+  const extensionLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
-    : i18next.t("key-or-hot.with-keychain");
+    : i18next.t("key-or-hot.with-extension", { defaultValue: "Sign with Extension" });
 
   return (
     <Modal show={true} centered={true} onHide={handleClose}>
@@ -115,22 +117,37 @@ export function AuthUpgradeDialog() {
                 >
                   {i18next.t("key-or-hot.with-hivesigner")}
                 </Button>
-                {showKeychainBtn && (
+                {showExtensionBtn && (
                   <Button
                     outline={true}
                     appearance="secondary"
                     onClick={handleKeychainOrMobile}
                     icon={
-                      <Image
-                        width={100}
-                        height={100}
-                        src="/assets/keychain.png"
-                        className="w-4 h-4"
-                        alt="keychain"
-                      />
+                      <div className="flex items-center -space-x-1">
+                        {detectedExtensions.length > 0 ? (
+                          detectedExtensions.map((ext) => (
+                            <Image
+                              key={ext.id}
+                              width={20}
+                              height={20}
+                              src={ext.icon}
+                              alt={ext.name}
+                              className="w-4 h-4 rounded-sm"
+                            />
+                          ))
+                        ) : (
+                          <Image
+                            width={20}
+                            height={20}
+                            src="/assets/keychain.png"
+                            alt="extensions"
+                            className="w-4 h-4"
+                          />
+                        )}
+                      </div>
                     }
                   >
-                    {keychainLabel}
+                    {extensionLabel}
                   </Button>
                 )}
               </div>

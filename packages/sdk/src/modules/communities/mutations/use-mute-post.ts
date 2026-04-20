@@ -110,6 +110,8 @@ export function useMutePost(
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'sync' }
   );
 }

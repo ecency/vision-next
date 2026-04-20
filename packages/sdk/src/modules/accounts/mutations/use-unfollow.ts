@@ -61,6 +61,8 @@ export function useUnfollow(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

@@ -154,6 +154,8 @@ export function useCrossPost(
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

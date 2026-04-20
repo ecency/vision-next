@@ -1,5 +1,6 @@
 import { getLoginType } from "./user-token";
 import { isKeychainInAppBrowser } from "./keychain";
+import { hasAnyHiveExtension } from "./hive-extensions";
 
 const MOBILE_USER_AGENT_PATTERN =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -12,7 +13,7 @@ function isMobileBrowser() {
 
 /**
  * Detects whether the user should use Keychain Mobile deep link flow.
- * Returns true on mobile browsers without the Keychain browser extension,
+ * Returns true on mobile browsers without any Hive browser extension,
  * or for users who previously logged in via keychain-mobile.
  */
 export function shouldUseKeychainMobile(username?: string): boolean {
@@ -25,6 +26,5 @@ export function shouldUseKeychainMobile(username?: string): boolean {
     }
   }
 
-  const hasKeychain = Boolean((window as any).hive_keychain);
-  return isMobileBrowser() && !hasKeychain && !isKeychainInAppBrowser();
+  return isMobileBrowser() && !hasAnyHiveExtension() && !isKeychainInAppBrowser();
 }

@@ -88,6 +88,8 @@ export function useUpdateCommunity(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

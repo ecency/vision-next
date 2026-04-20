@@ -145,10 +145,10 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
       success(i18next.t("preferences.updated"));
     },
     initKeychain() {
-      // Keychain won't be ready immediately after script running
+      // Extensions won't be ready immediately after script running
       // So We have to wait until full window load and then drop our task to macro-queue
       // It will help us to validate that all sync and async operations have finished
-      // Including browser extensions
+      // Including browser extensions (Keychain, Hive Keeper, Peak Vault)
       runWithRetries(() => {
         if (typeof window === "undefined") {
           return false;
@@ -160,14 +160,22 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
         }
 
         const w = window as AppWindow;
-        const hiveKeychain = w.hive_keychain;
 
-        if (!hiveKeychain) {
+        // Check for Peak Vault (promise-based, no handshake needed)
+        if ((w as any).peakvault) {
+          set({ hasKeyChain: true });
+          return true;
+        }
+
+        // Prefer Hive Keeper (guarded by hive_extension flag) then Keychain
+        const hiveExtension = (w.hive_extension && w.hive) || w.hive_keychain;
+
+        if (!hiveExtension) {
           return false;
         }
 
-        if (typeof hiveKeychain.requestHandshake === "function") {
-          hiveKeychain.requestHandshake(() => set({ hasKeyChain: true }));
+        if (typeof hiveExtension.requestHandshake === "function") {
+          hiveExtension.requestHandshake(() => set({ hasKeyChain: true }));
         } else {
           set({ hasKeyChain: true });
         }
