@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.4
+
+### Patch Changes
+
+- SDK broadcast timeout separated (#762)
+
 ## 2.2.3
 
 ### Patch Changes
