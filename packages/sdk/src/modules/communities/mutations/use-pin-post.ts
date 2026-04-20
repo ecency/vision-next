@@ -27,6 +27,8 @@ export function usePinPost(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

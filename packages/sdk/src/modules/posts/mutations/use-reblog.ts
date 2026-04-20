@@ -95,6 +95,8 @@ export function useReblog(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

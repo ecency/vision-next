@@ -65,6 +65,8 @@ export function useSubscribeCommunity(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

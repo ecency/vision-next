@@ -101,6 +101,8 @@ export function useSetCommunityRole(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

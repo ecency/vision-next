@@ -69,6 +69,10 @@ export interface VotePayload {
  * });
  * ```
  */
+/**
+ * @broadcastMode async — Votes don't require block confirmation.
+ * The vote is accepted into the mempool immediately; UI can optimistically update.
+ */
 export function useVote(
   username: string | undefined,
   auth?: AuthContextV2
@@ -109,6 +113,8 @@ export function useVote(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

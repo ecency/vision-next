@@ -3,7 +3,8 @@ import { useLoginInApp } from "./use-login-in-app";
 import { EcencyConfigManager } from "@/config";
 import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { makeHsCode, signBuffer } from "@/utils";
+import { makeHsCode } from "@/utils";
+import { signBufferWithExtension } from "@/utils/hive-extensions";
 import { shouldUseKeychainMobile } from "@/utils/client";
 import i18next from "i18next";
 import { error } from "../../feedback";
@@ -71,9 +72,9 @@ export function useLoginByKeychain(username: string) {
         return;
       }
 
-      // Desktop Keychain extension flow
+      // Desktop extension flow (Keychain, Hive Keeper, or Peak Vault)
       const signMessage = async (message: string) => {
-        return signBuffer(username, message, "Posting").then((r) => r.result);
+        return signBufferWithExtension(username, message, "Posting").then((r) => r.result);
       };
 
       const code = await makeHsCode(

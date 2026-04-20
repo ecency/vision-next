@@ -21,6 +21,8 @@ export function useSetLastRead(
         ]);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode: 'async' }
   );
 }

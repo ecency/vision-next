@@ -15,6 +15,7 @@ import { getUser, getAccessToken, getPostingKey, getLoginType } from '@/utils/us
 import * as ls from '@/utils/local-storage';
 import { requestAuthUpgrade, getTempActiveKey, clearTempActiveKey } from '@/features/shared/auth-upgrade';
 import { error, success } from '@/features/shared/feedback/feedback-events';
+import { broadcastWithExtension, hasAnyHiveExtension } from '@/utils/hive-extensions';
 
 /**
  * Web platform adapter for SDK mutations.
@@ -391,64 +392,16 @@ export function createWebBroadcastAdapter(): PlatformAdapter {
         return broadcastWithMetaMaskSnap(username, ops, keyType);
       }
 
-      // Keychain Mobile: use hive:// deep link when browser extension is not available
-      if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !(window as any).hive_keychain) {
+      // Keychain Mobile: use hive:// deep link when no browser extension is available
+      if (loginType === 'keychain-mobile' && typeof window !== 'undefined' && !hasAnyHiveExtension()) {
         if (keyType !== 'posting' && keyType !== 'active') {
           throw new Error(`Keychain Mobile deep links do not support "${keyType}" authority.`);
         }
         return broadcastWithKeychainMobileDeepLink(username, ops, keyType);
       }
 
-      // Check if Keychain browser extension is available
-      if (typeof window === 'undefined' || !(window as any).hive_keychain) {
-        throw new Error('Hive Keychain extension not found. Please install it from the Chrome/Firefox store.');
-      }
-
-      const keychain = (window as any).hive_keychain;
-
-      return new Promise((resolve, reject) => {
-        let settled = false;
-        let timeoutId: NodeJS.Timeout | undefined;
-
-        // Cleanup function to prevent memory leaks
-        const cleanup = () => {
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = undefined;
-          }
-        };
-
-        // Set timeout (60 seconds for user interaction)
-        timeoutId = setTimeout(() => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            reject(new Error(
-              'Keychain request timed out. Please try again or check if Keychain extension is responding.'
-            ));
-          }
-        }, 60000);
-
-        // Request broadcast from Keychain
-        keychain.requestBroadcast(
-          username,
-          ops,
-          keyType,
-          (response: any) => {
-            if (!settled) {
-              settled = true;
-              cleanup();
-
-              if (response.success) {
-                resolve(response.result);
-              } else {
-                reject(new Error(response.message || 'Keychain broadcast failed'));
-              }
-            }
-            // Ignore callback if already settled (timeout fired first)
-          }
-        );
-      });
+      // Use unified extension layer - supports Keychain, Hive Keeper, and Peak Vault
+      return broadcastWithExtension(username, ops, keyType) as Promise<TransactionConfirmation>;
     },
 
     async broadcastWithHiveSigner(

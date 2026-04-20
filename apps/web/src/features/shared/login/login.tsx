@@ -7,7 +7,7 @@ import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
+import { getDetectedExtensions } from "@/utils/hive-extensions";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -43,7 +44,12 @@ export default function Login() {
     isPending: isLoginByKeychainPending
   } = useLoginByKeychain(username);
 
-  const handleKeychainLogin = () => {
+  const {
+    mutateAsync: loginByMetaMask,
+    isPending: isLoginByMetaMaskPending
+  } = useLoginByMetaMask(username);
+
+  const handleExtensionLogin = () => {
     if (isLoginByKeychainPending) {
       return;
     }
@@ -52,15 +58,12 @@ export default function Login() {
     });
   };
 
-  const {
-    mutateAsync: loginByMetaMask,
-    isPending: isLoginByMetaMaskPending
-  } = useLoginByMetaMask(username);
-
   const useKeychainMobile = shouldUseKeychainMobile();
-  const keychainMethodLabel = useKeychainMobile ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" }) : i18next.t("login.keychain", { defaultValue: "Keychain" });
-  const keychainIcon = "/assets/keychain.png";
-  const keychainAlt = "keychain";
+  const detectedExtensions = useMemo(() => getDetectedExtensions(), []);
+  const hasExtensions = detectedExtensions.length > 0 || useKeychainMobile;
+  const extensionLabel = useKeychainMobile
+    ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" })
+    : i18next.t("login.extensions", { defaultValue: "Extensions" });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
@@ -154,26 +157,43 @@ export default function Login() {
               Hivesigner
             </Button>
 
-            <Button
-              appearance="secondary"
-              outline={true}
-              full={true}
-              size="lg"
-              onClick={() => !!username && handleKeychainLogin()}
-              disabled={!username || isLoginByKeychainPending}
-              isLoading={isLoginByKeychainPending}
-              icon={
-                <Image
-                  width={100}
-                  height={100}
-                  src={keychainIcon}
-                  alt={keychainAlt}
-                  className="w-4 h-4"
-                />
-              }
-            >
-              {keychainMethodLabel}
-            </Button>
+            {hasExtensions && (
+              <Button
+                appearance="secondary"
+                outline={true}
+                full={true}
+                size="lg"
+                onClick={() => !!username && handleExtensionLogin()}
+                disabled={!username || isLoginByKeychainPending}
+                isLoading={isLoginByKeychainPending}
+                icon={
+                  <div className="flex items-center -space-x-1">
+                    {detectedExtensions.length > 0 ? (
+                      detectedExtensions.map((ext) => (
+                        <Image
+                          key={ext.id}
+                          width={20}
+                          height={20}
+                          src={ext.icon}
+                          alt={ext.name}
+                          className="w-4 h-4 rounded-sm"
+                        />
+                      ))
+                    ) : (
+                      <Image
+                        width={20}
+                        height={20}
+                        src="/assets/keychain.png"
+                        alt="extensions"
+                        className="w-4 h-4"
+                      />
+                    )}
+                  </div>
+                }
+              >
+                {extensionLabel}
+              </Button>
+            )}
 
             {typeof window !== "undefined" && window.ethereum?.isMetaMask && (
               <Button
