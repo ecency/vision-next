@@ -4073,9 +4073,9 @@ interface VotePayload {
  *   weight: -10000
  * });
  * ```
- */
-/**
- * @broadcastMode async — Votes don't require block confirmation.
+ *
+ * @remarks
+ * broadcastMode: async — Votes don't require block confirmation.
  * The vote is accepted into the mempool immediately; UI can optimistically update.
  */
 declare function useVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, VotePayload, unknown>;

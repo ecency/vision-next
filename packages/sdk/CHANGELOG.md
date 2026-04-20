@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.5
+
+### Patch Changes
+
+- Unify browser extensions (#763)
+
 ## 2.2.4
 
 ### Patch Changes
