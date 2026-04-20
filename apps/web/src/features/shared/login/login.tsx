@@ -69,9 +69,7 @@ export default function Login() {
   const hasExtensions = detectedExtensions.length > 0 || useKeychainMobile;
   const extensionLabel = detectedExtensions.length > 0
     ? i18next.t("login.extensions")
-    : useKeychainMobile
-      ? i18next.t("login.keychain-mobile")
-      : i18next.t("login.extensions");
+    : i18next.t("login.keychain-mobile");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">

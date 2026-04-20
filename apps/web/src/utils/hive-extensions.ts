@@ -261,8 +261,11 @@ async function signBufferViaPeakVault(
   message: string,
   authType: AuthorityTypes
 ): Promise<TxResponse> {
-  const keyRole = authType.toLowerCase() as "posting" | "active" | "memo";
-  const resp = await peakvault.requestSignBuffer(account, keyRole, message);
+  const keyRole = authType.toLowerCase();
+  if (keyRole === "owner") {
+    throw new Error("Owner authority not supported by Peak Vault.");
+  }
+  const resp = await peakvault.requestSignBuffer(account, keyRole as "posting" | "active" | "memo", message);
   if (!resp.success) {
     throw new Error(resp.error || "Operation cancelled");
   }
