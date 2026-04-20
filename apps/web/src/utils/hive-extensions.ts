@@ -10,7 +10,8 @@
  * doesn't need to know which extension the user has installed.
  */
 
-import { AuthorityTypes, TxResponse } from "@/types";
+import { AuthorityTypes, KeyChainImpl, TxResponse } from "@/types";
+import type { PeakVaultApi } from "@/types/app-window";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,30 +23,6 @@ export interface DetectedExtension {
   id: HiveExtensionId;
   name: string;
   icon: string;
-}
-
-interface PeakVaultResponse {
-  success: boolean;
-  error: string;
-  account: string;
-  publicKey?: string;
-  result: any;
-}
-
-interface PeakVaultInstance {
-  requestBroadcast: (
-    account: string,
-    operations: any[],
-    keyRole: "posting" | "active" | "memo",
-    displayMessage?: string
-  ) => Promise<PeakVaultResponse>;
-  requestSignBuffer: (
-    account: string,
-    keyRole: "posting" | "active" | "memo",
-    message: string,
-    displayMessage?: string
-  ) => Promise<PeakVaultResponse>;
-  connect: (account: string, keyRole?: "posting" | "active" | "memo") => Promise<PeakVaultResponse>;
 }
 
 // ---------------------------------------------------------------------------
@@ -66,7 +43,7 @@ export function getDetectedExtensions(): DetectedExtension[] {
     detected.push({
       id: "hive-keeper",
       name: "Hive Keeper",
-      icon: "/assets/hive-keeper.png"
+      icon: "/assets/keeper.svg"
     });
   }
   // Hive Keychain (only if Hive Keeper didn't already alias it)
@@ -124,12 +101,12 @@ export function getPreferredExtension(): DetectedExtension | null {
 export function signBufferWithExtension(
   account: string,
   message: string,
-  authType: AuthorityTypes = "Posting"
+  authType: AuthorityTypes = "Posting",
+  rpc: string | null = null
 ): Promise<TxResponse> {
-  // Peak Vault uses different API - try Keychain-compatible first
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
-    return signBufferViaKeychain(keychainLike, account, message, authType);
+    return signBufferViaKeychain(keychainLike, account, message, authType, rpc);
   }
 
   const peakvault = getPeakVaultInstance();
@@ -153,16 +130,16 @@ export function signBufferWithExtension(
 export function broadcastWithExtension(
   account: string,
   operations: any[],
-  keyType: "posting" | "active" | "owner" | "memo"
+  keyType: "posting" | "active" | "owner" | "memo",
+  rpc: string | null = null
 ): Promise<any> {
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
-    return broadcastViaKeychain(keychainLike, account, operations, keyType);
+    return broadcastViaKeychain(keychainLike, account, operations, keyType, rpc);
   }
 
   const peakvault = getPeakVaultInstance();
   if (peakvault) {
-    // Peak Vault doesn't support "owner" key role
     if (keyType === "owner") {
       return Promise.reject(new Error("Peak Vault does not support owner authority operations."));
     }
@@ -178,16 +155,21 @@ export function broadcastWithExtension(
 // Internal: Instance access
 // ---------------------------------------------------------------------------
 
-function getKeychainLikeInstance(): any | null {
+/**
+ * Returns the Keychain-compatible extension instance.
+ * Priority: Hive Keeper (guarded by hive_extension) > Keychain.
+ * Matches getPreferredExtension() ordering so signing uses the same extension shown in the UI.
+ */
+function getKeychainLikeInstance(): KeyChainImpl | null {
   if (typeof window === "undefined") return null;
+  // Hive Keeper (only when hive_extension flag confirms it's the real extension)
+  if ((window as any).hive && (window as any).hive_extension) return (window as any).hive;
   // Hive Keychain
   if ((window as any).hive_keychain) return (window as any).hive_keychain;
-  // Hive Keeper (only when hive_extension flag confirms it's the extension, not an unrelated window.hive)
-  if ((window as any).hive && (window as any).hive_extension) return (window as any).hive;
   return null;
 }
 
-function getPeakVaultInstance(): PeakVaultInstance | null {
+function getPeakVaultInstance(): PeakVaultApi | null {
   if (typeof window === "undefined") return null;
   return (window as any).peakvault ?? null;
 }
@@ -197,33 +179,46 @@ function getPeakVaultInstance(): PeakVaultInstance | null {
 // ---------------------------------------------------------------------------
 
 function signBufferViaKeychain(
-  keychain: any,
+  keychain: KeyChainImpl,
   account: string,
   message: string,
-  authType: AuthorityTypes
+  authType: AuthorityTypes,
+  rpc: string | null
 ): Promise<TxResponse> {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const timeoutId = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error("Extension request timed out. Please try again."));
+      }
+    }, 60000);
+
     keychain.requestSignBuffer(
       account,
       message,
       authType,
       (resp: TxResponse) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
         if (!resp.success) {
           reject(new Error("Operation cancelled"));
           return;
         }
         resolve(resp);
       },
-      null
+      rpc
     );
   });
 }
 
 function broadcastViaKeychain(
-  keychain: any,
+  keychain: KeyChainImpl,
   account: string,
   operations: any[],
-  keyType: string
+  keyType: string,
+  rpc: string | null
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -235,23 +230,23 @@ function broadcastViaKeychain(
     }, 60000);
 
     // Map SDK key types to Keychain authority types (capitalized)
-    const authorityType = keyType.charAt(0).toUpperCase() + keyType.slice(1);
+    const authorityType = (keyType.charAt(0).toUpperCase() + keyType.slice(1)) as AuthorityTypes;
 
     keychain.requestBroadcast(
       account,
       operations,
       authorityType,
-      (response: any) => {
-        if (!settled) {
-          settled = true;
-          clearTimeout(timeoutId);
-          if (response.success) {
-            resolve(response.result);
-          } else {
-            reject(new Error(response.message || "Extension broadcast failed"));
-          }
+      (response: TxResponse) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        if (response.success) {
+          resolve(response.result);
+        } else {
+          reject(new Error("Extension broadcast failed"));
         }
-      }
+      },
+      rpc
     );
   });
 }
@@ -260,34 +255,29 @@ function broadcastViaKeychain(
 // Internal: Peak Vault sign/broadcast (promise-based)
 // ---------------------------------------------------------------------------
 
-function signBufferViaPeakVault(
-  peakvault: PeakVaultInstance,
+async function signBufferViaPeakVault(
+  peakvault: PeakVaultApi,
   account: string,
   message: string,
   authType: AuthorityTypes
 ): Promise<TxResponse> {
-  // Peak Vault uses lowercase key roles
   const keyRole = authType.toLowerCase() as "posting" | "active" | "memo";
-  // Peak Vault signBuffer param order: (account, keyRole, message, displayMessage?)
-  return peakvault.requestSignBuffer(account, keyRole, message).then((resp) => {
-    if (!resp.success) {
-      throw new Error(resp.error || "Operation cancelled");
-    }
-    // Normalize to TxResponse format
-    return { success: true, result: resp.result } as TxResponse;
-  });
+  const resp = await peakvault.requestSignBuffer(account, keyRole, message);
+  if (!resp.success) {
+    throw new Error(resp.error || "Operation cancelled");
+  }
+  return { success: true, result: resp.result } as TxResponse;
 }
 
-function broadcastViaPeakVault(
-  peakvault: PeakVaultInstance,
+async function broadcastViaPeakVault(
+  peakvault: PeakVaultApi,
   account: string,
   operations: any[],
   keyRole: "posting" | "active" | "memo"
 ): Promise<any> {
-  return peakvault.requestBroadcast(account, operations, keyRole).then((resp) => {
-    if (!resp.success) {
-      throw new Error(resp.error || "Extension broadcast failed");
-    }
-    return resp.result;
-  });
+  const resp = await peakvault.requestBroadcast(account, operations, keyRole);
+  if (!resp.success) {
+    throw new Error(resp.error || "Extension broadcast failed");
+  }
+  return resp.result;
 }

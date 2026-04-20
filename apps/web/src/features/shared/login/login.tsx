@@ -7,7 +7,7 @@ import { FormControl } from "@ui/input";
 import i18next from "i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLoginByKeychain, useLoginByMetaMask } from "./hooks";
 import { LoginUserByKey } from "./login-user-by-key";
 import { LoginUsersList } from "./login-users-list";
@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
-import { getDetectedExtensions } from "@/utils/hive-extensions";
+import { DetectedExtension, getDetectedExtensions } from "@/utils/hive-extensions";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -58,12 +58,20 @@ export default function Login() {
     });
   };
 
-  const useKeychainMobile = shouldUseKeychainMobile();
-  const detectedExtensions = useMemo(() => getDetectedExtensions(), []);
+  const [detectedExtensions, setDetectedExtensions] = useState<DetectedExtension[]>([]);
+  const [useKeychainMobile, setUseKeychainMobile] = useState(false);
+
+  useEffect(() => {
+    setDetectedExtensions(getDetectedExtensions());
+    setUseKeychainMobile(shouldUseKeychainMobile());
+  }, []);
+
   const hasExtensions = detectedExtensions.length > 0 || useKeychainMobile;
-  const extensionLabel = useKeychainMobile
-    ? i18next.t("login.keychain-mobile", { defaultValue: "Keychain Mobile" })
-    : i18next.t("login.extensions", { defaultValue: "Extensions" });
+  const extensionLabel = detectedExtensions.length > 0
+    ? i18next.t("login.extensions")
+    : useKeychainMobile
+      ? i18next.t("login.keychain-mobile")
+      : i18next.t("login.extensions");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">

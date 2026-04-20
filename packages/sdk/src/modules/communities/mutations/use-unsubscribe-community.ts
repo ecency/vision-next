@@ -67,6 +67,6 @@ export function useUnsubscribeCommunity(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: 'sync' }
   );
 }

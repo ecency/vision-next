@@ -81,19 +81,22 @@ export function useReblog(
         auth.adapter.recordActivity(130, result.id, result?.block_num).catch(() => {});
       }
 
-      // Invalidate user's blog feed so reblogged post appears/disappears
-      const qc = getQueryClient();
-      qc.invalidateQueries({
-        queryKey: QueryKeys.posts.accountPostsBlogPrefix(username!),
-      });
-
-      // Cache invalidation
-      if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
-          QueryKeys.posts.rebloggedBy(variables.author, variables.permlink),
-        ]);
-      }
+      // Deferred cache invalidation — with async broadcast, onSuccess fires at
+      // mempool acceptance before block inclusion. Immediate refetch would return
+      // pre-transaction state and overwrite our optimistic reblog count.
+      const invalidate = () => {
+        const qc = getQueryClient();
+        qc.invalidateQueries({
+          queryKey: QueryKeys.posts.accountPostsBlogPrefix(username!),
+        });
+        if (auth?.adapter?.invalidateQueries) {
+          auth.adapter.invalidateQueries([
+            QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
+            QueryKeys.posts.rebloggedBy(variables.author, variables.permlink),
+          ]);
+        }
+      };
+      setTimeout(invalidate, 4000);
     },
     auth,
     'posting',

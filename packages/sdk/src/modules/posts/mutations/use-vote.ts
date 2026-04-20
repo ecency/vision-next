@@ -68,9 +68,9 @@ export interface VotePayload {
  *   weight: -10000
  * });
  * ```
- */
-/**
- * @broadcastMode async — Votes don't require block confirmation.
+ *
+ * @remarks
+ * broadcastMode: async — Votes don't require block confirmation.
  * The vote is accepted into the mempool immediately; UI can optimistically update.
  */
 export function useVote(
@@ -105,12 +105,16 @@ export function useVote(
         auth.adapter.recordActivity(120, result.id, result?.block_num).catch(() => {});
       }
 
-      // Cache invalidation
+      // Deferred cache invalidation — with async broadcast, onSuccess fires at
+      // mempool acceptance before block inclusion. Immediate refetch would return
+      // pre-transaction state and overwrite our optimistic update.
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
-          QueryKeys.accounts.full(username)
-        ]);
+        setTimeout(() => {
+          auth.adapter!.invalidateQueries!([
+            QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
+            QueryKeys.accounts.full(username)
+          ]);
+        }, 4000);
       }
     },
     auth,

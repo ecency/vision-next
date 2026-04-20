@@ -112,6 +112,6 @@ export function useMutePost(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: 'sync' }
   );
 }
