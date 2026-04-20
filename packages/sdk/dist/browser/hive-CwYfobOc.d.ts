@@ -779,9 +779,17 @@ declare const config: {
      */
     address_prefix: string;
     /**
-     * Timeout in milliseconds for individual API calls.
+     * Timeout in milliseconds for read API calls (get_content, get_accounts, etc.).
+     * Kept short so the health tracker can fail over to another node quickly.
      */
     timeout: number;
+    /**
+     * Timeout in milliseconds for broadcast API calls.
+     * Longer than read timeout because broadcast_transaction_synchronous waits
+     * for block inclusion, which depends on the 3-second block interval and
+     * network conditions.
+     */
+    broadcastTimeout: number;
     /**
      * Number of retry attempts for failed API calls before throwing an error.
      */
