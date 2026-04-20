@@ -143,18 +143,21 @@ export async function broadcastOperations(
 }
 
 /**
- * Sign and broadcast operations asynchronously (fire-and-forget).
+ * Sign and broadcast operations without waiting for block inclusion.
  *
- * Uses broadcast_transaction (non-synchronous) which returns immediately
- * without waiting for block inclusion. This is faster but the caller only
- * gets a tx_id and an 'unknown' status - use Transaction.checkStatus() or
- * poll transaction_status_api to confirm inclusion.
+ * Uses broadcast_transaction which returns as soon as the node accepts the
+ * transaction into its mempool. Transport and RPC errors (network failures,
+ * invalid operations, expired transactions) are still thrown immediately -
+ * the only thing skipped is the wait for the transaction to appear in a block.
  *
- * Prefer this for non-critical operations where faster response matters
- * more than immediate confirmation (e.g. votes, reblogs, follows).
+ * Returns { tx_id, status: 'unknown' }. To confirm block inclusion afterward,
+ * poll transaction_status_api with the returned tx_id.
  *
- * Use broadcastOperations() (synchronous) when you need block_num/trx_num
- * confirmation (e.g. transfers, account updates, key changes).
+ * Prefer this for operations where faster response matters more than
+ * immediate confirmation (e.g. votes, reblogs, follows).
+ *
+ * Use broadcastOperations() when you need block_num/trx_num confirmation
+ * (e.g. transfers, account updates, key changes).
  */
 export async function broadcastOperationsAsync(
   ops: Operation[],
