@@ -60,11 +60,9 @@ export default function Login() {
   }, []);
 
   const hasExtensions = detectedExtensions.length > 0 || useKeychainMobile;
-  const extensionLabel = detectedExtensions.length > 0
-    ? i18next.t("login.extensions")
-    : hasExtensions
-      ? i18next.t("login.keychain-mobile")
-      : i18next.t("login.extensions");
+  const extensionLabel = useKeychainMobile && detectedExtensions.length === 0
+    ? i18next.t("login.keychain-mobile")
+    : i18next.t("login.extensions");
 
   const handleExtensionLogin = () => {
     if (!hasExtensions) {
@@ -191,8 +189,8 @@ export default function Login() {
               outline={true}
               full={true}
               size="lg"
-              onClick={() => !!username && handleExtensionLogin()}
-              disabled={!username || isLoginByKeychainPending}
+              onClick={handleExtensionLogin}
+              disabled={hasExtensions && (!username || isLoginByKeychainPending)}
               isLoading={isLoginByKeychainPending}
               icon={
                 <div className="flex items-center -space-x-1">

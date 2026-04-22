@@ -158,18 +158,21 @@ export function signBufferWithExtension(
   preferredId?: HiveExtensionId
 ): Promise<TxResponse> {
   const extId = preferredId ?? getPreferredExtensionId();
-  if (extId === "peakvault") {
-    const pv = getPeakVaultInstance();
+  if (extId) {
+    const resolved =
+      extId === "peakvault" ? null :
+      extId === "hive-keeper" ? getHiveKeeperInstance() :
+      extId === "keychain" ? getKeychainInstance() : null;
+    const pv = extId === "peakvault" ? getPeakVaultInstance() : null;
+
     if (pv) return signBufferViaPeakVault(pv, account, message, authType);
-  } else if (extId === "hive-keeper") {
-    const hk = getHiveKeeperInstance();
-    if (hk) return signBufferViaKeychain(hk, account, message, authType, rpc);
-  } else if (extId === "keychain") {
-    const kc = getKeychainInstance();
-    if (kc) return signBufferViaKeychain(kc, account, message, authType, rpc);
+    if (resolved) return signBufferViaKeychain(resolved, account, message, authType, rpc);
+
+    // Preferred extension no longer available - clear stale preference
+    if (!preferredId) setPreferredExtensionId(null);
   }
 
-  // Fallback to auto-detection
+  // Auto-detection fallback
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
     return signBufferViaKeychain(keychainLike, account, message, authType, rpc);
@@ -201,21 +204,24 @@ export function broadcastWithExtension(
   preferredId?: HiveExtensionId
 ): Promise<any> {
   const extId = preferredId ?? getPreferredExtensionId();
-  if (extId === "peakvault") {
-    const pv = getPeakVaultInstance();
+  if (extId) {
+    const resolved =
+      extId === "peakvault" ? null :
+      extId === "hive-keeper" ? getHiveKeeperInstance() :
+      extId === "keychain" ? getKeychainInstance() : null;
+    const pv = extId === "peakvault" ? getPeakVaultInstance() : null;
+
     if (pv) {
       if (keyType === "owner") return Promise.reject(new Error("Peak Vault does not support owner authority operations."));
       return broadcastViaPeakVault(pv, account, operations, keyType as "posting" | "active" | "memo");
     }
-  } else if (extId === "hive-keeper") {
-    const hk = getHiveKeeperInstance();
-    if (hk) return broadcastViaKeychain(hk, account, operations, keyType, rpc);
-  } else if (extId === "keychain") {
-    const kc = getKeychainInstance();
-    if (kc) return broadcastViaKeychain(kc, account, operations, keyType, rpc);
+    if (resolved) return broadcastViaKeychain(resolved, account, operations, keyType, rpc);
+
+    // Preferred extension no longer available - clear stale preference
+    if (!preferredId) setPreferredExtensionId(null);
   }
 
-  // Fallback to auto-detection
+  // Auto-detection fallback
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
     return broadcastViaKeychain(keychainLike, account, operations, keyType, rpc);
