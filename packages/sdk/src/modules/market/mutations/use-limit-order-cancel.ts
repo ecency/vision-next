@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildLimitOrderCancelOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -8,7 +9,8 @@ export interface LimitOrderCancelPayload {
 
 export function useLimitOrderCancel(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<LimitOrderCancelPayload>(
     ["market", "limit-order-cancel"],
@@ -27,6 +29,7 @@ export function useLimitOrderCancel(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

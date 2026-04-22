@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildProposalVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -67,7 +68,8 @@ export interface ProposalVotePayload {
  */
 export function useProposalVote(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<ProposalVotePayload>(
     ["proposals", "vote"],
@@ -103,6 +105,7 @@ export function useProposalVote(
       }
     },
     auth,
-    'active' // Use active authority for proposal votes (required by blockchain)
+    'active', // Use active authority for proposal votes (required by blockchain)
+    { broadcastMode }
   );
 }

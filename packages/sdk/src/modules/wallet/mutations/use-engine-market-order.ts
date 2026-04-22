@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -12,7 +13,9 @@ export interface EngineMarketOrderPayload {
   orderType?: "buy" | "sell";
 }
 
-export function useEngineMarketOrder(username: string | undefined, auth?: AuthContextV2) {
+export function useEngineMarketOrder(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<EngineMarketOrderPayload>(
     ["wallet", "engine-market-order"],
     username,
@@ -57,6 +60,7 @@ export function useEngineMarketOrder(username: string | undefined, auth?: AuthCo
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

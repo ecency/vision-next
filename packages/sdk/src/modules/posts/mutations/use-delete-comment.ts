@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildDeleteCommentOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import {
@@ -38,7 +39,8 @@ export interface DeleteCommentPayload {
  */
 export function useDeleteComment(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<DeleteCommentPayload>(
     ["posts", "deleteComment"],
@@ -82,6 +84,7 @@ export function useDeleteComment(
     auth,
     'posting',
     {
+      broadcastMode,
       // Optimistic removal: remove from discussions cache before broadcast
       onMutate: async (variables) => {
         const rootAuthor = variables.rootAuthor || variables.parentAuthor;

@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildWitnessVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -58,7 +59,8 @@ export interface WitnessVotePayload {
  */
 export function useWitnessVote(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<WitnessVotePayload>(
     ["witnesses", "vote"],
@@ -82,6 +84,7 @@ export function useWitnessVote(
       }
     },
     auth,
-    'active' // Use active authority for witness votes (required by blockchain)
+    'active', // Use active authority for witness votes (required by blockchain)
+    { broadcastMode }
   );
 }

@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -9,7 +10,9 @@ export interface DelegateEngineTokenPayload {
   quantity: string;
 }
 
-export function useDelegateEngineToken(username: string | undefined, auth?: AuthContextV2) {
+export function useDelegateEngineToken(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<DelegateEngineTokenPayload>(
     ["wallet", "delegate-engine-token"],
     username,
@@ -41,6 +44,7 @@ export function useDelegateEngineToken(username: string | undefined, auth?: Auth
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

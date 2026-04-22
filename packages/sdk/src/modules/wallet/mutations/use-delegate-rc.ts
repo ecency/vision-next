@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildDelegateRcOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -9,7 +10,8 @@ export interface DelegateRcPayload {
 
 export function useDelegateRc(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<DelegateRcPayload>(
     ["wallet", "delegate-rc"],
@@ -28,6 +30,7 @@ export function useDelegateRc(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

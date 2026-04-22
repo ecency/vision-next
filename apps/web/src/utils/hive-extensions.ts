@@ -1,10 +1,12 @@
 /**
  * Unified Hive Browser Extensions abstraction.
  *
- * Supports three extensions:
+ * Supports the Hive Unified Wallet Protocol (window.hive.providers[]) and
+ * falls back to legacy per-global detection for wallets that haven't adopted
+ * the protocol yet:
  * - Hive Keychain (window.hive_keychain)
- * - Hive Keeper (window.hive) - Ecency's extension, API-compatible with Keychain
- * - Peak Vault (window.peakvault) - PeakD's extension, promise-based API
+ * - Hive Keeper (window.hive + window.hive_extension)
+ * - Peak Vault (window.peakvault)
  *
  * Provides a single detection + broadcast/sign API so the rest of the app
  * doesn't need to know which extension the user has installed.
@@ -25,43 +27,59 @@ export interface DetectedExtension {
   icon: string;
 }
 
+interface HiveWalletProvider {
+  name: string;
+  rdns: string;
+  provider: any;
+}
+
+/** Maps provider rdns to our extension IDs */
+const RDNS_MAP: Record<string, { id: HiveExtensionId; name: string; icon: string }> = {
+  "com.ecency.keeper": { id: "hive-keeper", name: "Hive Keeper", icon: "/assets/keeper.svg" },
+  "com.hivekeychain": { id: "keychain", name: "Keychain", icon: "/assets/keychain.png" },
+  "com.peakd.vault": { id: "peakvault", name: "Peak Vault", icon: "/assets/peakvault.svg" },
+};
+
 // ---------------------------------------------------------------------------
 // Detection
 // ---------------------------------------------------------------------------
 
 /**
  * Returns a list of all currently detected Hive browser extensions.
- * Call this at render time to build the UI.
+ * Prefers the Hive Unified Wallet Protocol (window.hive.providers[]) when
+ * available, falls back to legacy per-global detection.
  */
 export function getDetectedExtensions(): DetectedExtension[] {
   if (typeof window === "undefined") return [];
 
+  const seen = new Set<HiveExtensionId>();
   const detected: DetectedExtension[] = [];
 
-  // Hive Keeper exposes window.hive and sets window.hive_extension = true
-  if ((window as any).hive && (window as any).hive_extension) {
-    detected.push({
-      id: "hive-keeper",
-      name: "Hive Keeper",
-      icon: "/assets/keeper.svg"
-    });
-  }
-  // Hive Keychain (only if Hive Keeper didn't already alias it)
-  else if ((window as any).hive_keychain) {
-    detected.push({
-      id: "keychain",
-      name: "Keychain",
-      icon: "/assets/keychain.png"
-    });
+  const add = (ext: DetectedExtension) => {
+    if (!seen.has(ext.id)) {
+      seen.add(ext.id);
+      detected.push(ext);
+    }
+  };
+
+  // Hive Unified Wallet Protocol - providers registry
+  const providers: HiveWalletProvider[] | undefined = (window as any).hive?.providers;
+  if (providers?.length) {
+    for (const p of providers) {
+      const meta = RDNS_MAP[p.rdns];
+      if (meta) add({ id: meta.id, name: meta.name, icon: meta.icon });
+    }
   }
 
-  // Peak Vault
+  // Legacy per-global detection (fills in wallets not yet in providers)
+  if ((window as any).hive && (window as any).hive_extension) {
+    add({ id: "hive-keeper", name: "Hive Keeper", icon: "/assets/keeper.svg" });
+  }
+  if ((window as any).hive_keychain) {
+    add({ id: "keychain", name: "Keychain", icon: "/assets/keychain.png" });
+  }
   if ((window as any).peakvault) {
-    detected.push({
-      id: "peakvault",
-      name: "Peak Vault",
-      icon: "/assets/peakvault.svg"
-    });
+    add({ id: "peakvault", name: "Peak Vault", icon: "/assets/peakvault.svg" });
   }
 
   return detected;
@@ -69,11 +87,11 @@ export function getDetectedExtensions(): DetectedExtension[] {
 
 /**
  * Returns true if any Hive browser extension is available.
- * Uses the same predicates as getDetectedExtensions() to avoid false positives
- * from unrelated window.hive objects.
  */
 export function hasAnyHiveExtension(): boolean {
   if (typeof window === "undefined") return false;
+  const providers: HiveWalletProvider[] | undefined = (window as any).hive?.providers;
+  if (providers?.some((p) => Boolean(RDNS_MAP[p.rdns]))) return true;
   return !!(
     (window as any).hive_keychain ||
     ((window as any).hive && (window as any).hive_extension) ||
@@ -91,19 +109,70 @@ export function getPreferredExtension(): DetectedExtension | null {
 }
 
 // ---------------------------------------------------------------------------
+// User preference (stored in localStorage for persistence across sessions)
+// ---------------------------------------------------------------------------
+
+const PREFERRED_EXTENSION_KEY = "ecency_preferred_hive_extension";
+
+/**
+ * Set the user's preferred extension. Stored in localStorage.
+ */
+export function setPreferredExtensionId(id: HiveExtensionId | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (id) {
+      localStorage.setItem(PREFERRED_EXTENSION_KEY, id);
+    } else {
+      localStorage.removeItem(PREFERRED_EXTENSION_KEY);
+    }
+  } catch {
+    // Storage blocked (private browsing, quota exceeded) - non-fatal
+  }
+}
+
+/**
+ * Get the user's preferred extension from localStorage.
+ */
+export function getPreferredExtensionId(): HiveExtensionId | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(PREFERRED_EXTENSION_KEY) as HiveExtensionId | null;
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Unified Sign Buffer
 // ---------------------------------------------------------------------------
 
 /**
- * Sign a message buffer using whichever extension is available.
- * Returns the signature result string on success.
+ * Sign a message buffer using the preferred or best available extension.
+ * Reads user preference from localStorage if no explicit preferredId is given.
  */
 export function signBufferWithExtension(
   account: string,
   message: string,
   authType: AuthorityTypes = "Posting",
-  rpc: string | null = null
+  rpc: string | null = null,
+  preferredId?: HiveExtensionId
 ): Promise<TxResponse> {
+  const extId = preferredId ?? getPreferredExtensionId();
+  if (extId) {
+    const resolved =
+      extId === "peakvault" ? null :
+      extId === "hive-keeper" ? getHiveKeeperInstance() :
+      extId === "keychain" ? getKeychainInstance() : null;
+    const pv = extId === "peakvault" ? getPeakVaultInstance() : null;
+
+    if (pv) return signBufferViaPeakVault(pv, account, message, authType);
+    if (resolved) return signBufferViaKeychain(resolved, account, message, authType, rpc);
+
+    // Preferred extension no longer available - clear stale preference
+    if (!preferredId) setPreferredExtensionId(null);
+  }
+
+  // Auto-detection fallback
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
     return signBufferViaKeychain(keychainLike, account, message, authType, rpc);
@@ -124,15 +193,35 @@ export function signBufferWithExtension(
 // ---------------------------------------------------------------------------
 
 /**
- * Broadcast operations using whichever extension is available.
- * Returns the transaction confirmation on success.
+ * Broadcast operations using the preferred or best available extension.
+ * Reads user preference from localStorage if no explicit preferredId is given.
  */
 export function broadcastWithExtension(
   account: string,
   operations: any[],
   keyType: "posting" | "active" | "owner" | "memo",
-  rpc: string | null = null
+  rpc: string | null = null,
+  preferredId?: HiveExtensionId
 ): Promise<any> {
+  const extId = preferredId ?? getPreferredExtensionId();
+  if (extId) {
+    const resolved =
+      extId === "peakvault" ? null :
+      extId === "hive-keeper" ? getHiveKeeperInstance() :
+      extId === "keychain" ? getKeychainInstance() : null;
+    const pv = extId === "peakvault" ? getPeakVaultInstance() : null;
+
+    if (pv) {
+      if (keyType === "owner") return Promise.reject(new Error("Peak Vault does not support owner authority operations."));
+      return broadcastViaPeakVault(pv, account, operations, keyType as "posting" | "active" | "memo");
+    }
+    if (resolved) return broadcastViaKeychain(resolved, account, operations, keyType, rpc);
+
+    // Preferred extension no longer available - clear stale preference
+    if (!preferredId) setPreferredExtensionId(null);
+  }
+
+  // Auto-detection fallback
   const keychainLike = getKeychainLikeInstance();
   if (keychainLike) {
     return broadcastViaKeychain(keychainLike, account, operations, keyType, rpc);
@@ -155,23 +244,37 @@ export function broadcastWithExtension(
 // Internal: Instance access
 // ---------------------------------------------------------------------------
 
+/** Resolve a provider API from the unified registry by rdns */
+function getProviderByRdns(rdns: string): any | null {
+  const providers: HiveWalletProvider[] | undefined = (window as any).hive?.providers;
+  return providers?.find((p) => p.rdns === rdns)?.provider ?? null;
+}
+
 /**
  * Returns the Keychain-compatible extension instance.
- * Priority: Hive Keeper (guarded by hive_extension) > Keychain.
- * Matches getPreferredExtension() ordering so signing uses the same extension shown in the UI.
+ * Priority: Hive Keeper > Keychain (via providers registry, then legacy globals).
  */
 function getKeychainLikeInstance(): KeyChainImpl | null {
   if (typeof window === "undefined") return null;
-  // Hive Keeper (only when hive_extension flag confirms it's the real extension)
-  if ((window as any).hive && (window as any).hive_extension) return (window as any).hive;
-  // Hive Keychain
-  if ((window as any).hive_keychain) return (window as any).hive_keychain;
-  return null;
+  return getHiveKeeperInstance() || getKeychainInstance();
+}
+
+function getHiveKeeperInstance(): KeyChainImpl | null {
+  if (typeof window === "undefined") return null;
+  return getProviderByRdns("com.ecency.keeper")
+    || ((window as any).hive && (window as any).hive_extension ? (window as any).hive : null);
+}
+
+function getKeychainInstance(): KeyChainImpl | null {
+  if (typeof window === "undefined") return null;
+  return getProviderByRdns("com.hivekeychain")
+    || ((window as any).hive_keychain ?? null);
 }
 
 function getPeakVaultInstance(): PeakVaultApi | null {
   if (typeof window === "undefined") return null;
-  return (window as any).peakvault ?? null;
+  return getProviderByRdns("com.peakd.vault")
+    || ((window as any).peakvault ?? null);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildMutePostOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -78,7 +79,8 @@ export interface MutePostPayload {
  */
 export function useMutePost(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<MutePostPayload>(
     ["communities", "mutePost"],
@@ -112,6 +114,6 @@ export function useMutePost(
     },
     auth,
     'posting',
-    { broadcastMode: 'sync' }
+    { broadcastMode: broadcastMode ?? 'sync' }
   );
 }

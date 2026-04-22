@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EcencyAnalytics } from "@/modules/analytics";
 import { getQueryClient } from "@/modules/core";
@@ -194,7 +195,8 @@ export function useWalletOperation(
   username: string | undefined,
   asset: string,
   operation: AssetOperation,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   const { mutateAsync: recordActivity } = EcencyAnalytics.useRecordActivity(
     username,
@@ -242,6 +244,7 @@ export function useWalletOperation(
       }, 5000);
     },
     auth,
-    getWalletOperationAuthority(operation)
+    getWalletOperationAuthority(operation),
+    { broadcastMode }
   );
 }

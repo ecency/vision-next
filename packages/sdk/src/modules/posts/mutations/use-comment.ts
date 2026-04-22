@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -116,7 +117,8 @@ export interface CommentPayload {
  */
 export function useComment(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<CommentPayload>(
     ["posts", "comment"],
@@ -230,6 +232,8 @@ export function useComment(
         await auth.adapter.invalidateQueries(queriesToInvalidate);
       }
     },
-    auth
+    auth,
+    'posting',
+    { broadcastMode }
   );
 }

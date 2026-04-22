@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -9,7 +10,9 @@ export interface TransferSpkPayload {
   memo?: string;
 }
 
-export function useTransferSpk(username: string | undefined, auth?: AuthContextV2) {
+export function useTransferSpk(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<TransferSpkPayload>(
     ["wallet", "transfer-spk"],
     username,
@@ -37,6 +40,7 @@ export function useTransferSpk(username: string | undefined, auth?: AuthContextV
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

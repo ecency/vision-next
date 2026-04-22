@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -8,7 +9,9 @@ export interface LockLarynxPayload {
   amount: number;
 }
 
-export function useLockLarynx(username: string | undefined, auth?: AuthContextV2) {
+export function useLockLarynx(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<LockLarynxPayload>(
     ["wallet", "lock-larynx"],
     username,
@@ -31,6 +34,7 @@ export function useLockLarynx(username: string | undefined, auth?: AuthContextV2
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

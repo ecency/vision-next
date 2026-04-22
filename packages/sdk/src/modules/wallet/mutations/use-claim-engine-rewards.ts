@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -7,7 +8,9 @@ export interface ClaimEngineRewardsPayload {
   tokens: string[];
 }
 
-export function useClaimEngineRewards(username: string | undefined, auth?: AuthContextV2) {
+export function useClaimEngineRewards(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<ClaimEngineRewardsPayload>(
     ["wallet", "claim-engine-rewards"],
     username,
@@ -22,14 +25,20 @@ export function useClaimEngineRewards(username: string | undefined, auth?: AuthC
     },
     async () => {
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
+        const keys = [
           QueryKeys.accounts.full(username),
           ["ecency-wallets", "asset-info", username],
           ["wallet", "portfolio", "v2", username]
-        ]);
+        ];
+        if (broadcastMode === 'async') {
+          setTimeout(() => auth.adapter!.invalidateQueries!(keys), 4000);
+        } else {
+          await auth.adapter.invalidateQueries(keys);
+        }
       }
     },
     auth,
-    'posting'
+    'posting',
+    { broadcastMode }
   );
 }

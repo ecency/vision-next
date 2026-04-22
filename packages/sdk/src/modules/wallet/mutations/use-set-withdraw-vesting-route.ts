@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildSetWithdrawVestingRouteOp } from "@/modules/operations/builders";
@@ -71,7 +72,8 @@ export interface SetWithdrawVestingRoutePayload {
  */
 export function useSetWithdrawVestingRoute(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<SetWithdrawVestingRoutePayload>(
     ["wallet", "set-withdraw-vesting-route"],
@@ -95,6 +97,7 @@ export function useSetWithdrawVestingRoute(
       }
     },
     auth,
-    'active' // IMPORTANT: Active authority required
+    'active', // IMPORTANT: Active authority required
+    { broadcastMode }
   );
 }

@@ -1,4 +1,5 @@
 import { useBroadcastMutation, getQueryClient, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildSetRoleOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Community, CommunityTeam } from "../types";
@@ -66,7 +67,8 @@ export interface SetCommunityRolePayload {
 export function useSetCommunityRole(
   community: string,
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<SetCommunityRolePayload>(
     ["communities", "set-role", community],
@@ -103,6 +105,6 @@ export function useSetCommunityRole(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

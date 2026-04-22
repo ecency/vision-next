@@ -1,4 +1,5 @@
 import { useBroadcastMutation, getQueryClient, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildUpdateCommunityOp, type CommunityProps } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Community } from "../types";
@@ -61,7 +62,8 @@ export type UpdateCommunityPayload = CommunityProps;
 export function useUpdateCommunity(
   community: string,
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<UpdateCommunityPayload>(
     ["communities", "update", community],
@@ -90,6 +92,6 @@ export function useUpdateCommunity(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

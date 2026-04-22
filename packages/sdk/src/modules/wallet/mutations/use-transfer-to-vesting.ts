@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildTransferToVestingOp } from "@/modules/operations/builders";
@@ -10,7 +11,8 @@ export interface TransferToVestingPayload {
 
 export function useTransferToVesting(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<TransferToVestingPayload>(
     ["wallet", "transfer-to-vesting"],
@@ -29,6 +31,7 @@ export function useTransferToVesting(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

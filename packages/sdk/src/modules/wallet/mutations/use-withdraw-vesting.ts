@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildWithdrawVestingOp } from "@/modules/operations/builders";
@@ -9,7 +10,8 @@ export interface WithdrawVestingPayload {
 
 export function useWithdrawVesting(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<WithdrawVestingPayload>(
     ["wallet", "withdraw-vesting"],
@@ -27,6 +29,7 @@ export function useWithdrawVesting(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

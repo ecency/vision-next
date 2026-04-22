@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -10,7 +11,9 @@ export interface TransferEngineTokenPayload {
   memo: string;
 }
 
-export function useTransferEngineToken(username: string | undefined, auth?: AuthContextV2) {
+export function useTransferEngineToken(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<TransferEngineTokenPayload>(
     ["wallet", "transfer-engine-token"],
     username,
@@ -43,6 +46,7 @@ export function useTransferEngineToken(username: string | undefined, auth?: Auth
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

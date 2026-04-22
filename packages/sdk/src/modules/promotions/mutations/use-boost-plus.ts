@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildBoostPlusOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -9,7 +10,8 @@ export interface BoostPlusPayload {
 
 export function useBoostPlus(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<BoostPlusPayload>(
     ["promotions", "boost-plus"],
@@ -26,6 +28,7 @@ export function useBoostPlus(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }
