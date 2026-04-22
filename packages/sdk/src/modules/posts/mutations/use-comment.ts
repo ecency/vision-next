@@ -233,7 +233,7 @@ export function useComment(
       }
     },
     auth,
-    undefined,
+    'posting',
     { broadcastMode }
   );
 }

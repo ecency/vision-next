@@ -83,9 +83,8 @@ export function useReblog(
         auth.adapter.recordActivity(130, result.id, result?.block_num).catch(() => {});
       }
 
-      // Deferred cache invalidation — with async broadcast, onSuccess fires at
-      // mempool acceptance before block inclusion. Immediate refetch would return
-      // pre-transaction state and overwrite our optimistic reblog count.
+      // Cache invalidation — deferred for async broadcasts since onSuccess fires
+      // at mempool acceptance before block inclusion.
       const invalidate = () => {
         const qc = getQueryClient();
         qc.invalidateQueries({
@@ -98,7 +97,12 @@ export function useReblog(
           ]);
         }
       };
-      setTimeout(invalidate, 4000);
+      const mode = broadcastMode ?? 'async';
+      if (mode === 'async') {
+        setTimeout(invalidate, 4000);
+      } else {
+        invalidate();
+      }
     },
     auth,
     'posting',

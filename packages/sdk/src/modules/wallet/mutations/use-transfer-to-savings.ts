@@ -23,12 +23,17 @@ export function useTransferToSavings(
     ],
     async (_result, variables) => {
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
+        const keys = [
           QueryKeys.accounts.full(username),
           QueryKeys.accounts.full(variables.to),
           ["ecency-wallets", "asset-info", username],
           ["wallet", "portfolio", "v2", username]
-        ]);
+        ];
+        if (broadcastMode === 'async') {
+          setTimeout(() => auth.adapter!.invalidateQueries!(keys), 4000);
+        } else {
+          await auth.adapter.invalidateQueries(keys);
+        }
       }
     },
     auth,

@@ -73,11 +73,19 @@ export function useClaimAccount(
       buildClaimAccountOp(creator, fee)
     ],
     async (_result: any, variables) => {
-      // Cache invalidation
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
-          ["accounts", variables.creator],
-        ]);
+        const doInvalidate = () => {
+          auth.adapter!.invalidateQueries!([
+            ["accounts", variables.creator],
+          ]);
+        };
+        if (broadcastMode === 'async') {
+          setTimeout(doInvalidate, 4000);
+        } else {
+          await auth.adapter.invalidateQueries([
+            ["accounts", variables.creator],
+          ]);
+        }
       }
     },
     auth,

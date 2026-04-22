@@ -25,11 +25,16 @@ export function useClaimEngineRewards(username: string | undefined, auth?: AuthC
     },
     async () => {
       if (auth?.adapter?.invalidateQueries) {
-        await auth.adapter.invalidateQueries([
+        const keys = [
           QueryKeys.accounts.full(username),
           ["ecency-wallets", "asset-info", username],
           ["wallet", "portfolio", "v2", username]
-        ]);
+        ];
+        if (broadcastMode === 'async') {
+          setTimeout(() => auth.adapter!.invalidateQueries!(keys), 4000);
+        } else {
+          await auth.adapter.invalidateQueries(keys);
+        }
       }
     },
     auth,

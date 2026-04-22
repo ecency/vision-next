@@ -211,7 +211,7 @@ export function useUpdateReply(
       }
     },
     auth,
-    undefined,
+    'posting',
     { broadcastMode }
   );
 }

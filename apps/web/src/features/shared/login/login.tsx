@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { TabItem } from "@/features/ui";
 import clsx from "clsx";
 import { shouldUseKeychainMobile } from "@/utils/client";
-import { DetectedExtension, HiveExtensionId, getDetectedExtensions, setPreferredExtensionId } from "@/utils/hive-extensions";
+import { DetectedExtension, HiveExtensionId, getDetectedExtensions, getPreferredExtensionId, setPreferredExtensionId } from "@/utils/hive-extensions";
 
 export default function Login() {
   const toggleUIProp = useGlobalStore((state) => state.toggleUiProp);
@@ -72,8 +72,12 @@ export default function Login() {
       return;
     }
     if (detectedExtensions.length > 1) {
-      setShowExtensionsInfo(true);
-      return;
+      // If a saved preference matches a detected extension, use it directly
+      const savedId = getPreferredExtensionId();
+      if (!savedId || !detectedExtensions.some((ext) => ext.id === savedId)) {
+        setShowExtensionsInfo(true);
+        return;
+      }
     }
     if (isLoginByKeychainPending) {
       return;

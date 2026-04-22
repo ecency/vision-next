@@ -107,16 +107,21 @@ export function useVote(
         auth.adapter.recordActivity(120, result.id, result?.block_num).catch(() => {});
       }
 
-      // Deferred cache invalidation — with async broadcast, onSuccess fires at
-      // mempool acceptance before block inclusion. Immediate refetch would return
-      // pre-transaction state and overwrite our optimistic update.
+      // Cache invalidation — deferred for async broadcasts since onSuccess fires
+      // at mempool acceptance before block inclusion.
       if (auth?.adapter?.invalidateQueries) {
-        setTimeout(() => {
+        const doInvalidate = () => {
           auth.adapter!.invalidateQueries!([
             QueryKeys.posts.entry(`/@${variables.author}/${variables.permlink}`),
             QueryKeys.accounts.full(username)
           ]);
-        }, 4000);
+        };
+        const mode = broadcastMode ?? 'async';
+        if (mode === 'async') {
+          setTimeout(doInvalidate, 4000);
+        } else {
+          doInvalidate();
+        }
       }
     },
     auth,

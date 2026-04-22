@@ -52,42 +52,34 @@ const RDNS_MAP: Record<string, { id: HiveExtensionId; name: string; icon: string
 export function getDetectedExtensions(): DetectedExtension[] {
   if (typeof window === "undefined") return [];
 
+  const seen = new Set<HiveExtensionId>();
+  const detected: DetectedExtension[] = [];
+
+  const add = (ext: DetectedExtension) => {
+    if (!seen.has(ext.id)) {
+      seen.add(ext.id);
+      detected.push(ext);
+    }
+  };
+
   // Hive Unified Wallet Protocol - providers registry
   const providers: HiveWalletProvider[] | undefined = (window as any).hive?.providers;
   if (providers?.length) {
-    const detected: DetectedExtension[] = [];
     for (const p of providers) {
       const meta = RDNS_MAP[p.rdns];
-      if (meta) {
-        detected.push({ id: meta.id, name: meta.name, icon: meta.icon });
-      }
+      if (meta) add({ id: meta.id, name: meta.name, icon: meta.icon });
     }
-    if (detected.length > 0) return detected;
   }
 
-  // Legacy per-global detection
-  const detected: DetectedExtension[] = [];
-
+  // Legacy per-global detection (fills in wallets not yet in providers)
   if ((window as any).hive && (window as any).hive_extension) {
-    detected.push({
-      id: "hive-keeper",
-      name: "Hive Keeper",
-      icon: "/assets/keeper.svg"
-    });
-  } else if ((window as any).hive_keychain) {
-    detected.push({
-      id: "keychain",
-      name: "Keychain",
-      icon: "/assets/keychain.png"
-    });
+    add({ id: "hive-keeper", name: "Hive Keeper", icon: "/assets/keeper.svg" });
   }
-
+  if ((window as any).hive_keychain) {
+    add({ id: "keychain", name: "Keychain", icon: "/assets/keychain.png" });
+  }
   if ((window as any).peakvault) {
-    detected.push({
-      id: "peakvault",
-      name: "Peak Vault",
-      icon: "/assets/peakvault.svg"
-    });
+    add({ id: "peakvault", name: "Peak Vault", icon: "/assets/peakvault.svg" });
   }
 
   return detected;
@@ -99,7 +91,7 @@ export function getDetectedExtensions(): DetectedExtension[] {
 export function hasAnyHiveExtension(): boolean {
   if (typeof window === "undefined") return false;
   const providers: HiveWalletProvider[] | undefined = (window as any).hive?.providers;
-  if (providers?.length) return true;
+  if (providers?.some((p) => Boolean(RDNS_MAP[p.rdns]))) return true;
   return !!(
     (window as any).hive_keychain ||
     ((window as any).hive && (window as any).hive_extension) ||
@@ -127,10 +119,14 @@ const PREFERRED_EXTENSION_KEY = "ecency_preferred_hive_extension";
  */
 export function setPreferredExtensionId(id: HiveExtensionId | null): void {
   if (typeof window === "undefined") return;
-  if (id) {
-    localStorage.setItem(PREFERRED_EXTENSION_KEY, id);
-  } else {
-    localStorage.removeItem(PREFERRED_EXTENSION_KEY);
+  try {
+    if (id) {
+      localStorage.setItem(PREFERRED_EXTENSION_KEY, id);
+    } else {
+      localStorage.removeItem(PREFERRED_EXTENSION_KEY);
+    }
+  } catch {
+    // Storage blocked (private browsing, quota exceeded) - non-fatal
   }
 }
 
@@ -139,7 +135,11 @@ export function setPreferredExtensionId(id: HiveExtensionId | null): void {
  */
 export function getPreferredExtensionId(): HiveExtensionId | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(PREFERRED_EXTENSION_KEY) as HiveExtensionId | null;
+  try {
+    return localStorage.getItem(PREFERRED_EXTENSION_KEY) as HiveExtensionId | null;
+  } catch {
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
