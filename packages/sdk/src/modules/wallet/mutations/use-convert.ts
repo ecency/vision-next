@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildConvertOp, buildCollateralizedConvertOp } from "@/modules/operations/builders";
@@ -9,7 +10,9 @@ export interface ConvertPayload {
   collateralized?: boolean;
 }
 
-export function useConvert(username: string | undefined, auth?: AuthContextV2) {
+export function useConvert(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<ConvertPayload>(
     ["wallet", "convert"],
     username,
@@ -28,6 +31,7 @@ export function useConvert(username: string | undefined, auth?: AuthContextV2) {
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

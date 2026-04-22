@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildCommentOp, buildCommentOptionsOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -88,7 +89,8 @@ export interface CrossPostPayload {
  */
 export function useCrossPost(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<CrossPostPayload>(
     ["posts", "cross-post"],
@@ -156,6 +158,6 @@ export function useCrossPost(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

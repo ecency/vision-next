@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildAccountCreateOp, buildCreateClaimedAccountOp, type AccountKeys } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -12,7 +13,8 @@ export interface CreateAccountPayload {
 
 export function useCreateAccount(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<CreateAccountPayload>(
     ["accounts", "create"],
@@ -30,6 +32,7 @@ export function useCreateAccount(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

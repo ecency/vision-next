@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildWitnessProxyOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -8,7 +9,8 @@ export interface WitnessProxyPayload {
 
 export function useWitnessProxy(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<WitnessProxyPayload>(
     ["witnesses", "proxy"],
@@ -25,6 +27,7 @@ export function useWitnessProxy(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

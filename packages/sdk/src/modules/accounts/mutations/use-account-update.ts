@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAccountFullQueryOptions } from "../queries";
@@ -61,7 +62,8 @@ interface Payload {
  */
 export function useAccountUpdate(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   const queryClient = useQueryClient();
 
@@ -122,6 +124,8 @@ export function useAccountUpdate(
         ]);
       }
     },
-    auth
+    auth,
+    undefined,
+    { broadcastMode }
   );
 }

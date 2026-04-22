@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys, getQueryClient } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildClaimRewardBalanceOp } from "@/modules/operations/builders";
@@ -12,7 +13,9 @@ export interface ClaimRewardsPayload {
 const CLAIM_REWARDS_INVALIDATION_DELAY_MS = 5000;
 const pendingInvalidationTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-export function useClaimRewards(username: string | undefined, auth?: AuthContextV2) {
+export function useClaimRewards(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<ClaimRewardsPayload>(
     ["wallet", "claim-rewards"],
     username,
@@ -65,6 +68,7 @@ export function useClaimRewards(username: string | undefined, auth?: AuthContext
       pendingInvalidationTimers.set(timerKey, timer);
     },
     auth,
-    'posting'
+    'posting',
+    { broadcastMode }
   );
 }

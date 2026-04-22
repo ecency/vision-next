@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildPromoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -59,7 +60,8 @@ export interface PromotePayload {
  */
 export function usePromote(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<PromotePayload>(
     ["ecency", "promote"],
@@ -81,6 +83,7 @@ export function usePromote(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

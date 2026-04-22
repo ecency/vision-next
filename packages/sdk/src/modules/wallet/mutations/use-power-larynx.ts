@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -8,7 +9,9 @@ export interface PowerLarynxPayload {
   amount: number;
 }
 
-export function usePowerLarynx(username: string | undefined, auth?: AuthContextV2) {
+export function usePowerLarynx(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<PowerLarynxPayload>(
     ["wallet", "power-larynx"],
     username,
@@ -31,6 +34,7 @@ export function usePowerLarynx(username: string | undefined, auth?: AuthContextV
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

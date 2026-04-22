@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildTransferOp } from "@/modules/operations/builders";
@@ -33,7 +34,8 @@ export interface TransferPayload {
  */
 export function useTransfer(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<TransferPayload>(
     ["wallet", "transfer"],
@@ -52,6 +54,7 @@ export function useTransfer(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

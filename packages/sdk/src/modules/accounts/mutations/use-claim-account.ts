@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildClaimAccountOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -62,7 +63,8 @@ export interface ClaimAccountPayload {
  */
 export function useClaimAccount(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<ClaimAccountPayload>(
     ["accounts", "claimAccount"],
@@ -79,6 +81,7 @@ export function useClaimAccount(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

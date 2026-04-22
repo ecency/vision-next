@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -9,7 +10,9 @@ export interface StakeEngineTokenPayload {
   quantity: string;
 }
 
-export function useStakeEngineToken(username: string | undefined, auth?: AuthContextV2) {
+export function useStakeEngineToken(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<StakeEngineTokenPayload>(
     ["wallet", "stake-engine-token"],
     username,
@@ -41,6 +44,7 @@ export function useStakeEngineToken(username: string | undefined, auth?: AuthCon
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

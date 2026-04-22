@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildDelegateVestingSharesOp } from "@/modules/operations/builders";
@@ -66,7 +67,8 @@ export interface DelegateVestingSharesPayload {
  */
 export function useDelegateVestingShares(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<DelegateVestingSharesPayload>(
     ["wallet", "delegate-vesting-shares"],
@@ -90,6 +92,7 @@ export function useDelegateVestingShares(
       }
     },
     auth,
-    'active' // IMPORTANT: Active authority required
+    'active', // IMPORTANT: Active authority required
+    { broadcastMode }
   );
 }

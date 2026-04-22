@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import type { Operation } from "../../../hive-tx";
@@ -9,7 +10,9 @@ export interface TransferLarynxPayload {
   memo?: string;
 }
 
-export function useTransferLarynx(username: string | undefined, auth?: AuthContextV2) {
+export function useTransferLarynx(username: string | undefined, auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
+) {
   return useBroadcastMutation<TransferLarynxPayload>(
     ["wallet", "transfer-larynx"],
     username,
@@ -37,6 +40,7 @@ export function useTransferLarynx(username: string | undefined, auth?: AuthConte
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

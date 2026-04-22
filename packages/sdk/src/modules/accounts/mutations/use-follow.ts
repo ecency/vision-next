@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildFollowOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -42,7 +43,8 @@ export interface FollowPayload {
  */
 export function useFollow(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<FollowPayload>(
     ["accounts", "follow"],
@@ -63,6 +65,6 @@ export function useFollow(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

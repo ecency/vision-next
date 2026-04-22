@@ -1,4 +1,5 @@
 import { useBroadcastMutation } from "@/modules/core/mutations";
+import type { BroadcastMode } from "@/modules/core/mutations";
 import { QueryKeys } from "@/modules/core";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { buildTransferToSavingsOp } from "@/modules/operations/builders";
@@ -11,7 +12,8 @@ export interface TransferToSavingsPayload {
 
 export function useTransferToSavings(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<TransferToSavingsPayload>(
     ["wallet", "transfer-to-savings"],
@@ -30,6 +32,7 @@ export function useTransferToSavings(
       }
     },
     auth,
-    'active'
+    'active',
+    { broadcastMode }
   );
 }

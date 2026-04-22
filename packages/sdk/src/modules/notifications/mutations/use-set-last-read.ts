@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildSetLastReadOps } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 
@@ -8,7 +9,8 @@ export interface SetLastReadPayload {
 
 export function useSetLastRead(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<SetLastReadPayload>(
     ["notifications", "set-last-read"],
@@ -23,6 +25,6 @@ export function useSetLastRead(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

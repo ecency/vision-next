@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys, getQueryClient } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildReblogOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
@@ -60,7 +61,8 @@ export interface ReblogPayload {
  */
 export function useReblog(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<ReblogPayload>(
     ["posts", "reblog"],
@@ -100,6 +102,6 @@ export function useReblog(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }

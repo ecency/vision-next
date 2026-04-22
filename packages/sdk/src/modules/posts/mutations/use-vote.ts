@@ -1,4 +1,5 @@
 import { useBroadcastMutation, QueryKeys } from "@/modules/core";
+import type { BroadcastMode } from "@/modules/core";
 import { buildVoteOp } from "@/modules/operations/builders";
 import type { AuthContextV2 } from "@/modules/core/types";
 import { EntriesCacheManagement } from "../cache/entries-cache-management";
@@ -75,7 +76,8 @@ export interface VotePayload {
  */
 export function useVote(
   username: string | undefined,
-  auth?: AuthContextV2
+  auth?: AuthContextV2,
+  broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<VotePayload>(
     ["posts", "vote"],
@@ -119,6 +121,6 @@ export function useVote(
     },
     auth,
     'posting',
-    { broadcastMode: 'async' }
+    { broadcastMode: broadcastMode ?? 'async' }
   );
 }
