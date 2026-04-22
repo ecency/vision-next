@@ -1,5 +1,5 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
-import { InfiniteData, UseMutationOptions, MutationKey, QueryClient, QueryKey, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
+import { MutationKey, UseMutationOptions, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
 import { O as Operation, P as PrivateKey, B as BroadcastResult, A as Authority, a as PublicKey, b as OperationName, o as operations } from './hive-CwYfobOc.js';
 export { j as AccountCreateOperation, i as AssetSymbol, C as CustomJsonOperation, T as HiveTxTransaction, M as Memo, h as OperationBody, S as Signature, f as callREST, d as callRPC, e as callRPCBroadcast, g as callWithQuorum, c as hiveTxConfig, u as hiveTxUtils } from './hive-CwYfobOc.js';
 
@@ -694,559 +694,6 @@ interface WrappedResponse<T> {
     pagination: PaginationMeta;
 }
 
-interface AccountFollowStats {
-    follower_count: number;
-    following_count: number;
-    account: string;
-}
-
-interface AccountReputation {
-    account: string;
-    reputation: number;
-}
-
-interface AccountProfile {
-    about?: string;
-    cover_image?: string;
-    location?: string;
-    name?: string;
-    profile_image?: string;
-    website?: string;
-    pinned?: string;
-    reputation?: number;
-    version?: number;
-    beneficiary?: {
-        account: string;
-        weight: number;
-    };
-    tokens?: {
-        symbol: string;
-        type: string;
-        meta: Record<string, any>;
-    }[];
-}
-
-interface FullAccount {
-    name: string;
-    owner: Authority;
-    active: Authority;
-    posting: Authority;
-    memo_key: string;
-    post_count: number;
-    created: string;
-    reputation: string | number;
-    json_metadata: string;
-    posting_json_metadata: string;
-    last_vote_time: string;
-    last_post: string;
-    reward_hbd_balance: string;
-    reward_vesting_hive: string;
-    reward_hive_balance: string;
-    reward_vesting_balance: string;
-    balance: string;
-    vesting_shares: string;
-    hbd_balance: string;
-    savings_balance: string;
-    savings_hbd_balance: string;
-    savings_hbd_seconds: string;
-    savings_hbd_last_interest_payment: string;
-    savings_hbd_seconds_last_update: string;
-    next_vesting_withdrawal: string;
-    pending_claimed_accounts: number;
-    delegated_vesting_shares: string;
-    received_vesting_shares: string;
-    vesting_withdraw_rate: string;
-    to_withdraw: string;
-    withdrawn: string;
-    witness_votes: string[];
-    proxy: string;
-    recovery_account: string;
-    proxied_vsf_votes: number[] | string[];
-    voting_manabar: {
-        current_mana: string | number;
-        last_update_time: number;
-    };
-    voting_power: number;
-    downvote_manabar: {
-        current_mana: string | number;
-        last_update_time: number;
-    };
-    profile?: AccountProfile;
-    follow_stats?: AccountFollowStats;
-    proxyVotes?: [];
-}
-
-interface AccountRelationship {
-    follows: boolean;
-    ignores: boolean;
-    is_blacklisted: boolean;
-    follows_blacklists: boolean;
-}
-
-interface AccountBookmark {
-    _id: string;
-    author: string;
-    permlink: string;
-    timestamp: number;
-    created: string;
-}
-
-interface AccountFavorite {
-    _id: string;
-    account: string;
-    timestamp: number;
-}
-
-interface Recoveries {
-    username: string;
-    email: string;
-    publicKeys: Record<string, number>;
-}
-interface GetRecoveriesEmailResponse extends Recoveries {
-    _id: string;
-}
-
-interface Follow {
-    follower: string;
-    following: string;
-    what: string[];
-}
-
-interface BaseTransaction {
-    num: number;
-    type: string;
-    timestamp: string;
-    trx_id: string;
-}
-interface CurationReward extends BaseTransaction {
-    type: "curation_reward";
-    comment_author?: string;
-    comment_permlink?: string;
-    author?: string;
-    permlink?: string;
-    curator: string;
-    reward: string;
-}
-interface AuthorReward extends BaseTransaction {
-    type: "author_reward";
-    author: string;
-    permlink: string;
-    hbd_payout: string;
-    hive_payout: string;
-    vesting_payout: string;
-}
-interface CommentBenefactor extends BaseTransaction {
-    type: "comment_benefactor_reward";
-    benefactor: string;
-    author: string;
-    permlink: string;
-    hbd_payout: string;
-    hive_payout: string;
-    vesting_payout: string;
-}
-interface ClaimRewardBalance extends BaseTransaction {
-    type: "claim_reward_balance";
-    account: string;
-    reward_hbd: string;
-    reward_hive: string;
-    reward_vests: string;
-}
-interface Transfer extends BaseTransaction {
-    type: "transfer";
-    amount: string;
-    memo: string;
-    from: string;
-    to: string;
-}
-interface TransferToVesting extends BaseTransaction {
-    type: "transfer_to_vesting";
-    amount: string;
-    memo?: string;
-    from: string;
-    to: string;
-}
-interface SetWithdrawRoute extends BaseTransaction {
-    type: "set_withdraw_vesting_route";
-    from_account: string;
-    to_account: string;
-    percent: number;
-    auto_vest: boolean;
-}
-interface TransferToSavings extends BaseTransaction {
-    type: "transfer_to_savings";
-    amount: string;
-    memo?: string;
-    from: string;
-    to: string;
-}
-interface CancelTransferFromSavings extends BaseTransaction {
-    from: string;
-    request_id: number;
-    type: "cancel_transfer_from_savings";
-}
-interface WithdrawVesting extends BaseTransaction {
-    type: "withdraw_vesting";
-    acc: string;
-    vesting_shares: string;
-}
-interface FillOrder extends BaseTransaction {
-    type: "fill_order";
-    current_pays: string;
-    open_pays: string;
-}
-interface LimitOrderCancel extends BaseTransaction {
-    type: "limit_order_cancel";
-    owner: string;
-    orderid: number;
-}
-interface ProducerReward extends BaseTransaction {
-    type: "producer_reward";
-    vesting_shares: string;
-    producer: string;
-}
-interface Interest extends BaseTransaction {
-    type: "interest";
-    owner: string;
-    interest: string;
-}
-interface FillConvertRequest extends BaseTransaction {
-    type: "fill_convert_request";
-    amount_in: string;
-    amount_out: string;
-}
-interface FillCollateralizedConvertRequest extends BaseTransaction {
-    type: "fill_collateralized_convert_request";
-    owner: string;
-    requestid: number;
-    amount_in: string;
-    amount_out: string;
-    excess_collateral: string;
-}
-interface ReturnVestingDelegation extends BaseTransaction {
-    type: "return_vesting_delegation";
-    vesting_shares: string;
-}
-interface ProposalPay extends BaseTransaction {
-    type: "proposal_pay";
-    payment: string;
-}
-interface UpdateProposalVotes extends BaseTransaction {
-    type: "update_proposal_votes";
-    voter: string;
-    proposal_ids: [number];
-    approve: boolean;
-}
-interface CommentPayoutUpdate extends BaseTransaction {
-    type: "comment_payout_update";
-    author: string;
-    permlink: string;
-}
-interface CommentReward extends BaseTransaction {
-    type: "comment_reward";
-    author: string;
-    permlink: string;
-    payout: string;
-}
-interface CollateralizedConvert extends BaseTransaction {
-    type: "collateralized_convert";
-    owner: string;
-    requestid: number;
-    amount: string;
-}
-interface RecurrentTransfers extends BaseTransaction {
-    type: "recurrent_transfer";
-    amount: string;
-    memo: string;
-    from: string;
-    to: string;
-    recurrence: number;
-    executions: number;
-}
-interface FillRecurrentTransfers extends BaseTransaction {
-    type: "fill_recurrent_transfer";
-    amount: SMTAsset;
-    memo: string;
-    from: string;
-    to: string;
-    remaining_executions: number;
-}
-interface DelegateVestingShares extends BaseTransaction {
-    type: "delegate_vesting_shares";
-    delegator: string;
-    delegatee: string;
-    vesting_shares: string;
-}
-interface LimitOrderCreate extends BaseTransaction {
-    type: "limit_order_create";
-    owner: string;
-    orderid: number;
-    amount_to_sell: string;
-    min_to_receive: string;
-    expiration: string;
-}
-interface FillVestingWithdraw extends BaseTransaction {
-    type: "fill_vesting_withdraw";
-    from_account: string;
-    to_account: string;
-    withdrawn: string;
-    deposited: string;
-}
-interface EffectiveCommentVote extends BaseTransaction {
-    type: "effective_comment_vote";
-    voter: string;
-    author: string;
-    permlink: string;
-    pending_payout: string;
-    total_vote_weight: number;
-    rshares: number;
-    weight: number;
-}
-interface VoteProxy extends BaseTransaction {
-    type: "account_witness_proxy";
-    account: string;
-    proxy: string;
-}
-type Transaction = CurationReward | AuthorReward | CommentBenefactor | ClaimRewardBalance | Transfer | TransferToVesting | TransferToSavings | CancelTransferFromSavings | WithdrawVesting | SetWithdrawRoute | FillOrder | ProducerReward | Interest | FillConvertRequest | FillCollateralizedConvertRequest | ReturnVestingDelegation | ProposalPay | UpdateProposalVotes | CommentPayoutUpdate | CommentReward | CollateralizedConvert | RecurrentTransfers | FillRecurrentTransfers | LimitOrderCreate | LimitOrderCancel | FillVestingWithdraw | EffectiveCommentVote | VoteProxy | DelegateVestingShares;
-type OperationGroup = "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
-
-interface ReferralItem {
-    id: number;
-    username: string;
-    referrer: string;
-    created: string;
-    rewarded: number;
-    v: number;
-}
-interface ReferralItems {
-    data: ReferralItem[];
-}
-interface ReferralStat {
-    total: number;
-    rewarded: number;
-}
-
-/**
- * Account profile information from bridge API
- * Returned by get_profiles endpoint
- */
-interface Profile {
-    id: number;
-    name: string;
-    created: string;
-    active: string;
-    post_count: number;
-    reputation: number;
-    blacklists: string[];
-    stats: {
-        rank: number;
-        following: number;
-        followers: number;
-    };
-    metadata: {
-        profile: {
-            about?: string;
-            blacklist_description?: string;
-            cover_image?: string;
-            location?: string;
-            muted_list_description?: string;
-            name?: string;
-            profile_image?: string;
-            website?: string;
-        };
-    };
-}
-
-/**
- * Friends list row data
- * The `active` field contains raw timestamp - app should format it
- */
-interface FriendsRow {
-    name: string;
-    reputation: number;
-    active: string;
-}
-/**
- * Friend search result with additional profile information
- * The `active` field contains raw timestamp - app should format it
- */
-interface FriendSearchResult {
-    name: string;
-    full_name: string;
-    reputation: number;
-    active: string;
-}
-
-interface Payload$4 {
-    profile: Partial<AccountProfile>;
-    tokens: AccountProfile["tokens"];
-}
-/**
- * React Query mutation hook for updating account profile metadata.
- *
- * This mutation broadcasts an account_update2 operation to update the user's
- * profile information (name, about, location, avatar, cover image, etc.).
- *
- * @param username - The username to update (required for broadcast)
- * @param auth - Authentication context with platform adapter and fallback configuration
- *
- * @returns React Query mutation result
- *
- * @remarks
- * **Profile Fields:**
- * - name: Display name
- * - about: Bio/description
- * - location: Location
- * - website: Website URL
- * - profile_image: Avatar URL
- * - cover_image: Cover/banner URL
- * - tokens: Social tokens (Twitter, Facebook, etc.)
- * - version: Profile metadata version (auto-set to 2)
- *
- * **Authentication:**
- * - Uses posting authority (account_update2 operation)
- * - Supports all auth methods via platform adapter
- *
- * **Post-Broadcast Actions:**
- * - Optimistically updates account cache with new profile data
- * - Invalidates account cache to refetch from blockchain
- *
- * @example
- * ```typescript
- * const updateProfile = useAccountUpdate(username, {
- *   adapter: myAdapter,
- * });
- *
- * // Update profile
- * updateProfile.mutate({
- *   profile: {
- *     name: "John Doe",
- *     about: "Hive enthusiast",
- *     profile_image: "https://...",
- *   }
- * });
- * ```
- */
-declare function useAccountUpdate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
-
-type Kind = "toggle-ignore" | "toggle-follow";
-declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, auth: AuthContext | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
-    ignores: boolean | undefined;
-    follows: boolean | undefined;
-    is_blacklisted?: boolean | undefined;
-    follows_blacklists?: boolean | undefined;
-}, Error, Kind, unknown>;
-
-/**
- * Payload for following an account.
- */
-interface FollowPayload {
-    /** Account to follow */
-    following: string;
-}
-/**
- * React Query mutation hook for following an account.
- *
- * This mutation broadcasts a follow operation to the Hive blockchain,
- * adding the target account to the follower's "blog" follow list.
- *
- * @param username - The username of the follower (required for broadcast)
- * @param auth - Authentication context with platform adapter and fallback configuration
- *
- * @returns React Query mutation result
- *
- * @remarks
- * **Post-Broadcast Actions:**
- * - Invalidates relationship cache to show updated follow status
- * - Invalidates account cache to refetch updated follower/following counts
- *
- * @example
- * ```typescript
- * const followMutation = useFollow(username, {
- *   adapter: myAdapter,
- *   enableFallback: true,
- *   fallbackChain: ['keychain', 'key', 'hivesigner']
- * });
- *
- * // Follow an account
- * followMutation.mutate({
- *   following: 'alice'
- * });
- * ```
- */
-declare function useFollow(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, FollowPayload, unknown>;
-
-/**
- * Payload for unfollowing an account.
- */
-interface UnfollowPayload {
-    /** Account to unfollow */
-    following: string;
-}
-/**
- * React Query mutation hook for unfollowing an account.
- *
- * This mutation broadcasts an unfollow operation to the Hive blockchain,
- * removing the target account from the follower's follow list.
- *
- * @param username - The username of the follower (required for broadcast)
- * @param auth - Authentication context with platform adapter and fallback configuration
- *
- * @returns React Query mutation result
- *
- * @remarks
- * **Post-Broadcast Actions:**
- * - Invalidates relationship cache to show updated follow status
- * - Invalidates account cache to refetch updated follower/following counts
- *
- * @example
- * ```typescript
- * const unfollowMutation = useUnfollow(username, {
- *   adapter: myAdapter,
- *   enableFallback: true,
- *   fallbackChain: ['keychain', 'key', 'hivesigner']
- * });
- *
- * // Unfollow an account
- * unfollowMutation.mutate({
- *   following: 'alice'
- * });
- * ```
- */
-declare function useUnfollow(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnfollowPayload, unknown>;
-
-interface Payload$3 {
-    author: string;
-    permlink: string;
-}
-declare function useBookmarkAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, Payload$3, unknown>;
-
-declare function useBookmarkDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
-
-declare function useAccountFavoriteAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
-
-declare function useAccountFavoriteDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, {
-    previousList: AccountFavorite[] | undefined;
-    previousInfinite: Map<readonly unknown[], InfiniteData<WrappedResponse<AccountFavorite>, unknown> | undefined>;
-    previousCheck: boolean | undefined;
-} | undefined>;
-
-interface Keys {
-    owner: PrivateKey;
-    active: PrivateKey;
-    posting: PrivateKey;
-    memo_key: PrivateKey;
-}
-interface Payload$2 {
-    keepCurrent?: boolean;
-    currentKey: PrivateKey;
-    keys: Keys[];
-    keysToRevoke?: string[];
-    keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>;
-}
-declare function dedupeAndSortKeyAuths(existing: Authority["key_auths"], additions: [string, number][]): Authority["key_auths"];
-type UpdateKeyAuthsOptions = Pick<UseMutationOptions<unknown, Error, Payload$2>, "onSuccess" | "onError">;
-declare function useAccountUpdateKeyAuths(username: string, options?: UpdateKeyAuthsOptions): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, Payload$2, unknown>;
-
 /**
  * Authority levels for Hive blockchain operations.
  * - posting: Social operations (voting, commenting, reblogging)
@@ -1936,6 +1383,559 @@ declare function vestsToHp(vests: number, hivePerMVests: number): number;
 
 declare function isEmptyDate(s: string | undefined): boolean;
 
+interface AccountFollowStats {
+    follower_count: number;
+    following_count: number;
+    account: string;
+}
+
+interface AccountReputation {
+    account: string;
+    reputation: number;
+}
+
+interface AccountProfile {
+    about?: string;
+    cover_image?: string;
+    location?: string;
+    name?: string;
+    profile_image?: string;
+    website?: string;
+    pinned?: string;
+    reputation?: number;
+    version?: number;
+    beneficiary?: {
+        account: string;
+        weight: number;
+    };
+    tokens?: {
+        symbol: string;
+        type: string;
+        meta: Record<string, any>;
+    }[];
+}
+
+interface FullAccount {
+    name: string;
+    owner: Authority;
+    active: Authority;
+    posting: Authority;
+    memo_key: string;
+    post_count: number;
+    created: string;
+    reputation: string | number;
+    json_metadata: string;
+    posting_json_metadata: string;
+    last_vote_time: string;
+    last_post: string;
+    reward_hbd_balance: string;
+    reward_vesting_hive: string;
+    reward_hive_balance: string;
+    reward_vesting_balance: string;
+    balance: string;
+    vesting_shares: string;
+    hbd_balance: string;
+    savings_balance: string;
+    savings_hbd_balance: string;
+    savings_hbd_seconds: string;
+    savings_hbd_last_interest_payment: string;
+    savings_hbd_seconds_last_update: string;
+    next_vesting_withdrawal: string;
+    pending_claimed_accounts: number;
+    delegated_vesting_shares: string;
+    received_vesting_shares: string;
+    vesting_withdraw_rate: string;
+    to_withdraw: string;
+    withdrawn: string;
+    witness_votes: string[];
+    proxy: string;
+    recovery_account: string;
+    proxied_vsf_votes: number[] | string[];
+    voting_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
+    voting_power: number;
+    downvote_manabar: {
+        current_mana: string | number;
+        last_update_time: number;
+    };
+    profile?: AccountProfile;
+    follow_stats?: AccountFollowStats;
+    proxyVotes?: [];
+}
+
+interface AccountRelationship {
+    follows: boolean;
+    ignores: boolean;
+    is_blacklisted: boolean;
+    follows_blacklists: boolean;
+}
+
+interface AccountBookmark {
+    _id: string;
+    author: string;
+    permlink: string;
+    timestamp: number;
+    created: string;
+}
+
+interface AccountFavorite {
+    _id: string;
+    account: string;
+    timestamp: number;
+}
+
+interface Recoveries {
+    username: string;
+    email: string;
+    publicKeys: Record<string, number>;
+}
+interface GetRecoveriesEmailResponse extends Recoveries {
+    _id: string;
+}
+
+interface Follow {
+    follower: string;
+    following: string;
+    what: string[];
+}
+
+interface BaseTransaction {
+    num: number;
+    type: string;
+    timestamp: string;
+    trx_id: string;
+}
+interface CurationReward extends BaseTransaction {
+    type: "curation_reward";
+    comment_author?: string;
+    comment_permlink?: string;
+    author?: string;
+    permlink?: string;
+    curator: string;
+    reward: string;
+}
+interface AuthorReward extends BaseTransaction {
+    type: "author_reward";
+    author: string;
+    permlink: string;
+    hbd_payout: string;
+    hive_payout: string;
+    vesting_payout: string;
+}
+interface CommentBenefactor extends BaseTransaction {
+    type: "comment_benefactor_reward";
+    benefactor: string;
+    author: string;
+    permlink: string;
+    hbd_payout: string;
+    hive_payout: string;
+    vesting_payout: string;
+}
+interface ClaimRewardBalance extends BaseTransaction {
+    type: "claim_reward_balance";
+    account: string;
+    reward_hbd: string;
+    reward_hive: string;
+    reward_vests: string;
+}
+interface Transfer extends BaseTransaction {
+    type: "transfer";
+    amount: string;
+    memo: string;
+    from: string;
+    to: string;
+}
+interface TransferToVesting extends BaseTransaction {
+    type: "transfer_to_vesting";
+    amount: string;
+    memo?: string;
+    from: string;
+    to: string;
+}
+interface SetWithdrawRoute extends BaseTransaction {
+    type: "set_withdraw_vesting_route";
+    from_account: string;
+    to_account: string;
+    percent: number;
+    auto_vest: boolean;
+}
+interface TransferToSavings extends BaseTransaction {
+    type: "transfer_to_savings";
+    amount: string;
+    memo?: string;
+    from: string;
+    to: string;
+}
+interface CancelTransferFromSavings extends BaseTransaction {
+    from: string;
+    request_id: number;
+    type: "cancel_transfer_from_savings";
+}
+interface WithdrawVesting extends BaseTransaction {
+    type: "withdraw_vesting";
+    acc: string;
+    vesting_shares: string;
+}
+interface FillOrder extends BaseTransaction {
+    type: "fill_order";
+    current_pays: string;
+    open_pays: string;
+}
+interface LimitOrderCancel extends BaseTransaction {
+    type: "limit_order_cancel";
+    owner: string;
+    orderid: number;
+}
+interface ProducerReward extends BaseTransaction {
+    type: "producer_reward";
+    vesting_shares: string;
+    producer: string;
+}
+interface Interest extends BaseTransaction {
+    type: "interest";
+    owner: string;
+    interest: string;
+}
+interface FillConvertRequest extends BaseTransaction {
+    type: "fill_convert_request";
+    amount_in: string;
+    amount_out: string;
+}
+interface FillCollateralizedConvertRequest extends BaseTransaction {
+    type: "fill_collateralized_convert_request";
+    owner: string;
+    requestid: number;
+    amount_in: string;
+    amount_out: string;
+    excess_collateral: string;
+}
+interface ReturnVestingDelegation extends BaseTransaction {
+    type: "return_vesting_delegation";
+    vesting_shares: string;
+}
+interface ProposalPay extends BaseTransaction {
+    type: "proposal_pay";
+    payment: string;
+}
+interface UpdateProposalVotes extends BaseTransaction {
+    type: "update_proposal_votes";
+    voter: string;
+    proposal_ids: [number];
+    approve: boolean;
+}
+interface CommentPayoutUpdate extends BaseTransaction {
+    type: "comment_payout_update";
+    author: string;
+    permlink: string;
+}
+interface CommentReward extends BaseTransaction {
+    type: "comment_reward";
+    author: string;
+    permlink: string;
+    payout: string;
+}
+interface CollateralizedConvert extends BaseTransaction {
+    type: "collateralized_convert";
+    owner: string;
+    requestid: number;
+    amount: string;
+}
+interface RecurrentTransfers extends BaseTransaction {
+    type: "recurrent_transfer";
+    amount: string;
+    memo: string;
+    from: string;
+    to: string;
+    recurrence: number;
+    executions: number;
+}
+interface FillRecurrentTransfers extends BaseTransaction {
+    type: "fill_recurrent_transfer";
+    amount: SMTAsset;
+    memo: string;
+    from: string;
+    to: string;
+    remaining_executions: number;
+}
+interface DelegateVestingShares extends BaseTransaction {
+    type: "delegate_vesting_shares";
+    delegator: string;
+    delegatee: string;
+    vesting_shares: string;
+}
+interface LimitOrderCreate extends BaseTransaction {
+    type: "limit_order_create";
+    owner: string;
+    orderid: number;
+    amount_to_sell: string;
+    min_to_receive: string;
+    expiration: string;
+}
+interface FillVestingWithdraw extends BaseTransaction {
+    type: "fill_vesting_withdraw";
+    from_account: string;
+    to_account: string;
+    withdrawn: string;
+    deposited: string;
+}
+interface EffectiveCommentVote extends BaseTransaction {
+    type: "effective_comment_vote";
+    voter: string;
+    author: string;
+    permlink: string;
+    pending_payout: string;
+    total_vote_weight: number;
+    rshares: number;
+    weight: number;
+}
+interface VoteProxy extends BaseTransaction {
+    type: "account_witness_proxy";
+    account: string;
+    proxy: string;
+}
+type Transaction = CurationReward | AuthorReward | CommentBenefactor | ClaimRewardBalance | Transfer | TransferToVesting | TransferToSavings | CancelTransferFromSavings | WithdrawVesting | SetWithdrawRoute | FillOrder | ProducerReward | Interest | FillConvertRequest | FillCollateralizedConvertRequest | ReturnVestingDelegation | ProposalPay | UpdateProposalVotes | CommentPayoutUpdate | CommentReward | CollateralizedConvert | RecurrentTransfers | FillRecurrentTransfers | LimitOrderCreate | LimitOrderCancel | FillVestingWithdraw | EffectiveCommentVote | VoteProxy | DelegateVestingShares;
+type OperationGroup = "transfers" | "market-orders" | "interests" | "stake-operations" | "rewards";
+
+interface ReferralItem {
+    id: number;
+    username: string;
+    referrer: string;
+    created: string;
+    rewarded: number;
+    v: number;
+}
+interface ReferralItems {
+    data: ReferralItem[];
+}
+interface ReferralStat {
+    total: number;
+    rewarded: number;
+}
+
+/**
+ * Account profile information from bridge API
+ * Returned by get_profiles endpoint
+ */
+interface Profile {
+    id: number;
+    name: string;
+    created: string;
+    active: string;
+    post_count: number;
+    reputation: number;
+    blacklists: string[];
+    stats: {
+        rank: number;
+        following: number;
+        followers: number;
+    };
+    metadata: {
+        profile: {
+            about?: string;
+            blacklist_description?: string;
+            cover_image?: string;
+            location?: string;
+            muted_list_description?: string;
+            name?: string;
+            profile_image?: string;
+            website?: string;
+        };
+    };
+}
+
+/**
+ * Friends list row data
+ * The `active` field contains raw timestamp - app should format it
+ */
+interface FriendsRow {
+    name: string;
+    reputation: number;
+    active: string;
+}
+/**
+ * Friend search result with additional profile information
+ * The `active` field contains raw timestamp - app should format it
+ */
+interface FriendSearchResult {
+    name: string;
+    full_name: string;
+    reputation: number;
+    active: string;
+}
+
+interface Payload$4 {
+    profile: Partial<AccountProfile>;
+    tokens: AccountProfile["tokens"];
+}
+/**
+ * React Query mutation hook for updating account profile metadata.
+ *
+ * This mutation broadcasts an account_update2 operation to update the user's
+ * profile information (name, about, location, avatar, cover image, etc.).
+ *
+ * @param username - The username to update (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Profile Fields:**
+ * - name: Display name
+ * - about: Bio/description
+ * - location: Location
+ * - website: Website URL
+ * - profile_image: Avatar URL
+ * - cover_image: Cover/banner URL
+ * - tokens: Social tokens (Twitter, Facebook, etc.)
+ * - version: Profile metadata version (auto-set to 2)
+ *
+ * **Authentication:**
+ * - Uses posting authority (account_update2 operation)
+ * - Supports all auth methods via platform adapter
+ *
+ * **Post-Broadcast Actions:**
+ * - Optimistically updates account cache with new profile data
+ * - Invalidates account cache to refetch from blockchain
+ *
+ * @example
+ * ```typescript
+ * const updateProfile = useAccountUpdate(username, {
+ *   adapter: myAdapter,
+ * });
+ *
+ * // Update profile
+ * updateProfile.mutate({
+ *   profile: {
+ *     name: "John Doe",
+ *     about: "Hive enthusiast",
+ *     profile_image: "https://...",
+ *   }
+ * });
+ * ```
+ */
+declare function useAccountUpdate(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, Partial<Payload$4>, unknown>;
+
+type Kind = "toggle-ignore" | "toggle-follow";
+declare function useAccountRelationsUpdate(reference: string | undefined, target: string | undefined, auth: AuthContext | undefined, onSuccess: (data: Partial<AccountRelationship> | undefined) => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<{
+    ignores: boolean | undefined;
+    follows: boolean | undefined;
+    is_blacklisted?: boolean | undefined;
+    follows_blacklists?: boolean | undefined;
+}, Error, Kind, unknown>;
+
+/**
+ * Payload for following an account.
+ */
+interface FollowPayload {
+    /** Account to follow */
+    following: string;
+}
+/**
+ * React Query mutation hook for following an account.
+ *
+ * This mutation broadcasts a follow operation to the Hive blockchain,
+ * adding the target account to the follower's "blog" follow list.
+ *
+ * @param username - The username of the follower (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates relationship cache to show updated follow status
+ * - Invalidates account cache to refetch updated follower/following counts
+ *
+ * @example
+ * ```typescript
+ * const followMutation = useFollow(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Follow an account
+ * followMutation.mutate({
+ *   following: 'alice'
+ * });
+ * ```
+ */
+declare function useFollow(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, FollowPayload, unknown>;
+
+/**
+ * Payload for unfollowing an account.
+ */
+interface UnfollowPayload {
+    /** Account to unfollow */
+    following: string;
+}
+/**
+ * React Query mutation hook for unfollowing an account.
+ *
+ * This mutation broadcasts an unfollow operation to the Hive blockchain,
+ * removing the target account from the follower's follow list.
+ *
+ * @param username - The username of the follower (required for broadcast)
+ * @param auth - Authentication context with platform adapter and fallback configuration
+ *
+ * @returns React Query mutation result
+ *
+ * @remarks
+ * **Post-Broadcast Actions:**
+ * - Invalidates relationship cache to show updated follow status
+ * - Invalidates account cache to refetch updated follower/following counts
+ *
+ * @example
+ * ```typescript
+ * const unfollowMutation = useUnfollow(username, {
+ *   adapter: myAdapter,
+ *   enableFallback: true,
+ *   fallbackChain: ['keychain', 'key', 'hivesigner']
+ * });
+ *
+ * // Unfollow an account
+ * unfollowMutation.mutate({
+ *   following: 'alice'
+ * });
+ * ```
+ */
+declare function useUnfollow(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, UnfollowPayload, unknown>;
+
+interface Payload$3 {
+    author: string;
+    permlink: string;
+}
+declare function useBookmarkAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, Payload$3, unknown>;
+
+declare function useBookmarkDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
+
+declare function useAccountFavoriteAdd(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, unknown>;
+
+declare function useAccountFavoriteDelete(username: string | undefined, code: string | undefined, onSuccess: () => void, onError: (e: Error) => void): _tanstack_react_query.UseMutationResult<any, Error, string, {
+    previousList: AccountFavorite[] | undefined;
+    previousInfinite: Map<readonly unknown[], InfiniteData<WrappedResponse<AccountFavorite>, unknown> | undefined>;
+    previousCheck: boolean | undefined;
+} | undefined>;
+
+interface Keys {
+    owner: PrivateKey;
+    active: PrivateKey;
+    posting: PrivateKey;
+    memo_key: PrivateKey;
+}
+interface Payload$2 {
+    keepCurrent?: boolean;
+    currentKey: PrivateKey;
+    keys: Keys[];
+    keysToRevoke?: string[];
+    keysToRevokeByAuthority?: Partial<Record<keyof Keys, string[]>>;
+}
+declare function dedupeAndSortKeyAuths(existing: Authority["key_auths"], additions: [string, number][]): Authority["key_auths"];
+type UpdateKeyAuthsOptions = Pick<UseMutationOptions<unknown, Error, Payload$2>, "onSuccess" | "onError">;
+declare function useAccountUpdateKeyAuths(username: string, options?: UpdateKeyAuthsOptions): _tanstack_react_query.UseMutationResult<TransactionConfirmation, Error, Payload$2, unknown>;
+
 interface Payload$1 {
     newPassword: string;
     currentPassword: string;
@@ -2068,7 +2068,7 @@ interface ClaimAccountPayload {
  * });
  * ```
  */
-declare function useClaimAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimAccountPayload, unknown>;
+declare function useClaimAccount(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimAccountPayload, unknown>;
 
 /**
  * Content Operations
@@ -2728,7 +2728,7 @@ interface GrantPostingPermissionPayload {
     memoKey: string;
     jsonMetadata: string;
 }
-declare function useGrantPostingPermission(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, GrantPostingPermissionPayload, unknown>;
+declare function useGrantPostingPermission(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, GrantPostingPermissionPayload, unknown>;
 
 interface CreateAccountPayload {
     newAccountName: string;
@@ -2737,7 +2737,7 @@ interface CreateAccountPayload {
     /** If true, uses a claimed account token instead of paying the fee */
     useClaimed?: boolean;
 }
-declare function useCreateAccount(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CreateAccountPayload, unknown>;
+declare function useCreateAccount(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CreateAccountPayload, unknown>;
 
 declare function getAccountFullQueryOptions(username: string | undefined): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<{
     name: any;
@@ -4078,7 +4078,7 @@ interface VotePayload {
  * broadcastMode: async — Votes don't require block confirmation.
  * The vote is accepted into the mempool immediately; UI can optimistically update.
  */
-declare function useVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, VotePayload, unknown>;
+declare function useVote(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, VotePayload, unknown>;
 
 /**
  * Payload for reblogging a post.
@@ -4134,7 +4134,7 @@ interface ReblogPayload {
  * });
  * ```
  */
-declare function useReblog(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ReblogPayload, unknown>;
+declare function useReblog(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ReblogPayload, unknown>;
 
 /**
  * Beneficiary account and weight.
@@ -4245,7 +4245,7 @@ interface CommentPayload {
  * });
  * ```
  */
-declare function useComment(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommentPayload, unknown>;
+declare function useComment(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CommentPayload, unknown>;
 
 /**
  * Payload for deleting a comment or post.
@@ -4275,7 +4275,7 @@ interface DeleteCommentPayload {
  *
  * @returns React Query mutation result
  */
-declare function useDeleteComment(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DeleteCommentPayload, unknown>;
+declare function useDeleteComment(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, DeleteCommentPayload, unknown>;
 
 /**
  * Payload for creating a cross-post.
@@ -4359,7 +4359,7 @@ interface CrossPostPayload {
  * });
  * ```
  */
-declare function useCrossPost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CrossPostPayload, unknown>;
+declare function useCrossPost(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CrossPostPayload, unknown>;
 
 /**
  * Payload for updating a reply/comment.
@@ -4449,7 +4449,7 @@ interface UpdateReplyPayload {
  * });
  * ```
  */
-declare function useUpdateReply(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UpdateReplyPayload, unknown>;
+declare function useUpdateReply(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, UpdateReplyPayload, unknown>;
 
 /**
  * Payload for promoting a post using Ecency Points.
@@ -4505,7 +4505,7 @@ interface PromotePayload {
  * });
  * ```
  */
-declare function usePromote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PromotePayload, unknown>;
+declare function usePromote(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, PromotePayload, unknown>;
 
 /**
  * SDK-level entry cache utilities. These operate on SDK cache keys
@@ -4967,7 +4967,7 @@ interface SubscribeCommunityPayload {
  * });
  * ```
  */
-declare function useSubscribeCommunity(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SubscribeCommunityPayload, unknown>;
+declare function useSubscribeCommunity(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, SubscribeCommunityPayload, unknown>;
 
 /**
  * Payload for unsubscribing from a community.
@@ -5011,7 +5011,7 @@ interface UnsubscribeCommunityPayload {
  * });
  * ```
  */
-declare function useUnsubscribeCommunity(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnsubscribeCommunityPayload, unknown>;
+declare function useUnsubscribeCommunity(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, UnsubscribeCommunityPayload, unknown>;
 
 /**
  * Payload for muting/unmuting a post in a community.
@@ -5086,7 +5086,7 @@ interface MutePostPayload {
  * });
  * ```
  */
-declare function useMutePost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, MutePostPayload, unknown>;
+declare function useMutePost(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, MutePostPayload, unknown>;
 
 /**
  * Payload for setting a user's role in a community.
@@ -5147,7 +5147,7 @@ interface SetCommunityRolePayload {
  * });
  * ```
  */
-declare function useSetCommunityRole(community: string, username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetCommunityRolePayload, unknown>;
+declare function useSetCommunityRole(community: string, username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, SetCommunityRolePayload, unknown>;
 
 /**
  * Payload for updating community properties.
@@ -5203,7 +5203,7 @@ type UpdateCommunityPayload = CommunityProps;
  * });
  * ```
  */
-declare function useUpdateCommunity(community: string, username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityProps, unknown>;
+declare function useUpdateCommunity(community: string, username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityProps, unknown>;
 
 /**
  * Payload for community rewards registration.
@@ -5252,7 +5252,7 @@ interface CommunityRewardsRegisterPayload {
  * });
  * ```
  */
-declare function useRegisterCommunityRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityRewardsRegisterPayload, unknown>;
+declare function useRegisterCommunityRewards(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, CommunityRewardsRegisterPayload, unknown>;
 
 interface PinPostPayload {
     community: string;
@@ -5260,7 +5260,7 @@ interface PinPostPayload {
     permlink: string;
     pin: boolean;
 }
-declare function usePinPost(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PinPostPayload, unknown>;
+declare function usePinPost(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, PinPostPayload, unknown>;
 
 declare enum ROLES {
     OWNER = "owner",
@@ -5715,7 +5715,7 @@ declare function useMarkNotificationsRead(username: string | undefined, code: st
 interface SetLastReadPayload {
     date?: string;
 }
-declare function useSetLastRead(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetLastReadPayload, unknown>;
+declare function useSetLastRead(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, SetLastReadPayload, unknown>;
 
 interface Proposal {
     creator: string;
@@ -5862,9 +5862,9 @@ interface ProposalVotePayload {
  * });
  * ```
  */
-declare function useProposalVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalVotePayload, unknown>;
+declare function useProposalVote(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalVotePayload, unknown>;
 
-declare function useProposalCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalCreatePayload, unknown>;
+declare function useProposalCreate(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ProposalCreatePayload, unknown>;
 
 interface DelegatedVestingShare {
     id: number;
@@ -6620,7 +6620,7 @@ interface TransferPayload {
  *
  * @returns React Query mutation result
  */
-declare function useTransfer(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPayload, unknown>;
+declare function useTransfer(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPayload, unknown>;
 
 interface TransferPointPayload {
     to: string;
@@ -6632,7 +6632,7 @@ interface TransferPointPayload {
  *
  * Uses `ecency_point_transfer` custom_json operation with ACTIVE authority.
  */
-declare function useTransferPoint(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPointPayload, unknown>;
+declare function useTransferPoint(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferPointPayload, unknown>;
 
 /**
  * Payload for delegating Hive Power (vesting shares).
@@ -6694,7 +6694,7 @@ interface DelegateVestingSharesPayload {
  * });
  * ```
  */
-declare function useDelegateVestingShares(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateVestingSharesPayload, unknown>;
+declare function useDelegateVestingShares(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateVestingSharesPayload, unknown>;
 
 /**
  * Payload for setting withdraw vesting route.
@@ -6761,21 +6761,21 @@ interface SetWithdrawVestingRoutePayload {
  * });
  * ```
  */
-declare function useSetWithdrawVestingRoute(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, SetWithdrawVestingRoutePayload, unknown>;
+declare function useSetWithdrawVestingRoute(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, SetWithdrawVestingRoutePayload, unknown>;
 
 interface TransferSpkPayload {
     to: string;
     amount: number;
     memo?: string;
 }
-declare function useTransferSpk(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferSpkPayload, unknown>;
+declare function useTransferSpk(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferSpkPayload, unknown>;
 
 interface TransferLarynxPayload {
     to: string;
     amount: number;
     memo?: string;
 }
-declare function useTransferLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferLarynxPayload, unknown>;
+declare function useTransferLarynx(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferLarynxPayload, unknown>;
 
 interface TransferEngineTokenPayload {
     to: string;
@@ -6783,14 +6783,14 @@ interface TransferEngineTokenPayload {
     quantity: string;
     memo: string;
 }
-declare function useTransferEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferEngineTokenPayload, unknown>;
+declare function useTransferEngineToken(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferEngineTokenPayload, unknown>;
 
 interface TransferToSavingsPayload {
     to: string;
     amount: string;
     memo: string;
 }
-declare function useTransferToSavings(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToSavingsPayload, unknown>;
+declare function useTransferToSavings(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToSavingsPayload, unknown>;
 
 interface TransferFromSavingsPayload {
     to: string;
@@ -6798,25 +6798,25 @@ interface TransferFromSavingsPayload {
     memo: string;
     requestId: number;
 }
-declare function useTransferFromSavings(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferFromSavingsPayload, unknown>;
+declare function useTransferFromSavings(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferFromSavingsPayload, unknown>;
 
 interface TransferToVestingPayload {
     to: string;
     amount: string;
 }
-declare function useTransferToVesting(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToVestingPayload, unknown>;
+declare function useTransferToVesting(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, TransferToVestingPayload, unknown>;
 
 interface WithdrawVestingPayload {
     vestingShares: string;
 }
-declare function useWithdrawVesting(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WithdrawVestingPayload, unknown>;
+declare function useWithdrawVesting(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, WithdrawVestingPayload, unknown>;
 
 interface ConvertPayload {
     amount: string;
     requestId: number;
     collateralized?: boolean;
 }
-declare function useConvert(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ConvertPayload, unknown>;
+declare function useConvert(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ConvertPayload, unknown>;
 
 interface ClaimInterestPayload {
     to: string;
@@ -6824,59 +6824,59 @@ interface ClaimInterestPayload {
     memo: string;
     requestId: number;
 }
-declare function useClaimInterest(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimInterestPayload, unknown>;
+declare function useClaimInterest(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimInterestPayload, unknown>;
 
 interface ClaimRewardsPayload {
     rewardHive: string;
     rewardHbd: string;
     rewardVests: string;
 }
-declare function useClaimRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimRewardsPayload, unknown>;
+declare function useClaimRewards(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimRewardsPayload, unknown>;
 
 interface LockLarynxPayload {
     mode: "lock" | "unlock";
     amount: number;
 }
-declare function useLockLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LockLarynxPayload, unknown>;
+declare function useLockLarynx(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, LockLarynxPayload, unknown>;
 
 interface PowerLarynxPayload {
     mode: "up" | "down";
     amount: number;
 }
-declare function usePowerLarynx(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, PowerLarynxPayload, unknown>;
+declare function usePowerLarynx(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, PowerLarynxPayload, unknown>;
 
 interface DelegateEngineTokenPayload {
     to: string;
     symbol: string;
     quantity: string;
 }
-declare function useDelegateEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateEngineTokenPayload, unknown>;
+declare function useDelegateEngineToken(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateEngineTokenPayload, unknown>;
 
 interface UndelegateEngineTokenPayload {
     from: string;
     symbol: string;
     quantity: string;
 }
-declare function useUndelegateEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UndelegateEngineTokenPayload, unknown>;
+declare function useUndelegateEngineToken(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, UndelegateEngineTokenPayload, unknown>;
 
 interface StakeEngineTokenPayload {
     to: string;
     symbol: string;
     quantity: string;
 }
-declare function useStakeEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, StakeEngineTokenPayload, unknown>;
+declare function useStakeEngineToken(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, StakeEngineTokenPayload, unknown>;
 
 interface UnstakeEngineTokenPayload {
     to: string;
     symbol: string;
     quantity: string;
 }
-declare function useUnstakeEngineToken(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, UnstakeEngineTokenPayload, unknown>;
+declare function useUnstakeEngineToken(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, UnstakeEngineTokenPayload, unknown>;
 
 interface ClaimEngineRewardsPayload {
     tokens: string[];
 }
-declare function useClaimEngineRewards(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimEngineRewardsPayload, unknown>;
+declare function useClaimEngineRewards(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, ClaimEngineRewardsPayload, unknown>;
 
 interface EngineMarketOrderPayload {
     action: "buy" | "sell" | "cancel";
@@ -6886,7 +6886,7 @@ interface EngineMarketOrderPayload {
     orderId?: string;
     orderType?: "buy" | "sell";
 }
-declare function useEngineMarketOrder(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, EngineMarketOrderPayload, unknown>;
+declare function useEngineMarketOrder(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, EngineMarketOrderPayload, unknown>;
 
 interface WalletOperationPayload {
     from: string;
@@ -6912,13 +6912,13 @@ interface WalletOperationPayload {
  * @param operation - The operation type from AssetOperation enum
  * @param auth - Auth context for broadcasting
  */
-declare function useWalletOperation(username: string | undefined, asset: string, operation: AssetOperation, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WalletOperationPayload, unknown>;
+declare function useWalletOperation(username: string | undefined, asset: string, operation: AssetOperation, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, WalletOperationPayload, unknown>;
 
 interface DelegateRcPayload {
     to: string;
     maxRc: string | number;
 }
-declare function useDelegateRc(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateRcPayload, unknown>;
+declare function useDelegateRc(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, DelegateRcPayload, unknown>;
 
 declare const HIVE_ACCOUNT_OPERATION_GROUPS: Record<HiveOperationGroup, number[]>;
 
@@ -6980,12 +6980,12 @@ interface WitnessVotePayload {
  * });
  * ```
  */
-declare function useWitnessVote(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessVotePayload, unknown>;
+declare function useWitnessVote(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessVotePayload, unknown>;
 
 interface WitnessProxyPayload {
     proxy: string;
 }
-declare function useWitnessProxy(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessProxyPayload, unknown>;
+declare function useWitnessProxy(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, WitnessProxyPayload, unknown>;
 
 interface Witness {
     total_missed: number;
@@ -7220,12 +7220,12 @@ interface LimitOrderCreatePayload {
     expiration: string;
     orderId: number;
 }
-declare function useLimitOrderCreate(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCreatePayload, unknown>;
+declare function useLimitOrderCreate(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCreatePayload, unknown>;
 
 interface LimitOrderCancelPayload {
     orderId: number;
 }
-declare function useLimitOrderCancel(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCancelPayload, unknown>;
+declare function useLimitOrderCancel(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, LimitOrderCancelPayload, unknown>;
 
 interface ApiResponse<T> {
     status: number;
@@ -7537,7 +7537,7 @@ interface BoostPlusPayload {
     account: string;
     duration: number;
 }
-declare function useBoostPlus(username: string | undefined, auth?: AuthContextV2): _tanstack_react_query.UseMutationResult<unknown, Error, BoostPlusPayload, unknown>;
+declare function useBoostPlus(username: string | undefined, auth?: AuthContextV2, broadcastMode?: BroadcastMode): _tanstack_react_query.UseMutationResult<unknown, Error, BoostPlusPayload, unknown>;
 
 type BridgeParams = Record<string, unknown> | unknown[];
 declare function bridgeApiCall<T>(endpoint: string, params: BridgeParams, signal?: AbortSignal): Promise<T>;
