@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Borrar proxy",
     "proxy-votes-for": "@{{username}} votos para",
     "proxy-active-highlighted": "Tus votos de proxy están resaltados",
-    "check-witness-highlighted": "votos resaltados"
+    "check-witness-highlighted": "votos resaltados",
+    "list-voters": "Voceros",
+    "voters-title": "Voceros de @{{witness}}",
+    "voters-sort-vests": "Poder de votación",
+    "voters-sort-timestamp": "Fecha de voto",
+    "voters-aria-label": "Ver votantes de {{name}}"
   },
   "referral": {
     "page-title": "Referidos",
@@ -3233,6 +3238,12 @@
       "linking-success": "Las fichas se han vinculado con éxito",
       "linking-success-hint": "Puede encontrar sus tokens en una página de cartera"
     },
+    "balance-history": "Historial de saldo",
+    "yearly-summary": "Resumen anual",
+    "current-balance": "Actual",
+    "year-change": "Cambio de año",
+    "year-min": "Año Mínimo",
+    "year-max": "Máximo año",
     "operations": {
       "transfer": "Transferir",
       "transfer-saving": "A ahorros",
