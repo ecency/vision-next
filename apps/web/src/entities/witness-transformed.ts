@@ -17,4 +17,5 @@ export interface WitnessTransformed {
   signingKey?: string;
   priceAge: string;
   witnessBy?: string;
+  votersNum?: number;
 }

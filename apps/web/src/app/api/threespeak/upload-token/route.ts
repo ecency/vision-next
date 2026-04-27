@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { EcencyConfigManager } from "@/config";
-import { resolveUser } from "../resolve-user";
+import { resolveUser, unauthorizedResponse } from "../resolve-user";
 
 function getConfig() {
   const embedEndpoint = EcencyConfigManager.getConfigValue(
@@ -32,20 +32,22 @@ export async function POST(req: NextRequest) {
   try {
     const { owner, isShort } = body;
 
-    // Resolve authenticated user from cookie (web) or code token (mobile)
-    const activeUser = await resolveUser(req, body);
-    if (!activeUser) {
-      return Response.json({ error: "Authentication required" }, { status: 401 });
+    // Resolve authenticated user via HiveSigner /api/me
+    const auth = await resolveUser(req, body);
+    if (!auth.ok) {
+      return unauthorizedResponse(auth.reason);
     }
 
-    if (!owner || typeof owner !== "string" || owner !== activeUser) {
+    if (!owner || typeof owner !== "string" || owner !== auth.username) {
       return Response.json({ error: "owner must match the logged-in user" }, { status: 403 });
     }
 
-    // Mobile clients authenticate via body.code (HiveSigner token) and
-    // don't send a browser Origin header, so skip the origin restriction.
-    // Web clients use cookie auth and need origin enforcement.
-    const isMobileClient = typeof body.code === "string" && body.code.length > 0;
+    // Mobile native clients don't send a browser Origin header; web fetches
+    // always do. Use Origin presence to decide whether to lock the upload URL
+    // to ecency.com origins. Origin can be spoofed by non-browser callers,
+    // but that's harmless: a forged Origin only changes which set of origins
+    // the upload URL accepts, which a real browser still enforces via CORS.
+    const isWebClient = Boolean(req.headers.get("origin"));
 
     const res = await fetch(`${embedEndpoint}/uploads/token`, {
       method: "POST",
@@ -57,9 +59,9 @@ export async function POST(req: NextRequest) {
         owner,
         frontend_app: "ecency",
         short: !!isShort,
-        allowed_origins: isMobileClient
-          ? []
-          : ["https://ecency.com", "https://alpha.ecency.com"]
+        allowed_origins: isWebClient
+          ? ["https://ecency.com", "https://alpha.ecency.com"]
+          : []
       })
     });
 

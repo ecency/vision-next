@@ -19,6 +19,7 @@ import { QueryKeys } from "@ecency/sdk";
 import { WitnessesControls } from "@/app/witnesses/_components/witnesses-controls";
 import WitnessesActiveProxy from "./witnesses-active-proxy";
 import { useSearchParams } from "next/navigation";
+import { WitnessVotersDialog } from "./witness-voters-dialog";
 
 type SortOption = "rank" | "name" | "fee";
 
@@ -31,6 +32,7 @@ export function WitnessesList() {
   const [searchText, setSearchText] = useState("");
   const [sort, setSort] = useState<SortOption>("rank");
   const [page, setPage] = useState(1);
+  const [voterDialogWitness, setVoterDialogWitness] = useState<string | null>(null);
   const previousPage = usePrevious(page);
 
   const { data, isPending, fetchNextPage } = useInfiniteQuery(getWitnessesInfiniteQueryOptions(limit));
@@ -111,6 +113,7 @@ export function WitnessesList() {
             <Tr>
               <Th className="border p-2 col-rank">{i18next.t("witnesses.list-rank")}</Th>
               <Th className="border p-2 ">{i18next.t("witnesses.list-witness")}</Th>
+              <Th className="border p-2 col-voters">{i18next.t("witnesses.list-voters")}</Th>
               <Th className="border p-2 col-miss">{i18next.t("witnesses.list-miss")}</Th>
               <Th className="border p-2 col-url">{i18next.t("witnesses.list-url")}</Th>
               <Th className="border p-2 col-fee">{i18next.t("witnesses.list-fee")}</Th>
@@ -151,6 +154,20 @@ export function WitnessesList() {
                   </ProfileLink>
                 </Td>
                 <Td className="border p-2">
+                  {row.votersNum != null ? (
+                    <button
+                      className="text-blue-dark-sky hover:underline cursor-pointer bg-transparent border-0 p-0"
+                      onClick={() => setVoterDialogWitness(row.name)}
+                      aria-label={i18next.t("witnesses.voters-aria-label", { name: row.name })}
+                      title={i18next.t("witnesses.voters-aria-label", { name: row.name })}
+                    >
+                      {row.votersNum.toLocaleString(i18next.language || "en-US")}
+                    </button>
+                  ) : (
+                    "-"
+                  )}
+                </Td>
+                <Td className="border p-2">
                   <span className="witness-miss">{row.miss}</span>
                 </Td>
                 <Td className="border p-2">
@@ -188,7 +205,7 @@ export function WitnessesList() {
         {witnesses.map((row, i) => (
           <div key={`${row.name}${i}`}>
             <div className={`${proxyVotes.includes(row.name) ? "voted-by-voter" : ""}`}>
-              <WitnessCard witness={row.name} row={row} key={`${row.name}-${i}`} />
+              <WitnessCard witness={row.name} row={row} key={`${row.name}-${i}`} onVotersClick={setVoterDialogWitness} />
             </div>
           </div>
         ))}
@@ -212,6 +229,12 @@ export function WitnessesList() {
         </div>
       </div>
       <WitnessesControls witnesses={witnesses} />
+      {voterDialogWitness && (
+        <WitnessVotersDialog
+          witness={voterDialogWitness}
+          onHide={() => setVoterDialogWitness(null)}
+        />
+      )}
     </>
   );
 }

@@ -1,11 +1,43 @@
 import * as tus from "tus-js-client";
 import { EcencyConfigManager } from "@/config";
+import * as ls from "@/utils/local-storage";
+import { getAccessToken } from "@/utils/user-token";
 import { VideoUploadResult, ThreeSpeakEmbedVideo } from "./types";
 
 function getEmbedEndpoint(): string {
   return EcencyConfigManager.getConfigValue(
     ({ thirdPartyFeatures }) => thirdPartyFeatures.threeSpeak.uploading.embedEndpoint
   ) as string;
+}
+
+/**
+ * Returns the active user's cached HiveSigner access token to send as `code`
+ * to the 3Speak proxy routes. The server validates this against
+ * https://hivesigner.com/api/me — never trust the bare cookie.
+ *
+ * Uses the synchronous cached read (which schedules a background refresh
+ * if expiry is near) rather than blocking on `ensureValidToken`. A blocking
+ * refresh would turn a transient HiveSigner outage into a hard "log in
+ * again" prompt, even when the cached token is still acceptable upstream.
+ *
+ * Throws only when the user is not logged in at all; expired-token cases
+ * are detected by the server's HS validation and returned as 401, which
+ * callers may surface to the user as a normal re-login prompt.
+ */
+function getThreeSpeakAuthCode(): string {
+  const username = ls.get("active_user");
+  if (!username) {
+    const err = new Error("[3Speak] Not logged in");
+    (err as any).status = 401;
+    throw err;
+  }
+  const token = getAccessToken(username);
+  if (!token) {
+    const err = new Error("[3Speak] No HiveSigner token available — please log in again");
+    (err as any).status = 401;
+    throw err;
+  }
+  return token;
 }
 
 /**
@@ -16,10 +48,11 @@ async function requestUploadToken(
   owner: string,
   isShort: boolean
 ): Promise<{ token: string; upload_url: string }> {
+  const code = getThreeSpeakAuthCode();
   const response = await fetch("/api/threespeak/upload-token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ owner, isShort })
+    body: JSON.stringify({ owner, isShort, code })
   });
 
   if (!response.ok) {
@@ -145,10 +178,11 @@ export async function getVideoMetadata(permlink: string): Promise<ThreeSpeakEmbe
  * The API key stays server-side.
  */
 export async function setVideoThumbnail(permlink: string, thumbnailUrl: string): Promise<void> {
+  const code = getThreeSpeakAuthCode();
   const response = await fetch("/api/threespeak/thumbnail", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ permlink, thumbnail_url: thumbnailUrl })
+    body: JSON.stringify({ permlink, thumbnail_url: thumbnailUrl, code })
   });
 
   if (!response.ok) {
@@ -179,6 +213,7 @@ export interface LinkVideoToHiveParams {
 
 export async function linkVideoToHive(params: LinkVideoToHiveParams): Promise<void> {
   try {
+    const code = getThreeSpeakAuthCode();
     const response = await fetch("/api/threespeak/link-hive", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -188,7 +223,8 @@ export async function linkVideoToHive(params: LinkVideoToHiveParams): Promise<vo
         hive_permlink: params.hivePermlink,
         hive_title: params.hiveTitle,
         hive_body: params.hiveBody,
-        hive_tags: params.hiveTags
+        hive_tags: params.hiveTags,
+        code
       })
     });
 

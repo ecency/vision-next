@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.7
+
+### Patch Changes
+
+- Balance analytics, unified polls (#765)
+
 ## 2.2.6
 
 ### Patch Changes

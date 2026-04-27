@@ -342,6 +342,10 @@ export const QueryKeys = {
     list: (limit: number) => ["witnesses", "list", limit],
     votes: (username: string | undefined) => ["witnesses", "votes", username],
     proxy: () => ["witnesses", "proxy"],
+    voters: (witness: string, pageSize: number) =>
+      ["witnesses", "voters", witness, pageSize],
+    voterCount: (witness: string) =>
+      ["witnesses", "voter-count", witness],
   },
 
   // ===========================================================================
@@ -368,6 +372,10 @@ export const QueryKeys = {
       ["wallet", "collateralized-conversion-requests", account],
     recurrentTransfers: (username: string) =>
       ["wallet", "recurrent-transfers", username],
+    balanceHistory: (username: string, coinType: string, pageSize: number) =>
+      ["wallet", "balance-history", username, coinType, pageSize],
+    aggregatedHistory: (username: string, coinType: string) =>
+      ["wallet", "aggregated-history", username, coinType],
     portfolio: (
       username: string,
       onlyEnabled: string,
@@ -487,6 +495,15 @@ export const QueryKeys = {
     points: (username: string, filter: number) =>
       ["points", username, filter],
     _prefix: (username: string) => ["points", username],
+  },
+
+  // ===========================================================================
+  // Polls
+  // ===========================================================================
+  polls: {
+    details: (author: string, permlink: string) =>
+      ["polls", "details", author, permlink],
+    _prefix: ["polls"],
   },
 
   // ===========================================================================

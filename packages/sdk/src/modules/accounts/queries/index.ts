@@ -23,3 +23,5 @@ export * from "./get-friends-infinite-query-options";
 export * from "./get-search-friends-query-options";
 export * from "./get-account-vote-history-infinite-query-options";
 export * from "./get-profiles-query-options";
+export * from "./get-balance-history-query-options";
+export * from "./get-aggregated-balance-query-options";

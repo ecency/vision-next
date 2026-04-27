@@ -3,8 +3,7 @@ import { useGetPollDetailsQuery } from "./get-poll-details-query";
 import { PollsVotesManagement } from "./polls-votes-management";
 import { error } from "@/features/shared";
 import i18next from "i18next";
-import { broadcastJson } from "@ecency/sdk";
-import { QueryIdentifiers } from "@/core/react-query";
+import { broadcastJson, QueryKeys, type Poll } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { getSdkAuthContext, getUser } from "@/utils";
 
@@ -37,8 +36,8 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
       return { choiceNums: choiceNums };
     },
     onSuccess: (resp) =>
-      queryClient.setQueryData<ReturnType<typeof useGetPollDetailsQuery>["data"]>(
-        [QueryIdentifiers.POLL_DETAILS, poll?.author, poll?.permlink],
+      queryClient.setQueryData<Poll>(
+        QueryKeys.polls.details(poll?.author ?? "", poll?.permlink ?? ""),
         (data) => {
           if (!data || !resp) {
             return data;

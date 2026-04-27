@@ -11,3 +11,4 @@ export * from "./transaction";
 export * from "./referral";
 export * from "./profile";
 export * from "./friends";
+export * from "./balance-history";

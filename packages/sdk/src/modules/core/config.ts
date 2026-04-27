@@ -31,6 +31,7 @@ export const CONFIG = {
   },
   heliusApiKey: getHeliusApiKey(),
   queryClient: new QueryClient(),
+  pollsApiHost: "https://poll.ecency.com",
   plausibleHost: "https://pl.ecency.com",
   spkNode: "https://spk.good-karma.xyz",
   // DMCA filtering - can be configured by the app
@@ -86,6 +87,14 @@ export namespace ConfigManager {
 
     // Fallback for SSR when privateApiHost is empty (production case)
     return 'https://ecency.com';
+  }
+
+  /**
+   * Set the polls API host
+   * @param host - The polls API host URL (e.g., "https://poll.ecency.com")
+   */
+  export function setPollsApiHost(host: string) {
+    CONFIG.pollsApiHost = host;
   }
 
   /**

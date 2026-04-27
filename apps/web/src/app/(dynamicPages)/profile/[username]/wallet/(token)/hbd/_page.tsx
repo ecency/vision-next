@@ -13,6 +13,8 @@ import {
   HBD_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
+  AggregatedBalanceCard,
+  BalanceHistoryChart,
 } from "../_components";
 import { HiveTransactionRow } from "./_components";
 import { Button } from "@/features/ui";
@@ -22,18 +24,21 @@ import i18next from "i18next";
 import { UilExchange } from "@tooni/iconscout-unicons-react";
 
 export function HbdPage() {
-  const { username } = useParams();
+  const params = useParams();
+  const rawUsername = params.username as string;
+  let username: string;
+  try {
+    username = decodeURIComponent(rawUsername).replace(/^@/, "");
+  } catch {
+    username = rawUsername.replace(/^@/, "");
+  }
 
   const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
     HBD_TOKEN_OPERATION_FILTERS
   );
 
   const { data, refetch, isFetching } = useInfiniteQuery(
-    getHbdAssetTransactionsQueryOptions(
-      (username as string).replace("%40", ""),
-      1000,
-      filters
-    )
+    getHbdAssetTransactionsQueryOptions(username, 1000, filters)
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -75,6 +80,8 @@ export function HbdPage() {
           <TradingViewWidget symbol="HBD" />
         </div>
       </div>
+      <AggregatedBalanceCard username={username} coinType="HBD" />
+      <BalanceHistoryChart username={username} coinType="HBD" />
       <ProfileWalletTokenHistoryCard
         action={
           <HiveOperationFilterSelect

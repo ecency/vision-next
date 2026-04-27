@@ -13,6 +13,8 @@ import {
   HP_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
+  AggregatedBalanceCard,
+  BalanceHistoryChart,
 } from "../_components";
 import { HiveTransactionRow, HpAboutCard, HpDelegationsCard } from "./_components";
 import i18next from "i18next";
@@ -28,7 +30,12 @@ export function HpPage() {
     HP_TOKEN_OPERATION_FILTERS
   );
 
-  const cleanUsername = (username as string).replace("%40", "");
+  let cleanUsername: string;
+  try {
+    cleanUsername = decodeURIComponent(username as string).replace(/^@/, "");
+  } catch {
+    cleanUsername = (username as string).replace(/^@/, "");
+  }
 
   const { data, refetch, isFetching } = useInfiniteQuery(
     getHivePowerAssetTransactionsQueryOptions(
@@ -82,6 +89,8 @@ export function HpPage() {
           <TradingViewWidget symbol="HIVE" />
         </div>
       </div>
+      <AggregatedBalanceCard username={cleanUsername} coinType="VESTS" />
+      <BalanceHistoryChart username={cleanUsername} coinType="VESTS" />
       <ProfileWalletTokenHistoryCard
         action={
           <HiveOperationFilterSelect

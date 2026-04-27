@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { EcencyConfigManager } from "@/config";
-import { resolveUser } from "../resolve-user";
+import { resolveUser, unauthorizedResponse } from "../resolve-user";
 
 function getConfig() {
   const embedEndpoint = EcencyConfigManager.getConfigValue(
@@ -32,23 +32,24 @@ export async function POST(req: NextRequest) {
   try {
     const { permlink, thumbnail_url } = body;
 
-    // Resolve authenticated user from cookie (web) or code token (mobile)
-    const activeUser = await resolveUser(req, body);
-    if (!activeUser) {
-      return Response.json({ error: "Authentication required" }, { status: 401 });
+    // Resolve authenticated user via HiveSigner /api/me
+    const auth = await resolveUser(req, body);
+    if (!auth.ok) {
+      return unauthorizedResponse(auth.reason);
     }
 
     if (!permlink || !thumbnail_url) {
       return Response.json({ error: "permlink and thumbnail_url are required" }, { status: 400 });
     }
 
+    // Pass the authenticated username so 3Speak can verify video ownership
     const res = await fetch(`${embedEndpoint}/video/${encodeURIComponent(permlink as string)}/thumbnail`, {
       method: "POST",
       headers: {
         "X-API-Key": apiKey,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ thumbnail_url })
+      body: JSON.stringify({ thumbnail_url, hive_author: auth.username })
     });
 
     if (!res.ok) {

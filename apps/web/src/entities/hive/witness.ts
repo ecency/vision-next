@@ -14,4 +14,6 @@ export interface Witness {
   owner: string;
   signing_key: string;
   last_hbd_exchange_update: string;
+  rank?: number;
+  voters_num?: number;
 }

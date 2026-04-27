@@ -20,7 +20,7 @@ export function TransferStep1To({ toWarning, toError }: Props) {
 
   const { data: transactions } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(activeUser?.username));
   const transactionsFlow = useMemo(
-    () => transactions?.pages.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    () => transactions?.pages?.flatMap((page) => page.entries) ?? [],
     [transactions]
   );
 

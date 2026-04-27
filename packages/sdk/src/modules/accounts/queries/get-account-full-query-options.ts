@@ -1,12 +1,11 @@
 import { QueryKeys } from "@/modules/core";
 import {
   AccountFollowStats,
-  AccountReputation,
   FullAccount,
 } from "../types";
 import { parseProfileMetadata } from "@/modules/accounts";
 import { queryOptions } from "@tanstack/react-query";
-import { callRPC } from "@/modules/core/hive-tx";
+import { callRPC, callREST } from "@/modules/core/hive-tx";
 
 export function getAccountFullQueryOptions(username: string | undefined) {
   return queryOptions({
@@ -25,13 +24,14 @@ export function getAccountFullQueryOptions(username: string | undefined) {
 
       const profile = parseProfileMetadata(response[0].posting_json_metadata);
 
-      // Run follow count and reputation in parallel — both are independent
+      // Run follow count and reputation in parallel - both are independent
       // of each other and only need the username (not the account response).
+      // Reputation uses the REST endpoint (~20% faster, GET-cacheable).
       const [follow_stats, reputationValue] = await Promise.all([
         callRPC("condenser_api.get_follow_count", [username], undefined, undefined, signal)
           .catch((): undefined => undefined) as Promise<AccountFollowStats | undefined>,
-        callRPC("condenser_api.get_account_reputations", [username, 1], undefined, undefined, signal)
-          .then((r) => ((r as AccountReputation[])[0]?.reputation ?? 0))
+        callREST("reputation", "/accounts/{account-name}/reputation", { "account-name": username })
+          .then((r) => (r as number) ?? 0)
           .catch(() => 0)
       ]);
 

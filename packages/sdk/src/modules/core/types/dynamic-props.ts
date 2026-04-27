@@ -5,6 +5,11 @@ export interface DynamicProps {
   quote: number;
   fundRewardBalance: number;
   fundRecentClaims: number;
+  votePowerReserveRate: number;
+  authorRewardCurve: string;
+  contentConstant: number;
+  currentHardforkVersion: string;
+  lastHardfork: number;
   hbdPrintRate: number;
   hbdInterestRate: number;
   headBlock: number;
@@ -21,5 +26,6 @@ export interface DynamicProps {
     feedHistory: Record<string, any>;
     chainProps: Record<string, any>;
     rewardFund: Record<string, any>;
+    hardforkProps: Record<string, any>;
   };
 }

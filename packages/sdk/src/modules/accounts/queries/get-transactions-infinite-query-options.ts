@@ -2,7 +2,8 @@ import { infiniteQueryOptions } from "@tanstack/react-query";
 import { utils } from "../../../hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
-import { callRPC } from "@/modules/core/hive-tx";
+import { callREST } from "@/modules/core/hive-tx";
+import { parseAsset, NaiMap } from "@/modules/core/utils";
 
 const ops = utils.operations;
 
@@ -52,19 +53,93 @@ export const ALL_ACCOUNT_OPERATIONS = [...Object.values(ACCOUNT_OPERATION_GROUPS
   []
 );
 
-type TxPage = Transaction[];
-type TxCursor = number;
-
-interface AccountHistoryOperation {
-  timestamp: string;
-  trx_id: string;
-  op: [Transaction["type"], any];
+interface TxPageRaw {
+  entries: Transaction[];
+  currentPage: number;
 }
 
-type AccountHistoryRecord = [number, AccountHistoryOperation];
+/**
+ * Cursor for transaction pagination.
+ * null = first request (returns newest page, API omits page param).
+ * number = specific page to fetch (decrementing for older data).
+ */
+type TxCursor = number | null;
+
+interface HafahOperation {
+  op: {
+    type: string;
+    value: Record<string, unknown>;
+  };
+  block: number;
+  trx_id: string;
+  op_pos: number;
+  op_type_id: number;
+  timestamp: string;
+  virtual_op: boolean;
+  operation_id: string;
+  trx_in_block: number;
+}
+
+interface HafahResponse {
+  total_operations: number;
+  total_pages: number;
+  operations_result: HafahOperation[];
+}
 
 /**
- * Get account transaction history with pagination and filtering
+ * Derive a safe, unique, and chronologically ordered `num` from REST fields.
+ *
+ * Layout: block * 10_000_000 + trx_in_block * 100 + op_pos
+ *   - trx_in_block: up to 99_999 (Hive max block size ~65K txs)
+ *   - op_pos: up to 99 (operations within a single transaction)
+ *   - Max value: 105_000_000 * 10_000_000 = 1.05e15, within MAX_SAFE_INTEGER (9.007e15)
+ */
+function deriveNum(entry: HafahOperation): number {
+  return entry.block * 10_000_000 + entry.trx_in_block * 100 + entry.op_pos;
+}
+
+/**
+ * Strip the `_operation` suffix from the REST API type name
+ * to match the Transaction type discriminants (e.g. "transfer").
+ */
+function normalizeOpType(restType: string): string {
+  return restType.replace(/_operation$/, "");
+}
+
+/**
+ * Check if a value is a NAI asset object (e.g. { nai: "@@000000021", amount: "1000", precision: 3 }).
+ */
+function isNaiAsset(v: unknown): v is { nai: string; amount: string; precision: number } {
+  return typeof v === "object" && v !== null && "nai" in v && "amount" in v && "precision" in v;
+}
+
+/**
+ * Convert a NAI asset object to a human-readable string like "1.000 HIVE".
+ * Returns the value unchanged if it's not a NAI object.
+ */
+function naiToString(v: unknown): unknown {
+  if (!isNaiAsset(v)) return v;
+  const parsed = parseAsset(v);
+  const symbol = NaiMap[v.nai as keyof typeof NaiMap] ?? "UNKNOWN";
+  return `${parsed.amount.toFixed(v.precision)} ${symbol}`;
+}
+
+/**
+ * Convert all NAI asset objects in an operation's value to human-readable strings
+ * so downstream renderers that expect "1.000 HIVE" don't crash with object values.
+ */
+function normalizeOpValue(value: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    result[k] = naiToString(v);
+  }
+  return result;
+}
+
+/**
+ * Get account transaction history with pagination and filtering.
+ * Uses the hafah-api REST endpoint for server-side op-type filtering
+ * and real pagination metadata.
  *
  * @param username - Account name to get transactions for
  * @param limit - Number of transactions per page
@@ -75,77 +150,61 @@ export function getTransactionsInfiniteQueryOptions(
   limit = 20,
   group: OperationGroup | "" = ""
 ) {
-  return infiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], TxCursor>({
+  const operationTypes = group
+    ? ACCOUNT_OPERATION_GROUPS[group]
+    : ALL_ACCOUNT_OPERATIONS;
+
+  return infiniteQueryOptions<TxPageRaw, Error, TxPageRaw, (string | number)[], TxCursor>({
     queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
-    initialPageParam: -1 as TxCursor,
+    initialPageParam: null as TxCursor,
 
-    queryFn: async ({ pageParam }: { pageParam: TxCursor }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: TxCursor; signal?: AbortSignal }) => {
       if (!username) {
-        return [];
+        return { entries: [], currentPage: 0 };
       }
 
-      let filters: [string | null, string | null] | undefined;
-      try {
-        // Create bitmask filters (requires BigInt support in browser)
-        switch (group) {
-          case "transfers":
-            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["transfers"]);
-            break;
-          case "market-orders":
-            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["market-orders"]);
-            break;
-          case "interests":
-            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["interests"]);
-            break;
-          case "stake-operations":
-            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["stake-operations"]);
-            break;
-          case "rewards":
-            filters = utils.makeBitMaskFilter(ACCOUNT_OPERATION_GROUPS["rewards"]);
-            break;
-          default:
-            filters = utils.makeBitMaskFilter(ALL_ACCOUNT_OPERATIONS);
-        }
-      } catch (error) {
-        // Fallback for browsers without BigInt support (Safari < 14)
-        // Using undefined means no server-side filtering - will get all operations
-        // and filter on client side (less efficient but still works)
-        console.warn("BigInt not supported, using client-side filtering", error);
-        filters = undefined;
+      const params: Record<string, string | number> = {
+        "account-name": username,
+        "operation-types": operationTypes.join(","),
+        "page-size": limit,
+      };
+
+      // First call: omit page to get newest data
+      // Subsequent calls: pass specific page number (decrementing)
+      if (pageParam !== null) {
+        params.page = pageParam;
       }
 
-      const response = (await (filters
-        ? callRPC("condenser_api.get_account_history", [
-            username,
-            pageParam,
-            limit,
-            ...filters,
-          ])
-        : callRPC("condenser_api.get_account_history", [
-            username,
-            pageParam,
-            limit,
-          ]))) as AccountHistoryRecord[];
+      const response = (await callREST(
+        "hafah",
+        "/accounts/{account-name}/operations",
+        params,
+        undefined,
+        undefined,
+        signal
+      )) as HafahResponse;
 
-      const mapped: Transaction[] = response
-        .map(([num, operation]) => {
-          const base = {
-            num,
-            type: operation.op[0],
-            timestamp: operation.timestamp,
-            trx_id: operation.trx_id,
-          } as const;
+      const entries = response.operations_result.map((entry) => {
+        const type = normalizeOpType(entry.op.type);
+        const value = normalizeOpValue(entry.op.value);
+        return {
+          ...value,
+          num: deriveNum(entry),
+          type,
+          timestamp: entry.timestamp,
+          trx_id: entry.trx_id,
+        } as Transaction;
+      });
 
-          const payload = operation.op[1] as Record<string, unknown>;
-          return { ...base, ...payload } as Transaction;
-        })
-        .filter(Boolean)
-        .sort((a, b) => b.num - a.num);
-
-      return mapped;
+      return {
+        entries,
+        currentPage: pageParam ?? response.total_pages,
+      };
     },
 
-    getNextPageParam: (lastPage: TxPage | undefined): TxCursor =>
-      lastPage?.length ? (lastPage[lastPage.length - 1]?.num ?? 0) - 1 : -1,
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.currentPage - 1;
+      return nextPage >= 1 ? nextPage : undefined;
+    },
   });
 }

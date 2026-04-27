@@ -5,7 +5,7 @@
  * and processes subscription payments automatically.
  */
 
-import { callRPC, hiveTxConfig } from '@ecency/sdk';
+import { callRPC, config as hiveTxConfig } from '@ecency/sdk/hive';
 import { db } from './db/client';
 import { TenantService } from './services/tenant-service';
 import { ConfigService } from './services/config-service';
