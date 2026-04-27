@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Зняти проксі",
     "proxy-votes-for": "@{{username}} голосує за",
     "proxy-active-highlighted": "Ваші проксі-голоси виділені",
-    "check-witness-highlighted": "голоси виділені"
+    "check-witness-highlighted": "голоси виділені",
+    "list-voters": "Виборці",
+    "voters-title": "Виборці за @{{witness}}",
+    "voters-sort-vests": "Голосувальна сила",
+    "voters-sort-timestamp": "Дата голосування",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "Реферали",
@@ -3233,6 +3238,12 @@
       "linking-success": "Токени успішно зв'язані",
       "linking-success-hint": "Ви можете знайти свої токени на сторінці гаманця"
     },
+    "balance-history": "Історія балансу",
+    "yearly-summary": "Підсумок за рік",
+    "current-balance": "Поточна версія",
+    "year-change": "Зміна року",
+    "year-min": "Мінімальний рік",
+    "year-max": "Максимальний рік",
     "operations": {
       "transfer": "Переказ",
       "transfer-saving": "В збереження",
