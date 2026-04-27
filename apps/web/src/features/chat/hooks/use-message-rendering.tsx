@@ -14,7 +14,7 @@ import { HivePostLinkRenderer } from "@/features/post-renderer";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
-import { Text } from "domhandler";
+import type { Text } from "domhandler";
 import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const ECENCY_HOSTNAMES = new Set([

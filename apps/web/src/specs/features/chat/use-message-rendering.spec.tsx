@@ -18,7 +18,6 @@ vi.mock("@/features/post-renderer", async (importOriginal) => {
   return {
     ...actual,
     HivePostLinkRenderer: ({ link }: { link: string }) => <span>{link}</span>,
-    EcencyRenderer: ({ text }: { text?: string }) => <span>{text ?? ""}</span>
   };
 });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { powerRechargeTime, votingValue } from './account-power'
+import { powerRechargeTime, votingRshares, votingValue } from './account-power'
 import { FullAccount } from '../types'
 import { DynamicProps } from '@/modules/core/types'
 
@@ -168,6 +168,48 @@ describe('account-power utilities', () => {
 
       expect(value50).toBeLessThan(value100)
       expect(value50).toBeGreaterThan(0)
+    })
+  })
+
+  describe('votingRshares', () => {
+    const mockAccount: FullAccount = {
+      vesting_shares: '1000000.000000 VESTS',
+      received_vesting_shares: '500000.000000 VESTS',
+      delegated_vesting_shares: '100000.000000 VESTS',
+      vesting_withdraw_rate: '0.000000 VESTS',
+      to_withdraw: '0',
+      withdrawn: '0',
+      name: 'testuser',
+      voting_power: 10000,
+      voting_manabar: {
+        current_mana: '1400000000000',
+        last_update_time: 0
+      }
+    } as FullAccount
+
+    const stableProps: DynamicProps = {
+      fundRecentClaims: 1000000000,
+      fundRewardBalance: 500000,
+      base: 0.5,
+      quote: 1.0,
+      votePowerReserveRate: 10,
+      authorRewardCurve: 'linear',
+      contentConstant: 2000000000000,
+      currentHardforkVersion: '1.28.0',
+      lastHardfork: 28
+    } as DynamicProps
+
+    it('ignores votingPowerValue on stable-vote hardforks', () => {
+      const rshares100 = votingRshares(mockAccount, stableProps, 100)
+      const rshares50 = votingRshares(mockAccount, stableProps, 50)
+      expect(rshares50).toBe(rshares100)
+    })
+
+    it('scales with weight on stable-vote hardforks', () => {
+      const full = votingRshares(mockAccount, stableProps, 100, 10000)
+      const half = votingRshares(mockAccount, stableProps, 100, 5000)
+      expect(half).toBeLessThan(full)
+      expect(half).toBeGreaterThan(0)
     })
   })
 })

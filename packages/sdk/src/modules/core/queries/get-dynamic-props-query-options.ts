@@ -5,7 +5,7 @@ import { QueryKeys } from "@/modules/core";
 import { callRPC } from "@/modules/core/hive-tx";
 
 // This query powers wallet/HP/reward math that should stay close to chain state.
-// Keep a short refresh cadence despite the 4 RPC calls.
+// Keep a short refresh cadence despite the 5 RPC calls.
 const DYNAMIC_PROPS_REFRESH_MS = 60 * 1000;
 
 export function getDynamicPropsQueryOptions() {
@@ -14,13 +14,15 @@ export function getDynamicPropsQueryOptions() {
     refetchInterval: DYNAMIC_PROPS_REFRESH_MS,
     staleTime: DYNAMIC_PROPS_REFRESH_MS,
     queryFn: async ({ signal }): Promise<DynamicProps> => {
-      // Get raw blockchain data — all four calls are independent, run in parallel
+      // Get raw blockchain data — all five calls are independent, run in parallel.
+      // Hardfork properties is wrapped with catch since not all nodes support it.
       const [rawGlobalDynamic, rawFeedHistory, rawChainProps, rawRewardFund, rawHardforkProps] = await Promise.all([
         callRPC("condenser_api.get_dynamic_global_properties", [], undefined, undefined, signal),
         callRPC("condenser_api.get_feed_history", [], undefined, undefined, signal),
         callRPC("condenser_api.get_chain_properties", [], undefined, undefined, signal),
         callRPC("condenser_api.get_reward_fund", ["post"], undefined, undefined, signal),
-        callRPC("database_api.get_hardfork_properties", {}, undefined, undefined, signal),
+        callRPC("database_api.get_hardfork_properties", {}, undefined, undefined, signal)
+          .catch(() => ({ current_hardfork_version: "0.0.0", last_hardfork: 0 })),
       ]) as [any, any, any, any, any];
 
       // Calculate derived values for backward compatibility

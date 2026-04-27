@@ -71,6 +71,33 @@ function stableVoteRshares(
   return Math.max(usedMana - HIVE_VOTE_DUST_THRESHOLD, 0);
 }
 
+export function votingRshares(
+  account: FullAccount,
+  dynamicProps: DynamicProps,
+  votingPowerValue: number,
+  weight: number = 10000
+): number {
+  if (!Number.isFinite(votingPowerValue) || !Number.isFinite(weight)) {
+    return 0;
+  }
+
+  if (hasStableVoteHardfork(dynamicProps)) {
+    return stableVoteRshares(account, dynamicProps, weight);
+  }
+
+  let totalVests = 0;
+  try {
+    totalVests = getEffectiveVests(account);
+    if (!Number.isFinite(totalVests)) {
+      return 0;
+    }
+  } catch {
+    return 0;
+  }
+
+  return vestsToRshares(totalVests, votingPowerValue, weight);
+}
+
 export function votingPower(account: FullAccount): number {
   const calc = calculateVPMana(account);
   return calc.percentage / 100;
@@ -149,23 +176,7 @@ export function votingValue(
     return 0;
   }
 
-  let totalVests = 0;
-  try {
-    totalVests = getEffectiveVests(account);
-    if (!Number.isFinite(totalVests)) {
-      return 0;
-    }
-  } catch {
-    return 0;
-  }
-
-  if (!Number.isFinite(totalVests)) {
-    return 0;
-  }
-
-  const rShares = hasStableVoteHardfork(dynamicProps)
-    ? stableVoteRshares(account, dynamicProps, weight)
-    : vestsToRshares(totalVests, votingPowerValue, weight);
+  const rShares = votingRshares(account, dynamicProps, votingPowerValue, weight);
 
   if (!Number.isFinite(rShares)) {
     return 0;
