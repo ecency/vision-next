@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Очистить прокси",
     "proxy-votes-for": "@{{username}} голосует за",
     "proxy-active-highlighted": "Ваши прокси голоса выделены",
-    "check-witness-highlighted": "голоса выделены"
+    "check-witness-highlighted": "голоса выделены",
+    "list-voters": "Избиратели",
+    "voters-title": "Голоса за @{{witness}}",
+    "voters-sort-vests": "Сила голосования",
+    "voters-sort-timestamp": "Дата голосования",
+    "voters-aria-label": "Посмотреть избирателей {{name}}"
   },
   "referral": {
     "page-title": "Рефералы",
@@ -3233,6 +3238,12 @@
       "linking-success": "Привязка токенов прошла успешно",
       "linking-success-hint": "Вы можете найти ваши токены на странице кошелька"
     },
+    "balance-history": "История остатков",
+    "yearly-summary": "Ежегодная сводка",
+    "current-balance": "Текущее",
+    "year-change": "Изменить год",
+    "year-min": "Мин",
+    "year-max": "Макс. год",
     "operations": {
       "transfer": "Перевод",
       "transfer-saving": "В сбережения",
