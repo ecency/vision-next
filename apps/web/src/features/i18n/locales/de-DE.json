@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Proxy löschen",
     "proxy-votes-for": "@{{username}} Stimmen für",
     "proxy-active-highlighted": "Ihre Proxy-Stimmen werden hervorgehoben",
-    "check-witness-highlighted": "markierte Stimmen"
+    "check-witness-highlighted": "markierte Stimmen",
+    "list-voters": "Wähler",
+    "voters-title": "Wähler für @{{witness}}",
+    "voters-sort-vests": "Wahlmacht",
+    "voters-sort-timestamp": "Bewertungsdatum",
+    "voters-aria-label": "Wähler von {{name}} ansehen"
   },
   "referral": {
     "page-title": "Empfehlungen",
@@ -3233,6 +3238,12 @@
       "linking-success": "Token wurden erfolgreich verknüpft",
       "linking-success-hint": "Sie können Ihre Token in einer Wallet-Seite finden"
     },
+    "balance-history": "Bilanz Historie",
+    "yearly-summary": "Jahreszusammenfassung",
+    "current-balance": "Aktuell",
+    "year-change": "Jahreswechsel",
+    "year-min": "Min. Jahr",
+    "year-max": "Max. Jahr",
     "operations": {
       "transfer": "Überweisung",
       "transfer-saving": "An Einsparungen",
