@@ -1,6 +1,13 @@
 import { existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { NextResponse } from "next/server";
+import {
+  getMattermostTokenFromCookies,
+  mmUserFetch,
+  MattermostUser
+} from "@/server/mattermost";
+
+const CHAT_SUPER_ADMIN = "ecency";
 
 type PatchTrace = {
   patch?: string;
@@ -60,10 +67,30 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Health check endpoint for WebSocket configuration
+ * Diagnostic endpoint for WebSocket configuration. Restricted to the chat
+ * super-admin because it discloses Next.js / next-ws versions, env-var
+ * presence, and internal file paths — useful for operators, useful for
+ * attacker recon.
+ *
+ * Note: this is a diagnostic, NOT a Docker liveness probe. The container
+ * healthcheck uses /api/healthcheck (see apps/web/Dockerfile + healthCheck.js).
  * Access at: /api/mattermost/websocket/health
  */
 export async function GET() {
+  const token = await getMattermostTokenFromCookies();
+  if (!token) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const currentUser = await mmUserFetch<MattermostUser>("/users/me", token);
+    if (currentUser.username !== CHAT_SUPER_ADMIN) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   const patchStatus = getPatchStatus();
 
   const checks = {

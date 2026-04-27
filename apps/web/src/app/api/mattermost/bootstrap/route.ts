@@ -12,7 +12,62 @@ import {
   removeUserLeftChannel,
   withMattermostTokenCookie
 } from "@/server/mattermost";
-import { decodeToken, validateToken } from "@/utils";
+
+/**
+ * Validate a HiveSigner OAuth access token by asking HiveSigner who it belongs to.
+ *
+ * Identity is established by the upstream `/api/me` response — we never
+ * trust the client-supplied username, signature, or token contents. This
+ * replaces the previous local validation that only checked the token's
+ * timestamp and never verified its signature, allowing anyone to mint a
+ * Mattermost PAT for any account.
+ *
+ * Distinguishes "HS rejected the token" (`{ ok: false, reason: "invalid" }`)
+ * from "HS unreachable" (`{ ok: false, reason: "unavailable" }`) so the
+ * caller can return 401 (client refreshes/relogs) vs 503 (transient — client
+ * retries with backoff). Conflating the two would turn any HS outage into
+ * a forced re-login.
+ */
+type HsVerifyResult =
+  | { ok: true; username: string }
+  | { ok: false; reason: "invalid" | "unavailable" };
+
+async function verifyHsAccessToken(token: string, signal: AbortSignal): Promise<HsVerifyResult> {
+  let res: Response;
+  try {
+    res = await fetch("https://hivesigner.com/api/me", {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)])
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "TimeoutError") {
+      console.error("MM bootstrap: HiveSigner /api/me timed out");
+    } else if (!signal.aborted) {
+      console.error("MM bootstrap: HiveSigner /api/me network error", e);
+    }
+    return { ok: false, reason: "unavailable" };
+  }
+
+  if (res.status === 401 || res.status === 403) {
+    return { ok: false, reason: "invalid" };
+  }
+  if (!res.ok) {
+    console.error(`MM bootstrap: HiveSigner /api/me upstream error ${res.status}`);
+    return { ok: false, reason: "unavailable" };
+  }
+
+  try {
+    const data = await res.json();
+    const username = data?.account?.name ?? data?.user;
+    if (typeof username !== "string") {
+      return { ok: false, reason: "invalid" };
+    }
+    return { ok: true, username };
+  } catch (e) {
+    console.error("MM bootstrap: HiveSigner /api/me parse error", e);
+    return { ok: false, reason: "unavailable" };
+  }
+}
 
 // Hard ceiling on the entire bootstrap handler. Individual mmFetch calls
 // have their own 10s timeout, but a user with 50 communities chains
@@ -67,7 +122,6 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
 
     const username = body.username as string | undefined;
     const accessToken = body.accessToken as string | undefined;
-    const refreshToken = body.refreshToken as string | undefined;
     const displayName = (body.displayName as string | undefined) || username;
     const communityTitle = body.communityTitle as string | undefined;
     const community = body.community as string | undefined;
@@ -76,31 +130,26 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
         return NextResponse.json({ error: "username missing" }, { status: 400 });
     }
 
-    // 2) Validate & decode token without ever throwing 500 for client errors
-    let rawToken: string | null = null;
-    try {
-        if (accessToken && validateToken(accessToken)) {
-          rawToken = accessToken;
-        } else if (refreshToken && validateToken(refreshToken)) {
-          rawToken = refreshToken;
+    // 2) Verify access token via HiveSigner. Refresh tokens cannot be validated
+    //    against /api/me directly — if the access token is missing or expired
+    //    the client refreshes it via hsTokenRenew() and retries.
+    if (!accessToken) {
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
+
+    const verification = await verifyHsAccessToken(accessToken, signal);
+    if (verification.ok === false) {
+        if (verification.reason === "unavailable") {
+            // HS itself is down/timing out — return 503 so the React Query
+            // retry path kicks in instead of forcing the user to re-login.
+            return NextResponse.json(
+                { error: "chat service unavailable" },
+                { status: 503 }
+            );
         }
-    } catch (e) {
-        console.error("MM bootstrap: token validation threw", { username, error: e });
-        return NextResponse.json({ error: "invalid token" }, { status: 401 });
+        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
-
-    let token: any = null;
-    try {
-        token = rawToken ? decodeToken(rawToken) : null;
-    } catch (e) {
-        console.error("MM bootstrap: token decode threw", { username, error: e });
-        return NextResponse.json({ error: "invalid token" }, { status: 401 });
-    }
-
-    const authors =
-    token?.authors?.map((author: string) => author?.toLowerCase?.()) || [];
-
-    if (!token || !authors.includes(username.toLowerCase())) {
+    if (verification.username.toLowerCase() !== username.toLowerCase()) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 

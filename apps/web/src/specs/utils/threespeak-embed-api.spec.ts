@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { extractPermlink } from "@/api/threespeak-embed/api";
 
+// The 3Speak proxy now requires a HiveSigner OAuth token resolved from
+// localStorage + user-token. These tests exercise fetch error propagation,
+// not the auth path, so we stub the auth helpers to return a valid token.
+vi.mock("@/utils/local-storage", () => ({
+  get: vi.fn(() => "testuser")
+}));
+vi.mock("@/utils/user-token", () => ({
+  getAccessToken: vi.fn(() => "valid-hs-token")
+}));
+
 describe("extractPermlink", () => {
   it("extracts permlink from ?v=user/permlink format", () => {
     expect(extractPermlink("https://play.3speak.tv/embed?v=alice/abcd1234")).toBe("abcd1234");
