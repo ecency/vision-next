@@ -33,11 +33,12 @@ function toHumanBalance(
 
 export function BalanceHistoryChart({ username, coinType }: Props) {
   const theme = useGlobalStore((s) => s.theme);
-  const { ref: chartContainerRef } = useResizeDetector();
+  const { ref: chartContainerRef, width, height } = useResizeDetector();
 
   const chartRef = useRef<IChartApi | null>(null);
   const lineSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   const chartInitialized = useRef(false);
+  const hasFittedContentRef = useRef(false);
   const scrollThrottleRef = useRef(false);
 
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
@@ -156,14 +157,31 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
     }
   }, [theme]);
 
+  // Keep chart dimensions in sync with the container.
+  useEffect(() => {
+    if (!chartRef.current || width === undefined || height === undefined) {
+      return;
+    }
+
+    chartRef.current.applyOptions({ width, height });
+  }, [width, height]);
+
   // Update chart data whenever it changes
   useEffect(() => {
-    if (lineSeriesRef.current && chartData.length > 0) {
-      lineSeriesRef.current.setData([...chartData]);
+    if (!lineSeriesRef.current) {
+      return;
+    }
 
-      if (chartRef.current) {
-        chartRef.current.timeScale().fitContent();
-      }
+    if (chartData.length === 0) {
+      hasFittedContentRef.current = false;
+      return;
+    }
+
+    lineSeriesRef.current.setData([...chartData]);
+
+    if (chartRef.current && !hasFittedContentRef.current) {
+      chartRef.current.timeScale().fitContent();
+      hasFittedContentRef.current = true;
     }
   }, [chartData]);
 
@@ -175,6 +193,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
         chartRef.current = null;
         lineSeriesRef.current = null;
         chartInitialized.current = false;
+        hasFittedContentRef.current = false;
       }
     };
   }, []);

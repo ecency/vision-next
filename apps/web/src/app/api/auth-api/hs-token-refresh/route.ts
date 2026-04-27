@@ -21,9 +21,29 @@ export async function POST(req: Request) {
     return Response.json({ error: "Code missed" }, { status: 400 });
   }
 
-  const upstream = await fetch(
-    `https://hivesigner.com/api/oauth2/token?code=${encodeURIComponent(body.code)}&client_secret=${encodeURIComponent(hsSecret)}`
-  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
-  return Response.json(await upstream.json(), { status: upstream.status });
+  try {
+    const upstream = await fetch(
+      `https://hivesigner.com/api/oauth2/token?code=${encodeURIComponent(body.code)}&client_secret=${encodeURIComponent(hsSecret)}`,
+      { signal: controller.signal }
+    );
+    const upstreamBody = await upstream.json();
+
+    return Response.json(upstreamBody, { status: upstream.status });
+  } catch (error) {
+    const timedOut = (error as { name?: string }).name === "AbortError";
+
+    return Response.json(
+      {
+        error: timedOut
+          ? "Hivesigner token refresh timed out"
+          : "Unable to refresh Hivesigner token",
+      },
+      { status: timedOut ? 504 : 502 }
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 }

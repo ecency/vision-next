@@ -12,7 +12,7 @@ function getEffectiveVests(account: FullAccount): number {
   const vesting = parseAsset(account.vesting_shares).amount;
   const received = parseAsset(account.received_vesting_shares).amount;
   const delegated = parseAsset(account.delegated_vesting_shares).amount;
-  const withdrawRate = parseFloat(account.vesting_withdraw_rate);
+  const withdrawRate = parseAsset(account.vesting_withdraw_rate).amount;
   const alreadyWithdrawn =
     (Number(account.to_withdraw) - Number(account.withdrawn)) / 1e6;
   const withdrawVests = Math.min(withdrawRate, alreadyWithdrawn);
