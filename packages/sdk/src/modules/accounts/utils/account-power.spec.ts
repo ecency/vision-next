@@ -49,15 +49,27 @@ describe('account-power utilities', () => {
       vesting_shares: '1000000.000000 VESTS',
       received_vesting_shares: '500000.000000 VESTS',
       delegated_vesting_shares: '100000.000000 VESTS',
+      vesting_withdraw_rate: '0.000000 VESTS',
+      to_withdraw: '0',
+      withdrawn: '0',
       name: 'testuser',
-      voting_power: 10000
+      voting_power: 10000,
+      voting_manabar: {
+        current_mana: '1400000000000',
+        last_update_time: 0
+      }
     } as FullAccount
 
     const mockDynamicProps: DynamicProps = {
       fundRecentClaims: 1000000000,
       fundRewardBalance: 500000,
       base: 0.5,
-      quote: 1.0
+      quote: 1.0,
+      votePowerReserveRate: 10,
+      authorRewardCurve: 'linear',
+      contentConstant: 2000000000000,
+      currentHardforkVersion: '1.28.0',
+      lastHardfork: 28
     } as DynamicProps
 
     it('should calculate voting value with default weight', () => {
@@ -114,11 +126,10 @@ describe('account-power utilities', () => {
       expect(result).toBe(0)
     })
 
-    it('should calculate lower value for lower voting power', () => {
+    it('should keep the same value for lower voting power on stable-vote hardforks', () => {
       const value100 = votingValue(mockAccount, mockDynamicProps, 100)
       const value50 = votingValue(mockAccount, mockDynamicProps, 50)
-      expect(value50).toBeLessThan(value100)
-      expect(value50).toBeGreaterThan(0)
+      expect(value50).toBe(value100)
     })
 
     it('should calculate higher value for more vesting shares', () => {
@@ -131,6 +142,32 @@ describe('account-power utilities', () => {
       const smallValue = votingValue(smallAccount, mockDynamicProps, 100)
       const largeValue = votingValue(mockAccount, mockDynamicProps, 100)
       expect(largeValue).toBeGreaterThan(smallValue)
+    })
+
+    it('should return 0 when current mana is insufficient for the requested stable vote', () => {
+      const lowManaAccount = {
+        ...mockAccount,
+        voting_manabar: {
+          current_mana: '1',
+          last_update_time: Math.floor(Date.now() / 1000)
+        }
+      }
+
+      expect(votingValue(lowManaAccount, mockDynamicProps, 100)).toBe(0)
+    })
+
+    it('should retain legacy scaling before hardfork 1.28', () => {
+      const legacyProps = {
+        ...mockDynamicProps,
+        currentHardforkVersion: '1.27.0',
+        lastHardfork: 27
+      }
+
+      const value100 = votingValue(mockAccount, legacyProps, 100)
+      const value50 = votingValue(mockAccount, legacyProps, 50)
+
+      expect(value50).toBeLessThan(value100)
+      expect(value50).toBeGreaterThan(0)
     })
   })
 })

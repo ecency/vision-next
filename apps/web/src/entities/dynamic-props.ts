@@ -4,6 +4,11 @@ export interface DynamicProps {
   quote: number;
   fundRewardBalance: number;
   fundRecentClaims: number;
+  votePowerReserveRate: number;
+  authorRewardCurve: string;
+  contentConstant: number;
+  currentHardforkVersion: string;
+  lastHardfork: number;
   hbdPrintRate: number;
   hbdInterestRate: number;
   headBlock: number;

@@ -15,12 +15,13 @@ export function getDynamicPropsQueryOptions() {
     staleTime: DYNAMIC_PROPS_REFRESH_MS,
     queryFn: async ({ signal }): Promise<DynamicProps> => {
       // Get raw blockchain data — all four calls are independent, run in parallel
-      const [rawGlobalDynamic, rawFeedHistory, rawChainProps, rawRewardFund] = await Promise.all([
+      const [rawGlobalDynamic, rawFeedHistory, rawChainProps, rawRewardFund, rawHardforkProps] = await Promise.all([
         callRPC("condenser_api.get_dynamic_global_properties", [], undefined, undefined, signal),
         callRPC("condenser_api.get_feed_history", [], undefined, undefined, signal),
         callRPC("condenser_api.get_chain_properties", [], undefined, undefined, signal),
         callRPC("condenser_api.get_reward_fund", ["post"], undefined, undefined, signal),
-      ]) as [any, any, any, any];
+        callRPC("database_api.get_hardfork_properties", {}, undefined, undefined, signal),
+      ]) as [any, any, any, any, any];
 
       // Calculate derived values for backward compatibility
       // parseAsset handles both string format ("200905388484 HIVE") and NAI format ({ amount, nai, precision })
@@ -40,6 +41,11 @@ export function getDynamicPropsQueryOptions() {
       const quote = parseAsset(rawFeedHistory.current_median_history.quote).amount;
       const fundRecentClaims = parseFloat(rawRewardFund.recent_claims);
       const fundRewardBalance = parseAsset(rawRewardFund.reward_balance).amount;
+      const votePowerReserveRate = Number(rawGlobalDynamic.vote_power_reserve_rate ?? 0);
+      const authorRewardCurve = rawRewardFund.author_reward_curve ?? "linear";
+      const contentConstant = Number(rawRewardFund.content_constant ?? 0);
+      const currentHardforkVersion = String(rawHardforkProps.current_hardfork_version ?? "0.0.0");
+      const lastHardfork = Number(rawHardforkProps.last_hardfork ?? 0);
       const hbdPrintRate = rawGlobalDynamic.hbd_print_rate;
       const hbdInterestRate = rawGlobalDynamic.hbd_interest_rate;
       const headBlock = rawGlobalDynamic.head_block_number;
@@ -56,6 +62,11 @@ export function getDynamicPropsQueryOptions() {
         quote,
         fundRecentClaims,
         fundRewardBalance,
+        votePowerReserveRate,
+        authorRewardCurve,
+        contentConstant,
+        currentHardforkVersion,
+        lastHardfork,
         hbdPrintRate,
         hbdInterestRate,
         headBlock,
@@ -72,6 +83,7 @@ export function getDynamicPropsQueryOptions() {
           feedHistory: rawFeedHistory,
           chainProps: rawChainProps,
           rewardFund: rawRewardFund,
+          hardforkProps: rawHardforkProps,
         },
       } as DynamicProps;
     },

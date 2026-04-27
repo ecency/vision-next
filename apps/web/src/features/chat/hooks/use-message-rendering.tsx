@@ -14,7 +14,7 @@ import { HivePostLinkRenderer } from "@/features/post-renderer";
 import { USER_MENTION_PURE_REGEX } from "@/features/tiptap-editor/extensions/user-mention-extension-config";
 import DOMPurify from "dompurify";
 import htmlParse, { domToReact, type HTMLReactParserOptions } from "html-react-parser";
-import { Element, Text } from "domhandler";
+import { Text } from "domhandler";
 import { simpleMarkdownToHTML } from "@ecency/render-helper";
 
 const ECENCY_HOSTNAMES = new Set([
@@ -26,6 +26,15 @@ const ECENCY_HOSTNAMES = new Set([
   "www.hive.blog"
 ]);
 
+function isAbsoluteHttpUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function isImageUrl(url: string) {
   const normalizedUrl = url.toLowerCase().trim();
   return (
@@ -34,6 +43,17 @@ function isImageUrl(url: string) {
     /tenor\.com\/.*\.gif/.test(normalizedUrl) ||
     /^https?:\/\/(?:media\d*\.)?giphy\.com\//.test(normalizedUrl)
   );
+}
+
+export function getSafeChatImageUrl(url: string, width = 1024) {
+  const normalizedUrl = url.trim();
+
+  if (!isAbsoluteHttpUrl(normalizedUrl)) {
+    return null;
+  }
+
+  const proxied = proxifyImageSrc(normalizedUrl, width, 0);
+  return proxied || null;
 }
 
 function isPartOfEcencyPostLink(before: string, mention: string, after: string) {
@@ -101,7 +121,7 @@ export function useMessageRendering({
 
   const getProxiedImageUrl = useCallback(
     (url: string) => {
-      return proxifyImageSrc(url, 1024, 0) || url;
+      return getSafeChatImageUrl(url);
     },
     []
   );
@@ -226,8 +246,11 @@ export function useMessageRendering({
             if (domNode.type === "text") {
               const textContent = (domNode as Text).data || "";
               const trimmedText = textContent.trim();
-              if (isImageUrl(trimmedText) && /^https?:\/\//.test(trimmedText)) {
+              if (isImageUrl(trimmedText)) {
                 const proxied = getProxiedImageUrl(trimmedText);
+                if (!proxied) {
+                  return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
+                }
                 return (
                   <ChatImage
                     src={proxied}
@@ -238,7 +261,7 @@ export function useMessageRendering({
               return <>{inLink ? renderTextWithMentions(textContent) : renderTextWithEnhancements(textContent)}</>;
             }
 
-            if (domNode instanceof Element) {
+            if (domNode.type === "tag") {
               if (domNode.name === "p") {
                 return (
                   <div className="leading-relaxed">
@@ -250,7 +273,11 @@ export function useMessageRendering({
               if (domNode.name === "img") {
                 const src = domNode.attribs?.src || "";
                 const alt = domNode.attribs?.alt || "Shared image";
-                const proxied = isImageUrl(src) ? getProxiedImageUrl(src) : src;
+                const proxied = getProxiedImageUrl(src);
+
+                if (!proxied) {
+                  return <></>;
+                }
 
                 return (
                   <ChatImage
@@ -264,7 +291,7 @@ export function useMessageRendering({
                 const href = domNode.attribs?.href || "";
                 const children = domToReact((domNode.children ?? []) as any, createParseOptions(true));
                 const containsImage = (domNode.children || []).some(
-                  (child) => child instanceof Element && child.name === "img"
+                  (child) => child.type === "tag" && child.name === "img"
                 );
 
                 const childText = (domNode.children || [])
@@ -281,6 +308,18 @@ export function useMessageRendering({
 
                 if (isPlainImageLink) {
                   const proxied = getProxiedImageUrl(href);
+                  if (!proxied) {
+                    return (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-500 underline break-all"
+                      >
+                        {children}
+                      </a>
+                    );
+                  }
 
                   return (
                     <ChatImage
