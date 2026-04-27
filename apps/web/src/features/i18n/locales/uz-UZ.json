@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Proksini tozalash",
     "proxy-votes-for": "@{{username}} uchun ovoz beradi",
     "proxy-active-highlighted": "Sizning proksi-serveringiz ovozlari ta'kidlangan",
-    "check-witness-highlighted": "ovozlar ta'kidlangan"
+    "check-witness-highlighted": "ovozlar ta'kidlangan",
+    "list-voters": "Voters",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "Voting Power",
+    "voters-sort-timestamp": "Vote Date",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "Ma'lumotnomalar",
@@ -3233,6 +3238,12 @@
       "linking-success": "Tokens have linked successfully",
       "linking-success-hint": "You can find your tokens in a wallet page"
     },
+    "balance-history": "Balance History",
+    "yearly-summary": "Yearly Summary",
+    "current-balance": "Current",
+    "year-change": "Year Change",
+    "year-min": "Year Min",
+    "year-max": "Year Max",
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",
