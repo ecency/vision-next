@@ -4,6 +4,7 @@ import routes from "@/routes";
 
 export function transform(list: Witness[], rankState: number): WitnessTransformed[] {
   return list.map((x, i) => {
+    // REST (mapRestWitness) always provides rank; fallback for any non-REST usage
     const rank = x.rank ?? i + rankState;
 
     const { props } = x;

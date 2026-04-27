@@ -11,9 +11,10 @@ import defaults from "@/defaults";
 interface Props {
   row: WitnessTransformed;
   witness: string;
+  onVotersClick?: (witness: string) => void;
 }
 
-export const WitnessCard = ({ row, witness }: Props) => {
+export const WitnessCard = ({ row, witness, onVotersClick }: Props) => {
   return (
     <div className="witnesses-card p-3 mb-3 border border-[--border-color] rounded">
       <div className="flex items-center justify-between">
@@ -56,7 +57,13 @@ export const WitnessCard = ({ row, witness }: Props) => {
       {row.votersNum != null && (
         <div className="flex items-center">
           <b>{i18next.t("witnesses.list-voters")}: </b>
-          <div className="ml-2">{row.votersNum.toLocaleString()}</div>
+          <button
+            className="ml-2 text-blue-dark-sky hover:underline bg-transparent border-0 p-0 cursor-pointer"
+            onClick={() => onVotersClick?.(row.name)}
+            aria-label={`View voters of ${row.name}`}
+          >
+            {row.votersNum.toLocaleString()}
+          </button>
         </div>
       )}
       <div className="flex items-center">

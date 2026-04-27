@@ -158,8 +158,10 @@ export function WitnessesList() {
                     <button
                       className="text-blue-dark-sky hover:underline cursor-pointer bg-transparent border-0 p-0"
                       onClick={() => setVoterDialogWitness(row.name)}
+                      aria-label={`View voters of ${row.name}`}
+                      title={`View voters of ${row.name}`}
                     >
-                      {row.votersNum.toLocaleString()}
+                      {row.votersNum.toLocaleString(i18next.language || "en-US")}
                     </button>
                   ) : (
                     "-"
@@ -203,7 +205,7 @@ export function WitnessesList() {
         {witnesses.map((row, i) => (
           <div key={`${row.name}${i}`}>
             <div className={`${proxyVotes.includes(row.name) ? "voted-by-voter" : ""}`}>
-              <WitnessCard witness={row.name} row={row} key={`${row.name}-${i}`} />
+              <WitnessCard witness={row.name} row={row} key={`${row.name}-${i}`} onVotersClick={setVoterDialogWitness} />
             </div>
           </div>
         ))}

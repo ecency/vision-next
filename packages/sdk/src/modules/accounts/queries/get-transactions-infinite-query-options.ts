@@ -79,14 +79,13 @@ interface HafahResponse {
 /**
  * Derive a safe, unique, and chronologically ordered `num` from REST fields.
  *
- * Layout: block * 1_000_000 + trx_in_block * 100 + op_pos
- *   - trx_in_block: up to 9999 (Hive max block size allows ~65K txs but
- *     typical blocks have < 100; 4 digits covers all observed blocks)
+ * Layout: block * 10_000_000 + trx_in_block * 100 + op_pos
+ *   - trx_in_block: up to 99_999 (Hive max block size ~65K txs)
  *   - op_pos: up to 99 (operations within a single transaction)
- *   - Max value: 105_000_000 * 1_000_000 = 1.05e14, within MAX_SAFE_INTEGER (9e15)
+ *   - Max value: 105_000_000 * 10_000_000 = 1.05e15, within MAX_SAFE_INTEGER (9.007e15)
  */
 function deriveNum(entry: HafahOperation): number {
-  return entry.block * 1_000_000 + entry.trx_in_block * 100 + entry.op_pos;
+  return entry.block * 10_000_000 + entry.trx_in_block * 100 + entry.op_pos;
 }
 
 /**
@@ -119,7 +118,7 @@ export function getTransactionsInfiniteQueryOptions(
     queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
     initialPageParam: 1 as TxCursor,
 
-    queryFn: async ({ pageParam }: { pageParam: TxCursor }) => {
+    queryFn: async ({ pageParam, signal }: { pageParam: TxCursor; signal?: AbortSignal }) => {
       if (!username) {
         return [];
       }
@@ -132,17 +131,21 @@ export function getTransactionsInfiniteQueryOptions(
           "operation-types": operationTypes.join(","),
           "page-size": limit,
           page: pageParam,
-        }
+        },
+        undefined,
+        undefined,
+        signal
       )) as HafahResponse;
 
       return response.operations_result.map((entry) => {
         const type = normalizeOpType(entry.op.type);
+        // Spread op.value first so derived fields (num, type, timestamp, trx_id) win
         return {
+          ...entry.op.value,
           num: deriveNum(entry),
           type,
           timestamp: entry.timestamp,
           trx_id: entry.trx_id,
-          ...entry.op.value,
         } as Transaction;
       });
     },

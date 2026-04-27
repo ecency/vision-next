@@ -61,8 +61,8 @@ function normalizePoll(raw: Record<string, unknown>): Poll {
     token: raw.token as string | null | undefined,
     community_membership: raw.community_membership as string[] | undefined,
     allow_vote_changes: raw.allow_vote_changes as boolean | undefined,
-    ui_hide_res_until_voted: raw.ui_hide_res_until_voted,
-    platform: raw.platform,
+    ui_hide_res_until_voted: (raw.ui_hide_res_until_voted as boolean | undefined) ?? false,
+    platform: (raw.platform as string | undefined) ?? undefined,
   };
 }
 

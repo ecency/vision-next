@@ -20,17 +20,14 @@ interface Props {
   coinType: BalanceCoinType;
 }
 
-/** Convert raw API balance integer to human-readable value */
 function toHumanBalance(
   raw: number,
   coinType: BalanceCoinType,
   hivePerMVests: number
 ): number {
   if (coinType === "VESTS") {
-    // API returns micro-vests (6 decimals), divide by 1e6 to get standard VESTS
     return vestsToHp(raw / 1e6, hivePerMVests);
   }
-  // HIVE/HBD: API returns millis (3 decimals)
   return raw / 1000;
 }
 
@@ -41,6 +38,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
   const chartRef = useRef<IChartApi | null>(null);
   const lineSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   const chartInitialized = useRef(false);
+  const scrollThrottleRef = useRef(false);
 
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const hivePerMVests = dynamicProps?.hivePerMVests ?? 0;
@@ -48,6 +46,12 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
   const { data, isLoading, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery(
     getBalanceHistoryInfiniteQueryOptions(username, coinType, 200)
   );
+
+  // Keep fresh values in refs so the chart scroll handler sees up-to-date state
+  const hasNextPageRef = useRef(hasNextPage);
+  const isFetchingRef = useRef(isFetching);
+  useEffect(() => { hasNextPageRef.current = hasNextPage; }, [hasNextPage]);
+  useEffect(() => { isFetchingRef.current = isFetching; }, [isFetching]);
 
   const pages = data?.pages as Array<{ entries: BalanceHistoryEntry[]; currentPage: number }> | undefined;
 
@@ -74,6 +78,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
     }
 
     chartInitialized.current = true;
+    const isDark = theme === "night";
 
     const chart = createChart(chartContainerRef.current, {
       rightPriceScale: {
@@ -85,7 +90,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
       },
       layout: {
         background: { color: "transparent" },
-        textColor: theme === "night" ? "#fff" : "#000",
+        textColor: isDark ? "#fff" : "#000",
       },
       grid: {
         horzLines: {
@@ -112,10 +117,18 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
       },
     });
 
-    // Load more data when user scrolls to the left edge
+    // Load more data when user scrolls to the left edge (throttled)
     chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
-      if (range && range.from < 10) {
+      if (
+        range &&
+        range.from < 10 &&
+        hasNextPageRef.current &&
+        !isFetchingRef.current &&
+        !scrollThrottleRef.current
+      ) {
+        scrollThrottleRef.current = true;
         fetchNextPage();
+        setTimeout(() => { scrollThrottleRef.current = false; }, 500);
       }
     });
   }, [theme, fetchNextPage]);
@@ -131,10 +144,21 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
     }
   }, [chartData.length, initChart]);
 
+  // React to theme changes
+  useEffect(() => {
+    if (chartRef.current) {
+      const isDark = theme === "night";
+      chartRef.current.applyOptions({
+        layout: {
+          textColor: isDark ? "#fff" : "#000",
+        },
+      });
+    }
+  }, [theme]);
+
   // Update chart data whenever it changes
   useEffect(() => {
     if (lineSeriesRef.current && chartData.length > 0) {
-      lineSeriesRef.current.setData([]);
       lineSeriesRef.current.setData([...chartData]);
 
       if (chartRef.current) {

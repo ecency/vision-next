@@ -55,7 +55,7 @@ export function getBalanceHistoryInfiniteQueryOptions(
         return { entries: [], currentPage: 0 };
       }
 
-      const params: Record<string, any> = {
+      const params: Record<string, string | number> = {
         "account-name": username,
         "coin-type": coinType,
         "page-size": pageSize,

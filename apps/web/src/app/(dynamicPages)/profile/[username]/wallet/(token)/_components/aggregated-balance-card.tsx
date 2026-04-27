@@ -45,8 +45,13 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
     const prev = data[1];
 
     const currentBal = Number(latest.balance.balance);
-    const prevBal = prev ? Number(prev.balance.balance) : 0;
-    const changeBal = currentBal - prevBal;
+    // Prefer the SDK-provided prior value when there's no previous yearly entry
+    const prevBal = prev
+      ? Number(prev.balance.balance)
+      : Number(latest.prev_balance?.balance ?? 0);
+    // If no reliable previous value exists, return null so UI can render "--"
+    const hasPrev = prev || latest.prev_balance?.balance;
+    const changeBal = hasPrev ? currentBal - prevBal : null;
 
     return {
       current: formatValue(currentBal, coinType, hivePerMVests),
@@ -60,11 +65,9 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
     return null;
   }
 
-  const changeFormatted = formatValue(
-    Math.abs(change ?? 0),
-    coinType,
-    hivePerMVests
-  );
+  const changeFormatted = change !== null
+    ? formatValue(Math.abs(change), coinType, hivePerMVests)
+    : null;
   const isPositive = (change ?? 0) >= 0;
 
   return (
@@ -83,8 +86,8 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             {i18next.t("profile-wallet.year-change")}
           </div>
-          <div className={`text-sm font-semibold ${isPositive ? "text-green-600" : "text-red-500"}`}>
-            {isPositive ? "+" : "-"}{changeFormatted}
+          <div className={`text-sm font-semibold ${changeFormatted === null ? "" : isPositive ? "text-green-600" : "text-red-500"}`}>
+            {changeFormatted === null ? "--" : `${isPositive ? "+" : "-"}${changeFormatted}`}
           </div>
         </div>
         <div className="rounded-lg bg-gray-100 dark:bg-dark-default p-3">

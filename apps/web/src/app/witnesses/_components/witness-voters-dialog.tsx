@@ -7,7 +7,7 @@ import i18next from "i18next";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
-import { Pagination } from "@/features/ui";
+import { Button, Pagination } from "@/features/ui";
 import React, { useMemo, useState } from "react";
 import {
   getWitnessVotersInfiniteQueryOptions,
@@ -25,6 +25,22 @@ interface Props {
 }
 
 const PAGE_SIZE = 12;
+
+/**
+ * Compare two stringified BigInt vests values safely.
+ * Returns negative if a > b (for descending sort).
+ */
+function compareVests(aVests: string, bVests: string): number {
+  try {
+    const a = BigInt(aVests);
+    const b = BigInt(bVests);
+    if (b > a) return 1;
+    if (b < a) return -1;
+    return 0;
+  } catch {
+    return Number(bVests) - Number(aVests);
+  }
+}
 
 export function WitnessVotersDialog({ witness, onHide }: Props) {
   const [searchText, setSearchText] = useState("");
@@ -44,12 +60,6 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
     return data.pages.flat();
   }, [data?.pages]);
 
-  React.useEffect(() => {
-    if (hasNextPage && !isFetching) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetching, fetchNextPage, allVoters.length]);
-
   const filtered = useMemo(
     () =>
       allVoters.filter((v) =>
@@ -65,7 +75,7 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
     return [...filtered]
       .sort((a, b) => {
         if (sort === "vests") {
-          return Number(BigInt(b.vests) - BigInt(a.vests));
+          return compareVests(a.vests, b.vests);
         }
         return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
       })
@@ -128,7 +138,7 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
                         <div className="item-extra">
                           <span>
                             {formattedNumber(
-                              vestsToHp(Number(voter.account_vests) / 1e6, hivePerMVests),
+                              vestsToHp(Number(voter.vests) / 1e6, hivePerMVests),
                               { fractionDigits: 0, suffix: " HP" }
                             )}
                           </span>
@@ -158,7 +168,9 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
                 <span className="label">{i18next.t("entry-votes.sort")}</span>
                 <FormControl
                   type="select"
-                  onChange={(e: any) => setSort(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSort(e.target.value as SortOption)
+                  }
                   value={sort}
                 >
                   <option value="vests">
@@ -170,6 +182,18 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
                 </FormControl>
               </div>
             </div>
+            {hasNextPage && (
+              <div className="flex justify-center mt-4">
+                <Button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetching}
+                >
+                  {isFetching
+                    ? i18next.t("g.loading")
+                    : i18next.t("g.load-more")}
+                </Button>
+              </div>
+            )}
           </ModalBody>
         </>
       )}

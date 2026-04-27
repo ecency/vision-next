@@ -25,7 +25,7 @@ import { UilExchange } from "@tooni/iconscout-unicons-react";
 
 export function HbdPage() {
   const params = useParams();
-  const username = (params.username as string).replace("%40", "");
+  const username = decodeURIComponent(params.username as string).replace(/^@/, "");
 
   const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
     HBD_TOKEN_OPERATION_FILTERS

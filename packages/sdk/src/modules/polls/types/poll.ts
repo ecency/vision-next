@@ -56,8 +56,8 @@ export interface Poll {
   token?: string | null;
   community_membership?: string[];
   allow_vote_changes?: boolean;
-  ui_hide_res_until_voted?: unknown;
-  platform?: unknown;
+  ui_hide_res_until_voted?: boolean;
+  platform?: string;
 }
 
 export function mapMetaChoicesToPollChoices(metaChoices: string[]): PollChoice[] {

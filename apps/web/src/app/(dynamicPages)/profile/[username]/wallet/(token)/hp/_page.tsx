@@ -30,7 +30,7 @@ export function HpPage() {
     HP_TOKEN_OPERATION_FILTERS
   );
 
-  const cleanUsername = (username as string).replace("%40", "");
+  const cleanUsername = decodeURIComponent(username as string).replace(/^@/, "");
 
   const { data, refetch, isFetching } = useInfiniteQuery(
     getHivePowerAssetTransactionsQueryOptions(
