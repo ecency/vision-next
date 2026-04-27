@@ -42,13 +42,14 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: "permlink and thumbnail_url are required" }, { status: 400 });
     }
 
+    // Pass the authenticated username so 3Speak can verify video ownership
     const res = await fetch(`${embedEndpoint}/video/${encodeURIComponent(permlink as string)}/thumbnail`, {
       method: "POST",
       headers: {
         "X-API-Key": apiKey,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ thumbnail_url })
+      body: JSON.stringify({ thumbnail_url, hive_author: auth.username })
     });
 
     if (!res.ok) {

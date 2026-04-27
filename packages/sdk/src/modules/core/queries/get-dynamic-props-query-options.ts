@@ -22,7 +22,7 @@ export function getDynamicPropsQueryOptions() {
         callRPC("condenser_api.get_chain_properties", [], undefined, undefined, signal),
         callRPC("condenser_api.get_reward_fund", ["post"], undefined, undefined, signal),
         callRPC("database_api.get_hardfork_properties", {}, undefined, undefined, signal)
-          .catch(() => ({ current_hardfork_version: "0.0.0", last_hardfork: 0 })),
+          .catch(() => ({ current_hardfork_version: "1.28.0", last_hardfork: 28 })),
       ]) as [any, any, any, any, any];
 
       // Calculate derived values for backward compatibility

@@ -3182,7 +3182,16 @@ declare function getAccountReputationsQueryOptions(query: string, limit?: number
 
 declare const ACCOUNT_OPERATION_GROUPS: Record<OperationGroup, number[]>;
 declare const ALL_ACCOUNT_OPERATIONS: number[];
-type TxPage = Transaction[];
+interface TxPageRaw {
+    entries: Transaction[];
+    currentPage: number;
+}
+/**
+ * Cursor for transaction pagination.
+ * null = first request (returns newest page, API omits page param).
+ * number = specific page to fetch (decrementing for older data).
+ */
+type TxCursor = number | null;
 /**
  * Get account transaction history with pagination and filtering.
  * Uses the hafah-api REST endpoint for server-side op-type filtering
@@ -3192,11 +3201,11 @@ type TxPage = Transaction[];
  * @param limit - Number of transactions per page
  * @param group - Filter by operation group (transfers, market-orders, etc.)
  */
-declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], number>, "queryFn"> & {
-    queryFn?: _tanstack_react_query.QueryFunction<TxPage, (string | number)[], number> | undefined;
+declare function getTransactionsInfiniteQueryOptions(username?: string, limit?: number, group?: OperationGroup | ""): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseInfiniteQueryOptions<TxPageRaw, Error, TxPageRaw, (string | number)[], TxCursor>, "queryFn"> & {
+    queryFn?: _tanstack_react_query.QueryFunction<TxPageRaw, (string | number)[], TxCursor> | undefined;
 } & {
     queryKey: (string | number)[] & {
-        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPage, unknown>;
+        [dataTagSymbol]: _tanstack_react_query.InfiniteData<TxPageRaw, unknown>;
         [dataTagErrorSymbol]: Error;
     };
 };

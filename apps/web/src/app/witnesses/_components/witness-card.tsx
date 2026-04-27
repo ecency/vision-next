@@ -60,7 +60,7 @@ export const WitnessCard = ({ row, witness, onVotersClick }: Props) => {
           <button
             className="ml-2 text-blue-dark-sky hover:underline bg-transparent border-0 p-0 cursor-pointer"
             onClick={() => onVotersClick?.(row.name)}
-            aria-label={`View voters of ${row.name}`}
+            aria-label={i18next.t("witnesses.voters-aria-label", { name: row.name })}
           >
             {row.votersNum.toLocaleString()}
           </button>

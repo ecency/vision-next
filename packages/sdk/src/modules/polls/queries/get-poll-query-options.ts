@@ -8,18 +8,21 @@ function normalizePoll(raw: Record<string, unknown>): Poll {
   const pollVoters = (raw.poll_voters as Record<string, unknown>[] | undefined) ?? [];
   const rawStats = raw.poll_stats as Record<string, unknown> | undefined;
 
-  const choices: PollChoice[] = pollChoices.map((c) => ({
-    choice_num: (c.choice_num as number) ?? 0,
-    choice_text: (c.choice_text as string) ?? "",
-    votes: c.votes
-      ? {
-          total_votes: (c.votes as Record<string, unknown>).total_votes as number ?? 0,
-          hive_hp: (c.votes as Record<string, unknown>).hive_hp as number | undefined,
-          hive_proxied_hp: (c.votes as Record<string, unknown>).hive_proxied_hp as number | undefined,
-          hive_hp_incl_proxied: ((c.votes as Record<string, unknown>).hive_hp_incl_proxied as number | null) ?? null,
-        }
-      : undefined,
-  }));
+  const choices: PollChoice[] = pollChoices.map((c) => {
+    const votes = c.votes as Record<string, unknown> | undefined;
+    return {
+      choice_num: (c.choice_num as number) ?? 0,
+      choice_text: (c.choice_text as string) ?? "",
+      votes: votes
+        ? {
+            total_votes: (votes.total_votes as number) ?? 0,
+            hive_hp: votes.hive_hp as number | undefined,
+            hive_proxied_hp: votes.hive_proxied_hp as number | undefined,
+            hive_hp_incl_proxied: (votes.hive_hp_incl_proxied as number | null) ?? null,
+          }
+        : undefined,
+    };
+  });
 
   const voters: PollVoter[] = pollVoters.map((v) => ({
     name: (v.name as string) ?? "",
@@ -62,7 +65,7 @@ function normalizePoll(raw: Record<string, unknown>): Poll {
     community_membership: raw.community_membership as string[] | undefined,
     allow_vote_changes: raw.allow_vote_changes as boolean | undefined,
     ui_hide_res_until_voted: (raw.ui_hide_res_until_voted as boolean | undefined) ?? false,
-    platform: (raw.platform as string | undefined) ?? undefined,
+    platform: raw.platform as string | undefined,
   };
 }
 

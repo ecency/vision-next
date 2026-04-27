@@ -158,8 +158,8 @@ export function WitnessesList() {
                     <button
                       className="text-blue-dark-sky hover:underline cursor-pointer bg-transparent border-0 p-0"
                       onClick={() => setVoterDialogWitness(row.name)}
-                      aria-label={`View voters of ${row.name}`}
-                      title={`View voters of ${row.name}`}
+                      aria-label={i18next.t("witnesses.voters-aria-label", { name: row.name })}
+                      title={i18next.t("witnesses.voters-aria-label", { name: row.name })}
                     >
                       {row.votersNum.toLocaleString(i18next.language || "en-US")}
                     </button>

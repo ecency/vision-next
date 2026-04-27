@@ -30,7 +30,7 @@ export const TransactionsList = ({ account }: Props) => {
     refetch
   } = useInfiniteQuery(getTransactionsInfiniteQueryOptions(account.name, 20, group));
   const transactionsFlow = useMemo(
-    () => transactionsList?.pages?.reduce((acc, page) => [...acc, ...page], []) ?? [],
+    () => transactionsList?.pages?.flatMap((page) => page.entries) ?? [],
     [transactionsList?.pages]
   );
   const uniqueTransactionsList = useMemo(

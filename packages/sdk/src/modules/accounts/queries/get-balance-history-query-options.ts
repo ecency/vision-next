@@ -50,7 +50,7 @@ export function getBalanceHistoryInfiniteQueryOptions(
     ),
     initialPageParam: null as BalanceHistoryCursor,
 
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam, signal }) => {
       if (!username) {
         return { entries: [], currentPage: 0 };
       }
@@ -71,7 +71,10 @@ export function getBalanceHistoryInfiniteQueryOptions(
       const response = (await callREST(
         "balance",
         "/accounts/{account-name}/balance-history",
-        params
+        params,
+        undefined,
+        undefined,
+        signal
       )) as BalanceHistoryResponse;
 
       return {

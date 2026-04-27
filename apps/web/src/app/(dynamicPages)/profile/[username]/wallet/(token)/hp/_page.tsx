@@ -30,7 +30,12 @@ export function HpPage() {
     HP_TOKEN_OPERATION_FILTERS
   );
 
-  const cleanUsername = decodeURIComponent(username as string).replace(/^@/, "");
+  let cleanUsername: string;
+  try {
+    cleanUsername = decodeURIComponent(username as string).replace(/^@/, "");
+  } catch {
+    cleanUsername = (username as string).replace(/^@/, "");
+  }
 
   const { data, refetch, isFetching } = useInfiniteQuery(
     getHivePowerAssetTransactionsQueryOptions(

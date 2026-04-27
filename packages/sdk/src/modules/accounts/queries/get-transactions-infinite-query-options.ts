@@ -3,6 +3,7 @@ import { utils } from "../../../hive-tx";
 import { QueryKeys } from "@/modules/core";
 import { Transaction, OperationGroup } from "../types/transaction";
 import { callREST } from "@/modules/core/hive-tx";
+import { parseAsset, NaiMap } from "@/modules/core/utils";
 
 const ops = utils.operations;
 
@@ -52,8 +53,17 @@ export const ALL_ACCOUNT_OPERATIONS = [...Object.values(ACCOUNT_OPERATION_GROUPS
   []
 );
 
-type TxPage = Transaction[];
-type TxCursor = number;
+interface TxPageRaw {
+  entries: Transaction[];
+  currentPage: number;
+}
+
+/**
+ * Cursor for transaction pagination.
+ * null = first request (returns newest page, API omits page param).
+ * number = specific page to fetch (decrementing for older data).
+ */
+type TxCursor = number | null;
 
 interface HafahOperation {
   op: {
@@ -97,6 +107,36 @@ function normalizeOpType(restType: string): string {
 }
 
 /**
+ * Check if a value is a NAI asset object (e.g. { nai: "@@000000021", amount: "1000", precision: 3 }).
+ */
+function isNaiAsset(v: unknown): v is { nai: string; amount: string; precision: number } {
+  return typeof v === "object" && v !== null && "nai" in v && "amount" in v && "precision" in v;
+}
+
+/**
+ * Convert a NAI asset object to a human-readable string like "1.000 HIVE".
+ * Returns the value unchanged if it's not a NAI object.
+ */
+function naiToString(v: unknown): unknown {
+  if (!isNaiAsset(v)) return v;
+  const parsed = parseAsset(v);
+  const symbol = NaiMap[v.nai as keyof typeof NaiMap] ?? "UNKNOWN";
+  return `${parsed.amount.toFixed(v.precision)} ${symbol}`;
+}
+
+/**
+ * Convert all NAI asset objects in an operation's value to human-readable strings
+ * so downstream renderers that expect "1.000 HIVE" don't crash with object values.
+ */
+function normalizeOpValue(value: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    result[k] = naiToString(v);
+  }
+  return result;
+}
+
+/**
  * Get account transaction history with pagination and filtering.
  * Uses the hafah-api REST endpoint for server-side op-type filtering
  * and real pagination metadata.
@@ -114,43 +154,57 @@ export function getTransactionsInfiniteQueryOptions(
     ? ACCOUNT_OPERATION_GROUPS[group]
     : ALL_ACCOUNT_OPERATIONS;
 
-  return infiniteQueryOptions<TxPage, Error, TxPage, (string | number)[], TxCursor>({
+  return infiniteQueryOptions<TxPageRaw, Error, TxPageRaw, (string | number)[], TxCursor>({
     queryKey: QueryKeys.accounts.transactions(username ?? "", group, limit),
-    initialPageParam: 1 as TxCursor,
+    initialPageParam: null as TxCursor,
 
     queryFn: async ({ pageParam, signal }: { pageParam: TxCursor; signal?: AbortSignal }) => {
       if (!username) {
-        return [];
+        return { entries: [], currentPage: 0 };
+      }
+
+      const params: Record<string, string | number> = {
+        "account-name": username,
+        "operation-types": operationTypes.join(","),
+        "page-size": limit,
+      };
+
+      // First call: omit page to get newest data
+      // Subsequent calls: pass specific page number (decrementing)
+      if (pageParam !== null) {
+        params.page = pageParam;
       }
 
       const response = (await callREST(
         "hafah",
         "/accounts/{account-name}/operations",
-        {
-          "account-name": username,
-          "operation-types": operationTypes.join(","),
-          "page-size": limit,
-          page: pageParam,
-        },
+        params,
         undefined,
         undefined,
         signal
       )) as HafahResponse;
 
-      return response.operations_result.map((entry) => {
+      const entries = response.operations_result.map((entry) => {
         const type = normalizeOpType(entry.op.type);
-        // Spread op.value first so derived fields (num, type, timestamp, trx_id) win
+        const value = normalizeOpValue(entry.op.value);
         return {
-          ...entry.op.value,
+          ...value,
           num: deriveNum(entry),
           type,
           timestamp: entry.timestamp,
           trx_id: entry.trx_id,
         } as Transaction;
       });
+
+      return {
+        entries,
+        currentPage: pageParam ?? response.total_pages,
+      };
     },
 
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === limit ? lastPageParam + 1 : undefined,
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.currentPage - 1;
+      return nextPage >= 1 ? nextPage : undefined;
+    },
   });
 }

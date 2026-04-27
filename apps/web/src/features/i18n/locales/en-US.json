@@ -2022,7 +2022,8 @@
     "list-voters": "Voters",
     "voters-title": "Voters for @{{witness}}",
     "voters-sort-vests": "Voting Power",
-    "voters-sort-timestamp": "Vote Date"
+    "voters-sort-timestamp": "Vote Date",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "Referrals",

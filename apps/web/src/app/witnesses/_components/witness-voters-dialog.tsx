@@ -97,7 +97,7 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
     >
       <ModalHeader closeButton={true} className="items-center">
         <ModalTitle>
-          {title} {totalVoters != null && `(${totalVoters.toLocaleString()})`}
+          {title} {totalVoters != null && `(${totalVoters.toLocaleString(i18next.language || "en-US")})`}
         </ModalTitle>
       </ModalHeader>
       {isLoading && allVoters.length === 0 ? (

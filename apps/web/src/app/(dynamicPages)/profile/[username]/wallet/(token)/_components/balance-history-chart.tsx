@@ -179,7 +179,11 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
     };
   }, []);
 
-  const showSpinner = (isLoading || isFetching) && chartData.length === 0;
+  // For VESTS, don't show spinner while waiting for dynamicProps - show it only
+  // when the balance data itself is loading. For HIVE/HBD, chartData is ready
+  // as soon as balance data arrives.
+  const waitingForDynamicProps = coinType === "VESTS" && !hivePerMVests && !!pages?.length;
+  const showSpinner = ((isLoading || isFetching) && chartData.length === 0) || waitingForDynamicProps;
 
   if (showSpinner) {
     return (

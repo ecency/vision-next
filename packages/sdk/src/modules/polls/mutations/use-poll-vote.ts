@@ -14,21 +14,26 @@ export function usePollVote(
   return useBroadcastMutation<PollVotePayload>(
     ["polls", "vote"],
     username ?? "",
-    ({ pollTrxId, choices }) => [
-      [
-        "custom_json",
-        {
-          id: "polls",
-          required_auths: [],
-          required_posting_auths: [username ?? ""],
-          json: JSON.stringify({
-            poll: pollTrxId,
-            action: "vote",
-            choices,
-          }),
-        },
-      ],
-    ],
+    ({ pollTrxId, choices }) => {
+      if (!username) {
+        throw new Error("[SDK][Polls] Cannot vote without an authenticated username");
+      }
+      return [
+        [
+          "custom_json",
+          {
+            id: "polls",
+            required_auths: [],
+            required_posting_auths: [username],
+            json: JSON.stringify({
+              poll: pollTrxId,
+              action: "vote",
+              choices,
+            }),
+          },
+        ],
+      ];
+    },
     undefined,
     auth,
     "posting",

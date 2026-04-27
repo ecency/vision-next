@@ -12,62 +12,7 @@ import {
   removeUserLeftChannel,
   withMattermostTokenCookie
 } from "@/server/mattermost";
-
-/**
- * Validate a HiveSigner OAuth access token by asking HiveSigner who it belongs to.
- *
- * Identity is established by the upstream `/api/me` response — we never
- * trust the client-supplied username, signature, or token contents. This
- * replaces the previous local validation that only checked the token's
- * timestamp and never verified its signature, allowing anyone to mint a
- * Mattermost PAT for any account.
- *
- * Distinguishes "HS rejected the token" (`{ ok: false, reason: "invalid" }`)
- * from "HS unreachable" (`{ ok: false, reason: "unavailable" }`) so the
- * caller can return 401 (client refreshes/relogs) vs 503 (transient — client
- * retries with backoff). Conflating the two would turn any HS outage into
- * a forced re-login.
- */
-type HsVerifyResult =
-  | { ok: true; username: string }
-  | { ok: false; reason: "invalid" | "unavailable" };
-
-async function verifyHsAccessToken(token: string, signal: AbortSignal): Promise<HsVerifyResult> {
-  let res: Response;
-  try {
-    res = await fetch("https://hivesigner.com/api/me", {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)])
-    });
-  } catch (e) {
-    if (e instanceof DOMException && e.name === "TimeoutError") {
-      console.error("MM bootstrap: HiveSigner /api/me timed out");
-    } else if (!signal.aborted) {
-      console.error("MM bootstrap: HiveSigner /api/me network error", e);
-    }
-    return { ok: false, reason: "unavailable" };
-  }
-
-  if (res.status === 401 || res.status === 403) {
-    return { ok: false, reason: "invalid" };
-  }
-  if (!res.ok) {
-    console.error(`MM bootstrap: HiveSigner /api/me upstream error ${res.status}`);
-    return { ok: false, reason: "unavailable" };
-  }
-
-  try {
-    const data = await res.json();
-    const username = data?.account?.name ?? data?.user;
-    if (typeof username !== "string") {
-      return { ok: false, reason: "invalid" };
-    }
-    return { ok: true, username };
-  } catch (e) {
-    console.error("MM bootstrap: HiveSigner /api/me parse error", e);
-    return { ok: false, reason: "unavailable" };
-  }
-}
+import { verifyHsAccessToken } from "@/server/hivesigner-verify";
 
 // Hard ceiling on the entire bootstrap handler. Individual mmFetch calls
 // have their own 10s timeout, but a user with 50 communities chains
