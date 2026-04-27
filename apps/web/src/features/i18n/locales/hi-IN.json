@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "प्रॉक्सी हटाये",
     "proxy-votes-for": "@{{username}} के लिए वोट",
     "proxy-active-highlighted": "आपके प्रतिनिधि वोटो पर प्रकाश डाला गया",
-    "check-witness-highlighted": "वोटो पर प्रकाश डाला गया"
+    "check-witness-highlighted": "वोटो पर प्रकाश डाला गया",
+    "list-voters": "Voters",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "Voting Power",
+    "voters-sort-timestamp": "Vote Date",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "रेफरलस",
@@ -3233,6 +3238,12 @@
       "linking-success": "Tokens have linked successfully",
       "linking-success-hint": "You can find your tokens in a wallet page"
     },
+    "balance-history": "Balance History",
+    "yearly-summary": "Yearly Summary",
+    "current-balance": "Current",
+    "year-change": "Year Change",
+    "year-min": "Year Min",
+    "year-max": "Year Max",
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",
