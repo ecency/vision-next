@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Clear Proxy",
     "proxy-votes-for": "@{{username}} votes for",
     "proxy-active-highlighted": "Your proxy votes are highlighted",
-    "check-witness-highlighted": "votes are highlighted"
+    "check-witness-highlighted": "votes are highlighted",
+    "list-voters": "Voters",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "Voting Power",
+    "voters-sort-timestamp": "Vote Date",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "Referrals",
@@ -3233,6 +3238,12 @@
       "linking-success": "Tokens have linked successfully",
       "linking-success-hint": "You can find your tokens in a wallet page"
     },
+    "balance-history": "Balance History",
+    "yearly-summary": "Yearly Summary",
+    "current-balance": "Current",
+    "year-change": "Year Change",
+    "year-min": "Year Min",
+    "year-max": "Year Max",
     "operations": {
       "transfer": "Transfer",
       "transfer-saving": "To Savings",
