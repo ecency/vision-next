@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Proxy wissen",
     "proxy-votes-for": "@{{username}} stemmen op",
     "proxy-active-highlighted": "Uw proxystemmen zijn gemarkeerd",
-    "check-witness-highlighted": "keuzes zijn gemarkeerd"
+    "check-witness-highlighted": "keuzes zijn gemarkeerd",
+    "list-voters": "Stemmers",
+    "voters-title": "Stemmers voor @{{witness}}",
+    "voters-sort-vests": "Stemming Kracht",
+    "voters-sort-timestamp": "Stem datum",
+    "voters-aria-label": "Bekijk kiezers van {{name}}"
   },
   "referral": {
     "page-title": "Verwijzingen",
@@ -3233,6 +3238,12 @@
       "linking-success": "Tokens zijn met succes gekoppeld",
       "linking-success-hint": "U kunt uw tokens vinden op een portefeuille pagina"
     },
+    "balance-history": "Saldo geschiedenis",
+    "yearly-summary": "Jaarlijkse samenvatting",
+    "current-balance": "Stroom",
+    "year-change": "Jaar verandering",
+    "year-min": "Min. jaar",
+    "year-max": "Max. jaar",
     "operations": {
       "transfer": "Overschrijving",
       "transfer-saving": "Naar spaargeld",
