@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "清除代理",
     "proxy-votes-for": "@{{username}} 投票给",
     "proxy-active-highlighted": "您的代理票被高亮显示",
-    "check-witness-highlighted": "选票高亮显示"
+    "check-witness-highlighted": "选票高亮显示",
+    "list-voters": "投票者",
+    "voters-title": "Voters for @{{witness}}",
+    "voters-sort-vests": "投票权",
+    "voters-sort-timestamp": "投票日期",
+    "voters-aria-label": "View voters of {{name}}"
   },
   "referral": {
     "page-title": "引用",
@@ -3233,6 +3238,12 @@
       "linking-success": "令牌已成功链接",
       "linking-success-hint": "您可以在钱包页面找到您的代币。"
     },
+    "balance-history": "余额历史",
+    "yearly-summary": "年度摘要",
+    "current-balance": "当前的",
+    "year-change": "年份变化",
+    "year-min": "年份分钟",
+    "year-max": "年份最大",
     "operations": {
       "transfer": "转移",
       "transfer-saving": "储蓄账户",
