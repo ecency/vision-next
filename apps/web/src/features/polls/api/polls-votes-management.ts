@@ -1,12 +1,12 @@
-import { GetPollDetailsQueryResponse } from "./get-poll-details-query";
+import type { Poll } from "@ecency/sdk";
 import { ActiveUser } from "@/entities";
 
 export namespace PollsVotesManagement {
   export function processVoting(
     activeUser: ActiveUser | null,
-    data: GetPollDetailsQueryResponse,
+    data: Poll,
     choiceNums: number[]
-  ): GetPollDetailsQueryResponse {
+  ): Poll {
     const existingVote = data.poll_voters?.find((pv) => pv.name === activeUser!!.username);
     const existingUserChoices = data.poll_choices?.filter(
       (pc) => existingVote?.choices.includes(pc.choice_num)
@@ -35,7 +35,7 @@ export namespace PollsVotesManagement {
           .map((pv) => ({
             ...pv,
             votes: {
-              hive_hp_incl_proxied: pv.votes?.hive_hp_incl_proxied!,
+              hive_hp_incl_proxied: pv.votes?.hive_hp_incl_proxied ?? null,
               total_votes: (pv?.votes?.total_votes ?? 0) - 1
             }
           })) ?? []),
@@ -43,7 +43,7 @@ export namespace PollsVotesManagement {
         ...currentUserChoices.map((choice) => ({
           ...choice,
           votes: {
-            hive_hp_incl_proxied: choice.votes?.hive_hp_incl_proxied!,
+            hive_hp_incl_proxied: choice.votes?.hive_hp_incl_proxied ?? null,
             total_votes:
               (choice?.votes?.total_votes ?? 0) +
               (existingUserChoices.every((pv) => pv.choice_text !== choice.choice_text) ? 1 : 0)

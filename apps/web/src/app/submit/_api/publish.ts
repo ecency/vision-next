@@ -5,7 +5,7 @@ import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { useContext } from "react";
 import { PollsContext } from "@/app/submit/_hooks/polls-manager";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
-import { GetPollDetailsQueryResponse } from "@/features/polls/api";
+import { QueryKeys, type Poll } from "@ecency/sdk";
 import { usePollsCreationManagement } from "@/features/polls";
 import { BeneficiaryRoute, Entry, FullAccount, RewardType } from "@/entities";
 import { createPermlink, isCommunity, makeCommentOptions, tempEntry } from "@/utils";
@@ -13,7 +13,6 @@ import i18next from "i18next";
 import { error, success } from "@/features/shared";
 import * as Sentry from "@sentry/nextjs";
 import { useRouter } from "next/navigation";
-import { QueryIdentifiers } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { postBodySummary } from "@ecency/render-helper";
 import { validatePostCreating } from "@ecency/sdk";
@@ -206,8 +205,8 @@ export function usePublishApi(onClear: () => void) {
     onSuccess([entry, poll]) {
       clearAll();
 
-      queryClient.setQueryData<GetPollDetailsQueryResponse | undefined>(
-        [QueryIdentifiers.POLL_DETAILS, entry?.author, entry?.permlink],
+      queryClient.setQueryData<Poll | undefined>(
+        QueryKeys.polls.details(entry?.author ?? "", entry?.permlink ?? ""),
         (data) => {
           if (!data) {
             return data;
@@ -232,7 +231,7 @@ export function usePublishApi(onClear: () => void) {
             status: "active",
             tags: [],
             token: null
-          } as unknown as GetPollDetailsQueryResponse;
+          } as unknown as Poll;
         }
       );
     }

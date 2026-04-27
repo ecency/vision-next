@@ -3,12 +3,12 @@ import { enforceThreeSpeakBeneficiary } from "@/api/threespeak-embed";
 import { linkThreeSpeakEmbed } from "@/api/threespeak-embed/link-after-broadcast";
 import { useCommentMutation, useReblogMutation } from "@/api/sdk-mutations";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
-import { QueryIdentifiers, getQueryClient } from "@/core/react-query";
+import { getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions, getPostHeaderQueryOptions } from "@ecency/sdk";
 import { FullAccount, RewardType } from "@/entities";
 import { EntryBodyManagement, EntryMetadataManagement } from "@/features/entry-management";
 import { PollSnapshot } from "@/features/polls";
-import { GetPollDetailsQueryResponse } from "@/features/polls/api";
+import { QueryKeys, type Poll } from "@ecency/sdk";
 import { success } from "@/features/shared";
 import {
   createPermlink,
@@ -206,8 +206,8 @@ export function usePublishApi() {
       return [entry, null as PollSnapshot | null] as const;
     },
     onSuccess([entry, poll]) {
-      queryClient.setQueryData<GetPollDetailsQueryResponse | undefined>(
-        [QueryIdentifiers.POLL_DETAILS, entry?.author, entry?.permlink],
+      queryClient.setQueryData<Poll | undefined>(
+        QueryKeys.polls.details(entry?.author ?? "", entry?.permlink ?? ""),
         (data) => {
           if (!data) {
             return data;
@@ -234,7 +234,7 @@ export function usePublishApi() {
             status: "active",
             tags: [],
             token: null
-          } as unknown as GetPollDetailsQueryResponse;
+          } as unknown as Poll;
         }
       );
     }

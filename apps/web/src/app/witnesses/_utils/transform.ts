@@ -4,7 +4,7 @@ import routes from "@/routes";
 
 export function transform(list: Witness[], rankState: number): WitnessTransformed[] {
   return list.map((x, i) => {
-    const rank = i + rankState;
+    const rank = x.rank ?? i + rankState;
 
     const { props } = x;
 
@@ -48,7 +48,8 @@ export function transform(list: Witness[], rankState: number): WitnessTransforme
       url,
       parsedUrl,
       signingKey,
-      priceAge
+      priceAge,
+      votersNum: x.voters_num
     };
   });
 }

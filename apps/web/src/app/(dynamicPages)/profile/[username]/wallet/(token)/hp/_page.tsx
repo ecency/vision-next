@@ -13,6 +13,8 @@ import {
   HP_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
+  AggregatedBalanceCard,
+  BalanceHistoryChart,
 } from "../_components";
 import { HiveTransactionRow, HpAboutCard, HpDelegationsCard } from "./_components";
 import i18next from "i18next";
@@ -82,6 +84,8 @@ export function HpPage() {
           <TradingViewWidget symbol="HIVE" />
         </div>
       </div>
+      <AggregatedBalanceCard username={cleanUsername} coinType="VESTS" />
+      <BalanceHistoryChart username={cleanUsername} coinType="VESTS" />
       <ProfileWalletTokenHistoryCard
         action={
           <HiveOperationFilterSelect

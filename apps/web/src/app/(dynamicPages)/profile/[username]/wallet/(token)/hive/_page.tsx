@@ -13,6 +13,8 @@ import {
   HIVE_TOKEN_OPERATION_FILTERS,
   HiveOperationFilterSelect,
   ProfileWalletTokenHistoryCard,
+  AggregatedBalanceCard,
+  BalanceHistoryChart,
 } from "../_components";
 import { HiveTransactionRow } from "./_components";
 import { Button } from "@/features/ui";
@@ -22,18 +24,15 @@ import i18next from "i18next";
 import { UilExchange } from "@tooni/iconscout-unicons-react";
 
 export function HivePage() {
-  const { username } = useParams();
+  const params = useParams();
+  const username = (params.username as string).replace("%40", "");
 
   const [filters, setFilters] = useState<HiveOperationFilterValue[]>(
     HIVE_TOKEN_OPERATION_FILTERS
   );
 
   const { data, refetch, isFetching } = useInfiniteQuery(
-    getHiveAssetTransactionsQueryOptions(
-      (username as string).replace("%40", ""),
-      1000,
-      filters
-    )
+    getHiveAssetTransactionsQueryOptions(username, 1000, filters)
   );
   const dataFlow = useInfiniteDataFlow(data);
 
@@ -75,6 +74,8 @@ export function HivePage() {
           <TradingViewWidget symbol="HIVE" />
         </div>
       </div>
+      <AggregatedBalanceCard username={username} coinType="HIVE" />
+      <BalanceHistoryChart username={username} coinType="HIVE" />
       <ProfileWalletTokenHistoryCard
         action={
           <HiveOperationFilterSelect

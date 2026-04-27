@@ -9,3 +9,5 @@ export * from "./profile-wallet-hbd-claim-rewards-button";
 export * from "./profile-wallet-hbd-interest";
 export * from "./profile-wallet-hp-delegation-promo";
 export * from "./hive-operation-filter-select";
+export * from "./balance-history-chart";
+export * from "./aggregated-balance-card";

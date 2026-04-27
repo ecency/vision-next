@@ -53,6 +53,12 @@ export const WitnessCard = ({ row, witness }: Props) => {
           <WitnessVoteBtn witness={witness} />
         </div>
       </div>
+      {row.votersNum != null && (
+        <div className="flex items-center">
+          <b>{i18next.t("witnesses.list-voters")}: </b>
+          <div className="ml-2">{row.votersNum.toLocaleString()}</div>
+        </div>
+      )}
       <div className="flex items-center">
         <b>{i18next.t("witnesses.list-miss")}: </b>
         <div className="ml-2">{row.miss}</div>{" "}
