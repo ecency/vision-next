@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "プロキシをクリア",
     "proxy-votes-for": "@{{username}} の投票",
     "proxy-active-highlighted": "あなたのプロキシ投票はハイライトされています",
-    "check-witness-highlighted": "投票がハイライト表示されます"
+    "check-witness-highlighted": "投票がハイライト表示されます",
+    "list-voters": "投票者",
+    "voters-title": "投票者@{{witness}}",
+    "voters-sort-vests": "投票力",
+    "voters-sort-timestamp": "投票日",
+    "voters-aria-label": "{{name}} の投票者を表示"
   },
   "referral": {
     "page-title": "紹介",
@@ -3233,6 +3238,12 @@
       "linking-success": "トークンが正常にリンクされました",
       "linking-success-hint": "ウォレットページでトークンを見つけることができます"
     },
+    "balance-history": "残高履歴",
+    "yearly-summary": "年間の概要",
+    "current-balance": "現在",
+    "year-change": "年の変更",
+    "year-min": "年の分",
+    "year-max": "最大年",
     "operations": {
       "transfer": "送金",
       "transfer-saving": "貯蓄へ",
