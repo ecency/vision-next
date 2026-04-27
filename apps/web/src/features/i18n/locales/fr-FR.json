@@ -2018,7 +2018,12 @@
     "proxy-active-btn-label": "Effacer le proxy",
     "proxy-votes-for": "@{{username}} votes pour",
     "proxy-active-highlighted": "Vos votes de proxy sont mis en évidence",
-    "check-witness-highlighted": "les votes sont mis en évidence"
+    "check-witness-highlighted": "les votes sont mis en évidence",
+    "list-voters": "Votants",
+    "voters-title": "Votants pour @{{witness}}",
+    "voters-sort-vests": "Puissance de vote",
+    "voters-sort-timestamp": "Date du vote",
+    "voters-aria-label": "Voir les électeurs de {{name}}"
   },
   "referral": {
     "page-title": "Recommandations",
@@ -3233,6 +3238,12 @@
       "linking-success": "Les jetons ont été liés avec succès",
       "linking-success-hint": "Vous pouvez trouver vos jetons dans une page de portefeuille"
     },
+    "balance-history": "Historique du solde",
+    "yearly-summary": "Résumé annuel",
+    "current-balance": "Actuel",
+    "year-change": "Changement d'année",
+    "year-min": "Année minimum",
+    "year-max": "Nombre max d'années",
     "operations": {
       "transfer": "Transférer",
       "transfer-saving": "Épargner",
