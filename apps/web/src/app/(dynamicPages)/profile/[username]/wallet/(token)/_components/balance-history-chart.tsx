@@ -20,6 +20,11 @@ interface Props {
   coinType: BalanceCoinType;
 }
 
+interface BalancePoint {
+  value: number;
+  opId: bigint;
+}
+
 function toHumanBalance(
   raw: number,
   coinType: BalanceCoinType,
@@ -59,18 +64,41 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
   const chartData = useMemo(() => {
     if (!pages || (coinType === "VESTS" && !hivePerMVests)) return [];
 
-    return pages
-      .flatMap((p) => p.entries)
-      .map((entry: BalanceHistoryEntry) => ({
-        time: (Math.floor(
-          new Date(entry.timestamp + "Z").getTime() / 1000
-        )) as Time,
-        value: toHumanBalance(Number(entry.balance), coinType, hivePerMVests),
-      }))
-      .sort(
-        (a: { time: Time }, b: { time: Time }) =>
-          Number(a.time) - Number(b.time)
-      );
+    // Several Hive operations can land in the same block (and therefore share
+    // the same second-precision timestamp). Lightweight-charts requires
+    // strictly increasing time per point, so collapse duplicates by keeping
+    // the entry with the highest operation_id (the final balance for that
+    // second). Also drop entries with malformed timestamps or non-finite
+    // values so a single bad row can't crash the chart.
+    const byTime = new Map<number, BalancePoint>();
+
+    for (const entry of pages.flatMap((p) => p.entries ?? [])) {
+      if (!entry?.timestamp) continue;
+
+      const ts = new Date(entry.timestamp + "Z").getTime();
+      if (!Number.isFinite(ts)) continue;
+
+      const value = toHumanBalance(Number(entry.balance), coinType, hivePerMVests);
+      if (!Number.isFinite(value)) continue;
+
+      const time = Math.floor(ts / 1000);
+      let opId: bigint;
+      try {
+        opId = BigInt(entry.operation_id ?? 0);
+      } catch {
+        opId = BigInt(0);
+      }
+
+      const existing = byTime.get(time);
+      if (!existing || opId > existing.opId) {
+        byTime.set(time, { value, opId });
+      }
+    }
+
+    return Array.from(byTime, ([time, { value }]) => ({
+      time: time as Time,
+      value,
+    })).sort((a, b) => Number(a.time) - Number(b.time));
   }, [pages, coinType, hivePerMVests]);
 
   const initChart = useCallback(() => {

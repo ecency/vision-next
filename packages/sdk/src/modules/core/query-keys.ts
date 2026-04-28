@@ -379,8 +379,14 @@ export const QueryKeys = {
       ["wallet", "recurrent-transfers", username],
     balanceHistory: (username: string, coinType: string, pageSize: number) =>
       ["wallet", "balance-history", username, coinType, pageSize],
-    aggregatedHistory: (username: string, coinType: string) =>
-      ["wallet", "aggregated-history", username, coinType],
+    aggregatedHistory: (
+      username: string,
+      coinType: string,
+      granularity?: "yearly" | "monthly" | "daily"
+    ) =>
+      granularity === undefined
+        ? ["wallet", "aggregated-history", username, coinType]
+        : ["wallet", "aggregated-history", username, coinType, granularity],
     portfolio: (
       username: string,
       onlyEnabled: string,
@@ -508,6 +514,10 @@ export const QueryKeys = {
   polls: {
     details: (author: string, permlink: string) =>
       ["polls", "details", author, permlink],
+    vote: (author?: string, permlink?: string) =>
+      author && permlink
+        ? ["polls", "vote", author, permlink]
+        : ["polls", "vote"],
     _prefix: ["polls"],
   },
 

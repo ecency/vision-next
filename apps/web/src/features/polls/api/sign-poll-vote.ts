@@ -3,48 +3,55 @@ import { useGetPollDetailsQuery } from "./get-poll-details-query";
 import { PollsVotesManagement } from "./polls-votes-management";
 import { error } from "@/features/shared";
 import i18next from "i18next";
-import { broadcastJson, QueryKeys, type Poll } from "@ecency/sdk";
+import { QueryKeys, usePollVote, type Poll } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getSdkAuthContext, getUser } from "@/utils";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { formatError } from "@/api/format-error";
 
 export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQuery>["data"]) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
+  const adapter = getWebBroadcastAdapter();
+
+  const { mutateAsync: broadcastPollVote } = usePollVote(activeUser?.username, { adapter });
 
   return useMutation({
-    mutationKey: ["sign-poll-vote", poll?.author, poll?.permlink],
+    mutationKey: QueryKeys.polls.vote(poll?.author, poll?.permlink),
     mutationFn: async ({ choices }: { choices: Set<string> }) => {
+      // Throw (not return) on validation failures so mutateAsync rejects and
+      // onError runs — that's the single place that surfaces the toast.
       if (!poll || !activeUser) {
-        error(i18next.t("polls.not-found"));
-        return;
+        throw new Error(i18next.t("polls.not-found"));
       }
 
-      const choiceNums = poll.poll_choices
-        ?.filter((pc) => choices.has(pc.choice_text))
-        ?.map((i) => i.choice_num);
+      const choiceNums =
+        poll.poll_choices
+          ?.filter((pc) => choices.has(pc.choice_text))
+          ?.map((i) => i.choice_num) ?? [];
       if (choiceNums.length === 0) {
-        error(i18next.t("polls.not-found"));
-        return;
+        throw new Error(i18next.t("polls.no-choice-selected"));
       }
 
-      await broadcastJson(activeUser.username, "polls", {
-        poll: poll.poll_trx_id,
-        action: "vote",
-        choices: choiceNums
-      }, getSdkAuthContext(getUser(activeUser.username)));
+      await broadcastPollVote({ pollTrxId: poll.poll_trx_id, choices: choiceNums });
 
-      return { choiceNums: choiceNums };
+      return { choiceNums };
     },
     onSuccess: (resp) =>
       queryClient.setQueryData<Poll>(
         QueryKeys.polls.details(poll?.author ?? "", poll?.permlink ?? ""),
         (data) => {
-          if (!data || !resp) {
+          // activeUser is captured from render-time closure. If the user logs
+          // out between dispatching the mutation and this callback running,
+          // PollsVotesManagement.processVoting would dereference a null user.
+          // Skip the optimistic update in that race; the next refetch will
+          // reconcile.
+          if (!data || !resp || !activeUser) {
             return data;
           }
 
           return PollsVotesManagement.processVoting(activeUser, data, resp.choiceNums);
         }
-      )
+      ),
+    onError: (e) => error(...formatError(e))
   });
 }
