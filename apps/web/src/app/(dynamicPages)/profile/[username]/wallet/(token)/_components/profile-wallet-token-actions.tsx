@@ -165,6 +165,10 @@ export function ProfileWalletTokenActions() {
 
   const totalActionsCount = filteredOperations.length + (isExternalToken ? 2 : 0);
 
+  if (totalActionsCount === 0) {
+    return null;
+  }
+
   return (
     <>
       <div className="grid grid-cols-2 gap-2 md:gap-2 grid-rows-2">
