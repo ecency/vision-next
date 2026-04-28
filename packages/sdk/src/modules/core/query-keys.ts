@@ -342,8 +342,13 @@ export const QueryKeys = {
     list: (limit: number) => ["witnesses", "list", limit],
     votes: (username: string | undefined) => ["witnesses", "votes", username],
     proxy: () => ["witnesses", "proxy"],
-    voters: (witness: string, pageSize: number) =>
-      ["witnesses", "voters", witness, pageSize],
+    voters: (
+      witness: string,
+      page: number,
+      pageSize: number,
+      sort: string,
+      direction: string
+    ) => ["witnesses", "voters", witness, page, pageSize, sort, direction],
     voterCount: (witness: string) =>
       ["witnesses", "voter-count", witness],
   },
