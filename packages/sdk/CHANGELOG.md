@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.9
+
+### Patch Changes
+
+- Aggragated balance customizing (#767)
+
 ## 2.2.8
 
 ### Patch Changes
