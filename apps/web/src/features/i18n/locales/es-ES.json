@@ -2019,8 +2019,8 @@
     "proxy-votes-for": "@{{username}} votos para",
     "proxy-active-highlighted": "Tus votos de proxy están resaltados",
     "check-witness-highlighted": "votos resaltados",
-    "list-voters": "Voceros",
-    "voters-title": "Voceros de @{{witness}}",
+    "list-voters": "Votantes",
+    "voters-title": "Votantes de @{{witness}}",
     "voters-sort-vests": "Poder de votación",
     "voters-sort-timestamp": "Fecha de voto",
     "voters-aria-label": "Ver votantes de {{name}}"
