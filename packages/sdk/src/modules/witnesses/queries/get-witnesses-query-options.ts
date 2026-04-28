@@ -124,7 +124,7 @@ export function getWitnessVotersPageQueryOptions(
 ) {
   return queryOptions({
     queryKey: QueryKeys.witnesses.voters(witness, page, pageSize, sort, direction),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       return (await callREST(
         "hafbe",
         "/witnesses/{witness-name}/voters",
@@ -134,7 +134,10 @@ export function getWitnessVotersPageQueryOptions(
           page,
           sort,
           direction,
-        }
+        },
+        undefined,
+        undefined,
+        signal
       )) as WitnessVotersResponse;
     },
     enabled: !!witness,

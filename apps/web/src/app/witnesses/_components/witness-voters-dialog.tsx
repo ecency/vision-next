@@ -76,9 +76,10 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
               type="text"
               placeholder={i18next.t("friends.search-placeholder")}
               value={searchText}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchText(e.target.value)
-              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setSearchText(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
           <ModalBody>
