@@ -20,6 +20,11 @@ interface Props {
   coinType: BalanceCoinType;
 }
 
+interface BalancePoint {
+  value: number;
+  opId: bigint;
+}
+
 function toHumanBalance(
   raw: number,
   coinType: BalanceCoinType,
@@ -65,7 +70,7 @@ export function BalanceHistoryChart({ username, coinType }: Props) {
     // the entry with the highest operation_id (the final balance for that
     // second). Also drop entries with malformed timestamps or non-finite
     // values so a single bad row can't crash the chart.
-    const byTime = new Map<number, { value: number; opId: bigint }>();
+    const byTime = new Map<number, BalancePoint>();
 
     for (const entry of pages.flatMap((p) => p.entries ?? [])) {
       if (!entry?.timestamp) continue;

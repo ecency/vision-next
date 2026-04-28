@@ -16,11 +16,12 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
   const { mutateAsync: broadcastPollVote } = usePollVote(activeUser?.username, { adapter });
 
   return useMutation({
-    mutationKey: ["sign-poll-vote", poll?.author, poll?.permlink],
+    mutationKey: QueryKeys.polls.vote(poll?.author, poll?.permlink),
     mutationFn: async ({ choices }: { choices: Set<string> }) => {
+      // Throw (not return) on validation failures so mutateAsync rejects and
+      // onError runs — that's the single place that surfaces the toast.
       if (!poll || !activeUser) {
-        error(i18next.t("polls.not-found"));
-        return;
+        throw new Error(i18next.t("polls.not-found"));
       }
 
       const choiceNums =
@@ -28,8 +29,7 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
           ?.filter((pc) => choices.has(pc.choice_text))
           ?.map((i) => i.choice_num) ?? [];
       if (choiceNums.length === 0) {
-        error(i18next.t("polls.not-found"));
-        return;
+        throw new Error(i18next.t("polls.not-found"));
       }
 
       await broadcastPollVote({ pollTrxId: poll.poll_trx_id, choices: choiceNums });

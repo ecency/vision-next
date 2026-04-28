@@ -382,9 +382,11 @@ export const QueryKeys = {
     aggregatedHistory: (
       username: string,
       coinType: string,
-      granularity: string = "yearly"
+      granularity?: "yearly" | "monthly" | "daily"
     ) =>
-      ["wallet", "aggregated-history", username, coinType, granularity],
+      granularity === undefined
+        ? ["wallet", "aggregated-history", username, coinType]
+        : ["wallet", "aggregated-history", username, coinType, granularity],
     portfolio: (
       username: string,
       onlyEnabled: string,
@@ -512,6 +514,10 @@ export const QueryKeys = {
   polls: {
     details: (author: string, permlink: string) =>
       ["polls", "details", author, permlink],
+    vote: (author?: string, permlink?: string) =>
+      author && permlink
+        ? ["polls", "vote", author, permlink]
+        : ["polls", "vote"],
     _prefix: ["polls"],
   },
 

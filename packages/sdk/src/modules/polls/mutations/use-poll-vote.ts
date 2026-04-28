@@ -1,4 +1,4 @@
-import { useBroadcastMutation } from "@/modules/core";
+import { QueryKeys, useBroadcastMutation } from "@/modules/core";
 import type { BroadcastMode, AuthContextV2 } from "@/modules/core";
 
 export interface PollVotePayload {
@@ -12,7 +12,7 @@ export function usePollVote(
   broadcastMode?: BroadcastMode
 ) {
   return useBroadcastMutation<PollVotePayload>(
-    ["polls", "vote"],
+    QueryKeys.polls.vote(),
     username ?? "",
     ({ pollTrxId, choices }) => {
       if (!username) {

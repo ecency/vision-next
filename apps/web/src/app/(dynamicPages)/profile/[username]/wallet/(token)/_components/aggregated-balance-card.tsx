@@ -66,7 +66,7 @@ function formatPeriodLabel(
   isLatest: boolean
 ): string {
   if (isLatest) {
-    return i18next.t("g.now") || "Now";
+    return i18next.t("g.now");
   }
   const d = dayjs(date);
   if (!d.isValid()) {
@@ -142,6 +142,18 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
     setPeriodIndex(1);
   };
 
+  // The first stat card shows the end-of-period balance for whichever bucket
+  // the user picked. Label it with that bucket's name (e.g., "2024", "Mar
+  // 2024", "Now") so the metric matches the selection instead of always
+  // reading "Current".
+  const selectedPeriodLabel = periods[safePeriodIndex]
+    ? formatPeriodLabel(
+        periods[safePeriodIndex].date,
+        granularity,
+        safePeriodIndex === 0
+      )
+    : i18next.t("profile-wallet.current-balance");
+
   return (
     <div className="bg-white dark:bg-dark-200 rounded-xl mb-4">
       <div className="p-4 flex flex-wrap items-center gap-3 justify-between">
@@ -163,28 +175,32 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
             ))}
           </FormControl>
           {periods.length > 1 && (
-            <FormControl
-              full={false}
-              type="select"
-              size="xs"
-              value={safePeriodIndex}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setPeriodIndex(Number(e.target.value))
-              }
-            >
-              {periods.map((p, idx) => (
-                <option key={`${p.date}-${idx}`} value={idx}>
-                  {formatPeriodLabel(p.date, granularity, idx === 0)}
-                </option>
-              ))}
-            </FormControl>
+            <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span>{i18next.t("profile-wallet.summary-period")}</span>
+              <FormControl
+                full={false}
+                type="select"
+                size="xs"
+                value={safePeriodIndex}
+                aria-label={i18next.t("profile-wallet.summary-period")}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setPeriodIndex(Number(e.target.value))
+                }
+              >
+                {periods.map((p, idx) => (
+                  <option key={`${p.date}-${idx}`} value={idx}>
+                    {formatPeriodLabel(p.date, granularity, idx === 0)}
+                  </option>
+                ))}
+              </FormControl>
+            </label>
           )}
         </div>
       </div>
       <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="rounded-lg bg-gray-100 dark:bg-dark-default p-3">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            {i18next.t("profile-wallet.current-balance")}
+            {selectedPeriodLabel}
           </div>
           <div className="text-sm font-semibold">{current}</div>
         </div>

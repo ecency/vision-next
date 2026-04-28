@@ -1298,7 +1298,7 @@ declare const QueryKeys: {
         readonly collateralizedConversionRequests: (account: string) => string[];
         readonly recurrentTransfers: (username: string) => string[];
         readonly balanceHistory: (username: string, coinType: string, pageSize: number) => (string | number)[];
-        readonly aggregatedHistory: (username: string, coinType: string, granularity?: string) => string[];
+        readonly aggregatedHistory: (username: string, coinType: string, granularity?: "yearly" | "monthly" | "daily") => string[];
         readonly portfolio: (username: string, onlyEnabled: string, currency: string) => string[];
     };
     readonly assets: {
@@ -1346,6 +1346,7 @@ declare const QueryKeys: {
     };
     readonly polls: {
         readonly details: (author: string, permlink: string) => string[];
+        readonly vote: (author?: string, permlink?: string) => string[];
         readonly _prefix: readonly ["polls"];
     };
     readonly operations: {
