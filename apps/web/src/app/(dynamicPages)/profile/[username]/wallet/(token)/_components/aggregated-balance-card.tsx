@@ -161,19 +161,23 @@ export function AggregatedBalanceCard({ username, coinType }: Props) {
           {i18next.t(SUMMARY_TITLE_KEY[granularity])}
         </div>
         <div className="flex items-center gap-2">
-          <FormControl
-            full={false}
-            type="select"
-            size="xs"
-            value={granularity}
-            onChange={handleGranularityChange}
-          >
-            {GRANULARITIES.map((g) => (
-              <option key={g} value={g}>
-                {i18next.t(`profile-wallet.granularity-${g}`)}
-              </option>
-            ))}
-          </FormControl>
+          <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span>{i18next.t("profile-wallet.granularity")}</span>
+            <FormControl
+              full={false}
+              type="select"
+              size="xs"
+              value={granularity}
+              aria-label={i18next.t("profile-wallet.granularity")}
+              onChange={handleGranularityChange}
+            >
+              {GRANULARITIES.map((g) => (
+                <option key={g} value={g}>
+                  {i18next.t(`profile-wallet.granularity-${g}`)}
+                </option>
+              ))}
+            </FormControl>
+          </label>
           {periods.length > 1 && (
             <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <span>{i18next.t("profile-wallet.summary-period")}</span>

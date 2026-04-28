@@ -29,7 +29,7 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
           ?.filter((pc) => choices.has(pc.choice_text))
           ?.map((i) => i.choice_num) ?? [];
       if (choiceNums.length === 0) {
-        throw new Error(i18next.t("polls.not-found"));
+        throw new Error(i18next.t("polls.no-choice-selected"));
       }
 
       await broadcastPollVote({ pollTrxId: poll.poll_trx_id, choices: choiceNums });
@@ -40,7 +40,12 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
       queryClient.setQueryData<Poll>(
         QueryKeys.polls.details(poll?.author ?? "", poll?.permlink ?? ""),
         (data) => {
-          if (!data || !resp) {
+          // activeUser is captured from render-time closure. If the user logs
+          // out between dispatching the mutation and this callback running,
+          // PollsVotesManagement.processVoting would dereference a null user.
+          // Skip the optimistic update in that race; the next refetch will
+          // reconcile.
+          if (!data || !resp || !activeUser) {
             return data;
           }
 
