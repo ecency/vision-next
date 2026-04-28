@@ -1,5 +1,5 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import { Witness, WitnessVoter, WitnessVotersResponse } from "../types";
+import { Witness, WitnessVotersResponse } from "../types";
 import { callREST } from "@/modules/core/hive-tx";
 import { QueryKeys } from "@/modules/core";
 
@@ -94,44 +94,54 @@ export function getWitnessesInfiniteQueryOptions(limit: number) {
   });
 }
 
+export type WitnessVoterSortField =
+  | "vests"
+  | "account_vests"
+  | "proxied_vests"
+  | "account_name"
+  | "timestamp";
+
+export type WitnessVoterSortDirection = "asc" | "desc";
+
 /**
- * Get voters for a specific witness with pagination.
+ * Get a single page of voters for a specific witness.
+ *
+ * Server-side pagination + sort: each page click fetches that page directly
+ * from hafbe rather than scrolling through accumulated pages on the client.
  *
  * @param witness - Witness account name
+ * @param page - 1-based page index
  * @param pageSize - Number of voters per page
+ * @param sort - Field to sort by
+ * @param direction - asc or desc
  */
-export function getWitnessVotersInfiniteQueryOptions(
+export function getWitnessVotersPageQueryOptions(
   witness: string,
-  pageSize = 50
+  page: number,
+  pageSize: number,
+  sort: WitnessVoterSortField = "vests",
+  direction: WitnessVoterSortDirection = "desc"
 ) {
-  return infiniteQueryOptions<
-    WitnessVoter[],
-    Error,
-    WitnessVoter[],
-    (string | number)[],
-    number
-  >({
-    queryKey: QueryKeys.witnesses.voters(witness, pageSize),
-    initialPageParam: 1,
-
-    queryFn: async ({ pageParam }) => {
-      const response = (await callREST(
+  return queryOptions({
+    queryKey: QueryKeys.witnesses.voters(witness, page, pageSize, sort, direction),
+    queryFn: async ({ signal }) => {
+      return (await callREST(
         "hafbe",
         "/witnesses/{witness-name}/voters",
         {
           "witness-name": witness,
           "page-size": pageSize,
-          page: pageParam,
-        }
+          page,
+          sort,
+          direction,
+        },
+        undefined,
+        undefined,
+        signal
       )) as WitnessVotersResponse;
-
-      return response.voters;
     },
-
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      lastPage.length === pageSize ? lastPageParam + 1 : undefined,
-
     enabled: !!witness,
+    staleTime: 60_000,
   });
 }
 

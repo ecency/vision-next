@@ -7,15 +7,15 @@ import i18next from "i18next";
 import { ProfileLink, UserAvatar } from "@/features/shared";
 import { dateToFormatted, dateToFullRelative, formattedNumber } from "@/utils";
 import { Tooltip } from "@ui/tooltip";
-import { Button, Pagination } from "@/features/ui";
+import { Pagination } from "@/features/ui";
 import React, { useMemo, useState } from "react";
 import {
-  getWitnessVotersInfiniteQueryOptions,
+  getWitnessVotersPageQueryOptions,
   getWitnessVoterCountQueryOptions,
   getDynamicPropsQueryOptions,
   vestsToHp,
 } from "@ecency/sdk";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 type SortOption = "vests" | "timestamp";
 
@@ -26,22 +26,6 @@ interface Props {
 
 const PAGE_SIZE = 12;
 
-/**
- * Compare two stringified BigInt vests values safely.
- * Returns negative if a > b (for descending sort).
- */
-function compareVests(aVests: string, bVests: string): number {
-  try {
-    const a = BigInt(aVests);
-    const b = BigInt(bVests);
-    if (b > a) return 1;
-    if (b < a) return -1;
-    return 0;
-  } catch {
-    return Number(bVests) - Number(aVests);
-  }
-}
-
 export function WitnessVotersDialog({ witness, onHide }: Props) {
   const [searchText, setSearchText] = useState("");
   const [page, setPage] = useState(1);
@@ -51,36 +35,17 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
   const { data: dynamicProps } = useQuery(getDynamicPropsQueryOptions());
   const hivePerMVests = dynamicProps?.hivePerMVests ?? 0;
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery(
-    getWitnessVotersInfiniteQueryOptions(witness, 50)
+  const { data, isLoading, isFetching } = useQuery(
+    getWitnessVotersPageQueryOptions(witness, page, PAGE_SIZE, sort, "desc")
   );
 
-  const allVoters = useMemo(() => {
-    if (!data?.pages) return [];
-    return data.pages.flat();
-  }, [data?.pages]);
+  const voters = data?.voters ?? [];
 
-  const filtered = useMemo(
-    () =>
-      allVoters.filter((v) =>
-        v.voter_name.toLowerCase().includes(searchText.toLowerCase())
-      ),
-    [allVoters, searchText]
-  );
-
-  const sliced = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-
-    return [...filtered]
-      .sort((a, b) => {
-        if (sort === "vests") {
-          return compareVests(a.vests, b.vests);
-        }
-        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-      })
-      .slice(start, end);
-  }, [page, filtered, sort]);
+  const visible = useMemo(() => {
+    const q = searchText.trim().toLowerCase();
+    if (!q) return voters;
+    return voters.filter((v) => v.voter_name.toLowerCase().includes(q));
+  }, [voters, searchText]);
 
   const title = i18next.t("witnesses.voters-title", { witness });
 
@@ -100,7 +65,7 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
           {title} {totalVoters != null && `(${totalVoters.toLocaleString(i18next.language || "en-US")})`}
         </ModalTitle>
       </ModalHeader>
-      {isLoading && allVoters.length === 0 ? (
+      {isLoading && !data ? (
         <div className="flex justify-center py-8">
           <Spinner className="w-4 h-4" />
         </div>
@@ -118,10 +83,10 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
             />
           </div>
           <ModalBody>
-            <div className="voters-list">
+            <div className="voters-list" aria-busy={isFetching}>
               <div className="list-body">
-                {sliced.length > 0
-                  ? sliced.map((voter) => (
+                {visible.length > 0
+                  ? visible.map((voter) => (
                       <div className="list-item" key={voter.voter_name}>
                         <div className="item-main">
                           <ProfileLink username={voter.voter_name}>
@@ -154,9 +119,9 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
             </div>
             <div className="list-tools">
               <div className="pages">
-                {filtered.length > PAGE_SIZE && (
+                {totalVoters != null && totalVoters > PAGE_SIZE && (
                   <Pagination
-                    dataLength={filtered.length}
+                    dataLength={totalVoters}
                     pageSize={PAGE_SIZE}
                     maxItems={4}
                     page={page}
@@ -168,9 +133,10 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
                 <span className="label">{i18next.t("entry-votes.sort")}</span>
                 <FormControl
                   type="select"
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setSort(e.target.value as SortOption)
-                  }
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    setSort(e.target.value as SortOption);
+                    setPage(1);
+                  }}
                   value={sort}
                 >
                   <option value="vests">
@@ -182,18 +148,6 @@ export function WitnessVotersDialog({ witness, onHide }: Props) {
                 </FormControl>
               </div>
             </div>
-            {hasNextPage && (
-              <div className="flex justify-center mt-4">
-                <Button
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetching}
-                >
-                  {isFetching
-                    ? i18next.t("g.loading")
-                    : i18next.t("g.load-more")}
-                </Button>
-              </div>
-            )}
           </ModalBody>
         </>
       )}
