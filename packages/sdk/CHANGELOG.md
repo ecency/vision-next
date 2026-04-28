@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.8
+
+### Patch Changes
+
+- Pagination fix witness voters (#766)
+
 ## 2.2.7
 
 ### Patch Changes
