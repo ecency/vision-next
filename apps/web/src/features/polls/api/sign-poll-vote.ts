@@ -3,13 +3,17 @@ import { useGetPollDetailsQuery } from "./get-poll-details-query";
 import { PollsVotesManagement } from "./polls-votes-management";
 import { error } from "@/features/shared";
 import i18next from "i18next";
-import { broadcastJson, QueryKeys, type Poll } from "@ecency/sdk";
+import { QueryKeys, usePollVote, type Poll } from "@ecency/sdk";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
-import { getSdkAuthContext, getUser } from "@/utils";
+import { getWebBroadcastAdapter } from "@/providers/sdk";
+import { formatError } from "@/api/format-error";
 
 export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQuery>["data"]) {
   const { activeUser } = useActiveAccount();
   const queryClient = useQueryClient();
+  const adapter = getWebBroadcastAdapter();
+
+  const { mutateAsync: broadcastPollVote } = usePollVote(activeUser?.username, { adapter });
 
   return useMutation({
     mutationKey: ["sign-poll-vote", poll?.author, poll?.permlink],
@@ -19,21 +23,18 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
         return;
       }
 
-      const choiceNums = poll.poll_choices
-        ?.filter((pc) => choices.has(pc.choice_text))
-        ?.map((i) => i.choice_num);
+      const choiceNums =
+        poll.poll_choices
+          ?.filter((pc) => choices.has(pc.choice_text))
+          ?.map((i) => i.choice_num) ?? [];
       if (choiceNums.length === 0) {
         error(i18next.t("polls.not-found"));
         return;
       }
 
-      await broadcastJson(activeUser.username, "polls", {
-        poll: poll.poll_trx_id,
-        action: "vote",
-        choices: choiceNums
-      }, getSdkAuthContext(getUser(activeUser.username)));
+      await broadcastPollVote({ pollTrxId: poll.poll_trx_id, choices: choiceNums });
 
-      return { choiceNums: choiceNums };
+      return { choiceNums };
     },
     onSuccess: (resp) =>
       queryClient.setQueryData<Poll>(
@@ -45,6 +46,7 @@ export function useSignPollVoteByKey(poll: ReturnType<typeof useGetPollDetailsQu
 
           return PollsVotesManagement.processVoting(activeUser, data, resp.choiceNums);
         }
-      )
+      ),
+    onError: (e) => error(...formatError(e))
   });
 }

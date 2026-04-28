@@ -3,22 +3,27 @@ import { QueryKeys } from "@/modules/core";
 import { callREST } from "@/modules/core/hive-tx";
 import type { AggregatedBalanceEntry, BalanceCoinType } from "../types";
 
+export type BalanceAggregationGranularity = "yearly" | "monthly" | "daily";
+
 /**
- * Get aggregated balance history for an account (yearly summaries).
- * Uses the balance-api REST endpoint - enables daily/weekly/monthly summary
+ * Get aggregated balance history for an account.
+ * Uses the balance-api REST endpoint - enables yearly/monthly/daily summary
  * widgets that are impossible via RPC.
  *
  * @param username - Account name
  * @param coinType - HIVE, HBD, or VESTS
+ * @param granularity - yearly (default), monthly, or daily
  */
 export function getAggregatedBalanceQueryOptions(
   username?: string,
-  coinType: BalanceCoinType = "HIVE"
+  coinType: BalanceCoinType = "HIVE",
+  granularity: BalanceAggregationGranularity = "yearly"
 ) {
   return queryOptions({
     queryKey: QueryKeys.wallet.aggregatedHistory(
       username ?? "",
-      coinType
+      coinType,
+      granularity
     ),
 
     queryFn: async () => {
@@ -32,6 +37,7 @@ export function getAggregatedBalanceQueryOptions(
         {
           "account-name": username,
           "coin-type": coinType,
+          granularity,
         }
       )) as AggregatedBalanceEntry[];
     },

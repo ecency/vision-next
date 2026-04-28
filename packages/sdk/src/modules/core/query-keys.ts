@@ -379,8 +379,12 @@ export const QueryKeys = {
       ["wallet", "recurrent-transfers", username],
     balanceHistory: (username: string, coinType: string, pageSize: number) =>
       ["wallet", "balance-history", username, coinType, pageSize],
-    aggregatedHistory: (username: string, coinType: string) =>
-      ["wallet", "aggregated-history", username, coinType],
+    aggregatedHistory: (
+      username: string,
+      coinType: string,
+      granularity: string = "yearly"
+    ) =>
+      ["wallet", "aggregated-history", username, coinType, granularity],
     portfolio: (
       username: string,
       onlyEnabled: string,
