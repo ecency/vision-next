@@ -306,6 +306,8 @@ export interface ApiAccountUpdateNotification extends BaseAPiNotification {
   type: "account_update";
   account: string;
   changes?: string[];
+  keys_changed?: string[];
+  accounts_granted?: { authority: string; account: string }[];
 }
 
 export interface ApiWeeklyEarningsNotification extends BaseAPiNotification {

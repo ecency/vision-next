@@ -213,7 +213,7 @@ export const NotificationListItem = memo(function NotificationListItem({
           {notification.type === "inactive" && <NotificationInactiveType sourceLink={sourceLink} />}
           {notification.type === "referral" && <NotificationReferralType sourceLink={sourceLink} />}
           {notification.type === "account_update" && (
-            <NotificationAccountUpdateType sourceLink={sourceLink} />
+            <NotificationAccountUpdateType sourceLink={sourceLink} notification={notification} />
           )}
           {notification.type === "weekly_earnings" && (
             <NotificationWeeklyEarningsType sourceLink={sourceLink} notification={notification} />
