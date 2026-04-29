@@ -1919,7 +1919,7 @@
     "account-update-posting-key": "Tu clave de publicación ha sido cambiada. Si no fuiste tú, asegúrate tu cuenta.",
     "account-update-owner-authority": "{{accounts}} was granted owner authority on your account. If this was not you, secure your account immediately.",
     "account-update-active-authority": "{{accounts}} was granted active authority on your account. If you did not authorize this, revoke it.",
-    "account-update-posting-authority": "{{accounts}} can now post and vote on your behalf. If you did not authorize this, revoke it.",
+    "account-update-posting-authority": "{{accounts}} ahora puede publicar y votar en tu nombre. Si no has autorizado esto, revocarlo.",
     "weekly-earnings-title": "Resumen semanal de ganancias para @{{username}}",
     "refresh": "Actualizar",
     "mark-all-read": "Marcar todo como leído",
