@@ -11,7 +11,7 @@ import { OrDivider } from "../or-divider";
 import { MetaMaskSignButton } from "../metamask-sign-button";
 import "./index.scss";
 import { shouldUseKeychainMobile } from "@/utils/client";
-import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { isInAppBrowser } from "@/utils/keychain";
 import { getLoginType } from "@/utils/user-token";
 
 interface Props {
@@ -29,7 +29,7 @@ export function KeyOrHot({ inProgress, onKey, onHot, onKc, onMetaMask, keyOnly, 
   const isMobileBrowser = useIsMobile();
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
-  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser());
+  const canRenderKeychain = !isMetaMaskUser && onKc && (!isMobileBrowser || useKcMobile || isInAppBrowser());
   const keychainLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-keychain");

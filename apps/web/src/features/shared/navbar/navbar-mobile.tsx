@@ -7,7 +7,7 @@ import { UserAvatar, preloadLoginDialog } from "@/features/shared";
 import { NavbarMainSidebar } from "@/features/shared/navbar/navbar-main-sidebar";
 import { NavbarMainSidebarToggle } from "@/features/shared/navbar/navbar-main-sidebar-toggle";
 import { NavbarSide } from "@/features/shared/navbar/sidebar/navbar-side";
-import { isKeychainInAppBrowser } from "@/utils";
+import { isInAppBrowser } from "@/utils";
 import { useMattermostUnread } from "@/features/chat/mattermost-api";
 import { UilComment, UilEditAlt, UilHomeAlt, UilLock, UilWallet, UilWater } from "@tooni/iconscout-unicons-react";
 import { Button } from "@ui/button";
@@ -39,10 +39,16 @@ export function NavbarMobile({
 
   const [isInRn, setIsInRn] = useState(false);
   useEffect(() => {
+    let inApp = false;
     try {
-      setIsInRn(isKeychainInAppBrowser());
+      inApp = isInAppBrowser();
     } catch {
-      setIsInRn(false);
+      inApp = false;
+    }
+    setIsInRn(inApp);
+    if (inApp) {
+      document.body.classList.add("is-inapp-browser");
+      return () => document.body.classList.remove("is-inapp-browser");
     }
   }, []);
 

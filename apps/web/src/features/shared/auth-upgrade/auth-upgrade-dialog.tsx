@@ -14,7 +14,7 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useIsMobile } from "@/utils";
 import { getLoginType } from "@/utils/user-token";
 import { getDetectedExtensions, hasAnyHiveExtension } from "@/utils/hive-extensions";
-import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { isInAppBrowser } from "@/utils/keychain";
 
 interface AuthUpgradeRequest {
   authority: string;
@@ -71,7 +71,7 @@ export function AuthUpgradeDialog() {
   const isMetaMaskUser = activeUser && getLoginType(activeUser.username) === "metamask";
   const useKcMobile = shouldUseKeychainMobile(activeUser?.username);
   const detectedExtensions = getDetectedExtensions();
-  const showExtensionBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isKeychainInAppBrowser() || hasAnyHiveExtension());
+  const showExtensionBtn = !isMetaMaskUser && (!isMobileBrowser || useKcMobile || isInAppBrowser() || hasAnyHiveExtension());
   const extensionLabel = useKcMobile
     ? i18next.t("key-or-hot.with-keychain-mobile", { defaultValue: "Sign with Keychain Mobile" })
     : i18next.t("key-or-hot.with-extension", { defaultValue: "Sign with Extension" });

@@ -6,7 +6,7 @@ import i18next from "i18next";
 import { loadLocale } from "@/features/i18n";
 import { getCurrencyRate } from "@ecency/sdk";
 import { currencySymbol } from "@/utils/currency-symbol";
-import { isKeychainInAppBrowser } from "@/utils/keychain";
+import { isInAppBrowser } from "@/utils/keychain";
 import { runWithRetries } from "@/utils/run-with-retries";
 import type { AppWindow } from "@/types/app-window";
 import { getQueryClient } from "@/core/react-query";
@@ -154,7 +154,7 @@ export function createGlobalActions(set: (state: Partial<State>) => void, getSta
           return false;
         }
 
-        if (isKeychainInAppBrowser()) {
+        if (isInAppBrowser()) {
           set({ hasKeyChain: true });
           return true;
         }

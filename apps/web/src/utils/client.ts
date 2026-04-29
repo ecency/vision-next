@@ -1,5 +1,5 @@
 import { getLoginType } from "./user-token";
-import { isKeychainInAppBrowser } from "./keychain";
+import { isInAppBrowser } from "./keychain";
 import { hasAnyHiveExtension } from "./hive-extensions";
 
 const MOBILE_USER_AGENT_PATTERN =
@@ -26,5 +26,5 @@ export function shouldUseKeychainMobile(username?: string): boolean {
     }
   }
 
-  return isMobileBrowser() && !hasAnyHiveExtension() && !isKeychainInAppBrowser();
+  return isMobileBrowser() && !hasAnyHiveExtension() && !isInAppBrowser();
 }

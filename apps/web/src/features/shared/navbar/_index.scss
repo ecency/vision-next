@@ -44,3 +44,11 @@
   @apply absolute -top-1 -right-1 inline-flex min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold text-white shadow;
   @apply bg-red-040;
 }
+
+body.is-inapp-browser .profile-page {
+  padding-bottom: 10rem;
+
+  @media (min-width: 768px) {
+    padding-bottom: 0;
+  }
+}

@@ -276,13 +276,15 @@ export const witnessProxy = (
     );
   });
 
-export function isKeychainInAppBrowser(): boolean {
+/**
+ * Detects mobile in-app webviews (Keychain Mobile, Ecency app, any RN
+ * WebView host). Desktop extension globals like window.hive_keychain,
+ * window.hive (Hive Keeper) and window.peakvault are NOT in-app markers —
+ * use hasAnyHiveExtension() for those.
+ */
+export function isInAppBrowser(): boolean {
   if (typeof window === "undefined") return false;
   const w = window as AppWindow;
-
-  if (typeof w.hive_keychain === "object") {
-    return true;
-  }
 
   if (typeof w.__KEYCHAIN_WEBVIEW__ === "object") {
     return true;

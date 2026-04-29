@@ -8,7 +8,7 @@ vi.mock("@/utils/client", () => ({
   shouldUseKeychainMobile: vi.fn(() => false)
 }));
 vi.mock("@/utils/keychain", () => ({
-  isKeychainInAppBrowser: vi.fn(() => false)
+  isInAppBrowser: vi.fn(() => false)
 }));
 vi.mock("@/utils/user-token", () => ({
   getLoginType: vi.fn()

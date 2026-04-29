@@ -651,20 +651,20 @@ export function MattermostChannelView({ channelId }: Props) {
     setShowJoinPrompt
   });
 
-  // Detect main query 404 / membership error → show join prompt
+  // Detect main query membership errors → show join prompt instead of raw error.
+  // Server returns 401 "unauthorized" when the user isn't a channel member, so
+  // checking only 404 / "no channel member" leaks "unauthorized" into the UI.
   useEffect(() => {
     if (!error || isLoading) return;
     const msg = ((error as Error)?.message ?? '').toLowerCase();
-    if (msg.includes('404') || msg.includes('no channel member')) {
-      setShowJoinPrompt(true);
-    }
-  }, [error, isLoading]);
-
-  // Detect main query 404 / membership error → show join prompt
-  useEffect(() => {
-    if (!error || isLoading) return;
-    const msg = ((error as Error)?.message || '').toLowerCase();
-    if (msg.includes('404') || msg.includes('no channel member')) {
+    const isMembershipError =
+      msg.includes('unauthorized') ||
+      msg.includes('forbidden') ||
+      msg.includes('401') ||
+      msg.includes('403') ||
+      msg.includes('404') ||
+      msg.includes('no channel member');
+    if (isMembershipError) {
       setShowJoinPrompt(true);
     }
   }, [error, isLoading]);
