@@ -103,8 +103,11 @@ export function useVote(
       }
 
       // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
-      if (auth?.adapter?.recordActivity && result?.id) {
-        auth.adapter.recordActivity(120, result.id, result?.block_num).catch(() => {});
+      // Async broadcasts return BroadcastResult ({ tx_id, status }) instead of TransactionConfirmation,
+      // so fall back to tx_id when id is absent.
+      const txId = result?.id ?? result?.tx_id;
+      if (auth?.adapter?.recordActivity && txId) {
+        auth.adapter.recordActivity(120, txId, result?.block_num).catch(() => {});
       }
 
       // Cache invalidation — deferred for async broadcasts since onSuccess fires

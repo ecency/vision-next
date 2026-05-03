@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.10
+
+### Patch Changes
+
+- Fix transaction id extraction (#768)
+
 ## 2.2.9
 
 ### Patch Changes
