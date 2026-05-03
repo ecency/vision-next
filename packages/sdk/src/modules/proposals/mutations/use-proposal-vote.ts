@@ -81,12 +81,15 @@ export function useProposalVote(
       // Wrap post-broadcast side-effects in try-catch to prevent propagating errors
       try {
         // Activity tracking (fire-and-forget — non-critical, shouldn't block mutation completion)
-        if (auth?.adapter?.recordActivity && result?.id) {
-          auth.adapter.recordActivity(150, result.id, result?.block_num).catch((error) => {
+        // Async broadcasts return BroadcastResult ({ tx_id, status }) instead of TransactionConfirmation,
+        // so fall back to tx_id when id is absent.
+        const txId = result?.id ?? result?.tx_id;
+        if (auth?.adapter?.recordActivity && txId) {
+          auth.adapter.recordActivity(150, txId, result?.block_num).catch((error) => {
             console.debug("[SDK][Proposals][useProposalVote] recordActivity failed", {
               activityType: 150,
-              blockNum: result.block_num,
-              transactionId: result.id,
+              blockNum: result?.block_num,
+              transactionId: txId,
               error
             });
           });
