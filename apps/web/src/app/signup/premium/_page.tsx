@@ -230,7 +230,18 @@ export function PremiumSignUp() {
             </Form>
             <div className="text-center mt-4">
               {i18next.t("sign-up.login-text-1")}
-              <a className="pl-1 cursor-pointer" onClick={() => toggleUIProp("login")}>
+              <a
+                className="pl-1 cursor-pointer"
+                role="button"
+                tabIndex={0}
+                onClick={() => toggleUIProp("login")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleUIProp("login");
+                  }
+                }}
+              >
                 {i18next.t("sign-up.login-text-2")}
               </a>
             </div>

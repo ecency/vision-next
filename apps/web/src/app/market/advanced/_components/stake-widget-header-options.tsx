@@ -34,6 +34,8 @@ export const StakeWidgetHeaderOptions = ({
           className={viewType === StakeWidgetViewType.All ? "active" : ""}
           onClick={() => onViewTypeChange(StakeWidgetViewType.All)}
           icon={allStakeSvg}
+          aria-label={i18next.t("market.advanced-mode.show-all", { defaultValue: "Show all orders" })}
+          aria-pressed={viewType === StakeWidgetViewType.All}
         />
         <Button
           appearance="link"
@@ -41,6 +43,8 @@ export const StakeWidgetHeaderOptions = ({
           className={viewType === StakeWidgetViewType.Buy ? "active" : ""}
           onClick={() => onViewTypeChange(StakeWidgetViewType.Buy)}
           icon={buyStakeSvg}
+          aria-label={i18next.t("market.advanced-mode.show-buy", { defaultValue: "Show buy orders" })}
+          aria-pressed={viewType === StakeWidgetViewType.Buy}
         />
         <Button
           appearance="link"
@@ -48,6 +52,8 @@ export const StakeWidgetHeaderOptions = ({
           className={viewType === StakeWidgetViewType.Sell ? "active" : ""}
           onClick={() => onViewTypeChange(StakeWidgetViewType.Sell)}
           icon={sellStakeSvg}
+          aria-label={i18next.t("market.advanced-mode.show-sell", { defaultValue: "Show sell orders" })}
+          aria-pressed={viewType === StakeWidgetViewType.Sell}
         />
       </div>
 

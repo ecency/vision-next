@@ -2,6 +2,7 @@ import { circleSvg, rectSvg, switchCameraSvg } from "@/assets/img/svg";
 import React, { useEffect, useState } from "react";
 import { useGetCameraList } from "./utils";
 import { useStopwatch } from "@/utils";
+import i18next from "i18next";
 
 interface Props {
   noPermission: boolean;
@@ -42,10 +43,21 @@ export function VideoUploadRecorderActions({
           {!recordStarted && cameraList.length > 1 ? (
             <div
               className="switch-camera"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("video-upload.switch-camera", { defaultValue: "Switch camera" })}
               onClick={() => {
                 const nextCameraIndex = getNextCameraIndex(currentCameraIndex);
                 onCameraSelect(cameraList[nextCameraIndex]);
                 setCurrentCameraIndex(nextCameraIndex);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  const nextCameraIndex = getNextCameraIndex(currentCameraIndex);
+                  onCameraSelect(cameraList[nextCameraIndex]);
+                  setCurrentCameraIndex(nextCameraIndex);
+                }
               }}
             >
               {switchCameraSvg}
@@ -60,9 +72,19 @@ export function VideoUploadRecorderActions({
             <div
               aria-disabled={noPermission}
               className="record-btn"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("video-upload.stop-recording", { defaultValue: "Stop recording" })}
               onClick={() => {
                 mediaRecorder?.stop();
                 setRecordStarted(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  mediaRecorder?.stop();
+                  setRecordStarted(false);
+                }
               }}
             >
               {rectSvg}
@@ -74,9 +96,19 @@ export function VideoUploadRecorderActions({
             <div
               aria-disabled={noPermission}
               className="record-btn"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("video-upload.start-recording", { defaultValue: "Start recording" })}
               onClick={() => {
                 mediaRecorder?.start();
                 setRecordStarted(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  mediaRecorder?.start();
+                  setRecordStarted(true);
+                }
               }}
             >
               {circleSvg}

@@ -4,6 +4,7 @@ import { IdentifiableEntry } from "../deck-threads-manager";
 import { classNameObject } from "@ui/util";
 import Image from "next/image";
 import { PostContentRenderer } from "@/features/shared";
+import i18next from "i18next";
 
 interface Props {
   entry: IdentifiableEntry;
@@ -47,6 +48,9 @@ export const DeckThreadItemBody = ({
               "deck-full-image-view": true,
               show: isCurrentViewingImageShowed
             })}
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("g.close", { defaultValue: "Close" })}
             onClick={(e) => {
               e.stopPropagation();
 
@@ -55,6 +59,17 @@ export const DeckThreadItemBody = ({
                 setCurrentViewingImageRect(null);
                 setCurrentViewingImage(null);
               }, 400);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsCurrentViewingImageShowed(false);
+                setTimeout(() => {
+                  setCurrentViewingImageRect(null);
+                  setCurrentViewingImage(null);
+                }, 400);
+              }
             }}
           >
             <Image

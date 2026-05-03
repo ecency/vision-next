@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import i18next from "i18next";
 import "./_index.scss";
 import { LoginRequired } from "@/features/shared";
 import { useProposalVoteMutation } from "@/api/sdk-mutations";
@@ -32,7 +33,7 @@ export function ProposalVoteBtn({ proposal }: Props) {
   if (!activeUser) {
     return (
       <LoginRequired>
-        <Button icon={<UilArrowUp />} outline={true} noPadding={true} className="w-[34px]" />
+        <Button icon={<UilArrowUp />} outline={true} noPadding={true} className="w-[34px]" aria-label={i18next.t("proposals.vote", { defaultValue: "Vote for proposal" })} />
       </LoginRequired>
     );
   }
@@ -46,6 +47,8 @@ export function ProposalVoteBtn({ proposal }: Props) {
       className="w-[34px]"
       isLoading={isPending}
       onClick={() => vote({ approve: !voted })}
+      aria-label={i18next.t("proposals.vote", { defaultValue: "Vote for proposal" })}
+      aria-pressed={voted}
     />
   );
 }

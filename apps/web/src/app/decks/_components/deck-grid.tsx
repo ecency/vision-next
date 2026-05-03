@@ -90,7 +90,16 @@ export const DeckGrid = () => {
       {isScrollStarted && (
         <div
           className="arrow-right hidden md:flex h-full items-center px-3 opacity-25 hover:opacity-50 cursor-pointer duration-300 bg-gradient-to-l from-transparent to-dark-200 fixed left-[72px] w-12 z-30"
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("g.previous", { defaultValue: "Previous" })}
           onClick={() => scrollTo("left")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollTo("left");
+            }
+          }}
         >
           {arrowLeftSvg}
         </div>
@@ -98,7 +107,16 @@ export const DeckGrid = () => {
       {!isScrollEnded && (
         <div
           className="arrow-right hidden md:flex h-full items-center px-3 opacity-25 hover:opacity-50 cursor-pointer duration-300 bg-gradient-to-r from-transparent to-dark-200 fixed right-0 w-12 z-30"
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("g.next", { defaultValue: "Next" })}
           onClick={() => scrollTo("right")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollTo("right");
+            }
+          }}
         >
           {arrowRightSvg}
         </div>

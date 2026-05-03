@@ -44,10 +44,20 @@ export function TrendingTagsCard() {
                   {tag === t && (
                     <div
                       className="text-gray-600 flex dark:text-gray-400 ml-1 cursor-pointer"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         handleUnselection();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleUnselection();
+                        }
                       }}
                     >
                       <UilMultiply size="14" />

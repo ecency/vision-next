@@ -12,7 +12,16 @@ export function FaqCategoryStateless({ contentList, categoryTitle, expanded, set
     <div className="faq-container section-container">
       <div
         className="section flex flex-col border-b border-[--border-color]"
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
         onClick={() => setExpanded?.(!expanded)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setExpanded?.(!expanded);
+          }
+        }}
       >
         <div className="flex justify-between items-center section-card relative">
           <div className="flex items-center">

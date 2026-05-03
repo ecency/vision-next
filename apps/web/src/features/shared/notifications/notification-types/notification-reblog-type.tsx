@@ -37,7 +37,18 @@ export function NotificationReblogType({
             }}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link" onClick={afterClick}>
+            <div
+              className="post-link"
+              role="button"
+              tabIndex={0}
+              onClick={afterClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  afterClick();
+                }
+              }}
+            >
               {notification.permlink}
             </div>
           </EntryLink>

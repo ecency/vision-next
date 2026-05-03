@@ -46,6 +46,7 @@ export function CenterContentLayout({ show, setShow, children }: PropsWithChildr
               appearance="gray-link"
               onClick={() => setShow(false)}
               icon={closeSvg}
+              aria-label={i18next.t("g.close", { defaultValue: "Close" })}
             />
           </div>
           <div className="border border-[--border-color] rounded-b-2xl overflow-hidden">

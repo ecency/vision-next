@@ -190,6 +190,7 @@ export function EntryVoteDialog({
                 icon={chevronUpSvgForSlider}
                 onClick={upVoteClicked}
                 outline={true}
+                aria-label={i18next.t("entry-list-item.upvote", { defaultValue: "Upvote" })}
               />
             )}
             <div className="estimated">
@@ -209,6 +210,7 @@ export function EntryVoteDialog({
                 size="xs"
                 icon={chevronDownSvgForSlider}
                 onClick={() => setMode("down")}
+                aria-label={i18next.t("entry-list-item.switch-to-downvote", { defaultValue: "Switch to downvote" })}
               />
             )}
           </div>
@@ -241,6 +243,7 @@ export function EntryVoteDialog({
                 icon={chevronUpSvgForSlider}
                 onClick={() => setMode("up")}
                 outline={true}
+                aria-label={i18next.t("entry-list-item.switch-to-upvote", { defaultValue: "Switch to upvote" })}
               />
             )}
             <div className="estimated">
@@ -264,6 +267,7 @@ export function EntryVoteDialog({
                 outline={true}
                 icon={chevronDownSvgForSlider}
                 onClick={downVoteClicked}
+                aria-label={i18next.t("entry-list-item.downvote", { defaultValue: "Downvote" })}
               />
             )}
           </div>

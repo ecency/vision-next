@@ -46,12 +46,24 @@ export function ScrollToTop() {
       <div
         ref={buttonRef}
         className="scroll-to-top"
+        role="button"
+        tabIndex={0}
+        aria-label={i18next.t("scroll-to-top.title")}
         onClick={() =>
           window.scrollTo({
             top: 0,
             behavior: "smooth"
           })
         }
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          }
+        }}
       >
         {chevronUpSvg}
       </div>

@@ -64,11 +64,16 @@ export function BookmarkBtn({ entry }: Props) {
   );
 
   if (!activeUser) {
-    // Show button that triggers login when clicked
     return (
-      <div className="bookmark-btn" onClick={() => toggleUiProp("login")}>
+      <div className="bookmark-btn">
         <Tooltip content={i18next.t("bookmark-btn.add")}>
-          <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
+          <Button
+            appearance="gray-link"
+            size="sm"
+            icon={bookmarkIcon}
+            onClick={() => toggleUiProp("login")}
+            aria-label={i18next.t("bookmark-btn.add")}
+          />
         </Tooltip>
       </div>
     );
@@ -76,15 +81,15 @@ export function BookmarkBtn({ entry }: Props) {
 
   if (bookmarkId) {
     return (
-      <div
-        className={`bookmark-btn bookmarked ${isDeleting ? "in-progress" : ""}`}
-        onClick={() => deleteBookmark(bookmarkId)}
-      >
+      <div className={`bookmark-btn bookmarked ${isDeleting ? "in-progress" : ""}`}>
         <Tooltip content={i18next.t("bookmark-btn.delete")}>
           <Button
             appearance="gray-link"
             size="sm"
             icon={bookmarkIcon}
+            onClick={() => deleteBookmark(bookmarkId)}
+            aria-label={i18next.t("bookmark-btn.delete")}
+            aria-pressed={true}
           />
         </Tooltip>
       </div>
@@ -92,12 +97,16 @@ export function BookmarkBtn({ entry }: Props) {
   }
 
   return (
-    <div
-      className={`bookmark-btn ${isAdding ? "in-progress" : ""}`}
-      onClick={() => addBookmark({ author: entry.author, permlink: entry.permlink })}
-    >
+    <div className={`bookmark-btn ${isAdding ? "in-progress" : ""}`}>
       <Tooltip content={i18next.t("bookmark-btn.add")}>
-        <Button appearance="gray-link" size="sm" icon={bookmarkIcon} />
+        <Button
+          appearance="gray-link"
+          size="sm"
+          icon={bookmarkIcon}
+          onClick={() => addBookmark({ author: entry.author, permlink: entry.permlink })}
+          aria-label={i18next.t("bookmark-btn.add")}
+          aria-pressed={false}
+        />
       </Tooltip>
     </div>
   );

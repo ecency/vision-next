@@ -29,9 +29,18 @@ function ArrowButton({ children, onClick }: PropsWithChildren<{ onClick: () => v
   return (
     <div
       className="cursor-pointer h-4 flex items-center text-blue-dark-sky opacity-75 hover:opacity-100"
+      role="button"
+      tabIndex={0}
       onClick={() => {
         setFireInterval(false);
         onClick();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFireInterval(false);
+          onClick();
+        }
       }}
       onMouseDown={() => setFireInterval(true)}
     >
@@ -74,6 +83,11 @@ export function InputVote({ value, setValue, mode = "positive" }: Props) {
   return (
     <div
       className="ecency-vote-input rounded-full overflow-hidden relative"
+      role="slider"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={value}
+      tabIndex={0}
       onTouchStart={(e) => {
         setStartPosition(e.touches.item(0)?.clientX);
         setOriginalValue(value);
@@ -88,6 +102,15 @@ export function InputVote({ value, setValue, mode = "positive" }: Props) {
       }}
       onMouseMove={onMouseMove}
       onMouseUp={(e) => (mouseDownInitiatedRef.current = false)}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+          e.preventDefault();
+          setValue(Math.min(100, value + 1));
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+          e.preventDefault();
+          setValue(Math.max(0, value - 1));
+        }
+      }}
     >
       <InputGroup append="%" className="relative z-10">
         <Input

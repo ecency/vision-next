@@ -41,6 +41,8 @@ export const DeckFloatingManager = () => {
         }}
         icon={upArrowSvg}
         iconClassName="mx-3"
+        aria-label={i18next.t("decks.floating-manager", { defaultValue: "Decks manager" })}
+        aria-expanded={show}
       />
       <div
         ref={columnsRef}
@@ -51,6 +53,8 @@ export const DeckFloatingManager = () => {
         style={{
           ...(mobileOffset > 0 && { transform: `translateY(${mobileOffset}%)` })
         }}
+        role="region"
+        aria-label={i18next.t("decks.floating-manager", { defaultValue: "Decks manager" })}
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         onTouchEnd={() => setShow(false)}
@@ -59,9 +63,18 @@ export const DeckFloatingManager = () => {
           {layout.columns.map(({ type, key, settings }) => (
             <div
               className={"item " + type}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 scrollTo(key);
                 setShow(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  scrollTo(key);
+                  setShow(false);
+                }
               }}
               key={key + type}
             >

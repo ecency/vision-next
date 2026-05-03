@@ -29,7 +29,16 @@ export const ButtonGroup = ({ labels, selected, className, setSelected }: Props)
             "bg-blue-dark-sky text-white": selected === key,
             "hover:border-blue-dark-sky-hover hover:text-blue-dark-sky": selected !== key
           })}
+          role="button"
+          tabIndex={0}
+          aria-pressed={selected === key}
           onClick={() => setSelected(key)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setSelected(key);
+            }
+          }}
         >
           {label}
         </span>

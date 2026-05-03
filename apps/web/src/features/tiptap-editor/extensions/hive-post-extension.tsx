@@ -3,6 +3,7 @@ import { EcencyRenderer } from "@/features/post-renderer";
 import { Node, nodePasteRule, NodeViewProps } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 import { memo } from "react";
 
 const MemoEcencyRenderer = memo(EcencyRenderer);
@@ -37,6 +38,7 @@ function PostViewer({
               size="xs"
               appearance="link"
               onClick={deleteNode}
+              aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
             />
           </div>
         </PopoverContent>

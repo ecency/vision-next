@@ -54,6 +54,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
   return (
     <div
       className={clsx("bg-white border border-[--border-color] pt-2 pb-3 text-sm rounded-xl")}
+      role="alert"
       onMouseEnter={() => clearTimeout(timeoutRef.current)}
       onMouseLeave={() => initTimeout()}
     >
@@ -82,6 +83,7 @@ export function FeedbackMessage({ feedback, onClose }: Props) {
               icon={<UilMultiply className="!w-3" />}
               appearance="gray"
               onClick={handleClose}
+              aria-label={i18next.t("g.close", { defaultValue: "Close" })}
             />
           </div>
           <div className="text-gray-600 dark:text-gray-400">{feedback.message}</div>

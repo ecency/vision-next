@@ -37,7 +37,15 @@ export function CommunityCardTeam({ community, toggleInfo }: Props) {
     <div className="community-section section-team">
       <div
         className="section-header"
+        role="button"
+        tabIndex={0}
         onClick={() => toggleInfo({ title: i18next.t("community-card.team"), content: team })}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleInfo({ title: i18next.t("community-card.team"), content: team });
+          }
+        }}
       >
         {accountGroupSvg} {i18next.t("community-card.team")}
       </div>

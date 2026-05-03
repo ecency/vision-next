@@ -140,7 +140,15 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
     <div>
       <div
         className="cursor-pointer hover:text-blue-dark-sky duration-300 flex flex-col gap-2"
+        role="button"
+        tabIndex={0}
         onClick={showModal}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            showModal();
+          }
+        }}
       >
         <div className="text-sm opacity-50">
           <span className="cursor-pointer">{i18next.t("rc-info.resource-credits")}</span>
@@ -220,10 +228,32 @@ export const ResourceCreditsInfo = ({ account, rcPercent }: Props) => {
 
             <div className="rc-details">
               <div className="delegations">
-                <span className="outgoing" onClick={showOutGoingList}>
+                <span
+                  className="outgoing"
+                  role="button"
+                  tabIndex={0}
+                  onClick={showOutGoingList}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      showOutGoingList();
+                    }
+                  }}
+                >
                   {`${i18next.t("rc-info.delegated")}: ${delegated ?? 0}`}
                 </span>
-                <span className="incoming" onClick={showIncomingList}>
+                <span
+                  className="incoming"
+                  role="button"
+                  tabIndex={0}
+                  onClick={showIncomingList}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      showIncomingList();
+                    }
+                  }}
+                >
                   {`${i18next.t("rc-info.received-delegations")}: ${receivedDelegation ?? 0}`}
                 </span>
               </div>

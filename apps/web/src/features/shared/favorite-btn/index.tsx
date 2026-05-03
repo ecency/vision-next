@@ -66,7 +66,11 @@ export function FavoriteBtn({ targetUsername }: Props) {
         <LoginRequired>
           <span className="favorite-btn">
             <Tooltip content={i18next.t("favorite-btn.add")}>
-              <Button size="sm" icon={favoriteIcon} />
+              <Button
+                size="sm"
+                icon={favoriteIcon}
+                aria-label={i18next.t("favorite-btn.add")}
+              />
             </Tooltip>
           </span>
         </LoginRequired>
@@ -80,6 +84,7 @@ export function FavoriteBtn({ targetUsername }: Props) {
             className="w-8"
             disabled={true}
             icon={favoriteIcon}
+            aria-label={i18next.t("favorite-btn.add")}
           />
         </Tooltip>
       )}
@@ -93,6 +98,8 @@ export function FavoriteBtn({ targetUsername }: Props) {
             isLoading={inProgress}
             onClick={() => (favorited ? deleteFrom(targetUsername) : add(targetUsername))}
             icon={favoriteIcon}
+            aria-label={i18next.t(favorited ? "favorite-btn.delete" : "favorite-btn.add")}
+            aria-pressed={favorited}
           />
         </Tooltip>
       )}

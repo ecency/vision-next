@@ -1,4 +1,5 @@
 import { MouseEvent } from "react";
+import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
 import { Fragment, useRemoveFragment } from "@ecency/sdk";
@@ -45,6 +46,7 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
               e.stopPropagation();
               onEdit();
             }}
+            aria-label={i18next.t("g.edit", { defaultValue: "Edit" })}
           />
           <Button
             appearance="gray-link"
@@ -55,6 +57,7 @@ export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
               e.stopPropagation();
               deleteFragment({ fragmentId: item.id });
             }}
+            aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
           />
         </div>
       </div>

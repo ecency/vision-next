@@ -30,6 +30,7 @@ export const MarketSwapFormHeader = ({ step, loading, onBack, className }: Props
           disabled={loading}
           onClick={() => onBack()}
           icon={arrowLeftSvg}
+          aria-label={i18next.t("g.back", { defaultValue: "Back" })}
         />
       ) : (
         <></>

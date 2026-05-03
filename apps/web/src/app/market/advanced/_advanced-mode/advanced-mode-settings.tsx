@@ -16,7 +16,7 @@ export const AdvancedModeSettings = ({ updateRate, setUpdateRate }: Props) => {
 
   return (
     <>
-      <Button appearance="link" onClick={() => setShow(true)} icon={settingsSvg} />
+      <Button appearance="link" onClick={() => setShow(true)} icon={settingsSvg} aria-label={i18next.t("g.settings", { defaultValue: "Settings" })} />
       <Modal animation={true} show={show} centered={true} onHide={() => setShow(false)}>
         <ModalHeader closeButton={true}>
           <b>{i18next.t("g.settings")}</b>

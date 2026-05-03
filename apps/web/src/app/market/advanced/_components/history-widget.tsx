@@ -100,7 +100,15 @@ export const HistoryWidget = ({
                   className="history-widget-row selectable"
                   style={style}
                   key={key}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onItemClick(items[index].price / items[index].amount)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onItemClick(items[index].price / items[index].amount);
+                    }
+                  }}
                 >
                   <div className={items[index].action === "buy" ? "text-green" : "text-red"}>
                     {(items[index].price / items[index].amount).toFixed(5)}

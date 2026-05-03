@@ -15,7 +15,17 @@ interface Props {
 
 // TODO: create styled tooltip
 export function Tooltip({ content, children }: Props) {
-  return React.cloneElement(children, { title: content });
+  const childProps = (children.props ?? {}) as Record<string, unknown>;
+  const hasOwnLabel =
+    typeof childProps["aria-label"] === "string" ||
+    typeof childProps["aria-labelledby"] === "string";
+
+  const next: Record<string, unknown> = { title: content };
+  if (!hasOwnLabel && typeof content === "string") {
+    next["aria-label"] = content;
+  }
+
+  return React.cloneElement(children, next);
 }
 
 interface StyledProps {
@@ -53,6 +63,7 @@ export function StyledTooltip({
     <div
       ref={refs.setReference}
       className={clsx("styled-tooltip", className)}
+      role="presentation"
       onMouseEnter={() => setShow(true)}
       onMouseLeave={() => {
         setShow(false);

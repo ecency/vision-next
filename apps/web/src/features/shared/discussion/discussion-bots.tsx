@@ -11,6 +11,7 @@ import useClickAway from "react-use/lib/useClickAway";
 import { EntryLink } from "../entry-link";
 import { UserAvatar } from "../user-avatar";
 import defaults from "@/defaults";
+import i18next from "i18next";
 
 interface Props {
   entries: Entry[];
@@ -49,7 +50,17 @@ export function DiscussionBots({ entries }: Props) {
     <div ref={refs.setReference}>
       <div
         className="flex items-center opacity-50 hover:opacity-100 cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-label={i18next.t("discussion.bots", { defaultValue: "Show bots" })}
+        aria-expanded={show}
         onClick={() => setShow(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setShow(true);
+          }
+        }}
       >
         {authors.map((e) => (
           <div className="-mr-3" key={e}>

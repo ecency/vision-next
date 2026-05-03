@@ -87,6 +87,7 @@ export const WaveFormControl = ({
               icon={<UilMultiply />}
               className="absolute top-4 right-4"
               onClick={() => clearSelectedImage()}
+              aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
             />
           </motion.div>
         )}

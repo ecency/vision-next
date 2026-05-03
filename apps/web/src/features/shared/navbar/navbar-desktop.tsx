@@ -71,6 +71,7 @@ export function NavbarDesktop({
             target="_blank"
             icon={<UilQuestionCircle />}
             appearance="gray-link"
+            aria-label={i18next.t("entry-index.faq")}
           />
         </Tooltip>
         {(step !== 1 || transparentVerify) && (
@@ -101,6 +102,7 @@ export function NavbarDesktop({
               href="/publish"
               appearance="gray-link"
               icon={<UilEditAlt width={20} height={20} />}
+              aria-label={i18next.t("navbar.post")}
             />
           </Tooltip>
           {hydrated && activeUser && (
@@ -110,9 +112,12 @@ export function NavbarDesktop({
         <div className="btn-menu">
           <AnonUserButtons />
           {hydrated && activeUser && (
-            <div
+            <button
               key={`desktop-avatar-${activeUser.username}`}
+              type="button"
               className="cursor-pointer ml-4"
+              aria-label={i18next.t("user-menu.title", { defaultValue: "Open user menu" })}
+              aria-expanded={showSidebar}
               onClick={() => {
                 setShowSidebar(true);
                 if (uiNotifications) {
@@ -121,7 +126,7 @@ export function NavbarDesktop({
               }}
             >
               <UserAvatar size="medium" username={activeUser.username} />
-            </div>
+            </button>
           )}
         </div>
       </div>

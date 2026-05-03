@@ -1,4 +1,5 @@
 import { UilPause, UilPlay } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 import { Button } from "../ui";
 import { useTts } from "./use-tts";
 import React, { useCallback, useMemo } from "react";
@@ -35,7 +36,16 @@ export function TextToSpeechSettingsItem({ voice, text, selected, onSelect }: Pr
         "flex justify-between h-full border border-[--border-color] cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-900 duration-300 rounded-xl p-2",
         selected?.voiceURI === voice.voiceURI && "border-blue-dark-sky text-blue-dark-sky"
       )}
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected?.voiceURI === voice.voiceURI}
       onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
     >
       <div className="flex flex-col h-full justify-between">
         <div className="text-sm">{voice.name.replace(/\(.*\)/gim, "")}</div>
@@ -47,6 +57,8 @@ export function TextToSpeechSettingsItem({ voice, text, selected, onSelect }: Pr
         icon={hasStarted ? <UilPause /> : <UilPlay />}
         size="sm"
         onClick={handleClick}
+        aria-label={hasStarted ? i18next.t("tts.pause", { defaultValue: "Pause" }) : i18next.t("tts.play", { defaultValue: "Play" })}
+        aria-pressed={hasStarted}
       />
     </div>
   );

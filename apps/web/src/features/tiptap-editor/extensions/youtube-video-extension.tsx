@@ -2,6 +2,7 @@ import { Button, Popover, PopoverContent } from "@/features/ui";
 import { Node, nodePasteRule, NodeViewProps, mergeAttributes } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
 import { UilTrash } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 
 export const YOUTUBE_REGEX =
   /^https?:\/\/(?:(?:www|m)\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s]*)?/i;
@@ -49,6 +50,7 @@ function YouTubeVideoViewer({
               size="xs"
               appearance="link"
               onClick={deleteNode}
+              aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
             />
           </div>
         </PopoverContent>

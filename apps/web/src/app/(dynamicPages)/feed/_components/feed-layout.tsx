@@ -132,7 +132,15 @@ export function FeedLayout(props: PropsWithChildren<Props>) {
         {pending.length > 0 && (
             <div
                 className="fixed top-[60px] md:top-[76px] left-1/2 -translate-x-1/2 z-50 bg-blue-dark-sky text-white px-3 py-1 rounded-full flex items-center gap-2 cursor-pointer shadow-lg"
+                role="button"
+                tabIndex={0}
                 onClick={revealNew}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    revealNew();
+                  }
+                }}
             >
               <div className="flex -space-x-1">
                 {pending.slice(0, MAX_AVATARS).map((e) => (

@@ -38,6 +38,7 @@ export function WalletOperationWithdrawRoutes({ onDeleteRoute }: Props) {
                     className="ml-2"
                     noPadding={true}
                     appearance="gray-link"
+                    aria-label={i18next.t("g.delete")}
                     onClick={() =>
                       onDeleteRoute &&
                       onDeleteRoute({

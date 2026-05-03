@@ -48,7 +48,19 @@ export const DeckThreadsFormControl = ({
           <div className="deck-threads-form-selected-image border border-[--border-color] my-3">
             <div className="type">image</div>
             <Image width={1000} height={1000} src={selectedImage} alt="" />
-            <div className="remove" onClick={() => onClearImage()}>
+            <div
+              className="remove"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("g.delete", { defaultValue: "Remove" })}
+              onClick={() => onClearImage()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onClearImage();
+                }
+              }}
+            >
               {closeSvg}
             </div>
           </div>
@@ -66,7 +78,19 @@ export const DeckThreadsFormControl = ({
                 .replace(")", "")}
               alt=""
             />
-            <div className="remove" onClick={() => onAddVideo(undefined)}>
+            <div
+              className="remove"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("g.delete", { defaultValue: "Remove" })}
+              onClick={() => onAddVideo(undefined)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onAddVideo(undefined);
+                }
+              }}
+            >
               {closeSvg}
             </div>
           </div>

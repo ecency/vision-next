@@ -107,9 +107,19 @@ export const OpenOrdersWidget = ({
                 "market-advanced-mode-oo-widget-tab cursor-pointer " +
                 (value === type ? "active" : "")
               }
+              role="tab"
+              tabIndex={0}
+              aria-selected={value === type}
               onClick={() => {
                 setType(value);
                 setStoredType(value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setType(value);
+                  setStoredType(value);
+                }
               }}
             >
               {title}

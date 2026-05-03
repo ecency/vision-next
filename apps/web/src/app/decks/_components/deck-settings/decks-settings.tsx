@@ -167,6 +167,7 @@ export const DecksSettings = ({ show, setShow, deck }: Props) => {
                     outline={true}
                     onClick={() => setIsRemovingDeck(true)}
                     icon={deleteForeverSvg}
+                    aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
                   />
                 ) : (
                   <></>

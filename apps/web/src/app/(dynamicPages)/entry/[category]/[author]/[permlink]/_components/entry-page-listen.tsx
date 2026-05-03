@@ -158,7 +158,15 @@ export function EntryPageListen({ entry }: Props) {
           </div>
           <div
             className="text-blue-dark-sky hover:text-blue-dark-sky-hover text-sm cursor-pointer flex items-center gap-1"
+            role="button"
+            tabIndex={0}
             onClick={handleClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleClick();
+              }
+            }}
           >
             {hasPaused || !hasStarted ? (
               <UilPlay className="w-3.5 h-3.5" />

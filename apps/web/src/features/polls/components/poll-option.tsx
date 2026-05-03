@@ -27,9 +27,22 @@ export function PollOption({ activeChoices, choice, addActiveChoice, removeActiv
         "bg-blue-dark-sky hover:bg-blue-dark-sky-hover bg-opacity-50 hover:bg-opacity-50 text-blue-dark-sky-active dark:text-blue-dark-sky-010":
           activeChoices.has(choice)
       })}
+      role="checkbox"
+      tabIndex={0}
+      aria-checked={activeChoices.has(choice)}
       onClick={() =>
         activeChoices.has(choice) ? removeActiveChoice(choice) : addActiveChoice(choice)
       }
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (activeChoices.has(choice)) {
+            removeActiveChoice(choice);
+          } else {
+            addActiveChoice(choice);
+          }
+        }
+      }}
     >
       <PollCheck checked={activeChoices.has(choice)} />
       {choice}

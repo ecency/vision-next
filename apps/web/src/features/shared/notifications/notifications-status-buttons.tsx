@@ -52,6 +52,7 @@ export function NotificationsStatusButtons({
               icon={playListAddCheck}
               appearance="gray-link"
               onClick={onMarkAsRead}
+              aria-label={i18next.t("notifications.mark-selected-read")}
             />
           </Tooltip>
         )}
@@ -63,6 +64,8 @@ export function NotificationsStatusButtons({
             size="sm"
             appearance="gray-link"
             onClick={onSelectClick}
+            aria-label={select ? i18next.t("notifications.unselect") : i18next.t("notifications.select")}
+            aria-pressed={select}
             icon={
               select ? (
                 <UilMinusSquare className="w-4 h-4" />

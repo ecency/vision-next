@@ -40,6 +40,7 @@ export function InputGroup({
         [INPUT_IN_GROUP]: true,
         [BUTTON_IN_GROUP]: true
       })}
+      role="presentation"
       onClick={onClick}
     >
       {prepend ? (
@@ -53,7 +54,16 @@ export function InputGroup({
             "[&>svg]:w-4 [&>svg]:h-4 px-2": true,
             "border-2": !isButtonLike(prepend)
           })}
+          role="button"
+          tabIndex={onPrependClick ? 0 : -1}
+          aria-disabled={!onPrependClick}
           onClick={() => onPrependClick?.()}
+          onKeyDown={(e) => {
+            if (onPrependClick && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              onPrependClick();
+            }
+          }}
         >
           {prepend}
         </div>
@@ -72,7 +82,16 @@ export function InputGroup({
               (prepend as ReactElement)?.type === Spinner,
             "border-2": !isButtonLike(append)
           })}
+          role="button"
+          tabIndex={onAppendClick ? 0 : -1}
+          aria-disabled={!onAppendClick}
           onClick={() => onAppendClick?.()}
+          onKeyDown={(e) => {
+            if (onAppendClick && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              onAppendClick();
+            }
+          }}
         >
           {append}
         </div>

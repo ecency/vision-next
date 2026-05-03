@@ -397,7 +397,7 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
               onValid={(v) => setDisabled(v)}
             />
           </div>
-          <div className="body-input" onKeyDown={handleShortcuts} ref={postBodyRef}>
+          <div className="body-input" role="presentation" onKeyDown={handleShortcuts} ref={postBodyRef}>
             <TextareaAutocomplete
               acceptCharset="UTF-8"
               id="the-editor"
@@ -582,7 +582,17 @@ function Submit({ path, draftId, username, permlink, searchParams }: Props) {
                               style={{
                                 backgroundImage: `url("${proxifyImageSrc(item, 260, 200)}")`
                               }}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={i18next.t("publish.thumb-selection", { defaultValue: "Select thumbnail" })}
+                              aria-pressed={selectedItem === item}
                               onClick={() => setSelectedThumbnail(item)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  setSelectedThumbnail(item);
+                                }
+                              }}
                               key={item}
                             />
                             {selectedItem === item && (

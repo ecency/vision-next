@@ -80,6 +80,8 @@ export function EntryFooterControls({ entry }: Props) {
             appearance="gray-link"
             onClick={toggleRaw}
             icon={<UilAlignAlt />}
+            aria-label={i18next.t("entry.raw")}
+            aria-pressed={isRawContent}
           />
         </Tooltip>
         <BookmarkBtn entry={entry} />

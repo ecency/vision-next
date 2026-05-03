@@ -49,6 +49,7 @@ export function PublishEditorPollEditor() {
           size="sm"
           icon={<UilTrash />}
           onClick={() => setPoll(undefined)}
+          aria-label={i18next.t("polls.remove-poll", { defaultValue: "Remove poll" })}
         />
       </div>
 
@@ -153,6 +154,7 @@ export function PublishEditorPollEditor() {
                           choices: poll.choices.filter((_, i) => i !== index)
                         })
                       }
+                      aria-label={i18next.t("polls.remove-choice", { defaultValue: "Remove choice" })}
                     />
                   )}
                 </motion.div>

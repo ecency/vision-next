@@ -84,6 +84,7 @@ export function Popover(
     <div
       ref={refs.setReference}
       {...nativeProps}
+      role="presentation"
       onClick={(e) => {
         e.stopPropagation();
         typeof props.setShow === "function" || isSheet ? undefined : setShow(true);

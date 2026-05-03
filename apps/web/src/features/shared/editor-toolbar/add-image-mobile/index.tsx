@@ -48,8 +48,17 @@ export function AddImageMobile({ onHide, onPick, onUpload, onGallery }: Props) {
                       className="recent-list-item"
                       style={{ backgroundImage: `url('${src}')` }}
                       key={item._id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={i18next.t("add-image-mobile.recent-title", { defaultValue: "Recent image" })}
                       onClick={() => {
                         onPick(item.url);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onPick(item.url);
+                        }
                       }}
                     />
                   );

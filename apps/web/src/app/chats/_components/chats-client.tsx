@@ -569,7 +569,7 @@ export function ChatsClient() {
                                       e.stopPropagation();
                                     }}
                                   >
-                                    <Button appearance="gray-link" icon={dotsHorizontal} />
+                                    <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                   </DropdownToggle>
                                   <DropdownMenu align="right">
                                     {unread > 0 && (
@@ -622,7 +622,7 @@ export function ChatsClient() {
                                         e.stopPropagation();
                                       }}
                                     >
-                                      <Button appearance="gray-link" icon={dotsHorizontal} />
+                                      <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                     </DropdownToggle>
                                     <DropdownMenu align="right">
                                       <DropdownItemWithIcon
@@ -712,7 +712,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -819,7 +819,7 @@ export function ChatsClient() {
                                     e.stopPropagation();
                                   }}
                                 >
-                                  <Button appearance="gray-link" icon={dotsHorizontal} />
+                                  <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                                 </DropdownToggle>
                                 <DropdownMenu align="right">
                                   {unread > 0 && (
@@ -948,7 +948,7 @@ export function ChatsClient() {
                                 e.stopPropagation();
                               }}
                             >
-                              <Button appearance="gray-link" icon={dotsHorizontal} />
+                              <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                             </DropdownToggle>
                             <DropdownMenu align="right">
                               {unread > 0 && (
@@ -1001,7 +1001,7 @@ export function ChatsClient() {
                                   e.stopPropagation();
                                 }}
                               >
-                                <Button appearance="gray-link" icon={dotsHorizontal} />
+                                <Button appearance="gray-link" icon={dotsHorizontal} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                               </DropdownToggle>
                               <DropdownMenu align="right">
                                 <DropdownItemWithIcon

@@ -117,6 +117,8 @@ export function ProfileMenu({ username }: Props) {
               icon={kebabMenuHorizontalSvg}
               size="sm"
               appearance="gray-link"
+              aria-label={i18next.t("g.menu", { defaultValue: "Menu" })}
+              aria-haspopup="menu"
             />
           </DropdownToggle>
           <DropdownMenu align="left">

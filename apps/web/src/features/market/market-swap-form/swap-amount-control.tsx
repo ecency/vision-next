@@ -221,7 +221,15 @@ export const SwapAmountControl = ({
               {i18next.t("market.balance")}:
               <span
                 className="text-blue-dark-sky font-bold cursor-pointer ml-1"
+                role="button"
+                tabIndex={0}
                 onClick={() => (disabled ? null : setValue(balance.split(" ")[0]))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (!disabled) setValue(balance.split(" ")[0]);
+                  }
+                }}
               >
                 {balance}
               </span>

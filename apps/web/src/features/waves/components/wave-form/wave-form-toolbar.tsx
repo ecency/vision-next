@@ -64,6 +64,7 @@ export const WaveFormToolbar = ({
             icon={<UilChart />}
             onClick={() => setShow(true)}
             disabled={disabled}
+            aria-label={i18next.t("polls.add-poll", { defaultValue: "Add poll" })}
           />
         )}
         <EcencyConfigManager.Conditional
@@ -74,6 +75,7 @@ export const WaveFormToolbar = ({
             icon={<AiImageIcon />}
             onClick={() => setShowAiGenerator(true)}
             disabled={disabled}
+            aria-label={i18next.t("ai-image-generator.toolbar-button")}
           />
         </EcencyConfigManager.Conditional>
         <PollsCreation

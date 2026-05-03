@@ -47,6 +47,7 @@ export function PublishEntryValidateEdit({ onClose, onSuccess, entry }: Props) {
           size="sm"
           className="h-[36px]"
           onClick={onClose}
+          aria-label={i18next.t("g.close", { defaultValue: "Close" })}
         />
       </div>
       <div className="px-2 py-4 sm:px-4 md:p-6 lg:p-8 bg-white rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 lg:gap-8">

@@ -178,6 +178,7 @@ export function ProfileInfo({ account }: Props) {
         icon={<UilInfoCircle width={20} height={20} />}
         size="xs"
         appearance="gray"
+        aria-label={i18next.t("profile-info.show-info", { defaultValue: "Account info" })}
       />
     </StyledTooltip>
   );

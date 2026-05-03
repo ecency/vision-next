@@ -1,6 +1,7 @@
 import { useUploadImageMutation } from "@/api/sdk-mutations";
 import { Button, Popover, PopoverContent } from "@/features/ui";
 import { proxifyImageSrc } from "@ecency/render-helper";
+import i18next from "i18next";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
 import Text from "@tiptap/extension-text";
@@ -162,6 +163,7 @@ export function PublishEditorImageViewer({
               size="xs"
               appearance="gray-link"
               onClick={deleteNode}
+              aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
             />
           </div>
         </PopoverContent>

@@ -16,7 +16,18 @@ export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) 
   return (
     <div
       className="ecency-checkbox cursor-pointer flex items-center justify-center gap-3"
-      onClick={() => onChange(!checked)}
+      role="checkbox"
+      tabIndex={disabled ? -1 : 0}
+      aria-checked={checked}
+      aria-disabled={disabled}
+      aria-label={label}
+      onClick={() => !disabled && onChange(!checked)}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !disabled) {
+          e.preventDefault();
+          onChange(!checked);
+        }
+      }}
     >
       <div
         className={classNameObject({

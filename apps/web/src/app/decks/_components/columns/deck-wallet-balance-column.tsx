@@ -259,7 +259,16 @@ export const DeckWalletBalanceColumn = ({
             <div
               className={"wb-tab " + (tab === t ? "active" : "")}
               key={t}
+              role="tab"
+              tabIndex={0}
+              aria-selected={tab === t}
               onClick={() => setTab(t)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setTab(t);
+                }
+              }}
             >
               {t}
             </div>

@@ -15,6 +15,7 @@ export function NoLocalStorageBanner() {
           onClick={() => setShow(false)}
           appearance="white-link"
           icon={<UilMultiply className="w-4 h-4" />}
+          aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
         />
       </div>
       <div className="text-sm opacity-75">{i18next.t("banners.no-ls-description")}</div>

@@ -10,6 +10,7 @@ import { bellSvg, rocketSvg } from "@ui/svg";
 import { useState } from "react";
 import { dotsMenuIconSvg, walletIconSvg } from "../icons";
 import { getAccessToken } from "@/utils";
+import i18next from "i18next";
 
 interface Props {
   setShowPurchaseDialog: (v: boolean) => void;
@@ -35,7 +36,19 @@ export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
           >
-            <div className="notifications" onClick={() => toggleUIProp("notifications")}>
+            <div
+              className="notifications"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("notifications.title", { defaultValue: "Notifications" })}
+              onClick={() => toggleUIProp("notifications")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggleUIProp("notifications");
+                }
+              }}
+            >
               {unread > 0 && (
                 <span className="notifications-badge notranslate">
                   {unread.toString().length < 3 ? unread : "..."}
@@ -47,7 +60,20 @@ export const DeckToolbarBaseActions = ({ setShowPurchaseDialog }: Props) => {
           <EcencyConfigManager.Conditional
             condition={({ visionFeatures }) => visionFeatures.perks.enabled}
           >
-            <div onClick={() => setShowPurchaseDialog(true)}>{rocketSvg}</div>
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("perks.title", { defaultValue: "Perks" })}
+              onClick={() => setShowPurchaseDialog(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setShowPurchaseDialog(true);
+                }
+              }}
+            >
+              {rocketSvg}
+            </div>
           </EcencyConfigManager.Conditional>
           <WalletBadge icon={walletIconSvg} />
         </>

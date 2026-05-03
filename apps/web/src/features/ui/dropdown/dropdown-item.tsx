@@ -84,7 +84,16 @@ export function DropdownItem({
   return (
     <div
       className={baseClasses}
+      role="menuitem"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick(e as unknown as React.MouseEvent<HTMLElement>);
+        }
+      }}
       {...(rest as React.HTMLAttributes<HTMLDivElement>)}
     >
       {children}

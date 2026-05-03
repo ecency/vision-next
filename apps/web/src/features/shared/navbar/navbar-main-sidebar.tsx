@@ -68,7 +68,13 @@ export function NavbarMainSidebar({ show, setShow, setStepOne }: Props) {
           </div>
           <NavbarSideThemeSwitcher />
         </div>
-        <Button icon={closeSvg} size="sm" appearance="gray-link" onClick={() => setShow(false)} />
+        <Button
+          icon={closeSvg}
+          size="sm"
+          appearance="gray-link"
+          onClick={() => setShow(false)}
+          aria-label={i18next.t("g.close", { defaultValue: "Close menu" })}
+        />
       </div>
       <div className="px-4 py-6 flex flex-col gap-0.5">
         <Search />

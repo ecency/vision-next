@@ -138,6 +138,7 @@ export const DeckAddColumn = ({ id, draggable, deckKey }: Props) => {
                 setSelectedType(null);
               }}
               icon={arrowLeftSvg}
+              aria-label={i18next.t("g.back", { defaultValue: "Back" })}
             />
           ) : (
             <></>
@@ -152,6 +153,8 @@ export const DeckAddColumn = ({ id, draggable, deckKey }: Props) => {
               <div
                 key={type}
                 className="item"
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   if (typesWithoutSettings.includes(type)) {
                     add({
@@ -165,6 +168,23 @@ export const DeckAddColumn = ({ id, draggable, deckKey }: Props) => {
                     setStep("setup");
                   }
                   setSelectedType(type);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (typesWithoutSettings.includes(type)) {
+                      add({
+                        key: deckKey,
+                        type,
+                        settings: {
+                          updateIntervalMs: 60000
+                        }
+                      });
+                    } else {
+                      setStep("setup");
+                    }
+                    setSelectedType(type);
+                  }
                 }}
               >
                 {icon}

@@ -15,7 +15,7 @@ export function PerksPointsCard() {
             </div>
             <div className="text-[#ffffff]">{i18next.t("perks.points-title-2")}</div>
           </div>
-          <Button size="xs" appearance="white" icon={<UilArrowRight />} />
+          <Button size="xs" appearance="white" icon={<UilArrowRight />} aria-label={i18next.t("perks.points-title")} />
         </div>
 
         <GetPointsFrame />

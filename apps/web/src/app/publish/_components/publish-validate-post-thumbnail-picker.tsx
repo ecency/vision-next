@@ -29,6 +29,7 @@ export function PublishValidatePostThumbnailPicker() {
             appearance="gray"
             onClick={() => clearSelectedThumbnail()}
             icon={<UilTrash />}
+            aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
           />
         )}
       </div>
@@ -42,9 +43,19 @@ export function PublishValidatePostThumbnailPicker() {
                 key={thumb}
                 className="w-full aspect-square bg-cover cursor-pointer hover:scale-95 duration-300"
                 style={{ backgroundImage: `url(${thumb})` }}
+                role="button"
+                tabIndex={0}
+                aria-label={i18next.t("publish.thumb-selection", { defaultValue: "Select thumbnail" })}
                 onClick={() => {
                   setSelectedThumbnail(thumb);
                   setShowPicker(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedThumbnail(thumb);
+                    setShowPicker(false);
+                  }
                 }}
               />
             ))}

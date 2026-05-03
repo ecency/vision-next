@@ -134,6 +134,10 @@ export function PollWidget({ poll, isReadOnly, entry, compact = false }: Props) 
               icon={<UilClock />}
               onClick={() => setShowEndDate(!showEndDate)}
               appearance="gray-link"
+              aria-label={i18next.t("polls.toggle-end-time", {
+                defaultValue: "Toggle end time"
+              })}
+              aria-pressed={showEndDate}
             />
           </div>
         </div>

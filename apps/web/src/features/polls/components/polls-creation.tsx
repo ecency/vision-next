@@ -155,6 +155,7 @@ export function PollsCreation({
                   onClick={() => deleteChoiceByIndex(key)}
                   appearance="gray-link"
                   icon={<UilTrash />}
+                  aria-label={i18next.t("polls.delete-choice", { defaultValue: "Delete choice" })}
                 />
               </div>
             ))}

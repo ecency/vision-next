@@ -41,7 +41,7 @@ export function WaveFollowsCard() {
       <div className="font-semibold mb-6 flex justify-between items-center gap-4">
         <span>{i18next.t("waves.who-to-follow")}</span>
         <StyledTooltip content={i18next.t("waves.who-to-follow-hint")}>
-          <Button icon={<UilInfoCircle />} size="xs" appearance="gray-link" />
+          <Button icon={<UilInfoCircle />} size="xs" appearance="gray-link" aria-label={i18next.t("waves.who-to-follow-hint")} />
         </StyledTooltip>
       </div>
       <div className="flex flex-col gap-4">

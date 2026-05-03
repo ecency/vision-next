@@ -68,10 +68,20 @@ export const SearchByUsername = ({ setUsername, excludeActiveUser, username }: P
           <div
             key={username}
             className="border-b border-[--border-color] last:border-0 p-2 md:p-4 flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-200 dark:hover-bg-gray-800"
+            role="button"
+            tabIndex={0}
             onClick={() => {
               setUsername(username);
               setUsernameInput(username);
               setShow(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setUsername(username);
+                setUsernameInput(username);
+                setShow(false);
+              }
             }}
           >
             <UserAvatar size="small" username={username} />

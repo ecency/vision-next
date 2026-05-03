@@ -76,7 +76,15 @@ export const DeletedPostScreen = ({ username, permlink, staticNav }: Props) => {
                 <div className="p-3 bg-danger rounded text-white my-0 mb-4 my-lg-5">
                   {i18next.t("entry.deleted-content-warning")}
                   <u
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setEditHistory(!editHistory)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setEditHistory(!editHistory);
+                      }
+                    }}
                     className="text-blue-dark-sky pointer"
                   >
                     {i18next.t("points.history")}

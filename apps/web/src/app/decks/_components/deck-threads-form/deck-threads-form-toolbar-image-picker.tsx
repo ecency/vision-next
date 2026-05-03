@@ -86,7 +86,7 @@ export const DeckThreadsFormToolbarImagePicker = ({ onAddImage }: Props) => {
         <Tooltip content={i18next.t("editor-toolbar.image")}>
           <Dropdown>
             <DropdownToggle>
-              <Button icon={<UilImage />} appearance="gray-link" noPadding={true} />
+              <Button icon={<UilImage />} appearance="gray-link" noPadding={true} aria-label={i18next.t("editor-toolbar.image")} aria-haspopup="menu" />
             </DropdownToggle>
             <DropdownMenu>
               <DropdownItemWithIcon

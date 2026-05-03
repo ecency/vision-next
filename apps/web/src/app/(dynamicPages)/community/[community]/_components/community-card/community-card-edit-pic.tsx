@@ -56,7 +56,19 @@ export function CommunityCardEditPic({ account, onUpdate }: EditPicProps) {
   return (
     <>
       <Tooltip content={i18next.t("community-card.profile-image-edit")}>
-        <div className="edit-button" onClick={() => setDialog(!dialog)}>
+        <div
+          className="edit-button"
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("community-card.profile-image-edit")}
+          onClick={() => setDialog(!dialog)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setDialog(!dialog);
+            }
+          }}
+        >
           {pencilOutlineSvg}
         </div>
       </Tooltip>

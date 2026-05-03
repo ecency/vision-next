@@ -124,6 +124,7 @@ export function WalletOperationsDialog({
               iconPlacement="left"
               appearance="gray-link"
               onClick={() => setStep("form")}
+              aria-label={i18next.t("g.back", { defaultValue: "Back" })}
             />
             <div className="font-normal">
               <div>{i18next.t(`${titleNamespace}.${titleKey}`)}</div>

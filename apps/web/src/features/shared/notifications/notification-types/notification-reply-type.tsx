@@ -27,7 +27,18 @@ export function NotificationReplyType({
         <span className="item-action">{i18next.t("notifications.reply-str")}</span>
         <div className="vert-separator" />
         {!!onLinkClick ? (
-          <a className="post-link" onClick={onLinkClick}>
+          <a
+            className="post-link"
+            role="button"
+            tabIndex={0}
+            onClick={onLinkClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onLinkClick?.();
+              }
+            }}
+          >
             {notification.parent_permlink}
           </a>
         ) : (
@@ -39,7 +50,18 @@ export function NotificationReplyType({
             }}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link" onClick={afterClick}>
+            <div
+              className="post-link"
+              role="button"
+              tabIndex={0}
+              onClick={afterClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  afterClick();
+                }
+              }}
+            >
               {notification.parent_permlink}
             </div>
           </EntryLink>
@@ -47,7 +69,18 @@ export function NotificationReplyType({
       </div>
       <div className="second-line">
         {!!onLinkClick ? (
-          <div className="markdown-view mini-markdown reply-body" onClick={onLinkClick}>
+          <div
+            className="markdown-view mini-markdown reply-body"
+            role="button"
+            tabIndex={0}
+            onClick={onLinkClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onLinkClick?.();
+              }
+            }}
+          >
             {postBodySummary(notification.body, 100)}
           </div>
         ) : (
@@ -62,7 +95,15 @@ export function NotificationReplyType({
             >
               <div
                 className="bg-gray-100 dark:bg-gray-900 rounded-lg mt-2 p-2 text-gray-800 dark:text-gray-200"
+                role="button"
+                tabIndex={0}
                 onClick={afterClick}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    afterClick();
+                  }
+                }}
               >
                 {postBodySummary(notification.body, 100)}
               </div>

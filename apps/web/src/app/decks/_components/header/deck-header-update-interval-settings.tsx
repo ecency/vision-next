@@ -60,6 +60,7 @@ export const DeckHeaderUpdateIntervalSettings = ({
           size="sm"
           onClick={() => saveInterval(`${inputValue * 1000 * 60}`)}
           icon={checkSvg}
+          aria-label={i18next.t("g.save", { defaultValue: "Save" })}
         />
       );
     }

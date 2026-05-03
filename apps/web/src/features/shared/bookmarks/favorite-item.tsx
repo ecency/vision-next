@@ -68,6 +68,7 @@ export function FavoriteItem({ item, onHide, i }: Props) {
             size="sm"
             isLoading={isDeletePending}
             onClick={(e: React.MouseEvent<Element, MouseEvent>) => remove(e, item)}
+            aria-label={i18next.t("favorite-btn.delete", { defaultValue: "Remove favorite" })}
           />
         </div>
       </ProfileLink>

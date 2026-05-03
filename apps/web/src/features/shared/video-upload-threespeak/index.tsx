@@ -376,7 +376,15 @@ export const VideoUpload = (props: Props & React.HTMLAttributes<HTMLDivElement>)
   return (
     <div
       className={"cursor-pointer " + props.className}
+      role="button"
+      tabIndex={0}
       onClick={() => (activeUser ? null : toggleUIProp("login"))}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (!activeUser) toggleUIProp("login");
+        }
+      }}
     >
       <div className="flex justify-center">{props.children}</div>
       <div>

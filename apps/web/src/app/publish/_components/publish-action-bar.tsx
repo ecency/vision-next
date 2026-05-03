@@ -144,6 +144,7 @@ export function PublishActionBar({
               appearance="gray-link"
               icon={<UilFileImport />}
               onClick={() => setShowImport(true)}
+              aria-label={i18next.t("publish.import")}
             />
           </StyledTooltip>
         )}
@@ -153,11 +154,12 @@ export function PublishActionBar({
             appearance="gray-link"
             icon={<UilQuestionCircle />}
             onClick={() => setShowGuide(true)}
+            aria-label={i18next.t("publish.get-help")}
           />
         </StyledTooltip>
         <Dropdown>
           <DropdownToggle>
-            <Button noPadding={true} icon={<UilEllipsisV />} appearance="gray-link" />
+            <Button noPadding={true} icon={<UilEllipsisV />} appearance="gray-link" aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
           </DropdownToggle>
           <DropdownMenu align="right">
             <DropdownItemWithIcon

@@ -110,8 +110,17 @@ export const ThreadItem = ({
         pending: status === "pending",
         hidden: !visible
       })}
+      role="button"
+      tabIndex={0}
+      aria-label={i18next.t("decks.columns.view-full-post", { defaultValue: "View full post" })}
       onClick={(event) => {
         if (event.target === ref.current) {
+          onEntryView();
+        }
+      }}
+      onKeyDown={(event) => {
+        if ((event.key === "Enter" || event.key === " ") && event.target === ref.current) {
+          event.preventDefault();
           onEntryView();
         }
       }}

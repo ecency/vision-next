@@ -3,6 +3,7 @@ import { ModalContext } from "./modal-context";
 import { classNameObject, useFilteredProps } from "@/features/ui/util";
 import { Button } from "@ui/button";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 
 interface Props {
   closeButton: boolean;
@@ -29,7 +30,7 @@ export function ModalHeader(props: HTMLProps<HTMLDivElement> & Props) {
       {props.closeButton && (
         <Button
           appearance="gray"
-          aria-label="Close"
+          aria-label={i18next.t("g.close", { defaultValue: "Close" })}
           noPadding={true}
           size="sm"
           className="absolute top-3 right-3 w-8"

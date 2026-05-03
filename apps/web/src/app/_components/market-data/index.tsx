@@ -29,7 +29,20 @@ export function MarketData() {
       <div className="market-data-header">
         <span className="title flex items-center">
           {i18next.t("market-data.title")}
-          <div className="pointer ml-2" onClick={() => setVisible(!visible)}>
+          <div
+            className="pointer ml-2"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("g.toggle", { defaultValue: "Toggle" })}
+            aria-pressed={visible}
+            onClick={() => setVisible(!visible)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setVisible(!visible);
+              }
+            }}
+          >
             {visible ? eyeSvg : eyeBoldSvg}
           </div>
         </span>

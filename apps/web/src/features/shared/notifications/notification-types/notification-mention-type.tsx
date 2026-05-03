@@ -27,7 +27,18 @@ export function NotificationMentionType({
       </div>
       <div className="second-line">
         {!!onLinkClick ? (
-          <a className="post-link" onClick={onLinkClick}>
+          <a
+            className="post-link"
+            role="button"
+            tabIndex={0}
+            onClick={onLinkClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onLinkClick?.();
+              }
+            }}
+          >
             {notification.permlink}
           </a>
         ) : (
@@ -39,7 +50,18 @@ export function NotificationMentionType({
             }}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link" onClick={afterClick}>
+            <div
+              className="post-link"
+              role="button"
+              tabIndex={0}
+              onClick={afterClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  afterClick();
+                }
+              }}
+            >
               {notification.permlink}
             </div>
           </EntryLink>

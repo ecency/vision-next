@@ -91,6 +91,7 @@ export function PromotePostSetup({ onSuccess, isPending }: Props) {
                   icon={<UilTrashAlt />}
                   className="absolute z-10 top-2 right-2"
                   onClick={() => setPath("")}
+                  aria-label={i18next.t("g.clear", { defaultValue: "Clear" })}
                 />
                 <EntryListItem entry={entry} order={0} />
               </motion.div>

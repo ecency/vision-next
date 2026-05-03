@@ -93,7 +93,16 @@ export function EditHistory({ onHide, entry }: Props) {
                       "version-list-item": true,
                       selected: selected === i.v
                     })}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selected === i.v}
                     onClick={() => setSelected(i.v)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelected(i.v);
+                      }
+                    }}
                   >
                     <div className="item-icon">{historySvg}</div>
                     <div className="item-title">

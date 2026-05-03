@@ -449,12 +449,13 @@ export const MarketSwapForm = ({ padding = "p-4" }: Props) => {
                   className="swap-button !border"
                   onClick={swap}
                   icon={swapSvg}
+                  aria-label={i18next.t("market.swap", { defaultValue: "Swap" })}
                 />
               ) : (
                 <></>
               )}
               {step === MarketSwapFormStep.SUCCESS ? (
-                <Button className="swap-button border dark:border-dark-200 text-green" icon={checkSvg} />
+                <Button className="swap-button border dark:border-dark-200 text-green" icon={checkSvg} aria-label={i18next.t("market.swap-success", { defaultValue: "Swap successful" })} />
               ) : (
                 <></>
               )}

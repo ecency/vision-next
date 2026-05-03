@@ -79,13 +79,26 @@ export function GalleryList({ onPick }: Props) {
                   style={{ backgroundImage: `url('${src}')` }}
                   key={item._id}
                 >
-                  <div className="item-inner" onClick={() => itemClicked(item)} />
+                  <div
+                    className="item-inner"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={i18next.t("g.image", { defaultValue: "Image" })}
+                    onClick={() => itemClicked(item)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        itemClicked(item);
+                      }
+                    }}
+                  />
                   <div className="item-controls">
                     <PopoverConfirm onConfirm={() => deleteImage({ id: item._id })}>
                       <Button
                         icon={<UilTrash className="w-3 h-3" />}
                         size="xs"
                         appearance="danger"
+                        aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
                       />
                     </PopoverConfirm>
                   </div>
