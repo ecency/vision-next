@@ -70,11 +70,24 @@ export function EntryTipBtn({
   const tipButton = (
     <div
       className="entry-tip-btn"
+      role="button"
+      tabIndex={0}
+      aria-label={i18next.t("entry-tip.title")}
       onClick={() => {
         if (tipCount > 0) {
           setShowPopover((state) => !state);
         } else {
           openTransferDialog();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (tipCount > 0) {
+            setShowPopover((state) => !state);
+          } else {
+            openTransferDialog();
+          }
         }
       }}
     >

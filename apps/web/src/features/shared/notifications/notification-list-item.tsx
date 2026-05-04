@@ -114,7 +114,15 @@ export const NotificationListItem = memo(function NotificationListItem({
         "not-read": notification.read === 0 && !(notification as ApiMentionNotification).deck,
         [className ?? ""]: !!className
       })}
+      role="button"
+      tabIndex={0}
       onClick={() => handleChecked(notification!.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleChecked(notification!.id);
+        }
+      }}
       key={notification.id}
     >
       <div
@@ -247,7 +255,19 @@ export const NotificationListItem = memo(function NotificationListItem({
           >
             {!(notification as ApiMentionNotification).deck && notification.read === 0 && (
               <Tooltip content={i18next.t("notifications.mark-read")}>
-                <span onClick={() => markAsRead()} className="mark-read" />
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label={i18next.t("notifications.mark-read")}
+                  onClick={() => markAsRead()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      markAsRead();
+                    }
+                  }}
+                  className="mark-read"
+                />
               </Tooltip>
             )}
           </div>

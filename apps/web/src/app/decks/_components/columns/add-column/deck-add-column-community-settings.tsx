@@ -22,7 +22,18 @@ export const DeckAddColumnCommunitySettings = ({ deckKey }: SettingsProps) => {
       <div className="helper-text">{i18next.t("decks.columns.add-username-text")}</div>
       <div className="subtitle py-3">{i18next.t("decks.columns.community")}</div>
       {username ? (
-        <div className="selected-user" onClick={() => setUsername("")}>
+        <div
+          className="selected-user"
+          role="button"
+          tabIndex={0}
+          onClick={() => setUsername("")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setUsername("");
+            }
+          }}
+        >
           <UserAvatar size="medium" username={tag} />
           <div className="username">{username}</div>
           <div className="click-to-change">{i18next.t("decks.columns.click-to-change")}</div>
@@ -49,7 +60,16 @@ export const DeckAddColumnCommunitySettings = ({ deckKey }: SettingsProps) => {
               <div
                 className={"content-type-item " + (contentType === type ? "selected" : "")}
                 key={title}
+                role="button"
+                tabIndex={0}
+                aria-pressed={contentType === type}
                 onClick={() => setContentType(type)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setContentType(type);
+                  }
+                }}
               >
                 {/*@ts-ignore*/}
                 {ICONS.co[type]}

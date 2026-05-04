@@ -96,6 +96,9 @@ export const AvailableCredits = ({ username, className }: Props) => {
             className +
             (rcpFixed <= 10 ? " danger" : rcpFixed <= 25 ? " warning" : "")
           }
+          role="progressbar"
+          tabIndex={0}
+          aria-label={i18next.t("rc-info.resource-credits", { defaultValue: "Resource credits" })}
           onMouseOver={show}
           onMouseLeave={hide}
           onFocus={show}

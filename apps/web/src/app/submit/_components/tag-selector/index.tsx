@@ -278,7 +278,19 @@ export function TagSelector({ tags, onChange, onValid, maxItem }: Props) {
                   <div className="item-inner">
                     <span>{x}</span>
                   </div>
-                  <span className="item-delete" onClick={() => deleteFn(x)}>
+                  <span
+                    className="item-delete"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
+                    onClick={() => deleteFn(x)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        deleteFn(x);
+                      }
+                    }}
+                  >
                     {closeSvg}
                   </span>
                 </div>

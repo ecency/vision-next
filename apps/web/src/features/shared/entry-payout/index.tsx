@@ -49,6 +49,7 @@ export const EntryPayout = ({ entry }: Props) => {
       <Popover
         directContent={
           <div
+            role="presentation"
             onMouseOver={() => setShowPopover(true)}
             onMouseLeave={() => setShowPopover(false)}
             className={classNameObject({

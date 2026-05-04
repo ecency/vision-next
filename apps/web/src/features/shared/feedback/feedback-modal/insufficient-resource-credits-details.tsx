@@ -12,21 +12,45 @@ export const InsufficientResourceCreditsDetails = () => {
       <div className="rounded-xl border border-[--border-color] market-swap-active-orders">
         <div
           className="border-b border-[--border-color] px-4 py-3 cursor-pointer"
+          role="link"
+          tabIndex={0}
           onClick={() =>
             window.open(`/purchase?username=${activeUser?.username}&type=boost`, "_blank")
           }
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              window.open(`/purchase?username=${activeUser?.username}&type=boost`, "_blank");
+            }
+          }}
         >
           {i18next.t("feedback-modal.insufficient-resource-purchase")} {externalLink}
         </div>
         <div
           className="border-b border-[--border-color] px-4 py-3 cursor-pointer"
+          role="link"
+          tabIndex={0}
           onClick={() => window.open("/faq#what-powering-up", "_blank")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              window.open("/faq#what-powering-up", "_blank");
+            }
+          }}
         >
           {i18next.t("feedback-modal.insufficient-resource-buy-hive")} {externalLink}
         </div>
         <div
           className="border-b border-[--border-color] px-4 py-3 cursor-pointer"
+          role="link"
+          tabIndex={0}
           onClick={() => window.open("/faq#what-are-rc", "_blank")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              window.open("/faq#what-are-rc", "_blank");
+            }
+          }}
         >
           {i18next.t("feedback-modal.insufficient-resource-wait")} {externalLink}
         </div>

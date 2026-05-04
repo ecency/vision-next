@@ -84,10 +84,18 @@ export function NavbarMobile({
             href={`/@${activeUser.username}/wallet`}
             appearance="gray-link"
             icon={<UilWallet width={20} height={20} />}
+            aria-label={i18next.t("navbar.wallet")}
           />
-          <div key={`mobile-avatar-${activeUser.username}`} onClick={() => setExpanded(true)}>
+          <button
+            key={`mobile-avatar-${activeUser.username}`}
+            type="button"
+            onClick={() => setExpanded(true)}
+            aria-label={i18next.t("user-menu.title", { defaultValue: "Open user menu" })}
+            aria-expanded={expanded}
+            className="cursor-pointer"
+          >
             <UserAvatar size="medium" username={activeUser.username} />
-          </div>
+          </button>
         </>
       ) : (
         <Button

@@ -343,7 +343,7 @@ export function EntryIndexMenu() {
               <div className="kebab-icon flex">
                 <Dropdown>
                   <DropdownToggle>
-                    <Button size="sm" appearance="gray-link" icon={kebabMenuHorizontalSvg} />
+                    <Button size="sm" appearance="gray-link" icon={kebabMenuHorizontalSvg} aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                   </DropdownToggle>
                   <DropdownMenu align="left">
                     {secondaryMenu.map((item, i) => (

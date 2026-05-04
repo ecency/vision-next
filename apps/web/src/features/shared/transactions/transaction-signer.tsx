@@ -125,6 +125,7 @@ export default function TransactionSigner({ show, onHide, operation }: Props) {
               size="sm"
               noPadding={true}
               onClick={() => setStep("details")}
+              aria-label={i18next.t("g.back", { defaultValue: "Back" })}
             />
           )}
           {!["failure", "success"].includes(step) && i18next.t("transactions.signer-text")}

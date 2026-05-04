@@ -163,7 +163,15 @@ export const SearchListItem = ({
           )}
           <div className="ml-3 deck-body">
             <div
+              role="button"
+              tabIndex={0}
               onClick={() => safeUrl !== "#" && router.push(safeUrl)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (safeUrl !== "#") router.push(safeUrl);
+                }
+              }}
               className="pointer text-dark"
             >
               <div className="flex items-start flex-grow-1 hot-item-link">{msg}</div>
@@ -225,7 +233,18 @@ export const SearchListItem = ({
               </EntryLink>
             </div>
           </div>
-          <div onClick={() => onEntryView()} className="pointer">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onEntryView()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onEntryView();
+              }
+            }}
+            className="pointer"
+          >
             {title && (
               <div className="flex">
                 <div className="hot-item-link dark:text-white font-bold mt-3">{title}</div>

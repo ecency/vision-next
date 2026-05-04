@@ -148,6 +148,7 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd, lockedA
                           size="sm"
                           type="submit"
                           icon={plusSvg}
+                          aria-label={i18next.t("beneficiary-editor.add", { defaultValue: "Add beneficiary" })}
                         />
                       </Td>
                     </Tr>
@@ -166,6 +167,7 @@ export function BeneficiaryEditorDialog({ list, author, onDelete, onAdd, lockedA
                                 appearance="danger"
                                 size="sm"
                                 icon={deleteForeverSvg}
+                                aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
                               />
                             )}
                           </Td>

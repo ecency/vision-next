@@ -27,11 +27,22 @@ export function CommunityCardDescription({ community, toggleInfo }: Props) {
     <div className="community-section">
       <div
         className="section-header"
+        role="button"
+        tabIndex={0}
         onClick={() => {
           toggleInfo({
             title: i18next.t("community-card.description"),
             content: description
           });
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleInfo({
+              title: i18next.t("community-card.description"),
+              content: description
+            });
+          }
         }}
       >
         {informationOutlineSvg} {i18next.t("community-card.description")}

@@ -113,11 +113,12 @@ export function ProfileWalletTokenHistoryHiveItem({
           ? " group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
           : ""
       }`}
+      role="button"
+      tabIndex={hasRawDetails ? 0 : -1}
+      aria-disabled={!hasRawDetails}
+      aria-expanded={hasRawDetails ? isExpanded : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      role={hasRawDetails ? "button" : undefined}
-      tabIndex={hasRawDetails ? 0 : undefined}
-      aria-expanded={hasRawDetails ? isExpanded : undefined}
     >
       <div
         className={`leading-[1] p-4 flex flex-col gap-4 md:grid md:grid-cols-[32px_minmax(0,2fr)_minmax(0,2fr)_minmax(0,1fr)] md:items-start md:gap-4${

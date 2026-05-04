@@ -29,7 +29,18 @@ export function NotificationVoteType({
       </div>
       <div className="second-line">
         {!!onLinkClick ? (
-          <div className="markdown-view mini-markdown reply-body" onClick={onLinkClick}>
+          <div
+            className="markdown-view mini-markdown reply-body"
+            role="button"
+            tabIndex={0}
+            onClick={onLinkClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onLinkClick?.();
+              }
+            }}
+          >
             {notification.permlink}
           </div>
         ) : (
@@ -41,7 +52,18 @@ export function NotificationVoteType({
             }}
             target={openLinksInNewTab ? "_blank" : undefined}
           >
-            <div className="post-link" onClick={afterClick}>
+            <div
+              className="post-link"
+              role="button"
+              tabIndex={0}
+              onClick={afterClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  afterClick();
+                }
+              }}
+            >
               {notification.permlink}
             </div>
           </EntryLink>

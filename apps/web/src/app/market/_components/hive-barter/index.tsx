@@ -119,7 +119,18 @@ export const HiveBarter = ({
           </h3>
         )}
         <div>
-          <small className="flex cursor-pointer" onClick={() => prefillFromBalance()}>
+          <small
+            className="flex cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onClick={() => prefillFromBalance()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                prefillFromBalance();
+              }
+            }}
+          >
             <div className="mr-1 text-blue-dark-sky">{i18next.t("market.available")}:</div>
             <div>{available}</div>
           </small>
@@ -127,7 +138,18 @@ export const HiveBarter = ({
             <div className="mr-1 text-blue-dark-sky">
               {type === 1 ? i18next.t("market.lowest-ask") : i18next.t("market.highest-bid")}:
             </div>
-            <div onClick={() => onClickPeakValue(basePeakValue.toFixed(3))} className="pointer">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onClickPeakValue(basePeakValue.toFixed(3))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onClickPeakValue(basePeakValue.toFixed(3));
+                }
+              }}
+              className="pointer"
+            >
               {basePeakValue.toFixed(3)}
             </div>
           </small>

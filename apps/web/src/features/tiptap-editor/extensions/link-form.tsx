@@ -59,9 +59,9 @@ export function PublishEditorToolbarLinkForm({
         size="sm"
         className="font-normal"
       />
-      <Button type="submit" icon={<UilEnter />} disabled={!link} appearance="gray" size="xs" />
+      <Button type="submit" icon={<UilEnter />} disabled={!link} appearance="gray" size="xs" aria-label={i18next.t("g.confirm", { defaultValue: "Confirm" })} />
       {deletable && (
-        <Button icon={<UilTrashAlt />} appearance="gray-link" size="xs" onClick={onDelete} />
+        <Button icon={<UilTrashAlt />} appearance="gray-link" size="xs" onClick={onDelete} aria-label={i18next.t("g.delete", { defaultValue: "Delete" })} />
       )}
     </Form>
   );

@@ -120,6 +120,8 @@ export const DeckAddColumnSearchBox = ({
           <div
             className="users-list-item"
             key={i.name}
+            role="button"
+            tabIndex={0}
             onClick={() => {
               setUsername(i.name);
               setRecentList([
@@ -129,6 +131,20 @@ export const DeckAddColumnSearchBox = ({
 
               if (setItem) {
                 setItem(i);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setUsername(i.name);
+                setRecentList([
+                  ...(recentList ?? []),
+                  ...(recentList?.some((it) => it.name === i.name) ? [] : [i])
+                ]);
+
+                if (setItem) {
+                  setItem(i);
+                }
               }
             }}
           >

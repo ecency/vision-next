@@ -233,6 +233,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             disabled={!canAlign}
             onClick={() => editor.chain().focus().setTextAlign("left").run()}
             icon={<UilAlignLeft />}
+            aria-label={i18next.t("publish.action-bar.align-left", { defaultValue: "Align left" })}
+            aria-pressed={editor?.isActive({ textAlign: "left" })}
           />
         </StyledTooltip>
         <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
@@ -242,6 +244,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             disabled={!canAlign}
             onClick={() => editor.chain().focus().setTextAlign("center").run()}
             icon={<UilAlignCenter />}
+            aria-label={i18next.t("publish.action-bar.align-center", { defaultValue: "Align center" })}
+            aria-pressed={editor?.isActive({ textAlign: "center" })}
           />
         </StyledTooltip>
         <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
@@ -251,6 +255,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             disabled={!canAlign}
             onClick={() => editor.chain().focus().setTextAlign("right").run()}
             icon={<UilAlignRight />}
+            aria-label={i18next.t("publish.action-bar.align-right", { defaultValue: "Align right" })}
+            aria-pressed={editor?.isActive({ textAlign: "right" })}
           />
         </StyledTooltip>
         <StyledTooltip content={!canAlign && i18next.t("publish.action-bar.align-hint")}>
@@ -260,6 +266,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             disabled={!canAlign}
             onClick={() => editor.chain().focus().setTextAlign("justify").run()}
             icon={<UilAlignJustify />}
+            aria-label={i18next.t("publish.action-bar.align-justify", { defaultValue: "Justify" })}
+            aria-pressed={editor?.isActive({ textAlign: "justify" })}
           />
         </StyledTooltip>
         <div className="border-r border-[--border-color] h-10 w-[1px] hidden sm:block" />
@@ -269,13 +277,15 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             size="sm"
             onClick={() => editor?.chain().focus().setParagraph().run()}
             icon={<UilParagraph />}
+            aria-label={i18next.t("publish.action-bar.paragraph")}
+            aria-pressed={editor?.isActive("paragraph")}
           />
         </StyledTooltip>
 
         <StyledTooltip content={i18next.t("publish.action-bar.heading")}>
           <Dropdown>
             <DropdownToggle>
-              <Button appearance="gray-link" size="sm" icon={<UilTextSize />} />
+              <Button appearance="gray-link" size="sm" icon={<UilTextSize />} aria-label={i18next.t("publish.action-bar.heading")} aria-haspopup="menu" />
               <DropdownMenu>
                 {headings.map((heading) => (
                   <DropdownItem
@@ -294,7 +304,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
         <StyledTooltip content={i18next.t("publish.action-bar.list")}>
           <Dropdown>
             <DropdownToggle>
-              <Button appearance="gray-link" size="sm" icon={<UilListUiAlt />} />
+              <Button appearance="gray-link" size="sm" icon={<UilListUiAlt />} aria-label={i18next.t("publish.action-bar.list")} aria-haspopup="menu" />
             </DropdownToggle>
             <DropdownMenu>
               <DropdownItemWithIcon
@@ -315,7 +325,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
 
         <Dropdown>
           <DropdownToggle>
-            <Button icon={<UilEllipsisH />} size="sm" appearance="gray-link" />
+            <Button icon={<UilEllipsisH />} size="sm" appearance="gray-link" aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItemWithIcon
@@ -355,6 +365,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 size="sm"
                 onClick={() => setShowFragments(true)}
                 icon={<UilSubject />}
+                aria-label={i18next.t("publish.action-bar.fragments")}
               />
             </LoginRequired>
           </StyledTooltip>
@@ -367,7 +378,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
             <LoginRequired>
               <Dropdown>
                 <DropdownToggle>
-                  <Button appearance="gray-link" size="sm" icon={<UilImage />} />
+                  <Button appearance="gray-link" size="sm" icon={<UilImage />} aria-label={i18next.t("publish.action-bar.image")} aria-haspopup="menu" />
                 </DropdownToggle>
                 <DropdownMenu>
                   <DropdownItemWithIcon
@@ -405,7 +416,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
           <LoginRequired>
             <Dropdown>
               <DropdownToggle>
-                <Button icon={<UilVideo />} appearance="gray-link" size="sm" />
+                <Button icon={<UilVideo />} appearance="gray-link" size="sm" aria-label={i18next.t("publish.action-bar.video")} aria-haspopup="menu" />
               </DropdownToggle>
               <DropdownMenu>
                 {allowToUploadVideo && !publishState.hasThreeSpeakVideo && (
@@ -440,6 +451,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               );
             }}
             icon={<UilPanelAdd />}
+            aria-label={i18next.t("publish.action-bar.poll")}
           />
         </StyledTooltip>
         <EcencyConfigManager.Conditional
@@ -451,6 +463,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               size="sm"
               onClick={() => setShowGeoTag(true)}
               icon={<UilMap className={clsx(publishState.location && "text-green-hover")} />}
+              aria-label={i18next.t("publish.action-bar.geotag")}
             />
           </StyledTooltip>
         </EcencyConfigManager.Conditional>
@@ -464,6 +477,9 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
               size="sm"
               icon={<UilSmile />}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              aria-label={i18next.t("publish.action-bar.emoji")}
+              aria-haspopup="dialog"
+              aria-expanded={showEmojiPicker}
             />
           </StyledTooltip>
           {showEmojiPicker && (
@@ -493,6 +509,8 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                     />
                   </span>
                   }
+                  aria-label={i18next.t("publish.action-bar.color", { defaultValue: "Text color" })}
+                  aria-haspopup="menu"
               />
             </DropdownToggle>
             <DropdownMenu size="small" className="!min-w-[200px] gap-3">
@@ -516,6 +534,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                 size="sm"
                 icon={<AiImageIcon />}
                 onClick={() => setShowAiGenerator(true)}
+                aria-label={i18next.t("ai-image-generator.toolbar-button")}
               />
             </LoginRequired>
           </StyledTooltip>
@@ -538,6 +557,7 @@ export function PublishEditorToolbar({ editor, allowToUploadVideo = true }: Prop
                   </span>
                 }
                 onClick={() => setShowAiAssist(true)}
+                aria-label={i18next.t("ai-assist.toolbar-button")}
               />
             </LoginRequired>
           </StyledTooltip>

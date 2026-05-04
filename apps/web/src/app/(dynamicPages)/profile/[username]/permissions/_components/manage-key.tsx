@@ -140,6 +140,7 @@ export function ManageKey({ keyName, onRevoke }: Props) {
                         appearance="gray-link"
                         size="sm"
                         icon={<UilCopy />}
+                        aria-label={i18next.t("g.copy", { defaultValue: "Copy" })}
                         onClick={() => copy(keys[key[0]])}
                       />
                     )}
@@ -150,6 +151,7 @@ export function ManageKey({ keyName, onRevoke }: Props) {
                           appearance="gray-link"
                           size="sm"
                           icon={<UilEye />}
+                          aria-label={i18next.t("manage-authorities.reveal-private-key")}
                           onClick={() => setShowReveal(true)}
                         />
                       </StyledTooltip>

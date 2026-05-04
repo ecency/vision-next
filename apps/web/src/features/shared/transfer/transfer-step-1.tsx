@@ -357,7 +357,16 @@ export function TransferStep1({ titleLngKey }: Props) {
                   <div className="border-t border-[--border-color] pt-3">
                     <div
                       className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity mb-2"
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={isExternalWalletsExpanded}
                       onClick={() => setIsExternalWalletsExpanded(!isExternalWalletsExpanded)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setIsExternalWalletsExpanded(!isExternalWalletsExpanded);
+                        }
+                      }}
                     >
                       <div className="text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">
                         {i18next.t("transfer.external-wallets-label")}
@@ -429,7 +438,15 @@ export function TransferStep1({ titleLngKey }: Props) {
                   </span>
                   <span
                     className="balance-num"
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setAmount(formatNumber(getBalance(), 3))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setAmount(formatNumber(getBalance(), 3));
+                      }
+                    }}
                   >
                     {balance} {asset}
                   </span>

@@ -121,14 +121,30 @@ export function ProfileCard({ account }: Props) {
         <div className="grid grid-cols-2 pb-4">
           <div
             className="hover:text-blue-dark-sky hover:scale-95 duration-300 cursor-pointer"
+            role="button"
+            tabIndex={0}
             onClick={() => setShowFollowers(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowFollowers(true);
+              }
+            }}
           >
             <div className="text-sm opacity-50">{i18next.t("profile.followers")}</div>
             <div className="font-semibold">{data?.follow_stats?.follower_count ?? 0}</div>
           </div>
           <div
             className="hover:text-blue-dark-sky hover:scale-95 duration-300 cursor-pointer"
+            role="button"
+            tabIndex={0}
             onClick={() => setShowFollowing(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowFollowing(true);
+              }
+            }}
           >
             <div className="text-sm opacity-50">{i18next.t("profile.following")}</div>
             <div className="font-semibold">{data?.follow_stats?.following_count ?? 0}</div>

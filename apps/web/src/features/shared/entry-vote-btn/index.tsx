@@ -16,6 +16,7 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 
 interface Props {
   entry: Entry;
@@ -127,7 +128,28 @@ export function EntryVoteBtn({ entry: originalEntry, isPostSlider, account }: Pr
   return (
     <LoginRequired>
       <div ref={rootRef}>
-        <div className="entry-vote-btn" onClick={toggleDialog}>
+        <div
+          className="entry-vote-btn"
+          role="button"
+          tabIndex={0}
+          aria-label={
+            isVoted.upVoted
+              ? i18next.t("entry-vote-btn.upvoted", { defaultValue: "Upvoted, edit vote" })
+              : isVoted.downVoted
+                ? i18next.t("entry-vote-btn.downvoted", { defaultValue: "Downvoted, edit vote" })
+                : i18next.t("entry-vote-btn.vote", { defaultValue: "Vote" })
+          }
+          aria-pressed={isVoted.upVoted || isVoted.downVoted}
+          aria-expanded={dialog}
+          aria-haspopup="dialog"
+          onClick={toggleDialog}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggleDialog();
+            }
+          }}
+        >
           <div
             className={classNameObject({
               "btn-vote btn-up-vote": true,

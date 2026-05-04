@@ -40,7 +40,18 @@ export function NotificationPayoutsType({
         </span>
       </div>
       {!!onLinkClick ? (
-        <div className="second-line" onClick={onLinkClick}>
+        <div
+          className="second-line"
+          role="button"
+          tabIndex={0}
+          onClick={onLinkClick}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onLinkClick?.();
+            }
+          }}
+        >
           {message}
         </div>
       ) : (
@@ -52,7 +63,18 @@ export function NotificationPayoutsType({
           }}
           target={openLinksInNewTab ? "_blank" : undefined}
         >
-          <div className="second-line" onClick={afterClick}>
+          <div
+            className="second-line"
+            role="button"
+            tabIndex={0}
+            onClick={afterClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                afterClick();
+              }
+            }}
+          >
             {message}
           </div>
         </EntryLink>

@@ -109,6 +109,7 @@ export function WaveLikePostRenderer({ link }: { link: string }) {
       <a
         href="https://ecency.com"
         className="er-wave-renderer--logo"
+        aria-label="Ecency"
         dangerouslySetInnerHTML={{ __html: Logo }}
       />
       <div className="er-wave-renderer--body">

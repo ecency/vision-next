@@ -94,6 +94,7 @@ export function PwaInstallBanner() {
             onClick={handleDismiss}
             appearance="white-link"
             icon={<UilMultiply className="w-4 h-4" />}
+            aria-label={i18next.t("g.dismiss", { defaultValue: "Dismiss" })}
           />
         </div>
       </div>

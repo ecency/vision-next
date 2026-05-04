@@ -107,7 +107,16 @@ export function LoginUserByKey({ username }: Props) {
                 ? "border border-green text-green"
                 : "border-dashed border border-[--border-color] hover:border-blue-dark-sky hover:text-blue-dark-sky"
             )}
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("login.upload-seed", { defaultValue: "Upload seed file" })}
             onClick={() => !seed && fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                if (!seed) fileInputRef.current?.click();
+              }
+            }}
           >
             {seed ? <UilCheckCircle className="w-8 h-8" /> : <UilFileUpload className="w-8 h-8" />}
             {seed ? (

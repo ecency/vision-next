@@ -306,7 +306,18 @@ export const DiscussionItem = memo(function DiscussionItem({
               <EntryPayout entry={entry} />
               <EntryVotes entry={entry} />
               {canComment && (
-                <a className={`reply-btn ${edit ? "disabled" : ""}`} onClick={toggleReply}>
+                <a
+                  className={`reply-btn ${edit ? "disabled" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={toggleReply}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleReply();
+                    }
+                  }}
+                >
                   {i18next.t("g.reply")}
                 </a>
               )}
@@ -321,7 +332,7 @@ export const DiscussionItem = memo(function DiscussionItem({
                 <div className="ml-3 dropdown-container">
                   <Dropdown>
                     <DropdownToggle>
-                      <Button icon={dotsHorizontal} appearance="gray-link" />
+                      <Button icon={dotsHorizontal} appearance="gray-link" aria-label={i18next.t("g.menu", { defaultValue: "Menu" })} aria-haspopup="menu" />
                     </DropdownToggle>
                     <DropdownMenu>
                       {canEdit && (

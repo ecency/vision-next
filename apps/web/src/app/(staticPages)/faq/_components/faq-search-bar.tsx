@@ -39,6 +39,7 @@ export function FaqSearchBar() {
               copyToClipboard(`https://ecency.com/faq?q=${search}&lang=${lang.split("-")[0]}`);
             }}
             icon={copyContent}
+            aria-label={i18next.t("g.copy", { defaultValue: "Copy" })}
           />
         }
         className="mb-3 w-[75%]"

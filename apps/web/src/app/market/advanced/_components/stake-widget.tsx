@@ -161,10 +161,32 @@ export const StakeWidget = ({
                         className="history-widget-row-progress"
                         style={{ width: (sell.amount / maxSell) * 100 + "%" }}
                       />
-                      <div className="text-red price" onClick={() => onPriceClick(sell.price)}>
+                      <div
+                        className="text-red price"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onPriceClick(sell.price)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onPriceClick(sell.price);
+                          }
+                        }}
+                      >
                         {sell.price}
                       </div>
-                      <div className="amount" onClick={() => onAmountClick(sell.amount)}>
+                      <div
+                        className="amount"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onAmountClick(sell.amount)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onAmountClick(sell.amount);
+                          }
+                        }}
+                      >
                         {sell.amount.toFixed(2)}
                       </div>
                       {isMobile ? (
@@ -191,10 +213,32 @@ export const StakeWidget = ({
                         className="history-widget-row-progress"
                         style={{ width: (buy.amount / maxBuy) * 100 + "%" }}
                       />
-                      <div className="text-green price" onClick={() => onPriceClick(buy.price)}>
+                      <div
+                        className="text-green price"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onPriceClick(buy.price)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onPriceClick(buy.price);
+                          }
+                        }}
+                      >
                         {buy.price}
                       </div>
-                      <div className="amount" onClick={() => onAmountClick(buy.amount)}>
+                      <div
+                        className="amount"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => onAmountClick(buy.amount)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onAmountClick(buy.amount);
+                          }
+                        }}
+                      >
                         {buy.amount.toFixed(2)}
                       </div>
                       {isMobile ? (

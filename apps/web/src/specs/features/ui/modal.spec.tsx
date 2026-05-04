@@ -8,6 +8,7 @@ import { Modal } from "@ui/modal";
 vi.mock("framer-motion", () => ({
   motion: {
     div: ({ children, onClick, className, ...props }: any) => (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
       <div onClick={onClick} className={className} {...props}>
         {children}
       </div>

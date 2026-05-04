@@ -256,6 +256,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                   noPadding={true}
                   icon={<UilClipboardAlt />}
                   appearance="gray-link"
+                  aria-label={i18next.t("g.copy", { defaultValue: "Copy" })}
                   onClick={() => {
                     copyToClipboard(selectedText);
                     setSelectedText("");
@@ -270,6 +271,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                     noPadding={true}
                     icon={<UilTwitter />}
                     appearance="gray-link"
+                    aria-label={i18next.t("g.share", { defaultValue: "Share" })}
                     onClick={() => setSelectedText("")}
                   />
                 </Link>
@@ -279,6 +281,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                     noPadding={true}
                     icon={<UilLanguage />}
                     appearance="gray-link"
+                    aria-label={i18next.t("selection-popover.translate", { defaultValue: "Translate" })}
                     onClick={onTranslateClick}
                   />
                 )}
@@ -288,6 +291,7 @@ export const SelectionPopover = ({ children, postUrl }: any) => {
                     noPadding={true}
                     icon={<UilComment />}
                     appearance="gray-link"
+                    aria-label={i18next.t("selection-popover.quote", { defaultValue: "Quote" })}
                     onClick={() => {
                       setSelectedText("");
                       onQuotesClick(selectedText);

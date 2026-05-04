@@ -65,10 +65,33 @@ export const PostSchedulerDialog = (props: Props) => {
     <>
       {props.date ? (
         <div className="post-scheduler-scheduled">
-          <span className="date" onClick={toggle}>
+          <span
+            className="date"
+            role="button"
+            tabIndex={0}
+            onClick={toggle}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggle();
+              }
+            }}
+          >
             {props.date.format("YYYY-MM-DD HH:mm")}
           </span>
-          <span className="reset-date" onClick={reset}>
+          <span
+            className="reset-date"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("g.delete", { defaultValue: "Reset" })}
+            onClick={reset}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                reset();
+              }
+            }}
+          >
             {closeSvg}
           </span>
         </div>

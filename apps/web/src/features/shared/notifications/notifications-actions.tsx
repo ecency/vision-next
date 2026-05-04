@@ -135,7 +135,16 @@ export function NotificationsActions({ filter }: Props) {
                 "list-action": true,
                 disabled: markNotifications.isPending || unread === 0
               })}
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("notifications.mark-all-read")}
               onClick={() => markAsRead()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  markAsRead();
+                }
+              }}
             >
               {checkSvg}
             </span>
@@ -146,7 +155,16 @@ export function NotificationsActions({ filter }: Props) {
                 "list-action": true,
                 disabled: isDataLoading || isUnreadLoading
               })}
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("notifications.refresh")}
               onClick={() => refresh()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  refresh();
+                }
+              }}
             >
               {syncSvg}
             </span>

@@ -30,19 +30,28 @@ export function NavbarNotificationsButton({ onClick }: { onClick?: () => void })
       condition={({ visionFeatures }) => visionFeatures.notifications.enabled}
     >
       <Tooltip content={i18next.t("user-nav.notifications")}>
-        <div
-          className="notifications"
-          onClick={() => {
-            toggleUiProp("notifications");
-            onClick?.();
-          }}
-        >
+        <div className="notifications">
           {unread > 0 && (
             <span className="notifications-badge notranslate">
               {unread.toString().length < 3 ? unread : "..."}
             </span>
           )}
-          <Button icon={globalNotifications ? bellSvg : bellOffSvg} appearance="gray-link" />
+          <Button
+            icon={globalNotifications ? bellSvg : bellOffSvg}
+            appearance="gray-link"
+            aria-label={
+              unread > 0
+                ? i18next.t("user-nav.notifications-unread", {
+                    count: unread,
+                    defaultValue: `Notifications, ${unread} unread`
+                  })
+                : i18next.t("user-nav.notifications")
+            }
+            onClick={() => {
+              toggleUiProp("notifications");
+              onClick?.();
+            }}
+          />
         </div>
       </Tooltip>
     </EcencyConfigManager.Conditional>

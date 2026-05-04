@@ -38,7 +38,15 @@ export function EntryPageCrossPostHeader({ entry }: Props) {
         </div>
         <div
           className="text-blue-dark-sky hover:text-blue-dark-sky-hover cursor-pointer md:col-span-2"
+          role="button"
+          tabIndex={0}
           onClick={() => setShowOriginalEntry(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setShowOriginalEntry(true);
+            }
+          }}
         >
           {'"'}
           {crossPostMessage(entry.body)}

@@ -99,7 +99,18 @@ export function EntryVotes({ entry: initialEntry, icon, hideCount = false }: Pro
     <>
       <div className="entry-votes notranslate">
         <Tooltip content={title}>
-          <span className="inner-btn" onClick={() => setVisible(!visible)}>
+          <span
+            className="inner-btn"
+            role="button"
+            tabIndex={0}
+            onClick={() => setVisible(!visible)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setVisible(!visible);
+              }
+            }}
+          >
             {child}
           </span>
         </Tooltip>

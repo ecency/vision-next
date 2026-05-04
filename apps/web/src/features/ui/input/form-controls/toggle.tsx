@@ -15,7 +15,18 @@ export function Toggle({ checked, onChange, label, disabled }: ToggleProps) {
       className={classNameObject({
         "ecency-toggle cursor-pointer flex items-center gap-3": true
       })}
-      onClick={() => onChange(!checked)}
+      role="switch"
+      tabIndex={disabled ? -1 : 0}
+      aria-checked={checked}
+      aria-disabled={disabled}
+      aria-label={label}
+      onClick={() => !disabled && onChange(!checked)}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && !disabled) {
+          e.preventDefault();
+          onChange(!checked);
+        }
+      }}
     >
       <div
         className={classNameObject({

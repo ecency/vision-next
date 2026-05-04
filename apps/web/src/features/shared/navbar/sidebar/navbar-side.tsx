@@ -9,6 +9,7 @@ import { closeSvg } from "@ui/svg";
 import { walletIconSvg } from "@ui/icons";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { ModalSidebar } from "@ui/modal/modal-sidebar";
+import i18next from "i18next";
 
 interface Props {
   show: boolean;
@@ -23,13 +24,20 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
     <ModalSidebar show={show} setShow={setShow} placement={placement}>
       <div className="flex px-4 pt-4 pb-2 gap-4 items-center justify-between">
         <NavbarSideUserInfo />
-        <Button icon={closeSvg} size="sm" appearance="gray-link" onClick={() => setShow(false)} />
+        <Button
+          icon={closeSvg}
+          size="sm"
+          appearance="gray-link"
+          onClick={() => setShow(false)}
+          aria-label={i18next.t("g.close", { defaultValue: "Close menu" })}
+        />
       </div>
       <div className="px-4 justify-between pb-2 flex items-center">
         <Button
           href="/publish"
           appearance="gray-link"
           icon={<UilEditAlt width={20} height={20} />}
+          aria-label={i18next.t("navbar.post")}
         />
         <NavbarNotificationsButton onClick={() => setShow(false)} />
         <Button
@@ -37,6 +45,7 @@ export function NavbarSide({ show, setShow, placement = "right" }: Props) {
           size="sm"
           appearance="gray-link"
           href={`/@${activeUser?.username}/wallet`}
+          aria-label={i18next.t("navbar.wallet")}
         />
       </div>
       <div className="px-4 pb-3">

@@ -39,7 +39,16 @@ export function WavesListItemHeader({
   return (
     <div
       className={clsx("flex justify-between px-4 pt-4 pointer", className)}
+      role="button"
+      tabIndex={0}
+      aria-label={i18next.t("waves.view-thread", { defaultValue: "View thread" })}
       onClick={onViewFullThread}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onViewFullThread?.(e as unknown as React.MouseEvent);
+        }
+      }}
     >
       <div className="flex items-center gap-4">
         <UserAvatar size="deck-item" username={entry.author} />
@@ -87,6 +96,7 @@ export function WavesListItemHeader({
             icon={<UilArrowRight />}
             iconPlacement="right"
             size="sm"
+            aria-label={i18next.t("waves.view-thread", { defaultValue: "View thread" })}
           />
         )
       )}

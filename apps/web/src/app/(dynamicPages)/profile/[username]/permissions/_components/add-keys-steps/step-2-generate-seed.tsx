@@ -59,8 +59,8 @@ export function Step2GenerateSeed({ username, onNext, onBack }: Props) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button icon={<UilCopyAlt />} appearance="gray-link" size="sm" onClick={handleCopy} />
-        <Button icon={<UilSync />} appearance="gray-link" size="sm" onClick={handleRegenerate} />
+        <Button icon={<UilCopyAlt />} appearance="gray-link" size="sm" onClick={handleCopy} aria-label={i18next.t("g.copy", { defaultValue: "Copy" })} />
+        <Button icon={<UilSync />} appearance="gray-link" size="sm" onClick={handleRegenerate} aria-label={i18next.t("permissions.add-keys.step2.regenerate", { defaultValue: "Regenerate" })} />
       </div>
 
       <div className="border border-[--border-color] p-4 rounded-xl">

@@ -39,6 +39,7 @@ export function VideoUploadItem({ onFileChange, type, accept, label, completed, 
             <div
               className="absolute inset-y-0 left-0 bg-blue-dark-sky duration-300"
               role="progressbar"
+              aria-label={i18next.t("video-upload.upload-progress", { defaultValue: "Upload progress" })}
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={completed}
@@ -56,7 +57,15 @@ export function VideoUploadItem({ onFileChange, type, accept, label, completed, 
   return (
     <div
       className="flex items-center flex-col rounded-xl border border-[--border-color] p-3 hover:bg-gray-100 dark:hover:bg-dark-default cursor-pointer duration-300"
+      role="button"
+      tabIndex={0}
       onClick={() => fileInput.current?.click()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          fileInput.current?.click();
+        }
+      }}
     >
       {uploadSvgV}
       {label}

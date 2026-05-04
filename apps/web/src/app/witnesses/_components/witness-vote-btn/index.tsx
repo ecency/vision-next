@@ -3,6 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import React, { useMemo } from "react";
+import i18next from "i18next";
 import "./_index.scss";
 import { LoginRequired } from "@/features/shared";
 import { chevronUpSvg } from "@ui/svg";
@@ -33,6 +34,8 @@ export function WitnessVoteBtn({ witness }: Props) {
       disabled={witness === ""}
       isLoading={isPending}
       onClick={activeUser ? () => vote({ approve: !voted }) : undefined}
+      aria-label={i18next.t("witnesses.vote", { defaultValue: "Vote witness" })}
+      aria-pressed={voted}
     />
   );
 

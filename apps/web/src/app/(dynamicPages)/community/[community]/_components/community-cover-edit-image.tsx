@@ -36,7 +36,19 @@ export function CommunityCoverEditImage({ account }: Props) {
   return (
     <>
       <Tooltip content={i18next.t("community-cover.cover-image-edit")}>
-        <div className="btn-edit-cover-image" onClick={() => setDialog(true)}>
+        <div
+          className="btn-edit-cover-image"
+          role="button"
+          tabIndex={0}
+          aria-label={i18next.t("community-cover.cover-image-edit")}
+          onClick={() => setDialog(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setDialog(true);
+            }
+          }}
+        >
           {pencilOutlineSvg}
         </div>
       </Tooltip>

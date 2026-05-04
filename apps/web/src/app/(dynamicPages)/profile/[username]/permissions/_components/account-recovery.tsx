@@ -152,6 +152,7 @@ export function AccountRecovery() {
                         <Button
                             appearance="gray"
                             icon={<UilEditAlt />}
+                            aria-label={i18next.t("g.edit", { defaultValue: "Edit" })}
                             onClick={() => setFormInitiated(true)}
                         />
                     )

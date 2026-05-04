@@ -169,7 +169,7 @@ export function EditorToolbar({
   const insertLink = (text: string, url: string) => insertText(`[${text}`, `](${url})`);
   const insertImage = (text: string, url: string) => insertText(`![${text}`, `](${url})`);
 
-  const table = (e: React.MouseEvent<HTMLElement> | Event) => {
+  const table = (e: React.SyntheticEvent<HTMLElement> | Event) => {
     e.stopPropagation();
     const t =
       "\n|\tColumn 1\t|\tColumn 2\t|\tColumn 3\t|\n" +
@@ -178,14 +178,14 @@ export function EditorToolbar({
     insertText(t);
   };
 
-  const table1 = (e: React.MouseEvent<HTMLElement>) => {
+  const table1 = (e: React.SyntheticEvent<HTMLElement>) => {
     e.stopPropagation();
 
     const t = "\n|\tColumn 1\t|\n" + "|\t------------\t|\n" + "|\t     Text     \t|\n";
     insertText(t);
   };
 
-  const table2 = (e: React.MouseEvent<HTMLElement>) => {
+  const table2 = (e: React.SyntheticEvent<HTMLElement>) => {
     e.stopPropagation();
     const t =
       "\n|\tColumn 1\t|\tColumn 2\t|\n" +
@@ -304,26 +304,71 @@ export function EditorToolbar({
     <>
       <div id="editor-toolbar" className={`editor-toolbar ${sm ? "toolbar-sm" : ""}`} ref={rootRef}>
         <Tooltip content={i18next.t("editor-toolbar.bold")}>
-          <div className="editor-tool" onClick={bold}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.bold")}
+            onClick={bold}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                bold();
+              }
+            }}
+          >
             {formatBoldSvg}
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.italic")}>
-          <div className="editor-tool" onClick={italic}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.italic")}
+            onClick={italic}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                italic();
+              }
+            }}
+          >
             {formatItalicSvg}
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.header")}>
-          <div className="editor-tool" onClick={() => header(1)}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.header")}
+            onClick={() => header(1)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                header(1);
+              }
+            }}
+          >
             {formatTitleSvg}
             <div className="sub-tool-menu">
               {headers.map((i) => (
                 <div
                   key={i}
                   className="sub-tool-menu-item"
+                  role="button"
+                  tabIndex={0}
                   onClick={(e: React.MouseEvent<HTMLElement>) => {
                     e.stopPropagation();
                     header(i + 2);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      header(i + 2);
+                    }
                   }}
                 >
                   {`H${i + 2}`}
@@ -334,12 +379,36 @@ export function EditorToolbar({
         </Tooltip>
         <div className="tool-separator" />
         <Tooltip content={i18next.t("editor-toolbar.code")}>
-          <div className="editor-tool" onClick={code}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.code")}
+            onClick={code}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                code();
+              }
+            }}
+          >
             {codeTagsSvg}
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.quote")}>
-          <div className="editor-tool" onClick={quote}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.quote")}
+            onClick={quote}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                quote();
+              }
+            }}
+          >
             {formatQuoteCloseSvg}
           </div>
         </Tooltip>
@@ -347,33 +416,114 @@ export function EditorToolbar({
           condition={({ visionFeatures }) => visionFeatures.fragments.enabled}
         >
           <Tooltip content={i18next.t("editor-toolbar.fragments")}>
-            <div className="editor-tool" onClick={() => setFragments(!fragments)}>
+            <div
+              className="editor-tool"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("editor-toolbar.fragments")}
+              onClick={() => setFragments(!fragments)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setFragments(!fragments);
+                }
+              }}
+            >
               {textShortSvg}
             </div>
           </Tooltip>
         </EcencyConfigManager.Conditional>
         <div className="tool-separator" />
         <Tooltip content={i18next.t("editor-toolbar.ol")}>
-          <div className="editor-tool" onClick={ol}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.ol")}
+            onClick={ol}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                ol();
+              }
+            }}
+          >
             {formatListNumberedSvg}
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.ul")}>
-          <div className="editor-tool" onClick={ul}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.ul")}
+            onClick={ul}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                ul();
+              }
+            }}
+          >
             {formatListBulletedSvg}
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.table")}>
-          <div className="editor-tool" onClick={table}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.table")}
+            onClick={table}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                table(e);
+              }
+            }}
+          >
             {gridSvg}
             <div className="sub-tool-menu">
-              <div className="sub-tool-menu-item" onClick={table}>
+              <div
+                className="sub-tool-menu-item"
+                role="button"
+                tabIndex={0}
+                onClick={table}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    table(e);
+                  }
+                }}
+              >
                 {i18next.t("editor-toolbar.table-3-col")}
               </div>
-              <div className="sub-tool-menu-item" onClick={table2}>
+              <div
+                className="sub-tool-menu-item"
+                role="button"
+                tabIndex={0}
+                onClick={table2}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    table2(e);
+                  }
+                }}
+              >
                 {i18next.t("editor-toolbar.table-2-col")}
               </div>
-              <div className="sub-tool-menu-item" onClick={table1}>
+              <div
+                className="sub-tool-menu-item"
+                role="button"
+                tabIndex={0}
+                onClick={table1}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    table1(e);
+                  }
+                }}
+              >
                 {i18next.t("editor-toolbar.table-1-col")}
               </div>
             </div>
@@ -382,22 +532,55 @@ export function EditorToolbar({
         <div className="tool-separator" />
         {activeUser && isMobile ? (
           <Tooltip content={i18next.t("editor-toolbar.image")}>
-            <div className="editor-tool" onClick={() => setMobileImage(!mobileImage)}>
+            <div
+              className="editor-tool"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("editor-toolbar.image")}
+              onClick={() => setMobileImage(!mobileImage)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setMobileImage(!mobileImage);
+                }
+              }}
+            >
               {imageSvg}
             </div>
           </Tooltip>
         ) : (
           <Tooltip content={i18next.t("editor-toolbar.image")}>
-            <div className="editor-tool" onClick={() => setImage(!image)}>
+            <div
+              className="editor-tool"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("editor-toolbar.image")}
+              onClick={() => setImage(!image)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setImage(!image);
+                }
+              }}
+            >
               {imageSvg}
 
               {activeUser && (
                 <div className="sub-tool-menu">
                   <div
                     className="sub-tool-menu-item"
+                    role="button"
+                    tabIndex={0}
                     onClick={(e: React.MouseEvent<HTMLElement>) => {
                       e.stopPropagation();
                       const el = fileInputRef.current?.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }
                     }}
                   >
                     {i18next.t("editor-toolbar.upload")}
@@ -407,9 +590,18 @@ export function EditorToolbar({
                   >
                     <div
                       className="sub-tool-menu-item"
+                      role="button"
+                      tabIndex={0}
                       onClick={(e: React.MouseEvent<HTMLElement>) => {
                         e.stopPropagation();
                         setGallery(!gallery);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setGallery(!gallery);
+                        }
                       }}
                     >
                       {i18next.t("editor-toolbar.gallery")}
@@ -443,7 +635,19 @@ export function EditorToolbar({
         )}
         <Tooltip content={i18next.t("editor-toolbar.emoji")}>
           <div className="editor-tool" role="none">
-            <div ref={emojiButtonRef} onClick={() => setEmoji(!emoji)}>
+            <div
+              ref={emojiButtonRef}
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("editor-toolbar.emoji")}
+              onClick={() => setEmoji(!emoji)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setEmoji(!emoji);
+                }
+              }}
+            >
               {emoticonHappyOutlineSvg}
             </div>
             {emoji && (
@@ -458,7 +662,19 @@ export function EditorToolbar({
         </Tooltip>
         <Tooltip content={i18next.t("Gif")}>
           <div className="editor-tool" role="none">
-            <div className="editor-tool-gif-icon" onClick={() => setGif(!gif)}>
+            <div
+              className="editor-tool-gif-icon"
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("Gif")}
+              onClick={() => setGif(!gif)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setGif(!gif);
+                }
+              }}
+            >
               {gifIcon}
             </div>
             {gif && (
@@ -471,7 +687,19 @@ export function EditorToolbar({
           </div>
         </Tooltip>
         <Tooltip content={i18next.t("editor-toolbar.link")}>
-          <div className="editor-tool" onClick={() => setLink(!link)}>
+          <div
+            className="editor-tool"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("editor-toolbar.link")}
+            onClick={() => setLink(!link)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setLink(!link);
+              }
+            }}
+          >
             {linkSvg}
           </div>
         </Tooltip>
@@ -482,7 +710,16 @@ export function EditorToolbar({
                 "editor-tool": true,
                 "bg-green bg-opacity-25": !!existingPoll
               })}
+              role="button"
+              tabIndex={0}
+              aria-label={i18next.t("editor-toolbar.polls")}
               onClick={() => setShowPollsCreation(!showPollsCreation)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setShowPollsCreation(!showPollsCreation);
+                }
+              }}
             >
               <UilPanelAdd />
             </div>

@@ -107,6 +107,8 @@ export function BubbleMenu({ editor }: Props) {
                     size="sm"
                     onClick={() => editor?.chain().focus().toggleBold().run()}
                     icon={<UilBold />}
+                    aria-label={i18next.t("publish.action-bar.bold")}
+                    aria-pressed={editor?.isActive("bold")}
                   />
                 </StyledTooltip>
                 <StyledTooltip content={i18next.t("publish.action-bar.italic")}>
@@ -115,6 +117,8 @@ export function BubbleMenu({ editor }: Props) {
                     size="sm"
                     onClick={() => editor?.chain().focus().toggleItalic().run()}
                     icon={<UilItalic />}
+                    aria-label={i18next.t("publish.action-bar.italic")}
+                    aria-pressed={editor?.isActive("italic")}
                   />
                 </StyledTooltip>
                 <StyledTooltip content={i18next.t("publish.action-bar.strikethrough")}>
@@ -123,6 +127,8 @@ export function BubbleMenu({ editor }: Props) {
                     size="sm"
                     onClick={() => editor?.chain().focus().toggleStrike().run()}
                     icon={<UilTextStrikeThrough />}
+                    aria-label={i18next.t("publish.action-bar.strikethrough")}
+                    aria-pressed={editor?.isActive("strike")}
                   />
                 </StyledTooltip>
                 <StyledTooltip content={i18next.t("publish.action-bar.code")}>
@@ -131,6 +137,8 @@ export function BubbleMenu({ editor }: Props) {
                     size="sm"
                     onClick={() => editor?.chain().focus().toggleCode().run()}
                     icon={<UilArrow />}
+                    aria-label={i18next.t("publish.action-bar.code")}
+                    aria-pressed={editor?.isActive("code")}
                   />
                 </StyledTooltip>
                 <div className="h-[40px] w-[1px] bg-[--border-color] mx-2" />
@@ -143,6 +151,7 @@ export function BubbleMenu({ editor }: Props) {
                       editor.chain().focus().extendMarkRange("link").setLink({ href: "" }).run();
                     }}
                     icon={<UilLink />}
+                    aria-label={i18next.t("publish.action-bar.link")}
                   />
                 </StyledTooltip>
               </motion.div>

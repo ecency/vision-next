@@ -26,6 +26,7 @@ export const DeckToolbarManager = ({ isExpanded }: Props) => {
           className="add-deck-btn"
           onClick={() => setShowDecksSettings(true)}
           icon={addIconSvg}
+          aria-label={i18next.t("decks.add-deck", { defaultValue: "Add deck" })}
         />
       </div>
       <div className="deck-list">
@@ -33,7 +34,16 @@ export const DeckToolbarManager = ({ isExpanded }: Props) => {
           <div
             key={deck.key}
             className={"deck-list-item " + (deck.key === activeDeck ? "selected" : "")}
+            role="button"
+            tabIndex={0}
+            aria-pressed={deck.key === activeDeck}
             onClick={() => setActiveDeck(deck.key)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setActiveDeck(deck.key);
+              }
+            }}
           >
             <div className="icon">{deck.icon ? deck.icon : deck.title[0]}</div>
             {isExpanded ? (
@@ -57,6 +67,7 @@ export const DeckToolbarManager = ({ isExpanded }: Props) => {
                   setShowDecksSettings(true);
                 }}
                 icon={settingsIconSvg}
+                aria-label={i18next.t("decks.edit-deck", { defaultValue: "Edit deck" })}
               />
             ) : (
               <></>

@@ -122,7 +122,18 @@ export function DiscussionList({
                     <div className="flex-1">
                         {i18next.t("discussion.reveal-muted-long-description")}
                     </div>
-                    <div onClick={() => setIsHiddenPermitted(true)} className="pointer p-3">
+                    <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setIsHiddenPermitted(true)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setIsHiddenPermitted(true);
+                          }
+                        }}
+                        className="pointer p-3"
+                    >
                         <b>{i18next.t("g.show")}</b>
                     </div>
                 </div>

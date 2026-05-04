@@ -78,25 +78,109 @@ export function EntryShare({ entry, onHide }: Props) {
       </ModalHeader>
       <ModalBody className="entry-share-modal-body">
         <div className="share-buttons">
-          <div className="share-button" onClick={reddit}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label="Reddit"
+            onClick={reddit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                reddit();
+              }
+            }}
+          >
             {redditSvg}
           </div>
-          <div className="share-button" onClick={twitter}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label="Twitter"
+            onClick={twitter}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                twitter();
+              }
+            }}
+          >
             {twitterSvg}
           </div>
-          <div className="share-button" onClick={facebook}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label="Facebook"
+            onClick={facebook}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                facebook();
+              }
+            }}
+          >
             {facebookSvg}
           </div>
-          <div className="share-button" onClick={linkedin}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label="LinkedIn"
+            onClick={linkedin}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                linkedin();
+              }
+            }}
+          >
             {linkedinSvg}
           </div>
-          <div className="share-button" onClick={discord}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label="Discord"
+            onClick={discord}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                discord();
+              }
+            }}
+          >
             {discordSvg}
           </div>
-          <div className="share-button" onClick={chats}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("chat.title", { defaultValue: "Chats" })}
+            onClick={chats}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                chats();
+              }
+            }}
+          >
             {chatSvg}
           </div>
-          <div className="share-button" onClick={waves}>
+          <div
+            className="share-button"
+            role="button"
+            tabIndex={0}
+            aria-label={i18next.t("waves.title", { defaultValue: "Waves" })}
+            onClick={waves}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                waves();
+              }
+            }}
+          >
             {wavesSvg}
           </div>
         </div>

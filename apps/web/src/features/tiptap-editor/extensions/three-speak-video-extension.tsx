@@ -76,6 +76,7 @@ function VideoViewer({
               size="xs"
               appearance="link"
               onClick={deleteNode}
+              aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
             />
           </div>
         </PopoverContent>

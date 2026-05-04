@@ -77,7 +77,7 @@ export function WalletOperationCardUsernameForm({ onUsernameSubmit }: Props) {
       onSubmit={submit}
     >
       <div className="relative">
-        <InputGroup append={<Button type="submit" appearance="gray-link" icon={<UilEnter />} />}>
+        <InputGroup append={<Button type="submit" appearance="gray-link" icon={<UilEnter />} aria-label={i18next.t("g.confirm", { defaultValue: "Confirm" })} />}>
           <Controller
             control={methods.control}
             name="username"

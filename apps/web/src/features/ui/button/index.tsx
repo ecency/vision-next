@@ -7,8 +7,30 @@ import { UilSpinner } from "@tooni/iconscout-unicons-react";
 
 export * from "./props";
 
+const warnedKeys = new Set<string>();
+
+function warnMissingLabel(props: ButtonProps) {
+  if (process.env.NODE_ENV === "production") return;
+  if (!props.icon) return;
+  if (typeof props.children === "string" && props.children.trim().length > 0) return;
+  if (props.children) return;
+  if (props["aria-label"] || props["aria-labelledby"] || props.title) return;
+
+  const key = (props.className ?? "") + "|" + ("href" in props ? props.href : "");
+  if (warnedKeys.has(key)) return;
+  warnedKeys.add(key);
+
+  console.warn(
+    "[a11y] <Button> with `icon` prop is missing an accessible label. " +
+      "Add `aria-label` (translated string) so screen readers can announce it.",
+    { className: props.className, href: "href" in props ? props.href : undefined }
+  );
+}
+
 const ForwardedButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
   (props, ref) => {
+    warnMissingLabel(props);
+
     const nativeProps = useFilteredProps<typeof props, Required<ButtonProps>>(props, [
       "appearance",
       "outline",

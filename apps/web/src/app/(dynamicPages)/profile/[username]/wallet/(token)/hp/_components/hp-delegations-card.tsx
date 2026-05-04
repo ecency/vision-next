@@ -70,7 +70,15 @@ export function HpDelegationsCard({ username }: Props) {
         <div className="grid grid-cols-2 gap-2 md:gap-4 px-4 pb-4">
           <div
             className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 duration-300"
+            role="button"
+            tabIndex={0}
             onClick={() => setShowDelegated(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowDelegated(true);
+              }
+            }}
           >
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {i18next.t("profile-wallet.delegations-outgoing")}
@@ -79,7 +87,15 @@ export function HpDelegationsCard({ username }: Props) {
           </div>
           <div
             className="bg-gray-100 dark:bg-gray-900 p-2 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 duration-300"
+            role="button"
+            tabIndex={0}
             onClick={() => setShowReceived(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowReceived(true);
+              }
+            }}
           >
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {i18next.t("profile-wallet.delegations-incoming")}

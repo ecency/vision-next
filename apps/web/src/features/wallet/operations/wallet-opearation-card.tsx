@@ -4,6 +4,7 @@ import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { UilEditAlt } from "@tooni/iconscout-unicons-react";
 import { motion } from "framer-motion";
+import i18next from "i18next";
 import { WalletOperationCardUsernameForm } from "./wallet-operation-card-username-form";
 import { WalletOperationCardWrapper } from "./wallet-operation-card-wrapper";
 
@@ -44,6 +45,7 @@ export function WalletOperationCard({
           icon={<UilEditAlt />}
           appearance="gray-link"
           onClick={() => onUsernameSubmit?.(undefined)}
+          aria-label={i18next.t("g.edit", { defaultValue: "Edit" })}
         />
       )}
     </motion.div>

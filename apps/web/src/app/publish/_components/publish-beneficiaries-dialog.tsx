@@ -147,6 +147,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                       size="sm"
                       type="submit"
                       icon={plusSvg}
+                      aria-label={i18next.t("beneficiary-editor.add", { defaultValue: "Add beneficiary" })}
                     />
                   </Td>
                 </Tr>
@@ -180,6 +181,7 @@ export function PublishBeneficiariesDialog({ show, setShow }: Props) {
                             appearance="danger"
                             size="sm"
                             icon={deleteForeverSvg}
+                            aria-label={i18next.t("g.delete", { defaultValue: "Delete" })}
                           />
                         )}
                       </Td>

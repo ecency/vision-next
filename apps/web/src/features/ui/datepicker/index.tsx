@@ -87,6 +87,7 @@ export function Datepicker(props: Props) {
             appearance="gray"
             onClick={() => setCalendarValue(dayjs(calendarValue).subtract(1, "month").toDate())}
             icon={<UilArrowLeft />}
+            aria-label={i18next.t("datepicker.prev-month", { defaultValue: "Previous month" })}
           />
           <Button size="xs" appearance="gray" onClick={() => setCalendarValue(new Date())}>
             {i18next.t("g.today")}
@@ -96,6 +97,7 @@ export function Datepicker(props: Props) {
             appearance="gray"
             onClick={() => setCalendarValue(dayjs(calendarValue).add(1, "month").toDate())}
             icon={<UilArrowRight />}
+            aria-label={i18next.t("datepicker.next-month", { defaultValue: "Next month" })}
           />
         </div>
       </div>

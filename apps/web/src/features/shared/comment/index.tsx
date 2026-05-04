@@ -225,6 +225,7 @@ export function Comment({
     <>
       <div
         className="comment-box"
+        role="presentation"
         onMouseEnter={() => {
           if (!showEmoji && !showGif) {
             setShowEmoji(true);
@@ -233,7 +234,7 @@ export function Comment({
         }}
       >
         <EditorToolbar comment={true} sm={true} />
-        <div className="comment-body" onKeyDown={handleShortcuts} ref={commentBodyRef}>
+        <div className="comment-body" role="presentation" onKeyDown={handleShortcuts} ref={commentBodyRef}>
           <TextareaAutocomplete
             className={`the-editor accepts-emoji ${text!.length > 20 ? "expanded" : ""}`}
             as="textarea"

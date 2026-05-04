@@ -45,9 +45,29 @@ export function UserAvatar({ username, size, src, onClick, className }: Props) {
     );
   }, [src, imgSize, username]);
 
+  if (onClick) {
+    return (
+      <span
+        onClick={onClick}
+        role="button"
+        aria-label={`@${username}`}
+        tabIndex={0}
+        onKeyDown={(e: React.KeyboardEvent<HTMLSpanElement>) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
+        className={`user-avatar ${size ?? ""} ${className ?? ""}`}
+        style={{ backgroundImage: `url(${imageSrc})` }}
+      />
+    );
+  }
+
   return (
       <span
-          onClick={onClick}
+          role="img"
+          aria-label={`@${username}`}
           className={`user-avatar ${size ?? ""} ${className ?? ""}`}
           style={{ backgroundImage: `url(${imageSrc})` }}
       />

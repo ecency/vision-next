@@ -136,7 +136,7 @@ export function ChannelHeader({
                     const displayName = author ? (getUserDisplayName(author) || author.username) : 'Unknown';
                     const messageText = getDecodedDisplayMessage(post);
                     return (
-                      <div key={post.id} className="group rounded border border-[--border-color] bg-[--background-color] p-2 hover:border-blue-dark-sky cursor-pointer transition" onClick={() => { scrollToPost(post.id); setShowPinnedModal(false); }}>
+                      <div key={post.id} className="group rounded border border-[--border-color] bg-[--background-color] p-2 hover:border-blue-dark-sky cursor-pointer transition" role="button" tabIndex={0} onClick={() => { scrollToPost(post.id); setShowPinnedModal(false); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); scrollToPost(post.id); setShowPinnedModal(false); } }}>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 text-xs text-[--text-muted] mb-1">

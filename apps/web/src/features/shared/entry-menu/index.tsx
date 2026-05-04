@@ -95,7 +95,14 @@ export const EntryMenu = ({
       <Button icon={<UilShareAlt />} appearance="gray-link" onClick={() => setShare(true)} aria-label={i18next.t("entry-menu.share")} />
       <Dropdown show={dropdownOpen} setShow={setDropdownOpen}>
         <DropdownToggle>
-          <Button appearance="gray-link" size="sm" icon={dotsHorizontal} aria-label="Menu" />
+          <Button
+            appearance="gray-link"
+            size="sm"
+            icon={dotsHorizontal}
+            aria-label={i18next.t("g.menu", { defaultValue: "Menu" })}
+            aria-haspopup="menu"
+            aria-expanded={dropdownOpen}
+          />
         </DropdownToggle>
         <DropdownMenu align="right">
           {menuItems.map((item, i) => (

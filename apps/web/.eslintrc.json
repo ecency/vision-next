@@ -1,8 +1,38 @@
 {
   "extends": "next/core-web-vitals",
+  "settings": {
+    "jsx-a11y": {
+      "components": {
+        "Button": "button"
+      }
+    }
+  },
   "rules": {
     "@next/next/no-img-element": "off",
     "jsx-a11y/alt-text": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "jsx-a11y/control-has-associated-label": [
+      "warn",
+      {
+        "labelAttributes": ["aria-label", "aria-labelledby", "title"],
+        "controlComponents": ["Button"],
+        "ignoreElements": ["audio", "canvas", "embed", "input", "textarea", "tr", "video"],
+        "ignoreRoles": [
+          "grid",
+          "listbox",
+          "menu",
+          "menubar",
+          "radiogroup",
+          "row",
+          "tablist",
+          "toolbar",
+          "tree",
+          "treegrid"
+        ],
+        "depth": 5
+      }
+    ],
+    "jsx-a11y/click-events-have-key-events": "warn",
+    "jsx-a11y/no-static-element-interactions": "warn"
   }
 }

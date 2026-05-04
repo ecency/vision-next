@@ -190,7 +190,7 @@ export const DeckThreadsForm = ({
     >
       {!inline && (
         <div className="deck-toolbar-threads-form-header">
-          <Button appearance="link" onClick={() => setShow(false)} icon={arrowLeftSvg} />
+          <Button appearance="link" onClick={() => setShow(false)} icon={arrowLeftSvg} aria-label={i18next.t("g.back", { defaultValue: "Back" })} />
           {getSubmitButton()}
         </div>
       )}

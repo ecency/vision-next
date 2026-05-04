@@ -7,6 +7,7 @@ import { FormControl } from "./form-controls";
 import { Button } from "@ui/button";
 import { useDebounce } from "react-use";
 import { UilCheck, UilCopy } from "@tooni/iconscout-unicons-react";
+import i18next from "i18next";
 
 interface Props {
   value: string;
@@ -26,13 +27,18 @@ export function InputGroupCopyClipboard(props: Props & HTMLAttributes<HTMLElemen
       {...props}
       append={
         copied ? (
-          <Button appearance="gray-link" icon={<UilCheck className="w-4 h-4 text-green" />} />
+          <Button
+            appearance="gray-link"
+            icon={<UilCheck className="w-4 h-4 text-green" />}
+            aria-label={i18next.t("g.copied", { defaultValue: "Copied" })}
+          />
         ) : (
           <Button
             appearance="gray-link"
             className="copy-to-clipboard"
             onClick={() => copy(props.value)}
             icon={<UilCopy className="w-4 h-4" />}
+            aria-label={i18next.t("g.copy", { defaultValue: "Copy to clipboard" })}
           />
         )
       }

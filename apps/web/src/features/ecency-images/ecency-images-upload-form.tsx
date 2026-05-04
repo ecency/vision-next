@@ -74,7 +74,16 @@ export function EcencyImagesUploadForm({ onFilesPick }: Props) {
           "flex cursor-pointer flex-col gap-4 items-center justify-center py-8 md:py-12 lg:py-16 w-full border-2 rounded-xl border-dashed hover:bg-gray-100 hover:dark:bg-dark-200-075 duration-300",
           isDragging ? "border-blue-dark-sky" : "border-[--border-color]"
         )}
+        role="button"
+        tabIndex={0}
+        aria-label={i18next.t("ecency-images.dropzone-title")}
         onClick={() => fileInputRef.current?.click()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
         onDrop={onDrop}
         onDragOver={onDragOver}
       >

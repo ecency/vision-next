@@ -53,7 +53,16 @@ export const TradingFormWidget = ({
               className={
                 "market-advanced-mode-oo-widget-tab " + (activeTab === "buy" ? "active" : "")
               }
+              role="tab"
+              tabIndex={0}
+              aria-selected={activeTab === "buy"}
               onClick={() => setActiveTab("buy")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActiveTab("buy");
+                }
+              }}
             >
               Buy
             </div>
@@ -61,7 +70,16 @@ export const TradingFormWidget = ({
               className={
                 "market-advanced-mode-oo-widget-tab " + (activeTab === "sell" ? "active" : "")
               }
+              role="tab"
+              tabIndex={0}
+              aria-selected={activeTab === "sell"}
               onClick={() => setActiveTab("sell")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setActiveTab("sell");
+                }
+              }}
             >
               Sell
             </div>
