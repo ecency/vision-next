@@ -68,7 +68,7 @@ export function NavbarSideMainMenuItem({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onClick?.(e as unknown as React.MouseEvent);
+          onClick?.();
         }
       }}
       onPointerEnter={onPointerEnter}

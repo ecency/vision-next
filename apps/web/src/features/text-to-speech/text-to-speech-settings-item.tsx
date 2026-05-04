@@ -39,8 +39,12 @@ export function TextToSpeechSettingsItem({ voice, text, selected, onSelect }: Pr
       role="button"
       tabIndex={0}
       aria-pressed={selected?.voiceURI === voice.voiceURI}
-      onClick={onSelect}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget && (e.target as HTMLElement).closest("button")) return;
+        onSelect();
+      }}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onSelect();

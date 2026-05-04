@@ -169,7 +169,7 @@ export function EditorToolbar({
   const insertLink = (text: string, url: string) => insertText(`[${text}`, `](${url})`);
   const insertImage = (text: string, url: string) => insertText(`![${text}`, `](${url})`);
 
-  const table = (e: React.MouseEvent<HTMLElement> | Event) => {
+  const table = (e: React.SyntheticEvent<HTMLElement> | Event) => {
     e.stopPropagation();
     const t =
       "\n|\tColumn 1\t|\tColumn 2\t|\tColumn 3\t|\n" +
@@ -178,14 +178,14 @@ export function EditorToolbar({
     insertText(t);
   };
 
-  const table1 = (e: React.MouseEvent<HTMLElement>) => {
+  const table1 = (e: React.SyntheticEvent<HTMLElement>) => {
     e.stopPropagation();
 
     const t = "\n|\tColumn 1\t|\n" + "|\t------------\t|\n" + "|\t     Text     \t|\n";
     insertText(t);
   };
 
-  const table2 = (e: React.MouseEvent<HTMLElement>) => {
+  const table2 = (e: React.SyntheticEvent<HTMLElement>) => {
     e.stopPropagation();
     const t =
       "\n|\tColumn 1\t|\tColumn 2\t|\n" +
@@ -478,7 +478,7 @@ export function EditorToolbar({
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                table();
+                table(e);
               }
             }}
           >
@@ -492,7 +492,7 @@ export function EditorToolbar({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    table();
+                    table(e);
                   }
                 }}
               >
@@ -506,7 +506,7 @@ export function EditorToolbar({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    table2();
+                    table2(e);
                   }
                 }}
               >
@@ -520,7 +520,7 @@ export function EditorToolbar({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    table1();
+                    table1(e);
                   }
                 }}
               >

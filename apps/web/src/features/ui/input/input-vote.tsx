@@ -103,6 +103,7 @@ export function InputVote({ value, setValue, mode = "positive" }: Props) {
       onMouseMove={onMouseMove}
       onMouseUp={(e) => (mouseDownInitiatedRef.current = false)}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === "ArrowRight" || e.key === "ArrowUp") {
           e.preventDefault();
           setValue(Math.min(100, value + 1));
