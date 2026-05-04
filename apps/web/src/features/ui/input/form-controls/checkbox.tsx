@@ -21,9 +21,9 @@ export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) 
       aria-checked={checked}
       aria-disabled={disabled}
       aria-label={label}
-      onClick={() => !disabled && onChange(!checked)}
+      onClick={() => onChange(!checked)}
       onKeyDown={(e) => {
-        if ((e.key === "Enter" || e.key === " ") && !disabled) {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onChange(!checked);
         }
