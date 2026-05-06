@@ -6,21 +6,28 @@
  *   L2 — per-stack Redis (shared across the 4 replicas), via docker overlay
  *
  * On Hive, post creation dates are immutable, so positive entries never
- * expire. Negative entries (post genuinely doesn't exist) are short-lived
- * (5 min) so newly indexed posts recover quickly.
+ * expire. Negative entries (post returned no `created` field) live only
+ * in L1 with a 5-min TTL — they are NOT shared via Redis to avoid
+ * amplifying RPC-node-lag false negatives across all replicas in a region.
  *
  * Design:
  *   - Best-effort. A miss falls back to a conservative entry tier in
  *     middleware — no added latency on the current request.
  *   - After a miss, middleware kicks off `event.waitUntil(refreshPostCreatedMs)`.
- *     refresh checks Redis first (cheap dedup across replicas) and only hits
- *     RPC if Redis also missed. Both L1 and Redis are populated on success.
+ *     refresh checks Redis first (cheap dedup across replicas for positive
+ *     entries) and only hits RPC if Redis also missed.
  *   - The synchronous getter only consults L1; we deliberately do NOT block
  *     on Redis from the request path.
  *   - Transient RPC failures (timeout, all nodes failed) do NOT enter the
- *     cache — a 5-minute negative entry shared via Redis would over-cache
- *     fresh posts to the default 1h/1d entry tier across the whole region.
- *     Only definitive results land in cache: known-ms or known-missing.
+ *     cache at all — let the next request retry.
+ *   - Non-throwing misses (RPC succeeded but returned no `created` field)
+ *     land in L1 only. RPC nodes can lag behind chain head, so a fresh
+ *     post may legitimately appear missing on one node and present on
+ *     another. Sharing those nulls via Redis would let a single lagged
+ *     node poison the cache across the region.
+ *   - Middleware treats both undefined-cached and null-cached as the
+ *     conservative cold-miss tier (60s) — only positive entries unlock
+ *     the long age-refined TTL.
  *   - Graceful degradation: Redis down / unreachable / slow → fall back to
  *     L1+RPC. Bounded reconnect with singleton reset on `end` so transient
  *     Redis outages self-heal without requiring a vision_web restart.
@@ -35,7 +42,6 @@ import Redis, { type Redis as RedisClient } from "ioredis";
 
 const MAX_ENTRIES = 2000;
 const NEGATIVE_CACHE_TTL_MS = 5 * 60_000;
-const NEGATIVE_CACHE_TTL_S = 300;
 const FETCH_TIMEOUT_MS = 2000;
 const FETCH_RETRIES = 2;
 
@@ -160,22 +166,19 @@ export async function refreshPostCreatedMs(author: string, permlink: string): Pr
     }
     setL1(k, createdMs);
 
-    // Write back to Redis. Only definitive results land here:
-    //   - number  → post exists, created at this ms (positive, no TTL)
-    //   - null    → post genuinely doesn't exist or returned malformed RPC
-    //               response (negative, 5min TTL — short enough that newly
-    //               indexed posts recover quickly)
-    // Don't fail the refresh if Redis is unreachable — L1 already has the
-    // answer for this replica.
-    if (redis) {
+    // Write only POSITIVE entries back to Redis. Null (post missing or
+    // RPC returned no `created` field) stays in L1 for this replica's
+    // 5-minute negative window. We deliberately do NOT share null via
+    // Redis because RPC nodes can lag behind chain head: a fresh post
+    // may legitimately appear missing on one node and present on another.
+    // Sharing null would amplify a node-lag false negative across all
+    // replicas in the region for 5 minutes. The cost of not sharing is
+    // small — N replicas × 1 RPC per 5min for genuinely-missing posts.
+    if (redis && createdMs !== null) {
       try {
-        if (createdMs === null) {
-          await redis.set(REDIS_KEY_PREFIX + k, "null", "EX", NEGATIVE_CACHE_TTL_S);
-        } else {
-          await redis.set(REDIS_KEY_PREFIX + k, String(createdMs));
-        }
+        await redis.set(REDIS_KEY_PREFIX + k, String(createdMs));
       } catch {
-        // Silent — see above.
+        // Silent — L1 already has the answer for this replica.
       }
     }
   })().finally(() => {

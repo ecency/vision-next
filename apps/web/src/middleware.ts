@@ -119,14 +119,18 @@ function applyCacheHeaders(
       const createdMs = getCachedPostCreatedMs(parsed.author, parsed.permlink);
       if (typeof createdMs === "number") {
         policy = getEntryTierForAge(Date.now() - createdMs);
-      } else if (createdMs === undefined) {
-        // Not in cache — use a short TTL so if the post is fresh, we don't
-        // over-cache it. Background fetch populates the cache for the next
-        // request, which will use the real age-based tier.
+      } else {
+        // Both undefined (no cache entry) and null (cached as missing/malformed)
+        // get the conservative cold-miss TTL. Treating null as the default
+        // entry tier (1h/1d) over-caches when the RPC reports "no created"
+        // for a fresh post that simply isn't indexed yet on the node we hit.
+        // Only undefined triggers a background refresh — for null, the L1
+        // negative entry is still fresh and re-RPC'ing would just spam.
         policy = ENTRY_COLD_MISS_POLICY;
-        event.waitUntil(refreshPostCreatedMs(parsed.author, parsed.permlink));
+        if (createdMs === undefined) {
+          event.waitUntil(refreshPostCreatedMs(parsed.author, parsed.permlink));
+        }
       }
-      // createdMs === null means negative-cached; keep default tier
     }
   }
 
