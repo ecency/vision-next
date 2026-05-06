@@ -37,6 +37,7 @@ services:
     environment:
       - USE_PRIVATE
       - INTERNAL_API_HOST=http://vapi:4000
+      - REDIS_URL=redis://redis:6379
       - HIVESIGNER_SECRET
       - PLAUSIBLE_API_KEY
       - NEXT_PUBLIC_GMAPS_MAP_ID
@@ -53,6 +54,44 @@ services:
     networks:
       - vision
 
+  # Per-host Redis used as the L2 cache for post-age lookups in the Next.js
+  # middleware (see apps/web/src/features/next-middleware/post-age-cache.ts).
+  # Lives only on the docker overlay network — never publish 6379 publicly.
+  # Persistence: AOF every 1s (acceptable <1s write loss for a refetchable cache).
+  # Memory cap: 1gb LRU — well above the post-age working set; headroom for
+  # future cache layers (API responses, profile/community metadata) on this
+  # same instance without re-sizing.
+  redis:
+    image: redis:7-alpine
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory
+      - 1gb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - ""
+    restart: always
+    hostname: redis
+    networks:
+      - vision
+    volumes:
+      - redis_data:/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+
 networks:
   vision:
     external: true
+
+volumes:
+  redis_data:
