@@ -100,8 +100,8 @@ export async function loadLocale(lang: string) {
   if (lang === "en-US" || !localeLoaders[lang]) return;
   if (i18n.hasResourceBundle(lang, "translation")) return;
 
-  const module = await localeLoaders[lang]();
-  i18n.addResourceBundle(lang, "translation", module.default || module);
+  const mod = await localeLoaders[lang]();
+  i18n.addResourceBundle(lang, "translation", mod.default || mod);
 }
 
 const supportedCodes = new Set(langOptions.map((l) => l.code));

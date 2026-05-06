@@ -59,7 +59,7 @@ export function CommunityChannelClient() {
             Unable to prepare the community channel
           </div>
           <div className="text-xs text-[--text-muted]">
-            The channel for community "{params.id}" could not be created or found.
+            The channel for community &ldquo;{params.id}&rdquo; could not be created or found.
           </div>
           <button
             onClick={() => router.push("/chats")}

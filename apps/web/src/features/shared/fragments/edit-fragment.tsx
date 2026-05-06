@@ -21,10 +21,6 @@ export function EditFragment({ item, onUpdate, onCancel }: Props) {
     accessToken
   );
 
-  if (!activeUser) {
-    return null;
-  }
-
   const submit = useCallback(
     async (title: string, body: string) => {
       await updateFragment({ fragmentId: item.id, title, body });
@@ -32,6 +28,10 @@ export function EditFragment({ item, onUpdate, onCancel }: Props) {
     },
     [onUpdate, updateFragment, item.id]
   );
+
+  if (!activeUser) {
+    return null;
+  }
 
   return (
     <FragmentForm
