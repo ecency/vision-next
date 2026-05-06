@@ -11,6 +11,11 @@ import {
 } from "@/features/next-middleware";
 import { ACTIVE_USER_COOKIE_NAME } from "@/consts/cookies";
 
+// Node.js runtime is required so the post-age cache can talk to the per-host
+// Redis container via ioredis (TCP). Edge runtime cannot import node:net.
+// Requires `experimental.nodeMiddleware: true` in next.config.js (Next 15.x).
+export const config = { runtime: "nodejs" };
+
 // Short TTL for first-ever request to an entry page before post age is known.
 // Prevents over-caching a fresh post (60s vs. the default 1h entry tier).
 const ENTRY_COLD_MISS_POLICY = { tier: "entry-unknown", sMaxAge: 60, staleWhileRevalidate: 300 };

@@ -107,7 +107,6 @@ export async function fetchQuery<T, TKey extends QueryKey = QueryKey>(
  * Returns the infinite query data, or undefined on timeout.
  */
 export async function fetchInfiniteQuery<TPage, TCursor>(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: FetchInfiniteQueryOptions<TPage, Error, TPage, any, TCursor>
 ): Promise<InfiniteData<TPage, TCursor> | undefined> {
   const qc = getQueryClient();

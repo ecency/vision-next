@@ -16,14 +16,16 @@ interface Props {
 
 export function FragmentsListItem({ item, onPick, onEdit, index }: Props) {
   const { activeUser } = useActiveAccount();
+  const username = activeUser?.username ?? "";
+  const accessToken = activeUser ? getAccessToken(activeUser.username) : undefined;
+  const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
+    username,
+    accessToken
+  );
+
   if (!activeUser) {
     return null;
   }
-
-  const { mutateAsync: deleteFragment, isPending: isDeleteLoading } = useRemoveFragment(
-    activeUser.username,
-    getAccessToken(activeUser.username)
-  );
 
   return (
     <motion.div

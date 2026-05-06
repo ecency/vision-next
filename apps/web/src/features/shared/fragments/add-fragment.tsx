@@ -12,16 +12,12 @@ interface Props {
 
 export function AddFragment({ onAdd, onCancel }: Props) {
   const { activeUser } = useActiveAccount();
-  const username = activeUser?.username;
+  const username = activeUser?.username ?? "";
   const accessToken = activeUser ? getAccessToken(activeUser.username) : undefined;
   const { mutateAsync: addFragment, isPending } = useAddFragment(
     username,
     accessToken
   );
-
-  if (!activeUser) {
-    return null;
-  }
 
   const submit = useCallback(
     async (title: string, body: string) => {
@@ -30,6 +26,10 @@ export function AddFragment({ onAdd, onCancel }: Props) {
     },
     [addFragment, onAdd]
   );
+
+  if (!activeUser) {
+    return null;
+  }
 
   return (
     <FragmentForm
