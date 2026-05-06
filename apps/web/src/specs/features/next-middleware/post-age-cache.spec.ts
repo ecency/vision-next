@@ -44,12 +44,16 @@ describe("post-age-cache", () => {
     expect(callRPC).toHaveBeenCalledWith("condenser_api.get_content", ["alice", "post"], 2000, 2);
   });
 
-  it("negative-caches on RPC failure", async () => {
+  it("does not cache on transient RPC failure (allows retry)", async () => {
     vi.mocked(callRPC).mockRejectedValue(new Error("all nodes failed"));
 
     await refreshPostCreatedMs("alice", "post");
 
-    expect(getCachedPostCreatedMs("alice", "post")).toBeNull();
+    // Transient failures must NOT poison the cache. A negative entry would
+    // be shared across replicas via Redis and over-cache fresh posts to the
+    // default 1h/1d entry tier. Returning undefined lets the next request
+    // re-trigger the fetch.
+    expect(getCachedPostCreatedMs("alice", "post")).toBeUndefined();
   });
 
   it("negative-caches when created field is missing", async () => {

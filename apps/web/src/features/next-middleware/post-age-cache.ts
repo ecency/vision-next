@@ -3,11 +3,11 @@
  * entry-page Cache-Control TTL based on post age.
  *
  *   L1 — module-level Map, per Node.js process (4 replicas per host)
- *   L2 — per-host Redis (shared across the 4 replicas), via docker overlay
+ *   L2 — per-stack Redis (shared across the 4 replicas), via docker overlay
  *
  * On Hive, post creation dates are immutable, so positive entries never
- * expire. Negative entries (RPC failure / not-found) are short-lived to
- * avoid hammering upstream for transient errors.
+ * expire. Negative entries (post genuinely doesn't exist) are short-lived
+ * (5 min) so newly indexed posts recover quickly.
  *
  * Design:
  *   - Best-effort. A miss falls back to a conservative entry tier in
@@ -17,8 +17,13 @@
  *     RPC if Redis also missed. Both L1 and Redis are populated on success.
  *   - The synchronous getter only consults L1; we deliberately do NOT block
  *     on Redis from the request path.
+ *   - Transient RPC failures (timeout, all nodes failed) do NOT enter the
+ *     cache — a 5-minute negative entry shared via Redis would over-cache
+ *     fresh posts to the default 1h/1d entry tier across the whole region.
+ *     Only definitive results land in cache: known-ms or known-missing.
  *   - Graceful degradation: Redis down / unreachable / slow → fall back to
- *     L1+RPC. Under no failure mode does middleware error leak to the user.
+ *     L1+RPC. Bounded reconnect with singleton reset on `end` so transient
+ *     Redis outages self-heal without requiring a vision_web restart.
  *   - Bounded L1: FIFO eviction at MAX_ENTRIES.
  *   - Uses `callRPC` from @ecency/sdk for the upstream lookup. Tree-shakes
  *     to just the RPC call logic with built-in node failover and per-node
@@ -65,10 +70,21 @@ function getRedis(): RedisClient | null {
       enableOfflineQueue: false,
       connectTimeout: 1000,
       commandTimeout: 200,
-      retryStrategy: () => null
+      // Bounded reconnect — back off up to ~5s, give up after 10 attempts.
+      // After giving up ioredis emits `end`, which clears the singleton so
+      // the next refresh rebuilds a fresh client (covers Redis container
+      // restarts, deploy windows, and cold-start races where vision_web
+      // boots before redis is ready).
+      retryStrategy: (times: number) => {
+        if (times > 10) return null;
+        return Math.min(times * 500, 5000);
+      }
     });
     // Silent — graceful degradation to L1+RPC on any Redis error.
     _redis.on("error", () => {});
+    _redis.on("end", () => {
+      _redis = undefined;
+    });
     return _redis;
   } catch {
     _redis = null;
@@ -132,11 +148,25 @@ export async function refreshPostCreatedMs(author: string, permlink: string): Pr
     }
 
     // L2 miss → RPC.
-    const createdMs = await fetchPostCreatedMs(author, permlink);
+    let createdMs: number | null;
+    try {
+      createdMs = await fetchPostCreatedMs(author, permlink);
+    } catch {
+      // Transient RPC failure (timeout, all nodes failed, network blip).
+      // Don't poison L1 or Redis — a 5-minute negative entry shared across
+      // replicas would make a fresh post over-cache to the default 1h/1d
+      // entry tier for the whole region. Let the next request retry.
+      return;
+    }
     setL1(k, createdMs);
 
-    // Write back to Redis. Don't fail the refresh if Redis is unreachable —
-    // L1 already has the answer for this replica.
+    // Write back to Redis. Only definitive results land here:
+    //   - number  → post exists, created at this ms (positive, no TTL)
+    //   - null    → post genuinely doesn't exist or returned malformed RPC
+    //               response (negative, 5min TTL — short enough that newly
+    //               indexed posts recover quickly)
+    // Don't fail the refresh if Redis is unreachable — L1 already has the
+    // answer for this replica.
     if (redis) {
       try {
         if (createdMs === null) {
@@ -156,30 +186,36 @@ export async function refreshPostCreatedMs(author: string, permlink: string): Pr
   return promise;
 }
 
+/**
+ * Fetch a post's `created` timestamp from Hive RPC.
+ *
+ * Returns:
+ *   - number  → post exists, parsed created-ms
+ *   - null    → post permanently doesn't exist OR returned malformed (no
+ *               `created` field, unparseable date) — safe to negative-cache
+ *
+ * Throws on transient failures (timeout, all nodes failed, network error)
+ * so the caller can avoid poisoning the cache. Distinguishing these two
+ * outcomes matters: a transient blip on a fresh post would otherwise be
+ * shared across all replicas via Redis and over-cache the post.
+ */
 async function fetchPostCreatedMs(
   author: string,
   permlink: string
 ): Promise<number | null> {
-  try {
-    const result = (await callRPC(
-      "condenser_api.get_content",
-      [author, permlink],
-      FETCH_TIMEOUT_MS,
-      FETCH_RETRIES
-    )) as { created?: string } | null | undefined;
+  const result = (await callRPC(
+    "condenser_api.get_content",
+    [author, permlink],
+    FETCH_TIMEOUT_MS,
+    FETCH_RETRIES
+  )) as { created?: string } | null | undefined;
 
-    const createdStr = result?.created;
-    if (!createdStr) return null;
+  const createdStr = result?.created;
+  if (!createdStr) return null;
 
-    // Hive returns "YYYY-MM-DDTHH:MM:SS" without timezone (UTC assumed)
-    const ms = Date.parse(createdStr + "Z");
-    return Number.isFinite(ms) ? ms : null;
-  } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[post-age-cache] fetch failed", author, permlink, err);
-    }
-    return null;
-  }
+  // Hive returns "YYYY-MM-DDTHH:MM:SS" without timezone (UTC assumed)
+  const ms = Date.parse(createdStr + "Z");
+  return Number.isFinite(ms) ? ms : null;
 }
 
 function setL1(k: string, createdMs: number | null): void {

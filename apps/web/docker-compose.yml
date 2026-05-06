@@ -54,8 +54,12 @@ services:
     networks:
       - vision
 
-  # Per-host Redis used as the L2 cache for post-age lookups in the Next.js
+  # Per-stack Redis used as the L2 cache for post-age lookups in the Next.js
   # middleware (see apps/web/src/features/next-middleware/post-age-cache.ts).
+  # Each origin server runs a single-node swarm, so today this is also a
+  # per-host Redis. If an origin is ever scaled to multi-node, revisit:
+  # `replicas: 1` + manager constraint means one Redis for the whole swarm,
+  # not one per node — would need `mode: global` + service discovery work.
   # Lives only on the docker overlay network — never publish 6379 publicly.
   # Persistence: AOF every 1s (acceptable <1s write loss for a refetchable cache).
   # Memory cap: 1gb LRU — well above the post-age working set; headroom for
