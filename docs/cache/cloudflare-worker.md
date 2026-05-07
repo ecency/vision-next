@@ -1,81 +1,94 @@
 # Cloudflare Worker Cache Alignment
 
-Changes required in the production CF worker to respect origin Cache-Control
-headers for HTML and enable aggressive edge caching.
+The `ecency-geo-router` worker sits in front of nginx and is the primary edge
+cache layer for ecency.com. It implements:
 
-## Required changes
+1. Bot management gating
+2. Geo-routing across 3 origins (eu/us/asia.ecency.com)
+3. WebSocket pass-through to the closest origin
+4. Edge cache for cacheable HTML responses, keyed by URL + auth-class
+5. Smart-Tiered-Cache-eligible subfetches via `cf.cacheKey`
 
-### 1. Respect origin Cache-Control for HTML
+## Cache key strategy
 
-Currently the worker caches non-HTML (static assets) and passes HTML through.
-After this change, HTML is cached per origin's `Cache-Control` header.
+The cache key encodes both the URL and the auth class so anonymous and
+logged-in users get separate cache entries — 2 entries per URL — without
+needing a `Vary: Cookie` header (which would fragment cache on every cookie).
 
 ```js
-export default {
-  async fetch(request, env, ctx) {
-    // Bypass cache entirely for logged-in users
-    const cookieHeader = request.headers.get("Cookie") || "";
-    const isLoggedIn = /(^|;\s*)active_user=/.test(cookieHeader);
-    if (isLoggedIn) {
-      return fetch(request);
-    }
+const authClass = hasActiveUser ? "loggedin" : "anon";
+// Synthetic URL prefixed with auth class. Real URL is unchanged for the
+// actual fetch; this is only for the cache lookup/store key.
+const cacheKeyUrl =
+  `https://cache.internal/${authClass}${reqUrl.pathname}${reqUrl.search}`;
+```
 
-    // Skip cache for non-GET
-    if (request.method !== "GET") {
-      return fetch(request);
-    }
+`active_user` cookie presence determines auth-class. Neither the cookie's
+value nor any other cookie is part of the key — empirical analysis confirmed
+that SSR is auth-class-equivalent (same for any logged-in user) on every
+route except feed and profile-feed tiers, which are user-specific via mute
+filter and stay private (see "Trust origin Cache-Control" below).
 
-    // Normalize cache key — strip query params we don't want to split cache on
-    // (optional: preserves pagination params, drops analytics noise)
-    const cacheKey = new Request(request.url, request);
+## Trust origin Cache-Control
 
-    const cache = caches.default;
-    let response = await cache.match(cacheKey);
+The worker does not decide cacheability — origin's middleware
+(`apps/web/src/features/next-middleware/cache-policy.ts`) does, via
+`buildCacheControlHeader`. The worker's job is to honor the result.
 
-    if (!response) {
-      response = await fetch(request);
+Origin emits `private, no-store` for:
+- `NO_CACHE_PREFIXES` (publish, chats, wallet, search, market, etc.)
+- Profile sub-sections in `NO_CACHE_PROFILE_SECTIONS`
+  (wallet, settings, permissions, referrals, **insights**)
+- `feed`, `feed-created`, `profile-feed` tiers — but only when `isLoggedIn`,
+  because these routes filter SSR by the user's mute list
 
-      // Only cache successful responses with a cacheable Cache-Control
-      if (response.status === 200 && isCacheable(response)) {
-        // Clone so we can stash it while still returning to client
-        ctx.waitUntil(cache.put(cacheKey, response.clone()));
-      }
-    }
+For everything else (post pages, profile main + most sub-sections, community,
+list, static), origin emits `public, max-age=0, s-maxage=N, stale-while-
+revalidate=M` for both anon and logged-in.
 
-    return response;
-  }
-};
+The worker then:
 
-function isCacheable(response) {
-  const cc = response.headers.get("Cache-Control") || "";
-  // Honor private/no-store/no-cache from origin
-  if (/\b(private|no-store|no-cache)\b/i.test(cc)) return false;
-  // Only cache when origin explicitly asks us to
-  return /\bs-maxage=\d+/i.test(cc) || /\bmax-age=\d+/i.test(cc);
+```js
+const originCC = upstream.headers.get("cache-control") || "";
+const hasNoStore = /\bno-store\b/i.test(originCC);
+const isPrivate = /\bprivate\b/i.test(originCC);
+const sMaxMatch = originCC.match(/s-maxage=(\d+)/);
+const cacheable = !hasNoStore && !isPrivate && sMaxMatch && parseInt(sMaxMatch[1], 10) > 0;
+if (cacheable) {
+  await caches.default.put(cacheKey, response.clone());
 }
 ```
 
-### 2. Enable Tiered Cache / Argo
+## Subfetch with cf.cacheKey
 
-With 3 origins (EU/US/SG), enable **Tiered Cache** so regional edges
-consolidate misses before hitting origin. This dramatically reduces origin
-load during viral traffic bursts.
+For cacheable requests, the origin subfetch is annotated with the same
+synthetic cache-key URL. This engages CF's standard cache (eligible for
+Smart Tiered Cache when enabled at the zone level), giving cross-colo
+consolidation in addition to the worker's per-colo `caches.default`.
 
-Dashboard: Caching → Tiered Cache → Enable
+```js
+const subfetchInit = canEdgeCache
+  ? { cf: { cacheKey: cacheKeyUrl } }
+  : {};
+const upstream = await fetch(target, { ...subfetchInit, /* ... */ });
+```
 
-### 3. Per-post-age TTL refinement — already implemented in middleware
+Note: `cacheEverything` is intentionally NOT set — origin Cache-Control
+still gates whether CF's standard cache stores the subfetch response, so
+no-store/private routes remain bypassed even at this layer.
 
-The Next.js middleware now refines entry-page TTL based on post age via a
-background-populated in-memory cache
-(`apps/web/src/features/next-middleware/post-age-cache.ts`). First request
-for a post gets the default `entry` tier; subsequent requests get the
-refined tier based on the post's `created` date.
+## Per-post-age TTL refinement — owned by middleware + Redis
+
+The Next.js middleware refines entry-page TTL based on post age. A per-host
+Redis container (deployed alongside vision_web on each origin server) acts
+as L2 for the in-process L1 Map; it lets the post-age cache survive replica
+restarts and amortize RPC fetches across all replicas on the same host.
 
 The CF worker does **not** need to fetch post metadata — it just respects
-the `Cache-Control` header emitted by middleware, which already encodes
-the age-based TTL.
+the `Cache-Control` header emitted by middleware, which already encodes the
+age-based TTL.
 
-**Tier table (for reference / CF-side refinement if ever needed):**
+**Tier table (origin-emitted, for reference):**
 
 | Post age | `s-maxage` | `stale-while-revalidate` |
 |---|---|---|
@@ -85,92 +98,66 @@ the age-based TTL.
 | 30-60d | 30d | 7d |
 | > 60d | 30d | 60d |
 
-**Implementation sketch:**
+The worker caps stored TTL at 7 days as a safety bound:
 
 ```js
-// On cache miss for entry page URLs, fetch post metadata from Hive API
-// and compute a tighter or looser TTL than what origin sent.
-
-async function refineEntryPageTTL(request, response, env) {
-  const url = new URL(request.url);
-  const match = url.pathname.match(/^\/(?:[^/]+\/)?@([^/]+)\/([^/]+)/);
-  if (!match) return response;
-
-  const [, author, permlink] = match;
-  const post = await getPostMetadata(author, permlink, env); // long-cached in KV
-  if (!post?.created) return response;
-
-  const ageMs = Date.now() - new Date(post.created + "Z").getTime();
-  const ageDays = ageMs / 86400000;
-
-  let sMaxAge, swr;
-  if (ageDays < 1)      { sMaxAge = 60;       swr = 300; }
-  else if (ageDays < 7) { sMaxAge = 3600;     swr = 86400; }
-  else if (ageDays < 30){ sMaxAge = 86400;    swr = 604800; }
-  else if (ageDays < 60){ sMaxAge = 2592000;  swr = 604800; }
-  else                  { sMaxAge = 2592000;  swr = 5184000; }
-
-  const cloned = new Response(response.body, response);
-  cloned.headers.set(
-    "Cache-Control",
-    `public, max-age=0, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`
-  );
-  return cloned;
-}
-
-async function getPostMetadata(author, permlink, env) {
-  const key = `post:${author}/${permlink}`;
-  const cached = await env.POST_META_KV.get(key, "json");
-  if (cached) return cached;
-
-  // Fetch minimal metadata from Hive condenser API
-  const res = await fetch("https://api.hive.blog", {
-    method: "POST",
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      method: "condenser_api.get_content",
-      params: [author, permlink],
-      id: 1
-    })
-  });
-  const data = await res.json();
-  const post = { created: data.result?.created };
-
-  // Created date is immutable — cache aggressively
-  await env.POST_META_KV.put(key, JSON.stringify(post), {
-    expirationTtl: 604800
-  });
-  return post;
-}
+const cappedTtl = Math.min(edgeTtl, 604800);
 ```
 
-Requires KV binding `POST_META_KV`.
+## Observability
 
-### 4. Observability
+The worker sets `X-Edge-Cache: HIT|MISS` on every response. The origin's
+`x-cache-tier` header passes through unchanged (e.g. `entry-ancient`,
+`profile`, `feed-loggedin`). CF's own `cf-cache-status` reflects the
+standard-cache outcome on the subfetch path — not the worker's
+`caches.default` HIT, which appears as `dynamic` to CF's metrics.
 
-Add cache status to response headers:
-
-```js
-response.headers.set("CF-Cache-Status", hit ? "HIT" : "MISS");
-// Preserve x-cache-tier from origin — lets us analyze hit ratio per tier
-```
+To accurately measure worker effectiveness, parse `X-Edge-Cache` from
+response headers, not `cf-cache-status`.
 
 ## Verification
 
+Verify against the origin (port 3000) with a `Host: ecency.com` header to
+bypass CF entirely — this isolates the middleware/SSR layer from worker
+behavior. For end-to-end edge tests, a browser session works best because
+it satisfies CF's bot management without relying on operational allowlists.
+
 ```bash
-# First request — MISS
-curl -sI https://ecency.com/discover | grep -iE 'cf-cache|tier|cache-control'
+# Anonymous post page — second request should HIT in worker's caches.default
+# (visible via X-Edge-Cache: HIT response header)
+curl -sI -H "Host: ecency.com" \
+  "http://127.0.0.1:3000/<community>/<author>/<permlink>" | \
+  grep -iE 'cache-control|x-cache-tier'
+# expect: cache-control: public, max-age=0, s-maxage=N, stale-while-revalidate=M
 
-# Second request — HIT (from CF)
-curl -sI https://ecency.com/discover | grep -iE 'cf-cache|tier'
+# Logged-in (auth-class-equivalent route) — origin emits cacheable header
+curl -sI --cookie "active_user=alice" -H "Host: ecency.com" \
+  "http://127.0.0.1:3000/@<author>" | grep -iE 'cache-control|x-cache-tier'
+# expect: cache-control: public ... s-maxage=300
 
-# Logged-in bypass
-curl -sI --cookie "active_user=alice" https://ecency.com/discover | grep -iE 'cf-cache|cache-control'
+# Logged-in (feed) — stays private regardless
+curl -sI --cookie "active_user=alice" -H "Host: ecency.com" \
+  "http://127.0.0.1:3000/created" | grep -iE 'cache-control|x-cache-tier'
+# expect: cache-control: private, no-store
+# expect: x-cache-tier: feed-created-loggedin
+
+# Logged-in (insights) — stays private (owner-stats SSR)
+curl -sI --cookie "active_user=alice" -H "Host: ecency.com" \
+  "http://127.0.0.1:3000/@<author>/insights" | grep -iE 'cache-control'
+# expect: cache-control: private, no-store
 ```
 
-## Rollout
+## Deploy
 
-1. Deploy worker with HTML caching + cookie bypass but without per-post-age
-   refinement. Verify hit ratio climbs on entry pages.
-2. Add KV binding and deploy per-post-age refinement.
-3. Monitor origin RPS — expect 70-90% reduction on anonymous traffic.
+Worker source is maintained outside this repo (operations infrastructure).
+Deploy via the Cloudflare Workers Scripts API:
+
+```bash
+curl -X PUT -H "Authorization: Bearer $CF_API_TOKEN" \
+  -F 'metadata={"main_module":"worker.js","compatibility_date":"2024-01-01"};type=application/json' \
+  -F "worker.js=@${WORKER_SOURCE};filename=worker.js;type=application/javascript+module" \
+  "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/workers/scripts/ecency-geo-router"
+```
+
+Provide `CF_API_TOKEN`, `WORKER_SOURCE`, and `CF_ACCOUNT_ID` from your
+deployment environment. Keep prior versions as backups for one-line revert.

@@ -6,6 +6,7 @@ import {
   getEntryTierForAge,
   handleIndexRedirect,
   isIndexRedirect,
+  isUserSpecificForLoggedIn,
   parseEntryUrl,
   refreshPostCreatedMs
 } from "@/features/next-middleware";
@@ -112,8 +113,11 @@ function applyCacheHeaders(
   // For entry pages, try to refine TTL based on post age. Cache-miss here is
   // non-blocking: we set the default entry tier immediately and populate the
   // cache in the background for the next request.
+  // Runs for both anon and logged-in users — entry tier is cacheable in both
+  // cases (per buildCacheControlHeader), so logged-in users benefit equally
+  // from age-refined TTLs (entry-fresh through entry-ancient).
   let policy = basePolicy;
-  if (basePolicy.tier === "entry" && !isLoggedIn) {
+  if (basePolicy.tier === "entry") {
     const parsed = parseEntryUrl(path);
     if (parsed) {
       const createdMs = getCachedPostCreatedMs(parsed.author, parsed.permlink);
@@ -135,11 +139,15 @@ function applyCacheHeaders(
   }
 
   response.headers.set("Cache-Control", buildCacheControlHeader(policy, isLoggedIn));
-  response.headers.set("x-cache-tier", isLoggedIn ? "logged-in" : policy.tier);
+  // x-cache-tier is observability-only. Reflect actual gating so cached-vs-private
+  // is distinguishable in nginx logs and CF analytics.
+  const userSpecific = isUserSpecificForLoggedIn(policy, isLoggedIn);
+  response.headers.set("x-cache-tier", userSpecific ? `${policy.tier}-loggedin` : policy.tier);
   // NOTE: we deliberately do NOT emit `Vary: Cookie`. That would fragment the
   // edge cache on every cookie (analytics, locale, experiments) and cripple
-  // hit ratio. Auth bifurcation happens at the infra layer:
-  //   - Nginx: cache key includes $cookie_active_user
-  //   - CF worker: explicitly bypasses cache when active_user cookie present
-  // See docs/cache/nginx.md and docs/cache/cloudflare-worker.md.
+  // hit ratio. Auth bifurcation happens via cache-key suffix in the worker:
+  //   - CF worker: cache key encodes auth-class (anon|loggedin) so anon and
+  //     logged-in get separate cache entries (2 per URL) without Vary
+  //   - Origin Cache-Control still gates writes: `private, no-store` for
+  //     no-cache routes and (only when isLoggedIn) feed/profile-feed tiers
 }

@@ -41,8 +41,21 @@ const NO_CACHE_PREFIXES = [
   "/wallet"
 ];
 
-/** Profile subsections that must never be edge-cached. */
-const NO_CACHE_PROFILE_SECTIONS = new Set(["wallet", "settings", "permissions", "referrals"]);
+/**
+ * Profile subsections that must never be edge-cached.
+ *
+ * `insights` is here because the route handler reads `active_user` to render
+ * owner-only stats (see profile/[username]/insights/page.tsx), so the SSR
+ * differs for the profile owner vs everyone else. Sharing the cache entry
+ * across logged-in users would leak the owner-only sections to other viewers.
+ */
+const NO_CACHE_PROFILE_SECTIONS = new Set([
+  "wallet",
+  "settings",
+  "permissions",
+  "referrals",
+  "insights"
+]);
 
 /**
  * Profile subsections that aggregate content from OTHER users (not the
@@ -71,6 +84,30 @@ const STATIC_PAGES = new Set([
 ]);
 
 const FEED_FILTERS = new Set(["hot", "created", "trending", "payout", "muted", "promoted"]);
+
+/**
+ * Cache tiers whose SSR is filtered by the logged-in user's mute list (via
+ * `observer` in feed/[...sections]/page.tsx). Different logged-in users see
+ * different filtered feeds, so these tiers must stay private when isLoggedIn.
+ *
+ * All other tiers are auth-class-equivalent (anon vs any-logged-in-user) per
+ * empirical sweep across 26 page types — they can share an edge cache entry
+ * across logged-in users.
+ */
+const USER_SPECIFIC_TIERS_WHEN_LOGGED_IN = new Set([
+  "feed", // /:filter (hot, trending, payout, muted, promoted)
+  "feed-created", // /:filter where filter is "created", and tag feeds
+  "profile-feed" // /@author/feed and /@author/trail
+]);
+
+/**
+ * True when this policy's SSR depends on the logged-in user's identity (today
+ * only the mute-filter feed tiers). Exposed for middleware observability and
+ * potential reuse in the CF worker / nginx layers.
+ */
+export function isUserSpecificForLoggedIn(policy: CachePolicy, isLoggedIn: boolean): boolean {
+  return isLoggedIn && USER_SPECIFIC_TIERS_WHEN_LOGGED_IN.has(policy.tier);
+}
 
 export function getCachePolicyForPath(pathname: string): CachePolicy | null {
   // Strip trailing slash (except root) for consistent matching.
@@ -178,7 +215,7 @@ export function getCachePolicyForPath(pathname: string): CachePolicy | null {
 
 /** Build a Cache-Control header value from a policy. */
 export function buildCacheControlHeader(policy: CachePolicy, isLoggedIn: boolean): string {
-  if (isLoggedIn || policy.tier === NO_CACHE_TIER) {
+  if (policy.tier === NO_CACHE_TIER || isUserSpecificForLoggedIn(policy, isLoggedIn)) {
     return "private, no-store";
   }
   return `public, max-age=0, s-maxage=${policy.sMaxAge}, stale-while-revalidate=${policy.staleWhileRevalidate}`;
