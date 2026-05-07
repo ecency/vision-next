@@ -3,6 +3,7 @@ import {
   buildCacheControlHeader,
   getCachePolicyForPath,
   getEntryTierForAge,
+  isUserSpecificForLoggedIn,
   parseEntryUrl
 } from "@/features/next-middleware";
 
@@ -34,13 +35,16 @@ describe("getCachePolicyForPath", () => {
       expect(policy).toEqual({ tier: "no-cache", sMaxAge: 0, staleWhileRevalidate: 0 });
     });
 
-    it.each(["/@alice/wallet", "/@alice/settings", "/@alice/permissions", "/@alice/referrals"])(
-      "returns no-cache for sensitive profile section %s",
-      (path) => {
-        const policy = getCachePolicyForPath(path);
-        expect(policy?.tier).toBe("no-cache");
-      }
-    );
+    it.each([
+      "/@alice/wallet",
+      "/@alice/settings",
+      "/@alice/permissions",
+      "/@alice/referrals",
+      "/@alice/insights"
+    ])("returns no-cache for sensitive profile section %s", (path) => {
+      const policy = getCachePolicyForPath(path);
+      expect(policy?.tier).toBe("no-cache");
+    });
   });
 
   describe("static pages", () => {
@@ -133,7 +137,7 @@ describe("getCachePolicyForPath", () => {
       expect(policy).toEqual({ tier: "profile", sMaxAge: 300, staleWhileRevalidate: 3600 });
     });
 
-    it.each(["posts", "blog", "comments", "replies", "communities", "insights"])(
+    it.each(["posts", "blog", "comments", "replies", "communities"])(
       "returns profile tier for /@alice/%s",
       (section) => {
         const policy = getCachePolicyForPath(`/@alice/${section}`);
@@ -201,13 +205,38 @@ describe("buildCacheControlHeader", () => {
     expect(header).toBe("public, max-age=0, s-maxage=300, stale-while-revalidate=3600");
   });
 
-  it("emits private no-store for logged-in users", () => {
+  it("emits public s-maxage + swr for logged-in users on auth-class-equivalent tiers", () => {
+    // profile, list, entry, community, static, home — SSR is the same for
+    // anon and any-logged-in user, so logged-in shares the cache (worker
+    // keys it under #auth=loggedin separately from #auth=anon).
     const header = buildCacheControlHeader(
       { tier: "list", sMaxAge: 300, staleWhileRevalidate: 3600 },
       true
     );
-    expect(header).toBe("private, no-store");
+    expect(header).toBe("public, max-age=0, s-maxage=300, stale-while-revalidate=3600");
   });
+
+  it.each(["feed", "feed-created", "profile-feed"])(
+    "emits private no-store for logged-in users on %s tier (mute filter)",
+    (tier) => {
+      const header = buildCacheControlHeader(
+        { tier, sMaxAge: 60, staleWhileRevalidate: 300 },
+        true
+      );
+      expect(header).toBe("private, no-store");
+    }
+  );
+
+  it.each(["feed", "feed-created", "profile-feed"])(
+    "still emits public for anonymous users on %s tier",
+    (tier) => {
+      const header = buildCacheControlHeader(
+        { tier, sMaxAge: 60, staleWhileRevalidate: 300 },
+        false
+      );
+      expect(header).toBe("public, max-age=0, s-maxage=60, stale-while-revalidate=300");
+    }
+  );
 
   it("emits private no-store for no-cache tier even anonymous", () => {
     const header = buildCacheControlHeader(
@@ -216,6 +245,43 @@ describe("buildCacheControlHeader", () => {
     );
     expect(header).toBe("private, no-store");
   });
+
+  it("emits private no-store for no-cache tier when logged-in", () => {
+    const header = buildCacheControlHeader(
+      { tier: "no-cache", sMaxAge: 0, staleWhileRevalidate: 0 },
+      true
+    );
+    expect(header).toBe("private, no-store");
+  });
+});
+
+describe("isUserSpecificForLoggedIn", () => {
+  it.each(["feed", "feed-created", "profile-feed"])(
+    "returns true for %s tier when logged-in",
+    (tier) => {
+      expect(
+        isUserSpecificForLoggedIn({ tier, sMaxAge: 60, staleWhileRevalidate: 300 }, true)
+      ).toBe(true);
+    }
+  );
+
+  it.each(["feed", "feed-created", "profile-feed"])(
+    "returns false for %s tier when anonymous",
+    (tier) => {
+      expect(
+        isUserSpecificForLoggedIn({ tier, sMaxAge: 60, staleWhileRevalidate: 300 }, false)
+      ).toBe(false);
+    }
+  );
+
+  it.each(["profile", "entry", "list", "community", "static", "home", "no-cache"])(
+    "returns false for %s tier even when logged-in (auth-class-equivalent)",
+    (tier) => {
+      expect(
+        isUserSpecificForLoggedIn({ tier, sMaxAge: 60, staleWhileRevalidate: 300 }, true)
+      ).toBe(false);
+    }
+  );
 });
 
 describe("getEntryTierForAge", () => {
