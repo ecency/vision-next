@@ -14,8 +14,6 @@ describe("getCachePolicyForPath", () => {
     it.each([
       "/publish",
       "/publish/entry/@alice/hello",
-      "/chats",
-      "/chats/general",
       "/auth",
       "/auth/keychain-sign",
       "/signup",
@@ -24,10 +22,6 @@ describe("getCachePolicyForPath", () => {
       "/wallet",
       "/wallet/hive",
       "/market",
-      "/search",
-      "/decks",
-      "/waves",
-      "/perks",
       "/purchase",
       "/onboard-friend"
     ])("returns no-cache tier for %s", (path) => {
@@ -44,6 +38,24 @@ describe("getCachePolicyForPath", () => {
     ])("returns no-cache for sensitive profile section %s", (path) => {
       const policy = getCachePolicyForPath(path);
       expect(policy?.tier).toBe("no-cache");
+    });
+  });
+
+  describe("dynamic-page tier (anonymous-equivalent SSR, 60s)", () => {
+    it.each([
+      "/chats",
+      "/chats/general",
+      "/decks",
+      "/decks/main",
+      "/waves",
+      "/waves/@alice/wave-1",
+      "/perks",
+      "/perks/promote-post",
+      "/search",
+      "/search?q=hive"
+    ])("returns dynamic-page tier for %s", (path) => {
+      const policy = getCachePolicyForPath(path);
+      expect(policy).toEqual({ tier: "dynamic-page", sMaxAge: 60, staleWhileRevalidate: 300 });
     });
   });
 
@@ -192,6 +204,26 @@ describe("getCachePolicyForPath", () => {
 
     it("does not collapse root /", () => {
       expect(getCachePolicyForPath("/")?.tier).toBe("home");
+    });
+  });
+
+  describe("query string normalization", () => {
+    it("strips query string before matching (e.g. /search?q=hive)", () => {
+      expect(getCachePolicyForPath("/search?q=hive")).toEqual(
+        getCachePolicyForPath("/search")
+      );
+    });
+
+    it("strips query string for no-cache prefixes too", () => {
+      expect(getCachePolicyForPath("/publish?ref=foo")).toEqual(
+        getCachePolicyForPath("/publish")
+      );
+    });
+
+    it("strips query string for entry pages", () => {
+      expect(getCachePolicyForPath("/photography/@alice/my-post?utm=x")).toEqual(
+        getCachePolicyForPath("/photography/@alice/my-post")
+      );
     });
   });
 });
