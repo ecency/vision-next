@@ -14,11 +14,23 @@ export async function GET(_req: NextRequest, { params }: { params: { userId: str
     return NextResponse.json({ error: "MATTERMOST_BASE_URL not configured" }, { status: 500 });
   }
 
-  const res = await fetch(`${baseUrl}/users/${params.userId}/image`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/users/${params.userId}/image`, {
+      headers: { Authorization: `Bearer ${token}` },
+      // Avatar fetches that hang would tie up Node connection slots and
+      // contribute to the same kind of pile-up we saw on the Plausible
+      // proxy path. 8s matches the CF Worker primary timeout — anything
+      // slower has already been cut off at the edge.
+      signal: AbortSignal.timeout(8000)
+    });
+  } catch (err) {
+    const isTimeout = err instanceof Error && err.name === "TimeoutError";
+    return NextResponse.json(
+      { error: isTimeout ? "avatar fetch timed out" : "avatar fetch failed" },
+      { status: isTimeout ? 504 : 502 }
+    );
+  }
 
   if (!res.ok) {
     const message = await res.text();

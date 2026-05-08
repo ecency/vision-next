@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
         "X-API-Key": apiKey,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ thumbnail_url, hive_author: auth.username })
+      body: JSON.stringify({ thumbnail_url, hive_author: auth.username }),
+      signal: AbortSignal.timeout(10_000)
     });
 
     if (!res.ok) {
