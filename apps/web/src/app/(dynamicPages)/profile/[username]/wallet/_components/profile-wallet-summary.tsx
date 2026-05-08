@@ -9,7 +9,7 @@ import {
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import i18next from "i18next";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 
@@ -24,6 +24,14 @@ export function ProfileWalletSummary() {
   const { username } = useParams();
   const currency = useGlobalStore((state) => state.currency);
   const [showDetails, setShowDetails] = useLocalStorage(PREFIX + "_wallet_details", true);
+  // Avoid hydration mismatch: SSR has no localStorage so the hook returns the
+  // default (true), but a returning user may have toggled details off — that
+  // would render a different DOM client-side and trigger React error #418.
+  // Use the SSR default during the first render, switch to the stored value
+  // after mount.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const detailsVisible = hydrated ? !!showDetails : true;
   const { data } = useQuery(
     getAccountWalletListQueryOptions((username as string).replace("%40", ""), currency || "usd")
   );
@@ -114,17 +122,17 @@ export function ProfileWalletSummary() {
       </div>
       <ProfileWalletPendingEarnings />
       <button
-        onClick={() => setShowDetails(!showDetails)}
+        onClick={() => setShowDetails(!detailsVisible)}
         className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer self-start"
-        aria-expanded={showDetails}
+        aria-expanded={detailsVisible}
         aria-controls="wallet-details"
       >
-        {showDetails
+        {detailsVisible
           ? i18next.t("wallet.hide-details", { defaultValue: "Hide details" })
           : i18next.t("wallet.show-details", { defaultValue: "Show details" })
         }
       </button>
-      {showDetails && (
+      {detailsVisible && (
         <div id="wallet-details">
           <div className="flex w-full text-sm text-gray-400 dark:text-white rounded-lg overflow-hidden gap-0.5">
             {assetsParts.length === 0 && (
