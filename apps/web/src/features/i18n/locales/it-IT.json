@@ -441,7 +441,8 @@
     "delegate-placeholder": "Inserisci l'importo da delegare (Bn)"
   },
   "trending-tags": {
-    "title": "Argomenti"
+    "title": "Argomenti",
+    "view-more": "Vedi altro"
   },
   "sort-trending-tags": {
     "sort": "Ordina",
