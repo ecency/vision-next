@@ -53,6 +53,13 @@ export async function POST(request: NextRequest) {
   try {
     return NextResponse.json(await response.json());
   } catch (e) {
-    return NextResponse.json({}, { status: 400 });
+    // The same AbortSignal that bounds the fetch also bounds the body read,
+    // so response.json() can throw TimeoutError or AbortError if the cap fires
+    // mid-stream. Classify those as 504; treat anything else as a transport
+    // failure (502) rather than a 400 client error.
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      return NextResponse.json({}, { status: 504 });
+    }
+    return NextResponse.json({}, { status: 502 });
   }
 }
