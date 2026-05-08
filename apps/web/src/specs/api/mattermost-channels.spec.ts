@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const mockMmUserFetch = vi.fn();
+const mockMmUserFetchNdjson = vi.fn();
 
 vi.mock("@/server/mattermost", () => ({
   getMattermostTeamId: () => "team-123",
   getMattermostTokenFromCookies: () => Promise.resolve("test-token"),
   handleMattermostError: (err: unknown) => ({ error: String(err) }),
-  mmUserFetch: (...args: unknown[]) => mockMmUserFetch(...args)
+  mmUserFetch: (...args: unknown[]) => mockMmUserFetch(...args),
+  mmUserFetchNdjson: (...args: unknown[]) => mockMmUserFetchNdjson(...args)
 }));
 
 function makeChannels(count: number) {
@@ -18,61 +20,69 @@ function makeChannels(count: number) {
   }));
 }
 
+function makeMembers(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    user_id: "u-self",
+    channel_id: `ch-${i}`,
+    mention_count: 0,
+    msg_count: 0
+  }));
+}
+
 describe("fetchAllChannelPages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("aggregates results from multiple pages and stops on short page", async () => {
-    const { fetchAllChannelPages, pageSize } = await import(
-      "@/app/api/mattermost/channels/helpers"
-    );
-    const fullPage = makeChannels(pageSize);
-    const shortPage = makeChannels(50);
-
-    mockMmUserFetch
-      .mockResolvedValueOnce(fullPage)
-      .mockResolvedValueOnce(shortPage);
-
-    const result = await fetchAllChannelPages("test-token");
-
-    expect(result).toHaveLength(pageSize + 50);
-    expect(mockMmUserFetch).toHaveBeenCalledTimes(2);
-    expect(mockMmUserFetch).toHaveBeenCalledWith(
-      expect.stringContaining("page=0"),
-      "test-token"
-    );
-    expect(mockMmUserFetch).toHaveBeenCalledWith(
-      expect.stringContaining("page=1"),
-      "test-token"
-    );
-  });
-
-  it("stops after a single call when first page is short", async () => {
+  it("calls /users/me/channels once and returns the streamed array", async () => {
     const { fetchAllChannelPages } = await import(
       "@/app/api/mattermost/channels/helpers"
     );
-    const shortPage = makeChannels(10);
-    mockMmUserFetch.mockResolvedValueOnce(shortPage);
+    const channels = makeChannels(2499);
+    mockMmUserFetch.mockResolvedValueOnce(channels);
 
     const result = await fetchAllChannelPages("test-token");
 
-    expect(result).toHaveLength(10);
+    expect(result).toHaveLength(2499);
     expect(mockMmUserFetch).toHaveBeenCalledTimes(1);
+    expect(mockMmUserFetch).toHaveBeenCalledWith(
+      "/users/me/channels",
+      "test-token"
+    );
   });
 
-  it("stops at maxPages even if every page is full", async () => {
-    const { fetchAllChannelPages, pageSize, maxPages } = await import(
+  it("returns [] when upstream gives a non-array response", async () => {
+    const { fetchAllChannelPages } = await import(
       "@/app/api/mattermost/channels/helpers"
     );
-    const fullPage = makeChannels(pageSize);
-    for (let i = 0; i < maxPages; i++) {
-      mockMmUserFetch.mockResolvedValueOnce(fullPage);
-    }
+    mockMmUserFetch.mockResolvedValueOnce(undefined);
 
     const result = await fetchAllChannelPages("test-token");
 
-    expect(result).toHaveLength(pageSize * maxPages);
-    expect(mockMmUserFetch).toHaveBeenCalledTimes(maxPages);
+    expect(result).toEqual([]);
+    expect(mockMmUserFetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("fetchAllChannelMemberPages", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("calls /users/me/channel_members?page=-1 once via NDJSON", async () => {
+    const { fetchAllChannelMemberPages } = await import(
+      "@/app/api/mattermost/channels/helpers"
+    );
+    const members = makeMembers(2499);
+    mockMmUserFetchNdjson.mockResolvedValueOnce(members);
+
+    const result = await fetchAllChannelMemberPages("test-token");
+
+    expect(result).toHaveLength(2499);
+    expect(mockMmUserFetchNdjson).toHaveBeenCalledTimes(1);
+    expect(mockMmUserFetchNdjson).toHaveBeenCalledWith(
+      "/users/me/channel_members?page=-1",
+      "test-token"
+    );
   });
 });
