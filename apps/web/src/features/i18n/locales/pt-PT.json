@@ -441,7 +441,8 @@
     "delegate-placeholder": "Digite o valor para delegar (Bn)"
   },
   "trending-tags": {
-    "title": "Tópicos"
+    "title": "Tópicos",
+    "view-more": "Ver mais"
   },
   "sort-trending-tags": {
     "sort": "Ordenar",
