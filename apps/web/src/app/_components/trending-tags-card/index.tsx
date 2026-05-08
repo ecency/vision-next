@@ -3,6 +3,7 @@
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 
 import { TagLink } from "@/features/shared/tag";
+import { Button } from "@ui/button";
 import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
@@ -79,6 +80,11 @@ export function TrendingTagsCard() {
             />
           ))}
       </div>
+      {trendingTags && trendingTags.length > 0 && (
+        <Button className="mt-3" size="sm" appearance="gray" full={true} href="/tags">
+          {i18next.t("trending-tags.view-more")}
+        </Button>
+      )}
     </div>
   );
 }
