@@ -20,29 +20,46 @@ export async function POST(request: NextRequest) {
     ({ visionFeatures }) => visionFeatures.plausible.host
   );
 
-  const response = await fetch(`${statsHost}/api/v2/query`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${EcencyConfigManager.getConfigValue(
-        ({ visionFeatures }) => visionFeatures.plausible.apiKey
-      )}`
-    },
-    body: JSON.stringify({
-      site_id: EcencyConfigManager.getConfigValue(
-        ({ visionFeatures }) => visionFeatures.plausible.siteId
-      ),
-      metrics,
-      filters: [["contains", "event:page", [safeDecodeURIComponent(url)]]],
-      dimensions,
-      date_range: dateRange
-    }),
-    cache: "default"
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${statsHost}/api/v2/query`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${EcencyConfigManager.getConfigValue(
+          ({ visionFeatures }) => visionFeatures.plausible.apiKey
+        )}`
+      },
+      body: JSON.stringify({
+        site_id: EcencyConfigManager.getConfigValue(
+          ({ visionFeatures }) => visionFeatures.plausible.siteId
+        ),
+        metrics,
+        filters: [["contains", "event:page", [safeDecodeURIComponent(url)]]],
+        dimensions,
+        date_range: dateRange
+      }),
+      cache: "default",
+      // Plausible's /api/v2/query has historically blocked on its DB pool
+      // (DBConnection.ConnectionError); a hung fetch here would pile up Node
+      // connection slots the same way /pl/api/event used to. Bound it.
+      signal: AbortSignal.timeout(8000)
+    });
+  } catch (e) {
+    const isTimeout = e instanceof Error && e.name === "TimeoutError";
+    return NextResponse.json({}, { status: isTimeout ? 504 : 502 });
+  }
 
   try {
     return NextResponse.json(await response.json());
   } catch (e) {
-    return NextResponse.json({}, { status: 400 });
+    // The same AbortSignal that bounds the fetch also bounds the body read,
+    // so response.json() can throw TimeoutError or AbortError if the cap fires
+    // mid-stream. Classify those as 504; treat anything else as a transport
+    // failure (502) rather than a 400 client error.
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      return NextResponse.json({}, { status: 504 });
+    }
+    return NextResponse.json({}, { status: 502 });
   }
 }

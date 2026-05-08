@@ -6,6 +6,7 @@ import {
   mmUserFetch
 } from "@/server/mattermost";
 import * as Sentry from "@sentry/nextjs";
+import { fetchAllChannelPages, fetchAllChannelMemberPages } from "../helpers";
 
 interface MattermostChannel {
   id: string;
@@ -41,38 +42,11 @@ interface MattermostThreadsResponse {
   total: number;
 }
 
-const PAGE_SIZE = 200;
-const DEFAULT_MAX_PAGES = 2; // Safety cap to avoid long-running unread checks
-const MAX_ALLOWED_PAGES = 2;
-
-function withPagination(path: string, page: number) {
-  const [base, query] = path.split("?");
-  const params = new URLSearchParams(query ?? "");
-  params.set("page", String(page));
-  params.set("per_page", String(PAGE_SIZE));
-  return `${base}?${params.toString()}`;
-}
-
-async function fetchAllPages<T>(path: string, token: string, maxPages: number) {
-  const results: T[] = [];
-  let truncated = false;
-
-  for (let page = 0; page < maxPages; page += 1) {
-    const pageItems = await mmUserFetch<T[]>(withPagination(path, page), token);
-    if (!pageItems.length) {
-      break;
-    }
-    results.push(...pageItems);
-    if (pageItems.length < PAGE_SIZE) {
-      break;
-    }
-    if (page === maxPages - 1) {
-      truncated = true;
-    }
-  }
-
-  return { items: results, truncated };
-}
+// Threads still paginate — kept identical to prior behavior. Channels and
+// channel-member lists now come from streaming endpoints (see helpers.ts).
+const THREAD_PAGE_SIZE = 200;
+const THREAD_DEFAULT_MAX_PAGES = 2;
+const THREAD_MAX_ALLOWED_PAGES = 2;
 
 async function fetchAllThreadPages(token: string, teamId: string, maxPages: number) {
   const results: MattermostThread[] = [];
@@ -80,7 +54,7 @@ async function fetchAllThreadPages(token: string, teamId: string, maxPages: numb
 
   for (let page = 0; page < maxPages; page += 1) {
     const response = await mmUserFetch<MattermostThreadsResponse>(
-      withPagination(`/users/me/teams/${teamId}/threads`, page),
+      `/users/me/teams/${teamId}/threads?page=${page}&per_page=${THREAD_PAGE_SIZE}`,
       token
     );
     const pageItems = response.threads || [];
@@ -88,7 +62,7 @@ async function fetchAllThreadPages(token: string, teamId: string, maxPages: numb
       break;
     }
     results.push(...pageItems);
-    if (pageItems.length < PAGE_SIZE) {
+    if (pageItems.length < THREAD_PAGE_SIZE) {
       break;
     }
     if (page === maxPages - 1) {
@@ -117,28 +91,24 @@ export async function GET() {
 
     const rawMaxPages = process.env.MATTERMOST_UNREAD_MAX_PAGES;
     const parsedMaxPages = Number.isNaN(parseInt(rawMaxPages ?? "", 10))
-      ? DEFAULT_MAX_PAGES
+      ? THREAD_DEFAULT_MAX_PAGES
       : parseInt(rawMaxPages as string, 10);
-    const maxPages = Math.min(
-      MAX_ALLOWED_PAGES,
+    const threadMaxPages = Math.min(
+      THREAD_MAX_ALLOWED_PAGES,
       Math.max(1, parsedMaxPages)
     );
 
-    const [channelsResult, membersResult, threadsResult, currentUser] = await Promise.all([
-      fetchAllPages<MattermostChannel>("/users/me/channels", token, maxPages),
-      fetchAllPages<MattermostChannelMember>(
-        `/users/me/teams/${teamId}/channels/members`,
-        token,
-        maxPages
-      ),
-      fetchAllThreadPages(token, teamId, maxPages).catch(() => ({ items: [], truncated: false })),
+    const [allChannels, members, threadsResult, currentUser] = await Promise.all([
+      fetchAllChannelPages(token),
+      fetchAllChannelMemberPages(token),
+      fetchAllThreadPages(token, teamId, threadMaxPages).catch(() => ({ items: [], truncated: false })),
       mmUserFetch<{ id: string }>(`/users/me`, token)
     ]);
 
-    const allChannels = channelsResult.items;
-    const members = membersResult.items;
     const threads = threadsResult.items;
-    const truncated = channelsResult.truncated || membersResult.truncated || threadsResult.truncated;
+    // Channels & members come from streaming endpoints — they cannot truncate.
+    // Only thread pagination can still hit a cap, so `truncated` reflects only that.
+    const truncated = threadsResult.truncated;
 
     // Extract user IDs from DM channels to check for deactivated users
     const dmChannels = allChannels.filter((ch) => ch.type === "D");
@@ -267,6 +237,8 @@ export async function GET() {
       .reduce((sum, channel) => sum + channel.thread_unread, 0);
 
     if (truncated) {
+      // Only thread pagination can still hit a cap — channels and members are
+      // streamed in full now.
       Sentry.withScope((scope) => {
         scope.setTag("context", "chat");
         scope.setLevel("warning");
@@ -274,10 +246,11 @@ export async function GET() {
           userId: currentUser?.id,
           channelCount: allChannels.length,
           memberCount: members.length,
-          maxPages,
-          pageSize: PAGE_SIZE
+          threadCount: threads.length,
+          threadMaxPages,
+          threadPageSize: THREAD_PAGE_SIZE
         });
-        Sentry.captureMessage("Mattermost unreads truncated");
+        Sentry.captureMessage("Mattermost thread unreads truncated");
       });
     }
 

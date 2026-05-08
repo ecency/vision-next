@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
         allowed_origins: isWebClient
           ? ["https://ecency.com", "https://alpha.ecency.com"]
           : []
-      })
+      }),
+      signal: AbortSignal.timeout(10_000)
     });
 
     if (!res.ok) {

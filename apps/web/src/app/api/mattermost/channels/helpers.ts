@@ -1,4 +1,4 @@
-import { mmUserFetch } from "@/server/mattermost";
+import { mmUserFetch, mmUserFetchNdjson } from "@/server/mattermost";
 
 interface MattermostChannel {
   id: string;
@@ -27,36 +27,24 @@ interface MattermostChannelMemberCounts {
   last_update_at?: number;
 }
 
-export const pageSize = 200;
-export const maxPages = 3;
-
+// `/users/me/channels` returns the user's full channel list as a single
+// streamed response when no `page`/`per_page` are supplied. This matches
+// Client4.getAllTeamsChannels in the official Mattermost webapp and avoids
+// the 3-page sequential round-trip the previous paginated form required.
 export async function fetchAllChannelPages(token: string): Promise<MattermostChannel[]> {
-  const results: MattermostChannel[] = [];
-  for (let page = 0; page < maxPages; page++) {
-    const pageItems = await mmUserFetch<MattermostChannel[]>(
-      `/users/me/channels?page=${page}&per_page=${pageSize}`,
-      token
-    );
-    const items = Array.isArray(pageItems) ? pageItems : [];
-    results.push(...items);
-    if (items.length < pageSize) return results;
-  }
-  return results;
+  const result = await mmUserFetch<MattermostChannel[]>("/users/me/channels", token);
+  return Array.isArray(result) ? result : [];
 }
 
+// `/users/me/channel_members?page=-1` switches Mattermost into NDJSON
+// streaming mode (Client4.getAllChannelsMembers uses this with userId/-1).
+// It returns every channel-member row for the user across teams in a single
+// response, removing the sequential pagination we used to do per team.
 export async function fetchAllChannelMemberPages(
-  teamId: string,
   token: string
 ): Promise<MattermostChannelMemberCounts[]> {
-  const results: MattermostChannelMemberCounts[] = [];
-  for (let page = 0; page < maxPages; page++) {
-    const pageItems = await mmUserFetch<MattermostChannelMemberCounts[]>(
-      `/users/me/teams/${teamId}/channels/members?page=${page}&per_page=${pageSize}`,
-      token
-    );
-    const items = Array.isArray(pageItems) ? pageItems : [];
-    results.push(...items);
-    if (items.length < pageSize) return results;
-  }
-  return results;
+  return await mmUserFetchNdjson<MattermostChannelMemberCounts>(
+    "/users/me/channel_members?page=-1",
+    token
+  );
 }

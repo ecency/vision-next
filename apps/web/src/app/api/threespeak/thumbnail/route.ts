@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
         "X-API-Key": apiKey,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ thumbnail_url, hive_author: auth.username })
+      body: JSON.stringify({ thumbnail_url, hive_author: auth.username }),
+      signal: AbortSignal.timeout(10_000)
     });
 
     if (!res.ok) {
@@ -62,6 +63,19 @@ export async function POST(req: NextRequest) {
     return Response.json(data);
   } catch (e) {
     console.error("[3Speak] Thumbnail endpoint error:", e);
+    if (e instanceof Error) {
+      // AbortSignal.timeout fires as TimeoutError; an abort during streaming
+      // body reads can surface as AbortError. Both indicate the upstream
+      // exceeded our budget.
+      if (e.name === "TimeoutError" || e.name === "AbortError") {
+        return Response.json({ error: "Thumbnail update timed out" }, { status: 504 });
+      }
+      // Node's fetch wraps DNS/TLS/connection failures as TypeError("fetch failed");
+      // surface those as a bad-gateway condition rather than an internal error.
+      if (e instanceof TypeError) {
+        return Response.json({ error: "Thumbnail update failed (upstream)" }, { status: 502 });
+      }
+    }
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
