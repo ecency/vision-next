@@ -13,7 +13,7 @@ import { UilArrowRight } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 
 const EXTERNAL_BANNER_STORAGE_KEY_PREFIX = "externalWalletSetupBannerDismissed";
@@ -30,14 +30,22 @@ export function ProfileWalletExternalBanner() {
     null
   );
 
+  // Avoid hydration mismatch: SSR has no localStorage so `dismissedAt` is the
+  // default (null) and the banner renders; but a returning user may have
+  // dismissed it, which would make the first client render skip the banner
+  // entirely — a different DOM tree than SSR, triggering React error #418.
+  // Treat as "not dismissed" until after mount.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+
   const isDismissed = useMemo(() => {
-    if (!dismissedAt) {
+    if (!hydrated || !dismissedAt) {
       return false;
     }
 
     const diff = Date.now() - dismissedAt;
     return diff < THIRTY_DAYS_IN_MS;
-  }, [dismissedAt]);
+  }, [hydrated, dismissedAt]);
 
   useEffect(() => {
     if (!dismissedAt) {
