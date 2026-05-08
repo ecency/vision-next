@@ -441,7 +441,8 @@
     "delegate-placeholder": "Introduzca la cantidad a delegar (Bn)"
   },
   "trending-tags": {
-    "title": "Temas"
+    "title": "Temas",
+    "view-more": "Ver más"
   },
   "sort-trending-tags": {
     "sort": "Ordenar",
