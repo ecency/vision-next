@@ -441,7 +441,8 @@
     "delegate-placeholder": "Введите сумму для делегирования (Bn)"
   },
   "trending-tags": {
-    "title": "Темы"
+    "title": "Темы",
+    "view-more": "Подробнее"
   },
   "sort-trending-tags": {
     "sort": "Сортировка",
