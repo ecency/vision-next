@@ -441,7 +441,8 @@
     "delegate-placeholder": "Enter amount to delegate (Bn)"
   },
   "trending-tags": {
-    "title": "Tеми"
+    "title": "Tеми",
+    "view-more": "View more"
   },
   "sort-trending-tags": {
     "sort": "Sort",
