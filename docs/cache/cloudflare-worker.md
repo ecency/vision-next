@@ -83,6 +83,11 @@ The Next.js middleware refines entry-page TTL based on post age. A per-host
 Redis container (deployed alongside vision_web on each origin server) acts
 as L2 for the in-process L1 Map; it lets the post-age cache survive replica
 restarts and amortize RPC fetches across all replicas on the same host.
+Middleware reads L2 on the request path with a tight 50ms cap, so any
+replica on a host can emit the refined tier as soon as Redis is populated
+by any other replica — without that, the entry-unknown 60s response gets
+cached at every edge layer until the responding replica's L1 happens to
+warm, which rarely converges for long-tail posts.
 
 The CF worker does **not** need to fetch post metadata — it just respects
 the `Cache-Control` header emitted by middleware, which already encodes the

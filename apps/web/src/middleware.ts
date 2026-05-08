@@ -1,7 +1,7 @@
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import {
+  awaitPostCreatedMs,
   buildCacheControlHeader,
-  getCachedPostCreatedMs,
   getCachePolicyForPath,
   getEntryTierForAge,
   handleIndexRedirect,
@@ -23,7 +23,7 @@ const ENTRY_COLD_MISS_POLICY = { tier: "entry-unknown", sMaxAge: 60, staleWhileR
 
 const METHOD_NOT_ALLOWED_HEADERS = { Allow: "GET, HEAD, OPTIONS" };
 
-export function middleware(request: NextRequest, event: NextFetchEvent) {
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
@@ -107,11 +107,11 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
   }
 
   const response = NextResponse.next();
-  applyCacheHeaders(request, response, path, event);
+  await applyCacheHeaders(request, response, path, event);
   return response;
 }
 
-function applyCacheHeaders(
+async function applyCacheHeaders(
   request: NextRequest,
   response: NextResponse,
   path: string,
@@ -122,26 +122,28 @@ function applyCacheHeaders(
 
   const isLoggedIn = request.cookies.has(ACTIVE_USER_COOKIE_NAME);
 
-  // For entry pages, try to refine TTL based on post age. Cache-miss here is
-  // non-blocking: we set the default entry tier immediately and populate the
-  // cache in the background for the next request.
-  // Runs for both anon and logged-in users — entry tier is cacheable in both
-  // cases (per buildCacheControlHeader), so logged-in users benefit equally
-  // from age-refined TTLs (entry-fresh through entry-ancient).
+  // For entry pages, refine TTL based on post age. The lookup hits L1 sync
+  // first; on miss it falls through to Redis with a tight timeout. Without
+  // the Redis step, the entry-unknown 60s response gets cached at every
+  // edge layer until L1 happens to warm — which rarely converges for
+  // long-tail posts under load-balanced traffic + L1 FIFO eviction.
+  // Runs for both anon and logged-in users — entry tier is cacheable in
+  // both cases (per buildCacheControlHeader).
   let policy = basePolicy;
   if (basePolicy.tier === "entry") {
     const parsed = parseEntryUrl(path);
     if (parsed) {
-      const createdMs = getCachedPostCreatedMs(parsed.author, parsed.permlink);
+      const createdMs = await awaitPostCreatedMs(parsed.author, parsed.permlink);
       if (typeof createdMs === "number") {
         policy = getEntryTierForAge(Date.now() - createdMs);
       } else {
-        // Both undefined (no cache entry) and null (cached as missing/malformed)
-        // get the conservative cold-miss TTL. Treating null as the default
-        // entry tier (1h/1d) over-caches when the RPC reports "no created"
-        // for a fresh post that simply isn't indexed yet on the node we hit.
-        // Only undefined triggers a background refresh — for null, the L1
-        // negative entry is still fresh and re-RPC'ing would just spam.
+        // Both undefined (not cached anywhere) and null (cached as missing/
+        // malformed in L1) get the conservative cold-miss TTL. Treating null
+        // as the default entry tier (1h/1d) over-caches when the RPC reports
+        // "no created" for a fresh post that simply isn't indexed yet on the
+        // node we hit. Only undefined triggers a background refresh — for
+        // null, the L1 negative entry is still fresh and re-RPC'ing would
+        // just spam.
         policy = ENTRY_COLD_MISS_POLICY;
         if (createdMs === undefined) {
           event.waitUntil(refreshPostCreatedMs(parsed.author, parsed.permlink));

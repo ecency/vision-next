@@ -105,24 +105,37 @@ Without step 2, CF serves the pre-DMCA HTML until `s-maxage` expires
 
 ## Per-post-age TTL refinement
 
-For entry (post) pages, the middleware starts with a conservative
-`entry-unknown` tier (60s / 5m) when the post's `created` date is not yet
-known, then refines it based on the post's age once available:
+For entry (post) pages, the middleware refines the cache TTL based on the
+post's age. The lookup is two-tier:
 
-1. First request for `/cat/@author/permlink` on a given replica: middleware
-   sees no cached age → emits `entry-unknown` (60s / 5m) → kicks off a
-   background lookup via `event.waitUntil(refreshPostCreatedMs(...))`.
-2. Background lookup checks Redis (L2, shared across the host's vision_web
-   replicas), then falls back to Hive RPC (`condenser_api.get_content`) if
-   Redis missed. Result is stored in both L1 (in-process Map) and Redis.
-3. Next request for the same post: L1 hit → middleware emits the refined
-   tier (`entry-fresh` through `entry-ancient`).
+1. **L1 — in-process `Map`** (per Node.js process, 4 replicas per host).
+   Sub-microsecond reads, capped at 2000 entries with FIFO eviction. Wiped
+   on replica restart.
+2. **L2 — per-host Redis** (one container per origin server, shared across
+   that host's 4 replicas via the docker overlay network). Sub-millisecond
+   local TCP. Survives replica restarts. Only positive entries — null
+   (negative-cache for missing/malformed RPC results) stays L1-only to
+   avoid amplifying RPC node lag across all replicas.
 
-L2 (Redis) lets the post-age cache survive replica restarts and amortize
-RPC fetches across all replicas on the same host. Failures during RPC
-(timeout, all nodes failed) are NOT cached — they let the next request
-retry — to avoid over-caching a fresh post to the default 1h tier across
-the whole region.
+On every entry-page request, middleware:
+
+1. Reads L1 (sync). On hit, emits the refined tier (`entry-fresh` through
+   `entry-ancient`) immediately.
+2. On L1 miss, awaits L2 with a tight 50ms cap. On hit, populates L1 and
+   emits the refined tier.
+3. On L1+L2 miss (or L2 timeout), emits `entry-unknown` (60s / 5m) and
+   kicks off `event.waitUntil(refreshPostCreatedMs(...))` which fetches
+   from Hive RPC (`condenser_api.get_content`) and writes both L1 and L2.
+
+The L2 read on the request path is what lets warm-Redis posts skip the
+`entry-unknown` window entirely. Without it, the entry-unknown 60s
+response gets cached at every edge layer until L1 happens to warm — which
+rarely converges for long-tail posts under load-balanced traffic +
+L1 FIFO eviction.
+
+Transient RPC failures (timeout, all nodes failed) are NOT cached — they
+let the next request retry — to avoid over-caching a fresh post to the
+default 1h tier across the whole region.
 
 See `apps/web/src/features/next-middleware/post-age-cache.ts`.
 
