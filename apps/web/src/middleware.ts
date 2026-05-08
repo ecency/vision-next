@@ -59,14 +59,26 @@ export function middleware(request: NextRequest, event: NextFetchEvent) {
     return handleIndexRedirect(request);
   }
 
-  // Decode URL and redirect if needed
+  // Decode URL and redirect if needed.
+  //
+  // Guard against redirect loops: when the path contains characters that the
+  // URL pathname setter does NOT re-encode (e.g. brackets in `[object Object]`),
+  // assigning the decoded form back produces the same encoded string we
+  // received. Without this check we'd 307 to the same URL forever — see the
+  // ERR_TOO_MANY_REDIRECTS reports on `/@user/[object Object]` paths produced
+  // when a non-string value gets templated into a URL elsewhere in the app.
   const path = request.nextUrl.pathname;
   try {
     const decodedPath = decodeURIComponent(path);
     if (decodedPath !== path) {
       const url = request.nextUrl.clone();
       url.pathname = decodedPath;
-      return NextResponse.redirect(url);
+      // After the URL setter, url.pathname is the re-encoded canonical form.
+      // If that already matches the request's path, redirecting is a no-op
+      // and would loop.
+      if (url.pathname !== path) {
+        return NextResponse.redirect(url);
+      }
     }
   } catch (e) {
     if (e instanceof URIError) {
