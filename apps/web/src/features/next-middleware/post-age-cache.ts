@@ -11,13 +11,17 @@
  * amplifying RPC-node-lag false negatives across all replicas in a region.
  *
  * Design:
- *   - Best-effort. A miss falls back to a conservative entry tier in
- *     middleware — no added latency on the current request.
- *   - After a miss, middleware kicks off `event.waitUntil(refreshPostCreatedMs)`.
- *     refresh checks Redis first (cheap dedup across replicas for positive
- *     entries) and only hits RPC if Redis also missed.
- *   - The synchronous getter only consults L1; we deliberately do NOT block
- *     on Redis from the request path.
+ *   - Two getters share L1:
+ *       getCachedPostCreatedMs (sync) — L1-only, for callers that can't await.
+ *       awaitPostCreatedMs (async) — L1 fast path, then Redis with a tight
+ *         timeout. Used by middleware on the request path: Redis on the
+ *         docker overlay is sub-millisecond when healthy, and skipping it
+ *         here meant the entry-unknown response (60s) got cached at every
+ *         edge layer until L1 happened to warm — which rarely converged
+ *         for long-tail posts under load-balanced traffic + L1 FIFO eviction.
+ *   - On L1 miss, middleware also kicks off `event.waitUntil(refreshPostCreatedMs)`
+ *     so future requests find positive entries in Redis even if this one
+ *     timed out the request-path lookup.
  *   - Transient RPC failures (timeout, all nodes failed) do NOT enter the
  *     cache at all — let the next request retry.
  *   - Non-throwing misses (RPC succeeded but returned no `created` field)
@@ -44,6 +48,10 @@ const MAX_ENTRIES = 2000;
 const NEGATIVE_CACHE_TTL_MS = 5 * 60_000;
 const FETCH_TIMEOUT_MS = 2000;
 const FETCH_RETRIES = 2;
+// Tight cap on the request-path Redis lookup. Local docker overlay reads are
+// sub-ms when healthy; 50ms protects middleware from a degraded Redis without
+// regressing to today's behavior (we just fall through to entry-unknown).
+const REQUEST_PATH_REDIS_TIMEOUT_MS = 50;
 
 const REDIS_URL = process.env.REDIS_URL || "redis://redis:6379";
 const REDIS_KEY_PREFIX = "postage:";
@@ -99,29 +107,92 @@ function getRedis(): RedisClient | null {
 }
 
 /**
- * Synchronous cache lookup. Returns the post's created-timestamp in ms,
- * or null if we have a negative-cache entry, or undefined if we don't know.
- *
- * Only L1 is consulted — Redis is async and middleware can't await on the
- * request path. A miss returns undefined and the caller should kick off
- * `refreshPostCreatedMs` via `event.waitUntil(...)`.
+ * Sentinel distinct from a negative-cache hit: `null` means "we have a
+ * negative entry in L1", whereas L1_MISS means "L1 doesn't have anything
+ * for this key". Callers map L1_MISS → fall through to L2 / undefined.
  */
-export function getCachedPostCreatedMs(
-  author: string,
-  permlink: string
-): number | null | undefined {
-  const k = key(author, permlink);
+const L1_MISS = Symbol("l1-miss");
+type L1Result = number | null | typeof L1_MISS;
+
+function consultL1(k: string): L1Result {
   const entry = l1.get(k);
-  if (!entry) return undefined;
+  if (!entry) return L1_MISS;
 
   // Negative entries expire after NEGATIVE_CACHE_TTL_MS; positive entries
   // are valid indefinitely (created dates are immutable on Hive).
   if (entry.createdMs === null && Date.now() - entry.cachedAt > NEGATIVE_CACHE_TTL_MS) {
     l1.delete(k);
-    return undefined;
+    return L1_MISS;
   }
 
   return entry.createdMs;
+}
+
+/**
+ * Synchronous cache lookup. Returns the post's created-timestamp in ms,
+ * or null if we have a negative-cache entry, or undefined if we don't know.
+ *
+ * Only L1 is consulted. Use `awaitPostCreatedMs` from middleware where the
+ * Redis fallback is desired; this sync flavor is for callers that can't
+ * await (none today, but the export is preserved for stability).
+ */
+export function getCachedPostCreatedMs(
+  author: string,
+  permlink: string
+): number | null | undefined {
+  const r = consultL1(key(author, permlink));
+  return r === L1_MISS ? undefined : r;
+}
+
+/**
+ * Asynchronous cache lookup. Same return semantics as
+ * `getCachedPostCreatedMs`, but on L1 miss falls through to Redis with a
+ * tight timeout. Used by middleware on the request path so the entry-tier
+ * response carries the refined TTL even on a cold-L1 replica — without it,
+ * the entry-unknown 60s response gets cached at every edge layer until L1
+ * happens to warm, which rarely converges for long-tail posts.
+ *
+ * - L1 hit (positive or non-expired negative) → resolve immediately.
+ * - L1 miss + Redis hit → populate L1, resolve with the value.
+ * - L1 miss + Redis miss / timeout / error → resolve undefined. Caller is
+ *   expected to also schedule `event.waitUntil(refreshPostCreatedMs)` so
+ *   the next request finds a positive entry.
+ *
+ * Negatives are intentionally never read from Redis: refresh only writes
+ * positives there (RPC node lag protection — see refreshPostCreatedMs).
+ */
+export async function awaitPostCreatedMs(
+  author: string,
+  permlink: string
+): Promise<number | null | undefined> {
+  const k = key(author, permlink);
+
+  const l1Result = consultL1(k);
+  if (l1Result !== L1_MISS) return l1Result;
+
+  const redis = getRedis();
+  if (!redis) return undefined;
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const TIMEOUT = Symbol("redis-timeout");
+  const timeout = new Promise<typeof TIMEOUT>((resolve) => {
+    timer = setTimeout(() => resolve(TIMEOUT), REQUEST_PATH_REDIS_TIMEOUT_MS);
+  });
+
+  try {
+    const v = await Promise.race([redis.get(REDIS_KEY_PREFIX + k), timeout]);
+    if (v === TIMEOUT) return undefined;
+    if (v === null || v === undefined) return undefined; // Redis miss
+    const n = Number(v);
+    if (!Number.isFinite(n)) return undefined; // malformed
+    setL1(k, n);
+    return n;
+  } catch {
+    // Redis hiccup — fall through to undefined; refresh path will retry.
+    return undefined;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 /**
@@ -242,4 +313,14 @@ export function __resetPostAgeCacheForTests(): void {
     }
   }
   _redis = undefined;
+}
+
+/**
+ * Test-only: inject a fake Redis client (or null to force "no Redis").
+ * Bypasses lazy init so tests can exercise `awaitPostCreatedMs`'s L2 path
+ * without opening a real socket. Pass `undefined` to clear and re-trigger
+ * normal lazy init on next call.
+ */
+export function __setRedisForTests(client: RedisClient | null | undefined): void {
+  _redis = client;
 }

@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   __resetPostAgeCacheForTests,
+  __setRedisForTests,
+  awaitPostCreatedMs,
   getCachedPostCreatedMs,
   refreshPostCreatedMs
 } from "@/features/next-middleware";
@@ -13,6 +15,12 @@ vi.mock("@ecency/sdk", () => ({
 }));
 
 import { callRPC } from "@ecency/sdk";
+
+// Minimal stand-in for the bits of ioredis we touch on the request path.
+type FakeRedis = {
+  get: (k: string) => Promise<string | null>;
+  disconnect?: () => void;
+};
 
 describe("post-age-cache", () => {
   beforeEach(() => {
@@ -101,5 +109,90 @@ describe("post-age-cache", () => {
 
     expect(getCachedPostCreatedMs("alice", "post-a")).toBe(Date.parse("2025-01-01T00:00:00Z"));
     expect(getCachedPostCreatedMs("bob", "post-b")).toBe(Date.parse("2025-06-01T00:00:00Z"));
+  });
+});
+
+describe("awaitPostCreatedMs", () => {
+  beforeEach(() => {
+    __resetPostAgeCacheForTests();
+    vi.mocked(callRPC).mockReset();
+  });
+
+  afterEach(() => {
+    __setRedisForTests(undefined);
+    vi.restoreAllMocks();
+  });
+
+  it("returns L1 value without consulting Redis on hit", async () => {
+    vi.mocked(callRPC).mockResolvedValue({ created: "2025-01-15T12:00:00" });
+    await refreshPostCreatedMs("alice", "post"); // populate L1
+
+    const get = vi.fn();
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBe(Date.parse("2025-01-15T12:00:00Z"));
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  it("falls through to Redis on L1 miss and populates L1", async () => {
+    const get = vi.fn().mockResolvedValue("1521633183000");
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBe(1521633183000);
+    expect(get).toHaveBeenCalledWith("postage:alice/post");
+
+    // Subsequent sync read should hit L1.
+    expect(getCachedPostCreatedMs("alice", "post")).toBe(1521633183000);
+  });
+
+  it("returns undefined on Redis miss without poisoning L1", async () => {
+    const get = vi.fn().mockResolvedValue(null);
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBeUndefined();
+    expect(getCachedPostCreatedMs("alice", "post")).toBeUndefined();
+  });
+
+  it("returns undefined when Redis returns malformed value", async () => {
+    const get = vi.fn().mockResolvedValue("not-a-number");
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBeUndefined();
+  });
+
+  it("returns undefined on Redis error", async () => {
+    const get = vi.fn().mockRejectedValue(new Error("ECONNRESET"));
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBeUndefined();
+  });
+
+  it("returns undefined when no Redis client is available", async () => {
+    __setRedisForTests(null);
+
+    const v = await awaitPostCreatedMs("alice", "post");
+    expect(v).toBeUndefined();
+  });
+
+  it("times out and returns undefined when Redis hangs past 50ms", async () => {
+    // get() never resolves — Promise.race against the internal 50ms timer
+    // must resolve to undefined.
+    const get = vi.fn().mockReturnValue(new Promise(() => {}));
+    __setRedisForTests({ get } as FakeRedis as never);
+
+    const start = Date.now();
+    const v = await awaitPostCreatedMs("alice", "post");
+    const elapsed = Date.now() - start;
+
+    expect(v).toBeUndefined();
+    // Lower bound proves we waited the timeout window; upper bound a safety
+    // margin so the test fails if the cap blows out.
+    expect(elapsed).toBeGreaterThanOrEqual(40);
+    expect(elapsed).toBeLessThan(500);
   });
 });
