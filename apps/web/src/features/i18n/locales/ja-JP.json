@@ -441,7 +441,8 @@
     "delegate-placeholder": "委任する金額を入力 (Bn)"
   },
   "trending-tags": {
-    "title": "トピック"
+    "title": "トピック",
+    "view-more": "もっと見る"
   },
   "sort-trending-tags": {
     "sort": "並べ替え",
