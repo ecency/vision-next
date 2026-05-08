@@ -56,6 +56,7 @@ content).
 | `list-proposals` | 10m | 1h | `/proposals` | yes |
 | `feed` | 1m | 5m | `/hot`, `/trending`, `/payout`, `/muted`, `/promoted` + tags | **no** (mute filter) |
 | `feed-created` | 30s | 2m | `/created`, `/tags/:tag` | **no** (mute filter) |
+| `dynamic-page` | 1m | 5m | `/chats`, `/decks`, `/waves`, `/perks`, `/search` | yes (anon-equivalent SSR + client hydration) |
 | `community` | 1m | 5m | `/:tag/hive-xxxxx` | yes |
 | `profile` | 5m | 1h | `/@author`, `/@author/posts`, `/blog`, `/comments`, `/replies`, `/communities` | yes |
 | `profile-feed` | 1m | 5m | `/@author/feed`, `/@author/trail` (aggregates other users' content) | **no** (mute filter) |
@@ -65,7 +66,7 @@ content).
 | `entry-month` | 1d | 7d | posts 7-30 days old | yes |
 | `entry-archive` | 30d | 7d | posts 30-60 days old | yes |
 | `entry-ancient` | 30d | 60d | posts > 60 days old | yes |
-| `no-cache` | 0 | 0 | `/publish`, `/chats`, `/auth/*`, `/wallet`, `/@author/settings`, `/@author/insights`, etc. | no |
+| `no-cache` | 0 | 0 | `/publish`, `/auth/*`, `/signup`, `/submit`, `/draft`, `/onboard-friend`, `/purchase`, `/market`, `/wallet`, `/@author/{wallet,settings,permissions,referrals,insights}` | no |
 
 **Empirical basis (2026-05-08):** SSR was tested across 26 page types with
 multiple user identities. Routes flagged as cacheable for logged-in produce

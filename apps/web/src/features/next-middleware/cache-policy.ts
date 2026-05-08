@@ -23,23 +23,49 @@ export interface CachePolicy {
 
 const NO_CACHE_TIER = "no-cache";
 
-/** Routes that must never be edge-cached (user-specific or interactive). */
+/**
+ * Routes that must never be edge-cached.
+ *
+ * These either render user-specific content server-side (drafts, wallet
+ * balances) or are inherently interactive/transactional (auth flows, market
+ * trading) where stale HTML could mislead the user.
+ *
+ * Routes that look interactive but actually render an auth-class-equivalent
+ * scaffold (with dynamic content hydrated client-side) are NOT here — they
+ * use the `dynamic-page` tier instead. See DYNAMIC_PAGE_PREFIXES below.
+ */
 const NO_CACHE_PREFIXES = [
-  "/publish",
-  "/chats",
-  "/auth",
-  "/signup",
-  "/submit",
-  "/draft",
-  "/onboard-friend",
-  "/purchase",
-  "/perks",
-  "/decks",
-  "/waves",
-  "/market",
-  "/search",
-  "/wallet"
+  "/publish", // user's drafts, in-progress content
+  "/auth", // authentication redirect flows
+  "/signup", // signup form state
+  "/submit", // post-submission form state
+  "/draft", // user-specific drafts
+  "/onboard-friend", // referral flow
+  "/purchase", // payment flow
+  "/market", // trading interactive UI
+  "/wallet" // user-specific balances
 ];
+
+/**
+ * Routes that render an anonymous-equivalent scaffold server-side and
+ * hydrate dynamic content client-side. Empirically verified that SSR HTML
+ * is byte-identical across anon, user1, user2 (route handlers don't read
+ * cookies; data fetched via React Query after hydration).
+ *
+ * Cached at 60s shared TTL — addresses the bulk of 504s historically caused
+ * by these routes saturating origin SSR (they were ~50% of post-deploy 504s
+ * because every request hit origin).
+ *
+ * - `/chats`  — Mattermost-backed messaging shell; channel/message data
+ *               loads client-side per user
+ * - `/decks`  — TweetDeck-style multi-feed UI; column content loads
+ *               client-side
+ * - `/waves`  — Hive waves (short-form posts) feed
+ * - `/perks`  — Subscription perks page; mostly static
+ * - `/search` — Search results; query is in the URL so different queries
+ *               get different cache entries automatically
+ */
+const DYNAMIC_PAGE_PREFIXES = ["/chats", "/decks", "/waves", "/perks", "/search"];
 
 /**
  * Profile subsections that must never be edge-cached.
@@ -110,8 +136,13 @@ export function isUserSpecificForLoggedIn(policy: CachePolicy, isLoggedIn: boole
 }
 
 export function getCachePolicyForPath(pathname: string): CachePolicy | null {
-  // Strip trailing slash (except root) for consistent matching.
-  const path = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  // Normalize for consistent matching:
+  //   - Strip query string (callers usually pass `nextUrl.pathname` which has none,
+  //     but be defensive — `/search?q=...` should still match the `/search` prefix).
+  //   - Strip trailing slash (except for root).
+  const queryIdx = pathname.indexOf("?");
+  const noQuery = queryIdx >= 0 ? pathname.slice(0, queryIdx) : pathname;
+  const path = noQuery.length > 1 && noQuery.endsWith("/") ? noQuery.slice(0, -1) : noQuery;
 
   // Never cache API routes, Next internals, or assets (those are handled in next.config.js).
   if (
@@ -127,6 +158,16 @@ export function getCachePolicyForPath(pathname: string): CachePolicy | null {
   for (const prefix of NO_CACHE_PREFIXES) {
     if (path === prefix || path.startsWith(prefix + "/")) {
       return { tier: NO_CACHE_TIER, sMaxAge: 0, staleWhileRevalidate: 0 };
+    }
+  }
+
+  // Dynamic pages: anonymous-equivalent SSR with client-hydrated content.
+  // 60s/300s lets us absorb thundering-herd spikes on these routes (which
+  // historically saturated origin and produced ~50% of 504s) while still
+  // refreshing dynamic content frequently.
+  for (const prefix of DYNAMIC_PAGE_PREFIXES) {
+    if (path === prefix || path.startsWith(prefix + "/")) {
+      return { tier: "dynamic-page", sMaxAge: 60, staleWhileRevalidate: 300 };
     }
   }
 
