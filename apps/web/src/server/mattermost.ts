@@ -67,7 +67,11 @@ function getAdminHeaders() {
 // honouring a caller-supplied AbortSignal (e.g. request-scoped cancellation).
 const MM_FETCH_TIMEOUT_MS = Number(process.env.MM_FETCH_TIMEOUT_MS) || 10_000;
 
-async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
+// Shared transport for all Mattermost calls: base URL resolution, MM_FETCH_TIMEOUT_MS
+// composed with any caller-supplied AbortSignal, fetch, non-OK → MattermostError, and
+// TimeoutError → MattermostError(504) mapping. Returns the response body as a string
+// (empty body → ""). Parsing is left to callers (mmFetch: JSON; mmFetchNdjson: NDJSON).
+async function mmFetchRaw(path: string, init?: RequestInit): Promise<string> {
   const base = requireEnv(MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
 
   const timeoutSignal = AbortSignal.timeout(MM_FETCH_TIMEOUT_MS);
@@ -90,13 +94,7 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
       throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
     }
 
-    const text = await res.text();
-
-    if (!text) {
-      return undefined as T;
-    }
-
-    return JSON.parse(text) as T;
+    return await res.text();
   } catch (err) {
     // AbortSignal.timeout aborts with a DOMException whose name is "TimeoutError";
     // this can fire during either the initial fetch or the body read. Either way,
@@ -111,6 +109,14 @@ async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw err;
   }
+}
+
+async function mmFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const text = await mmFetchRaw(path, init);
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
 
 export async function reactivateMattermostUser(userId: string, signal?: AbortSignal): Promise<void> {
@@ -418,53 +424,22 @@ export async function mmUserFetch<T>(path: string, token: string, init?: Request
 // NDJSON variant: Mattermost's streaming endpoints (e.g. channel_members?page=-1)
 // return one JSON object per line instead of a JSON array.
 async function mmFetchNdjson<T>(path: string, init?: RequestInit): Promise<T[]> {
-  const base = requireEnv(MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
-
-  const timeoutSignal = AbortSignal.timeout(MM_FETCH_TIMEOUT_MS);
-  const signal = init?.signal
-    ? AbortSignal.any([init.signal, timeoutSignal])
-    : timeoutSignal;
-
-  try {
-    const res = await fetch(`${base}${path}`, {
-      ...init,
-      headers: {
-        ...(init?.headers || {}),
-        Accept: "application/json"
-      },
-      signal
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
-    }
-
-    const text = await res.text();
-    if (!text) {
-      return [];
-    }
-
-    const results: T[] = [];
-    for (const line of text.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      try {
-        results.push(JSON.parse(trimmed) as T);
-      } catch {
-        // Tolerate a malformed final line (partial chunk at EOS).
-      }
-    }
-    return results;
-  } catch (err) {
-    if (err instanceof Error && err.name === "TimeoutError") {
-      throw new MattermostError(
-        `Mattermost request timed out after ${MM_FETCH_TIMEOUT_MS}ms (${path})`,
-        504
-      );
-    }
-    throw err;
+  const text = await mmFetchRaw(path, init);
+  if (!text) {
+    return [];
   }
+
+  const results: T[] = [];
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      results.push(JSON.parse(trimmed) as T);
+    } catch {
+      // Tolerate a malformed final line (partial chunk at EOS).
+    }
+  }
+  return results;
 }
 
 export async function mmUserFetchNdjson<T>(path: string, token: string, init?: RequestInit) {
