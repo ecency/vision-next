@@ -441,7 +441,8 @@
     "delegate-placeholder": "输入要代表的金额 (Bn)"
   },
   "trending-tags": {
-    "title": "主题"
+    "title": "主题",
+    "view-more": "查看更多"
   },
   "sort-trending-tags": {
     "sort": "排序",
