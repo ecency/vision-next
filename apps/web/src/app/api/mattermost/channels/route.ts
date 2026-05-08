@@ -77,7 +77,7 @@ export async function GET() {
     const [channels, currentUser, channelMembers, categoriesResponse, preferences] = await Promise.all([
       fetchAllChannelPages(token),
       mmUserFetch<MattermostUser>(`/users/me`, token),
-      fetchAllChannelMemberPages(teamId, token),
+      fetchAllChannelMemberPages(token),
       mmUserFetch<{ categories: MattermostChannelCategory[]; order: string[] }>(
         `/users/me/teams/${teamId}/channels/categories`,
         token

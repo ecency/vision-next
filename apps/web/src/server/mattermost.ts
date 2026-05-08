@@ -415,6 +415,69 @@ export async function mmUserFetch<T>(path: string, token: string, init?: Request
   });
 }
 
+// NDJSON variant: Mattermost's streaming endpoints (e.g. channel_members?page=-1)
+// return one JSON object per line instead of a JSON array.
+async function mmFetchNdjson<T>(path: string, init?: RequestInit): Promise<T[]> {
+  const base = requireEnv(MATTERMOST_BASE_URL, "MATTERMOST_BASE_URL");
+
+  const timeoutSignal = AbortSignal.timeout(MM_FETCH_TIMEOUT_MS);
+  const signal = init?.signal
+    ? AbortSignal.any([init.signal, timeoutSignal])
+    : timeoutSignal;
+
+  try {
+    const res = await fetch(`${base}${path}`, {
+      ...init,
+      headers: {
+        ...(init?.headers || {}),
+        Accept: "application/json"
+      },
+      signal
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new MattermostError(`Mattermost request failed (${res.status}): ${text}`, res.status);
+    }
+
+    const text = await res.text();
+    if (!text) {
+      return [];
+    }
+
+    const results: T[] = [];
+    for (const line of text.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        results.push(JSON.parse(trimmed) as T);
+      } catch {
+        // Tolerate a malformed final line (partial chunk at EOS).
+      }
+    }
+    return results;
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new MattermostError(
+        `Mattermost request timed out after ${MM_FETCH_TIMEOUT_MS}ms (${path})`,
+        504
+      );
+    }
+    throw err;
+  }
+}
+
+export async function mmUserFetchNdjson<T>(path: string, token: string, init?: RequestInit) {
+  return await mmFetchNdjson<T>(path, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(init?.headers || {})
+    }
+  });
+}
+
 export function isMattermostUnauthorizedError(error: unknown) {
   return error instanceof MattermostError && (error.status === 401 || error.status === 403);
 }
