@@ -908,6 +908,8 @@
     "deleted-content-warning": "O conteúdo foi deletado pelo autor. Entretanto, você poderá vê-lo acessando os registros na Blockchain ",
     "deleted-content": "Esta publicação foi excluída por {{author}}",
     "deleted-no-history": "O histórico de conteúdo excluído não está disponível na blockchain.",
+    "unable-to-load": "Não foi possível carregar esta publicação. Por favor, verifique sua conexão e tente novamente.",
+    "try-edit-history": "Experimentar histórico de edição",
     "indexing-blockchain": "Sua postagem foi publicada na blockchain e está sendo indexada. Isso geralmente leva alguns segundos.",
     "indexing-slow": "A indexação está demorando mais do que o esperado. Tente atualizar a página em alguns instantes.",
     "untitled": "Sem Título",
