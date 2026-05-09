@@ -266,7 +266,7 @@ export function initEventLoopMonitor(): void {
   const finalize = (request: RequestLike, finished: boolean): void => {
     const info = activeRequests.get(request);
     if (!info) return;
-    if (!activeRequests.delete(request)) return;
+    activeRequests.delete(request);
     postToWorker({ type: "end", id: info.id });
     if (!finished) return;
     const durationMs = Date.now() - info.startTime;
