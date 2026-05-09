@@ -908,6 +908,8 @@
     "deleted-content-warning": "Dit bericht is verwijderd door de auteur. Je kunt het zien in de Blockchain ",
     "deleted-content": "Dit bericht is verwijderd door {{author}}",
     "deleted-no-history": "De geschiedenis van verwijderde inhoud is niet beschikbaar in de blockchain.",
+    "unable-to-load": "Kan dit bericht niet laden. Controleer uw verbinding en probeer het opnieuw.",
+    "try-edit-history": "Probeer geschiedenis te bewerken",
     "indexing-blockchain": "Je bericht is gepubliceerd naar de blockchain en wordt geïndexeerd. Dit duurt meestal een paar seconden.",
     "indexing-slow": "Indexeren duurt langer dan verwacht. Probeer de pagina binnen enkele ogenblikken te vernieuwen.",
     "untitled": "Naamloos",
