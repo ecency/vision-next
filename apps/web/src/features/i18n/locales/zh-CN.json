@@ -908,6 +908,8 @@
     "deleted-content-warning": "此内容已被作者删除。您可以从 Blockchain 中查看 ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "已删除的内容历史记录不可用 blockchain。",
+    "unable-to-load": "无法加载此帖子。请检查您的连接，然后重试。",
+    "try-edit-history": "尝试编辑历史记录",
     "indexing-blockchain": "您的帖子已发布到区块链并正在索引。这通常需要几秒钟。",
     "indexing-slow": "索引花费的时间超过预期。尝试稍后刷新页面。",
     "untitled": "无标题",
