@@ -8,6 +8,7 @@ import { getTrendingTagsQueryOptions } from "@ecency/sdk";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { UilMultiply } from "@tooni/iconscout-unicons-react";
 import i18next from "i18next";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Fragment, useCallback, useMemo } from "react";
 import "./_index.scss";
@@ -81,9 +82,11 @@ export function TrendingTagsCard() {
           ))}
       </div>
       {trendingTags && trendingTags.length > 0 && (
-        <Button className="mt-3" size="sm" appearance="gray" full={true} href="/tags">
-          {i18next.t("trending-tags.view-more")}
-        </Button>
+        <Link href="/tags" className="mt-4 block">
+          <Button full={true} size="sm" appearance="gray">
+            {i18next.t("trending-tags.view-more")}
+          </Button>
+        </Link>
       )}
     </div>
   );

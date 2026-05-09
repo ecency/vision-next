@@ -5,8 +5,10 @@ import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { makeEntryPath } from "@/utils";
 import { getPostQueryOptions, QueryKeys } from "@ecency/sdk";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import i18next from "i18next";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { EntryPageContext } from "./context";
 import { DeletedPostScreen } from "./deleted-post-screen";
 import { EntryPendingIndexView } from "./entry-pending-index-view";
 
@@ -24,6 +26,7 @@ const VERIFY_MAX_POLLS = 3;
 export function EntryNotFoundFallback({ username, permlink }: Props) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { setEditHistory } = useContext(EntryPageContext);
 
   // Read optimistic entry from client cache on mount
   const [optimisticEntry] = useState<Entry | undefined>(() => {
@@ -35,6 +38,7 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
 
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [hasTransitioned, setHasTransitioned] = useState(false);
+  const [tryDeleted, setTryDeleted] = useState(false);
 
   // For non-optimistic entries: verification polling before concluding deleted
   const [verifyPollCount, setVerifyPollCount] = useState(0);
@@ -103,23 +107,39 @@ export function EntryNotFoundFallback({ username, permlink }: Props) {
     );
   }
 
+  // User opted to attempt private-API fallback (deleted entry / edit history)
+  if (tryDeleted) {
+    return <DeletedPostScreen username={username} permlink={permlink} />;
+  }
+
   // Non-optimistic: query errored (network/RPC failure) — show retry prompt
   // instead of incorrectly showing deleted post
   if (!isOptimistic && isError) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="text-gray-500 dark:text-gray-400">
-          Unable to load this post. Please check your connection and try again.
+          {i18next.t("entry.unable-to-load")}
         </div>
-        <button
-          className="px-4 py-2 rounded bg-blue-dark-sky text-white hover:opacity-90"
-          onClick={() => {
-            setVerifyPollCount(0);
-            router.refresh();
-          }}
-        >
-          Retry
-        </button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            className="px-4 py-2 rounded bg-blue-dark-sky text-white hover:opacity-90"
+            onClick={() => {
+              setVerifyPollCount(0);
+              router.refresh();
+            }}
+          >
+            {i18next.t("g.retry")}
+          </button>
+          <button
+            className="px-4 py-2 rounded border border-blue-dark-sky text-blue-dark-sky hover:bg-blue-dark-sky hover:text-white"
+            onClick={() => {
+              setEditHistory(true);
+              setTryDeleted(true);
+            }}
+          >
+            {i18next.t("entry.try-edit-history")}
+          </button>
+        </div>
       </div>
     );
   }
