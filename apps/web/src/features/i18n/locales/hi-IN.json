@@ -908,6 +908,8 @@
     "deleted-content-warning": "यह सामग्री लेखक द्वारा हटा दी गई है। आप इसे ब्लॉकचेन पर देख सकते हैं। ",
     "deleted-content": "This post was deleted by {{author}}",
     "deleted-no-history": "The deleted content history is not available from the blockchain.",
+    "unable-to-load": "Unable to load this post. Please check your connection and try again.",
+    "try-edit-history": "Try edit history",
     "indexing-blockchain": "Your post has been published to the blockchain and is being indexed. This usually takes a few seconds.",
     "indexing-slow": "Indexing is taking longer than expected. Try refreshing the page in a few moments.",
     "untitled": "Untitled",
