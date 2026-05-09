@@ -205,8 +205,38 @@ export function initEventLoopMonitor(): void {
   const startChannel = diagnosticsChannel.channel("http.server.request.start");
   const finishChannel = diagnosticsChannel.channel("http.server.response.finish");
 
+  // Centralized cleanup so response.finish, request abort, and connection
+  // close all converge on the same removal path. activeRequests.delete()
+  // returns whether the key was present, which guards against double-emit
+  // when multiple events fire for the same request (e.g. finish then close).
+  type RequestLike = {
+    method?: string;
+    url?: string;
+    on?: (event: string, listener: (...args: unknown[]) => void) => unknown;
+    once?: (event: string, listener: (...args: unknown[]) => void) => unknown;
+  };
+  const finalize = (request: RequestLike, finished: boolean): void => {
+    const info = activeRequests.get(request);
+    if (!info) return;
+    if (!activeRequests.delete(request)) return;
+    postToWorker({ type: "end", id: info.id });
+    if (!finished) return;
+    const durationMs = Date.now() - info.startTime;
+    if (durationMs >= slowRequestMs) {
+      recentSlowRequests.push({
+        method: info.method,
+        url: info.url,
+        durationMs,
+        finishedAt: Date.now()
+      });
+      if (recentSlowRequests.length > MAX_RECENT_SLOW) {
+        recentSlowRequests.shift();
+      }
+    }
+  };
+
   startChannel.subscribe((message) => {
-    const { request } = message as { request?: { method?: string; url?: string } };
+    const { request } = message as { request?: RequestLike };
     if (!request) return;
     const id = ++nextReqId;
     const entry: ActiveRequest = {
@@ -223,27 +253,21 @@ export function initEventLoopMonitor(): void {
       url: entry.url,
       ts: entry.startTime
     });
+
+    // Disconnect cleanup: when a CF Worker hits its 8s timeout (or any
+    // client goes away mid-response), the underlying socket closes but the
+    // http.server.response.finish channel never fires. Without these
+    // listeners the request stayed in activeRequests forever, making the
+    // watchdog report phantom "1h+" stuck entries. Listen on both abort and
+    // close to cover pre-response and mid-response disconnects.
+    request.once?.("aborted", () => finalize(request, false));
+    request.once?.("close", () => finalize(request, false));
   });
 
   finishChannel.subscribe((message) => {
-    const { request } = message as { request?: { method?: string; url?: string } };
+    const { request } = message as { request?: RequestLike };
     if (!request) return;
-    const info = activeRequests.get(request);
-    activeRequests.delete(request);
-    if (!info) return;
-    postToWorker({ type: "end", id: info.id });
-    const durationMs = Date.now() - info.startTime;
-    if (durationMs >= slowRequestMs) {
-      recentSlowRequests.push({
-        method: info.method,
-        url: info.url,
-        durationMs,
-        finishedAt: Date.now()
-      });
-      if (recentSlowRequests.length > MAX_RECENT_SLOW) {
-        recentSlowRequests.shift();
-      }
-    }
+    finalize(request, true);
   });
 
   // Heartbeat: keeps the watchdog informed the main loop is alive.
