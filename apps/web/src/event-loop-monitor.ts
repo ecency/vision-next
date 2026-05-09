@@ -107,6 +107,18 @@ export function initEventLoopMonitor(): void {
   const stuckThresholdMs = Number(process.env.EVENT_LOOP_STUCK_THRESHOLD_MS ?? 500);
   const sampleIntervalMs = Number(process.env.EVENT_LOOP_SAMPLE_INTERVAL_MS ?? 1000);
   const slowRequestMs = Number(process.env.EVENT_LOOP_SLOW_REQUEST_MS ?? 500);
+  // Out-of-band healthcheck: the watchdog worker exposes an HTTP /health on
+  // its own libuv loop. Swarm's healthcheck (apps/web/healthCheck.js) hits
+  // this port instead of the main Next.js port so brief queue starvation in
+  // the main thread doesn't get classified as "container unhealthy". Set to
+  // 0 to disable (falls back to main-thread /api/healthcheck).
+  const healthcheckPort = Number(process.env.HEALTHCHECK_PORT ?? 3030);
+  // Threshold beyond which the main-thread heartbeat is considered stale and
+  // /health returns 503. Generous enough to ride out occasional GC pauses,
+  // tight enough that a hung process is detected within ~3 healthcheck cycles.
+  const healthcheckHeartbeatTimeoutMs = Number(
+    process.env.HEALTHCHECK_HEARTBEAT_TIMEOUT_MS ?? 30_000
+  );
 
   const host =
     process.env.HOSTNAME ||
@@ -118,13 +130,18 @@ export function initEventLoopMonitor(): void {
   // Inline watchdog worker source. Runs on its own event loop and is
   // therefore immune to main-thread stalls. Uses only require() (no
   // bundler involvement) and writes straight to stderr via write(2).
+  // Also serves an out-of-band /health endpoint on HEALTHCHECK_PORT so
+  // Swarm healthchecks aren't queued behind work on the main thread.
   const watchdogSource = `
     const { parentPort } = require("node:worker_threads");
     const fs = require("node:fs");
+    const http = require("node:http");
 
     const CONTAINER = ${JSON.stringify(containerTag)};
     const STUCK_MS = ${stuckThresholdMs};
     const CHECK_MS = 100;
+    const HEALTHCHECK_PORT = ${healthcheckPort};
+    const HEARTBEAT_TIMEOUT_MS = ${healthcheckHeartbeatTimeoutMs};
 
     const active = new Map();
     let lastHeartbeat = Date.now();
@@ -176,6 +193,37 @@ export function initEventLoopMonitor(): void {
         active: snapshot
       }));
     }, CHECK_MS).unref();
+
+    // Out-of-band healthcheck: returns 200 only if the main thread has sent
+    // a heartbeat within HEARTBEAT_TIMEOUT_MS. This lets the watchdog answer
+    // healthchecks even when the main HTTP server is queue-starved on a
+    // traffic spike, but still fails fast when Node is actually dead
+    // (segfault, OOM stall, infinite sync loop). Set HEALTHCHECK_PORT=0 to
+    // disable and fall back to the main-thread /api/healthcheck.
+    if (HEALTHCHECK_PORT > 0) {
+      const server = http.createServer((req, res) => {
+        const ageMs = Date.now() - lastHeartbeat;
+        const healthy = ageMs < HEARTBEAT_TIMEOUT_MS;
+        const body = JSON.stringify({
+          status: healthy ? "ok" : "stale",
+          heartbeatAgeMs: ageMs,
+          activeRequests: active.size,
+          container: CONTAINER
+        });
+        res.writeHead(healthy ? 200 : 503, {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body),
+          "Cache-Control": "no-store"
+        });
+        res.end(body);
+      });
+      server.on("error", (e) => {
+        writeLine("[EventLoopLag] healthcheck server error: " + (e && e.message ? e.message : e));
+      });
+      // Bind to localhost only — same container's healthcheck script is the
+      // sole intended client; not reachable from outside the container.
+      server.listen(HEALTHCHECK_PORT, "127.0.0.1");
+    }
   `;
 
   let worker: Worker | null = null;
