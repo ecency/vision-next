@@ -144,5 +144,124 @@ describe('catchPostImage', () => {
 
     expect(catchPostImage(input)).toBe(expected)
     })
+
+    it('should ignore image syntax inside fenced code blocks', () => {
+      // The ![code](fake) is inside ``` and must NOT be selected as the post image.
+      // The real image follows the code block.
+      const input = {
+        author: 'foo-fence',
+        permlink: 'bar-fence',
+        json_metadata: '{}',
+        body: 'See this code:\n\n```\n![code](https://fake.example.com/x.jpg)\n```\n\nReal image: ![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).toContain('https://images.ecency.com/p/')
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should ignore image syntax inside inline code', () => {
+      const input = {
+        author: 'foo-inline',
+        permlink: 'bar-inline',
+        json_metadata: '{}',
+        body: 'Inline: `![nope](https://fake.example.com/x.jpg)` then ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should respect source order between HTML and markdown images', () => {
+      // <img> appears first in the body, so the full DOM's first <img> would
+      // be the HTML one. The fast-path must agree.
+      const orderedBody = '<img src="https://img.esteem.ws/first.jpg"> then ![alt](https://img.esteem.ws/second.jpg)'
+      const onlyHtml = '<img src="https://img.esteem.ws/first.jpg">'
+      expect(catchPostImage(orderedBody)).toBe(catchPostImage(onlyHtml))
+    })
+
+    it('should fall back when markdown URL contains unbalanced parens', () => {
+      // `[^)\s]+` would truncate `path_(a)_full.jpg` mid-paren. The fast-path
+      // must bail so the full parser handles balanced parens correctly. The
+      // observable signal: the result must not be a hash of the truncated
+      // prefix `https://example.com/path_(a` (the empty-parens form).
+      const truncatedHash = catchPostImage('![](https://example.com/path_(a)')
+      const balancedResult = catchPostImage({
+        author: 'foo-paren',
+        permlink: 'bar-paren',
+        json_metadata: '{}',
+        body: '![alt](https://example.com/path_(a)_full.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      } as any)
+      expect(balancedResult).not.toBe(truncatedHash)
+    })
+
+    it('should not match broken markdown without a closing paren', () => {
+      // `![alt](url` (no close) is not a valid markdown image. The fast-path
+      // must skip it, fall back to the full parser, which won't find an image.
+      const input = {
+        author: 'foo-broken',
+        permlink: 'bar-broken',
+        json_metadata: '{}',
+        body: '![alt](https://example.com/incomplete and more text on the same line',
+        last_update: '2019-05-10T09:15:21'
+      }
+      expect(catchPostImage(input)).toBe(null)
+    })
+
+    it('should not surface ftp: URLs (the sanitizer drops them)', () => {
+      // Verified by calling renderPostBody — the full path renders <img alt
+      // /> with no src for ftp images, so catchPostImage must agree.
+      expect(catchPostImage('![x](ftp://example.com/a.jpg)')).toBe(null)
+    })
+
+    it('should ignore image syntax inside ~~~ tilde fences', () => {
+      const input = {
+        author: 'foo-tilde',
+        permlink: 'bar-tilde',
+        json_metadata: '{}',
+        body: '~~~\n![code](https://fake.example.com/x.jpg)\n~~~\n\n![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should ignore image syntax inside indented code blocks', () => {
+      const input = {
+        author: 'foo-indent',
+        permlink: 'bar-indent',
+        json_metadata: '{}',
+        body: 'Code:\n\n    ![code](https://fake.example.com/x.jpg)\n\nReal: ![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should not surface javascript: or data: URLs from the fast-path', () => {
+      // Fast-path bypasses sanitize-html. A malicious post with a dangerous
+      // src must not be returned wrapped in a proxy URL. The regex skips it
+      // and the fallback markdown render strips it via sanitize-html.
+      const jsInput = {
+        author: 'foo-js',
+        permlink: 'bar-js',
+        json_metadata: '{}',
+        body: '<img src="javascript:alert(1)"> and ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const jsResult = catchPostImage(jsInput)
+      expect(jsResult ?? '').not.toContain('javascript')
+
+      const dataInput = {
+        author: 'foo-data',
+        permlink: 'bar-data',
+        json_metadata: '{}',
+        body: '![nope](data:image/png;base64,iVBORw0KGgo=) ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const dataResult = catchPostImage(dataInput)
+      expect(dataResult ?? '').not.toContain('data:image')
+    })
   })
 })

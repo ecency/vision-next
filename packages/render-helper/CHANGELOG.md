@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.4.34
+
+### Patch Changes
+
+- Feeds Performance improvements (#780)
+
 ## 2.4.32
 
 ### Patch Changes

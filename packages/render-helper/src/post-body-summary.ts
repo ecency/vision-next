@@ -5,7 +5,27 @@ import { Entry } from './types'
 import { cleanReply } from './methods'
 import { ENTITY_REGEX } from './consts'
 import { Remarkable } from 'remarkable'
-import { linkify } from 'remarkable/linkify'
+
+// Reused across all calls — config is constant and Remarkable construction
+// (rule registration via ruler.enable) is non-trivial under SSR fan-out.
+//
+// linkify is intentionally omitted: the post-processing pass below strips bare
+// URLs from the final text, so auto-linking them just to discard the <a>
+// wrapper is wasted CPU during SSR.
+const summaryRenderer = new Remarkable({
+  html: true,
+  breaks: true,
+  typographer: false,
+})
+summaryRenderer.core.ruler.enable(['abbr'])
+summaryRenderer.block.ruler.enable(['footnote', 'deflist'])
+summaryRenderer.inline.ruler.enable([
+  'footnote_inline',
+  'ins',
+  'mark',
+  'sub',
+  'sup',
+])
 
 const joint = (arr: string[], limit = 200) => {
   let result = '';
@@ -44,26 +64,6 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
   }
   entryBody = cleanReply(entryBody)
 
-  const mdd = new Remarkable({
-    html: true,
-    breaks: true,
-    typographer: false,
-  }).use(linkify)
-  mdd.core.ruler.enable([
-    'abbr'
-  ]);
-  mdd.block.ruler.enable([
-    'footnote',
-    'deflist'
-  ]);
-  mdd.inline.ruler.enable([
-    'footnote_inline',
-    'ins',
-    'mark',
-    'sub',
-    'sup'
-  ]);
-
   // Replace entities with deterministic placeholders to preserve them during rendering
   const entities = entryBody.match(ENTITY_REGEX);
   const entityPlaceholders: string[] = [];
@@ -82,7 +82,7 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
   // Convert markdown to html
   let text = '';
   try {
-    text = mdd.render(entryBody)
+    text = summaryRenderer.render(entryBody)
   } catch (err) {
     // Log error with context for debugging
     console.error('[postBodySummary] Failed to render markdown:', {

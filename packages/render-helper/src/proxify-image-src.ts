@@ -1,7 +1,22 @@
 import multihash from 'multihashes'
 import querystring from 'querystring'
+import { LRUCache } from 'lru-cache'
 
 let proxyBase = 'https://images.ecency.com'
+
+// base58 encoding of the source URL is the dominant cost in proxifyImageSrc.
+// The same URL is encoded repeatedly: once per srcset width (5×), once per
+// image size variant (blur/grid/row), and across requests (trending posts
+// repeat). Caching by URL collapses all of those to a single encode.
+const urlHashCache = new LRUCache<string, string>({ max: 500 })
+
+function getUrlHash(url: string): string {
+  const cached = urlHashCache.get(url)
+  if (cached) return cached
+  const hash = multihash.toB58String(Buffer.from(url))
+  urlHashCache.set(url, hash)
+  return hash
+}
 
 export function setProxyBase(p: string): void {
   proxyBase = p
@@ -73,7 +88,7 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
     return `${proxyBase}/p/${pHash}?${qs}`
   }
 
-  const b58url = multihash.toB58String(Buffer.from(realUrl.toString()))
+  const b58url = getUrlHash(realUrl.toString())
 
   return `${proxyBase}/p/${b58url}?${qs}`
 }
