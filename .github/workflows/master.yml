@@ -68,42 +68,13 @@ jobs:
       # Sentry's source-map upload runs inside the Docker build via the
       # @sentry/nextjs webpack plugin (see apps/web/next.config.js). It can
       # silently no-op if the auth token is invalid, scope-restricted, or
-      # rate-limited — which leaves production stack traces minified and
-      # unactionable. Verify the release was created and at least one file
-      # is attached before letting the deploy jobs proceed.
+      # rate-limited — verify the release was created and at least one
+      # file is attached before letting the deploy jobs proceed.
       - name: Verify Sentry source maps uploaded
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_RELEASE: ecency-next@${{ github.sha }}
-        run: |
-          if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
-            echo "::warning::SENTRY_AUTH_TOKEN not set — skipping source-map verification"
-            exit 0
-          fi
-          set -euo pipefail
-          # The release name is URL-encoded because it contains '@'.
-          ENCODED_RELEASE=$(printf '%s' "${SENTRY_RELEASE}" | jq -sRr @uri)
-          echo "Checking Sentry release ${SENTRY_RELEASE}…"
-          response=$(curl -sS -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-            "https://sentry.io/api/0/projects/ecency/ecency-next/releases/${ENCODED_RELEASE}/files/?per_page=1")
-          body=$(echo "$response" | sed '$d')
-          code=$(echo "$response" | tail -n1)
-          if [ "$code" = "404" ]; then
-            echo "::error::Sentry release ${SENTRY_RELEASE} does not exist — source-map upload failed during the Docker build"
-            exit 1
-          fi
-          if [ "$code" != "200" ]; then
-            echo "::error::Sentry API returned ${code} for release ${SENTRY_RELEASE}"
-            echo "$body"
-            exit 1
-          fi
-          count=$(echo "$body" | jq 'length')
-          if [ "$count" -lt 1 ]; then
-            echo "::error::No source-map files attached to Sentry release ${SENTRY_RELEASE} — upload likely no-op'd"
-            exit 1
-          fi
-          echo "✓ Sentry release ${SENTRY_RELEASE} has source maps attached"
+        uses: ./.github/actions/verify-sentry-release
+        with:
+          release: ecency-next@${{ github.sha }}
+          auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

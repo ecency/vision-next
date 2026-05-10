@@ -81,10 +81,12 @@ const config = {
   // Inline SENTRY_RELEASE into the client bundle at build time so
   // sentry.client.config.ts can read it via process.env.SENTRY_RELEASE
   // (Next.js only inlines envs declared here or prefixed NEXT_PUBLIC_).
-  // CI sets this to the deploying commit SHA; missing in local dev,
-  // where Sentry.init falls back to package.json version.
+  // CI sets this to the deploying commit SHA; in local dev the var is
+  // unset, so we conditionally spread to avoid `SENTRY_RELEASE: undefined`
+  // (which trips Next's env schema). When absent, Sentry.init falls back
+  // to package.json version via `process.env.SENTRY_RELEASE ?? appPackage.version`.
   env: {
-    SENTRY_RELEASE: process.env.SENTRY_RELEASE
+    ...(process.env.SENTRY_RELEASE && { SENTRY_RELEASE: process.env.SENTRY_RELEASE })
   },
   htmlLimitedBots:
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
