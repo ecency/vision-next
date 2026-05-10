@@ -360,6 +360,11 @@ const withSentry = withSentryConfig(config, {
   org: "ecency",
   project: "ecency-next",
   authToken: process.env.SENTRY_AUTH_TOKEN,
+  // The ecency org lives in Sentry's EU region (visible in the runtime DSN
+  // host `ingest.de.sentry.io`). Source-map upload writes to project-scoped
+  // endpoints which require hitting the regional API directly — global
+  // sentry.io routes reads but rejects writes with 401 "Invalid org token".
+  sentryUrl: "https://de.sentry.io",
   // Pin the source-map upload to the same release identifier the runtime
   // uses (commit SHA in CI). When unset (local dev), the plugin
   // auto-detects from git/package.json — fine for non-production builds.

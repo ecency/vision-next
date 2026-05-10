@@ -23,6 +23,14 @@ inputs:
     required: false
     default: ecency-next
     description: Sentry project slug
+  sentry-url:
+    required: false
+    default: https://de.sentry.io
+    description: |
+      Sentry API base URL. Defaults to the EU region because the ecency org
+      lives there. Set to https://sentry.io for orgs in the US region.
+      Org-scoped tokens only authenticate writes against the regional URL —
+      using the wrong region returns 401 "Invalid org token" silently.
 
 runs:
   using: composite
@@ -34,6 +42,7 @@ runs:
         SENTRY_RELEASE: ${{ inputs.release }}
         SENTRY_ORG: ${{ inputs.org }}
         SENTRY_PROJECT: ${{ inputs.project }}
+        SENTRY_URL: ${{ inputs.sentry-url }}
       run: |
         if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
           echo "::warning::SENTRY_AUTH_TOKEN not set — skipping source-map verification"
@@ -45,7 +54,7 @@ runs:
         echo "Checking Sentry release ${SENTRY_RELEASE}…"
         response=$(curl -sS -w "\n%{http_code}" \
           -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-          "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${ENCODED_RELEASE}/files/?per_page=1")
+          "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${ENCODED_RELEASE}/files/?per_page=1")
         body=$(echo "$response" | sed '$d')
         code=$(echo "$response" | tail -n1)
         if [ "$code" = "404" ]; then
@@ -68,13 +77,13 @@ runs:
           echo "Five most recent releases in ${SENTRY_ORG}/${SENTRY_PROJECT}:"
           recent=$(curl -sS \
             -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-            "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/?per_page=5" \
+            "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/?per_page=5" \
             | jq -r '.[].version')
           while IFS= read -r ver; do
             [ -z "$ver" ] && continue
             enc=$(printf '%s' "$ver" | jq -sRr @uri)
             n=$(curl -sS -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-              "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${enc}/files/?per_page=1" \
+              "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${enc}/files/?per_page=1" \
               | jq 'length')
             echo "  - ${ver} (files attached: ${n})"
           done <<< "$recent"
