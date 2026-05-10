@@ -11,7 +11,7 @@ description: |
 inputs:
   release:
     required: true
-    description: Sentry release identifier (e.g. ecency-next@${{ github.sha }})
+    description: 'Sentry release identifier (e.g. ecency-next@<commit-sha>)'
   auth-token:
     required: true
     description: Sentry auth token. Pass empty string to skip verification.
