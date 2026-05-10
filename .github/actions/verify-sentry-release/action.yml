@@ -60,6 +60,27 @@ runs:
         count=$(echo "$body" | jq 'length')
         if [ "$count" -lt 1 ]; then
           echo "::error::No source-map files attached to Sentry release ${SENTRY_RELEASE} — upload likely no-op'd"
+          # Diagnostic: list the 5 most recent releases with their file counts.
+          # If the upload landed on a different name (e.g. the plugin auto-
+          # detected git SHA without the project prefix, or the env var was
+          # ignored), the right name will show up here with files attached.
+          echo ""
+          echo "Five most recent releases in ${SENTRY_ORG}/${SENTRY_PROJECT}:"
+          recent=$(curl -sS \
+            -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+            "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/?per_page=5" \
+            | jq -r '.[].version')
+          while IFS= read -r ver; do
+            [ -z "$ver" ] && continue
+            enc=$(printf '%s' "$ver" | jq -sRr @uri)
+            n=$(curl -sS -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+              "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${enc}/files/?per_page=1" \
+              | jq 'length')
+            echo "  - ${ver} (files attached: ${n})"
+          done <<< "$recent"
+          echo ""
+          echo "If a different release shows files, the @sentry/nextjs plugin uploaded under that name."
+          echo "Check the Docker build logs for 'Successfully uploaded' lines (SENTRY_LOG_LEVEL=debug)."
           exit 1
         fi
         echo "✓ Sentry release ${SENTRY_RELEASE} has source maps attached"
