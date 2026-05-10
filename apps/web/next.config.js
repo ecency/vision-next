@@ -77,7 +77,11 @@ const appPackage = require("./package.json");
 const { execSync } = require("child_process");
 
 const config = {
-  productionBrowserSourceMaps: false,
+  // Required for @sentry/nextjs v8 source-map upload — the plugin only
+  // uploads .map files that webpack actually emits. Source maps are
+  // deleted from the build output after upload (see sourcemaps option
+  // in withSentryConfig below) so they aren't shipped publicly.
+  productionBrowserSourceMaps: true,
   // Inline SENTRY_RELEASE into the client bundle at build time so
   // sentry.client.config.ts can read it via process.env.SENTRY_RELEASE
   // (Next.js only inlines envs declared here or prefixed NEXT_PUBLIC_).
@@ -378,8 +382,14 @@ const withSentry = withSentryConfig(config, {
   // side errors will fail.
   // tunnelRoute: "/monitoring",
 
-  // Hides source maps from generated client bundles
-  hideSourceMaps: true,
+  // Delete .map files from .next/ after the plugin uploads them to Sentry,
+  // so they aren't served publicly. Replaces the deprecated `hideSourceMaps`
+  // option in @sentry/nextjs v8 — combined with `productionBrowserSourceMaps:
+  // true` above, this is the v8-idiomatic pattern for "generate maps,
+  // upload them, then strip them from the public bundle".
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true
+  },
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
