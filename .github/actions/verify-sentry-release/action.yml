@@ -49,47 +49,38 @@ runs:
           exit 0
         fi
         set -euo pipefail
-        # Release names contain '@' which must be URL-encoded for the path segment.
-        ENCODED_RELEASE=$(printf '%s' "${SENTRY_RELEASE}" | jq -sRr @uri)
-        echo "Checking Sentry release ${SENTRY_RELEASE}…"
+        # `@sentry/nextjs` v8 uploads source maps as artifact bundles
+        # (--use-artifact-bundle), not as legacy "release files". The legacy
+        # /releases/{ver}/files/ endpoint doesn't see artifact bundles — we
+        # have to check /files/source-maps/ which lists artifact-bundle
+        # entries alongside any legacy file uploads. The `?query=` filter
+        # accepts the release name as a free-text match against entry names.
+        ENCODED_QUERY=$(printf '%s' "${SENTRY_RELEASE}" | jq -sRr @uri)
+        echo "Checking artifact bundle for ${SENTRY_RELEASE}…"
         response=$(curl -sS -w "\n%{http_code}" \
           -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-          "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${ENCODED_RELEASE}/files/?per_page=1")
+          "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/files/source-maps/?query=${ENCODED_QUERY}&per_page=10")
         body=$(echo "$response" | sed '$d')
         code=$(echo "$response" | tail -n1)
-        if [ "$code" = "404" ]; then
-          echo "::error::Sentry release ${SENTRY_RELEASE} does not exist — source-map upload failed during the Docker build"
-          exit 1
-        fi
         if [ "$code" != "200" ]; then
-          echo "::error::Sentry API returned ${code} for release ${SENTRY_RELEASE}"
+          echo "::error::Sentry API returned ${code} querying source-maps for ${SENTRY_RELEASE}"
           echo "$body"
           exit 1
         fi
-        count=$(echo "$body" | jq 'length')
-        if [ "$count" -lt 1 ]; then
-          echo "::error::No source-map files attached to Sentry release ${SENTRY_RELEASE} — upload likely no-op'd"
-          # Diagnostic: list the 5 most recent releases with their file counts.
-          # If the upload landed on a different name (e.g. the plugin auto-
-          # detected git SHA without the project prefix, or the env var was
-          # ignored), the right name will show up here with files attached.
+        # Match the release name exactly (the server-side `query` is fuzzy).
+        # Treat fileCount of -1 (artifact bundle) the same as a positive
+        # legacy file count — both indicate maps are uploaded and indexed.
+        match=$(echo "$body" | jq --arg r "${SENTRY_RELEASE}" '[.[] | select(.name == $r)] | length')
+        if [ "$match" -lt 1 ]; then
+          echo "::error::No source-map artifact bundle found for ${SENTRY_RELEASE} — upload likely no-op'd"
           echo ""
-          echo "Five most recent releases in ${SENTRY_ORG}/${SENTRY_PROJECT}:"
-          recent=$(curl -sS \
-            -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-            "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/?per_page=5" \
-            | jq -r '.[].version')
-          while IFS= read -r ver; do
-            [ -z "$ver" ] && continue
-            enc=$(printf '%s' "$ver" | jq -sRr @uri)
-            n=$(curl -sS -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
-              "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${enc}/files/?per_page=1" \
-              | jq 'length')
-            echo "  - ${ver} (files attached: ${n})"
-          done <<< "$recent"
+          echo "Most recent source-map uploads in ${SENTRY_ORG}/${SENTRY_PROJECT}:"
+          curl -sS -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+            "${SENTRY_URL}/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/files/source-maps/?per_page=5" \
+            | jq -r '.[] | "  - \(.name) [\(.type), \(if .fileCount == -1 then "artifact bundle" else "files: \(.fileCount)" end), \(.date))]"'
           echo ""
-          echo "If a different release shows files, the @sentry/nextjs plugin uploaded under that name."
-          echo "Check the Docker build logs for 'Successfully uploaded' lines (SENTRY_LOG_LEVEL=debug)."
+          echo "If a different name shows up here, the plugin uploaded under that release identifier."
+          echo "Check the Docker build logs for 'Successfully uploaded' / [@sentry/nextjs] lines."
           exit 1
         fi
-        echo "✓ Sentry release ${SENTRY_RELEASE} has source maps attached"
+        echo "✓ Sentry release ${SENTRY_RELEASE} has source maps uploaded"
