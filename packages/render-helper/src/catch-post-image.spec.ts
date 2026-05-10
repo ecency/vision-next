@@ -171,5 +171,67 @@ describe('catchPostImage', () => {
       const result = catchPostImage(input)
       expect(result).not.toContain('fake.example.com')
     })
+
+    it('should respect source order between HTML and markdown images', () => {
+      // <img> appears first in the body, so the full DOM's first <img> would
+      // be the HTML one. The fast-path must agree.
+      const orderedBody = '<img src="https://img.esteem.ws/first.jpg"> then ![alt](https://img.esteem.ws/second.jpg)'
+      const onlyHtml = '<img src="https://img.esteem.ws/first.jpg">'
+      expect(catchPostImage(orderedBody)).toBe(catchPostImage(onlyHtml))
+    })
+
+    it('should fall back when markdown URL contains unbalanced parens', () => {
+      // `[^)\s]+` would truncate `path_(a)_full.jpg` mid-paren. The fast-path
+      // must bail so the full parser handles balanced parens correctly. The
+      // observable signal: the result must not be a hash of the truncated
+      // prefix `https://example.com/path_(a` (the empty-parens form).
+      const truncatedHash = catchPostImage('![](https://example.com/path_(a)')
+      const balancedResult = catchPostImage({
+        author: 'foo-paren',
+        permlink: 'bar-paren',
+        json_metadata: '{}',
+        body: '![alt](https://example.com/path_(a)_full.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      } as any)
+      expect(balancedResult).not.toBe(truncatedHash)
+    })
+
+    it('should not match broken markdown without a closing paren', () => {
+      // `![alt](url` (no close) is not a valid markdown image. The fast-path
+      // must skip it, fall back to the full parser, which won't find an image.
+      const input = {
+        author: 'foo-broken',
+        permlink: 'bar-broken',
+        json_metadata: '{}',
+        body: '![alt](https://example.com/incomplete and more text on the same line',
+        last_update: '2019-05-10T09:15:21'
+      }
+      expect(catchPostImage(input)).toBe(null)
+    })
+
+    it('should not surface javascript: or data: URLs from the fast-path', () => {
+      // Fast-path bypasses sanitize-html. A malicious post with a dangerous
+      // src must not be returned wrapped in a proxy URL. The regex skips it
+      // and the fallback markdown render strips it via sanitize-html.
+      const jsInput = {
+        author: 'foo-js',
+        permlink: 'bar-js',
+        json_metadata: '{}',
+        body: '<img src="javascript:alert(1)"> and ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const jsResult = catchPostImage(jsInput)
+      expect(jsResult ?? '').not.toContain('javascript')
+
+      const dataInput = {
+        author: 'foo-data',
+        permlink: 'bar-data',
+        json_metadata: '{}',
+        body: '![nope](data:image/png;base64,iVBORw0KGgo=) ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const dataResult = catchPostImage(dataInput)
+      expect(dataResult ?? '').not.toContain('data:image')
+    })
   })
 })

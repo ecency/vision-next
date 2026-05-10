@@ -1688,15 +1688,27 @@ function isGifLink(link) {
 }
 var FENCED_CODE_RE = /```[\s\S]*?```/g;
 var INLINE_CODE_RE = /`[^`\n]*`/g;
-var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)/;
+var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
+var SAFE_URL_RE = /^(?:https?|ftp):\/\//i;
 function findFirstImageUrl(body) {
   if (!body) return null;
   const cleaned = body.replace(FENCED_CODE_RE, "").replace(INLINE_CODE_RE, "");
-  const md = cleaned.match(MD_IMAGE_RE);
-  if (md && md[1]) return md[1];
-  const html = cleaned.match(HTML_IMAGE_RE);
-  if (html && html[1]) return html[1];
+  const mdMatch = cleaned.match(MD_IMAGE_RE);
+  const htmlMatch = cleaned.match(HTML_IMAGE_RE);
+  if (mdMatch) {
+    const url = mdMatch[1];
+    if (!url || !SAFE_URL_RE.test(url) || url.includes("(")) {
+      return null;
+    }
+  }
+  const mdValid = !!mdMatch;
+  const htmlValid = !!(htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1]));
+  if (mdValid && htmlValid) {
+    return (mdMatch.index ?? 0) < (htmlMatch.index ?? 0) ? mdMatch[1] : htmlMatch[1];
+  }
+  if (mdValid) return mdMatch[1];
+  if (htmlValid) return htmlMatch[1];
   return null;
 }
 function proxifyFound(src, width, height, format) {

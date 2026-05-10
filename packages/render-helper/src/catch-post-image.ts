@@ -16,21 +16,52 @@ function isGifLink(link: string) {
 // as <pre>/<code> with no <img>, so we mirror that behavior here.
 const FENCED_CODE_RE = /```[\s\S]*?```/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
-const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)/
+// Requires a closing `)` so broken syntax like `![](url` (no close) doesn't
+// match. Also tolerates the optional title form `![](url "title")`.
+const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/
 const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
+
+// The fast-path bypasses sanitize-html (which the full markdown pipeline
+// applies). To avoid surfacing dangerous schemes like javascript:, we only
+// accept URLs that the image proxy could plausibly fetch. If the regex match
+// is anything else (data:, javascript:, relative, protocol-relative, …), we
+// return null so the caller falls back to the full sanitized parse.
+const SAFE_URL_RE = /^(?:https?|ftp):\/\//i
 
 /**
  * Fast-path: extract the first image URL from raw markdown without rendering
- * the whole post. Returns null if nothing matches; the caller should fall
- * back to the full markdown2Html → DOM parse path.
+ * the whole post. Returns null if nothing matches *unambiguously* — when in
+ * doubt, the caller falls back to the full markdown2Html → DOM parse path.
  */
 function findFirstImageUrl(body: string): string | null {
   if (!body) return null
   const cleaned = body.replace(FENCED_CODE_RE, '').replace(INLINE_CODE_RE, '')
-  const md = cleaned.match(MD_IMAGE_RE)
-  if (md && md[1]) return md[1]
-  const html = cleaned.match(HTML_IMAGE_RE)
-  if (html && html[1]) return html[1]
+
+  const mdMatch = cleaned.match(MD_IMAGE_RE)
+  const htmlMatch = cleaned.match(HTML_IMAGE_RE)
+
+  // If markdown image syntax is present at all, it must be unambiguous. The
+  // capture class `[^)\s]+` excludes `)`, so a captured URL containing `(`
+  // means the URL was truncated mid-paren (e.g., a real
+  // `https://x.com/path_(a)_full.jpg`). When ambiguous, bail and let the full
+  // markdown parser handle it — returning a truncated URL would be wrong.
+  if (mdMatch) {
+    const url = mdMatch[1]
+    if (!url || !SAFE_URL_RE.test(url) || url.includes('(')) {
+      return null
+    }
+  }
+
+  const mdValid = !!mdMatch
+  const htmlValid = !!(htmlMatch && htmlMatch[1] && SAFE_URL_RE.test(htmlMatch[1]))
+
+  // Pick the earliest match in source order — the full markdown render would
+  // surface whichever <img> appears first in the rendered document.
+  if (mdValid && htmlValid) {
+    return (mdMatch!.index ?? 0) < (htmlMatch!.index ?? 0) ? mdMatch![1] : htmlMatch![1]
+  }
+  if (mdValid) return mdMatch![1]
+  if (htmlValid) return htmlMatch![1]
   return null
 }
 
