@@ -78,6 +78,14 @@ const { execSync } = require("child_process");
 
 const config = {
   productionBrowserSourceMaps: false,
+  // Inline SENTRY_RELEASE into the client bundle at build time so
+  // sentry.client.config.ts can read it via process.env.SENTRY_RELEASE
+  // (Next.js only inlines envs declared here or prefixed NEXT_PUBLIC_).
+  // CI sets this to the deploying commit SHA; missing in local dev,
+  // where Sentry.init falls back to package.json version.
+  env: {
+    SENTRY_RELEASE: process.env.SENTRY_RELEASE
+  },
   htmlLimitedBots:
     /Mediapartners-Google|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti/,
   sassOptions: {
@@ -346,6 +354,12 @@ const withSentry = withSentryConfig(config, {
   org: "ecency",
   project: "ecency-next",
   authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Pin the source-map upload to the same release identifier the runtime
+  // uses (commit SHA in CI). When unset (local dev), the plugin
+  // auto-detects from git/package.json — fine for non-production builds.
+  ...(process.env.SENTRY_RELEASE
+    ? { release: { name: process.env.SENTRY_RELEASE } }
+    : {}),
 
   // Only print logs for uploading source maps in CI
   silent: false,

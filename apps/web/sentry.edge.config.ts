@@ -13,7 +13,10 @@ Sentry.init({
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
   enabled: process.env.NODE_ENV === "production",
 
-  release: appPackage.version,
+  // Prefer SENTRY_RELEASE (set per-deploy to the commit SHA in CI) so
+  // source-map upload and runtime tagging stay aligned across deploys
+  // that don't bump the package.json version.
+  release: process.env.SENTRY_RELEASE ?? appPackage.version,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
