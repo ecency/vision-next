@@ -30,9 +30,14 @@ ENV NEXT_PUBLIC_GMAPS_MAP_ID=${NEXT_PUBLIC_GMAPS_MAP_ID}
 ARG SENTRY_AUTH_TOKEN
 ARG SENTRY_ORG
 ARG SENTRY_PROJECT
+# Pinned to the deploying commit SHA so source-map upload and runtime
+# Sentry.init agree on the same release identifier — even when the
+# package.json version is unchanged across deploys.
+ARG SENTRY_RELEASE
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 ENV SENTRY_ORG=${SENTRY_ORG}
 ENV SENTRY_PROJECT=${SENTRY_PROJECT}
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 ENV SENTRY_LOG_LEVEL=debug
 
 # Single build that emits the EXACT assets we ship
@@ -60,6 +65,15 @@ ENTRYPOINT ["/tini", "--"]
 
 ENV NODE_ENV=production
 ENV NEXT_SHARP_PATH=/var/app/node_modules/sharp
+
+# Carry the Sentry release identifier into the runtime container.
+# Build-args don't cross stage boundaries automatically — each stage that
+# needs them must redeclare ARG. Without this the server and edge runtimes
+# would read process.env.SENTRY_RELEASE as unset and fall back to the
+# package.json version, splitting releases between client (tagged at
+# build) and server (tagged at runtime).
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=${SENTRY_RELEASE}
 
 ARG PNPM_VERSION=10.18.1
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate

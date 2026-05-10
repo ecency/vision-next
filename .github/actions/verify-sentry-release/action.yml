@@ -1,0 +1,65 @@
+name: Verify Sentry release source maps
+description: |
+  Confirms that a Sentry release exists and has at least one file attached.
+  Used after the Docker build that runs `@sentry/nextjs` source-map upload as
+  a side effect — that upload can silently no-op (invalid token, scope, rate
+  limit) and leave production stack traces minified. This action fails the
+  workflow before deploy if no source maps were uploaded under the given
+  release name. When `auth-token` is empty (forks, PR builds), the step
+  skips with a warning instead of failing.
+
+inputs:
+  release:
+    required: true
+    description: Sentry release identifier (e.g. ecency-next@${{ github.sha }})
+  auth-token:
+    required: true
+    description: Sentry auth token. Pass empty string to skip verification.
+  org:
+    required: false
+    default: ecency
+    description: Sentry organization slug
+  project:
+    required: false
+    default: ecency-next
+    description: Sentry project slug
+
+runs:
+  using: composite
+  steps:
+    - name: Verify
+      shell: bash
+      env:
+        SENTRY_AUTH_TOKEN: ${{ inputs.auth-token }}
+        SENTRY_RELEASE: ${{ inputs.release }}
+        SENTRY_ORG: ${{ inputs.org }}
+        SENTRY_PROJECT: ${{ inputs.project }}
+      run: |
+        if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
+          echo "::warning::SENTRY_AUTH_TOKEN not set — skipping source-map verification"
+          exit 0
+        fi
+        set -euo pipefail
+        # Release names contain '@' which must be URL-encoded for the path segment.
+        ENCODED_RELEASE=$(printf '%s' "${SENTRY_RELEASE}" | jq -sRr @uri)
+        echo "Checking Sentry release ${SENTRY_RELEASE}…"
+        response=$(curl -sS -w "\n%{http_code}" \
+          -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+          "https://sentry.io/api/0/projects/${SENTRY_ORG}/${SENTRY_PROJECT}/releases/${ENCODED_RELEASE}/files/?per_page=1")
+        body=$(echo "$response" | sed '$d')
+        code=$(echo "$response" | tail -n1)
+        if [ "$code" = "404" ]; then
+          echo "::error::Sentry release ${SENTRY_RELEASE} does not exist — source-map upload failed during the Docker build"
+          exit 1
+        fi
+        if [ "$code" != "200" ]; then
+          echo "::error::Sentry API returned ${code} for release ${SENTRY_RELEASE}"
+          echo "$body"
+          exit 1
+        fi
+        count=$(echo "$body" | jq 'length')
+        if [ "$count" -lt 1 ]; then
+          echo "::error::No source-map files attached to Sentry release ${SENTRY_RELEASE} — upload likely no-op'd"
+          exit 1
+        fi
+        echo "✓ Sentry release ${SENTRY_RELEASE} has source maps attached"

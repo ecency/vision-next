@@ -11,7 +11,11 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
   dsn: "https://8a5c1659d1c2ba3385be28dc7235ce56@o4507985141956608.ingest.de.sentry.io/4507985146609744",
 
   enabled: process.env.NODE_ENV === "production",
-  release: appPackage.version,
+  // Prefer SENTRY_RELEASE (set per-deploy to the commit SHA in CI) so
+  // source-map upload and runtime tagging stay aligned across deploys
+  // that don't bump the package.json version. Inlined into the client
+  // bundle via the `env` block in next.config.js.
+  release: process.env.SENTRY_RELEASE ?? appPackage.version,
 
   tracesSampleRate: 0,
   integrations: (defaults) =>
@@ -52,6 +56,32 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     if (
       message.includes("Cannot read properties of null (reading 'parentNode')") &&
       stackStr.includes("$RS")
+    ) {
+      return null;
+    }
+
+    // Firefox-specific iframe teardown error following a React hydration
+    // mismatch (#418) on profile pages. Symptom — when hydration fails,
+    // React tears down the tree and an iframe's contentWindow becomes null
+    // while some downstream code still tries to access .document on it.
+    // V8-based engines produce a different message for the same access
+    // (`Cannot read properties of null (reading 'document')`) so matching
+    // on the Firefox phrasing alone is engine-specific, but we *also*
+    // require browser=Firefox and a profile-page URL so unrelated iframe
+    // bugs in other surfaces aren't silently dropped. Sample 1% to keep
+    // trend visibility.
+    // TODO(hydration): investigate Firefox-only hydration drift on profile
+    // pages (`/@user/...`) — likely a locale/Date/Intl mismatch or a value
+    // that differs between SSR and the first client render.
+    // event.contexts is loosely typed by @sentry/types; coerce to string.
+    const browserName = String(event.contexts?.browser?.name ?? "");
+    const url = String(event.request?.url ?? "");
+    if (
+      message.includes("can't access property \"document\"") &&
+      message.includes("contentWindow is null") &&
+      /Firefox/i.test(browserName) &&
+      /\/@/.test(url) &&
+      Math.random() > 0.01
     ) {
       return null;
     }

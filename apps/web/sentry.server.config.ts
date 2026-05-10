@@ -15,7 +15,10 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
-  release: appPackage.version,
+  // Prefer SENTRY_RELEASE (set per-deploy to the commit SHA in CI) so
+  // source-map upload and runtime tagging stay aligned across deploys
+  // that don't bump the package.json version.
+  release: process.env.SENTRY_RELEASE ?? appPackage.version,
   integrations: [nodeProfilingIntegration()],
   _experiments: { enableLogs: true },
   ignoreErrors: [
@@ -27,6 +30,22 @@ Sentry.init({
     "Failed to connect to MetaMask",
     "window.ethereum._handleChainChanged is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined."
-  ]
+  ],
+
+  beforeSend(event) {
+    // Drop "Error: aborted" emitted by node:_http_server when the client
+    // disconnects mid-stream (Cloudflare timeouts, navigation away during
+    // SSR streaming, etc.). 0-user-impact noise that floods the Sentry
+    // inbox at fatal level — the request is already abandoned by the
+    // client so there's nothing actionable on our side.
+    const ex = event.exception?.values?.[0];
+    if (ex?.type === "Error" && ex?.value === "aborted") {
+      const frames = JSON.stringify(ex?.stacktrace?.frames ?? "");
+      if (frames.includes("_http_server") || frames.includes("abortIncoming")) {
+        return null;
+      }
+    }
+    return event;
+  }
 });
 Sentry.setTag("source", "server");

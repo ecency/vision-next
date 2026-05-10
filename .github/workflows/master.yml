@@ -60,9 +60,21 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
             SENTRY_ORG=ecency
             SENTRY_PROJECT=ecency-next
+            SENTRY_RELEASE=ecency-next@${{ github.sha }}
             NEXT_PUBLIC_GMAPS_API_KEY=${{ secrets.GMAPS_API_KEY }}
             NEXT_PUBLIC_GMAPS_MAP_ID=${{ secrets.GMAPS_MAP_ID }}
             PNPM_VERSION=10.18.1
+
+      # Sentry's source-map upload runs inside the Docker build via the
+      # @sentry/nextjs webpack plugin (see apps/web/next.config.js). It can
+      # silently no-op if the auth token is invalid, scope-restricted, or
+      # rate-limited — verify the release was created and at least one
+      # file is attached before letting the deploy jobs proceed.
+      - name: Verify Sentry source maps uploaded
+        uses: ./.github/actions/verify-sentry-release
+        with:
+          release: ecency-next@${{ github.sha }}
+          auth-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
