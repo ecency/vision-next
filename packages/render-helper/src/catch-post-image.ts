@@ -11,6 +11,37 @@ function isGifLink(link: string) {
   return gifLinkRegex.test(link);
 }
 
+// Strip fenced and inline code so that ![alt](url) inside a code block is not
+// mistaken for a real image. The full markdown renderer would emit the code
+// as <pre>/<code> with no <img>, so we mirror that behavior here.
+const FENCED_CODE_RE = /```[\s\S]*?```/g
+const INLINE_CODE_RE = /`[^`\n]*`/g
+const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)/
+const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
+
+/**
+ * Fast-path: extract the first image URL from raw markdown without rendering
+ * the whole post. Returns null if nothing matches; the caller should fall
+ * back to the full markdown2Html → DOM parse path.
+ */
+function findFirstImageUrl(body: string): string | null {
+  if (!body) return null
+  const cleaned = body.replace(FENCED_CODE_RE, '').replace(INLINE_CODE_RE, '')
+  const md = cleaned.match(MD_IMAGE_RE)
+  if (md && md[1]) return md[1]
+  const html = cleaned.match(HTML_IMAGE_RE)
+  if (html && html[1]) return html[1]
+  return null
+}
+
+function proxifyFound(src: string, width: number, height: number, format: string): string {
+  const decoded = he.decode(src)
+  if (isGifLink(decoded)) {
+    return proxifyImageSrc(decoded, 0, 0, format)
+  }
+  return proxifyImageSrc(decoded, width, height, format)
+}
+
 function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string | null {
   /*
   * Return from json metadata if exists
@@ -53,7 +84,14 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
     return proxifyImageSrc(meta.image[0], width, height, format)
   }
 
-  // try to find first image from post body
+  // Fast-path: try to find the first image with a regex over the raw body.
+  // Avoids the cost of full markdown2Html + DOM parsing for the common case.
+  const fast = findFirstImageUrl(entry.body)
+  if (fast) {
+    return proxifyFound(fast, width, height, format)
+  }
+
+  // Fall back to the full markdown render (handles edge cases the regex missed)
   const html = markdown2Html(entry)
   const doc = createDoc(html)
   if (!doc) {
@@ -66,12 +104,7 @@ function getImage(entry: Entry, width = 0, height = 0, format = 'match'): string
     if (!src) {
       return null
     }
-    // Decode HTML entities (e.g., &amp; -> &) before proxifying
-    const decodedSrc = he.decode(src)
-    if (isGifLink(decodedSrc)) {
-      return proxifyImageSrc(decodedSrc, 0, 0, format)
-    }
-    return proxifyImageSrc(decodedSrc, width, height, format)
+    return proxifyFound(src, width, height, format)
   }
 
   return null
@@ -81,6 +114,13 @@ export function catchPostImage(obj: Entry | string, width = 0, height = 0, forma
   if (typeof obj === 'string') {
     // Process string directly to avoid cache key collision
     // Don't create Entry wrapper as it would generate invalid cache keys
+
+    // Fast-path: regex over raw markdown
+    const fast = findFirstImageUrl(obj)
+    if (fast) {
+      return proxifyFound(fast, width, height, format)
+    }
+
     const html = markdown2Html(obj)
     const doc = createDoc(html)
     if (!doc) {
@@ -93,12 +133,7 @@ export function catchPostImage(obj: Entry | string, width = 0, height = 0, forma
       if (!src) {
         return null
       }
-      // Decode HTML entities (e.g., &amp; -> &) before proxifying
-      const decodedSrc = he.decode(src)
-      if (isGifLink(decodedSrc)) {
-        return proxifyImageSrc(decodedSrc, 0, 0, format)
-      }
-      return proxifyImageSrc(decodedSrc, width, height, format)
+      return proxifyFound(src, width, height, format)
     }
 
     return null

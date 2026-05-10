@@ -4,11 +4,11 @@ var xmldom = require('@xmldom/xmldom');
 var xss = require('xss');
 var multihash = require('multihashes');
 var querystring = require('querystring');
+var lruCache = require('lru-cache');
 var remarkable = require('remarkable');
 var linkify$1 = require('remarkable/linkify');
 var htmlparser2 = require('htmlparser2');
 var domSerializerModule = require('dom-serializer');
-var lruCache = require('lru-cache');
 var he = require('he');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
@@ -325,6 +325,14 @@ function sanitizeHtml(html) {
   });
 }
 var proxyBase = "https://images.ecency.com";
+var urlHashCache = new lruCache.LRUCache({ max: 500 });
+function getUrlHash(url) {
+  const cached = urlHashCache.get(url);
+  if (cached) return cached;
+  const hash = multihash__default.default.toB58String(Buffer.from(url));
+  urlHashCache.set(url, hash);
+  return hash;
+}
 function setProxyBase(p2) {
   proxyBase = p2;
 }
@@ -375,7 +383,7 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
   if (pHash) {
     return `${proxyBase}/p/${pHash}?${qs}`;
   }
-  const b58url = multihash__default.default.toB58String(Buffer.from(realUrl.toString()));
+  const b58url = getUrlHash(realUrl.toString());
   return `${proxyBase}/p/${b58url}?${qs}`;
 }
 var SRCSET_WIDTHS = [320, 600, 800, 1024, 1280];
@@ -1647,7 +1655,7 @@ function simpleMarkdownToHTML(input) {
   const html = getMd().render(input);
   return sanitizeHtml(html);
 }
-var cache = new lruCache.LRUCache({ max: 60 });
+var cache = new lruCache.LRUCache({ max: 500 });
 function setCacheSize(size) {
   cache = new lruCache.LRUCache({ max: size });
 }
@@ -1677,6 +1685,26 @@ function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency
 var gifLinkRegex = /\.(gif)$/i;
 function isGifLink(link) {
   return gifLinkRegex.test(link);
+}
+var FENCED_CODE_RE = /```[\s\S]*?```/g;
+var INLINE_CODE_RE = /`[^`\n]*`/g;
+var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)/;
+var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
+function findFirstImageUrl(body) {
+  if (!body) return null;
+  const cleaned = body.replace(FENCED_CODE_RE, "").replace(INLINE_CODE_RE, "");
+  const md = cleaned.match(MD_IMAGE_RE);
+  if (md && md[1]) return md[1];
+  const html = cleaned.match(HTML_IMAGE_RE);
+  if (html && html[1]) return html[1];
+  return null;
+}
+function proxifyFound(src, width, height, format) {
+  const decoded = he__default.default.decode(src);
+  if (isGifLink(decoded)) {
+    return proxifyImageSrc(decoded, 0, 0, format);
+  }
+  return proxifyImageSrc(decoded, width, height, format);
 }
 function getImage(entry, width = 0, height = 0, format = "match") {
   let meta;
@@ -1709,6 +1737,10 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     }
     return proxifyImageSrc(meta.image[0], width, height, format);
   }
+  const fast = findFirstImageUrl(entry.body);
+  if (fast) {
+    return proxifyFound(fast, width, height, format);
+  }
   const html = markdown2Html(entry);
   const doc = createDoc(html);
   if (!doc) {
@@ -1720,16 +1752,16 @@ function getImage(entry, width = 0, height = 0, format = "match") {
     if (!src) {
       return null;
     }
-    const decodedSrc = he__default.default.decode(src);
-    if (isGifLink(decodedSrc)) {
-      return proxifyImageSrc(decodedSrc, 0, 0, format);
-    }
-    return proxifyImageSrc(decodedSrc, width, height, format);
+    return proxifyFound(src, width, height, format);
   }
   return null;
 }
 function catchPostImage(obj, width = 0, height = 0, format = "match") {
   if (typeof obj === "string") {
+    const fast = findFirstImageUrl(obj);
+    if (fast) {
+      return proxifyFound(fast, width, height, format);
+    }
     const html = markdown2Html(obj);
     const doc = createDoc(html);
     if (!doc) {
@@ -1741,11 +1773,7 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
       if (!src) {
         return null;
       }
-      const decodedSrc = he__default.default.decode(src);
-      if (isGifLink(decodedSrc)) {
-        return proxifyImageSrc(decodedSrc, 0, 0, format);
-      }
-      return proxifyImageSrc(decodedSrc, width, height, format);
+      return proxifyFound(src, width, height, format);
     }
     return null;
   }
@@ -1758,6 +1786,20 @@ function catchPostImage(obj, width = 0, height = 0, format = "match") {
   cacheSet(key, res);
   return res;
 }
+var summaryRenderer = new remarkable.Remarkable({
+  html: true,
+  breaks: true,
+  typographer: false
+});
+summaryRenderer.core.ruler.enable(["abbr"]);
+summaryRenderer.block.ruler.enable(["footnote", "deflist"]);
+summaryRenderer.inline.ruler.enable([
+  "footnote_inline",
+  "ins",
+  "mark",
+  "sub",
+  "sup"
+]);
 var joint = (arr, limit = 200) => {
   let result = "";
   if (arr) {
@@ -1783,25 +1825,6 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
     return "";
   }
   entryBody = cleanReply(entryBody);
-  const mdd = new remarkable.Remarkable({
-    html: true,
-    breaks: true,
-    typographer: false
-  }).use(linkify$1.linkify);
-  mdd.core.ruler.enable([
-    "abbr"
-  ]);
-  mdd.block.ruler.enable([
-    "footnote",
-    "deflist"
-  ]);
-  mdd.inline.ruler.enable([
-    "footnote_inline",
-    "ins",
-    "mark",
-    "sub",
-    "sup"
-  ]);
   const entities = entryBody.match(ENTITY_REGEX);
   const entityPlaceholders = [];
   if (entities && platform !== "web") {
@@ -1814,7 +1837,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
   }
   let text2 = "";
   try {
-    text2 = mdd.render(entryBody);
+    text2 = summaryRenderer.render(entryBody);
   } catch (err) {
     console.error("[postBodySummary] Failed to render markdown:", {
       error: err instanceof Error ? err.message : String(err),

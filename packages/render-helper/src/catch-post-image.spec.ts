@@ -144,5 +144,32 @@ describe('catchPostImage', () => {
 
     expect(catchPostImage(input)).toBe(expected)
     })
+
+    it('should ignore image syntax inside fenced code blocks', () => {
+      // The ![code](fake) is inside ``` and must NOT be selected as the post image.
+      // The real image follows the code block.
+      const input = {
+        author: 'foo-fence',
+        permlink: 'bar-fence',
+        json_metadata: '{}',
+        body: 'See this code:\n\n```\n![code](https://fake.example.com/x.jpg)\n```\n\nReal image: ![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).toContain('https://images.ecency.com/p/')
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should ignore image syntax inside inline code', () => {
+      const input = {
+        author: 'foo-inline',
+        permlink: 'bar-inline',
+        json_metadata: '{}',
+        body: 'Inline: `![nope](https://fake.example.com/x.jpg)` then ![ok](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
   })
 })
