@@ -1686,14 +1686,16 @@ var gifLinkRegex = /\.(gif)$/i;
 function isGifLink(link) {
   return gifLinkRegex.test(link);
 }
-var FENCED_CODE_RE = /```[\s\S]*?```/g;
+var BACKTICK_FENCE_RE = /```[\s\S]*?```/g;
+var TILDE_FENCE_RE = /~~~[\s\S]*?~~~/g;
 var INLINE_CODE_RE = /`[^`\n]*`/g;
+var INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm;
 var MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/;
 var HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i;
-var SAFE_URL_RE = /^(?:https?|ftp):\/\//i;
+var SAFE_URL_RE = /^https?:\/\//i;
 function findFirstImageUrl(body) {
   if (!body) return null;
-  const cleaned = body.replace(FENCED_CODE_RE, "").replace(INLINE_CODE_RE, "");
+  const cleaned = body.replace(BACKTICK_FENCE_RE, "").replace(TILDE_FENCE_RE, "").replace(INLINE_CODE_RE, "").replace(INDENTED_CODE_RE, "");
   const mdMatch = cleaned.match(MD_IMAGE_RE);
   const htmlMatch = cleaned.match(HTML_IMAGE_RE);
   if (mdMatch) {

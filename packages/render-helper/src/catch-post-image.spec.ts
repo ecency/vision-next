@@ -209,6 +209,36 @@ describe('catchPostImage', () => {
       expect(catchPostImage(input)).toBe(null)
     })
 
+    it('should not surface ftp: URLs (the sanitizer drops them)', () => {
+      // Verified by calling renderPostBody — the full path renders <img alt
+      // /> with no src for ftp images, so catchPostImage must agree.
+      expect(catchPostImage('![x](ftp://example.com/a.jpg)')).toBe(null)
+    })
+
+    it('should ignore image syntax inside ~~~ tilde fences', () => {
+      const input = {
+        author: 'foo-tilde',
+        permlink: 'bar-tilde',
+        json_metadata: '{}',
+        body: '~~~\n![code](https://fake.example.com/x.jpg)\n~~~\n\n![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
+
+    it('should ignore image syntax inside indented code blocks', () => {
+      const input = {
+        author: 'foo-indent',
+        permlink: 'bar-indent',
+        json_metadata: '{}',
+        body: 'Code:\n\n    ![code](https://fake.example.com/x.jpg)\n\nReal: ![real](https://img.esteem.ws/ezrni9y9pw.jpg)',
+        last_update: '2019-05-10T09:15:21'
+      }
+      const result = catchPostImage(input)
+      expect(result).not.toContain('fake.example.com')
+    })
+
     it('should not surface javascript: or data: URLs from the fast-path', () => {
       // Fast-path bypasses sanitize-html. A malicious post with a dangerous
       // src must not be returned wrapped in a proxy URL. The regex skips it

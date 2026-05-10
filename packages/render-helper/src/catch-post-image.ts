@@ -11,22 +11,30 @@ function isGifLink(link: string) {
   return gifLinkRegex.test(link);
 }
 
-// Strip fenced and inline code so that ![alt](url) inside a code block is not
-// mistaken for a real image. The full markdown renderer would emit the code
-// as <pre>/<code> with no <img>, so we mirror that behavior here.
-const FENCED_CODE_RE = /```[\s\S]*?```/g
+// Strip code regions so that ![alt](url) inside a code block is not mistaken
+// for a real image. The full markdown renderer turns these into <pre><code>
+// with no <img>, so we mirror that behavior here.
+//   - backtick fences ``` … ``` (with optional language hint)
+//   - tilde fences ~~~ … ~~~ (CommonMark also accepts these)
+//   - inline code `…`
+//   - indented code blocks (4 spaces or a tab at line start) — over-strips
+//     a little (e.g., deeply nested list continuation lines), which is fine:
+//     a missed match just falls back to the full parser.
+const BACKTICK_FENCE_RE = /```[\s\S]*?```/g
+const TILDE_FENCE_RE = /~~~[\s\S]*?~~~/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
+const INDENTED_CODE_RE = /^(?: {4}|\t).+$/gm
 // Requires a closing `)` so broken syntax like `![](url` (no close) doesn't
 // match. Also tolerates the optional title form `![](url "title")`.
 const MD_IMAGE_RE = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+["'][^"']*["'])?\s*\)/
 const HTML_IMAGE_RE = /<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i
 
 // The fast-path bypasses sanitize-html (which the full markdown pipeline
-// applies). To avoid surfacing dangerous schemes like javascript:, we only
-// accept URLs that the image proxy could plausibly fetch. If the regex match
-// is anything else (data:, javascript:, relative, protocol-relative, …), we
-// return null so the caller falls back to the full sanitized parse.
-const SAFE_URL_RE = /^(?:https?|ftp):\/\//i
+// applies). The sanitizer only preserves http/https <img> sources — ftp,
+// data, javascript, relative, etc. are all dropped. Mirror that policy here
+// so the fast-path can never surface an image the full path would have
+// dropped. Anything else returns null and falls back to the sanitized parse.
+const SAFE_URL_RE = /^https?:\/\//i
 
 /**
  * Fast-path: extract the first image URL from raw markdown without rendering
@@ -35,7 +43,11 @@ const SAFE_URL_RE = /^(?:https?|ftp):\/\//i
  */
 function findFirstImageUrl(body: string): string | null {
   if (!body) return null
-  const cleaned = body.replace(FENCED_CODE_RE, '').replace(INLINE_CODE_RE, '')
+  const cleaned = body
+    .replace(BACKTICK_FENCE_RE, '')
+    .replace(TILDE_FENCE_RE, '')
+    .replace(INLINE_CODE_RE, '')
+    .replace(INDENTED_CODE_RE, '')
 
   const mdMatch = cleaned.match(MD_IMAGE_RE)
   const htmlMatch = cleaned.match(HTML_IMAGE_RE)
