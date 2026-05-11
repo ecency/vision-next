@@ -114,10 +114,11 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
     .replace(/\r?\n|\r/g, ' ') // Remove new lines
     .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Remove urls
     .trim()
-    // TODO(redos): collapsing multiple spaces via `' +(?= )'` is
-    // quadratic on long space runs. Replace with `\s{2,}` → ' '.
-    // eslint-disable-next-line regexp/no-super-linear-move
-    .replace(/ +(?= )/g, '') // Remove all multiple spaces
+    // Collapse runs of 2+ spaces to a single space. Equivalent to the
+    // previous `' +(?= )'` form (which deleted all-but-one space in a
+    // run) but matches the whole run greedily without backtracking, so
+    // it stays linear on long whitespace runs.
+    .replace(/ {2,}/g, ' ')
 
   // Truncate if length > 0 (length === 0 means no truncation)
   if (length > 0) {

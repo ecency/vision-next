@@ -1605,7 +1605,7 @@ function fixBlockLevelTagsInParagraphs(html) {
   html = html.replace(closingPattern, "$1");
   const startPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, "gi");
   html = html.replace(startPattern, "$1<p>");
-  const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, "gi");
+  const endPattern = new RegExp(`(?:\\s*<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, "gi");
   html = html.replace(endPattern, "</p>$1");
   html = html.replace(/<p>\s*<\/p>/g, "");
   html = html.replace(/<p><br>\s*<\/p>/g, "");
@@ -1945,7 +1945,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
       text2 = text2.split(placeholder).join(entity);
     });
   }
-  text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ +(?= )/g, "");
+  text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ {2,}/g, " ");
   if (length > 0) {
     text2 = joint(text2.split(" "), length);
   }

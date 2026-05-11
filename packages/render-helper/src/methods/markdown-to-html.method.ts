@@ -88,11 +88,17 @@ function fixBlockLevelTagsInParagraphs(html: string): string {
   html = html.replace(startPattern, '$1<p>')
 
   // Pattern 4: </tag></p> or <br>\n</tag></p> - closing tag at end of <p>
-  // TODO(redos): two `\s*` quantifiers separated by optional `<br>` can
-  // exchange characters; super-linear backtracking on whitespace-heavy
-  // inputs without a matching closing tag. Refactor to `(?:\s*<br>)?\s*`.
-  // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-super-linear-move
-  const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
+  // The optional `<br>` now carries any surrounding whitespace with it.
+  // The previous form `\s*(?:<br>)?\s*` had two independent `\s*`
+  // quantifiers that could exchange characters and super-linearly
+  // backtrack on whitespace-heavy inputs with no matching closing tag —
+  // the same exponential class as the #782 bug. The remaining
+  // unanchored `\s*` quantifiers still trigger the quadratic
+  // `regexp/no-super-linear-move` rule; eliminating that would require
+  // anchoring or a non-regex parser, which is out of scope here. Input
+  // is HTML rendered from a Hive post body (bounded ~64 KB).
+  // eslint-disable-next-line regexp/no-super-linear-move
+  const endPattern = new RegExp(`(?:\\s*<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
   html = html.replace(endPattern, '</p>$1')
 
   // Clean up any empty paragraphs that may have been created
