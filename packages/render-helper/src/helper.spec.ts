@@ -1,6 +1,7 @@
 import {
   createDoc,
   extractYtStartTime,
+  moveBlockClosingTagOutOfParagraph,
   removeDuplicateAttributes,
   sanitizePermlink,
   isValidPermlink,
@@ -705,6 +706,60 @@ describe('Helper Functions', () => {
       // /\?.+$/ requires at least one char after `?`; without it the regex
       // doesn't match and the input is returned unchanged.
       expect(stripQueryString('https://x?')).toBe('https://x?')
+    })
+  })
+
+  describe('moveBlockClosingTagOutOfParagraph', () => {
+    const tags = new Set(['div', 'center', 'table'])
+
+    it('rewrites </tag></p> to </p></tag>', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips a single <br> before the closing tag', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x<br></div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips whitespace surrounding a <br>', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x  <br>\n</div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips bare leading whitespace (no <br>)', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x\n  </div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('leaves </p> alone when the preceding closing tag is not in the set', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</span></p>', tags))
+        .toBe('<p>x</span></p>')
+    })
+
+    it('leaves </p> alone when there is no closing block tag immediately before', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>hello</p>', tags))
+        .toBe('<p>hello</p>')
+    })
+
+    it('case-insensitive on the tag name (matches old /gi flag)', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</DIV></p>', tags))
+        .toBe('<p>x</p></DIV>')
+    })
+
+    it('handles multiple matches in a single pass', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>a</div></p><p>b<br></center></p>', tags))
+        .toBe('<p>a</p></div><p>b</p></center>')
+    })
+
+    it('runs in linear time on whitespace-heavy inputs with no matching closing tag', () => {
+      // The whole point of replacing the regex: long whitespace runs
+      // followed by `</p>` without a preceding closing block tag used
+      // to trigger O(n²) backtracking under the unanchored `\s*`.
+      const hostile = ' '.repeat(100_000) + '</p>'
+      const start = Date.now()
+      moveBlockClosingTagOutOfParagraph(hostile, tags)
+      expect(Date.now() - start).toBeLessThan(50)
     })
   })
 })

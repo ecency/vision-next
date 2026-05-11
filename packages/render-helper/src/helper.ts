@@ -260,6 +260,80 @@ export function stripQueryString(s: string): string {
   return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s
 }
 
+function isHtmlWhitespace(c: number): boolean {
+  return c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d || c === 0x0c
+}
+
+/**
+ * Linear-time replacement for the `endPattern` regex in
+ * `markdown-to-html.method.ts`:
+ *
+ *   /(?:\s*<br>)?\s*(<\/(?:tagA|tagB|…)>)<\/p>/gi   →   '</p>$1'
+ *
+ * Anchors on `</p>` (rare, found via `indexOf`), checks that the
+ * character immediately before is `>`, walks back to find the matching
+ * `</tag…>`, and — if `tag` is one of the configured block tags —
+ * rewrites the run to `</p></tag…>` while stripping any preceding
+ * whitespace + optional `<br>` + more whitespace.
+ *
+ * The regex form had two unanchored `\s*` quantifiers that
+ * `regexp/no-super-linear-move` flagged as quadratic on whitespace-heavy
+ * inputs without a matching closing tag (engine retried at every
+ * starting position). This pass is O(n).
+ */
+export function moveBlockClosingTagOutOfParagraph(html: string, blockTags: Set<string>): string {
+  const n = html.length
+  let out = ''
+  let i = 0
+
+  while (i < n) {
+    const pStart = html.indexOf('</p>', i)
+    if (pStart < 0) {
+      out += html.slice(i)
+      break
+    }
+
+    // The closing block tag must end immediately before `</p>` (i.e. the
+    // char before `</p>` is `>`). Anything else means there's nothing
+    // for this pass to do at this position.
+    if (pStart === i || html.charCodeAt(pStart - 1) !== 0x3e /* '>' */) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+
+    // Find the matching `</` for that closing `>`. `lastIndexOf` from
+    // `pStart - 2` is bounded by the (typically short) tag length.
+    const closingStart = html.lastIndexOf('</', pStart - 2)
+    if (closingStart < i) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+    const tagName = html.slice(closingStart + 2, pStart - 1).toLowerCase()
+    if (!blockTags.has(tagName)) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+
+    // Walk back from `closingStart` over whitespace, optionally one
+    // `<br>`, and more whitespace — mirroring the regex's stripping
+    // semantics exactly.
+    let k = closingStart
+    while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--
+    if (k - 4 >= i && html.slice(k - 4, k).toLowerCase() === '<br>') {
+      k -= 4
+      while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--
+    }
+
+    out += html.slice(i, k) + '</p>' + html.slice(closingStart, pStart)
+    i = pStart + 4
+  }
+
+  return out
+}
+
 export function extractYtStartTime(url:string):string {
   try {
     const urlObj = new URL(url);

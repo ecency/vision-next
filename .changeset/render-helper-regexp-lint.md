@@ -22,10 +22,11 @@ surfaced in real source code, in addition to introducing the rules:
   preserving the previous matching semantics — including the
   single-segment-middle constraint that the WHITE_LIST check in
   `a.method.ts` used to enforce indirectly.
-- The `endPattern` in `methods/markdown-to-html.method.ts` was
-  reshaped from `\s*(?:<br>)?\s*` to `(?:\s*<br>)?\s*`, clearing the
-  exponential class (same shape as the #782 bug). A residual
-  quadratic `no-super-linear-move` remains there from the unanchored
-  `\s*`; fully eliminating it would require anchoring or a
-  non-regex parser, so it stays disabled with a comment explaining
-  the trade-off.
+- The `endPattern` cleanup in `methods/markdown-to-html.method.ts` was
+  replaced with a non-regex helper
+  (`moveBlockClosingTagOutOfParagraph`) that anchors on `</p>` via
+  `indexOf` and walks back over whitespace and an optional `<br>`.
+  Same behaviour as the regex; linear time on whitespace-heavy inputs.
+
+After this PR there are no `regexp/*` disables remaining in
+`packages/render-helper/src/`.

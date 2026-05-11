@@ -361,6 +361,47 @@ function stripQueryString(s) {
   const q = s.indexOf("?");
   return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s;
 }
+function isHtmlWhitespace(c) {
+  return c === 32 || c === 9 || c === 10 || c === 13 || c === 12;
+}
+function moveBlockClosingTagOutOfParagraph(html, blockTags) {
+  const n = html.length;
+  let out = "";
+  let i = 0;
+  while (i < n) {
+    const pStart = html.indexOf("</p>", i);
+    if (pStart < 0) {
+      out += html.slice(i);
+      break;
+    }
+    if (pStart === i || html.charCodeAt(pStart - 1) !== 62) {
+      out += html.slice(i, pStart + 4);
+      i = pStart + 4;
+      continue;
+    }
+    const closingStart = html.lastIndexOf("</", pStart - 2);
+    if (closingStart < i) {
+      out += html.slice(i, pStart + 4);
+      i = pStart + 4;
+      continue;
+    }
+    const tagName = html.slice(closingStart + 2, pStart - 1).toLowerCase();
+    if (!blockTags.has(tagName)) {
+      out += html.slice(i, pStart + 4);
+      i = pStart + 4;
+      continue;
+    }
+    let k = closingStart;
+    while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--;
+    if (k - 4 >= i && html.slice(k - 4, k).toLowerCase() === "<br>") {
+      k -= 4;
+      while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--;
+    }
+    out += html.slice(i, k) + "</p>" + html.slice(closingStart, pStart);
+    i = pStart + 4;
+  }
+  return out;
+}
 function extractYtStartTime(url) {
   try {
     const urlObj = new URL(url);
@@ -1660,16 +1701,16 @@ if (typeof window === "undefined") {
   loadLolight().catch(() => {
   });
 }
+var BLOCK_TAGS_ALTERNATION = "center|div|table|figure|section|article|aside|header|footer|nav|main";
+var BLOCK_TAGS_SET = new Set(BLOCK_TAGS_ALTERNATION.split("|"));
 function fixBlockLevelTagsInParagraphs(html) {
-  const blockTags = "center|div|table|figure|section|article|aside|header|footer|nav|main";
-  const openingPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)<\\/p>`, "gi");
+  const openingPattern = new RegExp(`<p>(<(?:${BLOCK_TAGS_ALTERNATION})(?:\\s[^>]*)?>)<\\/p>`, "gi");
   html = html.replace(openingPattern, "$1");
-  const closingPattern = new RegExp(`<p>(<\\/(?:${blockTags})>)<\\/p>`, "gi");
+  const closingPattern = new RegExp(`<p>(<\\/(?:${BLOCK_TAGS_ALTERNATION})>)<\\/p>`, "gi");
   html = html.replace(closingPattern, "$1");
-  const startPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, "gi");
+  const startPattern = new RegExp(`<p>(<(?:${BLOCK_TAGS_ALTERNATION})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, "gi");
   html = html.replace(startPattern, "$1<p>");
-  const endPattern = new RegExp(`(?:\\s*<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, "gi");
-  html = html.replace(endPattern, "</p>$1");
+  html = moveBlockClosingTagOutOfParagraph(html, BLOCK_TAGS_SET);
   html = html.replace(/<p>\s*<\/p>/g, "");
   html = html.replace(/<p><br>\s*<\/p>/g, "");
   return html;
