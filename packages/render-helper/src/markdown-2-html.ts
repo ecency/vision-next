@@ -8,15 +8,20 @@ import { Entry, RenderOptions, SeoContext } from './types'
 // (huge bodies hitting the xmldom fallback) so they can be triaged from
 // container logs without waiting for the SSR watchdog to kill a replica.
 //
-// Default is server-on, browser-off. The string overload of `markdown2Html`
-// is called from comment/reply preview paths with unpublished user input,
-// so warnings firing in the browser would (a) leak draft content into the
-// user's console and any client telemetry pipeline, and (b) repeat on every
-// keystroke that re-renders (the string path is uncached). Call
-// `setSlowRenderThresholdMs(500)` from a browser-only init if you want
-// client-side warnings; pass 0 to disable everywhere.
-const isBrowser = typeof window !== 'undefined'
-let slowRenderThresholdMs = isBrowser ? 0 : 500
+// Default is **Node-on, everything-else-off**. The string overload of
+// `markdown2Html` is called from comment/reply preview paths with
+// unpublished user input — warnings firing on the client would (a) leak
+// draft content into the console and any client telemetry pipeline, and
+// (b) repeat on every keystroke (the string path is uncached). Restricting
+// the default to Node specifically also keeps React Native bundles
+// (Metro/Hermes), edge runtimes (Workers, Deno, Bun) and arbitrary
+// downstream consumers silent unless they opt in.
+//
+// Opt in from any non-Node runtime by calling `setSlowRenderThresholdMs(500)`
+// during init; pass 0 to disable everywhere.
+const isNodeRuntime =
+  typeof process !== 'undefined' && typeof process?.versions?.node === 'string'
+let slowRenderThresholdMs = isNodeRuntime ? 500 : 0
 
 export function setSlowRenderThresholdMs(ms: number): void {
   slowRenderThresholdMs = Math.max(0, ms)

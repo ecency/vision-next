@@ -1755,8 +1755,8 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-var isBrowser = typeof window !== "undefined";
-var slowRenderThresholdMs = isBrowser ? 0 : 500;
+var isNodeRuntime = typeof process !== "undefined" && typeof process?.versions?.node === "string";
+var slowRenderThresholdMs = isNodeRuntime ? 500 : 0;
 function setSlowRenderThresholdMs(ms) {
   slowRenderThresholdMs = Math.max(0, ms);
 }

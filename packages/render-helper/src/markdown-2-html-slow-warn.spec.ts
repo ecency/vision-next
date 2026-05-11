@@ -1,6 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { markdown2Html } from './markdown-2-html'
 import { setSlowRenderThresholdMs } from './index'
+import type { Entry } from './types'
+
+function makeEntry(overrides: Partial<Entry> = {}): Entry {
+  return {
+    author: 'alice',
+    permlink: 'a-post',
+    last_update: '2026-05-11T00:00:00',
+    body: 'hello world',
+    ...overrides
+  }
+}
 
 describe('slow markdown render warning', () => {
   let warnSpy: ReturnType<typeof vi.spyOn>
@@ -34,13 +45,7 @@ describe('slow markdown render warning', () => {
 
   it('warns with author+permlink when an Entry render exceeds the threshold', () => {
     setSlowRenderThresholdMs(0.000001)
-    const entry = {
-      author: 'alice',
-      permlink: 'first-post',
-      last_update: '2026-05-11T00:00:00',
-      body: 'hello world'
-    }
-    markdown2Html(entry as any, false)
+    markdown2Html(makeEntry({ permlink: 'first-post' }), false)
     expect(warnSpy).toHaveBeenCalledOnce()
     const msg = warnSpy.mock.calls[0][0] as string
     expect(msg).toContain('author=@alice')
@@ -59,19 +64,14 @@ describe('slow markdown render warning', () => {
 
   it('does not log on a cache hit (only on actual renders)', () => {
     setSlowRenderThresholdMs(0.000001)
-    const entry = {
-      author: 'alice',
-      permlink: 'second-post',
-      last_update: '2026-05-11T00:00:00',
-      body: 'hello world'
-    }
-    markdown2Html(entry as any, false)
+    const entry = makeEntry({ permlink: 'second-post' })
+    markdown2Html(entry, false)
     expect(warnSpy).toHaveBeenCalledOnce()
     warnSpy.mockClear()
 
     // Second call with the same cache key should not re-render and so should
     // not log even though the threshold is effectively zero.
-    markdown2Html(entry as any, false)
+    markdown2Html(entry, false)
     expect(warnSpy).not.toHaveBeenCalled()
   })
 })
