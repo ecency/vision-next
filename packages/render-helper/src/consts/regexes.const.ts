@@ -3,14 +3,18 @@ export const URL_REGEX = /(https?:\/\/[^\s]+)/g
 export const IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw))(.*)/gim
 export const ECENCY_IMG_REGEX = /https?:\/\/images\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi
 export const IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim
-// Matches Hive post URLs: scheme://domain/segment(s)/@author/permlink.
-// Pinned the domain to `[^/]+` (no `/`), the middle to a non-greedy
-// `.+?` (allows multi-segment paths but doesn't backtrack-exchange with
-// the trailing capture), and anchored both ends. The previous form
-// `^https?://(.*)/(.*)/(@…)/(.*)` had three `.*` quantifiers that could
-// exchange characters, triggering super-linear backtracking on
-// adversarial hrefs.
-export const POST_REGEX = /^https?:\/\/([^/]+)\/(.+?)\/(@[\w.\d-]+)\/(.+)$/i
+// Matches Hive post URLs: scheme://domain/tag/@author/permlink.
+// Both path segments are pinned to `[^/]+` (no `/`), and both ends are
+// anchored. The previous form `^https?://(.*)/(.*)/(@…)/(.*)` had three
+// `.*` quantifiers that could exchange characters, triggering
+// super-linear backtracking on adversarial hrefs. Matching is now O(n)
+// and the captured `domain`/`tag` shape is unchanged — in particular,
+// multi-segment-middle URLs like `host/foo/bar/@user/perm` still don't
+// match, preserving the old whitelist-rejection behaviour (the previous
+// greedy form put `host/foo` in capture 1, which then failed the
+// WHITE_LIST check in a.method.ts; this stricter form fails the regex
+// outright, with the same downstream outcome).
+export const POST_REGEX = /^https?:\/\/([^/]+)\/([^/]+)\/(@[\w.\d-]+)\/(.+)$/i
 export const CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i
 export const MENTION_REGEX = /^https?:\/\/(.*)\/(@[\w.\d-]+)$/i
 export const TOPIC_REGEX = /^https?:\/\/(.*)\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i

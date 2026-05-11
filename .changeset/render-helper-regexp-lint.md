@@ -10,7 +10,22 @@ for tens of seconds (see #782). Adding these rules to the package's
 own ESLint config means the next ReDoS-shaped pattern fails CI at PR
 time instead of in production.
 
-Pre-existing super-linear regexes are ratcheted with
-`// eslint-disable-next-line` + `// TODO(redos)` comments — they all
-sit on bounded or pre-filtered inputs and weren't the cause of the #782
-incident, so they're flagged for follow-up rather than fixed here.
+This PR also clears every super-linear regex finding the new rules
+surfaced in real source code, in addition to introducing the rules:
+
+- Three new linear-time helpers in `helper.ts` (`stripHtmlTags`,
+  `trimTrailingSlash`, `stripQueryString`) replace six bounded-input
+  regex sites that previously tripped `no-super-linear-move`.
+- The two URL regexes in `consts/regexes.const.ts` (`POST_REGEX`,
+  `INTERNAL_POST_TAG_REGEX`) are anchored and use `[^/]+` for fixed
+  path segments, eliminating the exchange-style backtracking while
+  preserving the previous matching semantics — including the
+  single-segment-middle constraint that the WHITE_LIST check in
+  `a.method.ts` used to enforce indirectly.
+- The `endPattern` in `methods/markdown-to-html.method.ts` was
+  reshaped from `\s*(?:<br>)?\s*` to `(?:\s*<br>)?\s*`, clearing the
+  exponential class (same shape as the #782 bug). A residual
+  quadratic `no-super-linear-move` remains there from the unanchored
+  `\s*`; fully eliminating it would require anchoring or a
+  non-regex parser, so it stays disabled with a comment explaining
+  the trade-off.
