@@ -190,7 +190,9 @@ export function markdownToHTML(input: string, forApp: boolean, parentDomain: str
       // 3. Serialize the repaired HTML
       // 4. Re-parse with @xmldom/xmldom (now well-formed)
       // 5. Traverse and serialize as normal
-      output = md.render(input)
+      // Reuse the markdown output already produced before the failing
+      // DOMParser pass — `md.render(input)` is the expensive step and
+      // re-running it costs ~100 ms per fallback hit on a 60 KB body.
       const preSanitized = sanitizeHtml(output)
 
       // Use htmlparser2 to parse malformed HTML leniently
