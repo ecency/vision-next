@@ -1,7 +1,7 @@
 {
   "name": "@ecency/render-helper",
   "private": false,
-  "version": "2.4.34",
+  "version": "2.4.35",
   "description": "Markdown+Html Render helper",
   "repository": {
     "type": "git",

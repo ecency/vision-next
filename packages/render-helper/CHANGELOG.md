@@ -1,5 +1,22 @@
 # @ecency/render-helper
 
+## 2.4.35
+
+### Patch Changes
+
+- Fix ReDoS in render-helper that hung SSR for >30s (#782)
+
+- [#782](https://github.com/ecency/vision-next/pull/782) [`5d39b3e`](https://github.com/ecency/vision-next/commit/5d39b3e4d40b8a9895ca87608a922694a4f0c377) Thanks [@feruzm](https://github.com/feruzm)! - Replace the regex inside `removeDuplicateAttributes` with a linear-time
+  tokenizer. The previous pattern had catastrophic backtracking on inputs
+  like `<div style=background-color:yellow;">` (unquoted attribute value
+  followed by a stray quote), pinning the V8 regex engine for tens of
+  seconds on real post bodies and tripping the SSR event-loop watchdog.
+
+  Also drop a redundant `md.render(input)` call from the DOMParser
+  fallback path in `markdown-to-html.method.ts` — the markdown output
+  from the primary path is already available and re-rendering it cost
+  ~100 ms per fallback hit on larger bodies.
+
 ## 2.4.34
 
 ### Patch Changes
