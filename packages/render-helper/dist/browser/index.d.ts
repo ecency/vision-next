@@ -27,6 +27,7 @@ interface SeoContext {
     postPayout?: number;
 }
 
+declare function setSlowRenderThresholdMs(ms: number): void;
 /**
  * @param obj - Entry object or raw markdown string
  * @param forApp - Whether rendering for app context
@@ -76,4 +77,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, simpleMarkdownToHTML };
+export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
