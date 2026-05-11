@@ -761,5 +761,41 @@ describe('Helper Functions', () => {
       moveBlockClosingTagOutOfParagraph(hostile, tags)
       expect(Date.now() - start).toBeLessThan(50)
     })
+
+    it('treats only HTML ASCII whitespace as strippable (intentional divergence from /\\s/)', () => {
+      // JS regex `\s` also matches NBSP, vertical tab, em space, etc.;
+      // the helper uses the WHATWG HTML "ASCII whitespace" set (space,
+      // tab, LF, FF, CR). When non-ASCII whitespace sits between `<br>`
+      // and the closing tag, the helper leaves the run untouched. This
+      // is documented as intentional in the function doc — pin it here
+      // so a future "make it match `\s` exactly" change is a conscious
+      // decision rather than a silent edit.
+      // U+00A0 NBSP, U+000B VT, U+2003 EM SPACE — all match JS /\\s/
+      // but not WHATWG HTML ASCII whitespace, so the helper leaves
+      // these inputs unchanged.
+      const NBSP = String.fromCharCode(0x00a0)
+      const VT   = String.fromCharCode(0x000b)
+      const EM   = String.fromCharCode(0x2003)
+      const nbsp = `<p>x<br>${NBSP}</div></p>`
+      const vtab = `<p>x<br>${VT}</div></p>`
+      const emSp = `<p>x<br>${EM}</div></p>`
+
+      // The helper still rewrites the tag order (the regex did too),
+      // but the `<br>` + non-ASCII-whitespace run between them stays
+      // verbatim because `isHtmlWhitespace` doesn't match those code
+      // points. The old regex would have additionally stripped this
+      // run because `\s` includes NBSP/VT/em-space.
+      expect(moveBlockClosingTagOutOfParagraph(nbsp, tags))
+        .toBe(`<p>x<br>${NBSP}</p></div>`)
+      expect(moveBlockClosingTagOutOfParagraph(vtab, tags))
+        .toBe(`<p>x<br>${VT}</p></div>`)
+      expect(moveBlockClosingTagOutOfParagraph(emSp, tags))
+        .toBe(`<p>x<br>${EM}</p></div>`)
+
+      // Sanity check: a literal ASCII space *is* stripped, to prove the
+      // assertions above aren't trivially "no transform applied".
+      expect(moveBlockClosingTagOutOfParagraph('<p>x<br> </div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
   })
 })

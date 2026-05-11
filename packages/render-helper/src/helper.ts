@@ -260,6 +260,12 @@ export function stripQueryString(s: string): string {
   return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s
 }
 
+// HTML ASCII whitespace per WHATWG/HTML spec
+// (https://infra.spec.whatwg.org/#ascii-whitespace):
+//   U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, U+0020 SPACE.
+// Narrower than JS regex `\s` (which also matches U+000B VT, NBSP,
+// the U+2000–U+200A run, U+2028/U+2029, U+202F, U+205F, U+3000, BOM).
+// See `moveBlockClosingTagOutOfParagraph` below for the rationale.
 function isHtmlWhitespace(c: number): boolean {
   return c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d || c === 0x0c
 }
@@ -274,12 +280,24 @@ function isHtmlWhitespace(c: number): boolean {
  * character immediately before is `>`, walks back to find the matching
  * `</tag…>`, and — if `tag` is one of the configured block tags —
  * rewrites the run to `</p></tag…>` while stripping any preceding
- * whitespace + optional `<br>` + more whitespace.
+ * HTML-ASCII-whitespace + optional `<br>` + more HTML-ASCII-whitespace.
  *
  * The regex form had two unanchored `\s*` quantifiers that
  * `regexp/no-super-linear-move` flagged as quadratic on whitespace-heavy
  * inputs without a matching closing tag (engine retried at every
  * starting position). This pass is O(n).
+ *
+ * **Intentional divergence from the regex's `\s` class.** The regex
+ * stripped JS-regex whitespace (which includes U+000B VT, NBSP, em
+ * space, etc.); this helper only strips HTML-spec ASCII whitespace.
+ * Markdown→HTML output doesn't insert those characters around `<br>`
+ * in practice, so the behavioural difference is theoretical; when it
+ * does happen the worst-case outcome is suboptimal HTML (a block
+ * closing tag stays inside `<p>`), not invalid HTML or a security
+ * issue. Aligning the whitespace class with the HTML spec is a
+ * deliberate correctness choice, not an oversight — if a future
+ * regression test wants exact `\s` parity, expand `isHtmlWhitespace`
+ * accordingly.
  */
 export function moveBlockClosingTagOutOfParagraph(html: string, blockTags: Set<string>): string {
   const n = html.length
@@ -302,8 +320,11 @@ export function moveBlockClosingTagOutOfParagraph(html: string, blockTags: Set<s
       continue
     }
 
-    // Find the matching `</` for that closing `>`. `lastIndexOf` from
-    // `pStart - 2` is bounded by the (typically short) tag length.
+    // Find the matching `</` for that closing `>`. Worst-case scans
+    // back to the previous match boundary `i` when the run before
+    // `</p>` contains no `</`; total work across the whole input is
+    // still amortised O(n) because each character is visited at most
+    // twice (once forward by `indexOf`, once backward here).
     const closingStart = html.lastIndexOf('</', pStart - 2)
     if (closingStart < i) {
       out += html.slice(i, pStart + 4)
