@@ -22,19 +22,23 @@
 //   --timeout   <seconds>       Per-post hard timeout (default 5)
 //   --out       <path>          Append CSV results to file (optional)
 //
-// Output: one line per post, with a summary at the end ordered by duration.
+// Output: one line per slow/errored post + a summary ordered by duration.
 
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads'
 import { createRequire } from 'node:module'
 import { performance } from 'node:perf_hooks'
 import { appendFileSync, existsSync, writeFileSync } from 'node:fs'
 
+// bridge.get_ranked_posts hard-caps `limit` at 20. The script paginates
+// via `start_author` / `start_permlink` to scan arbitrary totals.
+const MAX_PAGE = 20
+
 if (!isMainThread) {
   // Worker: load the deployed build, render once, post result back.
   const wrequire = createRequire(import.meta.url)
   const { renderPostBody } = wrequire('./dist/node/index.cjs')
 
-  const { body, author, permlink, payout } = workerData
+  const { body, payout } = workerData
   const t0 = performance.now()
   try {
     const seoContext = { authorReputation: 50, postPayout: payout ?? 0 }
@@ -43,10 +47,23 @@ if (!isMainThread) {
   } catch (e) {
     parentPort.postMessage({ ok: false, ms: performance.now() - t0, error: String(e?.message || e) })
   }
+  // `parentPort` is ref'd by default — without an explicit exit the worker
+  // keeps the event loop alive listening for more messages, so workers
+  // would accumulate across the scan and eventually OOM. Node flushes the
+  // outbound message before tearing down on `process.exit`.
   process.exit(0)
 }
 
 // --- main thread ---
+
+function parseIntOrDie(value, name) {
+  const n = parseInt(value, 10)
+  if (!Number.isFinite(n)) {
+    console.error(`bad --${name}: ${JSON.stringify(value)} (expected integer)`)
+    process.exit(1)
+  }
+  return n
+}
 
 function parseArgs(argv) {
   const out = {
@@ -65,9 +82,9 @@ function parseArgs(argv) {
       case '--rpc':       out.rpc = v; i++; break
       case '--sort':      out.sort = v; i++; break
       case '--tag':       out.tag = v; i++; break
-      case '--limit':     out.limit = parseInt(v, 10); i++; break
-      case '--threshold': out.threshold = parseInt(v, 10); i++; break
-      case '--timeout':   out.timeoutSeconds = parseInt(v, 10); i++; break
+      case '--limit':     out.limit = parseIntOrDie(v, 'limit'); i++; break
+      case '--threshold': out.threshold = parseIntOrDie(v, 'threshold'); i++; break
+      case '--timeout':   out.timeoutSeconds = parseIntOrDie(v, 'timeout'); i++; break
       case '--out':       out.out = v; i++; break
       case '--help':
       case '-h':
@@ -94,11 +111,17 @@ async function rpc(url, method, params) {
 
 async function* iteratePosts({ rpc: url, sort, tag, limit }) {
   // Paginate via start_author/start_permlink as documented in HAF/bridge.
+  // On follow-up pages the first entry of the result is the cursor (the
+  // previous page's last post) and is skipped, so we request one extra
+  // slot to leave room for it; otherwise the final page can spin asking
+  // for `limit=1` and getting back only the cursor.
   let startAuthor = ''
   let startPermlink = ''
   let count = 0
   while (count < limit) {
-    const pageSize = Math.min(100, limit - count)
+    const isFirstPage = startAuthor === ''
+    const want = limit - count
+    const pageSize = Math.min(MAX_PAGE, isFirstPage ? want : want + 1)
     const result = await rpc(url, 'bridge.get_ranked_posts', {
       sort,
       tag,
@@ -108,8 +131,10 @@ async function* iteratePosts({ rpc: url, sort, tag, limit }) {
       start_permlink: startPermlink
     })
     if (!result || result.length === 0) return
-    // First entry of pages after the first is the previous "cursor" — skip it.
-    const start = startAuthor === '' ? 0 : 1
+    const start = isFirstPage ? 0 : 1
+    // Out of content: the API returned only the cursor (or nothing past
+    // it). Bail before saving an unchanged cursor and looping forever.
+    if (result.length <= start) return
     for (let i = start; i < result.length; i++) {
       yield result[i]
       count++
@@ -118,7 +143,7 @@ async function* iteratePosts({ rpc: url, sort, tag, limit }) {
     const last = result[result.length - 1]
     startAuthor = last.author
     startPermlink = last.permlink
-    if (result.length < pageSize) return // out of content
+    if (result.length < pageSize) return // last page from the API
   }
 }
 
@@ -127,8 +152,6 @@ function timeRender(post, timeoutMs) {
     const w = new Worker(new URL(import.meta.url), {
       workerData: {
         body: post.body,
-        author: post.author,
-        permlink: post.permlink,
         payout: parseFloat(post.payout ?? 0)
       }
     })
@@ -146,6 +169,15 @@ function timeRender(post, timeoutMs) {
   })
 }
 
+// Minimal CSV escaping: wrap a cell in quotes if it contains a comma,
+// quote, or newline; double any internal quotes. Sufficient for the
+// fields written here (author/permlink are URL-safe identifiers; only
+// `error` carries arbitrary text).
+function csvCell(value) {
+  const s = String(value ?? '')
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
 const args = parseArgs(process.argv)
 const timeoutMs = args.timeoutSeconds * 1000
 const results = []
@@ -156,7 +188,7 @@ let scanned = 0
 // file doesn't yet exist, so subsequent runs append rows below the
 // existing data instead of clobbering it.
 if (args.out && !existsSync(args.out)) {
-  writeFileSync(args.out, 'author,permlink,body_len,status,ms\n')
+  writeFileSync(args.out, 'author,permlink,body_len,status,ms,error\n')
 }
 
 console.log(`scanning ${args.limit} posts from ${args.rpc} (sort=${args.sort} tag=${args.tag || '*'}, threshold=${args.threshold}ms, timeout=${args.timeoutSeconds}s)`)
@@ -165,14 +197,17 @@ for await (const post of iteratePosts(args)) {
   scanned++
   const bodyLen = (post.body || '').length
   const r = await timeRender(post, timeoutMs)
-  const tag = r.status === 'timeout' ? '⏱' : r.status === 'error' ? '✗' : (r.ms >= args.threshold ? '⚠' : '·')
-  const line = `[${scanned}/${args.limit}] ${tag} @${post.author}/${post.permlink} body_len=${bodyLen} ${r.ms.toFixed(0)}ms${r.error ? ` error=${r.error}` : ''}`
-  if (r.status !== 'ok' || r.ms >= args.threshold) {
-    console.log(line)
-  }
-  if (args.out) appendFileSync(args.out, `${post.author},${post.permlink},${bodyLen},${r.status},${r.ms.toFixed(1)}\n`)
-  if (r.status !== 'ok' || r.ms >= args.threshold) {
+  const isInteresting = r.status !== 'ok' || r.ms >= args.threshold
+  if (isInteresting) {
+    const tag = r.status === 'timeout' ? '⏱' : r.status === 'error' ? '✗' : '⚠'
+    console.log(`[${scanned}/${args.limit}] ${tag} @${post.author}/${post.permlink} body_len=${bodyLen} ${r.ms.toFixed(0)}ms${r.error ? ` error=${r.error}` : ''}`)
     results.push({ author: post.author, permlink: post.permlink, bodyLen, status: r.status, ms: r.ms, error: r.error })
+  }
+  if (args.out) {
+    appendFileSync(
+      args.out,
+      `${csvCell(post.author)},${csvCell(post.permlink)},${bodyLen},${r.status},${r.ms.toFixed(1)},${csvCell(r.error || '')}\n`
+    )
   }
 }
 
