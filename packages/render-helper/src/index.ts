@@ -1,4 +1,4 @@
-import { markdown2Html as renderPostBody } from './markdown-2-html'
+import { markdown2Html as renderPostBody, setSlowRenderThresholdMs } from './markdown-2-html'
 import { catchPostImage } from './catch-post-image'
 import { getPostBodySummary as postBodySummary } from './post-body-summary'
 import { setProxyBase, proxifyImageSrc, buildSrcSet } from './proxify-image-src'
@@ -18,6 +18,7 @@ export {
   buildSrcSet,
   setProxyBase,
   setCacheSize,
+  setSlowRenderThresholdMs,
   SECTION_LIST,
   isValidPermlink,
   simpleMarkdownToHTML
