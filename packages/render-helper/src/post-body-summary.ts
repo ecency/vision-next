@@ -106,10 +106,17 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
 
 
   text = text
+    // TODO(redos): HTML-tag stripper has quadratic worst-case on inputs
+    // with many `<`s that never close (e.g., `<<<<<…`). Body length is
+    // bounded by Hive's per-op limit, but switch to a streaming stripper.
+    // eslint-disable-next-line regexp/no-super-linear-move
     .replace(/(<([^>]+)>)/gi, '') // Remove html tags
     .replace(/\r?\n|\r/g, ' ') // Remove new lines
     .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Remove urls
     .trim()
+    // TODO(redos): collapsing multiple spaces via `' +(?= )'` is
+    // quadratic on long space runs. Replace with `\s{2,}` → ' '.
+    // eslint-disable-next-line regexp/no-super-linear-move
     .replace(/ +(?= )/g, '') // Remove all multiple spaces
 
   // Truncate if length > 0 (length === 0 means no truncation)

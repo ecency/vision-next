@@ -13,6 +13,9 @@ export function iframe(el: HTMLElement | null, parentDomain: string = 'ecency.co
   // Youtube
   if (src.match(YOUTUBE_EMBED_REGEX)) {
     // strip query string (yt: autoplay=1,controls=0,showinfo=0, etc)
+    // TODO(redos): `\?.+$` has quadratic worst-case on inputs without `?`.
+    // Source URL is already filtered by YOUTUBE_EMBED_REGEX so bounded.
+    // eslint-disable-next-line regexp/no-super-linear-move
     const s = src.replace(/\?.+$/, '');
     el.setAttribute('src', s);
     return;

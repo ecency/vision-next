@@ -88,6 +88,10 @@ function fixBlockLevelTagsInParagraphs(html: string): string {
   html = html.replace(startPattern, '$1<p>')
 
   // Pattern 4: </tag></p> or <br>\n</tag></p> - closing tag at end of <p>
+  // TODO(redos): two `\s*` quantifiers separated by optional `<br>` can
+  // exchange characters; super-linear backtracking on whitespace-heavy
+  // inputs without a matching closing tag. Refactor to `(?:\s*<br>)?\s*`.
+  // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-super-linear-move
   const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
   html = html.replace(endPattern, '</p>$1')
 

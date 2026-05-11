@@ -47,6 +47,7 @@
     "@types/remarkable": "^2.0.1",
     "@types/xmldom": "^0.1.30",
     "eslint": "^9.21.0",
+    "eslint-plugin-regexp": "^2.10.0",
     "prettier": "^3.5.2",
     "tsup": "^8",
     "typescript": "^5.6",

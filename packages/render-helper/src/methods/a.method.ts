@@ -82,6 +82,10 @@ const normalizeDisplayText = (text: string): string => {
     .replace(/^\/+/, "")
     .split("?")[0]
     .replace(/#@.*$/i, "")
+    // TODO(redos): `/+` trailing-slash strip has quadratic worst-case on
+    // long slash runs; safe in practice (path strings are bounded) but
+    // flag for follow-up.
+    // eslint-disable-next-line regexp/no-super-linear-move
     .replace(/\/+$/, "")
     .toLowerCase();
 }
@@ -864,7 +868,12 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     TWITTER_REGEX.lastIndex = 0 // Reset for exec() after match()
     const e = TWITTER_REGEX.exec(href)
     if (e) {
+      // TODO(redos): HTML-tag stripper has quadratic worst-case on inputs
+      // with many unclosed `<`s. Input is a regex-captured URL fragment so
+      // bounded in practice; flag for follow-up.
+      // eslint-disable-next-line regexp/no-super-linear-move
       const url = e[0].replace(/(<([^>]+)>)/gi, '')
+      // eslint-disable-next-line regexp/no-super-linear-move
       const author = e[1].replace(/(<([^>]+)>)/gi, '')
 
       // Use proper DOM construction to avoid XSS from unescaped url/author

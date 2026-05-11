@@ -172,7 +172,7 @@ importers:
         version: 5.90.2(@tanstack/react-query@5.90.2(react@19.2.3))(react@19.2.3)
       '@tanstack/router-plugin':
         specifier: ^1.132.27
-        version: 1.150.0(@rsbuild/core@1.7.2)(@tanstack/react-router@1.150.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@7.1.9(@types/node@24.10.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0))(webpack@5.102.1(esbuild@0.25.10))
+        version: 1.150.0(@rsbuild/core@1.7.2)(@tanstack/react-router@1.150.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@7.1.9(@types/node@24.10.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0))(webpack@5.102.1)
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -280,7 +280,7 @@ importers:
         version: 8.55.0
       '@sentry/nextjs':
         specifier: ^8.55.0
-        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.102.1(esbuild@0.25.10))
+        version: 8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.102.1)
       '@sentry/profiling-node':
         specifier: ^8.55.0
         version: 8.55.0
@@ -478,7 +478,7 @@ importers:
         version: 15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
       next-pwa:
         specifier: ^5.6.0
-        version: 5.6.0(@babel/core@7.28.6)(@types/babel__core@7.20.5)(esbuild@0.25.10)(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.102.1(esbuild@0.25.10))
+        version: 5.6.0(@babel/core@7.28.6)(@types/babel__core@7.20.5)(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.102.1)
       next-ws:
         specifier: ^2.1.11
         version: 2.1.11(@babel/preset-env@7.28.3(@babel/core@7.28.6))(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6))
@@ -574,7 +574,7 @@ importers:
         version: 9.0.1
       webpack:
         specifier: ^5.102.1
-        version: 5.102.1(esbuild@0.25.10)
+        version: 5.102.1
       ws:
         specifier: ^8.18.3
         version: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -778,6 +778,9 @@ importers:
       eslint:
         specifier: ^9.21.0
         version: 9.37.0(jiti@2.6.1)
+      eslint-plugin-regexp:
+        specifier: ^2.10.0
+        version: 2.10.0(eslint@9.37.0(jiti@2.6.1))
       prettier:
         specifier: ^3.5.2
         version: 3.6.2
@@ -5311,6 +5314,10 @@ packages:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
     engines: {node: '>= 10'}
 
+  comment-parser@1.4.6:
+    resolution: {integrity: sha512-ObxuY6vnbWTN6Od72xfwN9DbzC7Y2vv8u1Soi9ahRKL37gb6y1qk6/dgjs+3JWuXJHWvsg3BXIwzd/rkmAwavg==}
+    engines: {node: '>= 12.0.0'}
+
   common-tags@1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
     engines: {node: '>=4.0.0'}
@@ -5790,6 +5797,12 @@ packages:
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
+
+  eslint-plugin-regexp@2.10.0:
+    resolution: {integrity: sha512-ovzQT8ESVn5oOe5a7gIDPD5v9bCSjIFJu57sVPDqgPRXicQzOnYfFN21WoQBQF18vrhT5o7UMKFwJQVVjyJ0ng==}
+    engines: {node: ^18 || >=20}
+    peerDependencies:
+      eslint: '>=8.44.0'
 
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -6644,6 +6657,10 @@ packages:
     peerDependenciesMeta:
       '@babel/preset-env':
         optional: true
+
+  jsdoc-type-pratt-parser@4.8.0:
+    resolution: {integrity: sha512-iZ8Bdb84lWRuGHamRXFyML07r21pcwBrLkHEuHgEY5UbCouBwv7ECknDRKzsQIXMiqpPymqtIf8TC/shYKB5rw==}
+    engines: {node: '>=12.0.0'}
 
   jsdom@26.1.0:
     resolution: {integrity: sha512-Cvc9WUhxSMEo4McES3P7oK3QaXldCfNWp7pl2NNeiIFlCoLr3kfq9kb1fxftiwk1FLV7CvpvDfonxtzUDeSOPg==}
@@ -7821,6 +7838,10 @@ packages:
   redux@5.0.1:
     resolution: {integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==}
 
+  refa@0.12.1:
+    resolution: {integrity: sha512-J8rn6v4DBb2nnFqkqwy6/NnTYMcgLA+sLr0iIO41qpv0n+ngb7ksag2tMRl0inb1bbO/esUwzW1vbJi7K0sI0g==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
+
   reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
     engines: {node: '>= 0.4'}
@@ -7831,6 +7852,10 @@ packages:
 
   regenerate@1.4.2:
     resolution: {integrity: sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==}
+
+  regexp-ast-analysis@0.7.1:
+    resolution: {integrity: sha512-sZuz1dYW/ZsfG17WSAG7eS85r5a0dDsvg+7BiiYR5o6lKCAtUrEwdmRmaGF6rwVj3LcmAeYkOWKEPlbPzN3Y3A==}
+    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
   regexp.prototype.flags@1.5.4:
     resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
@@ -8123,6 +8148,10 @@ packages:
 
   scriptjs@2.5.9:
     resolution: {integrity: sha512-qGVDoreyYiP1pkQnbnFAUIS5AjenNwwQBdl7zeos9etl+hYKWahjRTfzAZZYBv5xNHx7vNKCmaLDQZ6Fr2AEXg==}
+
+  scslre@0.3.0:
+    resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
+    engines: {node: ^14.0.0 || >=16.0.0}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -12832,7 +12861,7 @@ snapshots:
 
   '@sentry/core@8.55.0': {}
 
-  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.102.1(esbuild@0.25.10))':
+  '@sentry/nextjs@8.55.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(react@19.2.3)(webpack@5.102.1)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.37.0
@@ -12843,7 +12872,7 @@ snapshots:
       '@sentry/opentelemetry': 8.55.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.37.0)
       '@sentry/react': 8.55.0(react@19.2.3)
       '@sentry/vercel-edge': 8.55.0
-      '@sentry/webpack-plugin': 2.22.7(webpack@5.102.1(esbuild@0.25.10))
+      '@sentry/webpack-plugin': 2.22.7(webpack@5.102.1)
       chalk: 3.0.0
       next: 15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
       resolve: 1.22.8
@@ -12938,12 +12967,12 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@sentry/core': 8.55.0
 
-  '@sentry/webpack-plugin@2.22.7(webpack@5.102.1(esbuild@0.25.10))':
+  '@sentry/webpack-plugin@2.22.7(webpack@5.102.1)':
     dependencies:
       '@sentry/bundler-plugin-core': 2.22.7
       unplugin: 1.0.1
       uuid: 9.0.1
-      webpack: 5.102.1(esbuild@0.25.10)
+      webpack: 5.102.1
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -13145,7 +13174,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.150.0(@rsbuild/core@1.7.2)(@tanstack/react-router@1.150.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@7.1.9(@types/node@24.10.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0))(webpack@5.102.1(esbuild@0.25.10))':
+  '@tanstack/router-plugin@1.150.0(@rsbuild/core@1.7.2)(@tanstack/react-router@1.150.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@7.1.9(@types/node@24.10.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0))(webpack@5.102.1)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.6)
@@ -13165,7 +13194,7 @@ snapshots:
       '@rsbuild/core': 1.7.2
       '@tanstack/react-router': 1.150.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       vite: 7.1.9(@types/node@24.10.8)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(tsx@4.21.0)
-      webpack: 5.102.1(esbuild@0.25.10)
+      webpack: 5.102.1
     transitivePeerDependencies:
       - supports-color
 
@@ -13939,6 +13968,14 @@ snapshots:
     optionalDependencies:
       vite: 5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
+  '@vitest/mocker@2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
+    dependencies:
+      '@vitest/spy': 2.1.9
+      estree-walker: 3.0.3
+      magic-string: 0.30.19
+    optionalDependencies:
+      vite: 5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
+
   '@vitest/mocker@3.2.4(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))':
     dependencies:
       '@vitest/spy': 3.2.4
@@ -14003,7 +14040,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 1.2.0
-      vitest: 2.1.9(@types/node@20.19.19)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
+      vitest: 2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)
 
   '@vitest/utils@2.1.9':
     dependencies:
@@ -14371,14 +14408,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@8.4.1(@babel/core@7.28.6)(webpack@5.102.1(esbuild@0.25.10)):
+  babel-loader@8.4.1(@babel/core@7.28.6)(webpack@5.102.1):
     dependencies:
       '@babel/core': 7.28.6
       find-cache-dir: 3.3.2
       loader-utils: 2.0.4
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.102.1(esbuild@0.25.10)
+      webpack: 5.102.1
 
   babel-plugin-polyfill-corejs2@0.4.14(@babel/core@7.28.4):
     dependencies:
@@ -14636,10 +14673,10 @@ snapshots:
 
   classnames@2.3.1: {}
 
-  clean-webpack-plugin@4.0.0(webpack@5.102.1(esbuild@0.25.10)):
+  clean-webpack-plugin@4.0.0(webpack@5.102.1):
     dependencies:
       del: 4.1.1
-      webpack: 5.102.1(esbuild@0.25.10)
+      webpack: 5.102.1
 
   client-only@0.0.1: {}
 
@@ -14695,6 +14732,8 @@ snapshots:
   commander@4.1.1: {}
 
   commander@7.2.0: {}
+
+  comment-parser@1.4.6: {}
 
   common-tags@1.8.2: {}
 
@@ -15334,6 +15373,17 @@ snapshots:
       semver: 6.3.1
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
+
+  eslint-plugin-regexp@2.10.0(eslint@9.37.0(jiti@2.6.1)):
+    dependencies:
+      '@eslint-community/eslint-utils': 4.9.0(eslint@9.37.0(jiti@2.6.1))
+      '@eslint-community/regexpp': 4.12.1
+      comment-parser: 1.4.6
+      eslint: 9.37.0(jiti@2.6.1)
+      jsdoc-type-pratt-parser: 4.8.0
+      refa: 0.12.1
+      regexp-ast-analysis: 0.7.1
+      scslre: 0.3.0
 
   eslint-scope@5.1.1:
     dependencies:
@@ -16291,6 +16341,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  jsdoc-type-pratt-parser@4.8.0: {}
+
   jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     dependencies:
       cssstyle: 4.6.0
@@ -16708,14 +16760,14 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-pwa@5.6.0(@babel/core@7.28.6)(@types/babel__core@7.20.5)(esbuild@0.25.10)(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.102.1(esbuild@0.25.10)):
+  next-pwa@5.6.0(@babel/core@7.28.6)(@types/babel__core@7.20.5)(next@15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2))(webpack@5.102.1):
     dependencies:
-      babel-loader: 8.4.1(@babel/core@7.28.6)(webpack@5.102.1(esbuild@0.25.10))
-      clean-webpack-plugin: 4.0.0(webpack@5.102.1(esbuild@0.25.10))
+      babel-loader: 8.4.1(@babel/core@7.28.6)(webpack@5.102.1)
+      clean-webpack-plugin: 4.0.0(webpack@5.102.1)
       globby: 11.1.0
       next: 15.5.15(@babel/core@7.28.6)(@opentelemetry/api@1.9.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.93.2)
-      terser-webpack-plugin: 5.3.14(esbuild@0.25.10)(webpack@5.102.1(esbuild@0.25.10))
-      workbox-webpack-plugin: 6.6.0(@types/babel__core@7.20.5)(webpack@5.102.1(esbuild@0.25.10))
+      terser-webpack-plugin: 5.3.14(webpack@5.102.1)
+      workbox-webpack-plugin: 6.6.0(@types/babel__core@7.20.5)(webpack@5.102.1)
       workbox-window: 6.6.0
     transitivePeerDependencies:
       - '@babel/core'
@@ -17468,6 +17520,10 @@ snapshots:
 
   redux@5.0.1: {}
 
+  refa@0.12.1:
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+
   reflect.getprototypeof@1.0.10:
     dependencies:
       call-bind: 1.0.8
@@ -17484,6 +17540,11 @@ snapshots:
       regenerate: 1.4.2
 
   regenerate@1.4.2: {}
+
+  regexp-ast-analysis@0.7.1:
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      refa: 0.12.1
 
   regexp.prototype.flags@1.5.4:
     dependencies:
@@ -17830,6 +17891,12 @@ snapshots:
   screenfull@5.2.0: {}
 
   scriptjs@2.5.9: {}
+
+  scslre@0.3.0:
+    dependencies:
+      '@eslint-community/regexpp': 4.12.1
+      refa: 0.12.1
+      regexp-ast-analysis: 0.7.1
 
   semver@5.7.2: {}
 
@@ -18301,16 +18368,14 @@ snapshots:
 
   term-size@2.2.1: {}
 
-  terser-webpack-plugin@5.3.14(esbuild@0.25.10)(webpack@5.102.1(esbuild@0.25.10)):
+  terser-webpack-plugin@5.3.14(webpack@5.102.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.44.0
-      webpack: 5.102.1(esbuild@0.25.10)
-    optionalDependencies:
-      esbuild: 0.25.10
+      webpack: 5.102.1
 
   terser@5.44.0:
     dependencies:
@@ -18954,7 +19019,7 @@ snapshots:
   vitest@2.1.9(@types/node@22.18.8)(@vitest/ui@2.1.9)(jsdom@26.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0):
     dependencies:
       '@vitest/expect': 2.1.9
-      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@20.19.19)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
+      '@vitest/mocker': 2.1.9(vite@5.4.6(@types/node@22.18.8)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.9
       '@vitest/snapshot': 2.1.9
@@ -19150,7 +19215,7 @@ snapshots:
 
   webpack-virtual-modules@0.6.2: {}
 
-  webpack@5.102.1(esbuild@0.25.10):
+  webpack@5.102.1:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -19174,7 +19239,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.14(esbuild@0.25.10)(webpack@5.102.1(esbuild@0.25.10))
+      terser-webpack-plugin: 5.3.14(webpack@5.102.1)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:
@@ -19360,12 +19425,12 @@ snapshots:
 
   workbox-sw@6.6.0: {}
 
-  workbox-webpack-plugin@6.6.0(@types/babel__core@7.20.5)(webpack@5.102.1(esbuild@0.25.10)):
+  workbox-webpack-plugin@6.6.0(@types/babel__core@7.20.5)(webpack@5.102.1):
     dependencies:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.102.1(esbuild@0.25.10)
+      webpack: 5.102.1
       webpack-sources: 1.4.3
       workbox-build: 6.6.0(@types/babel__core@7.20.5)
     transitivePeerDependencies:

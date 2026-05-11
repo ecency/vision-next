@@ -3,12 +3,18 @@ export const URL_REGEX = /(https?:\/\/[^\s]+)/g
 export const IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw))(.*)/gim
 export const ECENCY_IMG_REGEX = /https?:\/\/images\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi
 export const IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim
+// TODO(redos): three `.*` quantifiers can exchange characters; super-linear
+// backtracking on adversarial URLs. Refactor with constrained classes.
+// eslint-disable-next-line regexp/no-super-linear-backtracking
 export const POST_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/i
 export const CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i
 export const MENTION_REGEX = /^https?:\/\/(.*)\/(@[\w.\d-]+)$/i
 export const TOPIC_REGEX = /^https?:\/\/(.*)\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i
 export const INTERNAL_MENTION_REGEX = /^\/@[\w.\d-]+$/i
 export const INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i
+// TODO(redos): two `.*` quantifiers cause quadratic backtracking on inputs
+// without a `/` between them. Anchor with `^` or constrain the alternation.
+// eslint-disable-next-line regexp/no-super-linear-move
 export const INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i
 export const INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i
 export const CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i
