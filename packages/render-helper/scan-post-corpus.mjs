@@ -151,7 +151,13 @@ const timeoutMs = args.timeoutSeconds * 1000
 const results = []
 let scanned = 0
 
-if (args.out) writeFileSync(args.out, 'author,permlink,body_len,status,ms\n')
+// Append-or-create: keep prior rows across repeated scans (the help text
+// promises "Append CSV results to file"). Only write the header when the
+// file doesn't yet exist, so subsequent runs append rows below the
+// existing data instead of clobbering it.
+if (args.out && !existsSync(args.out)) {
+  writeFileSync(args.out, 'author,permlink,body_len,status,ms\n')
+}
 
 console.log(`scanning ${args.limit} posts from ${args.rpc} (sort=${args.sort} tag=${args.tag || '*'}, threshold=${args.threshold}ms, timeout=${args.timeoutSeconds}s)`)
 
