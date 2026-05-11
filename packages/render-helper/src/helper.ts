@@ -196,6 +196,165 @@ export function makeEntryCacheKey(entry: any): string {
   return `${entry.author}-${entry.permlink}-${entry.last_update}-${entry.updated}`
 }
 
+/**
+ * Linear-time HTML-tag stripper. Replaces the regex
+ *   /(<([^>]+)>)/gi
+ * which `regexp/no-super-linear-move` flags as quadratic on inputs with
+ * many `<`s that never close. Mirrors the regex's behaviour: matches
+ * `<tag...>` with at least one character between the angle brackets and
+ * removes it, but leaves bare `<` (with no `>` to close it) and `<>`
+ * (empty content) in place.
+ */
+export function stripHtmlTags(s: string): string {
+  const n = s.length
+  let out = ''
+  let i = 0
+  while (i < n) {
+    const lt = s.indexOf('<', i)
+    if (lt < 0) {
+      out += s.slice(i)
+      break
+    }
+    out += s.slice(i, lt)
+    const gt = s.indexOf('>', lt + 1)
+    if (gt < 0) {
+      // Unclosed `<` — original regex required a `>` to match, so keep
+      // the remaining text intact.
+      out += s.slice(lt)
+      break
+    }
+    if (gt === lt + 1) {
+      // `<>` empty — original `[^>]+` required at least one inner char,
+      // so preserve the literal `<>`.
+      out += s.slice(lt, gt + 1)
+      i = gt + 1
+      continue
+    }
+    i = gt + 1
+  }
+  return out
+}
+
+/**
+ * Linear-time trailing-`/` strip. Replaces the regex
+ *   /\/+$/
+ * which `regexp/no-super-linear-move` flags as quadratic on inputs
+ * that end in a long run of slashes followed by anything else (the
+ * engine retries at every starting position).
+ */
+export function trimTrailingSlash(s: string): string {
+  let end = s.length
+  while (end > 0 && s.charCodeAt(end - 1) === 0x2f /* '/' */) end--
+  return s.slice(0, end)
+}
+
+/**
+ * Linear-time query-string strip. Replaces the regex
+ *   /\?.+$/
+ * with a simple `indexOf` + `slice`. Matches the regex's behaviour:
+ * strips only if `?` exists *and* at least one character follows it
+ * (`?` at end-of-string leaves the input unchanged).
+ */
+export function stripQueryString(s: string): string {
+  const q = s.indexOf('?')
+  return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s
+}
+
+// HTML ASCII whitespace per WHATWG/HTML spec
+// (https://infra.spec.whatwg.org/#ascii-whitespace):
+//   U+0009 TAB, U+000A LF, U+000C FF, U+000D CR, U+0020 SPACE.
+// Narrower than JS regex `\s` (which also matches U+000B VT, NBSP,
+// the U+2000–U+200A run, U+2028/U+2029, U+202F, U+205F, U+3000, BOM).
+// See `moveBlockClosingTagOutOfParagraph` below for the rationale.
+function isHtmlWhitespace(c: number): boolean {
+  return c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d || c === 0x0c
+}
+
+/**
+ * Linear-time replacement for the `endPattern` regex in
+ * `markdown-to-html.method.ts`:
+ *
+ *   /(?:\s*<br>)?\s*(<\/(?:tagA|tagB|…)>)<\/p>/gi   →   '</p>$1'
+ *
+ * Anchors on `</p>` (rare, found via `indexOf`), checks that the
+ * character immediately before is `>`, walks back to find the matching
+ * `</tag…>`, and — if `tag` is one of the configured block tags —
+ * rewrites the run to `</p></tag…>` while stripping any preceding
+ * HTML-ASCII-whitespace + optional `<br>` + more HTML-ASCII-whitespace.
+ *
+ * The regex form had two unanchored `\s*` quantifiers that
+ * `regexp/no-super-linear-move` flagged as quadratic on whitespace-heavy
+ * inputs without a matching closing tag (engine retried at every
+ * starting position). This pass is O(n).
+ *
+ * **Intentional divergence from the regex's `\s` class.** The regex
+ * stripped JS-regex whitespace (which includes U+000B VT, NBSP, em
+ * space, etc.); this helper only strips HTML-spec ASCII whitespace.
+ * Markdown→HTML output doesn't insert those characters around `<br>`
+ * in practice, so the behavioural difference is theoretical; when it
+ * does happen the worst-case outcome is suboptimal HTML (a block
+ * closing tag stays inside `<p>`), not invalid HTML or a security
+ * issue. Aligning the whitespace class with the HTML spec is a
+ * deliberate correctness choice, not an oversight — if a future
+ * regression test wants exact `\s` parity, expand `isHtmlWhitespace`
+ * accordingly.
+ */
+export function moveBlockClosingTagOutOfParagraph(html: string, blockTags: Set<string>): string {
+  const n = html.length
+  let out = ''
+  let i = 0
+
+  while (i < n) {
+    const pStart = html.indexOf('</p>', i)
+    if (pStart < 0) {
+      out += html.slice(i)
+      break
+    }
+
+    // The closing block tag must end immediately before `</p>` (i.e. the
+    // char before `</p>` is `>`). Anything else means there's nothing
+    // for this pass to do at this position.
+    if (pStart === i || html.charCodeAt(pStart - 1) !== 0x3e /* '>' */) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+
+    // Find the matching `</` for that closing `>`. Worst-case scans
+    // back to the previous match boundary `i` when the run before
+    // `</p>` contains no `</`; total work across the whole input is
+    // still amortised O(n) because each character is visited at most
+    // twice (once forward by `indexOf`, once backward here).
+    const closingStart = html.lastIndexOf('</', pStart - 2)
+    if (closingStart < i) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+    const tagName = html.slice(closingStart + 2, pStart - 1).toLowerCase()
+    if (!blockTags.has(tagName)) {
+      out += html.slice(i, pStart + 4)
+      i = pStart + 4
+      continue
+    }
+
+    // Walk back from `closingStart` over whitespace, optionally one
+    // `<br>`, and more whitespace — mirroring the regex's stripping
+    // semantics exactly.
+    let k = closingStart
+    while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--
+    if (k - 4 >= i && html.slice(k - 4, k).toLowerCase() === '<br>') {
+      k -= 4
+      while (k > i && isHtmlWhitespace(html.charCodeAt(k - 1))) k--
+    }
+
+    out += html.slice(i, k) + '</p>' + html.slice(closingStart, pStart)
+    i = pStart + 4
+  }
+
+  return out
+}
+
 export function extractYtStartTime(url:string):string {
   try {
     const urlObj = new URL(url);

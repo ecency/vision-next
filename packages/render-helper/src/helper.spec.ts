@@ -1,11 +1,15 @@
 import {
   createDoc,
   extractYtStartTime,
+  moveBlockClosingTagOutOfParagraph,
   removeDuplicateAttributes,
   sanitizePermlink,
   isValidPermlink,
   isValidUsername,
-  makeEntryCacheKey
+  makeEntryCacheKey,
+  stripHtmlTags,
+  stripQueryString,
+  trimTrailingSlash
 } from './helper'
 
 describe('Helper Functions', () => {
@@ -636,6 +640,162 @@ describe('Helper Functions', () => {
       const start = Date.now()
       removeDuplicateAttributes(hostile)
       expect(Date.now() - start).toBeLessThan(250)
+    })
+  })
+
+  describe('stripHtmlTags', () => {
+    it('removes simple tags', () => {
+      expect(stripHtmlTags('<p>hello</p>')).toBe('hello')
+      expect(stripHtmlTags('a<br>b<br>c')).toBe('abc')
+    })
+
+    it('removes tags with attributes', () => {
+      expect(stripHtmlTags('a<a href="x">b</a>c')).toBe('abc')
+    })
+
+    it('preserves bare `<` with no closing `>` (matches old regex)', () => {
+      expect(stripHtmlTags('a<unclosed')).toBe('a<unclosed')
+    })
+
+    it('preserves literal `<>` (the old `[^>]+` required at least one char)', () => {
+      expect(stripHtmlTags('a<>b')).toBe('a<>b')
+    })
+
+    it('runs in linear time on inputs full of unmatched `<`', () => {
+      const hostile = '<'.repeat(50_000) + 'x'
+      const start = Date.now()
+      stripHtmlTags(hostile)
+      expect(Date.now() - start).toBeLessThan(250)
+    })
+  })
+
+  describe('trimTrailingSlash', () => {
+    it('strips one or more trailing slashes', () => {
+      expect(trimTrailingSlash('https://x/')).toBe('https://x')
+      expect(trimTrailingSlash('https://x///')).toBe('https://x')
+    })
+
+    it('leaves strings without trailing slashes alone', () => {
+      expect(trimTrailingSlash('https://x')).toBe('https://x')
+      expect(trimTrailingSlash('')).toBe('')
+    })
+
+    it('leaves middle slashes alone', () => {
+      expect(trimTrailingSlash('a/b/c')).toBe('a/b/c')
+    })
+
+    it('runs in linear time on inputs ending with many slashes plus other chars', () => {
+      const hostile = '/'.repeat(50_000) + 'x'
+      const start = Date.now()
+      trimTrailingSlash(hostile)
+      expect(Date.now() - start).toBeLessThan(50)
+    })
+  })
+
+  describe('stripQueryString', () => {
+    it('strips from the first `?` onward when content follows', () => {
+      expect(stripQueryString('https://x/path?a=1')).toBe('https://x/path')
+      expect(stripQueryString('https://x?a=1&b=2')).toBe('https://x')
+    })
+
+    it('leaves strings with no `?` alone', () => {
+      expect(stripQueryString('https://x/path')).toBe('https://x/path')
+    })
+
+    it('leaves a trailing `?` with no value alone (matches old `\\?.+$`)', () => {
+      // /\?.+$/ requires at least one char after `?`; without it the regex
+      // doesn't match and the input is returned unchanged.
+      expect(stripQueryString('https://x?')).toBe('https://x?')
+    })
+  })
+
+  describe('moveBlockClosingTagOutOfParagraph', () => {
+    const tags = new Set(['div', 'center', 'table'])
+
+    it('rewrites </tag></p> to </p></tag>', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips a single <br> before the closing tag', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x<br></div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips whitespace surrounding a <br>', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x  <br>\n</div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('strips bare leading whitespace (no <br>)', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x\n  </div></p>', tags))
+        .toBe('<p>x</p></div>')
+    })
+
+    it('leaves </p> alone when the preceding closing tag is not in the set', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</span></p>', tags))
+        .toBe('<p>x</span></p>')
+    })
+
+    it('leaves </p> alone when there is no closing block tag immediately before', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>hello</p>', tags))
+        .toBe('<p>hello</p>')
+    })
+
+    it('case-insensitive on the tag name (matches old /gi flag)', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>x</DIV></p>', tags))
+        .toBe('<p>x</p></DIV>')
+    })
+
+    it('handles multiple matches in a single pass', () => {
+      expect(moveBlockClosingTagOutOfParagraph('<p>a</div></p><p>b<br></center></p>', tags))
+        .toBe('<p>a</p></div><p>b</p></center>')
+    })
+
+    it('runs in linear time on whitespace-heavy inputs with no matching closing tag', () => {
+      // The whole point of replacing the regex: long whitespace runs
+      // followed by `</p>` without a preceding closing block tag used
+      // to trigger O(n²) backtracking under the unanchored `\s*`.
+      const hostile = ' '.repeat(100_000) + '</p>'
+      const start = Date.now()
+      moveBlockClosingTagOutOfParagraph(hostile, tags)
+      expect(Date.now() - start).toBeLessThan(50)
+    })
+
+    it('treats only HTML ASCII whitespace as strippable (intentional divergence from /\\s/)', () => {
+      // JS regex `\s` also matches NBSP, vertical tab, em space, etc.;
+      // the helper uses the WHATWG HTML "ASCII whitespace" set (space,
+      // tab, LF, FF, CR). When non-ASCII whitespace sits between `<br>`
+      // and the closing tag, the helper leaves the run untouched. This
+      // is documented as intentional in the function doc — pin it here
+      // so a future "make it match `\s` exactly" change is a conscious
+      // decision rather than a silent edit.
+      // U+00A0 NBSP, U+000B VT, U+2003 EM SPACE — all match JS /\\s/
+      // but not WHATWG HTML ASCII whitespace, so the helper leaves
+      // these inputs unchanged.
+      const NBSP = String.fromCharCode(0x00a0)
+      const VT   = String.fromCharCode(0x000b)
+      const EM   = String.fromCharCode(0x2003)
+      const nbsp = `<p>x<br>${NBSP}</div></p>`
+      const vtab = `<p>x<br>${VT}</div></p>`
+      const emSp = `<p>x<br>${EM}</div></p>`
+
+      // The helper still rewrites the tag order (the regex did too),
+      // but the `<br>` + non-ASCII-whitespace run between them stays
+      // verbatim because `isHtmlWhitespace` doesn't match those code
+      // points. The old regex would have additionally stripped this
+      // run because `\s` includes NBSP/VT/em-space.
+      expect(moveBlockClosingTagOutOfParagraph(nbsp, tags))
+        .toBe(`<p>x<br>${NBSP}</p></div>`)
+      expect(moveBlockClosingTagOutOfParagraph(vtab, tags))
+        .toBe(`<p>x<br>${VT}</p></div>`)
+      expect(moveBlockClosingTagOutOfParagraph(emSp, tags))
+        .toBe(`<p>x<br>${EM}</p></div>`)
+
+      // Sanity check: a literal ASCII space *is* stripped, to prove the
+      // assertions above aren't trivially "no transform applied".
+      expect(moveBlockClosingTagOutOfParagraph('<p>x<br> </div></p>', tags))
+        .toBe('<p>x</p></div>')
     })
   })
 })

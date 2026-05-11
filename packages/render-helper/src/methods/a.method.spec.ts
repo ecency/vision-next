@@ -403,6 +403,31 @@ describe('a() method - Link Processing', () => {
         // Invalid permlink should be skipped, element unchanged
         expect(el.getAttribute('class')).toBeNull()
       })
+
+      it('should not treat multi-segment-middle URLs as post links', () => {
+        // POST_REGEX is `^https?://([^/]+)/([^/]+)/(@user)/(perm)$`, so a URL
+        // with an extra path segment between domain and tag (e.g.
+        // `host/foo/bar/@user/perm`) doesn't match the regex at all. The
+        // resulting rewritten href would be a 4-segment internal path that
+        // routes.ts has no route for, so rejecting here keeps the
+        // rewrite path from emitting a link that 404s downstream. The
+        // fallback path may still tag the anchor as an external link,
+        // which is fine — what we're asserting is *not a post link*.
+        // Regression test for the POST_REGEX tightening discussed on
+        // PR #784.
+        const parent = doc.createElement('div')
+        const el = doc.createElement('a')
+        const href = 'https://ecency.com/foo/bar/@author/permlink'
+        el.setAttribute('href', href)
+        el.textContent = href
+        parent.appendChild(el)
+
+        a(el, false)
+
+        expect(el.getAttribute('class')).not.toBe('markdown-post-link')
+        expect(el.getAttribute('data-tag')).toBeNull()
+        expect(el.getAttribute('data-permlink')).toBeNull()
+      })
     })
 
     describe('user mention links', () => {

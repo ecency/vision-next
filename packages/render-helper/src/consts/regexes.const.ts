@@ -3,13 +3,31 @@ export const URL_REGEX = /(https?:\/\/[^\s]+)/g
 export const IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw))(.*)/gim
 export const ECENCY_IMG_REGEX = /https?:\/\/images\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi
 export const IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim
-export const POST_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/i
+// Matches Hive post URLs: scheme://domain/tag/@author/permlink.
+// Both path segments are pinned to `[^/]+` (no `/`), and both ends are
+// anchored. The previous form `^https?://(.*)/(.*)/(@…)/(.*)` had three
+// `.*` quantifiers that could exchange characters, triggering
+// super-linear backtracking on adversarial hrefs. Matching is now O(n)
+// and the captured `domain`/`tag` shape is unchanged — in particular,
+// multi-segment-middle URLs like `host/foo/bar/@user/perm` still don't
+// match, preserving the old whitelist-rejection behaviour (the previous
+// greedy form put `host/foo` in capture 1, which then failed the
+// WHITE_LIST check in a.method.ts; this stricter form fails the regex
+// outright, with the same downstream outcome).
+export const POST_REGEX = /^https?:\/\/([^/]+)\/([^/]+)\/(@[\w.\d-]+)\/(.+)$/i
 export const CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i
 export const MENTION_REGEX = /^https?:\/\/(.*)\/(@[\w.\d-]+)$/i
 export const TOPIC_REGEX = /^https?:\/\/(.*)\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i
 export const INTERNAL_MENTION_REGEX = /^\/@[\w.\d-]+$/i
 export const INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i
-export const INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i
+// Matches both internal `/tag/@author/permlink` and external
+// `https://host/tag/@author/permlink` hrefs. Group 1 must be allowed
+// to contain `/` so we keep `.+?` (lazy, anchored start). The previous
+// form `(.*)/(@…)/(.*)` was unanchored with two `.*` quantifiers, so
+// `regexp/no-super-linear-move` flagged it as quadratic on hrefs
+// without a `/@user/` substring (engine retried at every starting
+// position). The lazy + anchored variant keeps matching attempts O(n).
+export const INTERNAL_POST_TAG_REGEX = /^(.+?)\/(@[\w.\d-]+)\/(.*)$/i
 export const INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i
 export const CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i
 export const YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i

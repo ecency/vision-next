@@ -1,6 +1,6 @@
 import { traverse } from './traverse.method'
 import { sanitizeHtml } from './sanitize-html.method'
-import { removeDuplicateAttributes } from '../helper'
+import { moveBlockClosingTagOutOfParagraph, removeDuplicateAttributes } from '../helper'
 import { DOMParser, XMLSerializer, ENTITY_REGEX } from '../consts'
 import { Remarkable } from 'remarkable'
 import { linkify } from 'remarkable/linkify'
@@ -68,28 +68,34 @@ if (typeof window === 'undefined') {
  * @param html - The HTML string to fix
  * @returns The repaired HTML string
  */
-function fixBlockLevelTagsInParagraphs(html: string): string {
-  // Block-level tags that should never be wrapped in <p> tags
-  const blockTags = 'center|div|table|figure|section|article|aside|header|footer|nav|main'
+// Block-level tags that should never be wrapped in <p> tags. Defined at
+// module scope so the alternation string and the Set used by the
+// non-regex closing pass stay in sync.
+const BLOCK_TAGS_ALTERNATION = 'center|div|table|figure|section|article|aside|header|footer|nav|main'
+const BLOCK_TAGS_SET = new Set(BLOCK_TAGS_ALTERNATION.split('|'))
 
+function fixBlockLevelTagsInParagraphs(html: string): string {
   // Pattern 1: <p><tag></p> - opening tag wrapped in <p>
   // Replace with just <tag> (remove the wrapping <p>)
-  const openingPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)<\\/p>`, 'gi')
+  const openingPattern = new RegExp(`<p>(<(?:${BLOCK_TAGS_ALTERNATION})(?:\\s[^>]*)?>)<\\/p>`, 'gi')
   html = html.replace(openingPattern, '$1')
 
   // Pattern 2: <p></tag></p> - closing tag wrapped in <p>
   // Replace with just </tag> (remove the wrapping <p>)
-  const closingPattern = new RegExp(`<p>(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
+  const closingPattern = new RegExp(`<p>(<\\/(?:${BLOCK_TAGS_ALTERNATION})>)<\\/p>`, 'gi')
   html = html.replace(closingPattern, '$1')
 
   // Pattern 3: <p><tag><br> or <p><tag> at start of <p>
   // This handles cases where the tag is at the start but followed by content
-  const startPattern = new RegExp(`<p>(<(?:${blockTags})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, 'gi')
+  const startPattern = new RegExp(`<p>(<(?:${BLOCK_TAGS_ALTERNATION})(?:\\s[^>]*)?>)(?:<br>)?\\s*`, 'gi')
   html = html.replace(startPattern, '$1<p>')
 
   // Pattern 4: </tag></p> or <br>\n</tag></p> - closing tag at end of <p>
-  const endPattern = new RegExp(`\\s*(?:<br>)?\\s*(<\\/(?:${blockTags})>)<\\/p>`, 'gi')
-  html = html.replace(endPattern, '</p>$1')
+  // Done as a single linear pass instead of a regex. The previous form
+  // `\s*(?:<br>)?\s*(<\/(?:…)>)<\/p>` had two unanchored `\s*`
+  // quantifiers that backtracked quadratically on whitespace-heavy
+  // inputs with no matching closing tag.
+  html = moveBlockClosingTagOutOfParagraph(html, BLOCK_TAGS_SET)
 
   // Clean up any empty paragraphs that may have been created
   html = html.replace(/<p>\s*<\/p>/g, '')

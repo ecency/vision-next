@@ -1,5 +1,5 @@
 import he from 'he'
-import { makeEntryCacheKey } from './helper'
+import { makeEntryCacheKey, stripHtmlTags } from './helper'
 import { cacheGet, cacheSet } from './cache'
 import { Entry } from './types'
 import { cleanReply } from './methods'
@@ -105,12 +105,15 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
   }
 
 
-  text = text
-    .replace(/(<([^>]+)>)/gi, '') // Remove html tags
+  text = stripHtmlTags(text)
     .replace(/\r?\n|\r/g, ' ') // Remove new lines
     .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Remove urls
     .trim()
-    .replace(/ +(?= )/g, '') // Remove all multiple spaces
+    // Collapse runs of 2+ spaces to a single space. Equivalent to the
+    // previous `' +(?= )'` form (which deleted all-but-one space in a
+    // run) but matches the whole run greedily without backtracking, so
+    // it stays linear on long whitespace runs.
+    .replace(/ {2,}/g, ' ')
 
   // Truncate if length > 0 (length === 0 means no truncation)
   if (length > 0) {

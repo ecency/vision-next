@@ -1,4 +1,5 @@
 import { proxifyImageSrc, buildSrcSet, getProxyBase } from "../proxify-image-src";
+import { trimTrailingSlash } from "../helper";
 
 const IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 
@@ -49,7 +50,7 @@ export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void
   const shouldReplace = !cls.includes("no-replace");
   // Only skip re-proxification for URLs already going through proxy/avatar/cover routes
   // Direct upload URLs (e.g. /DQm...) should still be proxified for resizing & format optimization
-  const base = getProxyBase().replace(/\/+$/, '');
+  const base = trimTrailingSlash(getProxyBase());
   const hasAlreadyProxied = src.startsWith(`${base}/p/`)
     || src.startsWith(`${base}/u/`)
     || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
@@ -81,7 +82,7 @@ export function createImageHTML(src: string, isLCP: boolean): string {
   const proxified = proxifyImageSrc(src);
   if (!proxified) return '';
 
-  const base = getProxyBase().replace(/\/+$/, '');
+  const base = trimTrailingSlash(getProxyBase());
   const isAlreadyProxied = src.startsWith(`${base}/u/`)
     || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\d+x\\d+/`).test(src);
   const srcset = isAlreadyProxied ? '' : buildSrcSet(src);
