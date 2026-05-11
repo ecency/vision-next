@@ -12,5 +12,5 @@ time instead of in production.
 
 Pre-existing super-linear regexes are ratcheted with
 `// eslint-disable-next-line` + `// TODO(redos)` comments — they all
-sit on bounded or pre-filtered inputs and weren't the cause of the
-#782 incident, so they're flagged for follow-up rather than fixed here.
+sit on bounded or pre-filtered inputs and weren't the cause of the #782
+incident, so they're flagged for follow-up rather than fixed here.
