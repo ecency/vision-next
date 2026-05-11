@@ -1726,7 +1726,8 @@ function cacheSet(key, value) {
 }
 
 // src/markdown-2-html.ts
-var slowRenderThresholdMs = 500;
+var isBrowser = typeof window !== "undefined";
+var slowRenderThresholdMs = isBrowser ? 0 : 500;
 function setSlowRenderThresholdMs(ms) {
   slowRenderThresholdMs = Math.max(0, ms);
 }
@@ -1742,10 +1743,7 @@ function markdown2Html(obj, forApp = true, _webp = false, parentDomain = "ecency
     const cleanedStr = cleanReply(obj);
     const t02 = performance.now();
     const res2 = markdownToHTML(cleanedStr, forApp, parentDomain, seoContext, renderOptions);
-    logIfSlow(
-      performance.now() - t02,
-      `body_len=${obj.length} preview=${JSON.stringify(obj.slice(0, 60))}`
-    );
+    logIfSlow(performance.now() - t02, `body_len=${obj.length}`);
     return res2;
   }
   const key = `${makeEntryCacheKey(obj)}-md-${forApp ? "app" : "site"}-${parentDomain}${seoContext ? `-seo${seoContext.authorReputation ?? ""}-${seoContext.postPayout ?? ""}` : ""}${renderOptions?.embedVideosDirectly ? "-embed" : ""}`;

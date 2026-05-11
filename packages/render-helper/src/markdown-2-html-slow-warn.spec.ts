@@ -11,7 +11,7 @@ describe('slow markdown render warning', () => {
 
   afterEach(() => {
     warnSpy.mockRestore()
-    setSlowRenderThresholdMs(500) // restore default
+    setSlowRenderThresholdMs(500) // restore Node-default
   })
 
   it('does not warn for fast renders at the default threshold', () => {
@@ -19,14 +19,17 @@ describe('slow markdown render warning', () => {
     expect(warnSpy).not.toHaveBeenCalled()
   })
 
-  it('warns with body length + preview when a string render exceeds the threshold', () => {
+  it('warns with body length (no content) when a string render exceeds the threshold', () => {
     setSlowRenderThresholdMs(0.000001) // any non-trivial render exceeds this
     markdown2Html('hello world', false)
     expect(warnSpy).toHaveBeenCalledOnce()
     const msg = warnSpy.mock.calls[0][0] as string
     expect(msg).toMatch(/^\[render-helper\] slow markdown render: \d+ms /)
     expect(msg).toContain('body_len=11')
-    expect(msg).toContain('preview="hello world"')
+    // The string overload can carry unpublished user-authored text
+    // (draft/comment previews) — make sure no content excerpt leaks.
+    expect(msg).not.toContain('preview')
+    expect(msg).not.toContain('hello world')
   })
 
   it('warns with author+permlink when an Entry render exceeds the threshold', () => {
@@ -43,6 +46,9 @@ describe('slow markdown render warning', () => {
     expect(msg).toContain('author=@alice')
     expect(msg).toContain('permlink=first-post')
     expect(msg).toContain('body_len=11')
+    // Even for an Entry (where author + permlink are public identifiers)
+    // we keep the body itself out of logs.
+    expect(msg).not.toContain('hello world')
   })
 
   it('disables logging when the threshold is set to 0', () => {

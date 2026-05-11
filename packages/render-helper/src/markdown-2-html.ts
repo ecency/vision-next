@@ -5,11 +5,18 @@ import { Entry, RenderOptions, SeoContext } from './types'
 
 // Warn when a single markdown render exceeds this threshold. Surfaces both
 // pathological inputs (e.g. ReDoS-prone tag attributes) and merely-slow ones
-// (huge bodies hitting the xmldom fallback) so they can be triaged from logs
-// without waiting for the SSR watchdog to kill a container.
+// (huge bodies hitting the xmldom fallback) so they can be triaged from
+// container logs without waiting for the SSR watchdog to kill a replica.
 //
-// Configurable via `setSlowRenderThresholdMs(ms)`. Set to 0 to disable.
-let slowRenderThresholdMs = 500
+// Default is server-on, browser-off. The string overload of `markdown2Html`
+// is called from comment/reply preview paths with unpublished user input,
+// so warnings firing in the browser would (a) leak draft content into the
+// user's console and any client telemetry pipeline, and (b) repeat on every
+// keystroke that re-renders (the string path is uncached). Call
+// `setSlowRenderThresholdMs(500)` from a browser-only init if you want
+// client-side warnings; pass 0 to disable everywhere.
+const isBrowser = typeof window !== 'undefined'
+let slowRenderThresholdMs = isBrowser ? 0 : 500
 
 export function setSlowRenderThresholdMs(ms: number): void {
   slowRenderThresholdMs = Math.max(0, ms)
@@ -17,9 +24,12 @@ export function setSlowRenderThresholdMs(ms: number): void {
 
 function logIfSlow(durationMs: number, context: string): void {
   if (slowRenderThresholdMs > 0 && durationMs >= slowRenderThresholdMs) {
-    // console.warn is safe in both Node and browser; the message format is
-    // grep-friendly: "[render-helper] slow markdown render" is a single
-    // unique prefix that doesn't collide with anything else in the codebase.
+    // Grep-friendly prefix: "[render-helper] slow markdown render" is a
+    // unique substring that doesn't collide with anything else in the code
+    // base. We intentionally do not include a content excerpt — the
+    // body_len + (when available) author/permlink is enough to triage, and
+    // the string overload can carry unpublished user-authored text from
+    // comment/draft preview paths.
     // eslint-disable-next-line no-console
     console.warn(
       `[render-helper] slow markdown render: ${durationMs.toFixed(0)}ms ${context}`
@@ -40,10 +50,7 @@ export function markdown2Html(obj: Entry | string, forApp = true, _webp = false,
     const cleanedStr = cleanReply(obj)
     const t0 = performance.now()
     const res = markdownToHTML(cleanedStr, forApp, parentDomain, seoContext, renderOptions)
-    logIfSlow(
-      performance.now() - t0,
-      `body_len=${obj.length} preview=${JSON.stringify(obj.slice(0, 60))}`
-    )
+    logIfSlow(performance.now() - t0, `body_len=${obj.length}`)
     return res
   }
 
