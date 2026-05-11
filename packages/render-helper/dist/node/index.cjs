@@ -206,23 +206,112 @@ function createParser() {
 var DOMParser = createParser();
 
 // src/helper.ts
+function isSpaceChar(c) {
+  return c === 32 || c === 9 || c === 10 || c === 13 || c === 12;
+}
+function isAsciiLetter(c) {
+  return c >= 65 && c <= 90 || c >= 97 && c <= 122;
+}
+function isTagNameChar(c) {
+  return isAsciiLetter(c) || c >= 48 && c <= 57;
+}
+function isAttrNameChar(c) {
+  return isAsciiLetter(c) || c >= 48 && c <= 57 || c === 45 || c === 95 || c === 58 || c === 46;
+}
 function removeDuplicateAttributes(html) {
-  const tagRegex = /<([a-zA-Z][a-zA-Z0-9]*)\s+((?:[^>"']+|"[^"]*"|'[^']*')*?)\s*(\/?)>/g;
-  return html.replace(tagRegex, (match, tagName, attrsString, selfClose) => {
-    const seenAttrs = /* @__PURE__ */ new Set();
-    const cleanedAttrs = [];
-    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s/>]+))?/g;
-    let attrMatch;
-    while ((attrMatch = attrRegex.exec(attrsString)) !== null) {
-      const attrName = attrMatch[1].toLowerCase();
-      if (!seenAttrs.has(attrName)) {
-        seenAttrs.add(attrName);
-        cleanedAttrs.push(attrMatch[0]);
+  const n = html.length;
+  let out = "";
+  let i = 0;
+  while (i < n) {
+    const lt = html.indexOf("<", i);
+    if (lt < 0) {
+      out += html.slice(i);
+      break;
+    }
+    out += html.slice(i, lt);
+    if (lt + 1 >= n || !isAsciiLetter(html.charCodeAt(lt + 1))) {
+      out += "<";
+      i = lt + 1;
+      continue;
+    }
+    let p2 = lt + 1;
+    while (p2 < n && isTagNameChar(html.charCodeAt(p2))) p2++;
+    const tagName = html.slice(lt + 1, p2);
+    if (p2 >= n || !isSpaceChar(html.charCodeAt(p2))) {
+      out += "<";
+      i = lt + 1;
+      continue;
+    }
+    const attrs = [];
+    const seen = /* @__PURE__ */ new Set();
+    let q = p2;
+    while (q < n) {
+      while (q < n && isSpaceChar(html.charCodeAt(q))) q++;
+      if (q >= n) break;
+      const ch = html.charCodeAt(q);
+      if (ch === 62) break;
+      if (ch === 47 && q + 1 < n && html.charCodeAt(q + 1) === 62) break;
+      const nameStart = q;
+      while (q < n && isAttrNameChar(html.charCodeAt(q))) q++;
+      if (q === nameStart) {
+        q++;
+        continue;
+      }
+      const attrName = html.slice(nameStart, q);
+      let r = q;
+      while (r < n && isSpaceChar(html.charCodeAt(r))) r++;
+      let valueEnd = q;
+      if (r < n && html.charCodeAt(r) === 61) {
+        r++;
+        while (r < n && isSpaceChar(html.charCodeAt(r))) r++;
+        if (r < n) {
+          const v = html.charCodeAt(r);
+          if (v === 34 || v === 39) {
+            const quote = html[r];
+            const end = html.indexOf(quote, r + 1);
+            if (end < 0) {
+              const gt = html.indexOf(">", r + 1);
+              valueEnd = gt < 0 ? n : gt;
+            } else {
+              valueEnd = end + 1;
+            }
+          } else {
+            let s = r;
+            while (s < n) {
+              const k = html.charCodeAt(s);
+              if (isSpaceChar(k) || k === 62) break;
+              s++;
+            }
+            valueEnd = s;
+          }
+        } else {
+          valueEnd = r;
+        }
+      }
+      const fullAttr = html.slice(nameStart, valueEnd);
+      q = valueEnd;
+      const key = attrName.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        attrs.push(fullAttr);
       }
     }
-    const attrsJoined = cleanedAttrs.length > 0 ? ` ${cleanedAttrs.join(" ")}` : "";
-    return `<${tagName}${attrsJoined}${selfClose ? " /" : ""}>`;
-  });
+    let selfClose = false;
+    if (q < n && html.charCodeAt(q) === 47) {
+      selfClose = true;
+      q++;
+    }
+    if (q >= n || html.charCodeAt(q) !== 62) {
+      out += "<";
+      i = lt + 1;
+      continue;
+    }
+    q++;
+    const attrsJoined = attrs.length > 0 ? " " + attrs.join(" ") : "";
+    out += "<" + tagName + attrsJoined + (selfClose ? " /" : "") + ">";
+    i = q;
+  }
+  return out;
 }
 function createDoc(html) {
   if (html.trim() === "") {
@@ -1615,7 +1704,6 @@ function markdownToHTML(input, forApp, parentDomain = "ecency.com", seoContext, 
     output = serializer.serializeToString(doc);
   } catch (error) {
     try {
-      output = md.render(input);
       const preSanitized = sanitizeHtml(output);
       const dom = htmlparser2__namespace.parseDocument(preSanitized, {
         // lenient options - don't throw on malformed HTML

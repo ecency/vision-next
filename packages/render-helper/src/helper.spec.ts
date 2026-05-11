@@ -1,6 +1,7 @@
 import {
   createDoc,
   extractYtStartTime,
+  removeDuplicateAttributes,
   sanitizePermlink,
   isValidPermlink,
   isValidUsername,
@@ -591,6 +592,50 @@ describe('Helper Functions', () => {
       }
 
       expect(makeEntryCacheKey(entry1)).not.toBe(makeEntryCacheKey(entry2))
+    })
+  })
+
+  describe('removeDuplicateAttributes', () => {
+    it('keeps the first occurrence of duplicate attributes', () => {
+      expect(removeDuplicateAttributes('<iframe allowfullscreen allowfullscreen>'))
+        .toBe('<iframe allowfullscreen>')
+      expect(removeDuplicateAttributes('<img src="a.jpg" alt="x" src="b.jpg">'))
+        .toBe('<img src="a.jpg" alt="x">')
+    })
+
+    it('is case-insensitive on attribute names', () => {
+      expect(removeDuplicateAttributes('<a HREF="x" href="y">'))
+        .toBe('<a HREF="x">')
+    })
+
+    it('preserves the self-closing slash and the original attribute formatting', () => {
+      expect(removeDuplicateAttributes('<br />'))
+        .toBe('<br />')
+      expect(removeDuplicateAttributes('<input type=text name = "n">'))
+        .toBe('<input type=text name = "n">')
+    })
+
+    it('leaves tags without attributes alone', () => {
+      expect(removeDuplicateAttributes('<p>hello</p>'))
+        .toBe('<p>hello</p>')
+    })
+
+    it('preserves text outside tags verbatim', () => {
+      expect(removeDuplicateAttributes('before <b foo="1" foo="2">x</b> after'))
+        .toBe('before <b foo="1">x</b> after')
+    })
+
+    it('returns in linear time on inputs that previously caused catastrophic backtracking', () => {
+      // Regression: <div style=background-color:yellow;"> (unquoted attribute
+      // value followed by a stray quote) pinned the V8 regex engine for tens
+      // of seconds in the previous implementation and tripped the SSR
+      // event-loop watchdog. Cap at 250 ms — the tokenizer should finish in
+      // well under 10 ms even on much larger inputs.
+      const filler = 'a'.repeat(20_000)
+      const hostile = `<div style=background-color:yellow;">${filler}`
+      const start = Date.now()
+      removeDuplicateAttributes(hostile)
+      expect(Date.now() - start).toBeLessThan(250)
     })
   })
 })

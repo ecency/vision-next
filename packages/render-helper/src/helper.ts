@@ -4,36 +4,164 @@ import type { Document } from '@xmldom/xmldom'
 /**
  * Removes duplicate attributes from HTML tags.
  * @xmldom/xmldom 0.9+ throws fatalError on duplicate attributes (e.g., <iframe allowfullscreen allowfullscreen>).
- * This preprocessor keeps only the first occurrence of each attribute.
+ *
+ * Single-pass tokenizer. The previous regex-based implementation had
+ * catastrophic backtracking on malformed inputs such as
+ *   <div style=background-color:yellow;">
+ * (unquoted attribute value followed by a stray quote, no closing `>` for the
+ * tag in the immediate vicinity). The nested alternation
+ *   (?:[^>"']+|"[^"]*"|'[^']*')*?
+ * combined with a greedy `+` inside the non-greedy `*?` produced O(n²+)
+ * backtracking that pinned a 6 KB body for >30 seconds, tripping the watchdog
+ * and killing the container.
  */
+function isSpaceChar(c: number): boolean {
+  return c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d || c === 0x0c
+}
+
+function isAsciiLetter(c: number): boolean {
+  return (c >= 0x41 && c <= 0x5a) || (c >= 0x61 && c <= 0x7a)
+}
+
+function isTagNameChar(c: number): boolean {
+  return isAsciiLetter(c) || (c >= 0x30 && c <= 0x39)
+}
+
+function isAttrNameChar(c: number): boolean {
+  // a-zA-Z, 0-9, '-', '_', ':', '.'
+  return (
+    isAsciiLetter(c) ||
+    (c >= 0x30 && c <= 0x39) ||
+    c === 0x2d ||
+    c === 0x5f ||
+    c === 0x3a ||
+    c === 0x2e
+  )
+}
+
 export function removeDuplicateAttributes(html: string): string {
-  // Match opening tags with attributes, capturing optional self-closing slash
-  // The attribute section pattern is quote-aware to handle > inside quoted values (e.g., data-x="a > b")
-  // Pattern breakdown: (?:[^>"']+|"[^"]*"|'[^']*')* matches sequences of:
-  //   - [^>"']+ : characters that aren't >, ", or '
-  //   - "[^"]*" : double-quoted strings
-  //   - '[^']*' : single-quoted strings
-  const tagRegex = /<([a-zA-Z][a-zA-Z0-9]*)\s+((?:[^>"']+|"[^"]*"|'[^']*')*?)\s*(\/?)>/g
+  const n = html.length
+  let out = ''
+  let i = 0
 
-  return html.replace(tagRegex, (match, tagName, attrsString, selfClose) => {
-    const seenAttrs = new Set<string>()
-    const cleanedAttrs: string[] = []
+  while (i < n) {
+    const lt = html.indexOf('<', i)
+    if (lt < 0) {
+      out += html.slice(i)
+      break
+    }
+    out += html.slice(i, lt)
 
-    // Match individual attributes (name="value", name='value', name=value, or just name)
-    const attrRegex = /([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*(?:=\s*(?:"[^"]*"|'[^']*'|[^\s/>]+))?/g
-    let attrMatch
+    // Only opening tags that start with an ASCII letter and have at least
+    // one whitespace before the attributes are normalised — matches the
+    // scope of the prior regex (closing tags, comments, doctypes, and bare
+    // `<` characters are left untouched).
+    if (lt + 1 >= n || !isAsciiLetter(html.charCodeAt(lt + 1))) {
+      out += '<'
+      i = lt + 1
+      continue
+    }
 
-    while ((attrMatch = attrRegex.exec(attrsString)) !== null) {
-      const attrName = attrMatch[1].toLowerCase()
-      if (!seenAttrs.has(attrName)) {
-        seenAttrs.add(attrName)
-        cleanedAttrs.push(attrMatch[0])
+    let p = lt + 1
+    while (p < n && isTagNameChar(html.charCodeAt(p))) p++
+    const tagName = html.slice(lt + 1, p)
+
+    if (p >= n || !isSpaceChar(html.charCodeAt(p))) {
+      out += '<'
+      i = lt + 1
+      continue
+    }
+
+    const attrs: string[] = []
+    const seen = new Set<string>()
+    let q = p
+
+    while (q < n) {
+      while (q < n && isSpaceChar(html.charCodeAt(q))) q++
+      if (q >= n) break
+
+      const ch = html.charCodeAt(q)
+      if (ch === 0x3e) break // '>'
+      if (ch === 0x2f && q + 1 < n && html.charCodeAt(q + 1) === 0x3e) break // '/>'
+
+      const nameStart = q
+      while (q < n && isAttrNameChar(html.charCodeAt(q))) q++
+      if (q === nameStart) {
+        // Stray character that can't start an attribute name. Skip it so
+        // we make progress; the original tag bytes are preserved verbatim
+        // below if we ultimately can't close the tag.
+        q++
+        continue
+      }
+      const attrName = html.slice(nameStart, q)
+
+      let r = q
+      while (r < n && isSpaceChar(html.charCodeAt(r))) r++
+
+      let valueEnd = q
+      if (r < n && html.charCodeAt(r) === 0x3d /* '=' */) {
+        r++
+        while (r < n && isSpaceChar(html.charCodeAt(r))) r++
+        if (r < n) {
+          const v = html.charCodeAt(r)
+          if (v === 0x22 || v === 0x27) {
+            // Quoted value
+            const quote = html[r]
+            const end = html.indexOf(quote, r + 1)
+            if (end < 0) {
+              // Unterminated quote — bail to the next `>` to avoid eating
+              // the rest of the document.
+              const gt = html.indexOf('>', r + 1)
+              valueEnd = gt < 0 ? n : gt
+            } else {
+              valueEnd = end + 1
+            }
+          } else {
+            // Unquoted value: read until whitespace or `>`
+            let s = r
+            while (s < n) {
+              const k = html.charCodeAt(s)
+              if (isSpaceChar(k) || k === 0x3e) break
+              s++
+            }
+            valueEnd = s
+          }
+        } else {
+          valueEnd = r
+        }
+      }
+
+      const fullAttr = html.slice(nameStart, valueEnd)
+      q = valueEnd
+
+      const key = attrName.toLowerCase()
+      if (!seen.has(key)) {
+        seen.add(key)
+        attrs.push(fullAttr)
       }
     }
 
-    const attrsJoined = cleanedAttrs.length > 0 ? ` ${cleanedAttrs.join(' ')}` : ''
-    return `<${tagName}${attrsJoined}${selfClose ? ' /' : ''}>`
-  })
+    let selfClose = false
+    if (q < n && html.charCodeAt(q) === 0x2f /* '/' */) {
+      selfClose = true
+      q++
+    }
+    if (q >= n || html.charCodeAt(q) !== 0x3e /* '>' */) {
+      // Unterminated tag — leave the original input alone past the `<` and
+      // continue scanning. This mirrors the prior regex's behaviour of not
+      // matching such fragments.
+      out += '<'
+      i = lt + 1
+      continue
+    }
+    q++
+
+    const attrsJoined = attrs.length > 0 ? ' ' + attrs.join(' ') : ''
+    out += '<' + tagName + attrsJoined + (selfClose ? ' /' : '') + '>'
+    i = q
+  }
+
+  return out
 }
 
 export function createDoc(html: string): Document | null {
