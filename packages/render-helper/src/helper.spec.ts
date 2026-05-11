@@ -5,7 +5,10 @@ import {
   sanitizePermlink,
   isValidPermlink,
   isValidUsername,
-  makeEntryCacheKey
+  makeEntryCacheKey,
+  stripHtmlTags,
+  stripQueryString,
+  trimTrailingSlash
 } from './helper'
 
 describe('Helper Functions', () => {
@@ -636,6 +639,72 @@ describe('Helper Functions', () => {
       const start = Date.now()
       removeDuplicateAttributes(hostile)
       expect(Date.now() - start).toBeLessThan(250)
+    })
+  })
+
+  describe('stripHtmlTags', () => {
+    it('removes simple tags', () => {
+      expect(stripHtmlTags('<p>hello</p>')).toBe('hello')
+      expect(stripHtmlTags('a<br>b<br>c')).toBe('abc')
+    })
+
+    it('removes tags with attributes', () => {
+      expect(stripHtmlTags('a<a href="x">b</a>c')).toBe('abc')
+    })
+
+    it('preserves bare `<` with no closing `>` (matches old regex)', () => {
+      expect(stripHtmlTags('a<unclosed')).toBe('a<unclosed')
+    })
+
+    it('preserves literal `<>` (the old `[^>]+` required at least one char)', () => {
+      expect(stripHtmlTags('a<>b')).toBe('a<>b')
+    })
+
+    it('runs in linear time on inputs full of unmatched `<`', () => {
+      const hostile = '<'.repeat(50_000) + 'x'
+      const start = Date.now()
+      stripHtmlTags(hostile)
+      expect(Date.now() - start).toBeLessThan(250)
+    })
+  })
+
+  describe('trimTrailingSlash', () => {
+    it('strips one or more trailing slashes', () => {
+      expect(trimTrailingSlash('https://x/')).toBe('https://x')
+      expect(trimTrailingSlash('https://x///')).toBe('https://x')
+    })
+
+    it('leaves strings without trailing slashes alone', () => {
+      expect(trimTrailingSlash('https://x')).toBe('https://x')
+      expect(trimTrailingSlash('')).toBe('')
+    })
+
+    it('leaves middle slashes alone', () => {
+      expect(trimTrailingSlash('a/b/c')).toBe('a/b/c')
+    })
+
+    it('runs in linear time on inputs ending with many slashes plus other chars', () => {
+      const hostile = '/'.repeat(50_000) + 'x'
+      const start = Date.now()
+      trimTrailingSlash(hostile)
+      expect(Date.now() - start).toBeLessThan(50)
+    })
+  })
+
+  describe('stripQueryString', () => {
+    it('strips from the first `?` onward when content follows', () => {
+      expect(stripQueryString('https://x/path?a=1')).toBe('https://x/path')
+      expect(stripQueryString('https://x?a=1&b=2')).toBe('https://x')
+    })
+
+    it('leaves strings with no `?` alone', () => {
+      expect(stripQueryString('https://x/path')).toBe('https://x/path')
+    })
+
+    it('leaves a trailing `?` with no value alone (matches old `\\?.+$`)', () => {
+      // /\?.+$/ requires at least one char after `?`; without it the regex
+      // doesn't match and the input is returned unchanged.
+      expect(stripQueryString('https://x?')).toBe('https://x?')
     })
   })
 })

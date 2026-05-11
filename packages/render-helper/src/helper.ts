@@ -196,6 +196,70 @@ export function makeEntryCacheKey(entry: any): string {
   return `${entry.author}-${entry.permlink}-${entry.last_update}-${entry.updated}`
 }
 
+/**
+ * Linear-time HTML-tag stripper. Replaces the regex
+ *   /(<([^>]+)>)/gi
+ * which `regexp/no-super-linear-move` flags as quadratic on inputs with
+ * many `<`s that never close. Mirrors the regex's behaviour: matches
+ * `<tag...>` with at least one character between the angle brackets and
+ * removes it, but leaves bare `<` (with no `>` to close it) and `<>`
+ * (empty content) in place.
+ */
+export function stripHtmlTags(s: string): string {
+  const n = s.length
+  let out = ''
+  let i = 0
+  while (i < n) {
+    const lt = s.indexOf('<', i)
+    if (lt < 0) {
+      out += s.slice(i)
+      break
+    }
+    out += s.slice(i, lt)
+    const gt = s.indexOf('>', lt + 1)
+    if (gt < 0) {
+      // Unclosed `<` — original regex required a `>` to match, so keep
+      // the remaining text intact.
+      out += s.slice(lt)
+      break
+    }
+    if (gt === lt + 1) {
+      // `<>` empty — original `[^>]+` required at least one inner char,
+      // so preserve the literal `<>`.
+      out += s.slice(lt, gt + 1)
+      i = gt + 1
+      continue
+    }
+    i = gt + 1
+  }
+  return out
+}
+
+/**
+ * Linear-time trailing-`/` strip. Replaces the regex
+ *   /\/+$/
+ * which `regexp/no-super-linear-move` flags as quadratic on inputs
+ * that end in a long run of slashes followed by anything else (the
+ * engine retries at every starting position).
+ */
+export function trimTrailingSlash(s: string): string {
+  let end = s.length
+  while (end > 0 && s.charCodeAt(end - 1) === 0x2f /* '/' */) end--
+  return s.slice(0, end)
+}
+
+/**
+ * Linear-time query-string strip. Replaces the regex
+ *   /\?.+$/
+ * with a simple `indexOf` + `slice`. Matches the regex's behaviour:
+ * strips only if `?` exists *and* at least one character follows it
+ * (`?` at end-of-string leaves the input unchanged).
+ */
+export function stripQueryString(s: string): string {
+  const q = s.indexOf('?')
+  return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s
+}
+
 export function extractYtStartTime(url:string):string {
   try {
     const urlObj = new URL(url);

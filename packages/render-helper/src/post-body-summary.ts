@@ -1,5 +1,5 @@
 import he from 'he'
-import { makeEntryCacheKey } from './helper'
+import { makeEntryCacheKey, stripHtmlTags } from './helper'
 import { cacheGet, cacheSet } from './cache'
 import { Entry } from './types'
 import { cleanReply } from './methods'
@@ -105,12 +105,7 @@ function postBodySummary(entryBody: string, length: number = 200, platform:'ios'
   }
 
 
-  text = text
-    // TODO(redos): HTML-tag stripper has quadratic worst-case on inputs
-    // with many `<`s that never close (e.g., `<<<<<…`). Body length is
-    // bounded by Hive's per-op limit, but switch to a streaming stripper.
-    // eslint-disable-next-line regexp/no-super-linear-move
-    .replace(/(<([^>]+)>)/gi, '') // Remove html tags
+  text = stripHtmlTags(text)
     .replace(/\r?\n|\r/g, ' ') // Remove new lines
     .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Remove urls
     .trim()

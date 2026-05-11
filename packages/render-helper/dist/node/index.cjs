@@ -83,13 +83,13 @@ var SECTION_LIST = [
 // src/consts/regexes.const.ts
 var IMG_REGEX = /(https?:\/\/.*\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw))(.*)/gim;
 var IPFS_REGEX = /^https?:\/\/[^/]+\/(ip[fn]s)\/([^/?#]+)/gim;
-var POST_REGEX = /^https?:\/\/(.*)\/(.*)\/(@[\w.\d-]+)\/(.*)/i;
+var POST_REGEX = /^https?:\/\/([^/]+)\/(.+?)\/(@[\w.\d-]+)\/(.+)$/i;
 var CCC_REGEX = /^https?:\/\/(.*)\/ccc\/([\w.\d-]+)\/(.*)/i;
 var MENTION_REGEX = /^https?:\/\/(.*)\/(@[\w.\d-]+)$/i;
 var TOPIC_REGEX = /^https?:\/\/(.*)\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i;
 var INTERNAL_MENTION_REGEX = /^\/@[\w.\d-]+$/i;
 var INTERNAL_TOPIC_REGEX = /^\/(trending|hot|created|promoted|muted|payout)\/(.*)$/i;
-var INTERNAL_POST_TAG_REGEX = /(.*)\/(@[\w.\d-]+)\/(.*)/i;
+var INTERNAL_POST_TAG_REGEX = /^(.+?)\/(@[\w.\d-]+)\/(.*)$/i;
 var INTERNAL_POST_REGEX = /^\/(@[\w.\d-]+)\/(.*)$/i;
 var CUSTOM_COMMUNITY_REGEX = /^https?:\/\/(.*)\/c\/(hive-\d+)(.*)/i;
 var YOUTUBE_REGEX = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|shorts\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
@@ -327,6 +327,40 @@ function createDoc(html) {
 function makeEntryCacheKey(entry) {
   return `${entry.author}-${entry.permlink}-${entry.last_update}-${entry.updated}`;
 }
+function stripHtmlTags(s) {
+  const n = s.length;
+  let out = "";
+  let i = 0;
+  while (i < n) {
+    const lt = s.indexOf("<", i);
+    if (lt < 0) {
+      out += s.slice(i);
+      break;
+    }
+    out += s.slice(i, lt);
+    const gt = s.indexOf(">", lt + 1);
+    if (gt < 0) {
+      out += s.slice(lt);
+      break;
+    }
+    if (gt === lt + 1) {
+      out += s.slice(lt, gt + 1);
+      i = gt + 1;
+      continue;
+    }
+    i = gt + 1;
+  }
+  return out;
+}
+function trimTrailingSlash(s) {
+  let end = s.length;
+  while (end > 0 && s.charCodeAt(end - 1) === 47) end--;
+  return s.slice(0, end);
+}
+function stripQueryString(s) {
+  const q = s.indexOf("?");
+  return q >= 0 && q < s.length - 1 ? s.slice(0, q) : s;
+}
 function extractYtStartTime(url) {
   try {
     const urlObj = new URL(url);
@@ -525,7 +559,7 @@ function img(el, state) {
   }
   const cls = el.getAttribute("class") || "";
   const shouldReplace = !cls.includes("no-replace");
-  const base = getProxyBase().replace(/\/+$/, "");
+  const base = trimTrailingSlash(getProxyBase());
   const hasAlreadyProxied = src.startsWith(`${base}/p/`) || src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
   if (shouldReplace && !hasAlreadyProxied) {
     const proxified = proxifyImageSrc(decodedSrc);
@@ -550,7 +584,7 @@ function img(el, state) {
 function createImageHTML(src, isLCP) {
   const proxified = proxifyImageSrc(src);
   if (!proxified) return "";
-  const base = getProxyBase().replace(/\/+$/, "");
+  const base = trimTrailingSlash(getProxyBase());
   const isAlreadyProxied = src.startsWith(`${base}/u/`) || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/\\d+x\\d+/`).test(src);
   const srcset = isAlreadyProxied ? "" : buildSrcSet(src);
   const loading = isLCP ? "eager" : "lazy";
@@ -584,7 +618,8 @@ var matchesHref = (href, value) => {
   return normalizeValue(value) === normalizedHref;
 };
 var normalizeDisplayText = (text2) => {
-  return text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "").replace(/\/+$/, "").toLowerCase();
+  const beforeTrailingSlash = text2.trim().replace(/^https?:\/\/(www\.)?(ecency\.com|peakd\.com|hive\.blog)/i, "").replace(/^\/+/, "").split("?")[0].replace(/#@.*$/i, "");
+  return trimTrailingSlash(beforeTrailingSlash).toLowerCase();
 };
 var getInlineMeta = (el, href, author, permlink, communityTag) => {
   const textMatches = matchesHref(href, el.textContent);
@@ -1153,8 +1188,8 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     TWITTER_REGEX.lastIndex = 0;
     const e = TWITTER_REGEX.exec(href);
     if (e) {
-      const url = e[0].replace(/(<([^>]+)>)/gi, "");
-      const author = e[1].replace(/(<([^>]+)>)/gi, "");
+      const url = stripHtmlTags(e[0]);
+      const author = stripHtmlTags(e[1]);
       const blockquote = el.ownerDocument.createElement("blockquote");
       blockquote.setAttribute("class", "twitter-tweet");
       const p2 = el.ownerDocument.createElement("p");
@@ -1230,8 +1265,7 @@ function iframe(el, parentDomain = "ecency.com", forApp = false) {
     return;
   }
   if (src.match(YOUTUBE_EMBED_REGEX)) {
-    const s = src.replace(/\?.+$/, "");
-    el.setAttribute("src", s);
+    el.setAttribute("src", stripQueryString(src));
     return;
   }
   if (src.match(BITCHUTE_REGEX)) {
@@ -1974,7 +2008,7 @@ function postBodySummary(entryBody, length = 200, platform = "web") {
       text2 = text2.split(placeholder).join(entity);
     });
   }
-  text2 = text2.replace(/(<([^>]+)>)/gi, "").replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ {2,}/g, " ");
+  text2 = stripHtmlTags(text2).replace(/\r?\n|\r/g, " ").replace(/(?:https?|ftp):\/\/[\n\S]+/g, "").trim().replace(/ {2,}/g, " ");
   if (length > 0) {
     text2 = joint(text2.split(" "), length);
   }
