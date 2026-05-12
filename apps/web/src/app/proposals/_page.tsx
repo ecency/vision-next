@@ -140,9 +140,20 @@ export function ProposalsPage() {
   );
 
   useEffect(() => {
-    if (searchParams?.has("filter")) {
-      setFilter(searchParams.get("filter") as Filter);
+    if (!searchParams?.has("filter")) {
+      return;
     }
+    const filterParam = searchParams.get("filter") ?? "";
+    if (filterParam === "ecency") {
+      setFilter(Filter.TEAM);
+      return;
+    }
+    if ((Object.values(Filter) as string[]).includes(filterParam)) {
+      setFilter(filterParam as Filter);
+      return;
+    }
+    setFilter(Filter.ALL);
+    setSearch(filterParam);
   }, [searchParams]);
 
   const showCreateForm = filter === Filter.CREATE;
