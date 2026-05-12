@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.11
+
+### Patch Changes
+
+- Send idempotency_key on AI assist POST (#786)
+
 ## 2.2.10
 
 ### Patch Changes
