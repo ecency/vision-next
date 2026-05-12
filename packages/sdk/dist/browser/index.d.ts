@@ -40,6 +40,7 @@ interface AiAssistResponse {
     cost: number;
     is_free: boolean;
     request_id: string;
+    idempotent_replay?: boolean;
 }
 
 declare function getAiGeneratePriceQueryOptions(accessToken: string): _tanstack_react_query.OmitKeyof<_tanstack_react_query.UseQueryOptions<AiImagePriceResponse, Error, AiImagePriceResponse, readonly ["ai", "prices"]>, "queryFn"> & {

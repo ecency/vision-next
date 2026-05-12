@@ -41,4 +41,7 @@ export interface AiAssistResponse {
   cost: number;
   is_free: boolean;
   request_id: string;
+  // true when the backend deduped a duplicate POST against an earlier
+  // successful request with the same idempotency_key. Cost is 0 in that case.
+  idempotent_replay?: boolean;
 }

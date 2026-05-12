@@ -8,6 +8,24 @@ export interface AiAssistParams {
   code?: string;
 }
 
+// Generates a key that matches the eepoints validator [A-Za-z0-9_-]{8,64}.
+// Used to dedupe duplicate POSTs caused by edge/proxy retries — same key on
+// retry returns the cached AI output without re-charging or re-calling Claude.
+function makeIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  const arr = new Uint8Array(16);
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    crypto.getRandomValues(arr);
+  } else {
+    for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256);
+  }
+  return Array.from(arr)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function useAiAssist(
   username: string | undefined,
   accessToken: string | undefined,
@@ -40,6 +58,7 @@ export function useAiAssist(
             us: username,
             action: params.action,
             text: params.text,
+            idempotency_key: makeIdempotencyKey(),
           }),
         }
       );
