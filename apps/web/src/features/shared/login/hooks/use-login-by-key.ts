@@ -52,11 +52,14 @@ export function useLoginByKey(
         throw new Error(i18next.t("login.captcha-check-required"));
       }
 
-      // Warn if the code is a public key
+      let isPublicKey = false;
       try {
         PublicKey.fromString(keyOrSeed);
+        isPublicKey = true;
+      } catch {}
+      if (isPublicKey) {
         throw new Error(i18next.t("login.error-public-key"));
-      } catch (e) {}
+      }
 
       let account: FullAccount | undefined = prefetchedAccount;
 

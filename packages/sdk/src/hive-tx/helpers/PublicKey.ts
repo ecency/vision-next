@@ -18,17 +18,43 @@ export class PublicKey {
   constructor(key: Uint8Array, prefix?: string) {
     this.key = key
     this.prefix = prefix ?? DEFAULT_ADDRESS_PREFIX
-    // assert(secp256k1.publicKeyVerify(key), 'invalid public key')
   }
 
   /**
    * Creates a PublicKey from a string representation.
    * @param wif Public key string (e.g., "STM8m5UgaFAAYQRuaNejYdS8FVLVp9Ss3K1qAVk5de6F8s3HnVbvA")
    * @returns New PublicKey instance
-   * @throws Error if the key format is invalid
+   * @throws Error if the prefix, length, checksum, or curve point is invalid
    */
   static fromString(wif: string): PublicKey {
-    const { key, prefix } = decodePublic(wif)
+    if (typeof wif !== 'string' || wif.length <= 3) {
+      throw new Error('Invalid public key')
+    }
+    const prefix = wif.slice(0, 3)
+    if (prefix !== DEFAULT_ADDRESS_PREFIX) {
+      throw new Error(`Public key must start with ${DEFAULT_ADDRESS_PREFIX}`)
+    }
+    let buffer: Uint8Array
+    try {
+      buffer = bs58.decode(wif.slice(3))
+    } catch {
+      throw new Error('Invalid public key encoding')
+    }
+    // 33-byte compressed secp256k1 point + 4-byte RIPEMD160 checksum
+    if (buffer.length !== 37) {
+      throw new Error('Invalid public key length')
+    }
+    const key = buffer.subarray(0, 33)
+    const checksum = buffer.subarray(33, 37)
+    const expectedChecksum = ripemd160(key).subarray(0, 4)
+    if (!isUint8ArrayEqual(checksum, expectedChecksum)) {
+      throw new Error('Public key checksum mismatch')
+    }
+    try {
+      secp256k1.Point.fromBytes(key)
+    } catch {
+      throw new Error('Invalid public key')
+    }
     return new PublicKey(key, prefix)
   }
 
@@ -91,11 +117,10 @@ const encodePublic = (key: Uint8Array, prefix: string): string => {
   return prefix + bs58.encode(new Uint8Array([...key, ...checksum.subarray(0, 4)]))
 }
 
-/** Decode bs58+ripemd160-checksum encoded public key. */
-const decodePublic = (encodedKey: string) => {
-  const prefix = encodedKey.slice(0, 3)
-  encodedKey = encodedKey.slice(3)
-  const buffer = bs58.decode(encodedKey)
-  const key = buffer.subarray(0, buffer.length - 4)
-  return { key: key as Uint8Array, prefix }
+const isUint8ArrayEqual = (a: Uint8Array, b: Uint8Array): boolean => {
+  if (a.byteLength !== b.byteLength) return false
+  for (let i = 0; i < a.byteLength; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
 }

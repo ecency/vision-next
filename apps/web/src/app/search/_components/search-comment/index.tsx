@@ -10,6 +10,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { SearchResult } from "@/entities";
 import { Button } from "@/features/ui";
+import * as ls from "@/utils/local-storage";
 
 enum SearchSort {
   POPULARITY = "popularity",
@@ -35,7 +36,8 @@ export function SearchComment({ disableResults }: Props) {
 
   const since = useMemo(() => {
     let sinceDate: Dayjs | undefined;
-    switch (params?.get("date") ?? DateOpt.M) {
+    const dateOpt = params?.get("date") ?? ls.get("recent_date", DateOpt.Y);
+    switch (dateOpt) {
       case DateOpt.W:
         sinceDate = dayjs().subtract(1, "week");
         break;

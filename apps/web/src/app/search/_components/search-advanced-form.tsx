@@ -2,7 +2,6 @@ import i18next from "i18next";
 import { FormControl } from "@ui/input";
 import { Button } from "@ui/button";
 import React, { useEffect, useState } from "react";
-import * as ls from "@/utils/local-storage";
 import { SearchQuery, SearchType } from "@/utils/search-query";
 import { DateOpt } from "@/enums";
 import { SearchSort } from "@/app/decks/_components/consts";
@@ -18,7 +17,7 @@ export function SearchAdvancedForm() {
   const [type, setType] = useState<SearchType>(SearchType.ALL);
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
-  const [date, setDate] = useLocalStorage<DateOpt>("recent_date");
+  const [date, setDate] = useLocalStorage<DateOpt>("recent_date", DateOpt.Y);
   const [sort, setSort] = useState<SearchSort>(SearchSort.NEWEST);
   const [hideLow, setHideLow] = useState(false);
 
@@ -35,7 +34,10 @@ export function SearchAdvancedForm() {
 
     setSort((params?.get("sort") as SearchSort) ?? SearchSort.NEWEST);
     setHideLow(params?.get("hd") !== "0");
-    setDate((params?.get("date") as DateOpt) ?? DateOpt.M);
+    const urlDate = params?.get("date") as DateOpt | null;
+    if (urlDate) {
+      setDate(urlDate);
+    }
   }, [params, setDate]);
 
   const searchChanged = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -87,7 +89,7 @@ export function SearchAdvancedForm() {
 
     const params = new URLSearchParams();
     params.append("q", q);
-    params.append("date", date ?? DateOpt.M);
+    params.append("date", date ?? DateOpt.Y);
     params.append("sort", sort);
     params.append("adv", "1");
     if (!hideLow) params.append("hd", "0");
@@ -151,7 +153,7 @@ export function SearchAdvancedForm() {
         </div>
         <div className="col-span-12 sm:col-span-2 mb-4">
           <label>{i18next.t("search-comment.date")}</label>
-          <FormControl type="select" value={ls.get("recent_date", "month")} onChange={dateChanged}>
+          <FormControl type="select" value={date ?? DateOpt.Y} onChange={dateChanged}>
             {Object.values(DateOpt).map((x) => (
               <option value={x} key={x}>
                 {i18next.t(`search-comment.date-${x}`)}
