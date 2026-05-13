@@ -254,6 +254,19 @@ const config = {
         source: "/:author(@[^/]+)/engine",
         destination: "/:author/wallet",
         permanent: false
+      },
+      // SEO: consolidate post URLs onto bare /@author/permlink form.
+      // Matches /:category/@:author/:permlink (community-prefixed or any legacy
+      // category prefix). The (?!@) on :category prevents the wild edge case
+      // of /@x/@y/z matching. Edit URLs (/:cat/@a/p/edit) and sub-path URLs
+      // (/:cat/@a/p/:sub) are 4 segments and don't match this 3-segment rule —
+      // their existing rewrites in rewrites() handle them.
+      // Starts as 302 (temporary) so the change is reversible while we
+      // verify in production; can flip to permanent: true once confident.
+      {
+        source: "/:category((?!@)[^/]+)/:author(@[^/]+)/:permlink",
+        destination: "/:author/:permlink",
+        permanent: false
       }
     ];
   },

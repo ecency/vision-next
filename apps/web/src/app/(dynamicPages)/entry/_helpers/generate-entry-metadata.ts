@@ -78,12 +78,14 @@ export async function generateEntryMetadata(
       entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
 
     const image = catchPostImage(entry, 1200, 630, "match");
-    const urlParts = entry.url.split("#");
-    const fullUrl = isComment && urlParts[1] ? `${base}/${urlParts[1]}` : `${base}${entry.url}`;
+    // Bare /@author/permlink form — matches the new self-canonical so og:url
+    // and rel=canonical agree, which is what Google expects to consolidate
+    // duplicates onto a single URL.
+    const fullUrl = `${base}/@${entry.author}/${entry.permlink}`;
     const authorUrl = `${base}/@${entry.author}`;
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
     const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
-    const canonical = entryCanonical(entry, false, base);
+    const canonical = entryCanonical(entry, base);
     const finalCanonical = canonical ?? fullUrl;
 
     let authorAccount: ReputationSource = null;
@@ -113,7 +115,7 @@ export async function generateEntryMetadata(
       openGraph: {
         title,
         description: summary,
-        url: fullUrl,
+        url: finalCanonical,
         images: image ? [image] : [],
         type: "article",
         publishedTime: createdAt.toISOString(),
