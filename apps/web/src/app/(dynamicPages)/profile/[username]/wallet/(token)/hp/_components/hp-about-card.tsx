@@ -9,7 +9,8 @@ import { getDynamicPropsQueryOptions } from "@ecency/sdk";
 import { WalletOperationsDialog } from "@/features/wallet";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { Button } from "@/features/ui";
-import { dateToFullRelative, formatNumber } from "@/utils";
+import { formatNumber } from "@/utils";
+import { useFormattedDate } from "@/features/shared/time-label";
 import { getPowerDownSchedule } from "@/features/wallet/operations/get-power-down-schedule";
 
 interface Props {
@@ -27,6 +28,10 @@ export function HpAboutCard({ username }: Props) {
     () => getPowerDownSchedule(accountData, hivePerMVests),
     [accountData, hivePerMVests]
   );
+  const nextWithdrawalText = useFormattedDate(
+    powerDownSchedule?.nextWithdrawal,
+    "fullRelative"
+  );
 
   return (
     <ProfileWalletTokenHistoryCard title={i18next.t("static.about.page-title")}> 
@@ -40,7 +45,7 @@ export function HpAboutCard({ username }: Props) {
             </div>
             <div>
               {i18next.t("wallet.next-power-down", {
-                time: dateToFullRelative(powerDownSchedule.nextWithdrawal),
+                time: nextWithdrawalText,
                 amount: `${formatNumber(powerDownSchedule.weeklyHp, 3)} HP`,
                 weeks: powerDownSchedule.weeks,
               })}

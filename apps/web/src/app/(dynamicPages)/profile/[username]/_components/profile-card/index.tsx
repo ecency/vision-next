@@ -6,8 +6,9 @@ import defaults from "@/defaults";
 import { Account } from "@/entities";
 import { FollowControls, HivePosh, UserAvatar } from "@/features/shared";
 import { FavoriteBtn } from "@/features/shared/favorite-btn";
+import { TimeLabel } from "@/features/shared/time-label";
 import { Badge } from "@/features/ui";
-import { accountReputation, dateToFormatted } from "@/utils";
+import { accountReputation } from "@/utils";
 import {
   getAccountRcQueryOptions,
   getAccountSubscriptionsQueryOptions,
@@ -213,7 +214,7 @@ export function ProfileCard({ account }: Props) {
             icon={<UilCalendarAlt className="w-5 h-5" />}
             label={i18next.t("referral.created")}
           >
-            {dateToFormatted(data?.created, "LL")}
+            <TimeLabel created={data?.created} mode="absolute" format="LL" className="" />
           </ProfileCardExtraProperty>
         )}
 
