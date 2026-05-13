@@ -53,4 +53,13 @@ describe("Entry canonical", () => {
     const entry = { ...entryInstance1, permlink: "", json_metadata: {} };
     expect(entryCanonical(entry)).toBeNull();
   });
+
+  it("(9) Honors explicit canonical_url even when author/permlink are missing", () => {
+    const entry = {
+      ...entryInstance1,
+      permlink: "",
+      json_metadata: { canonical_url: "https://elsewhere.example/post" }
+    };
+    expect(entryCanonical(entry)).toBe("https://elsewhere.example/post");
+  });
 });

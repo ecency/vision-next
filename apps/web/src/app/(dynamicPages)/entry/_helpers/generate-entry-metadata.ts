@@ -115,7 +115,7 @@ export async function generateEntryMetadata(
       openGraph: {
         title,
         description: summary,
-        url: fullUrl,
+        url: finalCanonical,
         images: image ? [image] : [],
         type: "article",
         publishedTime: createdAt.toISOString(),

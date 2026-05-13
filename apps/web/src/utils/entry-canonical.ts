@@ -15,13 +15,13 @@ import defaults from "@/defaults";
  * silently ignoring anyway when those targets were CSR.
  */
 export function entryCanonical(entry: Entry, baseUrl = defaults.base): string | null {
-  if (!entry.author || !entry.permlink) {
-    return null;
-  }
-
   const canonicalFromMetadata = entry.json_metadata?.canonical_url;
   if (canonicalFromMetadata) {
     return canonicalFromMetadata.replace("https://www.", "https://");
+  }
+
+  if (!entry.author || !entry.permlink) {
+    return null;
   }
 
   return `${baseUrl}/@${entry.author}/${entry.permlink}`;
