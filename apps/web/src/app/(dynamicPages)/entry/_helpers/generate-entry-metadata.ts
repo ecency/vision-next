@@ -1,5 +1,6 @@
 import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
+import { isNsfwEntry } from "@/utils/nsfw-detection";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import { getContentQueryOptions, getProfilesQueryOptions, Profile } from "@ecency/sdk";
@@ -98,9 +99,10 @@ export async function generateEntryMetadata(
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const applyNoIndex = accountFetchFailed
-      ? false
-      : shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
+    const nsfwNoIndex = isNsfwEntry(entry);
+    const reputationNoIndex = !accountFetchFailed
+      && shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
+    const applyNoIndex = nsfwNoIndex || reputationNoIndex;
 
     const robots = applyNoIndex ? "noindex, nofollow" : undefined;
 
