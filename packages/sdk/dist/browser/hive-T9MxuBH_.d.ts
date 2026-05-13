@@ -48,14 +48,16 @@ declare class PublicKey {
     /**
      * Creates a new PublicKey instance from raw bytes.
      * @param key Raw public key bytes (33 bytes, compressed format)
-     * @param prefix Optional address prefix (defaults to config.address_prefix)
+     * @param prefix Optional address prefix (defaults to the current config.address_prefix)
      */
     constructor(key: Uint8Array, prefix?: string);
     /**
      * Creates a PublicKey from a string representation.
+     * The expected prefix is read from config.address_prefix at call time, so
+     * consumers can switch networks at runtime.
      * @param wif Public key string (e.g., "STM8m5UgaFAAYQRuaNejYdS8FVLVp9Ss3K1qAVk5de6F8s3HnVbvA")
      * @returns New PublicKey instance
-     * @throws Error if the key format is invalid
+     * @throws Error if the prefix, length, checksum, or curve point is invalid
      */
     static fromString(wif: string): PublicKey;
     /**
@@ -215,7 +217,7 @@ declare class Asset {
      */
     static from(value: number | string | Asset, symbol?: string | null): Asset;
     /** Return asset precision. */
-    getPrecision(): 3 | 6;
+    getPrecision(): 6 | 3;
     /** Return a string representation of this asset, e.g. `42.000 HIVE`. */
     toString(): string;
     toJSON(): string;
