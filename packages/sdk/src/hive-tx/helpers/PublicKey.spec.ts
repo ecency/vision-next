@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { PublicKey } from './PublicKey'
 import { PrivateKey } from './PrivateKey'
+import { config } from '../config'
 
 describe('PublicKey.fromString', () => {
   it('accepts a valid STM-prefixed public key', () => {
@@ -44,5 +45,29 @@ describe('PublicKey.fromString', () => {
 
   it('rejects arbitrary garbage', () => {
     expect(() => PublicKey.fromString('hello world')).toThrow()
+  })
+
+  describe('runtime config.address_prefix mutation', () => {
+    const originalPrefix = config.address_prefix
+
+    afterEach(() => {
+      config.address_prefix = originalPrefix
+    })
+
+    it('accepts the configured prefix after runtime mutation', () => {
+      config.address_prefix = 'TST'
+      const pub = PrivateKey.randomKey().createPublic().toString()
+      expect(pub.startsWith('TST')).toBe(true)
+      expect(() => PublicKey.fromString(pub)).not.toThrow()
+      expect(PublicKey.fromString(pub).toString()).toBe(pub)
+    })
+
+    it('rejects the previous prefix after runtime mutation', () => {
+      // Encode a key with the default ("STM") prefix...
+      const stmPub = PrivateKey.randomKey().createPublic().toString()
+      // ...then switch to TST. Parsing the old STM string must now fail.
+      config.address_prefix = 'TST'
+      expect(() => PublicKey.fromString(stmPub)).toThrow(/must start with TST/)
+    })
   })
 })

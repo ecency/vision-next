@@ -4,8 +4,6 @@ import { config } from '../config'
 import { secp256k1 } from '@noble/curves/secp256k1.js'
 import { Signature } from './Signature'
 
-const DEFAULT_ADDRESS_PREFIX = config.address_prefix
-
 export class PublicKey {
   key: Uint8Array
   prefix: string
@@ -13,30 +11,35 @@ export class PublicKey {
   /**
    * Creates a new PublicKey instance from raw bytes.
    * @param key Raw public key bytes (33 bytes, compressed format)
-   * @param prefix Optional address prefix (defaults to config.address_prefix)
+   * @param prefix Optional address prefix (defaults to the current config.address_prefix)
    */
   constructor(key: Uint8Array, prefix?: string) {
     this.key = key
-    this.prefix = prefix ?? DEFAULT_ADDRESS_PREFIX
+    // Read config at call time so runtime mutations to config.address_prefix
+    // (e.g. switching to a non-mainnet network) take effect for new instances.
+    this.prefix = prefix ?? config.address_prefix
   }
 
   /**
    * Creates a PublicKey from a string representation.
+   * The expected prefix is read from config.address_prefix at call time, so
+   * consumers can switch networks at runtime.
    * @param wif Public key string (e.g., "STM8m5UgaFAAYQRuaNejYdS8FVLVp9Ss3K1qAVk5de6F8s3HnVbvA")
    * @returns New PublicKey instance
    * @throws Error if the prefix, length, checksum, or curve point is invalid
    */
   static fromString(wif: string): PublicKey {
-    if (typeof wif !== 'string' || wif.length <= 3) {
+    const expectedPrefix = config.address_prefix
+    if (typeof wif !== 'string' || wif.length <= expectedPrefix.length) {
       throw new Error('Invalid public key')
     }
-    const prefix = wif.slice(0, 3)
-    if (prefix !== DEFAULT_ADDRESS_PREFIX) {
-      throw new Error(`Public key must start with ${DEFAULT_ADDRESS_PREFIX}`)
+    const prefix = wif.slice(0, expectedPrefix.length)
+    if (prefix !== expectedPrefix) {
+      throw new Error(`Public key must start with ${expectedPrefix}`)
     }
     let buffer: Uint8Array
     try {
-      buffer = bs58.decode(wif.slice(3))
+      buffer = bs58.decode(wif.slice(expectedPrefix.length))
     } catch {
       throw new Error('Invalid public key encoding')
     }
