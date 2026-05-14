@@ -214,7 +214,7 @@ export function ProfileCard({ account }: Props) {
             icon={<UilCalendarAlt className="w-5 h-5" />}
             label={i18next.t("referral.created")}
           >
-            <TimeLabel created={data?.created} mode="absolute" format="LL" className="" />
+            <TimeLabel created={data?.created} mode="absolute" format="LL" />
           </ProfileCardExtraProperty>
         )}
 
