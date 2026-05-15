@@ -99,7 +99,7 @@ export namespace ConfigManager {
 
   /**
    * Set the image host
-   * @param host - The image host URL (e.g., "https://images.ecency.com")
+   * @param host - The image host URL (e.g., "https://i.ecency.com")
    */
   export function setImageHost(host: string) {
     CONFIG.imageHost = host;

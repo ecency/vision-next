@@ -6,7 +6,8 @@ import "./author-link-extension.scss";
 import defaults from "@/defaults";
 
 export function AuthorLinkRenderer({ author }: { author: string }) {
-  const imageSrc = `${defaults.imageServer}/u/${author.toLowerCase().replace("@", "")}/avatar/small`;
+  const normalizedAuthor = author.trim().toLowerCase().replace(/@/g, "").replace(/^\/+|\/+$/g, "");
+  const imageSrc = `${defaults.imageServer}/u/${normalizedAuthor}/avatar/small`;
 
   return (
       <>

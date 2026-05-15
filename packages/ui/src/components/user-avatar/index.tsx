@@ -11,7 +11,7 @@ export interface UserAvatarProps {
   size?: Size | 'normal' | 'sLarge' | 'xLarge' | 'deck-item';
   /** Custom image source (overrides default avatar URL) */
   src?: string;
-  /** Base URL for image proxy (default: https://images.ecency.com) */
+  /** Base URL for image proxy (default: https://i.ecency.com) */
   imageProxyBase?: string;
   /** Click handler - makes avatar interactive */
   onClick?: () => void;
