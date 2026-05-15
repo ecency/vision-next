@@ -43,7 +43,7 @@ const sizeToApiSize: Record<string, 'small' | 'medium' | 'large'> = {
   'deck-item': 'small',
 };
 
-const DEFAULT_IMAGE_PROXY = 'https://images.ecency.com';
+const DEFAULT_IMAGE_PROXY = 'https://i.ecency.com';
 
 /**
  * UserAvatar displays a Hive user's profile avatar image.

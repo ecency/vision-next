@@ -82,7 +82,7 @@ describe('img() method - Image Processing', () => {
     })
   })
 
-  describe('proxification through images.ecency.com', () => {
+  describe('proxification through i.ecency.com', () => {
     it('should proxify image URLs', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
@@ -92,7 +92,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
 
     it('should always use match format (webp handled by server via Accept header)', () => {
@@ -104,14 +104,14 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
       expect(src).toContain('format=match')
     })
 
     it('should not re-proxify already proxied images', () => {
       const parent = doc.createElement('div')
       const image = doc.createElement('img')
-      const proxiedUrl = 'https://images.ecency.com/p/abc123.png?format=match&mode=fit'
+      const proxiedUrl = 'https://i.ecency.com/p/abc123.png?format=match&mode=fit'
       image.setAttribute('src', proxiedUrl)
       parent.appendChild(image)
 
@@ -277,7 +277,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
 
     it('should accept absolute URLs with http', () => {
@@ -289,7 +289,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
 
     it('should preserve original src when proxifyImageSrc returns empty for / paths', () => {
@@ -365,7 +365,7 @@ describe('img() method - Image Processing', () => {
 
       const src = image.getAttribute('src')
       expect(src).toBeTruthy()
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
   })
 
@@ -454,7 +454,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
 
     it('should handle URL with hash fragments', () => {
@@ -466,7 +466,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
 
     it('should handle very long URLs', () => {
@@ -502,7 +502,7 @@ describe('img() method - Image Processing', () => {
       // After fix: function now uses trimmed decodedSrc for protocol check
       // So URLs with whitespace are recognized as absolute and proxified (not removed)
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
       expect(src).not.toBe('') // Should not be empty (the bug made it empty)
     })
 
@@ -515,7 +515,7 @@ describe('img() method - Image Processing', () => {
       img(image)
 
       const src = image.getAttribute('src')
-      expect(src).toContain('https://images.ecency.com')
+      expect(src).toContain('https://i.ecency.com')
     })
   })
 

@@ -202,7 +202,7 @@ describe('linkify() method - Content Linkification', () => {
       const result = linkify(content, false)
 
       expect(result).toContain('<img')
-      expect(result).toContain('src="https://images.ecency.com')
+      expect(result).toContain('src="https://i.ecency.com')
     })
 
     it('should handle PNG images', () => {
@@ -232,7 +232,7 @@ describe('linkify() method - Content Linkification', () => {
 
       // Both images should be converted
       expect(result).toContain('<img')
-      expect(result).toContain('images.ecency.com')
+      expect(result).toContain('i.ecency.com')
     })
 
     it('should always use match format', () => {

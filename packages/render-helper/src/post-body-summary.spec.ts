@@ -108,7 +108,7 @@ Through our vision of **empowering entrepreneurs to tokenize the internet**, our
       permlink: 'bar89',
       last_update: '2019-05-10T09:15:21',
       body: `<html>
-<center><a href='https://d.tube/#!/v/surfermarly/x2zm8s26'><img src='https://images.ecency.com/DQmdxVxFgLu8PT1TchgQUHtd7LGvKtF5u1DbHmDDKALiwxi/dreamsd1.jpg'></a></center><hr>
+<center><a href='https://d.tube/#!/v/surfermarly/x2zm8s26'><img src='https://i.ecency.com/DQmdxVxFgLu8PT1TchgQUHtd7LGvKtF5u1DbHmDDKALiwxi/dreamsd1.jpg'></a></center><hr>
 <p><b>Everybody has a dream. Most of the time it takes us a while to turn these great wishes into reality, especially   because they usually come with a bigger     price tag.</b></p>
 <p>Now thanks to Steem some of us will be able to cut corners in order to achieve their goals more quickly. The additional income can be a game changer to many players.</p>
 <p>My Steem earnings enabled me to buy a piece of land where I'll build my first own house. Writing down these words still seems a bit unreal to me, since I didn't believe to come to that point so quickly.</p>

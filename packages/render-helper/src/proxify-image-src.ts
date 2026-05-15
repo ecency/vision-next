@@ -2,7 +2,7 @@ import multihash from 'multihashes'
 import querystring from 'querystring'
 import { LRUCache } from 'lru-cache'
 
-let proxyBase = 'https://images.ecency.com'
+let proxyBase = 'https://i.ecency.com'
 
 // base58 encoding of the source URL is the dominant cost in proxifyImageSrc.
 // The same URL is encoded repeatedly: once per srcset width (5×), once per
@@ -63,6 +63,14 @@ export function proxifyImageSrc(url?: string, width = 0, height = 0, _format = '
 
   if (url.indexOf('https://steemitimages.com/') === 0 && url.indexOf('https://steemitimages.com/D') !== 0) {
     return url.replace('https://steemitimages.com', proxyBase)
+  }
+
+  // Legacy on-chain content embeds images.ecency.com URLs directly. Re-point
+  // every images.ecency.com URL to the active proxy base — the same
+  // imagehoster backend, just an SNI-resilient hostname (some ISPs, e.g.
+  // Virgin Media UK, SNI-filter the images.ecency.com hostname).
+  if (url.indexOf('https://images.ecency.com/') === 0) {
+    return url.replace('https://images.ecency.com', proxyBase)
   }
 
   const realUrl = getLatestUrl(url)

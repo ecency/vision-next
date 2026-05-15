@@ -1,5 +1,5 @@
 import { IMG_REGEX, SECTION_LIST } from '../consts'
-import { proxifyImageSrc } from '../proxify-image-src'
+import { proxifyImageSrc, getProxyBase } from '../proxify-image-src'
 import { isValidPermlink, isValidUsername, sanitizePermlink } from "../helper";
 import { createImageHTML } from "./img.method";
 import { RenderOptions } from "../types";
@@ -30,7 +30,7 @@ export function linkify(content: string, forApp: boolean, renderOptions?: Render
       const preceedings = (preceeding1 || '') + (preceeding2 || '')
       if (userLower.indexOf('/') === -1 && isValidUsername(user)) {
         if (!forApp) {
-          const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`
+          const avatarSrc = `${getProxyBase()}/u/${userLower}/avatar/small`
           const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`
           const placeholder = `\u200C${authorPlaceholders.length}\u200C`
           authorPlaceholders.push({ placeholder, html })

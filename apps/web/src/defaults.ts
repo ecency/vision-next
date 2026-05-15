@@ -25,6 +25,7 @@ const resolveRuntimeBase = (): string => {
 const defaultImageServer = process.env.NEXT_PUBLIC_IMAGE_SERVER || baseDefaults.imageServer;
 
 export const ALLOWED_IMAGE_SERVERS = [
+  "https://i.ecency.com",
   "https://images.ecency.com",
   "https://images.hive.blog",
   "https://img.ecency.com"
