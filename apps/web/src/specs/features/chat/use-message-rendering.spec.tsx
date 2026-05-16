@@ -37,7 +37,7 @@ describe("useMessageRendering", () => {
 
     const image = screen.getByTestId("chat-image");
     expect(image.getAttribute("src")).toBeTruthy();
-    expect(image.getAttribute("src")).toContain("https://images.ecency.com/p/");
+    expect(image.getAttribute("src")).toContain("https://i.ecency.com/p/");
     expect(image.getAttribute("src")).not.toContain("webhook.site/146b640e-078b-45c4-b0d7-9d197acb90b9/gif");
   });
 
@@ -55,7 +55,7 @@ describe("getSafeChatImageUrl", () => {
   it("returns a proxied URL for absolute http image candidates", () => {
     const proxied = getSafeChatImageUrl("https://webhook.site/146b640e-078b-45c4-b0d7-9d197acb90b9/gif");
 
-    expect(proxied).toContain("https://images.ecency.com/p/");
+    expect(proxied).toContain("https://i.ecency.com/p/");
     expect(proxied).not.toContain("webhook.site/146b640e-078b-45c4-b0d7-9d197acb90b9/gif");
   });
 
