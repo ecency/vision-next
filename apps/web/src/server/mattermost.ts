@@ -153,19 +153,44 @@ export async function ensureMattermostUser(username: string, signal?: AbortSigna
     return user;
   }
 
-  // Step 3: Create new user
+  // Step 3: Create new user. A concurrent bootstrap (common with browser-
+  // extension integrations that fire parallel/repeat bootstrap calls) can
+  // create the same user between the lookup above and this create — Mattermost
+  // then returns 400 app.user.save.username_exists.app_error. Treat that as
+  // success: re-fetch the now-existing user (reactivating if needed) instead
+  // of surfacing a spurious upstream error (which the bootstrap route maps to
+  // a 502) to the caller. Makes provisioning idempotent / race-safe.
   const email = `${username}+no-email@ecency.local`;
-  return await mmFetch<MattermostUser>(`/users`, {
-    method: "POST",
-    headers: getAdminHeaders(),
-    body: JSON.stringify({
-      username,
-      email,
-      password: randomBytes(32).toString("base64url") + "!Aa1",
-      allow_marketing: false
-    }),
-    signal
-  });
+  try {
+    return await mmFetch<MattermostUser>(`/users`, {
+      method: "POST",
+      headers: getAdminHeaders(),
+      body: JSON.stringify({
+        username,
+        email,
+        password: randomBytes(32).toString("base64url") + "!Aa1",
+        allow_marketing: false
+      }),
+      signal
+    });
+  } catch (error) {
+    if (
+      error instanceof MattermostError &&
+      error.status === 400 &&
+      error.message.includes("app.user.save.username_exists")
+    ) {
+      const existing = await mmFetch<MattermostUser>(
+        `/users/username/${username}`,
+        { headers: getAdminHeaders(), signal }
+      );
+      if (existing.delete_at > 0) {
+        await reactivateMattermostUser(existing.id, signal);
+        existing.delete_at = 0;
+      }
+      return existing;
+    }
+    throw error;
+  }
 }
 
 export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
