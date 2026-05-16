@@ -24,7 +24,7 @@ export const INTERNAL_API_TIMEOUT_MS = 10_000;
 
 export const CONFIG = {
   privateApiHost: "https://ecency.com",
-  imageHost: "https://images.ecency.com",
+  imageHost: "https://i.ecency.com",
   /** Current Hive RPC nodes. Reads from the unified hive-tx config. */
   get hiveNodes(): string[] {
     return hiveTxConfig.nodes;
@@ -99,7 +99,7 @@ export namespace ConfigManager {
 
   /**
    * Set the image host
-   * @param host - The image host URL (e.g., "https://images.ecency.com")
+   * @param host - The image host URL (e.g., "https://i.ecency.com")
    */
   export function setImageHost(host: string) {
     CONFIG.imageHost = host;

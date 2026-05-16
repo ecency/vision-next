@@ -80,10 +80,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         */}
         <script async src="/scripts/chunk-reload.js" />
         <script async src="/scripts/config-stub.js" />
-        <link rel="dns-prefetch" href="https://images.ecency.com" />
+        <link rel="dns-prefetch" href="https://i.ecency.com" />
         <link rel="dns-prefetch" href="https://ecency.com" />
         <link rel="dns-prefetch" href="https://hapi.ecency.com" />
-        <link rel="preconnect" href="https://images.ecency.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://i.ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ecency.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://hapi.ecency.com" crossOrigin="anonymous" />
       </head>

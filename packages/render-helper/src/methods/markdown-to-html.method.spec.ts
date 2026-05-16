@@ -437,7 +437,7 @@ describe('markdownToHTML() method', () => {
     it('should proxify image URLs through ecency CDN', () => {
       const input = '![Image](https://example.com/photo.jpg)'
       const result = markdownToHTML(input, false, 'ecency.com')
-      expect(result).toContain('https://images.ecency.com')
+      expect(result).toContain('https://i.ecency.com')
     })
 
     it('should handle IPFS image URLs', () => {

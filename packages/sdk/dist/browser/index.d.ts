@@ -983,7 +983,7 @@ declare namespace ConfigManager {
     function setPollsApiHost(host: string): void;
     /**
      * Set the image host
-     * @param host - The image host URL (e.g., "https://images.ecency.com")
+     * @param host - The image host URL (e.g., "https://i.ecency.com")
      */
     function setImageHost(host: string): void;
     /**

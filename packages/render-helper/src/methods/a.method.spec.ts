@@ -153,7 +153,7 @@ describe('a() method - Link Processing', () => {
 
       const imgs = parent.getElementsByTagName('img')
       expect(imgs.length).toBeGreaterThan(0)
-      expect(imgs[0]?.getAttribute('src')).toContain('https://images.ecency.com')
+      expect(imgs[0]?.getAttribute('src')).toContain('https://i.ecency.com')
     })
 
     it('should handle image links with query params', () => {
@@ -878,7 +878,7 @@ describe('a() method - Link Processing', () => {
 
         const imgs = el.getElementsByTagName('img')
         expect(imgs.length).toBeGreaterThan(0)
-        expect(imgs[0]?.getAttribute('src')).toContain('https://images.ecency.com')
+        expect(imgs[0]?.getAttribute('src')).toContain('https://i.ecency.com')
       })
 
       it('should add play button', () => {

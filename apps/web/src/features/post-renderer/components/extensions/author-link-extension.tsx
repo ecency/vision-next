@@ -3,9 +3,11 @@
 import React, { RefObject, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import "./author-link-extension.scss";
+import defaults from "@/defaults";
 
 export function AuthorLinkRenderer({ author }: { author: string }) {
-  const imageSrc = `https://images.ecency.com/u${author.toLowerCase().replace("@", "")}/avatar/small`;
+  const normalizedAuthor = author.trim().toLowerCase().replace(/@/g, "").replace(/^\/+|\/+$/g, "");
+  const imageSrc = `${defaults.imageServer}/u/${normalizedAuthor}/avatar/small`;
 
   return (
       <>

@@ -219,11 +219,12 @@ export async function addImage(code: string | undefined, url: string): Promise<R
   return parseJsonResponse<Record<string, unknown>>(response);
 }
 
-// Upload always targets the default Ecency image server, even when
+// Upload always targets the canonical Ecency image server, even when
 // the user has changed their viewing proxy (e.g. images.hive.blog).
-// The /hs/ route requires a HiveSigner-compatible access token which
-// only works with images.ecency.com.
-const UPLOAD_HOST = "https://images.ecency.com";
+// i.ecency.com is the same imagehoster endpoint as images.ecency.com
+// (identical backend / token validation); it is the canonical host
+// because some ISPs SNI-filter the images.ecency.com hostname.
+const UPLOAD_HOST = "https://i.ecency.com";
 
 export async function uploadImage(
   file: File,

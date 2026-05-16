@@ -48,7 +48,14 @@ export function PublishEditorImageViewer({
 
   const { mutateAsync: uploadImage } = useUploadImageMutation();
   const isBlob = typeof src === "string" && src.startsWith("blob");
-  const isEcencyImage = typeof src === "string" && src.includes("https://images.ecency.com");
+  const isEcencyImage = (() => {
+    if (typeof src !== "string") return false;
+    try {
+      return ["i.ecency.com", "images.ecency.com"].includes(new URL(src).hostname);
+    } catch {
+      return false;
+    }
+  })();
 
   useEffect(() => {
     if (isBlob && !processedBlobUrls.has(src)) {

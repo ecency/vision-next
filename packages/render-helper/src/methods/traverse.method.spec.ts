@@ -204,7 +204,7 @@ describe('traverse() method - DOM Traversal', () => {
 
         traverse(container, false, 0)
 
-        expect(img.getAttribute('src')).toContain('https://images.ecency.com')
+        expect(img.getAttribute('src')).toContain('https://i.ecency.com')
       })
     })
 
