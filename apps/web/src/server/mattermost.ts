@@ -200,13 +200,32 @@ export async function ensureUserInTeam(userId: string, signal?: AbortSignal) {
       headers: getAdminHeaders(),
       signal
     });
-  } catch (error) {
+    return; // already a member
+  } catch {
+    // not a member (or lookup failed) — add below
+  }
+  try {
     await mmFetch(`/teams/${teamId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
       body: JSON.stringify({ team_id: teamId, user_id: userId }),
       signal
     });
+  } catch (error) {
+    // A concurrent bootstrap (browser-extension integrations fire parallel
+    // calls) may have added the user between the check and this add —
+    // Mattermost then errors "team member already exists". Re-check the end
+    // state instead of failing: if the user is now a member, the desired
+    // state holds. Version-agnostic (no reliance on MM error-id strings).
+    try {
+      await mmFetch(`/teams/${teamId}/members/${userId}`, {
+        headers: getAdminHeaders(),
+        signal
+      });
+      return;
+    } catch {
+      throw error; // genuinely not a member — surface the real failure
+    }
   }
 }
 
@@ -248,7 +267,10 @@ export async function ensureChannelForCommunity(
       signal
     });
     return existing.id;
-  } catch (error) {
+  } catch {
+    // channel doesn't exist (or lookup failed) — create below
+  }
+  try {
     const created = await mmFetch<{ id: string }>(`/channels`, {
       method: "POST",
       headers: getAdminHeaders(),
@@ -261,6 +283,19 @@ export async function ensureChannelForCommunity(
       signal
     });
     return created.id;
+  } catch (error) {
+    // A concurrent bootstrap (e.g. several subscribers of a new community
+    // bootstrapping at once) may have created the channel between the lookup
+    // and this create. Re-fetch by name; if it now exists, use it.
+    try {
+      const existing = await mmFetch<{ id: string }>(`/teams/${teamId}/channels/name/${channelName}`, {
+        headers: getAdminHeaders(),
+        signal
+      });
+      return existing.id;
+    } catch {
+      throw error;
+    }
   }
 }
 
@@ -285,15 +320,30 @@ export async function ensureUserInChannel(userId: string, channelId: string, sig
       headers: getAdminHeaders(),
       signal
     });
-    // User is already a member, nothing to do
-  } catch (error) {
-    // User is not a member - add them to the channel
+    return; // already a member, nothing to do
+  } catch {
+    // not a member (or lookup failed) — add below
+  }
+  try {
     await mmFetch(`/channels/${channelId}/members`, {
       method: "POST",
       headers: getAdminHeaders(),
       body: JSON.stringify({ channel_id: channelId, user_id: userId }),
       signal
     });
+  } catch (error) {
+    // A concurrent bootstrap may have added the user between the check and
+    // this add. Re-check the end state: if the user is now a member, the
+    // desired state holds (version-agnostic — no MM error-id matching).
+    try {
+      await mmFetch(`/channels/${channelId}/members/${userId}`, {
+        headers: getAdminHeaders(),
+        signal
+      });
+      return;
+    } catch {
+      throw error;
+    }
   }
 }
 

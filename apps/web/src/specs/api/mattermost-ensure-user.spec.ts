@@ -94,3 +94,71 @@ describe("ensureMattermostUser — idempotency / concurrent-create race", () => 
     expect(fetchMock).toHaveBeenCalledTimes(2); // no idempotent re-fetch
   });
 });
+
+// The bootstrap path (route.ts:104-107) also adds the user to the team after
+// create — same unguarded GET→POST race; the loser's add can error "team
+// member already exists" and previously bubbled to the same 502 catch.
+describe("ensureUserInTeam — idempotency / concurrent-join race", () => {
+  let fetchMock: ReturnType<typeof vi.fn>;
+  beforeEach(() => {
+    fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  it("no-ops when already a team member (happy path)", async () => {
+    const { ensureUserInTeam } = await loadModule();
+    fetchMock.mockResolvedValueOnce(resp(200, { team_id: "team-1", user_id: "u-1" }));
+    await expect(ensureUserInTeam("u-1")).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1); // no POST add
+  });
+
+  it("treats a raced 'member exists' add as success via end-state recheck", async () => {
+    const { ensureUserInTeam } = await loadModule();
+    fetchMock
+      .mockResolvedValueOnce(resp(404, "not a member")) // GET membership
+      .mockResolvedValueOnce(
+        resp(400, { id: "app.team.join_user_to_team.exists", message: "team member exists" })
+      ) // POST add (lost the race)
+      .mockResolvedValueOnce(resp(200, { team_id: "team-1", user_id: "u-1" })); // re-check → is a member
+    await expect(ensureUserInTeam("u-1")).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("rethrows when the add fails and the user is still not a member", async () => {
+    const { ensureUserInTeam } = await loadModule();
+    fetchMock
+      .mockResolvedValueOnce(resp(404, "nf"))
+      .mockResolvedValueOnce(resp(403, { id: "api.context.permissions.app_error" }))
+      .mockResolvedValueOnce(resp(404, "still not a member"));
+    await expect(ensureUserInTeam("u-1")).rejects.toThrow(/Mattermost request failed \(403\)/);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("ensureUserInChannel / ensureChannelForCommunity — idempotency", () => {
+  let fetchMock: ReturnType<typeof vi.fn>;
+  beforeEach(() => {
+    fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  it("ensureUserInChannel tolerates a raced channel-join", async () => {
+    const { ensureUserInChannel } = await loadModule();
+    fetchMock
+      .mockResolvedValueOnce(resp(404, "not a member")) // GET channel membership
+      .mockResolvedValueOnce(resp(400, { id: "store.sql_channel.save_member.exists.app_error" })) // POST add raced
+      .mockResolvedValueOnce(resp(200, { channel_id: "c-1", user_id: "u-1" })); // re-check → member
+    await expect(ensureUserInChannel("u-1", "c-1")).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("ensureChannelForCommunity reuses a concurrently-created channel", async () => {
+    const { ensureChannelForCommunity } = await loadModule();
+    fetchMock
+      .mockResolvedValueOnce(resp(404, "no such channel")) // GET channel by name
+      .mockResolvedValueOnce(resp(400, { id: "store.sql_channel.save_channel.exists.app_error" })) // POST create raced
+      .mockResolvedValueOnce(resp(200, { id: "ch-1", name: "hive-1" })); // re-fetch by name
+    await expect(ensureChannelForCommunity("hive-1", "Hive One")).resolves.toBe("ch-1");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+});
