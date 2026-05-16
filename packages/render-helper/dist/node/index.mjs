@@ -459,7 +459,7 @@ function sanitizeHtml(html) {
     }
   });
 }
-var proxyBase = "https://images.ecency.com";
+var proxyBase = "https://i.ecency.com";
 var urlHashCache = new LRUCache({ max: 500 });
 function getUrlHash(url) {
   const cached = urlHashCache.get(url);
@@ -501,6 +501,9 @@ function proxifyImageSrc(url, width = 0, height = 0, _format = "match") {
   }
   if (url.indexOf("https://steemitimages.com/") === 0 && url.indexOf("https://steemitimages.com/D") !== 0) {
     return url.replace("https://steemitimages.com", proxyBase);
+  }
+  if (url.indexOf("https://images.ecency.com/") === 0) {
+    return url.replace("https://images.ecency.com", proxyBase);
   }
   const realUrl = getLatestUrl(url);
   const pHash = extractPHash(realUrl);
@@ -1458,7 +1461,7 @@ function linkify(content, forApp, renderOptions) {
       const preceedings = (preceeding1 || "") + (preceeding2 || "");
       if (userLower.indexOf("/") === -1 && isValidUsername(user)) {
         if (!forApp) {
-          const avatarSrc = `https://images.ecency.com/u/${userLower}/avatar/small`;
+          const avatarSrc = `${getProxyBase()}/u/${userLower}/avatar/small`;
           const html = `${preceedings}<a class="er-author er-author-link" href="/@${userLower}"><img class="er-author-link-image" src="${avatarSrc}" alt="${userLower}"/><span class="er-author-link-content"><span class="er-author-link-label">Hive account</span><span>@${userLower}</span></span></a>`;
           const placeholder = `\u200C${authorPlaceholders.length}\u200C`;
           authorPlaceholders.push({ placeholder, html });

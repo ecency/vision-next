@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.13
+
+### Patch Changes
+
+- fix(images): serve images via SNI-resilient i.ecency.com host (#791)
+
 ## 2.2.12
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.2
+
+### Patch Changes
+
+- fix(images): serve images via SNI-resilient i.ecency.com host (#791)
+
 ## 2.5.1
 
 ### Patch Changes
