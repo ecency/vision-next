@@ -7,6 +7,7 @@ import {
   ensureMattermostUser,
   ensurePersonalToken,
   ensureUserInTeam,
+  getMattermostOutageStatus,
   getMattermostUserWithProps,
   getUserLeftChannels,
   removeUserLeftChannel,
@@ -106,14 +107,31 @@ async function handleBootstrap(req: Request, signal: AbortSignal): Promise<NextR
         await ensureUserInTeam(user.id, signal);
         personalToken = await ensurePersonalToken(user.id, signal);
     } catch (e) {
+        // A caller/timeout abort must propagate to the top-level handler so it
+        // can distinguish 504 (our 30s hard cap) from 499 (client disconnect).
+        // Burying it under a generic outage status here would lose that.
+        if (signal.aborted || (e instanceof Error && e.name === "AbortError")) {
+            throw e;
+        }
+        // Don't flatten every failure to 502. A per-call timeout or upstream
+        // overload is transient: returning 503/504 lets the client retry
+        // instead of treating the chat session as dead and forcing a re-login
+        // (the dominant pain for browser-extension integrators that re-bootstrap
+        // in parallel). 502 stays reserved for a genuine, non-retryable outage.
+        const status = getMattermostOutageStatus(e);
         console.error("MM bootstrap: MM user/team/token error", {
           username,
+          status,
           error: e
         });
-        // This is effectively an upstream / chat outage
         return NextResponse.json(
-          { error: "chat service unavailable" },
-          { status: 502 }
+          {
+            error:
+              status === 504
+                ? "chat service timed out"
+                : "chat service unavailable"
+          },
+          { status }
         );
     }
 

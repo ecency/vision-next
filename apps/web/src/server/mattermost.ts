@@ -546,6 +546,30 @@ export function handleMattermostError(error: unknown) {
   return NextResponse.json({ error: message }, { status: 500 });
 }
 
+/**
+ * Classify an error thrown while provisioning a Mattermost user/team/token
+ * (the bootstrap step-3 path) into the HTTP status the bootstrap route should
+ * return. The bootstrap contract is: 502 = genuine, non-retryable chat outage;
+ * 503/504 = transient, the client should retry rather than treat the session
+ * as dead and force the user to re-login.
+ *
+ *   - per-call timeout (MattermostError 504)            → 504
+ *   - upstream overload / rate-limit (429 or MM 5xx)    → 503
+ *   - everything else (bad admin token, misconfig,      → 502
+ *     connection refused, unexpected logic error)
+ *
+ * Auth errors (401/403) are deliberately NOT surfaced as 401 here: a failing
+ * admin token is a server-side outage, not the end user's token being invalid,
+ * so mapping it to 401 would wrongly force the user to re-authenticate.
+ */
+export function getMattermostOutageStatus(error: unknown): 502 | 503 | 504 {
+  if (error instanceof MattermostError) {
+    if (error.status === 504) return 504;
+    if (error.status === 429 || error.status >= 500) return 503;
+  }
+  return 502;
+}
+
 export const COMMUNITY_CHANNEL_NAME_PATTERN = /^hive-[a-z0-9-]+$/;
 
 function isCommunityModerator(role: CommunityRole | undefined) {
