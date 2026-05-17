@@ -332,7 +332,7 @@ export const configFieldsMap: Record<string, ConfigField> = {
           imageProxy: {
             label: 'Image Proxy URL',
             type: 'string',
-            description: 'Image proxy base URL (e.g., https://images.ecency.com)',
+            description: 'Image proxy base URL (e.g., https://i.ecency.com)',
           },
           profileBaseUrl: {
             label: 'Profile Base URL',

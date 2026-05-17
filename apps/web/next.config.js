@@ -203,6 +203,11 @@ const config = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "i.ecency.com",
+        port: ""
+      },
+      {
+        protocol: "https",
         hostname: "images.ecency.com",
         port: ""
       },

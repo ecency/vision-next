@@ -46,7 +46,7 @@ import { UserAvatar } from '@ecency/ui';
 - `username` (required): Hive username
 - `size`: `'xsmall' | 'small' | 'medium' | 'large' | 'xlarge'`
 - `src`: Custom image source
-- `imageProxyBase`: Image proxy URL (default: `https://images.ecency.com`)
+- `imageProxyBase`: Image proxy URL (default: `https://i.ecency.com`)
 - `onClick`: Click handler
 - `className`: Additional CSS classes
 

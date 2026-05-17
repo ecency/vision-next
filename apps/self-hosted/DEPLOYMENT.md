@@ -43,7 +43,7 @@ Edit `config.json` with your settings:
       "theme": "system",
       "styleTemplate": "medium",
       "language": "en",
-      "imageProxy": "https://images.ecency.com"
+      "imageProxy": "https://i.ecency.com"
     },
     "instanceConfiguration": {
       "type": "blog",
@@ -399,7 +399,7 @@ docker compose build --no-cache
 
 1. Enable gzip compression (already configured in nginx.conf)
 2. Use a CDN like Cloudflare
-3. Ensure image proxy is fast (default: images.ecency.com)
+3. Ensure image proxy is fast (default: i.ecency.com)
 
 ## Architecture
 

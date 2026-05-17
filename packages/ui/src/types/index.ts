@@ -51,7 +51,7 @@ export interface AuthContext {
  * Configuration for image proxy
  */
 export interface ImageProxyConfig {
-  /** Base URL for image proxy (e.g., https://images.ecency.com) */
+  /** Base URL for image proxy (e.g., https://i.ecency.com) */
   baseUrl: string;
   /** Whether to use WebP format when supported */
   useWebp?: boolean;

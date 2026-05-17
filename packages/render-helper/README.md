@@ -32,7 +32,7 @@
 - `catchPostImage` - Extract first image from post content or metadata
 - `postBodySummary` - Generate text summary from post body
 - `proxifyImageSrc` - Proxify image URLs through Ecency's image server
-- `setProxyBase` - Configure image proxy endpoint (default: `https://images.ecency.com`)
+- `setProxyBase` - Configure image proxy endpoint (default: `https://i.ecency.com`)
 - `setCacheSize` - Configure LRU cache size (default: 60 entries)
 
 ### Processing Pipeline
