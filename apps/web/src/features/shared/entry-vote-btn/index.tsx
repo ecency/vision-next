@@ -6,7 +6,7 @@ import * as ss from "@/utils/session-storage";
 import { LoginRequired } from "@/features/shared";
 import useClickAway from "react-use/lib/useClickAway";
 import { chevronUpSvgForVote } from "@ui/svg";
-import { EntryVoteDialog } from "@/features/shared/entry-vote-btn/entry-vote-dialog";
+import dynamic from "next/dynamic";
 import { useEntryVote } from "@/api/mutations";
 import { Account, Entry, EntryVote } from "@/entities";
 import { getEntryActiveVotesQueryOptions } from "@ecency/sdk";
@@ -17,6 +17,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
+
+// The vote slider dialog only mounts on interaction (dialog && entry &&
+// activeUser, below) — never SSR-meaningful. Lazy-load it so it doesn't ship
+// in the post page's first client chunk. Mirrors entry-votes/index.tsx.
+const EntryVoteDialog = dynamic(
+  () =>
+    import("@/features/shared/entry-vote-btn/entry-vote-dialog").then((m) => ({
+      default: m.EntryVoteDialog
+    })),
+  { ssr: false }
+);
 
 interface Props {
   entry: Entry;

@@ -41,19 +41,25 @@ function AssetPicture({
   const webpSrc = `${baseUrl}/assets/${basePath}.webp`;
   const fallbackSrc = `${baseUrl}/assets/${basePath}.${fallbackExt}`;
 
-  // For priority images, use <picture> with preload hints via next/image fallback
+  // Static assets are served with images.unoptimized=true, so next/image does
+  // no optimization here — it only adds a client component plus a
+  // hydration-gated preload that targets the .png fallback instead of the
+  // .webp the <picture> actually renders. A plain server-rendered <img> is in
+  // the initial HTML, lets the preload scanner discover the webp source
+  // without waiting for JS, and trims hydration work on the landing page.
   if (priority) {
     return (
       <picture>
         <source srcSet={webpSrc} type="image/webp" />
-        <Image
+        <img
           src={fallbackSrc}
           alt={alt}
-          width={width ?? 0}
-          height={height ?? 0}
+          width={width}
+          height={height}
           className={className}
-          priority
+          loading="eager"
           fetchPriority="high"
+          decoding="async"
           sizes={sizes}
         />
       </picture>

@@ -1,6 +1,6 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { catchPostImage } from "@ecency/render-helper";
+import { buildSrcSet, catchPostImage, IMAGE_SIZES } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -87,12 +87,24 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   // Preload the post's primary image as the likely LCP element.
   // catchPostImage extracts from json_metadata.image or body, proxied via images.ecency.com.
+  // buildSrcSet emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP
+  // <img>'s srcset uses, so pairing it with IMAGE_SIZES (the single source of
+  // truth, exported by @ecency/render-helper) makes the high-priority preload
+  // resolve to the exact rendition the page renders, not a fixed 600px URL.
   const lcpImage = catchPostImage(entry, 600, 500, "match");
+  const lcpImageSrcSet = lcpImage ? buildSrcSet(lcpImage) : "";
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       {lcpImage && (
-        <link rel="preload" as="image" href={lcpImage} fetchPriority="high" />
+        <link
+          rel="preload"
+          as="image"
+          href={lcpImage}
+          imageSrcSet={lcpImageSrcSet || undefined}
+          imageSizes={lcpImageSrcSet ? IMAGE_SIZES : undefined}
+          fetchPriority="high"
+        />
       )}
       <EntryPageContextProvider>
         <MdHandler />

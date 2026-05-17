@@ -11,17 +11,42 @@ import { useGlobalStore } from "@/core/global-store";
 import { useDeleteComment, usePinToBlog } from "@/api/mutations";
 import { useRouter } from "next/navigation";
 import { dotsHorizontal } from "@ui/svg";
-import { EntryShare } from "@/features/shared/entry-share";
 import i18next from "i18next";
 import { Dropdown, DropdownItemWithIcon, DropdownMenu, DropdownToggle } from "@ui/dropdown";
-import { CrossPost } from "@/features/shared/entry-menu/cross-post";
-import { EditHistory } from "@/features/shared/edit-history";
 import { Button, ModalConfirm } from "@/features/ui";
-import { MuteBtn } from "@/features/shared/mute-btn";
-import { Promote } from "@/features/shared/promote";
 import { UilShareAlt } from "@tooni/iconscout-unicons-react";
-import { EntryTranslate } from "@/features/shared/entry-translate";
 import { useQuery } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
+
+// Each of these modals only mounts after a kebab-menu action (strictly
+// boolean-gated in the JSX below) — never at first paint and never
+// SSR-meaningful in this "use client" component. Lazy-load them so they
+// don't ship in the post page's first client chunk. Mirrors the house
+// pattern in entry-votes/index.tsx.
+const EntryShare = dynamic(
+  () => import("@/features/shared/entry-share").then((m) => ({ default: m.EntryShare })),
+  { ssr: false }
+);
+const CrossPost = dynamic(
+  () => import("@/features/shared/entry-menu/cross-post").then((m) => ({ default: m.CrossPost })),
+  { ssr: false }
+);
+const EditHistory = dynamic(
+  () => import("@/features/shared/edit-history").then((m) => ({ default: m.EditHistory })),
+  { ssr: false }
+);
+const MuteBtn = dynamic(
+  () => import("@/features/shared/mute-btn").then((m) => ({ default: m.MuteBtn })),
+  { ssr: false }
+);
+const Promote = dynamic(
+  () => import("@/features/shared/promote").then((m) => ({ default: m.Promote })),
+  { ssr: false }
+);
+const EntryTranslate = dynamic(
+  () => import("@/features/shared/entry-translate").then((m) => ({ default: m.EntryTranslate })),
+  { ssr: false }
+);
 
 interface Props {
   entry: Entry;

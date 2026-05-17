@@ -3,7 +3,6 @@
 import { Entry } from "@/entities";
 import { SelectionPopover } from "./selection-popover";
 import { EntryPageViewerManager } from "./entry-page-viewer-manager";
-import { setupPostEnhancements } from "@/features/post-renderer";
 import dynamic from "next/dynamic";
 import { useContext, useEffect, useState } from "react";
 import TransactionSigner from "@/features/shared/transactions/transaction-signer";
@@ -109,41 +108,57 @@ export function EntryPageBodyViewer({ entry }: Props) {
       return;
     }
 
-    // Add a small delay to ensure DOM is fully rendered and stable
+    // Add a small delay to ensure DOM is fully rendered and stable.
+    // Post-render enhancements (embeds, image zoom, etc.) and their heavy
+    // deps (medium-zoom, the link/embed enhancers) are code-split out of the
+    // post page's first client chunk and loaded lazily here, after hydration.
     let cleanup: (() => void) | null = null;
+    let cancelled = false;
     const timer = setTimeout(() => {
-      try {
-        // Re-verify the element is still safe before proceeding
-        if (!isElementSafe(el)) {
-          console.warn("Post body element is not safely accessible, skipping enhancements");
-          return;
-        }
-
-        cleanup = setupPostEnhancements(el, {
-          onHiveOperationClick: (op) => {
-            setSigningOperation(op);
-          },
-          TwitterComponent: Tweet,
-          images: entry.json_metadata?.image,
-        });
-      } catch (e) {
-        // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
-        console.error("Failed to setup post enhancements", e);
-
-        // Enhanced error handling for iOS Safari specific issues
-        if (e instanceof TypeError) {
-          if (e.message.includes("parentNode")) {
-            console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
-          } else if (e.message.includes("null is not an object")) {
-            console.error("iOS Safari cross-origin security error detected - iframe embeds may be restricted");
+      void (async () => {
+        try {
+          // Re-verify the element is still safe before proceeding
+          if (!isElementSafe(el)) {
+            console.warn("Post body element is not safely accessible, skipping enhancements");
+            return;
           }
-        } else if (e instanceof Error && e.name === "SecurityError") {
-          console.error("Cross-origin security error detected - this is common on iOS Safari with iframe embeds");
+
+          const { setupPostEnhancements } = await import(
+            "@/features/post-renderer/components/utils/setupPostEnhancements"
+          );
+
+          // The effect may have been cleaned up while the chunk was loading
+          if (cancelled || !isElementSafe(el)) {
+            return;
+          }
+
+          cleanup = setupPostEnhancements(el, {
+            onHiveOperationClick: (op) => {
+              setSigningOperation(op);
+            },
+            TwitterComponent: Tweet,
+            images: entry.json_metadata?.image,
+          });
+        } catch (e) {
+          // Avoid breaking the page if enhancements fail, e.g. due to missing embeds or DOM structure issues
+          console.error("Failed to setup post enhancements", e);
+
+          // Enhanced error handling for iOS Safari specific issues
+          if (e instanceof TypeError) {
+            if (e.message.includes("parentNode")) {
+              console.error("DOM structure issue detected - element may have been modified or removed during enhancement setup");
+            } else if (e.message.includes("null is not an object")) {
+              console.error("iOS Safari cross-origin security error detected - iframe embeds may be restricted");
+            }
+          } else if (e instanceof Error && e.name === "SecurityError") {
+            console.error("Cross-origin security error detected - this is common on iOS Safari with iframe embeds");
+          }
         }
-      }
+      })();
     }, 100);
 
     return () => {
+      cancelled = true;
       clearTimeout(timer);
       cleanup?.();
     };

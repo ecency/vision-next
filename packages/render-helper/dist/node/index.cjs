@@ -2077,6 +2077,7 @@ function getPostBodySummary(obj, length, platform) {
   return res;
 }
 
+exports.IMAGE_SIZES = IMAGE_SIZES;
 exports.SECTION_LIST = SECTION_LIST;
 exports.buildSrcSet = buildSrcSet;
 exports.catchPostImage = catchPostImage;
