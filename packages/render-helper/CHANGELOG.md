@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.3
+
+### Patch Changes
+
+- Render helper fix, Wallet improvements (#793)
+
 ## 2.5.2
 
 ### Patch Changes
