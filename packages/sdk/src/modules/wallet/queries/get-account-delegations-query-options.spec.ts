@@ -36,7 +36,10 @@ describe("getAccountDelegationsQueryOptions", () => {
     mockCallREST.mockResolvedValueOnce(payload);
 
     const options = getAccountDelegationsQueryOptions("alice");
-    const result = await (options.queryFn as any)({ signal: undefined });
+    const queryFn = options.queryFn as (ctx: {
+      signal?: AbortSignal;
+    }) => Promise<unknown>;
+    const result = await queryFn({ signal: undefined });
 
     expect(mockCallREST).toHaveBeenCalledWith(
       "balance",

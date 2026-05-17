@@ -96,7 +96,7 @@ export function HpDelegationsCard({ username }: Props) {
     isOwnProfile &&
     !hasEcencyProxy &&
     !isGovernanceDismissed &&
-    (hasDelegatedToEcency || isCurationDismissed);
+    hasDelegatedToEcency;
 
   const outgoingDelegations =
     data?.parts?.find((part) =>

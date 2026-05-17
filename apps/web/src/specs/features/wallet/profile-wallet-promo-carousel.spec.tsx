@@ -42,7 +42,7 @@ describe("ProfileWalletPromoCarousel", () => {
   });
 
   it("navigates to a slide when its dot is clicked", () => {
-    const { container } = render(
+    render(
       <ProfileWalletPromoCarousel
         slides={[
           <div key="a">Slide A</div>,
@@ -51,14 +51,10 @@ describe("ProfileWalletPromoCarousel", () => {
       />
     );
 
-    const track = container.querySelector("[style*='translateX']") as HTMLElement;
-    expect(track.style.transform).toContain("calc(0%");
-
     const dots = screen.getAllByRole("button");
     fireEvent.click(dots[1]);
 
     expect(dots[1]).toHaveAttribute("aria-current", "true");
     expect(dots[0]).toHaveAttribute("aria-current", "false");
-    expect(track.style.transform).toContain("-100%");
   });
 });

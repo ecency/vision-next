@@ -37,6 +37,15 @@ export function ProfileWalletPromoCarousel({ slides }: Props) {
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     dragStartX.current = e.clientX;
     setDragDelta(0);
+    // Keep pointermove routed here even if the cursor leaves the element
+    // mid-swipe, so a fast drag isn't cancelled early by onPointerLeave.
+    if (e.currentTarget.setPointerCapture) {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        // best-effort; not all environments implement pointer capture
+      }
+    }
   };
 
   const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
