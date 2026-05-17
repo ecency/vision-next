@@ -68,6 +68,8 @@ export interface Entry {
   net_rshares: number;
   parent_author?: string;
   parent_permlink?: string;
+  root_author?: string;
+  root_permlink?: string;
   payout: number;
   payout_at: string;
   pending_payout_value: string;
