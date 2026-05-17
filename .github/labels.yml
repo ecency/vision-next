@@ -36,6 +36,14 @@
   description: Minor bump for @ecency/render-helper
   color: "c2e0c6"
 
+- name: "patch:ui"
+  description: Patch bump for @ecency/ui
+  color: "bfd4f2"
+
+- name: "minor:ui"
+  description: Minor bump for @ecency/ui
+  color: "d0e8d0"
+
 # Other useful labels
 - name: dependencies
   description: Dependency updates

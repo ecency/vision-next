@@ -18,6 +18,8 @@ When you create a PR, add one of the following labels to automatically generate 
 - `minor:wallets` - Minor bump for @ecency/wallets only
 - `patch:render-helper` - Patch bump for @ecency/render-helper only
 - `minor:render-helper` - Minor bump for @ecency/render-helper only
+- `patch:ui` - Patch bump for @ecency/ui only
+- `minor:ui` - Minor bump for @ecency/ui only
 
 ## Examples
 

@@ -1,4 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
+import * as react from 'react';
 import { Component, ReactNode, ErrorInfo } from 'react';
 
 /**
@@ -51,7 +52,7 @@ interface AuthContext {
  * Configuration for image proxy
  */
 interface ImageProxyConfig {
-    /** Base URL for image proxy (e.g., https://images.ecency.com) */
+    /** Base URL for image proxy (e.g., https://i.ecency.com) */
     baseUrl: string;
     /** Whether to use WebP format when supported */
     useWebp?: boolean;
@@ -64,7 +65,7 @@ interface UserAvatarProps {
     size?: Size | 'normal' | 'sLarge' | 'xLarge' | 'deck-item';
     /** Custom image source (overrides default avatar URL) */
     src?: string;
-    /** Base URL for image proxy (default: https://images.ecency.com) */
+    /** Base URL for image proxy (default: https://i.ecency.com) */
     imageProxyBase?: string;
     /** Click handler - makes avatar interactive */
     onClick?: () => void;
@@ -186,7 +187,7 @@ declare class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryS
     static getDerivedStateFromError(error: Error): ErrorBoundaryState;
     componentDidCatch(error: Error, errorInfo: ErrorInfo): void;
     handleRetry: () => void;
-    render(): string | number | boolean | react_jsx_runtime.JSX.Element | Iterable<ReactNode> | null | undefined;
+    render(): string | number | bigint | boolean | react_jsx_runtime.JSX.Element | Iterable<ReactNode> | Promise<string | number | bigint | boolean | react.ReactPortal | react.ReactElement<unknown, string | react.JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined;
 }
 
 interface SkipToContentProps {

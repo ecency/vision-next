@@ -19,12 +19,15 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'patch:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'patch:wallets') ||
       contains(github.event.pull_request.labels.*.name, 'patch:render-helper') ||
+      contains(github.event.pull_request.labels.*.name, 'patch:ui') ||
       contains(github.event.pull_request.labels.*.name, 'minor:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'minor:wallets') ||
       contains(github.event.pull_request.labels.*.name, 'minor:render-helper') ||
+      contains(github.event.pull_request.labels.*.name, 'minor:ui') ||
       contains(github.event.pull_request.labels.*.name, 'major:sdk') ||
       contains(github.event.pull_request.labels.*.name, 'major:wallets') ||
-      contains(github.event.pull_request.labels.*.name, 'major:render-helper'))
+      contains(github.event.pull_request.labels.*.name, 'major:render-helper') ||
+      contains(github.event.pull_request.labels.*.name, 'major:ui'))
 
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +98,10 @@ jobs:
           if echo "$LABELS" | grep -q "minor:render-helper"; then set_bump "@ecency/render-helper" "minor"; fi
           if echo "$LABELS" | grep -q "major:render-helper"; then set_bump "@ecency/render-helper" "major"; fi
 
+          if echo "$LABELS" | grep -q "patch:ui"; then set_bump "@ecency/ui" "patch"; fi
+          if echo "$LABELS" | grep -q "minor:ui"; then set_bump "@ecency/ui" "minor"; fi
+          if echo "$LABELS" | grep -q "major:ui"; then set_bump "@ecency/ui" "major"; fi
+
           # If no package-specific labels, check generic labels and detect changed packages
           if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
             if echo "$LABELS" | grep -q "major"; then
@@ -109,6 +116,7 @@ jobs:
             if echo "$CHANGED_FILES" | grep -q "^packages/sdk/"; then set_bump "@ecency/sdk" "$DEFAULT_BUMP"; fi
             if echo "$CHANGED_FILES" | grep -q "^packages/wallets/"; then set_bump "@ecency/wallets" "$DEFAULT_BUMP"; fi
             if echo "$CHANGED_FILES" | grep -q "^packages/render-helper/"; then set_bump "@ecency/render-helper" "$DEFAULT_BUMP"; fi
+            if echo "$CHANGED_FILES" | grep -q "^packages/ui/"; then set_bump "@ecency/ui" "$DEFAULT_BUMP"; fi
           fi
 
           if [ ${#PACKAGE_BUMPS[@]} -eq 0 ]; then
@@ -149,6 +157,7 @@ jobs:
           if git diff --name-only | grep -q "^packages/sdk/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES sdk"; fi
           if git diff --name-only | grep -q "^packages/wallets/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES wallets"; fi
           if git diff --name-only | grep -q "^packages/render-helper/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES render-helper"; fi
+          if git diff --name-only | grep -q "^packages/ui/"; then CHANGED_PACKAGES="$CHANGED_PACKAGES ui"; fi
 
           if [ -z "$CHANGED_PACKAGES" ]; then
             echo "No packages to rebuild"
@@ -172,6 +181,11 @@ jobs:
           if echo "$CHANGED_PACKAGES" | grep -q "render-helper"; then
             echo "Building @ecency/render-helper..."
             pnpm --filter @ecency/render-helper build
+          fi
+
+          if echo "$CHANGED_PACKAGES" | grep -q "ui"; then
+            echo "Building @ecency/ui..."
+            pnpm --filter @ecency/ui build
           fi
 
       - name: Commit & push changes (same PR)

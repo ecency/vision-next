@@ -27,7 +27,7 @@ var sizeToApiSize = {
   xLarge: "large",
   "deck-item": "small"
 };
-var DEFAULT_IMAGE_PROXY = "https://images.ecency.com";
+var DEFAULT_IMAGE_PROXY = "https://i.ecency.com";
 function UserAvatar({
   username,
   size = "medium",
@@ -55,9 +55,7 @@ function UserAvatar({
     if (src) {
       return src;
     }
-    const useWebp = hasMounted && canUseWebp;
-    const webpPath = useWebp ? "/webp" : "";
-    return `${imageProxyBase}${webpPath}/u/${username}/avatar/${apiSize}`;
+    return `${imageProxyBase}/u/${username}/avatar/${apiSize}`;
   }, [src, imageProxyBase, username, apiSize, canUseWebp, hasMounted]);
   const handleKeyDown = react.useCallback(
     (e) => {
