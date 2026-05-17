@@ -93,6 +93,11 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
     queryKey: QueryKeys.search.similarEntries(entry.author, entry.permlink, query),
     queryFn: async ({ signal }) => {
       const sinceMs = Date.now() - SIMILAR_ENTRIES_SINCE_MS;
+      // Naive `YYYY-MM-DDTHH:mm:ss` (no `Z`) is intentional: the search-api
+      // contract is the same naive format the main search sends
+      // (dayjs().format("YYYY-MM-DDTHH:mm:ss")). Whether the server reads it
+      // as UTC or local only shifts a 182-day boundary by <14h (<0.3%),
+      // which is immaterial for a coarse recency cutoff.
       const since = new Date(sinceMs).toISOString().slice(0, 19);
 
       const collected: SearchResult[] = [];
