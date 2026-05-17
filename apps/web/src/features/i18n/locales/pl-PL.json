@@ -3309,6 +3309,20 @@
       "button": "Deleguj na @ecency",
       "dismiss": "Może później"
     },
+    "hp-governance-promo": {
+      "tag": "Zarządzanie",
+      "title": "Zachowaj swoje zarządzanie z @ecency",
+      "description": "Udzieliłeś uprawnień do @ecency. Ustaw @ecency jako swój pełnomocnik zarządzający, aby Twój świadek i wniosek pozostały w zgodzie z wizją zespołu Ecency. Utrzymujesz pełną kontrolę i możesz to zmienić lub usunąć w dowolnym momencie.",
+      "button": "Ustaw @ecency jako proxy",
+      "dismiss": "Nie teraz",
+      "confirm-title": "Ustawić @ecency jako proxy zarządzające?",
+      "confirm-description": "@ecency będzie głosować na świadków i propozycje w Twoim imieniu. Twój kurs pozostaje twój, a następnie możesz zmienić lub usunąć proxy w dowolnym momencie ze strony świadków.",
+      "confirm-ok": "Ustaw proxy",
+      "success": "@ecency jest teraz twoim proxy zarządzającym"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Przejdź do porady {{n}}"
+    },
     "external": {
       "receive-button": "Odbierz",
       "transfer-soon": "Przelew (wkrótce)",
