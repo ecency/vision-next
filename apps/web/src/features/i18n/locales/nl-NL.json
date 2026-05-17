@@ -3309,6 +3309,20 @@
       "button": "Delegeren naar @ecency",
       "dismiss": "Misschien later"
     },
+    "hp-governance-promo": {
+      "tag": "Governance",
+      "title": "Houd je governance met @ecency",
+      "description": "Je bent gedelegeerd aan @ecency. Stel @ecency in als je governance proxy zodat je getuige en voorstellen stemmen blijven afgestemd op de visie van het Ecency team. U behoudt de volledige controle en kunt dit op elk gewenst moment wijzigen of verwijderen.",
+      "button": "@ecency als proxy instellen",
+      "dismiss": "Niet nu",
+      "confirm-title": "@ecency als governance proxy instellen?",
+      "confirm-description": "@ecency zal namens u stemmen op bijenkisten en voorstellen. Uw staak blijft van u, en u kunt de proxy op elk gewenst moment wijzigen of verwijderen van de getuigen pagina.",
+      "confirm-ok": "Proxy instellen",
+      "success": "@ecency is nu jouw governance proxy"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Ga naar tip {{n}}"
+    },
     "external": {
       "receive-button": "Ontvangen",
       "transfer-soon": "Overdracht (binnenkort)",
