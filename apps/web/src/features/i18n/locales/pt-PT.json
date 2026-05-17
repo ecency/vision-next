@@ -3309,6 +3309,20 @@
       "button": "Delegar à @ecency",
       "dismiss": "Talvez mais tarde"
     },
+    "hp-governance-promo": {
+      "tag": "Governança",
+      "title": "Mantenha sua governação com @ecency",
+      "description": "Você delegou à @ecency. Defina @ecency como seu proxy de governação para que sua testemunha e votos de proposta permaneçam alinhados com a visão da equipe de Ecency Você mantém controle total e pode alterar ou remover isto a qualquer momento.",
+      "button": "Definir @ecency como proxy",
+      "dismiss": "Agora não",
+      "confirm-title": "Definir @ecency como proxy de governança?",
+      "confirm-description": "@ecency vai votar nas testemunhas e propostas do Hive em seu nome. Sua estada permanece a sua, e você pode alterar ou remover o proxy a qualquer momento da página das Testemunhas.",
+      "confirm-ok": "Definir proxy",
+      "success": "@ecency é agora o seu proxy de governação"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Ir para dica {{n}}"
+    },
     "external": {
       "receive-button": "Receber",
       "transfer-soon": "Transferência (em breve)",
