@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.4
+
+### Patch Changes
+
+- perf(cwv): cut hydration-time JS & fix LCP image preload (mobile Core Web Vitals) (#795)
+
 ## 2.5.3
 
 ### Patch Changes
