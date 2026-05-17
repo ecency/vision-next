@@ -1,9 +1,15 @@
 import i18next from "i18next";
 import {
   ProfileWalletHpDelegationPromo,
+  ProfileWalletHpGovernancePromo,
+  ProfileWalletPromoCarousel,
   ProfileWalletTokenHistoryCard,
 } from "../../_components";
-import { getAccountWalletAssetInfoQueryOptions } from "@ecency/sdk";
+import {
+  getAccountDelegationsQueryOptions,
+  getAccountFullQueryOptions,
+  getAccountWalletAssetInfoQueryOptions,
+} from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { ReceivedVesting } from "./received-vesting-dialog";
 import { useEffect, useMemo, useState } from "react";
@@ -13,7 +19,12 @@ import { useActiveAccount } from "@/core/hooks/use-active-account";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 
 const HP_PROMO_STORAGE_KEY_PREFIX = "hpDelegationPromoDismissed";
+const GOVERNANCE_PROMO_STORAGE_KEY_PREFIX = "hpGovernancePromoDismissed";
 const THIRTY_DAYS_IN_MS = 1000 * 60 * 60 * 24 * 30;
+const ECENCY_ACCOUNT = "ecency";
+
+const isWithin30Days = (timestamp: number | null | undefined) =>
+  !!timestamp && Date.now() - timestamp < THIRTY_DAYS_IN_MS;
 
 interface Props {
   username: string;
@@ -31,29 +42,61 @@ export function HpDelegationsCard({ username }: Props) {
   const { activeUser } = useActiveAccount();
   const isOwnProfile = activeUser?.username === username;
 
-  const storageKey = `${HP_PROMO_STORAGE_KEY_PREFIX}:${username || "unknown"}`;
-  const [promoDismissedAt, setPromoDismissedAt, removePromoDismissedAt] =
-    useLocalStorage<number | null>(storageKey, null);
+  const curationStorageKey = `${HP_PROMO_STORAGE_KEY_PREFIX}:${username || "unknown"}`;
+  const [curationDismissedAt, setCurationDismissedAt, removeCurationDismissedAt] =
+    useLocalStorage<number | null>(curationStorageKey, null);
 
-  const isPromoDismissed = useMemo(() => {
-    if (!promoDismissedAt) {
-      return false;
-    }
+  const governanceStorageKey = `${GOVERNANCE_PROMO_STORAGE_KEY_PREFIX}:${username || "unknown"}`;
+  const [governanceDismissedAt, setGovernanceDismissedAt, removeGovernanceDismissedAt] =
+    useLocalStorage<number | null>(governanceStorageKey, null);
 
-    return Date.now() - promoDismissedAt < THIRTY_DAYS_IN_MS;
-  }, [promoDismissedAt]);
+  const isCurationDismissed = useMemo(
+    () => isWithin30Days(curationDismissedAt),
+    [curationDismissedAt]
+  );
+  const isGovernanceDismissed = useMemo(
+    () => isWithin30Days(governanceDismissedAt),
+    [governanceDismissedAt]
+  );
 
   useEffect(() => {
-    if (!promoDismissedAt) {
-      return;
+    if (curationDismissedAt && Date.now() - curationDismissedAt >= THIRTY_DAYS_IN_MS) {
+      removeCurationDismissedAt();
     }
+  }, [curationDismissedAt, removeCurationDismissedAt]);
 
-    if (Date.now() - promoDismissedAt >= THIRTY_DAYS_IN_MS) {
-      removePromoDismissedAt();
+  useEffect(() => {
+    if (
+      governanceDismissedAt &&
+      Date.now() - governanceDismissedAt >= THIRTY_DAYS_IN_MS
+    ) {
+      removeGovernanceDismissedAt();
     }
-  }, [promoDismissedAt, removePromoDismissedAt]);
+  }, [governanceDismissedAt, removeGovernanceDismissedAt]);
 
-  const shouldShowPromo = isOwnProfile && !isPromoDismissed;
+  const { data: fullAccount } = useQuery({
+    ...getAccountFullQueryOptions(username),
+    enabled: isOwnProfile,
+  });
+  const hasEcencyProxy = fullAccount?.proxy === ECENCY_ACCOUNT;
+
+  const { data: hasDelegatedToEcency = false } = useQuery({
+    ...getAccountDelegationsQueryOptions(username),
+    enabled: isOwnProfile && !hasEcencyProxy,
+    select: (data) =>
+      !!data?.outgoing_delegations?.some(
+        (delegation) =>
+          delegation.delegatee === ECENCY_ACCOUNT &&
+          Number(delegation.amount) > 0
+      ),
+  });
+
+  const showCurationPromo = isOwnProfile && !isCurationDismissed;
+  const showGovernancePromo =
+    isOwnProfile &&
+    !hasEcencyProxy &&
+    !isGovernanceDismissed &&
+    (hasDelegatedToEcency || isCurationDismissed);
 
   const outgoingDelegations =
     data?.parts?.find((part) =>
@@ -103,11 +146,25 @@ export function HpDelegationsCard({ username }: Props) {
             <div className="text-xl font-bold">{format.format(incomingDelegations)}</div>
           </div>
         </div>
-        {shouldShowPromo && (
+        {(showCurationPromo || showGovernancePromo) && (
           <div className="px-4 pb-4">
-            <ProfileWalletHpDelegationPromo
-              onDelegate={() => setShowDelegateDialog(true)}
-              onDismiss={() => setPromoDismissedAt(Date.now())}
+            <ProfileWalletPromoCarousel
+              slides={[
+                showCurationPromo && (
+                  <ProfileWalletHpDelegationPromo
+                    key="curation"
+                    onDelegate={() => setShowDelegateDialog(true)}
+                    onDismiss={() => setCurationDismissedAt(Date.now())}
+                  />
+                ),
+                showGovernancePromo && (
+                  <ProfileWalletHpGovernancePromo
+                    key="governance"
+                    onDismiss={() => setGovernanceDismissedAt(Date.now())}
+                    onProxySet={() => setGovernanceDismissedAt(Date.now())}
+                  />
+                ),
+              ]}
             />
           </div>
         )}

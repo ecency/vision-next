@@ -1419,6 +1419,32 @@ describe('a() method - Link Processing', () => {
       expect(el.getAttribute('href')).toBe('https://example.com')
     })
 
+    it('should not double-prepend https to a mixed-case Https:// scheme', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      const href = 'Https://dealstreets.xyz'
+      el.setAttribute('href', href)
+      el.textContent = 'Https://dealstreets.xyz'
+      parent.appendChild(el)
+
+      a(el, false)
+
+      expect(el.getAttribute('href')).toBe('Https://dealstreets.xyz')
+    })
+
+    it('should not double-prepend https to an uppercase HTTP:// scheme', () => {
+      const parent = doc.createElement('div')
+      const el = doc.createElement('a')
+      const href = 'HTTP://example.com/path'
+      el.setAttribute('href', href)
+      el.textContent = 'HTTP://example.com/path'
+      parent.appendChild(el)
+
+      a(el, false)
+
+      expect(el.getAttribute('href')).toBe('HTTP://example.com/path')
+    })
+
     it('should not prepend https to mailto links', () => {
       const parent = doc.createElement('div')
       const el = doc.createElement('a')

@@ -915,8 +915,11 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
   // If nothing matched element as external link so it will be opened in external window
   el.setAttribute('class', 'markdown-external-link')
 
-  // Prepend https if no scheme provided
-  if (!(/^((#)|(mailto:)|(\/(?!\/))|(((steem|hive|esteem|ecency|https?):)?\/\/))/.test(href))) {
+  // Prepend https if no scheme provided.
+  // Case-insensitive: schemes are case-insensitive per RFC 3986, so a
+  // mixed-case `Https://` must not be treated as scheme-less (which would
+  // double-prepend and yield `https://Https://...`).
+  if (!(/^((#)|(mailto:)|(\/(?!\/))|(((steem|hive|esteem|ecency|https?):)?\/\/))/i.test(href))) {
     href = `https://${href}`
   }
 
