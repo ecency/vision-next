@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.15
+
+### Patch Changes
+
+- Similar content improved (#794)
+
 ## 2.2.14
 
 ### Patch Changes
