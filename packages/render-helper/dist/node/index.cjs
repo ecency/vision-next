@@ -1271,7 +1271,7 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
     }
   }
   el.setAttribute("class", "markdown-external-link");
-  if (!/^((#)|(mailto:)|(\/(?!\/))|(((steem|hive|esteem|ecency|https?):)?\/\/))/.test(href)) {
+  if (!/^((#)|(mailto:)|(\/(?!\/))|(((steem|hive|esteem|ecency|https?):)?\/\/))/i.test(href)) {
     href = `https://${href}`;
   }
   if (forApp) {

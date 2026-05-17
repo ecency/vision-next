@@ -8,6 +8,8 @@ export * from "./profile-wallet-hive-claim-rewards-button";
 export * from "./profile-wallet-hbd-claim-rewards-button";
 export * from "./profile-wallet-hbd-interest";
 export * from "./profile-wallet-hp-delegation-promo";
+export * from "./profile-wallet-hp-governance-promo";
+export * from "./profile-wallet-promo-carousel";
 export * from "./hive-operation-filter-select";
 export * from "./balance-history-chart";
 export * from "./aggregated-balance-card";
