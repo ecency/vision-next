@@ -1,6 +1,6 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { catchPostImage } from "@ecency/render-helper";
+import { buildSrcSet, catchPostImage } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -17,6 +17,13 @@ import {
 import { EntryNotFoundFallback } from "./_components/entry-not-found-fallback";
 import { DeletedPostScreen } from "./_components/deleted-post-screen";
 import { EntryPageDiscussionsWrapper } from "./_components/entry-page-discussions-wrapper";
+
+// Must mirror IMAGE_SIZES in @ecency/render-helper img.method.ts. buildSrcSet
+// emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP <img>'s srcset
+// uses, so pairing it with the same sizes makes the high-priority preload
+// resolve to the exact image the page renders (instead of a fixed 600px URL
+// mobile never selects, which today wastes the preload).
+const LCP_IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -92,7 +99,14 @@ export default async function EntryPage({ params, searchParams }: Props) {
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
       {lcpImage && (
-        <link rel="preload" as="image" href={lcpImage} fetchPriority="high" />
+        <link
+          rel="preload"
+          as="image"
+          href={lcpImage}
+          imageSrcSet={buildSrcSet(lcpImage) || undefined}
+          imageSizes={LCP_IMAGE_SIZES}
+          fetchPriority="high"
+        />
       )}
       <EntryPageContextProvider>
         <MdHandler />
