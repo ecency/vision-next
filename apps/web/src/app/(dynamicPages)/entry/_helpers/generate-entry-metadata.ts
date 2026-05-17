@@ -1,32 +1,12 @@
-import { accountReputation, parseDate, safeDecodeURIComponent, truncate } from "@/utils";
+import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
-import { isNsfwEntry } from "@/utils/nsfw-detection";
+import { isIndexable, ReputationSource } from "@/utils/entry-indexability";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
-import { getContentQueryOptions, getProfilesQueryOptions, Profile } from "@ecency/sdk";
+import { getContentQueryOptions, getProfilesQueryOptions } from "@ecency/sdk";
 import { prefetchQuery } from "@/core/react-query";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { getServerAppBase } from "@/utils/server-app-base";
-import { FullAccount } from "@/entities";
-
-const NOINDEX_REPUTATION_THRESHOLD = 40;
-
-type ReputationSource = Pick<FullAccount, "reputation" | "post_count"> | Profile | null;
-
-const shouldApplyNoIndex = (
-  account: ReputationSource,
-  fallbackReputation: number
-): boolean => {
-  const reputationScore = accountReputation(account?.reputation ?? fallbackReputation ?? 0);
-  const postCount = typeof account?.post_count === "number" ? account.post_count : 0;
-
-  const meetsReputationGate = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
-  const lacksPostingHistory = postCount <= 3;
-
-  // Accounts are no-indexed when they lack reputation or meaningful posting history, regardless of age.
-  return meetsReputationGate || lacksPostingHistory;
-};
-
 
 export async function generateEntryMetadata(
   username: string,
@@ -43,25 +23,27 @@ export async function generateEntryMetadata(
   }
   try {
     const cleanAuthor = username.replace("%40", "");
-    let entry = await prefetchQuery(EcencyEntriesCacheManagement.getEntryQueryByPath(cleanAuthor, cleanPermlink));
+
+    // Source from condenser_api.get_content first: it returns root_author /
+    // root_permlink (needed to canonical replies to their discussion root and
+    // to detect container/wave trees), which bridge.get_post omits. This is
+    // fetch-count-neutral — bridge is the fallback, already trusted here.
+    let entry = null;
+    try {
+      entry = await prefetchQuery(getContentQueryOptions(cleanAuthor, cleanPermlink));
+    } catch (e) {
+      console.warn("generateEntryMetadata: get_content failed, trying bridge", e);
+    }
 
     if (!entry || !entry.body || !entry.created) {
-      console.warn("generateEntryMetadata: incomplete, trying fallback getContent", {
-        username,
-        permlink: cleanPermlink
-      });
-      try {
-        // fallback to direct content API
-        entry = await prefetchQuery(
-          getContentQueryOptions(cleanAuthor, cleanPermlink)
-        );
-      } catch (e) {
-        console.error("generateEntryMetadata: fallback getContent failed", cleanAuthor, cleanPermlink);
-        return {};
-      }
-
+      entry = await prefetchQuery(
+        EcencyEntriesCacheManagement.getEntryQueryByPath(cleanAuthor, cleanPermlink)
+      );
       if (!entry || !entry.body || !entry.created) {
-        console.warn("generateEntryMetadata: fallback also failed", { username, permlink: cleanPermlink });
+        console.warn("generateEntryMetadata: both content sources failed", {
+          username,
+          permlink: cleanPermlink
+        });
         return {};
       }
     }
@@ -101,12 +83,9 @@ export async function generateEntryMetadata(
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const nsfwNoIndex = isNsfwEntry(entry);
-    const reputationNoIndex = !accountFetchFailed
-      && shouldApplyNoIndex(authorAccount, entry.author_reputation ?? 0);
-    const applyNoIndex = nsfwNoIndex || reputationNoIndex;
-
-    const robots = applyNoIndex ? "noindex, nofollow" : undefined;
+    const robots = isIndexable(entry, authorAccount, accountFetchFailed)
+      ? undefined
+      : "noindex, nofollow";
 
     return {
       title,
