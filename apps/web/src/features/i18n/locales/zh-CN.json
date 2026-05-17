@@ -3309,6 +3309,20 @@
       "button": "代表 @ecency",
       "dismiss": "稍后再说"
     },
+    "hp-governance-promo": {
+      "tag": "治理",
+      "title": "使用 @ecency 保持您的治理",
+      "description": "你已经委托给@ection。设置@ecency作为你的治理代理，所以你的证人和建议票保持与生态团队的愿景一致。 您保持完全控制，并且可以随时更改或移除。",
+      "button": "设置 @ecency 为代理",
+      "dismiss": "暂不",
+      "confirm-title": "将 @ecency 设置为施政代理？",
+      "confirm-description": "@ecency将代表你投票表决Hive 证人和建议。 您的利益攸关在您身上，您可以随时从目击者页面更改或删除代理人。",
+      "confirm-ok": "设置代理",
+      "success": "@ecency 现在是您的管理代理"
+    },
+    "promo-carousel": {
+      "go-to-slide": "Go to tip {{n}}"
+    },
     "external": {
       "receive-button": "接收",
       "transfer-soon": "转让(即将)",
