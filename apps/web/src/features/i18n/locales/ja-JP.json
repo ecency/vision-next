@@ -3309,6 +3309,20 @@
       "button": "@ecency に委任する",
       "dismiss": "たぶん後で"
     },
+    "hp-governance-promo": {
+      "tag": "Governance",
+      "title": "@ecency を使ってガバナンスを維持しましょう",
+      "description": "@ecencyに委任しました。@ecencyをガバナンスプロキシとして設定すると、あなたの証人と提案の投票がEcencyチームのビジョンと一致し続けることができます。 あなたは完全な制御を維持し、いつでも変更または削除することができます。",
+      "button": "@ecency をプロキシとして設定",
+      "dismiss": "今はしない",
+      "confirm-title": "@ecency を governance プロキシとして設定しますか？",
+      "confirm-description": "@ecency はHiveの証人と提案に投票します。 あなたのステークはあなたのものであり、いつでもWitnesページからプロキシを変更または削除できます。",
+      "confirm-ok": "プロキシを設定",
+      "success": "@ecency がガバナンスのプロキシになりました"
+    },
+    "promo-carousel": {
+      "go-to-slide": "ヒント {{n}} に移動"
+    },
     "external": {
       "receive-button": "受信する",
       "transfer-soon": "転送 (近日)",
