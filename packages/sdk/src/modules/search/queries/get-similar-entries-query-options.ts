@@ -31,6 +31,7 @@ interface HivesenseSimilarPost {
   children?: number;
   depth?: number;
   stats?: { gray?: boolean; hide?: boolean };
+  json_metadata?: { tags?: string[] };
 }
 
 function buildQuery(entry: Entry, retry = 3) {
@@ -68,6 +69,16 @@ function buildQuery(entry: Entry, retry = 3) {
 
 /** Adapt a HiveSense post into the SearchResult shape the UI renders. */
 function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
+  // Carry real tags through so addUnique's nsfw guard works on HiveSense
+  // results. HiveSense has no top-level `tags`; tags live in json_metadata,
+  // and the category (first/parent tag) can itself be the nsfw marker.
+  const tags = (p.json_metadata?.tags ?? []).filter(
+    (t): t is string => typeof t === "string"
+  );
+  if (p.category && !tags.includes(p.category)) {
+    tags.unshift(p.category);
+  }
+
   return {
     id: 0,
     title: p.title ?? "",
@@ -80,7 +91,7 @@ function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
     img_url: "",
     created_at: p.created ?? "",
     children: p.children ?? 0,
-    tags: [],
+    tags,
     app: "",
     depth: p.depth ?? 0,
   };

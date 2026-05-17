@@ -178,4 +178,39 @@ describe("getSimilarEntriesQueryOptions", () => {
 
     expect(result.map((r) => r.author)).toEqual(["c"]);
   });
+
+  it("excludes nsfw HiveSense results (json_metadata tag or category) and maps real tags", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
+    });
+    mockCallREST.mockResolvedValueOnce([
+      // nsfw via json_metadata.tags → excluded
+      {
+        author: "x",
+        permlink: "x1",
+        created: freshIso(),
+        json_metadata: { tags: ["art", "nsfw"] },
+      },
+      // nsfw via category → excluded
+      { author: "y", permlink: "y1", created: freshIso(), category: "nsfw" },
+      // clean → included, tags threaded through
+      {
+        author: "z",
+        permlink: "z1",
+        created: freshIso(),
+        category: "photography",
+        json_metadata: { tags: ["photography", "nature"] },
+      },
+    ]);
+
+    const options = getSimilarEntriesQueryOptions(entry);
+    const result = (await (options.queryFn as QueryFn)({
+      signal: undefined,
+    })) as SearchResponse["results"];
+
+    expect(result.map((r) => r.author)).toEqual(["c", "z"]);
+    const z = result.find((r) => r.author === "z")!;
+    expect(z.tags).toEqual(["photography", "nature"]);
+  });
 });
