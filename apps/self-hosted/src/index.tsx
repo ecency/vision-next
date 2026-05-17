@@ -20,7 +20,7 @@ function applyConfig() {
   const { general, instanceConfiguration } = config.configuration;
 
   // Set up image proxy base URL
-  const imageProxyBase = general.imageProxy || 'https://images.ecency.com';
+  const imageProxyBase = general.imageProxy || 'https://i.ecency.com';
   setProxyBase(imageProxyBase);
 
   // Apply background styles

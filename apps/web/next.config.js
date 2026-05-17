@@ -33,8 +33,9 @@ const withPWA = require("next-pwa")({
       }
     },
     {
-      // Cache CDN-proxied images (user avatars, post images)
-      urlPattern: /^https:\/\/images\.ecency\.com\/.*/i,
+      // Cache CDN-proxied images (user avatars, post images).
+      // Covers i/img/images.ecency.com — all the same imagehoster backend.
+      urlPattern: /^https:\/\/(?:i|img|images)\.ecency\.com\/.*/i,
       handler: 'CacheFirst',
       options: {
         cacheName: 'ecency-images-cdn',
@@ -201,6 +202,16 @@ const config = {
   images: {
     unoptimized: true,
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ecency.com",
+        port: ""
+      },
+      {
+        protocol: "https",
+        hostname: "img.ecency.com",
+        port: ""
+      },
       {
         protocol: "https",
         hostname: "images.ecency.com",

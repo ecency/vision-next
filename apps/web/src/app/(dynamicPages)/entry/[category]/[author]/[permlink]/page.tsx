@@ -86,7 +86,7 @@ export default async function EntryPage({ params, searchParams }: Props) {
   }
 
   // Preload the post's primary image as the likely LCP element.
-  // catchPostImage extracts from json_metadata.image or body, proxied via images.ecency.com.
+  // catchPostImage extracts from json_metadata.image or body, proxied via i.ecency.com.
   // buildSrcSet emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP
   // <img>'s srcset uses, so pairing it with IMAGE_SIZES (the single source of
   // truth, exported by @ecency/render-helper) makes the high-priority preload

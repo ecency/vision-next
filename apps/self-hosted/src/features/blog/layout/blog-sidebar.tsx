@@ -137,7 +137,7 @@ function CommunitySidebar() {
     if (!community?.name) return null;
     const proxyBase = InstanceConfigManager.getConfigValue(
       ({ configuration }) =>
-        configuration.general.imageProxy || "https://images.ecency.com",
+        configuration.general.imageProxy || "https://i.ecency.com",
     );
     // Community avatars use the same pattern as user avatars
     return `${proxyBase}/u/${community.name}/avatar/medium`;

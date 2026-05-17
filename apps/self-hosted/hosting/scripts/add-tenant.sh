@@ -33,7 +33,7 @@ cat > "$CONFIG_FILE" << EOJSON
       "theme": "system",
       "styleTemplate": "medium",
       "language": "en",
-      "imageProxy": "https://images.ecency.com",
+      "imageProxy": "https://i.ecency.com",
       "profileBaseUrl": "https://ecency.com/@",
       "createPostUrl": "https://ecency.com/submit"
     },

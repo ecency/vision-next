@@ -64,8 +64,9 @@ export const extractMetaData = (body: string, initialMeta: MetaData = {}): MetaD
   // Match images with common file extensions (including RAW formats like .arw)
   const imgReg = /https?:\/\/[^\s"']+\.(?:tiff?|jpe?g|gif|png|svg|ico|heic|webp|arw)/gi;
 
-  // Match images.ecency.com URLs (which may not have file extensions)
-  const ecencyImgReg = /https?:\/\/images\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi;
+  // Match Ecency image host URLs (i/img/images.ecency.com), which may not have file extensions
+  const ecencyImgReg =
+    /https?:\/\/(?:i|img|images)\.ecency\.com\/(?:(?:p|DQm[a-zA-Z0-9]+)\/)?[^\s"'<>]+/gi;
 
   const bodyImagesWithExt = body.match(imgReg) || [];
   const ecencyImages = body.match(ecencyImgReg) || [];
