@@ -1,7 +1,13 @@
 import { proxifyImageSrc, buildSrcSet, getProxyBase } from "../proxify-image-src";
 import { trimTrailingSlash } from "../helper";
 
-const IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
+/**
+ * The `sizes` value the renderer applies to in-body post images (see `img()`
+ * and `createImageHTML()`). Exported as the single source of truth so consumers
+ * preloading the LCP image (`<link rel="preload" as="image" imagesizes>`) can
+ * match the exact srcset candidate the rendered <img> selects.
+ */
+export const IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 
 export function img(el: HTMLElement, state?: { firstImageFound: boolean }): void {
   const src = el.getAttribute("src") || "";

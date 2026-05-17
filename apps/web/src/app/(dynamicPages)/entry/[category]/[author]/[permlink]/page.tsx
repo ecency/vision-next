@@ -1,6 +1,6 @@
 import { prefetchQuery, getQueryClient } from "@/core/react-query";
 import { getAccountFullQueryOptions } from "@ecency/sdk";
-import { buildSrcSet, catchPostImage } from "@ecency/render-helper";
+import { buildSrcSet, catchPostImage, IMAGE_SIZES } from "@ecency/render-helper";
 import { EcencyEntriesCacheManagement } from "@/core/caches";
 import { EntryPageContentClient } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-client";
 import { EntryPageContentSSR } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/entry-page-content-ssr";
@@ -17,13 +17,6 @@ import {
 import { EntryNotFoundFallback } from "./_components/entry-not-found-fallback";
 import { DeletedPostScreen } from "./_components/deleted-post-screen";
 import { EntryPageDiscussionsWrapper } from "./_components/entry-page-discussions-wrapper";
-
-// Must mirror IMAGE_SIZES in @ecency/render-helper img.method.ts. buildSrcSet
-// emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP <img>'s srcset
-// uses, so pairing it with the same sizes makes the high-priority preload
-// resolve to the exact image the page renders (instead of a fixed 600px URL
-// mobile never selects, which today wastes the preload).
-const LCP_IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
 
 interface Props {
   params: Promise<{ author: string; permlink: string; category: string }>;
@@ -94,7 +87,12 @@ export default async function EntryPage({ params, searchParams }: Props) {
 
   // Preload the post's primary image as the likely LCP element.
   // catchPostImage extracts from json_metadata.image or body, proxied via images.ecency.com.
+  // buildSrcSet emits the same `/p/<hash>?...&width=<w>` URLs the in-body LCP
+  // <img>'s srcset uses, so pairing it with IMAGE_SIZES (the single source of
+  // truth, exported by @ecency/render-helper) makes the high-priority preload
+  // resolve to the exact rendition the page renders, not a fixed 600px URL.
   const lcpImage = catchPostImage(entry, 600, 500, "match");
+  const lcpImageSrcSet = lcpImage ? buildSrcSet(lcpImage) : "";
 
   return (
     <HydrationBoundary state={dehydrate(getQueryClient())}>
@@ -103,8 +101,8 @@ export default async function EntryPage({ params, searchParams }: Props) {
           rel="preload"
           as="image"
           href={lcpImage}
-          imageSrcSet={buildSrcSet(lcpImage) || undefined}
-          imageSizes={LCP_IMAGE_SIZES}
+          imageSrcSet={lcpImageSrcSet || undefined}
+          imageSizes={lcpImageSrcSet ? IMAGE_SIZES : undefined}
           fetchPriority="high"
         />
       )}

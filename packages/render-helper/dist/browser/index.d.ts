@@ -61,6 +61,14 @@ declare function proxifyImageSrc(url?: string, width?: number, height?: number, 
  */
 declare function buildSrcSet(url?: string): string;
 
+/**
+ * The `sizes` value the renderer applies to in-body post images (see `img()`
+ * and `createImageHTML()`). Exported as the single source of truth so consumers
+ * preloading the LCP image (`<link rel="preload" as="image" imagesizes>`) can
+ * match the exact srcset candidate the rendered <img> selects.
+ */
+declare const IMAGE_SIZES = "(max-width: 768px) 100vw, 700px";
+
 declare function setCacheSize(size: number): void;
 
 declare const SECTION_LIST: string[];
@@ -77,4 +85,4 @@ declare function isValidPermlink(permlink: string): boolean;
  */
 declare function simpleMarkdownToHTML(input: string): string;
 
-export { type Entry, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
+export { type Entry, IMAGE_SIZES, type RenderOptions, SECTION_LIST, type SeoContext, buildSrcSet, catchPostImage, isValidPermlink, getPostBodySummary as postBodySummary, proxifyImageSrc, markdown2Html as renderPostBody, setCacheSize, setProxyBase, setSlowRenderThresholdMs, simpleMarkdownToHTML };
