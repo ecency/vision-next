@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.14
+
+### Patch Changes
+
+- Render helper fix, Wallet improvements (#793)
+
 ## 2.2.13
 
 ### Patch Changes
