@@ -6,7 +6,7 @@ vi.mock("@ecency/render-helper", () => ({
   postBodySummary: (b: string) => b ?? ""
 }));
 
-import { Entry } from "@/entities";
+import { Entry, EntryVote } from "@/entities";
 import {
   canonicalTarget,
   isIndexable,
@@ -18,6 +18,9 @@ import {
 const BASE = "https://ecency.com";
 const longBody = "x".repeat(WAVE_MIN_BODY_CHARS + 20);
 const shortBody = "gm";
+
+const vote = (voter: string): EntryVote => ({ voter, rshares: 0 });
+const votes = (n: number): EntryVote[] => Array.from({ length: n }, () => vote("v"));
 
 const makeEntry = (o: Partial<Entry>): Entry =>
   ({
@@ -98,6 +101,18 @@ describe("canonicalTarget", () => {
     expect(canonicalTarget(e, BASE)).toBe("https://ecency.com/@alice/my-wave");
   });
 
+  it("bridge-fallback depth-1 wave (no root_*) -> self, NOT the anchor (P1 regression)", () => {
+    const e = makeEntry({
+      author: "alice",
+      permlink: "my-wave",
+      depth: 1,
+      parent_author: "ecency.waves",
+      parent_permlink: "waves-2026"
+      // root_author/root_permlink absent — bridge.get_post shape
+    });
+    expect(canonicalTarget(e, BASE)).toBe("https://ecency.com/@alice/my-wave");
+  });
+
   it("reply to a wave (depth 2) -> the wave (its parent)", () => {
     const e = makeEntry({
       author: "carol",
@@ -129,6 +144,11 @@ describe("isContainerTree", () => {
   });
   it("false for normal threads", () => {
     expect(isContainerTree(makeEntry({ root_author: "bob", depth: 1 }))).toBe(false);
+  });
+  it("true for bridge-fallback depth-1 wave (no root_*, parent is container)", () => {
+    expect(
+      isContainerTree(makeEntry({ depth: 1, parent_author: "ecency.waves" }))
+    ).toBe(true);
   });
   it("all five container accounts recognised", () => {
     for (const a of ["leothreads", "ecency.waves", "peak.snaps", "liketu.moments", "hive.flow"]) {
@@ -198,7 +218,7 @@ describe("wave quality gate (depth-1 under container)", () => {
       idx(
         wave({
           children: 0,
-          active_votes: new Array(6).fill({ voter: "v" }),
+          active_votes: votes(6),
           pending_payout_value: "0.500 HBD"
         })
       )
@@ -210,7 +230,7 @@ describe("wave quality gate (depth-1 under container)", () => {
       idx(
         wave({
           children: 0,
-          active_votes: [{ voter: "self" }] as never,
+          active_votes: [vote("self")],
           pending_payout_value: "50.000 HBD"
         })
       )
@@ -222,7 +242,7 @@ describe("wave quality gate (depth-1 under container)", () => {
       idx(
         wave({
           children: 0,
-          active_votes: new Array(40).fill({ voter: "v" }),
+          active_votes: votes(40),
           pending_payout_value: "0.001 HBD"
         })
       )
@@ -234,7 +254,7 @@ describe("wave quality gate (depth-1 under container)", () => {
       idx(
         wave({
           children: 0,
-          active_votes: new Array(6).fill({ voter: "v" }),
+          active_votes: votes(6),
           pending_payout_value: "0.000 HBD",
           payout: 1.23
         } as Partial<Entry>)

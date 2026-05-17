@@ -49,11 +49,11 @@ export const shouldApplyNoIndex = (
   const reputationScore = accountReputation(account?.reputation ?? fallbackReputation ?? 0);
   const postCount = typeof account?.post_count === "number" ? account.post_count : 0;
 
-  const meetsReputationGate = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
+  const belowReputationThreshold = reputationScore < NOINDEX_REPUTATION_THRESHOLD;
   const lacksPostingHistory = postCount <= 3;
 
   // No-indexed when the author lacks reputation or meaningful posting history.
-  return meetsReputationGate || lacksPostingHistory;
+  return belowReputationThreshold || lacksPostingHistory;
 };
 
 type ThreadShape = Pick<
@@ -72,7 +72,12 @@ const rootAuthorOf = (entry: ThreadShape): string =>
   entry.root_author || entry.author;
 
 export const isContainerTree = (entry: ThreadShape): boolean =>
-  CONTAINER_ACCOUNTS.has(rootAuthorOf(entry));
+  CONTAINER_ACCOUNTS.has(rootAuthorOf(entry)) ||
+  // Bridge-fallback path omits root_*; for a depth-1 wave the immediate parent
+  // IS the container account, so detect via parent_author too. Without this a
+  // bridge-fed wave would be misread as a normal depth-1 reply and canonical
+  // to the thin anchor post — strictly worse than the old self-canonical.
+  (entry.depth === 1 && CONTAINER_ACCOUNTS.has(entry.parent_author ?? ""));
 
 /**
  * The canonical URL for an entry, or null when it has no canonical target and
@@ -101,7 +106,10 @@ export function canonicalTarget(
     if (depth === 0) return null; // thin container anchor — never a target
     if (depth === 1) return self; // the wave/snap is the content unit
     if (depth === 2 && entry.parent_author && entry.parent_permlink) {
-      // reply to a wave → the wave (its immediate parent)
+      // reply to a wave → the wave (its immediate parent). Known seam: the
+      // wave may itself fail the quality gate (noindex); we don't fetch it to
+      // check (no SSR fan-out). Same accepted trade-off as the normal
+      // reply→possibly-noindexed-root seam — see spec §5.
       return `${baseUrl}/@${entry.parent_author}/${entry.parent_permlink}`;
     }
     return null; // depth >= 3 in a container tree — unresolvable, noindex
