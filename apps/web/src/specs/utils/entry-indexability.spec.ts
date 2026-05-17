@@ -19,6 +19,7 @@ const BASE = "https://ecency.com";
 const longBody = "x".repeat(WAVE_MIN_BODY_CHARS + 20);
 const shortBody = "gm";
 
+const realPostBody = "x".repeat(500); // > CONTAINER_ANCHOR_MAX_BODY (400)
 const vote = (voter: string): EntryVote => ({ voter, rshares: 0 });
 const votes = (n: number): EntryVote[] => Array.from({ length: n }, () => vote("v"));
 
@@ -84,9 +85,21 @@ describe("canonicalTarget", () => {
     expect(canonicalTarget(e, BASE)).toBeNull();
   });
 
-  it("container anchor post (depth 0) -> null", () => {
+  it("container anchor post (depth 0, thin body) -> null", () => {
     const e = makeEntry({ author: "ecency.waves", permlink: "waves-2026", depth: 0 });
     expect(canonicalTarget(e, BASE)).toBeNull();
+  });
+
+  it("substantive depth-0 post BY a container account -> self (not anchor-suppressed)", () => {
+    const e = makeEntry({
+      author: "ecency.waves",
+      permlink: "waves-feature-announcement",
+      depth: 0,
+      body: realPostBody
+    });
+    expect(canonicalTarget(e, BASE)).toBe(
+      "https://ecency.com/@ecency.waves/waves-feature-announcement"
+    );
   });
 
   it("wave (depth 1 under container) -> self", () => {
@@ -169,8 +182,13 @@ describe("isIndexable - structure", () => {
   it("normal deep reply with no root NOT indexable", () => {
     expect(idx(makeEntry({ depth: 4, parent_author: "x", parent_permlink: "y" }))).toBe(false);
   });
-  it("container anchor post NOT indexable", () => {
+  it("container anchor post (thin) NOT indexable", () => {
     expect(idx(makeEntry({ author: "ecency.waves", depth: 0 }))).toBe(false);
+  });
+  it("substantive depth-0 post by a container account IS indexable", () => {
+    expect(
+      idx(makeEntry({ author: "peak.snaps", depth: 0, body: realPostBody }))
+    ).toBe(true);
   });
   it("reply to wave (depth 2) indexable", () => {
     expect(

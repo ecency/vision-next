@@ -60,15 +60,20 @@ export async function generateEntryMetadata(
       entry.json_metadata?.description || truncate(postBodySummary(entry.body, 210), 140);
 
     const image = catchPostImage(entry, 1200, 630, "match");
-    // Bare /@author/permlink form — matches the new self-canonical so og:url
-    // and rel=canonical agree, which is what Google expects to consolidate
-    // duplicates onto a single URL.
+    // Bare /@author/permlink form for this exact page.
     const fullUrl = `${base}/@${entry.author}/${entry.permlink}`;
     const authorUrl = `${base}/@${entry.author}`;
     const createdAt = parseDate(entry.created ?? new Date().toISOString());
     const updatedAt = parseDate(entry.updated ?? entry.last_update ?? entry.created ?? new Date().toISOString());
     const canonical = entryCanonical(entry, base);
     const finalCanonical = canonical ?? fullUrl;
+    // og:url must describe THIS page's content (title/desc/image are the
+    // entry's). For a reply, rel=canonical points to the discussion root for
+    // SEO consolidation, but og:url must stay the reply's own URL — otherwise
+    // social scrapers (which key the share object on og:url) attach the
+    // reply's card to the root URL. og:url and canonical legitimately differ
+    // when a page is canonicalised to a different resource.
+    const ogUrl = isComment ? fullUrl : finalCanonical;
 
     let authorAccount: ReputationSource = null;
     let accountFetchFailed = false;
@@ -94,7 +99,7 @@ export async function generateEntryMetadata(
       openGraph: {
         title,
         description: summary,
-        url: finalCanonical,
+        url: ogUrl,
         images: image ? [image] : [],
         type: "article",
         publishedTime: createdAt.toISOString(),

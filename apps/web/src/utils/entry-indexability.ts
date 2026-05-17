@@ -37,6 +37,13 @@ export const WAVE_MIN_CHILDREN = 3; // a real micro-thread
 export const WAVE_MIN_VOTERS = 5; // beyond self + a 1-2 acct circle
 export const WAVE_MIN_PAYOUT = 0.1; // dust floor (combined with voters)
 
+// A depth-0 post BY a container account is the machine anchor only when its
+// body is thin. Verified anchors are 24–119 chars; a real standalone post
+// (rare, but these are not guaranteed never to publish one) is far longer.
+// 400 separates them with wide margin in both directions, so anchors stay
+// suppressed while a genuine post by the same account still gets indexed.
+export const CONTAINER_ANCHOR_MAX_BODY = 400;
+
 export type ReputationSource =
   | Pick<FullAccount, "reputation" | "post_count">
   | Profile
@@ -79,6 +86,19 @@ export const isContainerTree = (entry: ThreadShape): boolean =>
   // to the thin anchor post — strictly worse than the old self-canonical.
   (entry.depth === 1 && CONTAINER_ACCOUNTS.has(entry.parent_author ?? ""));
 
+/** Plain-text (markdown/links/images stripped) body length. */
+const plainBodyLen = (entry: Pick<Entry, "body">): number =>
+  postBodySummary(entry.body || "", 1000).trim().length;
+
+/**
+ * A depth-0 post authored by a container account that is thin enough to be the
+ * machine-generated anchor (not a rare real standalone post by that account).
+ */
+const isContainerAnchorPost = (entry: Entry): boolean =>
+  (entry.depth ?? 0) === 0 &&
+  isContainerTree(entry) &&
+  plainBodyLen(entry) <= CONTAINER_ANCHOR_MAX_BODY;
+
 /**
  * The canonical URL for an entry, or null when it has no canonical target and
  * should be noindexed (thin container post, or a deep wave sub-reply whose
@@ -103,7 +123,12 @@ export function canonicalTarget(
   const depth = entry.depth ?? 0;
 
   if (isContainerTree(entry)) {
-    if (depth === 0) return null; // thin container anchor — never a target
+    if (depth === 0) {
+      // Thin body = machine anchor (no canonical → noindex). A substantive
+      // body = a rare real standalone post by the account → treat as normal
+      // post (self), so we don't silently suppress a valid page.
+      return isContainerAnchorPost(entry) ? null : self;
+    }
     if (depth === 1) return self; // the wave/snap is the content unit
     if (depth === 2 && entry.parent_author && entry.parent_permlink) {
       // reply to a wave → the wave (its immediate parent). Known seam: the
@@ -154,8 +179,7 @@ const effectivePayout = (entry: Entry): number => {
 /** Tier 0 (content floor) + Tier 1 (engagement) gate for depth-1 waves. */
 const passesWaveQualityGate = (entry: Entry): boolean => {
   // Tier 0: intrinsic content floor (NSFW + reputation already checked upstream).
-  const plain = postBodySummary(entry.body || "", 1000).trim();
-  if (plain.length < WAVE_MIN_BODY_CHARS) return false;
+  if (plainBodyLen(entry) < WAVE_MIN_BODY_CHARS) return false;
 
   // Tier 1: engagement corroboration.
   const children = typeof entry.children === "number" ? entry.children : 0;
@@ -184,7 +208,7 @@ export function isIndexable(
   const depth = entry.depth ?? 0;
 
   if (isContainerTree(entry)) {
-    if (depth === 0) return false; // thin container anchor
+    if (depth === 0) return !isContainerAnchorPost(entry); // anchor → noindex; real post → index
     if (depth === 1) return passesWaveQualityGate(entry); // the wave/snap
     if (depth === 2) return true; // reply to a wave (canonicals to the wave)
     return false; // depth >= 3 in a container tree
