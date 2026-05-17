@@ -9,7 +9,13 @@ import i18next from "i18next";
 import React, { useRef, useState } from "react";
 import { useDeleteUserFromList, useUserSelect } from "./hooks";
 
-function LoginTypeBadge({ loginType }: { loginType?: LoginType }) {
+function LoginTypeBadge({
+  loginType,
+  compact = false
+}: {
+  loginType?: LoginType;
+  compact?: boolean;
+}) {
   const src =
     loginType === "metamask" ? "/assets/metamask-fox.svg" :
     loginType === "keychain" || loginType === "keychain-mobile" ? "/assets/keychain.png" :
@@ -18,10 +24,23 @@ function LoginTypeBadge({ loginType }: { loginType?: LoginType }) {
 
   return (
     <div
-      className="absolute -right-0.5 -bottom-0.5 w-[18px] h-[18px] rounded-full bg-white dark:bg-dark-200 flex items-center justify-center shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+      className={classNameObject({
+        "absolute -right-0.5 -bottom-0.5 rounded-full bg-white dark:bg-dark-200 flex items-center justify-center shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden":
+          true,
+        "w-[13px] h-[13px]": compact,
+        "w-4 h-4": !compact
+      })}
       title={loginType}
     >
-      <img src={src ?? "/assets/hive-logo.svg"} alt="" className="w-3 h-3 object-contain" />
+      <img
+        src={src ?? "/assets/hive-logo.svg"}
+        alt=""
+        className={classNameObject({
+          "object-contain": true,
+          "w-[9px] h-[9px]": compact,
+          "w-[11px] h-[11px]": !compact
+        })}
+      />
     </div>
   );
 }
@@ -66,7 +85,7 @@ export function LoginUserItem({ user, compact = false }: Props) {
     >
       <div className="relative flex-shrink-0">
         <UserAvatar username={user.username} size={compact ? "small" : "medium"} />
-        <LoginTypeBadge loginType={user.loginType} />
+        <LoginTypeBadge loginType={user.loginType} compact={compact} />
         {activeUser?.username === user.username && (
           <div className="rounded-full absolute left-0 bottom-0 p-0.5 bg-white dark:bg-dark-200">
             <div className="bg-green w-2 h-2 rounded-full" />
