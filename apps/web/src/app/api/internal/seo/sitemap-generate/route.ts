@@ -265,8 +265,11 @@ export async function POST(req: Request): Promise<Response> {
   // Hub pages whose listed content changes daily → lastmod = today.
   // Info/legal pages rarely change → no lastmod (honest: don't claim a
   // daily change). All verified on prod: 200, not noindex, no
-  // canonical-away. /market is excluded (307 → /market/swap).
-  const HUB_PATHS = ["", "discover", "communities", "witnesses", "proposals", "tags", "waves"];
+  // canonical-away. /market excluded (307 → /market/swap). /waves
+  // excluded: a volatile microblog feed with no stable landing value —
+  // its substantive content is already covered by posts.xml (depth-1
+  // container/wave items passing the wave quality gate).
+  const HUB_PATHS = ["", "discover", "communities", "witnesses", "proposals", "tags"];
   const INFO_PATHS = [
     "about",
     "faq",
