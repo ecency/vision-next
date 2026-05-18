@@ -1,29 +1,39 @@
 /**
- * In-memory mirror of the abuse-blacklist set (community anti-abuse consensus,
- * e.g. spaminator), refreshed lazily from Redis. A daily server-side cron is
- * the only writer of `seo:blacklist:authors`; this module is read-only.
+ * In-memory mirror of the abuse-blacklist set (community anti-abuse consensus),
+ * refreshed lazily from Redis. A **daily** server-side cron is the only writer
+ * of the Redis key; this module is read-only.
  *
  * Design (mirrors post-age-cache's L1 + background-refresh):
- *   - `getBlacklist()` is synchronous and always returns immediately so
- *     `isIndexable()` stays pure/sync. It returns the current in-memory set.
- *   - On a stale read it kicks off a non-awaited background refresh
- *     (single-flight) and serves the existing set meanwhile.
- *   - Cold-start fail-open: before the first successful load the set is
- *     empty → nothing is blacklist-noindexed (never mass-noindex on missing
- *     data; never block rendering).
- *   - Graceful degradation: Redis down / disabled / slow → keep the last
- *     good in-memory set indefinitely (a stale abuse list is safe).
- *   - Disabled under Vitest (SEO_REDIS_DISABLE/VITEST) → always empty;
- *     unit tests inject their own set into isIndexable directly.
+ *   - `getBlacklist()` is synchronous and returns immediately so
+ *     `isIndexable()` stays pure/sync — it returns the current in-memory set.
+ *   - Refresh is gated by **last-attempt time, set before the async work
+ *     starts**. This bounds the Redis cadence regardless of whether the
+ *     refresh succeeds, fails, is slow, returns empty (pre-first-cron), or
+ *     Redis is down — fixing the tight SMEMBERS poll that occurred when the
+ *     key didn't exist yet (lastLoaded never advanced).
+ *   - Two cadences: once loaded, re-read every MEMORY_REFRESH_MS (the source
+ *     changes only daily — frequent re-reads are pure waste); before the
+ *     first successful load, retry every COLD_RETRY_MS so a freshly-booted
+ *     replica picks up the set soon after the cron first writes it.
+ *   - Cold-start fail-open: empty set until the first non-empty load → nothing
+ *     is blacklist-noindexed on missing data; never blocks rendering.
+ *   - Graceful degradation: Redis down / disabled / slow / key absent → keep
+ *     the last good in-memory set (a stale abuse list is safe).
+ *   - Disabled under Vitest (seo-redis returns null) → always empty; unit
+ *     tests inject their own set into isIndexable directly.
  */
 import { getSeoRedis, SEO_REDIS_PREFIX } from "./seo-redis";
 
 const REDIS_KEY = `${SEO_REDIS_PREFIX}blacklist:authors`;
-const REFRESH_TTL_MS = 12 * 60_000; // ~12 min
-const EMPTY: ReadonlySet<string> = new Set<string>();
+// Source is rewritten once a day by the cron; re-reading it into process
+// memory every 6h propagates a new list within hours of the daily write
+// without the churn of a tight TTL (was 12m — far too frequent for daily data).
+const MEMORY_REFRESH_MS = 6 * 60 * 60_000;
+const COLD_RETRY_MS = 60_000; // only until the first successful populate
 
-let current: ReadonlySet<string> = EMPTY;
-let lastLoadedMs = 0;
+let current: ReadonlySet<string> = new Set<string>();
+let loaded = false; // have we ever loaded a non-empty set?
+let lastAttemptMs = 0;
 let refreshing: Promise<void> | null = null;
 
 async function refresh(): Promise<void> {
@@ -31,13 +41,12 @@ async function refresh(): Promise<void> {
   if (!redis) return; // disabled / unavailable → keep current (fail-open)
   try {
     const members = await redis.smembers(REDIS_KEY);
-    // Empty reply when the key is absent is normal pre-first-cron — keep
-    // serving `current` rather than wiping a previously-good set.
+    // Empty reply pre-first-cron is normal — keep serving `current` (empty)
+    // rather than wiping a previously-good set; `loaded` stays false so the
+    // faster cold-retry cadence continues until the cron writes the key.
     if (members && members.length > 0) {
       current = new Set(members);
-      lastLoadedMs = Date.now();
-    } else if (lastLoadedMs === 0) {
-      // genuinely nothing yet — remain empty (fail-open), allow quick retry
+      loaded = true;
     }
   } catch {
     // keep `current` (graceful degradation)
@@ -46,7 +55,9 @@ async function refresh(): Promise<void> {
 
 function maybeRefresh(): void {
   if (refreshing) return;
-  if (Date.now() - lastLoadedMs < REFRESH_TTL_MS && lastLoadedMs !== 0) return;
+  const interval = loaded ? MEMORY_REFRESH_MS : COLD_RETRY_MS;
+  if (Date.now() - lastAttemptMs < interval) return;
+  lastAttemptMs = Date.now(); // set BEFORE the async work → bounded cadence
   refreshing = refresh().finally(() => {
     refreshing = null;
   });
