@@ -55,13 +55,29 @@ export async function POST(req: Request): Promise<Response> {
     try {
       const res = await fetch(SOURCE, { signal: ctrl.signal });
       if (!res.ok) return jsonResponse(502, { error: `upstream-${res.status}` });
-      parsed = JSON.parse(await res.text()); // content-type is text/plain
+      const text = await res.text(); // content-type is text/plain
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = undefined; // not JSON → unexpected-shape below
+      }
     } finally {
       clearTimeout(t);
     }
 
+    // Strict by design. The SEO blacklist is specifically the spaminator
+    // *spam* list ({"result":[...]}). Other Hive "blacklists" — e.g. the
+    // Watchmen badactors.txt *security/phishing* feed — are a different
+    // thing and must NOT be silently ingested as an SEO spam filter. A
+    // shape mismatch means SEO_BLACKLIST_URL points at the wrong feed, so
+    // fail loud (502 + META) instead of polluting noindex/sitemap data.
     const result = (parsed as ParsedResult)?.result;
     if (!Array.isArray(result)) {
+      try {
+        await redis.set(META, JSON.stringify({ ok: false, reason: "unexpected-shape", ts }));
+      } catch {
+        /* best-effort failure record */
+      }
       return jsonResponse(502, { error: "unexpected-shape" });
     }
     const accounts = Array.from(
@@ -93,11 +109,17 @@ export async function POST(req: Request): Promise<Response> {
 
     return jsonResponse(200, { ok: true, count: newCount, oldCount });
   } catch (e) {
-    // Live key untouched (rename only runs on success). Keep last-good.
-    return jsonResponse(200, {
-      error: "refresh-failed",
-      message: e instanceof Error ? e.message : String(e)
-    });
+    // Live key untouched (rename only runs on success) — last-good preserved.
+    // But this IS a failure: return 5xx (not 200) so the caller/monitoring
+    // sees it, and record it in META. 200 is reserved for success and the
+    // intentional delta-sanity skip; 502/503 cover upstream/redis already.
+    const message = e instanceof Error ? e.message : String(e);
+    try {
+      await redis.set(META, JSON.stringify({ ok: false, reason: "refresh-failed", message, ts }));
+    } catch {
+      /* best-effort failure record */
+    }
+    return jsonResponse(500, { error: "refresh-failed", message });
   } finally {
     // Drop the temp key on every path: on success rename() already moved
     // it to LIVE (no-op del); on skip/error this clears any partial set.

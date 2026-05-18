@@ -21,6 +21,7 @@ import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
 import { cronAuthorized, notFound } from "@/features/seo/cron-auth";
 import { SITEMAP_SHARDS } from "@/features/seo/sitemap-shards";
 import { isIndexable, canonicalTarget } from "@/utils/entry-indexability";
+import { isNsfwCommunity } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
 // Hive-only entry: this is a server route handler — avoid pulling the
@@ -41,13 +42,30 @@ const TIME_BUDGET_MS = 50_000;
 const MAX_PAGES = 150;
 const WINDOW_MS = 48 * 60 * 60_000;
 const PAGE = 20;
+// Communities: a small, stable hub set (not a freshness walk). list_communities
+// caps at 100/page → 5 pages ≈ top ~500 by rank. Cheap, independent of the
+// post-walk time budget.
+const COMM_PAGES = 5;
+const COMM_LIMIT = 100;
+// The community *list* changes slowly → re-fetch via list_communities at most
+// weekly (names cached in Redis). The shard is still rebuilt every run from
+// the cached names + fresh post-derived lastmod, so freshness stays hourly
+// while the ~5 list_communities RPCs run only ~weekly.
+const COMM_REFRESH_MS = 7 * 24 * 60 * 60_000;
+const COMM_NAMES_KEY = `${SEO_REDIS_PREFIX}sitemap:communities:names`;
+const COMM_BUILT_KEY = `${SEO_REDIS_PREFIX}sitemap:communities:builtAt`;
+
+interface SitemapUrl {
+  loc: string;
+  lastmod?: string;
+}
 
 const esc = (s: string) =>
   s.replace(/[&<>'"]/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&apos;", '"': "&quot;" })[c]!
   );
 
-const urlset = (urls: { loc: string; lastmod?: string }[]) =>
+const urlset = (urls: SitemapUrl[]) =>
   `<?xml version="1.0" encoding="UTF-8"?>\n` +
   `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls
@@ -103,9 +121,96 @@ export async function POST(req: Request): Promise<Response> {
     blacklist = new Set();
   }
 
+  // Community name list — changes slowly, so refresh it from list_communities
+  // at most weekly and cache the names in Redis. Every run still rebuilds the
+  // communities shard (below) from these names + the post-derived lastmod, so
+  // freshness stays hourly while the ~5 list_communities RPCs run only weekly.
+  let communityNames: string[] = [];
+  try {
+    const [builtAt, cached] = await Promise.all([
+      redis.get(COMM_BUILT_KEY),
+      redis.get(COMM_NAMES_KEY)
+    ]);
+    if (cached) {
+      const arr: unknown = JSON.parse(cached);
+      if (Array.isArray(arr)) {
+        // Re-screen on every load: a code-side NSFW_COMMUNITIES addition
+        // must take effect on the next run, not only when the weekly cache
+        // expires. (The response `is_nsfw` bonus signal can't be re-applied
+        // here — names only — but the curated set is the source of truth.)
+        communityNames = arr.filter(
+          (x): x is string =>
+            typeof x === "string" && /^hive-\d+$/.test(x) && !isNsfwCommunity(x)
+        );
+      }
+    }
+    const fresh =
+      communityNames.length > 0 &&
+      !!builtAt &&
+      Date.now() - Date.parse(builtAt) < COMM_REFRESH_MS;
+    if (!fresh) {
+      const prevCount = communityNames.length; // screened cached baseline
+      const fetched: string[] = [];
+      const seenComm = new Set<string>();
+      let commLast = "";
+      let aborted = false; // an RPC error mid-pagination → likely truncated
+      for (let cp = 0; cp < COMM_PAGES; cp++) {
+        let cbatch: Record<string, unknown>[];
+        try {
+          cbatch = (await callRPC("bridge.list_communities", {
+            sort: "rank",
+            limit: COMM_LIMIT,
+            last: commLast
+          })) as Record<string, unknown>[];
+        } catch {
+          aborted = true;
+          break;
+        }
+        if (!Array.isArray(cbatch) || cbatch.length === 0) break;
+        for (const c of cbatch) {
+          const name = typeof c.name === "string" ? c.name : "";
+          if (!name || seenComm.has(name)) continue;
+          seenComm.add(name);
+          commLast = name;
+          // Defensive: only the verified self-canonical /created/hive-NNN
+          // form. Hive community accounts are always hive-<digits>; guard is
+          // after the cursor advance so a freak value can't stall pagination.
+          if (!/^hive-\d+$/.test(name)) continue;
+          if (isNsfwCommunity(name) || c.is_nsfw === true) continue;
+          fetched.push(name);
+        }
+        if (cbatch.length < COMM_LIMIT) break;
+      }
+      // Stale-preserving sanity (mirrors the blacklist delta-sanity): only
+      // adopt/recache a fetch that completed without an RPC abort and isn't
+      // implausibly smaller than the baseline. A truncated/partial fetch
+      // (page-2+ RPC error) or a >50% shrink is rejected — keep the cached
+      // (time-stale but complete) names and DON'T recache, so the weekly
+      // refresh keeps retrying instead of persisting a bad list for a week.
+      const sane =
+        fetched.length > 0 &&
+        !aborted &&
+        (prevCount === 0 || fetched.length >= prevCount * 0.5);
+      if (sane) {
+        communityNames = fetched;
+        try {
+          await redis.set(COMM_NAMES_KEY, JSON.stringify(fetched));
+          await redis.set(COMM_BUILT_KEY, new Date().toISOString());
+        } catch {
+          /* best-effort cache; in-memory names still used this run */
+        }
+      }
+    }
+  } catch {
+    /* Redis read failed — communityNames stays []; shard just omits them */
+  }
+
   const seen = new Set<string>();
-  const postUrls: { loc: string; lastmod?: string }[] = [];
+  const postUrls: SitemapUrl[] = [];
   const authors = new Set<string>();
+  // community id -> newest post day (YYYY-MM-DD) seen in the freshness
+  // window. Free: derived from the post walk below, no extra RPC.
+  const communityLatest = new Map<string, string>();
   let startAuthor: string | undefined;
   let startPermlink: string | undefined;
   let pages = 0;
@@ -139,6 +244,15 @@ export async function POST(req: Request): Promise<Response> {
         reachedCutoff = true;
         break;
       }
+      // Community freshness (free, from this walk): newest post day per
+      // community, before the indexable filter — a new post makes the hub
+      // fresh even if that post itself is rep-gated/non-indexable.
+      const comm = typeof raw.community === "string" ? raw.community : "";
+      if (comm) {
+        const day = (e.updated || e.created || "").slice(0, 10);
+        const prev = communityLatest.get(comm);
+        if (day && (!prev || day > prev)) communityLatest.set(comm, day);
+      }
       if (!isIndexable(e, null, true, blacklist)) continue;
       const loc = canonicalTarget(e, BASE);
       if (!loc) continue;
@@ -157,14 +271,24 @@ export async function POST(req: Request): Promise<Response> {
     loc: `${BASE}/@${a}`,
     lastmod: nowDay
   }));
+  // Cached/weekly name list + free hourly post-derived lastmod. A community
+  // with no post in the freshness window simply omits lastmod (honest: it
+  // signals staleness by absence rather than a fabricated date).
+  const communityUrls: SitemapUrl[] = communityNames.map((name) => {
+    const lastmod = communityLatest.get(name);
+    return lastmod
+      ? { loc: `${BASE}/created/${name}`, lastmod }
+      : { loc: `${BASE}/created/${name}` };
+  });
 
   // Writer/index/route stay in lockstep: every shard we emit — and every
   // child the index points at — comes from the single shared SITEMAP_SHARDS
   // allowlist the public route validates against. A name here that isn't in
   // that list is a compile error (keyof typeof), not a silent prod 404.
   const shardXml: Record<(typeof SITEMAP_SHARDS)[number], string> = {
-    "posts-1.xml": urlset(postUrls),
+    "posts.xml": urlset(postUrls),
     "authors.xml": urlset(authorUrls),
+    "communities.xml": urlset(communityUrls),
     "static.xml": urlset(staticUrls)
   };
 
@@ -182,6 +306,7 @@ export async function POST(req: Request): Promise<Response> {
         ts: new Date().toISOString(),
         posts: postUrls.length,
         authors: authorUrls.length,
+        communities: communityUrls.length,
         pages,
         ms: Date.now() - started,
         reachedCutoff
@@ -201,6 +326,7 @@ export async function POST(req: Request): Promise<Response> {
       ok: true,
       posts: postUrls.length,
       authors: authorUrls.length,
+      communities: communityUrls.length,
       pages,
       ms: Date.now() - started,
       reachedCutoff
