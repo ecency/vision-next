@@ -12,13 +12,17 @@
  *    live set is never partially written / never empty mid-refresh.
  *  - Never throws to the caller; never mutates the live key on any failure.
  */
+import { randomUUID } from "crypto";
 import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
 import { cronAuthorized, notFound } from "@/features/seo/cron-auth";
 
 export const dynamic = "force-dynamic";
 
+interface ParsedResult {
+  result?: unknown;
+}
+
 const LIVE = `${SEO_REDIS_PREFIX}blacklist:authors`;
-const NEXT = `${LIVE}:next`;
 const META = `${SEO_REDIS_PREFIX}blacklist:meta`;
 const SOURCE = process.env.SEO_BLACKLIST_URL || "";
 const FETCH_TIMEOUT_MS = 25_000;
@@ -38,6 +42,11 @@ export async function POST(req: Request): Promise<Response> {
   const redis = getSeoRedis();
   if (!redis) return jsonResponse(503, { error: "redis-unavailable" });
 
+  // Per-request temp key: this endpoint is externally triggerable, so two
+  // overlapping calls must not interleave del/sadd/rename on a shared key
+  // and swap a half-built set over LIVE. The finally drops it on every
+  // path (success already renamed it away; skip/failure leave no orphan).
+  const NEXT = `${LIVE}:next:${randomUUID()}`;
   const ts = new Date().toISOString();
   try {
     const ctrl = new AbortController();
@@ -51,7 +60,7 @@ export async function POST(req: Request): Promise<Response> {
       clearTimeout(t);
     }
 
-    const result = (parsed as { result?: unknown })?.result;
+    const result = (parsed as ParsedResult)?.result;
     if (!Array.isArray(result)) {
       return jsonResponse(502, { error: "unexpected-shape" });
     }
@@ -89,5 +98,13 @@ export async function POST(req: Request): Promise<Response> {
       error: "refresh-failed",
       message: e instanceof Error ? e.message : String(e)
     });
+  } finally {
+    // Drop the temp key on every path: on success rename() already moved
+    // it to LIVE (no-op del); on skip/error this clears any partial set.
+    try {
+      await redis.del(NEXT);
+    } catch {
+      /* best-effort cleanup */
+    }
   }
 }

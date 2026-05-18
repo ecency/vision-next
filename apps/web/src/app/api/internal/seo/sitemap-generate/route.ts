@@ -23,7 +23,9 @@ import { SITEMAP_SHARDS } from "@/features/seo/sitemap-shards";
 import { isIndexable, canonicalTarget } from "@/utils/entry-indexability";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
-import { callRPC } from "@ecency/sdk";
+// Hive-only entry: this is a server route handler — avoid pulling the
+// React/react-query surface of the main SDK entry into it.
+import { callRPC } from "@ecency/sdk/hive";
 
 export const dynamic = "force-dynamic";
 
@@ -186,9 +188,11 @@ export async function POST(req: Request): Promise<Response> {
       })
     );
   } catch (e) {
+    // 500 (not 200): the deploy-time prime keys its retry/break on a 2xx
+    // here, and monitoring must see a write failure rather than a false ok.
     return new Response(
       JSON.stringify({ error: "write-failed", message: e instanceof Error ? e.message : String(e) }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 
