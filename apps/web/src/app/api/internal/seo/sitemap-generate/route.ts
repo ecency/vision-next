@@ -6,7 +6,11 @@
  *
  * Bounded by design — never a corpus scan / never crashes a replica:
  *  - Hard wall-clock budget + max page cap on the `created` feed walk.
- *  - Window: only the last ~48h of top-level posts (a freshness sitemap).
+ *  - A rolling freshness set of the most-recent posts, regenerated hourly —
+ *    bounded by whichever hits first: the ~48h cutoff, MAX_PAGES, or the
+ *    time budget. In busy periods MAX_PAGES binds before 48h; that's fine
+ *    (hourly regen keeps the head fresh — it's a discovery hint, not a
+ *    complete archive).
  *  - Per-RPC try/catch: a failed page ends the walk and serves what we have.
  *  - Blacklist read fresh from Redis so just-flagged authors are excluded.
  *  - rep-gate is intentionally skipped here (accountFetchFailed=true): we
@@ -27,9 +31,14 @@ const BASE = defaults.base;
 const LIVE_BL = `${SEO_REDIS_PREFIX}blacklist:authors`;
 const K = (s: string) => `${SEO_REDIS_PREFIX}sitemap:${s}`;
 const TIME_BUDGET_MS = 50_000;
-const MAX_PAGES = 60; // ~6000 posts cap
+// bridge.get_ranked_posts hard-caps `limit` at 20 — the RPC *rejects*
+// anything higher with "limit = N outside valid range [1:20]" (confirmed
+// against api.hive.blog; see packages/render-helper/scan-post-corpus.mjs).
+// Walk paginates via start_author/start_permlink. 150 pages * 20 ≈ 3000
+// most-recent posts, comfortably inside TIME_BUDGET_MS at ~0.2–0.3s/RPC.
+const MAX_PAGES = 150;
 const WINDOW_MS = 48 * 60 * 60_000;
-const PAGE = 100;
+const PAGE = 20;
 
 const esc = (s: string) =>
   s.replace(/[&<>'"]/g, (c) =>

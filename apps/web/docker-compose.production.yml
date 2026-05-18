@@ -72,6 +72,19 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
+        # Deploy-time prime: /sitemap.xml is advertised in robots.txt, so it
+        # must not 404 until the first hour boundary. Retry covers web not
+        # being ready yet (swarm starts services in parallel; depends_on is
+        # not honored). Blacklist first so the first sitemap is abuse-filtered.
+        P=0
+        while [ "$$P" -lt 30 ]; do
+          curl -fsS --max-time 60 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/blacklist-refresh >/dev/null 2>&1 || true
+          if curl -fsS --max-time 120 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/sitemap-generate >/dev/null 2>&1; then
+            break
+          fi
+          P=$$((P + 1))
+          sleep 10
+        done
         while true; do
           S=$$(( 3600 - $$(date -u +%s) % 3600 ))
           sleep "$$S"
