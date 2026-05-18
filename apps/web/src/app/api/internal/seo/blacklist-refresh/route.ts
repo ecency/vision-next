@@ -93,11 +93,17 @@ export async function POST(req: Request): Promise<Response> {
 
     return jsonResponse(200, { ok: true, count: newCount, oldCount });
   } catch (e) {
-    // Live key untouched (rename only runs on success). Keep last-good.
-    return jsonResponse(200, {
-      error: "refresh-failed",
-      message: e instanceof Error ? e.message : String(e)
-    });
+    // Live key untouched (rename only runs on success) — last-good preserved.
+    // But this IS a failure: return 5xx (not 200) so the caller/monitoring
+    // sees it, and record it in META. 200 is reserved for success and the
+    // intentional delta-sanity skip; 502/503 cover upstream/redis already.
+    const message = e instanceof Error ? e.message : String(e);
+    try {
+      await redis.set(META, JSON.stringify({ ok: false, reason: "refresh-failed", message, ts }));
+    } catch {
+      /* best-effort failure record */
+    }
+    return jsonResponse(500, { error: "refresh-failed", message });
   } finally {
     // Drop the temp key on every path: on success rename() already moved
     // it to LIVE (no-op del); on skip/error this clears any partial set.

@@ -149,9 +149,11 @@ export async function POST(req: Request): Promise<Response> {
       !!builtAt &&
       Date.now() - Date.parse(builtAt) < COMM_REFRESH_MS;
     if (!fresh) {
+      const prevCount = communityNames.length; // screened cached baseline
       const fetched: string[] = [];
       const seenComm = new Set<string>();
       let commLast = "";
+      let aborted = false; // an RPC error mid-pagination → likely truncated
       for (let cp = 0; cp < COMM_PAGES; cp++) {
         let cbatch: Record<string, unknown>[];
         try {
@@ -161,6 +163,7 @@ export async function POST(req: Request): Promise<Response> {
             last: commLast
           })) as Record<string, unknown>[];
         } catch {
+          aborted = true;
           break;
         }
         if (!Array.isArray(cbatch) || cbatch.length === 0) break;
@@ -178,9 +181,17 @@ export async function POST(req: Request): Promise<Response> {
         }
         if (cbatch.length < COMM_LIMIT) break;
       }
-      // Only adopt/recache a non-empty fetch — a failed refresh must not wipe
-      // a good cached list (fall back to the stale names instead).
-      if (fetched.length > 0) {
+      // Stale-preserving sanity (mirrors the blacklist delta-sanity): only
+      // adopt/recache a fetch that completed without an RPC abort and isn't
+      // implausibly smaller than the baseline. A truncated/partial fetch
+      // (page-2+ RPC error) or a >50% shrink is rejected — keep the cached
+      // (time-stale but complete) names and DON'T recache, so the weekly
+      // refresh keeps retrying instead of persisting a bad list for a week.
+      const sane =
+        fetched.length > 0 &&
+        !aborted &&
+        (prevCount === 0 || fetched.length >= prevCount * 0.5);
+      if (sane) {
         communityNames = fetched;
         try {
           await redis.set(COMM_NAMES_KEY, JSON.stringify(fetched));
