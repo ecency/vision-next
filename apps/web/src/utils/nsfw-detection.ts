@@ -22,6 +22,11 @@ export interface NsfwCheckableEntry {
   json_metadata?: { tags?: string[] } | null;
 }
 
+// Curated NSFW community check — the reliable source of truth. The
+// list_communities `is_nsfw` response field is unreliable/stale, so it's
+// only ever used as an additive bonus signal alongside this set.
+export const isNsfwCommunity = (name: string): boolean => NSFW_COMMUNITIES.has(name);
+
 export const isNsfwEntry = (entry: NsfwCheckableEntry): boolean => {
   const candidates: string[] = [];
   if (entry.category) candidates.push(entry.category);

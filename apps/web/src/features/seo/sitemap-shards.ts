@@ -9,7 +9,12 @@
  * shard means adding it here (and emitting it from the generator) — both sides
  * stay in lockstep by construction.
  */
-export const SITEMAP_SHARDS = ["posts-1.xml", "authors.xml", "static.xml"] as const;
+export const SITEMAP_SHARDS = [
+  "posts.xml",
+  "authors.xml",
+  "communities.xml",
+  "static.xml"
+] as const;
 
 export type SitemapShard = (typeof SITEMAP_SHARDS)[number];
 

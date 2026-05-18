@@ -21,6 +21,7 @@ import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
 import { cronAuthorized, notFound } from "@/features/seo/cron-auth";
 import { SITEMAP_SHARDS } from "@/features/seo/sitemap-shards";
 import { isIndexable, canonicalTarget } from "@/utils/entry-indexability";
+import { isNsfwCommunity } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
 // Hive-only entry: this is a server route handler — avoid pulling the
@@ -41,6 +42,11 @@ const TIME_BUDGET_MS = 50_000;
 const MAX_PAGES = 150;
 const WINDOW_MS = 48 * 60 * 60_000;
 const PAGE = 20;
+// Communities: a small, stable hub set (not a freshness walk). list_communities
+// caps at 100/page → 5 pages ≈ top ~500 by rank. Cheap, independent of the
+// post-walk time budget.
+const COMM_PAGES = 5;
+const COMM_LIMIT = 100;
 
 const esc = (s: string) =>
   s.replace(/[&<>'"]/g, (c) =>
@@ -103,6 +109,37 @@ export async function POST(req: Request): Promise<Response> {
     blacklist = new Set();
   }
 
+  // Communities hub shard — bounded, resilient, independent of the post walk.
+  // /created/hive-NNN is 200 + self-canonical (/trending|/hot canonical TO
+  // it), so it's a safe indexable target. NSFW excluded via our curated set
+  // (single source of truth); the response `is_nsfw` flag is unreliable so
+  // it's only an additive bonus signal, never relied upon.
+  const communityUrls: { loc: string }[] = [];
+  const seenComm = new Set<string>();
+  let commLast = "";
+  for (let cp = 0; cp < COMM_PAGES; cp++) {
+    let cbatch: Record<string, unknown>[];
+    try {
+      cbatch = (await callRPC("bridge.list_communities", {
+        sort: "rank",
+        limit: COMM_LIMIT,
+        last: commLast
+      })) as Record<string, unknown>[];
+    } catch {
+      break;
+    }
+    if (!Array.isArray(cbatch) || cbatch.length === 0) break;
+    for (const c of cbatch) {
+      const name = typeof c.name === "string" ? c.name : "";
+      if (!name || seenComm.has(name)) continue;
+      seenComm.add(name);
+      commLast = name;
+      if (isNsfwCommunity(name) || c.is_nsfw === true) continue;
+      communityUrls.push({ loc: `${BASE}/created/${name}` });
+    }
+    if (cbatch.length < COMM_LIMIT) break;
+  }
+
   const seen = new Set<string>();
   const postUrls: { loc: string; lastmod?: string }[] = [];
   const authors = new Set<string>();
@@ -163,8 +200,9 @@ export async function POST(req: Request): Promise<Response> {
   // allowlist the public route validates against. A name here that isn't in
   // that list is a compile error (keyof typeof), not a silent prod 404.
   const shardXml: Record<(typeof SITEMAP_SHARDS)[number], string> = {
-    "posts-1.xml": urlset(postUrls),
+    "posts.xml": urlset(postUrls),
     "authors.xml": urlset(authorUrls),
+    "communities.xml": urlset(communityUrls),
     "static.xml": urlset(staticUrls)
   };
 
@@ -182,6 +220,7 @@ export async function POST(req: Request): Promise<Response> {
         ts: new Date().toISOString(),
         posts: postUrls.length,
         authors: authorUrls.length,
+        communities: communityUrls.length,
         pages,
         ms: Date.now() - started,
         reachedCutoff
@@ -201,6 +240,7 @@ export async function POST(req: Request): Promise<Response> {
       ok: true,
       posts: postUrls.length,
       authors: authorUrls.length,
+      communities: communityUrls.length,
       pages,
       ms: Date.now() - started,
       reachedCutoff
