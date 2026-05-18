@@ -1,7 +1,9 @@
 import { MetadataRoute } from "next";
+import defaults from "@/defaults";
 
 export default function robots(): MetadataRoute.Robots {
   return {
+    sitemap: `${defaults.base}/sitemap.xml`,
     rules: [
       {
         userAgent: "*",

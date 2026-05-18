@@ -44,6 +44,16 @@ export const WAVE_MIN_PAYOUT = 0.1; // dust floor (combined with voters)
 // suppressed while a genuine post by the same account still gets indexed.
 export const CONTAINER_ANCHOR_MAX_BODY = 400;
 
+// "Effectively empty" = a normal top-level post with essentially no prose AND
+// no media (one-line outbound-link / boilerplate). Deliberately tiny — far
+// below WAVE_MIN_BODY_CHARS — so it only catches the truly contentless and
+// never legitimate short text or any media post.
+export const EFFECTIVELY_EMPTY_MAX_BODY = 20;
+
+// Default injected blacklist: empty + frozen. Keeps isIndexable pure and
+// backward-compatible; callers pass the loaded set, tests inject fixtures.
+const EMPTY_BLACKLIST: ReadonlySet<string> = new Set<string>();
+
 export type ReputationSource =
   | Pick<FullAccount, "reputation" | "post_count">
   | Profile
@@ -98,6 +108,29 @@ const isContainerAnchorPost = (entry: Entry): boolean =>
   (entry.depth ?? 0) === 0 &&
   isContainerTree(entry) &&
   plainBodyLen(entry) <= CONTAINER_ANCHOR_MAX_BODY;
+
+/** Cheap media-presence check — any image/video signal ⇒ has media (pass). */
+const hasMedia = (entry: Entry): boolean => {
+  const img = entry.json_metadata?.image;
+  if (Array.isArray(img) && img.length > 0) return true;
+  const body = entry.body || "";
+  return (
+    /!\[[^\]]*\]\(/.test(body) || // markdown image
+    /<(?:img|iframe|video)\b/i.test(body) || // html image / embed / video
+    /(?:youtube\.com|youtu\.be|3speak|odysee\.com|rumble\.com|vimeo\.com|twitch\.tv|dtube|ipfs)/i.test(
+      body
+    ) ||
+    /https?:\/\/\S+\.(?:jpe?g|png|gif|webp|mp4|webm|mov)\b/i.test(body) // bare media URL
+  );
+};
+
+/**
+ * A normal top-level post that is truly contentless: essentially no prose AND
+ * no media. Multimodal-safe — any media signal makes it pass, protecting
+ * photo/art/recipe/video posts.
+ */
+const isEffectivelyEmpty = (entry: Entry): boolean =>
+  plainBodyLen(entry) < EFFECTIVELY_EMPTY_MAX_BODY && !hasMedia(entry);
 
 /**
  * The canonical URL for an entry, or null when it has no canonical target and
@@ -197,8 +230,11 @@ const passesWaveQualityGate = (entry: Entry): boolean => {
 export function isIndexable(
   entry: Entry,
   account: ReputationSource,
-  accountFetchFailed: boolean
+  accountFetchFailed: boolean,
+  blacklist: ReadonlySet<string> = EMPTY_BLACKLIST
 ): boolean {
+  // Community anti-abuse consensus (plagiarism/spam). Clear negative, first.
+  if (blacklist.has(entry.author)) return false;
   if (isNsfwEntry(entry)) return false;
 
   const reputationNoIndex =
@@ -214,7 +250,7 @@ export function isIndexable(
     return false; // depth >= 3 in a container tree
   }
 
-  if (depth === 0) return true; // normal top-level post
+  if (depth === 0) return !isEffectivelyEmpty(entry); // normal top-level post
 
   // normal reply: indexable only if its discussion root is resolvable
   return canonicalTarget(entry) !== null;

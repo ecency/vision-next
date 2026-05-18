@@ -48,12 +48,70 @@ services:
       - MATTERMOST_TEAM_ID
       - MATTERMOST_WS_ALLOWED_ORIGINS
       - THREESPEAK_EMBED_API_KEY
+      - SEO_CRON_SECRET
+      - SEO_BLACKLIST_URL
     restart: always
     ports:
       - "3000:3000"
     hostname: web
     networks:
       - vision
+
+  # Single internal scheduler for the SEO maintenance routes (sitemap
+  # regeneration hourly + abuse-blacklist refresh daily at ~03:00 UTC).
+  # One manager-pinned replica, so the cron fires exactly once per swarm —
+  # not once per web replica. It only ever talks to web:3000 over the
+  # internal `vision` overlay, so the x-seo-cron-secret header never crosses
+  # the public edge / Cloudflare. No published ports; the secret is injected
+  # from the deploy environment and is never echoed (curl output discarded).
+  # $$ escapes keep the loop's $ literal through `docker-compose config`.
+  seocron:
+    image: curlimages/curl:8.11.1
+    environment:
+      - SEO_CRON_SECRET
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Fail fast (and crash-loop visibly) rather than silently no-op if
+        # the secret never made it into the deploy environment.
+        if [ -z "$$SEO_CRON_SECRET" ]; then
+          echo "seocron: SEO_CRON_SECRET is empty/unset - refusing to start" >&2
+          exit 1
+        fi
+        # Deploy-time prime: /sitemap.xml is advertised in robots.txt, so it
+        # must not 404 until the first hour boundary. Retry covers web not
+        # being ready yet (swarm starts services in parallel; depends_on is
+        # not honored). Blacklist first so the first sitemap is abuse-filtered.
+        P=0
+        while [ "$$P" -lt 30 ]; do
+          curl -fsS --max-time 60 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/blacklist-refresh >/dev/null 2>&1 || true
+          if curl -fsS --max-time 120 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/sitemap-generate >/dev/null 2>&1; then
+            break
+          fi
+          P=$$((P + 1))
+          sleep 10
+        done
+        while true; do
+          S=$$(( 3600 - $$(date -u +%s) % 3600 ))
+          sleep "$$S"
+          # Refresh the blacklist BEFORE the 03:00 sitemap so the daily run
+          # reflects today's list, not yesterday's (other hours: sitemap only).
+          if [ "$$(date -u +%H)" = "03" ]; then
+            curl -fsS --max-time 60 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/blacklist-refresh >/dev/null 2>&1 || true
+          fi
+          curl -fsS --max-time 120 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/sitemap-generate >/dev/null 2>&1 || true
+        done
+    restart: always
+    hostname: seocron
+    networks:
+      - vision
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
 
   # Per-stack Redis used as the L2 cache for post-age lookups in the Next.js
   # middleware (see apps/web/src/features/next-middleware/post-age-cache.ts).

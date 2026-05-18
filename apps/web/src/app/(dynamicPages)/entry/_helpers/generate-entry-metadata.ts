@@ -1,6 +1,7 @@
 import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { isIndexable, ReputationSource } from "@/utils/entry-indexability";
+import { isAuthorBlacklisted } from "@/features/seo/blacklist-check";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import { getContentQueryOptions, getProfilesQueryOptions } from "@ecency/sdk";
@@ -88,7 +89,12 @@ export async function generateEntryMetadata(
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const robots = isIndexable(entry, authorAccount, accountFetchFailed)
+    // Shared-Redis read (not a per-replica memory map): pass a singleton set
+    // so isIndexable stays pure/sync with its injected-blacklist contract.
+    const blacklist = (await isAuthorBlacklisted(entry.author))
+      ? new Set([entry.author])
+      : undefined;
+    const robots = isIndexable(entry, authorAccount, accountFetchFailed, blacklist)
       ? undefined
       : "noindex, nofollow";
 
