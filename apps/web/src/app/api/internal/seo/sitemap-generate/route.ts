@@ -15,6 +15,7 @@
  */
 import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
 import { cronAuthorized, notFound } from "@/features/seo/cron-auth";
+import { SITEMAP_SHARDS } from "@/features/seo/sitemap-shards";
 import { isIndexable, canonicalTarget } from "@/utils/entry-indexability";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
@@ -146,17 +147,23 @@ export async function POST(req: Request): Promise<Response> {
     lastmod: nowDay
   }));
 
+  // Writer/index/route stay in lockstep: every shard we emit — and every
+  // child the index points at — comes from the single shared SITEMAP_SHARDS
+  // allowlist the public route validates against. A name here that isn't in
+  // that list is a compile error (keyof typeof), not a silent prod 404.
+  const shardXml: Record<(typeof SITEMAP_SHARDS)[number], string> = {
+    "posts-1.xml": urlset(postUrls),
+    "authors.xml": urlset(authorUrls),
+    "static.xml": urlset(staticUrls)
+  };
+
   try {
-    await redis.set(K("posts-1.xml"), urlset(postUrls));
-    await redis.set(K("authors.xml"), urlset(authorUrls));
-    await redis.set(K("static.xml"), urlset(staticUrls));
+    for (const name of SITEMAP_SHARDS) {
+      await redis.set(K(name), shardXml[name]);
+    }
     await redis.set(
       K("index"),
-      indexXml([
-        { name: "posts-1.xml", lastmod: nowDay },
-        { name: "authors.xml", lastmod: nowDay },
-        { name: "static.xml", lastmod: nowDay }
-      ])
+      indexXml(SITEMAP_SHARDS.map((name) => ({ name, lastmod: nowDay })))
     );
     await redis.set(
       `${SEO_REDIS_PREFIX}sitemap:meta`,

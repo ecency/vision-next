@@ -3,22 +3,25 @@
  * sitemap-generation cron). Same contract as the index route: thin O(1)
  * read, CDN-cached, fail-open on miss, Node runtime (ioredis).
  *
- * `shard` is the child filename referenced by the index, e.g.
- * `posts-2026-05.xml`. Strictly validated to avoid Redis key injection.
+ * `shard` is the child filename referenced by the index. Validated against
+ * the shared closed allowlist (`SITEMAP_SHARDS`) the generator writes — an
+ * exact-membership check, not a permissive regex, so a writer/route case or
+ * formatting mismatch can't make a shard 404 invisibly and there's no Redis
+ * key-injection surface.
  */
 import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
+import { isKnownShard } from "@/features/seo/sitemap-shards";
 
 export const dynamic = "force-dynamic";
 
 const CACHE = "public, s-maxage=3600, stale-while-revalidate=86400";
-const SHARD_RE = /^[a-z0-9][a-z0-9._-]{0,80}\.xml$/;
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ shard: string }> }
 ): Promise<Response> {
   const { shard } = await params;
-  if (!SHARD_RE.test(shard)) {
+  if (!isKnownShard(shard)) {
     return new Response("Not Found", { status: 404 });
   }
   const redis = getSeoRedis();
