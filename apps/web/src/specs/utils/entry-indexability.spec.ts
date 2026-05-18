@@ -12,7 +12,8 @@ import {
   isIndexable,
   isContainerTree,
   CONTAINER_ACCOUNTS,
-  WAVE_MIN_BODY_CHARS
+  WAVE_MIN_BODY_CHARS,
+  EFFECTIVELY_EMPTY_MAX_BODY
 } from "../../utils/entry-indexability";
 
 const BASE = "https://ecency.com";
@@ -295,5 +296,80 @@ describe("isIndexable - NSFW and reputation gates", () => {
   it("account fetch failed -> reputation gate skipped (not punished)", () => {
     const e = makeEntry({ depth: 0 });
     expect(isIndexable(e, null, true)).toBe(true);
+  });
+});
+
+describe("B1 - abuse-blacklist signal (injected set)", () => {
+  const bl = new Set(["badguy", "baddie"]);
+
+  it("blacklisted author -> noindex even for an otherwise-fine post", () => {
+    const e = makeEntry({ author: "badguy", depth: 0, body: longBody });
+    expect(isIndexable(e, null, true, bl)).toBe(false);
+  });
+
+  it("non-blacklisted author unaffected", () => {
+    const e = makeEntry({ author: "alice", depth: 0, body: longBody });
+    expect(isIndexable(e, null, true, bl)).toBe(true);
+  });
+
+  it("default (no set passed) = nobody blacklisted (injected-default purity)", () => {
+    expect(idx(makeEntry({ author: "badguy", depth: 0, body: longBody }))).toBe(true);
+  });
+
+  it("blacklist is checked first — beats the wave gate too", () => {
+    const wave = makeEntry({
+      author: "baddie",
+      depth: 1,
+      parent_author: "ecency.waves",
+      root_author: "ecency.waves",
+      body: longBody,
+      children: 9
+    });
+    expect(isIndexable(wave, null, true, bl)).toBe(false);
+  });
+});
+
+describe("B2 - effectively-empty guard (multimodal-safe)", () => {
+  it("normal post, no prose + no media -> noindex", () => {
+    expect(idx(makeEntry({ depth: 0, body: "gm", json_metadata: {} }))).toBe(false);
+  });
+
+  it("short caption + json_metadata.image -> indexed (photo post safe)", () => {
+    const e = makeEntry({
+      depth: 0,
+      body: "nice",
+      json_metadata: { image: ["https://images.ecency.com/p.jpg"] }
+    });
+    expect(idx(e)).toBe(true);
+  });
+
+  it("short body with markdown image -> indexed (media present)", () => {
+    expect(idx(makeEntry({ depth: 0, body: "![](u)", json_metadata: {} }))).toBe(true);
+  });
+
+  it("prose at the floor -> indexed (only the truly contentless is caught)", () => {
+    const e = makeEntry({ depth: 0, body: "x".repeat(EFFECTIVELY_EMPTY_MAX_BODY) });
+    expect(idx(e)).toBe(true);
+  });
+
+  it("guard is scoped to normal top-level posts — not replies", () => {
+    // depth-2 reply with empty body: governed by canonical-to-root, NOT the
+    // empty guard (which only applies to the depth-0 normal branch).
+    const reply = makeEntry({
+      depth: 2,
+      body: "gm",
+      root_author: "bob",
+      root_permlink: "the-post",
+      json_metadata: {}
+    });
+    expect(idx(reply)).toBe(true);
+  });
+});
+
+describe("single-source-of-truth (sitemap generator must call this same predicate)", () => {
+  it("isIndexable is deterministic for identical inputs", () => {
+    const e = makeEntry({ depth: 0, body: longBody });
+    const bl = new Set(["x"]);
+    expect(isIndexable(e, null, true, bl)).toBe(isIndexable(e, null, true, bl));
   });
 });

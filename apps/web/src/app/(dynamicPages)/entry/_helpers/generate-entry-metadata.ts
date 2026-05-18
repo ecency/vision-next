@@ -1,6 +1,7 @@
 import { parseDate, safeDecodeURIComponent, truncate } from "@/utils";
 import { entryCanonical } from "@/utils/entry-canonical";
 import { isIndexable, ReputationSource } from "@/utils/entry-indexability";
+import { getBlacklist } from "@/features/seo/blacklist-cache";
 import { catchPostImage, postBodySummary, isValidPermlink } from "@ecency/render-helper";
 import { Metadata } from "next";
 import { getContentQueryOptions, getProfilesQueryOptions } from "@ecency/sdk";
@@ -88,7 +89,7 @@ export async function generateEntryMetadata(
       console.warn("generateEntryMetadata: failed to load author account", e);
     }
 
-    const robots = isIndexable(entry, authorAccount, accountFetchFailed)
+    const robots = isIndexable(entry, authorAccount, accountFetchFailed, getBlacklist())
       ? undefined
       : "noindex, nofollow";
 
