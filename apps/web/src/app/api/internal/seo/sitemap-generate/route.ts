@@ -134,7 +134,14 @@ export async function POST(req: Request): Promise<Response> {
     if (cached) {
       const arr: unknown = JSON.parse(cached);
       if (Array.isArray(arr)) {
-        communityNames = arr.filter((x): x is string => typeof x === "string");
+        // Re-screen on every load: a code-side NSFW_COMMUNITIES addition
+        // must take effect on the next run, not only when the weekly cache
+        // expires. (The response `is_nsfw` bonus signal can't be re-applied
+        // here — names only — but the curated set is the source of truth.)
+        communityNames = arr.filter(
+          (x): x is string =>
+            typeof x === "string" && /^hive-\d+$/.test(x) && !isNsfwCommunity(x)
+        );
       }
     }
     const fresh =
