@@ -102,12 +102,20 @@ services:
         while true; do
           S=$$(( 3600 - $$(date -u +%s) % 3600 ))
           sleep "$$S"
-          # Refresh the blacklist BEFORE the 03:00 sitemap so the daily run
-          # reflects today's list, not yesterday's (other hours: sitemap only).
-          if [ "$$(date -u +%H)" = "03" ]; then
-            curl -fsS --max-time 60 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/blacklist-refresh >/dev/null 2>&1 || true
+          # Keep the blacklist populated: daily at 03:00, AND every hour
+          # until the first success — a cold origin whose prime never
+          # reached the source must not publish an unfiltered sitemap. BL
+          # stays 1 once set (Redis keeps last-good if a later refresh
+          # fails). Blacklist runs before sitemap so 03:00 reflects today.
+          if [ "$$BL" -eq 0 ] || [ "$$(date -u +%H)" = "03" ]; then
+            if curl -fsS --max-time 90 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/blacklist-refresh >/dev/null 2>&1; then
+              BL=1
+            fi
           fi
-          curl -fsS --max-time 120 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/sitemap-generate >/dev/null 2>&1 || true
+          # Never publish an unfiltered sitemap.
+          if [ "$$BL" -eq 1 ]; then
+            curl -fsS --max-time 180 -X POST -H "x-seo-cron-secret: $$SEO_CRON_SECRET" http://web:3000/api/internal/seo/sitemap-generate >/dev/null 2>&1 || true
+          fi
         done
     restart: always
     hostname: seocron

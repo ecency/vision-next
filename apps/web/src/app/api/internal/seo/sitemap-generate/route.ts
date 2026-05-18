@@ -269,8 +269,8 @@ export async function POST(req: Request): Promise<Response> {
   // excluded: a volatile microblog feed with no stable landing value —
   // its substantive content is already covered by posts.xml (depth-1
   // container/wave items passing the wave quality gate).
-  const HUB_PATHS = ["", "discover", "communities", "witnesses", "proposals", "tags"];
-  const INFO_PATHS = [
+  const hubPaths = ["", "discover", "communities", "witnesses", "proposals", "tags"];
+  const infoPaths = [
     "about",
     "faq",
     "perks",
@@ -282,8 +282,8 @@ export async function POST(req: Request): Promise<Response> {
     "child-safety"
   ];
   const staticUrls: SitemapUrl[] = [
-    ...HUB_PATHS.map((p) => ({ loc: p ? `${BASE}/${p}` : `${BASE}/`, lastmod: nowDay })),
-    ...INFO_PATHS.map((p) => ({ loc: `${BASE}/${p}` }))
+    ...hubPaths.map((p) => ({ loc: p ? `${BASE}/${p}` : `${BASE}/`, lastmod: nowDay })),
+    ...infoPaths.map((p) => ({ loc: `${BASE}/${p}` }))
   ];
   const authorUrls = Array.from(authors).map((a) => ({
     loc: `${BASE}/@${a}`,
