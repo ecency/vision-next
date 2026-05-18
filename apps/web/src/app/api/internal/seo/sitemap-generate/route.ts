@@ -48,12 +48,17 @@ const PAGE = 20;
 const COMM_PAGES = 5;
 const COMM_LIMIT = 100;
 
+interface SitemapUrl {
+  loc: string;
+  lastmod?: string;
+}
+
 const esc = (s: string) =>
   s.replace(/[&<>'"]/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&apos;", '"': "&quot;" })[c]!
   );
 
-const urlset = (urls: { loc: string; lastmod?: string }[]) =>
+const urlset = (urls: SitemapUrl[]) =>
   `<?xml version="1.0" encoding="UTF-8"?>\n` +
   `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls
@@ -114,7 +119,7 @@ export async function POST(req: Request): Promise<Response> {
   // it), so it's a safe indexable target. NSFW excluded via our curated set
   // (single source of truth); the response `is_nsfw` flag is unreliable so
   // it's only an additive bonus signal, never relied upon.
-  const communityUrls: { loc: string }[] = [];
+  const communityUrls: SitemapUrl[] = [];
   const seenComm = new Set<string>();
   let commLast = "";
   for (let cp = 0; cp < COMM_PAGES; cp++) {
@@ -134,6 +139,10 @@ export async function POST(req: Request): Promise<Response> {
       if (!name || seenComm.has(name)) continue;
       seenComm.add(name);
       commLast = name;
+      // Defensive: only emit the verified self-canonical /created/hive-NNN
+      // form. Hive community accounts are always hive-<digits>; the guard is
+      // after the cursor advance so a freak value can't stall pagination.
+      if (!/^hive-\d+$/.test(name)) continue;
       if (isNsfwCommunity(name) || c.is_nsfw === true) continue;
       communityUrls.push({ loc: `${BASE}/created/${name}` });
     }
@@ -141,7 +150,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const seen = new Set<string>();
-  const postUrls: { loc: string; lastmod?: string }[] = [];
+  const postUrls: SitemapUrl[] = [];
   const authors = new Set<string>();
   let startAuthor: string | undefined;
   let startPermlink: string | undefined;

@@ -23,3 +23,17 @@ const SHARD_SET: ReadonlySet<string> = new Set(SITEMAP_SHARDS);
 export function isKnownShard(name: string): name is SitemapShard {
   return SHARD_SET.has(name);
 }
+
+/**
+ * Shard names we used to emit. After a rename, a Redis-cached index written by
+ * the *previous* deploy's cron can still advertise the old name until the next
+ * generation rewrites it. Serving that as a 404 would tell crawlers the shard
+ * was permanently removed; the route returns 503 (transient) for these instead
+ * so it's retried, then disappears from the index on the next cron run. Prune
+ * an entry once every environment has regenerated past the rename.
+ */
+const RETIRED_SHARDS: ReadonlySet<string> = new Set<string>(["posts-1.xml"]);
+
+export function isRetiredShard(name: string): boolean {
+  return RETIRED_SHARDS.has(name);
+}

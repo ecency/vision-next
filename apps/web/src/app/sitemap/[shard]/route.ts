@@ -12,10 +12,12 @@
  * Status semantics matter for crawlers: only a shard NOT in the allowlist is
  * 404 ("this resource doesn't exist"). A known shard that's merely not in
  * Redis yet (pre-prime) or unreachable (Redis blip) returns 503 + Retry-After
- * so the engine retries instead of dropping a real, advertised resource.
+ * so the engine retries instead of dropping a real, advertised resource. A
+ * just-retired shard name (a stale cached index may still link it for one
+ * cron cycle after a rename) is likewise 503, never 404.
  */
 import { getSeoRedis, SEO_REDIS_PREFIX } from "@/features/seo/seo-redis";
-import { isKnownShard } from "@/features/seo/sitemap-shards";
+import { isKnownShard, isRetiredShard } from "@/features/seo/sitemap-shards";
 
 export const dynamic = "force-dynamic";
 
@@ -26,15 +28,17 @@ export async function GET(
   { params }: { params: Promise<{ shard: string }> }
 ): Promise<Response> {
   const { shard } = await params;
-  if (!isKnownShard(shard)) {
-    return new Response("Not Found", { status: 404 });
-  }
-  // Known shard but not (yet) available → transient, not "gone".
+  // Known shard but not (yet) available, OR a just-retired name a stale
+  // cached index may still link → transient, not "gone".
   const unavailable = () =>
     new Response("Service Unavailable", {
       status: 503,
       headers: { "Retry-After": "600" }
     });
+  if (isRetiredShard(shard)) return unavailable();
+  if (!isKnownShard(shard)) {
+    return new Response("Not Found", { status: 404 });
+  }
   const redis = getSeoRedis();
   if (!redis) return unavailable();
   try {
