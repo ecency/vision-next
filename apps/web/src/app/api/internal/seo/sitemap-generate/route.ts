@@ -262,10 +262,28 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const nowDay = new Date().toISOString().slice(0, 10);
-  const staticUrls = [
-    { loc: `${BASE}/`, lastmod: nowDay },
-    { loc: `${BASE}/discover`, lastmod: nowDay },
-    { loc: `${BASE}/communities`, lastmod: nowDay }
+  // Hub pages whose listed content changes daily → lastmod = today.
+  // Info/legal pages rarely change → no lastmod (honest: don't claim a
+  // daily change). All verified on prod: 200, not noindex, no
+  // canonical-away. /market excluded (307 → /market/swap). /waves
+  // excluded: a volatile microblog feed with no stable landing value —
+  // its substantive content is already covered by posts.xml (depth-1
+  // container/wave items passing the wave quality gate).
+  const hubPaths = ["", "discover", "communities", "witnesses", "proposals", "tags"];
+  const infoPaths = [
+    "about",
+    "faq",
+    "perks",
+    "mobile",
+    "contributors",
+    "whitepaper",
+    "privacy-policy",
+    "terms-of-service",
+    "child-safety"
+  ];
+  const staticUrls: SitemapUrl[] = [
+    ...hubPaths.map((p) => ({ loc: p ? `${BASE}/${p}` : `${BASE}/`, lastmod: nowDay })),
+    ...infoPaths.map((p) => ({ loc: `${BASE}/${p}` }))
   ];
   const authorUrls = Array.from(authors).map((a) => ({
     loc: `${BASE}/@${a}`,
