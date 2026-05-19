@@ -23,7 +23,7 @@ import clsx from "clsx";
 interface Props {
   isLoading?: boolean;
   onSign?: (key: PrivateKey) => void;
-  keyType?: "owner" | "active";
+  keyType?: "owner" | "active" | "memo";
 }
 
 export interface KeyInputImperativeHandle {
@@ -74,15 +74,30 @@ export const KeyInput = forwardRef<
           const derivation = await detectHiveKeyDerivation(
             activeUser.username,
             key,
-            keyType
+            // detectHiveKeyDerivation only classifies the input format
+            // (bip44 seed vs master password) against an owner/active
+            // authority. Memo keys are derived in the keyType === "memo"
+            // branches below, so classify against "active" here.
+            keyType === "memo" ? "active" : keyType
           );
 
           if (derivation === "bip44") {
             const keys = deriveHiveKeys(key);
-            const derivedKey = keyType === "active" ? keys.active : keys.owner;
+            const derivedKey =
+              keyType === "active" ? keys.active :
+              keyType === "memo" ? keys.memo :
+              keys.owner;
             privateKey = PrivateKey.fromString(derivedKey);
           } else if (derivation === "master-password") {
-            privateKey = PrivateKey.fromLogin(activeUser.username, key, keyType);
+            privateKey = PrivateKey.fromLogin(
+              activeUser.username,
+              key,
+              keyType === "memo" ? "memo" : keyType
+            );
+          } else if (keyType === "memo") {
+            // For memo keys, try master password derivation as fallback
+            // (detectHiveKeyDerivation may return "unknown" if memo key was changed)
+            privateKey = PrivateKey.fromLogin(activeUser.username, key, "memo");
           } else {
             privateKey = PrivateKey.from(key);
           }
