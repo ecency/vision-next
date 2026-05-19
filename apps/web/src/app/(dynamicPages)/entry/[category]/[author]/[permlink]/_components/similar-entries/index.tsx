@@ -6,7 +6,7 @@ import { setProxyBase } from "@ecency/render-helper";
 import "./_index.scss";
 import { Entry, SearchResult } from "@/entities"; // ⬅️ import SearchResult
 import i18next from "i18next";
-import { getSimilarEntriesQueryOptions } from "@ecency/sdk";
+import { getSimilarEntriesQueryOptions, SIMILAR_ENTRIES_MIN_RENDER } from "@ecency/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { SimilarEntryItem } from "@/app/(dynamicPages)/entry/[category]/[author]/[permlink]/_components/similar-entries/similar-entry-item";
 
@@ -24,7 +24,9 @@ export function SimilarEntries({ entry }: Props) {
         ? (entriesRaw as SearchResult[])
         : [];
 
-    if (entries.length !== 3) return null;
+    // Render whatever survived the merge/dedup (capped at 3 by the SDK).
+    // Hidden only below the shared min so the strip isn't all-or-nothing.
+    if (entries.length < SIMILAR_ENTRIES_MIN_RENDER) return null;
 
     return (
         <div className="similar-entries-list">
