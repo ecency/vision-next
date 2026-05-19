@@ -16,6 +16,59 @@ interface Props {
     entry: Entry;
 }
 
+// The SDK query returns its own (narrower) SearchResult shape; the SDK/web
+// type split is deliberately deferred, so map the boundary explicitly here
+// rather than bypass it with an `unknown` double-cast. Also resilient: drops
+// any row missing the essentials instead of trusting the shape blindly.
+interface SdkSimilarRow {
+    id?: number;
+    title?: string;
+    body?: string;
+    category?: string;
+    author?: string;
+    permlink?: string;
+    author_rep?: number | string;
+    total_payout?: number;
+    img_url?: string;
+    created_at?: string;
+    children?: number;
+    tags?: string[];
+    app?: string;
+    depth?: number;
+}
+
+function toSearchResults(raw: unknown): SearchResult[] {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .filter(
+            (r): r is SdkSimilarRow =>
+                !!r &&
+                typeof r === "object" &&
+                typeof (r as SdkSimilarRow).author === "string" &&
+                typeof (r as SdkSimilarRow).permlink === "string"
+        )
+        .map((r) => ({
+            id: r.id ?? 0,
+            title: r.title ?? "",
+            title_marked: null,
+            category: r.category ?? "",
+            author: r.author as string,
+            permlink: r.permlink as string,
+            author_rep: r.author_rep ?? 0,
+            children: r.children ?? 0,
+            body: r.body ?? "",
+            body_marked: null,
+            img_url: r.img_url ?? "",
+            created_at: r.created_at ?? "",
+            payout: r.total_payout ?? 0,
+            total_votes: 0,
+            up_votes: 0,
+            tags: Array.isArray(r.tags) ? r.tags : [],
+            depth: r.depth ?? 0,
+            app: r.app ?? ""
+        }));
+}
+
 export function SimilarEntries({ entry }: Props) {
     // The SDK query only reads author/permlink/json_metadata.tags — pass a
     // minimal typed projection so the web Entry (JsonMetadata | null) lines
@@ -28,13 +81,8 @@ export function SimilarEntries({ entry }: Props) {
         })
     );
 
-    // The query yields the SDK's SearchResult — a narrower, nominally-distinct
-    // sibling of @/entities SearchResult (the SDK/web type split is
-    // deliberately deferred, not homogenised here). The runtime object carries
-    // every field this strip renders, so bridge the two via `unknown`.
-    const entries: SearchResult[] = Array.isArray(entriesRaw)
-        ? (entriesRaw as unknown as SearchResult[])
-        : [];
+    // Adapt the SDK rows to the web SearchResult shape (see toSearchResults).
+    const entries = toSearchResults(entriesRaw);
 
     // Render whatever survived the merge/dedup (capped at 3 by the SDK).
     // Hidden only below the shared min so the strip isn't all-or-nothing.
