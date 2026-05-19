@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.17
+
+### Patch Changes
+
+- fix(similar-entries): correct full_posts, merge both sources, render ≥2, pin HiveSense nodes (#804)
+
 ## 2.2.16
 
 ### Patch Changes
