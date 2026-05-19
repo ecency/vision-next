@@ -1,3 +1,5 @@
+import type { APIMethods } from './api-types'
+
 /**
  * Unified configuration for Hive blockchain connectivity.
  * This is the single source of truth for node endpoints, timeouts, and chain settings.
@@ -28,6 +30,22 @@ export const config = {
     'https://hiveapi.actifit.io',
     'https://api.c0ff33a.uk'
   ],
+
+  /**
+   * Per-API REST node override. Some APIs are served by only a subset of
+   * nodes; list just those capable hosts here so callREST never burns its
+   * (small) retry budget on nodes that 404/503 the API, and a cold start
+   * hits a capable node immediately. Any API not listed falls back to
+   * `restNodes`. The health tracker still orders *within* this list.
+   *
+   * hivesense: empirically only ~2 public nodes serve /hivesense-api (the
+   * other configured nodes 404/503 it; Ecency's own was decommissioned), so
+   * pin them — otherwise the health tracker keeps rediscovering incapable
+   * nodes each cooldown and cold starts waste attempts.
+   */
+  restNodesByApi: {
+    hivesense: ['https://api.hive.blog', 'https://api.syncad.com']
+  } as Partial<Record<APIMethods, string[]>>,
 
   /**
    * The Hive blockchain chain ID for transaction signing and verification.

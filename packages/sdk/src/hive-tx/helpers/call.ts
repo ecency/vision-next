@@ -672,6 +672,14 @@ export async function callREST(
   if (config.restNodes.length === 0) {
     throw new Error('config.restNodes is empty')
   }
+  // Per-API node override: an API served by only a subset of nodes (e.g.
+  // hivesense) uses its own capable-host list so the small retry budget and
+  // cold starts aren't wasted on nodes that 404/503 it. Any API without an
+  // override (or with an empty one) falls back to the generic restNodes.
+  const apiNodes =
+    config.restNodesByApi?.[api]?.length
+      ? config.restNodesByApi[api]!
+      : config.restNodes
   const triedInRound = new Set<string>()
   let lastError: any
   // Track whether the error was already recorded by the HTTP status handler
@@ -680,7 +688,7 @@ export async function callREST(
   for (let attempt = 0; attempt <= retry; attempt++) {
     // Re-evaluate node order each attempt so health changes are respected.
     // Pass api so per-API cooldowns are respected.
-    const orderedNodes = restHealthTracker.getOrderedNodes(config.restNodes, api)
+    const orderedNodes = restHealthTracker.getOrderedNodes(apiNodes, api)
     let node = orderedNodes.find((n) => !triedInRound.has(n))
     if (!node) {
       triedInRound.clear()

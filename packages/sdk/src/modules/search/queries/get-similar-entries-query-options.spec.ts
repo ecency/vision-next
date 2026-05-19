@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getSimilarEntriesQueryOptions } from "./get-similar-entries-query-options";
+import {
+  getSimilarEntriesQueryOptions,
+  SIMILAR_ENTRIES_MIN_RENDER,
+} from "./get-similar-entries-query-options";
 import type { SearchResponse } from "../types/search-response";
 
 const mockCallREST = vi.hoisted(() => vi.fn());
@@ -70,7 +73,7 @@ describe("getSimilarEntriesQueryOptions", () => {
     ]);
   });
 
-  it("sends a ~6 month since window + boolean hide_low, and skips HiveSense when primary fills 3", async () => {
+  it("sends a ~6 month since window + boolean hide_low; ALWAYS queries HiveSense with full_posts === result_limit", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () =>
@@ -80,6 +83,11 @@ describe("getSimilarEntriesQueryOptions", () => {
           { author: "e", permlink: "p4" },
         ]),
     });
+    // Hivesense is now queried in parallel even when primary fills the cap;
+    // its extras are merged-then-dropped by the 3-cap (primary stays first).
+    mockCallREST.mockResolvedValueOnce([
+      { author: "z", permlink: "hz", created: freshIso() },
+    ]);
 
     const options = getSimilarEntriesQueryOptions(entry);
     const result = (await (options.queryFn as QueryFn)({
@@ -97,8 +105,17 @@ describe("getSimilarEntriesQueryOptions", () => {
     );
     expect(drift).toBeLessThan(60_000);
 
+    // primary fills the cap; merged hivesense extra is dropped by the 3-cap
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
-    expect(mockCallREST).not.toHaveBeenCalled();
+
+    // P0 regression: full_posts MUST equal result_limit (both 12), else
+    // HiveSense returns author/permlink stubs without created/title/body.
+    expect(mockCallREST).toHaveBeenCalledTimes(1);
+    const [, , params] = mockCallREST.mock.calls[0];
+    expect(params.result_limit).toBe(12);
+    expect(params.full_posts).toBe(12);
+    expect(params.full_posts).toBe(params.result_limit);
+    expect(params).toMatchObject({ author: "alice", permlink: "my-post", truncate: 200 });
   });
 
   it("excludes the source post and nsfw, dedupes by author, caps at 3", async () => {
@@ -115,6 +132,7 @@ describe("getSimilarEntriesQueryOptions", () => {
           { author: "f", permlink: "p6", tags: [] }, // beyond cap of 3
         ]),
     });
+    mockCallREST.mockResolvedValueOnce([]);
 
     const options = getSimilarEntriesQueryOptions(entry);
     const result = (await (options.queryFn as QueryFn)({
@@ -122,17 +140,16 @@ describe("getSimilarEntriesQueryOptions", () => {
     })) as SearchResponse["results"];
 
     expect(result.map((r) => r.author)).toEqual(["c", "d", "e"]);
-    expect(mockCallREST).not.toHaveBeenCalled();
   });
 
-  it("falls back to HiveSense (recency-filtered, deduped) when primary is short", async () => {
+  it("merges HiveSense (recency-filtered, deduped) when primary is short — primary first", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
     });
 
     mockCallREST.mockResolvedValueOnce([
-      // too old → excluded by the 6-month recency filter
+      // too old → excluded by the 6-month recency filter (kept at 6mo)
       { author: "old", permlink: "o1", created: "2018-05-15T16:38:15" },
       // muted/low-quality → excluded
       { author: "gray", permlink: "g1", created: freshIso(), stats: { gray: true } },
@@ -149,22 +166,17 @@ describe("getSimilarEntriesQueryOptions", () => {
       signal: undefined,
     })) as SearchResponse["results"];
 
+    // primary ("c") first, HiveSense backfills the rest
     expect(result.map((r) => r.author)).toEqual(["c", "hs1", "hs2"]);
-    expect(mockCallREST).toHaveBeenCalledWith(
-      "hivesense",
-      "/posts/{author}/{permlink}/similar",
-      { author: "alice", permlink: "my-post", result_limit: 12, full_posts: 1, truncate: 200 },
-      undefined,
-      undefined,
-      undefined
-    );
+    const [, , params] = mockCallREST.mock.calls[0];
+    expect(params.full_posts).toBe(params.result_limit);
     // adapter maps HiveSense → SearchResult
     const fresh = result.find((r) => r.author === "hs1")!;
     expect(fresh.title).toBe("Fresh One");
     expect(fresh.tags).toEqual([]);
   });
 
-  it("ignores HiveSense failures (best-effort fallback)", async () => {
+  it("tolerates a HiveSense failure as long as primary succeeds", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: async () => searchResponse([{ author: "c", permlink: "p2" }]),
@@ -177,6 +189,35 @@ describe("getSimilarEntriesQueryOptions", () => {
     })) as SearchResponse["results"];
 
     expect(result.map((r) => r.author)).toEqual(["c"]);
+  });
+
+  it("is resilient: primary fails but HiveSense succeeds → returns HiveSense", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 502, json: async () => ({}) });
+    mockCallREST.mockResolvedValueOnce([
+      { author: "hs1", permlink: "h1", created: freshIso(), title: "Fresh One" },
+      { author: "hs2", permlink: "h2", created: freshIso() },
+    ]);
+
+    const options = getSimilarEntriesQueryOptions(entry);
+    const result = (await (options.queryFn as QueryFn)({
+      signal: undefined,
+    })) as SearchResponse["results"];
+
+    expect(result.map((r) => r.author)).toEqual(["hs1", "hs2"]);
+  });
+
+  it("throws only when BOTH sources fail (so React Query can retry)", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) });
+    mockCallREST.mockRejectedValueOnce(new Error("hivesense down"));
+
+    const options = getSimilarEntriesQueryOptions(entry);
+    await expect(
+      (options.queryFn as QueryFn)({ signal: undefined })
+    ).rejects.toThrow("Search failed: 500");
+  });
+
+  it("exposes a shared min-render threshold of 2", () => {
+    expect(SIMILAR_ENTRIES_MIN_RENDER).toBe(2);
   });
 
   it("excludes nsfw HiveSense results (json_metadata tag or category) and maps real tags", async () => {
