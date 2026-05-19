@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.16
+
+### Patch Changes
+
+- SEO: stale-preserving guard for posts/authors sitemap + patient RPC (#802)
+
 ## 2.2.15
 
 ### Patch Changes
