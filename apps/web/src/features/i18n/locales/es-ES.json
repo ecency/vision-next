@@ -3316,12 +3316,12 @@
       "button": "Establecer @ecency como proxy",
       "dismiss": "No ahora",
       "confirm-title": "¿Establecer @ecency como proxy de gobernanza?",
-      "confirm-description": "@ecency votará sobre los testimonios y propuestas de Hive en tu nombre. Tu apuesta permanece tuya, y puedes cambiar o quitar el proxy en cualquier momento de la página de Testigos.",
+      "confirm-description": "@ecency votará sobre los testigos y propuestas de Hive en tu nombre. Tu estaca permanece tuya, y puedes cambiar o quitar el proxy en cualquier momento de la página de Testigos.",
       "confirm-ok": "Definir proxy",
       "success": "@ecency es ahora tu proxy de gobernanza"
     },
     "promo-carousel": {
-      "go-to-slide": "Ir al consejo {{n}}"
+      "go-to-slide": "Ir a la propina {{n}}"
     },
     "external": {
       "receive-button": "Recibir",
