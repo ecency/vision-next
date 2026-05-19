@@ -25,8 +25,14 @@ import { isNsfwCommunity } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
 // Hive-only entry: this is a server route handler — avoid pulling the
-// React/react-query surface of the main SDK entry into it.
-import { callRPC } from "@ecency/sdk/hive";
+// React/react-query surface of the main SDK entry into it. `setNodes` is the
+// same validated setter `ConfigManager.setHiveNodes` delegates to.
+import { callRPC, setNodes } from "@ecency/sdk/hive";
+// App's curated RPC list (Ecency-first). The app applies this via
+// ConfigManager in sdk-init, but App Router route handlers never execute the
+// root layout, so sdk-init never runs here — configure the hive entry
+// explicitly. Same file sdk-init feeds ConfigManager: one source of truth.
+import publicNodes from "../../../../../../public/public-nodes.json";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +60,20 @@ const COMM_LIMIT = 100;
 const COMM_REFRESH_MS = 7 * 24 * 60 * 60_000;
 const COMM_NAMES_KEY = `${SEO_REDIS_PREFIX}sitemap:communities:names`;
 const COMM_BUILT_KEY = `${SEO_REDIS_PREFIX}sitemap:communities:builtAt`;
+// Last accepted post count — the baseline for the stale-preserving guard so a
+// budget/error-truncated walk can't overwrite a good posts/authors sitemap.
+const POSTS_LASTGOOD_KEY = `${SEO_REDIS_PREFIX}sitemap:posts:lastgood`;
+// Day (YYYY-MM-DD) the walk-derived shards were last *accepted*. Drives the
+// sitemap-index <lastmod> for posts.xml/authors.xml when a walk is rejected,
+// so a kept last-good blob doesn't advertise today's date to crawlers.
+const POSTS_LASTGOOD_DAY_KEY = `${SEO_REDIS_PREFIX}sitemap:posts:lastgoodDay`;
+// This is a background bulk paginated walk, not an interactive call: be more
+// patient than the SDK's UI defaults (5s / retry 1 = only 2 nodes) so a
+// momentarily slow/sick node fails over across more of the node list per page
+// instead of bleeding the time budget. Worst case is bounded by TIME_BUDGET_MS
+// (checked each iteration) + the seocron curl --max-time.
+const RPC_TIMEOUT_MS = 8_000;
+const RPC_RETRY = 4; // up to 5 nodes tried per page
 
 interface SitemapUrl {
   loc: string;
@@ -112,6 +132,11 @@ export async function POST(req: Request): Promise<Response> {
     });
   }
 
+  // Configure the hive entry with the app's curated (Ecency-first) RPC list
+  // before any callRPC below. Idempotent and re-applied each run so a hot
+  // route module can't drift from public-nodes.json.
+  setNodes(publicNodes);
+
   const started = Date.now();
   const cutoff = started - WINDOW_MS;
   let blacklist: ReadonlySet<string>;
@@ -157,11 +182,12 @@ export async function POST(req: Request): Promise<Response> {
       for (let cp = 0; cp < COMM_PAGES; cp++) {
         let cbatch: Record<string, unknown>[];
         try {
-          cbatch = (await callRPC("bridge.list_communities", {
-            sort: "rank",
-            limit: COMM_LIMIT,
-            last: commLast
-          })) as Record<string, unknown>[];
+          cbatch = (await callRPC(
+            "bridge.list_communities",
+            { sort: "rank", limit: COMM_LIMIT, last: commLast },
+            RPC_TIMEOUT_MS,
+            RPC_RETRY
+          )) as Record<string, unknown>[];
         } catch {
           aborted = true;
           break;
@@ -219,14 +245,19 @@ export async function POST(req: Request): Promise<Response> {
   while (pages < MAX_PAGES && Date.now() - started < TIME_BUDGET_MS && !reachedCutoff) {
     let batch: Record<string, unknown>[];
     try {
-      batch = (await callRPC("bridge.get_ranked_posts", {
-        sort: "created",
-        tag: "",
-        observer: "",
-        limit: PAGE,
-        start_author: startAuthor ?? "",
-        start_permlink: startPermlink ?? ""
-      })) as Record<string, unknown>[];
+      batch = (await callRPC(
+        "bridge.get_ranked_posts",
+        {
+          sort: "created",
+          tag: "",
+          observer: "",
+          limit: PAGE,
+          start_author: startAuthor ?? "",
+          start_permlink: startPermlink ?? ""
+        },
+        RPC_TIMEOUT_MS,
+        RPC_RETRY
+      )) as Record<string, unknown>[];
     } catch {
       break; // serve what we have
     }
@@ -299,6 +330,28 @@ export async function POST(req: Request): Promise<Response> {
       : { loc: `${BASE}/created/${name}` };
   });
 
+  // Stale-preserving guard (mirrors the blacklist/communities delta-sanity):
+  // a budget- or error-truncated walk must NOT overwrite a good posts/authors
+  // sitemap. Accept iff the walk completed (reachedCutoff — authoritative even
+  // in a quiet period), there's no baseline yet, or it's within 50% of the
+  // last accepted count. On reject, posts.xml + authors.xml keep their
+  // last-good blobs; the independent communities/static/index still refresh.
+  let lastGood = 0;
+  let lastGoodDay = "";
+  try {
+    lastGood = parseInt((await redis.get(POSTS_LASTGOOD_KEY)) ?? "", 10) || 0;
+    lastGoodDay = (await redis.get(POSTS_LASTGOOD_DAY_KEY)) ?? "";
+  } catch {
+    lastGood = 0;
+    lastGoodDay = "";
+  }
+  // 50% guard. Math.ceil (not floor) so a stored baseline of 1 doesn't
+  // collapse the threshold to 0 and silently accept an empty walk; the
+  // explicit lastGood === 0 short-circuit still covers the true bootstrap.
+  const acceptWalk =
+    reachedCutoff || lastGood === 0 || postUrls.length >= Math.ceil(lastGood * 0.5);
+  const WALK_DERIVED = new Set<string>(["posts.xml", "authors.xml"]);
+
   // Writer/index/route stay in lockstep: every shard we emit — and every
   // child the index points at — comes from the single shared SITEMAP_SHARDS
   // allowlist the public route validates against. A name here that isn't in
@@ -312,12 +365,30 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     for (const name of SITEMAP_SHARDS) {
+      if (!acceptWalk && WALK_DERIVED.has(name)) continue; // keep last-good
       await redis.set(K(name), shardXml[name]);
     }
+    // When the walk is rejected, posts.xml/authors.xml keep their last-good
+    // blob — so the index must advertise their *real* freshness (the day they
+    // were last accepted), not today's, or crawlers re-pull unchanged shards
+    // and GSC sees a false freshness signal. communities/static are rebuilt
+    // every run, so nowDay is honest for them. Fallback to nowDay only if no
+    // accepted-day was ever recorded (pre-existing baseline from an older
+    // deploy); it self-heals on the next accepted walk.
+    const walkLastmod = acceptWalk ? nowDay : lastGoodDay || nowDay;
     await redis.set(
       K("index"),
-      indexXml(SITEMAP_SHARDS.map((name) => ({ name, lastmod: nowDay })))
+      indexXml(
+        SITEMAP_SHARDS.map((name) => ({
+          name,
+          lastmod: WALK_DERIVED.has(name) ? walkLastmod : nowDay
+        }))
+      )
     );
+    if (acceptWalk) {
+      await redis.set(POSTS_LASTGOOD_KEY, String(postUrls.length));
+      await redis.set(POSTS_LASTGOOD_DAY_KEY, nowDay);
+    }
     await redis.set(
       `${SEO_REDIS_PREFIX}sitemap:meta`,
       JSON.stringify({
@@ -327,7 +398,10 @@ export async function POST(req: Request): Promise<Response> {
         communities: communityUrls.length,
         pages,
         ms: Date.now() - started,
-        reachedCutoff
+        reachedCutoff,
+        acceptedWalk: acceptWalk,
+        lastGood,
+        lastGoodDay
       })
     );
   } catch (e) {
@@ -347,7 +421,9 @@ export async function POST(req: Request): Promise<Response> {
       communities: communityUrls.length,
       pages,
       ms: Date.now() - started,
-      reachedCutoff
+      reachedCutoff,
+      acceptedWalk: acceptWalk,
+      lastGood
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );

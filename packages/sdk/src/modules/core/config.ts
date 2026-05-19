@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { config as hiveTxConfig } from "../../hive-tx";
+import { config as hiveTxConfig, setNodes as setHiveTxNodes } from "../../hive-tx";
 
 // Safe environment variable access for browser builds
 // In browser builds, tsup will replace process.env.* with literal values at compile time
@@ -107,17 +107,13 @@ export namespace ConfigManager {
 
   /**
    * Set Hive RPC nodes, replacing the default list.
-   * Directly updates the unified hive-tx config object.
+   * Delegates to the unified hive-tx `setNodes` (single validated setter,
+   * shared with the lean `@ecency/sdk/hive` entry) so node configuration is
+   * defined in exactly one place.
    * @param nodes - Array of Hive RPC node URLs
    */
   export function setHiveNodes(nodes: string[]) {
-    const validNodes = [...new Set(
-      nodes
-        .map((n) => n.trim())
-        .filter((n) => n.length > 0 && /^https?:\/\/.+/.test(n))
-    )];
-    if (!validNodes.length) return;
-    hiveTxConfig.nodes = validNodes;
+    setHiveTxNodes(nodes);
   }
 
   /**
