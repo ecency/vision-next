@@ -25,8 +25,14 @@ import { isNsfwCommunity } from "@/utils/nsfw-detection";
 import { Entry } from "@/entities";
 import defaults from "@/defaults";
 // Hive-only entry: this is a server route handler — avoid pulling the
-// React/react-query surface of the main SDK entry into it.
-import { callRPC } from "@ecency/sdk/hive";
+// React/react-query surface of the main SDK entry into it. `setNodes` is the
+// same validated setter `ConfigManager.setHiveNodes` delegates to.
+import { callRPC, setNodes } from "@ecency/sdk/hive";
+// App's curated RPC list (Ecency-first). The app applies this via
+// ConfigManager in sdk-init, but App Router route handlers never execute the
+// root layout, so sdk-init never runs here — configure the hive entry
+// explicitly. Same file sdk-init feeds ConfigManager: one source of truth.
+import publicNodes from "../../../../../../public/public-nodes.json";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +63,10 @@ const COMM_BUILT_KEY = `${SEO_REDIS_PREFIX}sitemap:communities:builtAt`;
 // Last accepted post count — the baseline for the stale-preserving guard so a
 // budget/error-truncated walk can't overwrite a good posts/authors sitemap.
 const POSTS_LASTGOOD_KEY = `${SEO_REDIS_PREFIX}sitemap:posts:lastgood`;
+// Day (YYYY-MM-DD) the walk-derived shards were last *accepted*. Drives the
+// sitemap-index <lastmod> for posts.xml/authors.xml when a walk is rejected,
+// so a kept last-good blob doesn't advertise today's date to crawlers.
+const POSTS_LASTGOOD_DAY_KEY = `${SEO_REDIS_PREFIX}sitemap:posts:lastgoodDay`;
 // This is a background bulk paginated walk, not an interactive call: be more
 // patient than the SDK's UI defaults (5s / retry 1 = only 2 nodes) so a
 // momentarily slow/sick node fails over across more of the node list per page
@@ -121,6 +131,11 @@ export async function POST(req: Request): Promise<Response> {
       headers: { "Content-Type": "application/json" }
     });
   }
+
+  // Configure the hive entry with the app's curated (Ecency-first) RPC list
+  // before any callRPC below. Idempotent and re-applied each run so a hot
+  // route module can't drift from public-nodes.json.
+  setNodes(publicNodes);
 
   const started = Date.now();
   const cutoff = started - WINDOW_MS;
@@ -322,13 +337,19 @@ export async function POST(req: Request): Promise<Response> {
   // last accepted count. On reject, posts.xml + authors.xml keep their
   // last-good blobs; the independent communities/static/index still refresh.
   let lastGood = 0;
+  let lastGoodDay = "";
   try {
     lastGood = parseInt((await redis.get(POSTS_LASTGOOD_KEY)) ?? "", 10) || 0;
+    lastGoodDay = (await redis.get(POSTS_LASTGOOD_DAY_KEY)) ?? "";
   } catch {
     lastGood = 0;
+    lastGoodDay = "";
   }
+  // 50% guard. Math.ceil (not floor) so a stored baseline of 1 doesn't
+  // collapse the threshold to 0 and silently accept an empty walk; the
+  // explicit lastGood === 0 short-circuit still covers the true bootstrap.
   const acceptWalk =
-    reachedCutoff || lastGood === 0 || postUrls.length >= Math.floor(lastGood * 0.5);
+    reachedCutoff || lastGood === 0 || postUrls.length >= Math.ceil(lastGood * 0.5);
   const WALK_DERIVED = new Set<string>(["posts.xml", "authors.xml"]);
 
   // Writer/index/route stay in lockstep: every shard we emit — and every
@@ -347,12 +368,26 @@ export async function POST(req: Request): Promise<Response> {
       if (!acceptWalk && WALK_DERIVED.has(name)) continue; // keep last-good
       await redis.set(K(name), shardXml[name]);
     }
+    // When the walk is rejected, posts.xml/authors.xml keep their last-good
+    // blob — so the index must advertise their *real* freshness (the day they
+    // were last accepted), not today's, or crawlers re-pull unchanged shards
+    // and GSC sees a false freshness signal. communities/static are rebuilt
+    // every run, so nowDay is honest for them. Fallback to nowDay only if no
+    // accepted-day was ever recorded (pre-existing baseline from an older
+    // deploy); it self-heals on the next accepted walk.
+    const walkLastmod = acceptWalk ? nowDay : lastGoodDay || nowDay;
     await redis.set(
       K("index"),
-      indexXml(SITEMAP_SHARDS.map((name) => ({ name, lastmod: nowDay })))
+      indexXml(
+        SITEMAP_SHARDS.map((name) => ({
+          name,
+          lastmod: WALK_DERIVED.has(name) ? walkLastmod : nowDay
+        }))
+      )
     );
     if (acceptWalk) {
       await redis.set(POSTS_LASTGOOD_KEY, String(postUrls.length));
+      await redis.set(POSTS_LASTGOOD_DAY_KEY, nowDay);
     }
     await redis.set(
       `${SEO_REDIS_PREFIX}sitemap:meta`,
@@ -365,7 +400,8 @@ export async function POST(req: Request): Promise<Response> {
         ms: Date.now() - started,
         reachedCutoff,
         acceptedWalk: acceptWalk,
-        lastGood
+        lastGood,
+        lastGoodDay
       })
     );
   } catch (e) {

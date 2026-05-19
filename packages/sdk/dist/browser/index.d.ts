@@ -1,7 +1,7 @@
 import * as _tanstack_react_query from '@tanstack/react-query';
 import { MutationKey, UseMutationOptions, QueryClient, QueryKey, InfiniteData, UseQueryOptions, UseInfiniteQueryOptions, useMutation } from '@tanstack/react-query';
-import { O as Operation, P as PrivateKey, B as BroadcastResult, A as Authority, a as PublicKey, b as OperationName, o as operations } from './hive-T9MxuBH_.js';
-export { j as AccountCreateOperation, i as AssetSymbol, C as CustomJsonOperation, T as HiveTxTransaction, M as Memo, h as OperationBody, S as Signature, f as callREST, d as callRPC, e as callRPCBroadcast, g as callWithQuorum, c as hiveTxConfig, u as hiveTxUtils } from './hive-T9MxuBH_.js';
+import { O as Operation, P as PrivateKey, B as BroadcastResult, A as Authority, a as PublicKey, b as OperationName, o as operations } from './hive-CdgAgNEJ.js';
+export { j as AccountCreateOperation, i as AssetSymbol, C as CustomJsonOperation, T as HiveTxTransaction, M as Memo, h as OperationBody, S as Signature, f as callREST, d as callRPC, e as callRPCBroadcast, g as callWithQuorum, c as hiveTxConfig, u as hiveTxUtils } from './hive-CdgAgNEJ.js';
 
 interface AiGenerationPrice {
     aspect_ratio: string;
@@ -988,7 +988,9 @@ declare namespace ConfigManager {
     function setImageHost(host: string): void;
     /**
      * Set Hive RPC nodes, replacing the default list.
-     * Directly updates the unified hive-tx config object.
+     * Delegates to the unified hive-tx `setNodes` (single validated setter,
+     * shared with the lean `@ecency/sdk/hive` entry) so node configuration is
+     * defined in exactly one place.
      * @param nodes - Array of Hive RPC node URLs
      */
     function setHiveNodes(nodes: string[]): void;
