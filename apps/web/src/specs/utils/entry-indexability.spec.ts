@@ -53,6 +53,87 @@ describe("canonicalTarget", () => {
     expect(canonicalTarget(e, BASE)).toBe("https://foo.bar/x");
   });
 
+  // Sitemap mode (3rd arg) — regression for GSC "URL not allowed". The
+  // sitemap NEVER consults the declared canonical: any declared value (inLeo/
+  // PeakD/hive.blog mirror of the same on-chain post, with or without a
+  // category prefix) is ignored and resolution is purely structural, so a
+  // <loc> can only ever be on ecency.com.
+  describe("ignoreDeclaredCanonical (sitemap mode)", () => {
+    it("inLeo declared canonical is ignored -> on-domain self", () => {
+      const e = makeEntry({
+        author: "julie100",
+        permlink: "movie-review-karate-kid--jxy",
+        json_metadata: {
+          canonical_url: "https://inleo.io/@julie100/movie-review-karate-kid--jxy"
+        }
+      });
+      expect(canonicalTarget(e, BASE, true)).toBe(
+        "https://ecency.com/@julie100/movie-review-karate-kid--jxy"
+      );
+    });
+
+    it("PeakD declared canonical WITH category prefix is ignored -> on-domain self", () => {
+      const e = makeEntry({
+        author: "linkievichgabrie",
+        permlink: "fakie-over-crooked-fakie-360-flip-out-skatepark-ezeiza-linkievich",
+        category: "hive-106687",
+        json_metadata: {
+          canonical_url:
+            "https://peakd.com/hive-106687/@linkievichgabrie/fakie-over-crooked-fakie-360-flip-out-skatepark-ezeiza-linkievich"
+        }
+      });
+      expect(canonicalTarget(e, BASE, true)).toBe(
+        "https://ecency.com/@linkievichgabrie/fakie-over-crooked-fakie-360-flip-out-skatepark-ezeiza-linkievich"
+      );
+    });
+
+    it("page path (flag off) still returns the external declared canonical", () => {
+      const e = makeEntry({
+        author: "julie100",
+        permlink: "movie-review-karate-kid--jxy",
+        json_metadata: {
+          canonical_url: "https://inleo.io/@julie100/movie-review-karate-kid--jxy"
+        }
+      });
+      expect(canonicalTarget(e, BASE)).toBe(
+        "https://inleo.io/@julie100/movie-review-karate-kid--jxy"
+      );
+    });
+
+    it("declared canonical is ignored even when same-origin (purely structural)", () => {
+      // Declared points at a *different* ecency path; sitemap must use the
+      // structural self, proving it never reads canonical_url at all.
+      const e = makeEntry({
+        author: "bob",
+        permlink: "hello",
+        json_metadata: { canonical_url: "https://ecency.com/@bob/some-other-post" }
+      });
+      expect(canonicalTarget(e, BASE, true)).toBe("https://ecency.com/@bob/hello");
+    });
+
+    it("off-host declared canonical on a reply -> on-domain root, not external", () => {
+      const e = makeEntry({
+        depth: 1,
+        author: "alice",
+        permlink: "re-x",
+        parent_author: "bob",
+        parent_permlink: "the-post",
+        json_metadata: { canonical_url: "https://peakd.com/@alice/re-x" }
+      });
+      expect(canonicalTarget(e, BASE, true)).toBe("https://ecency.com/@bob/the-post");
+    });
+
+    it("thin container anchor still -> null in sitemap mode (declared ignored)", () => {
+      const e = makeEntry({
+        author: "ecency.waves",
+        permlink: "waves-2026",
+        depth: 0,
+        json_metadata: { canonical_url: "https://inleo.io/@ecency.waves/waves-2026" }
+      });
+      expect(canonicalTarget(e, BASE, true)).toBeNull();
+    });
+  });
+
   it("missing author/permlink -> null", () => {
     expect(canonicalTarget(makeEntry({ permlink: "" }), BASE)).toBeNull();
   });
@@ -205,6 +286,21 @@ describe("isIndexable - structure", () => {
   });
   it("deep wave sub-reply (depth 3) NOT indexable", () => {
     expect(idx(makeEntry({ depth: 3, root_author: "ecency.waves" }))).toBe(false);
+  });
+
+  // Symmetry with the sitemap writer: a depth>=2 reply whose ONLY canonical is
+  // an external declared one (no resolvable on-domain root) is indexable for
+  // the page (flag off) but must be rejected here in sitemap mode (flag on),
+  // so the indexable count can't drift from the emitted posts.xml.
+  it("reply with only an external declared canonical: page-indexable, sitemap-rejected", () => {
+    const e = makeEntry({
+      depth: 2,
+      parent_author: "x",
+      parent_permlink: "y",
+      json_metadata: { canonical_url: "https://inleo.io/@a/b" }
+    });
+    expect(isIndexable(e, null, true)).toBe(true); // page path (flag off)
+    expect(isIndexable(e, null, true, undefined, true)).toBe(false); // sitemap mode
   });
 });
 

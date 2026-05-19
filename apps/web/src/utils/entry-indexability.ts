@@ -138,12 +138,28 @@ const isEffectivelyEmpty = (entry: Entry): boolean =>
  * depth-1 wave isn't resolvable from the entry without tree-walking).
  *
  * Honors an explicit json_metadata.canonical_url first (syndication intent).
+ *
+ * `ignoreDeclaredCanonical` (sitemap-only): the sitemap must NEVER consult the
+ * declared canonical at all — it may list only URLs on its own host, and it is
+ * purely a *discovery* hint (Google decides canonicalization from the page's
+ * rel=canonical, not from sitemap membership). inLeo/PeakD/hive.blog are just
+ * other frontends over the same on-chain post we also render at
+ * `${baseUrl}/@author/permlink`. With this flag set the declared-canonical
+ * branch is skipped entirely, so resolution is purely structural and can only
+ * ever yield `${baseUrl}/…` or null — no third-party URL can reach a sitemap
+ * by any path, now or from future cross-frontend canonical conventions. The
+ * entry *page* still calls this with the flag off, so it keeps emitting
+ * rel=canonical to the declared URL and Google attributes the content itself.
  */
 export function canonicalTarget(
   entry: Entry,
-  baseUrl: string = defaults.base
+  baseUrl: string = defaults.base,
+  ignoreDeclaredCanonical = false
 ): string | null {
-  const declared = entry.json_metadata?.canonical_url;
+  // Sitemap mode never looks at json_metadata.canonical_url — see doc above.
+  const declared = ignoreDeclaredCanonical
+    ? undefined
+    : entry.json_metadata?.canonical_url;
   if (declared) {
     return declared.replace("https://www.", "https://");
   }
@@ -231,7 +247,10 @@ export function isIndexable(
   entry: Entry,
   account: ReputationSource,
   accountFetchFailed: boolean,
-  blacklist: ReadonlySet<string> = EMPTY_BLACKLIST
+  blacklist: ReadonlySet<string> = EMPTY_BLACKLIST,
+  // Forwarded to the internal canonicalTarget so this filter and the sitemap
+  // writer's canonicalTarget(e, BASE, true) never disagree (see below).
+  ignoreDeclaredCanonical = false
 ): boolean {
   // Community anti-abuse consensus (plagiarism/spam). Clear negative, first.
   if (blacklist.has(entry.author)) return false;
@@ -252,6 +271,10 @@ export function isIndexable(
 
   if (depth === 0) return !isEffectivelyEmpty(entry); // normal top-level post
 
-  // normal reply: indexable only if its discussion root is resolvable
-  return canonicalTarget(entry) !== null;
+  // normal reply: indexable only if its discussion root is resolvable. Forward
+  // ignoreDeclaredCanonical so this matches the sitemap writer exactly — else a
+  // depth>=2 reply carrying only an external declared canonical and no
+  // resolvable on-domain root would pass here yet be discarded by the writer's
+  // same-host guard, drifting the indexable count from posts.xml silently.
+  return canonicalTarget(entry, defaults.base, ignoreDeclaredCanonical) !== null;
 }

@@ -284,9 +284,26 @@ export async function POST(req: Request): Promise<Response> {
         const prev = communityLatest.get(comm);
         if (day && (!prev || day > prev)) communityLatest.set(comm, day);
       }
-      if (!isIndexable(e, null, true, blacklist)) continue;
-      const loc = canonicalTarget(e, BASE);
-      if (!loc) continue;
+      // 5th arg = true: keep isIndexable in lockstep with the sitemap-mode
+      // canonicalTarget call below, so the indexable count can't drift from
+      // the emitted posts.xml (a reply with only an off-host declared
+      // canonical and no resolvable on-domain root is rejected here, not
+      // silently dropped by the same-host guard a few lines down).
+      if (!isIndexable(e, null, true, blacklist, true)) continue;
+      // Sitemap mode (3rd arg = true): canonicalTarget NEVER consults the
+      // declared json_metadata.canonical_url here — resolution is purely
+      // structural and can only yield `${BASE}/…` or null. inLeo/PeakD/
+      // hive.blog are just other frontends over the same on-chain post we also
+      // render on ecency.com; the Sitemaps protocol permits only same-host
+      // URLs, and sitemap membership is a discovery hint, NOT a canonical claim
+      // (the entry page still rel-canonicals to the declared URL; Google
+      // decides attribution). This is what fixed GSC's "URL not allowed"
+      // (cross-host <loc> in an ecency.com sitemap) and forecloses any future
+      // 3rdparty.tld/xyz leak by construction.
+      const loc = canonicalTarget(e, BASE, true);
+      // Defensive protocol-boundary guard: even if a future canonicalTarget
+      // edit regressed, no cross-host URL may enter any shard.
+      if (!loc || !loc.startsWith(`${BASE}/`)) continue;
       postUrls.push({ loc, lastmod: (e.updated || e.created || "").slice(0, 10) });
       if (e.author) authors.add(e.author);
     }
