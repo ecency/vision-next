@@ -44,7 +44,7 @@ interface HivesenseSimilarPost {
   children?: number;
   depth?: number;
   stats?: { gray?: boolean; hide?: boolean };
-  json_metadata?: { tags?: string[] };
+  json_metadata?: { tags?: string[]; image?: string[] };
 }
 
 function buildQuery(entry: Entry, retry = 3) {
@@ -92,6 +92,17 @@ function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
     tags.unshift(p.category);
   }
 
+  // Thumbnail: HiveSense has no top-level image; the post image lives in
+  // json_metadata.image (standard Hive shape). Pick the first non-empty
+  // string so the suggestions strip renders a thumbnail instead of the
+  // no-image placeholder. catchPostImage() on the web side proxifies it.
+  const img_url =
+    (Array.isArray(p.json_metadata?.image)
+      ? p.json_metadata!.image.find(
+          (u): u is string => typeof u === "string" && u.length > 0
+        )
+      : undefined) ?? "";
+
   return {
     id: 0,
     title: p.title ?? "",
@@ -101,7 +112,7 @@ function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
     permlink: p.permlink,
     author_rep: 0,
     total_payout: p.payout ?? 0,
-    img_url: "",
+    img_url,
     created_at: p.created ?? "",
     children: p.children ?? 0,
     tags,
@@ -154,7 +165,11 @@ export function getSimilarEntriesQueryOptions(entry: Entry) {
             permlink: entry.permlink,
             result_limit: SIMILAR_ENTRIES_LIMIT,
             full_posts: SIMILAR_ENTRIES_LIMIT,
-            truncate: 200,
+            // The suggestions strip renders title + thumbnail only (body is
+            // never displayed), so don't pay to hydrate body text. We still
+            // need json_metadata (for the thumbnail/tags), which full_posts
+            // hydrates independently of truncate.
+            truncate: 0,
           },
           undefined,
           undefined,
