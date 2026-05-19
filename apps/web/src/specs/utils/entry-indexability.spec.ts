@@ -287,6 +287,21 @@ describe("isIndexable - structure", () => {
   it("deep wave sub-reply (depth 3) NOT indexable", () => {
     expect(idx(makeEntry({ depth: 3, root_author: "ecency.waves" }))).toBe(false);
   });
+
+  // Symmetry with the sitemap writer: a depth>=2 reply whose ONLY canonical is
+  // an external declared one (no resolvable on-domain root) is indexable for
+  // the page (flag off) but must be rejected here in sitemap mode (flag on),
+  // so the indexable count can't drift from the emitted posts.xml.
+  it("reply with only an external declared canonical: page-indexable, sitemap-rejected", () => {
+    const e = makeEntry({
+      depth: 2,
+      parent_author: "x",
+      parent_permlink: "y",
+      json_metadata: { canonical_url: "https://inleo.io/@a/b" }
+    });
+    expect(isIndexable(e, null, true)).toBe(true); // page path (flag off)
+    expect(isIndexable(e, null, true, undefined, true)).toBe(false); // sitemap mode
+  });
 });
 
 describe("wave quality gate (depth-1 under container)", () => {

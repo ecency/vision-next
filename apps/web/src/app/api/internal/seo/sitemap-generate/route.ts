@@ -284,7 +284,12 @@ export async function POST(req: Request): Promise<Response> {
         const prev = communityLatest.get(comm);
         if (day && (!prev || day > prev)) communityLatest.set(comm, day);
       }
-      if (!isIndexable(e, null, true, blacklist)) continue;
+      // 5th arg = true: keep isIndexable in lockstep with the sitemap-mode
+      // canonicalTarget call below, so the indexable count can't drift from
+      // the emitted posts.xml (a reply with only an off-host declared
+      // canonical and no resolvable on-domain root is rejected here, not
+      // silently dropped by the same-host guard a few lines down).
+      if (!isIndexable(e, null, true, blacklist, true)) continue;
       // Sitemap mode (3rd arg = true): canonicalTarget NEVER consults the
       // declared json_metadata.canonical_url here — resolution is purely
       // structural and can only yield `${BASE}/…` or null. inLeo/PeakD/

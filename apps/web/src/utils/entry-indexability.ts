@@ -247,7 +247,10 @@ export function isIndexable(
   entry: Entry,
   account: ReputationSource,
   accountFetchFailed: boolean,
-  blacklist: ReadonlySet<string> = EMPTY_BLACKLIST
+  blacklist: ReadonlySet<string> = EMPTY_BLACKLIST,
+  // Forwarded to the internal canonicalTarget so this filter and the sitemap
+  // writer's canonicalTarget(e, BASE, true) never disagree (see below).
+  ignoreDeclaredCanonical = false
 ): boolean {
   // Community anti-abuse consensus (plagiarism/spam). Clear negative, first.
   if (blacklist.has(entry.author)) return false;
@@ -268,6 +271,10 @@ export function isIndexable(
 
   if (depth === 0) return !isEffectivelyEmpty(entry); // normal top-level post
 
-  // normal reply: indexable only if its discussion root is resolvable
-  return canonicalTarget(entry) !== null;
+  // normal reply: indexable only if its discussion root is resolvable. Forward
+  // ignoreDeclaredCanonical so this matches the sitemap writer exactly — else a
+  // depth>=2 reply carrying only an external declared canonical and no
+  // resolvable on-domain root would pass here yet be discarded by the writer's
+  // same-host guard, drifting the indexable count from posts.xml silently.
+  return canonicalTarget(entry, defaults.base, ignoreDeclaredCanonical) !== null;
 }
