@@ -138,12 +138,28 @@ const isEffectivelyEmpty = (entry: Entry): boolean =>
  * depth-1 wave isn't resolvable from the entry without tree-walking).
  *
  * Honors an explicit json_metadata.canonical_url first (syndication intent).
+ *
+ * `ignoreDeclaredCanonical` (sitemap-only): the sitemap must NEVER consult the
+ * declared canonical at all — it may list only URLs on its own host, and it is
+ * purely a *discovery* hint (Google decides canonicalization from the page's
+ * rel=canonical, not from sitemap membership). inLeo/PeakD/hive.blog are just
+ * other frontends over the same on-chain post we also render at
+ * `${baseUrl}/@author/permlink`. With this flag set the declared-canonical
+ * branch is skipped entirely, so resolution is purely structural and can only
+ * ever yield `${baseUrl}/…` or null — no third-party URL can reach a sitemap
+ * by any path, now or from future cross-frontend canonical conventions. The
+ * entry *page* still calls this with the flag off, so it keeps emitting
+ * rel=canonical to the declared URL and Google attributes the content itself.
  */
 export function canonicalTarget(
   entry: Entry,
-  baseUrl: string = defaults.base
+  baseUrl: string = defaults.base,
+  ignoreDeclaredCanonical = false
 ): string | null {
-  const declared = entry.json_metadata?.canonical_url;
+  // Sitemap mode never looks at json_metadata.canonical_url — see doc above.
+  const declared = ignoreDeclaredCanonical
+    ? undefined
+    : entry.json_metadata?.canonical_url;
   if (declared) {
     return declared.replace("https://www.", "https://");
   }
