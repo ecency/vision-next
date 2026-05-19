@@ -17,11 +17,23 @@ interface Props {
 }
 
 export function SimilarEntries({ entry }: Props) {
-    const { data: entriesRaw } = useQuery(getSimilarEntriesQueryOptions(entry));
+    // The SDK query only reads author/permlink/json_metadata.tags — pass a
+    // minimal typed projection so the web Entry (JsonMetadata | null) lines
+    // up with the SDK's narrower { tags?: string[] } parameter.
+    const { data: entriesRaw } = useQuery(
+        getSimilarEntriesQueryOptions({
+            author: entry.author,
+            permlink: entry.permlink,
+            json_metadata: { tags: entry.json_metadata?.tags }
+        })
+    );
 
-    // ✅ normalize to SearchResult[]
+    // The query yields the SDK's SearchResult — a narrower, nominally-distinct
+    // sibling of @/entities SearchResult (the SDK/web type split is
+    // deliberately deferred, not homogenised here). The runtime object carries
+    // every field this strip renders, so bridge the two via `unknown`.
     const entries: SearchResult[] = Array.isArray(entriesRaw)
-        ? (entriesRaw as SearchResult[])
+        ? (entriesRaw as unknown as SearchResult[])
         : [];
 
     // Render whatever survived the merge/dedup (capped at 3 by the SDK).
