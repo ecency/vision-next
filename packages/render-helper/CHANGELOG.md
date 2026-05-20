@@ -1,5 +1,11 @@
 # @ecency/render-helper
 
+## 2.5.6
+
+### Patch Changes
+
+- security: close 115 of 136 open CodeQL alerts on develop (#813)
+
 ## 2.5.5
 
 ### Patch Changes
