@@ -86,10 +86,10 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
       return null;
     }
 
-    // Chrome 112 botnet traffic - undefined document access from synthetic handler
+    // Chrome botnet traffic - null/undefined document access from synthetic handler
     if (
-      message.includes(
-        "Cannot read properties of undefined (reading 'document')"
+      /Cannot read properties of (null|undefined) \(reading 'document'\)/.test(
+        message
       ) &&
       stackStr.includes("HTMLDocument.c")
     ) {
