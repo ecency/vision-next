@@ -237,7 +237,10 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
   // returns the pinned IP for every connect attempt this dispatcher makes.
   const dispatcher = new Agent({
     connect: {
-      lookup: (_hostname: string, _options: unknown, callback: LookupCallback) => {
+      // Undici passes a ConnectOptions object (port, servername, timeout)
+      // here; we don't need any of it but typing as Record<string, unknown>
+      // documents what's available rather than erasing the parameter shape.
+      lookup: (_hostname: string, _options: Record<string, unknown>, callback: LookupCallback) => {
         callback(null, ip, family);
       }
     }
@@ -266,6 +269,11 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
         throw new Error("FETCH_FAILED");
       }
       const redirectUrl = new URL(location, url).toString();
+      // Drop the redirect response body before recursing — otherwise the
+      // socket stays open against the current dispatcher until finally{}
+      // fires, which on a server that streams a long redirect body could
+      // hold the connection for the full recursive chain.
+      await response.body?.cancel();
       return await fetchPage(redirectUrl, redirectCount + 1);
     }
 
