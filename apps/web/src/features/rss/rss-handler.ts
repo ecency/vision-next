@@ -39,17 +39,20 @@ export abstract class RssHandler<T> {
 // Hive RPC and upstream HTTP layers regularly emit transient connection
 // errors when crawlers fan out across many feed paths. They aren't bugs
 // in our code, but capturing them drowns out real issues in Sentry.
-function isTransientUpstreamError(e: unknown): boolean {
+export function isTransientUpstreamError(e: unknown): boolean {
   if (!e || typeof e !== "object") return false;
   const err = e as { name?: string; code?: string; message?: string };
+  // undici / Node net layer
   if (err.code === "ECONNRESET" || err.code === "ETIMEDOUT" || err.code === "UND_ERR_SOCKET")
     return true;
+  // AbortController- and Node fetch-timeout-induced errors. Also catches
+  // the `Error: aborted` message undici raises on ECONNRESET, since that
+  // error carries `name: "AbortError"`.
   if (err.name === "AbortError" || err.name === "TimeoutError") return true;
   const msg = String(err.message ?? "");
   return (
     /Unable to parse endpoint data/i.test(msg) ||
-    /HTTP 50[234]/.test(msg) ||
-    /fetch failed/i.test(msg) ||
-    /aborted/i.test(msg)
+    /HTTP 5\d\d/.test(msg) ||
+    /fetch failed/i.test(msg)
   );
 }

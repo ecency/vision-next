@@ -61,9 +61,23 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
       const crumbs = event.breadcrumbs ?? [];
       for (let i = crumbs.length - 1; i >= 0; i--) {
         const c = crumbs[i];
-        const url = (c.data as { url?: string } | undefined)?.url;
-        if ((c.category === "fetch" || c.category === "xhr") && typeof url === "string") {
-          event.tags = { ...event.tags, timeoutUrl: url.slice(0, 200) };
+        const rawUrl = (c.data as { url?: string } | undefined)?.url;
+        if (
+          (c.category === "fetch" || c.category === "xhr") &&
+          typeof rawUrl === "string"
+        ) {
+          // Strip query/hash before tagging — request URLs can carry
+          // tokens or identifiers we don't want as searchable telemetry.
+          let safeUrl: string;
+          try {
+            const parsed = new URL(rawUrl, window.location.origin);
+            safeUrl = `${parsed.origin}${parsed.pathname}`;
+          } catch {
+            safeUrl = rawUrl.split(/[?#]/)[0] ?? "";
+          }
+          if (safeUrl) {
+            event.tags = { ...event.tags, timeoutUrl: safeUrl.slice(0, 200) };
+          }
           break;
         }
       }
