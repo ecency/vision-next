@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.18
+
+### Patch Changes
+
+- Memo encryption + similar-entries thumbnail/body fix (#805)
+
 ## 2.2.17
 
 ### Patch Changes
