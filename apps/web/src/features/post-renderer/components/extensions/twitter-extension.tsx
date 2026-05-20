@@ -30,7 +30,10 @@ export function TwitterExtension({
             const u = new URL(href);
             return (
               u.protocol === "https:" &&
-              (u.hostname === "x.com" || u.hostname === "twitter.com")
+              (u.hostname === "x.com" ||
+                u.hostname === "twitter.com" ||
+                u.hostname === "www.x.com" ||
+                u.hostname === "www.twitter.com")
             );
           } catch {
             return false;

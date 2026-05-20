@@ -24,6 +24,11 @@ export function getPurePostText(text: string) {
     text = text.replace(/<[^>]+>/g, "");
     text = text.replace(/<!--[\s\S]*?-->/g, "");
   } while (text !== prev);
+  // Strip any residual `<` or `>` left over from unclosed/truncated tags
+  // (e.g. an input ending mid-tag like `…<script`) so the output can't
+  // contain `<script` or `<!--` substrings that downstream consumers
+  // might misinterpret.
+  text = text.replace(/[<>]/g, "");
 
   // Remove URLs (http:// or https://)
   text = text.replace(/https?:\/\/[^\s/$.?#].[^\s]*/g, "");

@@ -670,8 +670,10 @@ function a(el, forApp, parentDomain = "ecency.com", seoContext, renderOptions) {
   if (className && (["markdown-author-link", "markdown-tag-link"].includes(className) || className.includes("er-author") || className.includes("er-tag"))) {
     return;
   }
-  const trimmed = href.trim().replace(/[\t\n\r]/g, "").toLowerCase();
-  if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
+  const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, "").toLowerCase();
+  const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed);
+  const isRelative = /^(\/\/|\/[^/]|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed);
+  if (!isSafeScheme && !isRelative) {
     el.removeAttribute("href");
     return;
   }

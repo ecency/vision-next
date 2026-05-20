@@ -120,13 +120,16 @@ export function PublishValidatePost({ onClose, onSuccess }: Props) {
     // Only generate description if it's empty or 1-char garbage
     if (!metaDescription || metaDescription.trim().length <= 1) {
       // Loop strip until idempotent so adversarial `<scr<script>ipt>` payloads
-      // can't leak through to the meta description (head-tag rendering context).
+      // can't leak through to the meta description (head-tag rendering context),
+      // then strip residual `<`/`>` from unclosed/truncated tags so substrings
+      // like `<script` (no closing `>`) can't survive into the meta tag.
       let stripped = content;
       let prev: string;
       do {
         prev = stripped;
         stripped = stripped.replace(/<[^>]+>/g, "");
       } while (stripped !== prev);
+      stripped = stripped.replace(/[<>]/g, "");
 
       const plainText = stripped.replace(/\s+/g, " ").trim();
       const description = plainText.slice(0, 160);

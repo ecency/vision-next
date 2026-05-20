@@ -153,13 +153,16 @@ export function a(el: HTMLElement | null, forApp: boolean, parentDomain: string 
     return
   }
 
-  // Block dangerous URL schemes (javascript:, data:, vbscript:, file:) —
-  // anything that isn't a safe scheme like http(s):/mailto:/hive:/web+ext:
-  // gets its href stripped. Case-insensitive, leading-whitespace tolerant
-  // (browsers ignore leading/trailing whitespace and tab/newline characters
-  // inside the scheme).
-  const trimmed = href.trim().replace(/[\t\n\r]/g, '').toLowerCase()
-  if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
+  // Positive scheme whitelist. Anything that isn't http(s)/mailto/hive/
+  // tel/web+ext or a same-document/relative reference is stripped — this
+  // rejects javascript:, data:, vbscript:, file: and also less-common
+  // exploit vectors like ms-its:, mk:, res:, intent:. Case-insensitive
+  // and tolerant of whitespace/control chars browsers ignore inside the
+  // scheme (\t \n \r \f \v \0).
+  const trimmed = href.trim().replace(/[\t\n\r\f\v\0]/g, '').toLowerCase()
+  const isSafeScheme = /^(https?|mailto|hive|tel|web\+[a-z0-9.+-]+):/i.test(trimmed)
+  const isRelative = /^(\/\/|\/[^/]|#|\?|[a-z0-9._\-]+(\/|$))/i.test(trimmed)
+  if (!isSafeScheme && !isRelative) {
     el.removeAttribute('href')
     return
   }

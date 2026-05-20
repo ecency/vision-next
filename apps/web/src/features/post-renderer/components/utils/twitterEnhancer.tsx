@@ -20,7 +20,12 @@ export function applyTwitterEmbeds(
             // Hostname-based check, not substring — startsWith("https://twitter.com")
             // also matches https://twitter.com.evil.com.
             if (url.protocol !== "https:") return false;
-            if (url.hostname !== "x.com" && url.hostname !== "twitter.com") return false;
+            if (
+              url.hostname !== "x.com" &&
+              url.hostname !== "twitter.com" &&
+              url.hostname !== "www.x.com" &&
+              url.hostname !== "www.twitter.com"
+            ) return false;
             const parts = url.pathname.split("/").filter(Boolean);
             // Must look like /{username}/status/{tweetId}[/*]
             return (
