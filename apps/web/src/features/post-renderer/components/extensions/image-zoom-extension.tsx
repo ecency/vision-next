@@ -1,6 +1,6 @@
 "use client";
 
-import mediumZoom, { Zoom } from "medium-zoom";
+import type { Zoom } from "medium-zoom";
 import React, { RefObject, useEffect, useRef } from "react";
 
 export function ImageZoomExtension({
@@ -12,6 +12,7 @@ export function ImageZoomExtension({
 
   useEffect(() => {
     let isMounted = true; // Track mount state to prevent post-unmount zoom attachment
+    let rafId = 0;
 
     const elements = Array.from(
         containerRef.current?.querySelectorAll<HTMLElement>(
@@ -128,7 +129,7 @@ export function ImageZoomExtension({
           });
         });
 
-        Promise.all(imageLoadPromises).then(() => {
+        Promise.all(imageLoadPromises).then(async () => {
           // Bail if component unmounted while waiting for images
           if (!isMounted) {
             return;
@@ -143,20 +144,57 @@ export function ImageZoomExtension({
             }
           });
 
-          if (connectedImages.length > 0) {
-            // Small delay to ensure layout is stable after image load
-            requestAnimationFrame(() => {
-              // Final check before creating zoom instance
-              if (!isMounted) {
-                return;
-              }
+          if (connectedImages.length === 0) {
+            return;
+          }
 
-              zoomRef.current = mediumZoom(connectedImages, {
+          // Dynamic-import medium-zoom so its bundle is split out of any
+          // SSR-critical client chunk that pulls EcencyRenderer in.
+          let mediumZoom: typeof import("medium-zoom").default;
+          try {
+            ({ default: mediumZoom } = await import("medium-zoom"));
+          } catch (error) {
+            console.warn("Failed to load medium-zoom:", error);
+            return;
+          }
+
+          if (!isMounted) {
+            return;
+          }
+
+          // Small delay to ensure layout is stable after image load
+          rafId = requestAnimationFrame(() => {
+            rafId = 0;
+            // Final check before creating zoom instance
+            if (!isMounted) {
+              return;
+            }
+
+            // Re-filter after the dynamic-import gap — the parent can re-render
+            // (EcencyRenderer uses dangerouslySetInnerHTML) and disconnect these
+            // nodes while isMounted stays true. medium-zoom walks parentNode on
+            // every input, so a stale snapshot would throw or attach partially.
+            const stillConnected = connectedImages.filter((img) => {
+              try {
+                return img.isConnected && img.parentNode !== null;
+              } catch {
+                return false;
+              }
+            });
+
+            if (stillConnected.length === 0) {
+              return;
+            }
+
+            try {
+              zoomRef.current = mediumZoom(stillConnected, {
                 background: "#131111",
                 margin: 24, // Add margin for better centering
               });
-            });
-          }
+            } catch (error) {
+              console.warn("Failed to initialize medium-zoom:", error);
+            }
+          });
         }).catch((error) => {
           console.warn("Failed to wait for images to load:", error);
         });
@@ -168,6 +206,10 @@ export function ImageZoomExtension({
 
     return () => {
       isMounted = false; // Mark as unmounted to prevent async operations
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       zoomRef.current?.detach();
     };
   }, [containerRef]);

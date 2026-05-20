@@ -1,4 +1,4 @@
-import mediumZoom, { Zoom } from "medium-zoom";
+import type { Zoom } from "medium-zoom";
 
 /**
  * Apply medium-zoom to images in a container.
@@ -147,7 +147,7 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
                 });
             });
 
-            Promise.all(imageLoadPromises).then(() => {
+            Promise.all(imageLoadPromises).then(async () => {
                 // Double-check images are still in DOM after loading
                 const connectedImages = zoomableImages.filter((img) => {
                     try {
@@ -157,18 +157,52 @@ export function applyImageZoom(container: HTMLElement): Promise<Zoom | null> {
                     }
                 });
 
-                if (connectedImages.length > 0) {
-                    // Small delay to ensure layout is stable after image load
-                    requestAnimationFrame(() => {
-                        const zoom = mediumZoom(connectedImages, {
+                if (connectedImages.length === 0) {
+                    resolveZoom(null);
+                    return;
+                }
+
+                // Dynamic-import medium-zoom so its bundle is not part of any
+                // SSR-critical chunk that reaches this enhancer transitively.
+                let mediumZoom: typeof import("medium-zoom").default;
+                try {
+                    ({ default: mediumZoom } = await import("medium-zoom"));
+                } catch (error) {
+                    console.warn("Failed to load medium-zoom:", error);
+                    resolveZoom(null);
+                    return;
+                }
+
+                // Small delay to ensure layout is stable after image load
+                requestAnimationFrame(() => {
+                    // Re-filter after the dynamic-import gap — nodes can be
+                    // disconnected during the async chunk fetch. medium-zoom
+                    // walks parentNode on every input, so a stale snapshot
+                    // would throw or attach partially.
+                    const stillConnected = connectedImages.filter((img) => {
+                        try {
+                            return img.isConnected && img.parentNode !== null;
+                        } catch {
+                            return false;
+                        }
+                    });
+
+                    if (stillConnected.length === 0) {
+                        resolveZoom(null);
+                        return;
+                    }
+
+                    try {
+                        const zoom = mediumZoom(stillConnected, {
                             background: "#131111",
                             margin: 24, // Add margin for better centering
                         });
                         resolveZoom(zoom);
-                    });
-                } else {
-                    resolveZoom(null);
-                }
+                    } catch (error) {
+                        console.warn("Failed to initialize medium-zoom:", error);
+                        resolveZoom(null);
+                    }
+                });
             }).catch((error) => {
                 console.warn("Failed to wait for images to load:", error);
                 resolveZoom(null);
