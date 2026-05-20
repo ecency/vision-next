@@ -32,15 +32,24 @@ import i18next from "i18next";
 import numeral from "numeral";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+function secureRandomInt(maxExclusive: number): number {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return buf[0] % maxExclusive;
+}
+
 function generateUsername(type: CommunityTypes) {
+  // The numeric suffix is just a display candidate (the user can edit
+  // before creating the account), but the value flows into URLs/avatars
+  // so we source it from a CSPRNG to keep CodeQL's taint analysis clean.
   switch (type) {
     case CommunityTypes.Council:
-      return `hive-${Math.floor(Math.random() * 100000) + 300000}`;
+      return `hive-${secureRandomInt(100000) + 300000}`;
     case CommunityTypes.Journal:
-      return `hive-${Math.floor(Math.random() * 100000) + 200000}`;
+      return `hive-${secureRandomInt(100000) + 200000}`;
     case CommunityTypes.Topic:
     default:
-      return `hive-${Math.floor(Math.random() * 100000) + 100000}`;
+      return `hive-${secureRandomInt(100000) + 100000}`;
   }
 }
 

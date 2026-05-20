@@ -267,14 +267,34 @@ async function fetchPage(url: string, redirectCount = 0): Promise<string> {
  * Many sites (Medium, Substack, etc.) use data-src, srcset, or
  * <noscript> wrappers instead of plain <img src>.
  */
+// Only http(s) and protocol-/path-relative URLs are accepted as image
+// src values. Blocks javascript:/data:/vbscript: schemes that could
+// otherwise be smuggled through lazy-load attributes on adversarial pages.
+const SAFE_IMG_SRC_RE = /^(https?:\/\/|\/\/|\/[^/])/i;
+
+// Defense-in-depth strip used before innerHTML assignment from external
+// HTML. JSDOM with default options already doesn't execute scripts, but
+// pre-stripping script/style/iframe/event-handlers means the recovered
+// markup never sees a sink that could be revisited by a different parser.
+function stripActiveContent(html: string): string {
+  return html
+    .replace(/<script\b[\s\S]*?(<\/script\s*>|$)/gi, "")
+    .replace(/<style\b[\s\S]*?(<\/style\s*>|$)/gi, "")
+    .replace(/<iframe\b[\s\S]*?(<\/iframe\s*>|$)/gi, "")
+    .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "");
+}
+
 function fixLazyImages(document: Document) {
   // 1. Unwrap <noscript> images — many sites hide the real <img> inside <noscript>
   for (const noscript of Array.from(document.querySelectorAll("noscript"))) {
     const content = noscript.textContent || "";
     if (/<img\s/i.test(content)) {
       const wrapper = document.createElement("div");
-      // Safe: server-side JSDOM with no script execution — recovers real <img> from noscript blocks
-      wrapper.innerHTML = content;
+      // JSDOM here runs without scripts (no `runScripts` option set in
+      // fetchExternalArticle) so innerHTML can't execute; we additionally
+      // strip script/style/iframe/event-handler attributes as defense in
+      // depth before assignment.
+      wrapper.innerHTML = stripActiveContent(content);
       noscript.parentNode?.replaceChild(wrapper, noscript);
     }
   }
@@ -286,7 +306,11 @@ function fixLazyImages(document: Document) {
       img.getAttribute("data-original") ||
       img.getAttribute("data-lazy-src");
 
-    if (lazySrc && (!img.getAttribute("src") || img.getAttribute("src")?.startsWith("data:"))) {
+    if (
+      lazySrc &&
+      SAFE_IMG_SRC_RE.test(lazySrc) &&
+      (!img.getAttribute("src") || img.getAttribute("src")?.startsWith("data:"))
+    ) {
       img.setAttribute("src", lazySrc);
     }
 
@@ -301,7 +325,7 @@ function fixLazyImages(document: Document) {
           const widthB = parseInt(b[1] || "0");
           return widthB - widthA;
         })[0];
-      if (best?.[0]) {
+      if (best?.[0] && SAFE_IMG_SRC_RE.test(best[0])) {
         img.setAttribute("src", best[0]);
       }
     }
