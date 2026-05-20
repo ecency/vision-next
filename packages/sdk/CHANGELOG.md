@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.19
+
+### Patch Changes
+
+- fix(sdk): widen hive-tx retry budget and deprioritise deathwing in public-nodes (#812)
+
 ## 2.2.18
 
 ### Patch Changes
