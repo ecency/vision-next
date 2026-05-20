@@ -77,7 +77,7 @@ export async function decryptMemo(
 
   if (loginType === "hivesigner") {
     const result = await getDecodedMemo(username, encryptedMemo);
-    if (result && result.result) {
+    if (result && result.result != null) {
       return result.result;
     }
     throw new Error("HiveSigner memo decode failed");
@@ -89,7 +89,12 @@ export async function decryptMemo(
     throw new Error("Memo key not provided");
   }
 
-  return Memo.decode(PrivateKey.fromString(memoKey), encryptedMemo);
+  // hive-tx's Memo.decode re-prefixes the decrypted result with "#"
+  // (`return '#' + readVString()`). Strip it here so all decryptMemo paths
+  // (Keychain / HiveSigner / key) return clean plaintext, and the UI can
+  // render it verbatim without an extra "#".
+  const decoded = Memo.decode(PrivateKey.fromString(memoKey), encryptedMemo);
+  return decoded.startsWith("#") ? decoded.slice(1) : decoded;
 }
 
 function keychainEncode(

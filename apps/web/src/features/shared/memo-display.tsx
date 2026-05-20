@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@ui/button";
 import i18next from "i18next";
 import { useActiveAccount } from "@/core/hooks/use-active-account";
@@ -13,23 +13,31 @@ interface Props {
 }
 
 /**
- * Heuristic to detect if a #-prefixed memo is actually encrypted.
+ * Heuristic to detect if a `#`-prefixed memo is actually encrypted.
  *
- * Encrypted memos on Hive are `#` followed by a long base58-encoded string
- * (typically 150+ chars, no spaces, no punctuation outside base58 alphabet).
- * Plain text memos starting with `#` will have spaces and regular text.
+ * Encrypted memos on Hive are `#` followed by a base58-encoded ciphertext
+ * (typically 150+ chars). Validate the base58 alphabet directly rather than
+ * using a length/whitespace proxy so long plain `#`-prefixed hashtags don't
+ * get an offered (and guaranteed-to-fail) Decrypt button.
  */
+const BASE58_RE = /^[1-9A-HJ-NP-Za-km-z]+$/;
 function isLikelyEncryptedMemo(memo: string): boolean {
   if (!memo.startsWith("#")) return false;
   const content = memo.slice(1);
-  // Encrypted memos are long base58 strings with no whitespace
-  return content.length > 50 && !/\s/.test(content);
+  return content.length > 50 && BASE58_RE.test(content);
 }
 
 export function MemoDisplay({ memo }: Props) {
   const { activeUser } = useActiveAccount();
   const [decryptedText, setDecryptedText] = useState<string | null>(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
+
+  // Reset decrypted state when the memo prop changes so plaintext from a
+  // previous memo doesn't leak into a new row's render.
+  useEffect(() => {
+    setDecryptedText(null);
+    setIsDecrypting(false);
+  }, [memo]);
 
   const encrypted = isLikelyEncryptedMemo(memo);
 

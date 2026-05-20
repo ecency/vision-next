@@ -87,14 +87,31 @@ export function useSignTransfer(mode: TransferMode, asset: TransferAsset) {
   return {
     isPending,
     mutateAsync: async ({ to, amount, memo, asset: overrideAsset }: SignTransferPayload) => {
-      // Encrypt memo if it starts with #
+      const effectiveAsset = overrideAsset ?? asset;
+
+      // Only encrypt for flows that actually carry a memo on-chain. SPK/LARYNX
+      // transfers and convert/power-up/power-down/delegate don't, so skip the
+      // (interactive) encryption step there — otherwise users would be
+      // prompted for a memo key for nothing.
+      const memoSupported =
+        mode === "transfer-saving" ||
+        mode === "withdraw-saving" ||
+        mode === "claim-interest" ||
+        (mode === "transfer" &&
+          effectiveAsset !== "SPK" &&
+          effectiveAsset !== "LARYNX");
+
       let processedMemo = memo;
-      if (memo.startsWith("#") && to) {
-        const loginType = getLoginType(activeUser?.username ?? "");
-        processedMemo = await encryptMemo(loginType, activeUser!.username, to, memo.slice(1));
+      if (memoSupported && memo.startsWith("#") && to && activeUser) {
+        const loginType = getLoginType(activeUser.username);
+        processedMemo = await encryptMemo(
+          loginType,
+          activeUser.username,
+          to,
+          memo.slice(1)
+        );
       }
 
-      const effectiveAsset = overrideAsset ?? asset;
       const fullAmount = `${(+amount).toFixed(3)} ${effectiveAsset}`;
       const requestId = Date.now() >>> 0;
 

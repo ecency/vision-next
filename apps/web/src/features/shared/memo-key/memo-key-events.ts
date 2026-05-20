@@ -7,26 +7,47 @@
  * Pattern follows the auth-upgrade system (CustomEvent-based imperative UI).
  */
 
+// Safety net: if no MemoKeyDialog is mounted to handle the request, or the
+// user simply walks away, resolve with `false` instead of leaving the
+// returned Promise pending forever.
+const MEMO_KEY_REQUEST_TIMEOUT_MS = 5 * 60 * 1000;
+
 let pendingResolve: ((key: string | false) => void) | null = null;
+let pendingRequestTimeout: ReturnType<typeof setTimeout> | null = null;
 let tempMemoKey: string | null = null;
 let tempKeyTimeout: ReturnType<typeof setTimeout> | null = null;
 
+function clearPendingRequest() {
+  if (pendingRequestTimeout) {
+    clearTimeout(pendingRequestTimeout);
+    pendingRequestTimeout = null;
+  }
+  pendingResolve = null;
+}
+
 /**
  * Show the memo key dialog and wait for user input.
- * Returns the memo private key (WIF) or false if the user cancels.
+ * Returns the memo private key (WIF) or false if the user cancels or the
+ * dialog never resolves within MEMO_KEY_REQUEST_TIMEOUT_MS.
  */
 export function requestMemoKey(
   purpose: "encrypt" | "decrypt"
 ): Promise<string | false> {
   if (pendingResolve) {
     pendingResolve(false);
-    pendingResolve = null;
   }
-
+  clearPendingRequest();
   clearTempMemoKey();
 
   return new Promise((resolve) => {
     pendingResolve = resolve;
+    pendingRequestTimeout = setTimeout(() => {
+      if (pendingResolve === resolve) {
+        clearPendingRequest();
+        clearTempMemoKey();
+        resolve(false);
+      }
+    }, MEMO_KEY_REQUEST_TIMEOUT_MS);
     window.dispatchEvent(
       new CustomEvent("ecency-memo-key", {
         detail: { purpose }
@@ -44,8 +65,9 @@ export function resolveMemoKey(key: string | false) {
     if (tempKeyTimeout) clearTimeout(tempKeyTimeout);
     tempKeyTimeout = setTimeout(clearTempMemoKey, 60_000);
   }
-  pendingResolve?.(key);
-  pendingResolve = null;
+  const resolve = pendingResolve;
+  clearPendingRequest();
+  resolve?.(key);
 }
 
 /**

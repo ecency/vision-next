@@ -96,7 +96,7 @@ function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
   // json_metadata.image (standard Hive shape). Pick the first non-empty
   // string so the suggestions strip renders a thumbnail instead of the
   // no-image placeholder. catchPostImage() on the web side proxifies it.
-  const img_url =
+  const imgUrl =
     (Array.isArray(p.json_metadata?.image)
       ? p.json_metadata!.image.find(
           (u): u is string => typeof u === "string" && u.length > 0
@@ -112,7 +112,7 @@ function mapHivesensePost(p: HivesenseSimilarPost): SearchResult {
     permlink: p.permlink,
     author_rep: 0,
     total_payout: p.payout ?? 0,
-    img_url,
+    img_url: imgUrl,
     created_at: p.created ?? "",
     children: p.children ?? 0,
     tags,

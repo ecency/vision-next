@@ -72,7 +72,7 @@ export function TransferStep2({ titleLngKey }: Props) {
             <div className="memo">
               {memo.startsWith("#") && (
                 <span className="text-xs text-gray-500 block mb-1">
-                  🔒 {i18next.t("transfer.memo-encrypted-label")}
+                  🔒 {i18next.t("transfer.memo-encrypted")}
                 </span>
               )}
               {memo}
