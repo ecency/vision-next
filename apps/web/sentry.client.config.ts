@@ -34,9 +34,6 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
     "Cannot set property ethereum of #<Window> which has only a getter",
     "window.ethereum._handleChainChanged is not a function",
     "Cannot destructure property 'register' of 'undefined' as it is undefined.",
-    "null is not an object (evaluating 'a.parentNode')",
-    "null is not an object (evaluating 'b.parentNode')",
-    "null is not an object (evaluating 'c.parentNode')",
     "CopyDataProperties is not a function"
   ],
   denyUrls: [
@@ -53,10 +50,14 @@ const SENTRY_CONFIG: Sentry.BrowserOptions = {
 
     // React SSR streaming hydration issue triggered by browser extensions
     // ($RS is React's internal resumable script marker)
-    if (
-      message.includes("Cannot read properties of null (reading 'parentNode')") &&
-      stackStr.includes("$RS")
-    ) {
+    // Covers Chrome ("Cannot read properties of null (reading 'parentNode')"),
+    // Firefox ("can't access property \"parentNode\", a is null"), and
+    // Safari ("null is not an object (evaluating 'a.parentNode')") phrasings.
+    const isParentNodeNull =
+      message.includes("reading 'parentNode'") ||
+      message.includes('"parentNode"') ||
+      /null is not an object \(evaluating '[a-z]\.parentNode'\)/.test(message);
+    if (isParentNodeNull && stackStr.includes("$RS")) {
       return null;
     }
 
